@@ -1,0 +1,40 @@
+-- null values table
+
+CREATE TABLE RAS_NULLVALUEPAIRS (
+    NullValueOId INTEGER NOT NULL,
+    Count INTEGER NOT NULL,
+    Low REAL, -- NULL = nan
+    High REAL,
+    PRIMARY KEY (NullValueOId, Count)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUEPAIRS_IX
+    ON RAS_NULLVALUEPAIRS ( NullValueOId, Count );
+
+-- Copy data from RAS_DOMAINVALUES to RAS_NULLVALUEPAIRS
+-- NULLs are converted to minimum/maximum double values
+INSERT INTO RAS_NULLVALUEPAIRS( NullValueOId, Count, Low, High )
+    SELECT d.DomainId AS NullValueOId, d.DimensionCount AS Count,
+           CASE WHEN d.Low IS NULL THEN -1.79769e+308 ELSE d.Low END,
+           CASE WHEN d.High IS NULL THEN 1.79769e+308 ELSE d.High END
+    FROM RAS_DOMAINVALUES AS d, RAS_NULLVALUES AS n
+    WHERE d.DomainId = n.NullValueOId;
+
+-- Delete obsolete data from RAS_DOMAINVALUES and RAS_DOMAINS
+DELETE FROM RAS_DOMAINVALUES
+WHERE DomainId IN ( SELECT NullValueOId FROM RAS_NULLVALUES );
+DELETE FROM RAS_DOMAINS
+WHERE DomainId IN ( SELECT NullValueOId FROM RAS_NULLVALUES );
+
+-- Insert new counter
+CREATE UNIQUE INDEX IF NOT EXISTS RAS_COUNTERS_IX
+    ON RAS_COUNTERS ( countername );
+
+INSERT INTO RAS_COUNTERS ( NextValue, CounterName )
+    SELECT 1, 'FILETILEOID'
+    WHERE NOT EXISTS ( SELECT 1 FROM RAS_COUNTERS
+                       WHERE CounterName = 'FILETILEOID' );
+INSERT INTO RAS_COUNTERS ( NextValue, CounterName )
+    SELECT COALESCE(MAX(NullValueOId) + 1, 1), 'DBNULLVALUESOID'
+    FROM RAS_NULLVALUES
+    WHERE NOT EXISTS ( SELECT 1 FROM RAS_COUNTERS
+                       WHERE CounterName = 'DBNULLVALUESOID' );

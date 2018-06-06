@@ -33,7 +33,7 @@ rasdaman GmbH.
 #ifndef _NULLVALUESHANDLER_HH_
 #define _NULLVALUESHANDLER_HH_
 
-#include "raslib/minterval.hh"
+#include "raslib/nullvalues.hh"
 #include "raslib/odmgtypes.hh"
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -48,7 +48,7 @@ class NullValuesHandler
 public:
     NullValuesHandler();
 
-    NullValuesHandler(r_Minterval* nullValues);
+    NullValuesHandler(r_Nullvalues* nullValues);
 
     virtual ~NullValuesHandler();
 
@@ -56,13 +56,13 @@ public:
     void cloneNullValues(const NullValuesHandler* obj);
 
     /// get null values
-    r_Minterval* getNullValues() const;
+    r_Nullvalues* getNullValues() const;
     
     /// get the first valid null value (fixed lower/upper bound)
-    r_Range getNullValue() const;
+    r_Double getNullValue() const;
 
     /// set null values
-    void setNullValues(r_Minterval* newNullValues);
+    virtual void setNullValues(r_Nullvalues* newNullValues);
 
     /// get the number of null values
     unsigned long getNullValuesCount() const;
@@ -77,7 +77,7 @@ public:
 
     inline bool isNull(r_Char value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Char>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Char>(value))
         {
             incCount();
             return true;
@@ -87,7 +87,7 @@ public:
 
     inline bool isNull(r_Octet value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Octet>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Octet>(value))
         {
             incCount();
             return true;
@@ -97,7 +97,7 @@ public:
 
     inline bool isNull(r_Short value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Short>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Short>(value))
         {
             incCount();
             return true;
@@ -107,7 +107,7 @@ public:
 
     inline bool isNull(r_UShort value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_UShort>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_UShort>(value))
         {
             incCount();
             return true;
@@ -117,7 +117,7 @@ public:
 
     inline bool isNull(r_Long value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Long>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Long>(value))
         {
             incCount();
             return true;
@@ -127,7 +127,7 @@ public:
 
     inline bool isNull(r_ULong value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_ULong>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_ULong>(value))
         {
             incCount();
             return true;
@@ -137,7 +137,7 @@ public:
 
     inline bool isNull(float value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<float>(value))
+        if (nullValues != NULL && nullValues->isNullFloat<float>(value))
         {
             incCount();
             return true;
@@ -147,7 +147,7 @@ public:
 
     inline bool isNull(double value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<double>(value))
+        if (nullValues != NULL && nullValues->isNullFloat<double>(value))
         {
             incCount();
             return true;
@@ -163,7 +163,7 @@ public:
 
     inline bool isNullOnly(r_Char value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Char>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Char>(value))
         {
             return true;
         }
@@ -172,7 +172,7 @@ public:
 
     inline bool isNullOnly(r_Octet value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Octet>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Octet>(value))
         {
             return true;
         }
@@ -181,7 +181,7 @@ public:
 
     inline bool isNullOnly(r_Short value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Short>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Short>(value))
         {
             return true;
         }
@@ -190,7 +190,7 @@ public:
 
     inline bool isNullOnly(r_UShort value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_UShort>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_UShort>(value))
         {
             return true;
         }
@@ -199,7 +199,7 @@ public:
 
     inline bool isNullOnly(r_Long value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_Long>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_Long>(value))
         {
             return true;
         }
@@ -208,7 +208,7 @@ public:
 
     inline bool isNullOnly(r_ULong value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<r_ULong>(value))
+        if (nullValues != NULL && nullValues->isNullNonFloat<r_ULong>(value))
         {
             return true;
         }
@@ -217,7 +217,7 @@ public:
 
     inline bool isNullOnly(float value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<float>(value))
+        if (nullValues != NULL && nullValues->isNullFloat<float>(value))
         {
             return true;
         }
@@ -226,7 +226,7 @@ public:
 
     inline bool isNullOnly(double value)
     {
-        if (nullValues != NULL && nullValues->within_bounds<double>(value))
+        if (nullValues != NULL && nullValues->isNullFloat<double>(value))
         {
             return true;
         }
@@ -242,7 +242,7 @@ protected:
     }
 
     /// null values
-    r_Minterval* nullValues;
+    r_Nullvalues* nullValues;
 
     /// count of null values
     unsigned long nullValuesCount;

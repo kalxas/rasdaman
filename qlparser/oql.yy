@@ -46,6 +46,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtintervalop.hh"
 #include "qlparser/qtmintervalop.hh"
+#include "qlparser/qtnullvaluesop.hh"
 #include "qlparser/qtunaryfunc.hh"
 #include "qlparser/qtupdate.hh"
 #include "qlparser/qtproject.hh"
@@ -205,6 +206,14 @@ struct QtUpdateSpecElement
   int                               dummyValue;
   
   struct {
+      QtScalarData* low;
+      QtScalarData* high; 
+  } qtNullvalueInterval;
+  
+  QtNullvaluesOp::QtNullvaluesList* qtNullvalueIntervalList;
+
+  
+  struct {
         const char*      value;
         ParseInfo* info;
   }	castTypes;
@@ -276,22 +285,27 @@ struct QtUpdateSpecElement
 %type <qtONCStreamListValue>  collectionList
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp 
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp coordinateVal 
-                              integerExp mintervalExp  namedMintervalExp intervalExp namedIntervalExp condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
+                              integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp namedMintervalExp intervalExp namedIntervalExp 
+                              condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
                               caseExp typeAttribute projectExp
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
-%type <indexType> 	      indexingAttributes indexTypes
+%type <indexType>             indexingAttributes indexTypes
 // %type <stgType>            storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList parentheticalLinestring vertex vertexList 
+%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList 
+                              caseEnd generalExpList typeAttributeList parentheticalLinestring vertex vertexList 
+%type <qtNullvalueIntervalList> nullvalueIntervalList
+%type <qtNullvalueInterval>     nullvalueIntervalExp
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
-%type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType alterExp
+%type <castTypes>             castType
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl 
+                              createType dropType alterExp
 
 %type <qtCollection>          namedCollection
 
 %type <identifierToken>       collectionIterator typeName attributeIdent createTypeName
-			      marrayVariable condenseVariable hostName
+                              marrayVariable condenseVariable hostName
 
 // literal data
 %type <qtDataValue>           generalLit mddLit oidLit
@@ -321,17 +335,17 @@ qlfile: query
 	  QueryTree::symtab.wipe(); 
 	};
 query: createExp
-	| dropExp
-	| selectExp
-	| selectIntoExp
-	| updateExp
-	| insertExp
-	| deleteExp
-        | commitExp
-        | createType
-        | dropType
-        | alterExp
-	;
+     | dropExp
+     | selectExp
+     | selectIntoExp
+     | updateExp
+     | insertExp
+     | deleteExp
+     | commitExp
+     | createType
+     | dropType
+     | alterExp
+     ;
 
 commitExp: COMMIT
 {
@@ -856,7 +870,7 @@ updateExp:
           FREESTACK($7)
           FREESTACK($9)
         }        
-        | UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES mintervalExp
+        | UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES nullvaluesExp
         {
           try {
             accessControl.wantToWrite();
@@ -1254,9 +1268,8 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                 FREESTACK($5)
                 FREESTACK($6)
                 FREESTACK($8)
-
             }
-          | CREATE TYPE createTypeName AS SET LRPAR createTypeName NULLKEY VALUES mintervalExp RRPAR
+          | CREATE TYPE createTypeName AS SET LRPAR createTypeName nullvaluesExp RRPAR
             {
                 try
                 {
@@ -1273,19 +1286,15 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                                               $2.info->getLineNo(), $2.info->getColumnNo() );
                   FREESTACK($1)
                   FREESTACK($2)
-                  FREESTACK($3)
                   FREESTACK($4)
                   FREESTACK($5)
                   FREESTACK($6)
-                  FREESTACK($7)
-                  FREESTACK($8)
                   FREESTACK($9)
-                  FREESTACK($11)
                   QueryTree::symtab.wipe();
                   YYABORT;
                 }
 
-                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value, $10);
+                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value, $8);
                 setTypeNode->setParseInfo( *($1.info) );
 
                 parseQueryTree->setRoot( setTypeNode);
@@ -1294,9 +1303,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                 FREESTACK($4)
                 FREESTACK($5)
                 FREESTACK($6)
-                FREESTACK($8)
                 FREESTACK($9)
-                FREESTACK($11)
             }
             ;
 
@@ -1357,8 +1364,9 @@ resultList: resultList COMMA generalExp
 	  $$ = $1;
 	}
 
-generalExp: caseExp                         { $$ = $1;} 
-        | mddExp                            { $$ = $1; }
+generalExp: 
+	  caseExp                           { $$ = $1; } 
+	| mddExp                            { $$ = $1; }
 	| trimExp                           { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
 	| inductionExp                      { $$ = $1; }
@@ -1369,14 +1377,15 @@ generalExp: caseExp                         { $$ = $1;}
 	| variable                          { $$ = $1; }
 	| mintervalExp                      { $$ = $1; }
 	| intervalExp                       { $$ = $1; }
-	| projectExp			    		{ $$ = $1; }
-        | generalLit
+	| projectExp	                      { $$ = $1; }
+	| generalLit
 	{
 	  $$ = new QtConst( $1 );
 	  parseQueryTree->removeDynamicObject( $1 );
 	  parseQueryTree->addDynamicObject( $$ );
 	}
-	| rangeConstructorExp					{ $$ = $1; };
+	| rangeConstructorExp					      { $$ = $1; }
+	| addNullvaluesExp  					      { $$ = $1; };
 
 caseCond: WHEN generalExp THEN generalExp
         {
@@ -3651,6 +3660,79 @@ scalarLitList: scalarLitList COMMA scalarLit
 	  $$ = new QtComplexData::QtScalarDataList();
 	  $$->push_back($1);
 	}; 
+
+addNullvaluesExp: generalExp nullvaluesExp
+    {
+        QtOperation* op = static_cast<QtOperation*>($1);
+        QtNullvaluesOp* nullvaluesOp = static_cast<QtNullvaluesOp*>($2);
+        $$ = new QtAddNullvalues(op, nullvaluesOp);
+        parseQueryTree->removeDynamicObject( $1 );
+        parseQueryTree->removeDynamicObject( $2 );
+        parseQueryTree->addDynamicObject( $$ );
+    };
+        
+// NULL VALUES '[' NULL1 [ ':' NULL2 ] ',' ... ']'
+nullvaluesExp: NULLKEY VALUES nullvaluesList
+    {
+        $$ = $3;
+        FREESTACK($1)
+        FREESTACK($2)
+    };
+
+//
+// Null values list: '[' NULL1 [ ':' NULL2 ] ',' ... ']'
+//
+// Similar to mintervalExp but allows any scalarLit for NULL1, NULL2, etc.
+//
+nullvaluesList: LEPAR nullvalueIntervalList REPAR
+    {
+        $$ = new QtNullvaluesOp( $2 );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($3)
+    };
+
+nullvalueIntervalList: nullvalueIntervalList COMMA nullvalueIntervalExp
+    {
+        $1->emplace_back($3.low, $3.high);
+        $$ = $1;
+        FREESTACK($2)
+    }
+    | nullvalueIntervalExp
+    {
+        $$ = new QtNullvaluesOp::QtNullvaluesList();
+        $$->emplace_back($1.low, $1.high);
+    };
+
+nullvalueIntervalExp: scalarLit COLON scalarLit
+    {
+        $$.low = $1;
+        $$.high = $3;
+        FREESTACK($2)
+    }
+    | scalarLit COLON MULT
+    {
+        $$.low = $1;
+        $$.high = new QtAtomicData(std::numeric_limits<double>::max(), 8);
+        parseQueryTree->addDynamicObject( $$.high );
+        FREESTACK($2)
+        FREESTACK($3)
+    }
+    | MULT COLON scalarLit
+    {
+        $$.low = new QtAtomicData(std::numeric_limits<double>::lowest(), 8);
+        parseQueryTree->addDynamicObject( $$.low );
+        $$.high = $3;
+        FREESTACK($1)
+        FREESTACK($2)
+    } 
+    | scalarLit
+    {
+        $$.low = $1;
+        $$.high = $1;
+    };
+
 
 projectExp: PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
 	{

@@ -86,7 +86,9 @@ public:
                     ATOMICTYPEOID,
                     UDFOID,
                     UDFPACKAGEOID,
-                    MDDRCIXOID
+                    MDDRCIXOID,
+                    FILETILEOID,
+                    DBNULLVALUESOID
                  };
     /*@Doc:
     every persistent class needs a unique OIdType.
@@ -256,6 +258,11 @@ protected:
     counter which holds the next oid
     */
 
+    static OIdCounter nextDBNULLVALUESOID;
+    /*@Doc:
+    counter which holds the next oid
+    */
+
     static OIdCounter nextSTORAGEOID;
     /*@Doc:
     counter which holds the next oid
@@ -292,6 +299,11 @@ protected:
     */
 
     static OIdCounter nextUDFPACKAGEOID;
+    /*@Doc:
+    counter which holds the next oid
+    */
+
+    static OIdCounter nextFILETILEOID;
     /*@Doc:
     counter which holds the next oid
     */

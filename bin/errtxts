@@ -10,7 +10,7 @@
 # 2005-jun-19  PB     added 420, 421, 422
 # 2012-dec-04  MR     added 423, 424, 425
 #
-# This file contains types and textual descriptions of RasDaMan errors.
+# This file contains types and textual descriptions of rasdaman errors.
 # The ascending error numbers are used as index to the descriptions. Each 
 # line follows the following syntax:
 # 
@@ -34,7 +34,7 @@
 209^E^Exception: RasType $type is unknown.
 210^E^Exception: Base type $type is not supported yet.
 211^E^Exception: Database is not open.
-212^E^Exception: RPC layer connection to RasDaMan failed.
+212^E^Exception: RPC layer connection to rasdaman failed.
 213^E^Exception: Wrong URL format (should be http://address:port)
 214^E^Exception: Illegal java long value $val for server base type ULong.
 215^E^Exception: Illegal java integer value $val for server base type UShort.
@@ -209,14 +209,14 @@
 #
 # 7XX errors for problems with Administration (some Oracle specific)
 #
-700^E^Admin error: General error creating RasDaMan database.
+700^E^Admin error: General error creating rasdaman database.
 701^E^Admin error: Error creating table in tablespace RAS_DB_SCHEMA.
 702^E^Admin error: Error inserting into table RAS_COUNTERS.
 703^E^Admin error: Error creating table in tablespace RAS_DB_BLOB.
 704^E^Admin error: Error creating index in tablespace RAS_DB_INDEX.
 705^E^Admin error: Error inserting into table RAS_BASETYPENAMES.
 706^E^Admin error: Error creating table in default tablespace.
-707^E^Admin error: Error on COMMIT creating RasDaMan database.
+707^E^Admin error: Error on COMMIT creating rasdaman database.
 708^E^Admin error: Database to be created already exists.
 # file storage
 709^E^Admin error: File storage data directory not found; check the server log for more details.
@@ -294,8 +294,8 @@
 #
 # 1xxx errors: General errors
 #
-1000^E^General error: RasDaMan tables inconsistent.
-1001^E^General error: RasDaMan server incompatible with database.
+1000^E^General error: rasdaman tables inconsistent.
+1001^E^General error: rasdaman server incompatible with database, please run update_db.sh first.
 1002^E^General error: Blob with zero length encountered.
 1003^E^General error: Tile container for TC index not found.
 1004^E^General error: Index of MDD Object is not defined.

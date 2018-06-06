@@ -90,7 +90,7 @@ AdminIf::AdminIf(bool createDb)
         validConnection = false;
         LDEBUG << "connect unsuccessful; wrong connect string?";
         cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "' ?" << endl;
-        throw r_Error( 830 );
+        throw r_Error( DATABASE_CONNECT_FAILED );
     }
     else
     {

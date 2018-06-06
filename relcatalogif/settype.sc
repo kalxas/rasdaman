@@ -123,9 +123,9 @@ SetType::readFromDb()
     if (queryNull.nextRow())
     {
         nullvalueoid = queryNull.nextColumnLong();
-        nullValues = (DBMinterval*) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBMINTERVALOID));
+        nullValues = (DBNullvalues*) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBNULLVALUESOID));
         nullValues->setCached(true);
-        LDEBUG << "Got null values: " << nullValues->get_string_representation();
+        LDEBUG << "Got null values: " << nullValues->toString();
     }
     else
     {

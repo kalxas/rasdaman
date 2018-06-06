@@ -45,37 +45,35 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 //-----------------------------------------------
 UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType* opType, unsigned int resOff, unsigned int opOff)
 {
-
+    const auto typeOp = opType->getType();
+    const auto typeRes = resType->getType();
 #ifndef NO_OPT_OPS
 /////////////////////////////////////////////
-    if (resType->getType() == opType->getType() && resType->getSize() == 1 && resType->getType() != STRUCT)
+    if (typeRes != STRUCT && typeRes == typeOp)
     {
-        switch (op)
+        if (op == Ops::OP_IDENTITY)
         {
-        case Ops::OP_IDENTITY:
-            return new OpIDENTITYChar(resType, opType, resOff, opOff);
-        default:
-            break;
+            switch (resType->getSize())
+            {
+            case 1: return new OpIDENTITYChar(resType, opType, resOff, opOff);
+            case 2: return new OpIDENTITYShort(resType, opType, resOff, opOff);
+            case 4: return new OpIDENTITYLong(resType, opType, resOff, opOff);
+            default: break;
+            }
+            if (typeRes == COMPLEXTYPE1 || typeRes == COMPLEXTYPE2)
+                return new OpIDENTITYComplex(resType, opType, resOff, opOff);
         }
-    }
-    if (resType->getType() == opType->getType() && resType->getSize() == 2 && resType->getType() != STRUCT)
-    {
-        switch (op)
+        else if (op == Ops::OP_UPDATE)
         {
-        case Ops::OP_IDENTITY:
-            return new OpIDENTITYShort(resType, opType, resOff, opOff);
-        default:
-            break;
-        }
-    }
-    if (resType->getType() == opType->getType() && resType->getSize() == 4 && resType->getType() != STRUCT)
-    {
-        switch (op)
-        {
-        case Ops::OP_IDENTITY:
-            return new OpIDENTITYLong(resType, opType, resOff, opOff);
-        default:
-            break;
+            switch (resType->getSize())
+            {
+            case 1: return new OpUpdateChar(resType, opType, resOff, opOff);
+            case 2: return new OpUpdateShort(resType, opType, resOff, opOff);
+            case 4: return new OpUpdateLong(resType, opType, resOff, opOff);
+            default: break;
+            }
+            if (typeRes == COMPLEXTYPE1 || typeRes == COMPLEXTYPE2)
+                return new OpUpdateComplex(resType, opType, resOff, opOff);
         }
     }
 /////////////////////////////////////////////
@@ -84,107 +82,72 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
     // cast operations
     if (op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END)
     {
-        if (opType->getType() <= NUMERICAL_TYPES_END)
-        {
+        if (typeOp <= NUMERICAL_TYPES_END)
             return new OpCAST(resType, opType, resOff, opOff);
-        }
-
-        else if (opType->getType() == STRUCT)
-        {
-            if (resType->getType() == STRUCT &&
-                    (dynamic_cast<StructType*>(const_cast<BaseType*>(resType)))->getNumElems() != (dynamic_cast<StructType*>(const_cast<BaseType*>(opType)))->getNumElems())
-            {
-                return 0;
-            }
-            else
-            {
-                return new OpUnaryStruct(resType, opType, op, resOff, opOff);
-            }
-        }
+        else if (typeOp == STRUCT && typeRes == STRUCT &&
+                 (static_cast<StructType*>(const_cast<BaseType*>(resType)))->getNumElems() == 
+                 (static_cast<StructType*>(const_cast<BaseType*>(opType)))->getNumElems())
+            return new OpUnaryStruct(resType, opType, op, resOff, opOff);
         else
-        {
             return 0;
-        }
     }
 
-    if (resType->getType() == BOOLTYPE && op == Ops::OP_IS_NULL)
+    if (typeRes == BOOLTYPE && op == Ops::OP_IS_NULL)
     {
-        if (opType->getType() >= ULONG && opType->getType() <= BOOLTYPE)
-        {
+        if (typeOp >= ULONG && typeOp <= BOOLTYPE)
             return new OpISNULLCULong(resType, opType, resOff, opOff);
-        }
-        else if (opType->getType() >= LONG && opType->getType() <= OCTET)
-        {
+        else if (typeOp >= LONG && typeOp <= OCTET)
             return new OpISNULLCLong(resType, opType, resOff, opOff);
-        }
-        else if (opType->getType() >= DOUBLE && opType->getType() <= FLOAT)
-        {
+        else if (typeOp >= DOUBLE && typeOp <= FLOAT)
             return new OpISNULLCDouble(resType, opType, resOff, opOff);
-        }
         else 
-        {
             return 0;
-        }	
     }
 
     // all Char
-    if (resType->getType() == BOOLTYPE && opType->getType() == BOOLTYPE)
+    if (typeRes == BOOLTYPE && typeOp == BOOLTYPE && op == Ops::OP_NOT)
+        return new OpNOTBool(resType, opType, resOff, opOff);
+    
+    // result and op are ULONG, USHORT or CHAR and
+    if ((typeRes >= ULONG && typeRes <= BOOLTYPE) && (typeOp >= ULONG && typeOp <= OCTET))
     {
-        switch (op)
-        {
-        case Ops::OP_NOT:
-            return new OpNOTBool(resType, opType, resOff, opOff);
-        default:
-            break;
-        }
-    }
-    if ((resType->getType() >= ULONG && resType->getType() <= BOOLTYPE) && (opType->getType() >= ULONG &&
-            opType->getType() <= OCTET))
-    {
-
         switch (op)
         {
         case Ops::OP_NOT:
             return new OpNOTCULong(resType, opType, resOff, opOff);
         case Ops::OP_IDENTITY:
             return new OpIDENTITYCULong(resType, opType, resOff, opOff);
+        case Ops::OP_UPDATE:
+            return new OpUpdateCULong(resType, opType, resOff, opOff);
         default:
             return 0;
         }
     }
-    // result is LONG, SHORT or OCTET and the only operand between ULONG and OCTET
-    if ((resType->getType() == LONG || resType->getType() == SHORT || resType->getType() == OCTET) &&
-            (opType->getType() >= ULONG && opType->getType() <= OCTET))
+    // result and op are LONG, SHORT or OCTET
+    if ((typeRes >= LONG && typeRes <= OCTET) && (typeOp >= ULONG && typeOp <= OCTET))
     {
-
         switch (op)
         {
         case Ops::OP_NOT:
             return new OpNOTCLong(resType, opType, resOff, opOff);
         case Ops::OP_IDENTITY:
             return new OpIDENTITYCLong(resType, opType, resOff, opOff);
+        case Ops::OP_UPDATE:
+            return new OpUpdateCLong(resType, opType, resOff, opOff);
         default:
             return 0;
         }
     }
 
-    // result is COMPLEXTYPE1 or COMPLEXTYPE2
-    if ((resType->getType() == COMPLEXTYPE1 && opType->getType() == COMPLEXTYPE1) || // remember && has precedence over ||
-            (resType->getType() == COMPLEXTYPE2 && opType->getType() == COMPLEXTYPE2))
+    // result is FLOAT or DOUBLE and op is any type
+    if (typeRes == FLOAT || (typeRes == DOUBLE && typeOp >= ULONG && typeOp <= FLOAT))
     {
-        return new OpIDENTITYComplex(resType, opType, resOff, opOff);
-    }
-
-
-
-    // result is FLOAT or DOUBLE and the only operand between ULONG and FLOAT
-    if (resType->getType() == FLOAT || (resType->getType() == DOUBLE && opType->getType() >= ULONG && opType->getType() <= FLOAT))
-    {
-
         switch (op)
         {
         case Ops::OP_IDENTITY:
             return new OpIDENTITYCDouble(resType, opType, resOff, opOff);
+        case Ops::OP_UPDATE:
+            return new OpUpdateCDouble(resType, opType, resOff, opOff);
         case Ops::OP_SQRT:
             return new OpSQRTCDouble(resType, opType, resOff, opOff);
         case Ops::OP_POW:
@@ -225,53 +188,38 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
     }
 
     // retriving real or imaginar parts of a complex argument
-    if (resType->getType() == DOUBLE && (opType->getType() == COMPLEXTYPE1 || opType->getType() == COMPLEXTYPE2))
+    if (typeRes == DOUBLE && (typeOp == COMPLEXTYPE1 || typeOp == COMPLEXTYPE2))
     {
         switch (op)
         {
         case Ops::OP_REALPART:
             return new OpRealPart(resType, opType, resOff, opOff);
-
         case Ops::OP_IMAGINARPART:
             return new OpImaginarPart(resType, opType, resOff, opOff);
-
         default:
             return 0;
         }
     }
 
-    if ((resType->getType() == COMPLEXTYPE1 && opType->getType() == COMPLEXTYPE1) || // remember && has precedence over ||
-            (resType->getType() == COMPLEXTYPE2 && opType->getType() == COMPLEXTYPE2))
+    if (typeRes == STRUCT)
     {
-        return new OpIDENTITYComplex(resType, opType, resOff, opOff);
-    }
-
-    if (resType->getType() == STRUCT)
-    {
-
 #ifndef NO_OPT_IDENTITY_STRUCT
-/////////////////////////////
-        switch (op)
+        if (op == Ops::OP_IDENTITY)
         {
-        case Ops::OP_IDENTITY:
-            if(resType->compatibleWith(opType)){
+            if (resType->compatibleWith(opType))
                 return new OpIDENTITYStruct(resType, opType, resOff, opOff);
-            }
             else
-            {
                 return 0;
-            }
-        default:
-/////////////////////////////
-#endif
-            return new OpUnaryStruct(resType, opType, op, resOff, opOff);
-
-#ifndef NO_OPT_IDENTITY_STRUCT
-/////////////////////////////
         }
-/////////////////////////////
+        else if (op == Ops::OP_UPDATE)
+        {
+            if (resType->compatibleWith(opType))
+                return new OpUpdateStruct(resType, opType, resOff, opOff);
+            else
+                return 0;
+        }
 #endif
-
+        return new OpUnaryStruct(resType, opType, op, resOff, opOff);
     }
     return 0;
 }
@@ -1198,7 +1146,7 @@ Ops::isCondenseOp(Ops::OpType op)
 int
 Ops::isUnaryOp(Ops::OpType op)
 {
-    return (op >= OP_NOT && op <= OP_IDENTITY);
+    return (op >= OP_NOT && op <= OP_UPDATE);
 }
 
 int
@@ -1275,6 +1223,49 @@ OpIDENTITYStruct::operator()(char* res, const char* op)
     memcpy((void*)(res + resOff), (void*)(const_cast<char*>(op) + opOff), resType->getSize());
 }
 
+OpUpdateStruct::OpUpdateStruct(const BaseType* newResType, const BaseType* newOpType,
+                                   unsigned int newResOff,
+                                   unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+    StructType* resStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(newResType));
+    StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(newOpType));
+    numElems = resStructType->getNumElems();
+    assignmentOps = new UnaryOp*[numElems];
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        assignmentOps[i] = Ops::getUnaryOp(Ops::OP_UPDATE, resStructType->getElemType(i),
+                                           opStructType->getElemType(i),
+                                           newResOff + resStructType->getOffset(i),
+                                           newOpOff + opStructType->getOffset(i));
+    }
+}
+
+OpUpdateStruct::~OpUpdateStruct()
+{
+    for (unsigned int i = 0; i < numElems; i++)
+        if (assignmentOps[i])
+            delete assignmentOps[i];
+    delete[] assignmentOps;
+}
+
+void OpUpdateStruct::setNullValues(r_Nullvalues* newNullValues)
+{
+    nullValues = newNullValues;
+    for (unsigned int i = 0; i < numElems; i++)
+        assignmentOps[i]->setNullValues(newNullValues);
+}
+
+void
+OpUpdateStruct::operator()(char* res, const char* op)
+{
+    // there are null values, they will be handled correctly for each band in this way
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        (*assignmentOps[i])(res, op);
+    }
+}
+
 OpNOTCULong::OpNOTCULong(const BaseType* newResType, const BaseType* newOpType,
                          unsigned int newResOff, unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff)
@@ -1318,6 +1309,24 @@ OpIDENTITYCULong::operator()(char* res, const char* op)
     // byte order
     resType->makeFromCULong(res + resOff,
                             opType->convertToCULong(op + opOff, &longOp));
+}
+
+
+OpUpdateCULong::OpUpdateCULong(const BaseType* newResType, const BaseType* newOpType,
+                                   unsigned int newResOff,
+                                   unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateCULong::operator()(char* res, const char* op)
+{
+    r_ULong longOp;
+    r_ULong* longOpVal = opType->convertToCULong(op + opOff, &longOp);
+    
+    if (!isNull(longOp))
+        resType->makeFromCULong(res + resOff, longOpVal);
 }
 
 OpNOTCLong::OpNOTCLong(const BaseType* newResType, const BaseType* newOpType,
@@ -1379,6 +1388,42 @@ OpIDENTITYCDouble::operator()(char* res, const char* op)
     resType->makeFromCDouble(res + resOff,
                              opType->convertToCDouble(op + opOff, &doubleOp));
 }
+
+
+OpUpdateCLong::OpUpdateCLong(const BaseType* newResType, const BaseType* newOpType,
+                                 unsigned int newResOff,
+                                 unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateCLong::operator()(char* res, const char* op)
+{
+    r_Long longOp;
+    r_Long* longOpVal = opType->convertToCLong(op + opOff, &longOp);
+    
+    if (!isNull(longOp))
+        resType->makeFromCLong(res + resOff, longOpVal);
+}
+
+OpUpdateCDouble::OpUpdateCDouble(const BaseType* newResType, const BaseType* newOpType,
+                                     unsigned int newResOff,
+                                     unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateCDouble::operator()(char* res, const char* op)
+{
+    double doubleOp;
+    r_Double* doubleOpVal = opType->convertToCDouble(op + opOff, &doubleOp);
+    
+    if (!isNull(doubleOp))
+        resType->makeFromCDouble(res + resOff, doubleOpVal);
+}
+
 
 OpNOTBool::OpNOTBool(const BaseType* newResType, const BaseType* newOpType,
                      unsigned int newResOff, unsigned int newOpOff)
@@ -3981,9 +4026,7 @@ OpBinaryStruct::OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
 
 OpBinaryStruct::~OpBinaryStruct()
 {
-    unsigned int i;
-
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         if (elemOps[i])
         {
@@ -4921,6 +4964,21 @@ OpIDENTITYChar::operator()(char* res, const char* op)
     *(unsigned char*)(res + resOff) = *(unsigned char*)(const_cast<char*>(op) + opOff);
 }
 
+OpUpdateChar::OpUpdateChar(const BaseType* newResType, const BaseType* newOpType,
+                               unsigned int newResOff,
+                               unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateChar::operator()(char* res, const char* op)
+{
+    auto opVal = *(unsigned char*)(const_cast<char*>(op) + opOff);
+    if (!isNull(opVal))
+        *(unsigned char*)(res + resOff) = opVal;
+}
+
 //--------------------------------------------
 //
 //--------------------------------------------
@@ -4938,6 +4996,21 @@ OpIDENTITYShort::operator()(char* res, const char* op)
     *(unsigned short*)(res + resOff) = *(unsigned short*)(const_cast<char*>(op) + opOff);
 }
 
+OpUpdateShort::OpUpdateShort(const BaseType* newResType, const BaseType* newOpType,
+                                 unsigned int newResOff,
+                                 unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateShort::operator()(char* res, const char* op)
+{
+    auto opVal = *(unsigned short*)(const_cast<char*>(op) + opOff);
+    if (!isNull(opVal))
+        *(unsigned short*)(res + resOff) = opVal;
+}
+
 //--------------------------------------------
 //  OpIDENTITYLong
 //--------------------------------------------
@@ -4953,6 +5026,21 @@ void
 OpIDENTITYLong::operator()(char* res, const char* op)
 {
     *(r_ULong*)(res + resOff) = *(r_ULong*)(const_cast<char*>(op) + opOff);
+}
+
+OpUpdateLong::OpUpdateLong(const BaseType* newResType, const BaseType* newOpType,
+                               unsigned int newResOff,
+                               unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateLong::operator()(char* res, const char* op)
+{
+    auto opVal = *(r_Long*)(const_cast<char*>(op) + opOff);
+    if (!isNull(opVal))
+        *(r_Long*)(res + resOff) = opVal;
 }
 
 //--------------------------------------------
@@ -5622,6 +5710,20 @@ OpIDENTITYComplex::OpIDENTITYComplex(
 {}
 
 void OpIDENTITYComplex::operator()(char* res, const char* op)
+{
+    memcpy((void*)(res + resOff), (void*)(const_cast<char*>(op) + opOff), resType->getSize());
+}
+
+
+OpUpdateComplex::OpUpdateComplex(
+    const BaseType* newResType,
+    const BaseType* newOpType,
+    unsigned int newResOff,
+    unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{}
+
+void OpUpdateComplex::operator()(char* res, const char* op)
 {
     memcpy((void*)(res + resOff), (void*)(const_cast<char*>(op) + opOff), resType->getSize());
 }

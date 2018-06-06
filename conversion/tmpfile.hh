@@ -24,7 +24,6 @@ rasdaman GmbH.
 #ifndef _R_TMPFILE_HH_
 #define _R_TMPFILE_HH_
 
-#include "raslib/error.hh"
 #include <string>
 
 //@ManMemo: Module {\bf conversion}
@@ -52,6 +51,8 @@ public:
 private:
 
     void initTmpFile();
+    void removeAuxXmlFile() const;
+    
     std::string fileName;
     int fd;
     static const int INVALID_FILE_DESCRIPTOR;

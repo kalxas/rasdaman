@@ -172,6 +172,7 @@ public:
         QT_OID,
         QT_INTERVALOP,
         QT_MINTERVALOP,
+        QT_NULLVALUESOP,
         QT_POINTOP,
         QT_MSHAPEOP,
         QT_LO,
@@ -194,12 +195,13 @@ public:
         QT_INFO,
         QT_POW,
         QT_CONSTRUCT_COMPLEX,
-        QT_LAST_NODE_TYPE,
         QT_CREATE_CELL_TYPE,
         QT_CREATE_MDD_TYPE,
         QT_CREATE_SET_TYPE,
         QT_DROP_TYPE,
-        QT_CELL_TYPE_ATTRIBUTES
+        QT_CELL_TYPE_ATTRIBUTES,
+        QT_ADD_NULLVALUES,
+        QT_LAST_NODE_TYPE
     };
 
 

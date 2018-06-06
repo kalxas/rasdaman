@@ -382,7 +382,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
             QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
-            r_Minterval* nullValues = NULL;
+            r_Nullvalues* nullValues = NULL;
 
             if (currentMDDObj)
             {
@@ -534,7 +534,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
             QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
-            r_Minterval* nullValues = NULL;
+            r_Nullvalues* nullValues = NULL;
 
             if (currentMDDObj)
             {
@@ -675,7 +675,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
         QtData* indexData   = NULL;
 
         operandData = input->evaluate(inputList);
-        r_Minterval* nullValues = NULL;
+        r_Nullvalues* nullValues = NULL;
         if (operandData != NULL)
         {
             nullValues = operandData->getNullValues();
@@ -815,7 +815,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
             }
 #endif
             r_Dimension indexValue = 0;
-            r_Minterval* nullValues = NULL;
+            r_Nullvalues* nullValues = NULL;
 
             switch (indexData->getDataType())
             {

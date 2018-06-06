@@ -208,6 +208,11 @@ protected:
     retrieves DBMintervals from memory and from database
     */
 
+    static DBObject* loadDBNullvalues(const OId& id);
+    /*@Doc:
+    retrieves DBNullvalues from memory and from database
+    */
+
     static DBObject* loadDBStorage(const OId& id);
     /*@Doc:
     retrieves DBStorageLayout from memory and from database
@@ -449,6 +454,11 @@ private:
     static DBObjectPMap theDBMintervals;
     /*@Doc:
     holds all DBMintervals in memory
+    */
+
+    static DBObjectPMap theDBNullvalues;
+    /*@Doc:
+    holds all DBNullvalues in memory
     */
 
     static DBObjectPMap theDBStorages;

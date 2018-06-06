@@ -35,6 +35,7 @@ rasdaman GmbH.
 #include "raslib/point.hh"
 #include "qlparser/qtpointdata.hh"
 #include "raslib/pointdouble.hh"
+#include "raslib/minterval.hh"
 
 #include <iostream>
 #include <string>
@@ -53,9 +54,9 @@ class QtMShapeData : public QtData
 public:
 
     // constructor getting the vertices
-    QtMShapeData(const vector<r_Point>& pts);
+    QtMShapeData(const std::vector<r_Point>& pts);
     /// constructor getting a QtMShape
-    QtMShapeData(vector<QtMShapeData*>& mshapes);
+    QtMShapeData(std::vector<QtMShapeData*>& mshapes);
 
     /// virtual destructor
     virtual ~QtMShapeData();
@@ -109,7 +110,7 @@ public:
     void computeDimensionality();
     
     /// compute a vector of local bounding boxes, one for each line segment in the polytope.
-    vector<r_Minterval> localConvexHulls() const;
+    std::vector<r_Minterval> localConvexHulls() const;
 
     /// returns an r_Minterval representing the convex hull of this polytope.
     r_Minterval convexHull() const;
@@ -124,7 +125,7 @@ private:
     r_PointDouble* midPoint;
     
     /// contains data defining the n-1 dim facets
-    vector<QtMShapeData*> polytopeEdges;
+    std::vector<QtMShapeData*> polytopeEdges;
     
     /// polytope Vertex data; converted to double points to maintain precision.
     std::vector<r_PointDouble>   polytopePointsDouble;

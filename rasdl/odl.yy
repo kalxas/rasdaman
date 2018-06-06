@@ -288,12 +288,12 @@ collection_type       : SET LEFT simple_type_spec RIGHT
                           $$->setParseInfo( Parse_info( $1.where, "Set" ) );
                           ((Parse_set*)$$)->base_type=$3;
                         }
-                      | SET LEFT simple_type_spec RIGHT NULLVALUES spatial_domain
+                      | SET LEFT simple_type_spec RIGHT
                         {
                           $$=new Parse_set;
                           $$->setParseInfo( Parse_info( $1.where, "Set" ) );
                           ((Parse_set*)$$)->base_type=$3;
-                          ((Parse_set*)$$)->nullValues=$6;
+                          ((Parse_set*)$$)->nullValues=NULL;
                         };
 
 /*(33)*/

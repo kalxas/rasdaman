@@ -65,6 +65,7 @@ using std::fill_n;
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/inlineminterval.hh"
 #include "relcatalogif/dbminterval.hh"
+#include "relcatalogif/dbnullvalues.hh"
 
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/hierindex.hh"
@@ -87,6 +88,7 @@ template class DBRef<DBTile>;
 template class DBRef<InlineTile>;
 template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
+template class DBRef<DBNullvalues>;
 template class DBRef<DBStorageLayout>;
 template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
@@ -112,6 +114,7 @@ template  std::ostream& operator << (std::ostream& os, const std::vector<r_Minte
 
 template class rb_tree<OId, pair<OId const, DBMDDObj*>, select1st<pair<OId const, DBMDDObj*>>, less<OId>>;
 template class rb_tree<OId, pair<OId const, DBMinterval*>, select1st<pair<OId const, DBMinterval*>>, less<OId>>;
+template class rb_tree<OId, pair<OId const, DBNullvalues*>, select1st<pair<OId const, DBNullvalues*>>, less<OId>>;
 template class rb_tree<OId, pair<OId const, DBRef<DBMDDObj>>, select1st<pair<OId const, DBRef<DBMDDObj>>>, less<OId>>;
                        template class rb_tree<OId, pair<OId const, DBMDDSet*>, select1st<pair<OId const, DBMDDSet*>>, less<OId>>;
                        template class rb_tree<OId, pair<OId const, MDDType*>, select1st<pair<OId const, MDDType*>>, less<OId>>;

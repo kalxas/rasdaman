@@ -1,0 +1,1 @@
+select add_cells(<[0:1] -5, 2> null values [*:-4])

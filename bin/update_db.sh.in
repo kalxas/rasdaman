@@ -165,7 +165,7 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
   #
   # some updates are written in PL/pgSQL, so install the extension in postgres
   #
-  createlang plpgsql $RAS_DB > /dev/null 2>&1
+  $PSQL -c "CREATE OR REPLACE LANGUAGE plpgsql" > /dev/null 2>&1
   rc=$?
   if [ $rc -ne 0 -a $rc -ne 2 ]; then
     error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
@@ -214,12 +214,15 @@ else
   # work
   # ------------------------------------------------------------------------------
 
+  check_sqlite
+
   #
   # commands
   #
   export SQLITE="sqlite3 $DBCONN"
-
-  # print some info
+  if [ ! -f "$DBCONN" ]; then
+    error "no '$DBCONN' database found, please run create_db.sh first"
+  fi
   log "sqlite database to update: $DBCONN"
 
   # determine file data dir
@@ -229,28 +232,7 @@ else
   fi
   [ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
   [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
-
   log "rasdaman data directory: $RASDATA"
-
-  # determine file data dir
-  if [ -z "$RASDATA" ]; then
-    export RASDATA="@filedatadir@"
-    [ -n "$RASDATA" ] || error "please export RASDATA to point to the rasdaman data directory"
-  fi
-  [ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
-  [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
-
-  log "rasdaman data directory: $RASDATA"
-
-  check_sqlite
-
-  #
-  # check if db is present
-  #
-  if [ ! -f "$DBCONN" ]; then
-    error "no $DBCONN database found, please run create_db.sh first"
-  fi
-
 
   #
   # determine the update number

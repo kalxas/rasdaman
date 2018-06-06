@@ -82,7 +82,8 @@ checkCounter(const char* counterName, const char* column,
         }
         else
         {
-            LFATAL << "Error: value for counter '" << counterName << "' not found in the database.";
+            LFATAL << "Value for counter '" << counterName << "' not found in the RAS_COUNTERS table in RASBASE. "
+                << "Most likely you need to run update_db.sh to update the database schema.";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     }
@@ -102,7 +103,7 @@ AdminIf::AdminIf(bool createDb)
         if (stat(globalConnectId, &status) == -1)
         {
             LFATAL << "Base DBMS file not found at '" << globalConnectId << "', please run create_db.sh first.";
-            throw r_Error(831);
+            throw r_Error(DATABASE_NOTFOUND);
         }
     }
 
@@ -113,8 +114,12 @@ AdminIf::AdminIf(bool createDb)
     // check database consistency
     if (!createDb)
     {
-        SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
-        if (checkTable.nextRow())
+        bool rasbaseExists{};
+        {
+            SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
+            rasbaseExists = checkTable.nextRow();
+        }
+        if (rasbaseExists)
         {
             bool consistent = true;
             checkCounter(OId::counterNames[OId::DBMINTERVALOID], "DomainId", "RAS_DOMAINS", "domain data", consistent);
@@ -129,10 +134,26 @@ AdminIf::AdminIf(bool createDb)
             checkCounter(OId::counterNames[OId::BLOBOID], "BlobId", "RAS_TILES", "tiles", consistent);
             checkCounter(OId::counterNames[OId::MDDHIERIXOID], "MDDObjIxOId", "RAS_HIERIX", "hierarchical MDD indexes", consistent);
             checkCounter(OId::counterNames[OId::STORAGEOID], "StorageId", "RAS_STORAGE", "MDD storage structures", consistent);
+            
+            bool nullvaluePairsTableExists{};
+            {
+                SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_NULLVALUEPAIRS'");
+                nullvaluePairsTableExists = checkTable.nextRow();
+            }
+            if (nullvaluePairsTableExists)
+            {
+                checkCounter(OId::counterNames[OId::DBNULLVALUESOID], "NullValueOId", "RAS_NULLVALUES", "null value data", consistent);
+            }
+            else
+            {
+                LFATAL << "Database schema out of date. Please stop rasdaman, run update_db.sh, and start rasdaman again.";
+                closeDbConnection();
+                throw r_Error(DATABASE_INCOMPATIBLE);
+            }
+            
             if (!consistent)
             {
                 LFATAL << "Database inconsistent.";
-                checkTable.finalize();
                 closeDbConnection();
                 throw r_Error(DATABASE_INCONSISTENT);
             }
@@ -140,11 +161,9 @@ AdminIf::AdminIf(bool createDb)
         else
         {
             LFATAL << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
-            checkTable.finalize();
             closeDbConnection();
-            throw r_Error(831);
+            throw r_Error(DATABASE_NOTFOUND);
         }
-        checkTable.finalize();
     }
 
     BlobFS::getInstance();

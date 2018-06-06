@@ -1,0 +1,1 @@
+select min_cells(<[0:2] 0, 1, 2> NULL VALUES [4])

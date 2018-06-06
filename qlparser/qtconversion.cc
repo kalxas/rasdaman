@@ -180,7 +180,7 @@ QtConversion::evaluate(QtDataList* inputList)
     QtData* returnValue = NULL;
     QtData* operand = NULL;
     MDDObj* currentMDDObj = NULL;
-    r_Minterval* nullValues = NULL;
+    r_Nullvalues* nullValues = NULL;
 
     if (conversionType == QT_UNKNOWN)
     {

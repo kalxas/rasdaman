@@ -44,8 +44,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9 2003/12/27 23:11:43 rasdev Exp $";
-
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
@@ -1210,6 +1208,21 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_NULLVALUES_IX\0"))
             generateException();
         
+        EXEC SQL CREATE TABLE RAS_NULLVALUEPAIRS (
+          NullValueOId BIGINT NOT NULL,
+          Count INT NOT NULL,
+          Low REAL,
+          High REAL,
+          PRIMARY KEY (NullValueOId, Count)
+        );
+        if(check("DatabaseIf::create() CREATE TABLE RAS_NULLVALUEPAIRS\0"))
+            generateException();
+
+        EXEC SQL CREATE UNIQUE INDEX RAS_NULLVALUEPAIRS_IX
+        ON RAS_NULLVALUEPAIRS (NullValueOId, Count);
+        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_NULLVALUEPAIRS_IX\0"))
+            generateException();
+        
         // database updates
 		EXEC SQL CREATE TABLE RAS_DBUPDATES (
 		    UpdateType VARCHAR(5) NOT NULL,
@@ -1219,7 +1232,7 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
 		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
 			generateException();
 
-        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 6);
+    EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 7);
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 

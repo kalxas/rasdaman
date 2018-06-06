@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 #include "nullvalues.hh"
 #include "debug/debug-srv.hh"
+#include "raslib/nullvalues.hh"
 #include <logging.hh>
 
 NullValuesHandler::NullValuesHandler()
@@ -39,7 +40,7 @@ NullValuesHandler::NullValuesHandler()
 {
 }
 
-NullValuesHandler::NullValuesHandler(r_Minterval* newNullValues)
+NullValuesHandler::NullValuesHandler(r_Nullvalues* newNullValues)
     : nullValues(newNullValues), nullValuesCount(0)
 {
 }
@@ -48,51 +49,34 @@ NullValuesHandler::~NullValuesHandler()
 {
 }
 
-r_Minterval*
+r_Nullvalues*
 NullValuesHandler::getNullValues() const
 {
     if (nullValues != NULL)
     {
-        LDEBUG << "returning null values " << nullValues->to_string();
+        LDEBUG << "returning null values " << nullValues->toString();
     }
     return nullValues;
 }
 
-r_Range 
+r_Double 
 NullValuesHandler::getNullValue() const
 {
     if (nullValues != NULL)
     {
-        // picks the first fixed value found in the r_Minterval 
-        // defining the range of nullValues
-        for (auto i = 0; i < nullValues->dimension(); i++)
-        {
-            if((*nullValues)[i].is_low_fixed())
-            {
-                return (*nullValues)[i].low();
-            }
-            else if((*nullValues)[i].is_high_fixed())
-            {
-                return (*nullValues)[i].high();
-            }
-            else
-            {
-                // since we do not initialize nullValue above, we must throw 
-                // an error in this case!
-                LERROR << "Invalid null value specification (*:*)";
-                throw r_Error(INTERVALOPEN);
-            }
-        }
+        const auto& nulls = nullValues->getNullvalues();
+        if (!nulls.empty())
+            return nulls[0].first;
     }
-    return r_Range(0);
+    return r_Double{};
 }
 
 void
-NullValuesHandler::setNullValues(r_Minterval* newNullValues)
+NullValuesHandler::setNullValues(r_Nullvalues* newNullValues)
 {
     if (newNullValues != NULL)
     {
-        LDEBUG << "setting to " << newNullValues->to_string();
+        LDEBUG << "setting to " << newNullValues->toString();
     }
     nullValues = newNullValues;
 }
@@ -108,8 +92,6 @@ NullValuesHandler::setNullValuesCount(unsigned long count)
 {
     nullValuesCount = count;
 }
-
-
 
 void
 NullValuesHandler::cloneNullValues(const NullValuesHandler* obj)

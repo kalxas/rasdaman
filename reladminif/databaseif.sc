@@ -105,7 +105,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
                 LFATAL << "Database exists already.";
                 checkTable.finalize();
                 disconnect();
-                throw r_Error(832);
+                throw r_Error(DATABASE_EXISTS_ALREADY);
             }
         }
 
@@ -124,6 +124,8 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
                      "CounterId INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "NextValue INTEGER NOT NULL,"
                      "CounterName VARCHAR(20) NOT NULL);")
+        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_COUNTERS_IX "
+                     "ON RAS_COUNTERS ( countername );")
 
         // initialising RAS_COUNTERS
         for (unsigned int i = 1; i < OId::maxCounter; i++)
@@ -318,16 +320,24 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
 
         // nullvalues
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUES ("
-                     "SetTypeOId INTEGER NOT NULL,"
+                     "SetTypeOId INTEGER NOT NULL REFERENCES RAS_SETTYPES (SetTypeId),"
                      "NullValueOId INTEGER PRIMARY KEY AUTOINCREMENT)");
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUES_IX "
                      "ON RAS_NULLVALUES (SetTypeOId)");
+        
+        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUEPAIRS ("
+                     "NullValueOId INTEGER NOT NULL REFERENCES RAS_NULLVALUES,"
+                     "Count INTEGER NOT NULL,"
+                     "Low REAL," // NULL = nan
+                     "High REAL)");
+        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUEPAIRS_IX "
+                     "ON RAS_NULLVALUEPAIRS (NullValueOId, Count)");
 
         // database updates
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
                      "UpdateNumber INTEGER)");
-        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 2)");
+        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 3)");
 
         disconnect();
     }

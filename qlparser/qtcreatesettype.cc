@@ -1,6 +1,7 @@
 #include "qtcreatesettype.hh"
 #include "qtmintervaldata.hh"
 #include "qtunaryoperation.hh"
+#include "qtnullvaluesdata.hh"
 #include "relcatalogif/alltypes.hh"
 
 const QtNode::QtNodeType QtCreateSetType::nodeType = QtNode::QT_CREATE_SET_TYPE;
@@ -18,8 +19,8 @@ QtData* QtCreateSetType::evaluate()
 
     if (this->nullValuesNode != NULL)
     {
-        QtMintervalData* nullValues = static_cast<QtMintervalData*>(this->nullValuesNode->evaluate(NULL));
-        setType->setNullValues(nullValues->getMintervalData());
+        QtNullvaluesData* nullValues = static_cast<QtNullvaluesData*>(this->nullValuesNode->evaluate(NULL));
+        setType->setNullValues(nullValues->getNullvaluesData());
         delete nullValues;
     }
 

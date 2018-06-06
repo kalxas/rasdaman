@@ -106,7 +106,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterval* newNullValues)
+MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalues* newNullValues)
     :   NullValuesHandler(),
         myDBMDDObj(),
         myMDDIndex(NULL),
@@ -465,7 +465,7 @@ MDDObj::getStorageLayout() const
 }
 
 void
-MDDObj::setUpdateNullValues(r_Minterval* newNullValues)
+MDDObj::setUpdateNullValues(r_Nullvalues* newNullValues)
 {
     nullValues = newNullValues;
     if (newNullValues)

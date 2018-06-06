@@ -51,6 +51,7 @@ rasdaman GmbH.
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/inlineminterval.hh"
 #include "relcatalogif/dbminterval.hh"
+#include "relcatalogif/dbnullvalues.hh"
 
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/hierindex.hh"
@@ -87,6 +88,7 @@ template class DBRef<DBTile>;
 template class DBRef<InlineTile>;
 template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
+template class DBRef<DBNullvalues>;
 template class DBRef<DBStorageLayout>;
 template class DBRef<DBUDFDS>;
 template class DBRef<DBUDFPackageDS>;

@@ -356,7 +356,7 @@ QtSDom::evaluate(QtDataList* inputList)
 
         QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
         MDDObj* currentMDDObj = qtMDD->getMDDObject();
-        r_Minterval* nullValues = currentMDDObj->getNullValues();
+        auto* nullValues = currentMDDObj->getNullValues();
 
         returnValue = new QtMintervalData(qtMDD->getLoadDomain());
         returnValue->setNullValues(nullValues);

@@ -54,6 +54,7 @@ reladminif/sqlerror.cc
 reladminif/transactionif.cc
 relblobif/blobtile.cc
 relcatalogif/dbminterval.cc
+relcatalogif/dbnullvalues.cc
 relcatalogif/mddbasetype.cc
 relcatalogif/mdddimensiontype.cc
 relcatalogif/mdddomaintype.cc

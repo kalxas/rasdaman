@@ -83,44 +83,23 @@ create_coll $TEST_COLLECTION GreySet
 
 logn "inserting MDD into collection... "
 $RASQL --quiet -q "insert into $TEST_COLLECTION values marray x in [0:255, 0:210] values 1c"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 # ------------------------------------------------------------------------------
 
 logn "updating MDD from collection... "
 $RASQL --quiet -q "update $TEST_COLLECTION as a set a assign a[0:179,0:54] + 1c"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 # ------------------------------------------------------------------------------
 
 logn "testing SELECT INTO a new collection... "
 $RASQL --quiet -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c"
-if [ $? -eq 0 ]; then
-	sdom1=`$RASQL -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
-	sdom2=`$RASQL -q "select sdom(c) from $TEST_COLLECTION as c" --out string`
-	if [ "$sdom1" == "$sdom2" ]; then
-		echo ok.
-		NUM_SUC=$(($NUM_SUC + 1))
-	else
-		echo failed.
-		NUM_FAIL=$(($NUM_FAIL + 1))
-	fi
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
+
+sdom1=`$RASQL -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
+sdom2=`$RASQL -q "select sdom(c) from $TEST_COLLECTION as c" --out string`
+check_result "$sdom1" "$sdom2" "testing select into"
 
 # ------------------------------------------------------------------------------
 
@@ -129,19 +108,10 @@ $RASQL --quiet -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c"
 
 logn "delete all MDDs from a collection... "
 $RASQL --quiet -q "delete from $TMP_COLLECTION"
-if [ $? -eq 0 ]; then
-	sdom=`$RASQL --quiet -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
-	if [ -z "$sdom" ]; then
-		echo ok.
-		NUM_SUC=$(($NUM_SUC + 1))
-	else
-		echo failed.
-		NUM_FAIL=$(($NUM_FAIL + 1))
-	fi
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
+
+sdom=$($RASQL --quiet -q "select sdom(c) from $TMP_COLLECTION as c" --out string)
+check_result "" "$sdom" "deleting all objects from a collection"
 
 # ------------------------------------------------------------------------------
 
@@ -149,8 +119,11 @@ mdd_type=NullValueArrayTest2
 set_type=NullValueSetTest2
 
 # check data types and insert if not available
-TESTDATA_PATH="$SCRIPT_DIR/testdata"
 check_user_type $set_type
+if [ $? -ne 0 ]; then
+    $RASQL --quiet -q "create type $mdd_type as char mdarray [ x, y ]" > /dev/null | tee -a $LOG
+    $RASQL --quiet -q "create type $set_type as set ( $mdd_type null values [1] )" > /dev/null | tee -a $LOG
+fi
 
 TEST_NULL=test_null
 TEST_NULL_INTO=test_null_into
@@ -158,18 +131,11 @@ drop_colls $TEST_NULL
 drop_colls $TEST_NULL_INTO
 create_coll $TEST_NULL $set_type
 
-logn "testing SELECT INTO a new collection with null value transfer... "
 $RASQL --quiet -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)"
 $RASQL --quiet -q "select c - 2c into $TEST_NULL_INTO from $TEST_NULL as c"
 result=$($RASQL -q "select add_cells(c) from $TEST_NULL_INTO as c" --out string | grep 'Result ' | awk '{ print $4 }')
 exp_result="34"
-if [ "$result" == "$exp_result" ]; then
-  echo ok.
-  NUM_SUC=$(($NUM_SUC + 1))
-else
-  echo failed.
-  NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check_result $exp_result $result "select into with null value transfer"
 
 drop_colls $TEST_NULL
 drop_colls $TEST_NULL_INTO
@@ -179,79 +145,100 @@ drop_types $set_type $mdd_type
 
 logn "dropping collection $TMP_COLLECTION... "
 $RASQL --quiet -q "drop collection $TMP_COLLECTION"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 # ------------------------------------------------------------------------------
 
 logn "deleting MDD from collection... "
 $RASQL --quiet -q "delete from $TEST_COLLECTION as a where all_cells(a>0)"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 # ------------------------------------------------------------------------------
 
 logn "dropping collection $TEST_COLLECTION... "
 $RASQL --quiet -q "drop collection $TEST_COLLECTION"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 TEST_COLLECTION=test_insert
 drop_colls $TEST_COLLECTION
 logn "create collection $TEST_COLLECTION... "
 $RASQL --quiet -q "create collection $TEST_COLLECTION GreySet"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
+
 logn "dropping collection $TEST_COLLECTION... "
 $RASQL --quiet -q "drop collection $TEST_COLLECTION"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
 
 TEST_COLLECTION=test_select
 drop_colls $TEST_COLLECTION
 logn "create collection $TEST_COLLECTION... "
 $RASQL --quiet -q "create collection $TEST_COLLECTION GreySet"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
+
 logn "dropping collection $TEST_COLLECTION... "
 $RASQL --quiet -q "drop collection $TEST_COLLECTION"
-if [ $? -eq 0 ]; then
-	echo ok.
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo failed.
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+check
+
+# ------------------------------------------------------------------------------
+# test updates with null values
+# ------------------------------------------------------------------------------
+
+log ""
+log "testing updates with null values attached to source array (char)"
+
+TEST_COLLECTION=test_update_nulls_greyset
+drop_colls $TEST_COLLECTION
+logn "  create collection $TEST_COLLECTION... "
+$RASQL --quiet -q "create collection $TEST_COLLECTION GreySet"
+check
+
+logn "  inserting testdata... "
+$RASQL --quiet -q "insert into $TEST_COLLECTION values <[0:1,0:1] 0c, 1c; 2c, 3c>"
+check
+
+res=$($RASQL -q "select add_cells(c) from $TEST_COLLECTION as c" --out string | grep Result | awk '{ print $4; }')
+check_result "6" "$res" "  checking testdata"
+
+logn "  updating testdata with null values... "
+$RASQL --quiet -q "update $TEST_COLLECTION as c set c[0:1,0:1] assign <[0:1,0:1] 6c, 0c; 1c, 7c> null values [6:7]"
+check
+
+# current array: <[0:1,0:1] 0c, 0c; 1c, 3c>
+res=$($RASQL -q "select add_cells(c) from $TEST_COLLECTION as c" --out string | grep Result | awk '{ print $4; }')
+check_result "4" "$res" "  checking updated testdata"
+
+logn "  dropping collection $TEST_COLLECTION... "
+$RASQL --quiet -q "drop collection $TEST_COLLECTION"
+check
+
+
+log ""
+log "testing updates with null values attached to source array (rgb)"
+
+TEST_COLLECTION=test_update_nulls_rgb
+drop_colls $TEST_COLLECTION
+logn "  create collection $TEST_COLLECTION... "
+$RASQL --quiet -q "create collection $TEST_COLLECTION RGBSet"
+check
+
+logn "  inserting testdata... "
+$RASQL --quiet -q "insert into $TEST_COLLECTION values <[0:1,0:1] {1c, 1c, 1c}, {0c, 1c, 2c}; {1c, 2c, 3c}, {2c, 2c, 2c}>"
+check
+
+res=$($RASQL -q "select add_cells(c) from $TEST_COLLECTION as c" --out string | grep Result | sed 's/.*: //')
+check_result "{ 4, 6, 8 }" "$res" "  checking testdata"
+
+logn "  updating testdata with null values... "
+$RASQL --quiet -q "update $TEST_COLLECTION as c set c[0:1,0:1] assign <[0:1,0:1] {4c, 5c, 6c}, {1c, 1c, 1c}; {2c, 2c, 2c}, {0c, 12c, 6c}> null values [1:2]"
+check
+
+# current array: <[0:1,0:1] {4c, 5c, 6c}, {0c, 1c, 2c}; {1c, 2c, 3c}, {0c, 12c, 6c}>
+res=$($RASQL -q "select add_cells(c) from $TEST_COLLECTION as c" --out string | grep Result | sed 's/.*: //')
+check_result "{ 5, 20, 17 }" "$res" "  checking updated testdata"
+
+logn "  dropping collection $TEST_COLLECTION... "
+$RASQL --quiet -q "drop collection $TEST_COLLECTION"
+check
 
 
 # ------------------------------------------------------------------------------

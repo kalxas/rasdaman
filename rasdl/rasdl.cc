@@ -286,10 +286,10 @@ printNames()
         cout << "typedef set <" << typePtr->getMDDType()->getTypeName() << ">";
 
         // print null values if any are associated with the type -- DM 2013-jun-26
-        DBMinterval* nullValues = typePtr->getNullValues();
+        DBNullvalues* nullValues = typePtr->getNullValues();
         if (nullValues)
         {
-            cout << " null values " << nullValues->to_string();
+            cout << " null values " << nullValues->toString();
         }
 
         cout << " " << typePtr->getTypeName() << ";" << endl;

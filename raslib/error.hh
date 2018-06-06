@@ -608,6 +608,9 @@ public:
 #define INCORRECT_USER_PASSWORD             802
 #define NO_PERMISSION_FOR_OPERATION         803
 #define CAPABILITY_REFUSED                  804
+#define DATABASE_CONNECT_FAILED             830
+#define DATABASE_NOTFOUND                   831
+#define DATABASE_EXISTS_ALREADY             832
 #define DATABASE_INCONSISTENT               1000
 #define DATABASE_INCOMPATIBLE               1001
 #define ZERO_LENGTH_BLOB                    1002

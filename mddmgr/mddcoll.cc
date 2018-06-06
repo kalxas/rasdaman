@@ -528,11 +528,11 @@ MDDColl::getMDDCollection(const char* collName)
             result.append(" AS SET (");
             result.append(typePtr->getMDDType()->getTypeName());
 
-            DBMinterval* nullValues = typePtr->getNullValues();
+            DBNullvalues* nullValues = typePtr->getNullValues();
             if (nullValues)
             {
                 result.append(" NULL VALUES ");
-                result.append(nullValues->to_string());
+                result.append(nullValues->toString());
             }
 
             result.append(")");

@@ -1,0 +1,263 @@
+/*
+* This file is part of rasdaman community.
+*
+* Rasdaman community is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Rasdaman community is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+*
+* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
+rasdaman GmbH.
+*
+* For more information please see <http://www.rasdaman.org>
+* or contact Peter Baumann via <baumann@rasdaman.com>.
+*/
+// This is -*- C++ -*-
+
+/*************************************************************************
+ *
+ *
+ * PURPOSE:
+ *      Code with embedded SQL for PostgreSQL DBMS
+ *
+ *
+ * COMMENTS:
+ *      none
+ *
+ ***********************************************************************/
+
+#include "config.h"
+#include "reladminif/sqlerror.hh"
+#include "reladminif/externs.h"
+#include "dbnullvalues.hh"
+#include <logging.hh>
+
+EXEC SQL include "../reladminif/sqlglobals.h";
+
+DBNullvalues::DBNullvalues()
+    :   DBObject(),
+        r_Nullvalues({})
+{
+    objecttype = OId::DBNULLVALUESOID;
+}
+
+DBNullvalues::DBNullvalues(const OId& id) throw (r_Error)
+    :   DBObject(id),
+        r_Nullvalues({})
+{
+    objecttype = OId::DBNULLVALUESOID;
+    readFromDb();
+}
+
+DBNullvalues::DBNullvalues(const DBNullvalues& old)
+    :   DBObject(old),
+        r_Nullvalues(old)
+{
+    objecttype = OId::DBNULLVALUESOID;
+}
+
+DBNullvalues::DBNullvalues(const r_Nullvalues& old)
+    :   DBObject(),
+        r_Nullvalues(old)
+{
+    objecttype = OId::DBNULLVALUESOID;
+}
+
+DBNullvalues::~DBNullvalues()
+{
+    validate();
+}
+
+DBNullvalues&
+DBNullvalues::operator=(const DBNullvalues& old)
+{
+    if (this == &old)
+        return *this;
+    r_Nullvalues::operator=(old);
+    setModified();
+    return *this;
+}
+
+DBNullvalues&
+DBNullvalues::operator=(const r_Nullvalues& old)
+{
+    if (this == &old)
+        return *this;
+    r_Nullvalues::operator=(old);
+    setModified();
+    return *this;
+}
+
+r_Bytes
+DBNullvalues::getMemorySize() const
+{
+    return DBObject::getMemorySize() + sizeof(r_Nullvalues) + nullvalues.size() * sizeof(nullvalues[0]);
+}
+
+void
+DBNullvalues::insertInDb() throw (r_Error)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+        long    nullvalueid;
+        long    count;
+        double  low;
+        short   lowind;
+        double  high;
+        short   highind;
+    EXEC SQL END DECLARE SECTION;
+    
+    nullvalueid = myOId.getCounter();
+    
+    for (count = 0; count < nullvalues.size(); ++count)
+    {
+        low = nullvalues[count].first;
+        high = nullvalues[count].second;
+        lowind = std::isnan(low) ? -1 : 0;
+        highind = std::isnan(high) ? -1 : 0;
+        
+        LDEBUG << "INSERT INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High ) VALUES "
+                << "( " << nullvalueid << ", " << count << ", " << low << ", " << high << ")";
+        EXEC SQL INSERT INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High )
+          VALUES ( :nullvalueid, :count, :low INDICATOR :lowind, :high INDICATOR :highind );
+        if (SQLCODE != SQLOK)
+        {
+            check("DBNullvalues::insertInDb() INSERT INTO RAS_NULLVALUEPAIRS");
+            generateException();
+        }
+    }
+
+    DBObject::insertInDb();
+}
+
+void
+DBNullvalues::updateInDb() throw (r_Error)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+        long    nullvalueid1;
+        long    count1;
+        double  low1;
+        double  high1;
+        short   lowind1;
+        short   highind1;
+        short   test1;
+    EXEC SQL END DECLARE SECTION;
+    
+    nullvalueid1 = myOId.getCounter();
+    
+    for (count1 = 0; count1 < nullvalues.size(); ++count1)
+    {
+        low1 = nullvalues[count1].first;
+        high1 = nullvalues[count1].second;
+        lowind1 = std::isnan(low1) ? -1 : 0;
+        highind1 = std::isnan(high1) ? -1 : 0;
+        
+        test1 = 0;
+        EXEC SQL SELECT 1 INTO :test1
+            FROM RAS_NULLVALUEPAIRS
+            WHERE NullValueOId = :nullvalueid1 AND Count = :count1;
+        if (test1 == 1)
+        {
+            EXEC SQL UPDATE RAS_NULLVALUEPAIRS SET Low = :low1 INDICATOR :lowind1, High = :high1 INDICATOR :highind1
+                WHERE NullValueOId = :nullvalueid1 AND Count = :count1;
+            if (SQLCODE != SQLOK)
+            {
+                check("DBNullvalues::updateInDb() UPDATE RAS_NULLVALUEPAIRS");
+                generateException();
+            }
+        }
+        else
+        {
+            EXEC SQL INSERT INTO RAS_NULLVALUEPAIRS ( NullValueOId, Count, Low, High )
+                VALUES (:nullvalueid1, :count1, :low1 INDICATOR :lowind1, :high1 INDICATOR :highind1);
+            if (SQLCODE != SQLOK)
+            {
+                check("DBNullvalues::updateInDb() INSERT INTO RAS_NULLVALUEPAIRS");
+                generateException();
+            }
+        }
+    }
+    
+    DBObject::updateInDb();
+}
+
+void
+DBNullvalues::deleteFromDb() throw (r_Error)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+        long    nullvalueid2;
+    EXEC SQL END DECLARE SECTION;
+
+    nullvalueid2 = myOId.getCounter();
+
+    EXEC SQL DELETE FROM RAS_NULLVALUEPAIRS
+       WHERE NullValueOId = :nullvalueid2;
+    if (SQLCODE != SQLOK)
+    {
+        check("DBNullvalues::deleteFromDb() DELETE FROM RAS_NULLVALUEPAIRS");
+        generateException();
+    }
+
+    DBObject::deleteFromDb();
+}
+
+void
+DBNullvalues::readFromDb() throw (r_Error)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+        long    nullvalueid3;
+        long    count3;
+        double  low3;
+        double  high3;
+        long    dimension3;
+        short   lowind3;
+        short   highind3;
+    EXEC SQL END DECLARE SECTION;
+
+    nullvalueid3 = myOId.getCounter();
+    
+    EXEC SQL SELECT MAX(Count) + 1
+        INTO :dimension3
+        FROM RAS_NULLVALUEPAIRS
+        WHERE NullValueOId = :nullvalueid3;
+    if (SQLCODE != SQLOK)
+    {
+        check("DBNullvalues::readFromDb() SELECT FROM RAS_NULLVALUEPAIRS");
+        generateException();
+    }
+    
+    for (count3 = 0; count3 < dimension3; count3++)
+    {
+        EXEC SQL SELECT Low, High
+            INTO :low3 INDICATOR :lowind3, :high3 INDICATOR :highind3
+            FROM RAS_NULLVALUEPAIRS
+            WHERE NullValueOId = :nullvalueid3 AND Count = :count3;
+        if (SQLCODE != SQLOK)
+        {
+            check("DBNullvalues::readFromDb() SELECT FROM RAS_NULLVALUEPAIRS");
+            generateException();
+        }
+        if (lowind3)
+            low3 = std::numeric_limits<double>::quiet_NaN();
+        if (highind3)
+            highind3 = std::numeric_limits<double>::quiet_NaN();
+        nullvalues.emplace_back(low3, high3);
+    }
+    
+    if (nullvalues.empty())
+    {
+        LERROR << "DBNullvalues::readFromDb() - nullvalues object: "
+               << myOId.getCounter() << " not found in the database.";
+        throw r_Ebase_dbms(0, "nullvalues data not found in the database.");
+    }
+
+    DBObject::readFromDb();
+}
+

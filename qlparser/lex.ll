@@ -41,6 +41,7 @@ static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 2
 #include "qlparser/qtiterator.hh"
 #include "qlparser/qtunaryinduce.hh"
 #include "qlparser/qtmshapedata.hh"
+#include "qlparser/qtnullvaluesop.hh"
 
 std::list<ParseInfo> infoList;
 

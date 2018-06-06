@@ -100,25 +100,7 @@ function is_coll_empty()
 function check_user_type()
 {
   local SET_TYPE="$1"
-  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
-  if [ $? -ne 0 ]; then
-    $RASDL -r $TESTDATA_PATH/types.dl -i > /dev/null
-  fi
-}
-
-
-# ------------------------------------------------------------------------------
-# check user-defined types, if not present testdata/types.dl is read by rasdl.
-# arg 1: set type name
-#
-function check_user_type_file()
-{
-  local SET_TYPE="$1"
-  local TYPES_FILE="$2"
-  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
-  if [ $? -ne 0 ]; then
-    $RASDL -r $TESTDATA_PATH/$TYPES_FILE -i > /dev/null
-  fi
+  $RASDL -p | egrep --quiet "\b$SET_TYPE\b"
 }
 
 
@@ -307,30 +289,44 @@ function import_rasql_data()
 #
 function import_nullvalues_data()
 {
-  local TESTDATA_PATH="$1"
-  if [ ! -d "$TESTDATA_PATH" ]; then
-    error "testdata path $TESTDATA_PATH not found."
-  fi
-  if [ ! -f "$TESTDATA_PATH/types.dl" ]; then
-    error "testdata file $TESTDATA_PATH/types.dl not found"
-  fi
-
+  #
+  # check data types and insert if not available
+  #
   local mdd_type=NullValueArrayTest
   local set_type=NullValueSetTest
+  check_user_type $set_type
+  if [ $? -ne 0 ]; then
+    $RASQL -q "create type $mdd_type as char mdarray [ x, y ]" > /dev/null | tee -a $LOG
+    $RASQL -q "create type $set_type as set ( $mdd_type null values [5:7] )" > /dev/null | tee -a $LOG
+  fi
   local mdd_type3d=NullValueArrayTest3D
   local set_type3d=NullValueSetTest3D
-
-  # check data types and insert if not available
-  check_user_type $set_type
   check_user_type $set_type3d
+  if [ $? -ne 0 ]; then
+    $RASQL -q "create type $mdd_type3d as char mdarray [ x, y, z ]" > /dev/null | tee -a $LOG
+    $RASQL -q "create type $set_type3d as set ( $mdd_type3d null values [5:7] )" > /dev/null | tee -a $LOG
+  fi
+  local mdd_flt_type=NullValueFloatArrayTest
+  local set_flt_type=NullValueFloatSetTest
+  check_user_type $set_flt_type
+  if [ $? -ne 0 ]; then
+    $RASQL -q "create type $mdd_flt_type as float mdarray [ x, y ]" > /dev/null | tee -a $LOG
+    $RASQL -q "create type $set_flt_type as set ( $mdd_flt_type null values [nan, 3.14:3.33] )" > /dev/null | tee -a $LOG
+  fi
 
-  drop_colls $TEST_NULL $TEST_NULL3D
+  #
+  # drop any existing data and insert again
+  #
+  drop_colls $TEST_NULL $TEST_NULL_FLOAT $TEST_NULL3D
 
   create_coll $TEST_NULL $set_type
-  $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
+  $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
 
   create_coll $TEST_NULL3D $set_type3d
-  $RASQL -q "insert into $TEST_NULL3D values marray x in [0:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
+  $RASQL -q "insert into $TEST_NULL3D values marray x in [0:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
+
+  create_coll $TEST_NULL_FLOAT $set_flt_type
+  $RASQL -q "insert into $TEST_NULL_FLOAT values (float) <[0:2,0:2] nan, 0.0f, 3.13f; 3.14f, 3.15f, 3.33f; 3.33334f, 3.34f, nan>" > /dev/null | tee -a $LOG
 }
 
 #		
@@ -390,6 +386,8 @@ function import_subsetting_data()
 #
 drop_nullvalues_data()
 {
-  drop_colls $TEST_NULL $TEST_NULL3D
-  drop_types NullValueSetTest NullValueArrayTest NullValueSetTest3D NullValueArrayTest3D
+  drop_colls $TEST_NULL $TEST_NULL3D $TEST_NULL_FLOAT
+  drop_types NullValueSetTest3D NullValueArrayTest3D
+  drop_types NullValueFloatSetTest NullValueFloatArrayTest
+  drop_types NullValueSetTest NullValueArrayTest 
 }

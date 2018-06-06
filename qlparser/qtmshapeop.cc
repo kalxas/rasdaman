@@ -130,7 +130,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
             // since the check is done in the checkType function.
             vector<r_Point> polygonVertices;
             vector<QtMShapeData *> polytopeEdges;
-            r_Minterval *nullValues = NULL;
+            r_Nullvalues *nullValues = NULL;
             r_Dimension overAllDim{};
 
             bool isSimplePolytope = false;

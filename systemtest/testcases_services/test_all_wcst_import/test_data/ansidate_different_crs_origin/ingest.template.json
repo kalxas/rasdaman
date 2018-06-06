@@ -37,12 +37,6 @@
               "description": "Count of the number of observations from the MERIS sensor contributing to this bin cell",
               "nilReason": "The nil value represents an error in the sensor.",
               "identifier": "MERIS_nobs_sum"
-            },
-            {
-              "name": "Chlor",
-              "identifier": "chlor_a",
-              "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
-              "nilReason": "The nil value represents an error in the sensor."
             }
           ],
           "axes": {
@@ -52,8 +46,8 @@
               "directPositions": "${netcdf:variable:time}",
               "gridOrder": 0,
               "type": "ansidate",
-	      "resolution": "1",
-	      "crs_origin": "1970-01-01"
+         "resolution": "1",
+         "crs_origin": "1970-01-01"
             },
             "Long": {
               "min": "${netcdf:variable:lon:min}",

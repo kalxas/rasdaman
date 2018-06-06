@@ -23,13 +23,15 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "conversion/tmpfile.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#define TMP_FILENAME_TEMPLATE "/tmp/rasdaman.XXXXXX\0"
+#define TMP_RASDAMAN_DIR "/tmp/rasdaman_conversion/"
+#define TMP_FILENAME_TEMPLATE "/tmp/rasdaman_conversion/rasdaman.XXXXXX\0"
 
 using namespace std;
 
@@ -47,15 +49,28 @@ r_TmpFile::~r_TmpFile(void)
         close(fd);
         fd = INVALID_FILE_DESCRIPTOR;
         remove(fileName.c_str());
+        removeAuxXmlFile();
+    }
+}
+
+void r_TmpFile::removeAuxXmlFile() const
+{
+    auto auxXmlFile = fileName + ".aux.xml";
+    struct stat fstat;
+    if (stat(auxXmlFile.c_str(), &fstat) == 0)
+    {
+        remove(auxXmlFile.c_str());
     }
 }
 
 void r_TmpFile::initTmpFile()
 {
+    // create if not exist, rwxr-xr-x
+    mkdir(TMP_RASDAMAN_DIR, S_IRWXU + S_IRGRP + S_IXGRP + S_IROTH + S_IXOTH);
     char tmpFileName[] = TMP_FILENAME_TEMPLATE;
     if ((fd = mkstemp(tmpFileName)) == INVALID_FILE_DESCRIPTOR)
     {
-        LERROR << "failed creating a temporary file.";
+        LERROR << "failed creating a temporary file '" << tmpFileName << "'.";
         LERROR << "reason: " << strerror(errno);
         throw r_Error(r_Error::r_Error_General);
     }

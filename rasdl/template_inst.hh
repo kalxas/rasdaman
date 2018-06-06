@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include <relcatalogif/settype.hh>
 #include <relcatalogif/mddtype.hh>
 #include <relcatalogif/dbminterval.hh>
+#include <relcatalogif/dbnullvalues.hh>
 
 #include <relindexif/hierindex.hh>
 #include <relindexif/dbrcindexds.hh>
@@ -68,6 +69,7 @@ template class DBRef<DBHierIndex>;
 template class DBRef<DBTCIndex>;
 template class DBRef<DBRCIndexDS>;
 template class DBRef<DBMinterval>;
+template class DBRef<DBNullvalues>;
 template class DBRef<StructType>;
 template class DBRef<MDDType>;
 template class DBRef<SetType>;

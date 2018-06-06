@@ -85,8 +85,12 @@ OId::OIdCounter OId::nextUDFOID = 0;
 
 OId::OIdCounter OId::nextUDFPACKAGEOID = 0;
 
+OId::OIdCounter OId::nextFILETILEOID = 0;
+
+OId::OIdCounter OId::nextDBNULLVALUESOID = 0;
+
 unsigned int
-OId::maxCounter = 20;
+OId::maxCounter = 22;
 
 const char*
 OId::counterNames[] = { "INVALID",
@@ -108,7 +112,9 @@ OId::counterNames[] = { "INVALID",
                         "ATOMICTYPEOID",
                         "UDFOID",
                         "UDFPACKAGEOID",
-                        "MDDRCIXOID"
+                        "MDDRCIXOID",
+                        "FILETILEOID",
+                        "DBNULLVALUESOID"
                       };
 
 OId::OIdCounter*
@@ -133,7 +139,9 @@ OId::counterIds[] =
     &nextATOMICTYPEOID,
     &nextUDFOID,
     &nextUDFPACKAGEOID,
-    &nextMDDRCIXOID
+    &nextMDDRCIXOID,
+    &nextFILETILEOID,
+    &nextDBNULLVALUESOID
 };
 
 bool OId::loadedOk = false;
@@ -379,6 +387,9 @@ operator<<(std::ostream& s, OId::OIdType d)
     case OId::DBMINTERVALOID:
         s << "DBMINTERVALOID";
         break;
+    case OId::DBNULLVALUESOID:
+        s << "DBNULLVALUESOID";
+        break;
     case OId::STORAGEOID:
         s << "STORAGEOID";
         break;
@@ -405,6 +416,9 @@ operator<<(std::ostream& s, OId::OIdType d)
         break;
     case OId::MDDRCIXOID:
         s << "MDDRCIXOID";
+        break;
+    case OId::FILETILEOID:
+        s << "FILETILEOID";
         break;
     default:
         s << "UNKNOWN: " << static_cast<int>(d);

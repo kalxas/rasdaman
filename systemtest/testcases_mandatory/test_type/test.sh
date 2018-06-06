@@ -64,7 +64,7 @@ TEST_STRUCT_TYPE="CREATE TYPE $STRUCT_TYPE_NAME AS (red char, green char, blue c
 TEST_MARRAY_DIM_TYPE="CREATE TYPE $MARRAY_DIM_TYPE_NAME AS $STRUCT_TYPE_NAME MDARRAY [a0,a1]"
 TEST_MARRAY_DOM_TYPE="CREATE TYPE $MARRAY_DOM_TYPE_NAME AS (red char, green char, blue char) MDARRAY [a0(0:10),a1(0:*)]"
 TEST_SET_TYPE="CREATE TYPE $SET_TYPE_NAME AS SET ($MARRAY_DIM_TYPE_NAME)"
-TEST_SET_TYPE_NULL_VALUES="CREATE TYPE $SET_TYPE_NAME_NULL_VALUES AS SET ($MARRAY_DOM_TYPE_NAME NULL VALUES [1:3])"
+TEST_SET_TYPE_NULL_VALUES="CREATE TYPE $SET_TYPE_NAME_NULL_VALUES AS SET ($MARRAY_DOM_TYPE_NAME NULL VALUES [1.000000:3.000000])"
 
 
 # ------------------------------------------------------------------------------
@@ -86,44 +86,43 @@ test_create_type()
     $RASQL --quiet -q "$1"
     if [ $? -eq 0 ]; then
         $RASQL -q "SELECT a FROM $2 a" --out string | grep -F -q "$1"
-        check_result 0 $?
+        check
     else
-    	echo failed.
-        NUM_FAIL=$(($NUM_FAIL + 1))
-        NUM_TOTAL=$(($NUM_TOTAL + 1))
+    	check_failed
     fi
 }
 
 # check drop type
 test_drop_type()
 {
-    logn "DROP TYPE $1 ... "
     $RASQL --quiet -q "DROP TYPE $1"
-    check_result 0 $?
+    check_result 0 $? "DROP TYPE $1"
+}
+
+drop_type_quiet()
+{
+    $RASQL --quiet -q "DROP TYPE $1" > /dev/null 2>&1
 }
 
 test_invalid_drop_type()
 {
-    logn "DROP TYPE $1 ..."
     $RASQL --quiet -q "DROP TYPE $1" 2>&1 | grep -F -q "Exception"
-    check_result 0 $?
+    check_result 0 $? "DROP TYPE $1"
 }
 
 # $1 is the type name, $2 is the format for the structure to be created
 test_invalid_create_type()
 {
-    logn "$1 ..."
     $RASQL --quiet -q "$1" 2>&1 | grep -F -q "Exception"
-    check_result 0 $?
+    check_result 0 $? "$1"
 }
 
 
 # check if RAS_TYPES collection exist
 test_select_type()
 {
-    logn "SELECT $1 FROM $1 ... "
     $RASQL --quiet -q "SELECT $1 FROM $1"
-    check_result 0 $?
+    check_result 0 $? "SELECT $1 FROM $1"
 }
 test_select_type "RAS_STRUCT_TYPES"
 test_select_type "RAS_MARRAY_TYPES"
@@ -133,11 +132,22 @@ test_select_type "RAS_SET_TYPES"
 if [ $NUM_FAIL -eq 0 ]; then
 
 #testing type creation
+    drop_type_quiet "$SET_TYPE_NAME_NULL_VALUES"
+    drop_type_quiet "$SET_TYPE_NAME"
+    drop_type_quiet "$MARRAY_DOM_TYPE_NAME"
+    drop_type_quiet "$MARRAY_DIM_TYPE_NAME"
+    drop_type_quiet "$STRUCT_TYPE_NAME"
+    drop_type_quiet "TestGreySetNullValues"
+    drop_type_quiet "test_waxlake_set"
+    drop_type_quiet "test_waxlake_mdd"
+    drop_type_quiet "test_waxlake_base"
+
     test_create_type "$TEST_STRUCT_TYPE" "RAS_STRUCT_TYPES"
     test_create_type "$TEST_MARRAY_DIM_TYPE" "RAS_MARRAY_TYPES"
     test_create_type "$TEST_MARRAY_DOM_TYPE" "RAS_MARRAY_TYPES"
     test_create_type "$TEST_SET_TYPE" "RAS_SET_TYPES"
     test_create_type "$TEST_SET_TYPE_NULL_VALUES" "RAS_SET_TYPES"
+
 #testing error when making struct of structs
     STRUCT_OF_STRUCT_TYPE_NAME="TestStructOfStructsType"
     TEST_STRUCT_OF_STRUCT_TYPE_A="CREATE TYPE $STRUCT_OF_STRUCT_TYPE_NAME AS (x1 char, x2 $STRUCT_TYPE_NAME, x3 char)"
@@ -184,9 +194,6 @@ if [ $NUM_FAIL -eq 0 ]; then
     test_create_type "CREATE TYPE test_waxlake_set AS SET (test_waxlake_mdd)" "RAS_SET_TYPES"
     $RASQL --quiet -q "create collection test_waxlake test_waxlake_set"
     $RASQL --quiet -q "INSERT INTO test_waxlake VALUES <[0:0,0:0] {0c,0c,0c}> "
-    $RASQL -q 'select dbinfo(c) from test_waxlake as c' --out string
-    $RASQL -q 'select c.b1 from test_waxlake as c' --out file
-    $RASQL -q 'select c.0 from test_waxlake as c' --out file
 
     $RASQL --quiet -q "drop collection test_waxlake"
     test_drop_type "test_waxlake_set"

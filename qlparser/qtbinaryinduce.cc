@@ -164,7 +164,7 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const
 
     // get the MDD object
     MDDObj* op = operand1->getMDDObject();
-    r_Minterval* nullValues = op->getNullValues();
+    auto* nullValues = op->getNullValues();
 
     // create ULong type with QtIntData value
     const BaseType* constBaseType = operand2->getValueType();
@@ -287,8 +287,8 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
     // get the MDD objects
     MDDObj* op1 = operand1->getMDDObject();
     MDDObj* op2 = operand2->getMDDObject();
-    r_Minterval* nullValues1 = op1->getNullValues();
-    r_Minterval* nullValues2 = op2->getNullValues();
+    auto* nullValues1 = op1->getNullValues();
+    auto* nullValues2 = op2->getNullValues();
     //  get the areas, where the operation has to be applied
     const r_Minterval& areaOp1 = operand1->getLoadDomain();
     const r_Minterval& areaOp2 = operand2->getLoadDomain();
@@ -443,7 +443,7 @@ QtData*
 QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, const BaseType* resultBaseType)
 {
     QtScalarData* scalarDataObj = NULL;
-    r_Minterval* nullValues = operand1->getNullValues();  // FIXME use also operand2
+    auto* nullValues = operand1->getNullValues();  // FIXME use also operand2
 
     // allocate memory for the result
     char* resultBuffer = new char[ resultBaseType->getSize() ];

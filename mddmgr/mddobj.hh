@@ -76,7 +76,7 @@ public:
         Creates a new transient MDD object with definition domain {\tt domain } and type (\tt mddType).
         The newly created object has no tiles.
     */
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterval* newNullValues);
+    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalues* newNullValues);
     /**
         Creates a new transient MDD object with definition domain {\tt domain }, type (\tt mddType) and null values newNullValues.
         The newly created object has no tiles.
@@ -254,7 +254,7 @@ public:
 
     /// Override method in NullValuesHandler, in order to set null values to the
     /// underlying database object
-    void setUpdateNullValues(r_Minterval* newNullValues);
+    void setUpdateNullValues(r_Nullvalues* newNullValues);
 
     /// write nullValues to a given tile...
     /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes

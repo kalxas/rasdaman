@@ -22,8 +22,8 @@
 ###################################################################
 
 # The name of the SQL sources files without extension
-set(EMBEDDED_SQL_SOURCES dbminterval mddbasetype
-        mdddimensiontype mdddomaintype mddtype
+set(EMBEDDED_SQL_SOURCES dbminterval dbnullvalues 
+        mddbasetype mdddimensiontype mdddomaintype mddtype
         settype structtype)
 
 set(COMPILED_SQL_SOURCES "")
@@ -41,8 +41,9 @@ add_library(relcatalogif ${COMPILED_SQL_SOURCES}
         collectiontype.C collectiontype.hh
         complextype.hh complextype.icc
         compositetype.C compositetype.hh
-        dbminterval.hh doubletype.C
-        doubletype.hh
+        dbminterval.hh 
+        dbnullvalues.hh
+        doubletype.C doubletype.hh
         floattype.C floattype.hh
         inlineminterval.cc inlineminterval.hh
         integraltype.hh integraltype.icc

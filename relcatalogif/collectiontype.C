@@ -23,6 +23,7 @@ rasdaman GmbH.
 #include "collectiontype.hh"
 #include "mddtype.hh"
 #include "debug/debug-srv.hh"
+#include "raslib/nullvalues.hh"
 #include <logging.hh>
 
 r_Bytes
@@ -102,15 +103,15 @@ CollectionType::compatibleWith(const Type* aType) const
 }
 
 
-DBMinterval* CollectionType::getNullValues() const
+DBNullvalues* CollectionType::getNullValues() const
 {
   if (nullValues != NULL) {
-    LDEBUG << "returning null values: " << nullValues->to_string();
+    LDEBUG << "returning null values: " << nullValues->toString();
   }
   return nullValues;
 }
 
-void CollectionType::setNullValues(const r_Minterval &newNullValues)
+void CollectionType::setNullValues(const r_Nullvalues &newNullValues)
 {
-  nullValues = new DBMinterval(newNullValues);
+  nullValues = new DBNullvalues(newNullValues);
 }

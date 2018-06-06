@@ -1,2 +1,0 @@
-typedef marray <char, 2> NullValueArrayTest2;
-typedef set<NullValueArrayTest2> null values [1:1] NullValueSetTest2;

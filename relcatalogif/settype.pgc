@@ -183,9 +183,9 @@ SetType::readFromDb()
         }
         else
         {
-            nullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(nullvalueoid2, OId::DBMINTERVALOID));
+            nullValues = (DBNullvalues*)ObjectBroker::getObjectByOId(OId(nullvalueoid2, OId::DBNULLVALUESOID));
             nullValues->setCached(true);
-            LDEBUG << "Got null values: " << nullValues->get_string_representation();
+            LDEBUG << "Got null values: " << nullValues->toString();
         }
     }
     else

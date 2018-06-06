@@ -235,7 +235,7 @@ bool SQLiteQuery::openConnection(const char* globalConnectId)
     if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
     {
         LFATAL << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
-        throw r_Error(830);
+        throw r_Error(DATABASE_CONNECT_FAILED);
     }
     else
     {

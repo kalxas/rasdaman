@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "relcatalogif/basetype.hh"
 #include "reladminif/objectbroker.hh"
 #include "relcatalogif/dbminterval.hh"
+#include "relcatalogif/dbnullvalues.hh"
 #include "relstorageif/dbstoragelayout.hh"
 #include "dbmddobj.hh"
 #include "relindexif/indexid.hh"
@@ -397,7 +398,7 @@ DBMDDObj::updateInDb()
                 generateException();
             }
 
-            DBMinterval* oldNullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBMINTERVALOID));
+            DBNullvalues* oldNullValues = (DBNullvalues*) ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBNULLVALUESOID));
             if (oldNullValues)
             {
                 oldNullValues->setPersistent(false);
@@ -551,18 +552,18 @@ DBMDDObj::decrementPersRefCount()
     setModified();
 }
 
-DBMinterval*
+DBNullvalues*
 DBMDDObj::getNullValues() const
 {
   if (nullValues != NULL) {
-    LDEBUG << "returning null values: " << nullValues->get_string_representation();
+    LDEBUG << "returning null values: " << nullValues->toString();
   }
   return nullValues;
 }
 
 void
-DBMDDObj::setNullValues(const r_Minterval &newNullValues)
+DBMDDObj::setNullValues(const r_Nullvalues& newNullValues)
 {
-  nullValues = new DBMinterval(newNullValues);
+  nullValues = new DBNullvalues(newNullValues);
   setModified();
 }

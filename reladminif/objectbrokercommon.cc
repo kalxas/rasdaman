@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include "relindexif/hierindex.hh"
 #include "relblobif/blobtile.hh"
 #include "relcatalogif/dbminterval.hh"
+#include "relcatalogif/dbnullvalues.hh"
 #include "relblobif/inlinetile.hh"
 #include "relindexif/dbtcindex.hh"
 #include "sqlerror.hh"
@@ -113,6 +114,9 @@ ObjectBroker::theStructTypes;
 
 DBObjectPMap
 ObjectBroker::theDBMintervals;
+
+DBObjectPMap
+ObjectBroker::theDBNullvalues;
 
 DBObjectPMap
 ObjectBroker::theDBMDDObjs;
@@ -286,6 +290,8 @@ ObjectBroker::deinit()
 
     theDBMintervals.clear();
 
+    theDBNullvalues.clear();
+
     theDBMDDObjs.clear();
 
     theMDDSets.clear();
@@ -351,6 +357,9 @@ ObjectBroker::getObjectByOId(const OId& id)
                 break;
             case OId::DBMINTERVALOID:
                 retval = loadDBMinterval(id);
+                break;
+            case OId::DBNULLVALUESOID:
+                retval = loadDBNullvalues(id);
                 break;
             case OId::STORAGEOID:
                 retval = loadDBStorage(id);
@@ -647,6 +656,7 @@ ObjectBroker::clearBroker()
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDTYPEOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::STRUCTTYPEOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBMINTERVALOID));
+    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBNULLVALUESOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::BLOBOID));
     theTileIndexMappings.clear();
 
@@ -693,6 +703,9 @@ ObjectBroker::getMap(OId::OIdType type)
         break;
     case OId::DBMINTERVALOID:
         theMap = &theDBMintervals;
+        break;
+    case OId::DBNULLVALUESOID:
+        theMap = &theDBNullvalues;
         break;
     case OId::STORAGEOID:
         theMap = &theDBStorages;
@@ -891,6 +904,29 @@ ObjectBroker::loadDBMinterval(const OId& id)
     try
     {
         retval = new DBMinterval(id);
+        LTRACE << "found in db";
+        registerDBObject(retval);
+    }
+    catch (r_Error& error)
+    {
+        LTRACE << "not found in db";
+        if (retval)
+        {
+            delete retval;
+            retval = 0;
+        }
+        throw error;
+    }
+    return retval;
+}
+
+DBObject*
+ObjectBroker::loadDBNullvalues(const OId& id)
+{
+    DBObject* retval = 0;
+    try
+    {
+        retval = new DBNullvalues(id);
         LTRACE << "found in db";
         registerDBObject(retval);
     }

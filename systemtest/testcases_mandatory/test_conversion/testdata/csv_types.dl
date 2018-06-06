@@ -1,3 +1,0 @@
-struct TestStruct { float f; long l; };
-typedef marray <TestStruct, 2> TestFL;
-typedef set<TestFL> TestFLSet;

@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/dbref.hh"
-#include "relcatalogif/dbminterval.hh"
+#include "relcatalogif/dbnullvalues.hh"
 #include "relmddif/mddid.hh"
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
@@ -254,10 +254,10 @@ TypeFactory::addSetType(const SetType* type)
     {
         persistentType = new SetType(const_cast<char*>(type->getTypeName()), const_cast<MDDType*>(addMDDType(type->getMDDType())));
 
-        DBMinterval* interval = type->getNullValues();
+        DBNullvalues* interval = type->getNullValues();
         if (interval != NULL)
         {
-            persistentType->setNullValues(*interval);
+            persistentType->setNullValues(*((r_Nullvalues*)interval));
         }
 
         persistentType->setPersistent(true);

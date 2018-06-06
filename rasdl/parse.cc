@@ -987,7 +987,7 @@ void Parse_set::output(FILE* stream)const
     if (nullValues)
     {
         fprintf(stream, ", ");
-        fprintf(stream, "%s", nullValues->to_string().c_str());
+        fprintf(stream, "%s", nullValues->toString().c_str());
     }
     fprintf(stream, " >");
 }
@@ -1041,7 +1041,7 @@ Parse_set::getType(const char* typeName) const
     SetType* setType = new SetType(typeName, const_cast<MDDType*>(catBaseType));
     if (nullValues != NULL)
     {
-        LDEBUG << "Set null values to " << nullValues->to_string();
+        LDEBUG << "Set null values to " << nullValues->toString();
         setType->setNullValues(*nullValues);
     }
 

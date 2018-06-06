@@ -137,7 +137,7 @@ QtPointOp::evaluate(QtDataList *inputList)
             // create a QtPointData object and fill it
             //
             r_Point ptVar(operandList->size());
-            r_Minterval *nullValues = NULL;
+            r_Nullvalues *nullValues = NULL;
 
             for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
                 if ((*dataIter)->getDataType() == QT_SHORT ||

@@ -27,6 +27,7 @@ rasdaman GmbH.
 // #include "o2template_CC.hxx"
 
 #include "raslib/minterval.hh"
+#include "raslib/nullvalues.hh"
 #include "raslib/error.hh"
 
 #include "relcatalogif/basetype.hh"
@@ -832,7 +833,7 @@ public:
     virtual const CType* getType(const char* typeName = NULL) const;
 
     /// null values
-    r_Minterval* nullValues;
+    r_Nullvalues* nullValues;
 };
 
 

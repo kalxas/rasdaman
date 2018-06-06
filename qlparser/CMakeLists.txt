@@ -88,6 +88,8 @@ add_library(qlparser
         qtmulticlipping.hh qtmulticlipping.cc qtmulticlipping.icc
         qtnaryoperation.cc qtnaryoperation.hh qtnaryoperation.icc
         qtnode.cc qtnode.hh qtnode.icc
+        qtnullvaluesdata.cc qtnullvaluesdata.hh
+        qtnullvaluesop.cc qtnullvaluesop.hh qtnullvaluesop.icc
         qtoid.cc qtoid.hh qtoid.icc
         qtoncstream.cc qtoncstream.hh qtoncstream.icc
         qtoperation.cc qtoperation.hh qtoperation.icc

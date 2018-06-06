@@ -159,7 +159,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
 
         // get the MDD object
         MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
-        r_Minterval* nullValues = op->getNullValues();
+        auto* nullValues = op->getNullValues();
 
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();

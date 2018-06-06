@@ -1,0 +1,1 @@
+select max_cells(2 + <[0:2] 1, 2, 3> NULL VALUES [3])

@@ -153,7 +153,6 @@ QtConcat::evaluate(QtDataList* inputList)
 
         // check if type coercion is possible and compute the result type
         const BaseType* baseType = NULL;
-        r_Dimension nullValuesDim = 0;
 
         for (iter = operandList->begin(); iter != operandList->end(); iter++)
         {
@@ -162,12 +161,6 @@ QtConcat::evaluate(QtDataList* inputList)
                 QtMDD* qtMDDObj = static_cast<QtMDD*>(*iter);
                 MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
                 baseType = (currentMDDObj->getMDDBaseType())->getBaseType();
-                r_Minterval* tempValues = currentMDDObj->getNullValues();
-                if (tempValues != NULL)
-                {
-                    nullValuesDim += tempValues->dimension();
-                }
-
             }
             else
             {
@@ -188,11 +181,6 @@ QtConcat::evaluate(QtDataList* inputList)
                     }
 
                     return 0;
-                }
-                r_Minterval* tempValues = currentMDDObj2->getNullValues();
-                if (tempValues != NULL)
-                {
-                    nullValuesDim += tempValues->dimension();
                 }
             }
         }
@@ -258,7 +246,7 @@ QtConcat::evaluate(QtDataList* inputList)
 
         // create a transient MDD object for the query result
         MDDObj* resultMDD = new MDDObj(resultMDDType, destinationDomain);
-        r_Minterval* nullValues = new r_Minterval(nullValuesDim);;
+        std::vector<std::pair<r_Double, r_Double> > nullvalues;
 
         i = 0;
         for (iter = operandList->begin(); iter != operandList->end(); iter++, i++)
@@ -269,12 +257,11 @@ QtConcat::evaluate(QtDataList* inputList)
                 QtMDD* qtMDDObj = static_cast<QtMDD*>(*iter);
                 MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
                 // add the null values of the current array to the set of the null values of the result
-                r_Minterval* tempValues = currentMDDObj->getNullValues();
+                auto* tempValues = currentMDDObj->getNullValues();
                 if (tempValues != NULL)
-                    for (unsigned int j = 0; j < tempValues->dimension(); j++)
-                    {
-                        *nullValues << (*tempValues)[j];
-                    }
+                {
+                    nullvalues = tempValues->getNullvalues();
+                }
                 // get all tiles
                 vector<boost::shared_ptr<Tile>>* tilesA = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
 
@@ -303,12 +290,12 @@ QtConcat::evaluate(QtDataList* inputList)
                 QtMDD* qtMDDObj2 = static_cast<QtMDD*>(*iter);
                 MDDObj* currentMDDObj2 = qtMDDObj2->getMDDObject();
                 // add the null values of the current array to the set of the null values of the result
-                r_Minterval* tempValues = currentMDDObj2->getNullValues();
+                auto* tempValues = currentMDDObj2->getNullValues();
                 if (tempValues != NULL)
-                    for (unsigned int j = 0; j < tempValues->dimension(); j++)
-                    {
-                        *nullValues << (*tempValues)[j];
-                    }
+                {
+                    for (const auto &p: tempValues->getNullvalues())
+                        nullvalues.push_back(p);
+                }
                 // get all tiles
                 vector<boost::shared_ptr<Tile>>* tilesB = currentMDDObj2->intersect(qtMDDObj2->getLoadDomain());
 
@@ -328,10 +315,20 @@ QtConcat::evaluate(QtDataList* inputList)
                     newTransTile->execUnaryOp(myOp, destinationTileDomain, tileIter->get(), sourceTileDomain);
                     resultMDD->insertTile(newTransTile);
                 }
-                resultMDD->setNullValues(nullValues);
+                if (!nullvalues.empty())
+                {
+                    auto nullvaluesTmp = nullvalues;
+                    auto* tmp = new r_Nullvalues(std::move(nullvaluesTmp));
+                    resultMDD->setNullValues(tmp);
+                }
                 // create a new QtMDD object as carrier object for the transient MDD object
                 returnValue = new QtMDD(static_cast<MDDObj*>(resultMDD));
-                returnValue->setNullValues(nullValues);
+                if (!nullvalues.empty())
+                {
+                    auto nullvaluesTmp = nullvalues;
+                    auto* tmp = new r_Nullvalues(std::move(nullvaluesTmp));
+                    returnValue->setNullValues(tmp);
+                }
                 // delete the tile vectors, the tiles themselves are deleted when the destructor
                 // of the MDD object is called
                 delete tilesB;

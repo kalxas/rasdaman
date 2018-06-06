@@ -127,7 +127,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
 
     // get the MDD object
     MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
-    r_Minterval* nullValues = op->getNullValues();
+    auto* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     const r_Minterval& areaOp = (static_cast<QtMDD*>(operand))->getLoadDomain();
@@ -279,7 +279,7 @@ QtUnaryInduce::computeUnaryOp(QtScalarData* operand, const BaseType* resultBaseT
                               Ops::OpType operation, unsigned int operandOffset, double param)
 {
     QtScalarData* scalarDataObj = NULL;
-    r_Minterval* nullValues = operand->getNullValues();
+    auto* nullValues = operand->getNullValues();
 
     // allocate memory for the result
     char* resultBuffer = new char[ resultBaseType->getSize() ];

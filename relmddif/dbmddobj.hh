@@ -29,8 +29,10 @@ class BaseType;
 class MDDBaseType;
 class OIdIf;
 class r_Minterval;
+class r_Nullvalues;
 class r_Error;
 class DBMinterval;
+class DBNullvalues;
 
 #include "mddid.hh"
 #include "relindexif/indexid.hh"
@@ -196,12 +198,12 @@ public:
         Calculates the size of this object in main memory.
     */
 
-    DBMinterval* getNullValues() const;
+    DBNullvalues* getNullValues() const;
     /*@Doc:
     return null values associated with this object
     */
 
-    void setNullValues(const r_Minterval& newNullValues);
+    void setNullValues(const r_Nullvalues& newNullValues);
     /*@Doc:
     associate null values with this object
     */
@@ -268,7 +270,7 @@ private:
     */
 
     /// null values
-    DBMinterval* nullValues;
+    DBNullvalues* nullValues;
 };
 
 #endif

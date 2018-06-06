@@ -137,7 +137,7 @@ QtMDDAccess::next()
         CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
         if (collType)
         {
-            r_Minterval* dbmi = collType->getNullValues();
+            auto* dbmi = collType->getNullValues();
             if (dbmi != NULL)
             {
                 ptr->setNullValues(dbmi);

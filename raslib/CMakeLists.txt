@@ -42,6 +42,7 @@ add_library(raslib attribute.hh attribute.cc
         mitera.hh mitera.cc
         miterd.hh miterd.cc miterd.icc
         miterf.hh miterf.icc
+        nullvalues.cc nullvalues.hh
         odmgtypes.hh
         oid.hh oid.cc oid.icc
         oidtype.hh oidtype.cc
@@ -92,6 +93,7 @@ install(FILES
     miterd.hh
     miterf.hh
     miter.hh
+    nullvalues.hh
     odmgtypes.hh
     oid.hh
     oidtype.hh

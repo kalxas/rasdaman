@@ -66,6 +66,7 @@ TEST_GREY3D=test_grey3d
 TEST_GREY4D=test_grey4d
 TEST_COMPLEX=test_complex
 TEST_NULL=nulltest
+TEST_NULL_FLOAT=test_nulltest_float
 TEST_NULL3D=test_nulltest3d
 TEST_SUBSETTING_1D=test_subsetting_1d
 TEST_SUBSETTING=test_subsetting

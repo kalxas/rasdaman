@@ -1,0 +1,1 @@
+select add_cells(c) from test_nulltest_float as c

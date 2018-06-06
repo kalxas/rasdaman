@@ -99,6 +99,7 @@ This is the ops code and the persistence code: from the typenum the oids are gen
   OP_IS_NULL  && is null check (result Bool) \\
   OP_SQRT  && square root (for doubles) \\
   OP_IDENTITY && used for copying cells \\
+  OP_UPDATE && used for updating cells, takes into account null values \\
 
   && {\bf binary operations} \\
   OP_MINUS && subtraction \\
@@ -163,7 +164,7 @@ public:
         OP_CAST_END,
         //*******************
 
-        /* insert new unary ops before this line */ OP_IDENTITY,
+        /* insert new unary ops before this line */ OP_IDENTITY, OP_UPDATE,
         // binary operations.
         OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT, OP_INTDIV, OP_MOD,
         OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR, OP_CONSTRUCT_COMPLEX,
@@ -718,7 +719,27 @@ public:
     OpIDENTITYStruct(const BaseType* newResType, const BaseType* newOpType,
                      unsigned int newResOff = 0, unsigned int newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
-    virtual void operator()(char* result, const char* op);
+    void operator()(char* result, const char* op) override;
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_UPDATE on structs. Works, if struct types are identical.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateStruct : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateStruct(const BaseType* newResType, const BaseType* newOpType,
+                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    ~OpUpdateStruct() override;
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    void operator()(char* result, const char* op) override;
+    void setNullValues(r_Nullvalues* newNullValues) override;
+protected:
+    unsigned int numElems;
+    UnaryOp** assignmentOps;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -752,6 +773,21 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_UPDATE on C type #unsigned long#, result #unsigned long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateCULong : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateCULong(const BaseType* newResType, const BaseType* newOpType,
+                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    void operator()(char* result, const char* op) override;
+};
+
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_NOT on C type #unsigned long#, result #unsigned long#.
 /**
   * \ingroup Catalogmgrs
@@ -782,7 +818,7 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_IDENTITY on C type #unsigned long#, result #unsigned long#.
+//@Doc: OP_IDENTITY on C type #long#, result #long#.
 /**
   * \ingroup Catalogmgrs
   */
@@ -797,7 +833,22 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_IDENTITY on C type #unsigned long#, result #unsigned long#.
+//@Doc: OP_UPDATE on C type #long#, result #long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateCLong : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateCLong(const BaseType* newResType, const BaseType* newOpType,
+                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    void operator()(char* result, const char* op) override;
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_IDENTITY on C type #double#, result #double#.
 /**
   * \ingroup Catalogmgrs
   */
@@ -806,6 +857,21 @@ class OpIDENTITYCDouble : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYCDouble(const BaseType* newResType, const BaseType* newOpType,
+                      unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_UPDATE on C type #double#, result #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateCDouble : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateCDouble(const BaseType* newResType, const BaseType* newOpType,
                       unsigned int newResOff = 0, unsigned int newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
@@ -2191,6 +2257,19 @@ public:
     virtual void operator()(char* result, const char* op);
 };
 
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateChar : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateChar(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_IDENTITY specialized for RasDaMan type Short.
 
@@ -2207,6 +2286,19 @@ public:
     virtual void operator()(char* result, const char* op);
 };
 
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateShort : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateShort(const BaseType* newResType, const BaseType* newOpType,
+                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_IDENTITY specialized for RasDaMan type Long.
 
@@ -2218,6 +2310,19 @@ class OpIDENTITYLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYLong(const BaseType* newResType, const BaseType* newOpType,
+                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char* result, const char* op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateLong : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateLong(const BaseType* newResType, const BaseType* newOpType,
                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
@@ -2533,6 +2638,12 @@ class OpIDENTITYComplex : public UnaryOp
 {
 public:
     OpIDENTITYComplex(const BaseType*, const BaseType*, unsigned int = 0, unsigned int = 0);
+    virtual void operator()(char* result, const char* op);
+};
+class OpUpdateComplex : public UnaryOp
+{
+public:
+    OpUpdateComplex(const BaseType*, const BaseType*, unsigned int = 0, unsigned int = 0);
     virtual void operator()(char* result, const char* op);
 };
 

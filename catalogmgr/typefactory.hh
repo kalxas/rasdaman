@@ -57,7 +57,7 @@ class BaseType;
 class SetType;
 class MDDType;
 class Type;
-class DBMinterval;
+class DBNullvalues;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
