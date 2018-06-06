@@ -24,6 +24,7 @@ QtData* QtCreateSetType::evaluate()
     }
 
     TypeFactory::addSetType(setType);
+    delete setType;
     return returnValue;
 }
 

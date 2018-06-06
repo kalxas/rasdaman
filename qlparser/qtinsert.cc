@@ -294,7 +294,7 @@ QtInsert::evaluate()
         if (!OId::allocateMDDOId(&oid))
         {
 #else
-        OId::allocateOId(oid, OId::MDDOID);
+            OId::allocateOId(oid, OId::MDDOID);
 #endif
             // cast to external format
             myoid = static_cast<long long>(oid);
@@ -305,30 +305,7 @@ QtInsert::evaluate()
             vector<boost::shared_ptr<Tile>>* sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
-            MDDBaseType* persMDDType = static_cast<MDDBaseType*>(const_cast<Type*>(TypeFactory::ensurePersistence(static_cast<Type*>(const_cast<MDDBaseType*>(sourceObj->getMDDBaseType())))));
-
-            if (!persMDDType)
-            {
-                LFATAL << "Error: QtInsert::evaluate() - type not persistent";
-
-                // delete dynamic data
-                if (sourceData)
-                {
-                    sourceData->deleteRef();
-                }
-                delete sourceTiles;
-                sourceTiles = NULL;
-                if (nextTuple)
-                {
-                    delete nextTuple;
-                    nextTuple = NULL;
-                }
-                persColl->releaseAll();
-                delete persColl;
-                persColl = NULL;
-                parseInfo.setErrorNo(964);
-                throw parseInfo;
-            }
+            MDDBaseType* persMDDType = static_cast<MDDBaseType*>(const_cast<MDDType*>(targetMDDType));
 
             // create a persistent MDD object
             // need a StorageLayout here

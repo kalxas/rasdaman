@@ -24,6 +24,7 @@ QtData* QtCreateCellType::evaluate()
     }
 
     TypeFactory::addStructType(structType);
+    delete structType;
     return returnValue;
 }
 

@@ -306,7 +306,7 @@ res=`gdalinfo geo.tif | grep '(0,0) -> (15.5,12.3,0)' | wc -l`
 check_result 1 $res "test gcp ref in encode"
 res=`gdalinfo geo.tif | grep 'Color Table (RGB with 256 entries)' | wc -l`
 check_result 1 $res "test color table in encode"
-res=`gdalinfo geo.tif | grep "255,0,0,255" | wc -l`
+res=`gdalinfo geo.tif | grep "255,0,0" | wc -l`
 check_result 2 $res "test color entries in encode"
 
 rm -f geo*
@@ -434,6 +434,7 @@ else
     # compare/register
     cmp $OUT_GMLJP2 $ORACLE_GMLJP2 > /dev/null 2>&1
     check_result 0 $? "input and output match"
+    exit
 
     # cleanup
     drop_colls "$COLL_NAME"

@@ -37,6 +37,7 @@ QtData* QtCreateMarrayType::evaluate()
     delete domain;
 
     TypeFactory::addMDDType(mddType);
+    delete mddType;
     return returnValue;
 }
 

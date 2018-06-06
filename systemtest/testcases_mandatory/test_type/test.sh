@@ -77,58 +77,61 @@ check_rasdaman
 # start test
 #
 
-# check if RAS_TYPES collection exist
-function test_select_type() {
-
-logn "SELECT $1 FROM $1 ... "
-$RASQL --quiet -q "SELECT $1 FROM $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-check_result 0 $?
-}
-
 # check if a collection type is created and if it exists in the RAS_TYPES collections
-function test_create_type() {
-
-logn "$1 ... "
-$RASQL --quiet -q "$1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-if [ $? -eq 0 ]; then
-    TYPES=$($RASQL -q "SELECT a FROM $2 a" --out string)
-    echo $TYPES | grep -F -q "$1"
-    check_result 0 $?
-else
-	echo failed.
-    NUM_FAIL=$(($NUM_FAIL + 1))
-    NUM_TOTAL=$(($NUM_TOTAL + 1))
-fi
+# $1: type name
+# $2: types collection name
+test_create_type()
+{
+    logn "$1 ... "
+    $RASQL --quiet -q "$1"
+    if [ $? -eq 0 ]; then
+        $RASQL -q "SELECT a FROM $2 a" --out string | grep -F -q "$1"
+        check_result 0 $?
+    else
+    	echo failed.
+        NUM_FAIL=$(($NUM_FAIL + 1))
+        NUM_TOTAL=$(($NUM_TOTAL + 1))
+    fi
 }
 
 # check drop type
-function test_drop_type() {
-logn "DROP TYPE $1 ... "
-$RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD
-check_result 0 $?
+test_drop_type()
+{
+    logn "DROP TYPE $1 ... "
+    $RASQL --quiet -q "DROP TYPE $1"
+    check_result 0 $?
 }
 
-function test_invalid_drop_type() {
-logn "DROP TYPE $1 ..."
-ERR_MSG=$($RASQL --quiet -q "DROP TYPE $1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD 2>&1)
-echo $ERR_MSG | grep -F -q "Exception"
-check_result 0 $?
+test_invalid_drop_type()
+{
+    logn "DROP TYPE $1 ..."
+    $RASQL --quiet -q "DROP TYPE $1" 2>&1 | grep -F -q "Exception"
+    check_result 0 $?
 }
 
-function test_invalid_create_type() {
-logn "$1 ..."
-#$1 is the type name, $2 is the format for the structure to be created
-ERR_MSG=$($RASQL --quiet -q "$1" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD  2>&1)
-echo $ERR_MSG | grep -F -q "Exception"
-check_result 0 $?
+# $1 is the type name, $2 is the format for the structure to be created
+test_invalid_create_type()
+{
+    logn "$1 ..."
+    $RASQL --quiet -q "$1" 2>&1 | grep -F -q "Exception"
+    check_result 0 $?
 }
 
+
+# check if RAS_TYPES collection exist
+test_select_type()
+{
+    logn "SELECT $1 FROM $1 ... "
+    $RASQL --quiet -q "SELECT $1 FROM $1"
+    check_result 0 $?
+}
 test_select_type "RAS_STRUCT_TYPES"
 test_select_type "RAS_MARRAY_TYPES"
 test_select_type "RAS_SET_TYPES"
 
 # if RAS_TYPES collections exist then run the rest of the tests
 if [ $NUM_FAIL -eq 0 ]; then
+
 #testing type creation
     test_create_type "$TEST_STRUCT_TYPE" "RAS_STRUCT_TYPES"
     test_create_type "$TEST_MARRAY_DIM_TYPE" "RAS_MARRAY_TYPES"
@@ -175,6 +178,20 @@ if [ $NUM_FAIL -eq 0 ]; then
     test_drop_type "$MARRAY_DOM_TYPE_NAME"
     test_drop_type "$STRUCT_TYPE_NAME"
 
+# test composite base type selection
+    test_create_type "CREATE TYPE test_waxlake_base AS (b1 char, b2 char, b3 char)" "RAS_STRUCT_TYPES"
+    test_create_type "CREATE TYPE test_waxlake_mdd AS test_waxlake_base MDARRAY [a0,a1]" "RAS_MARRAY_TYPES"
+    test_create_type "CREATE TYPE test_waxlake_set AS SET (test_waxlake_mdd)" "RAS_SET_TYPES"
+    $RASQL --quiet -q "create collection test_waxlake test_waxlake_set"
+    $RASQL --quiet -q "INSERT INTO test_waxlake VALUES <[0:0,0:0] {0c,0c,0c}> "
+    $RASQL -q 'select dbinfo(c) from test_waxlake as c' --out string
+    $RASQL -q 'select c.b1 from test_waxlake as c' --out file
+    $RASQL -q 'select c.0 from test_waxlake as c' --out file
+
+    $RASQL --quiet -q "drop collection test_waxlake"
+    test_drop_type "test_waxlake_set"
+    test_drop_type "test_waxlake_mdd"
+    test_drop_type "test_waxlake_base"
 fi
 
 # ------------------------------------------------------------------------------
