@@ -249,6 +249,7 @@ nbactions.xml
 nbactions-jar.xml
 
 build/
+cmake-build-debug/
 target/
 applications/petascope/petascope_core/target/
 applications/petascope/petascope_main/target/

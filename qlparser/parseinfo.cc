@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)qlparser, ParseInfo: $Id: parseinfo.cc,v 1.6 20
 using namespace std;
 
 #include "qlparser/parseinfo.hh"
+#include "raslib/error.hh"
 
 
 ParseInfo::ParseInfo()
@@ -101,6 +102,8 @@ ParseInfo::operator=(const ParseInfo& old)
 void
 ParseInfo::printStatus(ostream& s) const
 {
-    s << "Error number: " << errorNo << " Token: " << token.c_str() << " Line: " << lineNo << " Column: " << columnNo << endl;
+    r_Equery_execution_failed e(errorNo, 
+            lineNo, columnNo, token.c_str());
+    s << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
 }
 
