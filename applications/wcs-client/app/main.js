@@ -2450,7 +2450,7 @@ var rasdaman;
                 styleNames: styleName,
                 size: 256
             };
-            wwd.navigator.range = 3000 * 1000;
+            wwd.navigator.range = 300 * 1000;
             wwd.removeLayer(webWorldWindModel.wmsLayer);
             var wmsLayer = new WorldWind.WmsLayer(config, null);
             webWorldWindModel.wmsLayer = wmsLayer;
@@ -4020,7 +4020,7 @@ var wms;
                     tmp = "Rasql transform fragment: ";
                 }
                 query = abstract.substring(abstract.indexOf(tmp) + tmp.length, abstract.length);
-                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp));
+                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp) - 2).trim();
                 this.styles.push(new wms.Style(name, styleAbstract, queryType, query));
             }
         };
@@ -4302,6 +4302,7 @@ var rasdaman;
                 if (capabilities) {
                     $scope.layers = [];
                     $scope.layerNames = [];
+                    $scope.display3DLayerNotification = false;
                     capabilities.layers.forEach(function (layer) {
                         $scope.layerNames.push(layer.name);
                         $scope.layers.push(layer);
@@ -4329,23 +4330,22 @@ var rasdaman;
                             .then(function (response) {
                             var coverageDescriptions = response.value;
                             var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                            $scope.display3DLayerNotification = dimensions > 2 ? true : false;
                             var showGetMapURL = false;
-                            if (dimensions == 2) {
-                                var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
-                                if (bands <= 4) {
-                                    showGetMapURL = true;
-                                    var bbox = coveragesExtents[0].bbox;
-                                    $scope.bboxLayer = bbox;
-                                    var minLat = bbox.ymin;
-                                    var minLong = bbox.xmin;
-                                    var maxLat = bbox.ymax;
-                                    var maxLong = bbox.xmax;
-                                    var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
-                                    var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
-                                    var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
-                                    _this.getMapRequestURL = url;
-                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
-                                }
+                            var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                            if (bands <= 4) {
+                                showGetMapURL = true;
+                                var bbox = coveragesExtents[0].bbox;
+                                $scope.bboxLayer = bbox;
+                                var minLat = bbox.ymin;
+                                var minLong = bbox.xmin;
+                                var maxLat = bbox.ymax;
+                                var maxLong = bbox.xmax;
+                                var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
+                                var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
+                                var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
+                                _this.getMapRequestURL = url;
+                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
                             }
                             if (!showGetMapURL) {
                                 _this.getMapRequestURL = null;

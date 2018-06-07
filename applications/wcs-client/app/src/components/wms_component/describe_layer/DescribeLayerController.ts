@@ -91,6 +91,7 @@ module rasdaman {
                     // NOTE: Clear the layers array first to get new valus from GetCapabilities
                     $scope.layers = [];  
                     $scope.layerNames = [];
+                    $scope.display3DLayerNotification = false;
 
                     capabilities.layers.forEach((layer:wms.Layer)=> {                        
                         $scope.layerNames.push(layer.name);
@@ -138,29 +139,31 @@ module rasdaman {
                                     var coverageDescriptions = response.value;
                                     var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
 
+                                    // Display a message to user about the last slice on non spatial axis is selected if layer is 3D+
+                                    $scope.display3DLayerNotification = dimensions > 2 ? true : false;
+
                                     var showGetMapURL = false;
-                                    if (dimensions == 2) {
-                                        var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
-                                        // As PNG can only support maximum 4 bands
-                                        if (bands <= 4) {
-                                            showGetMapURL = true;
-                                            // send a getmap request in EPSG:4326 to server
-                                            var bbox = coveragesExtents[0].bbox;       
-                                            $scope.bboxLayer = bbox;                                     
-                                            var minLat = bbox.ymin;
-                                            var minLong = bbox.xmin;
-                                            var maxLat = bbox.ymax;
-                                            var maxLong = bbox.xmax;
-                                            // WMS 1.3 requires axes order by CRS (EPSG:4326 is lat, long order)
-                                            var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;                                            
-                                            var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
-                                            var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
-                                            this.getMapRequestURL = url;
-                                            // Then, let webworldwind shows the result of GetMap on the globe
-                                            // Default layer is not shown
-                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
-                                        }
+                                    var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                                    // As PNG can only support maximum 4 bands
+                                    if (bands <= 4) {
+                                        showGetMapURL = true;
+                                        // send a getmap request in EPSG:4326 to server
+                                        var bbox = coveragesExtents[0].bbox;       
+                                        $scope.bboxLayer = bbox;                                     
+                                        var minLat = bbox.ymin;
+                                        var minLong = bbox.xmin;
+                                        var maxLat = bbox.ymax;
+                                        var maxLong = bbox.xmax;
+                                        // WMS 1.3 requires axes order by CRS (EPSG:4326 is lat, long order)
+                                        var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;                                            
+                                        var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
+                                        var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
+                                        this.getMapRequestURL = url;
+                                        // Then, let webworldwind shows the result of GetMap on the globe
+                                        // Default layer is not shown
+                                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
                                     }
+                                    
                                     if (!showGetMapURL) {
                                         // Coverage cannot show GetMap on globe
                                         this.getMapRequestURL = null;
@@ -322,6 +325,8 @@ module rasdaman {
         getMapRequestURL:string;        
         bboxLayer:any;
         displayWMSLayer:boolean;
+
+        display3DLayerNotification:boolean;
 
         // Show the WMSLayer on WebWorldWind globe (default doesn't show)
         showWMSLayerOnGlobe(styleName:string):void;

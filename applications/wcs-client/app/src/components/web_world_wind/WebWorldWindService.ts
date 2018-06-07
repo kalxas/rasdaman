@@ -441,7 +441,7 @@ module rasdaman {
                 };
 
             // Zoom at distance 1 km (to avoid loading full big coverage which causes server terminated due to not enough RAM)
-            wwd.navigator.range = 3000 * 1000;
+            wwd.navigator.range = 300 * 1000;
 
             // Remove the rendered surface image layer and replace it with new layer
             wwd.removeLayer(webWorldWindModel.wmsLayer);

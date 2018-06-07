@@ -94,7 +94,7 @@ module wms {
 
                 // the query (rasql/wcps) for the style
                 query = abstract.substring(abstract.indexOf(tmp) + tmp.length, abstract.length);
-                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp));
+                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp) - 2).trim();
 
                 this.styles.push(new Style(name, styleAbstract, queryType, query));
             }
