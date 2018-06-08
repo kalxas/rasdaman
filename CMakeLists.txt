@@ -271,7 +271,7 @@ if (ENABLE_JAVA)
     find_package(Java COMPONENTS Development REQUIRED)
 
     # gdal-java
-    find_library(GDAL_JAVA NAMES libgdaljni.so
+    find_library(GDAL_JAVA NAMES libgdaljni.so libgdalalljni.so
                  PATHS /usr/lib/java/gdal /usr/lib/jni/)
     if (NOT GDAL_JAVA)
         message(FATAL_ERROR "gdal-java not found.")
