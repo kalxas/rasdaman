@@ -59,6 +59,7 @@ bool udfEnabled = true;
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -138,6 +139,9 @@ typedef enum
     OUT_HEX,
     OUT_FORMATTED
 } OUTPUT_TYPE;
+
+// environment variable for the rasdaman data path
+#define RASDATA_ENV_VAR "RASDATA"
 
 // rasdaman MDD type for byte strings (default type used for file format reading)
 #define MDD_STRINGTYPE  "GreyString"
@@ -256,11 +260,24 @@ bool quietLog = false;
 // logging mechanism that respects 'quiet' flag:
 #define INFO(a) { if (!quietLog) std::cout << a; }
 
+const char* getDefaultDb()
+{
+#ifdef BASEDB_SQLITE
+    char* rasdata = getenv(RASDATA_ENV_VAR);
+    if (rasdata)
+    {
+        string s = string(rasdata) + "/" + DEFAULT_DB;
+        return const_cast<const char*>(strdup(s.c_str()));
+    }
+#endif
+    return DEFAULT_DB;
+}
+
 int optionValueIndex = 0;
 
 const char* serverName = DEFAULT_SERV;
 r_ULong serverPort = DEFAULT_PORT;
-const char* baseName = DEFAULT_DB;
+const char* baseName = getDefaultDb();
 
 const char* user = DEFAULT_USER;
 const char* passwd = DEFAULT_PASSWD;
@@ -354,7 +371,7 @@ parseParams(int argc, char** argv)
 
     CommandLineParameter& clp_server = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
     CommandLineParameter& clp_port = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
-    CommandLineParameter& clp_database = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB);
+    CommandLineParameter& clp_database = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName);
     CommandLineParameter& clp_user = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
     CommandLineParameter& clp_passwd = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
     CommandLineParameter& clp_quiet = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);

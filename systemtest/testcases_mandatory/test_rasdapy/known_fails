@@ -48,6 +48,8 @@ arctan_one.rasql
 atan_inf.rasql
 atan_neginf.rasql
 atan_one.rasql
+struct_complex.rasql
+struct_complex_primitive.rasql
 
 # error message is contained in grpc exception message
 range_egt.rasql

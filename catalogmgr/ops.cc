@@ -281,12 +281,14 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType* resType, const BaseType* op1Typ
                  const BaseType* op2Type, unsigned int resOff,
                  unsigned int op1Off, unsigned int op2Off)
 {
+    const auto type1 = op1Type->getType();
+    const auto type2 = op2Type->getType();
+    const auto typeRes = resType->getType();
 // if this flag is set, optimized operation execution for Char
 // is turned off.
 #ifndef NO_OPT_OPS
-    // all Char
-    if (resType->getType() == CHAR && op1Type->getType() == CHAR &&
-            op2Type->getType() == CHAR)
+    // all Char: +, -, max, min, /, intdiv, mod, *
+    if (typeRes == CHAR && type1 == CHAR && type2 == CHAR)
     {
         switch (op)
         {
@@ -300,45 +302,43 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType* resType, const BaseType* op1Typ
             return new OpMIN_BINARYChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_DIV:
             return new OpDIVChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-        case Ops::OP_MULT:
-            return new OpMULTChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_INTDIV:
             return new OpDIVChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MOD:
             return new OpMODChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+        case Ops::OP_MULT:
+            return new OpMULTChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
 #endif
-    if ((resType->getType() == op1Type->getType()) && (resType->getType() == op2Type->getType()) && (op == Ops::OP_OVERLAY))
+    // OVERLAY
+    if ((typeRes == type1) && (typeRes == type2) && (op == Ops::OP_OVERLAY))
     {
         return new OpOVERLAY(resType, op1Type, op2Type, resType->getSize(), OpOVERLAY::nullPattern, resOff, op1Off, op2Off);
     }
 
-    // all Bool
-    if (resType->getType() == BOOLTYPE && op1Type->getType() == BOOLTYPE &&
-            op2Type->getType() == BOOLTYPE)
+    // all Bool: and, or, xor
+    if (typeRes == BOOLTYPE && type1 == BOOLTYPE && type2 == BOOLTYPE)
     {
         switch (op)
         {
         case Ops::OP_AND:
-            return new OpANDBool(resType, op1Type, op2Type, resOff, op1Off,
-                                 op2Off);
+            return new OpANDBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_OR:
-            return new OpORBool(resType, op1Type, op2Type, resOff, op1Off,
-                                op2Off);
+            return new OpORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_XOR:
-            return new OpXORBool(resType, op1Type, op2Type, resOff, op1Off,
-                                 op2Off);
+            return new OpXORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
     // result is unsigned integer
-    if ((resType->getType() >= ULONG && resType->getType() <= BOOLTYPE) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= OCTET) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= OCTET))
+    // op1 and op2 are signed or unsigned integers
+    // ops: +, -, max, min, /, intdiv, mod, *, and, or, xor
+    if ((typeRes >= ULONG && typeRes <= BOOLTYPE) &&
+        (type1 >= ULONG && type1 <= OCTET) && (type2 >= ULONG && type2 <= OCTET))
     {
         switch (op)
         {
@@ -369,364 +369,224 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType* resType, const BaseType* op1Typ
         }
     }
     // result is signed integer
-    if ((resType->getType() == LONG || resType->getType() == SHORT ||
-            resType->getType() == OCTET) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= OCTET) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= OCTET))
+    // op1 and op2 are signed or unsigned integers
+    // ops: +, -, max, min, /, intdiv, mod, *, and, or, xor
+    if ((typeRes >= LONG && typeRes <= OCTET) &&
+        (type1 >= ULONG && type1 <= OCTET) && (type2 >= ULONG && type2 <= OCTET))
     {
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                   op2Off);
+            return new OpPLUSCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MINUS:
-            return new OpMINUSCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                    op2Off);
+            return new OpMINUSCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                         op2Off);
+            return new OpMAX_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                         op2Off);
+            return new OpMIN_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_DIV:
-            return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_INTDIV:
-            return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MOD:
-            return new OpMODCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpMODCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                   op2Off);
+            return new OpMULTCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_AND:
-            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_OR:
-            return new OpORCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                 op2Off);
+            return new OpORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_XOR:
-            return new OpXORCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpXORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
     // result is float or double
-    if ((resType->getType() == FLOAT || resType->getType() == DOUBLE) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= FLOAT) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= FLOAT))
+    // op1 and op2 are any primitive type
+    // ops: +, -, max, min, /, *
+    if ((typeRes == FLOAT || typeRes == DOUBLE) &&
+        (type1 >= ULONG && type1 <= FLOAT) && (type2 >= ULONG && type2 <= FLOAT))
     {
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                     op2Off);
+            return new OpPLUSCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MINUS:
-            return new OpMINUSCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                      op2Off);
+            return new OpMINUSCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                           op2Off);
+            return new OpMAX_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                           op2Off);
+            return new OpMIN_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_DIV:
-            return new OpDIVCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                    op2Off);
+            return new OpDIVCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                     op2Off);
+            return new OpMULTCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
-
-
-//*************************************************************************************
-//                          *** COMPLEXTYPE ***
-//************************************************************************************
-
     // result is complex
-    if (resType->getType() == COMPLEXTYPE1 || resType->getType() == COMPLEXTYPE2)
+    // ops: +, -, max, min, /, *, construct complex
+    if (typeRes == COMPLEXTYPE1 || typeRes == COMPLEXTYPE2)
     {
+        BinaryOp::ScalarFlag scalarFlag = BinaryOp::NONE;
+        if (type1 < COMPLEXTYPE1)
+            scalarFlag = BinaryOp::FIRST;
+        else if (type2 < COMPLEXTYPE1)
+            scalarFlag = BinaryOp::SECOND;
+        
         switch (op)
         {
-
         case Ops::OP_PLUS:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpPLUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpPLUSComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpPLUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpPLUSComplex::SECOND);
-            }
-            else
-            {
-                return new OpPLUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpPLUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MINUS:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMINUSComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMINUSComplex::SECOND);
-            }
-            else
-            {
-                return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MAX_BINARY:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMAX_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMAX_BINARYComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMAX_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMAX_BINARYComplex::SECOND);
-            }
-            else
-            {
-                return new OpMAX_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpMAX_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MIN_BINARY:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMIN_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMIN_BINARYComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMIN_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMIN_BINARYComplex::SECOND);
-            }
-            else
-            {
-                return new OpMIN_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpMIN_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_DIV:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpDIVComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpDIVComplex::SECOND);
-            }
-            else
-            {
-                return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MULT:
-            if (op1Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMULTComplex::FIRST);
-            }
-            else if (op2Type->getType() < COMPLEXTYPE1)
-            {
-                return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMULTComplex::SECOND);
-            }
-            else
-            {
-                return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
-            }
-
+            return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_CONSTRUCT_COMPLEX:
             return new OpConstructComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
-
-//*************************************************************************************
-
-
 #ifndef NO_OPT_OPS
     // result is bool, operands are Chars
-    if ((resType->getType() == BOOLTYPE) && (op1Type->getType() == CHAR) &&
-            (op2Type->getType() == CHAR))
+    // ops: =, <, <=, !=, >, >=
+    if ((typeRes == BOOLTYPE) &&
+        (type1 == CHAR) && (type2 == CHAR))
     {
         switch (op)
         {
         case Ops::OP_EQUAL:
-            return new OpEQUALChar(resType, op1Type, op2Type, resOff, op1Off,
-                                   op2Off);
+            return new OpEQUALChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESS:
-            return new OpLESSChar(resType, op1Type, op2Type, resOff, op1Off,
-                                  op2Off);
+            return new OpLESSChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESSEQUAL:
-            return new OpLESSEQUALChar(resType, op1Type, op2Type, resOff,
-                                       op1Off, op2Off);
+            return new OpLESSEQUALChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_NOTEQUAL:
-            return new OpNOTEQUALChar(resType, op1Type, op2Type, resOff,
-                                      op1Off, op2Off);
+            return new OpNOTEQUALChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATER:
-            return new OpGREATERChar(resType, op1Type, op2Type, resOff,
-                                     op1Off, op2Off);
+            return new OpGREATERChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATEREQUAL:
-            return new OpGREATEREQUALChar(resType, op1Type, op2Type, resOff,
-                                          op1Off, op2Off);
+            return new OpGREATEREQUALChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
 #endif
-    // result is bool
-    if ((resType->getType() == BOOLTYPE) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= BOOLTYPE) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= BOOLTYPE))
+    // result is bool, operands are unsigned integer
+    // ops: =, <, <=, !=, >, >=
+    if ((typeRes == BOOLTYPE) &&
+        (type1 >= ULONG && type1 <= BOOLTYPE) && (type2 >= ULONG && type2 <= BOOLTYPE))
     {
         switch (op)
         {
         case Ops::OP_EQUAL:
-            return new OpEQUALCCharCULong(resType, op1Type, op2Type, resOff, op1Off,
-                                          op2Off);
+            return new OpEQUALCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESS:
-            return new OpLESSCCharCULong(resType, op1Type, op2Type, resOff, op1Off,
-                                         op2Off);
+            return new OpLESSCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESSEQUAL:
-            return new OpLESSEQUALCCharCULong(resType, op1Type, op2Type, resOff,
-                                              op1Off, op2Off);
+            return new OpLESSEQUALCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_NOTEQUAL:
-            return new OpNOTEQUALCCharCULong(resType, op1Type, op2Type, resOff,
-                                             op1Off, op2Off);
+            return new OpNOTEQUALCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATER:
-            return new OpGREATERCCharCULong(resType, op1Type, op2Type, resOff,
-                                            op1Off, op2Off);
+            return new OpGREATERCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATEREQUAL:
-            return new OpGREATEREQUALCCharCULong(resType, op1Type, op2Type, resOff,
-                                                 op1Off, op2Off);
+            return new OpGREATEREQUALCCharCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
-    if ((resType->getType() == BOOLTYPE) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= OCTET) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= OCTET))
+    // result is bool, operands are any integer
+    // ops: =, <, <=, !=, >, >=
+    if ((typeRes == BOOLTYPE) &&
+        (type1 >= ULONG && type1 <= OCTET) && (type2 >= ULONG && type2 <= OCTET))
     {
         switch (op)
         {
         case Ops::OP_EQUAL:
-            return new OpEQUALCCharCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                         op2Off);
+            return new OpEQUALCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESS:
-            return new OpLESSCCharCLong(resType, op1Type, op2Type, resOff, op1Off,
-                                        op2Off);
+            return new OpLESSCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESSEQUAL:
-            return new OpLESSEQUALCCharCLong(resType, op1Type, op2Type, resOff,
-                                             op1Off, op2Off);
+            return new OpLESSEQUALCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_NOTEQUAL:
-            return new OpNOTEQUALCCharCLong(resType, op1Type, op2Type, resOff,
-                                            op1Off, op2Off);
+            return new OpNOTEQUALCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATER:
-            return new OpGREATERCCharCLong(resType, op1Type, op2Type, resOff,
-                                           op1Off, op2Off);
+            return new OpGREATERCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATEREQUAL:
-            return new OpGREATEREQUALCCharCLong(resType, op1Type, op2Type, resOff,
-                                                op1Off, op2Off);
+            return new OpGREATEREQUALCCharCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_BIT:
             return new OpBIT(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
-    if ((resType->getType() == BOOLTYPE) &&
-            (op1Type->getType() >= ULONG && op1Type->getType() <= FLOAT) &&
-            (op2Type->getType() >= ULONG && op2Type->getType() <= FLOAT))
+    // result is bool, operands are float
+    // ops: =, <, <=, !=, >, >=
+    if ((typeRes == BOOLTYPE) &&
+        (type1 >= ULONG && type1 <= FLOAT) && (type2 >= ULONG && type2 <= FLOAT))
     {
         switch (op)
         {
         case Ops::OP_EQUAL:
-            return new OpEQUALCCharCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                           op2Off);
+            return new OpEQUALCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESS:
-            return new OpLESSCCharCDouble(resType, op1Type, op2Type, resOff, op1Off,
-                                          op2Off);
+            return new OpLESSCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_LESSEQUAL:
-            return new OpLESSEQUALCCharCDouble(resType, op1Type, op2Type, resOff,
-                                               op1Off, op2Off);
+            return new OpLESSEQUALCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_NOTEQUAL:
-            return new OpNOTEQUALCCharCDouble(resType, op1Type, op2Type, resOff,
-                                              op1Off, op2Off);
+            return new OpNOTEQUALCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATER:
-            return new OpGREATERCCharCDouble(resType, op1Type, op2Type, resOff,
-                                             op1Off, op2Off);
+            return new OpGREATERCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_GREATEREQUAL:
-            return new OpGREATEREQUALCCharCDouble(resType, op1Type, op2Type, resOff,
-                                                  op1Off, op2Off);
+            return new OpGREATEREQUALCCharCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         default:
             break;
         }
     }
-    // comparison of structs
-    if ((resType->getType() == BOOLTYPE) &&
-            (op1Type->getType() >= STRUCT && op1Type->getType() <= CLASSTYPE) &&
-            (op1Type->compatibleWith(op2Type)))
+    // result is bool, operands are structs
+    // ops: =, !=
+    if (typeRes == BOOLTYPE)
     {
-        switch (op)
+        if ((type1 == STRUCT && type2 == STRUCT) ||
+            (type1 == STRUCT && type2 <= FLOAT) ||
+            (type1 <= FLOAT && type2 == STRUCT))
         {
-        case Ops::OP_EQUAL:
-            return new OpEQUALStruct(resType, op1Type, op2Type, resOff, op1Off,
-                                     op2Off);
-        case Ops::OP_NOTEQUAL:
-            return new OpNOTEQUALStruct(resType, op1Type, op2Type, resOff, op1Off,
-                                        op2Off);
-        default:
-            break;
+            if (op == Ops::OP_EQUAL)
+                return new OpEQUALStruct(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            else if (op == Ops::OP_NOTEQUAL)
+                return new OpNOTEQUALStruct(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            else if (op == Ops::OP_GREATER || op == Ops::OP_GREATEREQUAL || 
+                     op == Ops::OP_LESS || op == Ops::OP_LESSEQUAL)
+                return new OpComparisonStruct(op, resType, op1Type, op2Type, resOff, op1Off, op2Off);
         }
     }
-    // result is Struct, two operands are structs
-    if (resType->getType() == STRUCT && op1Type->getType() == STRUCT &&
-            op2Type->getType() == STRUCT)
+    // result is Struct, two or one operands are structs
+    // ops: -, +, max, min, /, *, intdiv, mod, is, and, or, overlay, bit, xor
+    if (typeRes == STRUCT)
     {
-
-
-        if (op >= OP_MINUS && op <= OP_XOR)
+        if (type1 == STRUCT && type2 == STRUCT)
         {
-            return new OpBinaryStruct(resType, op, op1Type, op2Type, resOff, op1Off, op2Off);
+            if (op >= OP_MINUS && op <= OP_CONSTRUCT_COMPLEX)
+                return new OpBinaryStruct(resType, op, op1Type, op2Type, resOff, op1Off, op2Off);
         }
-        else
+        else if (type1 == STRUCT)
         {
-            return 0;
+            if (op >= OP_MINUS && op <= OP_CONSTRUCT_COMPLEX && isApplicableOnStructConst(op, op1Type, op2Type))
+                return new OpBinaryStructConst(resType, op1Type, op2Type, op, resOff, op1Off, op2Off);
         }
-    }
-    // result is Struct, first operand is struct
-    if (resType->getType() == STRUCT && op1Type->getType() == STRUCT)
-    {
-        if (op >= OP_MINUS && op <= OP_XOR &&
-                isApplicableOnStructConst(op, op1Type, op2Type))
+        else if (type2 == STRUCT)
         {
-            return new OpBinaryStructConst(
-                       resType, op1Type, op2Type,
-                       op,
-                       resOff, op1Off, op2Off
-                   );
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    // result is Struct, second operand is struct
-    if (resType->getType() == STRUCT && op2Type->getType() == STRUCT)
-    {
-        if (op >= OP_MINUS && op <= OP_XOR &&
-                isApplicableOnStructConst(op, op2Type, op1Type))
-            return new OpBinaryConstStruct(
-                       resType, op1Type, op2Type,
-                       op,
-                       resOff, op1Off, op2Off
-                   );
-        else
-        {
-            return 0;
+            if (op >= OP_MINUS && op <= OP_CONSTRUCT_COMPLEX && isApplicableOnStructConst(op, op2Type, op1Type))
+                return new OpBinaryConstStruct(resType, op1Type, op2Type, op, resOff, op1Off, op2Off);
         }
     }
     return 0;
@@ -748,6 +608,10 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
             return new OpSOMECChar(resType, opType, resOff, opOff);
         case Ops::OP_ALL:
             return new OpALLCChar(resType, opType, resOff, opOff);
+        case Ops::OP_MAX:
+            return new OpMAXCLong(resType, opType, resOff, opOff);
+        case Ops::OP_MIN:
+            return new OpMINCLong(resType, opType, resOff, opOff);
         default:
             break;
         }
@@ -979,58 +843,103 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
     }
 }
 
+const BaseType* Ops::getStructResultType(Ops::OpType op, const BaseType* op1, const BaseType* op2)
+{
+    if (!op1) return 0;
+    if (!op2)
+    {
+        if (op1->getType() == STRUCT)
+        {
+            StructType* op1StructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+            StructType* resStructType = new StructType("res_struct_type", op1StructType->getNumElems());
+            TypeFactory::addTempType(resStructType);
+            for (unsigned int i = 0; i < op1StructType->getNumElems(); ++i)
+            {
+                const BaseType* resType = getResultType(op, op1StructType->getElemType(i));
+                if (!resType) return 0;
+                resStructType->addElement(op1StructType->getElemName(i), resType);
+            }
+            return (BaseType*) resStructType;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (op1->getType() == STRUCT && op2->getType() == STRUCT)
+    {
+        StructType* op1StructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+        StructType* op2StructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+        //ensure that both structs have the same number of elements before proceeding
+        if (op1StructType->getNumElems() != op2StructType->getNumElems()) 
+            return 0;
+        StructType* resStructType = new StructType("res_struct_type", op1StructType->getNumElems());
+        TypeFactory::addTempType(resStructType);
+        for (unsigned int i = 0; i < op1StructType->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, op1StructType->getElemType(i), op2StructType->getElemType(i));
+            if (!resType) return 0;
+            resStructType->addElement(op1StructType->getElemName(i), resType);
+        }
+        return (BaseType*) resStructType;   
+    }
+    else if (op1->getType() == STRUCT) 
+    {
+        StructType* op1StructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
+        StructType* resStructType = new StructType("res_struct_type", op1StructType->getNumElems());
+        TypeFactory::addTempType(resStructType);
+        for (unsigned int i = 0; i < op1StructType->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, op1StructType->getElemType(i), op2);
+            if (!resType) return 0;
+            resStructType->addElement(op1StructType->getElemName(i), resType);
+        }
+        return (BaseType*) resStructType;             
+    }
+    else if (op2->getType() == STRUCT)
+    {
+        StructType* op2StructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
+        StructType* resStructType = new StructType("res_struct_type", op2StructType->getNumElems());
+        TypeFactory::addTempType(resStructType);
+        for (unsigned int i = 0; i < op2StructType->getNumElems(); ++i)
+        {
+            const BaseType* resType = getResultType(op, op1, op2StructType->getElemType(i));
+            if (!resType) return 0;
+            resStructType->addElement(op2StructType->getElemName(i), resType);
+        }
+        return (BaseType*) resStructType;   
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
 
 //-----------------------------------------------
 //  getResultType
 //-----------------------------------------------
 const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const BaseType* op2)
 {
-
+    if (!op1)
+        return NULL;
+    auto type1 = op1->getType();
+    auto type2 = op2 ? op2->getType() : INVALID_TYPE;
     // overlay between composite types defined only on identical types
     if (op == OP_OVERLAY)
-    {       
-        if((op1->compatibleWith(op2)))
-        {
+    {
+        if (op1->compatibleWith(op2))
             return op1;
-        }
         else
-        {
             return NULL;
-        }
     }
 
     // operation BIT returns bool or struct {bool, ...}
     if (op == OP_BIT)
     {
-        if (op1->getType() == STRUCT)
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
-
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*) resStructType;
-        }
-        // integral types
-        else if (op1->getType() <= OCTET)
-        {
-            return TypeFactory::mapType("Bool");
-        }
-        else
-        {
-            return 0;
-        }
+        const auto *res = getStructResultType(op, op1, op2);
+        return (!res && op1->getType() <= OCTET) ? TypeFactory::mapType("Bool") : res;
     }
     
     if (op == OP_IS_NULL)
@@ -1041,62 +950,22 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     // the condense operation COUNT always returns an unsigned long
     if (op == Ops::OP_COUNT)
     {
-        return TypeFactory::mapType("ULong");
+        const auto *res = getStructResultType(op, op1, op2);
+        return (res) ? res : TypeFactory::mapType("ULong");
     }
+    
     // SQRT & similar ops return DOUBLE
     // for structs, each band will return double (if it is well-defined!)
-
     if (op > Ops::OP_UFUNC_BEGIN && op < Ops::OP_UFUNC_END) 
     {
-        if (op1 && op1->getType() == STRUCT) 
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
-
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*) resStructType;            
-        }
-        else if(op2 && op2->getType() == STRUCT)
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
-
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*) resStructType;            
-        }
-        else 
-        {
-            return TypeFactory::mapType("Double");
-        }
+        const auto *res = getStructResultType(op, op1, op2);
+        return (res) ? res : TypeFactory::mapType("Double");
     }
 
     if (op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op != OP_CAST_GENERAL)
     {
-        if (op1->getType() < STRUCT)
+        const auto *res = getStructResultType(op, op1, op2);
+        if (!res)
         {
             const char* typeName[] =
             {
@@ -1105,30 +974,9 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
             };
             return TypeFactory::mapType(typeName[op - OP_CAST_BEGIN - 1]);
         }
-
-        else if (op1->getType() == STRUCT)
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*)resStructType;
-        }
-
         else
         {
-            return 0;
+            return res;
         }
 
     }
@@ -1139,10 +987,14 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         // considering the ordering, we only care that there is a natural
         // inclusion map from the 2nd op's type to the complex numbers, and that
         // op1 is, at worst, also complex
-        if (op2->getType() <= COMPLEXTYPE2 && op1->getType() <= COMPLEXTYPE2) 
+        if (type2 <= COMPLEXTYPE2 && type1 <= COMPLEXTYPE2)
         {
-            int x = std::max(op2->getType(), DOUBLE);
-            switch (x) {
+            const auto *res = getStructResultType(op, op1, op2);
+            if (!res)
+            {
+                int x = std::max(type2, DOUBLE);
+                switch (x)
+                {
                 case DOUBLE:
                     return TypeFactory::mapType("Double");
                 case FLOAT:
@@ -1154,6 +1006,11 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
                 default:
                     return TypeFactory::mapType("Double");
                     break;
+                }
+            }
+            else
+            {
+                return res;
             }
         }
     }
@@ -1162,305 +1019,131 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     // (i.e. long/ulong or double)
     if (!op2 && op == Ops::OP_SUM)
     {
-        if (op1->getType() <= BOOLTYPE)
+        const auto *res = getStructResultType(op, op1, op2);
+        if (!res)
         {
-            return TypeFactory::mapType("ULong");
-        }
-
-        if (op1->getType() <= OCTET)
-        {
-            return TypeFactory::mapType("Long");
-        }
-
-        else if (op1->getType() <= FLOAT)
-        {
-            return TypeFactory::mapType("Double");
-        }
-
-        else if (op1->getType() == COMPLEXTYPE1)
-        {
-            return TypeFactory::mapType("Complex1");
-        }
-
-        else if (op1->getType() == COMPLEXTYPE2)
-        {
-            return TypeFactory::mapType("Complex2");
-        }
-
-        else if (op1->getType() == STRUCT)
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*)resStructType;
+            if (type1 <= BOOLTYPE)
+                return TypeFactory::mapType("ULong");
+            if (type1 <= OCTET)
+                return TypeFactory::mapType("Long");
+            else if (type1 <= FLOAT)
+                return TypeFactory::mapType("Double");
+            else if (type1 == COMPLEXTYPE1)
+                return TypeFactory::mapType("Complex1");
+            else if (type1 == COMPLEXTYPE2)
+                return TypeFactory::mapType("Complex2");
+            else
+                return 0;
         }
         else
         {
-            return 0;
+            return res;
         }
     }
 
     if (!op2 && op == Ops::OP_SQSUM)
     {
-
-        if (op1->getType() <= FLOAT)
-        {
-            return TypeFactory::mapType("Double");
-        }
-
-        else if (op1->getType() == STRUCT)
-        {
-            StructType* resStructType = new StructType;
-            TypeFactory::addTempType(resStructType);
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, opStructType->getElemType(i));
-                if (!resType)
-                {
-                    return 0;
-                }
-
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-            return (BaseType*)resStructType;
-        }
-        else
-        {
-            return 0;
-        }
+        const auto *res = getStructResultType(op, op1, op2);
+        return (res) ? res : TypeFactory::mapType("Double");
     }
 
- 
     // some :-) unary and condense operations return the same type
     if (op == OP_REALPART || op == OP_IMAGINARPART)
     {
-        if (op1->getType() == COMPLEXTYPE1)
-        {
+        if (type1 == COMPLEXTYPE1)
             return TypeFactory::mapType("Float");
-        }
-        else if (op1->getType() == COMPLEXTYPE2)
-        {
+        else if (type1 == COMPLEXTYPE2)
             return TypeFactory::mapType("Double");
-        }
     }
-    if (op == OP_CONSTRUCT_COMPLEX)
+    if (op == OP_CONSTRUCT_COMPLEX && type1 != STRUCT && type2 != STRUCT)
     {
-        if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
-        {
+        if (type1 == DOUBLE || type2 == DOUBLE)
             return TypeFactory::mapType("Complex2");
-        }
-        else if (op1->getType() == FLOAT || op2->getType() == FLOAT)
-        {
+        else if (type1 == FLOAT || type2 == FLOAT)
             return TypeFactory::mapType("Complex1");
-        }
         else
-        {
             return TypeFactory::mapType("Complex2");
-        }
     }
     if (op2 == 0)
     {
         return const_cast<BaseType*>(op1);
     }
-    // operations between composite types defined only on compatible types
-    if (op1->getType() >= STRUCT && op1->getType() <= CLASSTYPE)
+    // both struct
+    if (type1 == STRUCT && type2 == STRUCT)
+    {
+        const auto* res = getStructResultType(op, op1, op2);
+        if (res && op >= OP_EQUAL && op <= OP_GREATEREQUAL)
+            return TypeFactory::mapType("Bool");
+        return res;
+    }
+    // one struct, other primitive
+    if ((type1 == STRUCT && type2 <= FLOAT) ||
+        (type1 <= FLOAT && type2 == STRUCT))
     {
         if (op == OP_EQUAL || op == OP_NOTEQUAL)
-        {
             return TypeFactory::mapType("Bool");
-        }
+        else if (op > OP_EQUAL && op <= OP_GREATEREQUAL && op != OP_NOTEQUAL)
+            return NULL;
         else
-        {
-            if (op1->getType() == STRUCT && op2->getType() <= FLOAT)
-            {
-
-                StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-                StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-                TypeFactory::addTempType(resStructType);
-
-                for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-                {
-                    const BaseType* resType = getResultType(op, opStructType->getElemType(i), op2);
-                    if (!resType)
-                    {
-                        return 0;
-                    }
-
-                    resStructType->addElement(opStructType->getElemName(i), resType);
-                }
-
-                return (BaseType*)resStructType;
-            }
-        }
+            return getStructResultType(op, op1, op2);
     }
-    if (op2->getType() >= STRUCT && op2->getType() <= CLASSTYPE)
-    {
-
-        if (op1->getType() <= FLOAT && op2->getType() == STRUCT)
-        {
-            StructType* opStructType = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
-            StructType* resStructType = new StructType("res_struct_type", opStructType->getNumElems());
-            TypeFactory::addTempType(resStructType);
-            
-            for (unsigned int i = 0; i < opStructType->getNumElems(); ++i)
-            {
-                const BaseType* resType = getResultType(op, op1, opStructType->getElemType(i));
-                if (!resType)
-                {
-                    return 0;
-                }
-                resStructType->addElement(opStructType->getElemName(i), resType);
-            }
-
-
-            return (BaseType*)resStructType;
-        }
-        else
-        {
-            return const_cast<BaseType*>(op2);
-        }
-    }
-
     // comparison operators always return bool
     if ((op >= OP_EQUAL && op <= OP_GREATEREQUAL))
     {
         return TypeFactory::mapType("Bool");
     }
+
+
     // all the other binary functions return "strongest" type
     // if only one of operand is signed, result also has to be signed.
     if (isSignedType(op1) && !isSignedType(op2))
     {
         // swap it, action is in next if clause
-        const BaseType* dummy;
-        dummy = op2;
-        op2 = op1;
-        op1 = dummy;
+        std::swap(op1, op2);
+        std::swap(type1, type2);
     }
     if (!isSignedType(op1) && isSignedType(op2))
     {
-        // got to get the thing with the highest precision and make sure
-        // it is signed.
-        if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
-                op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG)
+        // get the thing with the highest precision and make sure it is signed.
+        if (type2 == COMPLEXTYPE1 || type2 == COMPLEXTYPE2 ||
+            type2 == FLOAT || type2 == DOUBLE || type2 == LONG)
         {
             return const_cast<BaseType*>(op2);
         }
-        if (op1->getType() == USHORT)
+        if (type1 == USHORT)
         {
             return TypeFactory::mapType("Short");
         }
-        if (op2->getType() == SHORT)
+        if (type2 == SHORT)
         {
             return const_cast<BaseType*>(op2);
         }
         return TypeFactory::mapType("Octet");
     }
     // return the stronger type
-    if (op1->getType() == COMPLEXTYPE2 || op2->getType() == COMPLEXTYPE2)
+    if (type1 == COMPLEXTYPE2 || type2 == COMPLEXTYPE2)
     {
         return TypeFactory::mapType("Complex2");
     }
-    if (op1->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE1)
+    if (type1 == COMPLEXTYPE1 || type2 == COMPLEXTYPE1)
     {
         return TypeFactory::mapType("Complex1");
     }
-    if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
+    if (type1 == DOUBLE || type2 == DOUBLE)
     {
         return TypeFactory::mapType("Double");
     }
-    if (op1->getType() == FLOAT || op2->getType() == FLOAT)
+    if (type1 == FLOAT || type2 == FLOAT)
     {
         return TypeFactory::mapType("Float");
     }
-    if (op1->getType() <= op2->getType())
+    if (type1 <= type2)
     {
         return const_cast<BaseType*>(op1);
     }
     else
     {
         return const_cast<BaseType*>(op2);
-    }
-    //operations on composite types are extended band-wise.
-    if(op1->getType() == STRUCT && op2->getType() == STRUCT)
-    {
-        StructType* opStructType1 = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-        StructType* opStructType2 = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
-        //ensure that both structs have the same number of elements before proceeding
-        if ( opStructType1->getNumElems() != opStructType2->getNumElems() ) 
-        {
-            return 0;
-        }
-        
-        StructType* resStructType = new StructType("res_struct_type", opStructType1->getNumElems());
-        TypeFactory::addTempType(resStructType);
-
-        for (unsigned int i = 0; i < opStructType1->getNumElems(); ++i)
-        {
-            const BaseType* resType = getResultType(op, opStructType1->getElemType(i), opStructType2->getElemType(i));
-            if (!resType)
-            {
-                return 0;
-            }
-            resStructType->addElement(opStructType1->getElemName(i), resType);
-        }
-
-        return (BaseType*)resStructType;        
-    }
-    else if(op1->getType() == STRUCT && op2->getType() != STRUCT)
-    {
-        StructType* opStructType1 = dynamic_cast<StructType*>(const_cast<BaseType*>(op1));
-        
-        StructType* resStructType = new StructType("res_struct_type", opStructType1->getNumElems());
-        TypeFactory::addTempType(resStructType);
-
-        for (unsigned int i = 0; i < opStructType1->getNumElems(); ++i)
-        {
-            const BaseType* resType = getResultType(op, opStructType1->getElemType(i), op2);
-            if (!resType)
-            {
-                return 0;
-            }
-            resStructType->addElement(opStructType1->getElemName(i), resType);
-        }
-
-        return (BaseType*)resStructType;        
-    }
-    else if(op1->getType() != STRUCT && op2->getType() == STRUCT)
-    {
-        StructType* opStructType2 = dynamic_cast<StructType*>(const_cast<BaseType*>(op2));
-        
-        StructType* resStructType = new StructType("res_struct_type", opStructType2->getNumElems());
-        TypeFactory::addTempType(resStructType);
-
-        for (unsigned int i = 0; i < opStructType2->getNumElems(); ++i)
-        {
-            const BaseType* resType = getResultType(op, op1, opStructType2->getElemType(i));
-            if (!resType)
-            {
-                return 0;
-            }
-            resStructType->addElement(opStructType2->getElemName(i), resType);
-        }
-
-        return (BaseType*)resStructType;        
-    }
-    else
-    {
-        return 0;
     }
 }
 
@@ -4504,33 +4187,37 @@ OpEQUALStruct::OpEQUALStruct(const BaseType* newResType,
                              unsigned int newResOff,
                              unsigned int newOp1Off,
                              unsigned int newOp2Off)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
 {
-    unsigned int i = 0;
-
-    numElems = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getNumElems();
+    bool struct1 = op1Type->getType() == STRUCT;
+    bool struct2 = op2Type->getType() == STRUCT;
+    numElems = dynamic_cast<StructType*>(const_cast<BaseType*>(struct1 ? op1Type : op2Type))->getNumElems();   
     elemOps = new BinaryOp*[numElems];
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
-        elemOps[i] =
-            Ops::getBinaryOp(Ops::OP_EQUAL, resType,
-                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i),
-                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i),
-                             newResOff,
-                             newOp1Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i),
-                             newOp2Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i));
+        auto* type1 = op1Type;
+        unsigned int offset1 = 0;
+        if (struct1)
+        {
+            type1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i);
+            offset1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i);
+        }
+        auto* type2 = op2Type;
+        unsigned int offset2 = 0;
+        if (struct2)
+        {
+            type2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i);
+            offset2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i);
+        }
+        elemOps[i] = Ops::getBinaryOp(Ops::OP_EQUAL, resType, type1, type2, 
+                                      newResOff, newOp1Off + offset1, newOp2Off + offset2);
     }
 }
 
 OpEQUALStruct::~OpEQUALStruct()
 {
-    unsigned int i;
-
-    for (i = 0; i < numElems; i++)
-    {
+    for (unsigned int i = 0; i < numElems; i++)
         delete elemOps[i];
-    }
     delete[] elemOps;
 }
 
@@ -4538,10 +4225,8 @@ void
 OpEQUALStruct::operator()(char* res, const char* op1,
                           const char* op2)
 {
-    unsigned int i;
     char dummy = 1;
-
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         (*elemOps[i])(res, op1, op2);
         dummy = *res && dummy;
@@ -4559,33 +4244,37 @@ OpNOTEQUALStruct::OpNOTEQUALStruct(const BaseType* newResType,
                                    unsigned int newResOff,
                                    unsigned int newOp1Off,
                                    unsigned int newOp2Off)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
 {
-    unsigned int i = 0;
-
-    numElems = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getNumElems();
+    bool struct1 = op1Type->getType() == STRUCT;
+    bool struct2 = op2Type->getType() == STRUCT;
+    numElems = dynamic_cast<StructType*>(const_cast<BaseType*>(struct1 ? op1Type : op2Type))->getNumElems();   
     elemOps = new BinaryOp*[numElems];
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
-        elemOps[i] =
-            Ops::getBinaryOp(Ops::OP_NOTEQUAL, resType,
-                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i),
-                             (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i),
-                             newResOff,
-                             newOp1Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i),
-                             newOp2Off + (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i));
+        auto* type1 = op1Type;
+        unsigned int offset1 = 0;
+        if (struct1)
+        {
+            type1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i);
+            offset1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i);
+        }
+        auto* type2 = op2Type;
+        unsigned int offset2 = 0;
+        if (struct2)
+        {
+            type2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i);
+            offset2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i);
+        }
+        elemOps[i] = Ops::getBinaryOp(Ops::OP_NOTEQUAL, resType, type1, type2, 
+                                      newResOff, newOp1Off + offset1, newOp2Off + offset2);
     }
 }
 
 OpNOTEQUALStruct::~OpNOTEQUALStruct()
 {
-    unsigned int i;
-
-    for (i = 0; i < numElems; i++)
-    {
+    for (unsigned int i = 0; i < numElems; i++)
         delete elemOps[i];
-    }
     delete[] elemOps;
 }
 
@@ -4593,15 +4282,91 @@ void
 OpNOTEQUALStruct::operator()(char* res, const char* op1,
                              const char* op2)
 {
-    unsigned int i;
     char dummy = 0;
-
-    for (i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
     {
         (*elemOps[i])(res, op1, op2);
         dummy = *res || dummy;
     }
     *res = dummy;
+}
+
+//--------------------------------------------
+//  OpComparisonStruct (<, >, <=, >=)
+//--------------------------------------------
+
+OpComparisonStruct::OpComparisonStruct(Ops::OpType op,
+                             const BaseType* newResType,
+                             const BaseType* newOp1Type,
+                             const BaseType* newOp2Type,
+                             unsigned int newResOff,
+                             unsigned int newOp1Off,
+                             unsigned int newOp2Off)
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
+{
+    bool struct1 = op1Type->getType() == STRUCT;
+    bool struct2 = op2Type->getType() == STRUCT;
+    numElems = dynamic_cast<StructType*>(const_cast<BaseType*>(struct1 ? op1Type : op2Type))->getNumElems();   
+    elemOps = new BinaryOp*[numElems];
+    equalOps = new BinaryOp*[numElems];
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        auto* type1 = op1Type;
+        unsigned int offset1 = 0;
+        if (struct1)
+        {
+            type1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getElemType(i);
+            offset1 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op1Type)))->getOffset(i);
+        }
+        auto* type2 = op2Type;
+        unsigned int offset2 = 0;
+        if (struct2)
+        {
+            type2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getElemType(i);
+            offset2 = (dynamic_cast<StructType*>(const_cast<BaseType*>(op2Type)))->getOffset(i);
+        }
+        elemOps[i] = Ops::getBinaryOp(op, resType, type1, type2, 
+                                      newResOff, newOp1Off + offset1, newOp2Off + offset2);
+        equalOps[i] = Ops::getBinaryOp(Ops::OP_EQUAL, resType, type1, type2, 
+                                       newResOff, newOp1Off + offset1, newOp2Off + offset2);
+    }
+}
+
+OpComparisonStruct::~OpComparisonStruct()
+{
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        delete elemOps[i];
+        delete equalOps[i];
+    }
+    delete[] elemOps;
+    delete[] equalOps;
+}
+
+void
+OpComparisonStruct::operator()(char* res, const char* op1,
+                          const char* op2)
+{
+    *res = 0;
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        (*elemOps[i])(res, op1, op2);
+        if (*res)
+        {
+            // as soon as result is true we're done
+            break;
+        }
+        else
+        {
+            // otherwise check operands are equal
+            (*equalOps[i])(res, op1, op2);
+            if (!*res)
+            {
+                // not equal, result is false
+                break;
+            }
+        }
+    }
 }
 
 //--------------------------------------------
@@ -4737,8 +4502,7 @@ OpMAX_BINARYChar::operator()(char* res, const char* op1, const char* op2)
 void
 OpMAX_BINARYChar::getCondenseInit(char* init)
 {
-    //why do we pass the min of an unsigned char here? isn't that just 0?
-    *init = std::numeric_limits<r_Char>::min();
+    *(r_Char*)init = std::numeric_limits<r_Char>::lowest();
 }
 
 //--------------------------------------------
@@ -4769,7 +4533,7 @@ OpMIN_BINARYChar::operator()(char* res, const char* op1, const char* op2)
 void
 OpMIN_BINARYChar::getCondenseInit(char* init)
 {
-    *init = std::numeric_limits<r_Char>::max();
+    *(r_Char*)init = std::numeric_limits<r_Char>::max();
 }
 
 //--------------------------------------------
@@ -5298,13 +5062,13 @@ OpPLUSComplex::OpPLUSComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpPLUSComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpPLUSComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpPLUSComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpPLUSComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5334,11 +5098,11 @@ void OpPLUSComplex::operator()(char* res, const char* op1, const char* op2)
         resRe = op1Re + op2Re;
     }
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
     }
@@ -5382,13 +5146,13 @@ OpMAX_BINARYComplex::OpMAX_BINARYComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpMAX_BINARYComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpMAX_BINARYComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpMAX_BINARYComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpMAX_BINARYComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5402,7 +5166,7 @@ void OpMAX_BINARYComplex::operator()(char* res, const char* op1, const char* op2
     double op2Im = 0;
     double resRe, resIm;
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
         {
@@ -5415,7 +5179,7 @@ void OpMAX_BINARYComplex::operator()(char* res, const char* op1, const char* op2
 
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
         {
@@ -5472,13 +5236,13 @@ OpMIN_BINARYComplex::OpMIN_BINARYComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpMIN_BINARYComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpMIN_BINARYComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpMIN_BINARYComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpMIN_BINARYComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5492,7 +5256,7 @@ void OpMIN_BINARYComplex::operator()(char* res, const char* op1, const char* op2
     double op2Im = 0;
     double resRe, resIm;
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
         {
@@ -5505,7 +5269,7 @@ void OpMIN_BINARYComplex::operator()(char* res, const char* op1, const char* op2
 
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
         {
@@ -5561,13 +5325,13 @@ OpMINUSComplex::OpMINUSComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpMINUSComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpMINUSComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpMINUSComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpMINUSComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5597,11 +5361,11 @@ void OpMINUSComplex::operator()(char* res, const char* op1, const char* op2)
         resRe = op1Re - op2Re;
     }
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
     }
@@ -5636,13 +5400,13 @@ OpDIVComplex::OpDIVComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpDIVComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpDIVComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpDIVComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpDIVComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5656,7 +5420,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
     double op2Im = 0;
     double resRe, resIm;
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
@@ -5680,7 +5444,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         }
 
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
@@ -5704,7 +5468,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         }
 
     }
-    else   // NONE
+    else   // BinaryOp::NONE
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
@@ -5743,13 +5507,13 @@ OpMULTComplex::OpMULTComplex(
     unsigned int newResOff,
     unsigned int newOp1Off,
     unsigned int newOp2Off,
-    ScalarFlag flag)
+    BinaryOp::ScalarFlag flag)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
 {
-    op1ReOff = scalarFlag == OpMULTComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == OpMULTComplex::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == OpMULTComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == OpMULTComplex::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
+    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getReOffset();
+    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp1Type)))->getImOffset();
+    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getReOffset();
+    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType*>(const_cast<BaseType*>(newOp2Type)))->getImOffset();
 
     resReOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType*>(const_cast<BaseType*>(newResType)))->getImOffset();
@@ -5764,7 +5528,7 @@ void OpMULTComplex::operator()(char* res, const char* op1, const char* op2)
     double resRe, resIm;
 
 
-    if (scalarFlag == FIRST)
+    if (scalarFlag == BinaryOp::FIRST)
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
@@ -5787,7 +5551,7 @@ void OpMULTComplex::operator()(char* res, const char* op1, const char* op2)
         }
 
     }
-    else if (scalarFlag == SECOND)
+    else if (scalarFlag == BinaryOp::SECOND)
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
@@ -5810,7 +5574,7 @@ void OpMULTComplex::operator()(char* res, const char* op1, const char* op2)
         }
 
     }
-    else   // NONE
+    else   // BinaryOp::NONE
     {
         double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
         double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
@@ -5867,7 +5631,7 @@ void OpIDENTITYComplex::operator()(char* res, const char* op)
 OpMAXComplex::OpMAXComplex(const BaseType* newResType, const BaseType* newOpType,
                            unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpMAX_BINARYComplex::NONE)
+    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
     const GenericComplexType* type = (const GenericComplexType*) resType;
     unsigned int reOff = type->getReOffset();
@@ -5884,7 +5648,7 @@ OpMAXComplex::OpMAXComplex(const BaseType* newResType, char* newAccu,
                            const BaseType* newOpType, unsigned int newResOff,
                            unsigned int newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpMAX_BINARYComplex::NONE)
+    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
 }
 
@@ -5906,7 +5670,7 @@ OpMAXComplex::operator()(const char* op)
 OpMINComplex::OpMINComplex(const BaseType* newResType, const BaseType* newOpType,
                            unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpMIN_BINARYComplex::NONE)
+    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
     const GenericComplexType* type = (const GenericComplexType*) resType;
     unsigned int reOff = type->getReOffset();
@@ -5923,7 +5687,7 @@ OpMINComplex::OpMINComplex(const BaseType* newResType, char* newAccu,
                            const BaseType* newOpType, unsigned int newResOff,
                            unsigned int newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpMIN_BINARYComplex::NONE)
+    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
 }
 
@@ -5945,7 +5709,7 @@ OpMINComplex::operator()(const char* op)
 OpSUMComplex::OpSUMComplex(const BaseType* newResType, const BaseType* newOpType,
                            unsigned int newResOff, unsigned int newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpPLUSComplex::NONE)
+    , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
     const GenericComplexType* type = (const GenericComplexType*) resType;
     unsigned int resReOff = type->getReOffset();
@@ -5962,7 +5726,7 @@ OpSUMComplex::OpSUMComplex(const BaseType* newResType, char* newAccu,
                            const BaseType* newOpType, unsigned int newResOff,
                            unsigned int newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, OpPLUSComplex::NONE)
+    , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
 }
 

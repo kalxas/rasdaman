@@ -757,18 +757,22 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             break;
 
         case r_Type::POINTTYPE:
-            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Point>(*iter));
+            NNLINFO << "  Result element " << i << ": ";
+            BLINFO << *(r_Ref<r_Point>(*iter)) << "\n";
             break;
         case r_Type::SINTERVALTYPE:
-            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Sinterval>(*iter));
+            NNLINFO << "  Result element " << i << ": ";
+            BLINFO << *(r_Ref<r_Sinterval>(*iter)) << "\n";
             break;
 
         case r_Type::MINTERVALTYPE:
-            LINFO << "  Result element " << i << ": " << *(r_Ref<r_Minterval>(*iter));
+            NNLINFO << "  Result element " << i << ": ";
+            BLINFO << *(r_Ref<r_Minterval>(*iter)) << "\n";
             break;
 
         case r_Type::OIDTYPE:
-            LINFO << "  Result element " << i << ": " << *(r_Ref<r_OId>(*iter));
+            NNLINFO << "  Result element " << i << ": ";
+            BLINFO << *(r_Ref<r_OId>(*iter)) << "\n";
             break;
 
         default:

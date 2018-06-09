@@ -60,7 +60,7 @@ enum TypeEnum
     COMPLEXTYPE1,             // COMPLEX already defined as token !!!
     COMPLEXTYPE2,
     STRUCT,
-    CLASSTYPE, SETTYPE, MDDTYPE
+    CLASSTYPE, SETTYPE, MDDTYPE, INVALID_TYPE
 };
 
 /*@Doc: This is an enum used for handling types instead of using the
@@ -233,6 +233,12 @@ public:
       can be used for these operations. If the operation is not applicable
       to the given type, 0 is returned.
     */
+    
+    /// get a struct result type if applicable, NULL otherwise
+    static const BaseType* getStructResultType(Ops::OpType op, const BaseType* op1, const BaseType* op2);
+    
+
+    
     /// executes operation on a constant.
     static void execUnaryConstOp(Ops::OpType op, const BaseType* resType,
                                  const BaseType* opType, char* res,
@@ -817,6 +823,10 @@ public:
 class BinaryOp : public NullValuesHandler
 {
 public:
+    // Question: which operand is scalar?
+    // Answer: NONE, FIRST, SECOND
+    enum ScalarFlag { NONE, FIRST, SECOND};
+
     /*@ManMemo: constructor gets RasDaMan base type of result and operands
                 and offsets to result and operands (for structs). */
     BinaryOp(const BaseType* newResType, const BaseType* newOp1Type,
@@ -975,6 +985,28 @@ protected:
     unsigned int numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
+};
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpComparisonStruct : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpComparisonStruct(Ops::OpType op, const BaseType* newResType, const BaseType* newOp1Type,
+                  const BaseType* newOp2Type, unsigned int newResOff = 0,
+                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+    /// destructor.
+    virtual ~OpComparisonStruct();
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char* res, const char* op1,
+                            const char* op2);
+protected:
+    unsigned int numElems;
+    // array of operations on the elements.
+    BinaryOp** elemOps;
+    BinaryOp** equalOps;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -2328,9 +2360,6 @@ protected:
 class OpPLUSComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpPLUSComplex(
         const BaseType* newResType,
@@ -2339,7 +2368,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
@@ -2351,7 +2380,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**
@@ -2360,9 +2389,6 @@ protected:
 class OpMAX_BINARYComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpMAX_BINARYComplex(
         const BaseType* newResType,
@@ -2371,7 +2397,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
@@ -2383,7 +2409,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**
@@ -2392,9 +2418,6 @@ protected:
 class OpMIN_BINARYComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpMIN_BINARYComplex(
         const BaseType* newResType,
@@ -2403,7 +2426,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
@@ -2415,7 +2438,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**
@@ -2424,9 +2447,6 @@ protected:
 class OpMINUSComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpMINUSComplex(
         const BaseType* newResType,
@@ -2435,7 +2455,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
 
@@ -2446,7 +2466,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**
@@ -2455,9 +2475,6 @@ protected:
 class OpDIVComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpDIVComplex(
         const BaseType* newResType,
@@ -2466,7 +2483,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
 
@@ -2477,7 +2494,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**
@@ -2486,9 +2503,6 @@ protected:
 class OpMULTComplex : public BinaryOp
 {
 public:
-    // Question: which operand is scalar?
-    // Answere: NONE, FIRST, SECOND
-    enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpMULTComplex(
         const BaseType* newResType,
@@ -2497,7 +2511,7 @@ public:
         unsigned int newResOff = 0,
         unsigned int newOp1Off = 0,
         unsigned int newOp2Off = 0,
-        ScalarFlag flag = NONE
+        BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
@@ -2509,7 +2523,7 @@ protected:
     unsigned int op2ImOff;
     unsigned int resReOff;
     unsigned int resImOff;
-    ScalarFlag scalarFlag;
+    BinaryOp::ScalarFlag scalarFlag;
 };
 
 /**

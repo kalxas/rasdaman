@@ -97,7 +97,15 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 
         const BaseType* resultBaseType = (static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())))->getBaseType();
 
-        returnValue = computeUnaryMDDOp(mdd, scalar, resultBaseType, 2);
+        try
+        {
+            returnValue = computeUnaryMDDOp(mdd, scalar, resultBaseType, 2);
+        }
+        catch (int errcode)
+        {
+            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            throw parseInfo;
+        }
     }
     else if (operand1->isScalarData() &&
              operand2->getDataType() == QT_MDD)
@@ -107,7 +115,15 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 
         const BaseType* resultBaseType = (static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())))->getBaseType();
 
-        returnValue = computeUnaryMDDOp(mdd, scalar, resultBaseType, 1);
+        try
+        {
+            returnValue = computeUnaryMDDOp(mdd, scalar, resultBaseType, 1);
+        }
+        catch (int errcode)
+        {
+            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            throw parseInfo;
+        }
     }
     else if (operand1->isScalarData() &&
              operand2->isScalarData())
@@ -117,7 +133,15 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 
         BaseType* resultBaseType = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
 
-        returnValue = computeBinaryOp(scalar1, scalar2, resultBaseType);
+        try
+        {
+            returnValue = computeBinaryOp(scalar1, scalar2, resultBaseType);
+        }
+        catch (int errcode)
+        {
+            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            throw parseInfo;
+        }
     }
     else if (operand1->getDataType() == QT_STRING && operand2->getDataType() == QT_STRING)
     {
@@ -166,14 +190,18 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const
     tileIt = allTiles->begin();
     BinaryOp* myOp = NULL;
     if (scalarPos == 1)
-    {
         myOp = (Ops::getBinaryOp(opType, resultBaseType, constBaseType, op->getCellType()));
+    else
+        myOp = (Ops::getBinaryOp(opType, resultBaseType, op->getCellType(), constBaseType));
+    
+    if (myOp)
+    {
         myOp->setNullValues(nullValues);
     }
     else
     {
-        myOp = (Ops::getBinaryOp(opType, resultBaseType, op->getCellType(), constBaseType));
-        myOp->setNullValues(nullValues);
+        LERROR << "Operation " << opType << " not applicable to operands of the given types.";
+        throw r_Error(CELLBINARYOPUNAVAILABLE);
     }
     // and iterate over them
     for (; tileIt != allTiles->end(); tileIt++)
@@ -314,11 +342,13 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
         // and iterate over them
 
         //unique_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
-        if(myOp){
+        if(myOp)
+        {
             myOp->setNullValues(nullValues1);
         }
         else
         {
+            LERROR << "Operation not applicable to operands of the given types.";
             throw r_Error(CELLBINARYOPUNAVAILABLE);
         }
         for (tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++)
@@ -420,7 +450,15 @@ QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, 
 
     BinaryOp* myOp = Ops::getBinaryOp(opType, resultBaseType,
                                       operand1->getValueType(),   operand2->getValueType());
-    myOp->setNullValues(nullValues);
+    if (myOp)
+    {
+        myOp->setNullValues(nullValues);
+    }
+    else
+    {
+            LERROR << "Operation " << opType << " not applicable to operands of the given types.";
+            throw r_Error(CELLBINARYOPUNAVAILABLE);
+    }
     try
     {
         (*myOp)(resultBuffer, operand1->getValueBuffer(), operand2->getValueBuffer());
