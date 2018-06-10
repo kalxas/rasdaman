@@ -336,6 +336,7 @@ QueryTree::evaluateUpdate()
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
             delete resultData;
+            resultData = NULL;
             throw errorInfo;
         }
 
@@ -349,6 +350,7 @@ QueryTree::evaluateUpdate()
         catch (...)
         {
             delete resultData;
+            resultData = NULL;
             throw;
         }
 
@@ -464,6 +466,7 @@ void QueryTree::releaseDynamicObjects()
             *iter = NULL;
         }
     }
+    
 }
 
 void QueryTree::addDomainObject(QtDomainOperation* dop)

@@ -2244,7 +2244,13 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 vector<QtData*>* updateResult = qtree->evaluateUpdate();
 
                 // release data
+                for(vector<QtData*>::iterator iter = updateResult->begin(); iter!= updateResult->end(); iter++)
+                {
+                    delete *iter;
+                    *iter = NULL;
+                }
                 delete updateResult;
+                updateResult = NULL;
                 context->releaseTransferStructures();
 
                 BLINFO << MSG_OK << "\n";

@@ -288,25 +288,59 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
         QtInsert* insertNode = new QtInsert(collection2.getCollectionName(), elemToInsert);
 
         QueryTree* query = new QueryTree(insertNode);
+        vector<QtData*>* updateResult;
         try
         {
             LINFO << "inserting into new collection...";
             LINFO << "checking semantics...";
             query->checkSemantics();
             LINFO << "evaluating update...";
-            query->evaluateUpdate();
+            updateResult = query->evaluateUpdate();
             LINFO << "done.";
+            if(updateResult != NULL)
+            {
+                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                {
+                    delete *iter;
+                    *iter = NULL;
+                }
+                delete updateResult;
+            }
+            updateResult = NULL;
             delete query;
+            query = NULL;
         }
         catch (r_Error& myErr)
         {
+            if(updateResult != NULL)
+            {
+                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                {
+                    delete *iter;
+                    *iter = NULL;
+                }
+                delete updateResult;
+            }
+            updateResult = NULL;
             delete query;
+            query = NULL;
             LFATAL << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
             throw;
         }
         catch (...)
         {
+            if(updateResult != NULL)
+            {
+                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                {
+                    delete *iter;
+                    *iter = NULL;
+                }
+                delete updateResult;
+            }
+            updateResult = NULL;
             delete query;
+            query = NULL;
             LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
             throw;
         }
