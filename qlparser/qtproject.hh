@@ -79,6 +79,9 @@ public:
     float getMaxY() const;
     char* getTargetCrs() const;
 
+    /// optimizing load access
+    void optimizeLoad(QtTrimList* trimList);
+
     /// method for identification of nodes
     virtual QtNodeType getNodeType() const;
 

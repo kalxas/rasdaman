@@ -639,3 +639,19 @@ QtProject::getNodeType() const
 {
     return nodeType;
 }
+
+void
+QtProject::optimizeLoad(QtTrimList* trimList)
+{
+    if (trimList)
+    {
+        for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
+        {
+            delete *iter;
+            *iter = NULL;
+        }
+        // delete list
+        delete trimList;
+        trimList = NULL;
+    }
+}
