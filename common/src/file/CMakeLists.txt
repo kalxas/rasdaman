@@ -21,14 +21,12 @@
 #
 ###################################################################
 
-add_subdirectory(crypto)
-add_subdirectory(exceptions)
-add_subdirectory(logging)
-add_subdirectory(time)
-add_subdirectory(uuid)
-add_subdirectory(network)
-add_subdirectory(file)
+set(FILEUTILS_HEADERS fileutils.hh)
 
-if (RMANRASNET)
-    add_subdirectory(grpc)
-endif ()
+add_library(common_file fileutils.cc ${FILEUTILS_HEADERS})
+
+install(TARGETS common_file
+        DESTINATION ${LIB_DIR})
+
+install(FILES ${FILEUTILS_HEADERS}
+        DESTINATION "${INCLUDE_DIR}/common/file")

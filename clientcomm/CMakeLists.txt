@@ -91,7 +91,7 @@ if (RMANRASNET)
 
     set(RASNET_LIBRARIESS ${RASNET_LIBRARIESS}
         rasnet common_exceptions common_crypto common_grpc
-        common_logging common_time common_uuid
+        common_logging common_time common_uuid common_file
         ${Boost_THREAD_LIBRARY})
 endif ()
 

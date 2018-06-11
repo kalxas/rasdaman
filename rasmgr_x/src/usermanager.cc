@@ -22,6 +22,7 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <fstream>
 
 #include <stdexcept>
 
@@ -32,6 +33,7 @@
 #include <logging.hh>
 #include "common/src/crypto/crypto.hh"
 #include "common/src/uuid/uuid.hh"
+#include "common/src/file/fileutils.hh"
 #include "common/src/exceptions/rasexceptions.hh"
 #include "include/globals.hh"
 
@@ -59,7 +61,7 @@ using google::protobuf::io::IstreamInputStream;
 using google::protobuf::io::OstreamOutputStream;
 
 UserManager::UserManager():
-    rasmgrAuthFilePath(std::string(CONFDIR) + "/" + RASMGR_AUTH_FILE)
+    rasmgrAuthFilePath(std::string(CONFDIR) + RASMGR_AUTH_FILE)
 {}
 
 UserManager::~UserManager()
@@ -184,10 +186,16 @@ void UserManager::saveUserInformation(bool backup)
     UserMgrProto userData = this->serializeToProto();
 
     unique_lock<mutex> lock(this->mut);
+    if (common::FileUtils::fileExists(rasmgrAuthFilePath))
+    {
+        std::string backupFile = rasmgrAuthFilePath + "." + common::UUID::generateUUID();
+        
+        common::FileUtils::copyFile(rasmgrAuthFilePath, backupFile);
+    }
 
-    std::string authFilePath = backup ? (rasmgrAuthFilePath + "." + common::UUID::generateUUID()) : rasmgrAuthFilePath;
+    std::string authFilePath = rasmgrAuthFilePath;
 
-    //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
+    //This checks if the path to the RASMGR_AUTH_FILE is longer than the maximum file path.
     if (authFilePath.length() >= PATH_MAX)
     {
         throw common::RuntimeException("Authentication file path longer than maximum allowed by OS:" + authFilePath);
