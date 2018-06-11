@@ -138,7 +138,7 @@ public class MigrationBeanApplicationConfiguration implements Condition {
             System.exit(ExitCode.FAILURE.getExitCode());
         }
 
-        if (!DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
+        if (DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
             // NOTE: petascopedb exists but doesn't have any tables to migrate, just consider it is a success instead of failure.
             log.info("petascopedb is empty, nothing to migrate.");
             System.exit(ExitCode.SUCCESS.getExitCode());

@@ -135,7 +135,7 @@ public class BeanApplicationConfiguration implements Condition {
                 // NOTE: Only create a new petascopedb for Postgresql if it doesn't exist
                 // and Liquibase will populate schema on this empty database.
                 DatabaseUtil.createPostgresqlDatabaseIfNotExist(null);
-            }
+            }            
         } catch (Exception ex) {
             // e.g: postgresql is not running, fatal error for Spring Framework to continue
             PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError,
@@ -150,7 +150,7 @@ public class BeanApplicationConfiguration implements Condition {
         }
 
         // Create dataSource for Liquibase
-        dataSource = this.dynamicDataSource();
+        dataSource = this.dynamicDataSource();       
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog(LIQUIBASE_CHANGELOG_PATH);
 
@@ -164,6 +164,11 @@ public class BeanApplicationConfiguration implements Condition {
                 log.error(errorMessage, exception);
                 liquibase.setShouldRun(false); 
             }            
+        }
+        
+        // NOTE: delete any existing lock to allow Liquibase populate data if last process couldn't finish properly.
+        if (!DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
+            DatabaseUtil.deletelLiquibaseLock(dataSource);
         }
 
         return liquibase;

@@ -45,6 +45,8 @@ import petascope.exceptions.PetascopeException;
 public class DatabaseUtil {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseUtil.class);
+    
+    private static final String LIQUIBASE_LOCK_TABLE = "databasechangeloglock";
 
     // To rename a database, connect to a default neutral database of Postgresql
     private static final String SOURCE_NEUTRAL_POSTGRESQL_DATASOURCE_URL = ConfigManager.SOURCE_DATASOURCE_URL.substring(0,
@@ -133,6 +135,32 @@ public class DatabaseUtil {
     }
     
     /**
+     * Liquibase adds a row in databasechangeloglock to not let other Liquibase process update petascopedb when it is running.
+     * However, if the previous process couldn't finish properly, the next process cannot start.
+     * So, delete the lock when the next process (e.g: restart tomcat) starts.
+     */
+    public static void deletelLiquibaseLock(DataSource dataSource) throws PetascopeException {
+        Connection connection = null;
+        Statement statement = null;
+        
+        try {
+            connection = dataSource.getConnection();
+            
+            statement = connection.createStatement();
+            // just delete the lock before Liquibase starts
+            String selectQuery = "delete from " + LIQUIBASE_LOCK_TABLE;
+            statement.executeUpdate(selectQuery);
+        } catch (SQLException ex) {
+            throw new PetascopeException(ExceptionCode.InternalSqlError, 
+                    "Cannot delete lock of liquibase for petascope database "
+                            + "from table '" + LIQUIBASE_LOCK_TABLE+ "', please do it manually. "
+                            + "Reason: '" + ex.getMessage() + "'", ex);
+        } finally {
+            closeDatabaseConnection(connection);
+        }
+    }
+    
+    /**
      * Check if petascopedb is empty just by trying to connect to petascopedb
      * NOTE: don't distinguish it is petascope version 9.4 or 9.5+
      * @param dataSource
@@ -148,7 +176,7 @@ public class DatabaseUtil {
             
             // for version < 9.5
             if (sourceLegacyPetascopeDatabaseExists()) {
-                return true;
+                return false;
             }
             
             // for version 9.5+
@@ -159,17 +187,17 @@ public class DatabaseUtil {
                 tables = dbm.getTables(null, null, ConfigManager.PETASCOPEDB_TABLE_EXIST.toUpperCase(), null);
                 if (!tables.next()) {
                     // Table still does not exist, petascopedb is empty
-                    return false;
+                    return true;
                 }
-            }        
+            }
+            // Table exists
+            return false;
         } catch (SQLException ex) {
             throw new PetascopeException(ExceptionCode.InternalSqlError, 
                     "Cannot check if petascopedb exists in source DMBS to migrate, error '" + ex.getMessage() + "'", ex);
         } finally {
             closeDatabaseConnection(connection);
         }
-        
-        return true;
     }
 
     /**
@@ -293,7 +321,7 @@ public class DatabaseUtil {
                 String sqlQuery = "CREATE DATABASE " + databaseName + "";
                 statement = connection.createStatement();
                 statement.executeUpdate(sqlQuery);
-                log.info("Postgresql database '" + databaseName + "' has successfully been created.");
+                log.info("CREATE DATABASE " + databaseName + " executed successfully.");
             }
         } catch (SQLException ex) {
             throw ex;
