@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.gdal</groupId>
             <artifactId>gdal</artifactId>
-            <version>1.11.1</version>
+            <version>@GDAL_JAVA_VERSION@</version>
         </dependency>
         <dependency>
             <groupId>com.eaio.uuid</groupId>

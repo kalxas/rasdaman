@@ -271,15 +271,33 @@ if (ENABLE_JAVA)
     find_package(Java COMPONENTS Development REQUIRED)
 
     # gdal-java
-    find_library(GDAL_JAVA NAMES libgdaljni.so libgdalalljni.so
+    find_library(GDAL_JAVA_VERSION_1 NAMES libgdaljni.so
                  PATHS /usr/lib/java/gdal /usr/lib/jni/)
-    if (NOT GDAL_JAVA)
-        message(FATAL_ERROR "gdal-java not found.")
+
+    if (NOT GDAL_JAVA_VERSION_1)
+        # gdal-java is installed with version 2.x
+        find_library(GDAL_JAVA_VERSION_2 NAMES libgdalalljni.so
+                 PATHS /usr/lib/java/gdal /usr/lib/jni/)
+
+        if (NOT GDAL_JAVA_VERSION_2)
+            # both version 1.x and 2.x not installed
+            message(FATAL_ERROR "gdal-java not found.")
+        else ()
+            get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_2} DIRECTORY)
+            message(STATUS "Found gdal-java: ${GDAL_JAVA_DIR}")
+            set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
+            # used in Petascope-core pom.xml.in
+            set(GDAL_JAVA_VERSION "2.3.0")
+        endif()    
     else ()
-        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA} DIRECTORY)
+        # gdal-java is installed with version 1.x
+        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_1} DIRECTORY)
         message(STATUS "Found gdal-java: ${GDAL_JAVA_DIR}")
+        set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
+        # used in Petascope-core pom.xml.in
+        set(GDAL_JAVA_VERSION "1.11.1")
     endif()
-    set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
+    
 
     # R
     set(ENABLE_R OFF CACHE BOOL "Compile and install R package.")
