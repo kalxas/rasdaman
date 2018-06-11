@@ -1,0 +1,1 @@
+select c[0:20,0:20] overlay d[0:20,0:20] from test_rgb2 as c, test_grey2 as d

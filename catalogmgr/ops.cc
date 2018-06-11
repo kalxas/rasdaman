@@ -932,7 +932,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
         if (op1->compatibleWith(op2))
             return op1;
         else
-            return NULL;
+            return getStructResultType(op, op1, op2);
     }
 
     // operation BIT returns bool or struct {bool, ...}
