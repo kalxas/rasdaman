@@ -140,8 +140,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
         // user runs Petascope in the command line to migrate petascopedb
         MIGRATE = Arrays.asList(args).contains("--migrate");
         init();
+        
+        SpringApplication.run(ApplicationMain.class, args);
         try {
-            SpringApplication.run(ApplicationMain.class, args);
+            
         } catch (Exception ex) {
             log.error("Error starting petascope with embedded Tomcat. Reason: " + ex.getMessage());
             System.exit(ExitCode.FAILURE.getExitCode());

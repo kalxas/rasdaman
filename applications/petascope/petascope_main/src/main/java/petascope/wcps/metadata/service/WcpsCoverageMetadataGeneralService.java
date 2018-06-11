@@ -399,9 +399,10 @@ public class WcpsCoverageMetadataGeneralService {
             BigDecimal lowerBound = new BigDecimal(domains.get(i).fst);
             BigDecimal upperBound = new BigDecimal(domains.get(i).snd);
             NumericSubset geoBounds = new NumericTrimming(lowerBound, upperBound);
+            NumericSubset originalGridBounds = new NumericTrimming(lowerBound, upperBound);
             NumericSubset gridBounds = geoBounds;
             BigDecimal origin = geoBounds.getLowerLimit();            
-            Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsURI,
+            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, axisDirection, crsURI,
                     crsDefinition, axisType, axisUoM, i, origin, scalarResolution);
             axes.add(axis);
         }
@@ -426,6 +427,7 @@ public class WcpsCoverageMetadataGeneralService {
             String label = numericSubset.getAxisName();
 
             NumericSubset geoBounds = null;
+            NumericSubset originalGridBounds = null;
             NumericSubset gridBounds = null;
 
             BigDecimal origin = null;
@@ -436,6 +438,7 @@ public class WcpsCoverageMetadataGeneralService {
 
                 // trimming
                 geoBounds = new NumericTrimming(lowerLimit, upperLimit);
+                originalGridBounds = new NumericTrimming(lowerLimit, upperLimit);
                 //for now, the geoDomain is the same as the gridDomain, as we do no conversion in the coverage constructor / condenser
                 gridBounds = new NumericTrimming(lowerLimit, upperLimit);
                 origin = lowerLimit;
@@ -444,6 +447,7 @@ public class WcpsCoverageMetadataGeneralService {
 
                 // slicing
                 geoBounds = new NumericSlicing(bound);
+                originalGridBounds = new NumericSlicing(bound);
                 gridBounds = new NumericSlicing(bound);
                 origin = bound;
             }
@@ -470,7 +474,7 @@ public class WcpsCoverageMetadataGeneralService {
             // Scalar resolution is set to 1
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
-            Axis axis = new RegularAxis(label, geoBounds, gridBounds, axisDirection, crsUri,
+            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, axisDirection, crsUri,
                     crsDefinition, axisType, axisUoM, axesCounter, origin, scalarResolution);
             axesCounter++;
             axes.add(axis);

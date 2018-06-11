@@ -24,8 +24,6 @@ package petascope.wcps.metadata.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.rasdaman.domain.cis.*;
 import org.rasdaman.domain.cis.Coverage;
@@ -165,7 +163,9 @@ public class WcpsCoverageMetadataTranslator {
 
             // geoBounds is the geo bounds of axis in the coverage (but can be modified later by subsets)
             NumericSubset geoBounds = new NumericTrimming(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber());
+            NumericSubset originalGridBounds = new NumericTrimming(new BigDecimal(indexAxis.getLowerBound()), new BigDecimal(indexAxis.getUpperBound()));
             NumericSubset gridBounds = new NumericTrimming(new BigDecimal(indexAxis.getLowerBound()), new BigDecimal(indexAxis.getUpperBound()));
+            
             String crsUri = geoAxis.getSrsName();
 
             CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);
@@ -200,12 +200,12 @@ public class WcpsCoverageMetadataTranslator {
             if (geoAxis.isIrregular()) {
                 // All stored coefficients for irregular axis in coverage
                 List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsAsNumbers();
-                result.add(new IrregularAxis(axisLabel, geoBounds, gridBounds, axisDirection,
+                result.add(new IrregularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds, axisDirection,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
                         originNumber, scalarResolution, directPositions));
             } else {
 
-                result.add(new RegularAxis(axisLabel, geoBounds, gridBounds, axisDirection,
+                result.add(new RegularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds, axisDirection,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
                         originNumber, scalarResolution));
             }

@@ -30,15 +30,15 @@ import petascope.core.AxisTypes.AxisDirection;
  */
 public class RegularAxis extends Axis {
 
-    public RegularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds, AxisDirection direction,
+    public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds, AxisDirection direction,
                        String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
                        int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
-        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        super(label, geoBounds, originalGridBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
     }
     
     @Override
     public RegularAxis clone() {
-        return new RegularAxis(getLabel(), getGeoBounds(), getGridBounds(), getDirection(),
+        return new RegularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(), getDirection(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
                 getRasdamanOrder(), getOriginalOrigin(), getResolution());
     }

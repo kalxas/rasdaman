@@ -39,6 +39,9 @@ public abstract class Axis<T> {
     private final String label;
     private NumericSubset geoBounds;
     private NumericSubset gridBounds;
+    
+    // This is the persisted grid domain for axis in database
+    private NumericSubset originalGridBounds;
     private BigDecimal origin;
     private final AxisDirection direction;
     // this is the CRS of axis in coverage
@@ -50,11 +53,12 @@ public abstract class Axis<T> {
     private final int rasdamanOrder;
     private BigDecimal resolution;
 
-    public Axis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
+    public Axis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
         this.label = label;
         this.geoBounds = geoBounds;
+        this.originalGridBounds = originalGridBounds;
         this.gridBounds = gridBounds;
         this.direction = direction;
         this.nativeCrsUri = crsUri;
@@ -110,6 +114,14 @@ public abstract class Axis<T> {
         this.gridBounds = gridBounds;
     }
 
+    public NumericSubset getOriginalGridBounds() {
+        return originalGridBounds;
+    }
+
+    public void setOriginalGridBounds(NumericSubset originalGridBounds) {
+        this.originalGridBounds = originalGridBounds;
+    }
+    
     public String getAxisType() {
         return axisType;
     }

@@ -41,11 +41,11 @@ public class IrregularAxis extends Axis {
     // list of coefficients for irregular axis
     private List<BigDecimal> directPositions;
 
-    public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset gridBounds,
+    public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM,
             int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions) {
-        super(label, geoBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        super(label, geoBounds, originalGridBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
 
         this.directPositions = directPositions;
 
@@ -171,7 +171,7 @@ public class IrregularAxis extends Axis {
 
     @Override
     public IrregularAxis clone() {
-        return new IrregularAxis(getLabel(), getGeoBounds(), getGridBounds(), getDirection(),
+        return new IrregularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(), getDirection(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
                 getRasdamanOrder(), getOriginalOrigin(), getResolution(), getDirectPositions());
     }

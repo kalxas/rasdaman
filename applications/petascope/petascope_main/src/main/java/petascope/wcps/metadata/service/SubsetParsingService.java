@@ -314,6 +314,8 @@ public class SubsetParsingService {
         BigDecimal geoUpperBound = ((NumericTrimming) axis.getGeoBounds()).getUpperLimit();
         BigDecimal gridLowerBound = null;
         BigDecimal gridUpperBound = null;
+        
+        BigDecimal gridOriginalOrigin = axis.getOriginalGridBounds().getLowerLimit();
 
         BigDecimal resolution = axis.getResolution();
         BigDecimal geoOriginalOrigin = axis.getOriginalOrigin().subtract(BigDecimalUtil.divide(resolution, new BigDecimal(2)));
@@ -323,36 +325,40 @@ public class SubsetParsingService {
             // grid lower bound is the floor of ( (geo lower Bound - origin) / resolution )
             // e.g: original geo axis is: (ORIGIN) 0 --- 30 ---- 60 ---- 90 then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
+            tmpGridLowerBound = tmpGridLowerBound.add(gridOriginalOrigin);
             tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);
 
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
-            geoLowerBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
+            geoLowerBound = geoOriginalOrigin.add((gridOriginalOrigin.abs().add(gridLowerBound)).multiply(resolution));
 
             // grid upper bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: (ORIGIN) 0--- 30 ---- 60 ---- 90 then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
+            tmpGridUpperBound = tmpGridUpperBound.add(gridOriginalOrigin);
             tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
 
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
-            geoUpperBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
+            geoUpperBound = geoOriginalOrigin.add(((gridOriginalOrigin.abs().add(gridUpperBound)).add(BigDecimal.ONE)).multiply(resolution));
         } else {
             // negative axis (origin is larger than maxGeo bound)
 
             // grid lower bound is the floor of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then upper trim on 31 will return geoBound: 60
             BigDecimal tmpGridLowerBound = BigDecimalUtil.divide(geoUpperBound.subtract(geoOriginalOrigin), resolution);
+            tmpGridLowerBound = tmpGridLowerBound.add(gridOriginalOrigin);
             tmpGridLowerBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridLowerBound);
 
             gridLowerBound = tmpGridLowerBound.setScale(0, BigDecimal.ROUND_FLOOR);
-            geoUpperBound = geoOriginalOrigin.add(gridLowerBound.multiply(resolution));
+            geoUpperBound = geoOriginalOrigin.add((gridOriginalOrigin.abs().add(gridLowerBound)).multiply(resolution));
 
             // grid lower bound is the ceiling of ( (geo upper Bound - origin) / resolution )
             // e.g: original geo axis is: 0 --- 30 ---- 60 ---- 90 (ORIGIN) then lower trim on 31 will return geoBound: 30
             BigDecimal tmpGridUpperBound = BigDecimalUtil.divide(geoLowerBound.subtract(geoOriginalOrigin), resolution);
+            tmpGridUpperBound = tmpGridUpperBound.add(gridOriginalOrigin);
             tmpGridUpperBound = CrsComputerService.shiftToNearestGridPointWCPS(tmpGridUpperBound);
 
             gridUpperBound = tmpGridUpperBound.setScale(0, BigDecimal.ROUND_CEILING).subtract(BigDecimal.ONE);
-            geoLowerBound = geoOriginalOrigin.add(gridUpperBound.add(BigDecimal.ONE).multiply(resolution));
+            geoLowerBound = geoOriginalOrigin.add(((gridOriginalOrigin.abs().add(gridUpperBound)).add(BigDecimal.ONE)).multiply(resolution));
         }
 
         // this happens when trim lower and upper before fitting have same value (e.g: Lat(20:20)),
