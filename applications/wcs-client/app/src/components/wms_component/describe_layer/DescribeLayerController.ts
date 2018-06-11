@@ -342,5 +342,13 @@ module rasdaman {
         selectedLayerName:string;       
         selectedStyleName:string; 
         describeLayer():void;
+	    deleteStyle(styleName:string):void;
+	    isStyleNameValid(styleName:string):boolean;
+	    isCoverageDescriptionsHideGlobe:boolean;
+	    isLayerNameValid():void;
+	    validateStyle():void;
+	    insertStyle():void;
+	    updateStyle():void;
+	    describeStyleToUpdate(styleName:string):void;
     }
 }

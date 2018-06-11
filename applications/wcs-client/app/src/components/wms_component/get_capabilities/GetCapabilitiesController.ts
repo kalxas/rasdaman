@@ -209,7 +209,11 @@ module rasdaman {
         displayAllFootprints(status:boolean):void;
 
         getServerCapabilities():void;
-
-        display:boolean;
+	
+        display:boolean; 
+        
+        initCheckboxesForCoverageIds():void;
+        displayAllFootprintsOnGlobe(status:boolean):void;
+        pageChanged(newPage: any):void;
     }
 }

@@ -148,5 +148,6 @@ module rasdaman {
         updateServiceIdentification():void;
         updateServiceProvider():void;
         logOut():void;
+	    capabilitiesDocument:any;
     }
 }

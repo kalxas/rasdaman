@@ -65,5 +65,6 @@ module rasdaman {
 
     interface AdminLoginControllerScope extends rasdaman.AdminMainControllerScope {        
         credential:admin.Credential;
+	    login(...args: any[]):void;
     }
 }

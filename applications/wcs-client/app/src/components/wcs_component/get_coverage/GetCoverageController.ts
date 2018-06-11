@@ -271,6 +271,8 @@ module rasdaman {
         getCoverageClickEvent():void;
 
         getCoverage():void;
+
+	    loadCoverageExtentOnGlobe():void;
     }
 
     interface GetCoverageCoreModel {

@@ -80,7 +80,8 @@ module rasdaman {
         tabs:TabState[];
         wmsGetCapabilitiesTab:TabState;
         wmsDescribeLayerTab:TabState;
-        wmsGetLayerTab:TabState;        
+        wmsGetLayerTab:TabState;  
+	    describeLayer(layerName:string):void;      
     }
 
     interface TabState {

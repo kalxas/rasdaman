@@ -227,6 +227,11 @@ module rasdaman {
         displayAllFootprintsOnGlobe(status:boolean):void;
 
         getServerCapabilities():void;
+	
+	    selectedCoverageId:string;
+	    initCheckboxesForCoverageIds():void;
+	    getCoverageSummaryByCoverageId(coverageId):{displayFootprint:boolean};
+	
     }
 
 

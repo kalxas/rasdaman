@@ -536,3 +536,16 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     outline: 1px solid grey;
     color: black !important;
 }
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover, 
+.nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:focus, .nav-tabs.nav-justified>.active>a:hover {
+    border-color: #afafaf;                    
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #afafaf;
+}
+
+.panel-default {
+    border-color:#afafaf;
+} 
