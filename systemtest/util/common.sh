@@ -53,9 +53,9 @@ RC_SKIP=2
 # ------------------------------------------------------------------------------
 # testing statistics
 #
-NUM_TOTAL=0 # the number of manipulations
-NUM_FAIL=0  # the number of fail manipulations
-NUM_SUC=0   # the number of success manipulations
+NUM_TOTAL=0 # the number of tests
+NUM_FAIL=0  # the number of failed tests
+NUM_SUC=0   # the number of successful tests
 
 # testing data
 TEST_STRUCT=test_struct

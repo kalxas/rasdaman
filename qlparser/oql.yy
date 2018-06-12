@@ -431,7 +431,7 @@ selectIntoExp:
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
-			FREESTACK($3)
+            FREESTACK($3)
             FREESTACK($5)
             FREESTACK($7)
             QueryTree::symtab.wipe();
@@ -473,7 +473,7 @@ selectIntoExp:
 
 	  commandNode->setParseInfo( *($3.info) );
 	  
-	  // set QtCommand create node  as root of the Query Tree
+	  // set QtCommand create node as root of the Query Tree
 	  parseQueryTree->setRoot( commandNode );
 	  
 	  FREESTACK($1)
@@ -571,7 +571,7 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  QtIterator::QtONCStreamList* inputListO = new QtIterator::QtONCStreamList(1);
 	  (*inputListO)[0] = si;
 	  
-	  // create a OperationIterator and set its inputs
+	  // create an OperationIterator and set its inputs
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputListO );
 	  oi->setParseInfo( *($1.info) );
@@ -664,126 +664,237 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  FREESTACK($4)
     };
 	
-updateExp: UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE generalExp         
-	{
-	  try {
-	    accessControl.wantToWrite();
-  	  }
-	  catch(...) {
-	    // save the parse error info and stop the parser
+updateExp:
+        UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE generalExp         
+        {
+          try {
+            accessControl.wantToWrite();
+          }
+          catch(...) {
+            // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
-	    FREESTACK($5)
-	    FREESTACK($7)
-	    QueryTree::symtab.wipe();
+            FREESTACK($5)
+            FREESTACK($7)
+            QueryTree::symtab.wipe();
             YYABORT;
-	  }
+          }
 
-	  // create a QtONCStreamList and add the QtAccess object of collection Spec
-	  QtIterator::QtONCStreamList* streamList = new QtIterator::QtONCStreamList(1);
-	  (*streamList)[0] = $2;
-	  parseQueryTree->removeDynamicObject( $2 );
-	  
-	  // create a SelectionIterator
-	  QtSelectionIterator* si = new QtSelectionIterator();
-	  si->setStreamInputs( streamList );
-	  si->setConditionTree( $8 );
-	  si->setParseInfo( *($7.info) );
-	  parseQueryTree->removeDynamicObject( $8 );
-	  
-	  // create an update node
-	  QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
-	  update->setStreamInput( si );
-	  update->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $4.iterator );
-	  parseQueryTree->removeDynamicObject( $4.domain );
-	  parseQueryTree->removeDynamicObject( $6 );
-	  
-	  // set the update node  as root of the Query Tree
-	  parseQueryTree->setRoot( update );
-	  
-	  FREESTACK($1)
-	  FREESTACK($3)
-	  FREESTACK($5)
-	  FREESTACK($7)
-	}
-	| UPDATE iteratedCollection SET updateSpec ASSIGN generalExp
-	{
-	  try {
-	    accessControl.wantToWrite();
-  	  }
-	  catch(...) {
-	    // save the parse error info and stop the parser
+          // create a QtONCStreamList and add the QtAccess object of collection Spec
+          QtIterator::QtONCStreamList* streamList = new QtIterator::QtONCStreamList(1);
+          (*streamList)[0] = $2;
+          parseQueryTree->removeDynamicObject( $2 );
+
+          // create a SelectionIterator
+          QtSelectionIterator* si = new QtSelectionIterator();
+          si->setStreamInputs( streamList );
+          si->setConditionTree( $8 );
+          si->setParseInfo( *($7.info) );
+          parseQueryTree->removeDynamicObject( $8 );
+
+          // create an update node
+          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
+          update->setStreamInput( si );
+          update->setParseInfo( *($1.info) );
+          parseQueryTree->removeDynamicObject( $4.iterator );
+          parseQueryTree->removeDynamicObject( $4.domain );
+          parseQueryTree->removeDynamicObject( $6 );
+
+          // set the update node  as root of the Query Tree
+          parseQueryTree->setRoot( update );
+
+          FREESTACK($1)
+          FREESTACK($3)
+          FREESTACK($5)
+          FREESTACK($7)
+        }
+        | UPDATE iteratedCollection SET updateSpec ASSIGN generalExp
+        {
+          try {
+            accessControl.wantToWrite();
+          }
+          catch(...) {
+            // save the parse error info and stop the parser
             if ( parseError ) delete parseError;
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
-	    FREESTACK($5)
-	    QueryTree::symtab.wipe();
+            FREESTACK($5)
+            QueryTree::symtab.wipe();
             YYABORT;
-	  }
+          }
 
-	  // create an update node
-	  QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
-	  update->setStreamInput( $2 );
-	  update->setParseInfo( *($1.info) );
-	  parseQueryTree->removeDynamicObject( $2 );
-	  parseQueryTree->removeDynamicObject( $4.iterator );
-	  parseQueryTree->removeDynamicObject( $4.domain );
-	  parseQueryTree->removeDynamicObject( $6 );
-	  
-	  // set the update node  as root of the Query Tree
-	  parseQueryTree->setRoot( update );
-	  
-	  FREESTACK($1)
-	  FREESTACK($3)
-	  FREESTACK($5)
+          // create an update node
+          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
+          update->setStreamInput( $2 );
+          update->setParseInfo( *($1.info) );
+          parseQueryTree->removeDynamicObject( $2 );
+          parseQueryTree->removeDynamicObject( $4.iterator );
+          parseQueryTree->removeDynamicObject( $4.domain );
+          parseQueryTree->removeDynamicObject( $6 );
 
-    }
-    |
-    UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES mintervalExp
-    {
-      try {
-        accessControl.wantToWrite();
-      }
-      catch(...) {
-        // save the parse error info and stop the parser
-        if ( parseError )
-            delete parseError;
-        parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
-                                    $1.info->getLineNo(), $1.info->getColumnNo() );
-        FREESTACK($1)
-        FREESTACK($3)
-        FREESTACK($5)
-        FREESTACK($6)
-        FREESTACK($7)
-        QueryTree::symtab.wipe();
-        YYABORT;
-      }
+          // set the update node  as root of the Query Tree
+          parseQueryTree->setRoot( update );
 
-      // create an update node
-      QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, NULL );
-      update->setStreamInput( $2 );
-      update->setParseInfo( *($1.info) );
-      update->setNullValues( $8 );
-      parseQueryTree->removeDynamicObject( $2 );
-      parseQueryTree->removeDynamicObject( $4.iterator );
-      parseQueryTree->removeDynamicObject( $4.domain );
-      parseQueryTree->removeDynamicObject( $8 );
-	  
-      // set the update node  as root of the Query Tree
-      parseQueryTree->setRoot( update );
-	  
-      FREESTACK($1)
-      FREESTACK($3)
-      FREESTACK($5)
-      FREESTACK($6)
-      FREESTACK($7)
-	};
+          FREESTACK($1)
+          FREESTACK($3)
+          FREESTACK($5)
+
+        }
+        | UPDATE iteratedCollection SET updateSpec ASSIGN generalExp FROM collectionList
+        {
+          // write access
+          try {
+            accessControl.wantToWrite();
+          }
+          catch(...) {
+            // save the parse error info and stop the parser
+            if ( parseError ) delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+            FREESTACK($1)
+            FREESTACK($3)
+            FREESTACK($5)
+            FREESTACK($7)
+            QueryTree::symtab.wipe();
+            YYABORT;
+          }
+  
+          //is this needed?
+          //append the update target to the collection list
+          $8->push_back($2);
+          
+          //create a join for the collectionList
+          for( QtIterator::QtONCStreamList::iterator iter=$8->begin(); iter!=$8->end(); iter++ )
+	    parseQueryTree->removeDynamicObject( *iter );
+  
+          // create a JoinIterator
+          QtJoinIterator* ji = new QtJoinIterator();
+          ji->setStreamInputs( $8 );
+          parseQueryTree->removeDynamicObject( $8 );
+         
+          // create an update node
+          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
+          // stream all inputs to the update request
+          update->setStreamInput( ji );
+          update->setParseInfo( *($1.info) );
+          //parseQueryTree->removeDynamicObject( $2 );
+          parseQueryTree->removeDynamicObject( $4.iterator );
+          parseQueryTree->removeDynamicObject( $4.domain );
+          parseQueryTree->removeDynamicObject( $6 );
+
+          // set the update node  as root of the Query Tree
+          parseQueryTree->setRoot( update );
+
+          FREESTACK($1)
+          FREESTACK($3)
+          FREESTACK($5)
+          FREESTACK($7)
+        }
+        | UPDATE iteratedCollection SET updateSpec ASSIGN generalExp FROM collectionList WHERE generalExp
+        {
+          // write access
+          try {
+            accessControl.wantToWrite();
+          }
+          catch(...) {
+            // save the parse error info and stop the parser
+            if ( parseError ) delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+            FREESTACK($1)
+            FREESTACK($3)
+            FREESTACK($5)
+            FREESTACK($7)
+            FREESTACK($9)                    
+            QueryTree::symtab.wipe();
+            YYABORT;
+          }
+
+          $8->push_back($2);
+          
+          //create a join for the collectionList
+          for( QtIterator::QtONCStreamList::iterator iter=$8->begin(); iter!=$8->end(); iter++ )
+	    parseQueryTree->removeDynamicObject( *iter );
+  
+          // create a JoinIterator
+          QtJoinIterator* ji = new QtJoinIterator();
+          ji->setStreamInputs( $8 );
+          parseQueryTree->removeDynamicObject( $8 );
+
+	  // create a QtONCStreamList and add the Join Iterator
+	  QtIterator::QtONCStreamList* inputListS = new QtIterator::QtONCStreamList(1);
+	  (*inputListS)[0] = ji;          
+          
+          // create a SelectionIterator
+          QtSelectionIterator* si = new QtSelectionIterator();
+          si->setStreamInputs( inputListS );
+          si->setConditionTree( $10 );
+          si->setParseInfo( *($9.info) );
+          parseQueryTree->removeDynamicObject( $10 );          
+
+          // create an update node
+          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, $6 );
+          // stream all inputs to the update request
+          update->setStreamInput( si );
+          update->setParseInfo( *($1.info) );
+          //parseQueryTree->removeDynamicObject( $2 );
+          parseQueryTree->removeDynamicObject( $4.iterator );
+          parseQueryTree->removeDynamicObject( $4.domain );
+          parseQueryTree->removeDynamicObject( $6 );
+
+          // set the update node  as root of the Query Tree
+          parseQueryTree->setRoot( update );
+
+          FREESTACK($1)
+          FREESTACK($3)
+          FREESTACK($5)
+          FREESTACK($7)
+          FREESTACK($9)
+        }        
+        | UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES mintervalExp
+        {
+          try {
+            accessControl.wantToWrite();
+          }
+          catch(...) {
+            // save the parse error info and stop the parser
+            if ( parseError )
+                delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+            FREESTACK($1)
+            FREESTACK($3)
+            FREESTACK($5)
+            FREESTACK($6)
+            FREESTACK($7)
+            QueryTree::symtab.wipe();
+            YYABORT;
+          }
+
+          // create an update node
+          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, NULL );
+          update->setStreamInput( $2 );
+          update->setParseInfo( *($1.info) );
+          update->setNullValues( $8 );
+          parseQueryTree->removeDynamicObject( $2 );
+          parseQueryTree->removeDynamicObject( $4.iterator );
+          parseQueryTree->removeDynamicObject( $4.domain );
+          parseQueryTree->removeDynamicObject( $8 );
+
+          // set the update node  as root of the Query Tree
+          parseQueryTree->setRoot( update );
+
+          FREESTACK($1)
+          FREESTACK($3)
+          FREESTACK($5)
+          FREESTACK($6)
+          FREESTACK($7)
+        };
 
 alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
     {
@@ -827,8 +938,8 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
             parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
-	    FREESTACK($2)
-		FREESTACK($3)
+            FREESTACK($2)
+            FREESTACK($3)
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
