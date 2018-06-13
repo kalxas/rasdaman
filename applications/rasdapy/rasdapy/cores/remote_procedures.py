@@ -414,8 +414,7 @@ def rassrvr_begin_streamed_http_query(stub, cuuid, data):
             token += chr(bytes_arr[i])
 
         error_message = ExceptionFactories.create_error_message(err_no, line_no, col_no, token)
-        query = data[0:300]
-        raise Exception("Error executing query (first 300 characters) '{}'. Reason '{}'".format(query, error_message))
+        raise Exception("Error executing query. Reason: '{}'".format(error_message))
 
     return resp
 
