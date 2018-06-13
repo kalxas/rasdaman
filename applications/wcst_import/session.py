@@ -51,7 +51,14 @@ class Session:
         self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
         self.recipe = recipe
         self.wcs_service = config['service_url'] if "service_url" in config else None
-        self.tmp_directory = config['tmp_directory'] if "tmp_directory" in config else "/tmp/"
+        if "tmp_directory" in config:
+            self.tmp_directory = config['tmp_directory']
+        else:
+            # No "tmp_directory" is configured in ingredient file, then use this default folder to store temp files.
+            default_tmp_dir = "/tmp/rasdaman_wcst_import"
+            if not os.path.exists(default_tmp_dir):
+                os.makedirs(default_tmp_dir)
+            self.tmp_directory = default_tmp_dir
         self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
         # NOTE: only old recipes before general recipe using the default_crs inside the ingredient files

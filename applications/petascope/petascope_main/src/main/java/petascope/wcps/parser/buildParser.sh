@@ -38,7 +38,6 @@ echo "building parser..."
 #Backup the visitor classes that define the actions to be taken on parsing
 mkdir -p backupEvaluator
 mv WcpsEvaluator.java backupEvaluator
-mv ParserErrorHandler.java backupEvaluator
 mv WcpsTranslator.java backupEvaluator
 
 #Clean any existing files from the existent parser
@@ -55,7 +54,6 @@ javac *.java
 
 #Put back the visitor classes into the folder
 mv backupEvaluator/WcpsEvaluator.java .
-mv backupEvaluator/ParserErrorHandler.java .
 mv backupEvaluator/WcpsTranslator.java .
 
 #Cleanup

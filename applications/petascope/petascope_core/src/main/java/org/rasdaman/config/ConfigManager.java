@@ -120,7 +120,8 @@ public class ConfigManager {
     public static boolean OGC_CITE_OUTPUT_OPTIMIZATION = false;
     
     public static String DEFAULT_DIR_TMP = "/tmp";
-    public static String DEFAULT_PETASCOPE_DIR_TMP = "/tmp/rasdaman/petascope";
+    // Tomcat user will create this folder
+    public static String DEFAULT_PETASCOPE_DIR_TMP = "/tmp/rasdaman_petascope";
     /* ***** Petascope Uploaded files configuration ***** */    
     // Any files are posted to controllers will store here and be removed when request is done
     public static String UPLOADED_FILE_DIR_TMP = DEFAULT_PETASCOPE_DIR_TMP + "/" + "upload";    
