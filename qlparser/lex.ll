@@ -330,6 +330,7 @@ int string_yyinput( char* buf, int max_size )
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
 
 "nan"					{ SETFLTTOKEN( NAN, 4 ) }
+"inf"					{ SETFLTTOKEN( INFINITY, 4 ) }
 
 "max"                                    { SETTOKEN( MAX_BINARY, commandToken, MAX_BINARY ) }
 "min"                                    { SETTOKEN( MIN_BINARY, commandToken, MIN_BINARY ) }
