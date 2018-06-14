@@ -64,6 +64,7 @@ public:
     virtual QtNodeType getNodeType() const;
 
 private:
+    static const size_t MAX_MARRAY_TYPE_NAME_LENGTH = 200;
     std::string typeName;
     std::string cellTypeName;
     QtNode::QtOperationList* typeAttributes;

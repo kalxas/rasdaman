@@ -611,6 +611,10 @@ public:
 #define DATABASE_CONNECT_FAILED             830
 #define DATABASE_NOTFOUND                   831
 #define DATABASE_EXISTS_ALREADY             832
+#define COLLECTION_NAME_LENGTH_EXCEEDED     974
+#define MARRAY_TYPE_NAME_LENGTH_EXCEEDED    975
+#define SET_TYPE_NAME_LENGTH_EXCEEDED       976
+#define CELL_TYPE_NAME_LENGTH_EXCEEDED      977
 #define DATABASE_INCONSISTENT               1000
 #define DATABASE_INCOMPATIBLE               1001
 #define ZERO_LENGTH_BLOB                    1002

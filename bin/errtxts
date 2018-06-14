@@ -291,7 +291,10 @@
 971^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid cell type.
 972^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid dimensionality.
 973^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid marray type.
-974^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is too long.
+974^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is longer than 200 characters.
+975^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The marray type name is longer than 200 characters.
+976^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The set type name is longer than 200 characters.
+977^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The struct type name is longer than 200 characters.
 #
 # 1xxx errors: General errors
 #

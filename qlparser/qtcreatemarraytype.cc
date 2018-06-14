@@ -3,6 +3,7 @@
 #include "qtmintervaldata.hh"
 #include "qtunaryoperation.hh"
 #include "qtcreatecelltype.hh"
+const size_t QtCreateMarrayType::MAX_MARRAY_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateMarrayType::nodeType = QtNode::QT_CREATE_MDD_TYPE;
 
@@ -44,6 +45,13 @@ QtData* QtCreateMarrayType::evaluate()
 
 void QtCreateMarrayType::checkType()
 {
+    // Check if the name is longer than 200 characters
+    if (typeName.length() >= MAX_MARRAY_TYPE_NAME_LENGTH)
+    {
+        LERROR << "The marray type name is longer than 200 characters."; 
+        parseInfo.setErrorNo(MARRAY_TYPE_NAME_LENGTH_EXCEEDED);
+        throw parseInfo;
+    }
     // Check if type exists and throw exception if it exists
     if (TypeFactory::mapMDDType(this->typeName.c_str()) != NULL)
     {

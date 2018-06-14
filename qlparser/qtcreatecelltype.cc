@@ -2,6 +2,7 @@
 #include "qtcelltypeattributes.hh"
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/alltypes.hh"
+const size_t QtCreateCellType::MAX_CELL_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateCellType::nodeType = QtNode::QT_CREATE_CELL_TYPE;
 
@@ -30,6 +31,13 @@ QtData* QtCreateCellType::evaluate()
 
 void QtCreateCellType::checkType()
 {
+    // Check if the name is longer than 200 characters
+    if (typeName.length() > MAX_CELL_TYPE_NAME_LENGTH)
+    {
+        LERROR << "The struct type name is longer than 200 characters.";
+        parseInfo.setErrorNo(CELL_TYPE_NAME_LENGTH_EXCEEDED);
+        throw parseInfo;
+    }
     // Check if the type already exists and throw error if necessary
     if (TypeFactory::mapType(this->typeName.c_str()))
     {

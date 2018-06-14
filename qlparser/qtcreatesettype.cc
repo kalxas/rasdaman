@@ -3,6 +3,7 @@
 #include "qtunaryoperation.hh"
 #include "qtnullvaluesdata.hh"
 #include "relcatalogif/alltypes.hh"
+const size_t QtCreateSetType::MAX_SET_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateSetType::nodeType = QtNode::QT_CREATE_SET_TYPE;
 
@@ -31,6 +32,13 @@ QtData* QtCreateSetType::evaluate()
 
 void QtCreateSetType::checkType()
 {
+    // check if the name is longer than 200 characters
+    if (typeName.length() >= MAX_SET_TYPE_NAME_LENGTH)
+    {
+        LERROR << "The set type name is longer than 200 characters."; 
+        parseInfo.setErrorNo(SET_TYPE_NAME_LENGTH_EXCEEDED);
+        throw parseInfo;
+    }
     // check if type already exists
     if (TypeFactory::mapSetType(this->typeName.c_str()) != NULL)
     {

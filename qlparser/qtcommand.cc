@@ -46,13 +46,13 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include <logging.hh>
 
 #include <iostream>
-#define MAX_COLLECTION_NAME_LENGTH 200
 
 using namespace std;
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtCommand::nodeType = QtNode::QT_COMMAND;
+const size_t QtCommand::MAX_COLLECTION_NAME_LENGTH;
 
 const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
 const string QtCommand::tmpSetTypePrefix = string("autoSet-");
@@ -132,8 +132,8 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
     
     if (collection2.getCollectionName().length() >= MAX_COLLECTION_NAME_LENGTH)
     {
-        LERROR << "The collection name is too long.";
-        parseInfo.setErrorNo(974); 
+        LERROR << "The collection name is longer than 200 characters.";
+        parseInfo.setErrorNo(COLLECTION_NAME_LENGTH_EXCEEDED);
         throw parseInfo;
     }
 

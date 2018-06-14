@@ -244,27 +244,12 @@ check
 
 TEST_COLLECTION=test123123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789
 drop_colls $TEST_COLLECTION
-logn "create collection with name longer than 200 characters ... "
-$RASQL --quiet -q "create collection $TEST_COLLECTION GreySet" 2> /dev/null
-if [ $? -eq 0 ]; then
-    loge failed.
-    NUM_FAIL=$(($NUM_FAIL + 1))
-else
-    loge ok.
-    NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
 
-logn "dropping collection with name longer than 200 characters ... "
-$RASQL --quiet -q "drop collection $TEST_COLLECTION" 2> /dev/null
-if [ $? -eq 0 ]; then
-    loge failed.
-    NUM_FAIL=$(($NUM_FAIL + 1))
-else
-    loge ok.
-    NUM_SUC=$(($NUM_SUC + 1))
-fi
-NUM_TOTAL=$(($NUM_TOTAL + 1))
+$RASQL --quiet -q "create collection $TEST_COLLECTION GreySet" 2>&1 | grep -F -q "974"
+check_result 0 $? "create collection with name longer than 200 characters... "
+
+$RASQL --quiet -q "drop collection $TEST_COLLECTION" 2>&1 | grep -F -q "1013"
+check_result 0 $? "dropping collection with name longer than 200 characters... "
 
 # ------------------------------------------------------------------------------
 # tests for updating with the FROM clause

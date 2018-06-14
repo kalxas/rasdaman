@@ -56,6 +56,7 @@ public:
     virtual QtNodeType getNodeType() const;
 
 private:
+    static const size_t MAX_CELL_TYPE_NAME_LENGTH = 200;
     static const QtNodeType nodeType;
 
     std::string typeName;

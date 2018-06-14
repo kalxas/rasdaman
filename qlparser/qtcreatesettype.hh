@@ -53,6 +53,7 @@ public:
     virtual QtNodeType getNodeType() const;
 
 private:
+    static const size_t MAX_SET_TYPE_NAME_LENGTH = 200;
     std::string typeName;
     std::string mddTypeName;
     QtOperation* nullValuesNode;
