@@ -114,4 +114,24 @@ public class NilValue implements Serializable {
 
         return nilValue;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        // same instance
+        if (obj == this) {
+            return true;
+        }
+        // null
+        if (obj == null) {
+            return false;
+        }
+        // type
+        if (!getClass().equals(obj.getClass())) {
+            return false;
+        }
+        // cast and compare state
+        NilValue other = (NilValue) obj;
+        
+        return this.value.equals(other.value);
+    }
 }

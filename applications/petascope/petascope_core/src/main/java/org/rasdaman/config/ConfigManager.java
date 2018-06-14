@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
@@ -127,6 +128,8 @@ public class ConfigManager {
     public static String UPLOADED_FILE_DIR_TMP = DEFAULT_PETASCOPE_DIR_TMP + "/" + "upload";    
     // Any uploaded file to server to process will have this prefix (e.g on server: rasdaman.uploadedfile.datetime)
     public static String UPLOAD_FILE_PREFIX = "rasdaman.";
+    
+    public static String WCST_TMP_DIR = "/tmp/rasdaman_wcst_import/";
 
     /* ***** rasdaman configuration ***** */
     public static String RASDAMAN_SERVER = "localhost";
@@ -215,7 +218,7 @@ public class ConfigManager {
      * @throws petascope.rasdaman.exceptions.RasdamanException
      * @para
      */
-    public static void init(String confDir) throws RasdamanException {
+    public static void init(String confDir) throws RasdamanException, PetascopeException {
         if (instance == null) {
             instance = new ConfigManager(confDir);
         }
@@ -242,7 +245,7 @@ public class ConfigManager {
      * @param confDir Path to the properties directory
      * @throws RasdamanException
      */
-    private ConfigManager(String confDir) throws RasdamanException {
+    private ConfigManager(String confDir) throws RasdamanException, PetascopeException {
 
         if (confDir == null) {
             StringBuilder msg = new StringBuilder();
@@ -295,6 +298,15 @@ public class ConfigManager {
                 log.warn(KEY_LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
                         + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
             }
+        }
+        
+        try {
+            File wcstTmpDir = new File(ConfigManager.WCST_TMP_DIR);
+            FileUtils.forceMkdir(wcstTmpDir);
+            wcstTmpDir.setReadable(true, false);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError,
+                        "Cannot create WCST temp directory at '" + ConfigManager.WCST_TMP_DIR + "'. Reason: " + ex.getMessage() + ".");
         }
     }
 

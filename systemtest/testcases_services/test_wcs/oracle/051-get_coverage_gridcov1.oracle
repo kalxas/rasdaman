@@ -42,6 +42,11 @@
                 <swe:Quantity >
                     <swe:label>value</swe:label>
                     <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">NaN</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
                     <swe:uom code="10^0"/>
                 </swe:Quantity>
             </swe:field>

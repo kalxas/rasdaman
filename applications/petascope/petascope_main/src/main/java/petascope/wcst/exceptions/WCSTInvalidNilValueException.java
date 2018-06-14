@@ -32,6 +32,5 @@ public class WCSTInvalidNilValueException extends WCSTException {
         super(ExceptionCode.InvalidPropertyValue, EXCEPTION_TEXT.replace("$nilValue", nilValue));
     }
 
-    private final static String EXCEPTION_TEXT = "Nil value $nilValue not supported. Only integer, or integer " +
-            "interval (written as \"integer:integer\") values are supported.";
+    private final static String EXCEPTION_TEXT = "Nil value must be a number, given '$nilValue'.";
 }

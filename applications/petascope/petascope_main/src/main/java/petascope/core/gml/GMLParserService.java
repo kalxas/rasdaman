@@ -689,7 +689,7 @@ public class GMLParserService {
             //each part has to be an integer
             for (String i : parts) {
                 try {
-                    Long.parseLong(i);
+                    new Float(i);                    
                 } catch (NumberFormatException ex) {
                     throw new WCSTInvalidNilValueException(nilValue);
                 }

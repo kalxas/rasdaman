@@ -30,7 +30,7 @@ class RangeTypeNilValue(Model):
         """
         Class to represent the range type nil value
         :param str reason: the reason for the nil value
-        :param int value: the value of the nil value
+        :param number value: the value of the nil value
         """
         self.reason = reason
         self.value = value

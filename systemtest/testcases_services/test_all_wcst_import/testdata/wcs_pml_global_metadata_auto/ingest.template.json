@@ -8,7 +8,7 @@
     "subset_correction": false
   },
   "input": {
-    "coverage_id": "CCI_V2_monthly_chlor_a",
+    "coverage_id": "test_CCI_V2_monthly_chlor_a",
     "paths": [
       "*.nc"
     ]
@@ -30,22 +30,19 @@
               "name": "chlor_a",
               "identifier": "chlor_a",
               "description": "Count of the number of observations from the SeaWiFS sensor contributing to this bin cell",
-              "nilReason": "The nil value represents an error in the sensor.",
-              "nilValue" : "-999999"
+              "nilReason": "The nil value represents an error in the sensor."
             },
 	    {
               "name" : "chlor_a_log10_bias",
               "identifier": "chlor_a_log10_bias",
               "description" : "Uncertainty lookups derived from file: /data/datasets/CCI/v2.0-production/stage09b-uncertainty_tables/chlor_a/cci_chla_bias.dat",
-              "nilReason" : "The nil value represents an error in the sensor.",
-              "nilValue" : "-999999"
+              "nilReason" : "The nil value represents an error in the sensor."
             },
 	    {
        	      "name" : "chlor_a_log10_rmsd",
        	      "identifier": "chlor_a_log10_rmsd",
        	      "description" : "Uncertainty lookups derived from file: /data/datasets/CCI/v2.0-production/stage09b-uncertainty_tables/chlor_a/cci_chla_rmsd.dat",
-       	      "nilReason" : "The nil value represents an error in the sensor.",
-              "nilValue" : "-999999"
+       	      "nilReason" : "The nil value represents an error in the sensor."
        	    }
           ],
           "axes": {

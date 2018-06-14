@@ -1,0 +1,5 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_CCI_V2_monthly_chlor_a&
+&format=application/netcdf

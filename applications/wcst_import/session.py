@@ -55,10 +55,10 @@ class Session:
             self.tmp_directory = config['tmp_directory']
         else:
             # No "tmp_directory" is configured in ingredient file, then use this default folder to store temp files.
-            default_tmp_dir = "/tmp/rasdaman_wcst_import"
-            if not os.path.exists(default_tmp_dir):
-                os.makedirs(default_tmp_dir)
-            self.tmp_directory = default_tmp_dir
+            if not os.path.exists(ConfigManager.tmp_directory):
+                os.makedirs(ConfigManager.tmp_directory)
+                os.chmod(ConfigManager.tmp_directory, 755)
+            self.tmp_directory = ConfigManager.tmp_directory
         self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
         # NOTE: only old recipes before general recipe using the default_crs inside the ingredient files

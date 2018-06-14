@@ -55,7 +55,7 @@
                         <swe:description>100.0</swe:description>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">100</swe:nilValue>
+                                <swe:nilValue reason="">100.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="Pa"/>
@@ -67,7 +67,7 @@
                         <swe:description>100.0</swe:description>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">12</swe:nilValue>
+                                <swe:nilValue reason="">12.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="Celsius"/>
@@ -79,7 +79,7 @@
                         <swe:description>100.0</swe:description>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">23</swe:nilValue>
+                                <swe:nilValue reason="">23.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>

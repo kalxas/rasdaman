@@ -43,7 +43,7 @@ coverage_id = "test_overlapping_map_mosaic"
 
 ingredient_file = dir_path + "/ingest.json"
 
-input_files_path = dir_path + "/" + "test_data"
+input_files_path = dir_path + "/" + "testdata"
 tmp_folder = dir_path + "/" + "tmp"
 
 merged_file_prefix = "merged_"

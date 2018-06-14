@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.rasdaman.config.ConfigManager;
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 
 /**
@@ -81,11 +82,13 @@ public class RemoteCoverageUtil {
     public static File copyFileLocally(String fileUrl) throws IOException {
         String filePath = TEMP_FILE_PATH_PREFIX + java.util.UUID.randomUUID().toString();
         File tmpFile = new File(filePath);
+        // Allow to read by everyone
+        tmpFile.setReadable(true, false);
         FileUtils.copyURLToFile(new URL(fileUrl), tmpFile);
         return tmpFile;
     }
 
     //indicates where to save a file passed as xlink inside the gml coverage
-    private static final String TEMP_FILE_PATH_PREFIX = "/tmp/wcst-";
+    private static final String TEMP_FILE_PATH_PREFIX = ConfigManager.WCST_TMP_DIR + "/wcst-";
     private static final String HTTP_URL_PROTOCOL = "http";
 }

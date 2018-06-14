@@ -45,7 +45,10 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 
 # get the test datas and recipes from folder
-TEST_DATA="$SCRIPT_DIR/test_data"
+TEST_DATA="$SCRIPT_DIR/testdata"
+
+# store files: *.ingest.json.log here
+OUTPUT_DIR="$SCRIPT_DIR/output"
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
 COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "tmp")
@@ -77,6 +80,11 @@ write_to_failed_log() {
 
 # Check if Petascope is deployed (imported from util/petascope.sh)
 check_petascope || exit $RC_ERROR
+
+# 0. cleaning output directory
+log "Cleaning output directory..."
+rm -rf "$OUTPUT_DIR"
+mkdir "$OUTPUT_DIR"
 
 # 1. Iterate folders in test data
 for test_case in $TEST_DATA/*; do
@@ -241,6 +249,15 @@ for test_case in $TEST_DATA/*; do
 
     log "----------------------------------------------------------------------"
     log ""
+done
+
+
+# Finally, copy result log file of this testcase to output directory
+# Iterate folders in test data
+for test_case in $TEST_DATA/*; do
+    test_case_name=$(basename "$test_case")
+    mkdir -p "$OUTPUT_DIR/$test_case_name"
+    mv "$test_case/ingest.json.log" "$OUTPUT_DIR/$test_case_name/" 2> /dev/null
 done
 
 # print summary from util/common.sh

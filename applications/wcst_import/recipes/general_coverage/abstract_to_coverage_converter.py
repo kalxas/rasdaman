@@ -227,28 +227,15 @@ class AbstractToCoverageConverter:
             for nil_value in nil_values:
                 # null_value could be 9999 (gdal), "9999", or "'9999'" (netcdf, grib) so remove the redundant quotes
                 nil_value = str(nil_value).replace("'", "")
-                # check if nil_value is an integer or float number (NaN is float number but it is not valid)
-                if nil_value.lower().startswith("nan"):
-                    log.info("\033[1mBand: {} has NilValue: \x1b[0m {}, "
-                             "so ignore nilValue of this band.".format(band.identifier, nil_value))
-                elif is_number(nil_value):
-                    # NOTE: as rasdaman does not support nilValue is float (e.g: 1234.22323), so consider
-                    # nilValue are floor(value), ceil(value): 1234:1235
-                    floor_nill_value = int(math.floor(float(nil_value)))
-                    ceil_nill_value = int(math.ceil(float(nil_value)))
 
-                    if ceil_nill_value > 9223372036854775807 or floor_nill_value < -9223372036854775808:
-                        log.info("\033[1mThe nodata value {} of band {} has been ignored "
-                             "as it cannot be represented as a 64 bit integer.".format(nil_value, band.identifier))
-                        return None
+                # e.g: test_float_4d contains a missing_value as "NaNf"
+                if "-nan" in nil_value.lower():
+                    nil_value = "-NaN"
+                if "nan" in nil_value.lower():
+                    nil_value = "NaN"
 
-                    # as nilValue is integer already so only 1 nilValue
-                    if floor_nill_value == ceil_nill_value:
-                        range_nils.append(RangeTypeNilValue(band.nilReason, floor_nill_value))
-                    else:
-                        # or it will add both 2 integers as nill Values
-                        range_nils.append(RangeTypeNilValue(band.nilReason, floor_nill_value))
-                        range_nils.append(RangeTypeNilValue(band.nilReason, ceil_nill_value))
+                if is_number(nil_value):
+                    range_nils.append(RangeTypeNilValue(band.nilReason, nil_value))
                 else:
                     # nilValue is invalid number
                     raise RuntimeException("NilValue of band: {} must be a number.".format(nil_value))

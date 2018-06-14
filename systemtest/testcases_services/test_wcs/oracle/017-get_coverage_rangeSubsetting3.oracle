@@ -50,7 +50,7 @@
                     <swe:label>green</swe:label>
                     <swe:nilValues>
                         <swe:NilValues>
-                            <swe:nilValue reason="">208</swe:nilValue>
+                            <swe:nilValue reason="">208.0</swe:nilValue>
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
@@ -61,7 +61,7 @@
                     <swe:label>red</swe:label>
                     <swe:nilValues>
                         <swe:NilValues>
-                            <swe:nilValue reason="">119</swe:nilValue>
+                            <swe:nilValue reason="">119.0</swe:nilValue>
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>

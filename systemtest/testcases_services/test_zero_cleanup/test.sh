@@ -38,7 +38,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 # This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)
 # then will remove the coverageName with WCS DeleteCoverage service which will remove the imported coverage and correspondent WMS layers if available.
 declare -a SERVICES=('error_ingest' 'wcs' 'wms' 'wcps')
-DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/test_data"
+DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/testdata"
 
 # change directory to the DATA_FOLDER
 cd "$DATA_FOLDER"

@@ -24,7 +24,9 @@ package petascope.util.ras;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -104,19 +106,14 @@ public class TypeRegistry {
     }
 
     private String generateNullValuesRepresentation(List<NilValue> nullValues) {
+        
         String result = "";
         if (!nullValues.isEmpty()) {
             String values = "";
             int count = 0;
             for (NilValue nullValue : nullValues) {
                 String val = nullValue.getValue();
-                //check if i is an interval, if not (and is a single value), make it an interval, as there is a bug in
-                // rasdaman which prevents adding single values as null values
-                if (val.contains(RASQL_BOUND_SEPARATION)) {
-                    values += val;
-                } else {
-                    values += val + RASQL_BOUND_SEPARATION + val;
-                }
+                values += val;
                 //add "," on all but last dim
                 if (count < nullValues.size() - 1) {
                     values += ",";
