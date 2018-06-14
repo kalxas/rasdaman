@@ -46,6 +46,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include <logging.hh>
 
 #include <iostream>
+#define MAX_COLLECTION_NAME_LENGTH 200
 
 using namespace std;
 
@@ -128,6 +129,13 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
 {
     // allocate a new oid within the current db
     OId oid = 0;
+    
+    if (collection2.getCollectionName().length() >= MAX_COLLECTION_NAME_LENGTH)
+    {
+        LERROR << "The collection name is too long.";
+        parseInfo.setErrorNo(974); 
+        throw parseInfo;
+    }
 
     if (currentClientTblElt)
     {

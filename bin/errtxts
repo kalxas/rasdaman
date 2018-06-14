@@ -291,6 +291,7 @@
 971^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid cell type.
 972^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid dimensionality.
 973^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid marray type.
+974^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is too long.
 #
 # 1xxx errors: General errors
 #
