@@ -96,12 +96,16 @@ class ExtraMetadataCollector:
         # axes_attributes is a dict of keys, values
         for axis, axis_attributes in self.extra_metadata_info.axes_attributes.items():
             axes_meta[axis] = {}
-            for key, value in axis_attributes.items():
-                # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
-                # output of extra metadata should be string in any cases
-                if str(value) != "":
-                    axes_meta[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice))
-                else:
-                    axes_meta[axis][key] = str(value)
+            if type(axis_attributes) is dict:
+                for key, value in axis_attributes.items():
+                    # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
+                    # output of extra metadata should be string in any cases
+                    if str(value) != "":
+                        axes_meta[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entries[0].evalutor_slice))
+                    else:
+                        axes_meta[axis][key] = str(value)
+            else:
+                # It should be a string (e.g: ${netcdf:variable:lat:metadata}) and need to be evaluated
+                axes_meta[axis] = self.evaluator.evaluate(axis_attributes, self.metadata_entries[0].evalutor_slice)
 
         return ExtraMetadata(global_meta, meta_slices, bands_meta, axes_meta)

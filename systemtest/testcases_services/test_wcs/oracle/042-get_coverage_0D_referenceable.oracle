@@ -44,6 +44,15 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <covMetadata>
+                <bands>
+                    <value>
+                        <units>10</units>
+                        <definition>/dataType/OGC/0/unsignedShort</definition>
+                        <valid_min>0</valid_min>
+                        <valid_max>65535</valid_max>
+                        <description>primitive</description>
+                    </value>
+                </bands>
                 <description>This is a test coverage</description>
             </covMetadata>
         </gmlcov:Extension>

@@ -22,7 +22,6 @@
  *
 """
 from config_manager import ConfigManager
-from collections import OrderedDict
 from master.error.runtime_exception import RuntimeException
 from master.error.validate_exception import RecipeValidationException
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
@@ -43,11 +42,11 @@ from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
 from util.log import log
 from util.string_util import escape_metadata_dict
+from util.string_util import escape_metadata_nested_dicts
 from util.import_util import import_netcdf4
 
 
 class Recipe(BaseRecipe):
-
     def __init__(self, session):
         """
         The recipe class for map_mosaic. To get an overview of the ingredients needed for this
@@ -127,12 +126,29 @@ class Recipe(BaseRecipe):
                     "No valid type given for the metadata parameter, accepted values are xml and json")
 
         if "metadata" in self.options['coverage']:
-            if ("global" not in self.options['coverage']['metadata']) \
-                and ("local" not in self.options['coverage']['metadata']):
-                # NOTE: if global is not specified in netCDF ingredient file, it is considered auto
-                # which means extract all the global attributes of netcdf file to create global metadata
-                if self.options['coverage']['slicer']['type'] != "netcdf":
-                    raise RecipeValidationException("No local or global metadata fields given for the metadata parameter.")
+            supported_recipe = (self.options['coverage']['slicer']['type'] == "netcdf")
+            if not supported_recipe:
+                # global metadata auto is supported for netCDF recipe
+                if "global" in self.options['coverage']['metadata']:
+                    # NOTE: if global is not specified in netCDF ingredient file, it is considered auto
+                    # which means extract all the global attributes of netcdf file to create global metadata
+                    if self.options['coverage']['metadata']['global'] == "auto":
+                        raise RecipeValidationException(
+                            "Global auto metadata only supported in general recipe with slicer's type: 'netcdf'.")
+
+                # bands metadata auto is supported for netCDF recipe
+                if "bands" in self.options['coverage']['metadata']:
+                    bands_metadata = self.options['coverage']['metadata']['bands']
+                    if bands_metadata == "auto":
+                        raise RecipeValidationException(
+                            "Bands auto metadata only supported in general recipe with slicer's type: 'netcdf'.")
+                    elif type(bands_metadata) is dict:
+                        # Check if one band of bands specified with "auto"
+                        for key, value in bands_metadata.items():
+                            if value == "auto":
+                                raise RecipeValidationException(
+                                    "Band auto metadata only supported in general recipe with slicer's type: 'netcdf', "
+                                    "violated for band '" + key + "'.")
 
     def describe(self):
         """
@@ -144,7 +160,9 @@ class Recipe(BaseRecipe):
 
         slices = importer.get_slices_for_description()
         number_of_files = len(slices)
-        log.info("All files have been analyzed. Please verify that the axis subsets of the first {} files above are correct.".format(number_of_files))
+        log.info(
+            "All files have been analyzed. Please verify that the axis subsets of the first {} files above are correct.".format(
+                number_of_files))
         index = 1
         for slice in slices:
             log.info("Slice " + str(index) + ": " + str(slice))
@@ -185,14 +203,14 @@ class Recipe(BaseRecipe):
             ret_bands = []
             for band in bands:
                 ret_bands.append(UserBand(
-                                          self._read_or_empty_string(band, "identifier"),
-                                          self._read_or_empty_string(band, "name"),
-                                          self._read_or_empty_string(band, "description"),
-                                          self._read_or_empty_string(band, "definition"),
-                                          self._read_or_empty_string(band, "nilReason"),
-                                          self._read_or_empty_string(band, "nilValue").split(","),
-                                          self._read_or_empty_string(band, "uomCode")
-                                          ))
+                    self._read_or_empty_string(band, "identifier"),
+                    self._read_or_empty_string(band, "name"),
+                    self._read_or_empty_string(band, "description"),
+                    self._read_or_empty_string(band, "definition"),
+                    self._read_or_empty_string(band, "nilReason"),
+                    self._read_or_empty_string(band, "nilValue").split(","),
+                    self._read_or_empty_string(band, "uomCode")
+                ))
             return ret_bands
         raise RuntimeError("Bands parameter was not checked for validity")
 
@@ -240,7 +258,8 @@ class Recipe(BaseRecipe):
 
             if not irregular:
                 user_axes.append(
-                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound, statements=statements))
+                    RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound,
+                                    statements=statements))
             else:
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
@@ -284,6 +303,11 @@ class Recipe(BaseRecipe):
                         # global metadata is defined with auto, then parse the metadata from the first file to a dict
                         metadata_dict = escape_metadata_dict(self.__parse_netcdf_global_metadata())
                         return metadata_dict
+            else:
+                # global is not specified in ingredient file, it is considered as "global": "auto"
+                metadata_dict = escape_metadata_dict(self.__parse_netcdf_global_metadata())
+                return metadata_dict
+
         return {}
 
     def _local_metadata_fields(self):
@@ -316,10 +340,53 @@ class Recipe(BaseRecipe):
                             exist = True
                             break
                     if exist is False:
-                        raise RuntimeException("Band's metadata with name: '" + band + "' does not exist in user defined bands.")
+                        raise RuntimeException(
+                            "Band's metadata with name: '" + band + "' does not exist in user defined bands.")
 
                 # it is a valid definition
                 return bands_metadata
+        return {}
+
+    def _netcdf_bands_metadata_fields(self):
+        """
+        Returns the bands metadata for netCDF file
+        + If "bands" is specified in ingredient file under "metadata" with: "bands": { "band1": "auto", "band2": { "key": "value" }
+        then "band1" will get metadata automatically from file (same as "band1" is not specified), "band2" will get metadata
+        from the specified keys, values.
+        + If "bands" is not specified in ingredient file or specified with "bands": "auto", then all coverage's bands' metadata
+        will be extracted automatically from file.
+        :rtype: dict
+        """
+        # a list of user defined bands
+        user_bands = self._read_bands()
+
+        if "metadata" in self.options['coverage']:
+            if "bands" in self.options['coverage']['metadata']:
+                # a dictionary of user defined bands' metadata
+                bands_metadata = self.options['coverage']['metadata']['bands']
+
+                if bands_metadata == "auto":
+                    # Just fetch all metadata for user specified bands
+                    bands_metadata = self.__parse_netcdf_bands_metadata(user_bands)
+                elif type(bands_metadata) is dict:
+                    # validate if band's name does exist in list of user defined bands
+                    for band, band_attributes in bands_metadata.items():
+                        exist = False
+                        for user_band in user_bands:
+                            if str(band) == str(user_band.name):
+                                exist = True
+                                break
+                        if exist is False:
+                            raise RuntimeException(
+                                "Band's metadata with name: '" + band + "' does not exist in user defined bands.")
+                else:
+                    raise RuntimeException("Bands metadata is not valid, given type '" + type(bands_metadata) + "'.")
+            else:
+                # "bands" is missing from ingredient file, it is as same as "bands": "auto"
+                bands_metadata = self.__parse_netcdf_bands_metadata(user_bands)
+
+            return escape_metadata_nested_dicts(bands_metadata)
+
         return {}
 
     def _axes_metadata_fields(self):
@@ -343,10 +410,53 @@ class Recipe(BaseRecipe):
                             exist = True
                             break
                     if exist is False:
-                        raise RuntimeException("Axis's metadata with name: '" + axis + "' does not exist in user defined axes.")
+                        raise RuntimeException(
+                            "Metadata of axis with name '" + axis + "' does not exist in user defined axes.")
 
                 # it is a valid definition
                 return axes_metadata
+        return {}
+
+    def _netcdf_axes_metadata_fields(self):
+        """
+        Returns the axes metadata for netCDF file.
+
+        NOTE: There is no "auto" for fetching axes' metadata because the axes' labels from netCDF don't match with
+        axes's labels from CRS (e.g: in netCDF axis is 'lon', but in CRS it is 'Long').
+
+        Example: a coverage has 3 axes, ff "axes" is specified in ingredient file
+        under "metadata" with: "axes": { "axis1": { "key": "value" }, "axis2": "lon" }
+        then metadata for axis1 is specified from user, metadata for axis2 is fetched from axis named 'lon' and
+        metadata for axis3 is empty because not specified.
+        :rtype: dict
+        """
+        # a list of user defined bands
+        crs = self._resolve_crs(self.options['coverage']['crs'])
+        user_axes = self._read_axes(crs)
+
+        if "metadata" in self.options['coverage']:
+            if "axes" in self.options['coverage']['metadata']:
+                # a dictionary of user defined bands' metadata
+                axes_metadata = self.options['coverage']['metadata']['axes']
+
+                if type(axes_metadata) is dict:
+                    # validate if axis's name does exist in list of user defined axes
+                    for axis, axis_attributes in axes_metadata.items():
+                        exists = False
+                        for user_axis in user_axes:
+                            if str(axis) == str(user_axis.name):
+                                exists = True
+                                break
+                        if exists is False:
+                            raise RuntimeException(
+                                "Metadata of axis with name '" + axis + "' does not exist in user defined bands.")
+                else:
+                    raise RuntimeException("Bands metadata is not valid, given type '" + type(axes_metadata) + "'.")
+            else:
+                # no "axes" in metadata specified, just empty object
+                axes_metadata = {}
+            return escape_metadata_nested_dicts(axes_metadata)
+
         return {}
 
     def _metadata_type(self):
@@ -425,8 +535,8 @@ class Recipe(BaseRecipe):
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._netcdf_global_metadata_fields(),
                                              self._local_metadata_fields(),
-                                             self._bands_metadata_fields(),
-                                             self._axes_metadata_fields(),
+                                             self._netcdf_bands_metadata_fields(),
+                                             self._netcdf_axes_metadata_fields(),
                                              self._metadata_type(),
                                              self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
         return coverage
@@ -473,14 +583,43 @@ class Recipe(BaseRecipe):
         netcdf_files = self.session.get_files()
         file_path = netcdf_files[0].filepath
 
+        # NOTE: all files should have same global metadata for each file
+        netCDF4 = import_netcdf4()
+        dataset = netCDF4.Dataset(file_path, 'r')
+        global_metadata = {}
+        for attr in dataset.ncattrs():
+            try:
+                global_metadata[attr] = str(getattr(dataset, attr))
+            except:
+                log.warn("Attribute '" + attr + "' of global metadata cannot be parsed as string, ignored.")
+
+        return global_metadata
+
+    def __parse_netcdf_bands_metadata(self, user_bands):
+        """
+        Parse the netCDF file to extract the bands' metadata for the coverage
+        :return: dict:
+        """
+        netcdf_files = self.session.get_files()
+        file_path = netcdf_files[0].filepath
+
         # NOTE: all files should have same bands's metadata for each file
         netCDF4 = import_netcdf4()
         dataset = netCDF4.Dataset(file_path, 'r')
-        global_metadata = OrderedDict()
-        for attr in dataset.ncattrs():
-            global_metadata[attr] = getattr(dataset, attr)
+        bands_metadata = {}
 
-        return global_metadata
+        for user_band in user_bands:
+            band_id = user_band.identifier
+            attrs_list = dataset.variables[band_id].ncattrs()
+            bands_metadata[band_id] = {}
+
+            for attr in attrs_list:
+                try:
+                    bands_metadata[band_id][attr] = str(getattr(dataset.variables[band_id], attr))
+                except:
+                    log.warn("Attribute '" + attr + "' of band '" + band_id + "' cannot be parsed as string, ignored.")
+
+        return bands_metadata
 
     @staticmethod
     def get_name():

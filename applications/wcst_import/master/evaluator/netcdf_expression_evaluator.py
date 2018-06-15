@@ -22,10 +22,13 @@
  *
 """
 from util import list_util
+from xml.sax.saxutils import escape
 
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
+
+from util.log import log
 
 
 class NetcdfExpressionEvaluator(ExpressionEvaluator):
@@ -97,8 +100,10 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         LAST = "last"
         FIRST = "first"
         RESOLUTION = "resolution"
+        METADATA = "metadata"
+
         # List of support operation on a netCDF variable
-        supported_operations = [MAX, MIN, LAST, FIRST, RESOLUTION]
+        supported_operations = [MAX, MIN, LAST, FIRST, RESOLUTION, METADATA]
 
         if operation not in supported_operations:
             # it must be an attribute of variable
@@ -122,6 +127,15 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
             resolution = self.__calculate_netcdf_resolution(decimal_values)
             return resolution
+        elif operation == METADATA:
+            # return a dict of variable (axis) metadata with keys, values as string
+            tmp_dict = {}
+            for attr in variable.ncattrs():
+                try:
+                    tmp_dict[attr] = escape(getattr(variable, attr))
+                except:
+                    log.warn("Attribute '" + attr + "' of variable '" + variable._getname() + "' cannot be parsed as string, ignored.")
+            return tmp_dict
 
         # Not supported operation and not valid attribute of netCDF variable
         raise RuntimeException(

@@ -28,6 +28,17 @@
         <gmlcov:metadata>
             <gmlcov:Extension>
                 <covMetadata>
+                    <bands>
+                        <LAI>
+                            <_FillValue>-1.0</_FillValue>
+                            <grid_mapping>crs</grid_mapping>
+                            <scale_factor>1.0</scale_factor>
+                            <FORTRAN_format>G10.6</FORTRAN_format>
+                            <long_name>Leaf Area Index</long_name>
+                            <units>m2/m2</units>
+                            <missing_value>-1.0</missing_value>
+                        </LAI>
+                    </bands>
                     <Title>This is a test coverage</Title>
                 </covMetadata>
             </gmlcov:Extension>

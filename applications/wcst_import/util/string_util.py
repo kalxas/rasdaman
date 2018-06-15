@@ -56,3 +56,22 @@ def escape_metadata_dict(metadata_dict):
         metadata_dict[key] = escape(str(value))
 
     return metadata_dict
+
+
+def escape_metadata_nested_dicts(metadata_dict):
+    """
+    Escape a dict and its children nested dicts (or string) with values are strings which can contain invalid characters (<, >, &) for XML
+    :param metadata_dict:
+    :return: an escaped dict with nested dicts
+    """
+    # NOTE: metadata can contain invalid characters for XML such as: <, >, & then needs to escape them
+    for key_parent, value_parent in metadata_dict.iteritems():
+        if type(value_parent) is dict:
+            # e.g: "band1": { "key_1": "value_1", "key_2": "value_2" }
+            for key_child, value_child in value_parent.iteritems():
+                metadata_dict[key_parent][key_child] = escape(str(value_child))
+        else:
+            # e.g: ${netcdf:variable:lat:metadata}
+            metadata_dict[key_parent] = escape(str(value_parent))
+
+    return metadata_dict

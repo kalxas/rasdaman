@@ -62,6 +62,15 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <covMetadata>
+                <bands>
+                    <tg>
+                        <units>Celsius</units>
+                        <long_name>mean temperature</long_name>
+                        <standard_name>air_temperature</standard_name>
+                        <scale_factor>0.01</scale_factor>
+                        <_FillValue>-9999</_FillValue>
+                    </tg>
+                </bands>
                 <Creator>This is a test creator file</Creator>
                 <Project>This is another test file</Project>
                 <Title>This is a test file</Title>

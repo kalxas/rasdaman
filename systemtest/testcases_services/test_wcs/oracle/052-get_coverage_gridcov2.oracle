@@ -55,6 +55,14 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <covMetadata>
+                <bands>
+                    <value>
+                        <units>10</units>
+                        <definition>/dataType/OGC/0/float64</definition>
+                        <missing_value>NaN</missing_value>
+                        <description>primitive</description>
+                    </value>
+                </bands>
                 <Creator>This is a test creator file</Creator>
                 <Project>This is another test file</Project>
                 <Title>This is a test file</Title>
