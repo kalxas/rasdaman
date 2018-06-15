@@ -7,13 +7,13 @@
                 </span>
                 <input type="text" autocomplete ng-model="selectedCoverageId" class="form-control" source="availableCoverageIds" placeholder="Input coverage ID or part of it" />
                 <span class="input-group-btn">
-                <button class="btn btn-default"
-                        type="button" class="btn btn-info"
-                        ng-disabled="!isCoverageIdValid()"
-                        ng-click="describeCoverage()">
-                    Describe Coverage
-                </button>
-            </span>
+                    <button class="btn btn-default"
+                            type="button" class="btn btn-info"
+                            ng-disabled="!isCoverageIdValid()"
+                            ng-click="describeCoverage()">
+                        Describe Coverage
+                    </button>
+                </span>
             </div>
         </div>
 
@@ -50,6 +50,8 @@
         </div>
 
         <!-- WebWorldWind -->
+       
+        <br/>
         <div class="row top15" ng-hide="isCoverageDescriptionsHideGlobe">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
@@ -73,8 +75,26 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
-                        GML coverage descriptions document <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen,
-'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
+                        Extra metadata
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen, 
+                                    'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
+                    </uib-accordion-heading>
+
+                    <ras-pretty-print data="{value:metaDataPrint, type:typeMetadata}">
+                    </ras-pretty-print>
+                    
+                </uib-accordion-group>
+            </uib-accordion>
+        </div>
+
+        <br/>
+        <div class="row top15" ng-show="coverageDescriptionsDocument.value" style="margin-top: -15px;">
+            <uib-accordion close-others="false">
+                <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
+                    <uib-accordion-heading>
+                        GML coverage descriptions document 
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen,
+                                    'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
                     </uib-accordion-heading>
 
 

@@ -1430,17 +1430,15 @@ var wcs;
     var CoverageDescription = (function (_super) {
         __extends(CoverageDescription, _super);
         function CoverageDescription(source) {
-            var _this = this;
             _super.call(this, source);
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             if (source.doesElementExist("gml:coverageFunction")) {
                 this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
             }
-            this.metadata = [];
-            source.getChildrenAsSerializedObjects("gmlcov:metadata").forEach(function (o) {
-                _this.metadata.push(new gmlcov.Metadata(o));
-            });
+            if (source.doesElementExist("gmlcov:metadata")) {
+                this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
+            }
             this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
             this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
             this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
@@ -2793,6 +2791,21 @@ var rasdaman;
                     .then(function (response) {
                     $scope.coverageDescriptionsDocument = response.document;
                     $scope.coverageDescriptions = response.value;
+                    $scope.metaDataPrint = ' ';
+                    var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
+                    var startPos = rawCoverageDescription.indexOf("<covMetadata>");
+                    if (startPos != -1) {
+                        startPos += 13;
+                        var endPos = rawCoverageDescription.indexOf("</covMetadata>");
+                        $scope.metaDataPrint = rawCoverageDescription.substring(startPos, endPos);
+                        var ch = /{/gi;
+                        if ($scope.metaDataPrint.search(ch) != -1) {
+                            $scope.typeMetadata = 'json';
+                        }
+                        else {
+                            $scope.typeMetadata = 'xml';
+                        }
+                    }
                     var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                     if (coverageExtentArray == null) {
                         $scope.isCoverageDescriptionsHideGlobe = true;

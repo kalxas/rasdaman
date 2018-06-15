@@ -105,7 +105,8 @@ module rasdaman {
 
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
-
+                
+                            
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(
@@ -113,9 +114,32 @@ module rasdaman {
                             //Success handler
                             $scope.coverageDescriptionsDocument = response.document;
                             $scope.coverageDescriptions = response.value;
+                            $scope.metaDataPrint = ' ';
+
+                            var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
+                            //Define the starting and ending positions of the metadata
+                            var startPos = rawCoverageDescription.indexOf("<covMetadata>");
+
+                            if(startPos != -1){
+                                startPos += 13;
+                                var endPos = rawCoverageDescription.indexOf("</covMetadata>");
+                                //Extract the metadata from the coverage document
+                                $scope.metaDataPrint = rawCoverageDescription.substring(startPos, endPos);
+                                //Define the characters that indicates if the metadata string represents JSON code.
+                                var ch = /{/gi;
+
+                                //Checks if the metadata is written in JSON.
+                                if($scope.metaDataPrint.search(ch) != -1){
+                                    $scope.typeMetadata = 'json';
+                                }
+                                else{
+                                    $scope.typeMetadata = 'xml';
+                                }
+                            }
+                                
 
                             // Fetch the coverageExtent by coverageId to display on globe if possible
-                            var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);                            
+                            var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                             if (coverageExtentArray == null) {
                                 $scope.isCoverageDescriptionsHideGlobe = true;
                             } else {
@@ -128,7 +152,7 @@ module rasdaman {
                                 webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                                 // And look at the coverage's center on globe
                                 webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
-                            }                            
+                            }
                         },
                         (...args:any[])=> {
                             $scope.coverageDescriptionsDocument = null;
@@ -160,6 +184,8 @@ module rasdaman {
         requestUrl:string;
 
         isCoverageIdValid():void;
-        describeCoverage():void;        
+        describeCoverage():void;    
+        metaDataPrint:string;
+        typeMetadata:string;
     }
 }

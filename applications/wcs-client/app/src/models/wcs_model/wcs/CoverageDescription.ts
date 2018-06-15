@@ -29,7 +29,7 @@ module wcs {
     export class CoverageDescription extends gml.AbstractFeature {
         public coverageId:string;
         public coverageFunction:gml.CoverageFunction;
-        public metadata:gmlcov.Metadata[];
+        public metadata:gmlcov.Metadata;
         public domainSet:gml.DomainSet;
         public rangeType:gmlcov.RangeType;
         public serviceParameters:wcs.ServiceParameters;
@@ -41,21 +41,21 @@ module wcs {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
             this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-
+            
             if (source.doesElementExist("gml:coverageFunction")) {
                 this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
             }
 
-            this.metadata = [];
-            source.getChildrenAsSerializedObjects("gmlcov:metadata").forEach(o=> {
-                this.metadata.push(new gmlcov.Metadata(o));
-            });
+            if(source.doesElementExist("gmlcov:metadata")) {
+                this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
+            }
 
             this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
 
             this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
 
             this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+
         }
     }
 }

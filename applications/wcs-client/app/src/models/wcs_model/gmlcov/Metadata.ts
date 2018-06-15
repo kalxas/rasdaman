@@ -28,6 +28,7 @@ module gmlcov {
      * Extend this class so that it fully complies with the OGC GML specification if the need arises.
      */
     export class Metadata {
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
