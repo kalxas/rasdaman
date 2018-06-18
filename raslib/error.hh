@@ -592,6 +592,7 @@ public:
 #define SINGLETONPROJECTIONCOORDS           524
 #define AXISNUMBERSMUSTEXIST                525
 #define PROJDIMNOTMATCHINGMASKDIM           526
+#define MASKNOTALIGNEDWITHLINESTRING        527
 #define DATABASE_EXISTS                     708
 #define FILEDATADIR_NOTFOUND                709
 #define FAILEDWRITINGTODISK                 710

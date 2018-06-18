@@ -128,16 +128,13 @@ public:
     bool operator >= (const r_Point&) const;
 
     /// vector addition
-    r_Point operator+(const r_Point&) const
-;
+    r_Point operator+(const r_Point&) const;
 
     /// vector subtraction
-    r_Point operator-(const r_Point&) const
-;
+    r_Point operator-(const r_Point&) const;
 
     /// vector multiplication
-    r_Point operator*(const r_Point&) const
-;
+    r_Point operator*(const r_Point&) const;
     
     /// vector multiplication with a scalar
     r_Point operator*(const r_Range newElement) const;
@@ -146,8 +143,7 @@ public:
     r_Point indexedMap(const std::vector<r_Dimension>& vecArg) const;
 
     /// vector dotProduct
-    r_Range dotProduct(const r_Point &r) const
-;
+    r_Range dotProduct(const r_Point &r) const;
 
     /// get dimensionality
     inline r_Dimension dimension() const;

@@ -58,6 +58,7 @@ add_library(qlparser
         qtcondenseop.hh qtcondenseop.cc qtcondenseop.icc
         qtconst.hh qtconst.cc qtconst.icc
         qtconversion.hh qtconversion.cc qtconversion.icc
+        qtcorridor.hh qtcorridor.cc qtcorridor.icc
         qtcreatecelltype.hh qtcreatecelltype.cc
         qtcreatemarraytype.hh qtcreatemarraytype.cc
         qtcreatesettype.hh qtcreatesettype.cc

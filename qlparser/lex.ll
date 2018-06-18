@@ -234,6 +234,7 @@ int string_yyinput( char* buf, int max_size )
 "projection"                             { SETTOKEN( PROJECTION, commandToken, PROJECTION)}
 "polygon"                                { SETTOKEN( POLYGON, commandToken, POLYGON)}
 "curtain"                                { SETTOKEN( CURTAIN, commandToken, CURTAIN)}
+"corridor"                               { SETTOKEN( CORRIDOR, commandToken, CORRIDOR)}
 "linestring"                             { SETTOKEN( LINESTRING, commandToken, LINESTRING)}
 "multilinestring"                        { SETTOKEN( MULTILINESTRING, commandToken, MULTILINESTRING)}
 "range"                                  { SETTOKEN( RANGE, commandToken, RANGE)}

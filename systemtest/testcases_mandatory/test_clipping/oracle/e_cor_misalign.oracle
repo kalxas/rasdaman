@@ -1,0 +1,1 @@
+rasdaman error 527: Error: The polygon does not align with the path. Double check that the first point of the linestring lies in the convex hull of the polygon vertices, and try again.

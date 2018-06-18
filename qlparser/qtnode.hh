@@ -141,6 +141,7 @@ public:
         QT_CLIPPING,
         QT_MULTICLIPPING,
         QT_CURTAIN,
+        QT_CORRIDOR,
 
 //**************
         QT_ABS, QT_EXP, QT_LOG, QT_LN, QT_SIN, QT_COS,

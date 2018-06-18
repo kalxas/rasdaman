@@ -21,14 +21,14 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 /* 
- * File:   qtcurtain.hh
+ * File:   qtcorridor.hh
  * Author: bbell
  *
- * Created on February 1, 2018, 5:00 PM
+ * Created on May 22, 2018, 5:00 PM
  */
 
-#ifndef QTCURTAIN_HH
-#define	QTCURTAIN_HH
+#ifndef QTCORRIDOR_HH
+#define	QTCORRIDOR_HH
 
 #include "config.h"
 
@@ -52,16 +52,16 @@ rasdaman GmbH.
 
 #include <iostream>
 
-class QtCurtain : public QtUnaryOperation
+class QtCorridor : public QtUnaryOperation
 {
   public:     
   
     //constructor getting the mdd being operated on, the mask generator (QtMulticlipping object), and the projection dimensions containing the mask.
-    QtCurtain(QtOperation* mddOp, std::shared_ptr<QtMulticlipping> clipArg, QtMShapeData* projDims);
+    QtCorridor(QtOperation* mddOp, std::shared_ptr<QtMulticlipping> clipArg,  QtMShapeData* lineString, QtMShapeData* projDims);
     
     QtData* computeOp(QtMDD* operand);
 
-    MDDObj* extractCurtain(const MDDObj* op, const r_Minterval& areaOp);
+    MDDObj* extractCorridor(const MDDObj* op, const r_Minterval& areaOp);
     
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);
@@ -72,6 +72,11 @@ class QtCurtain : public QtUnaryOperation
     /// type checking of the subtree
     virtual const QtTypeElement& checkType(QtTypeTuple *typeTuple = NULL);
     
+  protected: 
+    /// takes a vector of vector of line segment end points, which has already been reduced to avoid redundancies, and an r_Minterval assumed to lie along the maskDims (private member)
+    /// returns a vector of the embedded intervals (translated by the point differences).
+    std::vector<r_Minterval> computeMaskEmbedding(const std::vector< std::vector<r_Point> >& pointListArg, const r_Minterval& convexHull, r_Range outputLength); 
+      
   private:
     /// attribute for identifying nodes
     static const QtNodeType nodeType;
@@ -79,12 +84,16 @@ class QtCurtain : public QtUnaryOperation
     std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >  mask;
     
     std::shared_ptr<QtMulticlipping> clipping;
-    // list of mask dimensions for curtains
+    
+    // the linestring data
+    QtMShapeData* lineStringData;
+    
+    // list of mask dimensions for corridors
     std::vector<r_Dimension> maskDims;
 };
 
 
-#include "qlparser/qtcurtain.icc"
+#include "qlparser/qtcorridor.icc"
 
-#endif	/* QTCURTAIN_HH */
+#endif	/* QTCORRIDOR_HH */
 

@@ -519,6 +519,7 @@ std::vector<r_Minterval> vectorOfResultTileDomains(const std::vector<r_Minterval
     return resultMintervals;
 }
 
+//perhaps introduce a method for returning just a vector of offset vectors
 vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices)
 {
     vector<r_Point> nSubspace;

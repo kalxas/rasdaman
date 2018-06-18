@@ -194,7 +194,7 @@
 515^E^Exception: The affine subspace containing the vertices is the same as the dimension of the MDD object which it is expected to clip.
 516^E^Error: The range given for the curtain must consist of two 1D vertices.
 517^E^Error: The domain for a curtain query must be three dimensional.
-518^E^Exception: The domain of the curtain query does not intersect with the domain of the given MDD Object.
+518^E^Exception: The domain of the curtain/corridor query does not intersect with the domain of the given MDD Object.
 519^E^Error: A line segment is defined by at least two end points, which are required to compute the intermediary values.
 520^E^Error: The clipping was undefined for the given parameters.
 521^E^Error: The dimension of the vertices defining the curtain's cross-section should match that of the cross-sectional sample of the requested curtain.
@@ -203,6 +203,7 @@
 524^E^Error: The projection dimensions should be single axis numbers separated by commas.
 525^E^Error: The axis numbers for the projection syntax must correspond to existing axes, using Roman counting.
 526^E^Error: The number of dimensions projected to should match the dimension of the corresponding mask. In this case, a polygon mask is 2-D, and so two distinct axis numbers should be chosen to represent it.
+527^E^Error: The polygon does not align with the path. Double check that the first point of the linestring lies in the convex hull of the polygon vertices, and try again.
 # overflow
 510^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.
 511^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.
