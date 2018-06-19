@@ -388,14 +388,15 @@ DatabaseIf::destroyDB(const char* dbName)
     DROP_TABLE("RAS_ADMIN");
     DROP_TABLE("RAS_DBUPDATES");
     DROP_TABLE("RAS_NULLVALUES");
+    DROP_TABLE("RAS_NULLVALUEPAIRS");
 
     disconnect();
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v9.6.0-unknown"
+#define RMANVERSION "v9.7.0-unknown"
 #endif
-#define LONGVER 9600
+#define LONGVER 9700
 
 long
 DatabaseIf::rmanverToLong()

@@ -179,15 +179,6 @@ protected:
 
     static const long long INVALID_DIR_INDEX = -1;
 
-private:
-
-    // these caches dramatically improve performance of getFinalBlobPath, however it
-    // must be noted that failure can happen because of this if some $RASDATA/TILES
-    // subdir is somehow removed while rasserver is running.
-    long long dir1IndexCache;
-    long long dir2IndexCache;
-    std::stringstream blobPathStream;
-
 };
 
 class BlobFSInsertTransaction: public BlobFSTransaction

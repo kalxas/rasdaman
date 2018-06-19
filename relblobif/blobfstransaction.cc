@@ -70,7 +70,7 @@ BlobFSTransaction::BlobFSTransaction(BlobFSConfig& configArg,
                                      const std::string& transactionDir,
                                      const std::string& fileStorageTransactionPathArg)
     : config(configArg), transactionPath(DirWrapper::convertToCanonicalPath(fileStorageTransactionPathArg)),
-      transactionLock(NULL), dir1IndexCache(INVALID_DIR_INDEX), dir2IndexCache(INVALID_DIR_INDEX)
+      transactionLock(NULL)
 {
     if (fileStorageTransactionPathArg.empty() && !transactionDir.empty())
     {
@@ -84,7 +84,7 @@ BlobFSTransaction::BlobFSTransaction(BlobFSConfig& configArg,
 }
 
 BlobFSTransaction::BlobFSTransaction(BlobFSConfig& configArg)
-    : config(configArg), transactionLock(NULL), dir1IndexCache(INVALID_DIR_INDEX), dir2IndexCache(INVALID_DIR_INDEX)
+    : config(configArg), transactionLock(NULL)
 {
 }
 
@@ -123,26 +123,16 @@ const string BlobFSTransaction::getFinalBlobPath(long long blobId)
     {
         if (config.nested)
         {
-            blobPathStream.clear();
-            blobPathStream.str("");
+            std::stringstream blobPathStream;
             blobPathStream << config.tilesPath;
 
             long long dir2Index = blobId / FILESTORAGE_TILES_PER_DIR;
             long long dir1Index = dir2Index / FILESTORAGE_DIRS_PER_DIR;
 
             blobPathStream << dir1Index << '/';
-            if (dir1IndexCache != dir1Index)
-            {
-                DirWrapper::createDirectory(blobPathStream.str());
-                dir1IndexCache = dir1Index;
-                dir2IndexCache = INVALID_DIR_INDEX;
-            }
+            DirWrapper::createDirectory(blobPathStream.str());
             blobPathStream << dir2Index << '/';
-            if (dir2IndexCache != dir2Index)
-            {
-                DirWrapper::createDirectory(blobPathStream.str());
-                dir2IndexCache = dir2Index;
-            }
+            DirWrapper::createDirectory(blobPathStream.str());
             blobPathStream << blobId;
             return blobPathStream.str();
         }

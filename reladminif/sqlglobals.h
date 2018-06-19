@@ -47,7 +47,7 @@ EXEC SQL define STRING_MAXLEN 255;
 #else
 #define VARCHAR_MAXLEN 255
 #define STRING_MAXLEN 255
-#define QUERY_MAXLEN 2000
+#define QUERY_MAXLEN 200000
 
 #define UPDATE_QUERY(c) { \
         sqlite3_exec(SQLiteQuery::getConnection(), c, 0, 0, 0); \

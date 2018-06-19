@@ -99,8 +99,8 @@ else ()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -gdwarf-2 -rdynamic")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -gdwarf-2 -rdynamic")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -rdynamic")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -rdynamic")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
 
@@ -112,13 +112,38 @@ add_definitions(-DELPP_STACKTRACE)
 add_definitions(-DELPP_DISABLE_DEFAULT_CRASH_HANDLING)
 add_definitions(-DELPP_NO_CHECK_MACROS)
 
-# If release, disable Debug and Trace logs
+# For development
+set(ENABLE_DEBUG OFF CACHE BOOL 
+    "Generate (slower) binaries that can be debugged / produce debug logs.")
+if (ENABLE_DEBUG)
+    add_definitions(-DRASDEBUG)
+    set(RMANDEBUG ${ENABLE_DEBUG})
+    set(DEBUG ${ENABLE_DEBUG})
+
+    message(STATUS "Compile in debug mode enabled " 
+        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
+else ()
+    message(STATUS "Compile in debug mode disabled " 
+        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
+endif ()
+
+# If release and not ENABLE_DEBUG, disable Debug and Trace logs
 string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
 if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
-    add_definitions(-DELPP_DISABLE_TRACE_LOGS)
-    add_definitions(-DELPP_DISABLE_VERBOSE_LOGS)
+    if(NOT ENABLE_DEBUG)
+        ######################################################
+        # Enterprise
+        set(_DISABLE_DEBUG_LOGS 1)
+        add_definitions(-DELPP_DISABLE_DEBUG_LOGS)
+        # udf requirement
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
+        ######################################################
+        set(_DISABLE_TRACE_LOGS 1)
+        add_definitions(-DELPP_DISABLE_TRACE_LOGS)
+        add_definitions(-DELPP_DISABLE_VERBOSE_LOGS)
+        add_definitions(-DNDEBUG)
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
-    add_definitions(-DNDEBUG)
     # Used by some performance implementation of math libraries.
     set(__NO_MATH_INLINES 1)
 elseif (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
@@ -335,19 +360,6 @@ if (GENERATE_PIC)
 else()
     message(STATUS "Position independent code (PIC) disabled " 
         "(-DGENERATE_PIC=${GENERATE_PIC}).")
-endif ()
-
-set(ENABLE_DEBUG OFF CACHE BOOL 
-    "Generate (slower) binaries that can be debugged / produce debug logs.")
-if (ENABLE_DEBUG)
-    set(RMANDEBUG ${ENABLE_DEBUG})
-    set(DEBUG ${ENABLE_DEBUG})
-
-    message(STATUS "Compile in debug mode enabled " 
-        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
-else ()
-    message(STATUS "Compile in debug mode disabled " 
-        "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 endif ()
 
 set(ENABLE_BENCHMARK OFF CACHE BOOL 
