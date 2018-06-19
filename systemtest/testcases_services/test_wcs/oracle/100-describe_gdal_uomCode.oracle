@@ -26,7 +26,34 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>{  "bands": {    "blue": {      "metadata5": "metadata_blue5"    },     "green": {      "metadata4": "metadata_green4",       "metadata3": "metadata_green3"    },     "red": {      "metadata1": "metadata_red1",       "metadata2": "metadata_red2"    }  },   "axes": {    "i": {      "metadata_i_2": "metadata_2",       "metadata_i_1": "metadata_1"    },     "j": {      "metadata_j_1": "metadata_3"    }  },   "resolution": "1",   "description": "This file has 3 different nodata values for bands and they could be fetched implicitly."}</covMetadata>
+                <covMetadata>
+{
+    "axes": {
+        "i": {
+            "metadata_i_1": "metadata_1",
+            "metadata_i_2": "metadata_2"
+        },
+        "j": {
+            "metadata_j_1": "metadata_3"
+        }
+    },
+    "description": "This file has 3 different nodata values for bands and they could be fetched implicitly.",
+    "bands": {
+        "red": {
+            "metadata2": "metadata_red2",
+            "metadata1": "metadata_red1"
+        },
+        "green": {
+            "metadata4": "metadata_green4",
+            "metadata3": "metadata_green3"
+        },
+        "blue": {
+            "metadata5": "metadata_blue5"
+        }
+    },
+    "resolution": "1"
+}
+                </covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>

@@ -36,9 +36,12 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.logging.Level;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rasdaman.domain.cis.AllowedValue;
 import org.rasdaman.domain.cis.NilValue;
 import org.springframework.stereotype.Service;
@@ -442,18 +445,29 @@ public class GmlCoverageBuilder {
      *
      * @param wcpsCoverageMetadata
      */
-    private static String getGmlcovMetadata(WcpsCoverageMetadata wcpsCoverageMetadata) {
+    private static String getGmlcovMetadata(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
         // GMLCOV metadata
         String gmlcovMetadata = wcpsCoverageMetadata.getMetadata();
         if (gmlcovMetadata == null || gmlcovMetadata.isEmpty()) {
             return "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + "/>";
         }
+        
+        if (JSONUtil.isJsonValid(gmlcovMetadata)) {
+            try {
+                // Prettify the JSON string to be human readable
+                JSONObject json = new JSONObject(gmlcovMetadata);
+                gmlcovMetadata = json.toString(4);
+            } catch (JSONException ex) {
+                log.warn("Cannot parse coverage extra metadata as JSON. Reason: " + ex.getMessage(), ex);
+            }
+        }
+        
         String gmlcovFormattedMetadata = " "
                 + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
                 + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
-                + "<" + XMLSymbols.LABEL_COVERAGE_METADATA + ">"
-                + wcpsCoverageMetadata.getMetadata() // containts farther XML child elements: do not escape predefined entities (up to the user)
-                + "</" + XMLSymbols.LABEL_COVERAGE_METADATA + ">"
+                + "                <" + XMLSymbols.LABEL_COVERAGE_METADATA + ">\n"
+                + gmlcovMetadata // containts farther XML child elements: do not escape predefined entities (up to the user)
+                + "\n                </" + XMLSymbols.LABEL_COVERAGE_METADATA + ">"
                 + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
                 + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
 

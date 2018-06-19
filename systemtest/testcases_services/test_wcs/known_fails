@@ -8,4 +8,6 @@
 #Failed for difference with gdalinfo of bounding box
 076-subsettingCrs_3857_to_4326.kvp
 078-subsettingCrs_32633_to_4326.kvp
-
+#Failed for different elements's order for coverage's extra metadata in Ubuntu 14.04
+100-describe_gdal_uomCode.kvp
+101-describe_grib_uomCode.kvp

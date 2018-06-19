@@ -26,7 +26,11 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>{  "resolution": "1"}</covMetadata>
+                <covMetadata>
+{
+    "resolution": "1"
+}
+                </covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>

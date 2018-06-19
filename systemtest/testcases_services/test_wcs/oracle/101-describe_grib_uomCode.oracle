@@ -27,7 +27,16 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>{  "MARS type": "MARS type",   "Grib1_Parameter_id": "Parameter id",   "Originating_or_generating_Center": "European Centre for Medium-Range Weather Forecasts",   "GRIB_table_version": "Mars Param",   "Type of level": "Type of level",   "Grib1_Parameter_name": "Parameter name"}</covMetadata>
+                <covMetadata>
+{
+    "Type of level": "Type of level",
+    "Grib1_Parameter_name": "Parameter name",
+    "MARS type": "MARS type",
+    "Grib1_Parameter_id": "Parameter id",
+    "GRIB_table_version": "Mars Param",
+    "Originating_or_generating_CENTER": "European CENTER for Medium-Range Weather Forecasts"
+}
+                </covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>
