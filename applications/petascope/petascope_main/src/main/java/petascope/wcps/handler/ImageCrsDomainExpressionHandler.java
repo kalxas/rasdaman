@@ -49,7 +49,8 @@ public class ImageCrsDomainExpressionHandler {
         String rasql = "";
         List<String> axisBounds = new ArrayList<>();
 
-        for (Axis axis : coverageExpression.getMetadata().getAxes()) {
+        // NOTE: imageCrsDomain(c) will return the axes' domains in Rasdaman order (e.g: Long, Lat) (not CRS order, e.g: Lat, Long)
+        for (Axis axis : coverageExpression.getMetadata().getSortedAxesByGridOrder()) {
             // This is used to set bounding box in case of scale() or extend() with imageCrsdomain()
             String tmp = "";
             if (axis.getGridBounds() instanceof NumericTrimming) {
