@@ -40,11 +40,9 @@ rasdaman GmbH.
 #ifndef QTPOLYGONCLIPPING_HH
 #define	QTPOLYGONCLIPPING_HH
 
-#include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtpolygonutil.hh"
-
 
 class QtPolygonClipping
 {
@@ -53,16 +51,7 @@ public:
     QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices);
     
     QtPolygonClipping();
-
-    // computes the polygon clipping in 2D using Bresenham
-    // fast and draws boundaries; currently used for lines, but works in general
-    MDDObj* compute2DBresenham(MDDObj* op, r_Dimension dim);    
-    
-    // computes the polygon clipping in 2D using ray intersection counting 
-    // also fast and can be adapted to float or double for vertices OR interior points
-    // ref: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
-    MDDObj* compute2DRays(MDDObj* op, r_Dimension dim);
-    
+  
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
     virtual vector< vector<char> > generateMask(bool toFill);
     

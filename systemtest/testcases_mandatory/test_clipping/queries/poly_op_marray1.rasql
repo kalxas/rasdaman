@@ -1,0 +1,1 @@
+select encode(marray x in [0:1] values avg_cells(clip(c.1, polygon((99 99, 99 (200+x), (200+x) (200+x), (200+x) 99)))),"json") from test_rgb2 as c

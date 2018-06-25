@@ -61,7 +61,7 @@ public:
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES) override;
 
     /// prints the algebraic expression
     virtual void printAlgebraicExpression(std::ostream& s = std::cout);

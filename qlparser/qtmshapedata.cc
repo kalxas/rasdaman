@@ -47,6 +47,22 @@ QtMShapeData::QtMShapeData(const vector<r_Point>& mShape)
         polytopePointsDouble.push_back(pt);
     }
 
+    if(!mShape.size() > 1)
+    {
+        throw r_Error(NEEDTWOORMOREVERTICES);
+    }
+
+    r_Dimension lastDim = mShape[0].dimension();
+    
+    for(auto it = mShape.begin(); it != mShape.end(); ++it)
+    {
+        if(it->dimension() != lastDim)
+        {
+            throw r_Error(VERTEXDIMENSIONMISMATCH);
+        }
+        lastDim = it->dimension();
+    }    
+
     computeDimensionality();
 }
 
@@ -59,8 +75,8 @@ QtMShapeData::QtMShapeData(vector<QtMShapeData*> &mShapeEdges )
         polytopePointsDouble.insert(polytopePointsDouble.end(), mShapeEdges[i]->getMShapeData().begin(), mShapeEdges[i]->getMShapeData().end());
     }
 
-    //polytopePoints now contains all vertices provided from the user. 
-
+    //polytopePoints now contains all vertices provided from the user.
+    
     // dimensionality is computed in the same way as in the constructor when only
     // polytope vertices are provided.
     computeDimensionality();
@@ -107,14 +123,22 @@ QtMShapeData::getSpelling() const
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = polytopePoints.size() * 50; // on the safe side for one integers per dimension plus colon and brackets
-    char *buffer = new char[bufferLen];
-    // replaced deprecated ostrstream -- PB 2005-jan-14
-    // ostrstream bufferStream( buffer, bufferLen );
+    r_Dimension bufferLen = polytopePoints.size() * 50; // on the safe side for one integer per dimension, plus colon and brackets
+    char* buffer = new char[bufferLen];
     ostringstream bufferStream(buffer);
 
-    //mabufferStream << MShapeData << std::ends;
-
+    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
+    {
+        if( it + 1 != polytopePoints.end() )
+        {
+            bufferStream << "(" + it->to_string() +"), "; 
+        }
+        else
+        {
+            bufferStream << "(" + it->to_string() +")"<< std::ends;                            
+        }
+    }
+    
     result.append(std::string(buffer));
 
     delete[] buffer;
@@ -130,7 +154,19 @@ char *QtMShapeData::getTypeStructure() const
 void QtMShapeData::printStatus(std::ostream &stream) const
 {
     stream << "MShape, value: " << std::flush;
-    //stream << MShapeData << std::flush;
+
+    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
+    {
+        if(it +1 != polytopePoints.end())
+        {
+            stream << "(" + it->to_string() +"), " << std::flush;                         
+        }
+        else
+        {                
+            stream << "(" + it->to_string() +")" << std::flush;   
+        }
+    }
+
     QtData::printStatus(stream);
 }
 
@@ -341,6 +377,26 @@ QtMShapeData::computeHyperplaneEquation()
     }
 
     return hyperplaneEquations;
+}
+
+std::vector< r_Dimension >
+QtMShapeData::computeFirstProjection()
+{
+    vector<r_Dimension> retVal;
+    retVal.reserve(polytopePoints.size());
+    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); it++)
+    {
+        if(it->dimension() != 1) //ensures nonempty and meaningful
+        {
+            LERROR << "Error: QtMShapeData::computeFirstProjection() - The coordinate projections must be singular values separated by commas.";            
+            throw r_Error(SINGLETONPROJECTIONCOORDS);
+        }
+        else
+        {
+            retVal.emplace_back(static_cast<r_Dimension>((*it)[0]));
+        }
+    }
+    return retVal;
 }
 
 r_Dimension

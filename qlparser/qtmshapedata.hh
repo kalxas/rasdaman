@@ -117,6 +117,9 @@ public:
     
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
     std::vector<std::pair< r_PointDouble, double> > computeHyperplaneEquation();
+    
+    /// computes the first coordinate projection on the vector of r_Points, and recasts to r_Dimension, returning a vector of r_Dimension.
+    std::vector< r_Dimension > computeFirstProjection();
 private:
     /// attribute storing the polytope vertex coordinates
     std::vector<r_Point>  polytopePoints;

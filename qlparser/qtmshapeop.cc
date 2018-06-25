@@ -60,63 +60,50 @@ const QtNode::QtNodeType QtMShapeOp::nodeType = QT_MSHAPEOP;
 QtMShapeOp::QtMShapeOp(QtOperationList *parsedOpList)
     : QtNaryOperation(parsedOpList)
 {
-    //i don't think this is accomplishing what we hope -- it seems that the real work is beign done in evaluate, below, and this is accomplishing little-nothing.
-    //todo (bbell): run a few tests for QtMShapeOp. Figure out if this can be invoked in oql.yy without being evaluated.
-    // get bounding box
-    for (auto iter = parsedOpList->begin(); iter < parsedOpList->end(); iter++)
-    {
-        if ((*iter)->getNodeType() == QT_POINTOP)
-        {
-            if ((dynamic_cast<QtPointOp *>(*iter))->getPoints())
-            {
-                int k = 0;
-            }
-            points.push_back(*(dynamic_cast<QtPointOp *>(*iter))->getPoints());
-        }
-        else
-        {
-            points.insert(points.end(), (dynamic_cast<QtMShapeOp *>(*iter))->getPoints().begin(), (dynamic_cast<QtMShapeOp *>(*iter))->getPoints().end());
-        }
-    }
+    
 }
 
-QtData *
+QtData*
 QtMShapeOp::evaluate(QtDataList *inputList)
 {
+    
     startTimer("QtMShapeOp");
-
-    QtData *returnValue = NULL;
-    QtDataList *operandList = NULL;
+    
+    QtData* returnValue = NULL;
+    QtDataList* operandList = NULL;
 
     if (getOperands(inputList, operandList))
     {
-        vector<QtData *>::iterator dataIter;
-        bool goOn = true;
-
+        
         if (operandList)
         {
             // first check operand types
-            for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
+            bool pointAndMshapeOnly = true;
+            for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+            {
                 if ((*dataIter)->getDataType() != QT_POINT && (*dataIter)->getDataType() != QT_MSHAPE)
                 {
-                    goOn = false;
+                    pointAndMshapeOnly = false;
                     break;
                 }
+            }
 
-            if (!goOn)
+            if (!pointAndMshapeOnly)
             {
-                LFATAL << "Error: QtMShapeOp::evaluate() - operands of point expression must be of type integer.";
+                LERROR << "Error: Operands of point expression must be of type integer.";
 
                 parseInfo.setErrorNo(GRIDPOINTSONLY);
 
                 // delete the old operands
                 if (operandList)
                 {
-                    for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                    for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
+                    {
                         if ((*dataIter))
                         {
                             (*dataIter)->deleteRef();
                         }
+                    }
 
                     delete operandList;
                     operandList = NULL;
@@ -124,90 +111,24 @@ QtMShapeOp::evaluate(QtDataList *inputList)
 
                 throw parseInfo;
             }
-
-            // create and initialize the QtMShapeData's vector of polytope vertices
-            // We already know that the dataIter will iterate through a set of points
-            // since the check is done in the checkType function.
-            vector<r_Point> polygonVertices;
-            vector<QtMShapeData *> polytopeEdges;
-            r_Nullvalues *nullValues = NULL;
-            r_Dimension overAllDim{};
-
-            bool isSimplePolytope = false;
-            for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-
-                if ((*dataIter)->getDataType() == QT_POINT)
-                {
-
-                    r_Point pt = (dynamic_cast<QtPointData*>(*dataIter))->getPointData();
-
-                    // 1. Make sure all points have the same dimension
-                    if (dataIter == operandList->begin())
-                    {
-                        overAllDim = pt.dimension();
-                    }
-                    else
-                    {
-                        if (overAllDim != pt.dimension())
-                        {
-                            LFATAL << "Error: QtMShapeOp::evaluate() - polygon vertices must have the same dimension.";
-                            parseInfo.setErrorNo(VERTEXDIMENSIONMISMATCH);
-                            throw parseInfo;
-                        }
-                    }
-
-                    polygonVertices.push_back((dynamic_cast<QtPointData*>(*dataIter))->getPointData());
-                    isSimplePolytope = true;
-                }
-                else if ((*dataIter)->getDataType() == QT_MSHAPE)
-                {
-                    QtMShapeData *mshape = (dynamic_cast<QtMShapeData *>(*dataIter));
-
-                    polytopeEdges.push_back(dynamic_cast<QtMShapeData *>(*dataIter));
-                }
-            // QtMShape must be created with at least two points
-            if (isSimplePolytope)
-            {
-                if (polygonVertices.size() < 2)
-                {
-                    LFATAL << "QtMShape::evaluate() - Too few points provided in order to construct the polytope";
-                    parseInfo.setErrorNo(435);
-                    throw parseInfo;
-                }
-                returnValue = new QtMShapeData(polygonVertices);
-            }
             else
             {
-                // the polytopes generating the new polytope must have the same dimension between one another.
-                r_Dimension currentPolytopeDim = polytopeEdges[0]->getDimension();
-
-                for (size_t i = 0; i < polytopeEdges.size(); i++)
+                std::vector<r_Point> resultPoints;
+                resultPoints.reserve(operandList->size());
+                for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
                 {
-                    if (polytopeEdges[i]->getDimension() != currentPolytopeDim)
+                    if ((*dataIter)->getDataType() == QT_POINT )
                     {
-                        // throw an erro in the object construction since the faces constructing it need
-                        // to be of a dimension one less.
-                        LFATAL << "Error: QtMShapeOp::evaluate() - the faces of the polytope must have the same dimension.";
-                        parseInfo.setErrorNo(FACEDIMENSIONMISMATCH);
-                        throw parseInfo;
+                        resultPoints.emplace_back((dynamic_cast<QtPointData*>(*dataIter))->getPointData());
+                    }
+                    else if ( (*dataIter)->getDataType() == QT_MSHAPE )
+                    {
+                        std::vector<r_Point> appendingVector = (dynamic_cast<QtMShapeData*>(*dataIter))->getPolytopePoints();
+                        resultPoints.insert(resultPoints.end(), appendingVector.begin(), appendingVector.end());
                     }
                 }
-                returnValue = new QtMShapeData(polytopeEdges);
-            }
-
-            returnValue->setNullValues(nullValues);
-
-            // delete the old operands
-            if (operandList)
-            {
-                for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                    if ((*dataIter))
-                    {
-                        (*dataIter)->deleteRef();
-                    }
-
-                delete operandList;
-                operandList = NULL;
+                
+                returnValue = new QtMShapeData(resultPoints);
             }
         }
     }
@@ -217,14 +138,16 @@ QtMShapeOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-void QtMShapeOp::printTree(int tab, std::ostream &s, QtChildType mode)
+void 
+QtMShapeOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMShapeOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-void QtMShapeOp::printAlgebraicExpression(std::ostream &s)
+void 
+QtMShapeOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "[";
 
@@ -233,7 +156,8 @@ void QtMShapeOp::printAlgebraicExpression(std::ostream &s)
     s << "]";
 }
 
-const QtTypeElement &
+const 
+QtTypeElement &
 QtMShapeOp::checkType(QtTypeTuple* typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
@@ -255,7 +179,7 @@ QtMShapeOp::checkType(QtTypeTuple* typeTuple)
 
     if (!opTypesValid)
     {
-        LFATAL << "Error: QtMShapeOp::checkType() - operand of point expression must be of type QT_POINT.";
+        LERROR << "Error: Operand of point expression must be of type QT_POINT.";
         parseInfo.setErrorNo(410);
         throw parseInfo;
     }
@@ -265,7 +189,8 @@ QtMShapeOp::checkType(QtTypeTuple* typeTuple)
     return dataStreamType;
 }
 
-int QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
+int 
+QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
 {
     // This method checks if any vertices of the user-defined polygon end up
     // being co-linear or if the points form a non convex polygon
@@ -301,7 +226,8 @@ int QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
     return 0;
 }
 
-bool QtMShapeOp::isValidSetOfPoints(const vector<r_Point>& polygon)
+bool 
+QtMShapeOp::isValidSetOfPoints(const vector<r_Point>& polygon)
 {
     // This method checks if the vertices of the user-defined polygon end up
     // forming a concave polygon.

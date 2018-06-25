@@ -23,36 +23,49 @@ rasdaman GmbH.
 
 #include "config.h"
 
+//includes qlparser
 #include "qlparser/qtclippingfunc.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtcomplexdata.hh"
 #include "qlparser/qtnode.hh"
+#include "qlparser/qtpointdata.hh"
 #include "qlparser/qtmshapedata.hh"
-
-#include "mddmgr/mddobj.hh"
-#include "tilemgr/tile.hh"
-
-#include "catalogmgr/typefactory.hh"
-#include "relcatalogif/structtype.hh"
-#include "relcatalogif/mdddimensiontype.hh"
-#include "relcatalogif/syntaxtypes.hh"
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtfindsection.hh"
 
+//includes raslib
+#include "raslib/miter.hh"
+#include "raslib/mitera.hh"
+
+//includes mddmgr
+#include "mddmgr/mddobj.hh"
+
+//includes tilemgr
+#include "tilemgr/tile.hh"
+
+//includes catalogmgr
+#include "catalogmgr/typefactory.hh"
+
+//includes relcatalogif
+#include "relcatalogif/structtype.hh"
+#include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/syntaxtypes.hh"
+
+//included libraries
+   
 #include <logging.hh>
 
-#include "qlparser/qtpointdata.hh"
-
-#include <sstream>
 #ifndef CPPSTDLIB
 #else
 #include <string>
-#include <cmath>
 #endif
 
+#include <cmath>
+#include <sstream>
 #include <iostream>
-#include "rasodmg/polycutout.hh"
+#include <stack> 
+#include <vector>
 
 struct mapCmpMinterval
 {
@@ -74,20 +87,13 @@ struct mapCmpMinterval
 
 const QtNode::QtNodeType QtClipping::nodeType = QtNode::QT_CLIPPING;
 
-QtClipping::QtClipping(QtOperation* mddOp, QtOperation* mshapePointList, QtClipType pt)
-    : QtBinaryOperation(mddOp, mshapePointList), clipType(pt), range(NULL)
+QtClipping::QtClipping(QtOperation* mddOp, QtOperation* geometryOp)
+    : QtBinaryOperation(mddOp, geometryOp)
 {
-}
-
-QtClipping::QtClipping(QtOperation* mddOp, QtOperation* mshapePointList, QtMShapeData* mshapeRange, QtClipType pt)
-    : QtBinaryOperation(mddOp, mshapePointList), clipType(pt), range(mshapeRange)
-{
-    // for now, we assume the range is 1D in the first coordinate and mshapePointList is 2d in the last 2 coordinates. Will be expanded upon later.
 }
 
 QtClipping::~QtClipping()
 {
-    delete range;
 }
 
 bool QtClipping::isCommutative() const
@@ -96,7 +102,10 @@ bool QtClipping::isCommutative() const
 }
 
 MDDObj*
-QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeData* mshape, const r_Dimension dim)
+QtClipping::extractBresenhamLine(const MDDObj* op, 
+        const r_Minterval& areaOp, 
+        QtMShapeData* mshape, 
+        const r_Dimension dim)
 {
     // computing the bounding box of the multidimensional shape defined in QtMShapeData
     std::unique_ptr<BoundingBox> bBox;
@@ -123,12 +132,12 @@ QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeD
     // In that case there is no need for further computations and an exception is thrown
     if (!areaOp.intersects_with(mintervalBoundingBox))
     {
-        LFATAL << "The subspace of the set of points provided does not pass through the stored data.";
+        LERROR << "Error: The subspace of the set of points provided does not pass through the stored data.";
         parseInfo.setErrorNo(SUBSPACENOINTERSECTION);
         throw parseInfo;
     }
 
-    areaOp = areaOp.create_intersection(mintervalBoundingBox);
+    r_Minterval resAreaOp = areaOp.create_intersection(mintervalBoundingBox);
 
     // vector containing r_Points that define the line we want to extract.
     vector<r_Point> bresenhamLine = computeNDBresenhamLine(mshape);
@@ -142,7 +151,7 @@ QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeD
     r_Dimension index = std::distance(bbExtents.begin(), std::max_element(bbExtents.begin(), bbExtents.end()));
     
     // startEndIndicesGlobal keeps track of the segment of the line contained inside areaOp.
-    pair<int, int> startEndIndicesGlobal = endpointsSearch(areaOp, bresenhamLine);
+    pair<int, int> startEndIndicesGlobal = endpointsSearch(resAreaOp, bresenhamLine);
     
     // construct the result domain using the largest direction's index.
     // the extent here corresponds to the total number of result points
@@ -164,7 +173,7 @@ QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeD
         {
             // domain of the actual tile
             const r_Minterval& tileDom = (*tileIt)->getDomain();
-            if (tileDom.intersects_with(areaOp))
+            if (tileDom.intersects_with(resAreaOp))
             {
                 //we first determine which band of values from the BLA result apply to this tile                
                 std::pair<int, int> startEndIndices = endpointsSearch(tileDom, bresenhamLine);
@@ -218,14 +227,14 @@ QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeD
     
     catch (r_Error &err)
     {
-        LFATAL << "QtClipping::compute2D caught error: " << err.get_errorno() << " " << err.what();
+        LERROR << "Line clipping error: " << err.get_errorno() << " " << err.what();
         parseInfo.setErrorNo(err.get_errorno());
         throw parseInfo;
     }
     
     catch (int err)
     {
-        LFATAL << "QtClipping::compute2D caught error: " << err << " in qtclipping";
+        LERROR << "Line clipping error: " << err << ".";
         parseInfo.setErrorNo(err);
         throw parseInfo;
     }
@@ -234,11 +243,13 @@ QtClipping::extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeD
 }
 
 MDDObj*
-QtClipping::extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* mshape)
+QtClipping::extractSubspace(const MDDObj* op, 
+        const r_Minterval& areaOp, 
+        QtMShapeData* mshape)
 {
     // dimension of the source space.
     r_Dimension datasetDimension = (mshape->getMShapeData())[0].dimension();
-
+    
     // compute the bounding box of the mShape
     std::unique_ptr<BoundingBox> bBox;
     bBox.reset( computeBoundingBox(mshape) );
@@ -255,7 +266,7 @@ QtClipping::extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShap
     //throw an exception in case the bounding box does not lie in the collection.
     if (!areaOp.intersects_with(mintervalBoundingBox))
     {
-        LFATAL << "The subspace of the set of points provided does not pass through the stored data.";
+        LERROR << "Error: The subspace of the set of points provided does not pass through the stored data.";
         parseInfo.setErrorNo(SUBSPACENOINTERSECTION);
         throw parseInfo;
     }
@@ -366,14 +377,14 @@ QtClipping::extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShap
     }
     catch (r_Error &err)
     {
-        LFATAL << "QtClipping::extractSubspace caught " << err.get_errorno() << " " << err.what();
+        LERROR << "Subspace clipping error: " << err.get_errorno() << " " << err.what();
         parseInfo.setErrorNo(err.get_errorno());
         throw parseInfo;
     }
     
     catch (int err)
     {
-        LFATAL << "QtClipping::extractSubspace caught errno error (" << err << ") in qtclipping";
+        LERROR << "Subspace clipping error: " << err << ".";
         parseInfo.setErrorNo(err);
         throw parseInfo;
     }
@@ -388,7 +399,9 @@ bool isSingleton(const r_Minterval& interval )
 }
 
 MDDObj* 
-QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, const r_Dimension dim)
+QtClipping::extractLinestring(const MDDObj* op, 
+        const QtMShapeData* mshape, 
+        const r_Dimension dim)
 {
     // create vector of bounding boxes (one for each line segment in the linestring)
     vector<r_Minterval> bBoxes = mshape->localConvexHulls();
@@ -457,7 +470,6 @@ QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, cons
     tempTile = *(allTiles->begin());
     size_t typeSize = tempTile->getType()->getSize();
     vector< boost::shared_ptr<Tile> > resultTiles;
-//    vector< boost::shared_ptr<Tile> > resultTiles = initializeTileVector(resultTileMintervals, tempTile->getType());
     resultTiles.reserve(resultTileMintervals.size());
     for(size_t i = 0; i < resultTileMintervals.size(); i++)
     {
@@ -520,13 +532,13 @@ QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, cons
     }
     catch (r_Error &err)
     {
-        LFATAL << "QtClipping::compute2D caught error: " << err.get_errorno() << " " << err.what();
+        LERROR << "Linestring clipping error: " << err.get_errorno() << " " << err.what();
         parseInfo.setErrorNo(err.get_errorno());
         throw parseInfo;
     }
     catch (int err)
     {
-        LFATAL << "QtClipping::compute2D caught error: " << err << " in qtclipping";
+        LERROR << "Linestring clipping error: " << err << ".";
         parseInfo.setErrorNo(err);
         throw parseInfo;
     }
@@ -534,678 +546,654 @@ QtClipping::extractLinestring(const MDDObj* op, const QtMShapeData* mshape, cons
     return resultMDD.release();    
 }
 
-MDDObj* 
-QtClipping::extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg)
-{
-    //currently takes the two points in the range to determine the extent in the first coordinate and uses the polygon for the last two coordinates to determine the cutout shape (two cases -- line & polygon)
-    r_Sinterval rangeInterval;
-    rangeInterval.set_low(rangeArg->getPolytopePoints()[0][0]);
-    rangeInterval.set_high(rangeArg->getPolytopePoints()[1][0]);
+MDDObj*
+QtClipping::extractMultipolygon(const MDDObj* op,
+        const r_Minterval& areaOp,  
+        std::vector<QtPositiveGenusClipping>& clipVector, 
+        QtGeometryData::QtGeometryType geomType)
+{   
+    //for each clipping in the vector, we generate a mask, 
+    //and we assemble them into a single result mask
 
-    //project the minterval onto the last two coordinates.
-    r_Minterval lastTwoDimsDomain(2);
-    lastTwoDimsDomain << areaOp[1];
-    lastTwoDimsDomain << areaOp[2];
-
-    //build the result domain from the rangeInterval and the bounding box of the polygon vertices.
-    pair<r_Point, r_Point> bBox = getBoundingBox( polytope->getPolytopePoints() );
+    //constructing the result domain for the mask and the resultmdd
+    std::shared_ptr<r_Minterval> resultMaskDom = buildResultDom(areaOp, clipVector);
     
-    r_Sinterval xAxis(bBox.first[0], bBox.second[0]);
-    r_Sinterval yAxis(bBox.first[1], bBox.second[1]);
-
-    r_Minterval convexHull(2);
-    convexHull << xAxis;
-    convexHull << yAxis;
-
-    if( !lastTwoDimsDomain.intersects_with(convexHull) || !areaOp[0].intersects_with(rangeInterval))
+    //in case nothing of interest was hit, we can simply return to the parent method, where we will throw an error.
+    if(!resultMaskDom)
     {
-        LFATAL << "QtClipping::extractCurtain - the domain of the curtain query does not intersect with the domain of the MDDObject";
-        throw r_Error(CURTAINDOMAININTERSECTERROR);
+        return NULL;
     }
-
-    r_Sinterval firstDimDomain = areaOp[0].create_intersection(rangeInterval);
-    r_Minterval lastTwoResultDomain = lastTwoDimsDomain.create_intersection(convexHull);
-
-    r_Minterval resultDomain(3);
-    resultDomain << firstDimDomain;
-    resultDomain << lastTwoResultDomain[0];
-    resultDomain << lastTwoResultDomain[1];
     
-    //create a new MDDObj to hold the result
-
-    // this should rather be MDDDomainType? -- DM 2011-aug-12
-    // Old implementation was :MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
-    // Had type incompatibility issue because of missing dimension.
+    std::shared_ptr<char> resultMask = buildResultMask(resultMaskDom, clipVector, geomType);
+    
+    //generate resultMDD
     MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 3);
     MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
 
     TypeFactory::addTempType(mddBaseType);
 
+    std::shared_ptr<r_Minterval> resultDom;
+    resultDom.reset(new r_Minterval(resultMaskDom->create_intersection(areaOp)));
+    
+    std::unique_ptr<MDDObj> resultMDD;
+    resultMDD.reset( new MDDObj(mddBaseType, *resultDom, op->getNullValues()) );
+    
+    // here, we apply the resultMask to each tile to generate the output tiles.
+    
+    //iterate over the source tiles
+    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
+    allTiles.reset(op->intersect(*resultMaskDom));
+    try
+    {
+        //data type size
+        size_t typeSize = (*(allTiles->begin()))->getType()->getSize();
+
+        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
+        {
+            //domain of source tile
+            const r_Minterval& srcTileDom = (*tileIt)->getDomain();
+            //data pointer of source tile
+            const char* sourceDataPtr = (*tileIt)->getContents();
+            
+            //construct result tile
+            boost::shared_ptr<Tile> resTile;
+            r_Minterval intersectDom = resultDom->create_intersection(srcTileDom);
+            resTile.reset( new Tile(intersectDom, op->getCellType()) );
+            
+            const char* resDataPtr = resTile->getContents();
+            
+            //initialize the tile to be filled with nullValues.
+            op->fillTileWithNullvalues(const_cast<char*>(resDataPtr), intersectDom.cell_count());
+            
+            //construct iterators for filling data in result tile
+            r_Miter resTileMaskIterator(&intersectDom, resultMaskDom.get(), sizeof(char), resultMask.get());
+            r_Miter sourceTileIterator(&intersectDom, &srcTileDom, typeSize, sourceDataPtr);
+            r_Miter resTileIterator(&intersectDom, &intersectDom, typeSize, resDataPtr);
+            
+            while(!resTileMaskIterator.isDone())
+            {
+                //step to next cell for resTileMaskIterator
+                if(*resTileMaskIterator.nextCell() < 2)
+                {
+                    //step to next cell for resTileIterator and sourceTileIterator, and copy data
+                    memcpy(resTileIterator.nextCell(), sourceTileIterator.nextCell(), typeSize);
+                }
+                else
+                {
+                    //step to next cell for resTileIterator and sourceTileIterator
+                    sourceTileIterator.nextCell();
+                    resTileIterator.nextCell();
+                }
+            }
+            
+            // insert Tile in result mdd
+            resultMDD->insertTile(resTile);
+        }
+    }
+    catch (r_Error &err)
+    {
+        LERROR << "Multipolygon clipping error: " << err.get_errorno() << " " << err.what();
+        parseInfo.setErrorNo(err.get_errorno());
+        throw parseInfo;
+    }
+    catch (int err)
+    {
+        LERROR << "Multipolygon clipping error: " << err << ".";
+        parseInfo.setErrorNo(err);
+        throw parseInfo;
+    }
+
+    
+    return resultMDD.release();
+}
+
+MDDObj*
+QtClipping::extractCurtain(const MDDObj* op, const r_Minterval& areaOp, 
+        const std::vector<r_Dimension>& maskDims, 
+        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask)
+{   
+    // algo for extracting curtain from op using the stored mask
+    
+    // r_Minterval corresponding to the mask. used for iterating over the mask in r_Miter
+    // our mask stores its data contiguously, 
+    // and so the mask can be used as the dataset for "convexHull" just as a tile would
+    r_Minterval convexHull = *(mask.second);
+    
+    // result domain is canonically isomorphic to the product of the fiber of the projection map together with the aoi.
+    // we reorder to match the order of the projection dimensions in the method below
+    r_Minterval resultDomain = areaOp.trim_along_slice(convexHull, maskDims);
+    
+    // generate the result MDDObj with resultDomain as the domain.
+    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), resultDomain.dimension());
+    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
+    TypeFactory::addTempType(mddBaseType);
     std::unique_ptr<MDDObj> resultMDD;
     resultMDD.reset( new MDDObj(mddBaseType, resultDomain, op->getNullValues()) );
     
-    // build the polygon in the last two dimensions
-    QtPolygonClipping polygonMethodsAccess(convexHull, polytope->getPolytopePoints() );   
+    // pointer to all source tiles
+    std::unique_ptr< std::vector< boost::shared_ptr<Tile> > > allTiles;
+    allTiles.reset(op->intersect(resultDomain));
 
-    // using the Bresenham-style algorithm, we produce a mask applying to each 2D slice (translated to origin).
-    vector<vector<char>> mask = polygonMethodsAccess.generateMask(true);
-    
-    // here, we apply the mask to each slice for the range and produce the output.
-    boost::shared_ptr<Tile> resTile;
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->getTiles());
-
-    try
+    // iterate over source tiles    
+    for(auto srcTileIter = allTiles->begin(); srcTileIter != allTiles->end(); srcTileIter++)
     {
-        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
+        // source tile domain
+        r_Minterval srcArea((*srcTileIter)->getDomain());
+        
+        // subset of the source tile's domain hitting the curtain
+        // this is the result tile's domain as well!
+        r_Minterval aoiSrc(srcArea.trim_along_slice(convexHull, maskDims));
+        
+        // get the type and type size of the data
+        const BaseType* baseType = (*srcTileIter)->getType();
+        r_Bytes typeSize = baseType->getSize();
+        
+        // generate the result tile and initialize its contents to 0
+        boost::shared_ptr<Tile> resTile;
+        resTile.reset( new Tile(aoiSrc, baseType) );
+        // result data pointer
+        char* resDataPtr = resTile->getContents();
+        op->fillTileWithNullvalues(resDataPtr, aoiSrc.cell_count());
+        
+        //memset(resDataPtr, 0, typeSize*aoiSrc.cell_count());
+        
+        // starting point for iterating through slices in the source tile
+        r_Point aoiSrcOrigin = aoiSrc.get_origin();
+        
+        // initial slice to be iterated through in r_MiterArea
+        r_Minterval aoiSrcSlice(aoiSrc.dimension());
+        for(r_Dimension i = 0; i < aoiSrc.dimension(); i++)
         {
-            //data type size
-            size_t typeSize = (*tileIt)->getType()->getSize();
-            //domain of source tile
-            const r_Minterval& tileDom = (*tileIt)->getDomain();
+            auto it = std::find(maskDims.begin(), maskDims.end(), i);
+            if(it == maskDims.end())
+            {
+                //set the area to be width 1 starting @ origin
+                aoiSrcSlice << r_Sinterval(aoiSrcOrigin[i], aoiSrcOrigin[i]);
+            }
+            else
+            {
+                aoiSrcSlice << aoiSrc[i];
+            }
+        }
+        
+        r_Minterval aoiMask = aoiSrc.project_along_dims(maskDims);
+        
+        // for iterating through the slices in the result domain/source areas of interest slices
+        r_MiterArea srcAoiIter(&aoiSrcSlice, &aoiSrc);
+        
+        while(!srcAoiIter.isDone())
+        {
+            r_Minterval aoiSlice = srcAoiIter.nextArea();
             
-            if (tileDom.intersects_with(resultDomain) )
+            //src tile data iterator -- iterates just over the relevant area in the source tile
+            r_Miter srcIter( &aoiSlice, &srcArea, typeSize, (*srcTileIter)->getContents());
+            //res tile data iterator -- iterates just over the relevant area in the result tile
+            r_Miter resIter( &aoiSlice, &aoiSrc, typeSize, resTile->getContents());
+            //mask arg data iterator -- iterates just over the relevant area in the mask
+            r_Miter maskIter(&aoiMask, &convexHull, sizeof(char), mask.first.get());
+            
+            while(!maskIter.isDone())
             {
-                // domain of the relevant area of the actual tile
-                r_Minterval intersectDom(tileDom.create_intersection(resultDomain));
-
-                // create tile for result
-                resTile.reset( new Tile(intersectDom, op->getCellType()) );
-                char* resultData = resTile->getContents();
-                memset(resultData, 0, typeSize * intersectDom.cell_count());
-                //various useful offsets for the algorithm
-                size_t crossSectionSourceOffset = typeSize * static_cast<size_t>(tileDom[1].get_extent() * tileDom[2].get_extent());
-                size_t crossSectionResultOffset = typeSize * static_cast<size_t>(intersectDom[1].get_extent() * intersectDom[2].get_extent());
-                
-                size_t rangeOffset = static_cast<size_t>(abs(intersectDom[0].low() - tileDom[0].low()));
-                size_t topOffset = static_cast<size_t>(abs(intersectDom[1].low() - tileDom[1].low()));
-                size_t botOffset = static_cast<size_t>(abs(tileDom[1].high() - intersectDom[1].high()));
-                size_t leftOffset = static_cast<size_t>(abs(intersectDom[2].low() - tileDom[2].low()));
-                size_t rightOffset = static_cast<size_t>(abs(tileDom[2].high() - intersectDom[2].high()));
-                
-                //iterate over the first coordinate (integration axis of curtain)
-                for(size_t k = 0; k < static_cast<size_t>(intersectDom[0].get_extent()); k++)
+                if( *(maskIter.nextCell()) < 2 )
                 {
-                    //result data pointer
-                    resultData = resTile->getContents() + k*crossSectionResultOffset;
-                    //source data pointer
-                    char* sourceData = (*tileIt)->getContents() + (k + rangeOffset)*crossSectionSourceOffset;
-
-                    //offset the source data pointer to the same row & column of the result data pointer
-                    sourceData += (leftOffset + topOffset*static_cast<size_t>(tileDom[2].get_extent()))*typeSize;       
-                    
-                    //iterate over the 2nd coordinate (first axis of the polygon) (row)
-                    for (auto i = intersectDom[1].low(); i <= intersectDom[1].high(); i++) 
-                    {
-                        //iterate over the 3rd coordinate (second axis of the polygon) (column))
-                        for (auto j = intersectDom[2].low(); j <= intersectDom[2].high(); j++) 
-                        {
-                            //"< 2" -> fills boundary values(1) and interior (0); unchecked values (2) and exterior values (3) are not copied over in this case
-                            if (mask[static_cast<size_t> (i - bBox.first[0])][static_cast<size_t> (j - bBox.first[1])] < 2 )
-                            {
-                                memcpy(resultData, sourceData, typeSize);
-                            }
-                            // move to the next cell of the op tile
-                            sourceData += typeSize;
-                            // move to the next cell of the result tile
-                            resultData += typeSize;
-                        }
-                        //end of row in result tile. correct source data to the beginning of the next row
-                        sourceData += (rightOffset + leftOffset)*typeSize;
-                    }
+                    memcpy(resIter.nextCell(), srcIter.nextCell(), typeSize);
                 }
-                
-                // insert Tile in result mdd
-                resultMDD->insertTile(resTile);
+                else
+                {
+                    srcIter.nextCell();
+                    resIter.nextCell();
+                }
             }
         }
-    }
-    catch (r_Error &err)
-    {
-        LFATAL << "QtClipping::extractCurtain caught " << err.get_errorno() << " " << err.what();
-        parseInfo.setErrorNo(err.get_errorno());
-        throw parseInfo;
-    }
-    catch (int err)
-    {
-        LFATAL << "QtClipping::extractCurtain caught errno error (" << err << ") in qtclipping";
-        parseInfo.setErrorNo(err);
-        throw parseInfo;
+
+        resultMDD->insertTile(resTile);
     }
 
-    return resultMDD.release();    
+    return resultMDD.release();
 }
 
-MDDObj* 
-QtClipping::extractCurtainLine(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg)
+//functor for passing to the remove_if iterator in std::vector in linestrings
+bool isRedundant(const r_Minterval& interval )
 {
-    //height of curtain
-    //currently takes the two points in the range to determine the extent in the first coordinate and uses the polygon for the last two coordinates to determine the cutout shape (two cases -- line & polygon)
-    r_Sinterval rangeInterval;
-    rangeInterval.set_low(rangeArg->getPolytopePoints()[0][0]);
-    rangeInterval.set_high(rangeArg->getPolytopePoints()[1][0]);
-    
-    //line algorithm
-    
-    // computing the bounding box of the multidimensional shape defined in QtMShapeData
-    std::unique_ptr<BoundingBox> bBox;
-    bBox.reset(computeBoundingBox(polytope));
-
-    // the dataset dimension is the same as the dimension of the points defining the mshape, so
-    // to extract the dataset dimension we use the first point.
-    r_Dimension datasetDimension = (polytope->getMShapeData())[0].dimension();
-    
-    // directionVectors contains a set of n orthogonal vectors where n is the dimension of the dataset. The first
-    // m vectors, where m is the dimension of the mshape define the space in which the m-dimensional shape lies into
-    // The remaining vectors are vectors orthogonal to the mshape.
-    std::vector<r_PointDouble>* directionVectors = polytope->getDirectionVectors();
-
-    // Construct r_Minterval from the bounding box of the multidimensional shape
-    r_Minterval mintervalBoundingBox(datasetDimension + 1);
-    //initialize first coordinate to the given integration range
-    mintervalBoundingBox << rangeInterval;
-    //initialize the last two coordinates to those of the bounding box of the linestring
-    for (r_Dimension i = 0; i < datasetDimension; i++)
-    {
-        r_Sinterval rs(static_cast<r_Range>(bBox->minPoint[i]), static_cast<r_Range>(bBox->maxPoint[i]));
-        mintervalBoundingBox << rs;
-    }
-    
-    // check in case there are no points in common between the r_Minterval where the mshape lies and the dataset itself.
-    // In that case there is no need for further computations, and an exception is thrown
-    if (!areaOp.intersects_with(mintervalBoundingBox))
-    {
-        LFATAL << "The subspace of the set of points provided does not pass through the stored data.";
-        parseInfo.setErrorNo(SUBSPACENOINTERSECTION);
-        throw parseInfo;
-    }
-
-    // vector containing r_Points that define the line we want to extract.
-    vector<r_Point> bresenhamLine = computeNDBresenhamLine(polytope);
-
-    //we first determine which band of values from the BLA result apply to this MDDObject
-    r_Minterval newDomain = areaOp.create_intersection(mintervalBoundingBox);
-    r_Point lowPointGlobal = newDomain.get_origin();
-    r_Point highPointGlobal = newDomain.get_high();
-    
-    //now we project these to the dimensions of interest for the cross section containing the line segment
-    r_Point lowPointLocal = (newDomain.get_origin()).indexedMap({1,2});
-    r_Point highPointLocal = (newDomain.get_high()).indexedMap({1,2});
-
-    // since for each tile the intersectionDomain is different, we need to know which points of the line
-    // sit inside the overall dataset, so we can assign it a global domain. 
-    // startEndIndices keeps track of the segment of the line contained inside areaOp.
-    
-    //we will use these for each cross-sectional slice
-    pair<int, int> startEndIndicesGlobal = endpointsSearch(localHull(std::make_pair<int, int>(-1, -1), {lowPointLocal, highPointLocal}), bresenhamLine);
-
-    // domain of the relevant area of the actual dbobj corresponds to the bounding box of the start and end points.
-    r_Minterval domainOfInterest = localHull(std::make_pair<int, int>(-1, -1), bresenhamLine);
-    
-    std::vector<r_Range> bbExtents = (domainOfInterest.get_extent()).getVector();
-    r_Range maxExtent = *(std::max_element(bbExtents.begin(), bbExtents.end()));
-    r_Dimension index = std::distance(bbExtents.begin(), std::max_element(bbExtents.begin(), bbExtents.end()));
-    
-    // construct the result domain using the largest direction's index.
-    // the 2nd dimension's extent corresponds to the total number of result points from the line in 2-D
-    // the 1st dimension's extent corresponds to the intersection of the given range with the 1st dimension of the MDDObj.
-    r_Minterval resultDomainGlobal(2);
-    resultDomainGlobal[0] = newDomain[0];
-    resultDomainGlobal[1] = localHullByIndex(startEndIndicesGlobal, bresenhamLine, index);
-    
-    //the result MDDObject
-    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 2);
-    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
-
-    TypeFactory::addTempType(mddBaseType);
-    
-    std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset( new MDDObj(mddBaseType, resultDomainGlobal, op->getNullValues()) );
-
-    // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->intersect(newDomain));
-
-    //pointer to the result tile
-    boost::shared_ptr<Tile> resTile;
-    // iterate over the tiles
-    try
-    {
-        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
-        {
-            // domain of the actual tile
-            r_Minterval tileDom = (*tileIt)->getDomain();
-            if (tileDom.intersects_with(newDomain))
-            {
-                //interval for the curtain height on this tile
-                r_Sinterval loopInterval = tileDom[0].create_intersection(newDomain[0]);
-                
-                 //we first determine which band of values from the BLA result apply to this tile
-                r_Point lowPoint = tileDom.get_origin().indexedMap({1,2});
-                r_Point highPoint = tileDom.get_high().indexedMap({1,2});
-                
-                // since for each tile the cross-sectional intersectionDomain is different, we need to know which points of the line
-                // pass into this tile and only process those points. startEndIndices keeps track of the segment of the line
-                // contained inside the intersectionDom.
-                pair<int, int> startEndIndices = endpointsSearch(localHull(std::make_pair<int,int>(-1,-1), {lowPoint, highPoint}), bresenhamLine);
-
-                if (startEndIndices.first == -1)
-                {
-                    // continue to next tile since we have no points to read from this one.
-                    break;
-                }                
-                
-                // domain of the result tile data set.
-                r_Minterval resultDomain(2);
-                resultDomain[0] = loopInterval;
-                resultDomain[1] = localHullByIndex(startEndIndices, bresenhamLine, index);
-                
-                // data type size
-                size_t typeSize = (*tileIt)->getType()->getSize();
-                
-                // source tile data pointer
-                char* sourceData = NULL;
-
-                // result tile and contents
-                resTile.reset( new Tile(resultDomain, (*tileIt).get()->getType()) );
-                char* resultData = resTile->getContents();
-                
-                //loop for performing the algorithm once for each value in the range interval
-                for(auto x = loopInterval.low(); x <= loopInterval.high(); x++)
-                {
-                    sourceData = (*tileIt)->getCell(r_Point(x, bresenhamLine[startEndIndices.first][0], bresenhamLine[startEndIndices.first][1]));
-                    memcpy(resultData, sourceData, typeSize);
-
-                    // loop over bresenhamLine points which are relevant for this tile
-                    // and transfer data from source to result tiles.
-                    for (size_t i = static_cast<size_t>(startEndIndices.first); i < static_cast<size_t>(startEndIndices.second); i++)
-                    {
-                        // compute offset for the next data point to be copied
-                        // complexity O(dimensionality)
-                        sourceData = (*tileIt)->getCell(r_Point(x, bresenhamLine[i+1][0], bresenhamLine[i+1][1]));
-                        resultData += typeSize;
-                        memcpy(resultData, sourceData, typeSize);
-                    }
-                    //abuse the contiguousness of the result tile's data
-                    resultData += typeSize;                    
-                }
-                
-                // insert Tile in result mdd
-                resultMDD->insertTile(resTile);
-            }
-        }
-    }
-    
-    catch (r_Error &err)
-    {
-        LFATAL << "QtClipping::compute2D caught error: " << err.get_errorno() << " " << err.what();
-        parseInfo.setErrorNo(err.get_errorno());
-        throw parseInfo;
-    }
-    
-    catch (int err)
-    {
-        LFATAL << "QtClipping::compute2D caught error: " << err << " in qtclipping";
-        parseInfo.setErrorNo(err);
-        throw parseInfo;
-    }
-    
-    return resultMDD.release();    
+    return interval.cell_count() == 1;
 }
 
-MDDObj* 
-QtClipping::extractCurtainLinestring(const MDDObj* op, const r_Minterval& areaOp, const QtMShapeData* mshape, const QtMShapeData* rangeArg, r_Dimension dim)
-{
-    //height of curtain
-    //currently takes the two points in the range to determine the extent in the first coordinate and uses the polygon for the last two coordinates to determine the cutout shape (two cases -- line & polygon)
-    r_Sinterval rangeInterval;
-    rangeInterval.set_low(rangeArg->getPolytopePoints()[0][0]);
-    rangeInterval.set_high(rangeArg->getPolytopePoints()[1][0]);
-
-    //restrict ourselves to the actual intersected range
-    if(rangeInterval.intersects_with(areaOp[0]))
-    {
-        rangeInterval = rangeInterval.create_intersection(areaOp[0]);        
-    }
-    else
-    {
-        LFATAL << "QtClipping::extractCurtain - the curtain range does not intersect the first coordinate range of the MDDObj.";        
-        throw r_Error(CURTAINRANGEINCORRECT);        
-    }
+MDDObj*
+QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp, 
+        QtMShapeData* lineStringData, 
+        const std::vector<r_Dimension>& maskDims,
+        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask)
+{   
+    // algo for extracting corridor from op using the stored mask
+    
+    //first, we process the linestring as seen in QtClipping::extractLinestring
     
     // create vector of bounding boxes (one for each line segment in the linestring)
-    vector<r_Minterval> bBoxes = mshape->localConvexHulls();
-
-    //for each one, we construct a vector (actually a pair) of r_Points representing the endpoints of the line segment being considered
-    
-    vector< vector< r_PointDouble > > vectorOfSegmentEndpointPairs;
-    //max size
-    vectorOfSegmentEndpointPairs.reserve(bBoxes.size());
-    for(size_t i = 0; i < bBoxes.size(); i++)
-    {
-        size_t k = 1;
-        
-        while( i + k < mshape->getMShapeData().size() 
-                && mshape->getMShapeData()[i] == mshape->getMShapeData()[i+k] )
-        {
-            k++;
-        }
-        
-        vectorOfSegmentEndpointPairs.emplace_back(vector<r_PointDouble>({mshape->getMShapeData()[i], mshape->getMShapeData()[i+k]}));
-        i += (k - 1);
-    }
+    vector<r_Minterval> bBoxes = lineStringData->localConvexHulls();
     
     //only consider the segments which contribute new points to the result vector
     //as above, the start and end points must differ.
-    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isSingleton), bBoxes.end());
+    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isRedundant), bBoxes.end());    
     
-    vectorOfSegmentEndpointPairs.shrink_to_fit();
+    //for each one, we construct a vector (actually a pair) of r_Points representing the endpoints of the line segment being considered
+    
+    vector< vector< r_PointDouble > > vectorOfSegmentEndpointPairs = vectorOfPairsWithoutMultiplicity( lineStringData->getMShapeData(), bBoxes.size() );
     
     // create vector of bresenham lines (one for each line segment passing through the domain of the MDDObject)
+    // optimization: we technically only need the offset vectors (points consisting of coordinate values -1, 0, +1), and the first point in the linestring.
     vector< vector < r_Point > > vectorOfBresenhamLines;
     vectorOfBresenhamLines.reserve(vectorOfSegmentEndpointPairs.size());
     for(size_t i = 0; i < vectorOfSegmentEndpointPairs.size(); i++)
     {
         vectorOfBresenhamLines.emplace_back( computeNDBresenhamSegment(vectorOfSegmentEndpointPairs[i]) );
     }
-    
-    // create vector of intervals for the result tiles
+
+    // create vector of intervals for the result domain computations
     //[0 : k_0-1], [k_0 : k_0 + k_1 - 1], [k_0 + k_1 : k_0 + k_1 + k_2 - 1], ...
     //for each segment, we need to find the intersection of its bounding box's longest extent's dimension with the domain of the MDDObject being considered
     
     //vector of dimension #'s corresponding to the longest extents in bBoxes
     vector<r_Dimension> longestExtentDims;
     longestExtentDims.reserve(bBoxes.size());
+    vector< vector<r_Range> > bBoxesExtents;
+    bBoxesExtents.reserve(bBoxes.size());
     for(size_t i = 0; i < bBoxes.size(); i ++)
     {
-        r_Range currentMaxExtent = 0;
-        r_Dimension currentMaxDim = 0;
-        for(r_Dimension j =0; j < dim; j++)
+        bBoxesExtents.emplace_back(bBoxes[i].get_extent().getVector());
+        longestExtentDims.emplace_back( std::distance(bBoxesExtents[i].begin(), 
+                                        std::max_element(bBoxesExtents[i].begin(),
+                                        bBoxesExtents[i].end())) );
+    }
+       
+    // construct the resulting tile intervals
+    vector<r_Minterval> resultTileMintervals = vectorOfResultTileDomains(bBoxes, longestExtentDims);
+    
+    // construct the result linestring interval
+    r_Sinterval lineStringDomain(static_cast<r_Range>(0), resultTileMintervals.back()[0].high());
+    // the sdom of the mask
+    r_Minterval convexHull = *(mask.second);
+    
+    // construct the convex hull of the embedding of the result in the source object, and the vector of mask domains (translated according to the linestring)
+    // convention: the first mask is assumed to contain the first point of the linestring. We check that here.
+    std::vector< r_Minterval > embeddedMaskDomains;
+    //embeddedMaskDomains.reserve(static_cast<size_t>(lineStringDomain.get_extent()));
+    
+    embeddedMaskDomains = computeMaskEmbedding(vectorOfBresenhamLines, convexHull, lineStringDomain.get_extent(), maskDims);    
+  
+    //now, we build the convex hull of all these intervals, and call it the "outer hull"
+    r_Minterval outerHull = embeddedMaskDomains[0];
+    for(auto it = embeddedMaskDomains.begin(); it != embeddedMaskDomains.end(); it++)
+    {
+        outerHull.closure_with(*it);
+    }
+    
+    // this section is specific to corridors, as we need a stack of intervals for each tile. We need to check each minterval associated with the result anyways, so we can process this "stack" while each individual tile is loaded into memory
+    // 0. construct an "outer hull" for limiting the scope of which tiles get loaded into memory, and a vector of areas of interest from the linestring points.
+    // 1. create the result domain and object
+    // 2. loop through each point in the line string, searching for bands of intersections. Each time an intersection is found, the domain is computed and data is processed into the result
+    // 3. loop through the source tiles for each slice --> for each intersection, process into the result domain
+    // an optimization in the future might include searching tiles by offset region, but it is not obvious how to do this in a more-efficient way than simply checking each slice!
+    
+    // create the result domain -- dimension fixed at 1+maskdim in the current implementation, but our code is flexible.
+    // Presently, we only iterate a 2-D mask over a linestring, but any dimension of mask should apply here
+    
+    // r_Minterval corresponding to the result is the length of the linestring * the convex hull of the polygon.
+    r_Minterval resultDomain( 1 + convexHull.dimension() );    
+    //the first dimension corresponds to the length of the linestring
+    resultDomain << lineStringDomain;
+    // the last two dimensions correspond to the mask dimensions
+
+    for(r_Dimension i = 0; i < convexHull.dimension(); i++)
+    {
+        resultDomain << convexHull[i];
+    }
+    
+    // generate the result MDDObj with resultDomain as the domain.
+    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), resultDomain.dimension());
+    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
+    TypeFactory::addTempType(mddBaseType);
+    std::unique_ptr<MDDObj> resultMDD;
+    resultMDD.reset( new MDDObj(mddBaseType, resultDomain, op->getNullValues()) );
+    
+    // unfortunately, the result consists of a single tile, since source tile data is sheared into place for the result.
+    // REMARK (BBELL): I cannot think of a better way of doing this; it might be nice if we could predictively and meaningfully chunk this.
+    
+    // generate the unique result tile
+    boost::shared_ptr<Tile> resTile;
+    resTile.reset( new Tile( resultDomain, op->getCellType() ) );
+    // result data pointer
+    char* resDataPtr = resTile->getContents();
+    // initialize the result with nullValues
+    op->fillTileWithNullvalues(resDataPtr, resultDomain.cell_count());
+    
+    // pointer to all source tiles which might intersect our area of interest
+    std::unique_ptr< std::vector< boost::shared_ptr<Tile> > > allTiles;
+    allTiles.reset(op->intersect(outerHull));
+
+    //if no intersections were found, we throw an error.
+    if(allTiles->empty())
+    {
+        LERROR << "The entire selection exists outside the source MDD.";            
+        throw r_Error(CURTAINDOMAININTERSECTERROR);
+    }
+    
+    // iterate over source tiles   
+    for(auto srcTileIter = allTiles->begin(); srcTileIter != allTiles->end(); srcTileIter++)
+    {    
+        // source tile domain
+        r_Minterval srcArea((*srcTileIter)->getDomain());
+        
+        
+        // we first need to find which intervals coincide with the source tile, and create a stack for insertion
+        // the stack consists of just the index of the interval in the embeddedMaskDomains vector, so r_Dimension
+        std::stack< r_Dimension > indices;
+        for(auto it = embeddedMaskDomains.begin(); it != embeddedMaskDomains.end(); it++)
         {
-            if ( bBoxes[i][j].get_extent() > currentMaxExtent )
+            if(it->intersects_with(srcArea));
             {
-                currentMaxExtent = bBoxes[i][j].get_extent();
-                currentMaxDim = j;
+                r_Dimension index = std::distance(embeddedMaskDomains.begin(), it);
+                indices.emplace(index);
             }
         }
         
-        longestExtentDims.emplace_back(currentMaxDim);
-    }
-    
-    //construct the resulting tile intervals
-    vector<r_Minterval> resultTileMintervals;
-    resultTileMintervals.reserve(bBoxes.size());
-    bool firstInterval = true;
-    r_Range currentOffset = 0;
-    for(size_t i = 0; i < bBoxes.size(); i++)
-    {
-            r_Minterval nextInterval(2);
-            nextInterval[0] = rangeInterval;
-            //translate to currentOffset
-            if(!firstInterval)
+        while(!indices.empty())
+        {
+            // get the type and type size of the data
+            const BaseType* baseType = (*srcTileIter)->getType();
+            r_Bytes typeSize = baseType->getSize();            
+            
+            r_Minterval aoiSrc(srcArea.dimension());
+            
+            //src aoi
+            if(srcArea.intersects_with(embeddedMaskDomains[ indices.top() ] ))
             {
-                nextInterval[1] = r_Sinterval(currentOffset, currentOffset + static_cast<r_Range>( bBoxes[i][longestExtentDims[i]].get_extent() ) - 2);                
+                aoiSrc = srcArea.create_intersection(embeddedMaskDomains[ indices.top() ] );
             }
             else
             {
-                nextInterval[1] = r_Sinterval(currentOffset, currentOffset + static_cast<r_Range>( bBoxes[i][longestExtentDims[i]].get_extent() ) - 1);
+                indices.pop();
+                continue;
             }
-
-            resultTileMintervals.emplace_back(nextInterval);
-            currentOffset = nextInterval[1].high() + 1;
-            firstInterval = false;
-    }
-    
-    //construct the result MMDDObj
-    
-    r_Minterval resultDomainGlobal(2);
-    r_Sinterval totalDomain(static_cast<r_Range>(0), static_cast<r_Range>(currentOffset) - 1);
-    resultDomainGlobal[0] = rangeInterval.create_intersection(areaOp[0]);
-    resultDomainGlobal[1] = totalDomain;
-    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), dim);
-    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
-
-    TypeFactory::addTempType(mddBaseType);    
-
-    std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset( new MDDObj(mddBaseType, resultDomainGlobal) );
-    
-    //   loop over source tiles
-    //  loop over bresenhamLines vector
-    //first check the intersection of the source tile with the bounding box, then construct the startEndIndices pair for that line segment
-    //process Bresenham into the respective output tile
-    
-    // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->getTiles());
-   
-    //initialize the result tiles here
-    boost::shared_ptr<Tile> tempTile = *(allTiles->begin());
-    size_t typeSize = tempTile->getType()->getSize();
-    vector< boost::shared_ptr<Tile> > resultTiles;
-    resultTiles.reserve(resultTileMintervals.size());
-    for(size_t i = 0; i < resultTileMintervals.size(); i++)
-    {
-        //build a new tile
-        boost::shared_ptr<Tile> resTilePtr;
-        resTilePtr.reset( new Tile(resultTileMintervals[i], tempTile->getType()) );
-        //initialize contents to 0
-        char* resData = resTilePtr->getContents();
-        memset(resData, 0, typeSize * ( resultTileMintervals[i] ).cell_count());
-        //add tile to vector of result tiles
-        resultTiles.emplace_back(resTilePtr);
-    }
-
-    try
-    {
-        //loop over source tiles
-        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
-        {
-            // domain of the current source tile
-            r_Minterval tileDom = (*tileIt)->getDomain();
-
-            //loop over bresenham line segments (we do not use an iterator because we need the index for various vectors of the same length)
-            for(size_t i = 0; i < bBoxes.size(); i++)
+            
+            //res slice containing aoiRes
+            r_Minterval resSlice(1 + convexHull.dimension());
+            //first dim is linestring
+            resSlice << r_Sinterval( static_cast<r_Range>(indices.top()), static_cast<r_Range>(indices.top()) );
+            
+            for(r_Dimension i = 0; i < convexHull.dimension(); i++)
             {
+                resSlice << convexHull[i];
+            }       
 
-                //current result tile's data
-                char* resData = ( resultTiles[i] )->getContents();
-                
-                bool firstElementSkipped = false;
-                                    //loop over the height of the curtain
-                for(auto j = rangeInterval.low(); j <= rangeInterval.high(); j++)
+            //recover the translation, though this could be optimized out somehow... would be great if we could search tiles a bit more creatively!
+            r_Point translationPt = embeddedMaskDomains[0].get_origin() - embeddedMaskDomains[ indices.top() ].get_origin();
+            
+            //mask aoi
+            r_Minterval aoiMask = (aoiSrc.create_translation(translationPt)).project_along_dims(maskDims);            
+                        
+            //result aoi
+            r_Minterval aoiRes(1 + aoiMask.dimension());
+            
+            aoiRes << r_Sinterval( static_cast<r_Range>(indices.top()), static_cast<r_Range>(indices.top()) );
+            
+            for(r_Dimension i = 0; i < aoiMask.dimension(); i++)
+            {
+                aoiRes << aoiMask[i];
+            }             
+            
+            //src tile data iterator -- iterates just over the relevant area in the source tile
+            r_Miter srcIter( &aoiSrc, &srcArea, typeSize, (*srcTileIter)->getContents());
+            //res tile data iterator -- iterates just over the relevant area in the result tile
+            r_Miter resIter( &aoiRes, &resultDomain, typeSize, resTile->getContents());
+            //mask arg data iterator -- iterates just over the relevant area in the mask
+            r_Miter maskIter( &aoiMask, &convexHull, sizeof(char), mask.first.get());
+            
+            while(!maskIter.isDone())
+            {
+                if( *(maskIter.nextCell()) < 2 )
                 {
-                    //iterate over the points in the current bresenham line segment
-                    for(auto ptIter = vectorOfBresenhamLines[i].begin(); ptIter != vectorOfBresenhamLines[i].end(); ptIter++)
-                    {
-                        if(!firstElementSkipped && i != 0 )
-                        {
-                            //skip the first point for all but the first interval
-                            ptIter++;
-                            firstElementSkipped = true;
-                        }
-
-                        //r_Point to source data cell
-                        //perhaps it would be better to simply construct these in a vector< vector< vector<r_Point> > > bresenhamCurtain?
-                        r_Point srcPt(3);
-                        srcPt[0] = j;
-                        srcPt[1] = (*ptIter)[0];
-                        srcPt[2] = (*ptIter)[1];
-                        //if the current point is in the domain, we copy that point to the next point in resData
-                        if ( tileDom.covers(srcPt) )
-                        {
-                            //pointer to source data cell
-                            char* srcData = (*tileIt)->getCell(srcPt);
-                            memcpy(resData, srcData, typeSize);
-                            resData += typeSize;
-                        }
-                        else
-                        {
-                            resData += typeSize;
-                        }
-                    }
-                    
-                    firstElementSkipped = false;
+                    memcpy(resIter.nextCell(), srcIter.nextCell(), typeSize);
+                }
+                else
+                {
+                    srcIter.nextCell();
+                    resIter.nextCell();
                 }
             }
-        }
-        //add result tiles to result MDDObj
-        for(auto resTileIt = resultTiles.begin(); resTileIt != resultTiles.end(); resTileIt++)
-        {
-            resultMDD->insertTile(*resTileIt);
+            
+            // pop!
+            indices.pop();
         }
     }
-    catch (r_Error &err)
-    {
-        LFATAL << "QtClipping::compute2D caught error: " << err.get_errorno() << " " << err.what();
-        parseInfo.setErrorNo(err.get_errorno());
-        throw parseInfo;
-    }
-    catch (int err)
-    {
-        LFATAL << "QtClipping::compute2D caught error: " << err << " in qtclipping";
-        parseInfo.setErrorNo(err);
-        throw parseInfo;
-    }
-
-    return resultMDD.release();    
+    //add the result tile to the resultMDD
+    resultMDD->insertTile(resTile);
+    //return the resultMDD
+    return resultMDD.release();
 }
 
 QtData*
-QtClipping::computeOp(QtMDD* operand, QtMShapeData* mshape)
+QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
 {
-    // get the MDD object
+    // get the source MDD object
     MDDObj* op = operand->getMDDObject();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = operand->getLoadDomain();
     const r_Dimension opDim = areaOp.dimension();
-    
-    //mshape may define a subspace, linestring, or a polygon.
-    //dimension of the smallest affine subspace containing the mshape vertices
-    const r_Dimension mshapeDim = mshape->getDimension();
-    
-    //the dimensionality of the individual points
-    //this is invariant for each mshape, and error checking for invariance is handled by QtMShapeData
-    const r_Dimension mshapePtDim = mshape->getPointDimension();
-    
-    //number of points defining the mshape
-    const size_t mshapePtCard = mshape->getPolytopePoints().size();
 
-    // possible errors which apply to more than one clipType
+    // the geometry data specific to the primary domain of interest. Initialized in the switch/case
+    QtMShapeData* mshape = NULL;
     
-    //need at least two points to get started here...
-    if(mshapePtCard <= 1)
-    {
-        LFATAL << "Error: QtClipping::computeOp() - All geometric clip types require at least two vertices to be well-defined.";
-        parseInfo.setErrorNo(NEEDTWOORMOREVERTICES);
-        throw parseInfo;        
-    }
-    //point dimensionality must match that of the operand (< case may be acceptable for curtains)
-    else if((opDim != mshapePtDim && clipType != CURTAIN_POLYGON && clipType != CURTAIN_LINESTRING) || opDim < mshapePtDim)
-    {
-        LFATAL << "Error: QtClipping::computeOp() - No natural embedding from the space containing the mdd object's grid to the space containing the clip vertices exists.";
-        parseInfo.setErrorNo(NONATURALEMBEDDING);
-        throw parseInfo;
-    }
-    //linestrings can end up defining the entire space, as can polygons in 2D.
-    else if(opDim <= mshapeDim && clipType != CLIP_LINESTRING && clipType != CURTAIN_LINESTRING && clipType != CLIP_POLYGON)
-    {
-        LFATAL << "Error: QtClipping::computeOp() - The smallest affine subspace containing the clip vertices must not be equal to the entire space containing the mdd object's grid.";
-        parseInfo.setErrorNo(SUBSPACEDIMSAMEASMDDOBJ);
-        throw parseInfo;          
-    }
-    //curtain-specific errors
-    else if(clipType == CURTAIN_POLYGON || clipType == CURTAIN_LINESTRING)
-    {
-        // throw an error since the dimension of the polygon/line vertices in the curtain cannot differ from 2.
-        if(mshapePtDim != 2)
-        {
-            LFATAL << "Error: QtClipping::computeOp() - At present, curtain clipping can only occur on 3D datasets with polygons and linestrings confined to a plane.";
-            parseInfo.setErrorNo(CURTAINLINESTRINGDIMENSIONMISMATCH);
-            throw parseInfo;
-        }
-        // throw an error since the range is restricted to two values, the low and high point
-        else if ( (range->getPointDimension() != 1) || (range->getPolytopePoints().size() != 2 ))
-        {
-            LFATAL << "Error: QtClipping::computeOp() - At present, polygon clipping can only occur on 3D datasets with the range defined in the first coordinate.";
-            parseInfo.setErrorNo(CURTAINRANGEINCORRECT);
-            throw parseInfo;                
-        }
-        // throw an error since the datacube operated on must be dimension 3, for now
-        // todo (bbell): adapt curtains to be operable on arbitrary datasets of dimension >= 3.
-        else if (opDim != 3)
-        {
-            LFATAL << "Error: QtClipping::computeOp() - At present, polygon clipping can only occur on 3D datasets.";
-            parseInfo.setErrorNo(CURTAINDOMAINDIMENSIONERROR);
-            throw parseInfo;                  
-        }
-    }
-    
+    // the result MDD object
     std::unique_ptr<MDDObj> resultMDD;
     
-    if (clipType == CLIP_POLYGON)
+    // the geometry type
+    QtGeometryData::QtGeometryType geomType = geomData->getGeometryType();
+    
+    //next, we reference an mshape for error reporting, based on the clip type being applied
+    switch(geomType)
     {
-        if(opDim == 2 && mshapeDim == 2)
+        case QtGeometryData::QtGeometryType::GEOM_SUBSPACE :
         {
-            //this is the usual case
-            QtPolygonClipping polygonMethodsAccess(areaOp, mshape->getPolytopePoints());
-            resultMDD.reset( polygonMethodsAccess.compute2DBresenham(op, opDim) );
+            mshape = geomData->getProjections();
+            break;
+        }   
+        case QtGeometryData::QtGeometryType::GEOM_LINESTRING :
+        {
+            mshape = geomData->getLinestrings()[0];
+            break;
         }
-        //todo (bbell): else if(opDim == mshapePtDim > 2 && mshapeDim == 2)
-        //      in this case, the polygon lies in an affine subspace, so we should perform a subspace query, project the polygon vertices to the result, and perform a polygon clipping there.
-        else
+        case QtGeometryData::QtGeometryType::GEOM_MULTILINESTRING :
         {
-            // throw an error since the dimension of the polygon cannot differ from 2.
-            LFATAL << "Error: QtClipping::computeOp() - At present, polygon clipping can only occur on 2D datasets with 2D polytopes such as triangles.";
-            parseInfo.setErrorNo(INCORRECTPOLYGON);
-            throw parseInfo;
+            mshape = geomData->getLinestrings()[0];
+            break;
         }
-    }
-    else if (clipType == CLIP_SUBSPACE)
-    {
-        if (opDim != 1 && mshapeDim == 1)
+        default : //the majority of useful data is stored in the first entry of the polygon array
         {
-           resultMDD.reset( extractBresenhamLine(op, areaOp, mshape, opDim) );
+            mshape = geomData->getPolygons()[0][0];
+            break;
         }
-        else //now, we are guaranteed that mshapeDim < opDim
-        {
-            resultMDD.reset( extractSubspace(op, areaOp, mshape) );
-        }        
-    }
-    else if (clipType == CLIP_LINESTRING)
-    {
-        resultMDD.reset( extractLinestring(op, mshape, opDim) );
-    }
-    else if (clipType == CURTAIN_POLYGON)
-    {
-        //ensure that range has been initialized
-        if(range)
-        {
-            resultMDD.reset( extractCurtainPolygon(op, areaOp, mshape, range) );
-        }
-    }
-    else if (clipType == CURTAIN_LINESTRING)
-    {
-        //ensure that range has been initialized
-        if(range)
-        {
-            //optimized version of linestring, for a single bresenham line segment.
-            if (mshapePtCard == 2)
-            {
-                resultMDD.reset( extractCurtainLine(op, areaOp, mshape, range) ); 
-            }
-            else if (mshapePtCard > 2)
-            {
-                resultMDD.reset( extractCurtainLinestring(op, areaOp, mshape, range) );
-            }
-        }
-    }
-    else
-    {        parseInfo.setErrorNo(CLIPERRORUNDEFINED);
-        throw parseInfo;        
     }
     
+    computeOpErrorChecking(opDim, areaOp, mshape, geomType);
+            
+    switch(geomType)
+    {
+        case QtGeometryData::QtGeometryType::GEOM_SUBSPACE :
+        {
+            QtMShapeData* projectionData = geomData->getProjections();
+            
+            if(opDim != 1 && projectionData->getDimension() == 1) //are we really just interested in a line?
+            {
+                resultMDD.reset( extractBresenhamLine(op, areaOp, projectionData, opDim) );
+            }
+            else //okay, then we want a subspace!
+            {
+                resultMDD.reset( extractSubspace(op, areaOp, projectionData) );
+            }
+            break;
+        }
+            
+        case QtGeometryData::QtGeometryType::GEOM_POLYGON :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+                        resultMDD.reset( extractMultipolygon(op, areaOp, clipVector, geomType) );
+            
+            //in this case, the clipping is well-defined, but may result in the empty set
+            if( !resultMDD )
+            {
+                throw r_Error(ALLPOLYGONSOUTSIDEMDDOBJ);
+            }
+            
+            break;
+        }
+        case QtGeometryData::QtGeometryType::GEOM_LINESTRING :
+        {
+            QtMShapeData* linestringData = geomData->getLinestrings()[0];
+            resultMDD.reset( extractLinestring(op, linestringData, opDim) );
+            break;
+        }
+        case QtGeometryData::QtGeometryType::GEOM_MULTIPOLYGON :
+        {
+
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+            
+            resultMDD.reset( extractMultipolygon(op, areaOp, clipVector, geomType) );
+
+            //in this case, the clipping is well-defined, but may result in the empty set
+            if( !resultMDD )
+            {
+                throw r_Error(ALLPOLYGONSOUTSIDEMDDOBJ);
+            }
+            
+            break;
+        }
+        //case QtGeometryData::QtGeometryType::GEOM_MULTILINESTRING :
+        //not supported, resultMDD remains null.
+            
+        case QtGeometryData::QtGeometryType::GEOM_CURTAIN_POLYGON :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+            
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
+            
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+            
+            resultMDD.reset( extractCurtain(op, areaOp, maskDims, mask) );
+            
+            break;
+        }
+        //case QtGeometryData::QtGeometryType::GEOM_CURTAIN_LINESTRING :
+        //not supported, resultMDD remains null.
+        case QtGeometryData::QtGeometryType::GEOM_CURTAIN_LINESTRING_EMBEDDED :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+            
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+           
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();           
+
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+
+            resultMDD.reset( extractCurtain(op, areaOp, maskDims, mask) );
+            
+            break;
+        }
+        case QtGeometryData::QtGeometryType::GEOM_CURTAIN_MULTIPOLYGON :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+            
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+         
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
+
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+
+            resultMDD.reset( extractCurtain(op, areaOp, maskDims, mask) );
+            
+            break;
+        }
+        //case QtGeometryData::QtGeometryType::GEOM_CURTAIN_MULTILINESTRING :
+        //not supported, resultMDD remains null.  
+        //case QtGeometryData::QtGeometryType::GEOM_CURTAIN_MULTILINESTRING_EMBEDDED :
+        //not supported, resultMDD remains null.
+            
+        case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_POLYGON :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+          
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
+            
+            QtMShapeData* lineStringData = geomData->getLinestrings()[0];
+
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+            
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            
+            break;
+        }
+        //case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_LINESTRING :
+        //not supported, resultMDD remains null.
+            
+        case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_LINESTRING_EMBEDDED :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
+            
+            QtMShapeData* lineStringData = geomData->getLinestrings()[0];
+            
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+            
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            
+            break;
+        }
+        case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_MULTIPOLYGON :
+        {
+            vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
+            vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
+
+            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            
+            vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
+            
+            QtMShapeData* lineStringData = geomData->getLinestrings()[0];
+            
+            checkProjDims(opDim, maskDims);
+            checkMaskDim(mask.second->dimension(), maskDims);
+            
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            
+            break;
+        }
+        //case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_MULTILINESTRING : 
+        //not supported, resultMDD remains null.
+        //case QtGeometryData::QtGeometryType::GEOM_CORRIDOR_MULTILINESTRING_EMBEDDED :
+        //not supported, resultMDD remains null.
+        
+        default : break;
+    }
+    
+    //in this case, the clipping is not well-defined (but we need to protect against seg faults, so we throw a generic error).
     if(!resultMDD)
     {
         parseInfo.setErrorNo(CLIPERRORUNDEFINED);
@@ -1218,6 +1206,94 @@ QtClipping::computeOp(QtMDD* operand, QtMShapeData* mshape)
     return returnValue;
 }
 
+void
+QtClipping::computeOpErrorChecking(r_Dimension opDim, 
+        const r_Minterval& areaOp, 
+        QtMShapeData* shapeOp, 
+        QtGeometryData::QtGeometryType geomType)
+{
+    
+    //mshape may define a subspace, linestring, or a polygon.
+    //dimension of the smallest affine subspace containing the mshape vertices
+    const r_Dimension mshapeDim = shapeOp->getDimension();
+    
+    //the dimensionality of the individual points
+    //this is invariant for each mshape, and error checking for invariance is handled by QtMShapeData
+    const r_Dimension mshapePtDim = shapeOp->getPointDimension();
+    
+    //number of points defining the mshape
+    const size_t mshapePtCard = shapeOp->getPolytopePoints().size();
+
+    // possible errors which apply to more than one clipType
+    
+    //need at least two points to get started here...
+    if(mshapePtCard <= 1)
+    {
+        LERROR << "Error: All geometric clip types require at least two vertices to be well-defined.";
+        parseInfo.setErrorNo(NEEDTWOORMOREVERTICES);
+        throw parseInfo;        
+    }
+    //point dimensionality must match that of the operand (< case may be acceptable for curtains)
+    else if( (opDim != mshapePtDim && geomType < QtGeometryData::QtGeometryType::GEOM_CURTAIN_POLYGON) 
+            || opDim < mshapePtDim)
+    {
+        LERROR << "Error: No natural embedding from the space containing the mdd object's grid to the space containing the clip vertices exists.";
+
+        if(geomType == QtGeometryData::QtGeometryType::GEOM_POLYGON
+        || geomType == QtGeometryData::QtGeometryType::GEOM_MULTIPOLYGON)
+        {
+            parseInfo.setErrorNo(POINTDIMENSIONDIFFERS);
+            throw parseInfo;
+        }
+        else
+        {
+            parseInfo.setErrorNo(NONATURALEMBEDDING);
+            throw parseInfo;
+        }
+    }
+    //linestrings can end up defining the entire space, as can polygons in 2D.
+    else if(opDim <= mshapeDim 
+            && geomType < QtGeometryData::QtGeometryType::GEOM_POLYGON
+            && geomType > QtGeometryData::QtGeometryType::GEOM_MULTILINESTRING)
+    {
+        LERROR << "Error: The smallest affine subspace containing the clip vertices must not be equal to the entire space containing the mdd object's grid.";
+        parseInfo.setErrorNo(SUBSPACEDIMSAMEASMDDOBJ);
+        throw parseInfo;          
+    }
+}
+
+void
+QtClipping::checkProjDims(r_Dimension opDim, const vector<r_Dimension>& maskDims)
+{
+    for(auto iter = maskDims.begin(); iter != maskDims.end(); iter++)
+    {
+        // is the dimension value outside the expected range?
+        if(*iter >= opDim || *iter < 0)
+        {
+            // throw an error
+            LERROR << "Error: The coordinate projections must correspond to existing axes.";                        
+            parseInfo.setErrorNo(AXISNUMBERSMUSTEXIST);
+            throw parseInfo;            
+        }
+    }
+}
+    
+void 
+QtClipping::checkMaskDim(r_Dimension maskDim, 
+        const vector<r_Dimension>& maskDims)
+{
+
+    // check the mask dimension is the same as the size of projection result.
+    if(maskDim != maskDims.size())
+    {
+        // throw an error
+        LERROR << "Error: The number of coordinates projected to must match the dimension of the mask.";                        
+        parseInfo.setErrorNo(PROJDIMNOTMATCHINGMASKDIM);
+        throw parseInfo;         
+    }    
+    
+}
+
 QtData*
 QtClipping::evaluate(QtDataList *inputlist)
 {
@@ -1228,49 +1304,23 @@ QtClipping::evaluate(QtDataList *inputlist)
     // evaluate sub-nodes to obtain operand values
     if (getOperands(inputlist, operand1, operand2))
     {
-        //
-        // This implementation simply creates a new transient MDD object with the new
-        // domain while copying the data. Optimization of this is left for future work.
-        //
+        //valid due to checkType()
+        QtMDD* qtMDDObj = static_cast< QtMDD* >(operand1);
+        QtGeometryData* geomData = static_cast< QtGeometryData* >(operand2);        
 
-        QtMDD *qtMDDObj = static_cast<QtMDD *>(operand1);
-        std::vector<r_PointDouble> const *polygon = NULL;
-
-        // get multidimensional shape (already checked in checktype)
-        if (operand2->getDataType() == QT_MSHAPE)
-        {
-            // get the vector from QT_MSHAPEOP
-
-            polygon = &((static_cast<QtMShapeData *>(operand2))->getMShapeData());
-        }
-
-        MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
-        QtMShapeData *multidimShape = static_cast<QtMShapeData *>(operand2);
-        if (qtMDDObj->getLoadDomain().dimension() < multidimShape->getDimension())
-        {
-            LFATAL << "Error: QtClipping::evaluate() - Dimension of the polygon vertices is bigger than the domain's dimension.";
-            parseInfo.setErrorNo(407);
-            throw parseInfo;
-        }
-        else
-        {
-            returnValue = computeOp(qtMDDObj, static_cast<QtMShapeData *>(operand2));
-        }
+        //where the errors are thrown
+        returnValue = computeOp(qtMDDObj, geomData);
+        
         //delete the old operands
-        if (operand1)
-        {
-            operand1->deleteRef();
-        }
-        if (operand2)
-        {
-            operand2->deleteRef();
-        }
+        if (operand1){operand1->deleteRef();}
+        if (operand2){operand2->deleteRef();}
     }
 
-    return returnValue;
+    return returnValue;        
 }
 
-const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
+const QtTypeElement&
+QtClipping::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -1284,7 +1334,7 @@ const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
 
         if (inputType1.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtClipping::checkType() - first operand must be of type MDD.";
+            LERROR << "Error: First operand of the clipping operation must be of type MDD.";
             parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
@@ -1292,10 +1342,10 @@ const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
         // operand two can be a single long number, the parser does [a] -> number a,
         // rather than [a] -> point (which is then used in marray/condense..),
         // so we need to take care manually here of this edge case -- DM 2015-aug-24
-        if (inputType2.getDataType() != QT_MSHAPE)
+        if (inputType2.getDataType() != QT_GEOMETRY)
         {
-            LFATAL << "Error: QtClipping::checkType() - second operand must be of type QT_MSHAPE.";
-            parseInfo.setErrorNo(MSHAPEARGREQUIRED);
+            LERROR << "Error: Second operand must be of type QT_GEOMETRY.";
+            parseInfo.setErrorNo(GEOMETRYARGREQUIRED);
             throw parseInfo;
         }
 
@@ -1307,4 +1357,202 @@ const QtTypeElement& QtClipping::checkType(QtTypeTuple *typeTuple)
     }
 
     return dataStreamType;
+}
+
+vector<QtPositiveGenusClipping>
+QtClipping::buildMultipoly(const vector< vector< QtMShapeData* > >& polygonData, 
+        QtGeometryData::QtGeometryType geomType)
+{
+    vector< QtPositiveGenusClipping> clipVector;
+    clipVector.reserve(polygonData.size());
+    for(auto shapeIter = polygonData.begin(); shapeIter != polygonData.end(); shapeIter++)
+    {
+        std::vector<QtMShapeData*> thisPosGenPolygon;
+        std::shared_ptr<r_Minterval> convexHull;
+        thisPosGenPolygon.reserve(shapeIter->size());
+        for(auto iter = shapeIter->begin(); iter != shapeIter->end(); iter++)
+        {
+            if (2 != (*iter)->getDimension() && 2 != (*iter)->getPointDimension() )
+            {
+                LERROR << "Error: Dimension of the polygon vertices differs from the domain's dimension.";
+                throw r_Error(POINTDIMENSIONDIFFERS);
+            }
+            else
+            {
+                if(!convexHull)
+                {
+                    convexHull.reset( new r_Minterval((*iter)->convexHull()) );
+                }
+
+
+                //add the next polygon w/ interiors to the vector
+                thisPosGenPolygon.emplace_back( *iter );
+            }
+        }
+        clipVector.emplace_back(QtPositiveGenusClipping(*convexHull, thisPosGenPolygon));
+    }
+    
+    return clipVector;
+}
+
+std::shared_ptr<r_Minterval> 
+QtClipping::buildResultDom(const r_Minterval& areaOp, 
+        vector<QtPositiveGenusClipping>& mshapeList)
+{
+    //constructing the result domain for the mask and the resultmdd
+    std::shared_ptr<r_Minterval> resultDom;
+    //since we use this method both internally and externally, we don't always want to compute the result domain (it could be passed as areaOp)
+    for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
+    {
+        if(i->getDomain().intersects_with(areaOp))
+        {
+            if(resultDom)
+            {
+                *resultDom = resultDom->closure_with(i->getDomain());
+            }
+            else
+            {
+                resultDom.reset( new r_Minterval(i->getDomain()) );
+            }
+        }
+    }
+
+    return resultDom;
+}
+
+std::shared_ptr<char>
+QtClipping::buildResultMask(
+        std::shared_ptr<r_Minterval> resultDom, 
+        vector<QtPositiveGenusClipping>& mshapeList,
+        QtGeometryData::QtGeometryType geomType)
+{
+    //result mask
+    std::shared_ptr<char> resultMask;
+    resultMask.reset(new char[resultDom->cell_count()]);
+    memset(resultMask.get(), 2, resultDom->cell_count());
+    
+    //starting point of the mask, for iteration
+    const char* resultMaskPtr = &resultMask.get()[0];
+    
+    for(auto iter = mshapeList.begin(); iter != mshapeList.end(); iter++)
+    {
+        if(iter->getDomain().intersects_with(*resultDom))
+        {
+            const r_Minterval* currentDomain = new r_Minterval(iter->getDomain());
+            
+            vector< vector<char> > polygonMask;
+            
+            if(geomType == QtGeometryData::QtGeometryType::GEOM_POLYGON
+            || geomType == QtGeometryData::QtGeometryType::GEOM_MULTIPOLYGON
+            || geomType == QtGeometryData::QtGeometryType::GEOM_CURTAIN_POLYGON
+            || geomType == QtGeometryData::QtGeometryType::GEOM_CURTAIN_MULTIPOLYGON
+            || geomType == QtGeometryData::QtGeometryType::GEOM_CORRIDOR_POLYGON
+            || geomType == QtGeometryData::QtGeometryType::GEOM_CORRIDOR_MULTIPOLYGON)
+            {
+                polygonMask = iter->generateMask(true);
+            }
+            else
+            {
+                polygonMask = iter->generateMask(false);
+            }
+            
+            r_Miter resultMaskIter(currentDomain, resultDom.get(), sizeof(char), resultMaskPtr);
+            
+            //this is the approach we take when combining positive genus polygonal masks
+            for(size_t m = 0; m < polygonMask.size(); m++)
+            {
+                for(size_t n = 0; n < polygonMask[m].size(); n++)
+                {
+                    if(polygonMask[m][n] < 2) //copy the new mask's polygon into the overall mask
+                    {
+                        *(resultMaskIter.nextCell()) = polygonMask[m][n];
+                    }
+                    else
+                    {
+                        resultMaskIter.nextCell();
+                    }
+                }
+            }
+        }
+    }
+    
+    return resultMask;
+}
+
+std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >
+QtClipping::buildAbstractMask(vector<QtPositiveGenusClipping>& mshapeList, 
+        QtGeometryData::QtGeometryType geomType)
+{
+    
+    //builds the result domain without worrying about an area of interest
+    std::shared_ptr<r_Minterval> resultDom;
+    for(auto i = mshapeList.begin(); i != mshapeList.end(); i++)
+    {
+        if(resultDom)
+        {
+            *resultDom = resultDom->closure_with(i->getDomain());
+        }
+        else
+        {
+            resultDom.reset( new r_Minterval(i->getDomain()) );
+        }
+    }     
+     
+    //result mask & domain
+    
+    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > retVal(buildResultMask(resultDom, mshapeList, geomType), resultDom);
+    
+    return retVal;
+}
+
+std::vector<r_Minterval>
+QtClipping::computeMaskEmbedding(
+    const std::vector< std::vector<r_Point> >& pointListArg, 
+    const r_Minterval& convexHullArg, 
+    r_Range outputLength,
+    std::vector<r_Dimension> maskDims)
+{   
+    std::vector<r_Minterval> result;
+    result.reserve(static_cast<size_t>(outputLength));
+    
+    r_Point firstPoint = pointListArg[0][0];    
+     
+    if(!convexHullArg.covers(pointListArg[0][0].indexedMap(maskDims)))
+    {
+        LERROR << "The coordinates of the starting point of the linestring do not sit inside the polygon's convex hull.";            
+        throw r_Error(MASKNOTALIGNEDWITHLINESTRING);
+    }
+    else
+    {
+        // iterate over the segments
+        for(auto segIter = pointListArg.begin(); segIter != pointListArg.end(); segIter++)
+        {
+            // iterate over the points in each segment
+            for(auto ptIter = segIter->begin(); ptIter != segIter->end(); ptIter++)
+            {
+                //find the current slice by translating the convex hull of 
+                r_Minterval currentSlice(firstPoint.dimension());
+                r_Point translation = *ptIter - firstPoint;
+                for(r_Dimension i = 0; i < firstPoint.dimension(); i++)
+                {
+                    //translate the convex hull argument along the dimensions it corresponds to (guaranteed to contain the translated point, since convexHullArg contains the first point)
+                    auto it = std::find(maskDims.begin(), maskDims.end(), i);
+                    auto index = std::distance(maskDims.begin(), it);                    
+                    if(it == maskDims.end())
+                    {
+                        // the current point location
+                        currentSlice << r_Sinterval((*ptIter)[i], (*ptIter)[i]);
+                    }
+                    else
+                    {
+                        // the current translated bounding box
+                        currentSlice << r_Sinterval( convexHullArg[index].low() + translation[i], convexHullArg[index].high() + translation[i] );
+                    }
+                }
+                result.emplace_back(currentSlice);
+            }
+        }
+    }
+    
+    return result;
 }

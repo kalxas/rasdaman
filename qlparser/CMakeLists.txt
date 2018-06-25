@@ -58,11 +58,9 @@ add_library(qlparser
         qtcondenseop.hh qtcondenseop.cc qtcondenseop.icc
         qtconst.hh qtconst.cc qtconst.icc
         qtconversion.hh qtconversion.cc qtconversion.icc
-        qtcorridor.hh qtcorridor.cc qtcorridor.icc
         qtcreatecelltype.hh qtcreatecelltype.cc
         qtcreatemarraytype.hh qtcreatemarraytype.cc
         qtcreatesettype.hh qtcreatesettype.cc
-        qtcurtain.hh qtcurtain.cc qtcurtain.icc
         qtdata.cc qtdata.hh qtdata.icc
         qtdelete.cc qtdelete.hh
         qtdomainoperation.cc qtdomainoperation.hh qtdomainoperation.icc
@@ -70,6 +68,8 @@ add_library(qlparser
         qtemptystream.cc qtemptystream.hh qtemptystream.icc
         qtexecute.hh
         qtfindsection.hh qtfindsection.cc
+        qtgeometrydata.hh qtgeometrydata.cc
+        qtgeometryop.hh qtgeometryop.cc
         qtinfo.cc qtinfo.hh qtinfo.icc
         qtinsert.cc qtinsert.hh qtinsert.icc
         qtintervaldata.cc qtintervaldata.hh qtintervaldata.icc
@@ -86,7 +86,6 @@ add_library(qlparser
         qtmintervalop.cc qtmintervalop.hh qtmintervalop.icc
         qtmshapedata.hh qtmshapedata.cc qtmshapedata.icc
         qtmshapeop.hh qtmshapeop.cc qtmshapeop.icc
-        qtmulticlipping.hh qtmulticlipping.cc qtmulticlipping.icc
         qtnaryoperation.cc qtnaryoperation.hh qtnaryoperation.icc
         qtnode.cc qtnode.hh qtnode.icc
         qtnullvaluesdata.cc qtnullvaluesdata.hh

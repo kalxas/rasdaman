@@ -1,0 +1,1 @@
+select encode(marray x in [0:1] values avg_cells(clip(c[*:*,*:*,x], polygon((0 0, 0 (50+x), (50+x) (50+x), (50+x) 0)))),"json") from test_grey3d as c

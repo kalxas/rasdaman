@@ -139,9 +139,6 @@ public:
         QT_UNARY_INDUCE,
         QT_PROJECT,
         QT_CLIPPING,
-        QT_MULTICLIPPING,
-        QT_CURTAIN,
-        QT_CORRIDOR,
 
 //**************
         QT_ABS, QT_EXP, QT_LOG, QT_LN, QT_SIN, QT_COS,
@@ -176,6 +173,7 @@ public:
         QT_NULLVALUESOP,
         QT_POINTOP,
         QT_MSHAPEOP,
+        QT_GEOMETRYOP,
         QT_LO,
         QT_HI,
         QT_SDOM,

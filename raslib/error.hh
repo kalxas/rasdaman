@@ -569,7 +569,7 @@ public:
 #define DIVISION_BY_ZERO                    433
 #define CELLBINARYOPUNAVAILABLE             434
 #define CELLUNARYOPUNAVAILABLE              435
-#define MSHAPEARGREQUIRED                   436
+#define GEOMETRYARGREQUIRED                 436
 #define NEEDTWOORMOREVERTICES               500
 #define INCORRECTPOLYGON                    501
 #define FACEDIMENSIONMISMATCH               502

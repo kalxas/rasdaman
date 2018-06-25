@@ -33,6 +33,8 @@ rasdaman GmbH.
 #include "qlparser/qtmshapedata.hh"
 #include "qlparser/qtclippingutil.hh"
 #include "qlparser/qtpolygonclipping.hh"
+#include "qlparser/qtgeometryop.hh"
+#include "qlparser/qtgeometrydata.hh"
 #include <map>
 
 //@ManMemo: Module: {\bf qlparser}
@@ -65,59 +67,49 @@ rasdaman GmbH.
 class QtClipping : public QtBinaryOperation
 {
   public:
-
-    // So far the clip_subspace operation is suppoted in the QtClipping class
-    // Later planned additional operations are 
-    // 1. PolytopeClipping
-    // 2. Multiline
-    // 3. Multipolytope
-    // 4. Curtains
-
-    enum QtClipType
-    {
-        CLIP_SUBSPACE,
-        CLIP_POLYGON,
-        CLIP_POLYTOPE,
-        CLIP_LINESTRING,
-        CURTAIN_POLYGON,
-        CURTAIN_LINESTRING
-    };
-
     /// constructor getting the mdd op, where we define the object we are going to do operations on.
-    /// mshapeOp where the multidimensional shape operation is defined and also the QtClipType where the type of clipping operation is defined. (The later is for future reference since this class could be used for further operation).
-    QtClipping(QtOperation* mddOp, QtOperation* mshapeOp, QtClipType tp);
-
-    /// constructor getting the mdd op, where we define the object we are going to do operations on.
-    /// mshapeOp where the multidimensional shape operation is defined and also the QtClipType where the type of clipping operation is defined. (The later is for future reference since this class could be used for further operations).
-    QtClipping(QtOperation* mddOp, QtOperation* mshapeOp1, QtMShapeData* mshapeOp2, QtClipType tp);
-
+    /// mshapeOp where the multidimensional shape operation is defined and also the geometry type of clipping operation is defined.
+    QtClipping(QtOperation* mddOp, QtOperation* geometryOp);
     
     ~QtClipping();
         /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
     /// In case the user defined points all define a line than we use a generalization of the Bresenham line in n-dimensions.
-    MDDObj* extractBresenhamLine(const MDDObj* op, r_Minterval areaOp, QtMShapeData* mshape, const r_Dimension dim);
+    MDDObj* extractBresenhamLine(const MDDObj* op, 
+            const r_Minterval& areaOp, 
+            QtMShapeData* mshape, 
+            const r_Dimension dim);
 
     /// This function is called in case the set of points in the subsbase operation is of dimensionality bigger than one. The parameters passed to the function are MDDObj* which holds the infomration of the dataset we are going to operate on. areaOp is the r_Minterval of the MDDobj. 
     /// "polytope" points @ the multidimensional shape constructed from the set of user-defined points. The second MDDObj pointer points to the result object. 
-    MDDObj* extractSubspace(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope);
+    MDDObj* extractSubspace(const MDDObj* op, 
+            const r_Minterval& areaOp, 
+            QtMShapeData* polytope);
     
-    MDDObj* extractLinestring(const MDDObj* op, const QtMShapeData* linestring, const r_Dimension dim);
+    MDDObj* extractLinestring(const MDDObj* op, 
+            const QtMShapeData* linestring, 
+            const r_Dimension dim);
 
-    /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the polygonal cutout in the last 2 coordinates.
-    MDDObj* extractCurtainPolygon(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg);
+    MDDObj* extractMultipolygon(const MDDObj* op,
+            const r_Minterval& areaOp,
+            vector<QtPositiveGenusClipping>& clipVector,
+            QtGeometryData::QtGeometryType geomType);
 
-    /// In case the user is seeking a curtain query, we need the range of the curtain in the 1st coordinate and the linear curtain rods in the last 2 coordinates.
-    /// for one line segment
-    MDDObj* extractCurtainLine(const MDDObj* op, const r_Minterval& areaOp, QtMShapeData* polytope, const QtMShapeData* rangeArg);
-    
-    /// for several consecutive line segments
-    MDDObj* extractCurtainLinestring(const MDDObj* op, const r_Minterval& areaOp, const QtMShapeData* polytope, const QtMShapeData* rangeArg, r_Dimension dim = 2);
-    
+    MDDObj* extractCurtain(const MDDObj* op, 
+            const r_Minterval& areaOp, 
+            const vector<r_Dimension>& maskDims, 
+            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask);
+
+    MDDObj* extractCorridor(const MDDObj* op, 
+            const r_Minterval& areaOp, 
+            QtMShapeData* lineStringData, 
+            const std::vector<r_Dimension>& maskDims,
+            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask);    
+       
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
-    QtData* computeOp(QtMDD* operand, QtMShapeData* mshape);
-
+    QtData* computeOp(QtMDD* operand, QtGeometryData* geomData);
+    
     /// method for evaluating the node
     QtData* evaluate(QtDataList *inputList);
 
@@ -126,16 +118,49 @@ class QtClipping : public QtBinaryOperation
 
     /// type checking of the subtree
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
+    
+protected:
+        
+    /// computes the result mask domain for the mshapeList
+    std::shared_ptr<r_Minterval> buildResultDom(const r_Minterval& areaOp, 
+            vector<QtPositiveGenusClipping>& clipVector);
+    
+    /// takes the result of buildResultDom and builds the result mask from the stored mshapeList (polygons w/ interiors)
+    /// one can pass other resultDom's to this method, if needed, but the intersection needs to be nonempty (unknown prior to the method called)
+    /// or else a segfault will occur!
+    std::shared_ptr<char> buildResultMask(std::shared_ptr<r_Minterval> resultDom, 
+            vector<QtPositiveGenusClipping>& clipVector,
+            QtGeometryData::QtGeometryType geomType);
 
+    /// uses the internal mshapeList only to build a result mask and a specified domain
+    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > buildAbstractMask(
+            std::vector<QtPositiveGenusClipping>& clipVector, 
+            QtGeometryData::QtGeometryType geomType);
+
+    std::vector<r_Minterval> computeMaskEmbedding(
+            const std::vector< std::vector<r_Point> >& pointListArg, 
+            const r_Minterval& convexHullArg, 
+            r_Range outputLength,
+            std::vector<r_Dimension> maskDims);
+    
+    /// for checking errors before performing data extraction
+    void computeOpErrorChecking(r_Dimension opDim, 
+            const r_Minterval& areaOp, 
+            QtMShapeData* shapeOp, 
+            QtGeometryData::QtGeometryType geomType);    
+    
+    //check the mask projection dimensions
+    void checkProjDims(r_Dimension opDim, const vector<r_Dimension>& maskDims);
+    
+    void checkMaskDim(r_Dimension maskDim, 
+            const vector<r_Dimension>& maskDims);
+    
+    vector< QtPositiveGenusClipping > buildMultipoly(const vector< vector <QtMShapeData*> >& polygonData, 
+            QtGeometryData::QtGeometryType geomType);
+    
   private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
-    
-    // current clipping operation choice.
-    const QtClipType clipType;
-    
-    /// pointer to range data for curtains -- default value is NULL
-    QtMShapeData* range;
 };
 
 //checks if an r_Minterval has more than single cell

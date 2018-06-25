@@ -26,33 +26,36 @@ rasdaman GmbH.
 
 #include "qlparser/qtpolygonclipping.hh"
 
-#include "qlparser/qtmdd.hh"
-#include "qlparser/qtatomicdata.hh"
-#include "qlparser/qtcomplexdata.hh"
-#include "qlparser/qtnode.hh"
-
-#include "mddmgr/mddobj.hh"
-#include "tilemgr/tile.hh"
-
-#include "catalogmgr/typefactory.hh"
-#include "relcatalogif/structtype.hh"
-#include "relcatalogif/mdddimensiontype.hh"
-#include "relcatalogif/syntaxtypes.hh"
+//#include "qlparser/qtmdd.hh"
+//#include "qlparser/qtatomicdata.hh"
+//#include "qlparser/qtcomplexdata.hh"
+//#include "qlparser/qtnode.hh"
+//
+//#include "mddmgr/mddobj.hh"
+//#include "tilemgr/tile.hh"
+//
+//#include "catalogmgr/typefactory.hh"
+//#include "relcatalogif/structtype.hh"
+//#include "relcatalogif/mdddimensiontype.hh"
+//#include "relcatalogif/syntaxtypes.hh"
 
 #include <logging.hh>
 
-#include "qlparser/qtpointdata.hh"
-#include "raslib/miter.hh"
+//#include "qlparser/qtpointdata.hh"
 
-#include <sstream>
+
+//#include <sstream>
 #ifndef CPPSTDLIB
 #else
 #include <string>
-using namespace std;
 #endif
 
-#include <iostream>
-#include "rasodmg/polycutout.hh"
+//#include <iostream>
+#include "raslib/minterval.hh"
+#include "raslib/point.hh"
+#include "raslib/miter.hh"
+#include "qlparser/qtmdd.hh"
+#include "relcatalogif/mdddimensiontype.hh"
 
 QtPolygonClipping::QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices)
     :  domain(areaOp), polygonVertices(vertices)
@@ -63,208 +66,6 @@ QtPolygonClipping::QtPolygonClipping(const r_Minterval& areaOp, const std::vecto
 QtPolygonClipping::QtPolygonClipping()
 {
     //initialize domain & polygonVertices for use by QtPositiveGenusClipping
-}
-
-MDDObj* 
-QtPolygonClipping::compute2DBresenham(MDDObj* op, r_Dimension dim)
-{
-    pair<r_Point, r_Point> bBox = getBoundingBox( polygonVertices );
-
-    // create MDDObj for result
-    // this should rather be MDDDomainType? -- DM 2011-aug-12
-    //Old implementation was :MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
-    //Had type incompatibility issue because of missing dimension.
-    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), dim);
-    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
-
-    TypeFactory::addTempType(mddBaseType);
-
-    r_Sinterval xAxis(bBox.first[0], bBox.second[0]);
-    r_Sinterval yAxis(bBox.first[1], bBox.second[1]);
-
-    r_Minterval convexHull(2);
-    convexHull << xAxis;
-    convexHull << yAxis;
-
-    if( !domain.intersects_with(convexHull) )
-    {
-        return NULL;
-    }
-
-    domain = domain.create_intersection(convexHull);
-
-    std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset( new MDDObj(mddBaseType, domain, op->getNullValues()) );
-    
-
-    //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
-    vector< vector<char> > mask(static_cast<long unsigned int>(bBox.second[0] - bBox.first[0] + 1), 
-                                       vector<char>(static_cast<long unsigned int>(bBox.second[1] - bBox.first[1] + 1), 2));
-    
-    //translate polygon vertices into mask coordinates
-    for( unsigned int i = 0; i < polygonVertices.size(); i++ )
-    {
-        polygonVertices[i][0] = polygonVertices[i][0]-bBox.first[0];
-        polygonVertices[i][1] = polygonVertices[i][1]-bBox.first[1];
-    }
-    //fill the polygon edges in the mask
-    rasterizePolygon(mask, polygonVertices, true);
-    //fill the connected component of the complement of the polygon containing infinity
-    polygonInteriorFloodfill(mask, polygonVertices);
-        
-    // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->getTiles());
-
-    // iterate over the tiles
-    try 
-    {
-        for (auto tileIt = allTiles->begin(); tileIt !=  allTiles->end(); tileIt++)
-        {
-            // domain of the actual tile
-            const r_Minterval& tileDom = (*tileIt)->getDomain();
-            if( tileDom.intersects_with( domain ) )
-            {
-                // domain of the relevant area of the actual tile
-                r_Minterval intersectDom(tileDom.create_intersection(domain));
-
-                // create tile for result
-                boost::shared_ptr<Tile> resTile;                
-                resTile.reset( new Tile(intersectDom, op->getCellType()) );
-                size_t typeSize = (*tileIt)->getType()->getSize();
-                char* resultData = resTile->getContents();
-                op->fillTileWithNullvalues(resultData, intersectDom.cell_count());
-                
-                long unsigned int index = 0;
-                
-                for( auto i = intersectDom[0].low(); i <= intersectDom[0].high(); i++ )
-                {
-                    // locate the data pointed to in the i-th row and j-th column of the op tile
-                    // as there may be a nontrivial intersection
-                    char* rowOfData = (*tileIt)->getCell(r_Point(i, intersectDom[1].low()));
-                    
-                    for( auto j = intersectDom[1].low(); j <= intersectDom[1].high(); j++ )
-                    {
-                            if( mask[static_cast<size_t>(i-bBox.first[0])][static_cast<size_t>(j-bBox.first[1])] < 2 )
-                            {
-                                memcpy(resultData, rowOfData, typeSize);
-                            }
-                            index++;
-                        // move to the next cell of the op tile
-                        rowOfData += typeSize;
-                        // move to the next cell of the result tile
-                        resultData += typeSize;
-                    }
-                }
-                // insert Tile in result mdd
-                resultMDD->insertTile(resTile);
-            }
-        }
-    } 
-    catch (r_Error& err) 
-    {
-        LFATAL << "QtCLipping::compute2D caught " << err.get_errorno() << " " << err.what();
-        throw err;
-    } 
-    catch (int err) 
-    {
-        LFATAL << "QtPolygonClipping::compute2D caught errno error (" << err << ") in qtclipping";
-        throw r_Error(static_cast<unsigned int>(err));
-                                        
-    }
-    
-    return resultMDD.release();
-}
-
-MDDObj* 
-QtPolygonClipping::compute2DRays(MDDObj* op, r_Dimension dim)
-{
-   
-    pair<r_Point, r_Point> bBox = getBoundingBox( polygonVertices );
-
-    // create MDDObj for result
-    // this should rather be MDDDomainType? -- DM 2011-aug-12
-    //Old implementation was :MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
-    //Had type incompatibility issue because of missing dimension.
-    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), dim);
-    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
-
-    TypeFactory::addTempType(mddBaseType);
-
-    r_Sinterval xAxis(bBox.first[0], bBox.second[0]);
-    r_Sinterval yAxis(bBox.first[1], bBox.second[1]);
-
-    r_Minterval convexHull(2);
-    convexHull << xAxis;
-    convexHull << yAxis;
-
-    if( !domain.intersects_with(convexHull) ){
-        return NULL;
-    }
-
-    domain = domain.create_intersection(convexHull);
-
-    std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset( new MDDObj(mddBaseType, domain, op->getNullValues()) );
-
-    // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->getTiles());
-
-    // iterate over the tiles
-    try 
-    {
-        for (auto tileIt = allTiles->begin(); tileIt !=  allTiles->end(); tileIt++)
-        {
-            // domain of the actual tile
-            const r_Minterval& tileDom = (*tileIt)->getDomain();
-            if( tileDom.intersects_with( domain ) )
-            {
-                // domain of the relevant area of the actual tile
-                r_Minterval intersectDom(tileDom.create_intersection(domain));
-
-                // create tile for result
-                boost::shared_ptr<Tile> resTile;
-                resTile.reset( new Tile(intersectDom, op->getCellType()) );
-                size_t typeSize = (*tileIt)->getType()->getSize();
-                char* resultData = resTile->getContents();
-                long unsigned int index = 0;
-                
-                for( auto i = intersectDom[0].low(); i <= intersectDom[0].high(); i++ )
-                {
-                    // locate the data pointed to in the i-th row and j-th column of the op tile
-                    // as there may be a nontrivial intersection
-                    char* rowOfData = (*tileIt)->getCell(r_Point(i, intersectDom[1].low()));
-                    
-                    for( auto j = intersectDom[1].low(); j <= intersectDom[1].high(); j++ )
-                    {
-                            if(isPointInsidePolygon(i, j, polygonVertices))
-                            {
-                                memcpy(resultData, rowOfData, typeSize);
-                            }
-                            index++;
-                        // move to the next cell of the op tile
-                        rowOfData += typeSize;
-                        // move to the next cell of the result tile
-                        resultData += typeSize;
-                    }
-                }
-                // insert Tile in result mdd
-                resultMDD->insertTile(resTile);
-            }
-        }
-    } 
-    catch (r_Error& err) 
-    {
-        LFATAL << "QtCLipping::compute2D caught " << err.get_errorno() << " " << err.what();
-        throw err;
-    } 
-    catch (int err) 
-    {
-        LFATAL << "QtPolygonClipping::compute2D caught errno error (" << err << ") in qtclipping";
-        throw r_Error(static_cast<unsigned int>(err));
-    }
-    return resultMDD.release();
 }
 
 vector< vector<char> >

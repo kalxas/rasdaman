@@ -64,6 +64,7 @@ enum QtDataType
     QT_MINTERVAL,
     QT_POINT,
     QT_MSHAPE,
+    QT_GEOMETRY,
     QT_NULLVALUES
 };
 

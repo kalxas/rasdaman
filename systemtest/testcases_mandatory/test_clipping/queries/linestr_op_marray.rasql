@@ -1,0 +1,1 @@
+select encode(marray x in [0:1] values avg_cells(clip( c, linestring(0 (x) 0, 19 19 3, (3-x) 16 1))), "csv") from test_grey3d as c
