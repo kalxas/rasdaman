@@ -228,10 +228,10 @@ QtRangeConstructor::getResultMDD(QtDataList* operandList)
     size_t nBands = operandList->size();
     r_Minterval destinationDomain;
     //here, we build the destination domain
+    bool destinationDomainSet = false;
     for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
     {
-        bool destinationDomainSet = false;
-        if (!(*iter)->isScalarData())
+        if (!(*iter)->isScalarData() && !complexLit)
         {
             //get this operand's MDD object
             MDDObj* currMDD = (static_cast<QtMDD*>(*iter))->getMDDObject();
