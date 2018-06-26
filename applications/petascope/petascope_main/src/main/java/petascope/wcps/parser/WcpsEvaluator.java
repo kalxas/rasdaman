@@ -70,7 +70,7 @@ import petascope.wcps.handler.BooleanConstantHandler;
 import petascope.wcps.handler.BooleanSwitchCaseCoverageExpressionHandler;
 import petascope.wcps.handler.RangeConstructorSwitchCaseHandler;
 import petascope.wcps.handler.BinaryCoverageExpressionHandler;
-import petascope.wcps.handler.ExtendExpressionByDomainIntervalsHandler;
+import petascope.wcps.handler.ExtendExpressionByImageCrsDomainHandler;
 import petascope.wcps.exception.processing.InvalidSubsettingException;
 import petascope.wcps.exception.processing.DuplcateRangeNameException;
 import petascope.wcps.exception.processing.CoverageMetadataException;
@@ -96,6 +96,7 @@ import java.util.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
@@ -198,7 +199,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Autowired private
     ExtendExpressionHandler extendExpressionHandler;
     @Autowired private
-    ExtendExpressionByDomainIntervalsHandler extendExpressionByDomainIntervalsHandler;
+    ExtendExpressionByImageCrsDomainHandler extendExpressionByDomainIntervalsHandler;
     @Autowired private
     RangeConstructorHandler rangeConstructorHandler;
     @Autowired private
@@ -1042,7 +1043,14 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String domainIntervalsRasql = wcpsMetadataResult.getResult().replace("(", "").replace(")", "");
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
-        WcpsResult result = extendExpressionByDomainIntervalsHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
+        WcpsResult result = null;
+        try {
+            result = extendExpressionByDomainIntervalsHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing extend() operator on coverage expression. Reason: " + ex.getMessage();
+            log.error(errorMessage, ex);
+            throw new WCPSException(ExceptionCode.RuntimeError, errorMessage);
+        }
         return result;
     }
 

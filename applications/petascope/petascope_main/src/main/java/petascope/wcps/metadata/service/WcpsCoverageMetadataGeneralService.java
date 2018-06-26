@@ -46,9 +46,12 @@ import petascope.exceptions.PetascopeException;
 import petascope.core.AxisTypes;
 import petascope.core.AxisTypes.AxisDirection;
 import petascope.core.Pair;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
+import petascope.wcps.exception.processing.IncompatibleCoveragesException;
 import petascope.wcps.exception.processing.InvalidBoundingBoxInCrsTransformException;
+import petascope.wcps.exception.processing.InvalidNonRegularAxisTypeAsScaleDimensionException;
 import petascope.wcps.exception.processing.InvalidSubsettingException;
 import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
 import petascope.wcps.exception.processing.OutOfBoundsSubsettingException;
@@ -72,6 +75,31 @@ public class WcpsCoverageMetadataGeneralService {
     public WcpsCoverageMetadataGeneralService() {
 
     }
+    
+    /**
+     * When the coverage's grid domain is changed from subsets but the geo bound is kept 
+     * (e.g: SCALE(coverage, {dimension interval lists} with geo bounds are kept but grid bounds changed).
+     * So need to recalculate the geo resolution (offset vector) for this axis.
+     */
+    public void updateGeoResolutionByGridBound(Axis axis) {
+        // Also, recalculate the offset vector as the axis's grid domain has been changed by scale subset
+        if (axis instanceof RegularAxis) {
+            BigDecimal geoDomain = axis.getGeoBounds().getUpperLimit().subtract(axis.getGeoBounds().getLowerLimit());
+            // e.g: grid domain (0:1) then number of pixels is: (1 - 0) + 1 = 2;
+            BigDecimal gridPixels = axis.getGridBounds().getUpperLimit().subtract(axis.getGridBounds().getLowerLimit()).abs().add(BigDecimal.ONE);
+            BigDecimal newOffsetVector = BigDecimalUtil.divide(geoDomain, gridPixels);
+            if (axis.isYAxis()) {
+                // e.g: Lat axis
+                axis.setResolution(newOffsetVector.multiply(new BigDecimal("-1")));
+            } else {
+                // e.g: Long axis
+                axis.setResolution(newOffsetVector);
+            }
+        } else {
+            // Cannot scale an irregular axis as the result cannot match 1:1 between geo direct positions and grid pixels.
+            throw new InvalidNonRegularAxisTypeAsScaleDimensionException(axis.getLabel());
+        }
+    }
 
     /**
      * Creates a resulting coverage metadata object when a binary operation is
@@ -84,13 +112,14 @@ public class WcpsCoverageMetadataGeneralService {
      * @return
      */
     public WcpsCoverageMetadata getResultingMetadata(WcpsCoverageMetadata firstMeta, WcpsCoverageMetadata secondMeta) {
-        checkCompatibility(firstMeta, secondMeta);
+        validateCoveragesCompatibility(firstMeta, secondMeta);        
         if (firstMeta != null) {
             return firstMeta;
         }
         if (firstMeta == null && secondMeta != null) {
             return secondMeta;
         }
+        
         //default both are null
         return null;
     }
@@ -992,7 +1021,10 @@ public class WcpsCoverageMetadataGeneralService {
         return found;
     }
 
-    private void checkCompatibility(WcpsCoverageMetadata firstMeta, WcpsCoverageMetadata secondMeta) {
+    /**
+     * Check if 2 coverages could be combined to 1 coverage via binary coverage expression (e.g: coverage_1 + coverage_2)
+     */
+    private void validateCoveragesCompatibility(WcpsCoverageMetadata firstMeta, WcpsCoverageMetadata secondMeta) {
         //we want to detect only the cases where an error should be thrown
         if (firstMeta != null && secondMeta != null) {
             //check number of axes to be the same
@@ -1000,7 +1032,40 @@ public class WcpsCoverageMetadataGeneralService {
                 throw new IncompatibleAxesNumberException(firstMeta.getCoverageName(), secondMeta.getCoverageName(),
                         firstMeta.getAxes().size(), secondMeta.getAxes().size());
             }
-            //we don't check right now if the axes labels are different. If needed, add here.
+            
+            // Check axes' s types must be the same
+            for (int i = 0; i < firstMeta.getAxes().size(); i++) {
+                String firstAxisName = firstMeta.getAxes().get(i).getLabel();
+                String firstAxisType = firstMeta.getAxes().get(i).getAxisType();
+                String secondAxisName = secondMeta.getAxes().get(i).getLabel();
+                String secondAxisType = secondMeta.getAxes().get(i).getAxisType();
+                
+                if (!firstAxisType.equals(secondAxisType)) {
+                    String errorMessage = "Axis type is different, given first coverage's axis with name '" + firstAxisName + "', type '" + firstAxisType 
+                                        + "' and second coverage's axis with name '" + secondAxisName + "', type '" + secondAxisType + "'.";
+                    throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                }
+                
+                // Check also geo resolution (offset vector) for each axis must be the same
+                String firstGeoResolution = firstMeta.getAxes().get(i).getResolution().toPlainString();
+                String secondGeoResolution = secondMeta.getAxes().get(i).getResolution().toPlainString();
+                
+                if (!firstGeoResolution.equals(secondGeoResolution)) {
+                    String errorMessage = "Geo resolution is different, given first coverage's axis with name '" + firstAxisName + "', resolution '" + firstGeoResolution
+                                        + "' and second coverage's axis with name '" + secondAxisName + "', resolution '" + secondGeoResolution + "'.";
+                    throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                }
+                
+                // Check also number of grid pixels for each axis must be the same size
+                Long firstGridPixels = firstMeta.getAxes().get(i).getGeoBounds().getUpperLimit().subtract(firstMeta.getAxes().get(i).getGeoBounds().getUpperLimit()).abs().add(BigDecimal.ONE).longValue();
+                Long secondGridPixels = secondMeta.getAxes().get(i).getGeoBounds().getUpperLimit().subtract(secondMeta.getAxes().get(i).getGeoBounds().getUpperLimit()).abs().add(BigDecimal.ONE).longValue();
+                
+                if (!firstGridPixels.equals(secondGridPixels)) {
+                    String errorMessage = "Number of grid pixels is different, given first coverage's axis with name '" + firstAxisName + "', grid pixels '" + firstGridPixels
+                                        + "' and second coverage's axis with name '" + secondAxisName + "', grid pixels '" + secondGridPixels + "'.";
+                    throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
+                }
+            }
         }
     }
 }

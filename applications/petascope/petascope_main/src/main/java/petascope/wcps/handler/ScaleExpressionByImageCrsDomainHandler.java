@@ -21,8 +21,16 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -37,6 +45,9 @@ import petascope.wcps.result.WcpsResult;
  */
 @Service
 public class ScaleExpressionByImageCrsDomainHandler {
+    
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
 
     public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) {
 
@@ -45,7 +56,30 @@ public class ScaleExpressionByImageCrsDomainHandler {
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", dimensionIntervalList);
+                               .replace("$intervalList", dimensionIntervalList);
+        
+        List<NumericTrimming> gridBounds = new ArrayList<>();
+        // e.g: imageCrsdomain(c) returns 0:30,0:40,0:60
+        String[] values = dimensionIntervalList.split(",");
+        List<Axis> axes = metadata.getSortedAxesByGridOrder();
+
+        if (axes.size() != values.length) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), axes.size(), values.length);
+        }
+
+        for (String value : values) {
+            String lowerValue = value.split(":")[0];
+            String upperValue = value.split(":")[1];
+            gridBounds.add(new NumericTrimming(new BigDecimal(lowerValue), new BigDecimal(upperValue)));
+        }
+        
+        for (int i = 0; i < axes.size(); i++) {
+            Axis axis = axes.get(i);
+            axis.setGridBounds(gridBounds.get(i));
+            
+            // Also recalculate for axis's geo resolution as grid domain has changed
+            this.wcpsCoverageMetadataService.updateGeoResolutionByGridBound(axis);
+        }
 
         return new WcpsResult(metadata, rasql);
     }

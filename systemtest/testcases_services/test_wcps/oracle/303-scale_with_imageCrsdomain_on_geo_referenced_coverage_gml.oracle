@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage id="test_mean_summer_airtemp"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="Lat Long" srsDimension="2"
+            srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
+            <lowerCorner>-44.475 111.975</lowerCorner>
+            <upperCorner>-8.975 156.475</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>22 16</low>
+                    <high>22 16</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>Lat Long</axisLabels>
+            <origin>
+                <Point id="test_mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326">
+                    <pos>-26.725 134.225</pos>
+                </Point>
+            </origin>
+            <offsetVector srsName="/crs/EPSG/0/4326">-35.5 0</offsetVector>
+            <offsetVector srsName="/crs/EPSG/0/4326">0 44.5</offsetVector>
+        </RectifiedGrid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">0</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+            <startPoint>22 16</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Gray">
+                <swe:Quantity >
+                    <swe:label>Gray</swe:label>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>

@@ -1,0 +1,2 @@
+for $c in ( test_eobstest )
+return encode( scale( $c[t:"CRS:1"(2)], { Lat:"CRS:1"(0:19), Long:"CRS:1"(0:19) } ) , "application/gml+xml" )

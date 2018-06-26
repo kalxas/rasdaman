@@ -111,9 +111,9 @@ public class WcpsCoverageMetadata {
         // create a copy of the original list
         for (Axis axis : this.axes) {
             if (axis instanceof RegularAxis) {
-                sortedAxis.add(((RegularAxis) axis).clone());
+                sortedAxis.add((RegularAxis) axis);
             } else {
-                sortedAxis.add(((IrregularAxis) axis).clone());
+                sortedAxis.add((IrregularAxis) axis);
             }
         }
 

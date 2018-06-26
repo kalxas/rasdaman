@@ -19,34 +19,28 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps.result;
+package petascope.wcps.exception.processing;
 
-import petascope.util.MIMEUtil;
-import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * Error exception when scaling dimension is not regular, e.g: scale(coverage, {irregular_time})
+ *
+ * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
+ *
  */
-public class WcpsMetadataResult extends VisitorResult {
-    
-    public WcpsMetadataResult(WcpsCoverageMetadata metadata, String result) {
-        this.metadata = metadata;
-        this.result = result;
+public class InvalidNonRegularAxisTypeAsScaleDimensionException extends WCPSException {
+
+    /**
+     * Constructor for the class
+     *
+     * @param axisName
+     * @param bound
+     */
+    public InvalidNonRegularAxisTypeAsScaleDimensionException(String axisName) {
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$axisName", axisName));
     }
 
-    @Override
-    public String getMimeType() {
-        return this.mimeType;
-    }
-
-    // Normally mimeType is null as this WCPS query does not have "encoding()"
-    @Override
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-        if (this.mimeType == null) {
-            this.mimeType = MIMEUtil.MIME_XML;
-        }
-    }
-
+    private static final String ERROR_TEMPLATE = "Scale operation is only supported on regular axis, given '$axisName' is irregular axis." ;
 }

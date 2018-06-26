@@ -30,10 +30,20 @@ import petascope.exceptions.ExceptionCode;
 public class IncompatibleAxesNumberException extends WCPSException {
 
     public IncompatibleAxesNumberException(String firstCovName, String secondCovName, int firstCovAxes, int secondCovAxes) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
               .replace("$firstCovAxes", String.valueOf(firstCovAxes))
               .replace("$secondCovAxes", String.valueOf(secondCovAxes)));
     }
+    
+    public IncompatibleAxesNumberException(String coverageName, int coverageAxes, int dimensionsIntervalsAxes) {
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE_SCALE_OR_EXTEND_EXPRESSION.replace("$coverageName", coverageName)
+              .replace("$coverageAxes", String.valueOf(coverageAxes))
+              .replace("$dimensionsIntervalsAxes", String.valueOf(dimensionsIntervalsAxes)));
+    }
 
-    public static final String ERROR_TEMPLATE = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) don't have the same number of axes.";
+    // e.g: coverage_1 + coverage_2
+    public static final String ERROR_TEMPLATE_BINARY_COVERAGE_EXPRESSION = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) don't have the same number of axes.";
+    // e.g: scale(coverage_1, {imageCrsdomain(coverage_2))
+    public static final String ERROR_TEMPLATE_SCALE_OR_EXTEND_EXPRESSION = "Coverage '$coverageName' ('$coverageAxes' axes) "
+                                                                         + "does not have the same number of axes as input scale/extend dimensions intervals ('$dimensionsIntervalsAxes' axes).";
 }

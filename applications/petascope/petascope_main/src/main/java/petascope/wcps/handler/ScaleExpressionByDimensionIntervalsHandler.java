@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.IrregularAxis;
-import petascope.wcps.metadata.model.RegularAxis;
+import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
@@ -62,18 +63,22 @@ public class ScaleExpressionByDimensionIntervalsHandler {
         // scale(coverageExpression, {domainIntervals})
         List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
         List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata, true);
-        // NOTE: this method will apply subsets on coverage's axes (e.g: scale(c, {Lat:"CRS:1"(0:100), Long:"CRS:1"(20:70)})
-        // Only gridbound of the translated axis is needed to add in the intervalList below.
-        // The coverage must keep the original axes in the coverage metadata as it does not mean coverage is translated to CRS:1.
-        List<Axis> originalAxes = new ArrayList();
-        for (Axis axis : metadata.getAxes()) {
-            if (axis instanceof RegularAxis) {
-                originalAxes.add(((RegularAxis)axis).clone());
-            } else {
-                originalAxes.add(((IrregularAxis)axis).clone());
-            }
+        
+        if (metadata.getAxes().size() != subsets.size()) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());
         }
 
+        List<Pair> geoBoundAxes = new ArrayList();
+        for (Axis axis : metadata.getAxes()) {
+            NumericTrimming numericTrimming = new NumericTrimming(axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit());
+            Pair<String, NumericTrimming> pair = new Pair(axis.getLabel(), numericTrimming);
+            geoBoundAxes.add(pair);
+        }
+
+        // NOTE: from WCPS 1.0 standard, C2 = scale(C1, {x(lo1:hi1), y(lo2:hi2),...}        
+        // for all a ∈ dimensionList(C2), c ∈ crsSet(C2, a):
+        //          imageCrsDomain(C2 , a ) = (lo:hi) - it means: ***axis's grid domain will be set*** to corresponding lo:hi!
+        //          domain(C2,a,c) = domain(C1,a,c) - it means: ***axis's geo domain will not change***!
         wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
@@ -81,8 +86,20 @@ public class ScaleExpressionByDimensionIntervalsHandler {
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                 .replace("$intervalList", domainIntervals);
 
-        // Revert translatedAxes by original Axes
-        metadata.setAxes(originalAxes);
+        // Revert the changed axes' geo bounds as before applying scale subsets.
+        // e.g: scale(c, {Lat:"CRS:1"(0:20), Long:"CRS:1"(0:20)} and before scale, 
+        // coverage has geo domains: Lat(-40, 40), Long(-30, 30), grid domains: Lat":CRS:1"(0:300), Long:"CRS:1"(0:200)
+        // After scale, the geo domains are kept and grid domain will be: Lat":CRS1:"(0:20), Long:"CRS:1"(0:20)
+        for (Axis axis : metadata.getAxes()) {
+            for (Pair<String, NumericTrimming> pair : geoBoundAxes) {
+                if (axis.getLabel().equals(pair.fst)) {
+                    axis.getGeoBounds().setLowerLimit(pair.snd.getLowerLimit());
+                    axis.getGeoBounds().setUpperLimit(pair.snd.getUpperLimit());
+                    
+                    this.wcpsCoverageMetadataService.updateGeoResolutionByGridBound(axis);
+                }
+            }
+        }
         
         return new WcpsResult(metadata, rasql);
     }

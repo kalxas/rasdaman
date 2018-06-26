@@ -21,14 +21,11 @@
  */
 package petascope.wcps.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
-import petascope.wcps.metadata.model.Axis;
-import petascope.wcps.metadata.model.IrregularAxis;
-import petascope.wcps.metadata.model.RegularAxis;
+import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
@@ -64,27 +61,19 @@ public class ExtendExpressionHandler {
         // extend(coverageExpression, {domainIntervals})
         List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
         List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata, true);
-        // NOTE: this method will apply subsets on coverage's axes (e.g: scale(c, {Lat:"CRS:1"(0:100), Long:"CRS:1"(20:70)})
-        // Only gridbound of the translated axis is needed to add in the intervalList below.
-        // The coverage must keep the original axes in the coverage metadata as it does not mean coverage is translated to CRS:1.
-        List<Axis> originalAxes = new ArrayList();
-        for (Axis axis : metadata.getAxes()) {
-            if (axis instanceof RegularAxis) {
-                originalAxes.add(((RegularAxis)axis).clone());
-            } else {
-                originalAxes.add(((IrregularAxis)axis).clone());
-            }
+        
+        if (metadata.getAxes().size() != subsets.size()) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());
         }
 
+        // NOTE: from WCPS 1.0 standard: In this sense the extendExpr is a generalization of the trimExpr; still the trimExpr should be
+        // used whenever the application needs to be sure that a proper subsetting has to take place.
         wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", domainIntervals);
-
-        // Revert translatedAxes by original Axes
-        metadata.setAxes(originalAxes);
+                               .replace("$intervalList", domainIntervals);
         
         return new WcpsResult(metadata, rasql);
     }

@@ -1,0 +1,1 @@
+for $c in (test_eobstest) return encode(extend( $c[t:"CRS:1"(1)],  {Lat(70:80), Long(70:80) }), "application/gml+xml", "nodata=0" )

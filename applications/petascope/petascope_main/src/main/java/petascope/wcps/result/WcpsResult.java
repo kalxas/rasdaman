@@ -30,17 +30,10 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class WcpsResult implements VisitorResult {
+public class WcpsResult extends VisitorResult {
 
     //the rasql string resulting from the evaluation
     private String rasql;
-    //the metadata resulting from the evaluation
-    private WcpsCoverageMetadata metadata;
-
-    private String mimeType;
-
-    public WcpsResult() {
-    }
 
     public WcpsResult(WcpsCoverageMetadata metadata, String rasql) {
         this.rasql = rasql;

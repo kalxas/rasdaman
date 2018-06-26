@@ -19,34 +19,22 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps.result;
+package petascope.wcps.exception.processing;
 
-import petascope.util.MIMEUtil;
-import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * Exception thrown when 2 coverages cannot be combined by binary coverage expression (e.g: coverage_1 + coverage_2)
+ * 
+ * @author <a href="b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WcpsMetadataResult extends VisitorResult {
-    
-    public WcpsMetadataResult(WcpsCoverageMetadata metadata, String result) {
-        this.metadata = metadata;
-        this.result = result;
+public class IncompatibleCoveragesException extends WCPSException {
+
+    public IncompatibleCoveragesException(String firstCovName, String secondCovName, String errorMessage) {
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$firstCov", firstCovName).replace("$secondCov", secondCovName)
+              .replace("$erroMessage", errorMessage));
     }
 
-    @Override
-    public String getMimeType() {
-        return this.mimeType;
-    }
-
-    // Normally mimeType is null as this WCPS query does not have "encoding()"
-    @Override
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-        if (this.mimeType == null) {
-            this.mimeType = MIMEUtil.MIME_XML;
-        }
-    }
-
+    public static final String ERROR_TEMPLATE = "Coverages '$firstCov' ('$firstCovAxes' axes) and '$secondCov' ('$secondCovAxes' axes) are not compatible. Reason: $erroMessage.";
 }

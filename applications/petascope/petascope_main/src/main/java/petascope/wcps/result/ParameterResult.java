@@ -29,7 +29,7 @@ package petascope.wcps.result;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
-public class ParameterResult implements VisitorResult {
+public class ParameterResult extends VisitorResult {
 
     @Override
     public void setMimeType(String mimeType) {

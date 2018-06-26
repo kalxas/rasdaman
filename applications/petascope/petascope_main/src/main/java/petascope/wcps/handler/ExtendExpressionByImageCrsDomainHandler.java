@@ -21,8 +21,19 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
+import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.NumericTrimming;
+import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -36,16 +47,41 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ExtendExpressionByDomainIntervalsHandler {
+public class ExtendExpressionByImageCrsDomainHandler {
+    
+    @Autowired
+    private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) {
+    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException {
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})
 
+        List<Subset> subsets = new ArrayList<>();
+        
+        List<Axis> axes = metadata.getSortedAxesByGridOrder();
+        // e.g: imageCrsdomain(c) returns 0:30,0:40,0:60
+        String[] values = dimensionIntervalList.split(",");
+        
+        if (axes.size() != values.length) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), axes.size(), values.length);
+        }
+        
+        for (int i = 0; i < axes.size(); i++) {
+            String lowerValue = values[i].split(":")[0];
+            String upperValue = values[i].split(":")[1];
+            NumericTrimming numericTrimming = new NumericTrimming(new BigDecimal(lowerValue), new BigDecimal(upperValue));
+            Subset subset = new Subset(numericTrimming, CrsUtil.GRID_CRS, axes.get(i).getLabel());
+            subsets.add(subset);
+        }
+        
+        // NOTE: from WCPS 1.0 standard: In this sense the extendExpr is a generalization of the trimExpr; still the trimExpr should be
+        // used whenever the application needs to be sure that a proper subsetting has to take place.
+        wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
+
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", dimensionIntervalList);
+                               .replace("$intervalList", dimensionIntervalList);
 
         return new WcpsResult(metadata, rasql);
     }

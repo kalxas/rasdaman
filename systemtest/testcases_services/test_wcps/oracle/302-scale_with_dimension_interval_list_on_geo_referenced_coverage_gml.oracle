@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage id="test_eobstest"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="Lat Long" srsDimension="2"
+            srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
+            <lowerCorner>25 40</lowerCorner>
+            <upperCorner>40 60</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <RectifiedGrid dimension="2" id="test_eobstest-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>0 0</low>
+                    <high>19 19</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>Lat Long</axisLabels>
+            <origin>
+                <Point id="test_eobstest-origin" srsName="/crs/EPSG/0/4326">
+                    <pos>39.625 40.5</pos>
+                </Point>
+            </origin>
+            <offsetVector srsName="/crs/EPSG/0/4326">-0.75 0</offsetVector>
+            <offsetVector srsName="/crs/EPSG/0/4326">0 1</offsetVector>
+        </RectifiedGrid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-29,-227,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-292,-489,-360,-823,-960,-720,-557,-627,-523,2,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-404,-499,-884,-1563,-1384,-666,-1011,-763,-702,214,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-1149,-1350,-1499,-1298,-1524,-680,-812,-652,-773,128,81,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-1533,-1804,-1443,-1741,-1433,-579,-1237,-161,-104,120,34,-5,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+2 +3">Linear</sequenceRule>
+            <startPoint>0 0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="tg">
+                <swe:Quantity >
+                    <swe:label>tg</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <bands>
+                    <tg>
+                        <units>Celsius</units>
+                        <long_name>mean temperature</long_name>
+                        <standard_name>air_temperature</standard_name>
+                        <scale_factor>0.01</scale_factor>
+                        <_FillValue>-9999</_FillValue>
+                    </tg>
+                </bands>
+                <Creator>This is a test creator file</Creator>
+                <Project>This is another test file</Project>
+                <Title>This is a test file</Title>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
+</gmlcov:RectifiedGridCoverage>
