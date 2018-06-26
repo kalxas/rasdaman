@@ -27,6 +27,8 @@ import xml.etree.ElementTree as XMLProcessor
 from util.log import log
 from util.url_util import validate_and_read_url
 
+import urllib
+
 
 class WCSTSubset:
     def __init__(self, axis, dimension_min, dimension_max=None):
@@ -337,7 +339,7 @@ class WCSTExecutor(WCSTBaseExecutor):
         :rtype str
         """
         request = self.prepare_request(request)
-        service_call = self.base_url + "?" + request.get_query_string()
+        service_call = self.base_url + "?" + urllib.pathname2url(request.get_query_string())
         if output:
             log.info(service_call)
         if mock:
