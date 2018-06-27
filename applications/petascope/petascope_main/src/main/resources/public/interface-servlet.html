@@ -34,10 +34,24 @@ rasdaman GmbH.
             height: 100%;
         }
     </style>
+    
+    <script>
+        function updateIframeURL() {
+            // e.g: "http://localhost:8080/wcs-conformance-testing/ows"
+            var url = window.location.href;
+            var lastIndex = url.lastIndexOf('/');
+            url = url.substr(0, lastIndex);          
+            document.getElementById('iframe').src = url  + "/wcs-client/index.html";
+        }
+        
+        window.onload = updateIframeURL;
+    </script>
 </head>
 <body>
 
-<iframe src="/rasdaman/wcs-client/index.html"></iframe>
+<!-- Load content from WSClient to this iframe -->
+<iframe id="iframe" src=""></iframe>
+
 </body>
 </html>
 
