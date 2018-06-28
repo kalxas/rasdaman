@@ -1,1 +1,1 @@
-for c in ( test_mean_summer_airtemp )return encode( {red: coverage greyImage over $first x(51:150),$second y(0:99) values (($first * ($first > 75) * ($first < 125)) + (($first > 124) * 250));green: 0;blue: 0; green:0}, "netcdf", "nodata=0")
+for c in ( test_mean_summer_airtemp )return encode( {red: coverage greyImage over $first x(51:52),$second y(0:1) values (($first * ($first > 75) * ($first < 125)) + (($first > 124) * 250));green: 0;blue: 0; green:0}, "netcdf", "nodata=0")

@@ -17,4 +17,14 @@
     </rsub:rangeSubset>
   </wcs:Extension>
   <wcs:CoverageId>test_rgb</wcs:CoverageId>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>i</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>j</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
 </wcs:GetCoverage>

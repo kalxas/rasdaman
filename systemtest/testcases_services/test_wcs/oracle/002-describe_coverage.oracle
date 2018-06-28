@@ -14,7 +14,7 @@
             <Envelope axisLabels="i j" srsDimension="2"
                 srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
                 <lowerCorner>0 0</lowerCorner>
-                <upperCorner>256 211</upperCorner>
+                <upperCorner>60 40</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_mr</wcs:CoverageId>
@@ -38,13 +38,13 @@
                 <limits>
                     <GridEnvelope>
                         <low>0 0</low>
-                        <high>255 210</high>
+                        <high>59 39</high>
                     </GridEnvelope>
                 </limits>
                 <axisLabels>i j</axisLabels>
                 <origin>
                     <Point id="test_mr-origin" srsName="/crs/OGC/0/Index2D">
-                        <pos>0.5 210.5</pos>
+                        <pos>0.5 39.5</pos>
                     </Point>
                 </origin>
                 <offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>

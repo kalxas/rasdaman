@@ -1,8 +1,8 @@
 {
- "oid": "74753",
- "baseType": "marray <char>",
+ "oid": "714241",
+ "baseType": "marray <char, 2>",
  "tileNo": "3",
- "totalSize": "54016",
+ "totalSize": "2400",
  "tiling": {
 	"tilingScheme": "aligned",
 	"tileSize": "4194304",

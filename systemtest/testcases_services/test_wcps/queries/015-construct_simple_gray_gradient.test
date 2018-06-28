@@ -2,7 +2,7 @@ for $c in ( test_rgb )
 return encode( 
         (unsigned char)
 	coverage greyImage 
-	over $first x(51:150), 
-             $second y(0:99) 
+	over $first x(50:51), 
+             $second y(0:1) 
 	values $first
 , "image/png", "nodata=0" )

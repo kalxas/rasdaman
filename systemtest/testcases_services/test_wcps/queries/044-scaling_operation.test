@@ -1,2 +1,2 @@
 for $c in (test_rgb)
-    return encode(scale($c, { i(1:100), j(1:100) }), "image/png", "nodata=0")
+    return encode(scale($c, { i(1:1), j(1:1) }), "image/png", "nodata=0")

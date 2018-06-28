@@ -1,1 +1,1 @@
-for $c in ( test_rgb ) return count( $c.1 = 0 )
+for $c in ( test_rgb ) return count( $c[i(0:1), j(0:1)].1 = 0 )

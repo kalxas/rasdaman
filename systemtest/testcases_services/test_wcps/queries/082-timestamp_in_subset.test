@@ -1,6 +1,6 @@
 for $c in (test_eobstest) return encode(
   ($c[
     t("1950-01-02"),
-    Lat(25:30),
-    Long(10:15)]),
+    Lat(25:26),
+    Long(40:41)]),
 "image/tiff", "nodata=0")

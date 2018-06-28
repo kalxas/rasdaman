@@ -1,1 +1,1 @@
-for c in ( test_eobstest ) return encode(avg(c[t:"CRS:1"(0), Lat(25), Long(30:60)]), "png")
+for c in ( test_eobstest ) return encode(avg(c[t:"CRS:1"(0), Lat(25), Long(40:41)]), "png")

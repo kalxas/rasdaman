@@ -13,8 +13,8 @@
         <boundedBy>
             <Envelope axisLabels="Lat Long unix" srsDimension="3"
                 srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;" uomLabels="degree degree d">
-                <lowerCorner>-90 -180 "2015-01-01T00:00:00.000Z"</lowerCorner>
-                <upperCorner>90 180 "2015-07-01T00:00:00.000Z"</upperCorner>
+                <lowerCorner>-85 -180 "2015-01-01T00:00:00.000Z"</lowerCorner>
+                <upperCorner>90 170 "2015-07-01T00:00:00.000Z"</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_AverageChloro</wcs:CoverageId>
@@ -32,18 +32,18 @@
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
-                        <high>119 239 5</high>
+                        <high>6 13 5</high>
                     </GridEnvelope>
                 </limits>
                 <axisLabels>Lat Long unix</axisLabels>
                 <gmlrgrid:origin>
                     <Point id="test_AverageChloro-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">
-                        <pos>89.25 -179.25 "2015-01-01T00:00:00.000Z"</pos>
+                        <pos>77.5 -167.5 "2015-01-01T00:00:00.000Z"</pos>
                     </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">-1.5 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">-25 0 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -51,7 +51,7 @@
                 </gmlrgrid:generalGridAxis>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 1.5 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;">0 25 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>

@@ -1,1 +1,1 @@
-username=rasadmin&password=rasadmin&query=SELECT (float)(20 / c[0,10]) FROM test_mr AS c
+username=rasadmin&password=rasadmin&query=SELECT (float)(20 / c[0,0]) FROM test_mr AS c

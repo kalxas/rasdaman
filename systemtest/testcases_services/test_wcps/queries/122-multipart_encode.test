@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp, test_mean_summer_airtemp_repeat), d in (test_mean_summer_airtemp, test_mean_summer_airtemp_repeat) return encode(c[Lat(-20:-10), Long(120:130)] + d[Lat(-20:-10), Long(120:130)], "tiff")
+for c in (test_mean_summer_airtemp, test_mean_summer_airtemp_repeat), d in (test_mean_summer_airtemp, test_mean_summer_airtemp_repeat) return encode(c[Lat(-20:-20), Long(120:120)] + d[Lat(-20:-20), Long(120:120)], "tiff")

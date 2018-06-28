@@ -16,7 +16,7 @@
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">0</tupleList>
+            <tupleList cs=" " ts=",">10</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>

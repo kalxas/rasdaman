@@ -1,1 +1,1 @@
-for c in (test_rgb) return encode( { testBLUE: c.blue - ((c.green + c.red) / 2)}, "netcdf")
+for c in (test_rgb) return encode( ({ testBLUE: c.blue - ((c.green + c.red) / 2)})[i(0:2), j(2:3)], "netcdf")

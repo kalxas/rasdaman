@@ -1,1 +1,1 @@
-for $c in (test_eobstest) return encode(extend( $c[t:"CRS:1"(1)],  { Long(-45:90),  Lat(5:80) }), "image/tiff", "nodata=0" )
+for $c in (test_eobstest) return encode(extend( $c[t:"CRS:1"(1)],  { Long(-45:-40),  Lat(75:80) }), "image/tiff", "nodata=0" )

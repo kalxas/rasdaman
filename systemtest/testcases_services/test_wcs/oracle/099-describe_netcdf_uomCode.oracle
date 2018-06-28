@@ -14,8 +14,8 @@
         <boundedBy>
             <Envelope axisLabels="ansi Lat Long" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-                <lowerCorner>"2003-01-01T01:00:00.001Z" 49.9972221114198388443 -89.9999998885801611557</lowerCorner>
-                <upperCorner>"2014-11-12T10:59:02.001Z" 49.9999998885801611557 -80.0000001114198388443</upperCorner>
+                <lowerCorner>"2003-01-01T01:00:00.001Z" 49.9972221114198388443 -88.9999998885801611557</lowerCorner>
+                <upperCorner>"2014-11-12T10:59:02.001Z" 49.9999998885801611557 -88.5999981114198388443</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_meris_lai_3d_data_bound_time_axis_false</wcs:CoverageId>
@@ -50,14 +50,14 @@
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
-                        <high>5 0 3599</high>
+                        <high>5 0 143</high>
                     </GridEnvelope>
                 </limits>
                 <axisLabels>ansi Lat Long</axisLabels>
                 <gmlrgrid:origin>
                     <Point
                         id="test_meris_lai_3d_data_bound_time_axis_false-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                        <pos>"2003-01-01T01:00:00.001Z" 49.998611 -89.998611</pos>
+                        <pos>"2003-01-01T01:00:00.001Z" 49.998611 -88.998611</pos>
                     </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>

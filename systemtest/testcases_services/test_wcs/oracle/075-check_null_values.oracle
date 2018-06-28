@@ -1,1 +1,67 @@
-<swe:nilValues> <swe:nilValue reason="">155</swe:nilValue> </swe:nilValues>
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+    
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="test_time3d"
+        xmlns="http://www.opengis.net/gml/3.2"
+         >
+        <boundedBy>
+            <Envelope axisLabels="Lat Long time" srsDimension="3"
+                srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;" uomLabels="degree degree d">
+                <lowerCorner>-39.34 147.2 "1949-12-31T12:00:00.000Z"</lowerCorner>
+                <upperCorner>-34.54 152 "1950-01-05T12:00:00.000Z"</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>test_time3d</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
+                <startPoint>0 0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <gmlcov:metadata/>
+        <domainSet>
+            <RectifiedGrid dimension="3" id="test_time3d-grid">
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0 0</low>
+                        <high>3 3 4</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>Lat Long time</axisLabels>
+                <origin>
+                    <Point id="test_time3d-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">
+                        <pos>-35.14 147.8 "1950-01-01T00:00:00.000Z"</pos>
+                    </Point>
+                </origin>
+                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">-1.2 0 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">0 1.2 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">0 0 1</offsetVector>
+            </RectifiedGrid>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Gray">
+                    <swe:Quantity >
+                        <swe:label>Gray</swe:label>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="">155</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
+                        <swe:uom code="10^0"/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

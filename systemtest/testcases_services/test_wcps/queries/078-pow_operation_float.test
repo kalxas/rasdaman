@@ -1,1 +1,1 @@
-for $c in (test_mr) return encode( pow( $c[i(100:110),j(100:110)], 1.85 ), "text/csv" )
+for $c in (test_mr) return encode( pow( $c[i(40:40),j(40:40)], 1.85 ), "text/csv" )

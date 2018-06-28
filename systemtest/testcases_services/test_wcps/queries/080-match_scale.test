@@ -1,2 +1,2 @@
 for $c in ( test_mr ), $c2 in (test_rgb)
-return avg( scale( $c, { imageCrsDomain($c2) } ) )
+return avg( scale( $c[i(0:1), j(0:1)], { imageCrsDomain($c2[i(0:1), j(0:1)]) } ) )

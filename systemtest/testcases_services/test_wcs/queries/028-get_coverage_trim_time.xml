@@ -12,7 +12,7 @@
   </wcs:DimensionSlice>
   <wcs:DimensionSlice>
     <wcs:Dimension>Long</wcs:Dimension>
-    <wcs:SlicePoint>30</wcs:SlicePoint>
+    <wcs:SlicePoint>40</wcs:SlicePoint>
   </wcs:DimensionSlice>
   <wcs:DimensionTrim>
     <wcs:Dimension>t</wcs:Dimension>

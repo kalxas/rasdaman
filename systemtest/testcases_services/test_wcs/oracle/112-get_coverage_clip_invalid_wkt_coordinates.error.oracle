@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>Coordinate value '100000000' is not valid. Reason 'Coordinate is not within axis: Long(111.975:156.375).'.</ows:ExceptionText>
+        <ows:ExceptionText>Coordinate value '100000000' is not valid. Reason 'Coordinate is not within axis: Long(111.975:155.975).'.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

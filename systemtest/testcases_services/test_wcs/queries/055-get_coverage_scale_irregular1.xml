@@ -13,5 +13,15 @@
       </scal:ScaleByFactor>
     </scal:Scaling>
   </wcs:Extension>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>E</wcs:Dimension>
+    <wcs:TrimLow>75042.7273594</wcs:TrimLow>
+    <wcs:TrimHigh>75042.7273594</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>N</wcs:Dimension>
+    <wcs:TrimLow>5094865.55794</wcs:TrimLow>
+    <wcs:TrimHigh>5094865.55794</wcs:TrimHigh>
+  </wcs:DimensionTrim>
   <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
 </wcs:GetCoverage>

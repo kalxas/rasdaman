@@ -1,6 +1,6 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
-coverageId=test_mean_summer_airtemp&
+coverageId=test_mr&
 format=application/gml+xml&
 mediaType=multipart/related

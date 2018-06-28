@@ -1,6 +1,6 @@
-for c in (test_mr) return encode(switch
+for c in (test_mr) return encode((switch
 	case c > 1000
 		return {red: 107; green:17; blue:68}
 	default
-		return {red: 150; green:103; blue:14}
+		return {red: 150; green:103; blue:14})[i(0:1), j(0:1)]
 , "png")

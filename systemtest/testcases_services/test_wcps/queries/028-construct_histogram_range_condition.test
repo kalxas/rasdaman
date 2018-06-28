@@ -1,8 +1,8 @@
 for $c in ( test_mr )
 return encode( coverage histogram
-        over     $n x(-20:20)
+        over     $n x(-10:10)
         values   condense +
-                        over     $px x(10:20),
-                                 $py y(10:20)
+                        over     $px x(10:10),
+                                 $py y(10:10)
                         using    (long) $c[ i($px), j($py) ]>$n - 1 and $c[ i($px), j($py) ]<=$n,
         "text/csv" )

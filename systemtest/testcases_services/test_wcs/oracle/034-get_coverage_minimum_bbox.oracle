@@ -9,22 +9,22 @@
     <boundedBy>
         <Envelope axisLabels="Long" srsDimension="1"
             srsName="/crs/EPSG/0/4326" uomLabels="degree">
-            <lowerCorner>70</lowerCorner>
-            <upperCorner>70.5</upperCorner>
+            <lowerCorner>40</lowerCorner>
+            <upperCorner>40.5</upperCorner>
         </Envelope>
     </boundedBy>
     <domainSet>
         <RectifiedGrid dimension="1" id="test_eobstest-grid">
             <limits>
                 <GridEnvelope>
-                    <low>221</low>
-                    <high>221</high>
+                    <low>0</low>
+                    <high>0</high>
                 </GridEnvelope>
             </limits>
             <axisLabels>Long</axisLabels>
             <origin>
                 <Point id="test_eobstest-origin" srsName="/crs/EPSG/0/4326">
-                    <pos>70.25</pos>
+                    <pos>40.25</pos>
                 </Point>
             </origin>
             <offsetVector srsName="/crs/EPSG/0/4326">0.5</offsetVector>
@@ -39,7 +39,7 @@
     <coverageFunction>
         <GridFunction>
             <sequenceRule axisOrder="+3">Linear</sequenceRule>
-            <startPoint>221</startPoint>
+            <startPoint>0</startPoint>
         </GridFunction>
     </coverageFunction>
     <gmlcov:rangeType>

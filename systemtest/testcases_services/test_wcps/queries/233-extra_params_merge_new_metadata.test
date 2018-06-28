@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp) return encode(c[Lat(-40:-15), Long(120:141)], "netcdf", "{ \"nodata\": [0], \"metadata\": { \"new_metadata\": \"This is a new added metadata\" }, \"formatParameters\": {\"INTERLEAVE\": \"BAND\"} }")
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-40:-35), Long(120:121)], "netcdf", "{ \"nodata\": [0], \"metadata\": { \"new_metadata\": \"This is a new added metadata\" }, \"formatParameters\": {\"INTERLEAVE\": \"BAND\"} }")

@@ -42,7 +42,7 @@ OUTPUT_FOLDER="output"
 mkdir "$OUTPUT_FOLDER"
 
 log "Test SECORE queries's response time..."
-for i in {1..200}
+for i in {1..100}
 do
    #echo "test $i time..."
    wget -q "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &

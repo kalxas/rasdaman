@@ -5,4 +5,4 @@ return encode(
   green: $c.green;
   blue:  $c.blue;
   alpha: $c.blue
-}, "image/png", "nodata=0")
+} [i(0:1), j(0:1)], "image/png", "nodata=0")

@@ -1,1 +1,1 @@
-for c in ( test_rgb )return encode( {red: (int)(c.red);green: 0;blue: 0}, "png")
+for c in ( test_rgb )return encode( {red: (int)(c.red);green: 0;blue: 0}[i(0:1), j(0:1)], "png")

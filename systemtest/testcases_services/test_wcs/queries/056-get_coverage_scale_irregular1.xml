@@ -18,4 +18,14 @@
     <wcs:Dimension>ansi</wcs:Dimension>
     <wcs:SlicePoint>"2008-01-01T02:01:20.000Z"</wcs:SlicePoint>
   </wcs:DimensionSlice>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>E</wcs:Dimension>
+    <wcs:TrimLow>75042.7273594</wcs:TrimLow>
+    <wcs:TrimHigh>75042.7273594</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>N</wcs:Dimension>
+    <wcs:TrimLow>5094865.55794</wcs:TrimLow>
+    <wcs:TrimHigh>5094865.55794</wcs:TrimHigh>
+  </wcs:DimensionTrim>
 </wcs:GetCoverage>

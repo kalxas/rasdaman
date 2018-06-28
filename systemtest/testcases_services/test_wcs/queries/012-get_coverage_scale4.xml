@@ -6,6 +6,16 @@
     xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
+  <wcs:DimensionTrim>
+    <wcs:Dimension>i</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>j</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
   <wcs:Extension>
     <scal:Scaling>
       <scal:ScaleToExtent>

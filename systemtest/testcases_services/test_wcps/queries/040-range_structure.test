@@ -1,5 +1,5 @@
 for $c in ( test_rgb ) return encode(
-    $c.red *
+    $c[i(0:1), j(0:1)].red *
      {
         red: (unsigned char) 1;
         green: (unsigned char) 2;

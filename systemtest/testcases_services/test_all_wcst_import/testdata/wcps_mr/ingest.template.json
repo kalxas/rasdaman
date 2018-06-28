@@ -10,7 +10,7 @@
   "input": {
     "coverage_id": "test_mr",
     "paths": [
-      "mr_1.png"
+      "*.png"
     ]
   },
   "recipe": {
@@ -35,12 +35,12 @@
           "axes": {
             "j": {
               "min": "0",
-              "max": "211",
+              "max": "40",
               "resolution": "-1"
             },
             "i": {
               "min": "0",
-              "max": "256",
+              "max": "60",
               "resolution": "${gdal:resolutionX}"
             }
           }

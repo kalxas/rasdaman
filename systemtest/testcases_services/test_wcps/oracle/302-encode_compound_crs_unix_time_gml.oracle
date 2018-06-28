@@ -10,7 +10,7 @@
         <Envelope axisLabels="unix E N" srsDimension="3"
             srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577" uomLabels="s metre metre">
             <lowerCorner>"2013-06-02T01:49:10.370Z" -1000025 -1000025</lowerCorner>
-            <upperCorner>"2013-12-18T01:54:47.450Z" -1000000 -1000000</upperCorner>
+            <upperCorner>"2013-06-25T01:55:14.090Z" -1000000 -1000000</upperCorner>
         </Envelope>
     </boundedBy>
     <domainSet>
@@ -20,7 +20,7 @@
             <limits>
                 <GridEnvelope>
                     <low>0 0 0</low>
-                    <high>14 0 0</high>
+                    <high>2 0 0</high>
                 </GridEnvelope>
             </limits>
             <axisLabels>unix E N</axisLabels>
@@ -32,7 +32,7 @@
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
                     <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">1 0 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients>"2013-06-02T01:49:10.370Z" "2013-06-09T01:55:19.370Z" "2013-06-25T01:55:14.090Z" "2013-07-11T01:55:17.410Z" "2013-07-27T01:55:17.040Z" "2013-08-12T01:55:18.530Z" "2013-08-21T01:49:09.240Z" "2013-08-28T01:55:20.980Z" "2013-09-13T01:55:17.630Z" "2013-09-29T01:55:10.350Z" "2013-10-15T01:55:09.870Z" "2013-10-31T01:55:01.630Z" "2013-12-02T01:54:55.460Z" "2013-12-11T01:48:42.550Z" "2013-12-18T01:54:47.450Z"</gmlrgrid:coefficients>
+                    <gmlrgrid:coefficients>"2013-06-02T01:49:10.370Z" "2013-06-09T01:55:19.370Z" "2013-06-25T01:55:14.090Z"</gmlrgrid:coefficients>
                     <gmlrgrid:gridAxesSpanned>unix</gmlrgrid:gridAxesSpanned>
                     <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                 </gmlrgrid:GeneralGridAxis>
@@ -58,7 +58,7 @@
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999,1466 1297 1404 1377 1390 1342 1202,425 292 183 110 71 46 33,327 220 127 65 51 34 25,-999 -999 -999 -999 -999 -999 -999,2379 2163 2179 2122 2208 2093 1773,380 263 164 90 67 41 28,627 493 337 271 253 194 154,6188 5798 5776 5668 5493 3326 3015,437 317 184 114 96 61 44,484 354 223 188 197 185 153,-999 -999 -999 -999 -999 -999 -999,651 519 367 332 342 296 275</tupleList>
+            <tupleList cs=" " ts=",">-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999,-999 -999 -999 -999 -999 -999 -999</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>

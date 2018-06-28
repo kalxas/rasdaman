@@ -33,7 +33,7 @@
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">-1880,-2189,-2080,-2179,-1741</tupleList>
+            <tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>

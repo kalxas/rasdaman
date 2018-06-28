@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.525), Long(111.975:111.975)], "csv")
+for c in (test_mean_summer_airtemp) return encode(c[Lat(-44.475), Long(111.975:111.975)], "csv")

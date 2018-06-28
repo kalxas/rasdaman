@@ -2,6 +2,6 @@ service=WCS&
 version=2.0.1&
 request=GetCoverage&
 coverageId=test_mean_summer_airtemp&
-subset=Lat(-44.525,-44.525)&
+subset=Lat(-44.475,-44.475)&
 subset=Long(111.975,111.975)&
 format=application/json

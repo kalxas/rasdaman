@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8" ?><ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0" service="WCPS" version="1.0.0">  <query>    <abstractSyntax>
-      for c in (test_mean_summer_airtemp) return count(c[Lat(-44.525:-20), Long(125:150)] > 15) +  count(c[Lat(-44.525:-20), Long(125:150)] < 25)</abstractSyntax>  </query></ProcessCoveragesRequest>
+      for c in (test_mean_summer_airtemp) return count(c[Lat(-43.525:-40), Long(125:130)] > 15) +  count(c[Lat(-43.525:-20), Long(125:150)] < 25)</abstractSyntax>  </query></ProcessCoveragesRequest>

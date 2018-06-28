@@ -1,4 +1,6 @@
 service=WCS&
 version=2.0.1&
 request=GetCoverage&
+subset=i(0,1)&
+subset=j(0,1)&
 coverageId=test_mr

@@ -1,1 +1,1 @@
-for c in (test_irr_cube_2) return encode(c, "netcdf")
+for c in (test_irr_cube_2) return encode(c[E:"CRS:1"(0:2), N:"CRS:1"(0:5)], "netcdf")

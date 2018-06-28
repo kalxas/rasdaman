@@ -1,1 +1,1 @@
-for $c in ( test_rgb ) return encode( ((unsigned char)255 - $c.red)[i(50:150),j(50:150)], "image/png", "nodata=0" )
+for $c in ( test_rgb ) return encode( ((unsigned char)255 - $c.red)[i(50:51),j(50:51)], "image/png", "nodata=0" )

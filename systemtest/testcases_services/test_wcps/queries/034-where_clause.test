@@ -1,2 +1,2 @@
 for $c in (test_mr)where avg($c)>30 
-return encode ($c, "image/png", "nodata=0")
+return encode ($c[i(0:1), j(0:1)], "image/png", "nodata=0")

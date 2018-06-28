@@ -1,5 +1,5 @@
 for c in (test_eobstest)
 return encode(
-  scale(         c[t("1950-01-01"), Lat(43:44), Long(24:24)],
- { imageCrsDomain(c[t("1950-01-01"), Lat(43:44), Long(24:24)]) } ),
+  scale(         c[t("1950-01-01"), Lat(33:34), Long(43:44)],
+ { imageCrsDomain(c[t("1950-01-01"), Lat(33:34), Long(43:44)]) } ),
 "csv")

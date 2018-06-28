@@ -1,1 +1,1 @@
-for c in ( test_eobstest ) return encode( c[ Long(60.0:69), Lat(30.4:50.5),  t("1950-01-03T13:05:00":"1950-01-05T13:05:00") ], "csv" )
+for c in ( test_eobstest ) return encode( c[ Long(40.0:40.9), Lat(30.4:30.5),  t("1950-01-03T13:05:00":"1950-01-05T13:05:00") ], "csv" )

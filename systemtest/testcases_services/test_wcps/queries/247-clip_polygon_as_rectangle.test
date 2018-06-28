@@ -1,1 +1,1 @@
-for c in (test_rgb) return encode( clip(c, POLYGON((0 0, 390 0, 390 200, 0 200)) ), "png")
+for c in (test_rgb) return encode( clip(c, POLYGON((0 0, 90 0, 90 20, 0 20)) ), "png")

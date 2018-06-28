@@ -69,12 +69,12 @@
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
                     <westBoundLongitude>111.975</westBoundLongitude>
-                    <eastBoundLongitude>156.375</eastBoundLongitude>
-                    <southBoundLatitude>-44.575</southBoundLatitude>
+                    <eastBoundLongitude>155.975</eastBoundLongitude>
+                    <southBoundLatitude>-44.975</southBoundLatitude>
                     <northBoundLatitude>-8.975</northBoundLatitude>
                 </EX_GeographicBoundingBox>
                 <BoundingBox CRS="EPSG:4326" maxx="-8.975"
-                    maxy="156.375" minx="-44.575" miny="111.975"/>
+                    maxy="155.975" minx="-44.975" miny="111.975"/>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
@@ -84,12 +84,12 @@
                 <CRS>EPSG:3857</CRS>
                 <EX_GeographicBoundingBox>
                     <westBoundLongitude>111.9750000002083112349282600916922092437744140625</westBoundLongitude>
-                    <eastBoundLongitude>156.3084488206390005871071480214595794677734375</eastBoundLongitude>
-                    <southBoundLatitude>-44.61151132147286801910013309679925441741943359375</southBoundLatitude>
+                    <eastBoundLongitude>155.57103192432526839183992706239223480224609375</eastBoundLongitude>
+                    <southBoundLatitude>-44.9875109380961220040262560360133647918701171875</southBoundLatitude>
                     <northBoundLatitude>-8.975000000022962609591559157706797122955322265625</northBoundLatitude>
                 </EX_GeographicBoundingBox>
-                <BoundingBox CRS="EPSG:3857" maxx="17400176.9294"
-                    maxy="-1003203.48247" minx="12464999.9816" miny="-5560567.84096"/>
+                <BoundingBox CRS="EPSG:3857" maxx="17318088.056"
+                    maxy="-1003203.48247" minx="12464999.9816" miny="-5619555.55324"/>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
@@ -98,15 +98,13 @@
                 <Abstract/>
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
-                    <westBoundLongitude>24.9609375</westBoundLongitude>
-                    <eastBoundLongitude>34.9453125</eastBoundLongitude>
-                    <southBoundLatitude>29.94142595070422535211267606</southBoundLatitude>
-                    <northBoundLatitude>40.06247304929577464788732394</northBoundLatitude>
+                    <westBoundLongitude>29.6015625</westBoundLongitude>
+                    <eastBoundLongitude>29.8828125</eastBoundLongitude>
+                    <southBoundLatitude>34.4396675</southBoundLatitude>
+                    <northBoundLatitude>34.7208095</northBoundLatitude>
                 </EX_GeographicBoundingBox>
-                <BoundingBox CRS="EPSG:4326"
-                    maxx="40.06247304929577464788732394"
-                    maxy="34.9453125"
-                    minx="29.94142595070422535211267606" miny="24.9609375"/>
+                <BoundingBox CRS="EPSG:4326" maxx="34.7208095"
+                    maxy="29.8828125" minx="34.4396675" miny="29.6015625"/>
                 <Dimension name="time">"2017-01-10T00:00:00.000Z","2017-02-10T00:00:00.000Z","2017-06-20T00:00:00.000Z","2017-09-18T00:00:00.000Z","2017-11-18T00:00:00.000Z","2017-12-15T00:00:00.000Z"</Dimension>
                 <Dimension name="forecast">0,3,5,8,15,22</Dimension>
             </Layer>
@@ -133,12 +131,12 @@
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
                     <westBoundLongitude>-180</westBoundLongitude>
-                    <eastBoundLongitude>180</eastBoundLongitude>
-                    <southBoundLatitude>-90</southBoundLatitude>
+                    <eastBoundLongitude>170</eastBoundLongitude>
+                    <southBoundLatitude>-85</southBoundLatitude>
                     <northBoundLatitude>90</northBoundLatitude>
                 </EX_GeographicBoundingBox>
-                <BoundingBox CRS="EPSG:4326" maxx="90" maxy="180"
-                    minx="-90" miny="-180"/>
+                <BoundingBox CRS="EPSG:4326" maxx="90" maxy="170"
+                    minx="-85" miny="-180"/>
                 <Dimension name="time">"2015-01-01T00:00:00.000Z","2015-02-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-04-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-07-01T00:00:00.000Z"</Dimension>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
@@ -165,12 +163,12 @@
                 <CRS>EPSG:4326</CRS>
                 <EX_GeographicBoundingBox>
                     <westBoundLongitude>111.975</westBoundLongitude>
-                    <eastBoundLongitude>156.375</eastBoundLongitude>
-                    <southBoundLatitude>-44.575</southBoundLatitude>
+                    <eastBoundLongitude>155.975</eastBoundLongitude>
+                    <southBoundLatitude>-44.975</southBoundLatitude>
                     <northBoundLatitude>-8.975</northBoundLatitude>
                 </EX_GeographicBoundingBox>
                 <BoundingBox CRS="EPSG:4326" maxx="-8.975"
-                    maxy="156.375" minx="-44.575" miny="111.975"/>
+                    maxy="155.975" minx="-44.975" miny="111.975"/>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">

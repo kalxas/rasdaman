@@ -10,7 +10,7 @@
   "input": {
     "coverage_id": "test_mr-1-2-3",
     "paths": [
-      "mr_1.png"
+      "*.png"
     ]
   },
   "recipe": {

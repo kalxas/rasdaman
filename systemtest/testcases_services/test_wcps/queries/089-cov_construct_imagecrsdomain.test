@@ -1,7 +1,7 @@
 for $c in (test_eobstest)
 return encode(
   (coverage newcov
-  over $px x(imageCrsDomain($c[Lat(25:35)], Lat)),
+  over $px x(imageCrsDomain($c[Lat(25:26)], Lat)),
        $pt t(imageCrsDomain($c, t))
   values avg($c[Lat($px),t($pt)])
   )

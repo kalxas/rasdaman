@@ -1,1 +1,1 @@
-for c in (test_rgb) return encode( { redTest1: (int)( c.blue - ((c.green + c.blue) / 2)) } * { redTest2: (int)( c.blue - ((c.green + c.blue) / 2)) } - ({ redTest3: (int)( c.blue - ((c.green + c.blue) / 2)) } + { redTest4: (int)( c.blue - ((c.green + c.blue) / 2)) }), "netcdf")
+for c in (test_rgb) return encode( ({ redTest1: (int)( c.blue - ((c.green + c.blue) / 2)) } * { redTest2: (int)( c.blue - ((c.green + c.blue) / 2)) } - ({ redTest3: (int)( c.blue - ((c.green + c.blue) / 2)) } + { redTest4: (int)( c.blue - ((c.green + c.blue) / 2)) })) [i(0:2), j(2:3)], "netcdf")

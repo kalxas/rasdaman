@@ -6,4 +6,4 @@ subset=E,http://www.opengis.net/def/crs/EPSG/0/32610(543400,544100)&
 subset=N,http://www.opengis.net/def/crs/EPSG/0/32610(4175600,4176100)&
 format=image/tiff&
 outputcrs=http://www.opengis.net/def/crs/EPSG/0/32610&
-SCALESIZE=E(950),N(833)
+SCALESIZE=E(10),N(10)

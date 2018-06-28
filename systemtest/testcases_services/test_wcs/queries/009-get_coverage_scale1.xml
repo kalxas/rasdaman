@@ -13,5 +13,15 @@
       </scal:ScaleByFactor>
     </scal:Scaling>
   </wcs:Extension>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>i</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>j</wcs:Dimension>
+    <wcs:TrimLow>10</wcs:TrimLow>
+    <wcs:TrimHigh>11</wcs:TrimHigh>
+  </wcs:DimensionTrim>
   <wcs:CoverageId>test_mr</wcs:CoverageId>
 </wcs:GetCoverage>

@@ -3,5 +3,5 @@ version=2.0.1&
 request=GetCoverage&
 coverageId=test_eobstest&
 subset=Lat(31)&
-subset=Long(30)&
+subset=Long(40)&
 subset=t("1950-01-01","1950-01-05")

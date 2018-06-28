@@ -8,7 +8,7 @@
   <wcs:CoverageId>test_eobstest</wcs:CoverageId>
   <wcs:DimensionSlice>
     <wcs:Dimension>Long</wcs:Dimension>
-    <wcs:SlicePoint>30</wcs:SlicePoint>
+    <wcs:SlicePoint>40</wcs:SlicePoint>
   </wcs:DimensionSlice>
   <wcs:DimensionSlice>
     <wcs:Dimension>Lat</wcs:Dimension>

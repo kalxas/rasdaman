@@ -2,5 +2,5 @@ for $c in (test_eobstest)
 return encode(
   coverage averagesOverTime
   over $T t(0:2)
-  values ( avg($c[t($T:$T + 1)] ) ),
+  values ( avg($c[t($T:$T + 1), Lat:"CRS:1"(0:1), Long:"CRS:1"(0:2)] ) ),
 "text/csv")

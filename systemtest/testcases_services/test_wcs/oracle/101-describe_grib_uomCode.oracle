@@ -34,7 +34,7 @@
     "MARS type": "MARS type",
     "Grib1_Parameter_id": "Parameter id",
     "GRIB_table_version": "Mars Param",
-    "Originating_or_generating_CENTER": "European CENTER for Medium-Range Weather Forecasts"
+    "Originating_or_generating_Center": "European Centre for Medium-Range Weather Forecasts"
 }
                 </covMetadata>
             </gmlcov:Extension>

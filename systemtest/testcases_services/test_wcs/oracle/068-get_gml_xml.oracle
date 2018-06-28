@@ -17,8 +17,8 @@
         <RectifiedGrid dimension="2" id="test_mr-grid">
             <limits>
                 <GridEnvelope>
-                    <low>10 191</low>
-                    <high>19 200</high>
+                    <low>10 20</low>
+                    <high>19 29</high>
                 </GridEnvelope>
             </limits>
             <axisLabels>i j</axisLabels>
@@ -34,13 +34,13 @@
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">60,65,73,70,44,0,16,49,51,25,61,63,67,66,53,20,0,34,54,39,59,59,64,70,67,45,5,14,43,40,61,61,61,65,69,57,20,2,38,46,60,65,59,57,63,63,41,4,23,45,49,61,61,60,65,69,53,12,9,43,33,60,69,64,59,61,56,28,0,33,0,29,58,68,61,59,60,44,5,23,0,10,39,59,65,64,63,49,12,14,0,0,16,42,58,61,57,47,20,0</tupleList>
+            <tupleList cs=" " ts=",">13,14,2,0,0,0,0,0,0,0,19,22,8,3,0,0,0,0,0,0,20,19,10,2,0,0,0,0,6,0,23,19,8,0,0,0,0,0,10,3,15,16,4,0,0,0,0,0,13,0,10,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,48,0,0,0,0,0,0,0,35,52,10</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>
         <GridFunction>
             <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-            <startPoint>10 191</startPoint>
+            <startPoint>10 20</startPoint>
         </GridFunction>
     </coverageFunction>
     <gmlcov:rangeType>

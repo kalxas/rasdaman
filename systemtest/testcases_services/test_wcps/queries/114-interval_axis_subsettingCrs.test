@@ -1,1 +1,1 @@
-for c in (test_mr) return encode( c[i:"CRS:1"(0:30), j:"CRS:1"(25:40) ] , "csv")
+for c in (test_mr) return encode( c[i:"CRS:1"(0:3), j:"CRS:1"(5:10) ] , "csv")

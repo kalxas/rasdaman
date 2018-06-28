@@ -1,1 +1,1 @@
-for c in (test_mean_summer_airtemp)  return encode( c, "tiff", "nodata=0")
+for c in (test_mean_summer_airtemp)  return encode( c[Lat:"CRS:1"(0:1), Long:"CRS:1"(0:2)], "tiff", "nodata=0")

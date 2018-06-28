@@ -13,8 +13,8 @@
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
     <wcs:Dimension>Long</wcs:Dimension>
-    <wcs:TrimLow>30</wcs:TrimLow>
-    <wcs:TrimHigh>35</wcs:TrimHigh>
+    <wcs:TrimLow>40</wcs:TrimLow>
+    <wcs:TrimHigh>45</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionSlice>
     <wcs:Dimension>t</wcs:Dimension>

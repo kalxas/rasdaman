@@ -1,1 +1,1 @@
-for c in (test_eobstest) return encode(c, "netcdf")
+for c in (test_eobstest) return encode(c[t:"CRS:1"(0:2), Lat:"CRS:1"(0:2), Long:"CRS:1"(0:5)], "netcdf")

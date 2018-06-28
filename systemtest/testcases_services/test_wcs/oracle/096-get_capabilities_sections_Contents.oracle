@@ -55,6 +55,8 @@
     <ows:OperationsMetadata  >
         <ows:Operation name="GetCapabilities">
             <ows:DCP>
+                <ows:HTTP>
+                </ows:HTTP>
             </ows:DCP>
             <ows:Constraint name="PostEncoding">
                 <ows:AllowedValues>
@@ -65,6 +67,8 @@
         </ows:Operation>
         <ows:Operation name="DescribeCoverage">
             <ows:DCP>
+                <ows:HTTP>
+                </ows:HTTP>
             </ows:DCP>
             <ows:Constraint name="PostEncoding">
                 <ows:AllowedValues>
@@ -75,6 +79,8 @@
         </ows:Operation>
         <ows:Operation name="GetCoverage">
             <ows:DCP>
+                <ows:HTTP>
+                </ows:HTTP>
             </ows:DCP>
             <ows:Constraint name="PostEncoding">
                 <ows:AllowedValues>
@@ -91,48 +97,48 @@
         </ows:Constraint>
     </ows:OperationsMetadata>
     <wcs:ServiceMetadata >
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
-        %formatSupported%
+        <wcs:formatSupported>application/gml+xml</wcs:formatSupported>
+        <wcs:formatSupported>image/jpeg</wcs:formatSupported>
+        <wcs:formatSupported>image/png</wcs:formatSupported>
+        <wcs:formatSupported>image/tiff</wcs:formatSupported>
+        <wcs:formatSupported>image/bmp</wcs:formatSupported>
+        <wcs:formatSupported>image/jp2</wcs:formatSupported>
+        <wcs:formatSupported>application/netcdf</wcs:formatSupported>
+        <wcs:formatSupported>text/csv</wcs:formatSupported>
+        <wcs:formatSupported>application/json</wcs:formatSupported>
+        <wcs:formatSupported>application/dem</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-dted</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-ehdr</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-elas</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-envi</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-ers</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-fit</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-fits</wcs:formatSupported>
+        <wcs:formatSupported>image/gif</wcs:formatSupported>
+        <wcs:formatSupported>application/x-netcdf-gmt</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-gs7bg</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-gsag</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-gsbg</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-gta</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-hf2</wcs:formatSupported>
+        <wcs:formatSupported>application/x-erdas-hfa</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-ida</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-ingr</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-isis2</wcs:formatSupported>
+        <wcs:formatSupported>application/x-erdas-lan</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-mff2</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-nitf</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-paux</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-pcidsk</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-pcraster</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-pdf</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-pnm</wcs:formatSupported>
+        <wcs:formatSupported>text/x-r</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-rmf</wcs:formatSupported>
+        <wcs:formatSupported>image/x-sgi</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-vrt</wcs:formatSupported>
+        <wcs:formatSupported>image/xpm</wcs:formatSupported>
+        <wcs:formatSupported>application/x-ogc-zmap</wcs:formatSupported>
         <wcs:Extension>
             <int:InterpolationMetadata >
                 <int:InterpolationSupported>/interpolation/OGC/1.0/nearest-neighbor</int:InterpolationSupported>
@@ -140,5 +146,495 @@
         </wcs:Extension>
     </wcs:ServiceMetadata>
     <wcs:Contents >
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_pixel_size_error</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.975 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 155.975</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">DaysPerMonth</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">GridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index1D"
+                dimensions="1" >
+                <ows:LowerCorner>0</ows:LowerCorner>
+                <ows:UpperCorner>11</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_irr_cube_2</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>75042.7273594 5094865.55794 "2008-01-01T02:01:20+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>705042.727359 5454865.55794 148661.00206018518518518518518518518518518518518518518519</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_irr_cube_1</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index3D"
+                dimensions="3" >
+                <ows:LowerCorner>-0.50 -0.50 0.0</ows:LowerCorner>
+                <ows:UpperCorner>9.50 9.50 8.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_rgb</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index2D"
+                dimensions="2" >
+                <ows:LowerCorner>0.0 0.0</ows:LowerCorner>
+                <ows:UpperCorner>400.0 344.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_4326_new</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.975 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 155.975</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_landsat8</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/32631"
+                dimensions="2" >
+                <ows:LowerCorner>377955.0 4902885.0</ows:LowerCorner>
+                <ows:UpperCorner>389955.0 4917285.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_scientific_notation_time</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/4326"
+                dimensions="3" >
+                <ows:LowerCorner>"2008-11-05T09:00:00+00:00" 52.28385135470941883815 5.11778985470941883815</ows:LowerCorner>
+                <ows:UpperCorner>"2008-11-10T09:00:00+00:00" 52.28532464529058116185 5.11926314529058116185</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_4326</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.975 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 155.975</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_fractional_time_ansidate</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>75042.7273594 5144865.55794 "1601-01-01T01:00:00.001000+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>710542.727359 5454865.55794 1630980.01662179398148148148148148148148148148148148148149</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_sf</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/32610"
+                dimensions="2" >
+                <ows:LowerCorner>538458.899317 4102556.55917</ows:LowerCorner>
+                <ows:UpperCorner>556062.031026 4203774.5665</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_4d_ecmwf_fire_netcdf</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;"
+                dimensions="4" >
+                <ows:LowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00+00:00" 0</ows:LowerCorner>
+                <ows:UpperCorner>34.7208095 29.8828125 152290 22</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_nilvalue_interval</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>499980.0 4200040.0 "2016-03-25T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>699980.0 4400040.0 "2016-03-25T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_mean_summer_airtemp</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.475 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 156.475</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_float_4d</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">GridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index4D"
+                dimensions="4" >
+                <ows:LowerCorner>0 0 0 -20</ows:LowerCorner>
+                <ows:UpperCorner>0 0 39 19</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_ecmwf_fire_4d</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;"
+                dimensions="4" >
+                <ows:LowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00+00:00" 0</ows:LowerCorner>
+                <ows:UpperCorner>34.7208095 29.8828125 152290 22</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">trackline</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">GridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index1D?axis-label='x'"
+                dimensions="1" >
+                <ows:LowerCorner>0</ows:LowerCorner>
+                <ows:UpperCorner>322</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wcps_grid_origin_negative_y_axis</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32631&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>300000.0 4790040.000 "2017-11-22T10:53:41+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>610000.000 5300040.0 "2017-11-22T10:53:41+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_aggregated_ansidate_netcdf</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/3577&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>75042.7273594 5434865.5579399997 "2008-01-01T02:01:19.999998+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>95042.7273594 5454865.5579399997 "2008-01-08T00:02:58+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_mean_summer_airtemp_repeat</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.475 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 156.475</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_mr</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index2D"
+                dimensions="2" >
+                <ows:LowerCorner>0 0</ows:LowerCorner>
+                <ows:UpperCorner>60 40</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_nullvalues_no_update_map_mosaic</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-40.0 -90.0</ows:LowerCorner>
+                <ows:UpperCorner>90.0 90.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_meris_lai_3d_data_bound_time_axis_false</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326"
+                dimensions="3" >
+                <ows:LowerCorner>"2003-01-01T01:00:00.001000+00:00" 49.99722211141983884430 -88.99999988858016115570</ows:LowerCorner>
+                <ows:UpperCorner>151161.45766204861111111111111111111111111111111111111112 49.99999988858016115570 -88.59999811141983884430</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_AverageChloro</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;"
+                dimensions="3" >
+                <ows:LowerCorner>-85.0 -180.0 "2015-01-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>90.0 170.0 151392</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_double_1d</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">GridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index1D"
+                dimensions="1" >
+                <ows:LowerCorner>0</ows:LowerCorner>
+                <ows:UpperCorner>21</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">mean_summer_airtemp</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-44.525 111.975</ows:LowerCorner>
+                <ows:UpperCorner>-8.975 156.275</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_irregular_time_nc</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577"
+                dimensions="3" >
+                <ows:LowerCorner>"2013-06-02T01:49:10.370000+00:00" -1000025.00 -1000025.00</ows:LowerCorner>
+                <ows:UpperCorner>"2013-12-18T01:54:47.450000+00:00" -1000000.00 -1000000.00</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_3d_time_series_regular</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>-90.0 -180.0 150450.83820023147981481481481481481481481481481481481482</ows:LowerCorner>
+                <ows:UpperCorner>90.0 180.0 150458.86611689815981559200233142481481481481481481481482</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">ecmwf_grib_temperature_isobaric</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;reftime&quot;&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;3=/crs/EPSG/0/4326"
+                dimensions="4" >
+                <ows:LowerCorner>"2015-01-01T00:00:00+00:00" 500 19.75 9.75</ows:LowerCorner>
+                <ows:UpperCorner>"2015-01-31T18:00:00+00:00" 1000 20.75 10.75</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_eobstest</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;"
+                dimensions="3" >
+                <ows:LowerCorner>25.00 40.00 "1949-12-31T12:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>40.00 60.00 "1950-01-06T12:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_time3d</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;"
+                dimensions="3" >
+                <ows:LowerCorner>-39.34 147.2 127469.50</ows:LowerCorner>
+                <ows:UpperCorner>-34.54 152.0 127474.50</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_float_fractional_time_ansidate</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326"
+                dimensions="3" >
+                <ows:LowerCorner>"1970-01-01T00:00:01.041667+00:00" 5144865.55794 75042.7273594</ows:LowerCorner>
+                <ows:UpperCorner>134776.72057965277777777777777777777777777777777777777778 5454865.55794 710542.727359</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_3857</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/3857"
+                dimensions="2" >
+                <ows:LowerCorner>12464999.9816 -5619555.55324</ows:LowerCorner>
+                <ows:UpperCorner>17318088.056 -1003203.48247</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wms_3d_time_series_irregular</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;"
+                dimensions="3" >
+                <ows:LowerCorner>-85.0 -180.0 "2015-01-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>90.0 170.0 151392</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_world_temp</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-90.0 -180.0</ows:LowerCorner>
+                <ows:UpperCorner>90.0 180.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_float_fractional_time_unixtime</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/4326"
+                dimensions="3" >
+                <ows:LowerCorner>"2013-06-02T01:49:10.372000+00:00" 5144865.55794 75042.7273594</ows:LowerCorner>
+                <ows:UpperCorner>1386726422 5454865.55794 710542.727359</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_axes_metadata_mixing_netcdf</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>29.99999869565217391304347826 20.00000469565217391304347826 "2000-07-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>30.99999730434782608695652174 21.00000330434782608695652174 "2000-07-01T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_ampersand_in_wcs_metadata</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>29.99999869565217391304347826 20.00000469565217391304347826 "2000-07-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>30.99999730434782608695652174 21.00000330434782608695652174 "2000-07-01T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wcps_grid_origin_negative_x_axis</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32631&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>300000.0 4790040.000 "2017-11-22T10:53:41+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>610000.000 5300040.0 "2017-11-22T10:53:41+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_rgb_nodata_band_data_xml</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index2D"
+                dimensions="2" >
+                <ows:LowerCorner>0.0 0.0</ows:LowerCorner>
+                <ows:UpperCorner>100.0 100.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_pixel_size_10m</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/32630"
+                dimensions="2" >
+                <ows:LowerCorner>580000.0 4339000.0</ows:LowerCorner>
+                <ows:UpperCorner>580100.0 4341000.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_rgb_nodata</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/OGC/0/Index2D"
+                dimensions="2" >
+                <ows:LowerCorner>0.0 0.0</ows:LowerCorner>
+                <ows:UpperCorner>100.0 100.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_CCI_V2_monthly_chlor_a</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>29.99999869565217391304347826 20.00000469565217391304347826 "2000-07-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>30.99999730434782608695652174 21.00000330434782608695652174 "2000-07-01T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_global_bands_metadata_auto_netcdf</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>29.99999869565217391304347826 20.00000469565217391304347826 "2000-07-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>30.99999730434782608695652174 21.00000330434782608695652174 "2000-07-01T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_fractional_time_unixtime</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/UnixTime"
+                dimensions="3" >
+                <ows:LowerCorner>75042.7273594 5144865.55794 "1601-01-01T01:00:00.001000+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>710542.727359 5454865.55794 129272113436.123</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_scale_levels</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs/EPSG/0/4326"
+                dimensions="2" >
+                <ows:LowerCorner>-40.0 -40.0</ows:LowerCorner>
+                <ows:UpperCorner>40.0 40.0</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_wcs_extract</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">RectifiedGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;"
+                dimensions="3" >
+                <ows:LowerCorner>-39.34 147.2 "1949-12-31T12:00:00.000Z"</ows:LowerCorner>
+                <ows:UpperCorner>-34.54 152 "1950-01-05T12:00:00.000Z"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_time_irregular_coefficients_subset</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>75042.7273594 5054865.55794 "2016-01-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>675042.727359 5454865.55794 151580.00020833333333333333333333333333333333333333333334</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
+        <wcs:CoverageSummary>
+            <CoverageId xmlns="http://www.opengis.net/wcs/2.0">test_pml_wcps_indices_translate_accuracy</CoverageId>
+            <CoverageSubtype xmlns="http://www.opengis.net/wcs/2.0">ReferenceableGridCoverage</CoverageSubtype>
+            <ows:BoundingBox
+                crs="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate"
+                dimensions="3" >
+                <ows:LowerCorner>19.99999867226890756302521008 25.00000466386554621848739496 "2000-03-01T00:00:00+00:00"</ows:LowerCorner>
+                <ows:UpperCorner>24.99999732773109243697478992 30.00000533613445378151260504 "2000-03-01T00:00:00+00:00"</ows:UpperCorner>
+            </ows:BoundingBox>
+        </wcs:CoverageSummary>
     </wcs:Contents>
 </wcs:Capabilities>

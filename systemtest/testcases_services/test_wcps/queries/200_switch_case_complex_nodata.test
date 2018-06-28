@@ -1,24 +1,24 @@
 for c in ( test_rgb_nodata )return encode({
 	red: ( (unsigned char) (
 		coverage greyImage
-		over $x1 x(0:100),
-		     $y1 y(0:99)
+		over $x1 x(0:10),
+		     $y1 y(0:9)
                 values
                      switch case c.red[ i($x1), j($y1)] > 50
                             return (unsigned char) (c.green[ i($x1), j($y1)] * 3)
                             default return (unsigned char) (c.blue[ i($x1), j($y1)] * 5) ) );
         green: ( (unsigned char) (
                 coverage greyImage
-                over $x2 x(0:100),
-                     $y2 y(0:99)
+                over $x2 x(0:10),
+                     $y2 y(0:9)
                 values
                      switch case c.green[ i($x2), j($y2)] > 20
                             return (unsigned char) (c.blue[ i($x2), j($y2)] * 6)
                             default return (unsigned char) (c.red[ i($x2), j($y2)] * 10) ) );
         blue: ( (unsigned char) (
                 coverage greyImage
-                over $x3 x(0:100),
-                     $y3 y(0:99)
+                over $x3 x(0:10),
+                     $y3 y(0:9)
                 values
                      switch case c.blue[ i($x3), j($y3)] > 30
                            return (unsigned char) (c.red[ i($x3), j($y3)] * 6)

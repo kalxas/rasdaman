@@ -1,1 +1,1 @@
-for c in (test_rgb_nodata_band_data_xml) return encode(c, "netcdf")
+for c in (test_rgb_nodata_band_data_xml) return encode(c[i(0:2), j(0:3)], "netcdf")

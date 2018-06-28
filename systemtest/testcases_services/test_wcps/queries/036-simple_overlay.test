@@ -1,1 +1,1 @@
-for $c in (test_rgb) return encode($c[i(0:100), j(0:100) ] overlay (unsigned char)($c[i(0:100), j(0:100) ] * 3), "image/png", "nodata=0")
+for $c in (test_rgb) return encode($c[i(0:10), j(0:10) ] overlay (unsigned char)($c[i(0:10), j(0:10) ] * 3), "image/png", "nodata=0")
