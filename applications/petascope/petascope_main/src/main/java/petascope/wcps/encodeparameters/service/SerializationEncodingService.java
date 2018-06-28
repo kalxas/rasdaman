@@ -130,8 +130,7 @@ public class SerializationEncodingService {
         try {
             jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
         } catch (IOException ex) {
-            log.error("Could not deserialize extra parameters in JSON format", ex);
-            throw new DeserializationExtraParamsInJsonExcception();
+            throw new DeserializationExtraParamsInJsonExcception(ex);
         }
 
         // update each range of coverage with value from passing nodata_values

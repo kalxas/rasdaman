@@ -43,7 +43,7 @@ readonly OUTPUT_DIR="$SCRIPT_DIR/output"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-readonly WCS_REQUEST="$PETASCOPE_URL?service=WCS&Request=GetCoverage&version=2.0.1&subset=Lat(-30,-10.5)&subset=Long(120,150)&CoverageId=test_mean_summer_airtemp&format=image/jpeg&outputCrs=http://opengis.net/def/crs/EPSG/0/3278"
+readonly WCS_REQUEST="$PETASCOPE_URL?service=WCS&Request=GetCoverage&version=2.0.1&subset=Lat(-30,-10.5)&subset=Long(120,150)&CoverageId=test_mean_summer_airtemp&format=image/jpeg"
 readonly REQUEST_NO=20
 
 log "Test petascope WCS with $REQUEST_NO concurrent requests..."

@@ -5,5 +5,5 @@ coverageId=test_eobstest&
 subset=Long(3513549.8435,3513549.8435)&
 subset=Lat(4462779.63173,4462779.63173)&
 subset=t("1950-01-01")&
-subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/3857&
+subsettingCrs=http://localhost:8080/def/crs/EPSG/0/3857&
 format=image/tiff

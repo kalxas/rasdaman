@@ -176,7 +176,7 @@ public class WcpsCoverageMetadataGeneralService {
             } catch (Exception ex) {
                 String bboxStr = "xmin=" + xMin + "," + "ymin=" + yMin + ","
                                + "xmax=" + xMax + "," + "ymax=" + yMax;
-                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, subsettingCrs, ex.getMessage());
+                throw new InvalidBoundingBoxInCrsTransformException(bboxStr, subsettingCrs, ex.getMessage(), ex);
             }
 
             // NOTE: when using subsettingCRS, both of XY-georefenced axis must exist in coverage expression
@@ -892,7 +892,7 @@ public class WcpsCoverageMetadataGeneralService {
         } else {
             // Check if subset is valid with slicing geo bound
             BigDecimal bound = ((NumericSlicing) axis.getGeoBounds()).getBound();
-            ParsedSubset<String> subset = new ParsedSubset<String>(geoParsedSubset.getLowerLimit().toPlainString());
+            ParsedSubset<String> subset = new ParsedSubset<>(geoParsedSubset.getLowerLimit().toPlainString());
 
             // Cannot pass a trimming subset in a slicing subset
             if (geoParsedSubset.isTrimming()) {

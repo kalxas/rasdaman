@@ -28,6 +28,7 @@ import petascope.exceptions.ExceptionCode;
  * @author <a href="b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class InvalidJsonDeserializationException extends WCPSException {
+    
     public InvalidJsonDeserializationException() {
         super(ExceptionCode.WcsError, EXCEPTION_TEXT);
     }

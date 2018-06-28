@@ -72,10 +72,7 @@ import petascope.wcps.handler.RangeConstructorSwitchCaseHandler;
 import petascope.wcps.handler.BinaryCoverageExpressionHandler;
 import petascope.wcps.handler.ExtendExpressionByDomainIntervalsHandler;
 import petascope.wcps.exception.processing.InvalidSubsettingException;
-import petascope.wcps.exception.processing.InvalidSlicingException;
-import petascope.wcps.exception.processing.IrregularAxisFetchingFailedException;
 import petascope.wcps.exception.processing.DuplcateRangeNameException;
-import petascope.wcps.exception.processing.MetadataSerializationException;
 import petascope.wcps.exception.processing.CoverageMetadataException;
 import petascope.wcps.exception.processing.InvalidAxisNameException;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -96,12 +93,9 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
@@ -278,7 +272,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Override
     public VisitorResult visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx) {
         List<TerminalNode> coverageNames = ctx.COVERAGE_VARIABLE_NAME();
-        List<String> coverageNamesStr = new ArrayList<String>();
+        List<String> coverageNamesStr = new ArrayList<>();
 
         for (int i = 0; i < coverageNames.size(); i++) {
             coverageNamesStr.add(coverageNames.get(i).getText());
@@ -294,6 +288,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         for (wcpsParser.ForClauseContext currentClause : ctx.forClause()) {
             forClauses.add((WcpsResult) visit(currentClause));
         }
+        
         WcpsResult result = forClauseListHandler.handle(forClauses);
         return result;
     }
@@ -328,10 +323,11 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         try {
             result = encodeCoverageHandler.handle(coverageExpression, formatType, extraParams);
-        } catch (PetascopeException | JsonProcessingException e) {
-            log.error(e.getMessage(), e);
-            throw new MetadataSerializationException(e.getMessage());
+        } catch (PetascopeException | JsonProcessingException ex) {
+            String errorMessage = "Error processing encode() operator expression. Reason: " + ex.getMessage() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
+        
         // Cannot convert object to JSON
         return result;
     }
@@ -358,6 +354,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
                 count = 0;
             }            
         }   
+        
         WKTCompoundPoint wktPoint = new WKTCompoundPoint(ListUtil.join(listTmp, ","), numberOfDimensions);
         return wktPoint;
     }
@@ -410,8 +407,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         for (wcpsParser.WktPointElementListContext elem : ctx.wktPointElementList()) {            
             wktPolygonCompoundPointList.add((WKTCompoundPoints)visit(elem));
         }
-        WKTMultipolygon wktMultipolygon = new WKTMultipolygon(wktPolygonCompoundPointList);
         
+        WKTMultipolygon wktMultipolygon = new WKTMultipolygon(wktPolygonCompoundPointList);        
         return wktMultipolygon;
     }
     
@@ -446,10 +443,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         try {
             result = clipExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
         } catch (PetascopeException ex) {
-            String errorMessage = "Error processing WCPS clip expression. Reason: '" + ex.getExceptionText() + "'.";
-            log.error(errorMessage, ex);
-            throw new WCPSException(ex.getExceptionCode(), errorMessage);
+            String errorMessage = "Error processing clip() operator expression. Reason: '" + ex.getExceptionText() + "'.";
+            throw new WCPSException(ex.getExceptionCode(), errorMessage, ex);
         }
+        
         return result;
     }
 
@@ -495,8 +492,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         try {
             result = crsTransformHandler.handle(coverageExpression, axisCrss, rangeInterpolations);
-        } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.RuntimeError, "Cannot proces coverage expression within crsTransform() operator. Reason: " + ex.getMessage());
+        } catch (PetascopeException | SecoreException ex) {
+            String errorMessage = "Error processing crsTransform() operator expression. Reason: " + ex.getMessage();
+            throw new WCPSException(errorMessage, ex);
         }
         return result;
 
@@ -511,9 +509,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         
         try {
             result = coverageVariableNameHandler.handle(coverageVariable);
-        } catch (PetascopeException ex) {
-            throw new CoverageMetadataException(ex);
-        } catch (SecoreException ex) {
+        } catch (PetascopeException | SecoreException ex) {
             throw new CoverageMetadataException(ex);
         }
         
@@ -558,6 +554,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Override
     public VisitorResult visitBooleanConstant(@NotNull wcpsParser.BooleanConstantContext ctx) {
         // TRUE | FALSE (e.g: true or false)
+        
         WcpsResult result = booleanConstantHandler.handle(ctx.getText());
         return result;
     }
@@ -577,7 +574,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitCoverageConstructorExpressionLabel(@NotNull wcpsParser.CoverageConstructorExpressionLabelContext ctx) {
         // COVERAGE IDENTIFIER  OVER axisIterator (COMMA axisIterator)* VALUES coverageExpression
         // e.g: coverage cov over $px x(0:20), $px y(0:20) values avg(c)
-        ArrayList<AxisIterator> axisIterators = new ArrayList<AxisIterator>();
+        ArrayList<AxisIterator> axisIterators = new ArrayList<>();
 
         String coverageName = ctx.COVERAGE_VARIABLE_NAME().getText();
 
@@ -800,8 +797,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String operand = ctx.numericalComparissonOperator().getText();
         WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(1));
 
-        WcpsResult result = booleanSwitchCaseCoverageExpressionHandler.handle(leftCoverageExpr, operand,
-                                                                              rightCoverageExpr);
+        WcpsResult result = booleanSwitchCaseCoverageExpressionHandler.handle(leftCoverageExpr, operand, rightCoverageExpr);
         return result;
     }
 
@@ -871,7 +867,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         String operator = ctx.condenseExpressionOperator().getText();
 
-        ArrayList<AxisIterator> axisIterators = new ArrayList<AxisIterator>();
+        ArrayList<AxisIterator> axisIterators = new ArrayList<>();
         String rasqlAliasName = "";
         String aliasName = "";
         int count = 0;
@@ -920,7 +916,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             wcpsResult = subsetExpressionHandler.handle(coverageExpr, dimensionIntList);
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing shorthand trim() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -938,7 +935,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             wcpsResult = subsetExpressionHandler.handle(coverageExpr, dimensionIntList);
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing trim() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -955,8 +953,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         try {
             wcpsResult = subsetExpressionHandler.handle(coverageExpr, dimensionIntervalList);
         } catch (PetascopeException ex) {
-            // It cannot fetch the coefficient for the regular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing shorthand slice() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -975,7 +973,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             wcpsResult = subsetExpressionHandler.handle(coverageExpr, dimensionIntervalList);
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing slice() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -1025,8 +1024,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         try {
             wcpsResult = extendExpressionHandler.handle(coverageExpr, dimensionIntervalList);
         } catch (PetascopeException ex) {
-            // It cannot fetch the coefficient for the regular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing extend() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -1144,8 +1143,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // downscaled to 2.5 by each dimension (e.g: grid pixel is: 100 then the result is 100 / 2.5)
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         String factorNumber = ctx.number().getText();        
-        WcpsResult wcpsResult = scaleExpressionByFactorHandler.handle(coverageExpr, new BigDecimal(factorNumber));
         
+        WcpsResult wcpsResult = scaleExpressionByFactorHandler.handle(coverageExpr, new BigDecimal(factorNumber));        
         return wcpsResult;
     }
     
@@ -1159,8 +1158,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         WcpsScaleDimensionIntevalList scaleAxesDimensionList = (WcpsScaleDimensionIntevalList) visit(ctx.scaleDimensionIntervalList());
         
-        WcpsResult wcpsResult = scaleExpressionByScaleAxesHandler.handle(coverageExpr, scaleAxesDimensionList);
-        
+        WcpsResult wcpsResult = scaleExpressionByScaleAxesHandler.handle(coverageExpr, scaleAxesDimensionList);        
         return wcpsResult;
     }
     
@@ -1173,8 +1171,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         WcpsScaleDimensionIntevalList scaleDimensionIntervalList = (WcpsScaleDimensionIntevalList) visit(ctx.scaleDimensionIntervalList());
         
-        WcpsResult wcpsResult = scaleExpressionByScaleSizeHandler.handle(coverageExpr, scaleDimensionIntervalList);
-        
+        WcpsResult wcpsResult = scaleExpressionByScaleSizeHandler.handle(coverageExpr, scaleDimensionIntervalList);        
         return wcpsResult;
     }
     
@@ -1187,8 +1184,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         WcpsScaleDimensionIntevalList scaleAxesDimensionList = (WcpsScaleDimensionIntevalList) visit(ctx.scaleDimensionIntervalList());
         
-        WcpsResult wcpsResult = scaleExpressionByScaleExtentHandler.handle(coverageExpr, scaleAxesDimensionList);
-        
+        WcpsResult wcpsResult = scaleExpressionByScaleExtentHandler.handle(coverageExpr, scaleAxesDimensionList);        
         return wcpsResult;
     }
 
@@ -1208,8 +1204,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         try {
             wcpsResult = scaleExpressionByDimensionIntervalsHandler.handle(coverageExpr, dimensionIntervalList);
         } catch (PetascopeException ex) {
-            // It cannot fetch the coefficient for the irregular axis
-            throw new IrregularAxisFetchingFailedException(ex);
+            String errorMessage = "Error processing scale() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
         }
 
         return wcpsResult;
@@ -1290,10 +1286,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         //               default return {red: 150; green:103; blue:14}
         //        , "png")
 
-        List<WcpsResult> booleanResults = new ArrayList<WcpsResult>();
-        List<WcpsResult> rangeResults = new ArrayList<WcpsResult>();
+        List<WcpsResult> booleanResults = new ArrayList<>();
+        List<WcpsResult> rangeResults = new ArrayList<>();
 
-        List<RangeField> firstRangeFields = new ArrayList<RangeField>();
+        List<RangeField> firstRangeFields = new ArrayList<>();
 
         // cases return
         for (int i = 0; i < ctx.CASE().size(); i++) {
@@ -1440,13 +1436,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String crs = ctx.crsName() == null ? "" : ctx.crsName().getText().replace("\"", "");
 
         WcpsSliceSubsetDimension sliceSubsetDimension = null;
-        try {
-            sliceSubsetDimension = new WcpsSliceSubsetDimension(ctx.axisName().getText(), crs, bound);
-            if(ctx.coverageExpression().getText().startsWith("\"")){
-                sliceSubsetDimension.setTemporal(true);
-            }
-        } catch (InvalidSlicingException ex) {
-            throw ex;
+  
+        sliceSubsetDimension = new WcpsSliceSubsetDimension(ctx.axisName().getText(), crs, bound);
+        if(ctx.coverageExpression().getText().startsWith("\"")){
+            sliceSubsetDimension.setTemporal(true);
         }
 
         return sliceSubsetDimension;
@@ -1475,8 +1468,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             }
 
             return trimSubsetDimension;
-        } catch (NumberFormatException e) {
-            throw new InvalidSubsettingException(ctx.axisName().getText(), new ParsedSubset(ctx.coverageExpression(0).getText(), ctx.coverageExpression(1).getText()));
+        } catch (NumberFormatException ex) {
+            throw new InvalidSubsettingException(ctx.axisName().getText(), new ParsedSubset(ctx.coverageExpression(0).getText(), ctx.coverageExpression(1).getText()), ex);
         }
     }
 

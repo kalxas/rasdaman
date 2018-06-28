@@ -36,6 +36,16 @@ public class InvalidDateTimeSubsetException extends InvalidSubsettingException {
      * @param axisName the axis on which the subset is being made
      * @param subset   the offending subset
      */
+    public InvalidDateTimeSubsetException(String axisName, ParsedSubset<String> subset, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE, cause);
+    }
+    
+        /**
+     * Constructor for the class
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset   the offending subset
+     */
     public InvalidDateTimeSubsetException(String axisName, ParsedSubset<String> subset) {
         super(axisName, subset, ERROR_TEMPLATE);
     }

@@ -74,9 +74,8 @@ public class ExtraMetadataService {
                 //json
                 coverageMetadata = objectMapper.readValue(metadata, CoverageMetadata.class);
             }
-        } catch (IOException e) {
-            log.error("Cannot deserialize WCPS coverage's metadata in XML/JSON by Jackson", e);
-            throw new InvalidCoverageMetadataToDeserializeException(e.getMessage());
+        } catch (IOException ex) {
+            throw new InvalidCoverageMetadataToDeserializeException(ex.getMessage(), ex);
         }
         
         return coverageMetadata;

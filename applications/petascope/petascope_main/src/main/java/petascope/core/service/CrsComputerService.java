@@ -346,7 +346,7 @@ public class CrsComputerService {
             numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, IrregularAxis.RESOLUTION);
             numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, IrregularAxis.RESOLUTION);
         } catch (PetascopeException e) {
-            throw new InvalidCalculatedBoundsSubsettingException(axisName, subset);
+            throw new InvalidCalculatedBoundsSubsettingException(axisName, subset, e);
         }
         return getNumericPixelIndicesForIrregularAxes(new ParsedSubset<>(numLo, numHi));
     }
@@ -368,8 +368,8 @@ public class CrsComputerService {
             // Need to convert timestamps to TemporalCRS numeric coordinates
             numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, BigDecimal.ONE); // do not normalize by vector here:
             numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, BigDecimal.ONE); // absolute time coordinates needed.
-        } catch (PetascopeException e) {
-            throw new InvalidCalculatedBoundsSubsettingException(axisName, subset);
+        } catch (PetascopeException ex) {
+            throw new InvalidCalculatedBoundsSubsettingException(axisName, subset, ex);
         }
         
         return getNumericPixelIndicesForRegularAxis(new ParsedSubset<>(numLo, numHi));

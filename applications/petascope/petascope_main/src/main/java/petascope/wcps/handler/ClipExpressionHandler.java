@@ -288,7 +288,7 @@ public class ClipExpressionHandler {
                 pairs.add(pair);
             }
         } catch (PetascopeException ex) {
-            throw new WcpsRasqlException(rasqlQuery, ex.getExceptionText());
+            throw new WcpsRasqlException(rasqlQuery, ex.getExceptionText(), ex);
         }
         return pairs;
     }

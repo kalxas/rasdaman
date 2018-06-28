@@ -198,7 +198,7 @@ public class SubsetParsingService {
                 numericSubset = new NumericSlicing(lowerBound);
             }
         } catch (NumberFormatException ex) {
-            throw new InvalidIntervalNumberFormat(lowerBound.toPlainString(), upperBound.toPlainString());
+            throw new InvalidIntervalNumberFormat(lowerBound.toPlainString(), upperBound.toPlainString(), ex);
         }
         return new Subset(numericSubset, crs, axisName);
     }

@@ -5,4 +5,4 @@ coverageId=test_sf&
 subset=E(-1.3637472939075228E7,-1.3636585328807762E7)&
 subset=N(4540876.150377409,4541515.136893244)&
 format=image/tiff&
-subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/3857
+subsettingCrs=http://localhost:8080/def/crs/EPSG/0/3857

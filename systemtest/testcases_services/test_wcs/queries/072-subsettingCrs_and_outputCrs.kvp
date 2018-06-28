@@ -5,5 +5,5 @@ service=WCS
 &subset=Long(120,130)
 &subset=Lat(-40,-25)
 &format=image/png
-&subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/4269
-&outputCrs=http://www.opengis.net/def/crs/EPSG/0/4262
+&subsettingCrs=http://localhost:8080/def/crs/EPSG/0/4269
+&outputCrs=http://localhost:8080/def/crs/EPSG/0/4262

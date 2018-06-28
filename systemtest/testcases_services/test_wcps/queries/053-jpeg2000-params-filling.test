@@ -1,5 +1,5 @@
 for $c in (test_mean_summer_airtemp) return encode(
   ($c[
-    Long:"http://www.opengis.net/def/crs/EPSG/0/4326" (125:135),
-    Lat:"http://www.opengis.net/def/crs/EPSG/0/4326" (-20:-15)]),
+    Long:"http://localhost:8080/def/crs/EPSG/0/4326" (125:135),
+    Lat:"http://localhost:8080/def/crs/EPSG/0/4326" (-20:-15)]),
 "image/jp2", "nodata=0")

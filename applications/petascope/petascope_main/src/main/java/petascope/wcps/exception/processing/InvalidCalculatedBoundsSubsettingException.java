@@ -37,8 +37,8 @@ public class InvalidCalculatedBoundsSubsettingException extends InvalidSubsettin
      * @param axisName the axis on which the subset is being made
      * @param subset   the offending subset
      */
-    public InvalidCalculatedBoundsSubsettingException(String axisName, ParsedSubset<String> subset) {
-        super(axisName, subset, ERROR_TEMPLATE);
+    public InvalidCalculatedBoundsSubsettingException(String axisName, ParsedSubset<String> subset, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE, cause);
     }
 
     public static String ERROR_TEMPLATE = "The bound(s) were not correctly calculated '$subsetDomainType' coordinate(s) '$subsetBound' for axis '$axis'.";

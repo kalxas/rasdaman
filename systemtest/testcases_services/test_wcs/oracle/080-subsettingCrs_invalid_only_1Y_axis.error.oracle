@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     
       >
-    <ows:Exception exceptionCode="RuntimeError">
-        <ows:ExceptionText>Cannot proces coverage expression within crsTransform() operator. Reason: CrsTransform requires 2D XY geo-referenced axes, received: 1 axis.</ows:ExceptionText>
+    <ows:Exception exceptionCode="WcsError">
+        <ows:ExceptionText>CrsTransform requires 2D XY geo-referenced axes, received: 1 axis.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

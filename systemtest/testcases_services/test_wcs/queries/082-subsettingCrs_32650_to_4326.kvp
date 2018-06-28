@@ -5,4 +5,4 @@ coverageId=test_mean_summer_airtemp&
 subset=Long(-4932480.824,-3932480.824)&
 subset=Lat(100785.761,120785.761)&
 format=image/tiff&
-subsettingCrs=http://www.opengis.net/def/crs/EPSG/0/32650
+subsettingCrs=http://localhost:8080/def/crs/EPSG/0/32650

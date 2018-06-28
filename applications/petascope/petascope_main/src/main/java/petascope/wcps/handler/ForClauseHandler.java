@@ -64,8 +64,7 @@ public class ForClauseHandler {
             try {
                 coverage = this.coverageRepostioryService.readCoverageFullMetadataByIdFromCache(coverageName);
             } catch (PetascopeException ex) {
-                log.error("Error reading coverage '" + coverageName + "'.", ex);
-                throw new CoverageReadingException(coverageName, ex.getExceptionText());
+                throw new CoverageReadingException(coverageName, ex.getExceptionText(), ex);
             }
             String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
             rasdamanCollectionNames.add(rasdamanCollectionName);

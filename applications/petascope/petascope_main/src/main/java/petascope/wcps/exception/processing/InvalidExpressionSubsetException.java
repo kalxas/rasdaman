@@ -6,6 +6,7 @@ import petascope.util.CrsUtil;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 
 public class InvalidExpressionSubsetException extends WCPSException {
+    
     public InvalidExpressionSubsetException(WcpsSubsetDimension subset) {
         super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$subset", subset.toString())
                 .replace("$hint", computeHint(subset)));

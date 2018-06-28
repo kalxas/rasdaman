@@ -40,6 +40,31 @@ public class OutOfBoundsSubsettingException extends InvalidSubsettingException {
      * @param domMin lower limit of coverage's axis domain
      * @param domMax upper limit of coverage's axis domain
      */
+    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, Double domMin, Double domMax, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()), cause);
+    }
+
+    /**
+     * Constructor for the class with domMin:domMax in string (e.g time axis)
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     * @param domMin ower limit of coverage's axis domain
+     * @param domMax upper limit of coverage's axis domain
+     */
+    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, String domMin, String domMax, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin).replace("$domMax", domMax), cause);
+    }
+    
+        /**
+     * Constructor for the class with domMin:domMax in Double (e.g i, j, Lat,
+     * Long)
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     * @param domMin lower limit of coverage's axis domain
+     * @param domMax upper limit of coverage's axis domain
+     */
     public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, Double domMin, Double domMax) {
         super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()));
     }

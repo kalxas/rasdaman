@@ -53,8 +53,8 @@ public class TimeConversionService {
         try {
             // Need to convert timestamps to TemporalCRS numeric coordinates
             result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, BigDecimal.ONE).toString()); // do not normalize by vector here:
-        } catch (PetascopeException e) {
-            throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<String>(point));
+        } catch (PetascopeException ex) {
+            throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<>(point), ex);
         }
 
         return result;
@@ -75,8 +75,8 @@ public class TimeConversionService {
         BigDecimal result;
         try {
             result = new BigDecimal(TimeUtil.countOffsets(datumOrigin, point, axisUoM, scalarResolution).toString());
-        } catch (PetascopeException e) {
-            throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<String>(point));
+        } catch (PetascopeException ex) {
+            throw new InvalidCalculatedBoundsSubsettingException(axisName, new ParsedSubset<>(point), ex);
         }
 
         // NOTE: if scalarResolution is equal 1 (e.g: 1 day then it does not have problem with the translated coordinate)

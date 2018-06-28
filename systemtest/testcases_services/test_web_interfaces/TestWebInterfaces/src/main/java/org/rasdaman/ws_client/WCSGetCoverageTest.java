@@ -98,9 +98,9 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[4]/uib-accordion/div/div[5]/div[1]/h4/a/span/i");
         
         // Then add URL for subsettingCRS
-        this.addTextToTextBox(webDriver, "http://www.opengis.net/def/crs/EPSG/0/3857", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
+        this.addTextToTextBox(webDriver, "http://localhost:8080/def/crs/EPSG/0/3857", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
         // Then add URL for outputCRS
-        this.addTextToTextBox(webDriver, "http://www.opengis.net/def/crs/EPSG/0/4326", "//*[@id=\"wcs-get-coverage-output-crs\"]");        
+        this.addTextToTextBox(webDriver, "http://localhost:8080/def/crs/EPSG/0/4326", "//*[@id=\"wcs-get-coverage-output-crs\"]");        
         // Then add WKT in EPSG:3857
         this.addTextToTextBox(webDriver, "POLYGON((13589894.568 -2015496.69612, 15086830.0246 -1780682.3822, 16867507.7313 -2856914.62008, "
                 + "15302077.392 -2269868.21355, 16906647.6642 -3913582.33674, 15096615.0078 -2514467.00655, 16182636.8281 -4510392.53842, "

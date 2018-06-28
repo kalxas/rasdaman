@@ -4,4 +4,4 @@ request=GetCoverage&
 coverageId=test_eobstest&
 format=image/png&
 subset=t(127470)&
-outputCrs=http://www.opengis.net/def/crs/EPSG/0/3857
+outputCrs=http://localhost:8080/def/crs/EPSG/0/3857

@@ -39,6 +39,31 @@ public class InvalidSubsettingException extends WCPSException {
      * @param axisName the axis on which the subset is being made
      * @param subset the offending subset
      */
+    public InvalidSubsettingException(String axisName, ParsedSubset<String> subset, Exception cause) {
+        super(ExceptionCode.InvalidSubsetting, subset.isTrimming() ? ERROR_TEMPLATE.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
+              : ERROR_TEMPLATE.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName), cause);
+    }
+
+    /**
+     * Constructor for the class when subclass send its appropriate
+     * exceptionMessage for trimming/slicing
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     * @param exceptionMessage the appropriate exception message (e.g: unordered
+     * interval, time error,..)
+     */
+    public InvalidSubsettingException(String axisName, ParsedSubset<String> subset, String exceptionMessage, Exception cause) {
+        super(ExceptionCode.InvalidSubsetting, subset.isTrimming() ? exceptionMessage.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
+              : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName), cause);
+    }
+    
+    /**
+     * Constructor for the class default
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     */
     public InvalidSubsettingException(String axisName, ParsedSubset<String> subset) {
         super(ExceptionCode.InvalidSubsetting, subset.isTrimming() ? ERROR_TEMPLATE.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
               : ERROR_TEMPLATE.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName));

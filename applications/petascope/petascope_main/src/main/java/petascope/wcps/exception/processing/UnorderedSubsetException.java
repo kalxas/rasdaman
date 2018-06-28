@@ -37,6 +37,16 @@ public class UnorderedSubsetException extends InvalidSubsettingException {
      * @param axisName the axis on which the subset is being made
      * @param subset the offending subset
      */
+    public UnorderedSubsetException(String axisName, ParsedSubset<String> subset, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName), cause);
+    }
+    
+        /**
+     * Constructor for the class
+     *
+     * @param axisName the axis on which the subset is being made
+     * @param subset the offending subset
+     */
     public UnorderedSubsetException(String axisName, ParsedSubset<String> subset) {
         super(axisName, subset, ERROR_TEMPLATE.replace("$lowerBound", subset.getLowerLimit()).replace("$upperBound", subset.getUpperLimit()).replace("$axis", axisName));
     }

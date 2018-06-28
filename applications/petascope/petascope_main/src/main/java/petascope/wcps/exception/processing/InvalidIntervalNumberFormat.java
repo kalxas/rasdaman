@@ -28,9 +28,10 @@ import petascope.exceptions.ExceptionCode;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class InvalidIntervalNumberFormat extends WCPSException {
-    public InvalidIntervalNumberFormat(String low, String high) {
+    
+    public InvalidIntervalNumberFormat(String low, String high, Exception cause) {
         super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$low", low)
-              .replace("$high", high));
+              .replace("$high", high), cause);
     }
 
     private static final String EXCEPTION_TEXT = "Invalid number format in interval ($low:$high).";

@@ -38,7 +38,7 @@ public class CoverageMetadataException extends WCPSException {
      * @param originalCause the exception that caused the error
      */
     public CoverageMetadataException(Exception originalCause) {
-        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()));
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$metadataError", originalCause.getMessage()), originalCause);
     }
 
     /**

@@ -22,7 +22,6 @@
 package petascope.wcps.exception.processing;
 
 import petascope.exceptions.WCPSException;
-import petascope.exceptions.ExceptionCode;
 
 /**
  * Exception that is thrown when a referenced coverage is not found in the database
@@ -38,8 +37,8 @@ public class CoverageReadingException extends WCPSException {
      * @param coverageName the coverage that was not found
      * @param errorMessage the error while reading coverage from database
      */
-    public CoverageReadingException(String coverageName, String errorMessage) {
-        super(ERROR_TEMPLATE.replace("$coverage", coverageName).replace("$errorMessage", errorMessage));
+    public CoverageReadingException(String coverageName, String errorMessage, Exception cause) {
+        super(ERROR_TEMPLATE.replace("$coverage", coverageName).replace("$errorMessage", errorMessage), cause);
     }
 
     private static final String ERROR_TEMPLATE = "Coverage '$coverage' cannot be read. \n Reason: $errorMessage.";

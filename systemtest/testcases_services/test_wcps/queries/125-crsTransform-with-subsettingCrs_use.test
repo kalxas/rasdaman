@@ -1,8 +1,8 @@
 for c in (test_mean_summer_airtemp)  return encode(
 	crsTransform(
-		c[Long:"http://www.opengis.net/def/crs/EPSG/0/4269" (120:130),
-		Lat:"http://www.opengis.net/def/crs/EPSG/0/4269" (-25:-20)],
+		c[Long:"http://localhost:8080/def/crs/EPSG/0/4269" (120:130),
+		Lat:"http://localhost:8080/def/crs/EPSG/0/4269" (-25:-20)],
 	{
-		Lat:"http://www.opengis.net/def/crs/EPSG/0/4326",
-		Long:"http://www.opengis.net/def/crs/EPSG/0/4326"},{})
+		Lat:"http://localhost:8080/def/crs/EPSG/0/4326",
+		Long:"http://localhost:8080/def/crs/EPSG/0/4326"},{})
 , "png", "nodata=0")
