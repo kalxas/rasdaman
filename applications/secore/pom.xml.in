@@ -12,6 +12,7 @@
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
         <java.version>1.7</java.version>
+        <src.dir>@SRC_DIR@</src.dir>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -24,7 +25,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
                 <exclusion>
-	                <!-- don't use logback as default logger -->
+                    <!-- don't use logback as default logger -->
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
@@ -59,12 +60,12 @@
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ows-v_1_0_0-schema</artifactId>
             <version>1.0.3</version>
-        </dependency>    
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
             <artifactId>ecj</artifactId>
             <version>4.6.1</version>
-	    <scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -74,7 +75,7 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-    	    <scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.rauschig</groupId>
@@ -97,6 +98,7 @@
         <finalName>def</finalName>
         <!-- The built package should be in build directory, not in source directory -->
         <directory>@SECORE_TARGET_DIR@</directory>
+        <sourceDirectory>${src.dir}</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -107,10 +109,19 @@
                         <id>prepare</id>
                         <phase>validate</phase>
                         <configuration>
+                            <!-- NOTE: as pom.xml is in built directory, it must need to copy all files in src/main/resources and jsp files manually
+                                 as maven doesn't do it as before when pom.xml is created inside source directory. -->
                             <tasks>
-                                <gunzip src="src/main/resources/gml.tar.gz" />
-                                <untar src="src/main/resources/gml.tar" dest="src/main/resources/" />
-                                <delete file="src/main/resources/gml.tar" />
+                                <gunzip src="@SRC_DIR@/src/main/resources/gml.tar.gz" />
+                                <untar src="@SRC_DIR@/src/main/resources/gml.tar" dest="@BUILD_DIR@/src/main/resources/" />
+                                <delete file="@SRC_DIR@/src/main/resources/gml.tar" />
+                                <copy file="@SRC_DIR@/src/main/resources/gml.tar.gz" tofile="@BUILD_DIR@/src/main/resources/" />
+                                <copy todir="@SECORE_TARGET_DIR@/def/WEB-INF/jsp/">
+                                    <fileset dir="@SRC_DIR@/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
+                                </copy>
+                                <copy todir="@SECORE_TARGET_DIR@/def/WEB-INF/classes/">
+                                    <fileset dir="@SRC_DIR@/src/main/resources/" includes="**/*" />
+                                </copy>
                             </tasks>
                         </configuration>
                         <goals>

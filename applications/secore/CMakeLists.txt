@@ -22,28 +22,30 @@
 ###################################################################
 
 if (ENABLE_JAVA)
-    set(SECORE_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/target")
+    set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+    set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/")
+    set(SECORE_TARGET_DIR "${BUILD_DIR}/target")
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
     find_package(Maven REQUIRED)
 
-    configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)    
+    configure_file(pom.xml.in "${BUILD_DIR}/pom.xml" @ONLY)    
 
     # Generate files from *.in by replacing any variables that can be configured at compile time
     # configuration file for secore.properties.in
-    configure_file("src/main/resources/secore.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/secore.properties" @ONLY)     
+    configure_file("src/main/resources/secore.properties.in" "${BUILD_DIR}/src/main/resources/secore.properties" @ONLY)     
   
     # configuration file for application.properties.in
-    configure_file("src/main/resources/application.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/application.properties" @ONLY)
+    configure_file("src/main/resources/application.properties.in" "${BUILD_DIR}/src/main/resources/application.properties" @ONLY)
 
     # configuration file for log4j.properties.in which is used only when Spring Boot starts
-    configure_file("src/main/resources/log4j.properties.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/log4j.properties" @ONLY)
+    configure_file("src/main/resources/log4j.properties.in" "${BUILD_DIR}/src/main/resources/log4j.properties" @ONLY)
 
     if (GENERATE_DOCS)
         add_custom_target(secore_doc ALL
             COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            WORKING_DIRECTORY ${SRC_DIR}
             VERBATIM)
 
         install(DIRECTORY "${SECORE_TARGET_DIR}/site/apidocs/"
@@ -53,12 +55,12 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} -B package
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            COMMAND ${MAVEN_EXECUTABLE} -B package -f "${BUILD_DIR}/pom.xml"
+            WORKING_DIRECTORY ${SRC_DIR}
             VERBATIM)
 
     # install secore.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-    install(CODE "execute_process(COMMAND bash  ${CMAKE_CURRENT_SOURCE_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/secore.properties)")
+    install(CODE "execute_process(COMMAND bash  ${SRC_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${BUILD_DIR}/src/main/resources/secore.properties)")
 
     install(DIRECTORY DESTINATION "${WAR_DIR}/secoredb"
 	        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 

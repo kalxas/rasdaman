@@ -57,7 +57,7 @@
         <resources>
             <!-- first copy wcs-client to target directory -->
             <resource>
-                <directory>${project.basedir}/../../wcs-client/app/</directory>
+                <directory>@SRC_DIR@/../wcs-client/app/</directory>
                 <targetPath>${project.build.directory}/classes/public/wcs-client</targetPath>
             </resource>
             <resource>

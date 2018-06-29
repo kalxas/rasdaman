@@ -69,20 +69,22 @@ endmacro()
 execute_process(COMMAND git submodule update --init --recursive
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# Create this folder first before tar can extract grpc.tar.gz
+execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/third_party)
+
 # gRPC-C++.podspec is in grpc v1.10.0 but not in the previous release that was
 # embedded in rasdaman (v1.7.2), so we check for its existence to determine if
 # the extracted grpc/ dreictory is the most current one and remove it if not.
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/third_party/grpc/gRPC-C++.podspec")
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/third_party/grpc/gRPC-C++.podspec")
     execute_process(COMMAND rm -rf grpc
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/third_party)
 endif()
 
 # If the grpc/ directory does not exist it needs to be extracted from grpc.tar.gz
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/third_party/grpc")
-    execute_process(COMMAND tar xzf grpc.tar.gz
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/third_party/grpc")
+    execute_process(COMMAND tar xC ${CMAKE_BINARY_DIR}/third_party -f ${CMAKE_SOURCE_DIR}/third_party/grpc.tar.gz)
     execute_process(COMMAND find grpc -exec touch {} +
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/third_party)
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/third_party)
 endif()
 
 ############################################################################
@@ -206,7 +208,7 @@ if (RMANRASNET)
 
     set(THIRD_PARTY_DIR "${CMAKE_BINARY_DIR}/third_party")
     # Google Protobuf is a third_party dependency of GRPC so we define the variables here.
-    set(GRPC_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/grpc")
+    set(GRPC_SOURCE_DIR "${CMAKE_BINARY_DIR}/third_party/grpc")
     set(GRPC_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc")
 
     set(PROTOBUF_SOURCE_DIR "${GRPC_SOURCE_DIR}/third_party/protobuf")

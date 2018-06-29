@@ -23,6 +23,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
+    	<src.dir>@SRC_DIR@</src.dir>
     </properties>
     <dependencies>
         <dependency>
@@ -44,8 +45,9 @@
     </dependencies>
     <build>
         <finalName>rasdaman</finalName>
+	    <sourceDirectory>${src.dir}</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>/home/rasdaman/build/applications/petascope/target</directory>
+        <directory>@BUILD_DIR@/target</directory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
