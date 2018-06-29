@@ -1068,10 +1068,8 @@ public class CrsUtil {
          * @throws SecoreException
          */
         public static boolean isCached(String uri) throws PetascopeException, SecoreException {
-            for (String cachedUri : parsedCRSs.keySet()) {
-                if (areEquivalent(cachedUri, uri)) {
-                    return true;
-                }
+            if (parsedCRSs.containsKey(uri)) {
+                return true;
             }
             log.trace(uri + " CRS needs to be parsed via resolver.");
             return false;
@@ -1404,13 +1402,8 @@ public class CrsUtil {
          * @throws SecoreException
          */
         public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException, SecoreException {
-            for (String cachedUri : parsedCRSs.keySet()) {
-                if (areEquivalent(cachedUri, uri)) {
-                    return parsedCRSs.get(cachedUri);
-                }
-            }
-            log.warn(uri + " is not in cache as supposed: check with isCached() before calling this method.");
-            return null;
+            CrsDefinition crsDefinition = parsedCRSs.get(uri);
+            return crsDefinition;
         }
 
         /**
