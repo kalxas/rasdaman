@@ -21,8 +21,21 @@
 #
 ###################################################################
 
+set(NETWORK_HEADER_FILES abstractnetworkresolver.hh
+	ipv4resolver.hh
+	ipv6resolver.hh
+	networkresolverfactory.hh)
+
 add_library(common_network
-    abstractnetworkresolver.hh abstractnetworkresolver.cc
-    ipv4resolver.cc ipv4resolver.hh
-    ipv6resolver.hh ipv6resolver.cc
-    networkresolverfactory.hh networkresolverfactory.cc )
+	abstractnetworkresolver.cc
+	ipv4resolver.cc
+	ipv6resolver.cc
+	networkresolverfactory.cc
+	${NETWORK_HEADER_FILES})
+
+# Install the library to the lib folder
+install(TARGETS common_network
+	DESTINATION ${LIB_DIR})
+
+install(FILES ${NETWORK_HEADER_FILES}
+	DESTINATION "${INCLUDE_DIR}/common/network")

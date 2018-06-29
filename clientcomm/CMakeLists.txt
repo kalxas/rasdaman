@@ -120,3 +120,5 @@ target_include_directories(clientcomm PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(clientcomm mymalloc_cln ${RASNET_LIBRARIESS} ${OPENSSL_LIBRARIES})
 
 install(TARGETS clientcomm DESTINATION ${LIB_DIR})
+
+install(FILES clientcomm.hh DESTINATION "${INCLUDE_DIR}/rasodmg/clientcomm")

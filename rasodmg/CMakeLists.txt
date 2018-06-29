@@ -48,20 +48,25 @@ install(TARGETS rasodmg
 install(FILES
     alignedtiling.hh
     collection.hh
+    collection.cc
     database.hh
     dirdecompose.hh
     dirtiling.hh
     gmarray.hh
     interesttiling.hh
     iterator.hh
+    iterator.cc
     marray.hh
+    marray.cc
     object.hh
     oqlquery.hh
     partinsert.hh
     polycutout.hh
     polygon.hh
     ref.hh
+    ref.cc
     set.hh
+    set.cc
     stattiling.hh
     storagelayout.hh
     tiling.hh

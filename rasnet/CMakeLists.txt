@@ -52,4 +52,6 @@ if (RMANRASNET)
 
     target_link_libraries(rasnet ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
     
+    install(TARGETS rasnet
+            DESTINATION ${LIB_DIR})
 endif (RMANRASNET)

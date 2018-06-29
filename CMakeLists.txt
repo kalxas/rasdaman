@@ -492,6 +492,10 @@ add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
 GetVersionInformation(RMANVERSION GCCVERSION GCCTARGET)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config-cmake.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h")
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/version.h"
+    DESTINATION "${INCLUDE_DIR}/")
 
 #
 # Execute the 3rd party CMakeLists.txt

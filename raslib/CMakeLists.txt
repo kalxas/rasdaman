@@ -79,10 +79,12 @@ install(FILES
     complex.hh
     complextype.hh
     dlist.hh
+    dlist.cc
     endian.hh
     error.hh
     flatbasetype.hh
     itertype.hh
+    itertype.cc
     marraytype.hh
     mddtypes.hh
     memblockvec.hh

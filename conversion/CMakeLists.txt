@@ -24,6 +24,7 @@
 set(CONVERSION_HEADER_FILES  
         convertor.hh
         convfactory.hh
+        convtypes.hh
         convutil.hh
         csv.hh
         dem.hh

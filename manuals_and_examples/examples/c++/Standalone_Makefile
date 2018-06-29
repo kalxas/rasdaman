@@ -54,19 +54,30 @@ FLAGS    = -fPIC -pthread -std=c++11 -fno-stack-protector -fno-strict-overflow -
 #
 ###############################################################################
 
-INCS = -I $(RASDAMAN_INSTALLATION)/include       \
-       -I $(RASDAMAN_INSTALLATION)/include/debug \
+INCS = -I $(RMANHOME)/include       \
+       -I $(RMANHOME)/include/debug \
+       -I $(RMANHOME)/include/raslib\
        -I /usr/include/jsoncpp/
 
-LIBS = -L$(RASDAMAN_INSTALLATION)/lib \
+LIBS = -L$(RMANHOME)/lib \
        -lrasodmg               \
        -lclientcomm            \
        -lraslib                \
        -lconversion            \
        -lcommline              \
        -lnetwork               \
-       ../../rasdaman/rasnet/librasnet.a     \
-       ../../rasdaman/common/src/libcommon.a \
+       -lrasnet                \
+       -lcommon_crypto         \
+       -lcommon_grpc           \
+       -lcommon_file           \
+       -lcommon_exceptions     \
+       -lcommon_network        \
+       -lcommon_logging        \
+       -lcommon_time           \
+       -lcommon_uuid           \
+       -leasyloggingpp         \
+       -lmymalloc_cln          \
+       -lmymalloc_svc          \
        -lgrpc++_unsecure       \
        -lgrpc_unsecure         \
        -lz                     \
