@@ -40,7 +40,7 @@ install(FILES examples/rasdl/basictypes.dl
 
 #TODO:Fix the old makefile for compatibility
 set(RASDAMAN_INSTALLATION ${CMAKE_INSTALL_PREFIX})
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Standalone_Makefile" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Standalone_Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile"
         DESTINATION "${SHARE_DATA_DIR}/examples/c++/"

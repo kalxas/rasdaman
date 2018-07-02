@@ -207,11 +207,13 @@ applications/petascope/out
 Makefile.am.user
 config.guess
 config.sub
+manuals_and_examples/examples/c++/Standalone_Makefile
 
 # testing
 phantomjs
 phantomjsdriver.log
 test_web_interfaces-spring-boot.jar
+systemtest/conf/test.cfg
 
 #core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics

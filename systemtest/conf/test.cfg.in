@@ -43,6 +43,7 @@ export RASMGR_ADMIN_USER=rasadmin
 export RASMGR_ADMIN_PASSWD=rasadmin
 export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
+export RMANHOME=@CMAKE_INSTALL_PREFIX@
 export RASMGR_CONF=$RMANHOME/etc/rasmgr.conf
 
 

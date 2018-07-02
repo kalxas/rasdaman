@@ -54,12 +54,12 @@ FLAGS    = -fPIC -pthread -std=c++11 -fno-stack-protector -fno-strict-overflow -
 #
 ###############################################################################
 
-INCS = -I $(RMANHOME)/include       \
-       -I $(RMANHOME)/include/debug \
-       -I $(RMANHOME)/include/raslib\
+INCS = -I @CMAKE_INSTALL_PREFIX@/include       \
+       -I @CMAKE_INSTALL_PREFIX@/include/debug \
+       -I @CMAKE_INSTALL_PREFIX@/include/raslib\
        -I /usr/include/jsoncpp/
 
-LIBS = -L$(RMANHOME)/lib \
+LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lrasodmg               \
        -lclientcomm            \
        -lraslib                \
@@ -84,8 +84,6 @@ LIBS = -L$(RMANHOME)/lib \
        -lprotobuf              \
        -lpthread               \
        -lboost_thread          \
-       -lboost_regex           \
-       -lboost_program_options \
        -lboost_system          \
        -lpgtypes               \
        -lpq                    \
