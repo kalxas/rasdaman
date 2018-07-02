@@ -358,6 +358,7 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* resType, B
         //free resources
         delete qlCondenseOp;
         qlCondenseOp = NULL;
+        throw;
     }
 
     // allocate cell buffer

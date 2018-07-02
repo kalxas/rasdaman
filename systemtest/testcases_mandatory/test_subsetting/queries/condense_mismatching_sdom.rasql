@@ -1,0 +1,1 @@
+select condense min over i in [10:11] using c[0,i[0]] from test_subsetting_1d as c
