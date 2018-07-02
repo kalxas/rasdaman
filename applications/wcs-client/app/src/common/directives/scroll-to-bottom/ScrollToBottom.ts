@@ -21,7 +21,28 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-/// <reference path="pretty-print/PrettyPrint.ts"/>
-/// <reference path="string-to-number-converter/StringToNumberConverter.ts"/>
-/// <reference path="autocomplete/Autocomplete.ts"/>
-/// <reference path="scroll-to-bottom/ScrollToBottom.ts"/>
+ ///<reference path="../../../../assets/typings/tsd.d.ts"/>
+
+module rasdaman.common {
+    /**
+     * Directive used to scroll to bottom a div which contains list of row elements.
+     */
+    export function scrollToBottom($timeout, $window):angular.IDirective {
+        return {
+            scope: {
+                scrollToBottom: "="
+            },
+            restrict: 'A',
+            link: function(scope, element, attr) {
+                scope.$watchCollection('scrollToBottom', function(newVal) {
+                    if (newVal) {
+                        $timeout(function() {
+                            element[0].scrollTop = element[0].scrollHeight;
+                        }, 0);
+                    }
+    
+                });
+            }
+        };
+    }
+}

@@ -150,5 +150,6 @@ module rasdaman {
         .directive("wwdDisplay", rasdaman.WebWorldWindDisplayWidget)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
+        .directive("scrollToBottom", rasdaman.common.scrollToBottom)
         .directive("autocomplete", rasdaman.common.Autocomplete);
 }

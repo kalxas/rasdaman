@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var rasdaman;
 (function (rasdaman) {
     var common;
@@ -10,16 +15,17 @@ var rasdaman;
         var Exception = (function (_super) {
             __extends(Exception, _super);
             function Exception(message) {
-                _super.call(this, message);
-                this.name = "Exception";
-                this.message = message;
-                this.stack = (new Error()).stack;
+                var _this = _super.call(this, message) || this;
+                _this.name = "Exception";
+                _this.message = message;
+                _this.stack = new Error().stack;
+                return _this;
             }
             Exception.prototype.toString = function () {
                 return this.name + ": " + this.message;
             };
             return Exception;
-        })(Error);
+        }(Error));
         common.Exception = Exception;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -30,10 +36,10 @@ var rasdaman;
         var InvalidAttributeNameException = (function (_super) {
             __extends(InvalidAttributeNameException, _super);
             function InvalidAttributeNameException(attributeName) {
-                _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.");
+                return _super.call(this, "The attribute \"" + attributeName + "\" does not exist on this element.") || this;
             }
             return InvalidAttributeNameException;
-        })(common.Exception);
+        }(common.Exception));
         common.InvalidAttributeNameException = InvalidAttributeNameException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -44,10 +50,10 @@ var rasdaman;
         var InvalidElementNameException = (function (_super) {
             __extends(InvalidElementNameException, _super);
             function InvalidElementNameException(elementName) {
-                _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.");
+                return _super.call(this, "The child element \"" + elementName + "\" does not exist on this element.") || this;
             }
             return InvalidElementNameException;
-        })(common.Exception);
+        }(common.Exception));
         common.InvalidElementNameException = InvalidElementNameException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -58,11 +64,12 @@ var rasdaman;
         var LogicException = (function (_super) {
             __extends(LogicException, _super);
             function LogicException(message) {
-                _super.call(this, message);
-                this.name = "LogicException";
+                var _this = _super.call(this, message) || this;
+                _this.name = "LogicException";
+                return _this;
             }
             return LogicException;
-        })(common.Exception);
+        }(common.Exception));
         common.LogicException = LogicException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -73,11 +80,12 @@ var rasdaman;
         var NotImplementedException = (function (_super) {
             __extends(NotImplementedException, _super);
             function NotImplementedException() {
-                _super.call(this, "The method was not implemented.");
-                this.name = "NotImplementedException";
+                var _this = _super.call(this, "The method was not implemented.") || this;
+                _this.name = "NotImplementedException";
+                return _this;
             }
             return NotImplementedException;
-        })(common.Exception);
+        }(common.Exception));
         common.NotImplementedException = NotImplementedException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -88,11 +96,12 @@ var rasdaman;
         var IllegalArgumentException = (function (_super) {
             __extends(IllegalArgumentException, _super);
             function IllegalArgumentException(message) {
-                _super.call(this, message);
-                this.name = "IllegalArgumentException";
+                var _this = _super.call(this, message) || this;
+                _this.name = "IllegalArgumentException";
+                return _this;
             }
             return IllegalArgumentException;
-        })(common.Exception);
+        }(common.Exception));
         common.IllegalArgumentException = IllegalArgumentException;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -119,7 +128,7 @@ var rasdaman;
                 }
             };
             return ArgumentValidator;
-        })();
+        }());
         common.ArgumentValidator = ArgumentValidator;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -163,7 +172,7 @@ var rasdaman;
                 return base64;
             };
             return ImageUtilities;
-        })();
+        }());
         common.ImageUtilities = ImageUtilities;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -171,12 +180,12 @@ var rasdaman;
 (function (rasdaman) {
     var common;
     (function (common) {
+        var ResponseDocumentType;
         (function (ResponseDocumentType) {
             ResponseDocumentType[ResponseDocumentType["XML"] = 1] = "XML";
             ResponseDocumentType[ResponseDocumentType["SOAP"] = 2] = "SOAP";
             ResponseDocumentType[ResponseDocumentType["JSON"] = 3] = "JSON";
-        })(common.ResponseDocumentType || (common.ResponseDocumentType = {}));
-        var ResponseDocumentType = common.ResponseDocumentType;
+        })(ResponseDocumentType = common.ResponseDocumentType || (common.ResponseDocumentType = {}));
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -189,7 +198,7 @@ var rasdaman;
                 this.type = responseType;
             }
             return ResponseDocument;
-        })();
+        }());
         common.ResponseDocument = ResponseDocument;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -203,7 +212,7 @@ var rasdaman;
                 this.value = value;
             }
             return Response;
-        })();
+        }());
         common.Response = Response;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -354,7 +363,7 @@ var rasdaman;
                 return resolvedName;
             };
             return XMLSerializedObject;
-        })();
+        }());
         common.XMLSerializedObject = XMLSerializedObject;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -374,7 +383,7 @@ var rasdaman;
                 }
             };
             return SerializedObjectFactory;
-        })();
+        }());
         common.SerializedObjectFactory = SerializedObjectFactory;
     })(common = rasdaman.common || (rasdaman.common = {}));
 })(rasdaman || (rasdaman = {}));
@@ -479,6 +488,30 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var common;
+    (function (common) {
+        function scrollToBottom($timeout, $window) {
+            return {
+                scope: {
+                    scrollToBottom: "="
+                },
+                restrict: 'A',
+                link: function (scope, element, attr) {
+                    scope.$watchCollection('scrollToBottom', function (newVal) {
+                        if (newVal) {
+                            $timeout(function () {
+                                element[0].scrollTop = element[0].scrollHeight;
+                            }, 0);
+                        }
+                    });
+                }
+            };
+        }
+        common.scrollToBottom = scrollToBottom;
+    })(common = rasdaman.common || (rasdaman.common = {}));
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var Constants = (function () {
         function Constants() {
         }
@@ -490,7 +523,7 @@ var rasdaman;
         Constants.INTERPOLATION_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_interpolation/1.0/conf/interpolation";
         Constants.CRS_EXT_URI = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
         return Constants;
-    })();
+    }());
     rasdaman.Constants = Constants;
 })(rasdaman || (rasdaman = {}));
 var ows;
@@ -521,7 +554,7 @@ var ows;
             });
         }
         return Address;
-    })();
+    }());
     ows.Address = Address;
 })(ows || (ows = {}));
 var ows;
@@ -531,7 +564,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return BoundingBox;
-    })();
+    }());
     ows.BoundingBox = BoundingBox;
 })(ows || (ows = {}));
 var ows;
@@ -545,7 +578,7 @@ var ows;
             }
         }
         return LanguageString;
-    })();
+    }());
     ows.LanguageString = LanguageString;
 })(ows || (ows = {}));
 var ows;
@@ -576,7 +609,7 @@ var ows;
             }
         }
         return OnlineResource;
-    })();
+    }());
     ows.OnlineResource = OnlineResource;
 })(ows || (ows = {}));
 var ows;
@@ -585,7 +618,7 @@ var ows;
         function Uri(uri) {
         }
         return Uri;
-    })();
+    }());
     ows.Uri = Uri;
 })(ows || (ows = {}));
 var ows;
@@ -599,7 +632,7 @@ var ows;
             }
         }
         return Code;
-    })();
+    }());
     ows.Code = Code;
 })(ows || (ows = {}));
 var ows;
@@ -615,7 +648,7 @@ var ows;
             this.type = new ows.Code(source.getChildAsSerializedObject("ows:Type"));
         }
         return Keywords;
-    })();
+    }());
     ows.Keywords = Keywords;
 })(ows || (ows = {}));
 var ows;
@@ -638,7 +671,7 @@ var ows;
             });
         }
         return Description;
-    })();
+    }());
     ows.Description = Description;
 })(ows || (ows = {}));
 var ows;
@@ -648,25 +681,26 @@ var ows;
         function ServiceIdentification(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _super.call(this, source);
-            this.serviceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
-            this.serviceTypeVersion = [];
+            _this = _super.call(this, source) || this;
+            _this.serviceType = new ows.Code(source.getChildAsSerializedObject("ServiceType"));
+            _this.serviceTypeVersion = [];
             source.getChildrenAsSerializedObjects("ows:ServiceTypeVersion").forEach(function (s) {
                 _this.serviceTypeVersion.push(s.getValueAsString());
             });
-            this.profile = [];
+            _this.profile = [];
             source.getChildrenAsSerializedObjects("ows:Profile").forEach(function (s) {
                 _this.profile.push(s.getValueAsString());
             });
             if (source.doesElementExist("ows:Fees")) {
-                this.fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
+                _this.fees = source.getChildAsSerializedObject("ows:Fees").getValueAsString();
             }
             if (source.doesElementExist("ows:AccessConstraints")) {
-                this.accessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
+                _this.accessConstraints = source.getChildAsSerializedObject("ows:AccessConstraints").getValueAsString();
             }
+            return _this;
         }
         return ServiceIdentification;
-    })(ows.Description);
+    }(ows.Description));
     ows.ServiceIdentification = ServiceIdentification;
 })(ows || (ows = {}));
 var ows;
@@ -685,7 +719,7 @@ var ows;
             });
         }
         return Phone;
-    })();
+    }());
     ows.Phone = Phone;
 })(ows || (ows = {}));
 var ows;
@@ -710,7 +744,7 @@ var ows;
             }
         }
         return ContactInfo;
-    })();
+    }());
     ows.ContactInfo = ContactInfo;
 })(ows || (ows = {}));
 var ows;
@@ -732,7 +766,7 @@ var ows;
             }
         }
         return ResponsiblePartySubset;
-    })();
+    }());
     ows.ResponsiblePartySubset = ResponsiblePartySubset;
 })(ows || (ows = {}));
 var ows;
@@ -740,11 +774,13 @@ var ows;
     var ServiceContact = (function (_super) {
         __extends(ServiceContact, _super);
         function ServiceContact(source) {
+            var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _super.call(this, source);
+            _this = _super.call(this, source) || this;
+            return _this;
         }
         return ServiceContact;
-    })(ows.ResponsiblePartySubset);
+    }(ows.ResponsiblePartySubset));
     ows.ServiceContact = ServiceContact;
 })(ows || (ows = {}));
 var ows;
@@ -763,7 +799,7 @@ var ows;
             }
         }
         return ServiceProvider;
-    })();
+    }());
     ows.ServiceProvider = ServiceProvider;
 })(ows || (ows = {}));
 var ows;
@@ -773,7 +809,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Constraint;
-    })();
+    }());
     ows.Constraint = Constraint;
 })(ows || (ows = {}));
 var ows;
@@ -781,16 +817,16 @@ var ows;
     var RequestMethod = (function (_super) {
         __extends(RequestMethod, _super);
         function RequestMethod(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.constraint = [];
+            _this.constraint = [];
             source.getChildrenAsSerializedObjects("ows:Constraint").forEach(function (o) {
                 _this.constraint.push(new ows.Constraint(o));
             });
+            return _this;
         }
         return RequestMethod;
-    })(ows.OnlineResource);
+    }(ows.OnlineResource));
     ows.RequestMethod = RequestMethod;
 })(ows || (ows = {}));
 var ows;
@@ -798,11 +834,12 @@ var ows;
     var Get = (function (_super) {
         __extends(Get, _super);
         function Get(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return Get;
-    })(ows.RequestMethod);
+    }(ows.RequestMethod));
     ows.Get = Get;
 })(ows || (ows = {}));
 var ows;
@@ -810,11 +847,12 @@ var ows;
     var Post = (function (_super) {
         __extends(Post, _super);
         function Post(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return Post;
-    })(ows.RequestMethod);
+    }(ows.RequestMethod));
     ows.Post = Post;
 })(ows || (ows = {}));
 var ows;
@@ -826,7 +864,7 @@ var ows;
             this.post = new ows.Post(source.getChildAsSerializedObject("ows:Post"));
         }
         return HTTP;
-    })();
+    }());
     ows.HTTP = HTTP;
 })(ows || (ows = {}));
 var ows;
@@ -837,7 +875,7 @@ var ows;
             this.http = new ows.HTTP(source.getChildAsSerializedObject("ows:HTTP"));
         }
         return DCP;
-    })();
+    }());
     ows.DCP = DCP;
 })(ows || (ows = {}));
 var ows;
@@ -847,7 +885,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Parameter;
-    })();
+    }());
     ows.Parameter = Parameter;
 })(ows || (ows = {}));
 var ows;
@@ -857,7 +895,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Metadata;
-    })();
+    }());
     ows.Metadata = Metadata;
 })(ows || (ows = {}));
 var ows;
@@ -885,7 +923,7 @@ var ows;
             });
         }
         return Operation;
-    })();
+    }());
     ows.Operation = Operation;
 })(ows || (ows = {}));
 var ows;
@@ -895,7 +933,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return ExtendedCapabilities;
-    })();
+    }());
     ows.ExtendedCapabilities = ExtendedCapabilities;
 })(ows || (ows = {}));
 var ows;
@@ -921,7 +959,7 @@ var ows;
             }
         }
         return OperationsMetadata;
-    })();
+    }());
     ows.OperationsMetadata = OperationsMetadata;
 })(ows || (ows = {}));
 var ows;
@@ -931,7 +969,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Languages;
-    })();
+    }());
     ows.Languages = Languages;
 })(ows || (ows = {}));
 var ows;
@@ -957,7 +995,7 @@ var ows;
             }
         }
         return CapabilitiesBase;
-    })();
+    }());
     ows.CapabilitiesBase = CapabilitiesBase;
 })(ows || (ows = {}));
 var ows;
@@ -967,7 +1005,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return ContentsBase;
-    })();
+    }());
     ows.ContentsBase = ContentsBase;
 })(ows || (ows = {}));
 var ows;
@@ -977,7 +1015,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Section;
-    })();
+    }());
     ows.Section = Section;
 })(ows || (ows = {}));
 var ows;
@@ -987,7 +1025,7 @@ var ows;
             this.request = "GetCapabilities";
         }
         return GetCapabilities;
-    })();
+    }());
     ows.GetCapabilities = GetCapabilities;
 })(ows || (ows = {}));
 var ows;
@@ -1004,7 +1042,7 @@ var ows;
             }
         }
         return Exception;
-    })();
+    }());
     ows.Exception = Exception;
 })(ows || (ows = {}));
 var ows;
@@ -1015,7 +1053,7 @@ var ows;
             this.exception = new ows.Exception(source.getChildAsSerializedObject("Exception"));
         }
         return ExceptionReport;
-    })();
+    }());
     ows.ExceptionReport = ExceptionReport;
 })(ows || (ows = {}));
 var ows;
@@ -1025,7 +1063,7 @@ var ows;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return WGS84BoundingBox;
-    })();
+    }());
     ows.WGS84BoundingBox = WGS84BoundingBox;
 })(ows || (ows = {}));
 var wcs;
@@ -1037,7 +1075,7 @@ var wcs;
             }
         }
         return Extension;
-    })();
+    }());
     wcs.Extension = Extension;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1056,7 +1094,7 @@ var wcs;
             });
         }
         return ServiceMetadata;
-    })();
+    }());
     wcs.ServiceMetadata = ServiceMetadata;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1065,7 +1103,7 @@ var wcs;
         function CoverageSubtypeParent(source) {
         }
         return CoverageSubtypeParent;
-    })();
+    }());
     wcs.CoverageSubtypeParent = CoverageSubtypeParent;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1073,30 +1111,30 @@ var wcs;
     var CoverageSummary = (function (_super) {
         __extends(CoverageSummary, _super);
         function CoverageSummary(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.displayFootprint = null;
-            this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-            this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
+            _this.displayFootprint = null;
+            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+                _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
             }
-            this.wgs84BoundingBox = [];
+            _this.wgs84BoundingBox = [];
             source.getChildrenAsSerializedObjects("ows:WGS84BoundingBox").forEach(function (o) {
                 _this.wgs84BoundingBox.push(new ows.WGS84BoundingBox(o));
             });
-            this.boundingBox = [];
+            _this.boundingBox = [];
             source.getChildrenAsSerializedObjects("ows:BoundingBox").forEach(function (o) {
                 _this.boundingBox.push(new ows.BoundingBox(o));
             });
-            this.metadata = [];
+            _this.metadata = [];
             source.getChildrenAsSerializedObjects("ows:Metadata").forEach(function (o) {
                 _this.metadata.push(new ows.Metadata(o));
             });
+            return _this;
         }
         return CoverageSummary;
-    })(ows.Description);
+    }(ows.Description));
     wcs.CoverageSummary = CoverageSummary;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1104,19 +1142,19 @@ var wcs;
     var Contents = (function (_super) {
         __extends(Contents, _super);
         function Contents(source) {
-            var _this = this;
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.coverageSummary = [];
+            _this.coverageSummary = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
                 _this.coverageSummary.push(new wcs.CoverageSummary(o));
             });
             if (source.doesElementExist("wcs.Extension")) {
-                this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
+                _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
             }
+            return _this;
         }
         return Contents;
-    })(ows.ContentsBase);
+    }(ows.ContentsBase));
     wcs.Contents = Contents;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1124,17 +1162,18 @@ var wcs;
     var Capabilities = (function (_super) {
         __extends(Capabilities, _super);
         function Capabilities(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             if (source.doesElementExist("wcs:ServiceMetadata")) {
-                this.serviceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
+                _this.serviceMetadata = new wcs.ServiceMetadata(source.getChildAsSerializedObject("wcs:ServiceMetadata"));
             }
             if (source.doesElementExist("wcs:Contents")) {
-                this.contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
+                _this.contents = new wcs.Contents(source.getChildAsSerializedObject("wcs:Contents"));
             }
+            return _this;
         }
         return Capabilities;
-    })(ows.CapabilitiesBase);
+    }(ows.CapabilitiesBase));
     wcs.Capabilities = Capabilities;
 })(wcs || (wcs = {}));
 var gml;
@@ -1162,7 +1201,7 @@ var gml;
             });
         }
         return Pos;
-    })();
+    }());
     gml.Pos = Pos;
 })(gml || (gml = {}));
 var gml;
@@ -1190,7 +1229,7 @@ var gml;
             });
         }
         return LowerCorner;
-    })();
+    }());
     gml.LowerCorner = LowerCorner;
 })(gml || (gml = {}));
 var gml;
@@ -1218,7 +1257,7 @@ var gml;
             });
         }
         return UpperCorner;
-    })();
+    }());
     gml.UpperCorner = UpperCorner;
 })(gml || (gml = {}));
 var gml;
@@ -1252,7 +1291,7 @@ var gml;
             }
         }
         return Envelope;
-    })();
+    }());
     gml.Envelope = Envelope;
 })(gml || (gml = {}));
 var gml;
@@ -1260,11 +1299,12 @@ var gml;
     var EnvelopeWithTimePeriod = (function (_super) {
         __extends(EnvelopeWithTimePeriod, _super);
         function EnvelopeWithTimePeriod(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            return _this;
         }
         return EnvelopeWithTimePeriod;
-    })(gml.Envelope);
+    }(gml.Envelope));
     gml.EnvelopeWithTimePeriod = EnvelopeWithTimePeriod;
 })(gml || (gml = {}));
 var gml;
@@ -1281,7 +1321,7 @@ var gml;
             }
         }
         return BoundedBy;
-    })();
+    }());
     gml.BoundedBy = BoundedBy;
 })(gml || (gml = {}));
 var gml;
@@ -1306,7 +1346,7 @@ var gml;
             }
         }
         return AbstractFeature;
-    })();
+    }());
     gml.AbstractFeature = AbstractFeature;
 })(gml || (gml = {}));
 var gml;
@@ -1316,7 +1356,7 @@ var gml;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return CoverageFunction;
-    })();
+    }());
     gml.CoverageFunction = CoverageFunction;
 })(gml || (gml = {}));
 var gml;
@@ -1326,7 +1366,7 @@ var gml;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return DomainSet;
-    })();
+    }());
     gml.DomainSet = DomainSet;
 })(gml || (gml = {}));
 var gmlcov;
@@ -1336,7 +1376,7 @@ var gmlcov;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
         }
         return Metadata;
-    })();
+    }());
     gmlcov.Metadata = Metadata;
 })(gmlcov || (gmlcov = {}));
 var swe;
@@ -1347,7 +1387,7 @@ var swe;
             this.code = source.getAttributeAsString("code");
         }
         return Uom;
-    })();
+    }());
     swe.Uom = Uom;
 })(swe || (swe = {}));
 var swe;
@@ -1360,7 +1400,7 @@ var swe;
             }
         }
         return Quantity;
-    })();
+    }());
     swe.Quantity = Quantity;
 })(swe || (swe = {}));
 var swe;
@@ -1376,7 +1416,7 @@ var swe;
             }
         }
         return Field;
-    })();
+    }());
     swe.Field = Field;
 })(swe || (swe = {}));
 var swe;
@@ -1391,7 +1431,7 @@ var swe;
             });
         }
         return DataRecord;
-    })();
+    }());
     swe.DataRecord = DataRecord;
 })(swe || (swe = {}));
 var gmlcov;
@@ -1404,7 +1444,7 @@ var gmlcov;
             }
         }
         return RangeType;
-    })();
+    }());
     gmlcov.RangeType = RangeType;
 })(gmlcov || (gmlcov = {}));
 var wcs;
@@ -1422,7 +1462,7 @@ var wcs;
             }
         }
         return ServiceParameters;
-    })();
+    }());
     wcs.ServiceParameters = ServiceParameters;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1430,21 +1470,22 @@ var wcs;
     var CoverageDescription = (function (_super) {
         __extends(CoverageDescription, _super);
         function CoverageDescription(source) {
-            _super.call(this, source);
+            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             if (source.doesElementExist("gml:coverageFunction")) {
-                this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
+                _this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
             }
             if (source.doesElementExist("gmlcov:metadata")) {
-                this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
+                _this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
             }
-            this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
-            this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
-            this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            _this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
+            _this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
+            _this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            return _this;
         }
         return CoverageDescription;
-    })(gml.AbstractFeature);
+    }(gml.AbstractFeature));
     wcs.CoverageDescription = CoverageDescription;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1459,7 +1500,7 @@ var wcs;
             });
         }
         return CoverageDescriptions;
-    })();
+    }());
     wcs.CoverageDescriptions = CoverageDescriptions;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1480,7 +1521,7 @@ var wcs;
             return result;
         };
         return CRS;
-    })();
+    }());
     wcs.CRS = CRS;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1497,7 +1538,7 @@ var wcs;
             return result;
         };
         return Clipping;
-    })();
+    }());
     wcs.Clipping = Clipping;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1512,7 +1553,7 @@ var wcs;
                 "&VERSION=" + this.version;
         };
         return RequestBase;
-    })();
+    }());
     wcs.RequestBase = RequestBase;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1520,11 +1561,12 @@ var wcs;
     var DescribeCoverage = (function (_super) {
         __extends(DescribeCoverage, _super);
         function DescribeCoverage(coverageIds) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             if (!coverageIds.length) {
                 throw new rasdaman.common.IllegalArgumentException("coverageIds");
             }
-            this.coverageId = angular.copy(coverageIds);
+            _this.coverageId = angular.copy(coverageIds);
+            return _this;
         }
         DescribeCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -1533,7 +1575,7 @@ var wcs;
             return serialization;
         };
         return DescribeCoverage;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.DescribeCoverage = DescribeCoverage;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1546,7 +1588,7 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return DimensionSubset;
-    })();
+    }());
     wcs.DimensionSubset = DimensionSubset;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1554,14 +1596,15 @@ var wcs;
     var DimensionSlice = (function (_super) {
         __extends(DimensionSlice, _super);
         function DimensionSlice(dimension, slicePoint) {
-            _super.call(this, dimension);
-            this.slicePoint = slicePoint;
+            var _this = _super.call(this, dimension) || this;
+            _this.slicePoint = slicePoint;
+            return _this;
         }
         DimensionSlice.prototype.toKVP = function () {
             return this.dimension + "(" + this.slicePoint + ")";
         };
         return DimensionSlice;
-    })(wcs.DimensionSubset);
+    }(wcs.DimensionSubset));
     wcs.DimensionSlice = DimensionSlice;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1569,15 +1612,16 @@ var wcs;
     var DimensionTrim = (function (_super) {
         __extends(DimensionTrim, _super);
         function DimensionTrim(dimension, trimLow, trimHigh) {
-            _super.call(this, dimension);
-            this.trimLow = trimLow;
-            this.trimHigh = trimHigh;
+            var _this = _super.call(this, dimension) || this;
+            _this.trimLow = trimLow;
+            _this.trimHigh = trimHigh;
+            return _this;
         }
         DimensionTrim.prototype.toKVP = function () {
             return this.dimension + "(" + this.trimLow + "," + this.trimHigh + ")";
         };
         return DimensionTrim;
-    })(wcs.DimensionSubset);
+    }(wcs.DimensionSubset));
     wcs.DimensionTrim = DimensionTrim;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1585,9 +1629,10 @@ var wcs;
     var GetCapabilities = (function (_super) {
         __extends(GetCapabilities, _super);
         function GetCapabilities() {
-            _super.call(this);
-            this.service = "WCS";
-            this.acceptVersions = ["2.0.1"];
+            var _this = _super.call(this) || this;
+            _this.service = "WCS";
+            _this.acceptVersions = ["2.0.1"];
+            return _this;
         }
         GetCapabilities.prototype.toKVP = function () {
             return "&SERVICE=" + this.service +
@@ -1595,7 +1640,7 @@ var wcs;
                 "&REQUEST=" + this.request;
         };
         return GetCapabilities;
-    })(ows.GetCapabilities);
+    }(ows.GetCapabilities));
     wcs.GetCapabilities = GetCapabilities;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1607,7 +1652,7 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return RangeItem;
-    })();
+    }());
     wcs.RangeItem = RangeItem;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1629,7 +1674,7 @@ var wcs;
             }
         };
         return RangeSubset;
-    })();
+    }());
     wcs.RangeSubset = RangeSubset;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1641,7 +1686,7 @@ var wcs;
             throw new rasdaman.common.NotImplementedException();
         };
         return Scaling;
-    })();
+    }());
     wcs.Scaling = Scaling;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1649,15 +1694,15 @@ var wcs;
     var GetCoverage = (function (_super) {
         __extends(GetCoverage, _super);
         function GetCoverage(coverageId, dimensionSubset, format, mediaType) {
-            var _this = this;
-            _super.call(this);
-            this.coverageId = coverageId;
-            this.dimensionSubset = [];
+            var _this = _super.call(this) || this;
+            _this.coverageId = coverageId;
+            _this.dimensionSubset = [];
             dimensionSubset.forEach(function (o) {
                 _this.dimensionSubset.push(o);
             });
-            this.format = format;
-            this.mediaType = mediaType;
+            _this.format = format;
+            _this.mediaType = mediaType;
+            return _this;
         }
         GetCoverage.prototype.toKVP = function () {
             var serialization = _super.prototype.toKVP.call(this);
@@ -1690,7 +1735,7 @@ var wcs;
             return serialization;
         };
         return GetCoverage;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.GetCoverage = GetCoverage;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1706,7 +1751,7 @@ var wcs;
             });
         }
         return InterpolationMetadata;
-    })();
+    }());
     wcs.InterpolationMetadata = InterpolationMetadata;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1714,13 +1759,14 @@ var wcs;
     var ProcessCoverages = (function (_super) {
         __extends(ProcessCoverages, _super);
         function ProcessCoverages(query, extraParams) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             rasdaman.common.ArgumentValidator.isNotNull(query, "query");
             rasdaman.common.ArgumentValidator.isNotNull(extraParams, "extraParams");
             rasdaman.common.ArgumentValidator.isArray(extraParams, "extraParams");
-            this.request = "ProcessCoverages";
-            this.query = query;
-            this.extraParameters = angular.copy(extraParams);
+            _this.request = "ProcessCoverages";
+            _this.query = query;
+            _this.extraParameters = angular.copy(extraParams);
+            return _this;
         }
         ProcessCoverages.prototype.toKVP = function () {
             var serializedParams = "";
@@ -1732,7 +1778,7 @@ var wcs;
                 + serializedParams;
         };
         return ProcessCoverages;
-    })(wcs.RequestBase);
+    }(wcs.RequestBase));
     wcs.ProcessCoverages = ProcessCoverages;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1750,7 +1796,7 @@ var wcs;
             }
         };
         return Interpolation;
-    })();
+    }());
     wcs.Interpolation = Interpolation;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1758,14 +1804,15 @@ var wcs;
     var RangeComponent = (function (_super) {
         __extends(RangeComponent, _super);
         function RangeComponent(rangeComponent) {
-            _super.call(this);
-            this.rangeComponent = rangeComponent;
+            var _this = _super.call(this) || this;
+            _this.rangeComponent = rangeComponent;
+            return _this;
         }
         RangeComponent.prototype.toKVP = function () {
             return this.rangeComponent;
         };
         return RangeComponent;
-    })(wcs.RangeItem);
+    }(wcs.RangeItem));
     wcs.RangeComponent = RangeComponent;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1773,15 +1820,16 @@ var wcs;
     var RangeInterval = (function (_super) {
         __extends(RangeInterval, _super);
         function RangeInterval(startComponent, endComponent) {
-            _super.call(this);
-            this.startComponent = startComponent;
-            this.endComponent = endComponent;
+            var _this = _super.call(this) || this;
+            _this.startComponent = startComponent;
+            _this.endComponent = endComponent;
+            return _this;
         }
         RangeInterval.prototype.toKVP = function () {
             return this.startComponent.toKVP() + ":" + this.endComponent.toKVP();
         };
         return RangeInterval;
-    })(wcs.RangeItem);
+    }(wcs.RangeItem));
     wcs.RangeInterval = RangeInterval;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1789,17 +1837,18 @@ var wcs;
     var ScaleByFactor = (function (_super) {
         __extends(ScaleByFactor, _super);
         function ScaleByFactor(scaleFactor) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             if (scaleFactor < 0) {
                 throw new rasdaman.common.IllegalArgumentException("ScaleFactor must be positive.");
             }
-            this.scaleFactor = scaleFactor;
+            _this.scaleFactor = scaleFactor;
+            return _this;
         }
         ScaleByFactor.prototype.toKVP = function () {
             return "&SCALEFACTOR=" + this.scaleFactor;
         };
         return ScaleByFactor;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleByFactor = ScaleByFactor;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1816,7 +1865,7 @@ var wcs;
             return this.axis + "(" + this.scaleFactor + ")";
         };
         return ScaleAxis;
-    })();
+    }());
     wcs.ScaleAxis = ScaleAxis;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1824,8 +1873,9 @@ var wcs;
     var ScaleAxesByFactor = (function (_super) {
         __extends(ScaleAxesByFactor, _super);
         function ScaleAxesByFactor(scaleAxis) {
-            _super.call(this);
-            this.scaleAxis = angular.copy(scaleAxis);
+            var _this = _super.call(this) || this;
+            _this.scaleAxis = angular.copy(scaleAxis);
+            return _this;
         }
         ScaleAxesByFactor.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -1835,7 +1885,7 @@ var wcs;
             return "&SCALEAXES=" + serializedAxes.join(",");
         };
         return ScaleAxesByFactor;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleAxesByFactor = ScaleAxesByFactor;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1852,7 +1902,7 @@ var wcs;
             return this.axis + "(" + this.targetSize + ")";
         };
         return TargetAxisSize;
-    })();
+    }());
     wcs.TargetAxisSize = TargetAxisSize;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1860,8 +1910,9 @@ var wcs;
     var ScaleToSize = (function (_super) {
         __extends(ScaleToSize, _super);
         function ScaleToSize(targetAxisSize) {
-            _super.call(this);
-            this.targetAxisSize = angular.copy(targetAxisSize);
+            var _this = _super.call(this) || this;
+            _this.targetAxisSize = angular.copy(targetAxisSize);
+            return _this;
         }
         ScaleToSize.prototype.toKVP = function () {
             var targetAxesSize = [];
@@ -1871,7 +1922,7 @@ var wcs;
             return "&SCALESIZE=" + targetAxesSize.join(",");
         };
         return ScaleToSize;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleToSize = ScaleToSize;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1886,7 +1937,7 @@ var wcs;
             return this.axis + "(" + this.low + ":" + this.high + ")";
         };
         return TargetAxisExtent;
-    })();
+    }());
     wcs.TargetAxisExtent = TargetAxisExtent;
 })(wcs || (wcs = {}));
 var wcs;
@@ -1894,8 +1945,9 @@ var wcs;
     var ScaleToExtent = (function (_super) {
         __extends(ScaleToExtent, _super);
         function ScaleToExtent(targetAxisExtent) {
-            _super.call(this);
-            this.targetAxisExtent = angular.copy(targetAxisExtent);
+            var _this = _super.call(this) || this;
+            _this.targetAxisExtent = angular.copy(targetAxisExtent);
+            return _this;
         }
         ScaleToExtent.prototype.toKVP = function () {
             var serializedAxes = [];
@@ -1905,7 +1957,7 @@ var wcs;
             return "&SCALEEXTENT=" + serializedAxes.join(",");
         };
         return ScaleToExtent;
-    })(wcs.Scaling);
+    }(wcs.Scaling));
     wcs.ScaleToExtent = ScaleToExtent;
 })(wcs || (wcs = {}));
 var rasdaman;
@@ -1918,7 +1970,7 @@ var rasdaman;
         }
         WCSSettingsService.$inject = ["$window"];
         return WCSSettingsService;
-    })();
+    }());
     rasdaman.WCSSettingsService = WCSSettingsService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2074,7 +2126,7 @@ var rasdaman;
         };
         WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return WCSService;
-    })();
+    }());
     rasdaman.WCSService = WCSService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2088,7 +2140,7 @@ var rasdaman;
         ErrorHandlingService.prototype.handleError = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
+                args[_i] = arguments[_i];
             }
             if (args.length == 1) {
                 var errorInformation = args[0][0];
@@ -2113,7 +2165,7 @@ var rasdaman;
         };
         ErrorHandlingService.$inject = ["Notification", "rasdaman.common.SerializedObjectFactory", "$log"];
         return ErrorHandlingService;
-    })();
+    }());
     rasdaman.ErrorHandlingService = ErrorHandlingService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2131,7 +2183,7 @@ var rasdaman;
         WMSSettingsService.$inject = ["$window"];
         WMSSettingsService.version = "1.3.0";
         return WMSSettingsService;
-    })();
+    }());
     rasdaman.WMSSettingsService = WMSSettingsService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2434,7 +2486,7 @@ var rasdaman;
             "rasdaman.WMSSettingsService"
         ];
         return WebWorldWindService;
-    })();
+    }());
     rasdaman.WebWorldWindService = WebWorldWindService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2503,7 +2555,7 @@ var rasdaman;
             "rasdaman.WCSSettingsService"
         ];
         return WCSSettingsController;
-    })();
+    }());
     rasdaman.WCSSettingsController = WCSSettingsController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2596,7 +2648,7 @@ var rasdaman;
         };
         WCSMainController.$inject = ["$scope", "$rootScope", "$state"];
         return WCSMainController;
-    })();
+    }());
     rasdaman.WCSMainController = WCSMainController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2669,7 +2721,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 if (!$scope.wcsServerEndpoint) {
                     alertService.error("The entered WCS endpoint is invalid.");
@@ -2698,20 +2750,19 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         $scope.coveragesExtents = null;
                         $scope.isCoveragesExtentsOpen = false;
                         errorHandlingService.handleError(args);
                         $log.error(args);
-                    })
-                        .finally(function () {
+                    })["finally"](function () {
                         $scope.wcsStateInformation.getCoveragesExtents = $scope.coveragesExtents;
                     });
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     $scope.capabilitiesDocument = null;
                     $scope.capabilities = null;
@@ -2720,8 +2771,7 @@ var rasdaman;
                     $scope.isServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                     $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
                     $rootScope.$broadcast("reloadServerCapabilities", true);
                 });
@@ -2739,7 +2789,7 @@ var rasdaman;
             "rasdaman.WebWorldWindService"
         ];
         return WCSGetCapabilitiesController;
-    })();
+    }());
     rasdaman.WCSGetCapabilitiesController = WCSGetCapabilitiesController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2820,14 +2870,13 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     $scope.coverageDescriptionsDocument = null;
                     $scope.coverageDescriptions = null;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                     $scope.wcsStateInformation.selectedCoverageDescriptions = $scope.coverageDescriptions;
                 });
             };
@@ -2844,7 +2893,7 @@ var rasdaman;
             "rasdaman.WebWorldWindService"
         ];
         return WCSDescribeCoverageController;
-    })();
+    }());
     rasdaman.WCSDescribeCoverageController = WCSDescribeCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2891,7 +2940,7 @@ var rasdaman;
                     _this.wcsService.deleteCoverage($scope.idOfCoverageToDelete).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
                         _this.$log.log(args);
@@ -2899,11 +2948,11 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                         $scope.requestInProgress = false;
                     });
                 }
@@ -2920,7 +2969,7 @@ var rasdaman;
             "rasdaman.ErrorHandlingService"
         ];
         return WCSDeleteCoverageController;
-    })();
+    }());
     rasdaman.WCSDeleteCoverageController = WCSDeleteCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -2945,7 +2994,7 @@ var rasdaman;
                     _this.wcsService.insertCoverage($scope.urlOfCoverageToInsert, $scope.useGeneratedCoverageId).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.alertService.success("Successfully inserted coverage.");
                         _this.$log.info(args);
@@ -2953,11 +3002,11 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         _this.errorHandlingService.handleError(args);
                         _this.$log.error(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                         $scope.requestInProgress = false;
                     });
                 }
@@ -2971,7 +3020,7 @@ var rasdaman;
             "rasdaman.ErrorHandlingService"
         ];
         return WCSInsertCoverageController;
-    })();
+    }());
     rasdaman.WCSInsertCoverageController = WCSInsertCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3100,7 +3149,7 @@ var rasdaman;
                             }, function () {
                                 var args = [];
                                 for (var _i = 0; _i < arguments.length; _i++) {
-                                    args[_i - 0] = arguments[_i];
+                                    args[_i] = arguments[_i];
                                 }
                                 $scope.core.requestUrl = null;
                                 alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
@@ -3137,7 +3186,7 @@ var rasdaman;
             "rasdaman.WebWorldWindService"
         ];
         return WCSGetCoverageController;
-    })();
+    }());
     rasdaman.WCSGetCoverageController = WCSGetCoverageController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3148,7 +3197,7 @@ var rasdaman;
             this.parameters = parameters;
         }
         return WidgetConfiguration;
-    })();
+    }());
     rasdaman.WidgetConfiguration = WidgetConfiguration;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3183,7 +3232,7 @@ var rasdaman;
             }
         }
         return WCPSCommand;
-    })();
+    }());
     rasdaman.WCPSCommand = WCPSCommand;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3194,7 +3243,7 @@ var rasdaman;
             this.command = command;
         }
         return WCPSQueryResult;
-    })();
+    }());
     rasdaman.WCPSQueryResult = WCPSQueryResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3202,11 +3251,12 @@ var rasdaman;
     var RawWCPSResult = (function (_super) {
         __extends(RawWCPSResult, _super);
         function RawWCPSResult(command, data) {
-            _super.call(this, command);
-            this.data = data.toString();
+            var _this = _super.call(this, command) || this;
+            _this.data = data.toString();
+            return _this;
         }
         return RawWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.RawWCPSResult = RawWCPSResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3214,12 +3264,13 @@ var rasdaman;
     var ImageWCPSResult = (function (_super) {
         __extends(ImageWCPSResult, _super);
         function ImageWCPSResult(command, rawImageData) {
-            _super.call(this, command);
-            this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            var _this = _super.call(this, command) || this;
+            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            return _this;
         }
         return ImageWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.ImageWCPSResult = ImageWCPSResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3227,12 +3278,12 @@ var rasdaman;
     var DiagramWCPSResult = (function (_super) {
         __extends(DiagramWCPSResult, _super);
         function DiagramWCPSResult(command, data) {
-            _super.call(this, command);
+            var _this = _super.call(this, command) || this;
             var diagramType = "lineChart";
             if (command.widgetConfiguration.parameters && command.widgetConfiguration.parameters.type) {
                 diagramType = command.widgetConfiguration.parameters.type;
             }
-            this.diagramOptions = {
+            _this.diagramOptions = {
                 chart: {
                     type: diagramType,
                     height: 300,
@@ -3267,14 +3318,15 @@ var rasdaman;
                     y: rawData[i]
                 });
             }
-            this.diagramData = [
+            _this.diagramData = [
                 {
                     values: processedValues
                 }
             ];
+            return _this;
         }
         return DiagramWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.DiagramWCPSResult = DiagramWCPSResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3282,22 +3334,23 @@ var rasdaman;
     var WebWorldWindWCPSResult = (function (_super) {
         __extends(WebWorldWindWCPSResult, _super);
         function WebWorldWindWCPSResult(command, rawImageData) {
-            _super.call(this, command);
-            this.minLat = -90;
-            this.minLong = -180;
-            this.maxLat = 90;
-            this.maxLong = 180;
-            this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
-            this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
+            var _this = _super.call(this, command) || this;
+            _this.minLat = -90;
+            _this.minLong = -180;
+            _this.maxLat = 90;
+            _this.maxLong = 180;
+            _this.base64ImageData = rasdaman.common.ImageUtilities.arrayBufferToBase64(rawImageData);
+            _this.imageType = (command.query.search(/jpeg/g) === -1 ? "image/png" : "image/jpeg");
             if (command.widgetParameters.length > 0) {
-                this.minLat = parseFloat(command.widgetParameters[0]);
-                this.minLong = parseFloat(command.widgetParameters[1]);
-                this.maxLat = parseFloat(command.widgetParameters[2]);
-                this.maxLong = parseFloat(command.widgetParameters[3]);
+                _this.minLat = parseFloat(command.widgetParameters[0]);
+                _this.minLong = parseFloat(command.widgetParameters[1]);
+                _this.maxLat = parseFloat(command.widgetParameters[2]);
+                _this.maxLong = parseFloat(command.widgetParameters[3]);
             }
+            return _this;
         }
         return WebWorldWindWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.WebWorldWindWCPSResult = WebWorldWindWCPSResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3305,11 +3358,12 @@ var rasdaman;
     var NotificationWCPSResult = (function (_super) {
         __extends(NotificationWCPSResult, _super);
         function NotificationWCPSResult(command, data) {
-            _super.call(this, command);
-            this.data = data.toString();
+            var _this = _super.call(this, command) || this;
+            _this.data = data.toString();
+            return _this;
         }
         return NotificationWCPSResult;
-    })(rasdaman.WCPSQueryResult);
+    }(rasdaman.WCPSQueryResult));
     rasdaman.NotificationWCPSResult = NotificationWCPSResult;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3414,7 +3468,7 @@ var rasdaman;
             return errorMessage;
         };
         return WCPSResultFactory;
-    })();
+    }());
     rasdaman.WCPSResultFactory = WCPSResultFactory;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3460,7 +3514,7 @@ var rasdaman;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         if (args[0].data instanceof ArrayBuffer) {
                             var decoder = new TextDecoder("utf-8");
@@ -3469,8 +3523,7 @@ var rasdaman;
                         errorHandlingService.handleError(args);
                         $log.error(args);
                         $scope.editorData.push(new rasdaman.NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));
-                    })
-                        .finally(function () {
+                    })["finally"](function () {
                         $scope.editorData[indexOfResults].finished = true;
                         $interval.cancel(waitingForResultsPromise);
                     });
@@ -3543,14 +3596,14 @@ var rasdaman;
             "rasdaman.ErrorHandlingService"
         ];
         return WCSProcessCoverageController;
-    })();
+    }());
     rasdaman.WCSProcessCoverageController = WCSProcessCoverageController;
     var WaitingForResult = (function () {
         function WaitingForResult() {
             this.secondsPassed = 0;
         }
         return WaitingForResult;
-    })();
+    }());
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
@@ -3591,7 +3644,7 @@ var rasdaman;
             this.rangeSubset.rangeItem.splice(index, 1);
         };
         return RangeSubsettingModel;
-    })();
+    }());
     rasdaman.RangeSubsettingModel = RangeSubsettingModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3693,7 +3746,7 @@ var rasdaman;
         WCSScalingExtensionModel.DEFAULT_SCALE_FACTOR = 1.0;
         WCSScalingExtensionModel.DEFAULT_AXIS_SIZE = 0.0;
         return WCSScalingExtensionModel;
-    })();
+    }());
     rasdaman.WCSScalingExtensionModel = WCSScalingExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3732,7 +3785,7 @@ var rasdaman;
             return new wcs.Interpolation(interpolationUri);
         };
         return WCSInterpolationExtensionModel;
-    })();
+    }());
     rasdaman.WCSInterpolationExtensionModel = WCSInterpolationExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3757,7 +3810,7 @@ var rasdaman;
             return new wcs.CRS(this.wcsGetCoverageSubsettingCRS, this.wcsGetCoverageOutputCRS);
         };
         return WCSCRSExtensionModel;
-    })();
+    }());
     rasdaman.WCSCRSExtensionModel = WCSCRSExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3782,7 +3835,7 @@ var rasdaman;
             return new wcs.Clipping(this.wcsGetCoverageClipping);
         };
         return WCSClippingExtensionModel;
-    })();
+    }());
     rasdaman.WCSClippingExtensionModel = WCSClippingExtensionModel;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3808,7 +3861,7 @@ var wms;
             this.abstract = abstract;
         }
         return ServiceIdentification;
-    })();
+    }());
     wms.ServiceIdentification = ServiceIdentification;
 })(wms || (wms = {}));
 var wms;
@@ -3879,7 +3932,7 @@ var wms;
             return null;
         };
         return Capabilities;
-    })();
+    }());
     wms.Capabilities = Capabilities;
 })(wms || (wms = {}));
 var rasdaman;
@@ -3914,7 +3967,7 @@ var rasdaman;
         };
         WMSMainController.$inject = ["$scope", "$rootScope", "$state"];
         return WMSMainController;
-    })();
+    }());
     rasdaman.WMSMainController = WMSMainController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -3953,7 +4006,7 @@ var rasdaman;
         };
         AdminMainController.$inject = ["$scope", "$rootScope", "$state"];
         return AdminMainController;
-    })();
+    }());
     rasdaman.AdminMainController = AdminMainController;
 })(rasdaman || (rasdaman = {}));
 var wms;
@@ -3965,7 +4018,7 @@ var wms;
             return "request=" + "GetCapabilities";
         };
         return GetCapabilities;
-    })();
+    }());
     wms.GetCapabilities = GetCapabilities;
 })(wms || (wms = {}));
 var wms;
@@ -4010,7 +4063,7 @@ var wms;
             }
         };
         return Layer;
-    })();
+    }());
     wms.Layer = Layer;
 })(wms || (wms = {}));
 var wms;
@@ -4029,7 +4082,7 @@ var wms;
             this.country = country;
         }
         return ServiceProvider;
-    })();
+    }());
     wms.ServiceProvider = ServiceProvider;
 })(wms || (wms = {}));
 var wms;
@@ -4042,7 +4095,7 @@ var wms;
             this.ymax = ymax;
         }
         return BBox;
-    })();
+    }());
     wms.BBox = BBox;
 })(wms || (wms = {}));
 var wms;
@@ -4054,7 +4107,7 @@ var wms;
             this.displayFootprint = false;
         }
         return CoverageExtent;
-    })();
+    }());
     wms.CoverageExtent = CoverageExtent;
 })(wms || (wms = {}));
 var rasdaman;
@@ -4140,7 +4193,7 @@ var rasdaman;
         };
         WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return WMSService;
-    })();
+    }());
     rasdaman.WMSService = WMSService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -4207,7 +4260,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 if (!$scope.wmsServerEndpoint) {
                     alertService.error("The entered WMS endpoint is invalid.");
@@ -4232,7 +4285,7 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     $scope.capabilitiesDocument = null;
                     $scope.capabilities = null;
@@ -4241,8 +4294,7 @@ var rasdaman;
                     $scope.isServiceProviderOpen = false;
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                     $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
@@ -4259,7 +4311,7 @@ var rasdaman;
             "rasdaman.WebWorldWindService"
         ];
         return WMSGetCapabilitiesController;
-    })();
+    }());
     rasdaman.WMSGetCapabilitiesController = WMSGetCapabilitiesController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -4340,7 +4392,7 @@ var rasdaman;
                         }, function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i - 0] = arguments[_i];
+                                args[_i] = arguments[_i];
                             }
                             errorHandlingService.handleError(args);
                             $log.error(args);
@@ -4412,17 +4464,17 @@ var rasdaman;
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                     });
                 }
             };
@@ -4440,17 +4492,17 @@ var rasdaman;
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                         $scope.wmsStateInformation.reloadServerCapabilities = true;
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i - 0] = arguments[_i];
+                            args[_i] = arguments[_i];
                         }
                         errorHandlingService.handleError(args);
-                    }).finally(function () {
+                    })["finally"](function () {
                     });
                 }
             };
@@ -4459,17 +4511,17 @@ var rasdaman;
                 wmsService.deleteLayerStyleRequest(deleteLayerStyle).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully delete style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                     $scope.wmsStateInformation.reloadServerCapabilities = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                }).finally(function () {
+                })["finally"](function () {
                 });
             };
         }
@@ -4485,7 +4537,7 @@ var rasdaman;
             "rasdaman.WebWorldWindService"
         ];
         return WMSDescribeLayerController;
-    })();
+    }());
     rasdaman.WMSDescribeLayerController = WMSDescribeLayerController;
 })(rasdaman || (rasdaman = {}));
 var admin;
@@ -4500,7 +4552,7 @@ var admin;
                 "&password=" + this.password;
         };
         return Credential;
-    })();
+    }());
     admin.Credential = Credential;
 })(admin || (admin = {}));
 var admin;
@@ -4515,7 +4567,7 @@ var admin;
                 "&abstract=" + this.abstract;
         };
         return ServiceIdentification;
-    })();
+    }());
     admin.ServiceIdentification = ServiceIdentification;
 })(admin || (admin = {}));
 var admin;
@@ -4554,7 +4606,7 @@ var admin;
                 "&country=" + this.country;
         };
         return ServiceProvider;
-    })();
+    }());
     admin.ServiceProvider = ServiceProvider;
 })(admin || (admin = {}));
 var rasdaman;
@@ -4622,7 +4674,7 @@ var rasdaman;
         };
         AdminService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return AdminService;
-    })();
+    }());
     rasdaman.AdminService = AdminService;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -4640,22 +4692,22 @@ var rasdaman;
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 adminService.login($scope.credential).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully logged in.");
                     $scope.adminStateInformation.loggedIn = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                }).finally(function () {
+                })["finally"](function () {
                 });
             };
         }
@@ -4669,7 +4721,7 @@ var rasdaman;
             "rasdaman.ErrorHandlingService"
         ];
         return AdminLoginController;
-    })();
+    }());
     rasdaman.AdminLoginController = AdminLoginController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -4693,7 +4745,7 @@ var rasdaman;
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 var capabilitiesRequest = new wcs.GetCapabilities();
                 wcsService.getServerCapabilities(capabilitiesRequest)
@@ -4721,58 +4773,57 @@ var rasdaman;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
                     $log.error(args);
-                })
-                    .finally(function () {
+                })["finally"](function () {
                 });
             };
             $scope.updateServiceIdentification = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 adminService.updateServiceIdentification($scope.serviceIdentification).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully update Service Identifcation to Petascope database.");
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                }).finally(function () {
+                })["finally"](function () {
                 });
             };
             $scope.updateServiceProvider = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 adminService.updateServiceProvider($scope.serviceProvider).then(function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully update Service Provider to Petascope database.");
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
+                        args[_i] = arguments[_i];
                     }
                     errorHandlingService.handleError(args);
-                }).finally(function () {
+                })["finally"](function () {
                 });
             };
             $scope.logOut = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
+                    args[_i] = arguments[_i];
                 }
                 $scope.adminStateInformation.loggedIn = false;
             };
@@ -4788,7 +4839,7 @@ var rasdaman;
             "rasdaman.ErrorHandlingService"
         ];
         return AdminOWSMetadataManagementController;
-    })();
+    }());
     rasdaman.AdminOWSMetadataManagementController = AdminOWSMetadataManagementController;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
@@ -4865,7 +4916,7 @@ var rasdaman;
             "NotificationProvider"
         ];
         return AngularConfig;
-    })();
+    }());
     rasdaman.AngularConfig = AngularConfig;
     var wcsClient = angular
         .module(rasdaman.Constants.APP_NAME, ["ngRoute",
@@ -4904,6 +4955,7 @@ var rasdaman;
         .directive("wwdDisplay", rasdaman.WebWorldWindDisplayWidget)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
+        .directive("scrollToBottom", rasdaman.common.scrollToBottom)
         .directive("autocomplete", rasdaman.common.Autocomplete);
 })(rasdaman || (rasdaman = {}));
 var wms;
@@ -4920,7 +4972,7 @@ var wms;
                 "&layer=" + this.layerName;
         };
         return DeleteLayerStyle;
-    })();
+    }());
     wms.DeleteLayerStyle = DeleteLayerStyle;
 })(wms || (wms = {}));
 var wms;
@@ -4937,7 +4989,7 @@ var wms;
                 "&width=" + this.width + "&height=" + this.height + "&crs=EPSG:4326&format=image/png&transparent=true&styles=";
         };
         return GetMap;
-    })();
+    }());
     wms.GetMap = GetMap;
 })(wms || (wms = {}));
 var wms;
@@ -4964,7 +5016,7 @@ var wms;
                 "&" + this.queryFragmentType + "=" + this.query;
         };
         return InsertLayerStyle;
-    })();
+    }());
     wms.InsertLayerStyle = InsertLayerStyle;
 })(wms || (wms = {}));
 var wms;
@@ -4977,7 +5029,7 @@ var wms;
             this.query = query;
         }
         return Style;
-    })();
+    }());
     wms.Style = Style;
 })(wms || (wms = {}));
 var wms;
@@ -5004,7 +5056,7 @@ var wms;
                 "&" + this.queryFragmentType + "=" + this.query;
         };
         return UpdateLayerStyle;
-    })();
+    }());
     wms.UpdateLayerStyle = UpdateLayerStyle;
 })(wms || (wms = {}));
 //# sourceMappingURL=main.js.map
