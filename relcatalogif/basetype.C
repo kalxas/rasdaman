@@ -120,7 +120,7 @@ BaseType::getCondenseOp( Ops::OpType op ) const
 int
 BaseType::compatibleWith(const Type* aType) const
 {
-    int retval = (myType == aType->getType());
+    int retval = ((myType == aType->getType()) || (aType->getType() == CHAR && myType == BOOLTYPE));
     return retval;
 }
 

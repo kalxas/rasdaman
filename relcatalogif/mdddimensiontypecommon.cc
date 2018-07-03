@@ -167,7 +167,8 @@ int
 MDDDimensionType::compatibleWith(const Type* aType) const
 {
     int retval = 0;
-    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
+    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && 
+            (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not a domain- or dimensiontype";
         retval = 0;

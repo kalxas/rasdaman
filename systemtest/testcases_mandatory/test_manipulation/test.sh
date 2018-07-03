@@ -159,6 +159,20 @@ logn "dropping collection $TEST_COLLECTION... "
 $RASQL --quiet -q "drop collection $TEST_COLLECTION"
 check
 
+# ------------------------------------------------------------------------------
+# test if rasdaman throws an error when importing array with wrong type
+# ------------------------------------------------------------------------------
+
+TEST_COLLECTION=test_rgb_wrong
+create_coll $TEST_COLLECTION GreySet
+
+$RASQL --quiet -q "insert into $TEST_COLLECTION values decode(\$1)" -f $SCRIPT_DIR/testdata/rgb.png 2>&1 | grep -F -q "959"
+check_result 0 $? "inserting a wrong type... "
+
+drop_colls $TEST_COLLECTION
+
+# ------------------------------------------------------------------------------
+
 TEST_COLLECTION=test_insert
 drop_colls $TEST_COLLECTION
 logn "create collection $TEST_COLLECTION... "

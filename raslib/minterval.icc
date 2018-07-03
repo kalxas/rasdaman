@@ -112,12 +112,12 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
     {
         for (r_Dimension i = 0; i < dimensionality ; i++)
         {
-            // first check if i am low fixed and the other isn't: false
+            // first check if it is low fixed and the other isn't: false
             // both are low fixed
-            // check if i am smaller than the other: false
-            // second check if i am high fixed and the other isn't: false
+            // check if it is smaller than the other: false
+            // second check if it is high fixed and the other isn't: false
             // both are high fixed
-            // check if i am smaller than the other: false
+            // check if it is smaller than the other: false
             if  (
                 (intervals[i].is_low_fixed() && (!(inter2[i].is_low_fixed()) || intervals[i].low() > inter2[i].low()))
                 ||

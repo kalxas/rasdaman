@@ -208,7 +208,7 @@ QtInsert::evaluate()
         //
         // check MDD and collection type for compatibility
         //
-        const MDDBaseType* sourceBaseType = sourceObj->getMDDBaseType();
+        const MDDBaseType* sourceMDDType = sourceObj->getMDDBaseType();
         const MDDType* targetMDDType = persColl->getCollectionType()->getMDDType();
 
         int cellSize;
@@ -227,7 +227,7 @@ QtInsert::evaluate()
 
         // bug fix: "insert into" found claimed non-existing type mismatch -- PB 2003-aug-25, based on fix by K.Hahn
         // if( !persColl->getCollectionType()->compatibleWith( (Type*) sourceObj->getMDDBaseType() ) )
-//        if (!((MDDType*) sourceObj->getMDDBaseType())->compatibleWith(persColl->getCollectionType()->getMDDType())) {
+        // if (!((MDDType*) sourceObj->getMDDBaseType())->compatibleWith(persColl->getCollectionType()->getMDDType()))
 
         // fix PB's bug fix (above) - the else is the old code, which is wrong but removing it
         // will break backwards compatibility - rasql always inserts GreyString data when inv_* functions are used.
@@ -235,22 +235,12 @@ QtInsert::evaluate()
 
         // check if the types of the MDD to be inserted and the target collection are compatible
         bool compatible = false;
-        if (dataToInsert)
-        {
-            compatible = targetMDDType->compatibleWith(sourceBaseType);
-        }
-        else
-        {
-            if (sourceMDD->isFromConversion())
-            {
-                compatible = true;
-            }
-            else
-            {
-                compatible = targetMDDType->compatibleWith(sourceBaseType);
-            }
-        }
-
+        
+        const auto *targetBaseType = 
+            (static_cast<const MDDBaseType*>(targetMDDType))->getBaseType();
+        const auto *sourceBaseType = 
+            (static_cast<const MDDBaseType*>(sourceMDDType))->getBaseType();
+        compatible = targetBaseType->compatibleWith(sourceBaseType);
         if (!compatible)
         {
             // free resources
@@ -269,7 +259,7 @@ QtInsert::evaluate()
         }
 
         r_Minterval definitionDomain = sourceObj->getDefinitionDomain();
-        if (!persColl->getCollectionType()->getMDDType()->compatibleWithDomain(&definitionDomain))
+        if (!targetMDDType->compatibleWithDomain(&definitionDomain))
         {
             // free resources
             persColl->releaseAll();
