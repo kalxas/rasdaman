@@ -139,7 +139,16 @@ void RasManager::start()
     this->running = true;
     // Finally assemble the server.
     this->server = builder.BuildAndStart();
+    
+    if (this->server == nullptr)
+    {
+        std::ostringstream error;
 
+        error << "Failed to start rasmanager on port '"
+              << this->port
+              << "'.";
+        throw common::Exception(error.str());
+    }
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.
     server->Wait();
