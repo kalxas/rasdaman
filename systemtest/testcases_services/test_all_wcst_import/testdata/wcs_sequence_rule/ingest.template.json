@@ -1,0 +1,25 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_sequence_rule",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_regular",
+    "options": {
+      "time_start": "2012-12-02T20:12:02",
+      "time_format": "auto",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_step": "2 days 10 minutes 3 seconds",
+      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+    }
+  }
+}

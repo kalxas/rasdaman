@@ -587,20 +587,31 @@ public class GmlCoverageBuilder {
     }
 
     /**
-     * Return the order of grid axes in Rasdaman which can be different from the
-     * geo axes with CRS order e.g: EPSG:4326 is stored as Long, Lat as grid
-     * order and for crs order is Lat, Long
-     *
-     * @param wcpsCoverageMetadata
-     * @return The whitespace-separated list of inner-outer axis order.
+     * If a coverage imported with this sdom [0:35,0:17,0:3] with grid axes order: long (+2), lat (+1), time (+3) and crs axes order: lat (+1), long (+2), time (+3)
+     * then the result of WCS GetCoverage in GML will return tupleList element which contains the result of: encode(c, "JSON")
+     * which iterate the sdom in grid axes order: from outer time axis to lat axis then inner long axis.
+     * 
+     * Hence, the sequenceRule must follow the way Rasdaman iterates and it should return: +3 +1 +2 (reversed order from sdom)
      */
     private static String getGridFunctionAxisOrder(WcpsCoverageMetadata wcpsCoverageMetadata) {
-        String axisOrder = "";
-        for (Axis axis : wcpsCoverageMetadata.getAxes()) {
-            axisOrder += "+" + (axis.getRasdamanOrder() + 1) + " ";
+        String sequenceRule = "";
+        
+        for (int i = wcpsCoverageMetadata.getSortedAxesByGridOrder().size() - 1; i >= 0; i--) {
+            int sequenceNumber = 0;
+            // Iterate by grid axes order reversed
+            Axis axis = wcpsCoverageMetadata.getSortedAxesByGridOrder().get(i);
+            for (int j = 0; j < wcpsCoverageMetadata.getAxes().size(); j++) {
+                // Iterate by crs axes order
+                if (wcpsCoverageMetadata.getAxes().get(j).getLabel().equals(axis.getLabel())) {
+                    sequenceNumber = j + 1;
+                    break;
+                }
+            }
+            // e.g: +3 +1 +2 (for 3D coverage imported with grid axes order: long, lat, time)            
+            sequenceRule += "+" + sequenceNumber + " ";
         }
 
-        return axisOrder.trim();
+        return sequenceRule.trim();
     }
 
     /**

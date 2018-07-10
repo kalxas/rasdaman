@@ -21,7 +21,7 @@
         <wcs:CoverageId>test_meris_lai_3d_data_bound_time_axis_false</wcs:CoverageId>
         <coverageFunction>
             <GridFunction>
-                <sequenceRule axisOrder="+1 +2 +3">Linear</sequenceRule>
+                <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
                 <startPoint>0 0 0</startPoint>
             </GridFunction>
         </coverageFunction>

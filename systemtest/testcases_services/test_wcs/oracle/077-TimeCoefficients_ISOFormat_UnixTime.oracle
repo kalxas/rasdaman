@@ -20,7 +20,7 @@
         <wcs:CoverageId>test_AverageChloro</wcs:CoverageId>
         <coverageFunction>
             <GridFunction>
-                <sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
+                <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
                 <startPoint>0 0 0</startPoint>
             </GridFunction>
         </coverageFunction>

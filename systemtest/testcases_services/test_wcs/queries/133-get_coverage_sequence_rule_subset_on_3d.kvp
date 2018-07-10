@@ -1,0 +1,5 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=GetCoverage&
+COVERAGEID=test_sequence_rule&
+subset=ansi("2012-12-01T20:07:00.500Z")

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage id="test_sequence_rule"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="Lat Long ansi" srsDimension="3"
+            srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
+            <lowerCorner>20 0 "2012-12-01T20:07:00.500Z"</lowerCorner>
+            <upperCorner>40 20 "2012-12-05T20:27:06.500Z"</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <RectifiedGrid dimension="3" id="test_sequence_rule-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>0 0 0</low>
+                    <high>1 2 1</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>Lat Long ansi</axisLabels>
+            <origin>
+                <Point id="test_sequence_rule-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
+                    <pos>35 3.333333333335 "2012-12-02T20:12:02.000Z"</pos>
+                </Point>
+            </origin>
+            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-10 0 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 6.66666666667 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 2.00697916667</offsetVector>
+        </RectifiedGrid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">0,6,1,7,2,8,3,9,4,10,5,11</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
+            <startPoint>0 0 0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Gray">
+                <swe:Quantity >
+                    <swe:label>Gray</swe:label>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>

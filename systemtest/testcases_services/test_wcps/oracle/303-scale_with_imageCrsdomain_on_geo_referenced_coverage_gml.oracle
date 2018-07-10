@@ -39,7 +39,7 @@
     </rangeSet>
     <coverageFunction>
         <GridFunction>
-            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+            <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
             <startPoint>22 16</startPoint>
         </GridFunction>
     </coverageFunction>
