@@ -26,7 +26,8 @@ install(DIRECTORY examples/images
         DESTINATION "${SHARE_DATA_DIR}/examples")
 
 install(DIRECTORY examples/java
-        DESTINATION "${SHARE_DATA_DIR}/examples")
+        DESTINATION "${SHARE_DATA_DIR}/examples"
+		PATTERN "*.in" EXCLUDE)
 
 install(FILES examples/c++/query.cc
         examples/c++/basictypes.hh
@@ -40,10 +41,16 @@ install(FILES examples/rasdl/basictypes.dl
 
 #TODO:Fix the old makefile for compatibility
 set(RASDAMAN_INSTALLATION ${CMAKE_INSTALL_PREFIX})
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Standalone_Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/java/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile" @ONLY)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile"
         DESTINATION "${SHARE_DATA_DIR}/examples/c++/"
+        RENAME Makefile)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile"
+        DESTINATION "${SHARE_DATA_DIR}/examples/java/"
         RENAME Makefile)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/manuals/"

@@ -49,7 +49,7 @@ public class Query {
         String server = "localhost";
         String port = "7001";
         String base = "RASBASE";
-        String coll = "rockies";
+        String coll = "mr";
         String user = "rasguest";
         String passwd = "rasguest";
         String file = "";
@@ -203,12 +203,10 @@ public class Query {
             } catch (FileNotFoundException e) {
                 ret = ret + " Log-file not found!" + e.getMessage();
                 System.out.println(ret);
-            } catch (IOException e) {
-                ret = ret + " Could not write Log-file!" + e.getMessage();
-                System.out.println(ret);
             }
         }
 
     }
 
 }
+

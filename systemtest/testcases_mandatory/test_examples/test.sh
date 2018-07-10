@@ -26,6 +26,7 @@
 # Description
 #	Command-line utility for testing rasdaman.
 #	1)Testing Makefile for C++
+#	2)Testing Makefile for Java
 #
 # Usage: ./test.sh
 #
@@ -41,11 +42,33 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
+rm -rf $SCRIPT_DIR/output/
+mkdir -p $SCRIPT_DIR/output/
+
 logn "testing Makefile for C++... "
-mkdir -p $SCRIPT_DIR/output
 cd "$RMANHOME/share/rasdaman/examples/c++/"
 make &>"$SCRIPT_DIR/output/make_cpp.log"
 check
+
+
+check_java_enabled
+run_java_test=$?
+
+if [ "$run_java_test" -eq 0 ]; then
+    logn "testing Makefile for Java... "
+    cd "$RMANHOME/share/rasdaman/examples/java/"
+
+    # Compile all java files to class files 
+    make all &>"$SCRIPT_DIR/output/make_java.log"
+    # then run these files
+    for file in *.java; do
+        className="${file%.*}" # remove extension
+        make $className &> "$SCRIPT_DIR/output/make_${className}.log"
+        check
+    done
+    # remove built class files
+    make clean &>"$SCRIPT_DIR/output/make_java.log"
+fi
 
 # ------------------------------------------------------------------------------
 # test summary

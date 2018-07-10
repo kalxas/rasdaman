@@ -316,6 +316,15 @@ check_filestorage_dependencies()
   [ $(type sqlite3  &> /dev/null) ] || error "sqlite3 not found, please install."
 }
 
+# Check if rasdaman was built with -DENABLE_JAVA=ON
+check_java_enabled() {
+  if [ "$ENABLE_JAVA" == "ON" ]; then
+    return 0
+  else
+    log "Test cannot be executed as compilation of Java components in rasdaman is disabled; to enable it, please run cmake again with -DENABLE_JAVA=ON, followed by make and make install."
+    return 1
+  fi
+}
 
 # ------------------------------------------------------------------------------
 # print test summary

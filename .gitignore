@@ -80,7 +80,6 @@ dbparams.properties
 applications/petascope/build
 applications/petascope/nbproject/private/
 Makefile
-Makefile.in
 applications/petascope/nbproject/private/
 applications/secore/secore-core/dist/
 applications/secore/secore-web/dist/applications/petascope/build/

@@ -21,7 +21,7 @@
 
 set(TEST_SEQUENCE "testcases_mandatory/* testcases_open/* testcases_fixed/*")
 if (ENABLE_JAVA)
-	set(TEST_SEQUENCE "testcases_mandatory/* testcases_open/* testcases_fixed/* testcases_services/*")
+	set(TEST_SEQUENCE "testcases_mandatory/* testcases_open/* testcases_fixed/* testcases_services/*")	
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh.in" "${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh" @ONLY)

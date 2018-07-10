@@ -43,7 +43,7 @@ public class Lookup {
     public static void main(String[] args) {
         String server = "localhost";
         String base = "RASBASE";
-        String coll = "rockies";
+        String coll = "mr";
         String port = "7001";
         String user = "rasguest";
         String passwd = "rasguest";
