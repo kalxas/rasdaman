@@ -69,7 +69,7 @@ static const char rcsid[] = "@(#)servercomm, ServerComm: $Id: servercomm.cc,v 1.
 #include <stdlib.h>
 #include <string.h>
 
-#include <signal.h>    // for signal()
+#include <signal.h>    // for sigaction()
 #include <unistd.h>    // for alarm(), gethostname()
 #include <iomanip>
 
@@ -233,7 +233,11 @@ ServerComm::startRpcServer()
     register SVCXPRT* transp;
 
     // install a signal handler to catch alarm signals for garbage collection
-    signal(SIGALRM, garbageCollection);
+    struct sigaction garbageCollectionHandler;
+    memset(&garbageCollectionHandler,0,sizeof(garbageCollectionHandler));
+    garbageCollectionHandler.sa_handler = garbageCollection;
+    
+    sigaction(SIGALRM, &garbageCollectionHandler, NULL);
 
     LINFO << "Testing if no other rasdaman RPC server with my listenPort (0x" << hex << listenPort << dec << ") is already running on this CPU...";
 
@@ -294,8 +298,12 @@ ServerComm::startRpcServer()
           << " secs...";
     alarm(static_cast<unsigned int>(garbageCollectionInterval));
     LINFO << MSG_OK;
-
-    signal(SIGTERM, rpcSignalHandler);
+    
+    struct sigaction rpcSignal;
+    memset(&rpcSignal,0,sizeof(rpcSignal));
+    rpcSignal.sa_handler = rpcSignalHandler;
+    
+    sigaction(SIGALRM, &rpcSignal, NULL);
     informRasMGR(SERVER_AVAILABLE);
     LINFO << "rasdaman server " << serverName << " is up.";
 
@@ -342,9 +350,17 @@ void our_svc_run()
             // reentrance is possible!
 
             // these should abort any pending transaction
-            signal(SIGALRM, garbageCollectionDummy);
+            struct sigaction garbageCollectionDummyHandler;
+            memset(&garbageCollectionDummyHandler,0,sizeof(garbageCollectionDummyHandler));
+            garbageCollectionDummyHandler.sa_handler = garbageCollectionDummy;
+            
+            struct sigaction garbageCollectionHandler;
+            memset(&garbageCollectionHandler,0,sizeof(garbageCollectionHandler));
+            garbageCollectionHandler.sa_handler = garbageCollection;
+    
+            sigaction(SIGALRM, &garbageCollectionDummyHandler, NULL);
             ServerComm::actual_servercomm->callback_mgr.executePending();
-            signal(SIGALRM, garbageCollection);
+            sigaction(SIGALRM, &garbageCollectionHandler, NULL);
             timeout.tv_sec = TIMEOUT_SELECT;
             timeout.tv_usec = 0;
 
@@ -474,8 +490,11 @@ void rpcif_1_caller(struct svc_req* rqstp, SVCXPRT* transp)
     {
         // the client got the message
         // no reason to continue
-
-        signal(SIGALRM, garbageCollectionDummy);
+        struct sigaction garbageCollectionDummyHandler;
+        memset(&garbageCollectionDummyHandler,0,sizeof(garbageCollectionDummyHandler));
+        garbageCollectionDummyHandler.sa_handler = garbageCollectionDummy;
+    
+        sigaction(SIGALRM, &garbageCollectionDummyHandler, NULL);
         ServerComm::actual_servercomm->callback_mgr.executePending();
         LFATAL << "Internal error: rasserver panic: memory exhausted, terminating forcefully.";
         exit(1);

@@ -196,56 +196,60 @@ signalHandler(int sig)
 void
 installSignalHandlers()
 {
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
-    signal(SIGHUP, signalHandler);
-    signal(SIGPIPE, signalHandler);
-    signal(SIGHUP, signalHandler);
-    signal(SIGINT, signalHandler);
-    signal(SIGQUIT, signalHandler);
-    signal(SIGILL, signalHandler);
-    signal(SIGTRAP, signalHandler);
-    signal(SIGABRT, signalHandler);
-    signal(SIGIOT, signalHandler);
-    signal(SIGBUS, signalHandler);
-    signal(SIGFPE, signalHandler);
-    signal(SIGKILL, signalHandler);
-    signal(SIGUSR1, signalHandler);
-    signal(SIGSEGV, signalHandler);
-    signal(SIGUSR2, signalHandler);
-    signal(SIGPIPE, signalHandler);
-    signal(SIGALRM, signalHandler);
-    signal(SIGTERM, signalHandler);
+    struct sigaction signal;
+    memset(&signal,0,sizeof(signal));
+    signal.sa_handler = signalHandler;
+    
+    sigaction(SIGINT, &signal, NULL);
+    sigaction(SIGTERM, &signal, NULL);
+    sigaction(SIGHUP, &signal, NULL);
+    sigaction(SIGPIPE, &signal, NULL);
+    sigaction(SIGHUP, &signal, NULL);
+    sigaction(SIGINT, &signal, NULL);
+    sigaction(SIGQUIT, &signal, NULL);
+    sigaction(SIGILL, &signal, NULL);
+    sigaction(SIGTRAP, &signal, NULL);
+    sigaction(SIGABRT, &signal, NULL);
+    sigaction(SIGIOT, &signal, NULL);
+    sigaction(SIGBUS, &signal, NULL);
+    sigaction(SIGFPE, &signal, NULL);
+    sigaction(SIGKILL, &signal, NULL);
+    sigaction(SIGUSR1, &signal, NULL);
+    sigaction(SIGSEGV, &signal, NULL);
+    sigaction(SIGUSR2, &signal, NULL);
+    sigaction(SIGPIPE, &signal, NULL);
+    sigaction(SIGALRM, &signal, NULL);
+    sigaction(SIGTERM, &signal, NULL);
 #ifndef SOLARIS
 #ifndef DECALPHA
 #ifndef __APPLE__
-    signal(SIGSTKFLT, signalHandler);
+    sigaction(SIGSTKFLT, &signal, NULL);
 #endif
 #endif
 #endif
-    signal(SIGCHLD, signalHandler);
-    signal(SIGCONT, signalHandler);
-    signal(SIGSTOP, signalHandler);
-    signal(SIGTSTP, signalHandler);
-    signal(SIGTTIN, signalHandler);
-    signal(SIGTTOU, signalHandler);
-    signal(SIGURG, signalHandler);
-    signal(SIGXCPU, signalHandler);
-    signal(SIGXFSZ, signalHandler);
-    signal(SIGVTALRM, signalHandler);
-    signal(SIGPROF, signalHandler);
-    signal(SIGWINCH, signalHandler);
+    sigaction(SIGCHLD, &signal, NULL);
+    sigaction(SIGCONT, &signal, NULL);
+    sigaction(SIGSTOP, &signal, NULL);
+    sigaction(SIGTSTP, &signal, NULL);
+    sigaction(SIGTTIN, &signal, NULL);
+    sigaction(SIGTTOU, &signal, NULL);
+    sigaction(SIGURG, &signal, NULL);
+    sigaction(SIGXCPU, &signal, NULL);
+    sigaction(SIGXFSZ, &signal, NULL);
+    sigaction(SIGVTALRM, &signal, NULL);
+    sigaction(SIGPROF, &signal, NULL);
+    sigaction(SIGWINCH, &signal, NULL);
 #ifndef __APPLE__
-    signal(SIGCLD, signalHandler);
-    signal(SIGPOLL, signalHandler);
-    signal(SIGPWR, signalHandler);
+    sigaction(SIGCLD, &signal, NULL);
+    sigaction(SIGPOLL, &signal, NULL);
+    sigaction(SIGPWR, &signal, NULL);
 #endif
-    signal(SIGIO, signalHandler);
-    signal(SIGSYS, signalHandler);
+    sigaction(SIGIO, &signal, NULL);
+    sigaction(SIGSYS, &signal, NULL);
 #if !defined SOLARIS
 #if !defined DECALPHA
 #ifndef __APPLE__
-    signal(SIGUNUSED, signalHandler);
+    sigaction(SIGUNUSED, &signal, NULL);
 #endif
 #endif
 #endif

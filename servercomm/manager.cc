@@ -55,7 +55,7 @@ extern int noTimeOut;
 // Put it in front of any typedef bool ... because o2 is using bool as a variable.
 // #include "o2template_CC.hxx"
 
-#include <signal.h>    // for signal()
+#include <signal.h>    // for sigaction()
 #include <unistd.h>    // for alarm()
 
 #ifndef SOLARIS
@@ -270,9 +270,17 @@ void freeDynamicRPCData()
 
     // execute all pending callbacks. Redirect alarm signal first to make sure no
     // reentrancy is possible!
-    signal(SIGALRM, garbageCollectionDummy);
+    struct sigaction garbageCollectionDummyHandler;
+    memset(&garbageCollectionDummyHandler,0,sizeof(garbageCollectionDummyHandler));
+    garbageCollectionDummyHandler.sa_handler = garbageCollectionDummy;
+    
+    struct sigaction garbageCollectionHandler;
+    memset(&garbageCollectionHandler,0,sizeof(garbageCollectionHandler));
+    garbageCollectionHandler.sa_handler = garbageCollection;
+    
+    sigaction(SIGALRM, &garbageCollectionDummyHandler, NULL);
     ServerComm::actual_servercomm->callback_mgr.executePending();
-    signal(SIGALRM, garbageCollection);
+    sigaction(SIGALRM, &garbageCollectionHandler, NULL);
 }
 
 
@@ -2021,8 +2029,12 @@ garbageCollection(int)
     sc->callback_mgr.registerUniqueCallback(callback_garbage_collection, static_cast<void*>(sc));
 
     // Re-initialize the signal handler to point to this function
-    signal(SIGALRM, garbageCollection);
-
+    
+    struct sigaction garbageCollectionHandler;
+    memset(&garbageCollectionHandler,0,sizeof(garbageCollectionHandler));
+    garbageCollectionHandler.sa_handler = garbageCollection;
+    
+    sigaction(SIGALRM, &garbageCollectionHandler, NULL);
     // Reset the alarm
     alarm(static_cast<unsigned int>(sc->garbageCollectionInterval));
 }
@@ -2036,7 +2048,11 @@ garbageCollectionDummy(int)
 {
     /* Dummy garbage collection function for avoiding reentrance of the callback manager.
        Does nothing but reinstall the signal. */
-    signal(SIGALRM, garbageCollection);
+    struct sigaction garbageCollectionHandler;
+    memset(&garbageCollectionHandler,0,sizeof(garbageCollectionHandler));
+    garbageCollectionHandler.sa_handler = garbageCollection;
+    
+    sigaction(SIGALRM, &garbageCollectionHandler, NULL);
     alarm(static_cast<unsigned int>(ServerComm::actual_servercomm->garbageCollectionInterval));
 }
 

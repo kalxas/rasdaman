@@ -131,9 +131,16 @@ void sigIntHandler(__attribute__ ((unused)) int sig)
 void installSignalHandlers()
 {
     //TODO: This is deprecated.
-    signal(SIGINT, sigIntHandler);
-    signal(SIGTERM, sigIntHandler);
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGTTOU, SIG_IGN);
+    struct sigaction sigInt;
+    memset(&sigInt,0,sizeof(sigInt));
+    sigInt.sa_handler = sigIntHandler;
+    
+    sigaction(SIGINT, &sigInt, NULL);
+    sigaction(SIGTERM, &sigInt, NULL);
+    
+    sigInt.sa_handler = SIG_IGN;
+    
+    sigaction(SIGHUP, &sigInt, NULL);
+    sigaction(SIGPIPE, &sigInt, NULL);
+    sigaction(SIGTTOU, &sigInt, NULL);
 }

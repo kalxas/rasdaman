@@ -210,7 +210,11 @@ int main(int argc, char** argv)
     //
 
     NNLINFO << "Installing signal handler for ignoring broken pipe signal... ";
-    signal(SIGPIPE, SIG_IGN);
+    struct sigaction signal;
+    memset(&signal,0,sizeof(signal));
+    signal.sa_handler = SIG_IGN;
+    
+    sigaction(SIGPIPE, &signal, NULL);
     BLINFO << "ok.\n\n";
 
     int returnCode = 0;

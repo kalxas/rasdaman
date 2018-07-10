@@ -60,7 +60,11 @@ extern "C"
 
 void startRnpServer()
 {
-    signal(SIGTERM, rnpSignalHandler);
+    struct sigaction rnpSignal;
+    memset(&rnpSignal,0,sizeof(rnpSignal));
+    rnpSignal.sa_handler = rnpSignalHandler;
+    
+    sigaction(SIGTERM, &rnpSignal, NULL);
 
     LINFO << "Initializing control connections...";
     rasmgrComm.init(static_cast<unsigned int>(configuration.getTimeout()), configuration.getServerName(), configuration.getRasmgrHost(), configuration.getRasmgrPort());

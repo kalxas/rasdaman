@@ -39,7 +39,7 @@ static const char rcsid[] = "@(#)servercomm, HttpServer: $Id: httpserver.cc,v 1.
 #include <time.h>      // for time()
 #include <string.h>
 
-#include <signal.h>    // for signal()
+#include <signal.h>    // for sigaction()
 #include <unistd.h>    // for alarm(), gethostname()
 #include <iomanip>
 
@@ -463,7 +463,10 @@ HttpServer::startRpcServer()
     // simulating command line arguments
     const char* dummy[] = { "rasserver", "-c", "httpserver.conf" };
 
-    signal(SIGTERM, termSignalHandler);
+    struct sigaction termSignal;
+    memset(&termSignal,0,sizeof(termSignal));
+    termSignal.sa_handler = termSignalHandler;
+    sigaction(SIGALRM, &termSignal, NULL);
     cout << "RasDaMan server " << serverName << " is up." << endl;
     LINFO << "RasDaMan server " << serverName << " is up.";
 

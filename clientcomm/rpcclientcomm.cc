@@ -63,7 +63,7 @@ using namespace std;
 #endif
 
 #include <unistd.h>    // for sleep(), alarm()
-#include <signal.h>    // for signal()
+#include <signal.h>    // for sigaction()
 #endif
 #ifdef __VISUALC__  // do this ONLY for VisualC! Not for EARLY_TEMPLATE
 #define __EXECUTABLE__
@@ -3349,7 +3349,10 @@ void RpcClientComm::sendAliveSignal()
         timerid = timeSetEvent(ALIVEINTERVAL * 1000, 0, TimerProc, NULL, TIME_PERIODIC);
 #else
         // Re-initialize the signal handler to point to this function
-        signal(SIGALRM, aliveSignal);
+        struct sigaction aliveSignalHandler;
+        memset(&aliveSignalHandler,0,sizeof(aliveSignalHandler));
+        aliveSignalHandler.sa_handler = aliveSignal;
+        sigaction(SIGALRM, &aliveSignalHandler, NULL);
 
         // Reset the alarm
         alarm(ALIVEINTERVAL);
@@ -3905,7 +3908,10 @@ RpcClientComm::connectToServer(unsigned short readOnly)
 
 #ifndef __VISUALC__
     // Install a signal handler for the alive signal
-    signal(SIGALRM, aliveSignal);
+    struct sigaction aliveSignalHandler;
+    memset(&aliveSignalHandler,0,sizeof(aliveSignalHandler));
+    aliveSignalHandler.sa_handler = aliveSignal;
+    sigaction(SIGALRM, &aliveSignalHandler, NULL);
 #endif
     return 1;
 }
