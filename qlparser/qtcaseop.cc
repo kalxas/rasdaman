@@ -403,7 +403,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
 
     delete conditionList2;
     delete resultList;
-
+    
     //clear the cache
     //mdd
     std::vector<std::pair <QtOperation*, QtDataList*>>::iterator cacheIter;
@@ -845,13 +845,13 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
     else
     {
         // get the mdd vars
-        const auto & mddVars = *(currentOperation->getChild(QT_MDD_VAR, QT_ALL_NODES));
+        QtNodeList* mddVars = currentOperation->getChild(QT_MDD_VAR, QT_ALL_NODES);
         QtNodeList originalTree;
         QtNodeList replacedTree;
-        auto mddVar = mddVars.begin();
+        QtNodeList::iterator mddVar = mddVars->begin();
         auto tileIter = currentTiles->begin();
         auto pointIter = cachedPoints->begin();
-        for ( ;mddVar != mddVars.end() && tileIter != currentTiles->end() && pointIter != cachedPoints->end();
+        for ( ;mddVar != mddVars->end() && tileIter != currentTiles->end() && pointIter != cachedPoints->end();
                mddVar++, tileIter++, pointIter++)
         {
             // storage container for the data of the cell
@@ -868,6 +868,7 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
             originalTree.push_back((*mddVar));
             replacedTree.push_back(newInput);
         }
+        delete mddVars;
         // evaluate the newly formed operation
         // before, the operation was returning an array, set the dataStreamType to a baseType
         // this has to be done for every operation in the new tree
@@ -906,6 +907,11 @@ QtData* QtCaseOp::evaluateCellByCell(QtDataList* inputList, QtOperation* current
                streamChangedIter++, oldStreamIter++)
         {
             (static_cast<QtOperation*>(*streamChangedIter))->setDataStreamType((*oldStreamIter));
+        }
+        for (replaced = replacedTree.begin();replaced != replacedTree.end();++replaced)
+        {
+            delete *replaced;
+            *replaced = NULL;
         }
     }
     return localResult;
