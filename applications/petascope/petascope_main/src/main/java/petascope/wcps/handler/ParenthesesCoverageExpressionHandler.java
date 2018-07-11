@@ -31,7 +31,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ParenthesesCoverageExpressionHandler {
+public class ParenthesesCoverageExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(WcpsResult coverageExpr) {
         String rasql = " ( " + coverageExpr.getRasql() + " ) ";

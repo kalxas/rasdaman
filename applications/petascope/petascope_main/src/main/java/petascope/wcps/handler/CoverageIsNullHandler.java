@@ -35,7 +35,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageIsNullHandler {
+public class CoverageIsNullHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(WcpsResult coverageExpression, boolean isNull) {
         String rasqlResult = null;

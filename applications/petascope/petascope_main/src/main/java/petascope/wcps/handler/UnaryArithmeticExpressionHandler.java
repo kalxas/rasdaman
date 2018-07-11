@@ -35,7 +35,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class UnaryArithmeticExpressionHandler {
+public class UnaryArithmeticExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String operator, WcpsResult coverageExpression) {
         String template = TEMPLATE.replace("$coverage", coverageExpression.getRasql());

@@ -33,7 +33,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RealNumberConstantHandler {
+public class RealNumberConstantHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String number) {
         return new WcpsResult(null, number);

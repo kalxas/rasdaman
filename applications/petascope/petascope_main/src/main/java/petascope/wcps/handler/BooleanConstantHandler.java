@@ -37,7 +37,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanConstantHandler {
+public class BooleanConstantHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String booleanValue) {
         return new WcpsResult(null, booleanValue);

@@ -43,14 +43,14 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RangeConstructorHandler {
+public class RangeConstructorHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
         List<String> translatedFields = new ArrayList();
         // NOTE: if range is single scalar value then metadata is NULL. If any range has a not-null metadata, the metadata is from this range.
         WcpsCoverageMetadata metadata = null;
 
-        List<RangeField> rangeFields = new ArrayList<RangeField>();
+        List<RangeField> rangeFields = new ArrayList<>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
             translatedFields.add(entry.getValue().getRasql());
             WcpsCoverageMetadata rangeMetadata = entry.getValue().getMetadata();

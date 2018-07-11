@@ -30,7 +30,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class NanScalarHandler {
+public class NanScalarHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String scalar) {
         return new WcpsResult(null, scalar);

@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
@@ -53,7 +52,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class GeneralCondenserHandler {
+public class GeneralCondenserHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -65,9 +64,9 @@ public class GeneralCondenserHandler {
     public WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
             WcpsResult using) {
         // contains subset dimension without "$"
-        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
+        List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<>();
         // contains subset dimension with "$"
-        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = new ArrayList<WcpsSubsetDimension>();
+        List<WcpsSubsetDimension> axisIteratorSubsetDimensions = new ArrayList<>();
 
         // All of the axis iterators uses the same rasql alias name (e.g: px)
         String rasqlAliasName = "";

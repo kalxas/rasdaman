@@ -49,7 +49,7 @@ SELECT encode(case
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class SwitchCaseRangeConstructorExpression {
+public class SwitchCaseRangeConstructorExpression extends AbstractOperatorHandler {
 
     public WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> rangeResults) {
         List<String> translatedFields = new ArrayList();

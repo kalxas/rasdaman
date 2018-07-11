@@ -42,9 +42,14 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class ImageCrsDomainExpressionHandler {
+public class ImageCrsDomainExpressionHandler extends AbstractOperatorHandler {
+    
+    public static final String OPERATOR = "imageCrsDomain";
 
     public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
+        
         // just iterate the axes and get the grid bound for each axis
         String rasql = "";
         List<String> axisBounds = new ArrayList<>();

@@ -62,7 +62,9 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CrsTransformHandler {
+public class CrsTransformHandler extends AbstractOperatorHandler {
+    
+    public static final String OPERATOR = "crsTransform";
 
     /**
      * Constructor for the class
@@ -75,7 +77,11 @@ public class CrsTransformHandler {
      * @param wcpsCoverageMetadataService
      * @return
      */
-    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, HashMap<String, HashMap<String, String>> rangeInterpolations) throws PetascopeException, SecoreException {
+    public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, 
+                            HashMap<String, HashMap<String, String>> rangeInterpolations) throws PetascopeException, SecoreException {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR);   
+        
         checkValid(axisCrss);
         String rasql = getBoundingBox(coverageExpression, axisCrss);
         String outputCrs = axisCrss.values().toArray()[0].toString();

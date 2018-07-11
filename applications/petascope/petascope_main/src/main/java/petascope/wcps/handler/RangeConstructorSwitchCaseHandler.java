@@ -47,7 +47,7 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RangeConstructorSwitchCaseHandler {
+public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
         List<String> translatedFields = new ArrayList();

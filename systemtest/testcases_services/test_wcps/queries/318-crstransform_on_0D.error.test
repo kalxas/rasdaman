@@ -1,0 +1,1 @@
+for $c in (test_mean_summer_airtemp)  return encode(crsTransform(avg($c), { Lat:"http://localhost:8080/def/crs/EPSG/0/3785", Long:"http://localhost:8080/def/crs/EPSG/0/3785"}, {}), "image/png", "nodata=0")

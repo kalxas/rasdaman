@@ -30,7 +30,6 @@ import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
-import petascope.util.ras.RasConstants;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.exception.processing.InvalidCoordinatesForClippingException;
 import petascope.wcps.exception.processing.WcpsRasqlException;
@@ -62,7 +61,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 @Service
-public class ClipExpressionHandler {
+public class ClipExpressionHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataGeneralService;
@@ -73,6 +72,8 @@ public class ClipExpressionHandler {
 
     // Store the calculated bounding box of clipped output from a coverage and a WKT shape
     private final List<Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds = new ArrayList<>();
+    
+    public static final String OPERATOR = "clip";
 
     /**
      * Convert a geoCoordinate for an axis to a numeric BigDecimal value
@@ -306,6 +307,9 @@ public class ClipExpressionHandler {
      * @return WcpsResult an object to be used in upper parsing tree.
      */
     public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS) throws PetascopeException {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR);
+        
         // Clear stored data from last request
         this.clippedCoverageAxesGeoBounds.clear();
 

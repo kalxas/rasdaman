@@ -1,0 +1,1 @@
+for c in (test_eobstest) return domain(avg(c), Lat, "CRS:1")

@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ReduceExpressionHandler {
+public class ReduceExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String operator, WcpsResult reduceParameter) {
         return new WcpsResult(null, TEMPLATE.replace("$reduceOperation", operationTranslator.get(operator.toLowerCase()))
@@ -50,7 +50,7 @@ public class ReduceExpressionHandler {
     }
 
     private final String TEMPLATE = " $reduceOperation($reduceParameter) ";
-    private final Map<String, String> operationTranslator = new HashMap<String, String>();
+    private final Map<String, String> operationTranslator = new HashMap<>();
 
     {
         operationTranslator.put("some", "some_cells");

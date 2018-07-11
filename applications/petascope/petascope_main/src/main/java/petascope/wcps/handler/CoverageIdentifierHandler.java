@@ -36,9 +36,12 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageIdentifierHandler {
+public class CoverageIdentifierHandler extends AbstractOperatorHandler {
+    
+    public static final String OPERATOR = "identifier";
 
     public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
         return new WcpsMetadataResult(coverageExpression.getMetadata(), coverageExpression.getMetadata().getCoverageName());
     }
 

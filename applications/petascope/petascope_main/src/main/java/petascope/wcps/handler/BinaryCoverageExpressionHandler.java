@@ -40,7 +40,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BinaryCoverageExpressionHandler {
+public class BinaryCoverageExpressionHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;

@@ -50,7 +50,9 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class DomainExpressionHandler {
+public class DomainExpressionHandler extends AbstractOperatorHandler {
+    
+    public static final String OPERATOR = "domain";
 
     /**
      * Constructor for the class
@@ -61,6 +63,8 @@ public class DomainExpressionHandler {
      * @return
      */
     public WcpsMetadataResult handle(WcpsResult coverageExpression, String axisName, String axisCrs) {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
         WcpsMetadataResult metadataResult;
         // if axisName and axisCrs is belonge to coverageExpression then can just get the bounding of axis from coverageExpression

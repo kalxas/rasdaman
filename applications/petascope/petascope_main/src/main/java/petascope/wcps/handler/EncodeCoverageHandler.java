@@ -66,7 +66,7 @@ import petascope.wcps.parameters.netcdf.service.NetCDFParametersService;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class EncodeCoverageHandler {
+public class EncodeCoverageHandler extends AbstractOperatorHandler {
 
     private org.slf4j.Logger log = LoggerFactory.getLogger(EncodeCoverageHandler.class);
 
@@ -74,11 +74,12 @@ public class EncodeCoverageHandler {
     private SerializationEncodingService serializationEncodingService;
     @Autowired
     private NetCDFParametersService netCDFParametersFactory;
+    
 
     public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException {
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
-
+        
         // NOTE: must use JP2OpenJPEG to encode with geo-reference metadata for JPEG2000 (JP2)
         if (format.contains(MIMEUtil.FORMAT_ID_JP2) || format.contains(MIMEUtil.CODEC_JP2)) {
             format = MIMEUtil.FORMAT_ID_OPENJP2;

@@ -103,6 +103,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
+import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
 import petascope.wcps.exception.processing.InvalidWKTClippingException;
 import petascope.wcps.handler.ClipExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
@@ -431,6 +432,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
         
         int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (coverageExpression.getMetadata() == null) {
+            throw new Coverage0DMetadataNullException(ClipExpressionHandler.OPERATOR);
+        }
         int coverageDimensions = coverageExpression.getMetadata().getAxes().size();
         if (numberOfDimensions != coverageDimensions) {
             throw new InvalidWKTClippingException("Number of dimensions in WKT '" + numberOfDimensions + "' is different from coverage's '" + coverageDimensions + "'.");

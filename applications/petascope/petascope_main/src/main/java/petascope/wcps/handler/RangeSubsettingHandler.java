@@ -42,12 +42,16 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class RangeSubsettingHandler {
+public class RangeSubsettingHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    
+    public static final String OPERATOR = "range subset";
 
     public WcpsResult handle(String fieldName, WcpsResult coverageExp) {
+        
+        checkOperandIsCoverage(coverageExp, OPERATOR); 
 
         WcpsCoverageMetadata metadata = coverageExp.getMetadata();
 

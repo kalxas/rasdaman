@@ -47,12 +47,16 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ExtendExpressionByImageCrsDomainHandler {
+public class ExtendExpressionByImageCrsDomainHandler extends AbstractOperatorHandler {
     
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    
+    public static final String OPERATOR = "extend";
 
     public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})

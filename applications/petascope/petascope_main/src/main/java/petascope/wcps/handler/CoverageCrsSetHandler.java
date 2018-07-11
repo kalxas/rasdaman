@@ -47,9 +47,14 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class CoverageCrsSetHandler {
+public class CoverageCrsSetHandler extends AbstractOperatorHandler {
+    
+    public static final String OPERATOR = "crsset";
 
     public WcpsMetadataResult handle(WcpsResult coverageExpression) {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
+        
         String result = "";
         List<String> list = new ArrayList<>();
         String tmp = "";

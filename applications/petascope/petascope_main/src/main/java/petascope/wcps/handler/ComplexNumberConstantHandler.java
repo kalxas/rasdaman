@@ -37,7 +37,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ComplexNumberConstantHandler {
+public class ComplexNumberConstantHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String re, String im) {
         return new WcpsResult(null, TEMPLATE.replace("$re", re).replace("$im", im));

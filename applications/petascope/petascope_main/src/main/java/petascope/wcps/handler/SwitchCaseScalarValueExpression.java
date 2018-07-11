@@ -46,7 +46,7 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class SwitchCaseScalarValueExpression {
+public class SwitchCaseScalarValueExpression extends AbstractOperatorHandler {
 
     public WcpsResult handle(List<WcpsResult> booleanResults, List<WcpsResult> scalarResults) {
         List<String> translatedFields = new ArrayList();

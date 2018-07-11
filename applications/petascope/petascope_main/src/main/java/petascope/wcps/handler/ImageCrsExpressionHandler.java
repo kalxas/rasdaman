@@ -36,7 +36,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
-public class ImageCrsExpressionHandler {
+public class ImageCrsExpressionHandler extends AbstractOperatorHandler {
 
     /**
      * Return the Rasql grid CRS of the coverage (CRS:1)

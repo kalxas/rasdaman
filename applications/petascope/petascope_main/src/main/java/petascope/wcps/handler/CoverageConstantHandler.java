@@ -49,7 +49,7 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class CoverageConstantHandler {
+public class CoverageConstantHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -66,7 +66,7 @@ public class CoverageConstantHandler {
             subsetDimensions.add(axisIterator.getSubsetDimension());
         }
         String intervals = rasqlTranslationService.constructRasqlDomainFromSubsets(subsetDimensions);
-        ArrayList<String> constantsByDimension = new ArrayList<String>();
+        ArrayList<String> constantsByDimension = new ArrayList<>();
 
         for (String constant : constantList) {
             constantsByDimension.add(constant);

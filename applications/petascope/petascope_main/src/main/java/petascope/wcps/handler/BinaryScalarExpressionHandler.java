@@ -31,7 +31,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BinaryScalarExpressionHandler {
+public class BinaryScalarExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String firstParameter, String operator, String secondParameter) {
         WcpsResult result = new WcpsResult(null, firstParameter + " " + operator + " " + secondParameter);

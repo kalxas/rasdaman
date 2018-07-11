@@ -35,7 +35,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanUnaryScalarExpressionHandler {
+public class BooleanUnaryScalarExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String operand, WcpsResult scalarExpression) {
         return new WcpsResult(scalarExpression.getMetadata(), TEMPLATE.replace("$operand", operand)

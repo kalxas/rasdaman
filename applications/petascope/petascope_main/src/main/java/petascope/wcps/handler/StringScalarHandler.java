@@ -31,7 +31,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class StringScalarHandler {
+public class StringScalarHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String scalar) {
         return new WcpsResult(null, scalar.substring(1, scalar.length() - 1));

@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.util.ras.RasConstants;
 import petascope.wcps.metadata.service.CoverageAliasRegistry;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.AxisIteratorAliasRegistry;
@@ -50,7 +49,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class CoverageVariableNameHandler {
+public class CoverageVariableNameHandler extends AbstractOperatorHandler {
 
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;

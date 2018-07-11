@@ -48,7 +48,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class ScaleExpressionByDimensionIntervalsHandler {
+public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperatorHandler {
 
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
@@ -56,8 +56,12 @@ public class ScaleExpressionByDimensionIntervalsHandler {
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
+    
+    public static final String OPERATOR = "scale";
 
     public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
+        
+        checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})

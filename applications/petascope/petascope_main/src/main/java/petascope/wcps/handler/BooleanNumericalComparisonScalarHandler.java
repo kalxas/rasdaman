@@ -35,7 +35,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class BooleanNumericalComparisonScalarHandler {
+public class BooleanNumericalComparisonScalarHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(WcpsResult left, WcpsResult right, String operator) {
         return new WcpsResult(null, TEMPLATE.replace("$leftOperand", left.getRasql())

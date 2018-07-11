@@ -35,7 +35,7 @@ import petascope.wcps.result.WcpsResult;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class UnaryBooleanExpressionHandler {
+public class UnaryBooleanExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(WcpsResult coverageExp, WcpsResult scalarExp) {
         String template;

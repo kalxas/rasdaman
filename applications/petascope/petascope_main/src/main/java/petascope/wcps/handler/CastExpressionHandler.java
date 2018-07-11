@@ -37,7 +37,7 @@ import petascope.util.ras.CastDataTypeConverter;
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
 @Service
-public class CastExpressionHandler {
+public class CastExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String rangeType, WcpsResult coverageExp) throws WCPSException {
         String template = TEMPLATE.replace("$rangeType", CastDataTypeConverter.convert(rangeType))
