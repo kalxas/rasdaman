@@ -19,8 +19,10 @@ QtGeometryData::~QtGeometryData()
 }
 
 QtGeometryData::QtGeometryData(const vector< vector< QtMShapeData* > >& geomDataArg, 
-                               const QtGeometryType geomTypeArg)
-    : QtData(), projectionData(NULL), geomData(geomDataArg), geomType(geomTypeArg)
+                               const QtGeometryType geomTypeArg,
+                               QtGeometryFlag geomFlagArg)
+    : QtData(), projectionData(NULL), geomData(geomDataArg), geomType(geomTypeArg), 
+        geomFlag(geomFlagArg)
 {
     initializeData();
 }

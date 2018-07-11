@@ -408,7 +408,7 @@ QtClipping::extractLinestring(const MDDObj* op,
     
     //only consider the segments which contribute new points to the result vector
     //as above, the start and end points must differ.
-    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isSingleton), bBoxes.end());    
+    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isRedundant), bBoxes.end());    
     
     //for each one, we construct a vector (actually a pair) of r_Points representing the endpoints of the line segment being considered
     
@@ -752,64 +752,28 @@ QtClipping::extractCurtain(const MDDObj* op, const r_Minterval& areaOp,
     return resultMDD.release();
 }
 
-//functor for passing to the remove_if iterator in std::vector in linestrings
-bool isRedundant(const r_Minterval& interval )
-{
-    return interval.cell_count() == 1;
-}
-
 MDDObj*
 QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp, 
         QtMShapeData* lineStringData, 
         const std::vector<r_Dimension>& maskDims,
-        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask)
+        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask,
+        QtGeometryData::QtGeometryFlag geomFlagArg)
 {   
     // algo for extracting corridor from op using the stored mask
+    // lsData.first is the path data and lsData.second is the associated domain for each path
+    pair< vector< vector< r_Point > > , vector< r_Minterval > > lsData;
     
-    //first, we process the linestring as seen in QtClipping::extractLinestring
-    
-    // create vector of bounding boxes (one for each line segment in the linestring)
-    vector<r_Minterval> bBoxes = lineStringData->localConvexHulls();
-    
-    //only consider the segments which contribute new points to the result vector
-    //as above, the start and end points must differ.
-    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isRedundant), bBoxes.end());    
-    
-    //for each one, we construct a vector (actually a pair) of r_Points representing the endpoints of the line segment being considered
-    
-    vector< vector< r_PointDouble > > vectorOfSegmentEndpointPairs = vectorOfPairsWithoutMultiplicity( lineStringData->getMShapeData(), bBoxes.size() );
-    
-    // create vector of bresenham lines (one for each line segment passing through the domain of the MDDObject)
-    // optimization: we technically only need the offset vectors (points consisting of coordinate values -1, 0, +1), and the first point in the linestring.
-    vector< vector < r_Point > > vectorOfBresenhamLines;
-    vectorOfBresenhamLines.reserve(vectorOfSegmentEndpointPairs.size());
-    for(size_t i = 0; i < vectorOfSegmentEndpointPairs.size(); i++)
+    // if the path is considered to be discrete, no extrapolation occurs
+    if(geomFlagArg == QtGeometryData::QtGeometryFlag::DISCRETEPATH)
     {
-        vectorOfBresenhamLines.emplace_back( computeNDBresenhamSegment(vectorOfSegmentEndpointPairs[i]) );
+        lsData = computeDiscreteLinestring(lineStringData);
     }
-
-    // create vector of intervals for the result domain computations
-    //[0 : k_0-1], [k_0 : k_0 + k_1 - 1], [k_0 + k_1 : k_0 + k_1 + k_2 - 1], ...
-    //for each segment, we need to find the intersection of its bounding box's longest extent's dimension with the domain of the MDDObject being considered
-    
-    //vector of dimension #'s corresponding to the longest extents in bBoxes
-    vector<r_Dimension> longestExtentDims;
-    longestExtentDims.reserve(bBoxes.size());
-    vector< vector<r_Range> > bBoxesExtents;
-    bBoxesExtents.reserve(bBoxes.size());
-    for(size_t i = 0; i < bBoxes.size(); i ++)
+    else
     {
-        bBoxesExtents.emplace_back(bBoxes[i].get_extent().getVector());
-        longestExtentDims.emplace_back( std::distance(bBoxesExtents[i].begin(), 
-                                        std::max_element(bBoxesExtents[i].begin(),
-                                        bBoxesExtents[i].end())) );
+        lsData = computeLinestring(lineStringData);
     }
-       
-    // construct the resulting tile intervals
-    vector<r_Minterval> resultTileMintervals = vectorOfResultTileDomains(bBoxes, longestExtentDims);
-    
     // construct the result linestring interval
-    r_Sinterval lineStringDomain(static_cast<r_Range>(0), resultTileMintervals.back()[0].high());
+    r_Sinterval lineStringDomain(static_cast<r_Range>(0), lsData.second.back()[0].high());
     // the sdom of the mask
     r_Minterval convexHull = *(mask.second);
     
@@ -818,7 +782,7 @@ QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp,
     std::vector< r_Minterval > embeddedMaskDomains;
     //embeddedMaskDomains.reserve(static_cast<size_t>(lineStringDomain.get_extent()));
     
-    embeddedMaskDomains = computeMaskEmbedding(vectorOfBresenhamLines, convexHull, lineStringDomain.get_extent(), maskDims);    
+    embeddedMaskDomains = computeMaskEmbedding(lsData.first, convexHull, lineStringDomain.get_extent(), maskDims);    
   
     //now, we build the convex hull of all these intervals, and call it the "outer hull"
     r_Minterval outerHull = embeddedMaskDomains[0];
@@ -826,6 +790,7 @@ QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp,
     {
         outerHull.closure_with(*it);
     }
+    
     
     // this section is specific to corridors, as we need a stack of intervals for each tile. We need to check each minterval associated with the result anyways, so we can process this "stack" while each individual tile is loaded into memory
     // 0. construct an "outer hull" for limiting the scope of which tiles get loaded into memory, and a vector of areas of interest from the linestring points.
@@ -838,6 +803,9 @@ QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp,
     // Presently, we only iterate a 2-D mask over a linestring, but any dimension of mask should apply here
     
     // r_Minterval corresponding to the result is the length of the linestring * the convex hull of the polygon.
+
+    
+    
     r_Minterval resultDomain( 1 + convexHull.dimension() );    
     //the first dimension corresponds to the length of the linestring
     resultDomain << lineStringDomain;
@@ -1142,7 +1110,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             checkProjDims(opDim, maskDims);
             checkMaskDim(mask.second->dimension(), maskDims);
             
-            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask, geomData->getGeomFlag()) );
             
             break;
         }
@@ -1163,7 +1131,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             checkProjDims(opDim, maskDims);
             checkMaskDim(mask.second->dimension(), maskDims);
             
-            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask, geomData->getGeomFlag()) );
             
             break;
         }
@@ -1181,7 +1149,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             checkProjDims(opDim, maskDims);
             checkMaskDim(mask.second->dimension(), maskDims);
             
-            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask) );
+            resultMDD.reset( extractCorridor(op, areaOp, lineStringData, maskDims, mask, geomData->getGeomFlag()) );
             
             break;
         }
@@ -1504,6 +1472,9 @@ QtClipping::buildAbstractMask(vector<QtPositiveGenusClipping>& mshapeList,
     
     return retVal;
 }
+
+
+
 
 std::vector<r_Minterval>
 QtClipping::computeMaskEmbedding(

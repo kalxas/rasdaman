@@ -1,0 +1,1 @@
+select clip(c, corridor(projection(1,2), linestring(1 1 1, 1 2 3), polygon((-1 -1, -1 -2, -2 -1)), discrete)) from test_grey3d as c

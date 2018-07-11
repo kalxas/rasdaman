@@ -238,6 +238,7 @@ int string_yyinput( char* buf, int max_size )
 "corridor"                               { SETTOKEN( CORRIDOR, commandToken, CORRIDOR)}
 "linestring"                             { SETTOKEN( LINESTRING, commandToken, LINESTRING)}
 "multilinestring"                        { SETTOKEN( MULTILINESTRING, commandToken, MULTILINESTRING)}
+"discrete"                               { SETTOKEN( DISCRETE, commandToken, DISCRETE)}
 "range"                                  { SETTOKEN( RANGE, commandToken, RANGE)}
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }

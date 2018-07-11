@@ -1,1 +1,1 @@
-select encode(clip(c, subspace(10 0 0, 0 10 0 11, 0 0) ), "csv") from test_grey3d as c
+select clip(c, subspace(10 0 0, 0 10 0 11, 0 0) ) from test_grey3d as c

@@ -111,6 +111,15 @@ vector<r_Point> computeNDBresenhamLine(QtMShapeData* mshape);
 // performs the same BLA as above, but with a pair of points as an argument, and without order swapping, for more flexible usage.
 vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& polytopeVertices);
 
+//functor for determining redundancy of r_Mintervals in a vector of r_Mintervals.
+bool isRedundant(const r_Minterval& interval);
+
+// returns a pair consisting of the vector of extrapolated linestring data and a vector consisting of the domains of each segment.
+std::pair< std::vector< std::vector< r_Point > >, std::vector< r_Minterval> > computeLinestring(QtMShapeData* linestringData);
+// returns a pair consisting of teh vector of non-extrapolated linestring data and a vector consisting of the domain of the full linestring.
+// meant to be used in place of the above in discrete corridors.
+pair< vector< vector< r_Point > >, vector< r_Minterval > > computeDiscreteLinestring(QtMShapeData* lineStringData);
+
 // builds a vector of pairs of r_PointDouble to be passed sequentially into computeNDBresenhamSegments, using computeNDBresenhamSegment
 vector< vector< r_PointDouble > > vectorOfPairsWithoutMultiplicity(const std::vector<r_PointDouble>& polytopeVertices, size_t numSteps);
 

@@ -1,1 +1,1 @@
-select encode(clip(c, polygon((50 50, 50 250, 150 300, 250 250, 200 40), (250 100, 140 200, 180 150)) ), "png") from test_rgb2 as c
+select clip(c, polygon((50 50, 50 250, 150 300, 250 250, 200 40), (250 100, 140 200, 180 150)) ) from test_rgb2 as c

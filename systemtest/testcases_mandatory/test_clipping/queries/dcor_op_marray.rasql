@@ -1,0 +1,1 @@
+select encode(marray x in [0:1] values avg_cells(clip(c, corridor(projection((x),2), linestring(13 (x) 1, 15 1 1), polygon(((x) (x), 98 (x), 97 3)), discrete))), "csv") from test_grey3d as c

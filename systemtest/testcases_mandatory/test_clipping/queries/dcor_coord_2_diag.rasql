@@ -1,0 +1,1 @@
+select encode(clip(c, corridor(projection(0,1), linestring(5 9 1, 9 5 3), polygon((5 9, 9 5, 9 9)), discrete)), "csv") from test_grey3d as c

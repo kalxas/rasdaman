@@ -44,7 +44,14 @@ public:
         GEOM_CORRIDOR_MULTILINESTRING_EMBEDDED
     };
     
-    QtGeometryData(const vector< vector< QtMShapeData* > >& geomDataArg, const QtGeometryType geomTypeArg);
+    enum QtGeometryFlag
+    {
+        NONE, //no flag
+        DISCRETEPATH, //discrete linestring extrapolation
+        SPLINE //interpret using spline conventions
+    };
+    
+    QtGeometryData(const vector< vector< QtMShapeData* > >& geomDataArg, const QtGeometryType geomTypeArg, QtGeometryFlag geomFlagArg = NONE);
     virtual ~QtGeometryData();
     
     QtDataType getDataType() const;
@@ -57,6 +64,8 @@ public:
     vector< vector< QtMShapeData* > > getPolygons();
     vector< vector< QtMShapeData* > > getData();
     QtGeometryData::QtGeometryType getGeometryType();
+    
+    inline QtGeometryFlag getGeomFlag(){return geomFlag;};
     
 protected:
     void initializeData();
@@ -72,6 +81,8 @@ private:
     vector< vector< QtMShapeData* > > geomData;
     //geometry type
     const QtGeometryType geomType;
+    //declares discretization (i.e. skip extrapolation in mask-building or extraction methods)
+    QtGeometryFlag geomFlag = NONE;
 };
 
 #endif /* QTGEOMETRYDATA_HH */

@@ -251,7 +251,7 @@ struct QtUpdateSpecElement
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT CLIP CURTAIN CORRIDOR POLYGON LINESTRING MULTIPOLYGON MULTILINESTRING RANGE SCALE SQRT ABS EXP 
-                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE
+                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE DISCRETE
                          ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
@@ -260,7 +260,7 @@ struct QtUpdateSpecElement
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM INV_GRIB ENCODE DECODE CONCAT ALONG DBINFO
                          CASE WHEN THEN ELSE END COMMIT RAS_VERSION P_REGROUP P_REGROUP_AND_SUBTILING P_NO_LIMIT
 
-%left LINESTRING POLYGON PROJECTION CURTAIN CORRIDOR MULTIPOLYGON MULTILINESTRING
+%left LINESTRING POLYGON PROJECTION CURTAIN CORRIDOR MULTIPOLYGON MULTILINESTRING DISCRETE
 %left COLON VALUES USING WHERE
 %left OVERLAY
 %left CONCAT
@@ -2329,6 +2329,124 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($13)
         FREESTACK($15)
         FREESTACK($16)
+    }
+    | CLIP LRPAR generalExp COMMA CORRIDOR LRPAR PROJECTION parentheticalLinestring COMMA LINESTRING parentheticalLinestring COMMA POLYGON LRPAR positiveGenusPolygon RRPAR COMMA DISCRETE RRPAR RRPAR
+    {
+        QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
+        concatOpList->reserve(3);
+
+        QtMShapeOp* projOp = new QtMShapeOp($8);
+        concatOpList->emplace_back( projOp );
+
+        QtMShapeOp* lsOp = new QtMShapeOp( $11 );
+        concatOpList->emplace_back( lsOp );
+
+        QtGeometryOp* polyOp = new QtGeometryOp( $15, QtGeometryData::QtGeometryType::GEOM_POLYGON );
+        concatOpList->emplace_back( polyOp );
+
+        // final geometry
+        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList, 
+                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_POLYGON, 
+                                                 QtGeometryData::QtGeometryFlag::DISCRETEPATH );
+
+        //generate the result mdd containing the curtain-clipped values
+        $$ = new QtClipping( $3, geomOp);
+        $$->setParseInfo( *($1.info) );
+
+        //cleanup mdd arg
+        parseQueryTree->removeDynamicObject( $3 );
+	QtNode::QtOperationList::iterator iter;
+	for( iter=$8->begin(); iter!=$8->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+        for( iter=$11->begin(); iter!=$11->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+        for( iter=$15->begin(); iter!=$15->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+
+        //add this object to the query tree
+        parseQueryTree->addDynamicObject( $$ );
+
+        //cleanup tokens
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($7)
+        FREESTACK($9)
+        FREESTACK($10)
+        FREESTACK($12)
+        FREESTACK($13)
+        FREESTACK($14)
+        FREESTACK($16)
+        FREESTACK($17)
+        FREESTACK($18)
+        FREESTACK($19)
+        FREESTACK($20)
+    }
+    | CLIP LRPAR generalExp COMMA CORRIDOR LRPAR PROJECTION parentheticalLinestring COMMA LINESTRING parentheticalLinestring COMMA LINESTRING positiveGenusPolygon COMMA DISCRETE RRPAR RRPAR
+    {
+        QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
+        concatOpList->reserve(2);
+
+        QtMShapeOp* projOp = new QtMShapeOp($8);
+        concatOpList->emplace_back( projOp );
+
+        QtMShapeOp* lsOp = new QtMShapeOp($11);
+        concatOpList->emplace_back( lsOp );
+
+        QtMShapeOp* lsMaskOp = new QtMShapeOp($14);
+        concatOpList->emplace_back( lsMaskOp);
+
+        //generate the class containing the projection dimension vector
+        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList, 
+                                                 QtGeometryData::QtGeometryType::GEOM_CORRIDOR_LINESTRING_EMBEDDED, 
+                                                 QtGeometryData::QtGeometryFlag::DISCRETEPATH );
+
+        //generate the result mdd containing the curtain-clipped values
+        $$ = new QtClipping( $3, geomOp);
+        $$->setParseInfo( *($1.info) );
+
+        //cleanup mdd arg
+        parseQueryTree->removeDynamicObject( $3 );
+	QtNode::QtOperationList::iterator iter;
+	for( iter=$8->begin(); iter!=$8->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+        for( iter=$11->begin(); iter!=$11->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+        for( iter=$14->begin(); iter!=$14->end(); ++iter )
+        {
+	    parseQueryTree->removeDynamicObject( *iter );
+        }
+
+        //add this object to the query tree
+        parseQueryTree->addDynamicObject( $$ );
+
+        //cleanup tokens
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($6)
+        FREESTACK($7)
+        FREESTACK($9)
+        FREESTACK($10)
+        FREESTACK($12)
+        FREESTACK($13)
+        FREESTACK($15)
+        FREESTACK($16)
+        FREESTACK($17)
+        FREESTACK($18)
     }
     // added -- PB 2005-jun-18
     | EXTEND LRPAR generalExp COMMA generalExp RRPAR

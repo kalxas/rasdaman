@@ -22,8 +22,10 @@ QtGeometryOp::~QtGeometryOp()
 {
 }
 
-QtGeometryOp::QtGeometryOp(QtOperationList* vectorListsArg, QtGeometryData::QtGeometryType geomTypeArg)
-    : QtNaryOperation(vectorListsArg), geomType(geomTypeArg)
+QtGeometryOp::QtGeometryOp(QtOperationList* vectorListsArg, 
+                           QtGeometryData::QtGeometryType geomTypeArg, 
+                           QtGeometryData::QtGeometryFlag geomFlagArg)
+    : QtNaryOperation(vectorListsArg), geomType(geomTypeArg), geomFlag(geomFlagArg)
 {
 }
 
@@ -99,7 +101,7 @@ QtGeometryOp::evaluate(QtDataList* inputList)
                 resultDataVector.emplace_back(intPolyRow);
             }
             //the result object
-            returnValue = new QtGeometryData(resultDataVector, geomType);
+            returnValue = new QtGeometryData(resultDataVector, geomType, geomFlag);
             
         }
     }

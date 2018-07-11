@@ -1,1 +1,1 @@
-select encode(clip(c, polygon((10 10, 399 10, 399 343), (0 300, 0 343, 100 343))), "png") from test_rgb2 as c
+select clip(c, polygon((10 10, 399 10, 399 343), (0 300, 0 343, 100 343))) from test_rgb2 as c

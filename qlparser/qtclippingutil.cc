@@ -629,6 +629,92 @@ vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble>& poly
     return nSubspace;
 }
 
+//functor for passing to the remove_if iterator in std::vector in linestrings
+bool isRedundant(const r_Minterval& interval )
+{
+    return interval.cell_count() == 1;
+}
+
+pair< vector< vector< r_Point > >, vector< r_Minterval > >
+computeLinestring(QtMShapeData* lineStringData)
+{
+    //first, we process the linestring as seen in QtClipping::extractLinestring
+    
+    // create vector of bounding boxes (one for each line segment in the linestring)
+    vector<r_Minterval> bBoxes = lineStringData->localConvexHulls();
+    
+    //only consider the segments which contribute new points to the result vector
+    //as above, the start and end points must differ.
+    bBoxes.erase(remove_if(bBoxes.begin(), bBoxes.end(), isRedundant), bBoxes.end());    
+    
+    //for each one, we construct a vector (actually a pair) of r_Points representing the endpoints of the line segment being considered
+    
+    vector< vector< r_PointDouble > > vectorOfSegmentEndpointPairs = vectorOfPairsWithoutMultiplicity( lineStringData->getMShapeData(), bBoxes.size() );
+    
+    // create vector of bresenham lines (one for each line segment passing through the domain of the MDDObject)
+    // optimization: we technically only need the offset vectors (points consisting of coordinate values -1, 0, +1), and the first point in the linestring.
+    vector< vector < r_Point > > vectorOfBresenhamLines;
+    
+    vectorOfBresenhamLines.reserve(vectorOfSegmentEndpointPairs.size());
+    for(size_t i = 0; i < vectorOfSegmentEndpointPairs.size(); i++)
+    {
+        vectorOfBresenhamLines.emplace_back( computeNDBresenhamSegment(vectorOfSegmentEndpointPairs[i]) );
+    }
+
+    // create vector of intervals for the result domain computations
+    //[0 : k_0-1], [k_0 : k_0 + k_1 - 1], [k_0 + k_1 : k_0 + k_1 + k_2 - 1], ...
+    //for each segment, we need to find the intersection of its bounding box's longest extent's dimension with the domain of the MDDObject being considered
+    
+    //vector of dimension #'s corresponding to the longest extents in bBoxes
+    vector<r_Dimension> longestExtentDims;
+    longestExtentDims.reserve(bBoxes.size());
+    vector< vector<r_Range> > bBoxesExtents;
+    bBoxesExtents.reserve(bBoxes.size());
+    for(size_t i = 0; i < bBoxes.size(); i ++)
+    {
+        bBoxesExtents.emplace_back(bBoxes[i].get_extent().getVector());
+        longestExtentDims.emplace_back( std::distance(bBoxesExtents[i].begin(), 
+                                        std::max_element(bBoxesExtents[i].begin(),
+                                        bBoxesExtents[i].end())) );
+    }
+       
+    // construct the resulting tile intervals
+    vector<r_Minterval> resultTileMintervals = vectorOfResultTileDomains(bBoxes, longestExtentDims);
+    
+    // construct result pair
+    pair< vector< vector< r_Point > >, vector< r_Minterval > > res;
+    res.first = vectorOfBresenhamLines;
+    res.second = resultTileMintervals;
+    
+    return res;
+}
+
+pair< vector< vector< r_Point > >, vector< r_Minterval > >
+computeDiscreteLinestring(QtMShapeData* lineStringData)
+{
+    //the result is a single vector of r_Points and a single r_Minterval.
+    
+    //the result vector of r_Points.
+    vector< vector< r_Point > > resPoints;
+    resPoints.reserve(1);
+    resPoints.emplace_back(lineStringData->getPolytopePoints());
+    
+    
+    //the result r_Minterval
+    vector< r_Minterval > resInt;
+    resInt.reserve(1);
+    r_Minterval resMint(1);
+    resMint[0] = r_Sinterval((r_Range) 0, static_cast<r_Range>(resPoints[0].size() - 1) );
+    resInt.emplace_back(resMint);
+    
+    // construct result pair
+    pair< vector< vector< r_Point > >, vector< r_Minterval > > res;
+    res.first = resPoints;
+    res.second = resInt;
+    
+    return res;    
+}
+
 std::pair<int, int> endpointsSearch(const r_Minterval& domainArg, const std::vector<r_Point>& lineSegmentArg)
 {
     //we first determine which band of values from the BLA result apply to this tile

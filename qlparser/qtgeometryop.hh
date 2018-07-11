@@ -22,7 +22,9 @@ using namespace std;
 
 class QtGeometryOp : public QtNaryOperation {
 public:
-    QtGeometryOp(QtOperationList* vectorListsArg, const QtGeometryData::QtGeometryType geomTypeArg);
+    QtGeometryOp(QtOperationList* vectorListsArg, 
+            const QtGeometryData::QtGeometryType geomTypeArg, 
+            QtGeometryData::QtGeometryFlag geomFlagArg = QtGeometryData::QtGeometryFlag::NONE);
     virtual ~QtGeometryOp();
     
     /// method for evaluating the node
@@ -43,6 +45,9 @@ private:
     
     /// attribute for identification of geometry type
     const QtGeometryData::QtGeometryType geomType;
+    
+    /// flag for geometry interpretation
+    QtGeometryData::QtGeometryFlag geomFlag = QtGeometryData::QtGeometryFlag::NONE;
 };
 
 #endif /* QTGEOMETRYOP_H */

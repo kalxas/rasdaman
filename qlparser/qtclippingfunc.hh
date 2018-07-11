@@ -101,11 +101,13 @@ class QtClipping : public QtBinaryOperation
             const vector<r_Dimension>& maskDims, 
             const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask);
 
+    //if the bool operand is true, then the integration uses the counting measure, otherwise it defaults to lebesgue
     MDDObj* extractCorridor(const MDDObj* op, 
             const r_Minterval& areaOp, 
             QtMShapeData* lineStringData, 
             const std::vector<r_Dimension>& maskDims,
-            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask);    
+            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask,
+            QtGeometryData::QtGeometryFlag geomFlagArg = QtGeometryData::QtGeometryFlag::NONE);    
        
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
     QtData* computeOp(QtMDD* operand, QtGeometryData* geomData);
