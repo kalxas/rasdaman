@@ -1,0 +1,2 @@
+Validation error: Recipe 'test_custom_recipe_non_exists' not found; if it's a custom recipe, please put it in the '$RMANHOME/share/rasdaman/wcst_import/recipes_custom' folder.
+

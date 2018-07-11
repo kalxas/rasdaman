@@ -31,6 +31,7 @@ from util.coverage_reader import CoverageReader
 from util.log import log
 from util.url_util import validate_and_read_url
 
+
 class Recipe(BaseRecipe):
     def __init__(self, session):
         """

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "default_crs": "SECORE_URL/crs/OGC/0/Index2D",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_custom_recipe_coverage",
+    "paths": [
+      "*.tiff"
+    ]
+  },
+  "recipe": {
+    "name": "test_custom_recipe",
+    "options": {      
+      "time_format": "auto",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_tag": "MY_SPECIAL_TIME_TAG"
+    }
+  }
+}

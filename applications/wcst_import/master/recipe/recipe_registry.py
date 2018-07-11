@@ -31,7 +31,6 @@ from master.error.validate_exception import RecipeValidationException
 from session import Session
 from util.log import log
 from util.reflection_util import ReflectionUtil
-import recipes
 
 
 class RecipeRegistry:
@@ -48,7 +47,25 @@ class RecipeRegistry:
         Initializes the registry with all the recipes available by looking into the recipes folder
         """
         util = ReflectionUtil()
-        util.import_submodules(recipes)
+
+        # NOTE: Add provided recipes from rasdaman here manually.
+        import recipes.general_coverage
+        import recipes.map_mosaic
+        import recipes.time_series_irregular
+        import recipes.time_series_regular
+        import recipes.wcs_extract
+
+        util.import_submodules(recipes.general_coverage)
+        util.import_submodules(recipes.map_mosaic)
+        util.import_submodules(recipes.time_series_irregular)
+        util.import_submodules(recipes.time_series_regular)
+        util.import_submodules(recipes.wcs_extract)
+
+        # NOTE: If user ever created a customized recipe, then the recipe needs to be added in recipes_custom folder
+        # And in this case, WCST_Import just load all possible recipes in this folder.
+        import recipes_custom
+        util.import_submodules(recipes_custom)
+
         for recipe in BaseRecipe.__subclasses__():
             self.registry[recipe.get_name()] = recipe
 
@@ -59,9 +76,9 @@ class RecipeRegistry:
         :rtype BaseRecipe
         """
         if session.get_recipe()['name'] not in self.registry:
-            raise RecipeValidationException("The recipe requested was not found in the registry. Check that the "
-                                            "recipe name is correct and that recipe you are trying to use is "
-                                            "found under recipes/ and extends BaseRecipe")
+            raise RecipeValidationException("Recipe '" + session.get_recipe()['name'] + "' not found; "
+                                            "if it's a custom recipe, please put it in the "
+                                            "'$RMANHOME/share/rasdaman/wcst_import/recipes_custom' folder.")
         else:
             recipe = self.registry[session.get_recipe()['name']](session)
             log.title("Initialization")

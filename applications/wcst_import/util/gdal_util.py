@@ -41,7 +41,7 @@ class GDALGmlUtil:
         import osgeo.gdal as gdal
 
         self.gdal_file_path = gdal_file_path
-        self.gdal_dataset = gdal.Open(self.gdal_file_path.encode('utf8'))
+        self.gdal_dataset = gdal.Open(str(self.gdal_file_path).encode('utf8'))
         if self.gdal_dataset is None:
             raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
 
