@@ -47,6 +47,7 @@ def import_netcdf4():
     try:
         import netCDF4
     except ImportError:
-        raise RuntimeException("Cannot import netCDF data, please install netCDF4 first (sudo pip install netcdf4).")
+        raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
+                                (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4).")
 
     return netCDF4
