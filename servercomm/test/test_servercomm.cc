@@ -54,7 +54,6 @@ extern int           noTimeOut = 0;
 char         globalConnectId[255] = {0};
 char         globalDbUser[255] = {0};
 char         globalDbPasswd[255] = {0};
-bool udfEnabled = true;
 
 RMINITGLOBALS('C');
 

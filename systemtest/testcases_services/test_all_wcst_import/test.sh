@@ -84,7 +84,7 @@ check_petascope || exit $RC_ERROR
 # 0. cleaning output directory
 log "Cleaning output directory..."
 rm -rf "$OUTPUT_DIR"
-mkdir "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 
 # 1. Iterate folders in test data
 for test_case in $TEST_DATA/*; do

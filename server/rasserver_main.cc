@@ -97,7 +97,6 @@ char globalDbPasswd[255] = {0};
 
 int  globalHTTPPort;
 // do we allow for User-Defined Functions? (aka rasql routines)
-bool udfEnabled = true;
 
 // drop client after 5 minutes of no alive signal
 // can be changed via cmd line parameter

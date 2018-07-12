@@ -142,7 +142,6 @@ extern char*         ppOutBuf;
 extern void          ppreset();
 extern int       ppparse();
 #endif
-extern bool          udfEnabled;
 
 extern QueryTree*    parseQueryTree;
 extern ParseInfo*    parseError;
@@ -1630,28 +1629,8 @@ ServerComm::executeQuery(unsigned long callingClientId,
         int ppRet = 0;
         int parserRet = 0;
 
-        udfEnabled = 0; // Forced for RNP, but only temporary...
-        if (udfEnabled)
-        {
-            //
-            // preprocess
-            //
-            BLINFO << "preprocessing... ";
-            ppInBuf = const_cast<char*>(query);
-            ppreset();
-            ppRet = ppparse();
-
-            LTRACE << "new query: '" << ppOutBuf << "'...";
-
-            // initialize the input string parameters
-            beginParseString = ppOutBuf;
-            iterParseString  = ppOutBuf;
-        }
-        else
-        {
-            beginParseString = const_cast<char*>(query);
-            iterParseString  = const_cast<char*>(query);
-        }
+        beginParseString = const_cast<char*>(query);
+        iterParseString  = const_cast<char*>(query);
 
         yyreset();
 
@@ -2182,35 +2161,8 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         currentClientTblElt = context;        // assign current client table element (temporary)
 
         int ppRet = 0;
-        udfEnabled = false; // forced for RNP tests
-        if (udfEnabled)
-        {
-            //
-            // preprocess
-            //
-            BLINFO << "preprocessing... ";
-            ppInBuf = const_cast<char*>(query);
-            ppreset();
-            ppRet = ppparse();
-
-            if (ppOutBuf)
-            {
-                LTRACE << "new query: '" << ppOutBuf << "'";
-            }
-            else
-            {
-                LTRACE << "new query: empty.";
-            }
-
-            // initialize the input string parameters
-            beginParseString = ppOutBuf;
-            iterParseString  = ppOutBuf;
-        }
-        else
-        {
-            beginParseString = const_cast<char*>(query);
-            iterParseString  = const_cast<char*>(query);
-        }
+        beginParseString = const_cast<char*>(query);
+        iterParseString  = const_cast<char*>(query);
 
         yyreset();
 
@@ -2393,35 +2345,8 @@ ServerComm::executeInsert(unsigned long callingClientId,
         currentClientTblElt = context;        // assign current client table element (temporary)
 
         int ppRet = 0;
-        udfEnabled = false; // forced for RNP tests
-        if (udfEnabled)
-        {
-            //
-            // preprocess
-            //
-            BLINFO << "preprocessing... ";
-            ppInBuf = const_cast<char*>(query);
-            ppreset();
-            ppRet = ppparse();
-
-            if (ppOutBuf)
-            {
-                LTRACE << "new query: '" << ppOutBuf << "'";
-            }
-            else
-            {
-                LTRACE << "new query: empty.";
-            }
-
-            // initialize the input string parameters
-            beginParseString = ppOutBuf;
-            iterParseString  = ppOutBuf;
-        }
-        else
-        {
-            beginParseString = const_cast<char*>(query);
-            iterParseString  = const_cast<char*>(query);
-        }
+        beginParseString = const_cast<char*>(query);
+        iterParseString  = const_cast<char*>(query);
 
         yyreset();
 

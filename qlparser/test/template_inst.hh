@@ -60,8 +60,6 @@ rasdaman GmbH.
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 
-#include "relstorageif/dbudfds.hh"
-#include "relstorageif/dbudfpackageds.hh"
 #include "relstorageif/dbstoragelayout.hh"
 
 
@@ -90,8 +88,6 @@ template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
 template class DBRef<DBNullvalues>;
 template class DBRef<DBStorageLayout>;
-template class DBRef<DBUDFDS>;
-template class DBRef<DBUDFPackageDS>;
 template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
 

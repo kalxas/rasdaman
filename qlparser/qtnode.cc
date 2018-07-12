@@ -85,6 +85,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_BINARY_INDUCE, QT_MAX_BINARY},
     {QT_BINARY_INDUCE, QT_MIN_BINARY},
     {QT_BINARY_INDUCE, QT_XOR},
+    {QT_BINARY_INDUCE, QT_CONSTRUCT_COMPLEX},
     {QT_BINARY_OPERATION, QT_CONDENSEOP},
     {QT_BINARY_OPERATION, QT_EXTEND},
     {QT_BINARY_OPERATION, QT_INTERVALOP},
@@ -153,12 +154,12 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_UNARY_INDUCE, QT_ARCTAN},
     {QT_UNARY_INDUCE, QT_POW},
     {QT_OPERATION, QT_MDD_VAR},
-    {QT_UNDEFINED_NODE, QT_LAST_NODE_TYPE},
     {QT_EXECUTE, QT_CREATE_CELL_TYPE},
     {QT_EXECUTE, QT_CREATE_MDD_TYPE},
     {QT_EXECUTE, QT_CREATE_SET_TYPE},
     {QT_EXECUTE, QT_DROP_TYPE},
-    {QT_OPERATION, QtNode::QT_CELL_TYPE_ATTRIBUTES}
+    {QT_OPERATION, QT_CELL_TYPE_ATTRIBUTES},
+    {QT_UNDEFINED_NODE, QT_LAST_NODE_TYPE}
 };
 
 
@@ -343,6 +344,9 @@ QtNode::num_node(const QtNodePair* arr, const enum QtNodeType x)
     int i;
     static int ID = 0 ;
     enum QtNodeType child;
+    if (x >= QtNodes) {
+        LERROR << "Illegal access for node " << (int)x;
+    }
     minim[x] = ID++;
     for (i = child_range[x]; i < child_range[x + 1]; i++)
     {
@@ -375,7 +379,7 @@ void
 QtNode::SetMinMax()
 {
     int i;
-    QtNodePair arr[QtNodes - 1];
+    QtNodePair *arr = new QtNodePair[QtNodes - 1];
     for (i = 0; i < (QtNodes - 1); i++)
     {
         arr[i].base = QtInheritance[i][0];
@@ -386,6 +390,7 @@ QtNode::SetMinMax()
     set_child_range(arr);
     //numbering the nodes
     num_node(arr, QtRoot);
+    delete [] arr;
 }
 
 

@@ -32,28 +32,6 @@ COMPILER = g++
 LINKER   = g++
 FLAGS    = -fPIC -pthread -std=c++11 -fno-stack-protector -fno-strict-overflow -O3 -g0
 
-###############################################################################
-# ToDo
-###############################################################################
-#
-# Note: ../../rasdaman/ is the relative path to the git-clone of rasdaman.
-#
-# - Remove the line
-#   -I /usr/include/jsoncpp/
-#   if the json-lib has been added to rasdaman.
-# - Change the line
-#   ../../rasdaman/rasnet/librasnet.a     \
-#   to
-#   -lrasnet                \
-#   if the librasnet.a has been added to the lib-folder.
-# - Change the line
-#   ../../rasdaman/common/src/libcommon.a \
-#   to
-#   -lcommon                \
-#   if the libcommon.a has been added to the lib-folder.
-#
-###############################################################################
-
 INCS = -I @CMAKE_INSTALL_PREFIX@/include       \
        -I @CMAKE_INSTALL_PREFIX@/include/debug \
        -I @CMAKE_INSTALL_PREFIX@/include/raslib\

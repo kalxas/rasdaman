@@ -39,8 +39,6 @@ install(DIRECTORY examples/queries
 install(FILES examples/rasdl/basictypes.dl
         DESTINATION "${SHARE_DATA_DIR}/examples/rasdl/")
 
-#TODO:Fix the old makefile for compatibility
-set(RASDAMAN_INSTALLATION ${CMAKE_INSTALL_PREFIX})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/java/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile" @ONLY)

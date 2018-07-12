@@ -38,7 +38,6 @@ rasdaman GmbH.
  * - replaced "if ((SQLCODE != SQLOK) && (SQLCODE != SQLNULLFETCHED))"
  *   by       "if (SQLCODE < 0 || SQLCODE == SQLNODATAFOUND)"
  * - databaseExists() not used
- * - attribute name 'OId' -> 'UOId' (for UDFs), 'OId' -> 'Id' (for IXs)
  *   to avoid PG name clash with attr type
  * - except for RAS_COUNTERS, "no data" means no error, but that we need to initialize the empty table
  *
@@ -1081,73 +1080,6 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         if(check("DatabaseIf::create() CREATE TABLE RAS_HIERIX\0"))
             generateException();
 
-        // Note: table RAS_HIERIXDYN is not needed, we put each index node into the above DynData blob
-
-        EXEC SQL CREATE TABLE RAS_UDFBODY (
-        UOId        BIGINT NOT NULL,
-        Name        VARCHAR(254) NOT NULL,
-        Body        CHAR(3700) NOT NULL
-        );
-        if(check("DatabaseIf::create() CREATE TABLE RAS_UDFBODY\0"))
-            generateException();
-
-        EXEC SQL CREATE UNIQUE INDEX RAS_UDFBODY_IX
-        ON RAS_UDFBODY (UOId);
-        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFBODY_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE TABLE RAS_UDFARGS (
-        UOId        BIGINT NOT NULL,
-        ArgNum      SMALLINT NOT NULL,
-        ArgName     VARCHAR(254) NOT NULL
-        );
-        if(check("DatabaseIf::create() CREATE TABLE RAS_UDFARGS\0"))
-            generateException();
-
-        EXEC SQL CREATE INDEX RAS_UDFARGSC_IX
-        ON RAS_UDFARGS(UOId);
-        if(check("DatabaseIf::create() CREATE INDEX RAS_UDFARGSC_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE UNIQUE INDEX RAS_UDFARGS_IX
-        ON RAS_UDFARGS(UOId, ArgNum);
-        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFARGS_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE TABLE RAS_UDFPACKAGE (
-        UOId        BIGINT NOT NULL,
-        Name        VARCHAR(254) NOT NULL
-        );
-        if(check("DatabaseIf::create() CREATE TABLE RAS_UDFPACKAGE\0"))
-            generateException();
-
-        EXEC SQL CREATE UNIQUE INDEX RAS_UDFPACKAGEN_IX
-        ON RAS_UDFPACKAGE (Name);
-        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFPACKAGEN_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE UNIQUE INDEX RAS_UDFPACKAGEO_IX
-        ON RAS_UDFPACKAGE (UOId);
-        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFPACKAGEO_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE TABLE RAS_UDFNSCONTENT (
-        UOId        BIGINT NOT NULL,
-        UDFOId      BIGINT NOT NULL
-        );
-        if(check("DatabaseIf::create() CREATE TABLE RAS_UDFNSCONTENT\0"))
-            generateException();
-
-        EXEC SQL CREATE INDEX RAS_UDFNSCONTENTC_IX
-        ON RAS_UDFNSCONTENT(UOId);
-        if(check("DatabaseIf::create() CREATE INDEX RAS_UDFNSCONTENTC_IX\0"))
-            generateException();
-
-        EXEC SQL CREATE UNIQUE INDEX RAS_UDFNSCONTENT_IX
-        ON RAS_UDFNSCONTENT(UOId, UDFOId);
-        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFNSCONTENT_IX\0"))
-            generateException();
-
         // <9.0: We need 1 byte more because the first character may not be a \0 -> the first byte is always 13
         // 9.0: the first 8 bytes now contain a header, does work under PG
         // note: this does not hold for PG, but we keep it to remain cross-platform consistent in data
@@ -1363,18 +1295,6 @@ DatabaseIf::destroyDB(const char* dbName)
     EXEC SQL DROP TABLE IF EXISTS RAS_PYRAMIDS;
     check("DatabaseIf::destroyDB() DROP TABLE RAS_PYRAMIDS\0");
 
-    EXEC SQL DROP TABLE IF EXISTS RAS_UDFBODY;
-    check("DatabaseIf::destroyDB() DROP TABLE RAS_UDFBODY");
-
-    EXEC SQL DROP TABLE IF EXISTS RAS_UDFARGS;
-    check("DatabaseIf::destroyDB() DROP TABLE RAS_UDFARGS");
-
-    EXEC SQL DROP TABLE IF EXISTS RAS_UDFPACKAGE;
-    check("DatabaseIf::destroyDB() DROP TABLE RAS_UDFPACKAGE");
-
-    EXEC SQL DROP TABLE IF EXISTS RAS_UDFNSCONTENT;
-    check("DatabaseIf::destroyDB() DROP TABLE RAS_UDFNSCONTENT");
-
     /* DROP INDEX, TABLE for LockManager: START */
 
     EXEC SQL DROP INDEX IF EXISTS RAS_LOCKMANAGER_IX;
@@ -1401,9 +1321,9 @@ DatabaseIf::destroyDB(const char* dbName)
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v9.5.0-unknown"
+#define RMANVERSION "v9.7.0-unknown"
 #endif
-#define LONGVER 9500
+#define LONGVER 9700
 long
 DatabaseIf::rmanverToLong()
 {

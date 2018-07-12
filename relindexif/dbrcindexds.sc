@@ -31,8 +31,6 @@ rasdaman GmbH.
  *
  *
  * COMMENTS:
- * - attribute name 'OId' -> 'UOId' (for UDFs), 'OId' -> 'Id' (for IXs)
- *   to avoid PG name clash with attr type
  *
  ************************************************************/
 

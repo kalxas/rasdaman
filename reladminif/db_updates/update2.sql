@@ -28,11 +28,6 @@ ALTER TABLE ras_settypes ALTER COLUMN mddtypeoid TYPE bigint;
 ALTER TABLE ras_storage ALTER COLUMN storageid TYPE bigint;
 ALTER TABLE ras_tiles ALTER COLUMN blobid TYPE bigint;
 ALTER TABLE ras_tiles ALTER COLUMN tile TYPE bigint;
-ALTER TABLE ras_udfargs ALTER COLUMN uoid TYPE bigint;
-ALTER TABLE ras_udfbody ALTER COLUMN uoid TYPE bigint;
-ALTER TABLE ras_udfnscontent ALTER COLUMN uoid TYPE bigint;
-ALTER TABLE ras_udfnscontent ALTER COLUMN udfoid TYPE bigint;
-ALTER TABLE ras_udfpackage ALTER COLUMN uoid TYPE bigint;
 CREATE VIEW RAS_MDDTYPES_VIEW ( MDDTypeOId , MDDTypeName ) 
 	AS 
 		SELECT 

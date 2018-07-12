@@ -130,7 +130,6 @@ void sigIntHandler(__attribute__ ((unused)) int sig)
 
 void installSignalHandlers()
 {
-    //TODO: This is deprecated.
     struct sigaction sigInt;
     memset(&sigInt,0,sizeof(sigInt));
     sigInt.sa_handler = sigIntHandler;

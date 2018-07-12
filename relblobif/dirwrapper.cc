@@ -139,8 +139,15 @@ string DirEntryIterator::next()
             struct stat st;
             if (fstatat(dirfd(dirStream), dirEntry->d_name, &st, 0) == IO_ERROR_RC)
             {
-                LWARNING << "failed reading directory: " << dirEntry->d_name;
-                LWARNING << strerror(errno);
+                if (errno == ENOENT)
+                {
+                    return next();
+                } 
+                else 
+                {
+                    LWARNING << "failed reading directory: " << dirEntry->d_name;
+                    LWARNING << "errno " << errno << ": " << strerror(errno);
+                }
             }
             else if (!filesOnly && S_ISDIR(st.st_mode))
             {

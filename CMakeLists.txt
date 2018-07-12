@@ -99,10 +99,18 @@ else ()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -rdynamic")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -rdynamic")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer")
+set(ASAN_FLAG "")
+set(ENABLE_ASAN OFF CACHE BOOL
+    "Use AddressSanitizer (compile with -fsanitize=address).")
+if (ENABLE_ASAN)
+    set(ASAN_FLAG "-fsanitize=address")
+    message(STATUS "AddressSanitizer enabled (-DENABLE_ASAN=${ENABLE_ASAN}).")
+endif ()
+
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdynamic ${ASAN_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdynamic ${ASAN_FLAG}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
 
 # Disable default log file from easylogging, otherwise we get by default
 # logs/myeasylog.log
@@ -131,13 +139,6 @@ endif ()
 string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
 if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
     if(NOT ENABLE_DEBUG)
-        ######################################################
-        # Enterprise
-        set(_DISABLE_DEBUG_LOGS 1)
-        add_definitions(-DELPP_DISABLE_DEBUG_LOGS)
-        # udf requirement
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
-        ######################################################
         set(_DISABLE_TRACE_LOGS 1)
         add_definitions(-DELPP_DISABLE_TRACE_LOGS)
         add_definitions(-DELPP_DISABLE_VERBOSE_LOGS)
@@ -148,9 +149,8 @@ if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
     set(__NO_MATH_INLINES 1)
 elseif (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-else()
     # thread-safe logging if in Debug mode
-    add_definitions(-DELPP_THREAD_SAFE)
+    #add_definitions(-DELPP_THREAD_SAFE)
 endif()
 
 #

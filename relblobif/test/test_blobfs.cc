@@ -57,7 +57,6 @@ char globalDbPasswd[255] = {0};
 unsigned long maxTransferBufferSize = 4000000;
 char* dbSchema = 0;
 int noTimeOut = 0;
-bool udfEnabled = true;
 
 INITIALIZE_EASYLOGGINGPP
 

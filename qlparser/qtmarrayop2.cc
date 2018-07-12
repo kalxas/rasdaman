@@ -269,7 +269,6 @@ void QtMarrayOp2::traverse(QtOperation*& node)
                       case QtNode::QT_COMMAND:
                       case QtNode::QT_PYRAMID:
                       case QtNode::QT_MDD_VAR:
-                      case QtNode::QT_UDFCALLOP:
                       case QtNode::QT_CONST:
                       case QtNode::QT_MDD_STREAM:
                 */

@@ -55,7 +55,6 @@ int tiling = 1;
 unsigned long maxTransferBufferSize = 4000000;
 char* dbSchema = 0;
 int noTimeOut = 0;
-bool udfEnabled = true;
 
 #include <stdio.h>
 #include <string.h>

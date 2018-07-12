@@ -267,6 +267,9 @@ QtConst::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
         case QT_INTERVAL:
         case QT_MINTERVAL:
         case QT_POINT:
+        case QT_MSHAPE:
+        case QT_GEOMETRY:
+        case QT_NULLVALUES:
             dataStreamType.setDataType(dataObj->getDataType());
             break;
         case QT_MDD:

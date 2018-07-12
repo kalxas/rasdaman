@@ -153,6 +153,7 @@ function drop_types()
 # arg 2: file name
 # arg 3: extra conversion options
 # arg 4: conversion function
+# arg 5: rasql options
 #
 function insert_into()
 {
@@ -161,6 +162,7 @@ function insert_into()
   local extraopts="$3"
   local inv_fun="$4"
   local rasql_opts=$5
+  local tiling="$6"
 
   local values="$inv_fun(\$1 $extraopts)"
   if [ -z "$inv_fun" ]; then
@@ -168,8 +170,8 @@ function insert_into()
   fi
 
   logn "inserting data... "
-  #echo "insert into $coll_name values $values, file: $file_name"
-  $RASQL --quiet -q "insert into $coll_name values $values" -f $file_name $rasql_opts > /dev/null
+  $RASQL --quiet -q "insert into $coll_name values $values $tiling" -f $file_name $rasql_opts > /dev/null
+  feedback
   feedback
 }
 
@@ -220,6 +222,10 @@ function create_coll()
 function import_rasql_data()
 {
   local TESTDATA_PATH="$1"
+  local STORAGE_CLAUSE=
+  if [ -n "$2" ]; then
+    STORAGE_CLAUSE="$2"
+  fi
   if [ ! -d "$TESTDATA_PATH" ]; then
     error "testdata path $TESTDATA_PATH not found."
   fi
@@ -256,7 +262,7 @@ function import_rasql_data()
   fi
 
   create_coll $TEST_STRUCT struct_cube_set
-  $RASQL -q "insert into $TEST_STRUCT values \$1" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
+  $RASQL -q "insert into $TEST_STRUCT values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
 
 #create the GreySet4 type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bGreySet4\b"
@@ -267,19 +273,18 @@ function import_rasql_data()
   fi
 
   create_coll $TEST_GREY4D GreySet4
-  $RASQL -q "insert into $TEST_GREY4D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:9,0:9,0:9,0:49]" --mddtype GreyTesseract > /dev/null
+  $RASQL -q "insert into $TEST_GREY4D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:9,0:9,0:9,0:49]" --mddtype GreyTesseract > /dev/null
 
   create_coll $TEST_GREY GreySet
-  insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"
-
   create_coll $TEST_GREY2 GreySet
-  insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode"
-
   create_coll $TEST_RGB2 RGBSet
-  insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
-
   create_coll $TEST_GREY3D GreySet3
-  $RASQL -q "insert into $TEST_GREY3D values \$1" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
+
+  insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
+  insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
+  insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
+
+  $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
 }
 
 

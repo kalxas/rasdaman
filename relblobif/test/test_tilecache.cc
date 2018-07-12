@@ -58,7 +58,6 @@ char globalDbPasswd[255] = {0};
 extern unsigned long maxTransferBufferSize = 4000000;
 extern char* dbSchema = 0;
 extern int noTimeOut = 0;
-bool udfEnabled = true;
 
 #define CLIENT_ID 2
 #define RASADMIN_USER "rasadmin"
