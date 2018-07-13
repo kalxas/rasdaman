@@ -1045,16 +1045,11 @@ public class WcpsCoverageMetadataGeneralService {
                                         + "' and second coverage's axis with name '" + secondAxisName + "', type '" + secondAxisType + "'.";
                     throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
                 }
-                
-                // Check also geo resolution (offset vector) for each axis must be the same
-                String firstGeoResolution = firstMeta.getAxes().get(i).getResolution().toPlainString();
-                String secondGeoResolution = secondMeta.getAxes().get(i).getResolution().toPlainString();
-                
-                if (!firstGeoResolution.equals(secondGeoResolution)) {
-                    String errorMessage = "Geo resolution is different, given first coverage's axis with name '" + firstAxisName + "', resolution '" + firstGeoResolution
-                                        + "' and second coverage's axis with name '" + secondAxisName + "', resolution '" + secondGeoResolution + "'.";
-                    throw new IncompatibleCoveragesException(firstMeta.getCoverageName(), secondMeta.getCoverageName(), errorMessage);
-                }
+  
+                // NOTE: dont' check if 2 coverages have same geo axes intervals or geo axes resolutions.
+                // It is not correct in case of scaling 2 coverages to same grid intervals but they have different geo intervals.
+                // e.g: scale(c[Lat(0:40), Long(30:50), { Lat:"CRS:1"(0:435), Long:"CRS:1"(0:1000) })
+                //    + scale(d[Lat(120:140), Long(130:135), { Lat:"CRS:1"(0:435), Long:"CRS:1"(0:1000) })
                 
                 // Check also number of grid pixels for each axis must be the same size
                 Long firstGridPixels = firstMeta.getAxes().get(i).getGeoBounds().getUpperLimit().subtract(firstMeta.getAxes().get(i).getGeoBounds().getUpperLimit()).abs().add(BigDecimal.ONE).longValue();
