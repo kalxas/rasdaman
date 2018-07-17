@@ -55,6 +55,7 @@ rasdaman GmbH.
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/complextype.hh"
+#include "conversion/transpose.hh"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -260,7 +261,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     {
         return;
     }
-    char* order_option = NULL;    
+    char* order_option = ORDER_OUTER_INNER;    
     bool allocated = false;
     if (formatParams.parse(options))
     {
@@ -274,6 +275,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     }
     else
     {
+        order_option = NULL;
         params->add(FormatParamKeys::Encode::CSV::ORDER, &order_option, r_Parse_Params::param_type_string);
         params->process(options.c_str());
         allocated = true;
@@ -573,6 +575,13 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options,
         processEncodeOptions(string{options});
     }
     updateNodataValue(nullValue);
+    
+    // if selected, transposes rasdaman data before converting to csv
+    if(formatParams.isTranspose())
+    {
+        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
+    }
+    
     std::stringstream csvtemp;
 
     unsigned long rank, i;
@@ -676,6 +685,12 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
     }
 
     constructDest(*type, numElem);
+    
+    // if selected, transposes rasdaman data after converting from csv
+    if(formatParams.isTranspose())
+    {
+        transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType, formatParams.getTranspose());
+    } 
 
     return desc;
 }

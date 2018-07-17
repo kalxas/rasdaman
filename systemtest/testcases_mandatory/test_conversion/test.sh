@@ -89,7 +89,7 @@ drop_data()
 {
     drop_colls test_tmp
     for t in TestFLSet TestFL TestStruct TestSet TestArray TestPixel; do
-        $RASQL -q "drop type TestFLSet" > /dev/null 2>&1
+        $RASQL -q "drop type $t" > /dev/null 2>&1
     done
 }
 _cleanup()
@@ -506,6 +506,27 @@ check_result 0 $? "input and output match"
 
 drop_colls test_tmp
 rm -f mr_1.csv
+
+############## csv(order=invalid_order) #######
+log ------- csv with invalid_order conversion --------
+create_coll test_tmp GreySet
+insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "inv_png"
+$RASQL --quiet -q "select csv(c, \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "242"
+check_result 0 $? "invalid_order"
+
+rm -f mr_1.csv
+
+############## csv(transpose) #######
+log ----------------- csv transpose -----------------
+$RASQL --quiet -q 'select encode(c[0:9,40:49], "csv", "{ \"transpose\": [0,1] }") from test_tmp as c' --out file --outfile "csv_transpose"
+check_result 0 $? "csv(transpose)"
+
+logn "comparing images: "
+cmp $TESTDATA_PATH/csv_transpose.csv csv_transpose.csv > /dev/null
+check_result 0 $? "input and output match"
+
+drop_colls test_tmp
+rm -f csv_transpose.csv
 
 ############ built-in decode ################
 log ----- built-in decode test -----------------------
