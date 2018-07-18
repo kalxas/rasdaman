@@ -77,9 +77,6 @@ public:
     /// type checking of the subtree
     virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
 
-    /// type checking for the induced method
-    virtual const QtTypeElement& checkTypeInducedOp(QtTypeTuple* typeTuple = NULL);
-
     /// breaks down the operand list into conditions and results
     void getCaseOperands(QtDataList* inputList, std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList,
                          std::vector<std::pair <QtOperation*, QtData*>>* scalarCache,

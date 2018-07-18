@@ -166,7 +166,7 @@ QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector<std::pair <QtOperat
                         {
                             ;
                             //operand and condition mdds should have the same domain
-                            LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
+                            LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                             parseInfo.setErrorNo(426);
                             throw parseInfo;
                         }
@@ -240,7 +240,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
                     boost::shared_ptr<Tile> aTile = getCorrespondingTile((static_cast<QtMDD*>(*i))->getMDDObject()->getTiles(), condTile->getDomain());
                     if (aTile == NULL)
                     {
-                        LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
+                        LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                         parseInfo.setErrorNo(427);
                         throw parseInfo;
                     }
@@ -263,7 +263,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
                         Tile* aTile = new Tile(*theTile);
                         if (aTile == NULL)
                         {
-                            LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
+                            LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling.";
                             parseInfo.setErrorNo(427);
                             throw parseInfo;
                         }
@@ -281,7 +281,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList)
                     cacheIterators->push_back(new r_Miter(&(condTile->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
                     if (!(*i)->getDomain().covers(condTile->getDomain()))
                     {
-                        LFATAL << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
+                        LERROR << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain.";
                         delete cacheIterators;
                         parseInfo.setErrorNo(426);
                         throw parseInfo;
@@ -535,182 +535,80 @@ QtCaseOp::printAlgebraicExpression(ostream& s)
 }
 
 /**
- * Type checking for the CASE operation on arrays.
- * The following conditions have to be met by the operands:
- * - all the conditions must be arrays;
- * - all the conditions must have boolean base type;
- * - all the results must be of base types or mdds;
- * - type coercion is done between results, the types must be compatible.
- *
- * @param typeTupe - the tuple containing the array types
- */
-const QtTypeElement&
-QtCaseOp::checkTypeInducedOp(QtTypeTuple* typeTuple)
-{
-    QtOperationList::iterator iter;
-    const BaseType* resultType = NULL;
-    unsigned int pos = 0;
-    for (iter = operationList->begin(); iter != operationList->end(); iter++)
-    {
-        (*iter)->checkType(typeTuple);
-        if (!(pos % 2) && (pos != operationList->size() - 1))
-        {
-            //conditions should be boolean mdds
-            QtTypeElement condType = (*iter)->checkType(typeTuple);
-            if (condType.getDataType() != QT_MDD)
-            {
-                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
-                parseInfo.setErrorNo(428);
-                throw parseInfo;
-            }
-            if ((static_cast<MDDBaseType*>(const_cast<Type*>(condType.getType())))->getBaseType()->getType() != BOOLTYPE)
-            {
-                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one condition is not a boolean mdd.";
-                parseInfo.setErrorNo(428);
-                throw parseInfo;
-            }
-        }
-        else
-        {
-            QtTypeElement resType = (*iter)->checkType(typeTuple);
-            //check if result types is base type
-            if (!resType.isBaseType() && resType.getDataType() != QT_MDD)
-            {
-                LFATAL << "Error: QtCaseOp::checkInducedType() - At least one result type is not base type or mdd.";
-                parseInfo.setErrorNo(429);
-                throw parseInfo;
-            }
-            //make type coercion
-            if (resultType)
-            {
-                //differentiate between base types and mdd base types
-                if (resType.getDataType() != QT_MDD)
-                {
-                    resultType = getResultType(resultType, static_cast<BaseType*>(const_cast<Type*>(resType.getType())));
-                }
-                else
-                {
-                    resultType = getResultType(resultType, (static_cast<MDDBaseType*>(const_cast<Type*>(resType.getType())))->getBaseType());
-                }
-                if (!resultType)
-                {
-                    LFATAL << "Error: QtCaseOp::checkInducedType() - The results have incompatible types.";
-                    parseInfo.setErrorNo(430);
-                    throw parseInfo;
-                }
-            }
-            else
-            {
-                //differentiate between base types and mdd base types
-                if (resType.getDataType() != QT_MDD)
-                {
-                    resultType = static_cast<BaseType*>(const_cast<Type*>(resType.getType()));
-                }
-                else
-                {
-                    resultType = (static_cast<MDDBaseType*>(const_cast<Type*>(resType.getType())))->getBaseType();
-                }
-            }
-        }
-        pos++;
-    }
-    this->baseType = const_cast<BaseType*>(resultType);
-    MDDBaseType* resultMDDType = new MDDBaseType("tmp", this->baseType);
-    TypeFactory::addTempType(resultMDDType);
-    dataStreamType.setType(resultMDDType);
-
-    return dataStreamType;
-}
-
-/**
- * Type checking for the CASE operation on scalar values.
+ * Type checking for the CASE operation.
  * The following conditions have to be met by the operands:
  * - all the conditions must be of type boolean;
  * - type coercion is done between results, the types must be compatible.
  *
- * @param typeTuple - the tuple containing the types of the arrays
+ * @param typeTuple - the tuple containing the types of the operands
  */
 const QtTypeElement&
 QtCaseOp::checkType(QtTypeTuple* typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
-    if ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD)
-    {
-        this->inducedCase = true;
-        return this->checkTypeInducedOp(typeTuple);
-    }
-    QtOperationList::iterator iter;
-    bool whenTypesValid = true;
-    bool resultTypesValid = true;
-    unsigned int pos = 0;
+    inducedCase = ((*(operationList->begin()))->checkType(typeTuple).getDataType() == QT_MDD);
     const BaseType* resultType = NULL;
 
     //check if types are valid
-    for (iter = operationList->begin(); (iter != operationList->end()) && whenTypesValid
-            && resultTypesValid; iter++)
+    unsigned int pos = 0;
+    for (auto iter = operationList->begin(); iter != operationList->end(); iter++, pos++)
     {
-        const QtTypeElement& type = (*iter)->checkType(typeTuple);
-        //check if WHEN clauses are of type boolean
-        if (pos % 2 == 0 && pos < operationList->size() - 1)
+        const QtTypeElement& opType = (*iter)->checkType(typeTuple);
+        if (pos % 2 == 0 && pos < (operationList->size() - 1))
         {
-            if (!(type.getDataType() == QT_BOOL))
+            if ((!inducedCase && opType.getDataType() != QT_BOOL) ||
+                (inducedCase && (opType.getDataType() != QT_MDD ||
+                    static_cast<const MDDBaseType*>(opType.getType())->getBaseType()->getType() != BOOLTYPE)))
             {
-                whenTypesValid = false;
+                LERROR << "A WHEN condition (operand " << (pos+1)
+                       << ") in CASE expression is not a boolean value.";
+                parseInfo.setErrorNo(this->inducedCase ? 428 : 431);
+                throw parseInfo;
             }
         }
         else
         {
-            //type coercion between result clauses
+            const BaseType *opBaseType = NULL;
+            if (opType.isBaseType())
+                opBaseType = static_cast<const BaseType*>(opType.getType());
+            else if (opType.getDataType() == QT_MDD)
+                opBaseType = (static_cast<const MDDBaseType*>(opType.getType()))->getBaseType();
+            else {
+                LERROR << "A THEN or ELSE result (operand " << (pos+1)
+                       << ") in CASE expression is not a scalar or mdd.";
+                parseInfo.setErrorNo(429);
+                throw parseInfo;
+            }
+
             if (resultType)
             {
-                //differentiate between base types and mdd types
-                if (type.getDataType() != QT_MDD)
+                if (!resultType->compatibleWith(opBaseType))
                 {
-                    resultType = getResultType(resultType, static_cast<BaseType*>(const_cast<Type*>(type.getType())));
+                    LERROR << "THEN / ELSE results in CASE statement have different base types (at operand " << (pos+1) << "). "
+                           << "Please add casts as necessary to make sure all result expressions are of the same base type.";
+                    parseInfo.setErrorNo(430);
+                    throw parseInfo;
                 }
-                else
-                {
-                    resultType = getResultType(resultType, (static_cast<MDDBaseType*>(const_cast<Type*>(type.getType())))->getBaseType());
-                }
-                if (!resultType)
-                {
-                    //types are incompatible
-                    resultTypesValid = false;
-                }
+                resultType = getResultType(resultType, opBaseType);
             }
             else
             {
-                //differentiate between base types and mdd types
-                if (type.getDataType() != QT_MDD)
-                {
-                    resultType = static_cast<BaseType*>(const_cast<Type*>(type.getType()));
-                }
-                else
-                {
-                    resultType = (static_cast<MDDBaseType*>(const_cast<Type*>(type.getType())))->getBaseType();
-                }
+                resultType = opBaseType;
             }
         }
-        pos++;
     }
 
-    //some when clause is not boolean
-    if (!whenTypesValid)
+    if (inducedCase)
     {
-        LFATAL << "Error: QtCaseOp::checkType() - At least one condition is not a boolean.";
-        parseInfo.setErrorNo(431);
-        throw parseInfo;
+        this->baseType = const_cast<BaseType*>(resultType);
+        MDDBaseType* resultMDDType = new MDDBaseType("tmp", this->baseType);
+        TypeFactory::addTempType(resultMDDType);
+        dataStreamType.setType(resultMDDType);
     }
-
-    //result types are different
-    if (!resultTypesValid)
+    else
     {
-        LFATAL << "Error: QtCaseOp::checkType() - The results have incompatible types.";
-        parseInfo.setErrorNo(430);
-        throw parseInfo;
+        dataStreamType.setType(const_cast<BaseType*>(resultType));
     }
-
-    dataStreamType.setType(resultType);
     return dataStreamType;
 }
 
