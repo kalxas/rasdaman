@@ -63,6 +63,8 @@ module rasdaman {
             
             $scope.displayWMSLayer = false;
 
+            $scope.timeString = null;
+
             var canvasId = "wmsCanvasDescribeLayer";
 
             var WCPS_QUERY_FRAGMENT = 0;
@@ -115,6 +117,9 @@ module rasdaman {
                         $scope.layer = $scope.layers[i];
                         $scope.isLayerDocumentOpen = true;
 
+                        $scope.firstChangedSlider = [];
+                        
+
                         // Fetch the coverageExtent by layerName to display on globe if possible
                         // as WMS layer name is as same as WCS coverageId
                         var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
@@ -130,6 +135,7 @@ module rasdaman {
                         var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                         // Also prepare for DescribeLayer's globe with only 1 coverageExtent
                         var coverageExtentArray = [];
+
                         coverageExtentArray.push($scope.layer.coverageExtent);
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
@@ -138,6 +144,13 @@ module rasdaman {
                                     //Success handler                                    
                                     var coverageDescriptions = response.value;
                                     var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+
+                                    for(var j = 0; j <= dimensions; ++j) {
+                                        $scope.firstChangedSlider.push(false);
+                                    }
+
+                                    // Clear the content displayed in the info boxes of the sliders
+                                    $("#sliders").empty();
 
                                     // Display a message to user about the last slice on non spatial axis is selected if layer is 3D+
                                     $scope.display3DLayerNotification = dimensions > 2 ? true : false;
@@ -154,21 +167,251 @@ module rasdaman {
                                         var minLong = bbox.xmin;
                                         var maxLat = bbox.ymax;
                                         var maxLong = bbox.xmax;
+                                        
+                                        $scope.timeString = null;
+
                                         // WMS 1.3 requires axes order by CRS (EPSG:4326 is lat, long order)
-                                        var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;                                            
-                                        var getMapRequest = new wms.GetMap($scope.layer.name, bboxStr, 800, 600);
+                                        var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;   
+                                        var urlDimensions = bboxStr;
+                                        
+                                        // Prepare the array to store the information for the 3D+ dimensions
+                                        var dimStr = [];
+                                        for(var j = 0; j < 3; ++j){
+                                            dimStr.push('');
+                                        }
+
+                                        // Create the string used for the GetMap request in the 3D+ case
+                                        for(var j = 3; j <= dimensions; j++) {
+                                            if($scope.layer.layerDimensions[j].isTemporal == true) {
+                                                dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
+                                                $scope.timeString = $scope.layer.layerDimensions[j].array[0];
+                                            }
+                                            else {
+                                                dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
+                                            }
+                                        }
+                                        for(var j = 3; j <= dimensions; j++) {
+                                            urlDimensions += dimStr[j];
+                                        }
+
+                                        var getMapRequest = new wms.GetMap($scope.layer.name, urlDimensions, 800, 600);
+
                                         var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
                                         this.getMapRequestURL = url;
+                                        $( '#getMapRequestURL' ).text(this.getMapRequestURL);
                                         // Then, let webworldwind shows the result of GetMap on the globe
                                         // Default layer is not shown
-                                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, false);
+                                        webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer,
+                                                                                     $scope.timeString);
                                     }
                                     
                                     if (!showGetMapURL) {
                                         // Coverage cannot show GetMap on globe
                                         this.getMapRequestURL = null;
-                                    }                                                                        
+                                    }  
 
+                                    // Initialise auxbBox that can be modified in WebWorldWindService and dosen't change the initial values of the bbox
+                                    var auxbBox = {
+                                        xmin:Number,
+                                        xmax:Number,
+                                        ymin:Number,
+                                        ymax:Number
+                                    };
+                                    auxbBox.xmax = $scope.bboxLayer.xmax;
+                                    auxbBox.xmin = $scope.bboxLayer.xmin;
+                                    auxbBox.ymax = $scope.bboxLayer.ymax;
+                                    auxbBox.ymin = $scope.bboxLayer.ymin;
+
+                                    var stepSize = 0.01;
+                                    var numberStepsLat = ($scope.bboxLayer.ymax - $scope.bboxLayer.ymin) / stepSize;
+                                    var numberStepsLong = ($scope.bboxLayer.xmax - $scope.bboxLayer.xmin) / stepSize;
+
+                                    var stepLat = ($scope.bboxLayer.ymax - $scope.bboxLayer.ymin) / numberStepsLat;
+                                    var stepLong = ($scope.bboxLayer.xmax - $scope.bboxLayer.xmin) / numberStepsLong;
+
+                                    // Latitude slider
+                                    $("#lat").slider({
+                                        max: numberStepsLat,
+                                        range: true,
+                                        values: [0, numberStepsLat],
+                                        slide: function(event, slider) {
+                                            // Get max/min values of the lat bbox
+                                            var sliderMin = slider.values[0];
+                                            var sliderMax = slider.values[1];
+
+                                            // Set the slider as changed, compute what means one step on the slider
+                                            $scope.firstChangedSlider[1] = true;
+                                                             
+                                            // Compute the new values of the lat bbox, setted using the sliders
+                                            minLat = bbox.ymin;
+                                            maxLat = bbox.ymax;
+                                            minLat += stepLat * sliderMin;
+                                            maxLat -= stepLat * (numberStepsLat - sliderMax);
+
+                                            // Update auxbBox, push the change to the bboxLayer
+                                            auxbBox.ymin = minLat;
+                                            auxbBox.ymax = maxLat;
+                                            $scope.bboxLayer = auxbBox;
+
+                                            // Update the lat info tooltip of the sliders
+                                            var tooltip = minLat + ':' + maxLat;
+                                            $('#lat').tooltip();
+                                            $('#lat').attr('data-original-title', tooltip);
+                                            $('#lat').tooltip('show');
+                                        
+                                            // Update the GetMap url
+                                            var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
+                                            var pos1 = url.indexOf('&bbox=');
+                                            var pos2 = url.indexOf('&', pos1 + 1);
+                                            url = url.substr(0, pos1 + 1) + bboxStr + url.substr(pos2, url.length - pos2);
+                                            // Push the url to the view
+                                            $( '#getMapRequestURL' ).text(url);
+                                            $( '#getMapRequestURL' ).attr('href', url);
+                                            $( '#secGetMap' ).attr('href', url);
+
+                                            // Load the changed footprint of the layer on the globe
+                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                        }
+                                    });
+
+                                    // If the lat slider hasn't yet been moved set it to the initial position
+                                    if($scope.firstChangedSlider[1] == false) {
+                                            $( "#lat" ).slider('values', [0, numberStepsLat]);
+                                    }
+                                    
+                                    $("#long").slider({
+                                        max: numberStepsLong,
+                                        range: true,
+                                        values: [0, numberStepsLong],
+                                        slide: function(event, slider) {
+                                            // Get max/min values of the long bbox
+                                            var sliderMin = slider.values[0];
+                                            var sliderMax = slider.values[1];
+
+                                            // Set the slider as changed, compute what means one step on the slider
+                                            $scope.firstChangedSlider[2] = true;
+                                                                    
+                                            // Compute the new values of the long bbox, setted using the sliders
+                                            minLong = bbox.xmin;
+                                            maxLong = bbox.xmax;
+                                            minLong += stepLong * sliderMin;
+                                            maxLong -= stepLong * (numberStepsLong - sliderMax)
+
+                                            // Update auxbBox, push the change to the bboxLayer
+                                            auxbBox.xmin = minLong;
+                                            auxbBox.xmax = maxLong;
+                                            $scope.bboxLayer = auxbBox;
+
+
+                                            // Update the long info tooltip of the sliders
+                                            var tooltip = minLong + ':' + maxLong;
+                                            $('#long').tooltip();
+                                            $('#long').attr('data-original-title', tooltip);
+                                            $('#long').tooltip('show');
+
+                                            // Update the GetMap url
+                                            var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
+                                            var pos1 = url.indexOf('&bbox=');
+                                            var pos2 = url.indexOf('&', pos1 + 1);
+                                            url = url.substr(0, pos1 + 1) + bboxStr + url.substr(pos2, url.length - pos2);
+                                            // Push the url to the view
+                                            $( '#getMapRequestURL' ).text(url);
+                                            $( '#getMapRequestURL' ).attr('href', url);
+                                            $( '#secGetMap' ).attr('href', url);
+                                            
+                                            // Load the changed footprint of the layer on the globe
+                                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                        }
+                                    });
+
+                                    // If the long slider hasn't yet been moved set it to the initial position
+                                    if($scope.firstChangedSlider[2] == false) {
+                                            $( "#long" ).slider('values', [0, numberStepsLong]);
+                                    }
+
+                                    var sufixSlider = "d";
+
+                                    for(var j = 3; j <= dimensions; j++) {
+                                        // Create for each dimension the view components for its corresponding slider 
+                                        $("<div />", { class:"containerSliders", id:"containerSlider"+j+sufixSlider})
+                                            .appendTo( $("#sliders"));
+
+                                        $("<label />", { class:"sliderLabel", id:"label"+j+sufixSlider})
+                                            .appendTo( $("#containerSlider"+j+sufixSlider));
+                                        $("#label"+j+sufixSlider).text($scope.layer.layerDimensions[j].name + ':');
+
+                                        $("<div />", { class:"slider", id:"slider"+j+sufixSlider})
+                                            .appendTo( $("#containerSlider"+j+sufixSlider));
+
+                                        $("#slider"+j+sufixSlider).attr('data-toggle', 'tooltip');
+                                        $("#slider"+j+sufixSlider).attr('title', 'dimension');
+
+
+                                        // Controler of the slider
+                                        $( function() {
+                                            $( "#slider"+j+sufixSlider ).slider({
+                                                // Set for each dimension the number of steps on its corresponding the slider
+                                                max: $scope.layer.layerDimensions[j].array.length - 1,
+                                                // Initialisations for each slider
+                                                create: function(event, slider) {
+                                                    // Define the variables such that they can be seen inside the slider code
+                                                    this.sliderObj = $scope.layer.layerDimensions[j];
+                                                    this.sliderPos = j;
+                                                    var sizeSlider = $scope.layer.layerDimensions[j].array.length - 1;
+
+                                                    // Add the first and the last index below the slider
+                                                    $("<label>"+this.sliderObj.array[0]+"</label>").css('left', '0%')
+                                                        .appendTo( $("#slider"+j+sufixSlider));
+                                                    $("<label>"+this.sliderObj.array[sizeSlider]+"</label>").css('left', '100%')
+                                                        .appendTo( $("#slider"+j+sufixSlider));
+                                                    
+                                                    // Add the index lines below the slider
+                                                    for(var it = 1; it < sizeSlider; ++it) {
+                                                        $("<label>|</label>").css('left', (it/sizeSlider*100)+'%')
+                                                            .appendTo( $("#slider"+j+sufixSlider));
+                                                    }
+                                                    
+                                                },
+
+                                                slide: function(event, slider) {
+                                                    // Set the slider as changed
+                                                    $scope.firstChangedSlider[this.sliderPos] = true;
+
+                                                    // Update the GetMap url
+                                                    if(this.sliderObj.isTemporal == true) {
+                                                        dimStr[this.sliderPos] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
+                                                        $scope.timeString = this.sliderObj.array[slider.value];
+                                                    }
+                                                    else {
+                                                        dimStr[this.sliderPos] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
+                                                    }
+                                                    var pos1 = url.indexOf('&' + this.sliderObj.name + '=');
+                                                    var pos2 = url.indexOf('&', pos1 + 1);
+                                                    url = url.substr(0, pos1 + 1) + dimStr[this.sliderPos] + url.substr(pos2, url.length - pos2);
+
+                                                    // Update the dimenitional info tooltip of the slider
+                                                    var tooltip = this.sliderObj.array[slider.value];
+                                                    $("#slider"+this.sliderPos+sufixSlider).tooltip();
+                                                    $("#slider"+this.sliderPos+sufixSlider).attr('data-original-title', tooltip);
+                                                    $("#slider"+this.sliderPos+sufixSlider).tooltip('show');
+
+                                                    // Push the url to the view
+                                                    $( '#getMapRequestURL' ).text(url);
+                                                    $( '#getMapRequestURL' ).attr('href', url);
+                                                    $( '#secGetMap' ).attr('href', url);
+
+                                                    // Load the changed footprint of the layer on the globe
+                                                    webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                                }
+                                            });
+                                        } );
+
+                                        // If the i-th dimentional slider hasn't yet been moved set it to the initial position
+                                        if($scope.firstChangedSlider[j] == false) {
+                                            $( "#slider"+j+sufixSlider ).slider('value', 0);
+                                        }
+                                    }
+                                   
                                     // Then, load the footprint of layer on the globe
                                     webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                                 },
@@ -189,12 +432,12 @@ module rasdaman {
             $scope.showWMSLayerOnGlobe = (styleName:string)=> {
                 $scope.selectedStyleName = styleName;
                 $scope.displayWMSLayer = true;          
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, styleName, $scope.bboxLayer, true, $scope.timeString);
             }
 
             $scope.hideWMSLayerOnGlobe = ()=> {                
                 $scope.displayWMSLayer = false;          
-                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false);
+                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             }
 
 
@@ -325,6 +568,10 @@ module rasdaman {
         getMapRequestURL:string;        
         bboxLayer:any;
         displayWMSLayer:boolean;
+
+        timeString:string;
+
+        firstChangedSlider:boolean[];
 
         display3DLayerNotification:boolean;
 

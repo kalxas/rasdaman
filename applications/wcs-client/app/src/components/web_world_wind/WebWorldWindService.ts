@@ -115,7 +115,7 @@ module rasdaman {
                         if (!pickedObject.isTerrain) {
                             if (pickedObject.userObject instanceof WorldWind.SurfacePolygon) {
                                 var screenText = new WorldWind.ScreenText(
-        new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), pickedObject.userObject.userProperties);
+            new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5), pickedObject.userObject.userProperties);
                                 var textAttributes = new WorldWind.TextAttributes(null);
                                 textAttributes.color = WorldWind.Color.YELLOW;
                                 screenText.attributes = textAttributes;
@@ -408,7 +408,12 @@ module rasdaman {
          * @param coveragesExtentsArray 
          * @param getMapRequestURL 
          */
-        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, styleName: string, bbox: any, displayLayer: boolean) {
+
+
+        private oldLayerName : string = '';
+
+        public loadGetMapResultOnGlobe(canvasId: string, layerName: string, styleName: string, bbox: any, displayLayer: boolean, timeMoment: any) {
+
             // It uses the same canvasId for DescribeLayer
             var webWorldWindModel = null;            
             var exist = false;
@@ -439,18 +444,31 @@ module rasdaman {
                     styleNames: styleName,
                     size: 256
                 };
+            
+            // Prepare the property timeString to be passed to the WmsLayer consructor 
+            var timeString;
+            if(timeMoment != null) {
+                timeString = '"' + timeMoment + '"';
+            }
+            else {
+                timeString = null;
+            }
 
             // Zoom at distance 1 km (to avoid loading full big coverage which causes server terminated due to not enough RAM)
-            wwd.navigator.range = 300 * 1000;
+            if(this.oldLayerName != layerName) {
+                wwd.navigator.range = 300 * 1000;
+                this.oldLayerName = layerName;
+            }
 
             // Remove the rendered surface image layer and replace it with new layer
             wwd.removeLayer(webWorldWindModel.wmsLayer);
-            var wmsLayer = new WorldWind.WmsLayer(config, null);                        
+            var wmsLayer = new WorldWind.WmsLayer(config, timeString);                        
             webWorldWindModel.wmsLayer = wmsLayer;     
             if (displayLayer) {
                 // Should this Layer be displayed
                 wwd.addLayer(wmsLayer);
-            }            
+            } 
+            
         }
     }  
 

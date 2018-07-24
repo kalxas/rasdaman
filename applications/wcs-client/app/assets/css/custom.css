@@ -549,3 +549,96 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .panel-default {
     border-color:#afafaf;
 } 
+
+.slider label {
+    position: absolute;
+    width: 20px;
+    margin-left: -10px;
+    margin-right: -10px;
+    text-align: center;
+    font-size: 10px;
+    margin-top: 15px;
+    color: #aaa;
+}
+
+#lat {
+    width: 90%;
+    float: right;
+}
+
+#long {
+    width: 90%;
+    float: right;
+}
+
+.slider {
+    width: 90%;
+    float: right;
+}
+
+.ui-slider {
+    position: relative;
+    top: 5px;
+    right: 10px;
+}
+
+.sliderLabel {
+    position: relative;
+    float: left;
+    font-size: 100%;
+    padding-bottom: 100%;
+    margin-bottom: -100%;
+}
+
+.containerSliders {
+    overflow: hidden;
+    width: 100%;
+    height: 60px;
+}
+
+.logo {
+    position: relative;
+    right: 3%;
+}
+
+/*body {
+    background-image: url("../img/bg-outer2.jpg");
+    background-repeat: no-repeat;
+    /*background-attachment: fixed;
+    background-position: center; 
+}*/
+
+.tooltip {
+    position: absolute;
+    z-index: 1020;
+    display: inline-block;
+    padding: 5px;
+    font-size: 15px;
+    visibility: visible;
+    margin-top: 50px;
+    margin-left: -2em;
+}
+
+.tooltip .tooltip-arrow {
+    bottom: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-top: 5px solid #ddd;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.tooltip-inner {
+    max-width: 350px;
+    padding: 3px 8px;
+    color: #ffffff;
+    text-align: center;
+    text-decoration: none;
+    background-color: #000000;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+}

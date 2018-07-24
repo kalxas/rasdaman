@@ -24,4 +24,3 @@
 /// <reference path="pretty-print/PrettyPrint.ts"/>
 /// <reference path="string-to-number-converter/StringToNumberConverter.ts"/>
 /// <reference path="autocomplete/Autocomplete.ts"/>
-/// <reference path="scroll-to-bottom/ScrollToBottom.ts"/>

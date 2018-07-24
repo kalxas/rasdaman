@@ -56,16 +56,32 @@
                         <i class="pull-right glyphicon"
                            ng-class="{'glyphicon-chevron-down': isLayerDocumentOpen, 
                                     'glyphicon-chevron-right': !isLayerDocumentOpen}"></i>
-                    </uib-accordion-heading>                    
+                    </uib-accordion-heading>   
+                    
                     <div>
                         <div ng-hide="getMapRequestURL == null">                        
                             Default GetMap request of this layer: <br/>
-                            <a href="{{getMapRequestURL}}" target="_blank">{{getMapRequestURL}}</a> <br/><br/>
+                            <a href="{{getMapRequestURL}}" target="_blank" id="getMapRequestURL"></a> <br/><br/>
 
                             <div ng-show="display3DLayerNotification">
                                 <b>NOTE:</b> When a non-spatial axis for a 3D+ coverage is omitted from the WMS GetMap request, 
-                                then according to the WMS 1.3 standard the top-most spatial slice is selected. <br/><br/>
+                                then according to the WMS 1.3 standard the top-most spatial slice is selected. WebWorldWind can 
+                                only display 2D layers and maximum 3D layers with an existing time axis.<br/><br/>
                             </div>
+
+                            <!-- <p class="center-block well well-sm" id="sliderBboxText"></p> -->
+                            <div class="containerSliders">
+                                <label class="sliderLabel">Latitude: </label>
+                                <div id="lat" data-toggle="tooltip" title="{{bboxLayer.ymin + ':' + bboxLayer.ymax}}" data-placement="top"></div>
+                            </div>
+                            
+                            <div class="containerSliders">
+                                <label class="sliderLabel">Longitude: </label>
+                                <div id="long" data-toggle="tooltip" title="{{bboxLayer.ymin + ':' + bboxLayer.ymax}}" data-placement="top"></div>
+                            </div>
+                            <div id="sliders"></div>
+
+                            
 
                             Display WMS layer on WebWorldWind globe: &nbsp;&nbsp;&nbsp;
                             <input type="button"
@@ -117,7 +133,7 @@
                                     <input type="radio" ng-model="selectedStyleName" value="" ng-click='showWMSLayerOnGlobe("")' name="styles" title="Display the layer with selected style on WebWorldWind globe as WMS layer." 
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style
                                 </td>
-                                <td colspan=10%><a href="{{getMapRequestURL}}" target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
+                                <td colspan=10%><a href="{{getMapRequestURL}}" id="secGetMap" target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
                                 <td colspan=10%></td>
                             </tr>
