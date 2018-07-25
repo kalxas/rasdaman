@@ -3051,18 +3051,26 @@ var rasdaman;
                     webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                 }
             };
+            var oldSelectedCoverageId = '';
             $scope.getCoverageClickEvent = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
-                $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
-                $scope.loadCoverageExtentOnGlobe();
+                if (oldSelectedCoverageId == $scope.selectedCoverageId) {
+                    $scope.getCoverage();
+                }
+                else {
+                    oldSelectedCoverageId = $scope.selectedCoverageId;
+                    $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
+                    $scope.loadCoverageExtentOnGlobe();
+                }
             };
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {
                 if (coverageDescriptions && coverageDescriptions.coverageDescription) {
                     $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
                     $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
+                    oldSelectedCoverageId = $scope.selectedCoverageId;
                     $scope.getCoverageTabStates = {
                         isCoreOpen: true,
                         isRangeSubsettingOpen: false,

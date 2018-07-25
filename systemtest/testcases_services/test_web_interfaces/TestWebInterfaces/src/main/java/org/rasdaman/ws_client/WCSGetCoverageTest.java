@@ -69,10 +69,12 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("Testing get coverage's metadata...");
         // First change the coverage id in text box
         this.addTextToTextBox(webDriver, "test_mean_summer_airtemp", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/input");
-        // Then click on the Get Coverage button
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/span[2]/button");
         
-        String downloadButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[6]/button";
+        String downloadButtonXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[1]/div/span[2]/button";
+        // Then click on the Get Coverage button
+        this.runTestByClickingOnElement(webDriver, testCaseName, downloadButtonXPath);
+        
+        
         
         // ******************** Test HTTP GET request ***********************
         // Download a whole coverage in PNG (GML cannot be captured by PhantomJS)

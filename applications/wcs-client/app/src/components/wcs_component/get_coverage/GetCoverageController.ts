@@ -102,17 +102,29 @@ module rasdaman {
                 }                                
             }
 
+            var oldSelectedCoverageId = '';
+
             $scope.getCoverageClickEvent = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
-                // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
-                $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;                
-                // $scope.$digest();
-                
-                // load the coverage extent on the globe
-                $scope.loadCoverageExtentOnGlobe();
+
+                // allow the client to download the selected coverage if the the forms for trimming, slicing, range subsetting,... are displayed,
+                // so if the current coverage was selelected before 
+                if(oldSelectedCoverageId == $scope.selectedCoverageId) {
+                    $scope.getCoverage();
+                }
+                else {
+                    oldSelectedCoverageId = $scope.selectedCoverageId;
+
+                    // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
+                    $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;                
+                    // $scope.$digest();
+                    
+                    // load the coverage extent on the globe
+                    $scope.loadCoverageExtentOnGlobe();
+                }
             }
            
 
@@ -121,7 +133,7 @@ module rasdaman {
                     if (coverageDescriptions && coverageDescriptions.coverageDescription) {
                         $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
                         $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
-
+                        oldSelectedCoverageId = $scope.selectedCoverageId;
                         $scope.getCoverageTabStates = {                            
                             isCoreOpen: true,
                             isRangeSubsettingOpen: false,
