@@ -4481,15 +4481,15 @@ var rasdaman;
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(function (response) {
-                            var coverageDescriptions = response.value;
-                            var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                            $scope.coverageDescriptions = response.value;
+                            var dimensions = $scope.coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
                             for (var j = 0; j <= dimensions; ++j) {
                                 $scope.firstChangedSlider.push(false);
                             }
                             $("#sliders").empty();
                             $scope.display3DLayerNotification = dimensions > 2 ? true : false;
                             var showGetMapURL = false;
-                            var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                            var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
                             if (bands <= 4) {
                                 showGetMapURL = true;
                                 var bbox = coveragesExtents[0].bbox;

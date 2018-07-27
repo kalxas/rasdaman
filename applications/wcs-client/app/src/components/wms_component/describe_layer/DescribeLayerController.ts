@@ -142,8 +142,15 @@ module rasdaman {
                             .then(
                                 (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
                                     //Success handler                                    
-                                    var coverageDescriptions = response.value;
-                                    var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                                    $scope.coverageDescriptions = response.value;
+                                    var dimensions = $scope.coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+
+                                    for(var j = 0; j <= dimensions; ++j) {
+                                        $scope.firstChangedSlider.push(false);
+                                    }
+
+                                    // Clear the content displayed in the info boxes of the sliders
+                                    $("#sliders").empty();
 
                                     for(var j = 0; j <= dimensions; ++j) {
                                         $scope.firstChangedSlider.push(false);
@@ -156,7 +163,7 @@ module rasdaman {
                                     $scope.display3DLayerNotification = dimensions > 2 ? true : false;
 
                                     var showGetMapURL = false;
-                                    var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                                    var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
                                     // As PNG can only support maximum 4 bands
                                     if (bands <= 4) {
                                         showGetMapURL = true;
@@ -596,6 +603,8 @@ module rasdaman {
 	    validateStyle():void;
 	    insertStyle():void;
 	    updateStyle():void;
-	    describeStyleToUpdate(styleName:string):void;
+        describeStyleToUpdate(styleName:string):void;
+        
+        coverageDescriptions:any;
     }
 }
