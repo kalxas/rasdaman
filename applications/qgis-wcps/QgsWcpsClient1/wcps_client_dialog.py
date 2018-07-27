@@ -135,15 +135,16 @@ class WCPSClientDialog(QtGui.QDialog, Ui_WCPSClient):
         flags = Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint
 
         idx = self.cmbConnections_Serv.currentIndex()
-        select_serv = config.srv_list['servers'][idx]
+        if idx < len(config.srv_list['servers']):
+            select_serv = config.srv_list['servers'][idx]
 
-        print "Selection: ", idx, " -- ", select_serv, " -- Check: ", serv[idx]
+            print "Selection: ", idx, " -- ", select_serv, " -- Check: ", serv[idx]
 
-        dlgEdit = qgsnewhttpconnectionbase(self, flags, toEdit=True, choice=idx)
-        dlgEdit.txt_NewSrvName.setText(select_serv[0])
-        dlgEdit.txt_NewSrvUrl.setText(select_serv[1])
-        dlgEdit.show()
-        self.btnConnectServer_Serv.setFocus(True)
+            dlgEdit = qgsnewhttpconnectionbase(self, flags, toEdit=True, choice=idx)
+            dlgEdit.txt_NewSrvName.setText(select_serv[0])
+            dlgEdit.txt_NewSrvUrl.setText(select_serv[1])
+            dlgEdit.show()
+            self.btnConnectServer_Serv.setFocus(True)
 
 #---------------
 
@@ -155,7 +156,8 @@ class WCPSClientDialog(QtGui.QDialog, Ui_WCPSClient):
 
         #print "btnDelete:  here we are deleting...."
         idx = self.cmbConnections_Serv.currentIndex()
-        config.srv_list['servers'].pop(idx)
+        if idx < len(config.srv_list['servers']):
+            config.srv_list['servers'].pop(idx)
 
         self.write_srv_list()
         self.updateServerListing()

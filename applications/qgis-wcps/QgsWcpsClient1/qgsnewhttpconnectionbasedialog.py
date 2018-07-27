@@ -43,22 +43,25 @@ class qgsnewhttpconnectionbase(QDialog,  QObject, Ui_qgsnewhttpconnectionbase):
 
         if self.toEdit is False:
             try:
-                idx = zip(*config.srv_list['servers'])[0].index(srv_name)
-                while idx is not None:
-                    self.txt_NewSrvName.setText(srv_name+'_1')
-                    self.txt_NewSrvUrl.setText(srv_url)
-                    msg = "Sorry, but the 'Server Name' has to be unique.\n      A   '_1'   has been added to the name."
-                    self.warning_msg(msg)
-                    srv_name = self.txt_NewSrvName.text()
+                if len(config.srv_list['servers']) > 0:
                     idx = zip(*config.srv_list['servers'])[0].index(srv_name)
-
+                    while idx is not None:
+                        self.txt_NewSrvName.setText(srv_name+'_1')
+                        self.txt_NewSrvUrl.setText(srv_url)
+                        msg = "Sorry, but the 'Server Name' has to be unique.\n      A   '_1'   has been added to the name."
+                        self.warning_msg(msg)
+                        srv_name = self.txt_NewSrvName.text()
+                        idx = zip(*config.srv_list['servers'])[0].index(srv_name)
+                srvlst.append([srv_name, srv_url])
 
             except ValueError:
                 srvlst.append([srv_name, srv_url])
 
         if self.toEdit is True:
             try:
-                idx = zip(*config.srv_list['servers'])[0].index(srv_name)
+                if len(config.srv_list['servers']) > 0:
+                    idx = zip(*config.srv_list['servers'])[0].index(srv_name)
+                srvlst.insert(idx,[srv_name, srv_url])
             except ValueError:
                 idx = self.idx_sel
                 srvlst.pop(idx)
