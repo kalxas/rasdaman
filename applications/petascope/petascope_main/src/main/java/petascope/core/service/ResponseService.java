@@ -42,7 +42,7 @@ import petascope.wcs2.handlers.kvp.KVPWCSProcessCoverageHandler;
 /**
  * Service class to build the response from input request to client
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class ResponseService {

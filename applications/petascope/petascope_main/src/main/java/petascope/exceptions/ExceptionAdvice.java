@@ -34,7 +34,7 @@ import petascope.util.MIMEUtil;
 
 /**
  * A fallback class to handle the unchecked exception if it cannot be handled in PetascopeController which is in most cases.
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @ControllerAdvice
 public class ExceptionAdvice {

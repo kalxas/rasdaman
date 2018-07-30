@@ -35,7 +35,7 @@ import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
 /**
  * Service class for Subset handler of GetCoverageKVP class
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCSGetCoverageSubsetDimensionService {

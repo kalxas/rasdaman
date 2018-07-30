@@ -1,0 +1,1 @@
+for c in (test_eobstest) return encode(clip(c[Long(40:42)], CURTAIN(projection(t, Lat), Polygon(("1949-12-31T12:00:00.000Z" 40, "1950-01-06T12:00:00.000Z" 35, "1949-12-31T12:00:00.000Z" 25)) ) ), "csv")

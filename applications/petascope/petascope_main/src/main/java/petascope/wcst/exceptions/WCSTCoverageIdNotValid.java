@@ -26,7 +26,7 @@ import petascope.exceptions.ExceptionCode;
 
 /**
  * Coverage id is not valid when trying to insert
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WCSTCoverageIdNotValid extends WCSTException {
 

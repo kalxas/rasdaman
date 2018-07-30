@@ -49,7 +49,7 @@ import petascope.wcs2.parsers.request.xml.XMLProcessCoverageParser;
  * http://localhost:8080/rasdaman/ows/wcps) which will allow to POST a WCPS
  * request and get result from the server.
  *
- * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @RestController
 public class WcpsController extends AbstractController {

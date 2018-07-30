@@ -104,8 +104,10 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
 import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
+import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.exception.processing.InvalidWKTClippingException;
-import petascope.wcps.handler.ClipExpressionHandler;
+import petascope.wcps.handler.ClipCurtainExpressionHandler;
+import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.result.WcpsMetadataResult;
@@ -147,7 +149,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     EncodeCoverageHandler encodeCoverageHandler;
     
     @Autowired private
-    ClipExpressionHandler clipExpressionHandler;
+    ClipWKTExpressionHandler clipWKTExpressionHandler;
+    @Autowired private
+    ClipCurtainExpressionHandler clipCurtainExpressionHandler;
     @Autowired private
     CrsTransformHandler crsTransformHandler;
     @Autowired private
@@ -414,44 +418,103 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         return wktMultipolygon;
     }
     
-    
     @Override
-    public VisitorResult visitClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx) { 
-        // Handle clipExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA (wktPolygon | wktLineString) (COMMA crsName)? RIGHT_PARENTHESIS
-        // e.g: clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), "http://opengis.net/def/CRS/EPSG/3857")
-        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
-        AbstractWKTShape wktShape;
-        if (ctx.wktPolygon() != null) {
-            wktShape = (WKTPolygon) visit(ctx.wktPolygon());
-        } else if (ctx.wktLineString() != null) {
-            wktShape = (WKTLineString) visit(ctx.wktLineString());
+    public VisitorResult visitWKTExpressionLabel(@NotNull wcpsParser.WKTExpressionLabelContext ctx) {
+        // Handle WKT expression in clip() operator. WKT can be linestring, polygon, multipolygon.
+        AbstractWKTShape wktShape = null;
+        if (ctx.wktLineString() != null) {
+            wktShape = (AbstractWKTShape) visit(ctx.wktLineString());
+        } else if (ctx.wktPolygon() != null) {
+            wktShape = (AbstractWKTShape)visit(ctx.wktPolygon());
         } else if (ctx.wktMultipolygon() != null) {
-            wktShape = (WKTMultipolygon) visit(ctx.wktMultipolygon());
-        } else {
-            throw new InvalidWKTClippingException("Input WKT for clip() operator is not supported."); 
+            wktShape = (AbstractWKTShape) visit(ctx.wktMultipolygon());
         }
         
+        VisitorResult result = wktShape;
+        
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitClipWKTExpressionLabel(@NotNull wcpsParser.ClipWKTExpressionLabelContext ctx) { 
+        // Handle clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression (COMMA crsName)? RIGHT_PARENTHESIS
+        // e.g: clip(c[i(0:20), j(0:20)], Polygon((0 10, 20 20, 20 10, 0 10)), "http://opengis.net/def/CRS/EPSG/3857")
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        AbstractWKTShape wktShape = (AbstractWKTShape) visit(ctx.wktExpression());
+               
         int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
         if (coverageExpression.getMetadata() == null) {
-            throw new Coverage0DMetadataNullException(ClipExpressionHandler.OPERATOR);
+            throw new Coverage0DMetadataNullException(ClipWKTExpressionHandler.OPERATOR);
         }
         int coverageDimensions = coverageExpression.getMetadata().getAxes().size();
         if (numberOfDimensions != coverageDimensions) {
             throw new InvalidWKTClippingException("Number of dimensions in WKT '" + numberOfDimensions + "' is different from coverage's '" + coverageDimensions + "'.");
         }
+        
         // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
         String wktCRS = null;
         if (ctx.crsName() != null) {
-            wktCRS = ctx.crsName().getText().replace("\"", "");
+            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
         }        
         WcpsResult result = null;
         try {
-            result = clipExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
+            result = clipWKTExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
         } catch (PetascopeException ex) {
-            String errorMessage = "Error processing clip() operator expression. Reason: '" + ex.getExceptionText() + "'.";
+            String errorMessage = "Error processing clip() operator expression. Reason: " + ex.getExceptionText() + ".";
             throw new WCPSException(ex.getExceptionCode(), errorMessage, ex);
         }
         
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx) {
+        // Handle clipCurtainExpression: 
+//        CLIP LEFT_PARENTHESIS coverageExpression
+//                                             COMMA CURTAIN LEFT_PARENTHESIS
+//                                                PROJECTION LEFT_PARENTHESIS curtainProjectionAxisLabel1 COMMA curtainProjectionAxisLabel2 RIGHT_PARENTHESIS
+//                                                COMMA wktExpression
+//                                             RIGHT_PARENTHESIS
+//                                             (COMMA crsName)?
+//            RIGHT_PARENTHESIS
+        // e.g: clip(c, projection(Lat, Lon), Polygon((0 10, 20 20, 20 10, 0 10)))
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        AbstractWKTShape wktShape = (AbstractWKTShape) visit(ctx.wktExpression());
+        
+        int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (numberOfDimensions != 2) {
+            throw new InvalidWKTClippingException("Number of dimensions in WKT for curtain clipping must be '2', given '" + numberOfDimensions + "'.");
+        }
+        
+        String curtainProjectionAxisLabel1 = ctx.curtainProjectionAxisLabel1().getText().trim();
+        String curtainProjectionAxisLabel2 = ctx.curtainProjectionAxisLabel2().getText().trim();
+        
+        if (curtainProjectionAxisLabel1.equals(curtainProjectionAxisLabel2)) {
+            throw new WCPSException("Axis names in curtain's projection must be unique, given same name '" + curtainProjectionAxisLabel1 + "'.");
+        }
+        
+        // Pair of axes in curtain projection() must exist in coverage's WCPS metadata.
+        if (!coverageExpression.getMetadata().axisExists(curtainProjectionAxisLabel1)) {
+            throw new CoverageAxisNotFoundExeption(curtainProjectionAxisLabel1);
+        } else if (!coverageExpression.getMetadata().axisExists(curtainProjectionAxisLabel2)) {
+            throw new CoverageAxisNotFoundExeption(curtainProjectionAxisLabel2);
+        }
+        
+        // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
+        String wktCRS = null;
+        if (ctx.crsName() != null) {
+            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
+        }     
+        
+        WcpsResult result = null;
+        try {
+            result = clipCurtainExpressionHandler.handle(coverageExpression,
+                                                        curtainProjectionAxisLabel1,
+                                                        curtainProjectionAxisLabel2, wktShape, wktCRS);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing clip() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(ex.getExceptionCode(), errorMessage, ex);
+        }
         return result;
     }
 
@@ -464,10 +527,10 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         // { Axis_CRS_1 , Axis_CRS_2 } (e.g: Lat:"http://localhost:8080/def/crs/EPSG/0/4326")
         wcpsParser.DimensionCrsElementLabelContext crsX = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(1);
-        axisCrss.put(crsX.axisName().getText(), crsX.crsName().getText().replace("\"", ""));
+        axisCrss.put(crsX.axisName().getText(), StringUtil.stripQuotes(crsX.crsName().getText()));
 
         wcpsParser.DimensionCrsElementLabelContext crsY = (wcpsParser.DimensionCrsElementLabelContext) ctx.dimensionCrsList().getChild(3);
-        axisCrss.put(crsY.axisName().getText(), crsY.crsName().getText().replace("\"", ""));
+        axisCrss.put(crsY.axisName().getText(), StringUtil.stripQuotes(crsY.crsName().getText()));
 
         // Store the interpolation objects (rangeName, method -> nodata values)
         HashMap<String, HashMap<String, String>> rangeInterpolations = new LinkedHashMap<>();
@@ -481,9 +544,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
                 String rangeName = element.getChild(0).getText();
                 wcpsParser.InterpolationMethodContext intMethodObj = (wcpsParser.InterpolationMethodContext) element.getChild(2);
                 // e.g: A = "near"
-                String interpolationMethod = intMethodObj.getChild(0).getText().replace("\"", "");
+                String interpolationMethod = StringUtil.stripQuotes(intMethodObj.getChild(0).getText());
                 // e.g: B = "1,2,3"
-                String nullValues = intMethodObj.getChild(2).getText().replace("\"", "");
+                String nullValues = StringUtil.stripQuotes(intMethodObj.getChild(2).getText());
 
                 // e.g: "near" -> "1,2,3"
                 HashMap<String, String> map = new LinkedHashMap<>();
@@ -595,7 +658,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             AxisIterator axisIterator = (AxisIterator) visit(i);
             aliasName = axisIterator.getAliasName();
             if (rasqlAliasName.isEmpty()) {
-                rasqlAliasName = aliasName.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+                rasqlAliasName = StringUtil.stripDollarSign(aliasName);
             }
             axisIterator.getSubsetDimension().setCrs(crsUri);
             axisIterator.setRasqlAliasName(rasqlAliasName);
@@ -885,7 +948,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             AxisIterator axisIterator = (AxisIterator) visit(i);
             aliasName = axisIterator.getAliasName();
             if (rasqlAliasName.isEmpty()) {
-                rasqlAliasName = aliasName.replace(WcpsSubsetDimension.AXIS_ITERATOR_DOLLAR_SIGN, "");
+                rasqlAliasName = StringUtil.stripDollarSign(aliasName);
             }
             axisIterator.getSubsetDimension().setCrs(crsUri);
             axisIterator.setRasqlAliasName(rasqlAliasName);
@@ -1044,7 +1107,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // NOTE: imageCrsdomain() or domain() will return metadata value not Rasql
         WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) visit(ctx.domainIntervals());
 
-        String domainIntervalsRasql = wcpsMetadataResult.getResult().replace("(", "").replace(")", "");
+        String domainIntervalsRasql = StringUtil.stripParentheses(wcpsMetadataResult.getResult());
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
         WcpsResult result = null;
@@ -1232,7 +1295,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // e.g: scale(c[t(0)], { imageCrsdomain(Lat:"CRS:1"(0:200), Long:"CRS:1"(0:300)) })
         // NOTE: imageCrsdomain() or domain() will return metadata value not Rasql
         WcpsMetadataResult wcpsMetadataResult = (WcpsMetadataResult) visit(ctx.domainIntervals());
-        String domainIntervalsRasql = wcpsMetadataResult.getResult().replace("(", "").replace(")", "");
+        String domainIntervalsRasql = StringUtil.stripParentheses(wcpsMetadataResult.getResult());
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
         WcpsResult result = scaleExpressionByImageCrsDomainHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
@@ -1384,7 +1447,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String axisName = ctx.axisName().getText();
         String crs = null;
         if (ctx.crsName() != null) {
-            crs = ctx.crsName().getText().replace("\"", "");
+            crs = StringUtil.stripQuotes(ctx.crsName().getText());
         }
         String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
         WcpsSliceSubsetDimension sliceSubsetDimension = new WcpsSliceSubsetDimension(axisName, crs, bound);
@@ -1445,7 +1508,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // axisName (COLON crsName)?  LEFT_PARENTHESIS   coverageExpression   RIGHT_PARENTHESIS
         // e.g: i(0)
         String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
-        String crs = ctx.crsName() == null ? "" : ctx.crsName().getText().replace("\"", "");
+        String crs = ctx.crsName() == null ? "" : StringUtil.stripQuotes(ctx.crsName().getText());
 
         WcpsSliceSubsetDimension sliceSubsetDimension = null;
   
@@ -1466,7 +1529,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             String rawUpperBound = ((WcpsResult)visit(ctx.coverageExpression(1))).getRasql();
             String crs = null;
             if (ctx.crsName() != null) {
-                crs = ctx.crsName().getText().replace("\"", "");
+                crs = StringUtil.stripQuotes(ctx.crsName().getText());
             }
             if (ctx.axisName() == null) {
                 throw new InvalidAxisNameException("No axis given");

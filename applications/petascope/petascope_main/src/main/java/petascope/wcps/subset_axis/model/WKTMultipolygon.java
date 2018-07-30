@@ -29,7 +29,7 @@ import petascope.util.ListUtil;
  * Class to represent WKT Polygon object
  * e.g: Multipolygon ( ((20 30, 30 40, 50 60)) --polygon 1, ((20 30, 30 40, 50 60), (20 30, 30 40, 50 60)) --polygon 2 )
  * 
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WKTMultipolygon extends AbstractWKTShape {
     

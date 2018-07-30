@@ -37,7 +37,7 @@ import petascope.exceptions.WMSException;
 /**
  * Class to handle WCPS request in KVP
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCPSServiceHandler extends AbstractHandler {

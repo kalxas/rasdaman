@@ -514,4 +514,11 @@ public class StringUtil {
     public static String stripDollarSign(String input) {
         return input.replaceAll("\\$", "");
     }
+    
+    /**
+     * Replace '(' and ')' from input string
+     */
+    public static String stripParentheses(String input) {
+        return input.replace("(", "").replace(")", "");
+    }
 }

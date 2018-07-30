@@ -47,7 +47,7 @@ import petascope.util.ras.RasUtil;
  * have multiple coverageIds e.g: coverageIds=test_mr,test_irr_cube_2 the XML
  * result is concatenated from both GML results.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPRasqlHandler implements IKVPHandler {

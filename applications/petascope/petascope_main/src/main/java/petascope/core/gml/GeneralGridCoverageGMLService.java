@@ -67,7 +67,7 @@ import petascope.core.XMLSymbols;
  *
  * Build a General Grid Coverage object from GML (used in wcst_import)
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class GeneralGridCoverageGMLService {

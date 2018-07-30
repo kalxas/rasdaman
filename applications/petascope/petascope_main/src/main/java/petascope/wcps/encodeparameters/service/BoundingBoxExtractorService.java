@@ -31,7 +31,7 @@ import petascope.core.BoundingBox;
 /**
  *
  * Given coverage metadata, this utility class will extract the bounding box in xmin,ymin,xmax,ymax from metadata.
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class BoundingBoxExtractorService {
     

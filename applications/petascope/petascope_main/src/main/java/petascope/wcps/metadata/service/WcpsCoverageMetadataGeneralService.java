@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -64,7 +64,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * WcpsCoverageMetadataObjects.
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class WcpsCoverageMetadataGeneralService {

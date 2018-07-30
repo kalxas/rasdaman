@@ -38,7 +38,7 @@ import petascope.rasql.handlers.kvp.KVPRasqlHandler;
  * Class to handle Rasql query in KVP request (i.e: RasqlServlet), e.g:
  * username=rasguest&password=rasguest&query=select dbinfo(c) from test_mr as c
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPRasqlServiceHandler extends AbstractHandler {

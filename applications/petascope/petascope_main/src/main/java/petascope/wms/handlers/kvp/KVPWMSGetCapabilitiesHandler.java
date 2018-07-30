@@ -59,7 +59,7 @@ import petascope.wms.exception.WMSLayerNotExistException;
  * Handle the GetCapabilities WMS 1.3 request. A model result, see:
  * http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xml
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {

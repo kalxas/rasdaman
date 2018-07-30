@@ -52,7 +52,7 @@ import petascope.util.MIMEUtil;
  * Controller for a GetCoveragesExtents request which returns list of
  * coverages's extents in EPSG:4326 for WCS-Client to display on Openlayers map.
  *
- * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @RestController
 // @Controller will have an error to find a jsp file: GetCoveragesExtentsController.jsp, so only use @RestController

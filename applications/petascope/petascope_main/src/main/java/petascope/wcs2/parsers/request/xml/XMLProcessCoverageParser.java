@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -46,7 +46,7 @@ import petascope.wcs2.parsers.request.xml.service.XMLProcessCoverageOGCSyntaxPar
  *
  * NOTE: There are 3 types of WCPS POST request (xmlSyntax, abstractSyntax and OGC POST syntax)
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 // Create a new instance of this bean for each request (so it will not use the old object with stored data)

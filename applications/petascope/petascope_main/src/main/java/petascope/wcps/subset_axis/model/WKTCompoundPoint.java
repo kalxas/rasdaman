@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -27,7 +27,7 @@ import petascope.wcps.result.ParameterResult;
  * Class to represent a part of WKT coordinates (e.g: (20 30, 30 40), (50 60, 70 80) )
  * then, it stores 20 30, 30 40 is a WKTCompoundPoint with numberOfDimensions is 2.
  * 
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WKTCompoundPoint extends ParameterResult {
     

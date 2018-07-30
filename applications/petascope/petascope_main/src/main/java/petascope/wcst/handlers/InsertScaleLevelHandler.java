@@ -46,7 +46,7 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
  *
  * e.g: http://localhost:8080/rasdaman/ows?serivce=WCS&version=2.0.1&request=InsertScaleLevel&level=2&coverageId=test_mr
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class InsertScaleLevelHandler {

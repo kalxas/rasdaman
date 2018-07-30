@@ -28,7 +28,7 @@ import petascope.exceptions.WCPSException;
  * When a coordinate is not valid for clipping(), exception is thrown.
  * e.g: axis's interval is (0:20) and coordinate is 21 in WKT clipping.
  * 
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class InvalidCoordinatesForClippingException extends WCPSException {
     
@@ -36,5 +36,5 @@ public class InvalidCoordinatesForClippingException extends WCPSException {
         super(ERROR_TEMPLATE.replace("$coordinateValue", coordinateValue.toPlainString()).replace("$errorMessage", errorMessage));
     }
     
-    private static final String ERROR_TEMPLATE = "Coordinate value '$coordinateValue' is not valid. Reason '$errorMessage'.";
+    private static final String ERROR_TEMPLATE = "Coordinate value '$coordinateValue' is not valid. Reason: $errorMessage";
 }

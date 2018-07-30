@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * Class which translates the legacy OWS ServiceIdentification to new one and
  * persist to database
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class ServiceIdentificationTranslatingService {

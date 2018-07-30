@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Save one/all the coverages from legacy database by DbMetadataSource 
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class ReadLegacyCoveragesService {

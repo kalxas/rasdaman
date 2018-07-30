@@ -49,7 +49,7 @@ import petascope.exceptions.PetascopeException;
  * This class initializes the beans to connect to the datasources (from legacy
  * petascope prior version 9.5, Spring Hibernate). *
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Configuration
 @EnableTransactionManagement

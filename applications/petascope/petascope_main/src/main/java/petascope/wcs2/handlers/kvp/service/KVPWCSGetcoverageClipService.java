@@ -21,13 +21,9 @@
  */
 package petascope.wcs2.handlers.kvp.service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 
 /**
@@ -35,7 +31,7 @@ import petascope.exceptions.WCSException;
  * clip=POLYGON((...)) with GET request or clip=$1 with POST request and a text
  * file contaning WKT (e.g: POLYGON((...))) to replace at $1.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCSGetcoverageClipService {
@@ -44,18 +40,19 @@ public class KVPWCSGetcoverageClipService {
 
         // Handle for WCS WKT clipping extension
         // e.g: clip=POLYGON((...))&subsettingCRS=http://opengis.net/def/crs/EPSG/0/4326
-        String wkt = kvpParameters.get(KVPSymbols.KEY_CLIP) != null
+        // or: clip=curtain(projection(Lat, Long), POLYGON((...)))
+        String clipValue = kvpParameters.get(KVPSymbols.KEY_CLIP) != null
                 ? kvpParameters.get(KVPSymbols.KEY_CLIP)[0] : null;
 
-        if (wkt != null) {
+        if (clipValue != null) {
             // NOTE: CRS of WKT is applied from subsettingCrs parameter 
             // (e.g: WKT is in EPSG:4326 and coverage is in ESPG:3857, then without subsettingCrs=EPSG:3857, it cannot translate coordinates for WKT)
             if (subsettingCrs == null) {
                 // e.g: clip(c,  POLYGON((...)) )
-                coverageExpression = KVPSymbols.KEY_CLIP + "( " + coverageExpression + ", " + wkt + " )";
+                coverageExpression = KVPSymbols.KEY_CLIP + "( " + coverageExpression + ", " + clipValue + " )";
             } else {
                 // e.g: clip (c,  POLYGON((...)), "http://opengis.net/def/crs/EPSG/0/3857")
-                coverageExpression = KVPSymbols.KEY_CLIP + "(" + coverageExpression + ", " + wkt + ", \"" + subsettingCrs + "\")";
+                coverageExpression = KVPSymbols.KEY_CLIP + "(" + coverageExpression + ", " + clipValue + ", \"" + subsettingCrs + "\")";
             }
         }
 

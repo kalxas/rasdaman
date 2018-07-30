@@ -37,7 +37,7 @@ import petascope.exceptions.WMSException;
  *
  * Abstract handler class for all requests in KVP or XML
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public abstract class AbstractHandler {

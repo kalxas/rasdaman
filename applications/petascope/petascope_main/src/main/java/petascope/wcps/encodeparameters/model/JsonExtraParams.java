@@ -39,7 +39,7 @@ import java.util.Map;
  * FROM test_eobstest AS c
  * 
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class JsonExtraParams {
     

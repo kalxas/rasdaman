@@ -317,6 +317,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitNumber(@NotNull wcpsParser.NumberContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipWKTLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionClipWKTLabel(@NotNull wcpsParser.CoverageExpressionClipWKTLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipWKTLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionClipWKTLabel(@NotNull wcpsParser.CoverageExpressionClipWKTLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionRangeSubsettingLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -403,6 +414,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumericalOperator(@NotNull wcpsParser.NumericalOperatorContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#ClipWKTExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterClipWKTExpressionLabel(@NotNull wcpsParser.ClipWKTExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#ClipWKTExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitClipWKTExpressionLabel(@NotNull wcpsParser.ClipWKTExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#NumericalCondenseExpressionLabel}.
@@ -689,6 +711,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAxisIteratorDomainIntervalsLabel(@NotNull wcpsParser.AxisIteratorDomainIntervalsLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#ClipCurtainExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#ClipCurtainExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionExponentialLabel}.
@@ -1021,17 +1054,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#RangeConstructorSwitchCaseExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1041,6 +1063,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRangeConstructorSwitchCaseExpressionLabel(@NotNull wcpsParser.RangeConstructorSwitchCaseExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionCrsTransformLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionCrsTransformLabel(@NotNull wcpsParser.CoverageExpressionCrsTransformLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#GeneralCondenseExpressionLabel}.
@@ -1186,15 +1219,15 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitReduceNumericalExpressionOperator(@NotNull wcpsParser.ReduceNumericalExpressionOperatorContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipLabel}.
+	 * Enter a parse tree produced by {@link wcpsParser#curtainProjectionAxisLabel2}.
 	 * @param ctx the parse tree
 	 */
-	void enterCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx);
+	void enterCurtainProjectionAxisLabel2(@NotNull wcpsParser.CurtainProjectionAxisLabel2Context ctx);
 	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipLabel}.
+	 * Exit a parse tree produced by {@link wcpsParser#curtainProjectionAxisLabel2}.
 	 * @param ctx the parse tree
 	 */
-	void exitCoverageExpressionClipLabel(@NotNull wcpsParser.CoverageExpressionClipLabelContext ctx);
+	void exitCurtainProjectionAxisLabel2(@NotNull wcpsParser.CurtainProjectionAxisLabel2Context ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#BooleanBinaryScalarLabel}.
@@ -1206,6 +1239,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBooleanBinaryScalarLabel(@NotNull wcpsParser.BooleanBinaryScalarLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#WKTExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterWKTExpressionLabel(@NotNull wcpsParser.WKTExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#WKTExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitWKTExpressionLabel(@NotNull wcpsParser.WKTExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#scalarExpression}.
@@ -1439,6 +1483,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitWcpsQueryLabel(@NotNull wcpsParser.WcpsQueryLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipCurtainLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionClipCurtainLabel(@NotNull wcpsParser.CoverageExpressionClipCurtainLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionClipCurtainLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionClipCurtainLabel(@NotNull wcpsParser.CoverageExpressionClipCurtainLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ReduceBooleanExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1450,6 +1505,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitReduceBooleanExpressionLabel(@NotNull wcpsParser.ReduceBooleanExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#curtainProjectionAxisLabel1}.
+	 * @param ctx the parse tree
+	 */
+	void enterCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#curtainProjectionAxisLabel1}.
+	 * @param ctx the parse tree
+	 */
+	void exitCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ExponentialExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1459,17 +1525,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExponentialExpressionLabel(@NotNull wcpsParser.ExponentialExpressionLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#ClipExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#ClipExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitClipExpressionLabel(@NotNull wcpsParser.ClipExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#WhereClauseLabel}.

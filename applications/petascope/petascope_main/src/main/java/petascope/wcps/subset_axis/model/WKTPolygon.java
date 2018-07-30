@@ -27,7 +27,7 @@ import java.util.List;
  * Class to represent WKT Polygon object
  * e.g: POLYGON((20 30, 40 50, 60 70), (70 70, 60 80, 50 60))
  * 
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WKTPolygon extends AbstractWKTShape {
     

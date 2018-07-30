@@ -1,0 +1,1 @@
+for c in (test_wms_4d_ecmwf_fire_netcdf) return encode(clip(c, CURTAIN(projection(ansi, forecast), polygon(( "2017-01-10T00:00:00.000Z" 0, "2017-02-10T00:00:00.000Z" 5, "2017-12-15T00:00:00.000Z" 3, "2017-02-10T00:00:00.000Z" 0 )) ) ), "gml")

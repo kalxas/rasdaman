@@ -30,7 +30,7 @@ import petascope.exceptions.WMSException;
 /**
  * Interface for all KVP request handlers
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public interface IKVPHandler {
 

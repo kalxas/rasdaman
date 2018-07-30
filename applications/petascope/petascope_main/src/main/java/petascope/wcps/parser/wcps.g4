@@ -390,8 +390,10 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionRangeSubsettingLabel
                   | rangeConstructorExpression
                     #CoverageExpressionRangeConstructorLabel
-                  | clipExpression
-                    #CoverageExpressionClipLabel
+                  | clipWKTExpression
+                    #CoverageExpressionClipWKTLabel
+                  | clipCurtainExpression
+                    #CoverageExpressionClipCurtainLabel
                   | crsTransformExpression
                     #CoverageExpressionCrsTransformLabel
 		          | switchCaseExpression
@@ -630,6 +632,24 @@ wktPolygon: POLYGON LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS
 wktMultipolygon: MULTIPOLYGON LEFT_PARENTHESIS LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS (COMMA LEFT_PARENTHESIS wktPointElementList RIGHT_PARENTHESIS)* RIGHT_PARENTHESIS
 #WKTMultipolygonLabel;
 
+wktExpression: (wktPolygon | wktLineString | wktMultipolygon)
+#WKTExpressionLabel;
+
+
+curtainProjectionAxisLabel1: COVERAGE_VARIABLE_NAME;
+curtainProjectionAxisLabel2: COVERAGE_VARIABLE_NAME;
+
+/*
+  clip( coverageExpression, curtain( project(axis1, axis2), WKT), CRS ) 
+*/
+clipCurtainExpression: CLIP LEFT_PARENTHESIS coverageExpression
+                                             COMMA CURTAIN LEFT_PARENTHESIS
+                                                PROJECTION LEFT_PARENTHESIS curtainProjectionAxisLabel1 COMMA curtainProjectionAxisLabel2 RIGHT_PARENTHESIS
+                                                COMMA wktExpression 
+                                             RIGHT_PARENTHESIS
+					     (COMMA crsName)?
+			    RIGHT_PARENTHESIS
+#ClipCurtainExpressionLabel;
 
 /*
   clip(coverageExpression, WKT) is used to clip a coverage with 1D (linestring), 2D (polygon, multipolygons), 3D+ (curtain queries)
@@ -640,8 +660,11 @@ wktMultipolygon: MULTIPOLYGON LEFT_PARENTHESIS LEFT_PARENTHESIS wktPointElementL
   A geo CRS (e.g: http://opengis.net/def/CRS/EPSG/0/4326) can be input parameter for clip operator and the XY coordinates in WKT will be transformed 
   from this CRS to coverage's native CRS for XY axes (e.g: EPSG:3857). The output clipped coverage will keep native CRS EPSG:3857.
 */
-clipExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA (wktPolygon | wktLineString | wktMultipolygon) (COMMA crsName)? RIGHT_PARENTHESIS
-#ClipExpressionLabel;
+clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression (COMMA crsName)? RIGHT_PARENTHESIS
+#ClipWKTExpressionLabel;
+
+
+
 
 /**
  * crsTransform (Use to project a coverage from CRS:A to CRS:B). Require coverage was geo-referenced, not grid.

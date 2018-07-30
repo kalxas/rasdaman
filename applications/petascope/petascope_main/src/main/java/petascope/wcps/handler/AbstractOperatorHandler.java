@@ -27,7 +27,7 @@ import petascope.wcps.result.WcpsResult;
 /**
  * An abstract class which are extended from WCPS expression/operator handlers.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public abstract class AbstractOperatorHandler {
 

@@ -63,7 +63,7 @@ import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
  * This class initialize the Petascope properties then run the application as
  * jar file
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class ApplicationMain extends SpringBootServletInitializer {
 

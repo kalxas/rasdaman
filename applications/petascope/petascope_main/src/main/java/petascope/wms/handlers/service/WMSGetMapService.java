@@ -14,7 +14,7 @@
   *  You should have received a copy of the GNU  General Public License
   *  along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
   * 
-  *  Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+  *  Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
   * 
   *  For more information please see <http://www.rasdaman.org>
   *  or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -102,7 +102,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
  * test_wms_4326_2017_08_04_14_59_03_233 as c1, test_wms_4326_new as c2
  *
  * @author
- * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 // Create a new instance of this bean for each request (so it will not use the old object with stored data)

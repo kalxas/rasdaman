@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidAxisLabel">
-        <ows:ExceptionText>Coverage's Axis not found 'i'.</ows:ExceptionText>
+        <ows:ExceptionText>Coverage's axis not found 'i'.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="WcpsError">
+        <ows:ExceptionText>Coordinate value '39.99999999999999289457264239899814128875732421875' is not valid. Reason: Coordinate is not within domain [40:60] of axis 'Long'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

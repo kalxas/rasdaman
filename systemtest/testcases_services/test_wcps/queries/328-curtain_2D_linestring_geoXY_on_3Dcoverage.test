@@ -1,0 +1,1 @@
+for c in (test_eobstest) return encode(clip(c, CURTAIN(projection(Lat, Long), linestring(25 40, 30 40, 30 45, 30 42) ) ), "csv")

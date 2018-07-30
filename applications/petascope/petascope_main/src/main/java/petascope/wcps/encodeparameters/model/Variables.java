@@ -27,7 +27,7 @@ import petascope.wcps.parameters.model.netcdf.Variable;
 
 /**
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class Variables {
     public Variables() {

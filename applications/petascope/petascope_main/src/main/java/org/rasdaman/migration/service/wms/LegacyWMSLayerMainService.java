@@ -37,7 +37,7 @@ import petascope.exceptions.WMSException;
  * Class which translates the legacy WMS 1.3.0 metadata to new one and persist
  * to database
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class LegacyWMSLayerMainService {

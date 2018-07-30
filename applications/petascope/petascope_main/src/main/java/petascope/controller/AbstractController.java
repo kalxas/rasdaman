@@ -58,7 +58,7 @@ import petascope.util.XMLUtil;
 /**
  * Abstract class for controllers
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public abstract class AbstractController {
 

@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InvalidParameterValue">
-        <ows:ExceptionText>Invalid input WKT for clipping operator. Reason 'Number of dimensions in WKT '3' is different from coverage's '2'.'.</ows:ExceptionText>
+        <ows:ExceptionText>Invalid input WKT for clipping operator. Reason: Number of dimensions in WKT '3' is different from coverage's '2'.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

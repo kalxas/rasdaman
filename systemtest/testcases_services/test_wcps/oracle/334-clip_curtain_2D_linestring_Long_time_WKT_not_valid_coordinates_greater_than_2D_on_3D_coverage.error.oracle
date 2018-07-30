@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="SyntaxError">
+        <ows:ExceptionText><![CDATA[A parsing error occurred at line '1', column '75'. Offending token is ','. Reason: missing ')' at ','.]]></ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

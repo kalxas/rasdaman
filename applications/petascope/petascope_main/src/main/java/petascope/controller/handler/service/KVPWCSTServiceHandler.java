@@ -52,7 +52,7 @@ import petascope.wcst.parsers.UpdateCoverageRequest;
  * Service class for wcst_import request in KVP format (InsertCoverage,
  * UpdateCoverage, DeleteCoverage)
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCSTServiceHandler extends AbstractHandler {

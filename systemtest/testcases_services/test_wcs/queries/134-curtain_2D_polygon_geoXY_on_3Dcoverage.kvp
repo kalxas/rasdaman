@@ -1,0 +1,6 @@
+service=WCS&version=2.0.1&
+request=GetCoverage&
+coverageId=test_eobstest&
+clip=CURTAIN(projection(Lat, Long), Polygon((25 40, 30 40, 30 45, 30 42)))&
+format=text/csv
+

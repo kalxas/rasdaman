@@ -70,7 +70,7 @@ import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHA
  * deleting WCS coverage, WMS layer will be deleted.
  *
  * @author
- * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {

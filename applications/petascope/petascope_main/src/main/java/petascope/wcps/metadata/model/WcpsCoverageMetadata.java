@@ -14,14 +14,13 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcps.metadata.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
  * in the WCPS tree.
  *
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WcpsCoverageMetadata {
 
@@ -122,6 +121,19 @@ public class WcpsCoverageMetadata {
 
         return sortedAxis;
     }
+    
+    /**
+     * Get grid order (rasdaman order) for input axis
+     */
+    public int getAxisGridOrder(String axisName) {
+        List<Axis> axesTmp = this.getSortedAxesByGridOrder();
+        for (int i = 0; i < axesTmp.size(); i++) {
+            if (axesTmp.get(i).getLabel().equals(axisName)) {
+                return i;
+            }
+        }
+        throw new CoverageAxisNotFoundExeption(axisName);
+    }
 
     public String getCrsUri() {
         return this.crsUri;
@@ -153,6 +165,15 @@ public class WcpsCoverageMetadata {
 
     public List<RangeField> getRangeFields() {
         return this.rangeFields;
+    }
+    
+    public boolean axisExists(String axisName) {
+        for (Axis axis : this.axes) {
+            if (axis.getLabel().equals(axisName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Axis getAxisByName(String axisName) {

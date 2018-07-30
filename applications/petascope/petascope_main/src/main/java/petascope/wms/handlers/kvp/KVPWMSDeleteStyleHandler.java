@@ -47,7 +47,7 @@ import petascope.wms.handlers.service.WMSGetMapCachingService;
  * is a coverage in WCS, so when WCS DeleteCoverage, WMS will also need to
  * remove the layer and all children elements of this layer.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWMSDeleteStyleHandler extends KVPWMSAbstractHandler {

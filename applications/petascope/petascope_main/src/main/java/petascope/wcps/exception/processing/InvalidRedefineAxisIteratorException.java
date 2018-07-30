@@ -30,7 +30,7 @@ import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
  * (e.g: for c in (mr) return encode
  *       (coverage cov $px x(0:20), $px x(0:30) values c[i($px), j($px)], "png"))
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class InvalidRedefineAxisIteratorException extends WCPSException {
 

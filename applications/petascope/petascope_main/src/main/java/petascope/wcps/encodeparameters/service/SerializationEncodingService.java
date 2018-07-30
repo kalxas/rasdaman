@@ -51,7 +51,7 @@ import petascope.wcps.parameters.model.netcdf.NetCDFExtraParams;
 /**
  *
  * Build encoding object then serialize it to JSON string.
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class SerializationEncodingService {

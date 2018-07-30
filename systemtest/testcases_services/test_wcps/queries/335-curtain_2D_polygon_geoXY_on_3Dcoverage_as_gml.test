@@ -1,0 +1,1 @@
+for c in (test_eobstest) return encode(clip(c[t("1950-01-01T12:00:00.000Z":"1950-01-03T12:00:00.000Z")], CURTAIN(projection(Lat, Long), Polygon((30 45, 35 45, 35 50, 30 50)) ) ), "gml")

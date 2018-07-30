@@ -56,7 +56,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
  * Class which handles the WCS GetCoverage request and translates to a WCPS
  * request. So WCS will not actually do anything for processing coverage.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {

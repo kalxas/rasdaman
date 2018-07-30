@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -38,7 +38,7 @@ import petascope.wcps.subset_axis.model.AxisIterator;
  * y(20:50) values c[i($px), j($py), "png") means that $px is an alias for
  * x(0:20) and $px is an alias for y(20:50) in this query.
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 @Service

@@ -47,6 +47,7 @@ CONDENSE: ('c'|'C')('o'|'O')('n'|'N')('d'|'D')('e'|'E')('n'|'N')('s'|'S')('e'|'E
 COS: ('c'|'C')('o'|'O')('s'|'S');
 COSH: ('c'|'C')('o'|'O')('s'|'S')('h'|'H');
 COUNT:('c'|'C')('o'|'O')('u'|'U')('n'|'N')('t'|'T');
+CURTAIN:('c'|'C')('u'|'U')('r'|'R')('t'|'T')('a'|'A')('i'|'I')('n'|'N');
 COVERAGE: ('c'|'C')('o'|'O')('v'|'V')('e'|'E')('r'|'R')('a'|'A')('g'|'G')('e'|'E');
 COVERAGE_VARIABLE_NAME_PREFIX: '$';
 CRS_TRANSFORM: ('c' | 'C')('r' | 'R')('s' | 'S')('t' | 'T')('r' | 'R')('a' | 'A')('n' | 'N')('s' | 'S')('f' | 'F')('o' | 'O')('r' | 'R')('m' | 'M');
@@ -127,6 +128,8 @@ CRS_TRANSFORM: ('c'|'C')('r'|'R')('s'|'S')('t'|'T')('r'|'R')('a'|'A')('n'|'N')('
 POLYGON: ('p'|'P')('o'|'O')('l'|'L')('y'|'Y')('g'|'G')('o'|'O')('n'|'N')((' ')('z'|'Z'))?;
 LINESTRING: ('l'|'L')('i'|'I')('n'|'N')('e'|'E')('s'|'S')('t'|'T')('r'|'R')('i'|'I')('n'|'N')('g'|'G')((' ')('z'|'Z'))?;
 MULTIPOLYGON: ('m'|'M')('u'|'U')('l'|'L')('t'|'T')('i'|'I')('p'|'P')('o'|'O')('l'|'L')('y'|'Y')('g'|'G')('o'|'O')('n'|'N')?;
+
+PROJECTION: ('p'|'P')('r'|'R')('o'|'O')('j'|'J')('e'|'E')('c'|'C')('t'|'T')('i'|'I')('o'|'O')('n'|'N');
 
 REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
 SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;

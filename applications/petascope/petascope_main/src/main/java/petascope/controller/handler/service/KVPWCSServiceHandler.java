@@ -39,7 +39,7 @@ import petascope.wcs2.handlers.kvp.KVPWCSGetCoverageHandler;
 /**
  * The main handler for all WCS requests in KVP request
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class KVPWCSServiceHandler extends AbstractHandler {

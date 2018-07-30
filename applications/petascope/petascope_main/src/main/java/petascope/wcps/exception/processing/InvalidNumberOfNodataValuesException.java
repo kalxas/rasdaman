@@ -29,7 +29,7 @@ import petascope.exceptions.ExceptionCode;
  * if nodata = array of values then each value is applied to each band separately
  * 
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class InvalidNumberOfNodataValuesException extends WCPSException {
 

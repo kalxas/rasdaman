@@ -35,7 +35,7 @@ import org.rasdaman.migration.domain.legacy.LegacyAxisTypes;
 /**
  * Create a EnvelopeByAxis object from legacy CoverageMetadata object
  *
- @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class EnvelopeByAxisCreateTranslatingService {

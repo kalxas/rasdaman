@@ -44,7 +44,7 @@ import petascope.exceptions.WMSException;
 /**
  * Controller for Rasql query as RasqlServlet before
  *
- * <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @RestController
 public class RasqlController extends AbstractController {

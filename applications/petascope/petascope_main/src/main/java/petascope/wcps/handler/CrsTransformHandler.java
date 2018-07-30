@@ -38,6 +38,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsProjectionUtil;
 import petascope.wcps.exception.processing.IdenticalAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.InvalidOutputCrsProjectionInCrsTransformException;
+import petascope.wcps.exception.processing.Not2DCoverageForCrsTransformException;
 import petascope.wcps.exception.processing.Not2DXYGeoreferencedAxesCrsTransformException;
 import petascope.wcps.exception.processing.NotGeoReferenceAxisNameInCrsTransformException;
 import petascope.wcps.exception.processing.NotIdenticalCrsInCrsTransformException;
@@ -80,7 +81,11 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
     public WcpsResult handle(WcpsResult coverageExpression, HashMap<String, String> axisCrss, 
                             HashMap<String, HashMap<String, String>> rangeInterpolations) throws PetascopeException, SecoreException {
         
-        checkOperandIsCoverage(coverageExpression, OPERATOR);   
+        checkOperandIsCoverage(coverageExpression, OPERATOR);
+        int numberOfAxes = coverageExpression.getMetadata().getAxes().size();
+        if (numberOfAxes != 2) {
+            throw new Not2DCoverageForCrsTransformException(numberOfAxes);
+        }
         
         checkValid(axisCrss);
         String rasql = getBoundingBox(coverageExpression, axisCrss);
@@ -91,7 +96,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         
         if (!CrsUtil.isGridCrs(outputCrs) && !CrsUtil.isIndexCrs(outputCrs)) {
             // NOTE: after this crsTransform operator, the coverage's axes will need to updated with values from outputCRS also.
-            // e.g: crsTransform(c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"))
+            // e.g: crsTransform(c, {Lat:"http://localhost:8080/def/crs/epsg/0/4326", Long:"http://localhost:8080/def/crs/epsg/0/4326"})
             // with c has X, Y axes (CRS:3857), then output of crsTransform is a 2D coverage with Lat, Long axes (CRS:4326).
             this.updateAxesByOutputCRS(metadata);
         }

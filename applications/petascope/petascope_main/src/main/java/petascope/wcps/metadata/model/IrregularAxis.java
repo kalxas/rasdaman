@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -107,7 +107,7 @@ public class IrregularAxis extends Axis {
         
         if (minIndex > maxIndex) {
             // it happens when the subset=(20,10) in irregular axis.
-            String errorMessage = "Input lower bound '" + minInput + "' is greater than upper bound '" + maxInput + "' in direct positions list of irregular axis '" + this.getLabel();
+            String errorMessage = "Input lower bound '" + minInput + "' is greater than upper bound '" + maxInput + "' in direct positions list of irregular axis '" + this.getLabel() + "'";
             throw new PetascopeException(ExceptionCode.RuntimeError, errorMessage);
         }
 

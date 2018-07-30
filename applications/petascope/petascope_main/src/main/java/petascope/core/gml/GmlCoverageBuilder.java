@@ -587,7 +587,8 @@ public class GmlCoverageBuilder {
     }
 
     /**
-     * If a coverage imported with this sdom [0:35,0:17,0:3] with grid axes order: long (+2), lat (+1), time (+3) and crs axes order: lat (+1), long (+2), time (+3)
+     * If a coverage imported with this sdom [0:35,0:17,0:3] with crs axes order (EPSG:4326&AnsiDate): lat (+1), long (+2), time (+3) 
+     * and grid axes order (rasdaman order) as [long (+2), lat (+1), time (+3)]
      * then the result of WCS GetCoverage in GML will return tupleList element which contains the result of: encode(c, "JSON")
      * which iterate the sdom in grid axes order: from outer time axis to lat axis then inner long axis.
      * 

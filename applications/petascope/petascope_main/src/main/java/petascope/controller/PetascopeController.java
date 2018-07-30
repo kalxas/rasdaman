@@ -50,7 +50,7 @@ import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
  *
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @RestController
 public class PetascopeController extends AbstractController {

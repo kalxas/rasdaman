@@ -26,7 +26,7 @@ import petascope.wcps.result.ParameterResult;
 
 /**
  * Abstract class of all WKT shapes (point, linestring, polygon,...)
- * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public abstract class AbstractWKTShape extends ParameterResult {
     
