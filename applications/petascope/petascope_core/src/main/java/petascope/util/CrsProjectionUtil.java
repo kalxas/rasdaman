@@ -64,6 +64,8 @@ public class CrsProjectionUtil {
      */
     public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] sourceCoordinates) throws WCSException, PetascopeException {
 
+        gdal.AllRegister();
+        
         String sourceCrsEPSGCode = sourceCrs;
         String targetCrsEPSGCode = targetCrs;
         // NOTE: sourceCrs and targetCrs can be CRS Uri (e.g: http://.../4326) or already EPSG:4326
@@ -121,7 +123,6 @@ public class CrsProjectionUtil {
      * No file should be created and GDAL only needs to calculate this GeoTransform object quickly.
      */
     public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGeoTransform, String targetCRS) throws PetascopeException, SecoreException {
-        gdal.AllRegister();
         
         // Source extents
         Dataset sourceDataSet = gdal.GetDriverByName("VRT").Create("", sourceGeoTransform.getGridWidth(), sourceGeoTransform.getGridHeight());

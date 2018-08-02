@@ -37,15 +37,16 @@ import petascope.wcps.subset_axis.model.AbstractWKTShape;
  *
  * Handler for the clip curtain expression to crop a coverage by a curtain with a WKT (polygon,
  * linestring,...) with coverage expression (c) must be 3D+.
- * e.g: clip( c, curtain( projection(Lat, Lon), Polygon((0 20, 20 20, 20 10, 0 20)), "http://opengis.net/def/CRS/EPSG/0/4326") )
+ * e.g: clip( c, curtain( projection(Lat, Lon), Polygon((0 20, 20 20, 20 10, 0 20)) ),
+ *            "http://opengis.net/def/CRS/EPSG/0/4326")
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
 public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler {
     
-    private final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1";
-    private final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2";
+    private static final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL1";
+    private static final String TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2 = "$TRANSLATED_CURTAIN_PROJECTION_AXIS_LABEL2";
     // e.g: clip( curtain(c, projection(0, 1), POLYGON((...)) ) )
     private final String RASQL_TEMPLATE = this.OPERATOR 
                                     + "( "

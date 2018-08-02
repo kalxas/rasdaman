@@ -22,6 +22,7 @@
 package petascope.wcps.metadata.service;
 
 import java.math.BigDecimal;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.TimeUtil;
 import petascope.wcps.exception.processing.InvalidCalculatedBoundsSubsettingException;
@@ -43,10 +44,15 @@ public class TimeConversionService {
      * @param axis
      * @return the value in grid point
      */
-    public static BigDecimal getTimeInGridPointForRegularAxis(Axis axis, String point) {
+    public static BigDecimal getTimeInGridPointForRegularAxis(Axis axis, String point) throws PetascopeException {
         String axisName = axis.getLabel();
         String axisUoM = axis.getAxisUoM();
         String datumOrigin = axis.getCrsDefinition().getDatumOrigin();
+        
+        if (datumOrigin == null) {
+            throw new PetascopeException(ExceptionCode.InvalidParameterValue, 
+                                        "CRS of axis '" + axisName + "' is not type datetime, given: '" + axis.getNativeCrsUri() + "'.");
+        }
 
         BigDecimal result;
 

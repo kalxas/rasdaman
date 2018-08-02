@@ -1,0 +1,2 @@
+for c in (test_eobstest) return encode( 
+ clip( c, corridor( projection(Lat, Long), LineString("1950-01-01" 26 41, "1950-01-02" 28 41), Polygon((25 40, 30 40, 30 45, 25 45)) ) ), "csv")

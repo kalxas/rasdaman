@@ -255,4 +255,13 @@ public abstract class Axis<T> {
         return this.axisType.equals(AxisTypes.HEIGHT_AXIS) 
             || this.axisType.equals(AxisTypes.DEPTH_AXIS);
     }
+    
+    /**
+     * Return an axis's label by input index starts from 0.
+     */
+    public static String createAxisLabelByIndex(int index) {
+        // NOTE: axis labels come from IndexND CRS.
+        String axisName = Character.toString((char)('i' + index));
+        return axisName;
+    }
 }

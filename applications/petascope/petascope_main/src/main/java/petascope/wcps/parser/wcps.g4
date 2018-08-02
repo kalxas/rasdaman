@@ -394,6 +394,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionClipWKTLabel
                   | clipCurtainExpression
                     #CoverageExpressionClipCurtainLabel
+                  | clipCorridorExpression
+                    #CoverageExpressionClipCorridorLabel
                   | crsTransformExpression
                     #CoverageExpressionCrsTransformLabel
 		          | switchCaseExpression
@@ -650,6 +652,24 @@ clipCurtainExpression: CLIP LEFT_PARENTHESIS coverageExpression
 					     (COMMA crsName)?
 			    RIGHT_PARENTHESIS
 #ClipCurtainExpressionLabel;
+
+
+corridorProjectionAxisLabel1: COVERAGE_VARIABLE_NAME;
+corridorProjectionAxisLabel2: COVERAGE_VARIABLE_NAME;
+
+/*
+  clip( coverageExpression, corridor( project(axis1, axis2), LineString, WKT, discrete), CRS ) 
+*/
+clipCorridorExpression: CLIP LEFT_PARENTHESIS coverageExpression
+                                              COMMA CORRIDOR LEFT_PARENTHESIS
+                                                   PROJECTION LEFT_PARENTHESIS corridorProjectionAxisLabel1 COMMA corridorProjectionAxisLabel2 RIGHT_PARENTHESIS
+                                                   COMMA wktLineString 
+                                                   COMMA wktExpression 
+                                                   (COMMA DISCRETE)?
+                                                RIGHT_PARENTHESIS
+					                          (COMMA crsName)?
+			                 RIGHT_PARENTHESIS
+#ClipCorridorExpressionLabel;
 
 /*
   clip(coverageExpression, WKT) is used to clip a coverage with 1D (linestring), 2D (polygon, multipolygons), 3D+ (curtain queries)

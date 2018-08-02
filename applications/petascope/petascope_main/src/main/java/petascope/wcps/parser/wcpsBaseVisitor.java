@@ -338,6 +338,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitClipCorridorExpressionLabel(@NotNull wcpsParser.ClipCorridorExpressionLabelContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitTrigonometricOperator(@NotNull wcpsParser.TrigonometricOperatorContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -810,6 +818,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitCorridorProjectionAxisLabel2(@NotNull wcpsParser.CorridorProjectionAxisLabel2Context ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitCoverageExpressionCastLabel(@NotNull wcpsParser.CoverageExpressionCastLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -843,6 +859,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitCorridorProjectionAxisLabel1(@NotNull wcpsParser.CorridorProjectionAxisLabel1Context ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -1107,6 +1131,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

@@ -1,0 +1,2 @@
+for c in (test_eobstest) return encode( 
+ clip( c, corridor( projection(Lat, Long), LineString(4566099.12252 2999080.94347 "1950-01-01", 4566099.12252 3248973.78965 "1950-01-02"), Polygon((4452779.63173 2875744.62435, 4452779.63173 3503549.8435, 5009377.0857 3503549.8435, 5009377.0857 2875744.62435)) ), "http://localhost:8080/def/crs/EPSG/0/3857" ), "gml")

@@ -7,7 +7,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="i0" srsDimension="1"
+        <Envelope axisLabels="i" srsDimension="1"
             srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
             <lowerCorner>0</lowerCorner>
             <upperCorner>56</upperCorner>
@@ -21,7 +21,7 @@
                     <high>56</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>i0</axisLabels>
+            <axisLabels>i</axisLabels>
             <origin>
                 <Point id="test_wms_4326-origin" srsName="/crs/OGC/0/Index1D">
                     <pos>0.5</pos>

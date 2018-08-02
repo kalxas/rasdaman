@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="UnknownError">
+        <ows:ExceptionText>Error processing clip() operator expression. Reason: CRS of axis 'Lat' is not type datetime, given: '/crs/EPSG/0/4326'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

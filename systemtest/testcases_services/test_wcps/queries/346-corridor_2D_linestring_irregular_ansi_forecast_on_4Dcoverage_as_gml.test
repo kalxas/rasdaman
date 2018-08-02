@@ -1,0 +1,2 @@
+for c in (test_wms_4d_ecmwf_fire_netcdf) return encode( 
+ clip( c, corridor( projection(ansi, forecast), LineString(34.4396675 29.6015625 "2017-01-10T00:00:00.000Z" 0, 34.7208095 29.8828125 "2017-06-20T00:00:00.000Z" 8), Linestring("2017-01-10T00:00:00.000Z" 0, "2017-09-18T00:00:00.000Z" 0, "2017-09-18T00:00:00.000Z" 8, "2017-01-10T00:00:00.000Z" 8) ) ), "gml")

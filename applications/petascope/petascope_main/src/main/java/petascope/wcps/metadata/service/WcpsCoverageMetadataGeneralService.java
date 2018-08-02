@@ -392,6 +392,25 @@ public class WcpsCoverageMetadataGeneralService {
     }
     
     /**
+     * 
+     * From the grid domain (e.g: output of sdom(Rasql query)), create a WCPS Axis
+     * which is used in WCPS coverage metadata by the index of this axis in sdom().
+     * 
+     */
+    public Axis createAxisByGridBounds(Integer index, NumericSubset gridBounds) {
+        String axisLabel = Axis.createAxisLabelByIndex(index);
+        BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
+        AxisDirection axisDirection = AxisTypes.AxisDirection.UNKNOWN;
+        String axisType = AxisTypes.X_AXIS;
+        String axisUoM = CrsUtil.INDEX_UOM;
+        String crsURI = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, String.valueOf(index + 1));
+        CrsDefinition crsDefinition = null;
+        Axis axis = new RegularAxis(axisLabel, gridBounds, gridBounds, gridBounds, axisDirection, crsURI, 
+                                    crsDefinition, axisType, axisUoM, index, gridBounds.getLowerLimit(), scalarResolution);
+        return axis;
+    }
+    
+    /**
      * Create a new WcpsCoverageMetadata object from a source WcpsCoverageMetadata object and a number of output coverage's axes (N).
      * The coverage's metadata output will contain IndexND axis instead of geo-CRS or CRS-compound as source object.
      * NOTE: the bounding boxes (geo/grid axes) of output coverage are unknown. e.g: clip a 2D oblique polygon on a 3D coverages (Lat, Long, Time).
@@ -411,28 +430,15 @@ public class WcpsCoverageMetadataGeneralService {
         String metadata = sourceMetadata.getMetadata();
         
         // Create index axes
-        // the axis type (x, y, t,...) should be set to axis correctly, now just set to x
-        String axisType = AxisTypes.X_AXIS;
-        // Scalar resolution is set to 1
-        BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
-        AxisDirection axisDirection = AxisTypes.AxisDirection.UNKNOWN;
-        CrsDefinition crsDefinition = null;
-        String axisUoM = CrsUtil.INDEX_UOM;
-        String axisLabelPrefix = "i";
         List<Axis> axes = new ArrayList<>();
         
         // Create index axes for output coverage
         for (int i = 0; i < numberOfAxes; i++) {
-            String label = axisLabelPrefix + i;
             // NOTE: output coverage is unknown about the bounding box, so set with a constant value for geo and grid domains.
             BigDecimal lowerBound = new BigDecimal(domains.get(i).fst);
             BigDecimal upperBound = new BigDecimal(domains.get(i).snd);
-            NumericSubset geoBounds = new NumericTrimming(lowerBound, upperBound);
-            NumericSubset originalGridBounds = new NumericTrimming(lowerBound, upperBound);
-            NumericSubset gridBounds = geoBounds;
-            BigDecimal origin = geoBounds.getLowerLimit();            
-            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, axisDirection, crsURI,
-                    crsDefinition, axisType, axisUoM, i, origin, scalarResolution);
+            NumericSubset gridBounds = new NumericTrimming(lowerBound, upperBound);
+            Axis axis = this.createAxisByGridBounds(i, gridBounds);
             axes.add(axis);
         }
         
@@ -897,20 +903,20 @@ public class WcpsCoverageMetadataGeneralService {
 
             // Check if subset is inside the domain of geo bound
             if (geoParsedSubset.isSlicing()) {
-                // slicing geo parsed subset
-                if ((geoParsedSubset.getSlicingCoordinate().compareTo(lowerLimit) < 0)
-                        || (geoParsedSubset.getSlicingCoordinate().compareTo(upperLimit) > 0)) {
+                // slicing geo parsed subset (add/substract epsilon as the coordinate from crs transform can be approximately)
+                if ((geoParsedSubset.getSlicingCoordinate().add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(lowerLimit) < 0)
+                        || (geoParsedSubset.getSlicingCoordinate().subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(upperLimit) > 0)) {
 
                     // throw slicing error
                     subset = new ParsedSubset<>(geoParsedSubset.getSlicingCoordinate().toPlainString());
                     throw new OutOfBoundsSubsettingException(axisName, subset, lowerLimit.toPlainString(), upperLimit.toPlainString());
                 }
             } else {
-                // trimming geo parsed subset
-                if ((geoParsedSubset.getLowerLimit().compareTo(lowerLimit) < 0)
+                // trimming geo parsed subset (add/substract epsilon as the coordinate from crs transform can be approximately)
+                if ((geoParsedSubset.getLowerLimit().add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(lowerLimit) < 0)
                         || (geoParsedSubset.getLowerLimit().compareTo(upperLimit) > 0)
                         || (geoParsedSubset.getUpperLimit().compareTo(lowerLimit) < 0)
-                        || (geoParsedSubset.getUpperLimit().compareTo(upperLimit) > 0)) {
+                        || (geoParsedSubset.getUpperLimit().subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(upperLimit) > 0)) {
 
                     // throw trimming error
                     subset = new ParsedSubset<>(geoParsedSubset.getLowerLimit().toPlainString(),

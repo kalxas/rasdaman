@@ -21,7 +21,6 @@
  */
 package petascope.wcps.metadata.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import petascope.wcps.exception.processing.InvalidIntervalNumberFormat;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -47,6 +46,7 @@ import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 import petascope.core.service.CrsComputerService;
+import petascope.exceptions.PetascopeException;
 
 import static petascope.util.WCPSConstants.MSG_STAR;
 
@@ -150,7 +150,7 @@ public class SubsetParsingService {
      *                      check it specially
      * @return
      */
-    public List<Subset> convertToNumericSubsets(List<WcpsSubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
+    public List<Subset> convertToNumericSubsets(List<WcpsSubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend) throws PetascopeException {
         List<Subset> result = new ArrayList();
         for (WcpsSubsetDimension subsetDimension : dimensions) {
             result.add(this.convertToNumericSubset(subsetDimension, metadata, isScaleExtend));
@@ -212,7 +212,7 @@ public class SubsetParsingService {
      *                      need to be checked specially
      * @return
      */
-    private Subset convertToNumericSubset(WcpsSubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend) {
+    private Subset convertToNumericSubset(WcpsSubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend) throws PetascopeException {
 
         // This needs to be added transform() if dimension has crs which is different with native axis from coverage
         String axisName = dimension.getAxisName();
@@ -389,7 +389,7 @@ public class SubsetParsingService {
      *                      larger than coverage bounding box).
      * @return
      */
-    private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point) {
+    private BigDecimal convertPointToBigDecimal(boolean isTrimming, boolean isLowerPoint, Axis axis, String point) throws PetascopeException {
         BigDecimal result = null;
         if (point.equals(MSG_STAR)) {
             if (isTrimming) {

@@ -1,0 +1,1 @@
+service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_eobstest&clip=corridor( projection(Lat, Long), LineString(26 41 "1950-01-01", 28 41 "1950-01-02"), Polygon((25 40, 30 40, 30 45, 25 45)) )&format=application/gml+xml

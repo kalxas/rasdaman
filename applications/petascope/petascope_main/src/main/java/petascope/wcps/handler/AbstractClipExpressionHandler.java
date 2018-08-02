@@ -29,6 +29,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
@@ -84,7 +85,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * @param geoCoordinate coordinate in string
      * @return BigDecimal numeric geo coordinate
      */
-    protected BigDecimal getNumericGeoCoordinate(WcpsCoverageMetadata metadata, Axis axis, String geoCoordinate) {
+    protected BigDecimal getNumericGeoCoordinate(WcpsCoverageMetadata metadata, Axis axis, String geoCoordinate) throws PetascopeException {
         WcpsSubsetDimension wcpsSubsetDimension = new WcpsSliceSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), geoCoordinate);
         List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();
         wcpsSubsetDimensions.add(wcpsSubsetDimension);
@@ -102,7 +103,9 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * @throws PetascopeException
      */
     protected String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) throws PetascopeException {
-        if (geoPointCoordinate.compareTo(axis.getGeoBounds().getLowerLimit()) < 0 || geoPointCoordinate.compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
+        // add/substract epsilon as the coordinate from crs transform can be approximately
+        if (geoPointCoordinate.add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(axis.getGeoBounds().getLowerLimit()) < 0 ||
+            geoPointCoordinate.subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
             String errorMessage = "Coordinate is not within domain ["
                     + axis.getGeoBounds().getLowerLimit().toPlainString() + RASQL_BOUND_SEPARATION + axis.getGeoBounds().getUpperLimit().toPlainString() + "] of axis '" + axis.getLabel() + "'.";
             throw new InvalidCoordinatesForClippingException(geoPointCoordinate, errorMessage);

@@ -7,7 +7,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="i0" srsDimension="1"
+        <Envelope axisLabels="i" srsDimension="1"
             srsName="/crs/OGC/0/Index1D" uomLabels="GridSpacing">
             <lowerCorner>0</lowerCorner>
             <upperCorner>62</upperCorner>
@@ -23,7 +23,7 @@
                     <high>62</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>i0</axisLabels>
+            <axisLabels>i</axisLabels>
             <gmlrgrid:origin>
                 <Point id="test_irr_cube_2-origin" srsName="/crs/OGC/0/Index1D">
                     <pos>0.5</pos>
@@ -33,7 +33,7 @@
                 <gmlrgrid:GeneralGridAxis>
                     <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index1D">1</gmlrgrid:offsetVector>
                     <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>i0</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
                     <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                 </gmlrgrid:GeneralGridAxis>
             </gmlrgrid:generalGridAxis>

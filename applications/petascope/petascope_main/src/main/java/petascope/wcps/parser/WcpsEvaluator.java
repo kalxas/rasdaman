@@ -103,9 +103,11 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
+import petascope.wcps.exception.processing.ClipExpressionException;
 import petascope.wcps.exception.processing.Coverage0DMetadataNullException;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.exception.processing.InvalidWKTClippingException;
+import petascope.wcps.handler.ClipCorridorExpressionHandler;
 import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
@@ -152,6 +154,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     ClipWKTExpressionHandler clipWKTExpressionHandler;
     @Autowired private
     ClipCurtainExpressionHandler clipCurtainExpressionHandler;
+    @Autowired private
+    ClipCorridorExpressionHandler clipCorridorExpressionHandler;
     @Autowired private
     CrsTransformHandler crsTransformHandler;
     @Autowired private
@@ -459,9 +463,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         try {
             result = clipWKTExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
-        } catch (PetascopeException ex) {
-            String errorMessage = "Error processing clip() operator expression. Reason: " + ex.getExceptionText() + ".";
-            throw new WCPSException(ex.getExceptionCode(), errorMessage, ex);
+        } catch (PetascopeException ex) {           
+            throw new ClipExpressionException(ex.getExceptionText(), ex);
         }
         
         return result;
@@ -471,19 +474,19 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx) {
         // Handle clipCurtainExpression: 
 //        CLIP LEFT_PARENTHESIS coverageExpression
-//                                             COMMA CURTAIN LEFT_PARENTHESIS
+//                              COMMA CURTAIN LEFT_PARENTHESIS
 //                                                PROJECTION LEFT_PARENTHESIS curtainProjectionAxisLabel1 COMMA curtainProjectionAxisLabel2 RIGHT_PARENTHESIS
 //                                                COMMA wktExpression
-//                                             RIGHT_PARENTHESIS
-//                                             (COMMA crsName)?
+//                                            RIGHT_PARENTHESIS
+//                              (COMMA crsName)?
 //            RIGHT_PARENTHESIS
-        // e.g: clip(c, projection(Lat, Lon), Polygon((0 10, 20 20, 20 10, 0 10)))
+        // e.g: clip( c, curtain( projection(Lat, Lon), Polygon((0 10, 20 20, 20 10, 0 10)) ) )
         WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
         AbstractWKTShape wktShape = (AbstractWKTShape) visit(ctx.wktExpression());
         
-        int numberOfDimensions = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
-        if (numberOfDimensions != 2) {
-            throw new InvalidWKTClippingException("Number of dimensions in WKT for curtain clipping must be '2', given '" + numberOfDimensions + "'.");
+        int numberOfDimensionsInWKT = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (numberOfDimensionsInWKT != 2) {
+            throw new InvalidWKTClippingException("Number of dimensions in WKT for curtain clipping must be '2', given '" + numberOfDimensionsInWKT + "'.");
         }
         
         String curtainProjectionAxisLabel1 = ctx.curtainProjectionAxisLabel1().getText().trim();
@@ -512,11 +515,83 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
                                                         curtainProjectionAxisLabel1,
                                                         curtainProjectionAxisLabel2, wktShape, wktCRS);
         } catch (PetascopeException ex) {
-            String errorMessage = "Error processing clip() operator expression. Reason: " + ex.getExceptionText() + ".";
-            throw new WCPSException(ex.getExceptionCode(), errorMessage, ex);
+            throw new ClipExpressionException(ex.getExceptionText(), ex);
         }
         return result;
     }
+    
+    @Override
+    public VisitorResult visitClipCorridorExpressionLabel(@NotNull wcpsParser.ClipCorridorExpressionLabelContext ctx) {
+        // Handle clip corridor expression
+//        CLIP LEFT_PARENTHESIS coverageExpression
+//                              COMMA CORRIDOR LEFT_PARENTHESIS
+//                                                 PROJECTION LEFT_PARENTHESIS corridorProjectionAxisLabel1 COMMA corridorProjectionAxisLabel2 RIGHT_PARENTHESIS
+//                                                 COMMA wktLineString 
+//                                                 COMMA wktExpression 
+//                                                 (COMMA DISCRETE)?
+//                                             RIGHT_PARENTHESIS
+//                              (COMMA crsName)?
+//            RIGHT_PARENTHESIS
+        // e.g: clip( c, corridor( projection(Lat, Lon), LineString("1950-01-01" 1 1, "1950-01-02" 5 5), Polygon((0 10, 20 20, 20 10, 0 10)), discrete ) )
+        WcpsResult coverageExpression = (WcpsResult) visit(ctx.coverageExpression());
+        int numberOfDimensionsInCoverage = coverageExpression.getMetadata().getAxes().size();
+        
+        WKTLineString wktLineString = (WKTLineString) visit(ctx.wktLineString());
+        int numberOfDimensionsInTrackLine = wktLineString.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (numberOfDimensionsInTrackLine != numberOfDimensionsInCoverage) {
+            throw new InvalidWKTClippingException("Number of dimensions in LineString (trackline) for corridor clipping is '" + numberOfDimensionsInTrackLine 
+                                                  + "', but coverage's one is '" + numberOfDimensionsInCoverage + "'.'");
+        }
+
+        AbstractWKTShape wktShape = (AbstractWKTShape) visit(ctx.wktExpression());
+        if (!(wktShape instanceof WKTLineString || wktShape instanceof WKTPolygon)) {
+            throw new InvalidWKTClippingException("At present, corridor clipping only supports the LineString and Polygon WKT geometry types.");
+        }
+        
+        int numberOfDimensionsInWKT = wktShape.getWktCompoundPointsList().get(0).getNumberOfDimensions();
+        if (numberOfDimensionsInWKT != 2) {
+            throw new InvalidWKTClippingException("Number of dimensions in WKT for corridor clipping must be '2', given '" + numberOfDimensionsInWKT + "'.");
+        }
+        
+        String corridorProjectionAxisLabel1 = ctx.corridorProjectionAxisLabel1().getText().trim();
+        String corridorProjectionAxisLabel2 = ctx.corridorProjectionAxisLabel2().getText().trim();
+        
+        if (corridorProjectionAxisLabel1.equals(corridorProjectionAxisLabel2)) {
+            throw new WCPSException("Axis names in corridor's projection must be unique, given same name '" + corridorProjectionAxisLabel1 + "'.");
+        }
+        
+        // Pair of axes in corridor projection() must exist in coverage's WCPS metadata.
+        if (!coverageExpression.getMetadata().axisExists(corridorProjectionAxisLabel1)) {
+            throw new CoverageAxisNotFoundExeption(corridorProjectionAxisLabel1);
+        } else if (!coverageExpression.getMetadata().axisExists(corridorProjectionAxisLabel2)) {
+            throw new CoverageAxisNotFoundExeption(corridorProjectionAxisLabel2);
+        }
+        
+        boolean discrete = false;
+        if (ctx.DISCRETE() != null) {
+            discrete = true;
+        }
+        
+        // NOTE: This one is optional parameter, if specified, XY coordinates in WKT will be translated from this CRS to coverage's native CRS for XY axes.
+        String wktCRS = null;
+        if (ctx.crsName() != null) {
+            wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
+        }     
+        
+        WcpsResult result = null;
+        try {
+            result = clipCorridorExpressionHandler.handle(coverageExpression,
+                                                         corridorProjectionAxisLabel1,
+                                                         corridorProjectionAxisLabel2, 
+                                                         wktLineString,
+                                                         wktShape, discrete,
+                                                         wktCRS);
+        } catch (PetascopeException ex) {
+            throw new ClipExpressionException(ex.getExceptionText(), ex);
+        }
+        return result;
+    }
+    
 
     @Override
     public WcpsResult visitCrsTransformExpressionLabel(@NotNull wcpsParser.CrsTransformExpressionLabelContext ctx) {

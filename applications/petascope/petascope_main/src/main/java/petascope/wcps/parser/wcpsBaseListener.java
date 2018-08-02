@@ -537,6 +537,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterClipCorridorExpressionLabel(@NotNull wcpsParser.ClipCorridorExpressionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitClipCorridorExpressionLabel(@NotNull wcpsParser.ClipCorridorExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterTrigonometricOperator(@NotNull wcpsParser.TrigonometricOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1304,6 +1317,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCorridorProjectionAxisLabel2(@NotNull wcpsParser.CorridorProjectionAxisLabel2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCorridorProjectionAxisLabel2(@NotNull wcpsParser.CorridorProjectionAxisLabel2Context ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterCoverageExpressionCastLabel(@NotNull wcpsParser.CoverageExpressionCastLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1363,6 +1389,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCorridorProjectionAxisLabel1(@NotNull wcpsParser.CorridorProjectionAxisLabel1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCorridorProjectionAxisLabel1(@NotNull wcpsParser.CorridorProjectionAxisLabel1Context ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1792,6 +1831,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

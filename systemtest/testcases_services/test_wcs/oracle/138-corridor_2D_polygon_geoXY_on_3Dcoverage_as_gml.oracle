@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage id="test_eobstest"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="i Lat Long" srsDimension="3"
+            srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326" uomLabels="GridSpacing degree degree">
+            <lowerCorner>0 25 40</lowerCorner>
+            <upperCorner>4 30 45</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <RectifiedGrid dimension="3" id="test_eobstest-grid">
+            <limits>
+                <GridEnvelope>
+                    <low>0 19 0</low>
+                    <high>4 29 9</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>i Lat Long</axisLabels>
+            <origin>
+                <Point id="test_eobstest-origin" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">
+                    <pos>0.5 29.75 40.25</pos>
+                </Point>
+            </origin>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">1 0 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">0 -0.5 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326">0 0 0.5</offsetVector>
+        </RectifiedGrid>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,666,711,706,503,-9999,382,409,559,590,600,602,475,471,445,19,209,206,273,333,394,163,-52,-130,-181,-280,115,203,225,243,-128,-459,-768,-767,-594,-297,73,81,87,-261,-550,-742,-706,-848,-775,-294,-469,-474,-559,-535,-743,-707,-595,-763,-795,-424,-741,-921,-991,-882,-738,-809,-1085,-1052,-775,-202,-800,-1026,-1180,-1126,-1215,-1103,-1149,-957,-592,-108,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,666,711,706,503,-9999,382,409,559,590,600,602,475,471,445,19,209,206,273,333,394,163,-52,-130,-181,-280,115,203,225,243,-128,-459,-768,-767,-594,-297,73,81,87,-261,-550,-742,-706,-848,-775,-294,-469,-474,-559,-535,-743,-707,-595,-763,-795,-424,-741,-921,-991,-882,-738,-809,-1085,-1052,-775,-202,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,666,711,706,503,-9999,382,409,559,590,600,602,475,471,445,19,209,206,273,333,394,163,-52,-130,-181,-280,115,203,225,243,-128,-459,-768,-767,-594,-297,73,81,87,-261,-550,-742,-706,-848,-775,-294,-469,-474,-559,-535,-743,-707,-595,-763,-795,-424,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,686,736,733,522,-9999,478,523,562,568,583,592,455,411,346,-107,296,283,209,291,380,141,-60,-152,-240,-369,138,134,73,81,-176,-397,-649,-652,-510,-324,-3,-50,-117,-317,-476,-604,-554,-674,-612,-230,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,686,736,733,522,-9999,478,523,562,568,583,592,455,411,346,-107,296,283,209,291,380,141,-60,-152,-240,-369,138,134,73,81,-176,-397,-649,-652,-510,-324</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+            <startPoint>0 19 0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="tg">
+                <swe:Quantity >
+                    <swe:label>tg</swe:label>
+                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <bands>
+                    <tg>
+                        <units>Celsius</units>
+                        <long_name>mean temperature</long_name>
+                        <standard_name>air_temperature</standard_name>
+                        <scale_factor>0.01</scale_factor>
+                        <_FillValue>-9999</_FillValue>
+                    </tg>
+                </bands>
+                <Creator>This is a test creator file</Creator>
+                <Project>This is another test file</Project>
+                <Title>This is a test file</Title>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
+</gmlcov:RectifiedGridCoverage>

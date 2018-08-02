@@ -292,6 +292,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitStringScalarExpressionLabel(@NotNull wcpsParser.StringScalarExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#ClipCorridorExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClipCorridorExpressionLabel(@NotNull wcpsParser.ClipCorridorExpressionLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#trigonometricOperator}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -705,6 +712,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitBooleanSwitchCaseCoverageExpression(@NotNull wcpsParser.BooleanSwitchCaseCoverageExpressionContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#corridorProjectionAxisLabel2}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCorridorProjectionAxisLabel2(@NotNull wcpsParser.CorridorProjectionAxisLabel2Context ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionCastLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -738,6 +752,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#corridorProjectionAxisLabel1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCorridorProjectionAxisLabel1(@NotNull wcpsParser.CorridorProjectionAxisLabel1Context ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#NumericalNanNumberExpressionLabel}.
@@ -969,6 +990,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCurtainProjectionAxisLabel1(@NotNull wcpsParser.CurtainProjectionAxisLabel1Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionClipCorridorLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionClipCorridorLabel(@NotNull wcpsParser.CoverageExpressionClipCorridorLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#ExponentialExpressionLabel}.
