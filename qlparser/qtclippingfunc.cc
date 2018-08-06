@@ -1495,32 +1495,47 @@ QtClipping::computeMaskEmbedding(
     }
     else
     {
+        bool firstSeg = true;
         // iterate over the segments
-        for(auto segIter = pointListArg.begin(); segIter != pointListArg.end(); segIter++)
+        for(auto segIter = pointListArg.begin(); segIter != pointListArg.end(); ++segIter)
         {
-            // iterate over the points in each segment
-            for(auto ptIter = segIter->begin(); ptIter != segIter->end(); ptIter++)
+            auto ptIter = segIter->begin();
+
+            if(!firstSeg)
             {
-                //find the current slice by translating the convex hull of 
-                r_Minterval currentSlice(firstPoint.dimension());
-                r_Point translation = *ptIter - firstPoint;
-                for(r_Dimension i = 0; i < firstPoint.dimension(); i++)
+                ptIter++;
+            }
+            else
+            {
+                firstSeg = false;
+            }
+            
+            if (segIter->size() != 1 || firstSeg)
+            {
+                // iterate over the points in each segment
+                for( ; ptIter != segIter->end(); ++ptIter)
                 {
-                    //translate the convex hull argument along the dimensions it corresponds to (guaranteed to contain the translated point, since convexHullArg contains the first point)
-                    auto it = std::find(maskDims.begin(), maskDims.end(), i);
-                    auto index = std::distance(maskDims.begin(), it);                    
-                    if(it == maskDims.end())
+                    //find the current slice by translating the convex hull 
+                    r_Minterval currentSlice(firstPoint.dimension());
+                    r_Point translation = *ptIter - firstPoint;
+                    for(r_Dimension i = 0; i < firstPoint.dimension(); i++)
                     {
-                        // the current point location
-                        currentSlice << r_Sinterval((*ptIter)[i], (*ptIter)[i]);
+                        //translate the convex hull argument along the dimensions it corresponds to (guaranteed to contain the translated point, since convexHullArg contains the first point)
+                        auto it = std::find(maskDims.begin(), maskDims.end(), i);
+                        auto index = std::distance(maskDims.begin(), it);                    
+                        if(it == maskDims.end())
+                        {
+                            // the current point location
+                            currentSlice << r_Sinterval((*ptIter)[i], (*ptIter)[i]);
+                        }
+                        else
+                        {
+                            // the current translated bounding box
+                            currentSlice << r_Sinterval( convexHullArg[index].low() + translation[i], convexHullArg[index].high() + translation[i] );
+                        }
                     }
-                    else
-                    {
-                        // the current translated bounding box
-                        currentSlice << r_Sinterval( convexHullArg[index].low() + translation[i], convexHullArg[index].high() + translation[i] );
-                    }
+                    result.emplace_back(currentSlice);
                 }
-                result.emplace_back(currentSlice);
             }
         }
     }
