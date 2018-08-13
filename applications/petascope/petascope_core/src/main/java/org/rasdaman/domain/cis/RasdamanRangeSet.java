@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.persistence.*;
 import petascope.util.BigDecimalUtil;
 
@@ -117,6 +118,22 @@ public class RasdamanRangeSet implements Serializable {
 
     public void setTiling(String tiling) {
         this.tiling = tiling;
+    }
+    
+    /**
+     * NOTE: This one returns list of  the original collection (downscaled level 1) + rasdaman downscaled collections (downscaled level > 1)
+     */
+    public List<RasdamanDownscaledCollection> getAllPossibleRasdamanDownscaledCollections() {
+        List<RasdamanDownscaledCollection> resultList = new ArrayList<>();
+        resultList.add(new RasdamanDownscaledCollection(collectionName, BigDecimal.ONE));
+        List<RasdamanDownscaledCollection> list = this.getRasdamanDownscaledCollections();
+        
+        for (RasdamanDownscaledCollection element : list) {
+            RasdamanDownscaledCollection rasdamanDownscaledCollection = new RasdamanDownscaledCollection(element.getCollectionName(), element.getLevel());
+            resultList.add(rasdamanDownscaledCollection);
+        }
+        
+        return resultList;
     }
 
     public List<RasdamanDownscaledCollection> getRasdamanDownscaledCollections() {

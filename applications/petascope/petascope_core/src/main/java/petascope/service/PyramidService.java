@@ -190,41 +190,48 @@ public class PyramidService {
     /**
      * From the list of downscaled collections, select a suitable level for input geo subset on XY axes.
      */
-    public BigDecimal getDownscaledLevel(Coverage coverage, Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY) throws PetascopeException, SecoreException {
-        BigDecimal result = BigDecimal.ONE;
+    public BigDecimal getDownscaledLevel(Coverage coverage, Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, 
+                                         Integer width, Integer height) 
+                      throws PetascopeException, SecoreException {
+        List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = coverage.getRasdamanRangeSet().getAllPossibleRasdamanDownscaledCollections();
+        // By default it is the highest downscaled level with lowest image resolution.
+        int numberOfDownscaledCollections = rasdamanDownscaledCollections.size();
+        BigDecimal result = rasdamanDownscaledCollections.get(numberOfDownscaledCollections - 1).getLevel();
         List<GeoAxis> geoAxes = ((GeneralGridCoverage)coverage).getGeoAxes();
-        List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections();
         
-        BigDecimal axisXLevel = BigDecimal.ONE;
-        BigDecimal axisYLevel = BigDecimal.ONE;
+        // Find the lowest downscaled levels for both X, Y axes which return grid domains less than width * height
+        BigDecimal lowestDownscaledLevelX = result;
+        BigDecimal lowestDownscaledLevelY = result;
         
         for (GeoAxis geoAxis : geoAxes) {
-            for (int j = rasdamanDownscaledCollections.size() - 1; j >= 0; j--) {
+            for (int j = numberOfDownscaledCollections - 1; j >= 0; j--) {
                 BigDecimal level = rasdamanDownscaledCollections.get(j).getLevel();
                 BigDecimal numberOfGridPixels = BigDecimal.ONE;
                 BigDecimal axisResolutionTmp = geoAxis.getResolution().multiply(level);
                 
                 if (geoAxis.isXAxis()) {
                     numberOfGridPixels = BigDecimalUtil.divide(geoSubsetX.snd.subtract(geoSubsetX.fst), axisResolutionTmp).abs();
-                    if (numberOfGridPixels.compareTo(BigDecimal.ONE) >= 0) {
-                        axisXLevel = level;
+                    if (numberOfGridPixels.compareTo(new BigDecimal(width)) <= 0) {
+                        lowestDownscaledLevelX = level;                        
+                    } else {
                         break;
                     }
                 } else if (geoAxis.isXYAxis()) {
                     numberOfGridPixels = BigDecimalUtil.divide(geoSubsetY.snd.subtract(geoSubsetY.fst), axisResolutionTmp).abs();
-                    if (numberOfGridPixels.compareTo(BigDecimal.ONE) >= 0) {
-                        axisYLevel = level;
+                    if (numberOfGridPixels.compareTo(new BigDecimal(height)) <= 0) {
+                        lowestDownscaledLevelY = level;                         
+                    } else {
                         break;
                     }
                 }
             }
-        }
+        }       
         
         // Which downscaled level be chosen as X and Y can return different levels from geoXY subsets
-        if (axisXLevel.compareTo(axisYLevel) < 0) {
-            result = axisXLevel;
+        if (lowestDownscaledLevelX.compareTo(lowestDownscaledLevelY) < 0) {
+            result = lowestDownscaledLevelX;
         } else {
-            result = axisYLevel;
+            result = lowestDownscaledLevelY;
         }
         
         return result;

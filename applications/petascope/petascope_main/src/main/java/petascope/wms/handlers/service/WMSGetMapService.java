@@ -523,7 +523,7 @@ public class WMSGetMapService {
         WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(layerName);
         Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair(fittedBBbox.getXMin(), fittedBBbox.getXMax());
         Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair(fittedBBbox.getYMin(), fittedBBbox.getYMax());
-        wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.createForDownscaledLevelByGeoXYSubsets(wcpsCoverageMetadata, geoSubsetX, geoSubsetY);
+        wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.createForDownscaledLevelByGeoXYSubsets(wcpsCoverageMetadata, geoSubsetX, geoSubsetY, this.width, this.height);
         
         return wcpsCoverageMetadata;
     }

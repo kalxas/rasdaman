@@ -122,14 +122,14 @@ public class WcpsCoverageMetadataTranslator {
      * NOTE: It needs to select a suitable downscaled collection based on geo XY subsets to help reduce the time to process Rasql on lower resolution collection.
      */
     public WcpsCoverageMetadata createForDownscaledLevelByGeoXYSubsets(WcpsCoverageMetadata metadata, 
-            Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY) throws PetascopeException, SecoreException {
+            Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, Integer width, Integer height) throws PetascopeException, SecoreException {
         
         Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
         
         WcpsCoverageMetadata newMetadata = metadata;
         String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
         // Depend on the geo XY axes subsets, select a suitable downscaled level (it must be the lowest level which is valid for both X and Y axes).
-        BigDecimal downscaledLevel = this.pyramidService.getDownscaledLevel(coverage, geoSubsetX, geoSubsetY);
+        BigDecimal downscaledLevel = this.pyramidService.getDownscaledLevel(coverage, geoSubsetX, geoSubsetY, width, height);
         if (downscaledLevel.compareTo(BigDecimal.ONE) > 0) {
             collectionName = this.pyramidService.createDownscaledCollectionName(collectionName, downscaledLevel);
         }
