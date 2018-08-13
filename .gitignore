@@ -257,3 +257,4 @@ applications/petascope/petascope_core/target/
 applications/petascope/petascope_main/target/
 applications/petascope/petascope_migration/target/
 /systemtest/testcases_services/test_web_interfaces/TestWebInterfaces/target/
+binprint
