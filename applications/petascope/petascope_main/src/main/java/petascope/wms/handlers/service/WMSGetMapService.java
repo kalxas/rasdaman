@@ -21,12 +21,17 @@
  */
 package petascope.wms.handlers.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.wms.BoundingBox;
@@ -66,10 +71,15 @@ import petascope.wms.handlers.model.TranslatedGridDimensionSubset;
 import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.BigDecimalUtil;
+import petascope.util.JSONUtil;
 import petascope.util.ras.RasConstants;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
+import petascope.wcps.encodeparameters.model.JsonExtraParams;
+import petascope.wcps.encodeparameters.model.NoData;
+import petascope.wcps.exception.processing.DeserializationExtraParamsInJsonExcception;
 
 /**
  * Service class to build the response from a WMS GetMap request. In case of a
@@ -121,12 +131,12 @@ public class WMSGetMapService {
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $collectionExpression from sourceCrs to targetCrs.
     private static final String COLLECTION_EXPRESSION_TEMPLATE = "$collectionExpression";
     private static final String FORMAT_TYPE_TEMPLATE = "$formatType";
-    private static final String NODATA_TEMPLATE = "$nodata";
+    private static final String ENCODE_FORMAT_PARAMETERS_TEMPLATE = "$encodeFormatParameters";
     private static final String COLLECTIONS_TEMPLATE = "$collections";
     
     private static final String SUBSET_COVERAGE_EXPRESSION_TEMPLATE = "( " + COLLECTION_EXPRESSION_TEMPLATE + " )";
     private static final String FINAL_TRANSLATED_RASQL_TEMPLATE = "SELECT ENCODE(" + COLLECTION_EXPRESSION_TEMPLATE + ", "
-                                                                + "\"" + FORMAT_TYPE_TEMPLATE + "\", \"" + NODATA_TEMPLATE + "\") FROM " + COLLECTIONS_TEMPLATE;
+                                                                + "\"" + FORMAT_TYPE_TEMPLATE + "\", \"" + ENCODE_FORMAT_PARAMETERS_TEMPLATE + "\") FROM " + COLLECTIONS_TEMPLATE;
     private static final String OVERLAY = " OVERLAY ";
     private static final String ALIAS_NAME = "c";
     private static final String WCPS_COVERAGE_ALIAS = "$c";
@@ -139,8 +149,8 @@ public class WMSGetMapService {
     private List<String> layerNames;
     private List<String> styleNames;
     private String outputCRS;
-    private int width;
-    private int height;
+    private Integer width;
+    private Integer height;
     // MIME type (e.g: image/png)
     private String format;
     private boolean transparent;
@@ -434,32 +444,34 @@ public class WMSGetMapService {
             Map<String, List<TranslatedGridDimensionSubset>> translatedSubsetsAllLayersMap = this.translateGridDimensionsSubsetsLayers();            
             List<String> finalCollectionExpressions = new ArrayList<>();            
             // If GetMap requests with transparent=true then extract the nodata values from layer to be added to final rasql query
-            List<String> nodataValues = new ArrayList<>();
+            List<BigDecimal> nodataValues = new ArrayList<>();
+            
+            WcpsCoverageMetadata wcpsCoverageMetadata = null;
             
             for (Map.Entry<String, List<TranslatedGridDimensionSubset>> entry : translatedSubsetsAllLayersMap.entrySet()) {
                 String layerName = entry.getKey();
                 
-                WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
+                wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
                 
                 // NOTE: the nodata values are fetched from coverage which has largest number of bands because the output also have the same bands
                 // e.g: coverage 1: 3 bands, coverage 2: 1 band, then output coverage has 3 bands.
                 if (wcpsCoverageMetadata.getNodata().size() > nodataValues.size()) {
                     nodataValues.clear();
                     for (NilValue nilValue : wcpsCoverageMetadata.getNodata()) {
-                        nodataValues.add(nilValue.getValue());
+                        nodataValues.add(new BigDecimal(nilValue.getValue()));
                     }
                 }
                 
                 List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
                 String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
-                String gridBBoxSpatialDomains = this.createBBoxGridSpatialDomainsForExtend(layerName);
+                List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets = entry.getValue();
                 
                 String aliasName = ALIAS_NAME + "" + i;
                 // a layer is equivalent to a rasdaman collection
                 String collectionName = wcpsCoverageMetadata.getRasdamanCollectionName();
                 collectionAlias.add(collectionName + " as " + aliasName);
                 
-                List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets = entry.getValue();
+                
                 // Apply style if necessary on the geo subsetted coverage expressions and translate to Rasql collection expressions
                 List<String> collectionExpressionsLayer = this.createCollectionExpressionsLayer(layerName, aliasName, i, translatedGridDimensionSubsets);
                 
@@ -467,18 +479,9 @@ public class WMSGetMapService {
                 String combinedCollectionExpression = ListUtil.join(collectionExpressionsLayer, OVERLAY);
                 // e.g: (c + 1)[0:20, 30:45]
                 String subsetCollectionExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, combinedCollectionExpression);
+                String finalCollectionExpressionLayer = this.createBBoxGridSpatialDomainsForScaling(layerName, translatedGridDimensionSubsets, subsetCollectionExpression);
                 
-                // NOTE: We need to ***extend*** before ***scaling*** for GetMap result.
-                // Reason: Subsetting that goes _beyond_ the edge of a coverage will return the intersection with the coverage sdom.
-                // We want to get the full subset sdom, however, and not just the intersection, otherwise the result will be scaled wrongly.
-                // Therefore we use the _extend_ operation here to extend the intersection to the full subset domain.
 
-                // e.g: sdom(coverage) is (0:860, 0:710) and GetMap request with grid bounds (700:1000, 500:800), only the intersection will be return (700:860, 500:710)
-                // and if we bring this output to scale (e.g: scale(c[700:860, 500:710], [0:255,0:255])), this output will be stretched wrongly.
-                // Therefore, it needs to use ***extend**** for this out of the bbox case and after that, scale will keep the correct ratio.
-                subsetCollectionExpression = "Extend( " + subsetCollectionExpression + ", " + gridBBoxSpatialDomains + ")";
-
-                String finalCollectionExpressionLayer = "Scale( " + subsetCollectionExpression + ", [0:" + (this.width - 1) + ", 0:" + (this.height - 1) + "] )";
                 if (!nativeCRS.equals(outputCRS)) {
                     // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
                     finalCollectionExpressionLayer = PROJECTION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayer)
@@ -499,14 +502,14 @@ public class WMSGetMapService {
 
             String formatType = MIMEUtil.getFormatType(this.format);
             String collections = ListUtil.join(collectionAlias, ", ");
-            String nodata = this.createNodataValues(nodataValues);
+            String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata.getXYAxes());
             
             // Create the final Rasql query for all layers's styles of this GetMap request.
             String finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
                     .replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayers)
-                    .replace("$nodata", nodata)
-                    .replace("$formatType", formatType)
-                    .replace("$collections", collections);
+                    .replace(ENCODE_FORMAT_PARAMETERS_TEMPLATE, encodeFormatParameters)
+                    .replace(FORMAT_TYPE_TEMPLATE, formatType)
+                    .replace(COLLECTIONS_TEMPLATE, collections);
             
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery);
         } catch (PetascopeException | SecoreException ex) {
@@ -530,21 +533,46 @@ public class WMSGetMapService {
     
     /**
      * From the list of nodata values from all combined layers, create a nodata string for SELECT encode() query.
+     * NOTE: if layer was imported with lat, long grid axes order (e.g: via netCDF) then it must need tranpose to make the output correctly.
      * 
      */
-    private String createNodataValues(List<String> nodataValues) {
-        String nodata = "";
+    private String createEncodeFormatParameters(List<BigDecimal> nodataValues, List<Axis> xyAxes) throws PetascopeException {
+        
+        ObjectMapper objectMapper = new ObjectMapper();        
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        
+        JsonExtraParams jsonExtraParams = new JsonExtraParams();
+
         if (this.transparent) {
-            // If coverages don't have nodata, use this default value.
-            String values = "0";
-            if (nodataValues.size() > 0) {
-                values = ListUtil.join(nodataValues, ",");
+            if (nodataValues.isEmpty()) {
+                // 0 is default null value if layer doesn't have other values
+                nodataValues.add(BigDecimal.ZERO);
             }
             // e.g: {"nodata": [10, 20, 40]}
-            nodata = "{\\\"nodata\\\": " + RASQL_OPEN_SUBSETS + values + RASQL_CLOSE_SUBSETS + "}";
+            NoData nodata = new NoData();
+            nodata.setNoDataValues(nodataValues);
+            
+            jsonExtraParams.setNoData(nodata);
         }
         
-        return nodata;
+        if (xyAxes.get(0).getRasdamanOrder() > xyAxes.get(1).getRasdamanOrder()) {
+            // NOTE: if layer imported with Lat, Long grid order (via netCDF) so it needs to use transpose
+            List<Integer> transposeList = new ArrayList<>();
+            transposeList.add(0);
+            transposeList.add(1);
+            jsonExtraParams.setTranspose(transposeList);
+        }
+        
+        String encodeFormatParameters = "";
+        try {
+            encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
+            encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");
+        } catch (JsonProcessingException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot serialize encode format parameters in JSON. Reason: " + ex.getMessage());
+        }
+        
+        return encodeFormatParameters;
     }
 
     /**
@@ -661,34 +689,134 @@ public class WMSGetMapService {
     }
     
     /**
+     * From the list of translated grid subsets, get the subset of an axis by index.
+     */
+    private ParsedSubset<Long> getTranslatedGridSubset(List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets, int gridAxisIndex) {
+        for (TranslatedGridDimensionSubset translatedGridDimensionSubset : translatedGridDimensionSubsets) {
+            if (translatedGridDimensionSubset.getGridAxisOrder() == gridAxisIndex) {
+                String[] tmp = translatedGridDimensionSubset.getGridBounds().get(0).split(":");
+                Long lowerGridBound = Long.valueOf(tmp[0]);
+                Long upperGridBound = Long.valueOf(tmp[1]);
+                return new ParsedSubset<>(lowerGridBound, upperGridBound);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
      * Translate the geo bounding box from the input parameter to grid spatial domains by ****grid axes order****.
      * e.g: if coverage imported as YX (Lat, Long) grid axes order, it should keep this order.
      */
-    private String createBBoxGridSpatialDomainsForExtend(String layerName) throws PetascopeException, SecoreException {
+    private String createBBoxGridSpatialDomainsForScaling(String layerName, List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets, String subsetCollectionExpression)
+                   throws PetascopeException, SecoreException {
         WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
         
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
         Axis axisX = xyAxes.get(0);
         Axis axisY = xyAxes.get(1);
-        String gridBBoxSpatialDomains = "";
         
-        // as BBox always in XY CRS order (e.g: Long, Lat) not Lat, Long
-        ParsedSubset<Long> parsedGridSubsetX = coordinateTranslationService.geoToGridSpatialDomain(axisX, 
-                                                                         new ParsedSubset<>(originalBBox.getXMin(), originalBBox.getXMax()));
-        ParsedSubset<Long> parsedGridSubsetY = coordinateTranslationService.geoToGridSpatialDomain(axisY, 
-                                                                         new ParsedSubset<>(originalBBox.getYMin(), originalBBox.getYMax()));
+        String finalCollectionExpressionLayer = "";
+        
+        String scaleX = "0:" + (this.width - 1);
+        String extendX = scaleX;
+        
+        String scaleY = "0:" + (this.height - 1);
+        String extendY = scaleY;
+        
+        if (! ( (originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) >= 0)
+            && (originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) <= 0)     
+            && (originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) >= 0)
+            && (originalBBox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) <= 0)
+            ) ) {
+            
+            // ********* X axis: e.g: Long
+            
+            BigDecimal geoOriginX = BigDecimal.ONE;
+            BigDecimal lengthGeoIntersectionX = BigDecimal.ONE;
+            
+            BigDecimal lengthBBoxX = originalBBox.getXMax().subtract(originalBBox.getXMin());
+            
+            if (!(originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) >= 0 && originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) <= 0)) {
+                if (originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) < 0 && originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) <= 0) {
+                    // e.g: BBox of Long is [10:30] intersects with axis Long [20:40] from [20:30], originX: 20
+                    geoOriginX = axisX.getGeoBounds().getLowerLimit();
+                    lengthGeoIntersectionX = originalBBox.getXMax().subtract(geoOriginX);
+                } else if (originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) >= 0 && originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) > 0) {
+                    // e.g: BBox of Long is [30:50] intersects with axis Long [20:40] from [30:40], originX: 30
+                    geoOriginX = originalBBox.getXMin();
+                    lengthGeoIntersectionX = axisX.getGeoBounds().getUpperLimit().subtract(geoOriginX);
+                } else if (originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) < 0 && originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) > 0) {
+                    // e.g: BBox of Long is [10:50] intersects with axis Long [20:40] from [20:40], originX: 20
+                    geoOriginX = axisX.getGeoBounds().getLowerLimit();
+                    lengthGeoIntersectionX = axisX.getGeoBounds().getUpperLimit().subtract(geoOriginX);
+                }
 
-        if (xyAxes.get(0).getRasdamanOrder() < xyAxes.get(1).getRasdamanOrder()) {
-            // Coverage is imported with grid XY order (e.g: Long, Lat) - e.g: test_mean_summer_airtemp
-            gridBBoxSpatialDomains = RASQL_OPEN_SUBSETS + parsedGridSubsetX.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetX.getUpperLimit() + ","
-                                   + parsedGridSubsetY.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetY.getUpperLimit() + RASQL_CLOSE_SUBSETS;
-        } else {
-            // Coverage is imported with grid YX order (e.g: Lat, Long) - e.g: test_eobstest
-            gridBBoxSpatialDomains = RASQL_OPEN_SUBSETS + parsedGridSubsetY.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetY.getUpperLimit() + ","
-                                   + parsedGridSubsetX.getLowerLimit() + RASQL_BOUND_SEPARATION + parsedGridSubsetX.getUpperLimit() + RASQL_CLOSE_SUBSETS;
+                // Calculate the portion of intersection's length and bbox's length on X axis for the domains of scale and extend
+                BigDecimal portionIntersectionX = BigDecimalUtil.divide(lengthGeoIntersectionX, lengthBBoxX);
+                Long scaleUpperBoundX = portionIntersectionX.multiply(new BigDecimal(this.width)).longValue();
+                scaleX = "0:" + scaleUpperBoundX;
+
+                // Calculate the portion of originX in the geo bboxX
+                BigDecimal portionGeoOriginX = BigDecimalUtil.divide((geoOriginX.subtract(originalBBox.getXMin())), lengthBBoxX); 
+                Long gridOriginX = portionGeoOriginX.multiply(new BigDecimal(this.width)).longValue();
+                Long extendLowerBoundX = 0L - Math.abs(gridOriginX);
+                Long extendUpperBoundX = this.width + extendLowerBoundX - 1;
+                extendX = extendLowerBoundX + ":" + extendUpperBoundX ;
+            }
+            
+            // ********* Y axis: e.g: Lat
+            
+            if (!(originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) >= 0 && originalBBox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) <= 0)) {
+                BigDecimal geoOriginY = BigDecimal.ONE;
+                BigDecimal lengthGeoIntersectionY = BigDecimal.ONE;
+
+                BigDecimal lengthBBoxY = originalBBox.getYMax().subtract(originalBBox.getYMin());
+
+                if (originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) < 0 && originalBBox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) <= 0) {
+                    // e.g: BBox of Lat is [-50:-30] intersects with axis Lat [-40:-20] from [-40:-30], originY: -30
+                    geoOriginY = originalBBox.getYMax();
+                    lengthGeoIntersectionY = originalBBox.getYMax().subtract(axisY.getGeoBounds().getLowerLimit());
+                } else if (originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) >= 0 && originalBBox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) > 0) {
+                    // e.g: BBox of Lat is [-30:-10] intersects with axis Lat [-40:-20] from [-30:-20], originY: -20
+                    geoOriginY = axisY.getGeoBounds().getUpperLimit();
+                    lengthGeoIntersectionY = axisY.getGeoBounds().getUpperLimit().subtract(originalBBox.getYMin());
+                } else if (originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) < 0 && originalBBox.getYMax().compareTo(axisY.getGeoBounds().getUpperLimit()) > 0) {
+                    // e.g: BBox of Lat is [-50:-10] intersects with axis Lat [-40:-20] from [-40:-20], originY: -20
+                    geoOriginY = axisY.getGeoBounds().getUpperLimit();
+                    lengthGeoIntersectionY = geoOriginY.subtract(axisY.getGeoBounds().getLowerLimit());
+                }
+
+                // Calculate the portion of intersection's length and bbox's length on Y axis for the domains of scale and extend
+                BigDecimal portionIntersectionY = BigDecimalUtil.divide(lengthGeoIntersectionY, lengthBBoxY);
+                Long scaleUpperBoundY = portionIntersectionY.multiply(new BigDecimal(this.height)).longValue();
+                scaleY = "0:" + scaleUpperBoundY;
+
+                // Calculate the portion of originX in the geo bboxY
+                BigDecimal portionGeoOriginY = BigDecimalUtil.divide(originalBBox.getYMax().subtract(geoOriginY), lengthBBoxY); 
+                Long gridOriginY = portionGeoOriginY.multiply(new BigDecimal(this.height)).longValue();
+                Long extendLowerBoundY = 0L - Math.abs(gridOriginY);
+                Long extendUpperBoundY = this.height + extendLowerBoundY - 1;
+                extendY = extendLowerBoundY + ":" + extendUpperBoundY;
+            }
         }
         
-        return gridBBoxSpatialDomains;
+        if (xyAxes.get(0).getRasdamanOrder() > xyAxes.get(1).getRasdamanOrder()) {
+            // NOTE: This case is layer imported with YX grid order (e.g: netCDF lat, long) not GeoTiff (long, lat).
+            // Hence, it must need swap scale, extend and add transpose in encode to return correct result
+            String temp = scaleX;
+            scaleX = scaleY;
+            scaleY = temp;
+
+            temp = extendX;
+            extendX = extendY;
+            extendY = temp;                
+        }
+
+        subsetCollectionExpression = "Scale( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
+        finalCollectionExpressionLayer = "Extend( " + subsetCollectionExpression + ", [" + extendX + ", " + extendY + "] )"; 
+        
+        return finalCollectionExpressionLayer;
     }
 
     /**

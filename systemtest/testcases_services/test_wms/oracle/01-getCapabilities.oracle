@@ -141,6 +141,21 @@
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_scale_extend</Name>
+                <Title>test_wms_scale_extend</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>20</westBoundLongitude>
+                    <eastBoundLongitude>40</eastBoundLongitude>
+                    <southBoundLatitude>-40</southBoundLatitude>
+                    <northBoundLatitude>-20</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326" maxx="-20" maxy="40"
+                    minx="-40" miny="20"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
                 <Name>test_wms_3d_time_series_regular</Name>
                 <Title>test_wms_3d_time_series_regular</Title>
                 <Abstract/>
@@ -169,6 +184,24 @@
                 </EX_GeographicBoundingBox>
                 <BoundingBox CRS="EPSG:4326" maxx="-8.975"
                     maxy="155.975" minx="-44.975" miny="111.975"/>
+            </Layer>
+            <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
+                noSubsets="0" opaque="1" queryable="0">
+                <Name>test_wms_grid_yx_netcdf_order</Name>
+                <Title>test_wms_grid_yx_netcdf_order</Title>
+                <Abstract/>
+                <CRS>EPSG:4326</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>144.1249966386554621848739496</westBoundLongitude>
+                    <eastBoundLongitude>149.1250033613445378151260504</eastBoundLongitude>
+                    <southBoundLatitude>-43.83333333333333333333333333</southBoundLatitude>
+                    <northBoundLatitude>-40.41666666666666666666666667</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326"
+                    maxx="-40.41666666666666666666666667"
+                    maxy="149.1250033613445378151260504"
+                    minx="-43.83333333333333333333333333" miny="144.1249966386554621848739496"/>
+                <Dimension name="time">"1997-09-04T00:00:00.000Z"</Dimension>
             </Layer>
             <Layer cascaded="0" fixedHeight="0" fixedWidth="0"
                 noSubsets="0" opaque="1" queryable="0">

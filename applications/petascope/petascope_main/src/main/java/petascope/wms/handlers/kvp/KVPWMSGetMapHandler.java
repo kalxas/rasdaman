@@ -239,13 +239,12 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
                 }
             }
 
-            // @TODO: supports TIME, ELEVATION and other dimensions in WMS coverage > 2D.  
             wmsGetMapService.setLayerNames(layerNames);
             wmsGetMapService.setStyleNames(styleNames);
             wmsGetMapService.setOutputCRS(outputCRS);
-            wmsGetMapService.setBBoxes(bbox);
             wmsGetMapService.setWidth(width);
             wmsGetMapService.setHeight(height);
+            wmsGetMapService.setBBoxes(bbox);
             wmsGetMapService.setFormat(format);
             wmsGetMapService.setTransparent(transparent);
             wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
