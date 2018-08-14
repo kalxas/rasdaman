@@ -1,0 +1,4 @@
+service=WCS&
+version=2.0.1&
+request=DescribeCoverage&
+coverageId=test_ecmwf_fire_4d_color_palette_table_metadata_xml

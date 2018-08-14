@@ -29,6 +29,7 @@ from util.file_obj import File
 from util.log import log
 from wcst.wcst import WCSTMockExecutor, WCSTExecutor
 from master.error.runtime_exception import RuntimeException
+from util.file_util import FileUtil
 
 
 class Session:
@@ -171,9 +172,7 @@ class Session:
         file_paths = []
         for path in paths:
             path = path.strip()
-            if not path.startswith("/"):
-                path = self.ingredients_dir_path + path
-            file_paths = file_paths + glob.glob(path)
+            file_paths = file_paths + FileUtil.get_file_paths_by_regex(self.ingredients_dir_path, path)
         if len(file_paths) < len(paths):
             log.warn("WARNING: The materialized paths contain less files than the initial paths. This can be normal if "
                      "a directory provided in the paths is empty or if a path regex returns no results. If this is not "
@@ -189,6 +188,13 @@ class Session:
         :rtype str
         """
         return self.wcs_service
+
+    def get_ingredients_dir_path(self):
+        """
+        Returns the ingredient dir path
+        :return: str
+        """
+        return self.ingredients_dir_path
 
     def is_automated(self):
         """

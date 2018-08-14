@@ -230,7 +230,7 @@ public class Templates {
         String ret = getTemplate(template);
         if (ret != null) {
             for (Pair<String, String> p : replacements) {
-                ret = ret.replaceAll(p.fst, p.snd);
+                ret = ret.replace(p.fst, p.snd);
             }
         }
         return ret;

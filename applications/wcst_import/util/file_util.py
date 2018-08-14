@@ -83,3 +83,17 @@ class FileUtil:
     @staticmethod
     def print_feedback(current_number, number_of_files, file_path):
         log.info("Analyzing file ({}/{}): {} ...".format(current_number, number_of_files, file_path))
+
+    @staticmethod
+    def get_file_paths_by_regex(current_dir, file_path_regex):
+        """
+        From the file path in regular expression (e.g: *.txt, ./txt), return list of file paths
+        :return: list of string
+        """
+        file_paths = []
+        import glob2 as glob
+        if not file_path_regex.strip().startswith("/"):
+            file_path_regex = current_dir + file_path_regex
+        file_paths = file_paths + glob.glob(file_path_regex)
+
+        return file_paths

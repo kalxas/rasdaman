@@ -26,8 +26,10 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.ConfigManager;
-import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
+import org.slf4j.LoggerFactory;
+import petascope.wcst.exceptions.WCSTMalformedURL;
 
 /**
  * utilities class for remote coverages.
@@ -35,6 +37,8 @@ import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class RemoteCoverageUtil {
+    
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RemoteCoverageUtil.class);
 
     /**
      * Fetches a file that is either remote (http) or local (file) given it's
@@ -63,18 +67,13 @@ public class RemoteCoverageUtil {
      * @return the contents of file at which the url points.
      * @throws petascope.wcst.exceptions.WCSTCoverageParameterNotFound
      */
-    public static String getRemoteGMLCoverage(URL url) throws WCSTCoverageParameterNotFound {
-        BufferedReader rd;
-        String line;
+    public static String getRemoteGMLCoverage(URL url) throws WCSTMalformedURL {
         String result = "";
         try {
-            rd = new BufferedReader(RemoteCoverageUtil.fetchFile(url));
-            while ((line = rd.readLine()) != null) {
-                result += line;
-            }
-            rd.close();
-        } catch (IOException e) {
-            throw new WCSTCoverageParameterNotFound();
+            result = IOUtils.toString(url);
+        } catch (IOException ex) {
+            log.error("Cannot fetch GML coverage from URL '" + url.getPath() + "'. Reason: " + ex.getMessage() + ".");
+            throw new WCSTMalformedURL();
         }
         return result;
     }

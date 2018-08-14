@@ -1,0 +1,5 @@
+# Example of color palette table
+30	p200/16	80	-	 	 	 	 	 
+80	-	100	-	 	 	 	 	 
+100	200	0	0	200	255	255	0	 
+200	yellow	300	green	 	 	 

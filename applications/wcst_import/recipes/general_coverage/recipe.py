@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import os
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from master.error.validate_exception import RecipeValidationException
@@ -44,7 +45,7 @@ from util.log import log
 from util.string_util import escape_metadata_dict
 from util.string_util import escape_metadata_nested_dicts
 from util.import_util import import_netcdf4
-
+from util.file_util import FileUtil
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -149,6 +150,21 @@ class Recipe(BaseRecipe):
                                 raise RecipeValidationException(
                                     "Band auto metadata only supported in general recipe with slicer's type: 'netcdf', "
                                     "violated for band '" + key + "'.")
+
+        if "metadata" in self.options['coverage']:
+            if "colorPaletteTable" in self.options['coverage']['metadata']:
+                file_path = self.options['coverage']['metadata']['colorPaletteTable']
+                # file_path can be relative path or full path
+                file_paths = FileUtil.get_file_paths_by_regex(self.session.get_ingredients_dir_path(), file_path)
+
+                if len(file_paths) == 0:
+                    raise RecipeValidationException("Color palette table file does not exist, given: '" + file_path + "'.")
+                else:
+                    file_path = file_paths[0]
+                    # Add the content of colorPaletteTable to coverage's metadata
+                    with open(file_path, 'r') as file_reader:
+                        color_palette_table = file_reader.read()
+                        self.options['coverage']['metadata']['global']['colorPaletteTable'] = color_palette_table
 
     def describe(self):
         """

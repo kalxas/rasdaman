@@ -115,7 +115,7 @@ public class GeneralGridCoverageGMLService {
         coverage.setCoverageType(coverageType);
         // coverage extra metadata
         String extraMetadata = GMLParserService.parseExtraMetadata(rootElement);
-        coverage.setMetadata(extraMetadata);
+        coverage.setMetadata(extraMetadata.trim());
                 
         // coverage compundCrs
         String srsName = GMLParserService.parseSrsName(rootElement);

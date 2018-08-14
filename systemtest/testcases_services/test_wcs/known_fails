@@ -11,3 +11,6 @@
 #Failed for different elements's order for coverage's extra metadata in Ubuntu 14.04
 100-describe_gdal_uomCode.kvp
 101-describe_grib_uomCode.kvp
+
+# Failed in Ubuntu 14.04 due to different order of elements in coverage's metadata
+143-describe_coverage_color_palette_table_in_coverage_global_metadata_json.kvp
