@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 
 
-r_MiterDirect::r_MiterDirect(void* data, const r_Minterval& total, const r_Minterval& iter, unsigned int tlen, unsigned int step)
+r_MiterDirect::r_MiterDirect(void* data, const r_Minterval& total, const r_Minterval& iter, r_Bytes tlen, unsigned int step)
     :   done(false),
         id(NULL),
         baseAddress(data),

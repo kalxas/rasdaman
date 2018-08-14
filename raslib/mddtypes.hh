@@ -53,7 +53,7 @@ rasdaman GmbH.
 //@Args: as unsigned int
 //@Memo: Module: {\bf raslib}.
 
-typedef unsigned int r_Bytes;
+typedef size_t r_Bytes;
 
 /**
   {\tt typedef unsigned int r_Bytes;}
