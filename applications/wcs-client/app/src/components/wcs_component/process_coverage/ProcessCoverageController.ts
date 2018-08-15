@@ -61,54 +61,103 @@ module rasdaman {
                 $scope.query = newValue;
             });
 
+            $scope.$watch("selectedHistoryQuery", (newValue:string, oldValue:string)=> {
+                $scope.query = newValue;
+            });
+
+            // Clear history button's click event handler
+            $scope.clearHistory = ()=> {
+                var thisQuery:QueryExample;
+                thisQuery = {query:'', title:'--Select a WCPS query---'}
+                $scope.historyOfQueries = [];
+                $scope.historyOfQueries.unshift(thisQuery);
+            }
+
+            $scope.clearHistory();
+
+            var addToHistory = ()=> {
+                var thisQuery:QueryExample;
+                var thisTitle:any;
+                const NUMBER_OF_ELEMENTS_IN_HISTORY = 25;
+                const NUMBER_CHARACTERS_IN_QUERY_TITLE = 20;
+                // add query to history
+                thisTitle = new Date();
+                thisTitle = thisTitle.toISOString();
+                thisTitle = thisTitle + ' ' + $scope.query.substr(0, NUMBER_CHARACTERS_IN_QUERY_TITLE) + '...';
+                thisQuery = {query:$scope.query, title:thisTitle}
+                $scope.historyOfQueries.splice(0, 1, thisQuery);
+
+                for (var it = 1; it < $scope.historyOfQueries.length; it++) {
+                    if ($scope.historyOfQueries[it].query == thisQuery.query) {
+                        $scope.historyOfQueries.splice(it, 1);
+                    }
+                }
+
+                thisQuery = {query:'', title:'--Select a WCPS query---'}
+                $scope.historyOfQueries.unshift(thisQuery);
+
+                if ($scope.historyOfQueries.length > NUMBER_OF_ELEMENTS_IN_HISTORY) {
+                    $scope.historyOfQueries.splice(-1, 1);
+                }
+            }
+
             // Execute button's click event handler
             $scope.executeQuery = ()=> {
                 try {
-                    var command = new WCPSCommand($scope.query);                            
-                    var waitingForResults = new WaitingForResult();
+                    if ($scope.query == '' || $scope.query == null) {
+                        notificationService.error("WCPS query cannot be empty");
+                    }
+                    else {
+                        var command = new WCPSCommand($scope.query);                            
+                        var waitingForResults = new WaitingForResult();
+                        // Add a message that tracks the processing of the operation
+                        $scope.editorData.push(waitingForResults);                    
+                        var indexOfResults = $scope.editorData.length - 1;
 
-                    // Add a message that tracks the processing of the operation
-                    $scope.editorData.push(waitingForResults);                    
-                    var indexOfResults = $scope.editorData.length - 1;
+                        // Add the query to the scope and display in the console
+                        $scope.editorData[indexOfResults].query = $scope.query;
+                        // Check when query finished
+                        $scope.editorData[indexOfResults].finished = false;
+                        // Start a time counter for the requesting WCPS query
+                        var waitingForResultsPromise = $interval(()=> {
+                            $scope.editorData[indexOfResults].secondsPassed++;
+                        }, 1000);
 
-                    // Add the query to the scope and display in the console
-                    $scope.editorData[indexOfResults].query = $scope.query;
-                    // Check when query finished
-                    $scope.editorData[indexOfResults].finished = false;
-                    // Start a time counter for the requesting WCPS query
-                    var waitingForResultsPromise = $interval(()=> {
-                        $scope.editorData[indexOfResults].secondsPassed++;
-                    }, 1000);
+                        wcsService.processCoverages(command.query)
+                            .then(
+                                (data:any)=> {
 
-                    wcsService.processCoverages(command.query)
-                        .then(
-                            (data:any)=> {
-                				// depend on the result, it will return an object and display on the editor console or download the result as file without display.
-                				var editorRow = WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
-                				if (editorRow instanceof NotificationWCPSResult) {
-                                    $scope.editorData.push(new NotificationWCPSResult(command, "Error when validating the WCPS query. Reason: " + editorRow.data));
-                                } else if (editorRow != null) {
-	                                $scope.editorData.push(editorRow);
-                                } else {
-                                    $scope.editorData.push(new NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
+                                    // depend on the result, it will return an object and display on the editor console or download the result as file without display.
+                                    var editorRow = WCPSResultFactory.getResult(errorHandlingService, command, data.data, data.headers('Content-Type'), data.headers('File-name'));
+                                    if (editorRow instanceof NotificationWCPSResult) {
+                                        $scope.editorData.push(new NotificationWCPSResult(command, "Error when validating the WCPS query. Reason: " + editorRow.data));
+                                    } else if (editorRow != null) {
+                                        $scope.editorData.push(editorRow);
+                                        addToHistory();
+                                    } else {
+                                        $scope.editorData.push(new NotificationWCPSResult(command, "Downloading WCPS query's result as a file to Web Browser."));
+                                        addToHistory();
+                                    }
+                                },
+                                (...args:any[])=> {
+                                    // NOTE: Check if args[0].data is arraybuffer then convert it to string or it cannot parse correctly in Error Handler
+                                    if (args[0].data instanceof ArrayBuffer) {
+                                        var decoder = new TextDecoder("utf-8");
+                                        args[0].data = decoder.decode(new Uint8Array(args[0].data));
+                                    }
+                                    errorHandlingService.handleError(args);                                
+                                    $log.error(args);                                
+                                    $scope.editorData.push(new NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));                                
                                 }
-                            },
-                            (...args:any[])=> {
-                                // NOTE: Check if args[0].data is arraybuffer then convert it to string or it cannot parse correctly in Error Handler
-                                if (args[0].data instanceof ArrayBuffer) {
-                                    var decoder = new TextDecoder("utf-8");
-                                    args[0].data = decoder.decode(new Uint8Array(args[0].data));
-                                }
-                                errorHandlingService.handleError(args);                                
-                                $log.error(args);                                
-                                $scope.editorData.push(new NotificationWCPSResult(command, "Cannot execute the requested WCPS query, error '" + args[0].data + "'."));                                
-                            }
-                        )
-                        .finally(()=> {
-                            // Stop the seconds counter for the current WCPS query as it finished.
-                            $scope.editorData[indexOfResults].finished = true;
-                            $interval.cancel(waitingForResultsPromise);
-                        });
+                            )
+                            .finally(()=> {
+                                // Stop the seconds counter for the current WCPS query as it finished.
+                                $scope.editorData[indexOfResults].finished = true;
+                                $interval.cancel(waitingForResultsPromise);
+                                
+                            });
+                    }
+                    
                 }
                 catch (error) {
                     notificationService.error("Failed to send ProcessCoverages request. Check the log for additional information.");
@@ -230,7 +279,9 @@ module rasdaman {
         query:string;
         selectedQuery:string;
         availableQueries:QueryExample[];
+        historyOfQueries:QueryExample[];
         executeQuery():void;
+        clearHistory():void;
 
         editorOptions:CodeMirrorOptions;
         editorData:any[];

@@ -641,3 +641,15 @@ body {
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
+
+.valuesContainer {
+    min-width: 210px;
+}
+
+#example-dropdown {
+    display: inline-block;
+}
+
+#button-clearHistory {
+    display: inline-block;
+}

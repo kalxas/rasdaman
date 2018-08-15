@@ -119,9 +119,12 @@ to run it.<br/>
                     Execute
                 </button>
             </div>
+            <div class="col-sm-1" style="margin-top:15px">
+                    
+            </div>
         </div>
-        <div class="row top5">
-            <div class="col-sm-6" style="margin-left: -15px;">
+        <div class="row top5" style="width:91.666667%">
+            <div class="col-sm-6" style="margin-left: -15px; width:40%;" id="example-dropdown">
                 <div class="input-group">
                     <span class="input-group-addon">Example</span>
                     <select class="form-control" ng-options="item.query as item.title for item in availableQueries"
@@ -129,6 +132,17 @@ to run it.<br/>
                     </select>
                 </div>
             </div>
+            <div class="col-sm-6" style="margin-left: -15px;">
+                <div class="input-group" >
+                    <span class="input-group-addon">History</span>
+                    <select class="form-control" ng-options="item.query as item.title for item in historyOfQueries"
+                            ng-model="selectedHistoryQuery">
+                    </select>
+                </div>
+            </div>
+            <button ng-click="clearHistory()" class="btn btn-primary" style="float:right">
+                Clear History
+            </button>
         </div>
     </div>
 </div>
