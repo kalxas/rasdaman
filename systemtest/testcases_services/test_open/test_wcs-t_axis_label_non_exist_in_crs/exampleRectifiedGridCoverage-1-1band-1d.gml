@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Example for a rectified grid coverage
+     as defined in the GML 3.2.1 Application Schema for Coverages.
+     Last updated 2012-Jul-10
+		 Source: http://schemas.opengis.net/gmlcov/1.0/examples/exampleRectifiedGridCoverage-1.xml
+		 Note: the example of the same name available from http://schemas.opengis.net/cis/1.1/gml/examples-1.0/exampleRectifiedGridCoverage-1.xml is defective, as the domainSet does not correspond to the rangeSet
+-->
+<gmlcov:GridCoverage
+		xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+		xmlns:gml="http://www.opengis.net/gml/3.2"
+		xmlns:swe="http://www.opengis.net/swe/2.0"
+		xmlns:xlink="http://www.w3.org/1999/xlink"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="http://www.w3.org/2001/XMLSchema" 
+		xsi:schemaLocation="http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd"
+		gml:id="wcst_axis_label_not_exist_in_crs">
+	<gml:boundedBy>
+		<!-- Note: The srsName attribute of the Envelope element shall be used as the default coordinate reference system for "all geometric objects encoded inline" [GML 3.2.1], i.e.: for all range set values. -->
+		<gml:Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/5621" axisLabels="Height" uomLabels="m" srsDimension="1">
+			<gml:lowerCorner>1.0</gml:lowerCorner>
+			<gml:upperCorner>10.0</gml:upperCorner>
+		</gml:Envelope>
+	</gml:boundedBy>
+	<gml:domainSet>
+		<gml:RectifiedGrid gml:id="rg0001_C0001-X" dimension="2">
+			<gml:limits>
+				<gml:GridEnvelope>
+					<gml:low>0</gml:low>
+					<gml:high>9</gml:high>
+				</gml:GridEnvelope>
+			</gml:limits>
+			<gml:axisLabels>Height</gml:axisLabels>
+			<gml:origin>
+				<gml:Point gml:id="p0001_C0001-X" srsName="http://www.opengis.net/def/crs/EPSG/0/5621">
+					<gml:pos>1.0</gml:pos>
+				</gml:Point>
+			</gml:origin>
+			<gml:offsetVector srsName="http://www.opengis.net/def/crs/EPSG/0/5621">1.0</gml:offsetVector>
+		</gml:RectifiedGrid>
+	</gml:domainSet>
+	<gml:rangeSet>
+		<!-- Note: Order of components within a composite rangeSet value (e.g. tuples in tupleList) corresponds to document order of the rangeType elements (e.g. fields). -->
+		<gml:DataBlock>
+			<gml:rangeParameters/>
+			<gml:tupleList>
+				1 2 3 4 5 6 7 8 9 10
+			</gml:tupleList>
+		</gml:DataBlock>
+	</gml:rangeSet>
+	<gmlcov:rangeType>
+		<swe:DataRecord>
+			<swe:field name="CPHLPM01" xlink:href="http://vocab.nerc.ac.uk/collection/P01/current/CPHLPM01/">
+				<swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/double">
+					<swe:label>chl-a_water_ISfluor_manufctrcal_sensor1</swe:label>
+					<swe:description>Blue Channel</swe:description>
+					<swe:nilValues>
+						<swe:NilValues>
+							<swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/BelowDetectionRange">0</swe:nilValue>
+							<swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/AboveDetectionRange">255</swe:nilValue>
+						</swe:NilValues>
+					</swe:nilValues>
+					<swe:uom code="mg/m^3" xlink:href="http://vocab.nerc.ac.uk/collection/P06/current/UMMC"/>
+					<swe:constraint>
+						<swe:AllowedValues>
+							<swe:interval>0 255</swe:interval>
+							<swe:significantFigures>3</swe:significantFigures>
+						</swe:AllowedValues>
+					</swe:constraint>				
+				</swe:Quantity>
+			</swe:field>	
+		</swe:DataRecord>
+	</gmlcov:rangeType>
+</gmlcov:GridCoverage>

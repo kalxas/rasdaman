@@ -307,7 +307,7 @@ public class GMLParserService {
             }
         }
 
-        return null;
+        throw new PetascopeException(ExceptionCode.InvalidAxisLabel, "Could not find coverage axis label '" + axisLabel + "' in coverage's CRS definition.");
     }
 
     /**
