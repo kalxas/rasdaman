@@ -64,6 +64,7 @@ module rasdaman {
             $scope.displayWMSLayer = false;
 
             $scope.timeString = null;
+            $scope.coverageDescriptions = null;
 
             var canvasId = "wmsCanvasDescribeLayer";
 
@@ -94,6 +95,7 @@ module rasdaman {
                     $scope.layers = [];  
                     $scope.layerNames = [];
                     $scope.display3DLayerNotification = false;
+                    $scope.display4BandsExclamationMark = false;
 
                     capabilities.layers.forEach((layer:wms.Layer)=> {                        
                         $scope.layerNames.push(layer.name);
@@ -161,15 +163,19 @@ module rasdaman {
 
                                     // Display a message to user about the last slice on non spatial axis is selected if layer is 3D+
                                     $scope.display3DLayerNotification = dimensions > 2 ? true : false;
+                                    $scope.display4BandsExclamationMark = false;
 
                                     var showGetMapURL = false;
                                     var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                                    var bbox = coveragesExtents[0].bbox; 
+                                    $scope.bboxLayer = bbox;  
+                                    
+                                    if (bands == 2 || bands > 4) {
+                                        $scope.display4BandsExclamationMark = true;
+                                    }
                                     // As PNG can only support maximum 4 bands
-                                    if (bands <= 4) {
                                         showGetMapURL = true;
-                                        // send a getmap request in EPSG:4326 to server
-                                        var bbox = coveragesExtents[0].bbox;       
-                                        $scope.bboxLayer = bbox;                                     
+                                        // send a getmap request in EPSG:4326 to server                                         
                                         var minLat = bbox.ymin;
                                         var minLong = bbox.xmin;
                                         var maxLat = bbox.ymax;
@@ -210,7 +216,9 @@ module rasdaman {
                                         // Default layer is not shown
                                         webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer,
                                                                                      $scope.timeString);
-                                    }
+                                    
+                                        
+                                    
                                     
                                     if (!showGetMapURL) {
                                         // Coverage cannot show GetMap on globe
@@ -447,7 +455,6 @@ module rasdaman {
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             }
 
-
             // ********** Layer's styles management **************
             $scope.isStyleNameValid = (styleName:string)=> {                
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
@@ -575,6 +582,8 @@ module rasdaman {
         getMapRequestURL:string;        
         bboxLayer:any;
         displayWMSLayer:boolean;
+        display4BandsNotification:boolean;
+        display4BandsExclamationMark:boolean;
 
         timeString:string;
 

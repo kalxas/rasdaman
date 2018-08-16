@@ -4761,6 +4761,7 @@ var rasdaman;
             $scope.layers = [];
             $scope.displayWMSLayer = false;
             $scope.timeString = null;
+            $scope.coverageDescriptions = null;
             var canvasId = "wmsCanvasDescribeLayer";
             var WCPS_QUERY_FRAGMENT = 0;
             var RASQL_QUERY_FRAGMENT = 1;
@@ -4781,6 +4782,7 @@ var rasdaman;
                     $scope.layers = [];
                     $scope.layerNames = [];
                     $scope.display3DLayerNotification = false;
+                    $scope.display4BandsExclamationMark = false;
                     capabilities.layers.forEach(function (layer) {
                         $scope.layerNames.push(layer.name);
                         $scope.layers.push(layer);
@@ -4818,41 +4820,43 @@ var rasdaman;
                             }
                             $("#sliders").empty();
                             $scope.display3DLayerNotification = dimensions > 2 ? true : false;
+                            $scope.display4BandsExclamationMark = false;
                             var showGetMapURL = false;
                             var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
-                            if (bands <= 4) {
-                                showGetMapURL = true;
-                                var bbox = coveragesExtents[0].bbox;
-                                $scope.bboxLayer = bbox;
-                                var minLat = bbox.ymin;
-                                var minLong = bbox.xmin;
-                                var maxLat = bbox.ymax;
-                                var maxLong = bbox.xmax;
-                                $scope.timeString = null;
-                                var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
-                                var urlDimensions = bboxStr;
-                                var dimStr = [];
-                                for (var j = 0; j < 3; ++j) {
-                                    dimStr.push('');
-                                }
-                                for (var j = 3; j <= dimensions; j++) {
-                                    if ($scope.layer.layerDimensions[j].isTemporal == true) {
-                                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
-                                        $scope.timeString = $scope.layer.layerDimensions[j].array[0];
-                                    }
-                                    else {
-                                        dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
-                                    }
-                                }
-                                for (var j = 3; j <= dimensions; j++) {
-                                    urlDimensions += dimStr[j];
-                                }
-                                var getMapRequest = new wms.GetMap($scope.layer.name, urlDimensions, 800, 600);
-                                var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
-                                _this.getMapRequestURL = url;
-                                $('#getMapRequestURL').text(_this.getMapRequestURL);
-                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer, $scope.timeString);
+                            var bbox = coveragesExtents[0].bbox;
+                            $scope.bboxLayer = bbox;
+                            if (bands == 2 || bands > 4) {
+                                $scope.display4BandsExclamationMark = true;
                             }
+                            showGetMapURL = true;
+                            var minLat = bbox.ymin;
+                            var minLong = bbox.xmin;
+                            var maxLat = bbox.ymax;
+                            var maxLong = bbox.xmax;
+                            $scope.timeString = null;
+                            var bboxStr = minLat + "," + minLong + "," + maxLat + "," + maxLong;
+                            var urlDimensions = bboxStr;
+                            var dimStr = [];
+                            for (var j = 0; j < 3; ++j) {
+                                dimStr.push('');
+                            }
+                            for (var j = 3; j <= dimensions; j++) {
+                                if ($scope.layer.layerDimensions[j].isTemporal == true) {
+                                    dimStr.push('&' + $scope.layer.layerDimensions[j].name + '="' + $scope.layer.layerDimensions[j].array[0] + '"');
+                                    $scope.timeString = $scope.layer.layerDimensions[j].array[0];
+                                }
+                                else {
+                                    dimStr.push('&' + $scope.layer.layerDimensions[j].name + '=' + $scope.layer.layerDimensions[j].array[0]);
+                                }
+                            }
+                            for (var j = 3; j <= dimensions; j++) {
+                                urlDimensions += dimStr[j];
+                            }
+                            var getMapRequest = new wms.GetMap($scope.layer.name, urlDimensions, 800, 600);
+                            var url = settings.wmsFullEndpoint + "&" + getMapRequest.toKVP();
+                            _this.getMapRequestURL = url;
+                            $('#getMapRequestURL').text(_this.getMapRequestURL);
+                            webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, null, $scope.bboxLayer, $scope.displayWMSLayer, $scope.timeString);
                             if (!showGetMapURL) {
                                 _this.getMapRequestURL = null;
                             }

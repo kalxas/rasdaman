@@ -641,7 +641,6 @@ body {
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
-
 .valuesContainer {
     min-width: 210px;
 }
@@ -652,4 +651,8 @@ body {
 
 #button-clearHistory {
     display: inline-block;
+}
+
+#getMapRequestURL {
+    word-wrap: break-word;
 }

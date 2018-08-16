@@ -82,6 +82,19 @@
                                 only display 2D layers and maximum 3D layers with an existing time axis.<br/><br/>
                             </div>
 
+                            <img src="assets/img/exclamation_mark.png" ng-show="display4BandsExclamationMark" 
+                                 ng-mouseover="display4BandsNotification = true" ng-mouseout="display4BandsNotification = false"
+                                 style="height:4%;width:4%;margin-right: 5px; margin-bottom: 10px; margin-top:-5px;" align="left">
+                                 
+                            <div ng-show="display4BandsNotification" style="margin-top: -10px">
+                                <b>NOTE:</b> Layer has either 2 or more than 4 bands and hence cannot be encoded to PNG. 
+                                <br>
+                                <b>HINT:</b> Try selecting 1, 3, or 4 bands with a WMS style:
+                                <a href="http://doc.rasdaman.org/05_geo-services-guide.html?highlight=fragment#style-creation">
+                                    http://doc.rasdaman.org/05_geo-services-guide.html?highlight=fragment#style-creation</a>
+                                <br/><br/>
+                            </div>
+
                             <!-- <p class="center-block well well-sm" id="sliderBboxText"></p> -->
                             <div class="containerSliders">
                                 <label class="sliderLabel">Latitude: </label>
