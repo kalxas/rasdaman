@@ -24,6 +24,7 @@
 
 import math
 import decimal
+from lib import arrow
 
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
@@ -124,20 +125,36 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
                                     GDALEvaluatorSlice(GDALGmlUtil(gdal_file.get_filepath())))
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
 
+        if user_axis.type == UserAxisType.DATE:
+            # it must translate datetime string to float by arrow for calculating later
+            user_axis.interval.low = arrow.get(user_axis.interval.low).float_timestamp
+            if user_axis.interval.high is not None:
+                user_axis.interval.high = arrow.get(user_axis.interval.high).float_timestamp
+
         if isinstance(user_axis, RegularUserAxis):
             geo_axis = RegularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
                                    user_axis.interval.low, crs_axis)
         else:
-            # if irregular axis value is fetched from fileName so the coefficient is [0] as slicing
-            if user_axis.directPositions == AbstractToCoverageConverter.DIRECT_POSITIONS_SLICING:
-                user_axis.directPositions = AbstractToCoverageConverter.COEFFICIENT_SLICING
-            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high,
-                                     user_axis.interval.low, user_axis.directPositions, crs_axis)
+            # Irregular axis (coefficients must be number, not datetime string)
+            if user_axis.type == UserAxisType.DATE:
+                if crs_axis.is_uom_day():
+                    coefficients = self._translate_day_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                            user_axis.directPositions)
+                else:
+                    coefficients = self._translate_seconds_date_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                                user_axis.directPositions)
+            else:
+                coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
+                                                                                      user_axis.directPositions)
+            geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low, coefficients,
+                                     crs_axis)
 
         if not crs_axis.is_easting() and not crs_axis.is_northing():
             # GDAL model is 2D so on any axis except x/y we expect to have only one value
             grid_low = 0
-            grid_high = 0
+            grid_high = None
+            if user_axis.interval.high is not None:
+                grid_high = 0
         else:
             grid_low = 0
             number_of_grid_points = decimal.Decimal(str(user_axis.interval.high)) \
@@ -154,7 +171,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
                 grid_high = int(abs(math.ceil(grid_high)))
 
         # NOTE: Grid Coverage uses the direct intervals as in Rasdaman
-        if self.grid_coverage is False:
+        if self.grid_coverage is False and grid_high is not None:
             if grid_high > grid_low:
                 grid_high -= 1
 

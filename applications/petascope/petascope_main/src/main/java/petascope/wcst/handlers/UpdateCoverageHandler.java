@@ -34,7 +34,6 @@ import petascope.util.CrsUtil;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.PetascopeException;
-import petascope.rasdaman.exceptions.RasdamanException;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
@@ -77,9 +76,11 @@ import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.gml.GeneralGridCoverageGMLService;
+import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.core.gml.metadata.model.LocalMetadataChild;
+import petascope.core.gml.metadata.service.CoverageMetadataService;
 import static petascope.core.service.CrsComputerService.GRID_POINT_EPSILON_WCPS;
 import petascope.service.PyramidService;
-import petascope.util.ras.RasConstants;
 
 import petascope.wcst.exceptions.WCSTCoverageParameterNotFound;
 import petascope.wcst.exceptions.WCSTInvalidXML;
@@ -105,6 +106,8 @@ public class UpdateCoverageHandler {
     private GridDomainsValidator gridDomainsValidator;
     @Autowired
     private PyramidService pyramidService;
+    @Autowired
+    private CoverageMetadataService coverageMetadataService;
 
     /**
      * Handles the update of an existing WCS coverage.
@@ -216,6 +219,9 @@ public class UpdateCoverageHandler {
                 this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);
             }
 
+            // Since version 9.7, WCST_Import can add local metadata from slice (input file) to coverage's metadata in Petascope.
+            this.addLocalMetadataToCoverageMetadata(inputCoverage, currentCoverage);
+            
             // Now, we can persist the updated current coverage from input slice
             persistedCoverageService.save(currentCoverage);
         } catch (IOException e) {
@@ -229,6 +235,39 @@ public class UpdateCoverageHandler {
         }
 
         return new Response();
+    }
+    
+    /**
+    * NOTE: Since version 9.7, WCST_Import supports local_metadata in general recipes, then
+    * inputCoverage from GML will contain local metadata as its global metadata. This metadata needs to be appended
+    * inside current coverage under XML element: <localMetadata> </localMetadata> or JSON array of objects: localMetadata[{...}, {...}, ...]
+    */
+    private void addLocalMetadataToCoverageMetadata(Coverage inputCoverage, Coverage currentCoverage) throws PetascopeException {
+        String localMetadata = inputCoverage.getMetadata().trim();
+        
+        if (!localMetadata.isEmpty()) {
+            // Only update current coverage's metadata if input coverage has metadata to be added            
+            LocalMetadataChild inputLocalMetadata = this.coverageMetadataService.deserializeLocalMetadata(inputCoverage.getMetadata());
+            CoverageMetadata currentCoverageMetadata = this.coverageMetadataService.deserializeCoverageMetadata(currentCoverage.getMetadata());
+            
+            // Only add local meta from input coverage if current coverage does not contain it inside coverage's metadata
+            if (!currentCoverageMetadata.containLocalMetadataInList(inputLocalMetadata)) {
+                currentCoverageMetadata.addLocalMetadataToList(inputLocalMetadata);
+            }    
+            
+            // After adding new local metadata child, serialize coverage's metadata to the imported original format (XML/JSON).
+            String updatedCurrentCoverageMetadataStr = "";
+            if (this.coverageMetadataService.metadataInXML(currentCoverage.getMetadata())) {
+                // XML format
+                updatedCurrentCoverageMetadataStr = this.coverageMetadataService.serializeCoverageMetadataInXML(currentCoverageMetadata);
+            } else {
+                // JSON format
+                updatedCurrentCoverageMetadataStr = this.coverageMetadataService.serializeCoverageMetadataInJSON(currentCoverageMetadata);
+            }
+            
+            //  After that, a new local metadata root from input coverage is added and persisted to database of current coverage's medata
+            currentCoverage.setMetadata(updatedCurrentCoverageMetadataStr);            
+        }
     }
     
     /**

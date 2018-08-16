@@ -154,7 +154,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         // Check if extra params is in old style or new JSON style
         if (JSONUtil.isJsonValid(extraParams)) {
             // extra params is new JSON style
-            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, extraParams,
+            jsonOutput = serializationEncodingService.serializeNewStyleExtraParamsToJson(rasqlFormat, extraParams,
                     metadata, netCDFExtraParams, geoReference);
         } else if (extraParams.contains("{") || extraParams.contains("}")) {
             // it is invalid JSON format and not old style (e.g: "nodata=0")
@@ -163,7 +163,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
         } else {
             // extra params is old style (check if it has "nodata" as parameter to add to metadata)
             parseNoDataFromExtraParams(extraParams, metadata);
-            jsonOutput = serializationEncodingService.serializeExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
+            jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
         }
 
         // as all of the parameters go inside the new JSON style, so replace "{" to "{\""

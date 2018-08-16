@@ -27,8 +27,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 
 /**
  * JSON ultilities

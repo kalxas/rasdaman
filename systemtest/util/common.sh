@@ -545,8 +545,9 @@ trim_indentation()
 {
   echo "Removing indentation to compare..."
   xml_file="${1}"
-  # remove all the leading spaces in oracle and output in XML to compare
-  echo $(cat "$xml_file") | sed -e 's/^[ \t]*//' > "$xml_file.tmp"
+  # remove all the leading spaces in oracle and output in XML to compare also with fileReferenceHistory
+  # if coverage contains local metadata.
+  echo $(cat "$xml_file") | sed -e 's/^[ \t]*//' |  sed '/fileReferenceHistory/d'  > "$xml_file.tmp"
   echo "Done."
 }
 

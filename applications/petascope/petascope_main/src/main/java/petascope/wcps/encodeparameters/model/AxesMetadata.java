@@ -31,6 +31,8 @@ import java.util.Map;
  */
 public class AxesMetadata {
     
+    public static final String AXES_METADATA_ROOT_TAG = "axes";
+    
     private Map<String, Map<String, String>> axesAttributesMap;
     
     public AxesMetadata() {

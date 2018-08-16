@@ -46,8 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
-import petascope.wcps.encodeparameters.model.CoverageMetadata;
-import petascope.wcps.encodeparameters.service.ExtraMetadataService;
+import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.core.gml.metadata.service.CoverageMetadataService;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.RangeField;
@@ -67,7 +67,7 @@ public class NetCDFParametersService {
     private CoverageRepostioryService persistedCoverageService;
     
     @Autowired
-    private ExtraMetadataService extraMetadataService;
+    private CoverageMetadataService extraMetadataService;
 
     public NetCDFParametersService() {
 

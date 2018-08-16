@@ -59,7 +59,7 @@ class Importer:
         self.coverage = coverage
         self.resumer = Resumer(coverage.coverage_id)
         self.coverage.slices = SliceRestricter(
-            self.resumer.eliminate_already_imported_slices(self.coverage.slices)).get_slices()
+                                    self.resumer.eliminate_already_imported_slices(self.coverage.slices)).get_slices()
         self.processed = 0
         self.total = len(coverage.slices)
         self.insert_into_wms = insert_into_wms
@@ -275,10 +275,11 @@ class Importer:
         :rtype: File
         """
         metadata_provider = MetadataProvider(self.coverage.coverage_id, self._get_update_axes(slice),
-                                             self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs), None, self.grid_coverage)
+                                             self.coverage.range_fields, self._get_update_crs(slice, self.coverage.crs),
+                                             slice.local_metadata, self.grid_coverage)
         data_provider = slice.data_provider
-        file = Mediator(metadata_provider, data_provider).get_gml_file()
-        return file
+        gml_file = Mediator(metadata_provider, data_provider).get_gml_file()
+        return gml_file
 
     def _get_update_axes(self, slice):
         """

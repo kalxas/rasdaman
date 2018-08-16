@@ -27,15 +27,18 @@ from master.provider.data.data_provider import DataProvider
 
 
 class Slice:
-    def __init__(self, axis_subsets, data_provider):
+    def __init__(self, axis_subsets, data_provider, local_metadata=None):
         """
         Class to represent one slice of the coverage
         :param list[AxisSubset] axis_subsets: the position of this slice in the coverage represented through a list
         of axis subsets
         :param DataProvider data_provider: a data provider that can get the data corresponding to this slice
+        :param str local_metadata: metadata of this local file which is added to coverage's metadata via UpdateCoverage request.
+                                   NOTE: only supported in general recipe type.
         """
         self.axis_subsets = axis_subsets
         self.data_provider = data_provider
+        self.local_metadata = local_metadata
 
     def __str__(self):
         ret = "{Axis Subset: "

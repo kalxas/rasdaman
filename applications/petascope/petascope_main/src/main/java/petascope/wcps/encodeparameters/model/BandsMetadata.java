@@ -31,6 +31,8 @@ import java.util.Map;
  */
 public class BandsMetadata {
     
+    public static final String BANDS_METADATA_ROOT_TAG = "bands";
+    
     private Map<String, Map<String, String>> bandsAttributesMap;
     
     public BandsMetadata() {

@@ -331,7 +331,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         # TODO: it does not have a way to get the data type of grib, yet, so use the default float64 as before
         return self.DEFAULT_DATA_TYPE
 
-    def _slice(self, grib_file, crs_axes):
+    def _create_coverage_slice(self, grib_file, crs_axes):
         """
         Returns a slice for a grib file
         :param File grib_file: the path to the grib file

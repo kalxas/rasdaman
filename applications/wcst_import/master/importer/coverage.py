@@ -41,7 +41,7 @@ class Coverage:
         :param str crs: the crs of the coverage
         :param str pixel_data_type: the type of the pixel in gdal format
         :param str tiling: the tiling string to be passed to rasdaman if one is chosen
-        :param str metadata: any extra metadata to be kept by the coverage
+        :param str metadata: Global extra metadata to be kept by the coverage
         """
         self.coverage_id = coverage_id
         self.slices = slices

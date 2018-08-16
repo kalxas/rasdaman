@@ -61,6 +61,7 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <covMetadata>
+                <Project>This is another test file</Project>
                 <bands>
                     <tg>
                         <units>Celsius</units>
@@ -71,7 +72,6 @@
                     </tg>
                 </bands>
                 <Creator>This is a test creator file</Creator>
-                <Project>This is another test file</Project>
                 <Title>This is a test file</Title>
             </covMetadata>
         </gmlcov:Extension>

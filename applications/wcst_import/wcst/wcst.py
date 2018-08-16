@@ -141,12 +141,14 @@ class WCSTInsertRequest(WCSTRequest):
         """
         ret = {
             self.__GENERATE_ID_PARAMETER: self.__GENERATE_ID_TRUE_VALUE if self.generate_id else self.__GENERATE_ID_FALSE_VALUE,
-            self.__COVERAGE_REF_PARAMETER: self.coverage_ref,
         }
         if self.pixel_data_type is not None:
             ret[self.__PIXEL_DATA_TYPE_PARAMETER] = self.pixel_data_type
         if self.tiling is not None:
             ret[self.__TILING_PARAMETER] = self.tiling
+
+        ret[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
+
         return ret
 
     __GENERATE_ID_TRUE_VALUE = "new"

@@ -46,6 +46,7 @@ from util.string_util import escape_metadata_dict
 from util.string_util import escape_metadata_nested_dicts
 from util.import_util import import_netcdf4
 from util.file_util import FileUtil
+from util.gdal_util import GDALGmlUtil
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -94,10 +95,11 @@ class Recipe(BaseRecipe):
             raise RecipeValidationException("No slicer parameter in the coverage parameter of the recipe parameters")
         if 'type' not in self.options['coverage']['slicer']:
             raise RecipeValidationException("No type parameter in the slicer parameter of the recipe parameters")
-        if 'bands' not in self.options['coverage']['slicer'] and self.options['coverage']['slicer'][
-            'type'] == self.GRIB_TYPE:
+        if 'bands' not in self.options['coverage']['slicer'] \
+                and (self.options['coverage']['slicer']['type'] == GRIBToCoverageConverter.RECIPE_TYPE \
+                or self.options['coverage']['slicer']['type'] == NetcdfToCoverageConverter.RECIPE_TYPE):
             raise RecipeValidationException(
-                "The grib slicer requires the existence of a band parameter inside the slicer parameter.")
+                "The netcdf/grib slicer requires the existence of a band parameter inside the slicer parameter.")
         if 'axes' not in self.options['coverage']['slicer']:
             raise RecipeValidationException("No axes parameter in the slicer parameter of the recipe parameters")
         for name, axis in self.options['coverage']['slicer']['axes'].items():
@@ -211,7 +213,7 @@ class Recipe(BaseRecipe):
 
     def _read_bands(self):
         """
-        Returns a user band extracted from the ingredients
+        Returns a user band extracted from the ingredients if specified (required for netCDF/GRIB)
         :rtype: list[UserBand]
         """
         if "bands" in self.options['coverage']['slicer']:
@@ -228,7 +230,26 @@ class Recipe(BaseRecipe):
                     self._read_or_empty_string(band, "uomCode")
                 ))
             return ret_bands
-        raise RuntimeError("Bands parameter was not checked for validity")
+        else:
+            if self.options['coverage']['slicer']['type'] == GdalToCoverageConverter.RECIPE_TYPE:
+                # If gdal does not specify bands in ingredient file, just fetch all bands from first file
+                first_file = self.session.get_files()[0]
+                gdal_util = GDALGmlUtil(first_file)
+                gdal_fields = gdal_util.get_fields_range_type()
+
+                ret_bands = []
+                for field in gdal_fields:
+                    ret_bands.append(UserBand(
+                        field.field_name,
+                        field.field_name,
+                        None,
+                        None,
+                        None,
+                        field.nill_values
+                    ))
+                return ret_bands
+            else:
+                raise RuntimeError("'bands' must be specified in ingredient file for netCDF/GRIB recipes.")
 
     def _read_axes(self, crs):
         """
@@ -333,7 +354,9 @@ class Recipe(BaseRecipe):
         """
         if "metadata" in self.options['coverage']:
             if "local" in self.options['coverage']['metadata']:
-                return self.options['coverage']['metadata']['local']
+                # Each file can have different local metadata (e.g: different netCDF attributes, tiff tags,...)
+                local_metadata_dict = self.options['coverage']['metadata']['local']
+                return local_metadata_dict
         return {}
 
     def _bands_metadata_fields(self):
@@ -527,7 +550,8 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(), self._bands_metadata_fields(),
+                                           self._local_metadata_fields(),
+                                           self._bands_metadata_fields(),
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
                                            self.options['coverage']['grid_coverage']).to_coverage()
@@ -573,8 +597,8 @@ class Recipe(BaseRecipe):
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
-                                           self._local_metadata_fields(),
                                            self._bands_metadata_fields(),
+                                           self._local_metadata_fields(),
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
                                            self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()

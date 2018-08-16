@@ -40,6 +40,9 @@ package petascope.util;
 import petascope.core.KVPSymbols;
 import petascope.core.XMLSymbols;
 import com.eaio.uuid.UUID;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -75,7 +78,6 @@ import nu.xom.ParsingException;
 import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
@@ -1383,5 +1385,16 @@ public class XMLUtil {
      */
     public static String removeSpaceBetweenElements(String inputXML) {
         return inputXML.replaceAll(">\\s+<", "><").trim();
+    }
+    
+    /**
+     * Serialize an object to XML string by Jackson
+     */
+    public static String serializeObjectToXMLString(Object obj) throws JsonProcessingException {
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        String xml = xmlMapper.writer().writeValueAsString(obj);
+        return xml;
     }
 }

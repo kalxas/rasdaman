@@ -25,6 +25,8 @@
 import decimal
 import math
 from lib import arrow
+from master.extra_metadata.extra_metadata import GlobalExtraMetadata
+from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from util.list_util import sort_slices_by_datetime
 
 from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
@@ -34,10 +36,11 @@ from master.helper.user_axis import UserAxisType
 from master.helper.irregular_user_axis import IrregularUserAxis
 from master.helper.regular_user_axis import RegularUserAxis
 from master.helper.user_axis import UserAxis
-from master.extra_metadata.extra_metadata_collector import ExtraMetadataCollector, ExtraMetadataEntry
-from master.extra_metadata.extra_metadata_ingredient_information import ExtraMetadataIngredientInformation
+from master.extra_metadata.extra_metadata_collector \
+    import ExtraGlobalMetadataCollector, ExtraLocalMetadataCollector, ExtraMetadataEntry
+from master.extra_metadata.extra_metadata_ingredient_information \
+    import ExtraGlobalMetadataIngredientInformation, ExtraLocalMetadataIngredientInformation
 from master.extra_metadata.extra_metadata_serializers import ExtraMetadataSerializerFactory
-from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 from master.generator.model.range_type_nill_value import RangeTypeNilValue
 from master.generator.model.range_type_field import RangeTypeField
 from master.error.runtime_exception import RuntimeException
@@ -176,33 +179,68 @@ class AbstractToCoverageConverter:
             file_structure["variables"] = variables
         return file_structure
 
-    def _metadata(self, slices):
+    def _generate_global_metadata(self, first_slice):
         """
-        Factory method to evaluate the metadata defined in ingredient file to xml/json and ingest as extra metadata
-        in DescribeCoverage WCS request
-        :param list[Slice] slices: the slices of the coverage which needs the metadata from ingredient files
+        Factory method to generate global metadata defined in ingredient file to xml/json and ingest as
+        WCS coverage's global extra metadata via WCS-T InsertCoverage request.
+        :param Slice first_slice: First slice of coverage to be used to generate global metadata for a coverage.
         :return: str
         """
-        if not self.global_metadata_fields and not self.local_metadata_fields \
+        if not self.global_metadata_fields \
             and not self.bands_metadata_fields and not self.axes_metadata_fields:
             return ""
         serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
-        metadata_entries = []
-        for coverage_slice in slices:
-            # get the evaluator for the current recipe_type (each recipe has different evaluator)
-            evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, coverage_slice.data_provider.file)
-            metadata_entry_subsets = []
-            for axis in coverage_slice.axis_subsets:
-                metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.coverage_axis.axis.label, axis.interval))
-            metadata_entries.append(ExtraMetadataEntry(evaluator_slice, metadata_entry_subsets))
 
-        collector = ExtraMetadataCollector(self.sentence_evaluator,
-                                           ExtraMetadataIngredientInformation(self.global_metadata_fields,
-                                                                              self.local_metadata_fields,
-                                                                              self.bands_metadata_fields,
-                                                                              self.axes_metadata_fields),
-                                           metadata_entries)
-        return serializer.serialize(collector.collect())
+        # get the evaluator for the current recipe_type (each recipe has different evaluator)
+        evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, first_slice.data_provider.file)
+        metadata_entry_subsets = []
+        for axis in first_slice.axis_subsets:
+            metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.coverage_axis.axis.label, axis.interval))
+
+        global_extra_metadata_collector = ExtraGlobalMetadataCollector(
+                                                 self.sentence_evaluator,
+                                                 ExtraGlobalMetadataIngredientInformation(self.global_metadata_fields,
+                                                                                    self.bands_metadata_fields,
+                                                                                    self.axes_metadata_fields),
+                                                 ExtraMetadataEntry(evaluator_slice, metadata_entry_subsets))
+
+        global_extra_metadata = global_extra_metadata_collector.collect()
+        metadata_str = serializer.serialize(global_extra_metadata)
+
+        return metadata_str
+
+    def _generate_local_metadata(self, axis_subsets, file):
+        """
+        Factory method to generate local metadata defined in ingredient file to xml/json and appended as
+        WCS coverage's local extra metadata via WCS-T UpdateCoverage request.
+        :param list[AxisSubset] axis_subsets: the position of this slice in the coverage represented through a list
+        of axis subsets
+        :param File file: the path to the importing file
+        :return: str
+        """
+        if not self.local_metadata_fields:
+            return ""
+
+        serializer = ExtraMetadataSerializerFactory.get_serializer(self.metadata_type)
+
+        # get the evaluator for the current recipe_type (each recipe has different evaluator)
+        evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
+        metadata_entry_subsets = []
+        for axis in axis_subsets:
+            metadata_entry_subsets.append(ExtraMetadataSliceSubset(axis.coverage_axis.axis.label, axis.interval))
+
+        # Each local metadata should have a reference to input file path which it fetched metadata from
+        self.local_metadata_fields["fileReferenceHistory"] = file.filepath
+
+        extra_local_metadata_collector = ExtraLocalMetadataCollector(
+                                                self.sentence_evaluator,
+                                                ExtraLocalMetadataIngredientInformation(self.local_metadata_fields),
+                                                ExtraMetadataEntry(evaluator_slice, metadata_entry_subsets))
+
+        local_extra_metadata = extra_local_metadata_collector.collect()
+        metadata_str = serializer.serialize(local_extra_metadata)
+
+        return metadata_str
 
     def _get_nil_values(self, index):
         """
@@ -288,9 +326,9 @@ class AbstractToCoverageConverter:
                 # after that, the band's metadata for the current attribute is evaluated
                 setattr(band, key, evaluated_value)
 
-    def _slices(self, crs_axes):
+    def _create_coverage_slices(self, crs_axes):
         """
-        Returns all the slices for this coverage
+        Returns all the coverage slices for this coverage
         :param crs_axes:
         :rtype: list[Slice]
         """
@@ -299,7 +337,8 @@ class AbstractToCoverageConverter:
         for file in self.files:
             # print which file is analyzing
             FileUtil.print_feedback(count, len(self.files), file.filepath)
-            slices.append(self._slice(file, crs_axes))
+            coverage_slice = self._create_coverage_slice(file, crs_axes)
+            slices.append(coverage_slice)
             count += 1
         # NOTE: we want to sort all the slices by date time axis
         # to avoid the case the later time slice is added before the sooner time slice
@@ -307,9 +346,9 @@ class AbstractToCoverageConverter:
 
         return sorted_slices
 
-    def _slice(self, file, crs_axes):
+    def _create_coverage_slice(self, file, crs_axes):
         """
-        Returns a slice for a file
+        Returns a coverage slice for a file
         :param File file: the path to the importing file
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
         :rtype: Slice
@@ -319,7 +358,10 @@ class AbstractToCoverageConverter:
         for i in range(0, len(crs_axes)):
             axis_subsets.append(self._axis_subset(crs_axes[i], file))
 
-        return Slice(axis_subsets, FileDataProvider(file, file_structure))
+        # Generate local metadata string for current coverage slice
+        local_metadata = self._generate_local_metadata(axis_subsets, file)
+
+        return Slice(axis_subsets, FileDataProvider(file, file_structure), local_metadata)
 
     def to_coverage(self):
         """
@@ -327,13 +369,17 @@ class AbstractToCoverageConverter:
         :rtype: Coverage
         """
         crs_axes = CRSUtil(self.crs).get_axes()
-        slices = self._slices(crs_axes)
-        # generate coverage extra_metadata from ingredient files
-        metadata = self._metadata(slices)
+        # Build list of coverage slices from input files
+        coverage_slices = self._create_coverage_slices(crs_axes)
+
+        first_coverage_slice = coverage_slices[0]
+
+        # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
+        global_metadata = self._generate_global_metadata(first_coverage_slice)
         # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
         self._evaluate_swe_bands_metadata(self.files[0], self.bands)
 
-        coverage = Coverage(self.coverage_id, slices, self._range_fields(), self.crs,
+        coverage = Coverage(self.coverage_id, coverage_slices, self._range_fields(), self.crs,
                             self._data_type(),
-                            self.tiling, metadata)
+                            self.tiling, global_metadata)
         return coverage

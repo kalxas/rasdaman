@@ -40,5 +40,5 @@ public class InvalidCoverageMetadataToDeserializeException extends WCPSException
         super(ExceptionCode.WcpsError, ERROR_TEMPLATE.replace("$errorMessage", errorMessage), ex);
     }
 
-    private static final String ERROR_TEMPLATE = "Cannot deserialize WCPS coverage's metadata in XML/JSON by Jackson, error: $errorMessage.";
+    private static final String ERROR_TEMPLATE = "Cannot deserialize coverage's metadata in XML/JSON by Jackson, error: $errorMessage.";
 }

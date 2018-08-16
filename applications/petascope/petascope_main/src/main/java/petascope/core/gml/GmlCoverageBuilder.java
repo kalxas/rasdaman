@@ -456,7 +456,7 @@ public class GmlCoverageBuilder {
             try {
                 // Prettify the JSON string to be human readable
                 JSONObject json = new JSONObject(gmlcovMetadata);
-                gmlcovMetadata = json.toString(4);
+                gmlcovMetadata = json.toString(4).replace("\\/","/");
             } catch (JSONException ex) {
                 log.warn("Cannot parse coverage extra metadata as JSON. Reason: " + ex.getMessage(), ex);
             }

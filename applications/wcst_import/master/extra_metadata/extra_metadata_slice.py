@@ -35,12 +35,3 @@ class ExtraMetadataSliceSubset:
         self.axis_name = axis_name
         self.interval = interval
 
-
-class ExtraMetadataSlice:
-    def __init__(self, subsets, metadata_dictionary):
-        """
-        Represents a slice of extra metadata
-        :param list[ExtraMetadataSliceSubset] subsets: the subsets on each axis defining the position in spacetime of the extra metadata
-        """
-        self.subsets = subsets
-        self.metadata_dictionary = metadata_dictionary

@@ -21,11 +21,13 @@
 */
 package petascope.wcps.encodeparameters.service;
 
+import petascope.core.gml.metadata.service.CoverageMetadataService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.rasdaman.domain.cis.Coverage;
@@ -37,6 +39,7 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
+import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.wcps.encodeparameters.model.Dimensions;
 import petascope.wcps.encodeparameters.model.GeoReference;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
@@ -61,7 +64,7 @@ public class SerializationEncodingService {
     @Autowired
     private EncodeCoverageHandler encodeCoverageHandler;
     @Autowired
-    private ExtraMetadataService extraMetadataService;
+    private CoverageMetadataService extraMetadataService;
     
     @Autowired
     private CoverageRepostioryService coverageRepostioryService;
@@ -79,7 +82,7 @@ public class SerializationEncodingService {
      * @return
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
-    public String serializeExtraParamsToJson(String rasqlFormat, WcpsCoverageMetadata metadata,
+    public String serializeOldStyleExtraParamsToJson(String rasqlFormat, WcpsCoverageMetadata metadata,
                                             NetCDFExtraParams netCDFExtraParams, GeoReference geoReference) throws JsonProcessingException, PetascopeException {
         JsonExtraParams jsonExtraParams = new JsonExtraParams();
         if (netCDFExtraParams != null) {
@@ -89,9 +92,11 @@ public class SerializationEncodingService {
         
         jsonExtraParams.setNoData(new NoData(metadata.getNodata()));        
         
-        // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
         // Extra metadata of coverage
-        jsonExtraParams.setMetadata(extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap());        
+        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        // for now, metadata in encode() only is global metadata
+        // @TODO: filter local metadata by bounding box to be added into encode() besides global metadata.
+        jsonExtraParams.setMetadata(coverageMetadata.getGlobalAttributesMap());        
         
         jsonExtraParams.setGeoReference(geoReference);
         // NOTE: (JP2OpenJPEG) jpeg2000 will need to add "codec":"jp2" or it will not have geo-reference metadata in output
@@ -113,13 +118,13 @@ public class SerializationEncodingService {
      * Generate Rasql extra parameters in Json string from *new style* extra params of WCPS query (e.g: "{...\"nodata\": [0,1,2,3]...}"
      * @param rasqlFormat
      * @param extraParams
-     * @param metadata
+     * @param wcpsCoverageMetadata
      * @param netCDFExtraParams
      * @param geoReference
      * @return
      * @throws JsonProcessingException
      */
-    public String serializeExtraParamsToJson(String rasqlFormat, String extraParams, WcpsCoverageMetadata metadata,
+    public String serializeNewStyleExtraParamsToJson(String rasqlFormat, String extraParams, WcpsCoverageMetadata wcpsCoverageMetadata,
                                              NetCDFExtraParams netCDFExtraParams, GeoReference geoReference) throws JsonProcessingException, IOException, PetascopeException {
         ObjectMapper objectMapper = new ObjectMapper();        
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -128,26 +133,23 @@ public class SerializationEncodingService {
         JsonExtraParams jsonExtraParams;
                 
         try {
+            // Deserialize encode extra params in JSON string to an object
             jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
         } catch (IOException ex) {
             throw new DeserializationExtraParamsInJsonExcception(ex);
         }
 
         // update each range of coverage with value from passing nodata_values
-        encodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), metadata);        
-        // parse the input global metadata if exists
-        Map<String, String> inputGlobalMetadataMap = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata()).getGlobalAttributesMap();
-        
-        // e.g: netCDF some global metadata (Project = "This is another test file" ; Title = "This is a test file" ; jsonExtraParams.setMetadata(new Metadata(metadata.getMetadata()));)
-        if (jsonExtraParams.getMetadata()== null) {
-            jsonExtraParams.setMetadata(inputGlobalMetadataMap);
-        } else {
-            // merge global coverage's metadata with input extra metadata from WCPS query in JSON if exists
-            if (!metadata.getMetadata().isEmpty()) {
-                for (Map.Entry<String, String> entry: inputGlobalMetadataMap.entrySet()) {
-                    jsonExtraParams.getMetadata().put(entry.getKey(), entry.getValue());
-                }
-            }
+        encodeCoverageHandler.updateNoDataInRangeFileds(jsonExtraParams.getNoData().getNilValues(), wcpsCoverageMetadata);      
+        // parse coverage's metadata XML/JSON string to a CoverageMetadata object
+        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(wcpsCoverageMetadata.getMetadata());
+        // for now, metadata in encode() only is global metadata
+        // @TODO: filter local metadata by bounding box to be added into encode() besides global metadata.
+        Map<String, String> globalMetadataMap = coverageMetadata.getGlobalAttributesMap();
+
+        if (jsonExtraParams.getMetadata().isEmpty()) {
+            // If there is no metadata in extra params of encode() then metadata of encode() comes from coverage's global metadata.
+            jsonExtraParams.setMetadata(globalMetadataMap);
         }
         
         if (netCDFExtraParams != null) {
@@ -173,9 +175,9 @@ public class SerializationEncodingService {
             jsonExtraParams.getFormatParameters().put(MIMEUtil.CODEC, MIMEUtil.CODEC_JP2);
         }
         
-        if (this.outputNeedsTranspose(rasqlFormat, jsonExtraParams, metadata)) {
+        if (this.outputNeedsTranspose(rasqlFormat, jsonExtraParams, wcpsCoverageMetadata)) {
             // Automatically swap coverage imported YX grid axes order to XY grid axes order when the result is 2D XY
-            this.addTransposeToExtraParams(metadata, jsonExtraParams);
+            this.addTransposeToExtraParams(wcpsCoverageMetadata, jsonExtraParams);
         }
 
         String jsonOutput = JSONUtil.serializeObjectToJSONString(jsonExtraParams);

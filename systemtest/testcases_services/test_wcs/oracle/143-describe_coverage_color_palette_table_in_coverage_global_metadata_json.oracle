@@ -31,7 +31,7 @@
                 <covMetadata>
 {
     "Title": "Drought code",
-    "colorPaletteTable": "# Example of color palette table\n30\tp200\/16\t80\t-\t \t \t \t \t \n80\t-\t100\t-\t \t \t \t \t \n100\t200\t0\t0\t200\t255\t255\t0\t \n200\tyellow\t300\tgreen",
+    "colorPaletteTable": "# Example of color palette table\n30\tp200/16\t80\t-\t \t \t \t \t \n80\t-\t100\t-\t \t \t \t \t \n100\t200\t0\t0\t200\t255\t255\t0\t \n200\tyellow\t300\tgreen",
     "bands": {
         "dc": {
             "grid_type": "gaussian",

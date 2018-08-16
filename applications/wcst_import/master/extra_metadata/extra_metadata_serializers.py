@@ -24,11 +24,16 @@
 import json
 from abc import abstractmethod
 
-from master.extra_metadata.extra_metadata import ExtraMetadata
-from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
+from master.extra_metadata.extra_metadata import GlobalExtraMetadata
 
 
 class ExtraMetadataSerializer:
+
+    KEY_BANDS = "bands"
+    KEY_AXES = "axes"
+    KEY_LOCAL_METADATA = "local_metadata"
+    KEY_SLICE_SUBSETS = "slice_subsets"
+
     def __init__(self):
         pass
 
@@ -36,7 +41,7 @@ class ExtraMetadataSerializer:
     def serialize(self, extra_metadata):
         """
         Serializes a given extra metadata object
-        :param ExtraMetadata extra_metadata: the extra metadata object to serialize
+        :param GlobalExtraMetadata/LocalExtraMetadata extra_metadata: the extra metadata object to serialize
         :return: str
         """
         pass
@@ -44,48 +49,42 @@ class ExtraMetadataSerializer:
     def to_dict(self, extra_metadata):
         """
         Returns a dict representation of the extra_metadata (global, local and bands metadata)
-        :param ExtraMetadata extra_metadata: the extra metadata object to serialize
+        :param GlobalExtraMetadata/LocalExtraMetadata extra_metadata: the extra metadata object to serialize
         :rtype: dict
         """
-        global_meta = extra_metadata.global_extra_metadata.copy()
-        global_meta["slices"] = []
-        for metadata_slice in extra_metadata.slice_extra_metadata:
-            slice = metadata_slice.metadata_dictionary
-            slice["envelope"] = self.subset_to_dict(metadata_slice.subsets)
-            global_meta["slices"].append(slice)
+        if isinstance(extra_metadata, GlobalExtraMetadata):
+            # Object is global extra metadata
+            global_meta = extra_metadata.global_extra_metadata.copy()
 
-        global_meta["bands"] = extra_metadata.bands_extra_metadata.copy()
-        global_meta["axes"] = extra_metadata.axes_extra_metadata.copy()
+            global_meta[self.KEY_BANDS] = extra_metadata.bands_extra_metadata.copy()
+            global_meta[self.KEY_AXES] = extra_metadata.axes_extra_metadata.copy()
 
-        # don't add empty attributes to coverage's metadata
-        if len(global_meta["slices"]) == 0:
-            global_meta.pop('slices', None)
-        if len(global_meta["bands"]) == 0:
-            global_meta.pop('bands', None)
-        if len(global_meta["axes"]) == 0:
-            global_meta.pop('axes', None)
+            # don't add empty attributes to coverage's metadata
+            if len(global_meta[self.KEY_BANDS]) == 0:
+                global_meta.pop(self.KEY_BANDS, None)
+            if len(global_meta[self.KEY_AXES]) == 0:
+                global_meta.pop(self.KEY_AXES, None)
 
-        return global_meta
+            return global_meta
+        else:
+            # Object is local extra metadata
+            local_metadata_dict = {self.KEY_LOCAL_METADATA: extra_metadata.local_extra_metadata.copy(),
+                                   self.KEY_SLICE_SUBSETS: extra_metadata.slice_subsets}
 
-    @staticmethod
-    def subset_to_dict(subsets):
+            return local_metadata_dict
+
+    def _create_elements_for_bounded_by(self, slice_subsets):
         """
-        Serializes a list of subsets in a bounded by string
-        :param list[ExtraMetadataSliceSubset] subsets:
-        :rtype: str
+        From slice_subsets create child elements for boundedBy element
+        :param list[ExtraMetadataSliceSubset] slice_subsets: list of axis subsets
         """
-        variables = {
-            "axisLabels": [],
-            "noOfDimensions": len(subsets),
-            "lowerCorner": [],
-            "upperCorner": []
-        }
-        for subset in subsets:
-            variables["axisLabels"].append(str(subset.axis_name))
-            variables["lowerCorner"].append(str(subset.interval.low))
-            high = subset.interval.high if subset.interval.high is not None else subset.interval.low
-            variables["upperCorner"].append(str(high))
-        return variables
+        axis_labels = " ".join([x.axis_name for x in slice_subsets])
+        no_of_dimensions = len(slice_subsets)
+        lower_corner = " ".join([str(x.interval.low) for x in slice_subsets])
+        upper_corner = " ".join([str(x.interval.high) if x.interval.high is not None else str(x.interval.low)
+                                 for x in slice_subsets])
+
+        return str(axis_labels), str(no_of_dimensions), str(lower_corner), str(upper_corner)
 
 
 class JsonExtraMetadataSerializer(ExtraMetadataSerializer):
@@ -93,7 +92,38 @@ class JsonExtraMetadataSerializer(ExtraMetadataSerializer):
         ExtraMetadataSerializer.__init__(self)
 
     def serialize(self, extra_metadata):
-        return json.dumps(self.to_dict(extra_metadata), indent=2)
+        result_dict = self.to_dict(extra_metadata)
+
+        if not "local_metadata" in result_dict:
+            # Serializing global metadata
+            output = json.dumps(result_dict, indent=2)
+        else:
+            # Serializing local metadata
+            tmp_dict = result_dict[self.KEY_LOCAL_METADATA]
+            slice_subsets = result_dict[self.KEY_SLICE_SUBSETS]
+            json_return = []
+
+            # First collect all local metadata attributes as key -> value
+            for key, value in tmp_dict.items():
+                result = '"{}": "{}"'.format(key, value)
+                json_return.append(result)
+
+            axis_labels, no_of_dimensions, lower_corner, upper_corner = self._create_elements_for_bounded_by(slice_subsets)
+            # as lower_corner or upper_corner can contain "datetime"
+            lower_corner = lower_corner.replace('"', '\\"')
+            upper_corner = upper_corner.replace('"', '\\"')
+
+            bounded_by_template = '"boundedBy": {"Envelope": { ' \
+                                  '  "axisLabels": "$axisLabels", "srsDimension": $no_of_dimensions, ' \
+                                  '  "lowerCorner": "$lowerCorner", "upperCorner": "$upperCorner" } }'
+            bounded_by = bounded_by_template.replace("$axisLabels", axis_labels)\
+                                            .replace("$no_of_dimensions", no_of_dimensions)\
+                                            .replace("$lowerCorner", lower_corner)\
+                                            .replace("$upperCorner", upper_corner)
+            json_return.append(bounded_by)
+            output = "{ " + ", ".join(json_return) + " }"
+
+        return output
 
 
 class XMLExtraMetadataSerializer(ExtraMetadataSerializer):
@@ -109,51 +139,54 @@ class XMLExtraMetadataSerializer(ExtraMetadataSerializer):
         return key.replace(" ", "_")
 
     def serialize(self, extra_metadata):
-        bounded_by_template = """<boundedBy>
-                                    <Envelope axisLabels="{axisLabels}" srsDimension="{noOfDimensions}">
-                                        <lowerCorner>{lowerCorner}</lowerCorner>
-                                        <upperCorner>{upperCorner}</upperCorner>
-                                    </Envelope>
-                                </boundedBy>"""
-        global_dict = self.to_dict(extra_metadata)
+        result_dict = self.to_dict(extra_metadata)
         xml_return = []
-        for key, value in global_dict.items():
-            if key == "bands" or key == "axes":
-                # each band of bands is a dictionary of keys, values for band's metadata
-                result = "<" + key + ">"
-                for band_key, band_attributes in value.items():
-                    result += "<" + self.__xml_key(band_key) + ">"
-                    for band_attribute_key, band_attribute_value in band_attributes.items():
-                        result += "<{0}>{1}</{0}>".format(self.__xml_key(band_attribute_key), band_attribute_value)
-                    result += "</" + self.__xml_key(band_key) + ">"
-                result += "</" + key + ">"
-                xml_return.append(result)
-            elif key != "slices":
+
+        if not self.KEY_LOCAL_METADATA in result_dict:
+            # Serializing global metadata attributes dict
+            for key, value in result_dict.items():
+                if key == self.KEY_BANDS or key == self.KEY_AXES:
+                    # each band of bands is a dictionary of keys, values for band's metadata
+                    result = "<" + key + ">"
+                    for band_key, band_attributes in value.items():
+                        result += "<" + self.__xml_key(band_key) + ">"
+                        for band_attribute_key, band_attribute_value in band_attributes.items():
+                            result += "<{0}>{1}</{0}>".format(self.__xml_key(band_attribute_key), band_attribute_value)
+                        result += "</" + self.__xml_key(band_key) + ">"
+                    result += "</" + key + ">"
+                    xml_return.append(result)
+                else:
+                    xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
+        else:
+            # Serializing local metadata attributes dict
+            for key, value in result_dict[self.KEY_LOCAL_METADATA].items():
                 xml_return.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
 
-        # Only parse this slices (local metadata) if it exists
-        if "slices" in global_dict:
-            slices = global_dict["slices"]
-            slices_xml = []
-            for slice in slices:
-                slice_xml = ["<slice>"]
-                slice_xml.append(bounded_by_template.format(axisLabels=" ".join(slice['envelope']["axisLabels"]),
-                                                            noOfDimensions=slice['envelope']["noOfDimensions"],
-                                                            lowerCorner=" ".join(slice['envelope']["lowerCorner"]),
-                                                            upperCorner=" ".join(slice['envelope']["upperCorner"])))
-                for key, value in slice.items():
-                    if key != 'envelope':
-                        slice_xml.append("<{0}>{1}</{0}>".format(self.__xml_key(key), value))
-                slice_xml.append("</slice>")
-                slices_xml.append("\n".join(slice_xml))
-            xml_return.append("<slices>\n{}\n</slices>".format("\n".join(slices_xml)))
+            # Build the boundedBy element from axis subsets also need to be added as coverage's local metadata
+            # Then later when doing subsets on coverage, it can fetch corresponding local metadata
+            # to rasql encoded result.
+            bounded_by_template = """<boundedBy>
+                                        <Envelope axisLabels="{}" srsDimension="{}">
+                                            <lowerCorner>{}</lowerCorner>
+                                            <upperCorner>{}</upperCorner>
+                                        </Envelope>
+                                    </boundedBy>"""
 
-        return "\n".join(xml_return)
+            slice_subsets = result_dict[self.KEY_SLICE_SUBSETS]
+            axis_labels, no_of_dimensions, lower_corner, upper_corner = self._create_elements_for_bounded_by(slice_subsets)
+            bounded_by = bounded_by_template.format(axis_labels,no_of_dimensions, lower_corner, upper_corner)
+            xml_return.append(bounded_by)
+
+        output = "\n".join(xml_return)
+        return output
 
 
 class ExtraMetadataSerializerFactory():
     JSON_ENCODING = "json"
     XML_ENCODING = "xml"
+
+    def __init__(self):
+        pass
 
     @staticmethod
     def is_encoding_type_valid(type):

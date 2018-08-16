@@ -52,10 +52,6 @@ class EvaluatorSliceFactory:
         from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
         from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 
-        # already read the first file to extract metadata
-        if EvaluatorSliceFactory.evaluator_slice is not None:
-            return EvaluatorSliceFactory.evaluator_slice
-
         if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
             # NOTE: warp file to a wrapper class as old GDAL recipes
             EvaluatorSliceFactory.evaluator_slice = GDALEvaluatorSlice(slice_file)
