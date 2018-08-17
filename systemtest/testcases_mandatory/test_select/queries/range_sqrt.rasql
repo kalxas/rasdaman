@@ -1,1 +1,1 @@
-select encode(sqrt({c.0,c.1,c.2}), "png") from test_rgb2 as c
+select (sqrt({c.0,c.1,c.2}))[0:9,90:99] from test_rgb2 as c

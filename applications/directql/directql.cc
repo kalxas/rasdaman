@@ -95,6 +95,7 @@ using namespace std;
 
 #include "../rasql/rasql_error.hh"
 
+#include "relcatalogif/complextype.hh"
 #include "servercomm/servercomm.hh"
 #include "relblobif/tilecache.hh"
 #include "lockmgr/lockmanager.hh"
@@ -614,20 +615,20 @@ closeTransaction(bool doCommit)
 
 void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 {
-    INFO("  Result object " << resultIndex << ": ");
+    INFO("  Result element " << resultIndex << ": ");
 
     switch (data->getDataType())
     {
     case QT_BOOL:
-        INFO(*((bool*) buffer) << flush);
+        INFO((*((bool*) buffer) ? "t" : "f") << flush);
         break;
 
     case QT_CHAR:
-        INFO(*((r_Char*) buffer) << flush);
+        INFO(static_cast<int>(*((r_Char*) buffer)) << flush);
         break;
 
     case QT_OCTET:
-        INFO(*((r_Octet*) buffer) << flush);
+        INFO(static_cast<int>(*((r_Octet*) buffer)) << flush);
         break;
 
     case QT_SHORT:
@@ -647,12 +648,31 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
         break;
 
     case QT_FLOAT:
-        INFO(*((r_Float*) buffer) << flush);
+        INFO(std::setprecision(std::numeric_limits<float>::digits10 + 1) << *((r_Float*) buffer) << flush);
         break;
 
     case QT_DOUBLE:
-        INFO(*((r_Double*) buffer) << flush);
+        INFO(std::setprecision(std::numeric_limits<double>::digits10 + 1) << *((r_Double*) buffer) << flush);
         break;
+
+    case QT_COMPLEXTYPE1:
+    {
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
+        ComplexType1* ct = static_cast<ComplexType1*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+        auto re = *((r_Float*) (buffer + ct->getReOffset()));
+        auto im = *((r_Float*) (buffer + ct->getImOffset()));
+        INFO("(" << re << "," << im << ")" << flush)
+        break;
+    }
+    case QT_COMPLEXTYPE2:
+    {
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
+        ComplexType2* ct = static_cast<ComplexType2*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+        auto re = *((r_Double*) (buffer + ct->getReOffset()));
+        auto im = *((r_Double*) (buffer + ct->getImOffset()));
+        INFO("(" << re << "," << im << ")" << flush)
+        break;
+    }
 
     case QT_COMPLEX:
     {
@@ -670,7 +690,7 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 
             buffer += bt->getSize();
         }
-        INFO(" }");
+        INFO(" }" << flush);
     }
     break;
 
@@ -1122,10 +1142,16 @@ void doStuff()
             result.typeName = NULL;
             result.typeStructure = NULL;
 
-            unsigned short status = server->executeQuery(DQ_CLIENT_ID, queryString, result);
+            unsigned short status =
+                server->executeQuery(DQ_CLIENT_ID, queryString, result);
 
-            if (status >= 0 && status <= 2)
+            if (status >= 0 && status <= 2) {
                 printOutput(status, &result);
+            } else {
+                r_Equery_execution_failed e(
+                    result.errorNo, result.lineNo, result.columnNo, result.token);
+                LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
+            }
             
             freeResult(&result);
 
@@ -1193,6 +1219,7 @@ int main(int argc, char** argv)
         openDatabase();
         doStuff();
         closeDatabase();
+ 
         retval = EXIT_SUCCESS;
     }
 

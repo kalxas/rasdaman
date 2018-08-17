@@ -1,1 +1,1 @@
-select encode(cosh({x.0,x.2,x.1}), "png") from test_rgb2 as x
+select (cosh({x.0,x.2,x.1}))[0:9,90:99] from test_rgb2 as x

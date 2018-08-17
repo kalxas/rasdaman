@@ -102,7 +102,7 @@ grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(__attribute__ ((un
         __attribute__ ((unused)) const rasnet::service::ServerStatusReq* request, 
         rasnet::service::ServerStatusRepl* response)
 {
-    LDEBUG << "GetServerStatus";
+    LTRACE << "GetServerStatus";
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());
     return grpc::Status::OK;
 }

@@ -74,6 +74,8 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lcrypto                \
        -lcrypt
 
+LIBS_UBUNTU = $(LIBS) -lmfhdfalt
+
 DEFS = -DEARLY_TEMPLATE
 
 
@@ -85,7 +87,7 @@ query.o: query.cc
 
 
 bin: query.o
-	$(LINKER) $(FLAGS) -o query query.o $(LIBS)
+	$(LINKER) $(FLAGS) -o query query.o $(LIBS) || $(LINKER) $(FLAGS) -o query query.o $(LIBS_UBUNTU)
 
 
 clean:

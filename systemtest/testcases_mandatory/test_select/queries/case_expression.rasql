@@ -1,1 +1,1 @@
-select case when test_grey2>0 then test_grey2*2c+42c else 0c end from test_grey2
+select case when test_grey2>0 then (long)(test_grey2*2c+42c) else 0l end from test_grey2

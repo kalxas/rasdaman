@@ -1,1 +1,1 @@
-select encode(100*arcsin({c.0+1,c.1+1,c.2+1}), "png") from test_rgb2 as c
+select (100*arcsin({c.0+1,c.1+1,c.2+1}))[0:9,90:99] from test_rgb2 as c

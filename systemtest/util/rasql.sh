@@ -100,7 +100,7 @@ function is_coll_empty()
 function check_user_type()
 {
   local SET_TYPE="$1"
-  $RASDL -p | egrep --quiet "\b$SET_TYPE\b"
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet "\b$SET_TYPE\b"
 }
 
 
@@ -111,10 +111,8 @@ function check_user_type()
 function check_type()
 {
   SET_TYPE="$1"
-  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
-  if [ $? -ne 0 ]; then
-    error "rasdaman basic type $SET_TYPE not found, please insert with rasdl first."
-  fi
+  $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\b$SET_TYPE\b" \
+    || error "rasdaman type $SET_TYPE not found, please create it first."
 }
 
 

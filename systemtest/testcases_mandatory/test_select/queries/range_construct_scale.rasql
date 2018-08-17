@@ -1,1 +1,1 @@
-select {c, c, scale(c, [0:100,0:100])} from test_rgb2 as c
+select {c, c, scale(c, [0:100,0:100])} from test_grey2 as c

@@ -78,7 +78,9 @@ TEST_SUBSETTING_3D=test_subsetting_3d
 # command shortcuts
 #
 export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
-              --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
+              --passwd $RASMGR_ADMIN_PASSWD"
+export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD \
+                 --database $RASDB"
 # This one is used only for test_rasdapy
 export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
               --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
@@ -433,7 +435,7 @@ update_result()
 
   local rc=$?
 
-  grep "$f" "$KNOWN_FAILS" &> /dev/null
+  grep -F "$f" "$KNOWN_FAILS" &> /dev/null
   local known_fail=$?
 
   if [ $rc != 0 ]; then
@@ -509,7 +511,7 @@ run_rasql_test()
   # if the result is a scalar, there will be no tmp file by rasql,
   # here we output the Result element scalar into tmp.unknown
   if [ ! -f "$out" ]; then
-    $RASQL -q "$QUERY" --out string | grep Result > $out
+    $RASQL -q "$QUERY" --out string | grep "  Result " > $out
   fi
 
   cmp "$oracle" "$out"
@@ -824,7 +826,8 @@ run_test()
               fi
 
               # if an exception was thrown, then the err file has non-zero size
-              if [ -s "$err" ]; then
+              grep -q "Warning 6: PNG" "$err"
+              if [ -s "$err" -a $? -ne 0 ]; then
                 mv "$err" "$out"
 
               else
@@ -839,7 +842,7 @@ run_test()
                 # if the result is a scalar, there will be no tmp file by rasql,
                 # here we output the Result element scalar into tmp.unknown
                 if [ ! -f "$out" ]; then
-                    $RASQL -q "$QUERY" --out string | grep Result > $out
+                    $RASQL -q "$QUERY" --out string | grep "  Result " > $out
                 fi
               fi
               ;;              

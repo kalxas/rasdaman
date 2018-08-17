@@ -1,1 +1,1 @@
-select encode({(case when c.0 = 0 then 0c else mod(c.2, c.0) end),c.1,c.2}, "png") from test_rgb2 as c
+select encode({(case when c.0 = 0 then 0c else (char) mod(c.2, c.0) end),c.1,c.2}, "png") from test_rgb2 as c

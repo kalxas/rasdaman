@@ -36,7 +36,6 @@
 # ------------------------------------------------------------------------------
 # rasdaman connection details
 #
-export RASDB=RASBASE
 export RASMGR_PORT=7001
 export RASMGR_HOST=localhost
 export RASMGR_ADMIN_USER=rasadmin
@@ -45,6 +44,7 @@ export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
 export RMANHOME=@CMAKE_INSTALL_PREFIX@
 export RASMGR_CONF=$RMANHOME/etc/rasmgr.conf
+export RASDB="$(grep define $RASMGR_CONF | grep connect | awk '{ print $5 }')"
 export ENABLE_JAVA=@ENABLE_JAVA@
 
 

@@ -1,1 +1,1 @@
-select encode({(case when c.2 = 0 then 0c else div(c.0, c.2) end),c.1,c.2}[100:109,100:109], "csv") from test_rgb2 as c
+select encode({(case when c.2 = 0 then 0l else (long)div(c.0, c.2) end),c.1,c.2}[100:109,100:109], "csv") from test_rgb2 as c
