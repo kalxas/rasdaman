@@ -21,6 +21,8 @@
  */
 package petascope.wcst.helpers.update;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import petascope.exceptions.PetascopeException;
 
 /**
@@ -28,11 +30,29 @@ import petascope.exceptions.PetascopeException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public interface RasdamanUpdater {
+public abstract class RasdamanUpdater {
 
     /**
      * Updates rasdaman data.
      * @throws petascope.exceptions.PetascopeException
      */
-    public void update() throws PetascopeException;
+    public abstract void update() throws PetascopeException;
+    
+    /**
+     * Check if it needs to add shift() in Rasql query to update collection.
+     * If input calculated shift domain contains only zeroes, e.g: [0,0,...0] 
+     * then no need to shift() as decode(<[0:0] 1c> already produces this shift to [0,0,...0].
+     */
+    protected boolean needShiftDomain(String calculatedShiftDomain) {
+        String patternStr = "\\[[0,]+\\]";
+        
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(calculatedShiftDomain);
+        if (matcher.find()) {
+            // Only contains 0,0,...0
+            return false;
+        }
+        
+        return true;        
+    }
 }

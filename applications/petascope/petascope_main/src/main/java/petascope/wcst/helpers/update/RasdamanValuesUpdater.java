@@ -33,7 +33,7 @@ import petascope.util.ras.RasUtil;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 @Service
-public class RasdamanValuesUpdater implements RasdamanUpdater {
+public class RasdamanValuesUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
     String affectedCollectionOid;

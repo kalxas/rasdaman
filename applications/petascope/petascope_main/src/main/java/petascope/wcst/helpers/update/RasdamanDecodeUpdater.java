@@ -21,10 +21,8 @@
  */
 package petascope.wcst.helpers.update;
 
-import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.ras.RasUtil;
 
-import java.io.IOException;
 import petascope.exceptions.PetascopeException;
 
 /**
@@ -32,7 +30,7 @@ import petascope.exceptions.PetascopeException;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class RasdamanDecodeUpdater implements RasdamanUpdater {
+public class RasdamanDecodeUpdater extends RasdamanUpdater {
 
     String affectedCollectionName;
     String affectedCollectionOid;
@@ -58,11 +56,17 @@ public class RasdamanDecodeUpdater implements RasdamanUpdater {
 
     @Override
     public void update() throws PetascopeException {
-        String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
+        String templateStr = UPDATE_TEMPLATE_FILE;
+        if (!this.needShiftDomain(shiftDomain)) {
+            templateStr = UPDATE_TEMPLATE_FILE_NO_SHIFT;
+        }
+        
+        String queryString = templateStr.replace("$collection", affectedCollectionName)
                              .replace("$domain", affectedDomain)
                              .replace("$oid", affectedCollectionOid)
                              .replace("$rangeParams", rangeParameters)
                              .replace("$shiftDomain", shiftDomain);
+        
         RasUtil.executeUpdateFileStatement(queryString);
     }
 
@@ -73,4 +77,8 @@ public class RasdamanDecodeUpdater implements RasdamanUpdater {
     private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain "
                                                      + "ASSIGN shift(decode(<[0:0] 1c>, "
                                                      + "\"GDAL\"" + ", \"$rangeParams\"), $shiftDomain) WHERE oid($collection) = $oid";
+    
+    private static final String UPDATE_TEMPLATE_FILE_NO_SHIFT = "UPDATE $collection SET $collection$domain "
+                                                     + "ASSIGN decode(<[0:0] 1c>, "
+                                                     + "\"GDAL\"" + ", \"$rangeParams\") WHERE oid($collection) = $oid";
 }
