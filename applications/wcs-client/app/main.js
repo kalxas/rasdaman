@@ -488,6 +488,30 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var common;
+    (function (common) {
+        function scrollToBottom($timeout, $window) {
+            return {
+                scope: {
+                    scrollToBottom: "="
+                },
+                restrict: 'A',
+                link: function (scope, element, attr) {
+                    scope.$watchCollection('scrollToBottom', function (newVal) {
+                        if (newVal) {
+                            $timeout(function () {
+                                element[0].scrollTop = element[0].scrollHeight;
+                            }, 0);
+                        }
+                    });
+                }
+            };
+        }
+        common.scrollToBottom = scrollToBottom;
+    })(common = rasdaman.common || (rasdaman.common = {}));
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var Constants = (function () {
         function Constants() {
         }
@@ -4481,15 +4505,15 @@ var rasdaman;
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(function (response) {
-                            $scope.coverageDescriptions = response.value;
-                            var dimensions = $scope.coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                            var coverageDescriptions = response.value;
+                            var dimensions = coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
                             for (var j = 0; j <= dimensions; ++j) {
                                 $scope.firstChangedSlider.push(false);
                             }
                             $("#sliders").empty();
                             $scope.display3DLayerNotification = dimensions > 2 ? true : false;
                             var showGetMapURL = false;
-                            var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                            var bands = coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
                             if (bands <= 4) {
                                 showGetMapURL = true;
                                 var bbox = coveragesExtents[0].bbox;
@@ -5179,6 +5203,20 @@ var rasdaman;
                 positionX: 'right',
                 positionY: 'top'
             });
+            $.fn.followTo = function (pos) {
+                var $window = $(Window);
+                $window.scroll(function (e) {
+                    if ($window.scrollTop() > pos) {
+                        $('body').css('background-attachment', 'fixed');
+                        $('body').css('background-position', 'top -201px center');
+                    }
+                    else {
+                        $('body').css('background-attachment', 'absolute');
+                        $('body').css('background-position', 'top ' + -$window.scrollTop() + 'px center');
+                    }
+                });
+            };
+            $('body').followTo(210);
         }
         AngularConfig.$inject = [
             "$httpProvider",
@@ -5226,7 +5264,8 @@ var rasdaman;
         .directive("wwdDisplay", rasdaman.WebWorldWindDisplayWidget)
         .directive("rasPrettyPrint", rasdaman.common.PrettyPrint)
         .directive("stringToNumberConverter", rasdaman.common.StringToNumberConverter)
-        .directive("autocomplete", rasdaman.common.Autocomplete);
+        .directive("autocomplete", rasdaman.common.Autocomplete)
+        .directive("scrollToBottom", rasdaman.common.scrollToBottom);
 })(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
