@@ -604,6 +604,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 body {
     background-image: url("../img/bg-outer.jpg");
     background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .tooltip {

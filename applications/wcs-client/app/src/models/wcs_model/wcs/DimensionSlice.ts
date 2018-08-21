@@ -26,10 +26,18 @@
 module wcs {
     export class DimensionSlice extends DimensionSubset {
         public slicePoint:string;
+        public sliceIrrNotValid:boolean;
+        public sliceRegularNotValid:boolean;
+        public typeOfSliceNotValidDate:boolean;
+        public typeOfSliceNotValidNumber:boolean;
 
         public constructor(dimension:string, slicePoint:string) {
             super(dimension);
             this.slicePoint = slicePoint;
+            this.sliceIrrNotValid = false;
+            this.sliceRegularNotValid = false;
+            this.typeOfSliceNotValidDate = false;
+            this.typeOfSliceNotValidNumber = false;
         }
 
         public toKVP():string {

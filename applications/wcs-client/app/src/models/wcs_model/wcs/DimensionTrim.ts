@@ -27,12 +27,26 @@ module wcs {
     export class DimensionTrim extends DimensionSubset {
         public trimLow:string;
         public trimHigh:string;
+        public trimLowNotValid:boolean;
+        public trimHighNotValid:boolean;
+        public trimLowerUpperBoundNotInOrder:boolean;
+        public typeOfTrimUpperNotValidDate:boolean;
+        public typeOfTrimLowerNotValidDate:boolean;
+        public typeOfTrimUpperNotValidNumber:boolean;
+        public typeOfTrimLowerNotValidNumber:boolean;
 
         public constructor(dimension:string, trimLow?:string, trimHigh?:string) {
             super(dimension);
 
             this.trimLow = trimLow;
             this.trimHigh = trimHigh;
+            this.trimHighNotValid = false;
+            this.trimLowNotValid = false;
+            this.trimLowerUpperBoundNotInOrder = false;
+            this.typeOfTrimLowerNotValidDate = false;
+            this.typeOfTrimLowerNotValidNumber = false;
+            this.typeOfTrimUpperNotValidDate = false;
+            this.typeOfTrimUpperNotValidNumber = false;
         }
 
         public toKVP():string {

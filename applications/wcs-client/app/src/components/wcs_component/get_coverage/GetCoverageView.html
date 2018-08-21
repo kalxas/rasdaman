@@ -81,37 +81,99 @@
                                 <div class="col-sm-12">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            Subset coverage along axis
+                                            Subset coverage along {{typeOfAxis[$index]}} axis
                                             <span class="important-text">
-                        {{axisLabel}}
-                    </span> with domain extent from
+                                                {{axisLabel}}
+                                            </span> with domain extent from
                                             <span class="important-text"> {{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}} {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> to
-                                            <span class="important-text">{{coverageDescription.boundedBy.envelope.UpperCorner.values[$index]}}  {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> by:
+                                            <span class="important-text"> {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}  {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> by:
                                         </div>
                                     </div>
                                     <div class="row">
                                         <ul class="bullet-less">
                                             <li class="top5">
                                                 <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="true"> trimming from
-                                                <input type="string" ng-model="core.trims[$index].trimLow" ng-disabled="!core.isTrimSelected[$index]">
+                                                <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMin' + $index}}" ng-model="item2" 
+                                                       ng-change="selectTrimIrregularMin($index)" ng-attr-id="{{'trimmIrrMin' + $index}}" 
+                                                       ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
+                                                <datalist  class="form-control" ng-attr-id="{{'trimmIrrValuesMin' + $index}}" ng-hide="true">
+                                                </datalist>
+
+                                                <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimLow" ng-change="inputValidator($index)" 
+                                                       ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
                                                 <span class="important-text">
-			                                {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-			                            </span> to
-                                                <input type="string" ng-model="core.trims[$index].trimHigh" ng-disabled="!core.isTrimSelected[$index]">
+			                                        {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                </span> 
+                                                to
+                                                <input class="valuesContainer" type="string" list="{{'trimmIrrValuesMax' + $index}}" ng-model="item1" 
+                                                       ng-change="selectTrimIrregularMax($index)" ng-attr-id="{{'trimmIrrMax' + $index}}" 
+                                                       ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="!core.isTrimSelected[$index]"/>
+                                                <datalist  class="form-control" ng-attr-id="{{'trimmIrrValuesMax' + $index}}" ng-hide="true">
+                                                </datalist>
+                                                <input class="valuesContainer" type="string" ng-model="core.trims[$index].trimHigh" ng-change="inputValidator($index)" 
+                                                       ng-show="typeOfAxis[$index] == 'regular'" ng-disabled="!core.isTrimSelected[$index]">
                                                 <span class="important-text">
-		                                        {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-		                                    </span>
+		                                            {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                </span>
+                                                <span ng-show="core.trims[$index].trimLowNotValid" style="color:#ff0000">
+                                                    Lower bound {{core.trims[$index].trimLow}} is not within axis's domain 
+                                                    [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                </span>
+                                                <span ng-show="core.trims[$index].trimHighNotValid" style="color:#ff0000">
+                                                    Upper bound {{core.trims[$index].trimHigh}} is not within axis's domain 
+                                                    [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                </span>
+                                                <span ng-show="core.trims[$index].trimLowerUpperBoundNotInOrder" style="color:#ff0000">
+                                                    Upper bound must be greater than lower bound.
+                                                </span>
+                                                <span ng-show="core.trims[$index].typeOfTrimUpperNotValidDate" style="color:#ff0000">
+                                                    Upper bound is not ISO 8601 format.
+                                                </span>
+                                                <span ng-show="core.trims[$index].typeOfTrimLowerNotValidDate" style="color:#ff0000">
+                                                    Lower bound is not ISO 8601 format.
+                                                </span>
+                                                <span ng-show="core.trims[$index].typeOfTrimUpperNotValidNumber" style="color:#ff0000">
+                                                    Upper bound is not number.
+                                                </span>
+                                                <span ng-show="core.trims[$index].typeOfTrimLowerNotValidNumber" style="color:#ff0000">
+                                                    Lower bound is not number.
+                                                </span>
                                             </li>
 
                                             <li class="top5">
                                                 <input type="radio" ng-model="core.isTrimSelected[$index]" ng-value="false"> slicing at
-                                                <input type="string" ng-model="core.slices[$index].slicePoint" ng-disabled="core.isTrimSelected[$index]" style="margin-left: 28px;">
-                                                <span class="important-text">
-		                                    {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
-		                                </span>
+                                                <input class="valuesContainer" type="string" list="{{'sliceIrrValues' + $index}}" ng-model="item3" 
+                                                       ng-change="selectSliceIrregular($index)" ng-attr-id="{{'sliceIrr' + $index}}" 
+                                                       ng-show="typeOfAxis[$index] == 'irregular'" ng-disabled="core.isTrimSelected[$index]" 
+                                                       style="margin-left: 28px;"/>
+                                                <datalist  class="form-control" ng-attr-id="{{'sliceIrrValues' + $index}}" ng-hide="true">
+                                                </datalist>
+
+                                                <input class="valuesContainer" type="string" ng-model="core.slices[$index].slicePoint" 
+                                                       ng-show="typeOfAxis[$index] == 'regular'" ng-change="inputValidator($index)" 
+                                                       ng-disabled="core.isTrimSelected[$index]" style="margin-left: 28px;">
+                                                
+                                                <span class="important-text" style="display:inline-block;">
+                                                    {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}
+                                                </span>
+                                                <span ng-show="core.slices[$index].sliceIrrNotValid" style="color:#ff0000">
+                                                        value {{core.slices[$index].slicePoint}} does not exist in axis's direct position values
+                                                </span>
+                                                <span ng-show="core.slices[$index].sliceRegularNotValid" style="color:#ff0000">
+                                                    value {{core.slilces[$index].slicePoint}} is not within axis's domain 
+                                                    [{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}:{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]
+                                                </span>
+                                                <span ng-show="core.slices[$index].typeOfSliceNotValidDate" style="color:#ff0000">
+                                                    Input value is not ISO 8601 format.
+                                                </span>
+                                                <span ng-show="core.slices[$index].typeOfSliceNotValidNumber" style="color:#ff0000">
+                                                    Input value is not number.
+                                                </span>
                                             </li>
                                         </ul>
                                     </div>
+                                    
+                                    <hr style="BORDER-RIGHT: medium none; BORDER-TOP: #cccccc 1px solid; BORDER-LEFT: medium none; BORDER-BOTTOM: medium none; HEIGHT: 1px"> 
                                 </div>
                             </div>
                         </div>

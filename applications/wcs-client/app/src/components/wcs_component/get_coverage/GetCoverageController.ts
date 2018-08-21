@@ -84,7 +84,7 @@ module rasdaman {
                 }
             });
 
-            $scope.loadCoverageExtentOnGlobe = function() {
+            $scope.loadCoverageExtentOnGlobe = function () {
                 // Fetch the coverageExtent by coverageId to display on globe if possible
                 var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);                            
                 if (coverageExtentArray == null) {
@@ -126,14 +126,120 @@ module rasdaman {
                     $scope.loadCoverageExtentOnGlobe();
                 }
             }
-           
 
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions",
                 (coverageDescriptions:wcs.CoverageDescriptions)=> {
                     if (coverageDescriptions && coverageDescriptions.coverageDescription) {
                         $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
                         $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
-                        oldSelectedCoverageId = $scope.selectedCoverageId;
+                        $scope.typeOfAxis = [];
+                        $scope.isTemporalAxis = [];
+
+                        var coverageIds:string[] = [];
+                        coverageIds.push($scope.selectedCoverageId);
+                        var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
+                        var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
+
+                        var rawCoverageDescription;
+                        var regularAxis = 'regular';
+                        var irregularAxis = 'irregular';
+
+                        for (var i = 0; i < numberOfAxis; ++i) {
+                            var el = +$scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+
+                                if (isNaN(el)) {
+                                    $scope.isTemporalAxis[i] = true;
+                                }
+                                else {
+                                    $scope.isTemporalAxis[i] = false;
+                                }
+                        }
+                        
+                        wcsService.getCoverageDescription(describeCoverageRequest)
+                        .then(
+                            (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
+                                //Success handler
+                                $scope.coverageDescriptionsDocument = response.document;
+
+                                rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
+
+                                // Set each axis if it is regular of irregular
+
+                                var startPos = rawCoverageDescription.indexOf("<gmlrgrid:coefficients>");
+                                var endPos;
+                                            
+                                if (startPos != -1) {
+                                    // then the coverage has irregular axis
+                                    for (var it1 = 0; it1 < numberOfAxis; ++it1) {
+                                        startPos = 0;
+                                        $("#sliceIrrValues" + it1).empty();
+                                        $("#trimmIrrValuesMin" + it1).empty();
+                                        $("#trimmIrrValuesMax" + it1).empty();
+
+                                        for (var it2 = 0; it2 <= it1; ++it2) {
+                                            startPos = rawCoverageDescription.indexOf("<gmlrgrid:generalGridAxis>", startPos);
+                                            startPos = rawCoverageDescription.indexOf(">", startPos + 1);
+                                            endPos = rawCoverageDescription.indexOf("</gmlrgrid:generalGridAxis>", startPos);
+                                        }
+
+                                        startPos = rawCoverageDescription.indexOf("<gmlrgrid:coefficients>", startPos);
+
+                                        if (startPos != -1 && startPos < endPos) {
+                                            // then this is an irregular axis
+                                            $scope.typeOfAxis.push(irregularAxis);
+                                            endPos = rawCoverageDescription.indexOf("</gmlrgrid:coefficients>", startPos);
+                                            startPos  = rawCoverageDescription.indexOf(">", startPos + 1);
+                                            startPos++;
+                                            // get elements of irregular axis
+                                            var rawIrrElements = rawCoverageDescription.substring(startPos, endPos);
+
+                                            var st = rawIrrElements.indexOf(' ');
+                                            var element;
+                                            var noEl = 0;
+
+                                            while (st != -1) {
+                                                //create the select elements for the view
+                                                var element = rawIrrElements.substring(0, st);
+                                                $("#sliceIrrValues" + it1).append(
+                                                    $('<option id="' + noEl + '"/>').attr("value", element)
+                                                );
+                                                $("#trimmIrrValuesMin" + it1).append(
+                                                    $('<option id="' + noEl + '"/>').attr("value", element)
+                                                );
+                                                $("#trimmIrrValuesMax" + it1).append(
+                                                    $('<option id="' + noEl + '"/>').attr("value", element)
+                                                );
+                                                rawIrrElements = rawIrrElements.substring(st + 1, rawIrrElements.length);
+                                                st = rawIrrElements.indexOf(' ');
+                                                noEl++;
+                                            }
+
+                                            element = rawIrrElements;
+                                            $("#trimmIrrValuesMin" + it1).append(
+                                                $('<option id="' + noEl + '"/>').attr("value", element)
+                                            );
+                                            $("#trimmIrrValuesMax" + it1).append(
+                                                $('<option id="' + noEl + '"/>').attr("value", element)
+                                            );
+                                            $("#sliceIrrValues" + it1).append(
+                                                $('<option id="' + noEl + '"/>').attr("value", element)
+                                            );
+                                        }
+                                        else {
+                                            // then this axis is regular
+                                            $scope.typeOfAxis.push(regularAxis);
+                                        }
+                                    }
+                                }
+                                else {
+                                    // then there is no irregular axis
+                                    for (var it = 0; it < numberOfAxis; ++it) {
+                                        $scope.typeOfAxis.push(regularAxis);
+                                    }
+                                }
+
+                        });
+
                         $scope.getCoverageTabStates = {                            
                             isCoreOpen: true,
                             isRangeSubsettingOpen: false,
@@ -158,7 +264,6 @@ module rasdaman {
                             requestUrl: null
                         };
 
-                        var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
                         for (var i = 0; i < numberOfAxis; ++i) {
                             var dimension = $scope.coverageDescription.boundedBy.envelope.axisLabels[i];
                             var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
@@ -232,6 +337,233 @@ module rasdaman {
                             }                           
                         };
 
+                        $scope.typeOfInputIsNotValid = function(isTemporalAxis:boolean, value:any):boolean {
+                            if (isTemporalAxis) {
+                                value = value.substr(1, value.length - 2);
+                                value = new Date(value);
+                                if (isNaN(value.getTime())) {
+                                    return true;
+                                }
+                            }
+                            else {
+                                if (isNaN(value)) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }
+
+                        $scope.trimValidator = function(i:number, min:any, max:any):void {
+                            $scope.core.trims[i].trimLowNotValid = false;
+                            $scope.core.trims[i].trimHighNotValid = false;
+                            $scope.core.trims[i].trimLowerUpperBoundNotInOrder = false;
+                            $scope.core.trims[i].typeOfTrimUpperNotValidDate = false;
+                            $scope.core.trims[i].typeOfTrimUpperNotValidNumber = false;
+                            $scope.core.trims[i].typeOfTrimLowerNotValidDate = false;
+                            $scope.core.trims[i].typeOfTrimLowerNotValidNumber = false;
+
+                            var minTrimSelected:any;
+                            var maxTrimSelected:any;
+
+                                if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], $scope.core.trims[i].trimLow)) {
+                                    if($scope.isTemporalAxis[i]) {
+                                        $scope.core.trims[i].typeOfTrimLowerNotValidDate = true;
+                                    }
+                                    else {
+                                        $scope.core.trims[i].typeOfTrimLowerNotValidNumber = true;
+                                    }
+                                }
+                                if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], $scope.core.trims[i].trimHigh)) {
+                                    if($scope.isTemporalAxis[i]) {
+                                        $scope.core.trims[i].typeOfTrimUpperNotValidDate = true;
+                                    }
+                                    else {
+                                        $scope.core.trims[i].typeOfTrimUpperNotValidNumber = true;
+                                    }
+                                }
+
+                                if ($scope.isTemporalAxis[i]) {
+
+                                    minTrimSelected = $scope.core.trims[i].trimLow;
+                                    minTrimSelected = minTrimSelected.substr(1, minTrimSelected.length - 2);
+                                    minTrimSelected = new Date(minTrimSelected);
+
+                                    maxTrimSelected = $scope.core.trims[i].trimHigh;
+                                    maxTrimSelected = maxTrimSelected.substr(1, maxTrimSelected.length - 2);
+                                    maxTrimSelected = new Date(maxTrimSelected);
+                                }
+                                else {
+                                    minTrimSelected = +$scope.core.trims[i].trimLow;
+                                    maxTrimSelected = +$scope.core.trims[i].trimHigh;
+                                }
+                                    
+                                if (minTrimSelected < min) {
+                                    $scope.core.trims[i].trimLowNotValid = true;
+                                }
+
+                                if (maxTrimSelected > max) {
+                                    $scope.core.trims[i].trimHighNotValid = true;
+                                }
+
+                                if (minTrimSelected > maxTrimSelected) {
+                                    $scope.core.trims[i].trimLowerUpperBoundNotInOrder = true;
+                                }
+                        }
+
+                        $scope.sliceValidator = function (i:number, min:any, max:any):void {
+                            $scope.core.slices[i].sliceRegularNotValid = false;
+                            $scope.core.slices[i].typeOfSliceNotValidDate = false;
+                            $scope.core.slices[i].typeOfSliceNotValidNumber = false;
+
+                            var sliceSelected:any; 
+
+                            if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], $scope.core.slices[i].slicePoint)) {
+                                if($scope.isTemporalAxis[i]) {
+                                    $scope.core.slices[i].typeOfSliceNotValidDate = true;
+                                }
+                                else {
+                                    $scope.core.slices[i].typeOfSliceNotValidNumber = true;
+                                }
+                            }
+
+                            if ($scope.isTemporalAxis[i]) {
+                                sliceSelected = $scope.core.slices[i].slicePoint;
+                                sliceSelected = sliceSelected.substr(1, sliceSelected.length - 2);
+                                sliceSelected = new Date(sliceSelected);
+                            }
+                            else {
+                                sliceSelected = +$scope.core.slices[i].slicePoint;
+                            }
+
+                            if (sliceSelected < min || sliceSelected > max) {
+                                $scope.core.slices[i].sliceRegularNotValid = true;
+                            }
+                        }
+
+                        $scope.inputValidator = function (i:number):void {
+
+                                var min:any;
+                                var max:any;
+
+                                min = +$scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                                max = +$scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+
+                                if ($scope.isTemporalAxis[i]) {
+                                    // The axis is temporal
+                                    min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                                    min = min.substr(1, min.length - 2);
+                                    min = new Date(min);
+
+                                    max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                                    max = max.substr(1, max.length - 2);
+                                    max = new Date(max);
+                                }
+
+                                if ($scope.core.isTrimSelected[i]) {
+
+                                    $scope.trimValidator(i, min, max);
+                                }
+                                else {
+
+                                    $scope.sliceValidator(i, min, max);
+                                }
+                            
+                        };
+
+                        $scope.selectSliceIrregular = function (i:number) {
+                            $scope.core.slices[i].typeOfSliceNotValidDate = false;
+                            $scope.core.slices[i].typeOfSliceNotValidNumber = false;
+
+                            var id = "#sliceIrr" + i;
+                            var selectedValue = $(id).val();
+                            if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], selectedValue)) {
+                                if($scope.isTemporalAxis[i]) {
+                                    $scope.core.slices[i].typeOfSliceNotValidDate = true;
+                                }
+                                else {
+                                    $scope.core.slices[i].typeOfSliceNotValidNumber = true;
+                                }
+                            }
+                            $scope.core.slices[i].slicePoint = selectedValue;
+                        }
+
+                        var operationLess = function (a:number, b:number):boolean {
+                            return a < b;
+                        }
+
+                        var operationMore = function (a:number, b:number):boolean {
+                            return a > b;
+                        }
+
+                        $scope.selectTrimIrregularMin = function (i:number) {
+                            $scope.core.trims[i].typeOfTrimLowerNotValidDate = false;
+                            $scope.core.trims[i].typeOfTrimLowerNotValidNumber = false;
+
+                            var id = "#trimmIrrMin" + i;
+                            var selectedValue = $(id).val();
+                            if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], selectedValue)) {
+                                if($scope.isTemporalAxis[i]) {
+                                    $scope.core.trims[i].typeOfTrimLowerNotValidDate = true;
+                                }
+                                else {
+                                    $scope.core.trims[i].typeOfTrimLowerNotValidNumber = true;
+                                }
+                            }
+                            console.log(selectedValue);
+
+                            $scope.core.trims[i].trimLow = selectedValue;
+                            $scope.disableUnwantedValues("#trimmIrrValuesMin" + i, '#trimmIrrValuesMax' + i, selectedValue, operationLess);
+                        }
+
+                        $scope.selectTrimIrregularMax = function (i:number) {
+                            $scope.core.trims[i].typeOfTrimUpperNotValidDate = false;
+                            $scope.core.trims[i].typeOfTrimUpperNotValidNumber = false;
+
+                            var id = "#trimmIrrMax" + i;
+                            var selectedValue = $(id).val();
+                            if ($scope.typeOfInputIsNotValid($scope.isTemporalAxis[i], selectedValue)) {
+                                if($scope.isTemporalAxis[i]) {
+                                    $scope.core.trims[i].typeOfTrimUpperNotValidDate = true;
+                                }
+                                else {
+                                    $scope.core.trims[i].typeOfTrimUpperNotValidNumber = true;
+                                }
+                            }
+
+                            $scope.core.trims[i].trimHigh = selectedValue;
+
+                            $scope.disableUnwantedValues("#trimmIrrValuesMax" + i, '#trimmIrrValuesMin' + i, selectedValue, operationMore);
+                        }
+
+                        $scope.disableUnwantedValues = function (firstId:string, secondId:string, selectedValue:string, op:any) {
+                            var id = firstId;
+                            var idSelectedOption:any;
+                            var idOptionSecondSelect:number;
+                            var wrongSelection = false;
+
+                            idSelectedOption = $(id).find("option[value='" + selectedValue +"']").attr("id");
+                            idSelectedOption = +idSelectedOption;
+                            $(secondId).find('option').each(function() {
+                                idOptionSecondSelect = +$(this).attr("id");
+                                
+                                if (op(idOptionSecondSelect, idSelectedOption)) {
+                                    if($(this).prop('selected') == true) {
+                                        wrongSelection = true;
+                                    }
+                                    
+                                    $(this).prop('disabled', true);
+                                }
+                                else {
+                                    $(this).removeAttr('disabled');
+
+                                    if (wrongSelection == true) {
+                                        $(this).prop('selected', true);
+                                    }
+                                }
+                            });
+                        }
+
                         // Load the coverage extent on globe
                         $scope.loadCoverageExtentOnGlobe();
                     }
@@ -261,6 +593,19 @@ module rasdaman {
         isGlobeOpen:boolean;
         // Is the div containing Globe show/hide
         isGetCoverageHideGlobe:boolean;
+
+        inputValidator(i:number):void;
+        trimValidator(i:number, min:any, max:any):void;
+        sliceValidator(i:number, min:any, max:any):void;
+        typeOfInputIsNotValid(isTemporalAxis:boolean, value:any):boolean;
+        isSliceInIrrData(axis:number, value:any):boolean;
+        selectSliceIrregular(i:number):void;
+        selectTrimIrregularMin(i:number):void;
+        selectTrimIrregularMax(i:number):void;
+        disableUnwantedValues(firstId:string, secondId:string, selectedValue:string, op:any);
+        showIrrAxisValues:boolean[];
+        typeOfAxis:string[];
+        isTemporalAxis:boolean[];
 
         availableCoverageIds:string[];
         selectedCoverageId:string;

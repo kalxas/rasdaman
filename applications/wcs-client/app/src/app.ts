@@ -98,7 +98,6 @@ module rasdaman {
                 }
             });
 
-            
             NotificationProvider.setOptions({
                 delay: 10000,
                 startTop: 20,
@@ -125,7 +124,7 @@ module rasdaman {
                 });
             };
 
-            $('body').followTo(210);
+           // $('body').followTo(210);
         }
     }
 
