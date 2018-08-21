@@ -64,7 +64,7 @@ public class ExtendExpressionHandler extends AbstractOperatorHandler {
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // extend(coverageExpression, {domainIntervals})
         List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
-        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata, true);
+        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata.getAxes());
         
         if (metadata.getAxes().size() != subsets.size()) {
             throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());

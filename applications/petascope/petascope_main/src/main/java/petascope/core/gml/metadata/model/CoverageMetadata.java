@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 /**
@@ -102,7 +103,7 @@ public class CoverageMetadata {
     */
     public boolean containLocalMetadataInList(LocalMetadataChild localMetadata) {
         boolean elementExist = false;
-        for (LocalMetadataChild element : this.localMetadata.getLocalMetadataList()) {
+        for (LocalMetadataChild element : this.localMetadata.getLocalMetadataChildList()) {
             if (element.getBoundedBy().getEnvelope().equals(localMetadata.getBoundedBy().getEnvelope())) {
                 elementExist = true;
                 break;
@@ -116,6 +117,37 @@ public class CoverageMetadata {
      * Add a new localMetadata to list of local metadata root.
      */
     public void addLocalMetadataToList(LocalMetadataChild localMetadata) {
-        this.localMetadata.getLocalMetadataList().add(localMetadata);
+        this.localMetadata.getLocalMetadataChildList().add(localMetadata);
+    }
+    
+    /**
+     * If global metadata (a map of string:string), nothing to do.
+     * If local metadata (a list of LocalMetadataChild), aggregate by keys and concatenate values
+     * from this list to 1 map of keys:concatenated values (concatenated values are comma separated values,
+     * e.g: "fileReferenceHistory": "file_path_1,file_path_2,file_path_3" from list of LocalMetadataChild with 3 elements.
+     */
+    public Map<String, String> flattenMetadataMap() {
+        
+        Map<String, String> resultMap = new LinkedHashMap<>();
+        resultMap.putAll(this.globalMetadataAttributesMap);
+        
+        // Iterate keys, values in LocalMetadataChild list to aggreate them by keys
+        for (LocalMetadataChild localMetadataChild : this.localMetadata.getLocalMetadataChildList()) {
+            for (Entry<String, String> entry : localMetadataChild.getLocalMetadataAttributesMap().entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                
+                if (!resultMap.containsKey(key)) {
+                    resultMap.put(key, value);
+                } else {
+                    // Concatenate values to same key
+                    String concatedValue = resultMap.get(key);
+                    concatedValue = concatedValue + "," + value;
+                    resultMap.put(key, concatedValue);
+                }
+            }
+         }
+        
+        return resultMap;
     }
 }

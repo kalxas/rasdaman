@@ -36,14 +36,12 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.logging.Level;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rasdaman.domain.cis.AllowedValue;
 import org.rasdaman.domain.cis.NilValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import static petascope.core.XMLSymbols.ATT_DEFINITION;
@@ -60,6 +58,8 @@ import static petascope.core.XMLSymbols.NAMESPACE_SWE;
 import static petascope.core.XMLSymbols.PREFIX_SWE;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.Templates;
+import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.core.gml.metadata.service.CoverageMetadataService;
 
 /**
  * Build a GML Coverage from a WcpsCoverageMetadata (i.e: represents the WCPS
@@ -74,6 +74,9 @@ import petascope.core.Templates;
 public class GmlCoverageBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(GmlCoverageBuilder.class);
+    
+    @Autowired
+    private CoverageMetadataService coverageMetadataService;
 
     /* Keywords in WCS templates (alphabetic order) */
     public static final String KEY_AXISLABELS = "%axisLabels%";
@@ -445,20 +448,26 @@ public class GmlCoverageBuilder {
      *
      * @param wcpsCoverageMetadata
      */
-    private static String getGmlcovMetadata(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+    private String getGmlcovMetadata(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
         // GMLCOV metadata
-        String gmlcovMetadata = wcpsCoverageMetadata.getMetadata();
-        if (gmlcovMetadata == null || gmlcovMetadata.isEmpty()) {
+        String originalCoverageMetadataStr = wcpsCoverageMetadata.getMetadata();
+        if (originalCoverageMetadataStr == null || originalCoverageMetadataStr.isEmpty()) {
             return "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + "/>";
         }
         
-        if (JSONUtil.isJsonValid(gmlcovMetadata)) {
-            try {
-                // Prettify the JSON string to be human readable
-                JSONObject json = new JSONObject(gmlcovMetadata);
-                gmlcovMetadata = json.toString(4).replace("\\/","/");
-            } catch (JSONException ex) {
-                log.warn("Cannot parse coverage extra metadata as JSON. Reason: " + ex.getMessage(), ex);
+        // NOTE: as coverage can contain list of LocalMetadataChild and it was filtered when doing subsetting, so
+        // cannot just use original coverage's metadata.
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
+        String updatedCoverageMetadataStr = originalCoverageMetadataStr;
+        
+        if (!coverageMetadata.getLocalMetadata().getLocalMetadataChildList().isEmpty()) {
+            //  Only serializing when coverage contains some LocalMetadataChild elements.
+            if (XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
+                // coverage's metadata is in XML
+                updatedCoverageMetadataStr = this.coverageMetadataService.serializeCoverageMetadataInXML(coverageMetadata);
+            } else {
+                // coverage's metadata is in JSON
+                updatedCoverageMetadataStr = this.coverageMetadataService.serializeCoverageMetadataInJSON(coverageMetadata);
             }
         }
         
@@ -466,7 +475,7 @@ public class GmlCoverageBuilder {
                 + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
                 + "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
                 + "                <" + XMLSymbols.LABEL_COVERAGE_METADATA + ">\n"
-                + gmlcovMetadata // containts farther XML child elements: do not escape predefined entities (up to the user)
+                + updatedCoverageMetadataStr
                 + "\n                </" + XMLSymbols.LABEL_COVERAGE_METADATA + ">"
                 + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA_EXTENSION + ">"
                 + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";

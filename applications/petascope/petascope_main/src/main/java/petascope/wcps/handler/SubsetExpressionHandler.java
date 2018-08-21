@@ -78,7 +78,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         List<WcpsSubsetDimension> expressionSubsetDimensions = subsetParsingService.getExpressionSubsetDimensions(subsetDimensions);
 
         // Only apply subsets if subset dimensions have numeric bounds.
-        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata, false);
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata.getAxes());
 
         // Update the coverage expression metadata with the new subsets
         wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);
@@ -92,6 +92,9 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.
         wcpsCoverageMetadataService.stripSlicingAxes(metadata, subsetDimensions);
+        
+        // NOTE: also filter local metadata child from input subsets to not contain all local metadata child list when encoding
+        wcpsCoverageMetadataService.filterCoverageLocalMetadata(metadata, numericSubsets);
 
         // Fit to sample space for grid and geo bound of X-Y axes
         // NOTE: only fit if the axis is mentioned in the subsets (e.g: if coverage has 2 axes: Lat, Long), then c[Lat(20.5)] will only fit for Lat axis

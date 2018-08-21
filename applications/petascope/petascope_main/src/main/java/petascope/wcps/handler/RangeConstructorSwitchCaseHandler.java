@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import org.rasdaman.domain.cis.NilValue;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -49,7 +50,7 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 @Service
 public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
 
-    public WcpsResult handle(Map<String, WcpsResult> fieldStructure) {
+    public WcpsResult handle(Map<String, WcpsResult> fieldStructure) throws PetascopeException {
         List<String> translatedFields = new ArrayList();
         // {red: 100, green: 100, blue: 20}
         int i = 0;
@@ -87,7 +88,7 @@ public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
      * @return
      */
     private String getScalarRange(int index, int maxRange) {
-        List<String> tmp = new ArrayList<String>();
+        List<String> tmp = new ArrayList<>();
         for (int i = 0; i < maxRange; i++) {
             if (i == index) {
                 tmp.add("1c");

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
@@ -62,7 +63,7 @@ public class GeneralCondenserHandler extends AbstractOperatorHandler {
     private RasqlTranslationService rasqlTranslationService;
 
     public WcpsResult handle(String operation, ArrayList<AxisIterator> axisIterators, WcpsResult whereClause,
-            WcpsResult using) {
+            WcpsResult using) throws PetascopeException {
         // contains subset dimension without "$"
         List<WcpsSubsetDimension> pureSubsetDimensions = new ArrayList<>();
         // contains subset dimension with "$"

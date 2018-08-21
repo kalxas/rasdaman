@@ -93,6 +93,8 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -748,7 +750,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult valuesExpr = (WcpsResult) visit(ctx.coverageExpression());
 
-        WcpsResult wcpsResult = coverageConstructorHandler.handle(coverageName, axisIterators, valuesExpr);
+        WcpsResult wcpsResult = null;
+        try {
+            wcpsResult = coverageConstructorHandler.handle(coverageName, axisIterators, valuesExpr);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing coverage constructor operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
         return wcpsResult;
     }
 
@@ -1043,7 +1051,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult usingExpr = (WcpsResult) visit(ctx.coverageExpression());
 
-        WcpsResult result = generalCondenserHandler.handle(operator, axisIterators, whereClause, usingExpr);
+        WcpsResult result = null;
+        try {
+            result = generalCondenserHandler.handle(operator, axisIterators, whereClause, usingExpr);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing general condenser operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
         return result;
     }
 
@@ -1150,7 +1164,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             constants.add(i.getText());
         }
 
-        WcpsResult result = coverageConstantHandler.handle(identifier, axisIterators, constants);
+        WcpsResult result = null;
+        try {
+            result = coverageConstantHandler.handle(identifier, axisIterators, constants);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing coverage constant expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
         return result;
     }
 
@@ -1190,8 +1210,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             result = extendExpressionByDomainIntervalsHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
         } catch (PetascopeException ex) {
             String errorMessage = "Error processing extend() operator on coverage expression. Reason: " + ex.getMessage();
-            log.error(errorMessage, ex);
-            throw new WCPSException(ExceptionCode.RuntimeError, errorMessage);
+            throw new WCPSException(errorMessage, ex);
         }
         return result;
     }
@@ -1230,7 +1249,13 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
             rangeConstructor.put(ctx.fieldName().get(i).getText(), wcpsResult);
         }
 
-        WcpsResult result = rangeConstructorSwitchCaseHandler.handle(rangeConstructor);
+        WcpsResult result = null;
+        try {
+            result = rangeConstructorSwitchCaseHandler.handle(rangeConstructor);
+        } catch (PetascopeException ex) {
+            String errorMessage = "Error processing range constructor operator on coverage expression. Reason: " + ex.getExceptionText();
+            throw new WCPSException(errorMessage, ex);
+        }
         return result;
     }
 

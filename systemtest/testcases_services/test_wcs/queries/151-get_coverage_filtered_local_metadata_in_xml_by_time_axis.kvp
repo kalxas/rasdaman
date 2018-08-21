@@ -1,0 +1,5 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+subset=ansi("2017-02-10T00:00:00.000Z")&
+coverageId=test_wcs_local_metadata_netcdf_in_xml

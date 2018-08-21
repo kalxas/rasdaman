@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,14 +34,25 @@ import org.apache.commons.lang3.StringUtils;
  * @author <a href="mailto:bphamhuu@jacobs-university.net">Bang Pham Huu</a>
  */
 public class JSONUtil {
+    
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    
     /**
-     * Serialize an object to JSON string
-     * @param obj
-     * @return
-     * @throws JsonProcessingException
+     * Serialize an object to JSON string with indentation (human readable)
      */
     public static String serializeObjectToJSONString(Object obj) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        String json = objectMapper.writeValueAsString(obj);
+        return json;
+    }
+    
+    /**
+     * Serialize an object to JSON string without indentation (e.g: rasql encode(extra_params_json_inline))
+     */
+    public static String serializeObjectToJSONStringNoIndentation(Object obj) throws JsonProcessingException {
+        objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         String json = objectMapper.writeValueAsString(obj);

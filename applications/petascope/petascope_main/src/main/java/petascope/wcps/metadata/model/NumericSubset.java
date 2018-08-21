@@ -39,5 +39,10 @@ public abstract class NumericSubset {
     public abstract void setLowerLimit(BigDecimal value);
 
     public abstract void setUpperLimit(BigDecimal value);
+    
+    @Override
+    public String toString() {
+        return this.getLowerLimit().toPlainString() + ":" + this.getUpperLimit().toPlainString();
+    }
 
 }

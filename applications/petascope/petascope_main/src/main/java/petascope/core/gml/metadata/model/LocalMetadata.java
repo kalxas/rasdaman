@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import java.util.ArrayList;
 import java.util.List;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.metadata.model.Axis;
 
 /**
  * Class to represent the local metadata object inside coveage's extra metadata. It contains
@@ -48,21 +50,33 @@ public class LocalMetadata {
     
     @JsonProperty(value = LocalMetadataChild.LOCAL_METADATA_TAG)
     @JacksonXmlElementWrapper(useWrapping = false)
-    private List<LocalMetadataChild> localMetadataList;
+    private List<LocalMetadataChild> localMetadataChildList;
 
     public LocalMetadata(List<LocalMetadataChild> localMetadataList) {
-        this.localMetadataList = localMetadataList;
+        this.localMetadataChildList = localMetadataList;
     }
 
     public LocalMetadata() {
-        this.localMetadataList = new ArrayList<>();
+        this.localMetadataChildList = new ArrayList<>();
     }
 
-    public List<LocalMetadataChild> getLocalMetadataList() {
-        return localMetadataList;
+    public List<LocalMetadataChild> getLocalMetadataChildList() {
+        return localMetadataChildList;
     }
 
-    public void setLocalMetadataList(List<LocalMetadataChild> localMetadataList) {
-        this.localMetadataList = localMetadataList;
+    public void setLocalMetadataChildList(List<LocalMetadataChild> localMetadataChildList) {
+        this.localMetadataChildList = localMetadataChildList;
+    }
+    
+    /**
+     * Iterate all envelopes of local metadata child list and build envelope subsets list for them.
+     * As string lowerCorner/uperCorner is not usable to calculate.
+     */
+    public void buildEnvelopeSubsetsForChildList(List<Axis> axes) throws PetascopeException {
+        
+        for (LocalMetadataChild localMetadataChild : this.localMetadataChildList) {
+            Envelope envelope = localMetadataChild.getBoundedBy().getEnvelope();
+            envelope.buildNumericSubsets(axes);
+        }
     }
 }

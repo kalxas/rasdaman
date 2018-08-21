@@ -146,14 +146,12 @@ public class SubsetParsingService {
      *
      * @param dimensions
      * @param metadata
-     * @param isScaleExtend if subsets are used in scale/extend, we need to
-     *                      check it specially
      * @return
      */
-    public List<Subset> convertToNumericSubsets(List<WcpsSubsetDimension> dimensions, WcpsCoverageMetadata metadata, boolean isScaleExtend) throws PetascopeException {
+    public List<Subset> convertToNumericSubsets(List<WcpsSubsetDimension> dimensions, List<Axis> axes) throws PetascopeException {
         List<Subset> result = new ArrayList();
         for (WcpsSubsetDimension subsetDimension : dimensions) {
-            result.add(this.convertToNumericSubset(subsetDimension, metadata, isScaleExtend));
+            result.add(this.convertToNumericSubset(subsetDimension, axes));
         }
 
         return result;
@@ -208,17 +206,21 @@ public class SubsetParsingService {
      *
      * @param dimension
      * @param metadata
-     * @param isScaleExtend if subsetDimension is used to scale or extends will
-     *                      need to be checked specially
      * @return
      */
-    private Subset convertToNumericSubset(WcpsSubsetDimension dimension, WcpsCoverageMetadata metadata, boolean isScaleExtend) throws PetascopeException {
+    private Subset convertToNumericSubset(WcpsSubsetDimension dimension, List<Axis> axes) throws PetascopeException {
 
         // This needs to be added transform() if dimension has crs which is different with native axis from coverage
         String axisName = dimension.getAxisName();
         String sourceCrs = dimension.getCrs();
-
-        Axis axis = metadata.getAxisByName(axisName);
+        
+        Axis axis = null;
+        for (int i = 0; i < axes.size(); i++) {
+            if (axes.get(i).getLabel().equals(axisName)){
+                axis = axes.get(i);
+                break;
+            }
+        }
 
         // Normally subsettingCrs will be null or empty (e.g: Lat(20:30) not Lat:"http://.../4269(20:30)")
         // then it is nativeCrs of axis

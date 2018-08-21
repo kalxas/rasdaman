@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+    id="test_wcs_local_metadata_netcdf_in_xml"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="Lat Long ansi forecast" srsDimension="4"
+            srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" uomLabels="degree degree d GridSpacing">
+            <lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00.000Z" 0</lowerCorner>
+            <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00.000Z" 3</upperCorner>
+        </Envelope>
+    </boundedBy>
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="4"
+            id="test_wcs_local_metadata_netcdf_in_xml-grid"
+             >
+            <limits>
+                <GridEnvelope>
+                    <low>0 0 0 0</low>
+                    <high>1 1 1 1</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>Lat Long ansi forecast</axisLabels>
+            <gmlrgrid:origin>
+                <Point
+                    id="test_wcs_local_metadata_netcdf_in_xml-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+                    <pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z" 0</pos>
+                </Point>
+            </gmlrgrid:origin>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">-0.140571 0 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0.140625 0 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients/>
+                    <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 1 0</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>"2017-01-10T00:00:00.000Z" "2017-02-10T00:00:00.000Z"</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+            <gmlrgrid:generalGridAxis>
+                <gmlrgrid:GeneralGridAxis>
+                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 0 1</gmlrgrid:offsetVector>
+                    <gmlrgrid:coefficients>0 3</gmlrgrid:coefficients>
+                    <gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                </gmlrgrid:GeneralGridAxis>
+            </gmlrgrid:generalGridAxis>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">-9999,0,-9999,0,-9999,0,-9999,0,0,-9999,0,-9999,0,-9999,0,-9999</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+4 +2 +1 +3">Linear</sequenceRule>
+            <startPoint>0 0 0 0</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="Drought code">
+                <swe:Quantity >
+                    <swe:label>Drought code</swe:label>
+                    <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents no data value">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <slices>
+                    <slice>
+                        <boundedBy>
+                            <Envelope>
+                                <axisLabels>Lat Long ansi forecast</axisLabels>
+                                <srsDimension>4</srsDimension>
+                                <lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00+00:00" 0</lowerCorner>
+                                <upperCorner>34.7208095 29.8828125 "2017-01-10T00:00:00+00:00" 0</upperCorner>
+                            </Envelope>
+                        </boundedBy>
+                        <local_metadata_key>FROM FILE 1</local_metadata_key>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc</fileReferenceHistory>
+                    </slice>
+                    <slice>
+                        <boundedBy>
+                            <Envelope>
+                                <axisLabels>Lat Long ansi forecast</axisLabels>
+                                <srsDimension>4</srsDimension>
+                                <lowerCorner>34.4396675 29.6015625 "2017-02-10T00:00:00+00:00" 3</lowerCorner>
+                                <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00+00:00" 3</upperCorner>
+                            </Envelope>
+                        </boundedBy>
+                        <local_metadata_key>FROM FILE 2</local_metadata_key>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
+                    </slice>
+                </slices>
+                <Title>Drought code</Title>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
+</gmlcov:ReferenceableGridCoverage>

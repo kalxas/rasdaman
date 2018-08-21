@@ -38,6 +38,7 @@ import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import org.rasdaman.domain.cis.NilValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.core.AxisTypes;
 import petascope.core.AxisTypes.AxisDirection;
 import petascope.core.Pair;
+import petascope.core.gml.metadata.model.Envelope;
+import petascope.core.gml.metadata.model.LocalMetadataChild;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.CrsUtil;
@@ -318,6 +321,61 @@ public class WcpsCoverageMetadataGeneralService {
             removeIndex++;
         }
     }
+    
+    /**
+     * Based on input subsets, filter elements from the list of coverage's local metadata
+     * whose envelopes are not intersected/within.
+     * 
+     * e.g: [element1(Lat(-30:30), element3(Lat(-30:40), element3(Lat(60:80))], input subset(Lat(-2:10)),
+     * then element3 is removed from list.
+     */
+    public void filterCoverageLocalMetadata(WcpsCoverageMetadata wcpsCoverageMetadata, List<Subset> inputSubsets) {
+        
+        List<LocalMetadataChild> localMetadataChildList = wcpsCoverageMetadata.getCoverageMetadata().getLocalMetadata().getLocalMetadataChildList();
+        ListIterator<LocalMetadataChild> iter = localMetadataChildList.listIterator();
+
+        while (iter.hasNext()) {
+            LocalMetadataChild localMetadataChild = iter.next();
+            Envelope envelope = localMetadataChild.getBoundedBy().getEnvelope();
+            List<Subset> envelopeSubsets = envelope.getEnvelopeSubsets();
+            
+            boolean foundToRemove = false;
+            
+            for (Subset inputSubset : inputSubsets) {
+                for (Subset envelopeSubset : envelopeSubsets) {
+                    if (inputSubset.getAxisName().equals(envelopeSubset.getAxisName())) {
+                        // Check if trimming or slicing on coverage should also remove local metadata child element
+                        BigDecimal inputSubsetLowerBound = inputSubset.getNumericSubset().getLowerLimit();
+                        BigDecimal inputSubsetUpperBound = inputSubset.getNumericSubset().getUpperLimit();
+                        
+                        BigDecimal currentEnvelopeSubsetLowerBound = envelopeSubset.getNumericSubset().getLowerLimit();
+                        BigDecimal currentEnvelopeSubsetUpperBound = envelopeSubset.getNumericSubset().getUpperLimit();
+                        
+                        // envelope: [20:30] and input subset is: [10:25] or [10:40]
+                        boolean leftIntersect = (inputSubsetLowerBound.compareTo(currentEnvelopeSubsetLowerBound) <= 0 
+                              && inputSubsetUpperBound.compareTo(currentEnvelopeSubsetLowerBound) >= 0);
+                        // envelope: [20:30] and input subset is: [25:35] or [10:35]
+                        boolean rightIntersect = (inputSubsetLowerBound.compareTo(currentEnvelopeSubsetUpperBound) <= 0
+                              && inputSubsetUpperBound.compareTo(currentEnvelopeSubsetUpperBound) >= 0);
+                        // envelope: [20:30] an input subset is: [21:28]
+                        boolean within = (inputSubsetLowerBound.compareTo(currentEnvelopeSubsetLowerBound) >= 0 
+                              && inputSubsetUpperBound.compareTo(currentEnvelopeSubsetUpperBound) <= 0);
+                        
+                        if (!(leftIntersect || rightIntersect || within)) {
+                            // Local metadata child's envelope does not intersection/within input subset on the same axis then remove it
+                            iter.remove();
+                            foundToRemove = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (foundToRemove) {
+                    break;
+                }
+            }
+        }
+    }
 
     /**
      * Get the index of field name in the coverage
@@ -420,7 +478,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param domains sdom() of clipped output which only can be determined by sending a clipping rasql query to rasserver.
      * @return WcpsCoverageMetadata object
      */
-    public WcpsCoverageMetadata createCoverageByIndexAxes(WcpsCoverageMetadata sourceMetadata, List<Pair<String, String>> domains) {
+    public WcpsCoverageMetadata createCoverageByIndexAxes(WcpsCoverageMetadata sourceMetadata, List<Pair<String, String>> domains) throws PetascopeException {
         Integer numberOfAxes = domains.size();
         String coverageName = sourceMetadata.getCoverageName();
         String coverageType = sourceMetadata.getCoverageType();
@@ -454,7 +512,7 @@ public class WcpsCoverageMetadataGeneralService {
      * @param numericSubsets
      * @return
      */
-    public WcpsCoverageMetadata createCoverage(String coverageName, List<Subset> numericSubsets) {
+    public WcpsCoverageMetadata createCoverage(String coverageName, List<Subset> numericSubsets) throws PetascopeException {
         //create a new axis for each subset
         List<Axis> axes = new ArrayList();
         int axesCounter = 0;

@@ -257,7 +257,7 @@ public class UpdateCoverageHandler {
             
             // After adding new local metadata child, serialize coverage's metadata to the imported original format (XML/JSON).
             String updatedCurrentCoverageMetadataStr = "";
-            if (this.coverageMetadataService.metadataInXML(currentCoverage.getMetadata())) {
+            if (XMLUtil.containsXMLContent(currentCoverage.getMetadata())) {
                 // XML format
                 updatedCurrentCoverageMetadataStr = this.coverageMetadataService.serializeCoverageMetadataInXML(currentCoverageMetadata);
             } else {

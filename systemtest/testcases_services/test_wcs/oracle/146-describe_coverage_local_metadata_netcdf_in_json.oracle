@@ -30,35 +30,32 @@
             <gmlcov:Extension>
                 <covMetadata>
 {
-    "slices": {
-        "slice": [
-            {
-                "boundedBy": {
-                    "Envelope": {
-                        "lowerCorner": "34.4396675 29.6015625 \"2017-01-10T00:00:00+00:00\" 0",
-                        "srsDimension": 4,
-                        "axisLabels": "Lat Long ansi forecast",
-                        "upperCorner": "34.7208095 29.8828125 \"2017-01-10T00:00:00+00:00\" 0"
-                    }
-                },
-                "fileReferenceHistory": "/opt/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_json/20170110_0_ecfire_fwi_dc.nc",
-                "local_metadata_key": "FROM FILE 1"
-            },
-            {
-                "boundedBy": {
-                    "Envelope": {
-                        "lowerCorner": "34.4396675 29.6015625 \"2017-02-10T00:00:00+00:00\" 3",
-                        "srsDimension": 4,
-                        "axisLabels": "Lat Long ansi forecast",
-                        "upperCorner": "34.7208095 29.8828125 \"2017-02-10T00:00:00+00:00\" 3"
-                    }
-                },
-                "fileReferenceHistory": "/opt/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_json/20170210_3_ecfire_fwi_dc.nc",
-                "local_metadata_key": "FROM FILE 2"
-            }
-        ]
-    },
-    "Title": "Drought code"
+  "slices" : {
+    "slice" : [ {
+      "boundedBy" : {
+        "Envelope" : {
+          "axisLabels" : "Lat Long ansi forecast",
+          "srsDimension" : 4,
+          "lowerCorner" : "34.4396675 29.6015625 \"2017-01-10T00:00:00+00:00\" 0",
+          "upperCorner" : "34.7208095 29.8828125 \"2017-01-10T00:00:00+00:00\" 0"
+        }
+      },
+      "local_metadata_key" : "FROM FILE 1",
+      "fileReferenceHistory" : "/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_json/20170110_0_ecfire_fwi_dc.nc"
+    }, {
+      "boundedBy" : {
+        "Envelope" : {
+          "axisLabels" : "Lat Long ansi forecast",
+          "srsDimension" : 4,
+          "lowerCorner" : "34.4396675 29.6015625 \"2017-02-10T00:00:00+00:00\" 3",
+          "upperCorner" : "34.7208095 29.8828125 \"2017-02-10T00:00:00+00:00\" 3"
+        }
+      },
+      "local_metadata_key" : "FROM FILE 2",
+      "fileReferenceHistory" : "/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_json/20170210_3_ecfire_fwi_dc.nc"
+    } ]
+  },
+  "Title" : "Drought code"
 }
                 </covMetadata>
             </gmlcov:Extension>

@@ -48,16 +48,12 @@ public class CoverageMetadataService {
 
     private static final Logger log = LoggerFactory.getLogger(CoverageMetadataService.class);
     
+    private static final XmlMapper xmlMapper = new XmlMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    
     public CoverageMetadataService() {
         
     }  
-    
-    /**
-     * A quick naive check if coverage's metada is in XML format.
-     */
-    public boolean metadataInXML(String metadata) {
-        return metadata.startsWith("<");
-    }
     
     /**
      * Serialize CoverageMetadata object to JSON string to be persisted inside database.
@@ -99,13 +95,10 @@ public class CoverageMetadataService {
      */
     public LocalMetadataChild deserializeLocalMetadata(String metadata) {
         LocalMetadataChild localMetadata = new LocalMetadataChild();
-        XmlMapper xmlMapper = new XmlMapper();
-        
-        ObjectMapper objectMapper = new ObjectMapper();
         
         try {
             //find out the type
-            if (this.metadataInXML(metadata)) {
+            if (XMLUtil.containsXMLContent(metadata)) {
                 //xml
                 //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
                 //so we are just adding them
@@ -135,15 +128,12 @@ public class CoverageMetadataService {
         }
         
         CoverageMetadata coverageMetadata = new CoverageMetadata();
-        XmlMapper xmlMapper = new XmlMapper();
-        
-        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         //remove the slices and the gmlcov:metadata closing tag if it exists
         // metadata = removeMetadataSlices(metadata).replace("<gmlcov:metadata />", "");
         //convert to object
         try {
             //find out the type
-            if (this.metadataInXML(metadata)) {
+            if (XMLUtil.containsXMLContent(metadata)) {
                 //xml
                 //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
                 //so we are just adding them

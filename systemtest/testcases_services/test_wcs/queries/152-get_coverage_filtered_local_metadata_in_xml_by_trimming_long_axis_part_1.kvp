@@ -1,0 +1,1 @@
+SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=test_wcs_local_metadata_tiff_map_mosaic&SUBSET=Long(111.975,120)&FORMAT=application/gml+xml

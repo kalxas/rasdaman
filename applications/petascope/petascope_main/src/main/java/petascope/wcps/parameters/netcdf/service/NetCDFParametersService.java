@@ -66,9 +66,6 @@ public class NetCDFParametersService {
     @Autowired
     private CoverageRepostioryService persistedCoverageService;
     
-    @Autowired
-    private CoverageMetadataService extraMetadataService;
-
     public NetCDFParametersService() {
 
     }
@@ -120,13 +117,13 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
-        String covName = metadata.getCoverageName();
-        List<Axis> axes = metadata.getSortedAxesByGridOrder();        
+    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+        String covName = wcpsCoverageMetadata.getCoverageName();
+        List<Axis> axes = wcpsCoverageMetadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
                         
         // First get all the metadata of coverage
-        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
         
         AxesMetadata axesMetadata = coverageMetadata.getAxesMetadata();
         
@@ -152,14 +149,14 @@ public class NetCDFParametersService {
      * Build the band (range field) parameter of netCDF encoding, e.g:
      * NOTE: band's metadata is combined from swe:range element and bands element (if exist) in gmlcov:metata (i.e: coverage's metadata).
      * \"value\":{\"type\":\"unsigned char\",\"name\":\"value\",\"metadata\":{\"units\":\"10^0\", \"another_value\":\"25.565\"}}
-     * @param metadata
+     * @param wcpsCoverageMetadata
      * @return 
      */
-    private List<BandVariable> buildBandVariables(WcpsCoverageMetadata metadata) {
+    private List<BandVariable> buildBandVariables(WcpsCoverageMetadata wcpsCoverageMetadata) {
         List<BandVariable> bandVariables = new ArrayList<>();
-        List<RangeField> bands = metadata.getRangeFields();
+        List<RangeField> bands = wcpsCoverageMetadata.getRangeFields();
         // NOTE: There are 2 types of bands's metadata (the mandatory one from swe:element of swe:field and the option one from coverage's metadata bands element if exists)        
-        CoverageMetadata coverageMetadata = extraMetadataService.deserializeCoverageMetadata(metadata.getMetadata());
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
         BandsMetadata bandsMetadata = coverageMetadata.getBandsMetadata();       
        
         for (RangeField band : bands) {            

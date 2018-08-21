@@ -28,8 +28,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.rasdaman.domain.cis.NilValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import petascope.core.AxisTypes;
 import petascope.core.Pair;
+import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.core.gml.metadata.service.CoverageMetadataService;
+import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.service.AxesOrderComparator;
@@ -42,6 +47,8 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class WcpsCoverageMetadata {
+    
+    CoverageMetadataService coverageMetadataService = new CoverageMetadataService();
 
     private final String coverageName;   
     // NOTE: rasdaman collection name can be different from coverageName (in case of import a coverageName which is duplicate to an existing collectionName)
@@ -56,10 +63,12 @@ public class WcpsCoverageMetadata {
     private String outputCrsUri;
     private List<RangeField> rangeFields;
     private List<NilValue> nilValues;
-    private String metadata;
-
+    private final String metadata;
+    private final CoverageMetadata coverageMetadata;
+    
+    
     public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
-            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) {
+            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) throws PetascopeException {
         this.crsUri = crsUri;
         // this axes could be stripped when a slicing expression is processed
         this.axes = axes;
@@ -69,6 +78,17 @@ public class WcpsCoverageMetadata {
         this.nilValues = nilValues;
         this.metadata = (metadata == null ? "" : metadata);
         this.coverageType = coverageType;
+        this.coverageMetadata = this.buildCoverageMetadata(metadata, axes);
+    }
+    
+    /**
+     * Build CoverageMetadata object from coverage's metadata in string and coverage's axes.
+     */
+    private CoverageMetadata buildCoverageMetadata(String metadata, List<Axis> axes) throws PetascopeException {
+        CoverageMetadata covMetadata = this.coverageMetadataService.deserializeCoverageMetadata(metadata);
+        covMetadata.getLocalMetadata().buildEnvelopeSubsetsForChildList(axes);
+        
+        return covMetadata;
     }
 
     public Integer getGridDimension() {
@@ -304,9 +324,9 @@ public class WcpsCoverageMetadata {
     public String getMetadata() {        
         return metadata;
     }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
+    
+    public CoverageMetadata getCoverageMetadata() {
+        return this.coverageMetadata;
     }
 
     public String getCoverageType() {

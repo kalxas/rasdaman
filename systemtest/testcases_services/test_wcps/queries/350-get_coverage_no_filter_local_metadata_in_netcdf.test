@@ -1,0 +1,1 @@
+for c in (test_wcs_local_metadata_netcdf_in_xml) return encode(c, "netcdf")

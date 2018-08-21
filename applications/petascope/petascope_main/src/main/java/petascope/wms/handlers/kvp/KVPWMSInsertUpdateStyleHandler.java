@@ -37,6 +37,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
 import petascope.exceptions.WMSException;
 import petascope.wms.exception.WMSDuplicateStyleForLayerException;
+import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
 import petascope.wms.exception.WMSStyleNotFoundException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
@@ -109,6 +110,10 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         String styleTitle = kvpParameters.get(KVPSymbols.KEY_WMS_TITLE) == null ? styleName : kvpParameters.get(KVPSymbols.KEY_WMS_TITLE)[0];
         String styleAbstract = kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT) == null ? "" : kvpParameters.get(KVPSymbols.KEY_WMS_ABSTRACT)[0];        
         Layer layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
+        
+        if (layer == null) {
+            throw new WMSLayerNotExistException(layerName);
+        }
 
         String request = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
         Style style = null;

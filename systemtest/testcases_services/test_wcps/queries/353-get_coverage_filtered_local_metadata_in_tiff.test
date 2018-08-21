@@ -1,0 +1,1 @@
+for c in (test_wcs_local_metadata_netcdf_in_xml) return encode(c[ansi("2017-01-10T00:00:00+00:00"), forecast(0)], "tiff")

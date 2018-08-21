@@ -42,6 +42,7 @@ import petascope.core.XMLSymbols;
 import com.eaio.uuid.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -108,6 +109,7 @@ import static petascope.core.XMLSymbols.ATT_VERSION;
 public class XMLUtil {
 
     private static Logger log = LoggerFactory.getLogger(XMLUtil.class);
+    private static final XmlMapper xmlMapper = new XmlMapper();
 
     /**
      * Given a XML text, e.g: <a><b>123</b></a> and one element (open and close tags, e.g: <b>  123   </b>)
@@ -1388,10 +1390,16 @@ public class XMLUtil {
     }
     
     /**
+     * A simple check that input contains XML content (the XML does not need to start with valid XML header elements)
+     */
+    public static boolean containsXMLContent(String input) {
+        return input.startsWith("<") && input.endsWith(">");
+    }
+    
+    /**
      * Serialize an object to XML string by Jackson
      */
     public static String serializeObjectToXMLString(Object obj) throws JsonProcessingException {
-        XmlMapper xmlMapper = new XmlMapper();
         xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         String xml = xmlMapper.writer().writeValueAsString(obj);

@@ -884,6 +884,7 @@ run_test()
         # do image comparison
         output_tmp="$out"."output.tmp"
         oracle_tmp="$out"."oracle.tmp"
+
         log "image comparison, type: $filetype"
 
         # if oracle/output is netcdf then compare them by ncdump
@@ -894,6 +895,10 @@ run_test()
           # remove the line to 'dimensions'
           sed -i -n '/dimensions/,$p' "$output_tmp"
           sed -i -n '/dimensions/,$p' "$oracle_tmp"
+
+          # Remove fileReferenceHistory in local coverage's metadata as the path can be different
+          sed -i '/fileReferenceHistory/d' "$output_tmp"
+          sed -i '/fileReferenceHistory/d' "$oracle_tmp"
         else
           # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
           # here we compare the metadata and statistic values on output and oracle files directly
@@ -910,6 +915,10 @@ run_test()
           # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
           sed '/TOWGS84\[/d' -i "$output_tmp"
           sed '/TOWGS84\[/d' -i "$oracle_tmp"
+
+          # Remove fileReferenceHistory in local coverage's metadata as the path can be different
+          sed -i '/fileReferenceHistory/d' "$output_tmp"
+          sed -i '/fileReferenceHistory/d' "$oracle_tmp"
         fi
 
         cmp "$output_tmp" "$oracle_tmp" 2>&1

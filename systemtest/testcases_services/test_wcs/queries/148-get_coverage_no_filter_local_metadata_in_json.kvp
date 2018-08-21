@@ -1,0 +1,4 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_wcs_local_metadata_netcdf_in_json

@@ -89,7 +89,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         WcpsSubsetDimension wcpsSubsetDimension = new WcpsSliceSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), geoCoordinate);
         List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();
         wcpsSubsetDimensions.add(wcpsSubsetDimension);
-        List<Subset> subsets = this.subsetParsingService.convertToNumericSubsets(wcpsSubsetDimensions, metadata, true);
+        List<Subset> subsets = this.subsetParsingService.convertToNumericSubsets(wcpsSubsetDimensions, metadata.getAxes());
         // this can never throw an exception, because the list is not empty
         BigDecimal numericGeoCoordinate = subsets.get(0).getNumericSubset().getLowerLimit();
 

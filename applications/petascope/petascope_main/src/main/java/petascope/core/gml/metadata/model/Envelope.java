@@ -21,7 +21,17 @@
  */
 package petascope.core.gml.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.metadata.model.Axis;
+import petascope.wcps.metadata.model.Subset;
+import petascope.wcps.metadata.service.SubsetParsingService;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Class to represent <Envelope> element of a local metadata's slice of coverage's metadata.
@@ -34,6 +44,15 @@ public class Envelope {
     private int srsDimension;
     private String lowerCorner;
     private String upperCorner;
+    
+    // These properties are used internally for filtering local metadata by envelope only
+    // by translating geo domains in string to list of numeric subsets (e.g: datetime string to BigDecimal)
+    @JsonIgnore
+    private List<Subset> envelopeSubsets;
+    
+    @JsonIgnore
+    private SubsetParsingService subsetParsingService = new SubsetParsingService();
+    
 
     public Envelope() {
         
@@ -77,7 +96,33 @@ public class Envelope {
     public void setUpperCorner(String upperCorner) {
         this.upperCorner = upperCorner;
     }
+    
+    /**
+     * Create list of numeric subsets based on lowerCorner and upperCorner to be used
+     * internally from other classes.
+     */
+    public void buildNumericSubsets(List<Axis> axes) throws PetascopeException {
+        String[] lowerBounds = lowerCorner.split(" ");
+        String[] upperBounds = upperCorner.split(" ");
+        
+        this.envelopeSubsets = new ArrayList<>();
+        
+        List<WcpsSubsetDimension> wcpsSubsetDimensions = new ArrayList<>();
+        
+        for (int i = 0; i < axes.size(); i++) {
+            Axis axis = axes.get(i);
+            WcpsSubsetDimension wcpsSubsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), lowerBounds[i], upperBounds[i]);
+            wcpsSubsetDimensions.add(wcpsSubsetDimension);
+        }
+        
+        // Then, it can be converted to list of numeric subsets
+        this.envelopeSubsets = this.subsetParsingService.convertToNumericSubsets(wcpsSubsetDimensions, axes);
+    }
 
+    public List<Subset> getEnvelopeSubsets() {
+        return envelopeSubsets;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
