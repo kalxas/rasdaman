@@ -107,7 +107,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
     {
         ((DBObjectId) newObjIx)->setPersistent(false);
         ((DBObject*) const_cast<DBStorageLayout*>(newSL.ptr()))->setPersistent(false);
-        LFATAL << "DBMDDObj::DBMDDObj() - mdd object: "
+        LERROR << "DBMDDObj::DBMDDObj() - mdd object: "
                << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
     }
@@ -261,7 +261,7 @@ DBMDDObj::setPersistent(bool o)
     if (storageLayoutId.is_null())
     {
         LTRACE << "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId();
-        LFATAL << "DBMDDObj::setPersistent() layout object is not valid";
+        LERROR << "DBMDDObj::setPersistent() layout object is not valid";
         throw r_Error(STORAGE_OF_MDD_IS_NULL);
     }
     else
@@ -368,7 +368,7 @@ DBMDDObj::updateInDb()
             }
             else
             {
-                LFATAL << "Collection type not found in the database.";
+                LERROR << "Collection type not found in the database.";
                 throw r_Ebase_dbms(SQLITE_NOTFOUND, "Collection type not found in the database.");
             }
         }
@@ -460,7 +460,7 @@ DBMDDObj::readFromDb()
     }
     else
     {
-        LFATAL << "DBMDDObj::readFromDb() - mdd object: "
+        LERROR << "DBMDDObj::readFromDb() - mdd object: "
                << mddoid2 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object not found in the database.");
     }

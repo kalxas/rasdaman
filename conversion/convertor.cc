@@ -80,7 +80,7 @@ r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Typ
 
     if (tp == NULL)
     {
-        LFATAL << "Error: in conversion: type is null.";
+        LERROR << "Error: in conversion: type is null.";
         throw r_Error();
     }
 
@@ -187,7 +187,7 @@ std::string r_Convertor::type_to_string(int ctype)
     case ctype_complex2:
         return "complexd";
     default:
-        LFATAL << "Error: in conversion: unsupported type " << ctype;
+        LERROR << "Error: in conversion: unsupported type " << ctype;
         r_Error err(r_Error::r_Error_General);
         throw (err);
     }
@@ -458,7 +458,7 @@ void r_Convert_Memory::initMemory(void)
     }
     if (status < 0)
     {
-        LFATAL << "Error: cannot allocate memory for conversion.";
+        LERROR << "Error: cannot allocate memory for conversion.";
         r_Error err(MEMMORYALLOCATIONERROR);
         throw (err);
     }

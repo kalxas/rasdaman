@@ -185,7 +185,7 @@ r_Structure_Type::resolve_attribute(const char* newName) const
 
     if (iter == defines_attribute_end())
     {
-        LFATAL << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name";
+        LERROR << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name";
         r_Error err(r_Error::r_Error_NameInvalid);
         throw err;
     }
@@ -206,7 +206,7 @@ r_Structure_Type::resolve_attribute(unsigned int number) const
 
     if (iter == defines_attribute_end() || i < number)
     {
-        LFATAL << "r_Structure_Type::resolve_attribute(" << number << ") index out of bounds (" << i << ")";
+        LERROR << "r_Structure_Type::resolve_attribute(" << number << ") index out of bounds (" << i << ")";
         throw r_Eindex_violation(0, numAttrs - 1, number);
     }
 

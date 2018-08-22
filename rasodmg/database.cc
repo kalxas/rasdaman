@@ -73,7 +73,7 @@ r_Database::r_Database(const char* name)
 {
     if (!name)
     {
-        LFATAL << "Error: null database name.";
+        LERROR << "Error: null database name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     this->rasmgrName = strdup(name);
@@ -159,7 +159,7 @@ r_Database::open(const char* database_name, access_status new_status)
 
     if (!database_name)
     {
-        LFATAL << "r_Database::open(name, new_status) name is null";
+        LERROR << "r_Database::open(name, new_status) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -293,7 +293,7 @@ r_Database::set_servername(const char* name, int port)
 
     if (!name)
     {
-        LFATAL << "r_Database::set_servername(name, port) name is null";
+        LERROR << "r_Database::set_servername(name, port) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -310,12 +310,12 @@ r_Database::set_useridentification(const char* name, const char* plain_pass)
 {
     if (!name)
     {
-        LFATAL << "r_Database::set_useridentification(name, plain_pass) name is null";
+        LERROR << "r_Database::set_useridentification(name, plain_pass) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     if (!plain_pass)
     {
-        LFATAL << "r_Database::set_useridentification(name, plain_pass) plain_pass is null";
+        LERROR << "r_Database::set_useridentification(name, plain_pass) plain_pass is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -350,7 +350,7 @@ r_Database::lookup_object(const char* name) const
 
     if (!name)
     {
-        LFATAL << "r_Database::lookup_object(name) name is null";
+        LERROR << "r_Database::lookup_object(name) name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 

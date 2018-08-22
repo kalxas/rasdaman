@@ -111,43 +111,43 @@ DBHierIndex::insertInDb()
     char* completebuffer = (char*)mymalloc(completesize);
     if (completebuffer == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
     if (upperboundsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     r_Range* lowerboundsbuf = (r_Range*)mymalloc(boundssize);
     if (lowerboundsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     char* upperfixedbuf = (char*)mymalloc(fixessize);
     if (upperfixedbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     char* lowerfixedbuf = (char*)mymalloc(fixessize);
     if (lowerfixedbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
     if (entryidsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     char* entrytypesbuf = (char*)mymalloc(typessize);
     if (entrytypesbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
 
@@ -192,7 +192,7 @@ DBHierIndex::insertInDb()
     blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );      // create -- not clear what INV_* here means so indicate all
     if (blobOid == 0)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     LDEBUG << "lo_open() for oid " << blobOid;
@@ -201,7 +201,7 @@ DBHierIndex::insertInDb()
     int loResult = lo_write( pgConn, fd, completebuffer, completesize );
     if (loResult < 0)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     else if (loResult != completesize)      // did not get all
@@ -213,7 +213,7 @@ DBHierIndex::insertInDb()
     loResult = lo_close( pgConn, fd );
     if (loResult < 0)               // can't close, don't know if data are written
     {
-        LFATAL << "DBHierIndex::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
         generateException();
     }
 
@@ -336,7 +336,7 @@ DBHierIndex::readFromDb()
     int loResult = lo_read( pgConn, fd, blobbuffer, bytesToDo );
     if (loResult < 0)
     {
-        LFATAL << "DBHierIndex::readFromDb() cannot read blob, error: " << pgResult;
+        LERROR << "DBHierIndex::readFromDb() cannot read blob, error: " << pgResult;
         throw r_Error( r_Error::r_Error_BaseDBMSFailed );
     }
   
@@ -443,7 +443,7 @@ DBHierIndex::readFromDb()
     int ignoredPgResult = lo_close( pgConn, fd );       // close blob
     if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
     {
-        LFATAL << "DBHierIndex::readFromDb() ignoring lo_close() error: " << ignoredPgResult;
+        LERROR << "DBHierIndex::readFromDb() ignoring lo_close() error: " << ignoredPgResult;
         LDEBUG << "DBHierIndex::readFromDb: ignoring lo_close() error: " << ignoredPgResult;
     }
 
@@ -641,7 +641,7 @@ DBHierIndex::updateInDb()
     blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );      // create -- not clear what INV_* here means so indicate all
     if (blobOid == 0)
     {
-        LFATAL << "DBHierIndex::updateInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::updateInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     LDEBUG << "lo_open() for oid " << blobOid;
@@ -650,7 +650,7 @@ DBHierIndex::updateInDb()
     int loResult = lo_write( pgConn, fd, completebuffer, completesize );
     if (loResult < 0)
     {
-        LFATAL << "DBHierIndex::updateInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::updateInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     else if (loResult != completesize)      // did not get all
@@ -662,7 +662,7 @@ DBHierIndex::updateInDb()
     loResult = lo_close( pgConn, fd );
     if (loResult < 0)               // can't close, don't know if data are written
     {
-        LFATAL << "DBHierIndex::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+        LERROR << "DBHierIndex::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
         generateException();
     }
     free(completebuffer);

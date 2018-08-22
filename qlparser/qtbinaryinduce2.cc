@@ -696,7 +696,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
         if (inputType2.getDataType() < QT_BOOL || inputType2.getDataType() > QT_LONG)
         {
-            LFATAL << "Error: QtBit::checkType() - second operand must be of integral type.";
+            LERROR << "Error: QtBit::checkType() - second operand must be of integral type.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
@@ -710,7 +710,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBit::checkType() - unary induce: operand types are incompatible.";
+                LERROR << "Error: QtBit::checkType() - unary induce: operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -730,7 +730,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBit::computeOp() - operand types are incompatible.";
+                LERROR << "Error: QtBit::computeOp() - operand types are incompatible.";
                 parseInfo.setErrorNo(365);
                 throw parseInfo;
             }
@@ -739,7 +739,7 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtBit::checkType() - operation is not supported on these data types.";
+            LERROR << "Error: QtBit::checkType() - operation is not supported on these data types.";
             parseInfo.setErrorNo(403);
             throw parseInfo;
         }

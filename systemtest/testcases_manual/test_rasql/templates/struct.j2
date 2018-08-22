@@ -1,0 +1,87 @@
+{#-
+ # Test range (struct) constructor.
+-#}
+{%- set scalar = cell_type_val -%}
+query: SELECT struct { c, c } FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array"}}
+{{separator}}
+query: SELECT { c + {{scalar}}, c - {{scalar}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr"}}
+{{separator}}
+query: SELECT { c + {{scalar}}, {{scalar}} + {{scalar}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_array_scalar_expr"}}
+{{separator}}
+query: SELECT { {{scalar}} + {{scalar}}, c + {{scalar}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_scalar_array_expr"}}
+{{separator}}
+query: SELECT { {{scalar}} + {{scalar}}, {{scalar}} + {{scalar}} }
+id: {{test_id ~ "_scalar_scalar_expr"}}
+{{separator}}
+{#
+ # Test function call on a struct result
+-#}
+{%- if dimension == 2 and cell_type_name == 'float' -%}
+query: SELECT abs({ c + {{scalar}}, c - {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr_fun"}}
+{{separator}}
+query: SELECT abs({ c + {{scalar}}, {{scalar}} + {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_array_scalar_expr_fun"}}
+{{separator}}
+query: SELECT abs({ {{scalar}} + {{scalar}}, c + {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_scalar_array_expr_fun"}}
+{{separator}}
+query: SELECT abs({ {{scalar}} + {{scalar}}, {{scalar}} + {{scalar}} })
+id: {{test_id ~ "_scalar_scalar_expr_fun"}}
+{{separator}}
+query: SELECT avg_cells({ c + {{scalar}}, c - {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr_condenser"}}
+{{separator}}
+query: SELECT avg_cells({ c + {{scalar}}, {{scalar}} + {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_array_scalar_expr_condenser"}}
+{{separator}}
+query: SELECT { c + {{scalar}}, c - {{scalar}} } / { c - {{scalar}}, c + {{scalar}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr_binary_struct"}}
+{{separator}}
+query: SELECT { c + {{scalar}}, c - {{scalar}} } / {{scalar}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr_binary_scalar_right"}}
+{{separator}}
+query: SELECT {{scalar}} + { c + {{scalar}}, c - {{scalar}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_same_array_expr_binary_scalar_left"}}
+{{separator}}
+{%- set cell_type_other = 'octet' -%}
+{%- set coll_name_other = coll_name_dic[(dimension, cell_type_other)] -%}
+{%- set scalar_other = cell_type_val_dic[cell_type_other] -%}
+query: SELECT { a + {{scalar}}, b - {{scalar_other}} } FROM {{coll_name}} AS a, {{coll_name_other}} AS b
+id: {{test_id ~ "_different_array_expr"}}
+{{separator}}
+query: SELECT { c + {{scalar}}, {{scalar_other}} + {{scalar_other}} } FROM {{coll_name}} AS c
+id: {{test_id ~ "_different_array_scalar_expr"}}
+{{separator}}
+query: SELECT { {{scalar}} + {{scalar}}, c + {{scalar_other}} } FROM {{coll_name_other}} AS c
+id: {{test_id ~ "_different_scalar_array_expr"}}
+{{separator}}
+query: SELECT { {{scalar}} + {{scalar}}, {{scalar_other}} + {{scalar_other}} }
+id: {{test_id ~ "_different_scalar_scalar_expr"}}
+{{separator}}
+query: SELECT { c, c[0, *:*] } FROM {{coll_name}} AS c
+id: {{test_id ~ "_different_dim"}}
+{{separator}}
+query: SELECT { c, extend(c, [-2:5,-2:3]) } FROM {{coll_name}} AS c
+id: {{test_id ~ "_different_sdom"}}
+{{separator}}
+query: SELECT { c, shift(c, [5,5]) } FROM {{coll_name}} AS c
+id: {{test_id ~ "_shifted_sdom"}}
+{{separator}}
+query: SELECT { c, c + {{scalar}} }[0:1, 0:2] FROM {{coll_name}} AS c
+id: {{test_id ~ "_subset_trims"}}
+{{separator}}
+query: SELECT { c, c + {{scalar}} }[0:1, 2] FROM {{coll_name}} AS c
+id: {{test_id ~ "_subset_slices"}}
+{{separator}}
+query: SELECT { c, c + {{scalar}} }[1, 2] FROM {{coll_name}} AS c
+id: {{test_id ~ "_subset_point"}}
+{{separator}}
+query: SELECT sdom({ c, c + {{scalar}} }) FROM {{coll_name}} AS c
+id: {{test_id ~ "_result_sdom"}}
+{{separator}}
+{%  endif -%}

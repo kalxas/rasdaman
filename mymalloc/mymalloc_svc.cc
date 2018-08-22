@@ -48,7 +48,7 @@ void* mymalloc(size_t size) // // FIXME: gcc3 doesn't like it, & can't do that u
     if (!p)
         if (!ObjectBroker::freeMemory() || !(p = mymalloc(size)))
         {
-            LFATAL << "mymalloc: memory allocation failed.";
+            LERROR << "mymalloc: memory allocation failed.";
             throw bad_alloc();
         }
 #else   // improved structure, same logic:
@@ -60,7 +60,7 @@ void* mymalloc(size_t size) // // FIXME: gcc3 doesn't like it, & can't do that u
             p = mymalloc(size);
             if (p == (void*) NULL)
             {
-                LFATAL << "Error: mymalloc(): memory allocation failed.";
+                LERROR << "Error: mymalloc(): memory allocation failed.";
                 throw bad_alloc();
             }
             else
@@ -70,7 +70,7 @@ void* mymalloc(size_t size) // // FIXME: gcc3 doesn't like it, & can't do that u
         }
         else    // mem full, according to ObjectBroker, so throw alloc exception
         {
-            LFATAL << "Error: mymalloc(): ObjectBroker::freeMemory() failed.";
+            LERROR << "Error: mymalloc(): ObjectBroker::freeMemory() failed.";
             throw bad_alloc();
         }
     }

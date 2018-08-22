@@ -476,7 +476,7 @@ void RnpClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQ
 
         if (mddStatus == 2)
         {
-            LFATAL << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
+            LERROR << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
@@ -569,7 +569,7 @@ RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
         if (tileStatus == 4)
         {
             freeGetTileRes(tileRes);
-            LFATAL << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
+            LERROR << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
@@ -774,7 +774,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
         if (rpcStatus == 2)
         {
-            LFATAL << "Error: getElementCollection(...) - no transfer collection or empty transfer collection";
+            LERROR << "Error: getElementCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
         // create new collection element, use type of collection resultColl
@@ -1308,7 +1308,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
     struct hostent* hostinfo = gethostbyname(rasmgrHost);
     if (hostinfo == NULL)
     {
-        LFATAL << "Error locating rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error locating rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
 
@@ -1355,7 +1355,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
 
     if (!ok)
     {
-        // X:   LFATAL << "Error: Giving up on connecting, sorry, after this number of tries: " << retry+1;
+        // X:   LERROR << "Error: Giving up on connecting, sorry, after this number of tries: " << retry+1;
         close(sock);
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
@@ -1368,7 +1368,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
 
     if (nbytes < 0)
     {
-        LFATAL << "Error: cannot send message to rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error: cannot send message to rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
         close(sock);
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
@@ -1379,7 +1379,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
 
     if (nbytes < 0)
     {
-        LFATAL << "Error reading answer from rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error reading answer from rasmgr on host " << rasmgrHost << " (" << strerror(errno) << ')';
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
     // LDEBUG << "received this message: " << message;    // quite verbose!
@@ -1393,7 +1393,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
     char* pEOL = strstr(p, "\r\n"); // locate CRLF
     if (!pEOL)
     {
-        LFATAL << "Error: Invalid answer from rasmgr.";
+        LERROR << "Error: Invalid answer from rasmgr.";
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
 
@@ -1417,7 +1417,7 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
         }
         else
         {
-            LFATAL << "Error: Invalid answer from rasmgr.";
+            LERROR << "Error: Invalid answer from rasmgr.";
             throw r_Error(r_Error::r_Error_ServerInvalid);
         }
 

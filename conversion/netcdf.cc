@@ -109,7 +109,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertTo(const char* options,
     NcFile dataFile(tmpFilePath.c_str(), NcFile::Replace);
     if (!dataFile.is_valid())
     {
-        LFATAL << "invalid netCDF file.";
+        LERROR << "invalid netCDF file.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
 
@@ -188,7 +188,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options)
     NcFile dataFile(tmpFilePath.c_str(), NcFile::ReadOnly);
     if (!dataFile.is_valid())
     {
-        LFATAL << "invalid netcdf file: '" << tmpFilePath << "'.";
+        LERROR << "invalid netcdf file: '" << tmpFilePath << "'.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
     if (!formatParams.getVariables().empty())
@@ -198,7 +198,7 @@ r_Conv_Desc& r_Conv_NETCDF::convertFrom(r_Format_Params options)
     validateDecodeOptions(dataFile);
     if (varNames.empty())
     {
-        LFATAL << "no variables specified to decode.";
+        LERROR << "no variables specified to decode.";
         throw r_Error(r_Error::r_Error_Conversion);
     }
     readDimSizes(dataFile);
@@ -424,7 +424,7 @@ void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile)
 
     if ((desc.dest = (char*) mystore.storage_alloc(dataSize * structSize)) == NULL)
     {
-        LFATAL << "failed allocating " << (dataSize * structSize) << " bytes.";
+        LERROR << "failed allocating " << (dataSize * structSize) << " bytes.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
@@ -466,7 +466,7 @@ void r_Conv_NETCDF::readMultipleVars(const NcFile& dataFile)
         }
         default:
         {
-            LFATAL << "unsupported netcdf base type: " << var->type();
+            LERROR << "unsupported netcdf base type: " << var->type();
             throw r_Error(r_Error::r_Error_Conversion);
         }
         }
@@ -486,7 +486,7 @@ size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile)
         NcVar* var = dataFile.get_var(varNames[i].c_str());
         if (numDims != static_cast<unsigned int>(var->num_dims()))
         {
-            LFATAL << "variable '" << varNames[i] << "' has different dimensionality from the first variable '" << varNames[0] << "'.";
+            LERROR << "variable '" << varNames[i] << "' has different dimensionality from the first variable '" << varNames[0] << "'.";
             throw r_Error(r_Error::r_Error_Conversion);
         }
 
@@ -510,7 +510,7 @@ size_t r_Conv_NETCDF::buildStructType(const NcFile& dataFile)
                 NcDim* firstDim = firstVar->get_dim(j);
                 if (dim->size() != firstDim->size())
                 {
-                    LFATAL << "variable '" << varNames[i] << "' has different dimension sizes from the first variable '" << varNames[0] <<
+                    LERROR << "variable '" << varNames[i] << "' has different dimension sizes from the first variable '" << varNames[0] <<
                            "': dimension " << j << " expected size: " << firstDim->size() << ", got: " << dim->size() << ".";
                     throw r_Error(r_Error::r_Error_Conversion);
                 }
@@ -587,7 +587,7 @@ void r_Conv_NETCDF::readData(NcVar* var, convert_type_e ctype)
     desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof(T));
     if (desc.dest == NULL)
     {
-        LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
+        LERROR << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     var->set_cur(dimOffsets.data());
@@ -602,7 +602,7 @@ void r_Conv_NETCDF::readDataStruct(NcVar* var, size_t structSize, size_t& bandOf
     unique_ptr<T[]> data(new(nothrow) T[dataSize]);
     if (!data)
     {
-        LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
+        LERROR << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     var->set_cur(dimOffsets.data());
@@ -680,12 +680,12 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims)
     r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
     if (st == NULL)
     {
-        LFATAL << "MDD object type could not be cast to struct.";
+        LERROR << "MDD object type could not be cast to struct.";
         throw r_Error(r_Error::r_Error_RefInvalid);
     }
     if (varNames.size() != st->count_elements())
     {
-        LFATAL << "mismatch in #variables between query and MDD object type.";
+        LERROR << "mismatch in #variables between query and MDD object type.";
         throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);
     }
 
@@ -748,7 +748,7 @@ void r_Conv_NETCDF::writeMultipleVars(NcFile& dataFile, const NcDim** dims)
         }
         default:
         {
-            LFATAL << "unsupported type '" << desc.baseType << "'.";
+            LERROR << "unsupported type '" << desc.baseType << "'.";
             throw r_Error(r_Error::r_Error_Conversion);
         }
         }
@@ -1047,7 +1047,7 @@ void r_Conv_NETCDF::writeData(NcFile& dataFile, string& varName, const NcDim** d
         unique_ptr<T[]> data(new(nothrow) T[dataSize]);
         if (!data)
         {
-            LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
+            LERROR << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
         for (size_t i = 0; i < dataSize; i++, val++)
@@ -1069,7 +1069,7 @@ void r_Conv_NETCDF::writeDataStruct(NcFile& dataFile, string& varName, const NcD
     unique_ptr<T[]> buff(new(nothrow) T[dataSize]);
     if (!buff)
     {
-        LFATAL << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
+        LERROR << "failed allocating " << (dataSize * sizeof(T)) << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     S* src = reinterpret_cast<S*>(const_cast<char*>(desc.src) + bandOffset);

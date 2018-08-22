@@ -1,0 +1,50 @@
+{#-
+ # test scaling an array to a new sdom
+ #}
+{%- for k, subset in mdd_constant_subsets.iteritems() -%}
+{%    if k.startswith('trims_') or k.startswith('slices_') -%}
+query: SELECT scale(c + {{cell_type_val}}, {{subset}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k}}
+{{separator}}
+query: SELECT scale(c + {{cell_type_val}}, {{subset}}){{subset}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k ~ "_subset_result"}}
+{{separator}}
+{%      if dimension == 1 -%}
+query: SELECT scale({{cell_type_val}}, {{subset}})
+id: {{template_name ~ "_scalar_" ~ cell_type_name ~ "_" ~ k}}
+{{separator}}
+{%      endif -%}
+{%    endif -%}
+{% endfor -%}
+query: SELECT scale(c, 0.5) FROM {{coll_name}} AS c
+id: {{test_id ~ "_down"}}
+{{separator}}
+query: SELECT scale(c, 2) FROM {{coll_name}} AS c
+id: {{test_id ~ "_up"}}
+{{separator}}
+query: SELECT scale(c, [{{ range(1, dimension + 1)|join(",") }}]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_per_dimension"}}
+{{separator}}
+{% if dimension == 2 and cell_type_name == 'char' -%}
+query: SELECT scale(c, [0:2]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_1"}}
+{{separator}}
+query: SELECT scale(c, [0:4,0:5,0:4]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_3"}}
+{{separator}}
+query: SELECT scale(c, 0) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_zero"}}
+{{separator}}
+query: SELECT scale(c, -0.5) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_negative"}}
+{{separator}}
+query: SELECT scale(c, [2]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_slice_1"}}
+{{separator}}
+query: SELECT scale(c, [2,2,2]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_slice_3"}}
+{{separator}}
+query: SELECT scale(c, nan) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_scalar"}}
+{{separator}}
+{% endif -%}

@@ -102,7 +102,7 @@ r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, con
         result = new r_Conv_HDF(src, interv, tp);
         break;
     default:
-        LFATAL << "Error in conversion factory during create: unsupported format: " << fmt;
+        LERROR << "Error in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
         throw (err);
     }
@@ -142,7 +142,7 @@ r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, con
         result = new r_Conv_HDF(src, interv, type);
         break;
     default:
-        LFATAL << "Error in conversion factory during create: unsupported format: " << fmt;
+        LERROR << "Error in conversion factory during create: unsupported format: " << fmt;
         r_Error err(CONVERSIONFORMATNOTSUPPORTED);
         throw (err);
     }

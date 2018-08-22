@@ -52,7 +52,7 @@ r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj)
     }
     else
     {
-        LFATAL << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL.";
+        LERROR << "r_Collection_Type::r_Collection_Type( oldObj ) the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
 }
@@ -81,7 +81,7 @@ r_Collection_Type::operator=(const r_Collection_Type& oldObj)
     }
     else
     {
-        LFATAL << "r_Collection_Type::operator=( oldObj ) the element type is NULL.";
+        LERROR << "r_Collection_Type::operator=( oldObj ) the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *this;
@@ -92,7 +92,7 @@ r_Collection_Type::element_type() const
 {
     if (elementType == NULL)
     {
-        LFATAL << "r_Collection_Type::element_type() the element type is NULL.";
+        LERROR << "r_Collection_Type::element_type() the element type is NULL.";
         throw r_Error(COLLECTIONTYPEHASNOELEMENTTYPE);
     }
     return *elementType;

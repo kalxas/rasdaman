@@ -54,10 +54,6 @@ const int MSG_MAXLEN = BUFFER_SIZE;
 char* error_message;
 int error_code;
 
-// error codes
-#define SUCCESS 0
-#define ERROR 1
-
 /*
  * Return true if return_code is an error, or false else.
  */
@@ -90,8 +86,8 @@ failOnError(const char* stmt, sqlite3* sqliteConn)
 {
     if (is_error(sqliteConn))
     {
-        LFATAL << "SQL query failed: " << stmt;
-        LFATAL << "Database error, code: " << error_code << ", message: " << error_message;
+        LERROR << "SQL query failed: " << stmt;
+        LERROR << "Database error, code: " << error_code << ", message: " << error_message;
         throw r_Ebase_dbms(error_code, error_message);
     }
 }

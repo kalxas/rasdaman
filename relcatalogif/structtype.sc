@@ -94,7 +94,7 @@ StructType::readFromDb()
     }
     else
     {
-        LFATAL << "StructType::readFromDb() - base type: "
+        LERROR << "StructType::readFromDb() - base type: "
                << basetypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "base type object not found in the database.");
     }

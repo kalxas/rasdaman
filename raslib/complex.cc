@@ -61,7 +61,7 @@ r_Complex::get_re() const
 {
     if (!get_buffer() || !valueType || !valueType->isComplexType())
     {
-        LFATAL << "r_Complex::get_re() value type is not a complex, not initialised or not buffered";
+        LERROR << "r_Complex::get_re() value type is not a complex, not initialised or not buffered";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -73,7 +73,7 @@ r_Complex::get_im() const
 {
     if (!get_buffer() || !valueType || !valueType->isComplexType())
     {
-        LFATAL << "r_Complex::get_im() value type is not a complex, not initialised or not buffered";
+        LERROR << "r_Complex::get_im() value type is not a complex, not initialised or not buffered";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -85,7 +85,7 @@ r_Complex::set_re(r_Double re)
 {
     if (!valueType || !valueType->isComplexType())
     {
-        LFATAL << "r_Complex::set_re(" << re << ") value type is not a complex or not initialised";
+        LERROR << "r_Complex::set_re(" << re << ") value type is not a complex or not initialised";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -97,7 +97,7 @@ r_Complex::set_im(r_Double im)
 {
     if (!valueType || !valueType->isComplexType())
     {
-        LFATAL << "r_Complex::get_im() value type is not a complex or not initialised";
+        LERROR << "r_Complex::get_im() value type is not a complex or not initialised";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }

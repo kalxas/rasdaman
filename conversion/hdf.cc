@@ -103,7 +103,7 @@ r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type*
 
     if (tp->isStructType())
     {
-        LFATAL << "r_Conv_HDF::r_Conv_HDF(): structured types not supported.";
+        LERROR << "r_Conv_HDF::r_Conv_HDF(): structured types not supported.";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -146,7 +146,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
     tempFD = mkstemp(name);
     if (tempFD == -1)
     {
-        LFATAL << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
+        LERROR << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
                << ") desc.srcType (" << desc.srcType->type_id()
                << ") unable to generate a tempory file !";
         throw r_Error();
@@ -154,7 +154,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     if ((handle = SDstart(name, DFACC_CREATE)) == FAIL)
     {
-        LFATAL << "r_Conv_HDF::convertTo(): unable to open output file.";
+        LERROR << "r_Conv_HDF::convertTo(): unable to open output file.";
         throw r_Error(r_Error::r_Error_General);
     }
     rank = desc.srcInterv.dimension();
@@ -171,7 +171,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     if ((sds_id = SDcreate(handle, "RasDaMan object", datatype, rank, dimsizes)) == FAIL)
     {
-        LFATAL << "r_Conv_HDF::convertTo(): unable to create object.";
+        LERROR << "r_Conv_HDF::convertTo(): unable to create object.";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);
@@ -215,7 +215,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     if ((fp = fopen(name, "rb")) == NULL)
     {
-        LFATAL << "r_Conv_HDF::convertTo(): unable to read back file.";
+        LERROR << "r_Conv_HDF::convertTo(): unable to read back file.";
         throw r_Error(r_Error::r_Error_General);
     }
     fseek(fp, 0, SEEK_END);
@@ -226,7 +226,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     if ((desc.dest = (char*)mystore.storage_alloc(filesize)) == NULL)
     {
-        LFATAL << "r_Conv_HDF::convertTo(): out of memory error";
+        LERROR << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
@@ -268,14 +268,14 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     if (desc.srcInterv.dimension() != 1)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): source data must be a bytestream!";
+        LERROR << "r_Conv_HDF::convertFrom(): source data must be a bytestream!";
         throw r_Error(r_Error::r_Error_General);
     }
 
     tempFD = mkstemp(name);
     if (tempFD == -1)
     {
-        LFATAL << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
+        LERROR << "r_Conv_hdf::convertTo(" << (options ? options : "NULL")
                << ") desc.srcType (" << desc.srcType->type_id()
                << ") unable to generate a tempory file !";
         throw r_Error();
@@ -283,14 +283,14 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     if ((fp = fopen(name, "wb")) == NULL)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): unable to write temporary file!";
+        LERROR << "r_Conv_HDF::convertFrom(): unable to write temporary file!";
         throw r_Error(r_Error::r_Error_General);
     }
     filesize = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
     size_t j = 0;
     if ((j = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
+        LERROR << "r_Conv_HDF::convertFrom(): error writing to temporary file ("
                << j << " / " << filesize << ')';
         throw r_Error(r_Error::r_Error_General);
     }
@@ -298,13 +298,13 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     if ((handle = SDstart(name, DFACC_READ)) == FAIL)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): can't read temporary file!";
+        LERROR << "r_Conv_HDF::convertFrom(): can't read temporary file!";
         throw r_Error(r_Error::r_Error_General);
     }
     // Only read the first object in the file
     if ((sds_id = SDselect(handle, 0)) == FAIL)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): unable to open first object";
+        LERROR << "r_Conv_HDF::convertFrom(): unable to open first object";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);
@@ -334,7 +334,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     if ((desc.dest = (char*)mystore.storage_alloc(array_size)) == NULL)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): out of memory error!";
+        LERROR << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);
         remove(name);
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -342,7 +342,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void*>(desc.dest)) == FAIL)
     {
-        LFATAL << "r_Conv_HDF::convertFrom(): error reading data";
+        LERROR << "r_Conv_HDF::convertFrom(): error reading data";
         SDend(handle);
         remove(name);
         throw r_Error(r_Error::r_Error_General);

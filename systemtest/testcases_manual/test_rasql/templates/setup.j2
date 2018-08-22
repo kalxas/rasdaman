@@ -1,0 +1,42 @@
+{#-
+ # Create composite cell type if necessary
+-#}
+{%- if cell_type_components|length > 0 and dimension == 1 %}
+query: CREATE TYPE {{ cell_type_name }} AS ( 
+{%-     for cname, ctype in cell_type_components -%}
+{{ cname ~ " " ~ ctype ~ ("" if loop.last else ", ") }}
+{%-     endfor -%}
+{{ ")" }}
+id: {{test_id ~ "_create_cell_type"}}
+{{separator}}
+{%- endif -%}
+{#- 
+ # Create mdd type
+ #}
+query: CREATE TYPE {{ mdd_type_name }} AS {{ cell_type_name }} MDARRAY [
+{%- for i in range(dimension) -%}
+{{ "d" ~ i ~ ("" if loop.last else ", ") }}
+{%- endfor -%}
+{{ "]" }}
+id: {{test_id ~ "_create_mdd_type"}}
+{{separator}}
+{#
+ # Create collection type
+-#}
+query: CREATE TYPE {{ coll_type_name }} AS SET ({{ mdd_type_name }})
+id: {{test_id ~ "_create_set_type"}}
+{{separator}}
+{#
+ # Create collection
+-#}
+query: CREATE COLLECTION {{ coll_name }} {{ coll_type_name }}
+id: {{test_id ~ "_create_coll"}}
+{{separator}}
+{#
+ # Insert sample mdd constant
+-#}
+query: INSERT INTO {{ coll_name }} VALUES {{ mdd_constant }}
+{# The printed oid changes on every insert, so remove it from the output -#}
+filter: "Result element 1"
+id: {{test_id ~ "_insert_mdd_constant"}}
+{{separator}}

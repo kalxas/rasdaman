@@ -101,7 +101,7 @@ DatabaseIf::open(const char* dbName)
         if (0)   // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
         {
             LTRACE << "database name unknown";
-            LFATAL << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
+            LERROR << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
             throw r_Error(r_Error::r_Error_DatabaseUnknown);
         }
         else
@@ -124,7 +124,7 @@ DatabaseIf::baseDBMSOpen()
     if (AdminIf::getCurrentDatabaseIf())
     {
         LTRACE << "baseDBMSOpen() CurrentDatabaseIf != 0";
-        LFATAL << "Transaction begin:\n" \
+        LERROR << "Transaction begin:\n" \
                << "There seems to be another database connection active (Internal State 1).\n" \
                << "Please contact Customer support.";
         throw r_Error(DATABASE_OPEN);
@@ -137,7 +137,7 @@ DatabaseIf::baseDBMSOpen()
 #ifdef DBMS_PGSQL // cannot have this check in PostgreSQL -- PB 2005-jan-09
     if (!databaseExists(myName))
     {
-        LFATAL << "Database " << ((myName) ? myName : "NULL") << " unknown";
+        LERROR << "Database " << ((myName) ? myName : "NULL") << " unknown";
         throw r_Error(r_Error::r_Error_DatabaseUnknown);
     }
 #endif // DBMS_PGSQL
@@ -151,7 +151,7 @@ DatabaseIf::baseDBMSOpen()
     checkCompatibility();
     if (!isConsistent())
     {
-        LFATAL << "Database " << ((myName) ? myName : "NULL") << " inconsistent";
+        LERROR << "Database " << ((myName) ? myName : "NULL") << " inconsistent";
         throw r_Error(DATABASE_INCONSISTENT);
     }
 #endif

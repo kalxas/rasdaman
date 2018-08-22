@@ -177,7 +177,7 @@ DBRCIndexDS::insertInDb()
     {
         free(completebuffer);
         completebuffer = NULL;
-        LFATAL << "DBRCIndexDS::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBRCIndexDS::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     LDEBUG << "lo_open() for oid " << blobOid;
@@ -188,7 +188,7 @@ DBRCIndexDS::insertInDb()
     {
         free(completebuffer);
         completebuffer = NULL;
-        LFATAL << "DBRCIndexDS::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "DBRCIndexDS::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     else if (loResult != static_cast<int>(completesize))      // did not get all
@@ -204,7 +204,7 @@ DBRCIndexDS::insertInDb()
     {
         free(completebuffer);
         completebuffer = NULL;
-        LFATAL << "DBRCIndexDS::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+        LERROR << "DBRCIndexDS::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
         generateException();
     }
     free(completebuffer);
@@ -302,14 +302,14 @@ DBRCIndexDS::readFromDb()
     char* completebuffer = static_cast<char*>(mymalloc(static_cast<size_t>(blobSize)));   // receives blob contents
     if (completebuffer == NULL)
     {
-        LFATAL << "DBRCIndexDS::readFromDb() cannot allocate blob buffer";
+        LERROR << "DBRCIndexDS::readFromDb() cannot allocate blob buffer";
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     LDEBUG << "lo_read() for " << blobSize << " bytes";   // read blob
     int loResult = lo_read( pgConn, fd, completebuffer, static_cast<size_t>(blobSize) );
     if (loResult < 0)
     {
-        LFATAL << "DBRCIndexDS::readFromDb() cannot read blob, error: " << loResult;
+        LERROR << "DBRCIndexDS::readFromDb() cannot read blob, error: " << loResult;
         throw r_Error( r_Error::r_Error_BaseDBMSFailed );
     }
     else if (loResult != blobSize)              // did not get all
@@ -418,7 +418,7 @@ DBRCIndexDS::readFromDb()
     // additional plausi check
     if (blobSize != static_cast<int>(bytesdone + completesize))
     {
-        LFATAL << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
+        LERROR << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         LDEBUG << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }

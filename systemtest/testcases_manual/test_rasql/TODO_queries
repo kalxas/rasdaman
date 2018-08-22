@@ -1,0 +1,106 @@
+test_select queries remaining to be covered:
+
+
+# project
+
+project_multiband.rasql
+select avg_cells(project( c, "EPSG:4326", "EPSG:3857")) from test_rgb2 as c
+
+project.rasql
+select project( c, "EPSG:4326", "EPSG:3857") from test_grey as c
+
+
+# array condense
+
+condense_char.rasql
+select condense + over x in [1:1000] using 1c
+
+condense_floating_point.rasql
+select condense + over x in [1:1000] using 0.3330f
+
+condense_octet.rasql
+select condense + over x in [1:1000] using 1o
+
+condensers_avg_subset.rasql
+select avg_cells(c[200,210:211]) from test_grey AS c -- ticket 1711
+
+condensers_count.rasql
+select count_cells( test_grey >-1) from test_grey
+
+condensers_stddev_samp_one_element.rasql
+select stddev_samp(<[0:0] 1>)
+
+condense_short.rasql
+select condense + over x in [1:100000] using 1s
+
+condense_ushort.rasql
+select condense + over x in [1:100000] using 1us
+
+general_array_condenser_add.rasql
+select condense + over x in sdom(a) using a[x] from test_grey as a
+
+general_array_condenser_all.rasql
+select condense and over x in sdom(a) using a[x] from test_grey as a
+
+general_array_condenser_count.rasql
+select condense + over x in sdom(a) where (bool)((bool)a[x]+1) using 1 from test_grey as a
+
+general_array_condenser_induced_dim.rasql
+select condense + over [0:100] using a[0:10, x[0]] from test_grey a
+
+general_array_condenser_induced_full.rasql
+select condense + over x in [10:20] using a from test_grey a
+
+general_array_condenser_max_double.rasql
+select csv(marray i in [-1:1] values condense max over j in [3:4] using (i[0] * j[0]) / 2.0) from test_grey
+
+general_array_condenser_max.rasql
+select csv(marray i in [-1:1] values condense max over j in [3:4] using i[0] * j[0]) from test_grey
+
+general_array_condenser_min_double.rasql
+select csv(marray i in [-1:1] values condense min over j in [3:4] using (i[0] * j[0]) / 2.0) from test_grey
+
+general_array_condenser_min.rasql
+select csv(marray i in [-1:1] values condense min over j in [3:4] using i[0] * j[0]) from test_grey
+
+general_array_condenser_mult.rasql
+select condense * over i in sdom(data) using data[i] from test_complex as data
+
+general_array_condenser_some.rasql
+select condense or over x in sdom(a) using a[x] from test_grey as a
+
+
+# array constructor
+
+general_array_constructor_1c.rasql
+select marray x in [ 1:100, -50:200 ] values 1c from test_grey
+
+general_array_constructor_variable_1.rasql
+select marray xy in [1:5, 1:10] values a[ xy[0], xy[1] ] from test_grey as a
+
+general_array_constructor_variable.rasql
+select max_cells(marray x in [100:105], y in [100:105] values a[ x[0], y[0] ]) from test_grey as a
+
+general_array_constructor_x[0].rasql
+select marray x in [ 0:255, 0:511 ] values x[0] from test_grey
+
+rgb_and_selection.rasql
+select encode(marray px in [0:1,334:343] values condense and over i in [0:9] using ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+rgb_max_selection.rasql
+select encode(marray px in [0:1,334:343] values condense max over i in [0:9] using (char) ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+rgb_min_selection.rasql
+select encode(marray px in [0:1,334:343] values condense min over i in [0:9] using (char) ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+rgb_multiplication_selection.rasql
+select encode(marray px in [0:1,334:343] values condense * over i in [0:9] using (double) ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+rgb_or_selection.rasql
+select encode(marray px in [0:1,334:343] values condense or over i in [0:9] using ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+rgb_sum_selection.rasql
+select encode(marray px in [0:1,334:343] values condense + over i in [0:9] using (double) ((c[px[0],px[1]])), "csv") from test_rgb2 as c
+
+
+

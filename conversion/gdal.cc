@@ -98,7 +98,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
 {
     if (format.empty())
     {
-        LFATAL << "no format specified";
+        LERROR << "no format specified";
         throw r_Error(r_Error::r_Error_Conversion);
     }
     if (r_MimeTypes::isMimeType(format))
@@ -121,7 +121,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(format.c_str());
     if (driver == NULL)
     {
-        LFATAL << "Unsupported format: " << format;
+        LERROR << "Unsupported format: " << format;
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
     }
 
@@ -159,7 +159,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
         GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
         if (!gdalResult)
         {
-            LFATAL << "Failed encoding to format '" << format << "': " << CPLGetLastErrorMsg();
+            LERROR << "Failed encoding to format '" << format << "': " << CPLGetLastErrorMsg();
             throw r_Error(r_Error::r_Error_Conversion);
         }
         GDALClose(gdalResult);
@@ -237,7 +237,7 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
     dstCells.reset(new(nothrow) T[area]);
     if (!dstCells)
     {
-        LFATAL << "failed allocating " << area << " bytes of memory.";
+        LERROR << "failed allocating " << area << " bytes of memory.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
@@ -582,7 +582,7 @@ r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType)
                 {
                     if (ret->type_id() != pt.type_id())
                     {
-                        LFATAL << "Can not handle bands of different types.";
+                        LERROR << "Can not handle bands of different types.";
                         throw r_Error(r_Error::r_Error_Conversion);
                     }
                 }
@@ -593,7 +593,7 @@ r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType)
             }
             else
             {
-                LFATAL << "Can not handle composite bands.";
+                LERROR << "Can not handle composite bands.";
                 throw r_Error(r_Error::r_Error_Conversion);
             }
             ++iter;

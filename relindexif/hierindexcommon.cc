@@ -857,17 +857,17 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     // This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
     {
-        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData;
+        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData;
         throw r_Error();
     }
     if (brp.binaryData[5] != 1)
     {
-        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]);
+        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]);
         throw r_Error();
     }
     if (brp.binaryData[6] != (r_Endian::get_endianness() == r_Endian::r_Endian_Little))
     {
-        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") endianess conversion not supported";
+        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") endianess conversion not supported";
         throw r_Error();
     }
     size_t size1;
@@ -883,7 +883,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     char* temp = getBinaryName();
     if (strcmp(temp, brp.binaryName) != 0)
     {
-        LFATAL << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") my name should be " << temp;
+        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") my name should be " << temp;
         delete [] temp;
         throw r_Error();
     }

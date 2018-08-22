@@ -109,7 +109,7 @@ r_Point& r_Point::operator<<(r_Range newElement)
 {
     if (streamInitCnt >= dimensionality)
     {
-        LFATAL << "r_Point::operator<<(" << newElement << ") already fully initialised";
+        LERROR << "r_Point::operator<<(" << newElement << ") already fully initialised";
         throw r_Einit_overflow();
     }
 
@@ -210,7 +210,7 @@ r_Point::operator[](r_Dimension i) const
 {
     if (i >= dimensionality)
     {
-        LFATAL << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")";
+        LERROR << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation(0, dimensionality - 1, i);
     }
 
@@ -223,7 +223,7 @@ r_Point::operator[](r_Dimension i)
 {
     if (i >= dimensionality)
     {
-        LFATAL << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")";
+        LERROR << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")";
         throw r_Eindex_violation(0, dimensionality - 1, i);
     }
 
@@ -297,7 +297,7 @@ r_Point::operator < (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
@@ -313,7 +313,7 @@ r_Point::operator > (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
@@ -330,7 +330,7 @@ r_Point::operator >= (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
@@ -347,7 +347,7 @@ r_Point::operator <= (const r_Point& pt) const
 {
     if(this->dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
@@ -364,7 +364,7 @@ r_Point::operator+(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator+(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator+(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
 
@@ -383,7 +383,7 @@ r_Point::operator-(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator-(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator-(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
 
@@ -402,7 +402,7 @@ r_Point::operator*(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
 
@@ -446,7 +446,7 @@ r_Point::dotProduct(const r_Point& pt) const
 {
     if (dimensionality != pt.dimension())
     {
-        LFATAL << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
+        LERROR << "r_Point::operator*(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
 

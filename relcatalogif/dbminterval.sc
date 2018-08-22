@@ -179,7 +179,7 @@ DBMinterval::updateInDb()
     }
     else
     {
-        LFATAL << "DBMinterval::updateInDb() - domain object: "
+        LERROR << "DBMinterval::updateInDb() - domain object: "
                << domainid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
@@ -272,7 +272,7 @@ DBMinterval::readFromDb()
     }
     else
     {
-        LFATAL << "DBMinterval::readFromDb() - domain object: "
+        LERROR << "DBMinterval::readFromDb() - domain object: "
                << domainid << " not found in the database..";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
@@ -309,7 +309,7 @@ DBMinterval::readFromDb()
         }
         else
         {
-            LFATAL << "DBMinterval::readFromDb() - domain object: "
+            LERROR << "DBMinterval::readFromDb() - domain object: "
                    << domainid << " has no dimension " << count << " description in the database.";
             throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object has no dimension description in the database.");
         }

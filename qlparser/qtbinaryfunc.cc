@@ -134,7 +134,7 @@ QtShift::evaluate(QtDataList* inputList)
                 operand2->deleteRef();
             }
 
-            LFATAL << "Error: QtShift::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
+            LERROR << "Error: QtShift::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
             parseInfo.setErrorNo(407);
             throw parseInfo;
         }
@@ -261,7 +261,7 @@ QtShift::optimizeLoad(QtTrimList* trimList)
             delete trimList;
             trimList = NULL;
 
-            LFATAL << "Error: QtShift::optimizeLoad() - spatial domain shift of open bounds is not supported";
+            LERROR << "Error: QtShift::optimizeLoad() - spatial domain shift of open bounds is not supported";
             parseInfo.setErrorNo(409);
             throw parseInfo;
         }
@@ -279,7 +279,7 @@ QtShift::optimizeLoad(QtTrimList* trimList)
             delete trimList;
             trimList = NULL;
 
-            LFATAL <<  "Error: QtShift::optimizeLoad() - second operand of shift function must be a constant expression.";
+            LERROR <<  "Error: QtShift::optimizeLoad() - second operand of shift function must be a constant expression.";
             parseInfo.setErrorNo(408);
             throw parseInfo;
         }
@@ -297,7 +297,7 @@ QtShift::optimizeLoad(QtTrimList* trimList)
 
             operand->deleteRef();
 
-            LFATAL << "Error: QtShift::optimizeLoad() - second operand must be of type Point.";
+            LERROR << "Error: QtShift::optimizeLoad() - second operand must be of type Point.";
             parseInfo.setErrorNo(406);
             throw parseInfo;
         }
@@ -366,7 +366,7 @@ QtShift::checkType(QtTypeTuple* typeTuple)
 
         if (inputType1.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtShift::checkType() - first operand must be of type MDD.";
+            LERROR << "Error: QtShift::checkType() - first operand must be of type MDD.";
             parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
@@ -376,7 +376,7 @@ QtShift::checkType(QtTypeTuple* typeTuple)
         // so we need to take care manually here of this edge case -- DM 2015-aug-24
         if (inputType2.getDataType() != QT_POINT && inputType2.getDataType() != QT_LONG)
         {
-            LFATAL << "Error: QtShift::checkType() - second operand must be of type Point.";
+            LERROR << "Error: QtShift::checkType() - second operand must be of type Point.";
             parseInfo.setErrorNo(406);
             throw parseInfo;
         }
@@ -448,7 +448,7 @@ QtExtend::evaluate(QtDataList* inputList)
                 operand2->deleteRef();
             }
 
-            LFATAL << "Error: QtExtend::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
+            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
             parseInfo.setErrorNo(407);
             throw parseInfo;
         }
@@ -466,7 +466,7 @@ QtExtend::evaluate(QtDataList* inputList)
                 operand2->deleteRef();
             }
 
-            LFATAL << "Error: QtExtend::evaluate( QtDataList* ) - target domain must not have open bounds.";
+            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - target domain must not have open bounds.";
             parseInfo.setErrorNo(420);
             throw parseInfo;
         }
@@ -479,7 +479,7 @@ QtExtend::evaluate(QtDataList* inputList)
 //            if( operand1 ) operand1->deleteRef();
 //            if( operand2 ) operand2->deleteRef();
 //
-//            LFATAL << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
+//            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
 //            parseInfo.setErrorNo(421);
 //            throw parseInfo;
 //        }
@@ -835,14 +835,14 @@ QtExtend::checkType(QtTypeTuple* typeTuple)
 
         if (inputType1.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtExtend::checkType() - first operand must be of type MDD.";
+            LERROR << "Error: QtExtend::checkType() - first operand must be of type MDD.";
             parseInfo.setErrorNo(MDDARGREQUIRED);
             throw parseInfo;
         }
 
         if (inputType2.getDataType() != QT_MINTERVAL)
         {
-            LFATAL << "Error: QtExtend::checkType() - second operand must be of type Minterval.";
+            LERROR << "Error: QtExtend::checkType() - second operand must be of type Minterval.";
             parseInfo.setErrorNo(422);
             throw parseInfo;
         }
@@ -933,7 +933,7 @@ QtScale::evaluate(QtDataList* inputList)
                 operand2->deleteRef();
             }
 
-            LFATAL << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
+            LERROR << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
@@ -994,7 +994,7 @@ QtScale::evaluate(QtDataList* inputList)
                 operand2->deleteRef();
             }
 
-            LFATAL << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
+            LERROR << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
@@ -1083,7 +1083,7 @@ QtScale::evaluate(QtDataList* inputList)
             operand2->deleteRef();
         }
 
-        LFATAL << "Error: QtScale::evaluate( QtDataList* ) - empty result after scaling.";
+        LERROR << "Error: QtScale::evaluate( QtDataList* ) - empty result after scaling.";
         parseInfo.setErrorNo(419);
         throw parseInfo;
     }
@@ -1242,7 +1242,7 @@ QtScale::checkType(QtTypeTuple* typeTuple)
 
         if (inputType1.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtScale::checkType() - first operand must be of type MDD.";
+            LERROR << "Error: QtScale::checkType() - first operand must be of type MDD.";
             parseInfo.setErrorNo(416);
             throw parseInfo;
         }
@@ -1251,7 +1251,7 @@ QtScale::checkType(QtTypeTuple* typeTuple)
                 inputType2.getDataType() != QT_FLOAT  && inputType2.getDataType() != QT_DOUBLE &&
                 !inputType2.isInteger())
         {
-            LFATAL << "Error: QtScale::checkType() - second operand must be either of type Point, Integer or Float.";
+            LERROR << "Error: QtScale::checkType() - second operand must be either of type Point, Integer or Float.";
             parseInfo.setErrorNo(417);
             throw parseInfo;
         }

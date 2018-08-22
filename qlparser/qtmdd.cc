@@ -105,7 +105,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
 
         if (operand->getDataType() != QT_MINTERVAL)
         {
-            LFATAL << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." ;
+            LERROR << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Can not evaluate domain expression to an minterval." ;
             ParseInfo errorInfo = getParseInfo();
             errorInfo.setErrorNo(401);
             throw errorInfo;
@@ -149,7 +149,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
                     char* scalarElemTypeStructure = scalarElem->getTypeStructure();
                     if (strcmp(scalarElemTypeStructure, baseStructure) != 0)
                     {
-                        LFATAL << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
+                        LERROR << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
                         free(cellBuffer);
                         free(scalarElemTypeStructure);
                         cellBuffer = NULL;
@@ -169,7 +169,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
 
             if (cellCount != domain.cell_count())
             {
-                LFATAL << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain.";
+                LERROR << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain.";
                 free(cellBuffer);
                 cellBuffer = NULL;
                 ParseInfo errorInfo = getParseInfo();
@@ -198,7 +198,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
     }
     else
     {
-        LFATAL << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Domain of MDD constructor has to be defined.";
+        LERROR << "Error: QtMDD( QtOperation*, list<QtScalarData*>* ) - Domain of MDD constructor has to be defined.";
         ParseInfo errorInfo = getParseInfo();
         errorInfo.setErrorNo(400);
         throw errorInfo;
@@ -238,7 +238,7 @@ QtMDD::QtMDD(__attribute__((unused)) int constantNo)
     }
     else
     {
-        LFATAL << "Error: QtMDD() - Unsatisfied MDD constant parameter.";
+        LERROR << "Error: QtMDD() - Unsatisfied MDD constant parameter.";
         ParseInfo errorInfo = getParseInfo();
         errorInfo.setErrorNo(373);
         throw errorInfo;

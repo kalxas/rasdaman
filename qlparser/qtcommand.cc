@@ -67,7 +67,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollecti
 {
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -83,7 +83,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollecti
 {
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -99,7 +99,7 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollecti
 {
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -112,7 +112,7 @@ void QtCommand::dropCollection(const QtCollection& collection2)
         // drop the actual collection
         if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
         {
-            LFATAL << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
+            LERROR << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
             parseInfo.setErrorNo(957);
             throw parseInfo;
         }
@@ -165,7 +165,7 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
             }
             else
             {
-                LFATAL << "Error: QtCommand::evaluate() - oid allocation failed";
+                LERROR << "Error: QtCommand::evaluate() - oid allocation failed";
                 parseInfo.setErrorNo(958);
                 throw parseInfo;
             }
@@ -173,7 +173,7 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
         }
         else
         {
-            LFATAL << "Error during query evaluation: collection type not found: " << typeName2.c_str();
+            LERROR << "Error during query evaluation: collection type not found: " << typeName2.c_str();
             parseInfo.setErrorNo(956);
             throw parseInfo;
         }
@@ -199,7 +199,7 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
             coll.reset(MDDColl::getMDDCollection(collection2.getCollectionName().c_str()));
             if (!coll)
             {
-                LFATAL << "Collection name not found: " << collection2.getCollectionName().c_str();
+                LERROR << "Collection name not found: " << collection2.getCollectionName().c_str();
                 parseInfo.setErrorNo(957);
                 throw parseInfo;
             }
@@ -208,7 +208,7 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
             const MDDType* existingMDDType = existingCollType->getMDDType();
             if (!newCollType->compatibleWith(existingMDDType))
             {
-                LFATAL << "New collection type is incompatible with the existing collection type.";
+                LERROR << "New collection type is incompatible with the existing collection type.";
                 parseInfo.setErrorNo(959);
                 throw parseInfo;
             }
@@ -223,7 +223,7 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
     }
     else
     {
-        LFATAL << "Collection type not found: " << typeName2;
+        LERROR << "Collection type not found: " << typeName2;
         parseInfo.setErrorNo(956);
         throw parseInfo;
     }
@@ -244,7 +244,7 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     else
     {
         // empty results from SELECT
-        LFATAL << "Error: no results from the SELECT sub-query.";
+        LERROR << "Error: no results from the SELECT sub-query.";
         throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
     }
 
@@ -277,7 +277,7 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     }
     else
     {
-        LFATAL << "Error: the result from the SELECT sub-query is not an MDD, and can not be stored in a collection.";
+        LERROR << "Error: the result from the SELECT sub-query is not an MDD, and can not be stored in a collection.";
         throw r_Error(r_Error::r_Error_QueryExecutionFailed, 243);
     }
 
@@ -332,7 +332,7 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
             updateResult = NULL;
             delete query;
             query = NULL;
-            LFATAL << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
+            LERROR << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
             throw;
         }
         catch (...)
@@ -349,7 +349,7 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
             updateResult = NULL;
             delete query;
             query = NULL;
-            LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
+            LERROR << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
             throw;
         }
     }
@@ -419,20 +419,20 @@ QtCommand::evaluate()
             catch (r_Error& myErr)
             {
                 delete selectTree;
-                LFATAL << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
+                LERROR << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
                 throw;
             }
             catch (...)
             {
                 delete selectTree;
-                LFATAL << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
+                LERROR << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
                 throw;
             }
 
 
             if (data == NULL)
             {
-                LFATAL << "Error: evaluating the SELECT sub-query failed.";
+                LERROR << "Error: evaluating the SELECT sub-query failed.";
                 throw r_Error(r_Error::r_Error_QueryExecutionFailed, 242);
             }
             else
@@ -466,28 +466,28 @@ QtCommand::evaluate()
         }
         catch (r_Ebase_dbms& myErr)
         {
-            LFATAL << "Error: base DBMS exception: " << myErr.what();
+            LERROR << "Error: base DBMS exception: " << myErr.what();
             throw;
         }
         catch (r_Error& myErr)
         {
-            LFATAL << "Error: " << myErr.get_errorno() << " " << myErr.what();
+            LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
             throw;
         }
         catch (bad_alloc)
         {
-            LFATAL << "Error: cannot allocate memory.";
+            LERROR << "Error: cannot allocate memory.";
             throw;
         }
         catch (ParseInfo& e)
         {
-            LFATAL << "Error: ";
+            LERROR << "Error: ";
             e.printStatus(RMInit::logOut);
             throw;
         }
         catch (...)
         {
-            LFATAL << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing.";
+            LERROR << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing.";
             throw;
         }
     default:

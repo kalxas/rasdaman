@@ -1,0 +1,13 @@
+{#-
+ # test condense functions (add_cells, ...) on array and (error case) on scalars
+ #}
+{%- for func in func_condense -%}
+query: SELECT {{func}}(c) FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ func}}
+{{separator}}
+{% if dimension == 1 -%}
+query: SELECT {{func}}({{cell_type_val}})
+id: {{test_id ~ "_" ~ func ~ "_scalar"}}
+{{separator}}
+{% endif -%}
+{% endfor -%}

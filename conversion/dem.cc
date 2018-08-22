@@ -245,24 +245,24 @@ r_Conv_DEM::checkLimits()
 
     if (collBBox.startx > min.x)
     {
-        LFATAL << "r_Conv_DEM::checkLimits() startx( " << collBBox.startx << ") > min.x (" << min.x << " )!";
+        LERROR << "r_Conv_DEM::checkLimits() startx( " << collBBox.startx << ") > min.x (" << min.x << " )!";
         throw r_Error();
     }
     if (collBBox.endx < max.x)
     {
-        LFATAL << "r_Conv_DEM::checkLimits() endx( " << collBBox.endx << ") < max.x (" << max.x << " )!";
+        LERROR << "r_Conv_DEM::checkLimits() endx( " << collBBox.endx << ") < max.x (" << max.x << " )!";
         throw r_Error();
     }
 
     if (collBBox.starty > min.y)
     {
-        LFATAL << "r_Conv_DEM::checkLimits() starty( " << collBBox.starty << ")  > min.y (" << min.y << " )!";
+        LERROR << "r_Conv_DEM::checkLimits() starty( " << collBBox.starty << ")  > min.y (" << min.y << " )!";
         throw r_Error();
     }
 
     if (collBBox.endy < max.y)
     {
-        LFATAL << "r_Conv_DEM::checkLimits() endy( " << collBBox.endy << ") < max.y (" << max.y << " )!";
+        LERROR << "r_Conv_DEM::checkLimits() endy( " << collBBox.endy << ") < max.y (" << max.y << " )!";
         throw r_Error();
     }
 }
@@ -335,14 +335,14 @@ r_Conv_DEM::readFromSrcStream()
             noResx=currRow.x/collBBox.resx;
             if((currRow.x - noResx*collBBox.resx) > 0.)
             {
-                LFATAL << "r_Conv_DEM::readFromSrcStream() resolution for x on line " <<
+                LERROR << "r_Conv_DEM::readFromSrcStream() resolution for x on line " <<
                     rowNo << " is not " << collBBox.resx << " !";
                 throw r_Error();
             }
             noResy=currRow.y/collBBox.resy;
             if((currRow.y - noResy*collBBox.resy) > 0.)
             {
-                LFATAL << "r_Conv_DEM::readFromSrcStream() resolution for y on line " <<
+                LERROR << "r_Conv_DEM::readFromSrcStream() resolution for y on line " <<
                     rowNo << " is not " << collBBox.resy << " !";
                 throw r_Error();
             }
@@ -428,7 +428,7 @@ r_Conv_DEM::readToSrcStream()
     buffer = new char[typeSize];
     if (!buffer)
     {
-        LFATAL << "r_Conv_DEM::readToSrcStream() unable to claim memory !";
+        LERROR << "r_Conv_DEM::readToSrcStream() unable to claim memory !";
         throw  r_Ememory_allocation();
     }
     for (y = ylow; y <= yhigh; y++)
@@ -486,7 +486,7 @@ r_Conv_DEM::readToSrcStream()
                 break;
             default:
                 //write message to log
-                LFATAL << "r_Conv_DEM::readToSrcStream() srcType (" << desc.srcType->type_id() <<  ") unsupported !";
+                LERROR << "r_Conv_DEM::readToSrcStream() srcType (" << desc.srcType->type_id() <<  ") unsupported !";
                 //clean up
                 if (buffer)
                 {
@@ -512,7 +512,7 @@ r_Conv_DEM::readToSrcStream()
 
     if (demRows.empty())
     {
-        LFATAL << "r_Conv_DEM::readToSrcStream() src stream is empty !";
+        LERROR << "r_Conv_DEM::readToSrcStream() src stream is empty !";
         throw r_Error();
     }
 
@@ -532,7 +532,7 @@ r_Conv_DEM::writeFromDestStream()
     //FIXME here we should modify for other type support
     if (desc.destType->type_id() != r_Type::DOUBLE)
     {
-        LFATAL << "r_Conv_DEM::writeFromDestStream() destType (" << desc.destType->type_id()
+        LERROR << "r_Conv_DEM::writeFromDestStream() destType (" << desc.destType->type_id()
                << ") is not " << r_Type::DOUBLE << " !";
         throw r_Error();
     }
@@ -577,7 +577,7 @@ r_Conv_DEM::writeToDestStream(ofstream& oFile)
 
     if (!oFile.is_open())
     {
-        LFATAL << "r_Conv_DEM::writeToDestStream() oFile is not opened !";
+        LERROR << "r_Conv_DEM::writeToDestStream() oFile is not opened !";
         throw r_Error();
     }
     oFile.setf(std::ios::fixed);
@@ -623,14 +623,14 @@ r_Conv_DEM::convertFrom(const char* options)
         //check options
         if (!decodeOptions(options, collBBox))
         {
-            LFATAL << "Error in r_Conv_DEM::convertFrom(): illegal option string: " << (options ? options : "(null)");
+            LERROR << "Error in r_Conv_DEM::convertFrom(): illegal option string: " << (options ? options : "(null)");
             throw r_Error();
         }
 
         //check desc.srcInterv.dimension
         if (desc.srcInterv.dimension() != srcIntervDim)
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
                    << ") desc.srcInterv dimension (" << desc.srcInterv.dimension()
                    << " != " << srcIntervDim << " !";
             throw r_Error();
@@ -639,7 +639,7 @@ r_Conv_DEM::convertFrom(const char* options)
         //check srcType
         if (!desc.srcType->isPrimitiveType())
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") not supported, only primitive types !";
             throw r_Error();
@@ -647,7 +647,7 @@ r_Conv_DEM::convertFrom(const char* options)
 
         if (desc.srcType->isComplexType())
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") not supported !";
             throw r_Error();
@@ -684,7 +684,7 @@ r_Conv_DEM::convertFrom(const char* options)
         desc.dest = static_cast<char*>(mystore.storage_alloc(desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size()));
         if (desc.dest == NULL)
         {
-            LFATAL << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertFrom(" << (options ? options : "NULL")
                    << ") unable to claim memory !";
             throw  r_Ememory_allocation();
         }
@@ -770,14 +770,14 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
 
         if (!desc.srcType->isPrimitiveType())
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") not supported, only primitive types !";
             throw r_Error();
         }
         if (desc.srcType->isComplexType())
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") not supported !";
             throw r_Error();
@@ -792,7 +792,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
         tempFD = mkstemp(pTempFileName);
         if (tempFD == -1)
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") unable to generate a tempory file !";
             throw r_Error();
@@ -802,7 +802,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
         oFile.open(tempFileName.c_str());
         if (!oFile.is_open())
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
                    << ") desc.srcType (" << desc.srcType->type_id()
                    << ") unable to open the tempory file !";
             throw r_Error();
@@ -817,7 +817,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
         //--accessing the temp file
         if ((pFile = fopen(tempFileName.c_str(), "rb")) == NULL)
         {
-            LFATAL << "r_Conv_DEM::convertTo(): unable to read back file.";
+            LERROR << "r_Conv_DEM::convertTo(): unable to read back file.";
             throw r_Error(r_Error::r_Error_General);
         }
         fseek(pFile, 0, SEEK_END);
@@ -826,7 +826,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
 
         if (!lenFile)
         {
-            LFATAL << "r_Conv_DEM::convertTo(): source contains only NULL values.";
+            LERROR << "r_Conv_DEM::convertTo(): source contains only NULL values.";
             throw r_Error(E_DEM_EMPTY);
         }
 
@@ -844,7 +844,7 @@ r_Conv_DEM::convertTo(const char* options, const r_Range* nullValue)
         desc.dest = static_cast<char*>(mystore.storage_alloc(lenFile));
         if (desc.dest == NULL)
         {
-            LFATAL << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
+            LERROR << "r_Conv_DEM::convertTo(" << (options ? options : "NULL")
                    << ") unable to claim memory !";
             throw r_Ememory_allocation();
         }

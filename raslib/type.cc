@@ -339,7 +339,7 @@ r_Type::getCollectionType(char*& pos)
     // get '<'
     if (getNextToken(pos, identifier) != DLLAP)
     {
-        LFATAL << "r_Type::getCollectionType(" << pos << ") expected DLLAP";
+        LERROR << "r_Type::getCollectionType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -415,7 +415,7 @@ r_Type::getMarrayType(char*& pos)
     // get '<'
     if (getNextToken(pos, identifier) != DLLAP)
     {
-        LFATAL << "r_Type::getMarrayType(" << pos << ") expected DLLAP";
+        LERROR << "r_Type::getMarrayType(" << pos << ") expected DLLAP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -496,7 +496,7 @@ r_Type::getPrimitiveType(char*& pos)
         break;
     default:
     {
-        LFATAL << "r_Type::getPrimitiveType(" << pos << ") unknown token";
+        LERROR << "r_Type::getPrimitiveType(" << pos << ") unknown token";
         throw r_Error(INTERNALDLPARSEERROR);
     }
     }
@@ -519,7 +519,7 @@ r_Type::getStructureType(char*& pos, int offset)
     // get '{'
     if (getNextToken(pos, identifier) != DLLCP)
     {
-        LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLLCP";
+        LERROR << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLLCP";
         throw r_Error(INTERNALDLPARSEERROR);
     }
 
@@ -570,7 +570,7 @@ r_Type::getStructureType(char*& pos, int offset)
 
         if (token != DLCOMMA && token != DLRCP)
         {
-            LFATAL << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
+            LERROR << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
             if (attributes)
             {
                 delete [] attributes;

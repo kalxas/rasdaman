@@ -98,7 +98,7 @@ const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ABS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtAbs::checkType() - induce operand type is not support";
+                LERROR << "Error: QtAbs::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -112,7 +112,7 @@ const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ABS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtAbs::checkType() - operand type is not supported.";
+                LERROR << "Error: QtAbs::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -120,7 +120,7 @@ const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtAbs::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtAbs::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -198,7 +198,7 @@ const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SQRT, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSqrt::checkType() - induce operand type is not support";
+                LERROR << "Error: QtSqrt::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -212,7 +212,7 @@ const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SQRT, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSqrt::checkType() - operand type is not supported.";
+                LERROR << "Error: QtSqrt::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -220,7 +220,7 @@ const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtSqrt::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtSqrt::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -298,7 +298,7 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_EXP, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtExp::checkType() - induce operand type is not support";
+                LERROR << "Error: QtExp::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -312,7 +312,7 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_EXP, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtExp::checkType() - operand type is not supported.";
+                LERROR << "Error: QtExp::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -320,7 +320,7 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtExp::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtExp::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -403,7 +403,7 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtPow::checkType() - induce operand type is not support";
+                LERROR << "Error: QtPow::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -417,7 +417,7 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtPow::checkType() - operand type is not supported.";
+                LERROR << "Error: QtPow::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -425,7 +425,7 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtPow::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtPow::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -503,7 +503,7 @@ const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LOG, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtLog::checkType() - induce operand type is not support";
+                LERROR << "Error: QtLog::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -517,7 +517,7 @@ const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LOG, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtLog::checkType() - operand type is not supported.";
+                LERROR << "Error: QtLog::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -525,7 +525,7 @@ const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtLog::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtLog::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -603,7 +603,7 @@ const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtLn::checkType() - induce operand type is not support";
+                LERROR << "Error: QtLn::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -617,7 +617,7 @@ const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtLn::checkType() - operand type is not supported.";
+                LERROR << "Error: QtLn::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -625,7 +625,7 @@ const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtLn::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtLn::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -703,7 +703,7 @@ const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SIN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSin::checkType() - induce operand type is not support";
+                LERROR << "Error: QtSin::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -717,7 +717,7 @@ const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SIN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSin::checkType() - operand type is not supported.";
+                LERROR << "Error: QtSin::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -725,7 +725,7 @@ const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtSin::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtSin::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -803,7 +803,7 @@ const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCos::checkType() - induce operand type is not support";
+                LERROR << "Error: QtCos::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -817,7 +817,7 @@ const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCos::checkType() - operand type is not supported.";
+                LERROR << "Error: QtCos::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -825,7 +825,7 @@ const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtCos::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtCos::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -903,7 +903,7 @@ const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TAN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtTan::checkType() - induce operand type is not support";
+                LERROR << "Error: QtTan::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -917,7 +917,7 @@ const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TAN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtTan::checkType() - operand type is not supported.";
+                LERROR << "Error: QtTan::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -925,7 +925,7 @@ const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtTan::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtTan::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1003,7 +1003,7 @@ const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SINH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSinh::checkType() - induce operand type is not support";
+                LERROR << "Error: QtSinh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1017,7 +1017,7 @@ const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SINH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtSinh::checkType() - operand type is not supported.";
+                LERROR << "Error: QtSinh::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1025,7 +1025,7 @@ const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtSinh::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtSinh::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1103,7 +1103,7 @@ const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COSH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCosh::checkType() - induce operand type is not support";
+                LERROR << "Error: QtCosh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1117,7 +1117,7 @@ const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COSH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCosh::checkType() - operand type is not supported.";
+                LERROR << "Error: QtCosh::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1125,7 +1125,7 @@ const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtCosh::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtCosh::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1203,7 +1203,7 @@ const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TANH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtTanh::checkType() - induce operand type is not support";
+                LERROR << "Error: QtTanh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1217,7 +1217,7 @@ const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TANH, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtTanh::checkType() - operand type is not supported.";
+                LERROR << "Error: QtTanh::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1225,7 +1225,7 @@ const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtTanh::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtTanh::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1303,7 +1303,7 @@ const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArcsin::checkType() - induce operand type is not support";
+                LERROR << "Error: QtArcsin::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1317,7 +1317,7 @@ const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArcsin::checkType() - operand type is not supported.";
+                LERROR << "Error: QtArcsin::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1325,7 +1325,7 @@ const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtArcsin::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtArcsin::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1402,7 +1402,7 @@ const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArccos::checkType() - induce operand type is not support";
+                LERROR << "Error: QtArccos::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1416,7 +1416,7 @@ const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArccos::checkType() - operand type is not supported.";
+                LERROR << "Error: QtArccos::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1424,7 +1424,7 @@ const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtArccos::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtArccos::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1502,7 +1502,7 @@ const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArctan::checkType() - induce operand type is not support";
+                LERROR << "Error: QtArctan::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1516,7 +1516,7 @@ const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtArctan::checkType() - operand type is not supported.";
+                LERROR << "Error: QtArctan::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1524,7 +1524,7 @@ const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtArctan::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtArctan::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }

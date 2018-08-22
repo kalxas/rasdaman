@@ -193,7 +193,7 @@ ObjectBroker::init()
 #ifdef DEBUG
     if (sizeof(atomicTypes) / sizeof(DBObject*) != TypeFactory::MaxBuiltInId)
     {
-        LFATAL << "ObjectBroker::init() not all atomic types were added!";
+        LERROR << "ObjectBroker::init() not all atomic types were added!";
         exit(1);
     }
 #endif
@@ -379,7 +379,7 @@ ObjectBroker::getObjectByOId(const OId& id)
             case OId::ATOMICTYPEOID:
                 LERROR << "Atomic type not found in memory.";
             default:
-                LFATAL << "Retrival of Object Failed (Internal State 3).\n" << "Please contact Customer Support.";
+                LERROR << "Retrival of Object Failed (Internal State 3).\n" << "Please contact Customer Support.";
                 throw r_Error(INVALID_OIDTYPE);
                 break;
             }
@@ -467,7 +467,7 @@ ObjectBroker::getAllObjects(OId::OIdType type)
 
     default:
         LTRACE << "getAllObjects(" << type << ")";
-        LFATAL << "Retrival of Object Failed (Internal State 4).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of Object Failed (Internal State 4).\n" << "Please contact Customer Support.";
         throw r_Error(INVALID_OIDTYPE);
         break;
     }
@@ -550,7 +550,7 @@ ObjectBroker::getOIdByName(OId::OIdType type, const char* name)
         break;
 
     default:
-        LFATAL << "Retrival of Object Failed (Internal State 5).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of Object Failed (Internal State 5).\n" << "Please contact Customer Support.";
         throw r_Error(INVALID_OIDTYPE);
         break;
     }
@@ -590,7 +590,7 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name)
         theMap = &theAtomicTypes;
         break;
     default:
-        LFATAL << "Retrival of Object Failed (Internal State 6).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of Object Failed (Internal State 6).\n" << "Please contact Customer Support.";
         throw r_Error(INVALID_OIDTYPE);
         break;
     }
@@ -724,7 +724,7 @@ ObjectBroker::getMap(OId::OIdType type)
         break;
     default:
         LTRACE << "getMap(" << type << ")";
-        LFATAL << "Retrival of Object Failed (Internal State 7).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of Object Failed (Internal State 7).\n" << "Please contact Customer Support.";
         throw r_Error(INVALID_OIDTYPE);
         break;
     }

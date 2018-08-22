@@ -235,7 +235,7 @@ QtVariable::evaluate(QtDataList* inputList)
 
         if (!dataObject)
         {
-            LFATAL << "Error: QtVariable::evaluate() - collection iterator " <<
+            LERROR << "Error: QtVariable::evaluate() - collection iterator " <<
                    iteratorName.c_str() << " is unknown.";
             parseInfo.setErrorNo(357);
             throw parseInfo;
@@ -314,7 +314,7 @@ QtVariable::evaluate(QtDataList* inputList)
                 }
                 catch (r_Error& err)
                 {
-                    LFATAL << "Error: QtVariable::evaluate() - general error.";
+                    LERROR << "Error: QtVariable::evaluate() - general error.";
                     parseInfo.setErrorNo(350);
                     throw parseInfo;
                 }
@@ -430,7 +430,7 @@ QtVariable::checkType(QtTypeTuple* typeTuple)
 
     if ((dataStreamType.getDataType() == QT_TYPE_UNKNOWN))
     {
-        LFATAL << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon.";
+        LERROR << "Error: QtVariable::checkType() - variable " << iteratorName.c_str() << " is unknwon.";
         parseInfo.setErrorNo(357);
         throw parseInfo;
     }

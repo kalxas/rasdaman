@@ -258,14 +258,14 @@ QtDelete::checkType()
 
         if (inputType.tuple[0].getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>";
+            LERROR << "Error: QtDelete::checkType() - delete target must be an expression resulting in an r_Marray<>";
             parseInfo.setErrorNo(951);
             throw parseInfo;
         }
     }
     else
     {
-        LFATAL << "Error: QtDelete::checkType() - operand branch invalid.";
+        LERROR << "Error: QtDelete::checkType() - operand branch invalid.";
     }
 
 }

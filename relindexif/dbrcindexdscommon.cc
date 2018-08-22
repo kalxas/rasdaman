@@ -77,7 +77,7 @@ DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OI
 IndexDS*
 DBRCIndexDS::getNewInstance() const
 {
-    LFATAL << "DBRCIndexDS::getNewInstance() not suported";
+    LERROR << "DBRCIndexDS::getNewInstance() not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -90,14 +90,14 @@ DBRCIndexDS::getIdentifier() const
 bool
 DBRCIndexDS::removeObject(const KeyObject& entry)
 {
-    LFATAL << "DBRCIndexDS::removeObject(" << entry << ") not suported";
+    LERROR << "DBRCIndexDS::removeObject(" << entry << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 bool
 DBRCIndexDS::removeObject(unsigned int pos)
 {
-    LFATAL << "DBRCIndexDS::removeObject(" << pos << ") not suported";
+    LERROR << "DBRCIndexDS::removeObject(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -105,21 +105,21 @@ DBRCIndexDS::removeObject(unsigned int pos)
 void
 DBRCIndexDS::insertObject(const KeyObject& theKey, unsigned int pos)
 {
-    LFATAL << "DBRCIndexDS::insertObject(" << theKey << ", " << pos << ") not suported";
+    LERROR << "DBRCIndexDS::insertObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::setObjectDomain(const r_Minterval& dom, unsigned int pos)
 {
-    LFATAL << "DBRCIndexDS::setObjectDomain(" << dom << ", " << pos << ") not suported";
+    LERROR << "DBRCIndexDS::setObjectDomain(" << dom << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::setObject(const KeyObject& theKey, unsigned int pos)
 {
-    LFATAL << "DBRCIndexDS::setObject(" << theKey << ", " << pos << ") not suported";
+    LERROR << "DBRCIndexDS::setObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -217,7 +217,7 @@ DBRCIndexDS::getAssignedDomain() const
 void
 DBRCIndexDS::setAssignedDomain(const r_Minterval& newDomain)
 {
-    LFATAL << "DBRCIndexDS::setAssignedDomain(" << newDomain << ") not suported";
+    LERROR << "DBRCIndexDS::setAssignedDomain(" << newDomain << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -241,21 +241,21 @@ DBRCIndexDS::isSameAs(const IndexDS* other) const
 const KeyObject&
 DBRCIndexDS::getObject(unsigned int pos) const
 {
-    LFATAL << "DBRCIndexDS::getObject(" << pos << ") not suported";
+    LERROR << "DBRCIndexDS::getObject(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
 DBRCIndexDS::getObjects(__attribute__((unused)) KeyObjectVector& objs) const
 {
-    LFATAL << "DBRCIndexDS::getObjects(vec) not suported";
+    LERROR << "DBRCIndexDS::getObjects(vec) not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 r_Minterval
 DBRCIndexDS::getObjectDomain(unsigned int pos) const
 {
-    LFATAL << "DBRCIndexDS::getObjectDomain(" << pos << ") not suported";
+    LERROR << "DBRCIndexDS::getObjectDomain(" << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
@@ -275,7 +275,7 @@ void
 DBRCIndexDS::updateInDb()
 {
     // this operation is illegal
-    LFATAL << "DBRCIndexDS::updateInDb() update is not possible";
+    LERROR << "DBRCIndexDS::updateInDb() update is not possible";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 

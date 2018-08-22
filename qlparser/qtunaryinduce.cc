@@ -179,7 +179,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
     }
     if (myOp == NULL)
     {
-        LFATAL << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
+        LERROR << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
         delete allTiles;
         allTiles = NULL;
         //contents of allTiles are deleted when index is deleted
@@ -223,7 +223,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
         }
         catch (r_Error& err)
         {
-            LFATAL << "QtUnaryInduce::computeUnaryMDDOp caught " << err.get_errorno() << " " << err.what();
+            LERROR << "QtUnaryInduce::computeUnaryMDDOp caught " << err.get_errorno() << " " << err.what();
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -238,7 +238,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType,
         }
         catch (int err)
         {
-            LFATAL << "QtUnaryInduce::computeUnaryMDDOp caught errno error (" << err << ") in unaryinduce";
+            LERROR << "QtUnaryInduce::computeUnaryMDDOp caught errno error (" << err << ") in unaryinduce";
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -447,7 +447,7 @@ QtNot::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtNot::checkType() - induce operand type is not supported.";
+                LERROR << "Error: QtNot::checkType() - induce operand type is not supported.";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -465,7 +465,7 @@ QtNot::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtNot::checkType() - operand type is not supported.";
+                LERROR << "Error: QtNot::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -478,7 +478,7 @@ QtNot::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtNot::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtNot::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -579,7 +579,7 @@ QtIsNull::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtIsNull::checkType() - induce operand type is not supported.";
+                LERROR << "Error: QtIsNull::checkType() - induce operand type is not supported.";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -598,7 +598,7 @@ QtIsNull::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtIsNull::checkType() - operand type is not supported.";
+                LERROR << "Error: QtIsNull::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -611,7 +611,7 @@ QtIsNull::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtIsNull::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtIsNull::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -744,7 +744,7 @@ QtDot::evaluate(QtDataList* inputList)
 
             if (!resultCellType)
             {
-                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
+                LERROR << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -808,7 +808,7 @@ QtDot::evaluate(QtDataList* inputList)
 
             if (!resultCellType)
             {
-                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
+                LERROR << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -837,7 +837,7 @@ QtDot::evaluate(QtDataList* inputList)
         }
         else
         {
-            LFATAL << "Error: QtDot::evaluate() - operation is not supported for strings.";
+            LERROR << "Error: QtDot::evaluate() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -923,7 +923,7 @@ QtDot::checkType(QtTypeTuple* typeTuple)
             // test, if operand has complex base type
             if (baseType->getType() != STRUCT)
             {
-                LFATAL << "Error: QtDot::evaluate() - operand of induce dot operation must be complex.";
+                LERROR << "Error: QtDot::evaluate() - operand of induce dot operation must be complex.";
                 parseInfo.setErrorNo(368);
                 throw parseInfo;
             }
@@ -942,7 +942,7 @@ QtDot::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
+                LERROR << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -959,7 +959,7 @@ QtDot::checkType(QtTypeTuple* typeTuple)
             // test, if operand has complex base type
             if (baseType->getType() != STRUCT)
             {
-                LFATAL << "Error: QtDot::evaluate() - operand of dot operation must be complex.";
+                LERROR << "Error: QtDot::evaluate() - operand of dot operation must be complex.";
                 parseInfo.setErrorNo(369);
                 throw parseInfo;
             }
@@ -978,7 +978,7 @@ QtDot::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtDot::evaluate() - struct selector is not valid.";
+                LERROR << "Error: QtDot::evaluate() - struct selector is not valid.";
                 parseInfo.setErrorNo(370);
                 throw parseInfo;
             }
@@ -987,7 +987,7 @@ QtDot::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtDot::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtDot::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1142,7 +1142,7 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCast::checkType() - induce operand type is not support";
+                LERROR << "Error: QtCast::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1167,7 +1167,7 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtCast::checkType() - operand type is not supported.";
+                LERROR << "Error: QtCast::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1176,7 +1176,7 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtCast::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtCast::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1261,7 +1261,7 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_REALPART, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtRealPartOp::checkType() - induce operand type is not support";
+                LERROR << "Error: QtRealPartOp::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1275,7 +1275,7 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_REALPART, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtRealPartOp::checkType() - operand type is not supported.";
+                LERROR << "Error: QtRealPartOp::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1283,7 +1283,7 @@ const QtTypeElement& QtRealPartOp::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtRealPartOp::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtRealPartOp::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }
@@ -1368,7 +1368,7 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_IMAGINARPART, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtImaginarPart::checkType() - induce operand type is not support";
+                LERROR << "Error: QtImaginarPart::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
@@ -1382,7 +1382,7 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
             BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_IMAGINARPART, baseType));
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtImaginarPart::checkType() - operand type is not supported.";
+                LERROR << "Error: QtImaginarPart::checkType() - operand type is not supported.";
                 parseInfo.setErrorNo(367);
                 throw parseInfo;
             }
@@ -1390,7 +1390,7 @@ const QtTypeElement& QtImaginarPartOp::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtImaginarPart::checkType() - operation is not supported for strings.";
+            LERROR << "Error: QtImaginarPart::checkType() - operation is not supported for strings.";
             parseInfo.setErrorNo(385);
             throw parseInfo;
         }

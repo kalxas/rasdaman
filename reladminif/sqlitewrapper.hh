@@ -37,6 +37,8 @@ rasdaman GmbH.
 #include <string>
 #include "sqlglobals.h"
 
+int busyHandler(void *data, int times);
+
 /**
  * Convenience class for executing SQLite queries.
  */
@@ -204,6 +206,7 @@ public:
     
     static bool openConnection(const char* globalConnectId);
 private:
+
     static sqlite3* sqliteConn;
     sqlite3_stmt* stmt;
     // saved for debugging purposes, e.g. in case the query execution fails

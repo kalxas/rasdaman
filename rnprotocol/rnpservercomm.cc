@@ -352,7 +352,7 @@ void RnpRasDaManComm::decodeFragment()
             break;
 
         default:
-            LFATAL << "Protocol error: Unknown command: " << command;
+            LERROR << "Protocol error: Unknown command: " << command;
             throw r_Error(822);
             break;
         }
@@ -1211,7 +1211,7 @@ void RnpRasDaManComm::verifyClientID(RnpQuark command)
 
     if (decoder.getParameterType() != RnpRasserver::pmt_clientid)
     {
-        LFATAL << "Error: unidentified client.";
+        LERROR << "Error: unidentified client.";
         throw r_Error(820); // sorry, I know, symbolic constants
     }
 
@@ -1242,7 +1242,7 @@ void RnpRasDaManComm::verifyClientID(RnpQuark command)
         return;
     }
 
-    LFATAL << "Error: unregistered client.";
+    LERROR << "Error: unregistered client.";
     throw r_Error(821);     // invalid sequence number
 }
 

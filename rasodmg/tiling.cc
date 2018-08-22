@@ -127,14 +127,14 @@ r_Size_Tiling::r_Size_Tiling(const char* encoded)
 {
     if (!encoded)
     {
-        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << (encoded ? encoded : "NULL") << ")";
+        LERROR << "r_Size_Tiling::r_Size_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
     r_Bytes tileS = strtol(encoded, (char**)NULL, DefaultBase);
     if (tileS <= 0)
     {
-        LFATAL << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";
+        LERROR << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
     tile_size = tileS;
@@ -172,7 +172,7 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
 {
     if (cellTypeSize > tile_size)
     {
-        LFATAL << "r_Size_Tiling::compute_tiles(" << obj_domain << ", " << cellTypeSize << ") tile size (" << tile_size << ") is smaller than type length (" << cellTypeSize << ")";
+        LERROR << "r_Size_Tiling::compute_tiles(" << obj_domain << ", " << cellTypeSize << ") tile size (" << tile_size << ") is smaller than type length (" << cellTypeSize << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;

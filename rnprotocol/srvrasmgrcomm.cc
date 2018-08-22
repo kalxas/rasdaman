@@ -167,7 +167,7 @@ void SrvRasmgrComm::informRasMGR(int what)
     if (!ok)
     {
         std::cerr << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up." << std::endl;
-        LFATAL << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up.";
+        LERROR << "Error: unable to contact rasmgr, server '" << serverName << "' herewith giving up.";
         if (sock)
         {
             close(sock);
@@ -183,7 +183,7 @@ void SrvRasmgrComm::informRasMGR(int what)
     if (writeWholeMessage(sock, message, strlen(message) + 1) < 0)
     {
         std::cerr << "Error: cannot send message to rasmgr: " << strerror(errno) << std::endl;
-        LFATAL << "Error: cannot send message to rasmgr: " << strerror(errno);
+        LERROR << "Error: cannot send message to rasmgr: " << strerror(errno);
         close(sock);
         exit(EXIT_CODE);
     }

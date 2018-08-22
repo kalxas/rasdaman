@@ -117,7 +117,7 @@ DBMDDObj::DBMDDObj( const MDDBaseType* newMDDType,
         if (SQLCODE == SQLOK)
         {
             LTRACE << "OId is already there";
-            LFATAL << "DBMDDObj::DBMDDObj(...) OId already exists";
+            LERROR << "DBMDDObj::DBMDDObj(...) OId already exists";
             throw r_Error(r_Error::r_Error_OIdNotUnique);
         }
         else
@@ -268,7 +268,7 @@ DBMDDObj::setPersistent(bool o)
     if (storageLayoutId.is_null())
     {
         LTRACE << "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId();
-        LFATAL << "DBMDDObj::setPersistent() layout object is not valid";
+        LERROR << "DBMDDObj::setPersistent() layout object is not valid";
         throw r_Error(STORAGE_OF_MDD_IS_NULL);
     }
     else

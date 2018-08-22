@@ -101,7 +101,7 @@ QtMintervalOp::evaluate(QtDataList* inputList)
 
             if (!goOn)
             {
-                LFATAL << "Error: QtMintervalOp::evaluate() - expressions for minterval dimensions must be either of type integer or interval.";
+                LERROR << "Error: QtMintervalOp::evaluate() - expressions for minterval dimensions must be either of type integer or interval.";
                 parseInfo.setErrorNo(390);
 
                 // delete the old operands
@@ -225,7 +225,7 @@ QtMintervalOp::checkType(QtTypeTuple* typeTuple)
 
     if (!opTypesValid)
     {
-        LFATAL << "Error: QtMintervalOp::checkType() - expressions for minterval dimensions must be either of type integer or interval.";
+        LERROR << "Error: QtMintervalOp::checkType() - expressions for minterval dimensions must be either of type integer or interval.";
         parseInfo.setErrorNo(390);
         throw parseInfo;
     }

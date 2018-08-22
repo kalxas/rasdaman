@@ -184,7 +184,7 @@ QtConversion::evaluate(QtDataList* inputList)
 
     if (conversionType == QT_UNKNOWN)
     {
-        LFATAL << "Unknown conversion format.";
+        LERROR << "Unknown conversion format.";
         parseInfo.setErrorNo(382);
         throw parseInfo;
     }
@@ -376,7 +376,7 @@ const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
         result = TypeFactory::mapType(type->name());
         if (!result)
         {
-            LFATAL << "no base type for ODMG primitive type '"
+            LERROR << "no base type for ODMG primitive type '"
                    << type->name() << "' was found";
             throw r_Error(BASETYPENOTSUPPORTED);
         }
@@ -474,7 +474,7 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
         convFormat = r_Array;
         break;
     default:
-        LFATAL << "Error: QtConversion::evaluate(): unsupported format " << conversionType;
+        LERROR << "Error: QtConversion::evaluate(): unsupported format " << conversionType;
         throw r_Error(CONVERSIONFORMATNOTSUPPORTED);
         break;
     }
@@ -592,7 +592,7 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
 
         if ( conversionType != QT_TOCSV && conversionType != QT_TOJSON && inputType.getDataType() != QT_MDD )
         {
-            LFATAL << "expected MDD operand in conversion operation.";
+            LERROR << "expected MDD operand in conversion operation.";
             parseInfo.setErrorNo(380);
             throw parseInfo;
         }

@@ -384,7 +384,7 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
             }
             if (!found)
             {
-                LFATAL << "SRPTIndexLogic::splitNodes() the leaf node to split was not found in its parent";
+                LERROR << "SRPTIndexLogic::splitNodes() the leaf node to split was not found in its parent";
                 throw r_Error(INDEXNOTFOUNDINPARENT);
             }
             tempPar->destroy();
@@ -503,7 +503,7 @@ SRPTIndexLogic::splitLeaf(HierIndexDS*        pd1,
 #ifdef DEBUG
         if (!nd1.intersects_with(cd) && !nd2.intersects_with(cd))
         {
-            LFATAL << "SRPTIndexLogic::splitLeaf() the entry does not intersect with any node: node 1 " << nd1 << " node 2 " << nd2 << " entry " << cd;
+            LERROR << "SRPTIndexLogic::splitLeaf() the entry does not intersect with any node: node 1 " << nd1 << " node 2 " << nd2 << " entry " << cd;
             throw r_Error(TILE_NOT_INSERTED_INTO_INDEX);
         }
 #endif
@@ -858,7 +858,7 @@ SRPTIndexLogic::intersect(const r_Minterval&  searchInter,
                 }
                 if (nodeArea > oldArea)
                 {
-                    LFATAL << "SRPTIndexLogic::intersect() the index found more cells than allowed";
+                    LERROR << "SRPTIndexLogic::intersect() the index found more cells than allowed";
                     throw r_Error(INDEXEXHAUSTEDAREA);
                 }
                 r_Minterval objDom(intersectedNodes[i].getDomain());
@@ -978,10 +978,10 @@ SRPTIndexLogic::regionSearch(const HierIndexDS*  ixNode,
                             }
                         else    {
                             LTRACE << "not adding " << ixNode->getObject(i)->getObject().getOId() << " area " << area;
-                            LFATAL << "should never happen";
-                            LFATAL << "want to add " << ixNode->getObject(i)->getObject().getOId() << " at " << objDomain;
+                            LERROR << "should never happen";
+                            LERROR << "want to add " << ixNode->getObject(i)->getObject().getOId() << " at " << objDomain;
                             for (it = t.begin(); it != t.end(); it++)
-                                LFATAL << OId((*it).first) << " at " << (*it).second;
+                                LERROR << OId((*it).first) << " at " << (*it).second;
                             throw r_Error(TESTERROR);
                             }
             */
@@ -993,7 +993,7 @@ SRPTIndexLogic::regionSearch(const HierIndexDS*  ixNode,
             if (oldArea < area)
             {
                 retval = static_cast<int>(i);
-                LFATAL << "SRPTIndexLogic::regionSearch() the area was completely exhausted";
+                LERROR << "SRPTIndexLogic::regionSearch() the area was completely exhausted";
                 throw r_Error(INDEXEXHAUSTEDAREA);
                 break;
             }
@@ -1083,7 +1083,7 @@ SRPTIndexLogic::binaryRegionSearch(const HierIndexDS*  ixNode,
                         LTRACE << "area after " << area;
                         if (area > oldArea)
                         {
-                            LFATAL << "SRPTIndexLogic::binaryRegionSearch() index found more cells than allowed";
+                            LERROR << "SRPTIndexLogic::binaryRegionSearch() index found more cells than allowed";
                             throw r_Error(INDEXEXHAUSTEDAREA);
                         }
                         LTRACE << "intersectedRegion " << intersectedRegion << " area " << area;

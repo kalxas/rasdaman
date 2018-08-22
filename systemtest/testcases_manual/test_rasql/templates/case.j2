@@ -1,0 +1,180 @@
+{#-
+ # Test case expression
+-#}
+{#-
+ # Variable-based variant:
+ # 
+ # case generalExp
+ # when scalarExp then generalExp
+ # ...
+ # else generalExp
+ # end
+-#}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN {{mdd_constant_cell_values[11]}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based"}}
+{{separator}}
+{% if dimension == 3 and (cell_type_name == 'char' or cell_type_name == 'char_char_char') -%}
+query: SELECT CASE {{cell_type_val}} WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} ELSE {{cell_type_zero}} END
+id: {{test_id ~ "_variable_based_scalar_constant"}}
+{{separator}}
+query: SELECT CASE c WHEN c[0,0,0] THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_scalar_expression"}}
+{{separator}}
+{#
+ # Without a WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE c END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_no_when_then_else_clause"}}
+{{separator}}
+query: SELECT CASE c ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_no_when_then_clause"}}
+{{separator}}
+query: SELECT CASE c THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_no_when_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_no_then_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_no_else_clause"}}
+{{separator}}
+{#
+ # Different type in WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE c WHEN 1d THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_different_type_when_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN 1d ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_different_type_then_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} ELSE 1d END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_different_type_else_clause"}}
+{{separator}}
+{#
+ # Array in WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE c WHEN c + {{cell_type_val}} THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_array_in_when_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN c + {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_array_in_then_clause"}}
+{{separator}}
+query: SELECT CASE c WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} ELSE c + {{cell_type_val}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_array_in_else_clause"}}
+{{separator}}
+{#
+ # A case with 100 WHEN/THEN clauses
+-#}
+{%   if cell_type_name == 'char' -%}
+query: SELECT CASE c{{" "}}
+{%-    for i in range(100) -%}
+WHEN {{i+2}}c THEN {{i + 10}}c{{" "}} 
+{%-    endfor -%}
+ELSE 255c END FROM {{coll_name}} AS c
+id: {{test_id ~ "_variable_based_100_cases"}}
+{{separator}}
+{%   endif -%}
+{% endif -%}
+{#-
+ # Expression-based variant:
+ # 
+ # case 
+ # when booleanExp then generalExp
+ # ...
+ # else generalExp
+ # end
+-#}
+query: SELECT CASE WHEN c > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN c > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based"}}
+{{separator}}
+{% if dimension == 3 and (cell_type_name == 'char' or cell_type_name == 'char_char_char') -%}
+query: SELECT CASE WHEN {{mdd_constant_cell_values[11]}} > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN c > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_scalar_constant"}}
+{{separator}}
+query: SELECT CASE WHEN c[0,0,0] > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN c > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_scalar_expression"}}
+{{separator}}
+{#
+ # Without a WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_no_when_then_else_clause"}}
+{{separator}}
+query: SELECT CASE ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_no_when_then_clause"}}
+{{separator}}
+query: SELECT CASE THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_no_when_clause"}}
+{{separator}}
+query: SELECT CASE WHEN c > {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_no_then_clause"}}
+{{separator}}
+query: SELECT CASE WHEN c > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_no_else_clause"}}
+{{separator}}
+{#
+ # Different type in WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE WHEN c + {{cell_type_val}} THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_different_type_when_clause"}}
+{{separator}}
+query: SELECT CASE WHEN c > {{cell_type_val}} THEN 1d ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_different_type_then_clause"}}
+{{separator}}
+query: SELECT CASE WHEN c > {{cell_type_val}} THEN {{cell_type_val}} ELSE 1d END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_different_type_else_clause"}}
+{{separator}}
+{#
+ # Array in WHEN/THEN/ELSE clauses
+-#}
+query: SELECT CASE WHEN c > {{cell_type_val}} THEN {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_array_in_when_clause"}}
+{{separator}}
+query: SELECT CASE WHEN {{mdd_constant_cell_values[10]}} THEN c + {{cell_type_val}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_array_in_then_clause"}}
+{{separator}}
+query: SELECT CASE WHEN {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} ELSE c + {{cell_type_val}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_array_in_else_clause"}}
+{{separator}}
+{#
+ # Arrays of different sdom in WHEN clauses
+-#}
+query: SELECT CASE WHEN c > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN c[0:0,0:0,0:1] > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_array_different_sdoms"}}
+{{separator}}
+query: SELECT CASE WHEN c > {{mdd_constant_cell_values[10]}} THEN {{cell_type_val}} WHEN c[0,*:*,*:*] > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_array_different_dim"}}
+{{separator}}
+{#
+ # div/mod/log
+-#}
+query: SELECT CASE WHEN c = {{cell_type_zero}} THEN {{cell_type_zero}} ELSE div(c, c) END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_div"}}
+{{separator}}
+query: SELECT CASE WHEN c = {{cell_type_zero}} THEN {{cell_type_zero}} ELSE mod(c, c) END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_mod"}}
+{{separator}}
+query: SELECT CASE WHEN c = {{cell_type_zero}} THEN {{cell_type_zero}} ELSE log(c) END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_log"}}
+{{separator}}
+{% endif -%}
+{% if dimension == 2 and cell_type_name == 'char' -%}
+{#
+ # A case with 100 WHEN/THEN clauses
+-#}
+query: SELECT CASE{{" "}}
+{%-  for i in range(100) -%}
+WHEN c < {{i+2}}c THEN {{i + 10}}c{{" "}} 
+{%-  endfor -%}
+ELSE 255c END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_100_cases"}}
+{{separator}}
+{#
+ # A case with a subset
+-#}
+{%-  for k, subset in [("proper", "[0:2,0:2]"), ("slice", "[0,*:*]"), ("point", "[0,2]"), ("invalid", "[0:2,0:1,2:2]")] -%}
+query: SELECT (CASE WHEN c > {{mdd_constant_cell_values[10]}} THEN c + {{cell_type_val}} WHEN c > {{cell_type_zero}} THEN {{mdd_constant_cell_values[10]}} ELSE {{cell_type_zero}}){{subset}} END FROM {{coll_name}} AS c
+id: {{test_id ~ "_expression_based_subset_" ~ k}}
+{{separator}}
+{%-  endfor -%}
+{% endif -%}

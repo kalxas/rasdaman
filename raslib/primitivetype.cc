@@ -328,7 +328,7 @@ r_Primitive_Type::get_value(const char* storage) const
         break;
     default:
     {
-        LFATAL << "r_Primitive_Type::get_value(...) type unknown";
+        LERROR << "r_Primitive_Type::get_value(...) type unknown";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     };
@@ -375,7 +375,7 @@ r_Primitive_Type::set_value(char* storage, r_Double val)
         break;
     default:
     {
-        LFATAL << "r_Primitive_Type::set_value(...) type unknown";
+        LERROR << "r_Primitive_Type::set_value(...) type unknown";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     };
@@ -413,7 +413,7 @@ r_Primitive_Type::get_limits(r_Double& min, r_Double& max)
         break;
     default:
     {
-        LFATAL << "r_Primitive_Type::get_limits(...) type unknown";
+        LERROR << "r_Primitive_Type::get_limits(...) type unknown";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     };
@@ -426,7 +426,7 @@ r_Primitive_Type::get_boolean(const char* cell) const
 {
     if (typeId != r_Type::BOOL)
     {
-        LFATAL << "r_Primitive_Type::get_boolean(cell) type not a boolean";
+        LERROR << "r_Primitive_Type::get_boolean(cell) type not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -441,7 +441,7 @@ r_Primitive_Type::get_char(const char* cell)    const
 {
     if (typeId != r_Type::CHAR)
     {
-        LFATAL << "r_Primitive_Type::get_char(cell) type not a char";
+        LERROR << "r_Primitive_Type::get_char(cell) type not a char";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -456,7 +456,7 @@ r_Primitive_Type::get_octet(const char* cell)   const
 {
     if (typeId != r_Type::OCTET)
     {
-        LFATAL << "r_Primitive_Type::get_octet(cell) type not a octet";
+        LERROR << "r_Primitive_Type::get_octet(cell) type not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -471,7 +471,7 @@ r_Primitive_Type::get_short(const char* cell)   const
 {
     if (typeId != r_Type::SHORT)
     {
-        LFATAL << "r_Primitive_Type::get_short(cell) type not a short";
+        LERROR << "r_Primitive_Type::get_short(cell) type not a short";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -486,7 +486,7 @@ r_Primitive_Type::get_ushort(const char* cell)  const
 {
     if (typeId != r_Type::USHORT)
     {
-        LFATAL << "r_Primitive_Type::get_ushort(cell) type not a ushort";
+        LERROR << "r_Primitive_Type::get_ushort(cell) type not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -501,7 +501,7 @@ r_Primitive_Type::get_long(const char* cell)    const
 {
     if (typeId != r_Type::LONG)
     {
-        LFATAL << "r_Primitive_Type::get_long(cell) type not a long";
+        LERROR << "r_Primitive_Type::get_long(cell) type not a long";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -516,7 +516,7 @@ r_Primitive_Type::get_ulong(const char* cell)   const
 {
     if (typeId != r_Type::ULONG)
     {
-        LFATAL << "r_Primitive_Type::get_ulong(cell) type not a ulong";
+        LERROR << "r_Primitive_Type::get_ulong(cell) type not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -531,7 +531,7 @@ r_Primitive_Type::get_float(const char* cell)   const
 {
     if (typeId != r_Type::FLOAT)
     {
-        LFATAL << "r_Primitive_Type::get_float(cell) type not a float";
+        LERROR << "r_Primitive_Type::get_float(cell) type not a float";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -546,7 +546,7 @@ r_Primitive_Type::get_double(const char* cell)  const
 {
     if (typeId != r_Type::DOUBLE)
     {
-        LFATAL << "r_Primitive_Type::get_double(cell) type not a double";
+        LERROR << "r_Primitive_Type::get_double(cell) type not a double";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -559,7 +559,7 @@ r_Primitive_Type::set_boolean(char* cell, r_Boolean val)
 {
     if (typeId != r_Type::BOOL)
     {
-        LFATAL << "r_Primitive_Type::set_boolean(cell, val) type not a boolean";
+        LERROR << "r_Primitive_Type::set_boolean(cell, val) type not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -574,7 +574,7 @@ r_Primitive_Type::set_char(char* cell, r_Char val)
 {
     if (typeId != r_Type::CHAR)
     {
-        LFATAL << "r_Primitive_Type::set_char(cell, val) type not a char";
+        LERROR << "r_Primitive_Type::set_char(cell, val) type not a char";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -589,7 +589,7 @@ r_Primitive_Type::set_octet(char* cell, r_Octet val)
 {
     if (typeId != r_Type::OCTET)
     {
-        LFATAL << "r_Primitive_Type::set_octet(cell, val) type not a octet";
+        LERROR << "r_Primitive_Type::set_octet(cell, val) type not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -604,7 +604,7 @@ r_Primitive_Type::set_short(char* cell, r_Short val)
 {
     if (typeId != r_Type::SHORT)
     {
-        LFATAL << "r_Primitive_Type::set_short(cell, val) type not a short";
+        LERROR << "r_Primitive_Type::set_short(cell, val) type not a short";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -619,7 +619,7 @@ r_Primitive_Type::set_ushort(char* cell, r_UShort val)
 {
     if (typeId != r_Type::USHORT)
     {
-        LFATAL << "r_Primitive_Type::set_ushort(cell, val) type not a ushort";
+        LERROR << "r_Primitive_Type::set_ushort(cell, val) type not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -634,7 +634,7 @@ r_Primitive_Type::set_long(char* cell, r_Long val)
 {
     if (typeId != r_Type::LONG)
     {
-        LFATAL << "r_Primitive_Type::set_long(cell, val) type not a long";
+        LERROR << "r_Primitive_Type::set_long(cell, val) type not a long";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -649,7 +649,7 @@ r_Primitive_Type::set_ulong(char* cell, r_ULong val)
 {
     if (typeId != r_Type::ULONG)
     {
-        LFATAL << "r_Primitive_Type::set_ulong(cell, val) type not a ulong";
+        LERROR << "r_Primitive_Type::set_ulong(cell, val) type not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -664,7 +664,7 @@ r_Primitive_Type::set_float(char* cell, r_Float val)
 {
     if (typeId != r_Type::FLOAT)
     {
-        LFATAL << "r_Primitive_Type::set_float(cell, val) type not a float";
+        LERROR << "r_Primitive_Type::set_float(cell, val) type not a float";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -679,7 +679,7 @@ r_Primitive_Type::set_double(char* cell, r_Double val)
 {
     if (typeId != r_Type::DOUBLE)
     {
-        LFATAL << "r_Primitive_Type::set_double(cell, val) type not a double";
+        LERROR << "r_Primitive_Type::set_double(cell, val) type not a double";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }

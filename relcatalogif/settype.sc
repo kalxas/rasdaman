@@ -110,7 +110,7 @@ SetType::readFromDb()
     }
     else
     {
-        LFATAL << "SetType::readFromDb() - set type: "
+        LERROR << "SetType::readFromDb() - set type: "
                << settypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "set type object not found in the database.");
     }

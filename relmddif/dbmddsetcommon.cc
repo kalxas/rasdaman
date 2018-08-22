@@ -233,7 +233,7 @@ DBMDDSet::DBMDDSet(const char* name, const CollectionType* type)
     if (type == NULL)
     {
         LTRACE << "DBMDDSet(" << name << ", NULL)";
-        LFATAL << "DBMDDSet::DBMDDSet() the collection type is NULL";
+        LERROR << "DBMDDSet::DBMDDSet() the collection type is NULL";
         throw r_Error(COLLECTIONTYPEISNULL);
     }
     objecttype = OId::MDDCOLLOID;
@@ -270,7 +270,7 @@ DBMDDSet::setPersistent(bool state)
         if (set)
         {
             LTRACE << "already have a set with name " << getName();
-            LFATAL << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
+            LERROR << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
             throw r_Error(r_Error::r_Error_NameNotUnique);
         }
     }

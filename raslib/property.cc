@@ -58,7 +58,7 @@ r_Property::r_Property(const r_Property& oldObj)
     }
     else
     {
-        LFATAL << "r_Property::r_Property(oldObj) property does not have a base type";
+        LERROR << "r_Property::r_Property(oldObj) property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -82,7 +82,7 @@ r_Property::operator=(const r_Property& oldObj)
         }
         else
         {
-            LFATAL << "r_Property::operator=(oldObj) property does not have a base type";
+            LERROR << "r_Property::operator=(oldObj) property does not have a base type";
             throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
         }
     }
@@ -103,7 +103,7 @@ r_Property::type_of() const
 {
     if (!myType)
     {
-        LFATAL << "r_Property::type_of() property does not have a base type";
+        LERROR << "r_Property::type_of() property does not have a base type";
         throw r_Error(PROPERTYTYPEHASNOELEMENTTYPE);
     }
 

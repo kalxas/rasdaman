@@ -235,7 +235,7 @@ void r_Error::initTextTable()
             char* errText = static_cast<char*>(mymalloc(line.length() + 1));
             if (errText == NULL)
             {
-                LFATAL << "Fatal error: cannot allocate error text table line #" << numOfEntries;
+                LERROR << "Fatal error: cannot allocate error text table line #" << numOfEntries;
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
             // general line format is (aside of comments and empty lines): ddd^f^text...
@@ -250,7 +250,7 @@ void r_Error::initTextTable()
                 free(errText);
             }
         }
-        // LFATAL << "number of error texts loaded: " << numOfEntries;
+        // LERROR << "number of error texts loaded: " << numOfEntries;
         errorTextsLoaded = true;
     }
     errortexts.close();
@@ -540,7 +540,7 @@ r_Error::setErrorTextOnNumber()
     errorText = new char[strlen(result) + 1];
     if (errorText == NULL)
     {
-        LFATAL << "Error: cannot allocate error text.";
+        LERROR << "Error: cannot allocate error text.";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     else

@@ -117,7 +117,7 @@ QtInfo::evaluate(QtDataList* inputList)
             OId localOId;
             if (persMDD->getOId(&localOId))
             {
-                LFATAL << "Error: QtInfo::evaluate() - could not get oid.";
+                LERROR << "Error: QtInfo::evaluate() - could not get oid.";
 
                 // delete old operand
                 if (operand)
@@ -254,7 +254,7 @@ QtInfo::evaluate(QtDataList* inputList)
                 }
                 else
                 {
-                    LFATAL << "Error: QtInfo::evaluate() - could not get storage layout object.";
+                    LERROR << "Error: QtInfo::evaluate() - could not get storage layout object.";
 
                     // delete old operand
                     if (operand)
@@ -268,7 +268,7 @@ QtInfo::evaluate(QtDataList* inputList)
             }
             else
             {
-                LFATAL << "Error: QtInfo::evaluate() - could not get database object.";
+                LERROR << "Error: QtInfo::evaluate() - could not get database object.";
 
                 // delete old operand
                 if (operand)
@@ -282,7 +282,7 @@ QtInfo::evaluate(QtDataList* inputList)
         }
         else
         {
-            LFATAL << "Error: QtInfo::evaluate() - operand is not a persistent MDD.";
+            LERROR << "Error: QtInfo::evaluate() - operand is not a persistent MDD.";
 
             // delete old operand
             if (operand)
@@ -354,7 +354,7 @@ QtInfo::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtInfo::checkType() - operand is not of type MDD.";
+            LERROR << "Error: QtInfo::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }

@@ -40,7 +40,7 @@ r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
     if (imgDom->dimension() != iterDom->dimension())
     {
         //in this case we have an undefined situation
-        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") dimension mismatch";
+        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") dimension mismatch";
         throw r_Error(INTERVALSWITHDIFFERENTDIMENSION);
     }
 
@@ -48,7 +48,7 @@ r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
             !imgDom->is_high_fixed())
     {
         //in this case we have an undefined situation
-        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") imgDom is opened";
+        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") imgDom is opened";
         throw r_Error(INTERVALOPEN);
     }
 
@@ -56,7 +56,7 @@ r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
             !iterDom->is_high_fixed())
     {
         //in this case we have an undefined situation
-        LFATAL << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") iterDom is opened";
+        LERROR << "r_MiterArea::rMiterArea(" << iterDom << ", " << imgDom << ") iterDom is opened";
         throw r_Error(INTERVALOPEN);
     }
 

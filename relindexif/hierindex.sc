@@ -94,43 +94,43 @@ DBHierIndex::insertInDb()
     char* completebuffer = (char*) mymalloc(completesize);
     if (completebuffer == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     r_Range* upperboundsbuf = (r_Range*) mymalloc(boundssize);
     if (upperboundsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     r_Range* lowerboundsbuf = (r_Range*) mymalloc(boundssize);
     if (lowerboundsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* upperfixedbuf = (char*) mymalloc(fixessize);
     if (upperfixedbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* lowerfixedbuf = (char*) mymalloc(fixessize);
     if (lowerfixedbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
     if (entryidsbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     char* entrytypesbuf = (char*) mymalloc(typessize);
     if (entrytypesbuf == NULL)
     {
-        LFATAL << "DBHierIndex::insertInDb() cannot malloc buffer";
+        LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
@@ -221,7 +221,7 @@ DBHierIndex::readFromDb()
     }
     else
     {
-        LFATAL << "DBHierIndex::readFromDb() - index entry: " << id1 << " not found in the database.";
+        LERROR << "DBHierIndex::readFromDb() - index entry: " << id1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 

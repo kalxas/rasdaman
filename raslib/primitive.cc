@@ -159,7 +159,7 @@ r_Primitive::get_boolean() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_boolean() buffer null or type null ";
+        LERROR << "r_Primitive::get_boolean() buffer null or type null ";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -174,7 +174,7 @@ r_Primitive::get_char() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_char() buffer null or type null";
+        LERROR << "r_Primitive::get_char() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -189,7 +189,7 @@ r_Primitive::get_octet() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_octet() buffer null or type null";
+        LERROR << "r_Primitive::get_octet() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -204,7 +204,7 @@ r_Primitive::get_short() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_short() buffer null or type null";
+        LERROR << "r_Primitive::get_short() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -219,7 +219,7 @@ r_Primitive::get_ushort() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_ushort() buffer null or type null";
+        LERROR << "r_Primitive::get_ushort() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -234,7 +234,7 @@ r_Primitive::get_long() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_long() buffer null or type null";
+        LERROR << "r_Primitive::get_long() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -249,7 +249,7 @@ r_Primitive::get_ulong() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_ulong() buffer null or type null";
+        LERROR << "r_Primitive::get_ulong() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -264,7 +264,7 @@ r_Primitive::get_float() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_float() buffer null or type null";
+        LERROR << "r_Primitive::get_float() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -279,7 +279,7 @@ r_Primitive::get_double() const
 {
     if (!valueBuffer || !valueType)
     {
-        LFATAL << "r_Primitive::get_double() buffer null or type null";
+        LERROR << "r_Primitive::get_double() buffer null or type null";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -293,7 +293,7 @@ r_Primitive::set_boolean(r_Boolean val)
 {
     if (!valueType || valueType->type_id() != r_Type::BOOL)
     {
-        LFATAL << "r_Primitive::set_boolean(" << val << ") not a boolean";
+        LERROR << "r_Primitive::set_boolean(" << val << ") not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -313,7 +313,7 @@ r_Primitive::set_char(r_Char val)
 {
     if (!valueType || valueType->type_id() != r_Type::CHAR)
     {
-        LFATAL << "r_Primitive::set_char(" << val << ") not a char";
+        LERROR << "r_Primitive::set_char(" << val << ") not a char";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -333,7 +333,7 @@ r_Primitive::set_octet(r_Octet val)
 {
     if (!valueType || valueType->type_id() != r_Type::OCTET)
     {
-        LFATAL << "r_Primitive::set_octet(" << val << ") not a octet";
+        LERROR << "r_Primitive::set_octet(" << val << ") not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -353,7 +353,7 @@ r_Primitive::set_short(r_Short val)
 {
     if (!valueType || valueType->type_id() != r_Type::SHORT)
     {
-        LFATAL << "r_Primitive::set_short(" << val << ") not a short";
+        LERROR << "r_Primitive::set_short(" << val << ") not a short";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -373,7 +373,7 @@ r_Primitive::set_ushort(r_UShort val)
 {
     if (!valueType || valueType->type_id() != r_Type::USHORT)
     {
-        LFATAL << "r_Primitive::set_ushort(" << val << ") not a ushort";
+        LERROR << "r_Primitive::set_ushort(" << val << ") not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -393,7 +393,7 @@ r_Primitive::set_long(r_Long val)
 {
     if (!valueType || valueType->type_id() != r_Type::LONG)
     {
-        LFATAL << "r_Primitive::set_long(" << val << ") not a long";
+        LERROR << "r_Primitive::set_long(" << val << ") not a long";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -413,7 +413,7 @@ r_Primitive::set_ulong(r_ULong val)
 {
     if (!valueType || valueType->type_id() != r_Type::ULONG)
     {
-        LFATAL << "r_Primitive::set_ulong(" << val << ") not a ulong";
+        LERROR << "r_Primitive::set_ulong(" << val << ") not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -433,7 +433,7 @@ r_Primitive::set_float(r_Float val)
 {
     if (!valueType || valueType->type_id() != r_Type::FLOAT)
     {
-        LFATAL << "r_Primitive::set_float(" << val << ") not a float";
+        LERROR << "r_Primitive::set_float(" << val << ") not a float";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
@@ -453,7 +453,7 @@ r_Primitive::set_double(r_Double val)
 {
     if (!valueType || valueType->type_id() != r_Type::DOUBLE)
     {
-        LFATAL << "r_Primitive::set_double(" << val << ") not a double";
+        LERROR << "r_Primitive::set_double(" << val << ") not a double";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }

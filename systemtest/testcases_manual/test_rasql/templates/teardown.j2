@@ -1,0 +1,14 @@
+query: DROP COLLECTION {{coll_name}}
+id: {{test_id ~ "_drop_coll"}}
+{{separator}}
+query: DROP TYPE {{ coll_type_name }}
+id: {{test_id ~ "_drop_set_type"}}
+{{separator}}
+query: DROP TYPE {{ mdd_type_name }}
+id: {{test_id ~ "_drop_mdd_type"}}
+{{separator}}
+{% if cell_type_components|length > 0 and dimension == dimension_max -%}
+query: DROP TYPE {{ cell_type_name }}
+id: {{test_id ~ "_drop_cell_type"}}
+{{separator}}
+{% endif -%}

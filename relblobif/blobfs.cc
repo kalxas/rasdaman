@@ -79,8 +79,8 @@ void BlobFS::init()
     LDEBUG << "initializing file storage on directory " << config.rootPath;
     if (config.rootPath.empty())
     {
-        LFATAL << "blob file storage data directory has not been specified.";
-        LFATAL << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
+        LERROR << "blob file storage data directory has not been specified.";
+        LERROR << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
         throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTFOUND));
     }
 
@@ -196,8 +196,8 @@ const string BlobFS::getFileStorageRootPath()
 #endif
         if (ret == NULL)
         {
-            LFATAL << "blob file storage data directory has not been specified.";
-            LFATAL << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
+            LERROR << "blob file storage data directory has not been specified.";
+            LERROR << "please set the environment variable RASDATA, or --with-filedatadir when configuring rasdaman.";
             throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTFOUND));
         }
     }
@@ -206,8 +206,8 @@ const string BlobFS::getFileStorageRootPath()
 
 void BlobFS::generateError(const char* message, const string& path, int errorCode)
 {
-    LFATAL << "Error: " << message << " - " << path;
-    LFATAL << "Reason: " << strerror(errno);
+    LERROR << "Error: " << message << " - " << path;
+    LERROR << "Reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));
 }
 

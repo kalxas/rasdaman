@@ -142,7 +142,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
 {
     if (!encoded)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << (encoded ? encoded : "NULL") << ")";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -161,7 +161,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
 
     if (!pRes)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\".";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -174,7 +174,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileD)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\".";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\".";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -187,7 +187,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     }
     else
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -197,7 +197,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
 
     if (!pRes)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas.";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -223,8 +223,8 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
         }
         catch (r_Error& err)
         {
-            LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest area from \"" << pToConvert << "\".";
-            LFATAL << "Error " << err.get_errorno() << " : " << err.what();
+            LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest area from \"" << pToConvert << "\".";
+            LERROR << "Error " << err.get_errorno() << " : " << err.what();
             delete [] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -237,7 +237,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
         }
         else
         {
-            LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
+            LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, end of stream.";
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
 
@@ -248,7 +248,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
 
     if (vectInterestAreas.empty())
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, no interest areas specified.";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest areas, no interest areas specified.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -261,7 +261,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     tileS = strtol(pToConvert, (char**)NULL, DefaultBase);
     if (!tileS)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\".";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\".";
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -274,7 +274,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     }
     else
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit, end of stream.";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -283,7 +283,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     tileSizeLimit = r_Interest_Tiling::get_tilesize_limit_from_name(pTemp);
     if (tileSizeLimit == r_Interest_Tiling::NUMBER)
     {
-        LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit from \"" << pTemp << "\".";
+        LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size limit from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -301,7 +301,7 @@ r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minter
     for (std::vector<r_Minterval>::iterator it = iareas.begin(); it != iareas.end(); it++)
         if (it->dimension() != dimension)
         {
-            LFATAL << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", " << interest_areas << ", " << ts << ", " << static_cast<int>(strat) << ") the interest area domain " << *it << " does not match the dimension of this tiling scheme (" << dimension << ")";
+            LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", " << interest_areas << ", " << ts << ", " << static_cast<int>(strat) << ") the interest area domain " << *it << " does not match the dimension of this tiling scheme (" << dimension << ")";
             throw r_Edim_mismatch(dimension, it->dimension());
         }
 }
@@ -442,7 +442,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
         {
             if (numberOfLevels == 0)
             {
-                LFATAL << "r_Interest_Tiling::group() the for loop was incorrectly optimized.  breaking the loop.";
+                LERROR << "r_Interest_Tiling::group() the for loop was incorrectly optimized.  breaking the loop.";
                 break;
             }
             r_Minterval aux = *blocks_it;
@@ -567,12 +567,12 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)
     {
-        LFATAL << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")";
+        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")";
         throw r_Edim_mismatch(dimension, num_dims);
     }
     if (typelen > tile_size)
     {
-        LFATAL << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
+        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
 

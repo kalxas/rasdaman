@@ -145,7 +145,7 @@ QueryTree::evaluateRetrieval()
                 rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
                 rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR)
         {
-            LFATAL << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node.";
+            LERROR << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(371);
             throw errorInfo;
@@ -162,7 +162,7 @@ QueryTree::evaluateRetrieval()
         catch (...)
         {
             oncRootNode->close();
-            LFATAL << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open().";
+            LERROR << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open().";
             throw;
         }
 
@@ -197,7 +197,7 @@ QueryTree::evaluateRetrieval()
                         resultData = NULL;
                     }
 
-                    LFATAL << "QueryTree::evaluateTree() - multiple query targets are not supported.";
+                    LERROR << "QueryTree::evaluateTree() - multiple query targets are not supported.";
                     ParseInfo errorInfo = oncRootNode->getParseInfo();
                     errorInfo.setErrorNo(361);
                     throw errorInfo;
@@ -332,7 +332,7 @@ QueryTree::evaluateUpdate()
                 rootNode->getNodeType() != QtNode::QT_DROP_TYPE
            )
         {
-            LFATAL << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
+            LERROR << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
             delete resultData;

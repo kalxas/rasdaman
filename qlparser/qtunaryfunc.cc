@@ -89,7 +89,7 @@ QtIntervalLoOp::evaluate(QtDataList* inputList)
         }
         else
         {
-            LFATAL << "Error: QtIntervalLoOp::evaluate() - operation lo() can not be used for an open bound.";
+            LERROR << "Error: QtIntervalLoOp::evaluate() - operation lo() can not be used for an open bound.";
 
             // delete old operand
             if (operand)
@@ -163,7 +163,7 @@ QtIntervalLoOp::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_INTERVAL)
         {
-            LFATAL << "Error: QtIntervalLoOp::checkType() - operation lo() must be of type interval.";
+            LERROR << "Error: QtIntervalLoOp::checkType() - operation lo() must be of type interval.";
             parseInfo.setErrorNo(393);
             throw parseInfo;
         }
@@ -227,7 +227,7 @@ QtIntervalHiOp::evaluate(QtDataList* inputList)
         }
         else
         {
-            LFATAL << "Error: QtIntervalHiOp::evaluate() - operation lo() can not be used for an open bound.";
+            LERROR << "Error: QtIntervalHiOp::evaluate() - operation lo() can not be used for an open bound.";
 
             // delete old operand
             if (operand)
@@ -300,7 +300,7 @@ QtIntervalHiOp::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_INTERVAL)
         {
-            LFATAL << "Error: QtIntervalHiOp::checkType() - operation lo() must be of type interval.";
+            LERROR << "Error: QtIntervalHiOp::checkType() - operation lo() must be of type interval.";
             parseInfo.setErrorNo(393);
             throw parseInfo;
         }
@@ -445,7 +445,7 @@ QtSDom::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtSDom::checkType() - operand must be of type MDD.";
+            LERROR << "Error: QtSDom::checkType() - operand must be of type MDD.";
             parseInfo.setErrorNo(395);
             throw parseInfo;
         }

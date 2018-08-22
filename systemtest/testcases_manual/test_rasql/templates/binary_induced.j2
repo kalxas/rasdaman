@@ -1,0 +1,97 @@
+{#-
+ # Test induced binary operations (+, -, /, *, ...) on
+ # - array op array
+ # - array op scalar
+ # - scalar op array
+ # - scalar op scalar
+ #
+ # The left operand has dimension and cell type as defined by the engine.
+ # The right operand has same dimension and cell type = cell_type_right.
+ # Each left/right combination is evaluated for all binary induced operations.
+ #
+ # Note: Skips evaluating the last dimension to reduce the number of queries.
+ #}
+{%- if dimension < dimension_max -%}
+{%-   for cell_type_right in cell_type_name_list -%}
+{%-     for op in oper_induced_binary -%}
+{%-       set cell_type_val_right = cell_type_val_dic[cell_type_right] -%}
+{%-       set op_name = oper_induced_binary_name[loop.index0] -%}
+{%-       set left_is_composite = cell_type_name == 'char_char_char' -%}
+{%-       set right_is_composite = cell_type_right == 'char_char_char' -%}
+{%-       set one_is_composite = (left_is_composite != right_is_composite) -%}
+{#-
+ # array op array
+-#}
+query: SELECT a {{op}} b FROM {{coll_name}} AS a, {{coll_name}} AS b
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ cell_type_right}}
+{%        if one_is_composite -%}
+knownfail: produces random result
+{%        endif -%}
+{{separator}}
+{#
+ # array op scalar, scalar op array:
+ # do not repeat for different dimensions of the right operand
+-#}
+query: SELECT a {{op}} {{cell_type_val_right}} FROM {{coll_name}} AS a
+id: {{test_id ~ "_" ~ op_name ~ "_scalar_right_" ~ cell_type_right}}
+{%        if one_is_composite -%}
+knownfail: produces random result
+{%        endif -%}
+{{separator}}
+query: SELECT {{cell_type_val_right}} {{op}} a FROM {{coll_name}} AS a
+id: {{test_id ~ "_" ~ op_name ~ "_scalar_left_" ~ cell_type_right}}
+{%        if one_is_composite -%}
+knownfail: produces random result
+{%        endif -%}
+{{separator}}
+{#
+ # scalar op scalar:
+ # evaluate for only one dimension (scalars are dimensionless)
+-#}
+{%        if dimension == 1 -%}
+query: SELECT {{cell_type_val}} {{op}} {{cell_type_val_right}}
+id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right}}
+{%          if one_is_composite -%}
+knownfail: produces random result
+{%          endif -%}
+{{separator}}
+query: SELECT {{cell_type_val}} {{op}} \"invalid\"
+query: SELECT {{cell_type_val}} {{op}} [0,1]
+id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_invalid"}}
+{%          if one_is_composite -%}
+knownfail: produces random error (scalar[char,char,char] op "invalid")
+{%          endif -%}
+{{separator}}
+query: SELECT {{cell_type_val}} op {{0 ~ cell_type_suffix_dic[cell_type_right]}}
+id: {{template_name ~ "_" ~ op_name ~ "_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_by_zero"}}
+{%          if one_is_composite -%}
+knownfail: produces random result (scalar[char,char,char] op 0)
+{%          endif -%}
+{{separator}}
+{%        endif -%}
+{%-     endfor -%}
+{%-   endfor -%}
+{#-
+ # array (dimension) op array (dimension + 1)
+ #
+ # Test only for one type (char) is sufficient
+-#}
+{%-   if cell_type_name == 'char' -%}
+{%-     set dimension_right = dimension + 1 -%}
+{%-     set coll_name_right = coll_name_dic[(dimension_right, cell_type_name)] -%}
+{%-     for op in oper_induced_binary -%}
+{%-       set op_name = oper_induced_binary_name[loop.index0] -%}
+query: SELECT a {{op}} b FROM {{coll_name}} AS a, {{coll_name_right}} AS b
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ dimension_right ~ "d"}}
+{{separator}}
+{%      endfor -%}
+{%-   endif -%}
+{%- endif -%}
+{#-
+ # evaluate only once
+-#}
+{% if dimension == 2 and cell_type_name == 'float' -%}
+query: SELECT ((2*c + c) - (c + 1)) / (2*c + 1) FROM {{coll_name}} AS c
+id: {{test_id ~ "_cse"}}
+{{separator}}
+{% endif -%}

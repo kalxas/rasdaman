@@ -140,7 +140,7 @@ void LockManager::connect()
     bool connect_ok = ecpg_LockManager->connect(dbConnectionId, connectionName, dbUser, dbPassword);
     if (!connect_ok)
     {
-        LFATAL << "Error: Lock manager -- Database is not connected.";
+        LERROR << "Error: Lock manager -- Database is not connected.";
         throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
     }
 }
@@ -157,7 +157,7 @@ void LockManager::disconnect()
     bool disconnect_ok = ecpg_LockManager->disconnect(connectionName);
     if (!disconnect_ok)
     {
-        LFATAL << "Error: Lock manager -- Database cannot be disconnected.";
+        LERROR << "Error: Lock manager -- Database cannot be disconnected.";
         throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
     }
 }
@@ -216,7 +216,7 @@ void LockManager::lockTileInternal(const char* pRasServerId, OId::OIdCounter pTi
     }
     if (!result)
     {
-        LFATAL << "Error: Lock manager -- Tile cannot be locked.";
+        LERROR << "Error: Lock manager -- Tile cannot be locked.";
         throw r_Error(r_Error::r_Error_TileCannotBeLocked, 4000);
     }
 }
@@ -337,7 +337,7 @@ void LockManager::generateServerId(char* pResultRasServerId)
     }
     else
     {
-        LFATAL << "Error: Lock manager, generateServerId -- concatenation of id components failed.";
+        LERROR << "Error: Lock manager, generateServerId -- concatenation of id components failed.";
         throw r_Error(r_Error::r_Error_General);
     }
 }

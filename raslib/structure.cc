@@ -238,13 +238,13 @@ r_Structure::operator[](unsigned int index) const
 {
     if (!valueType)
     {
-        LFATAL << "r_Structure::operator[](" << index << ") const value type is NULL";
+        LERROR << "r_Structure::operator[](" << index << ") const value type is NULL";
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 
     if (index > numElements)
     {
-        LFATAL << "r_Structure::operator[](" << index << ") const index is out of bounds (" << numElements - 1 << ")";
+        LERROR << "r_Structure::operator[](" << index << ") const index is out of bounds (" << numElements - 1 << ")";
         throw r_Eindex_violation(0, numElements, index);
     }
 
@@ -258,7 +258,7 @@ r_Structure::operator[](const char* name) const
 {
     if (!valueType)
     {
-        LFATAL << "r_Structure::operator[](" << name << ") value type is NULL";
+        LERROR << "r_Structure::operator[](" << name << ") value type is NULL";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -272,7 +272,7 @@ r_Structure::operator[](const char* name) const
 
     if (iter == structType->defines_attribute_end())
     {
-        LFATAL << "r_Structure::operator[](" << name << ") name is not valid";
+        LERROR << "r_Structure::operator[](" << name << ") name is not valid";
         r_Error err(r_Error::r_Error_NameInvalid);
         throw (err);
     }

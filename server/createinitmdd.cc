@@ -87,7 +87,7 @@ r_OId FastCollectionCreator::createCollection()
     }
     else
     {
-        LFATAL << "collection type not found... FAILED";
+        LERROR << "collection type not found... FAILED";
         throw r_Error(COLLTYPE_NULL);
     }
 
@@ -98,7 +98,7 @@ void FastCollectionCreator::verifyName(const char* name)
 {
     if (!name)
     {
-        LFATAL << "FastCollectionCreator::verifyName() name is null!";
+        LERROR << "FastCollectionCreator::verifyName() name is null!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 
@@ -123,7 +123,7 @@ void FastCollectionCreator::verifyName(const char* name)
     if (*cptr)
     {
         //invalid character in object name
-        LFATAL << "FastCollectionCreator::verifyName(" << name << ") invalid name!";
+        LERROR << "FastCollectionCreator::verifyName(" << name << ") invalid name!";
         throw r_Error(INVALIDOBJECTNAME);
     }
 }
@@ -189,7 +189,7 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection)
     {
         throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
     }
-    //LFATAL << "incompatibil with domain";
+    //LERROR << "incompatibil with domain";
 
     if (collection->getCollectionType()->compatibleWith(mddType))
     {
@@ -199,7 +199,7 @@ void FastMDDCreator::verifyCompatibility(MDDColl* collection)
     {
         throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
     }
-    //LFATAL << "incompatibil with collection";
+    //LERROR << "incompatibil with collection";
 
     free(collTypeStructure);
     free(mddTypeStructure);

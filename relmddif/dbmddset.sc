@@ -85,7 +85,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     if (set)
     {
         LTRACE << "already have a set with name " << getName();
-        LFATAL << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
+        LERROR << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
     long testoid1;
@@ -96,7 +96,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", testoid1);
     if (query.nextRow())
     {
-        LFATAL << "DBMDDObj::DBMDDObj() - mdd object: "
+        LERROR << "DBMDDObj::DBMDDObj() - mdd object: "
                << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
     }
@@ -166,7 +166,7 @@ DBMDDSet::readFromDb()
     }
     else
     {
-        LFATAL << "DBMDDSet::readFromDb() - set object: "
+        LERROR << "DBMDDSet::readFromDb() - set object: "
                << mddcolloid2 << " not found in the database.";
         if (collname2)
         {

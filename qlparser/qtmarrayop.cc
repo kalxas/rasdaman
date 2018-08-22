@@ -298,7 +298,7 @@ QtMarrayOp::checkType(QtTypeTuple* typeTuple)
 
         if ((domainExp.getDataType() != QT_MINTERVAL) && (domainExp.getDataType() != QT_INTERVAL))
         {
-            LFATAL << "Error: QtMarrayOp::checkType() - Can not evaluate domain expression to an minterval.";
+            LERROR << "Error: QtMarrayOp::checkType() - Can not evaluate domain expression to an minterval.";
             parseInfo.setErrorNo(401);
             throw parseInfo;
         }

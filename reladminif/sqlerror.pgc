@@ -193,7 +193,7 @@ void
 generateException()
 {
     LDEBUG << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
-    LFATAL << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
+    LERROR << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg;
     throw r_Ebase_dbms( SQLCODE, lastErrorMsg );
 } // generateException()
 

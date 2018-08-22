@@ -99,7 +99,7 @@ TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
 {
     if (pos > getSize())
     {
-        LFATAL << "TransDirIx::insertObject(" << newKeyObject << ", " << pos << ") pos out of range";
+        LERROR << "TransDirIx::insertObject(" << newKeyObject << ", " << pos << ") pos out of range";
         throw r_Error(TRANSIENT_INDEX_OUT_OF_BOUNDS);
     }
     else

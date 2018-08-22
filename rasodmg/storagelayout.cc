@@ -151,10 +151,10 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
 
     if (!til->is_compatible(domain, cell_size))
     {
-        LFATAL << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling";
-        LFATAL << "\tgmarray domain   : " << domain;
-        LFATAL << "\tgmarray type size: " << cell_size;
-        LFATAL << "\tstorage layout   : " << *this;
+        LERROR << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling";
+        LERROR << "\tgmarray domain   : " << domain;
+        LERROR << "\tgmarray type size: " << cell_size;
+        LERROR << "\tstorage layout   : " << *this;
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
 

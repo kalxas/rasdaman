@@ -1,0 +1,16 @@
+{#-
+ # test subsetting on array and scalar operands
+ #}
+{%- if dimension < dimension_max -%}
+{%- for k, subset in mdd_constant_subsets.iteritems() -%}
+query: SELECT c{{subset}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k}}
+{{separator}}
+{%    if dimension == 1 -%}
+query: SELECT {{cell_type_val}}{{subset}}
+query: SELECT avg_cells(c){{subset}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k ~ "_scalar"}}
+{{separator}}
+{%    endif -%}
+{% endfor -%}
+{% endif -%}

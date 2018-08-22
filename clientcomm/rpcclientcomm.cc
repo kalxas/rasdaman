@@ -202,7 +202,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeQuery(query, result) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeQuery(query, result) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -231,7 +231,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcexecutequery' failed";
+            LERROR << "RPC call 'rpcexecutequery' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -297,7 +297,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -332,7 +332,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcexecuteupdate' failed";
+                LERROR << "RPC call 'rpcexecuteupdate' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -360,7 +360,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 
                 if (binding_h == NULL)
                 {
-                    LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                    LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                     throw r_Error(CONNECTIONCLOSED);
                 }
 
@@ -377,7 +377,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
                     }
                     if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                     {
-                        LFATAL << "RPC call 'rpcexecutequery' failed";
+                        LERROR << "RPC call 'rpcexecutequery' failed";
                         throw r_Error(CLIENTCOMMUICATIONFAILURE);
                     }
                     rpcRetryCounter++;
@@ -405,7 +405,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
                     default:
                         err = r_Error(r_Error::r_Error_TransferFailed);
                     }
-                    LFATAL << "Error: rpcinitmdd() - " << err.what();
+                    LERROR << "Error: rpcinitmdd() - " << err.what();
                     throw err;
                 }
 
@@ -440,7 +440,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 
                     if (binding_h == NULL)
                     {
-                        LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                        LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                         throw r_Error(CONNECTIONCLOSED);
                     }
 
@@ -457,7 +457,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
                         }
                         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                         {
-                            LFATAL << "RPC call 'rpcinserttile' failed";
+                            LERROR << "RPC call 'rpcinserttile' failed";
                             throw r_Error(CLIENTCOMMUICATIONFAILURE);
                         }
                         rpcRetryCounter++;
@@ -480,7 +480,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 
                     if (rpcStatus > 0)
                     {
-                        LFATAL << "Error: rpctransfertile() - general";
+                        LERROR << "Error: rpctransfertile() - general";
                         throw r_Error(r_Error::r_Error_TransferFailed);
                     }
 
@@ -493,7 +493,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 
                 if (binding_h == NULL)
                 {
-                    LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                    LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                     throw r_Error(CONNECTIONCLOSED);
                 }
 
@@ -510,7 +510,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
                     }
                     if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                     {
-                        LFATAL << "RPC call 'rpcinsertmdd' failed";
+                        LERROR << "RPC call 'rpcinsertmdd' failed";
                         throw r_Error(CLIENTCOMMUICATIONFAILURE);
                     }
                     rpcRetryCounter++;
@@ -538,7 +538,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -555,7 +555,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcexecuteupdate' failed";
+            LERROR << "RPC call 'rpcexecuteupdate' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -602,7 +602,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -637,7 +637,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcexecuteupdate' failed";
+                LERROR << "RPC call 'rpcexecuteupdate' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -664,7 +664,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 
                 if (binding_h == NULL)
                 {
-                    LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                    LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                     throw r_Error(CONNECTIONCLOSED);
                 }
                 setRPCActive();
@@ -680,7 +680,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
                     }
                     if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                     {
-                        LFATAL << "RPC call 'rpcexecutequery' failed";
+                        LERROR << "RPC call 'rpcexecutequery' failed";
                         throw r_Error(CLIENTCOMMUICATIONFAILURE);
                     }
                     rpcRetryCounter++;
@@ -708,7 +708,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
                     default:
                         err = r_Error(r_Error::r_Error_TransferFailed);
                     }
-                    LFATAL << "Error: rpcinitmdd() - " << err.what();
+                    LERROR << "Error: rpcinitmdd() - " << err.what();
                     throw err;
                 }
 
@@ -744,7 +744,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 
                     if (binding_h == NULL)
                     {
-                        LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                        LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                         throw r_Error(CONNECTIONCLOSED);
                     }
 
@@ -761,7 +761,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
                         }
                         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                         {
-                            LFATAL << "RPC call 'rpcinserttile' failed";
+                            LERROR << "RPC call 'rpcinserttile' failed";
                             throw r_Error(CLIENTCOMMUICATIONFAILURE);
                         }
                         rpcRetryCounter++;
@@ -784,7 +784,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 
                     if (rpcStatus > 0)
                     {
-                        LFATAL << "Error: rpctransfertile() - general";
+                        LERROR << "Error: rpctransfertile() - general";
                         throw r_Error(r_Error::r_Error_TransferFailed);
                     }
 
@@ -797,7 +797,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 
                 if (binding_h == NULL)
                 {
-                    LFATAL << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                    LERROR << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                     throw r_Error(CONNECTIONCLOSED);
                 }
 
@@ -814,7 +814,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
                     }
                     if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                     {
-                        LFATAL << "RPC call 'rpcinsertmdd' failed";
+                        LERROR << "RPC call 'rpcinsertmdd' failed";
                         throw r_Error(CLIENTCOMMUICATIONFAILURE);
                     }
                     rpcRetryCounter++;
@@ -842,7 +842,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -859,7 +859,7 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcexecuteinsert' failed";
+            LERROR << "RPC call 'rpcexecuteinsert' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -923,7 +923,7 @@ RpcClientComm::insertColl(const char* collName, const char* typeName, const r_OI
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::insertColl(collName, typeName, oid ) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::insertColl(collName, typeName, oid ) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -957,7 +957,7 @@ RpcClientComm::insertColl(const char* collName, const char* typeName, const r_OI
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcinsertcoll' failed";
+            LERROR << "RPC call 'rpcinsertcoll' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -986,7 +986,7 @@ RpcClientComm::insertColl(const char* collName, const char* typeName, const r_OI
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-        LFATAL << "Error: rpcCreateMDDCollection() - " << err.what();
+        LERROR << "Error: rpcCreateMDDCollection() - " << err.what();
         throw err;
     }
 }
@@ -999,7 +999,7 @@ RpcClientComm::deleteCollByName(const char* collName)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::deleteCollByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::deleteCollByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1031,7 +1031,7 @@ RpcClientComm::deleteCollByName(const char* collName)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcdeletecollbyname' failed";
+            LERROR << "RPC call 'rpcdeletecollbyname' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1057,7 +1057,7 @@ RpcClientComm::deleteCollByName(const char* collName)
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-        LFATAL << "Error: rpcInsertMDD() - " << err.what();
+        LERROR << "Error: rpcInsertMDD() - " << err.what();
         throw err;
     }
 }
@@ -1070,7 +1070,7 @@ RpcClientComm::deleteObjByOId(const r_OId& oid)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::deleteObjectByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::deleteObjectByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1102,7 +1102,7 @@ RpcClientComm::deleteObjByOId(const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcdeleteobjbyoid' failed";
+            LERROR << "RPC call 'rpcdeleteobjbyoid' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1127,7 +1127,7 @@ RpcClientComm::deleteObjByOId(const r_OId& oid)
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-        LFATAL << "Error: rpcInsertMDD() - " << err.what();
+        LERROR << "Error: rpcInsertMDD() - " << err.what();
         throw err;
     }
 }
@@ -1140,7 +1140,7 @@ RpcClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::removeObjFromColl(collName, oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::removeObjFromColl(collName, oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1173,7 +1173,7 @@ RpcClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcremoveobjfromcoll' failed";
+            LERROR << "RPC call 'rpcremoveobjfromcoll' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1200,7 +1200,7 @@ RpcClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-        LFATAL << "Error: rpcInsertMDD() - " << err.what();
+        LERROR << "Error: rpcInsertMDD() - " << err.what();
         throw err;
     }
 }
@@ -1213,7 +1213,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1280,7 +1280,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcstartinsertpersmdd' failed";
+                LERROR << "RPC call 'rpcstartinsertpersmdd' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -1310,7 +1310,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
             default:
                 err = r_Error(r_Error::r_Error_TransferFailed);
             }
-            LFATAL << "Error: rpcInsertMDDObj() - " << err.what();
+            LERROR << "Error: rpcInsertMDDObj() - " << err.what();
             throw err;
         }
 
@@ -1343,7 +1343,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
 
             if (binding_h == NULL)
             {
-                LFATAL << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                LERROR << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                 throw r_Error(CONNECTIONCLOSED);
             }
 
@@ -1360,7 +1360,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
                 }
                 if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                 {
-                    LFATAL << "RPC call 'rpcinserttile' failed";
+                    LERROR << "RPC call 'rpcinserttile' failed";
                     throw r_Error(CLIENTCOMMUICATIONFAILURE);
                 }
                 rpcRetryCounter++;
@@ -1378,7 +1378,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
 
             if (rpcStatus > 0)
             {
-                LFATAL << "Error: rpcInsertMDD() - general";
+                LERROR << "Error: rpcInsertMDD() - general";
                 throw r_Error(r_Error::r_Error_TransferFailed);
             }
 
@@ -1391,7 +1391,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
 
         if (binding_h == NULL)
         {
-            LFATAL << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+            LERROR << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
             throw r_Error(CONNECTIONCLOSED);
         }
 
@@ -1408,7 +1408,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcendinsertmdd' failed";
+                LERROR << "RPC call 'rpcendinsertmdd' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -1438,7 +1438,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
 
         if (binding_h == NULL)
         {
-            LFATAL << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+            LERROR << "RpcClientComm::insertMDD(collName, mar) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
             throw r_Error(CONNECTIONCLOSED);
         }
 
@@ -1455,7 +1455,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcinsertmdd' failed";
+                LERROR << "RPC call 'rpcinsertmdd' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -1487,7 +1487,7 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
             default:
                 err = r_Error(r_Error::r_Error_TransferFailed);
             }
-            LFATAL << "Error: rpcInsertMDD() - " << err.what();
+            LERROR << "Error: rpcInsertMDD() - " << err.what();
             throw err;
         }
 
@@ -1501,7 +1501,7 @@ RpcClientComm::getMDDByOId(const r_OId& oid)
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getMDDByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getMDDByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1530,7 +1530,7 @@ RpcClientComm::getMDDByOId(const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetmddbyoid' failed";
+            LERROR << "RPC call 'rpcgetmddbyoid' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1574,7 +1574,7 @@ RpcClientComm::getMDDByOId(const r_OId& oid)
 #endif
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getMDDByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getMDDByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1584,7 +1584,7 @@ RpcClientComm::getMDDByOId(const r_OId& oid)
         rpcStatusPtr = rpcendtransfer_1(&clientID, binding_h);
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcendtransfer' failed";
+            LERROR << "RPC call 'rpcendtransfer' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1615,7 +1615,7 @@ RpcClientComm::getCollByName(const char* collName)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getCollByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getCollByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
     r_Set<r_Ref_Any>* set       = 0;
@@ -1639,7 +1639,7 @@ RpcClientComm::getCollByName(const char* collName)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetcollbyname' failed";
+            LERROR << "RPC call 'rpcgetcollbyname' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1704,7 +1704,7 @@ RpcClientComm::getCollByOId(const r_OId& oid)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getCollByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getCollByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1729,7 +1729,7 @@ RpcClientComm::getCollByOId(const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetcollbyoid' failed";
+            LERROR << "RPC call 'rpcgetcollbyoid' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1794,7 +1794,7 @@ RpcClientComm::getCollOIdsByName(const char* collName)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getCollOIdsByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getCollOIdsByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
     r_Set<r_Ref<r_GMarray>>* set = 0;
@@ -1818,7 +1818,7 @@ RpcClientComm::getCollOIdsByName(const char* collName)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetcolloidsbyname' failed";
+            LERROR << "RPC call 'rpcgetcolloidsbyname' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1886,7 +1886,7 @@ RpcClientComm::getCollOIdsByOId(const r_OId& oid)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getCollOIdsByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getCollOIdsByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
     r_Set<r_Ref<r_GMarray>>* set = 0;
@@ -1910,7 +1910,7 @@ RpcClientComm::getCollOIdsByOId(const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetcolloidsbyoid' failed";
+            LERROR << "RPC call 'rpcgetcolloidsbyoid' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -1975,7 +1975,7 @@ RpcClientComm::createDB(const char* name)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::createDB(name) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::createDB(name) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -1995,7 +1995,7 @@ RpcClientComm::createDB(const char* name)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpccreatedb' failed";
+            LERROR << "RPC call 'rpccreatedb' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2014,7 +2014,7 @@ RpcClientComm::destroyDB(const char* name)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::destroyDB(name) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::destroyDB(name) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -2034,7 +2034,7 @@ RpcClientComm::destroyDB(const char* name)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcdestroydb' failed";
+            LERROR << "RPC call 'rpcdestroydb' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2072,7 +2072,7 @@ RpcClientComm::executeOpenDB(const char* database)
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::executeOpenDB(database) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeOpenDB(database) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         return CONNECTIONCLOSED;
     }
 
@@ -2122,7 +2122,7 @@ RpcClientComm::executeOpenDB(const char* database)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcopendb' failed";
+            LERROR << "RPC call 'rpcopendb' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2191,7 +2191,7 @@ RpcClientComm::executeCloseDB()
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcclosedb' failed";
+            LERROR << "RPC call 'rpcclosedb' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2257,7 +2257,7 @@ RpcClientComm::executeOpenTA(unsigned short readOnly)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcbeginta' failed";
+            LERROR << "RPC call 'rpcbeginta' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2352,7 +2352,7 @@ RpcClientComm::executeCommitTA()
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpccommitta' failed";
+            LERROR << "RPC call 'rpccommitta' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2417,7 +2417,7 @@ RpcClientComm::executeAbortTA()
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcabortta' failed";
+            LERROR << "RPC call 'rpcabortta' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2436,7 +2436,7 @@ RpcClientComm::getNewOId(unsigned short objType)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getNewOId(objType) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getNewOId(objType) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -2468,7 +2468,7 @@ RpcClientComm::getNewOId(unsigned short objType)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetnewoid' failed";
+            LERROR << "RPC call 'rpcgetnewoid' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2513,7 +2513,7 @@ RpcClientComm::getObjectType(const r_OId& oid)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getObjectType(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getObjectType(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -2535,7 +2535,7 @@ RpcClientComm::getObjectType(const r_OId& oid)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgetobjexttype' failed";
+            LERROR << "RPC call 'rpcgetobjexttype' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2579,7 +2579,7 @@ RpcClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getTypeStructure(typeName, typeType) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getTypeStructure(typeName, typeType) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -2602,7 +2602,7 @@ RpcClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgettypestructure' failed";
+            LERROR << "RPC call 'rpcgettypestructure' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2726,7 +2726,7 @@ RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
     unsigned short tileStatus = 0;
@@ -2753,7 +2753,7 @@ RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcgetnextmdd' failed";
+                LERROR << "RPC call 'rpcgetnextmdd' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -2767,7 +2767,7 @@ RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
 
         if (mddStatus == 2)
         {
-            LFATAL << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
+            LERROR << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
         else
@@ -2795,7 +2795,7 @@ RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -2814,7 +2814,7 @@ RpcClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcendtransfer' failed";
+            LERROR << "RPC call 'rpcendtransfer' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -2831,7 +2831,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
     unsigned short rpcStatus = 0;
@@ -2844,7 +2844,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
         if (binding_h == NULL)
         {
-            LFATAL << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+            LERROR << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
             throw r_Error(CONNECTIONCLOSED);
         }
 
@@ -2861,7 +2861,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcgetnextelement' failed";
+                LERROR << "RPC call 'rpcgetnextelement' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -2873,7 +2873,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
         if (rpcStatus == 2)
         {
-            LFATAL << "Error: getElementCollection(...) - no transfer collection or empty transfer collection";
+            LERROR << "Error: getElementCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
@@ -2991,7 +2991,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -3010,7 +3010,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcendtransfer' failed";
+            LERROR << "RPC call 'rpcendtransfer' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -3070,7 +3070,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
 
         if (binding_h == NULL)
         {
-            LFATAL << "RpcClientComm::getMDDCore(mdd, thisResult, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+            LERROR << "RpcClientComm::getMDDCore(mdd, thisResult, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
             throw r_Error(CONNECTIONCLOSED);
         }
 
@@ -3087,7 +3087,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcgetnexttile' failed";
+                LERROR << "RPC call 'rpcgetnexttile' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -3107,7 +3107,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
         {
             XDRFREE(GetTileRes, tileRes);
 
-            LFATAL << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
+            LERROR << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
@@ -3151,7 +3151,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
 
                 if (binding_h == NULL)
                 {
-                    LFATAL << "RpcClientComm::getMDDCore(mdd, thisResult, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+                    LERROR << "RpcClientComm::getMDDCore(mdd, thisResult, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
                     throw r_Error(CONNECTIONCLOSED);
                 }
 
@@ -3168,7 +3168,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
                     }
                     if (rpcRetryCounter > RMInit::clientcommMaxRetry)
                     {
-                        LFATAL << "RPC call 'rpcgetnexttile' failed";
+                        LERROR << "RPC call 'rpcgetnexttile' failed";
                         throw r_Error(CLIENTCOMMUICATIONFAILURE);
                     }
                     rpcRetryCounter++;
@@ -3182,7 +3182,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
                 {
                     XDRFREE(GetTileRes, tileRes);
 
-                    LFATAL << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
+                    LERROR << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
                     throw r_Error(r_Error::r_Error_TransferFailed);
                 }
 
@@ -3335,7 +3335,7 @@ void RpcClientComm::sendAliveSignal()
             }
             if (rpcRetryCounter > RMInit::clientcommMaxRetry)
             {
-                LFATAL << "RPC call 'rpcalive' failed";
+                LERROR << "RPC call 'rpcalive' failed";
                 throw r_Error(CLIENTCOMMUICATIONFAILURE);
             }
             rpcRetryCounter++;
@@ -3410,7 +3410,7 @@ int RpcClientComm::setTransferFormat(r_Data_Format format, const char* formatPar
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcsetservertransfer' failed";
+            LERROR << "RPC call 'rpcsetservertransfer' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -3471,7 +3471,7 @@ int RpcClientComm::setStorageFormat(r_Data_Format format, const char* formatPara
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcsetserverstorage' failed";
+            LERROR << "RPC call 'rpcsetserverstorage' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -3513,7 +3513,7 @@ RpcClientComm::getExtendedErrorInfo()
 {
     if (binding_h == NULL)
     {
-        LFATAL << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         throw r_Error(CONNECTIONCLOSED);
     }
 
@@ -3542,7 +3542,7 @@ RpcClientComm::getExtendedErrorInfo()
         }
         if (rpcRetryCounter > RMInit::clientcommMaxRetry)
         {
-            LFATAL << "RPC call 'rpcgeterrorinfo' failed";
+            LERROR << "RPC call 'rpcgeterrorinfo' failed";
             throw r_Error(CLIENTCOMMUICATIONFAILURE);
         }
         rpcRetryCounter++;
@@ -3700,7 +3700,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     struct hostent* hostinfo = gethostbyname(rasmgrHost);
     if (hostinfo == NULL)
     {
-        LFATAL << "Error locating RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error locating RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
 
@@ -3749,7 +3749,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
 
     if (!ok)
     {
-        LFATAL << "getFreeServer: I give up, sorry";
+        LERROR << "getFreeServer: I give up, sorry";
         close(sock);
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
@@ -3759,7 +3759,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
 
     if (nbytes < 0)
     {
-        LFATAL << "Error writing message to RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error writing message to RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
         close(sock);
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
@@ -3770,7 +3770,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
 
     if (nbytes < 0)
     {
-        LFATAL << "Error reading answer from RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
+        LERROR << "Error reading answer from RasMGR" << rasmgrHost << " (" << strerror(errno) << ')';
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
 
@@ -3783,7 +3783,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     char* pEOL = strstr(p, "\r\n"); // locate CRLF
     if (!pEOL)
     {
-        LFATAL << "Invalid answer from RasMGR";
+        LERROR << "Invalid answer from RasMGR";
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
 
@@ -3807,7 +3807,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
         }
         else
         {
-            LFATAL << "Invalid answer from RasMGR";
+            LERROR << "Invalid answer from RasMGR";
             throw r_Error(r_Error::r_Error_ServerInvalid);
         }
 
@@ -3816,7 +3816,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     {
         char* errText = strstr(message, "\r\n\r\n") + 4;
         //cerr<<"cucu Error "<<errText<<endl;
-        //LFATAL << "Error "<<errText<< endl;
+        //LERROR << "Error "<<errText<< endl;
 
         unsigned int errorCode = strtoul(errText, (char**)NULL, 0);
         //cerr <<" throw "<< errorCode <<endl;
@@ -3876,7 +3876,7 @@ RpcClientComm::connectToServer(unsigned short readOnly)
 #endif
     if (!binding_h)
     {
-        LFATAL << "FAILED";
+        LERROR << "FAILED";
         throw r_Error(r_Error::r_Error_ServerInvalid);
     }
     else

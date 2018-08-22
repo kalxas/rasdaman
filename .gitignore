@@ -258,3 +258,6 @@ applications/petascope/petascope_main/target/
 applications/petascope/petascope_migration/target/
 /systemtest/testcases_services/test_web_interfaces/TestWebInterfaces/target/
 binprint
+systemtest/testcases_manual/test_rasql/oracles
+systemtest/testcases_manual/test_rasql/queries
+systemtest/testcases_manual/test_rasql/outputs

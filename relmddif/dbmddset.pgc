@@ -80,7 +80,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
     if (set)
     {
         LTRACE << "already have a set with name " << getName();
-        LFATAL << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
+        LERROR << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
     EXEC SQL BEGIN DECLARE SECTION;
@@ -105,7 +105,7 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
         if (SQLCODE == SQLOK)
         {
             LTRACE << "already have a DBMDDSet with this OId " << id;
-            LFATAL << "DBMDDSet::DBMDDSet() mdd collection with oid \"" << id << "\" exists already";
+            LERROR << "DBMDDSet::DBMDDSet() mdd collection with oid \"" << id << "\" exists already";
             throw r_Error(r_Error::r_Error_OIdNotUnique);
         }
         else

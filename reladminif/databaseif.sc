@@ -92,7 +92,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
     {
         if (AdminIf::getCurrentDatabaseIf() != 0)
         {
-            LFATAL << "Another database is open already.";
+            LERROR << "Another database is open already.";
             throw r_Error(r_Error::r_Error_DatabaseOpen);
         }
 
@@ -102,7 +102,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
             SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
             if (checkTable.nextRow())
             {
-                LFATAL << "Database exists already.";
+                LERROR << "Database exists already.";
                 checkTable.finalize();
                 disconnect();
                 throw r_Error(DATABASE_EXISTS_ALREADY);
@@ -357,7 +357,7 @@ DatabaseIf::destroyDB(const char* dbName)
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {
         LTRACE << "another database is already open;";
-        LFATAL << "Another database is already open.\n" << "Cannot destroy database " << dbName << ".";
+        LERROR << "Another database is already open.\n" << "Cannot destroy database " << dbName << ".";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     connect();

@@ -82,7 +82,7 @@ QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource)
     source->setParent(this);
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -94,7 +94,7 @@ QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource, 
     source->setParent(this);
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -106,7 +106,7 @@ QtInsert::QtInsert(const QtCollection& initCollection, QtData* data)
 {
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
   	{
-    	LFATAL << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
     	parseInfo.setErrorNo(499);
     	throw parseInfo; 
   	}
@@ -178,7 +178,7 @@ QtInsert::evaluate()
         catch (...)
         {
 
-            LFATAL << "Error: QtInsert::evaluate() - collection name not found";
+            LERROR << "Error: QtInsert::evaluate() - collection name not found";
 
             // delete the operand
             if (sourceData)
@@ -191,7 +191,7 @@ QtInsert::evaluate()
         }
         if (!almost->isPersistent())
         {
-            LFATAL << "QtInsert: User tries to insert into system table";
+            LERROR << "QtInsert: User tries to insert into system table";
             if (sourceData)
             {
                 sourceData->deleteRef();
@@ -253,7 +253,7 @@ QtInsert::evaluate()
             }
 
             // return error
-            LFATAL << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
+            LERROR << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
             parseInfo.setErrorNo(959);
             throw parseInfo;
         }
@@ -271,7 +271,7 @@ QtInsert::evaluate()
             }
 
             // return error
-            LFATAL << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
+            LERROR << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
             parseInfo.setErrorNo(959);
             throw parseInfo;
         }
@@ -397,7 +397,7 @@ QtInsert::evaluate()
         }
         else
         {
-            LFATAL << "Error: QtInsert::evaluate() - allocation of oid failed";
+            LERROR << "Error: QtInsert::evaluate() - allocation of oid failed";
 
             // delete dynamic data
             if (sourceData)
@@ -542,7 +542,7 @@ QtInsert::checkType()
 
         if (inputType.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>";
+            LERROR << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>";
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }
@@ -553,7 +553,7 @@ QtInsert::checkType()
         // get input type
         if (dataToInsert->getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>";
+            LERROR << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>";
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }

@@ -173,6 +173,7 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration");
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", SC_BAD_REQUEST);
+    public static final ExceptionCode InvalidURL = new ExceptionCode("InvalidURL", SC_BAD_REQUEST);
     public static final ExceptionCode SyntaxError = new ExceptionCode("SyntaxError",
             "Operation request is syntactically malformed.", SC_BAD_REQUEST);
     public static final ExceptionCode SemanticError = new ExceptionCode("SemanticError",

@@ -144,13 +144,8 @@ if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
         add_definitions(-DELPP_DISABLE_VERBOSE_LOGS)
         add_definitions(-DNDEBUG)
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
     # Used by some performance implementation of math libraries.
     set(__NO_MATH_INLINES 1)
-elseif (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-    # thread-safe logging if in Debug mode
-    #add_definitions(-DELPP_THREAD_SAFE)
 endif()
 
 #

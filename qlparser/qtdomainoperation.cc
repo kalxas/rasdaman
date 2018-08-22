@@ -406,7 +406,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
                 }
                  else
                 {
-                    LFATAL << "Error: QtDomainOperation::evaluate() - The dimension of the subset domain is not equal to the dimension of the subsetted marray. The subset domain dimension is: " << projPoint.dimension() <<" while the marray domain dimension is: " << currentMDDObj->getDimension();
+                    LERROR << "Error: QtDomainOperation::evaluate() - The dimension of the subset domain is not equal to the dimension of the subsetted marray. The subset domain dimension is: " << projPoint.dimension() <<" while the marray domain dimension is: " << currentMDDObj->getDimension();
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
 
@@ -637,7 +637,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
                         resultMDD->insertTile(resTile);
                         returnValue = new QtMDD(static_cast<MDDObj*>(resultMDD));
 
-//                LFATAL << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD.";
+//                LERROR << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD.";
 //                parseInfo.setErrorNo(356);
 //
 //                // delete index and operand data
@@ -715,7 +715,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
                 if (indexPoint.dimension() != 1)
                 {
-                    LFATAL << "Error: QtDomainOperation::evaluate() - Operand of minterval selection must be of type unsigned integer.";
+                    LERROR << "Error: QtDomainOperation::evaluate() - Operand of minterval selection must be of type unsigned integer.";
                     parseInfo.setErrorNo(397);
 
                     // delete ressources
@@ -752,7 +752,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
             }
             if (indexValue >= minterval.dimension())
             {
-                LFATAL << "Error: QtDomainOperation::evaluate() - index for minterval selection is out of range.";
+                LERROR << "Error: QtDomainOperation::evaluate() - index for minterval selection is out of range.";
                 parseInfo.setErrorNo(398);
 
                 // delete ressources
@@ -830,7 +830,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
                 if (indexPoint.dimension() != 1)
                 {
-                    LFATAL << "Error: QtDomainOperation::evaluate() - Operand of point selection must be of type unsigned integer.";
+                    LERROR << "Error: QtDomainOperation::evaluate() - Operand of point selection must be of type unsigned integer.";
                     parseInfo.setErrorNo(399);
 
                     // delete ressources
@@ -876,7 +876,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
             if (indexValue >= pt.dimension())
             {
-                LFATAL << "Error: QtDomainOperation::evaluate() - index for point selection is out of range.";
+                LERROR << "Error: QtDomainOperation::evaluate() - index for point selection is out of range.";
                 parseInfo.setErrorNo(411);
 
                 // delete ressources
@@ -910,7 +910,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
 
     default:
     {
-        LFATAL << "Error: QtDomainOperation::evaluate() - selection operation is not supported on this data type.";
+        LERROR << "Error: QtDomainOperation::evaluate() - selection operation is not supported on this data type.";
         parseInfo.setErrorNo(396);
         throw parseInfo;
     }
@@ -1013,7 +1013,7 @@ QtDomainOperation::checkType(QtTypeTuple* typeTuple)
                     && !indexType.isInteger()
                )
             {
-                LFATAL << "Error: QtDomainOperation::checkType() - spatial domain expressions must be either of type minterval, point, or integer.";
+                LERROR << "Error: QtDomainOperation::checkType() - spatial domain expressions must be either of type minterval, point, or integer.";
                 parseInfo.setErrorNo(391);
                 throw parseInfo;
             }
@@ -1035,7 +1035,7 @@ QtDomainOperation::checkType(QtTypeTuple* typeTuple)
             // check index type
             if (!indexType.isInteger() && indexType.getDataType() != QT_POINT)
             {
-                LFATAL << "Error: QtDomainOperation::checkType() - Operand of minterval selection must be of type integer.";
+                LERROR << "Error: QtDomainOperation::checkType() - Operand of minterval selection must be of type integer.";
                 parseInfo.setErrorNo(397);
                 throw parseInfo;
             }
@@ -1047,7 +1047,7 @@ QtDomainOperation::checkType(QtTypeTuple* typeTuple)
             // check index type
             if (!indexType.isInteger() && indexType.getDataType() != QT_POINT)
             {
-                LFATAL << "Error: QtDomainOperation::checkType() - Operand of point selection must be of type integer.";
+                LERROR << "Error: QtDomainOperation::checkType() - Operand of point selection must be of type integer.";
                 parseInfo.setErrorNo(399);
                 throw parseInfo;
             }
@@ -1056,7 +1056,7 @@ QtDomainOperation::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtDomainOperation::checkType() - selection operation is not supported on this data type.";
+            LERROR << "Error: QtDomainOperation::checkType() - selection operation is not supported on this data type.";
             parseInfo.setErrorNo(396);
             throw parseInfo;
         }

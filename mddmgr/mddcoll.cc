@@ -128,7 +128,7 @@ MDDColl::insert(const MDDObj* newObj)
 #ifdef DEBUG
     if (newObj == 0)
     {
-        LFATAL << "MDDColl::insert(const MDDObj*) assertion failed";
+        LERROR << "MDDColl::insert(const MDDObj*) assertion failed";
         throw r_Error(MDD_NOT_VALID);
     }
 #endif
@@ -273,7 +273,7 @@ MDDColl::removeFromCache(const PersMDDObj* objToRemove)
 #ifdef DEBUG
         if (mddCache.find(objIdVoidAddress) != mddCache.end())
         {
-            LFATAL << "MDDColl::removeMDDObjfromCache() object multiple times in cache";
+            LERROR << "MDDColl::removeMDDObjfromCache() object multiple times in cache";
             throw r_Error(MDD_EXISTS_MULTIPLE_TIMES);
         }
 #endif

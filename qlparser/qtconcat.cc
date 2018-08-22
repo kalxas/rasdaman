@@ -170,7 +170,7 @@ QtConcat::evaluate(QtDataList* inputList)
                 baseType = getResultType(baseType, baseType2);
                 if (!baseType)
                 {
-                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
+                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
                     parseInfo.setErrorNo(352);
                     throw parseInfo;
 
@@ -207,7 +207,7 @@ QtConcat::evaluate(QtDataList* inputList)
                         operandList = NULL;
                     }
 
-                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - the operands have less dimensions than the one specified";
+                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - the operands have less dimensions than the one specified";
                     parseInfo.setErrorNo(424);
                     throw parseInfo;
                 }
@@ -237,7 +237,7 @@ QtConcat::evaluate(QtDataList* inputList)
                         operandList = NULL;
                     }
 
-                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - r_Mintervals of operands not mergeable";
+                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - r_Mintervals of operands not mergeable";
                     parseInfo.setErrorNo(425);
                     throw parseInfo;
                 }
@@ -423,7 +423,7 @@ QtConcat::checkType(QtTypeTuple* typeTuple)
 
             if (inputType.getDataType() != QT_MDD)
             {
-                LFATAL << "Error: QtConcat::checkType() - every operand must be of type MDD.";
+                LERROR << "Error: QtConcat::checkType() - every operand must be of type MDD.";
                 parseInfo.setErrorNo(423);
                 throw parseInfo;
             }
@@ -437,7 +437,7 @@ QtConcat::checkType(QtTypeTuple* typeTuple)
                 baseType = getResultType(baseType, (static_cast<const MDDBaseType*>(inputType.getType()))->getBaseType());
                 if (!baseType)
                 {
-                    LFATAL << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
+                    LERROR << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible";
                     parseInfo.setErrorNo(352);
                     throw parseInfo;
                 }

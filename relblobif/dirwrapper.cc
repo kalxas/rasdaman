@@ -45,8 +45,8 @@ void DirWrapper::createDirectory(const string& dirPath)
     {
         if (mkdir(dirPath.c_str(), 0770) == IO_ERROR_RC)
         {
-            LFATAL << "error: failed creating directory - " << dirPath;
-            LFATAL << "reason: " << strerror(errno);
+            LERROR << "error: failed creating directory - " << dirPath;
+            LERROR << "reason: " << strerror(errno);
             throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTWRITABLE));
         }
     }

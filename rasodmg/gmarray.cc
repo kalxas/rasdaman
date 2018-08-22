@@ -117,12 +117,12 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
         }
         if (error == 1)
         {
-            LFATAL << "domain is not initialised";
+            LERROR << "domain is not initialised";
             throw r_Error(DOMAINUNINITIALISED);
         }
         else
         {
-            LFATAL << "storage layout is not compatible";
+            LERROR << "storage layout is not compatible";
             throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
         }
     }
@@ -250,9 +250,9 @@ r_GMarray::set_storage_layout(r_Storage_Layout* stl)
 {
     if (!stl->is_compatible(domain, type_length))
     {
-        LFATAL << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling";
-        LFATAL << "\tgmarray domain   : " << spatial_domain();
-        LFATAL << "\tgmarray type size: " << get_type_length();
+        LERROR << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling";
+        LERROR << "\tgmarray domain   : " << spatial_domain();
+        LERROR << "\tgmarray type size: " << get_type_length();
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
 
@@ -528,7 +528,7 @@ r_GMarray::get_base_type_schema()
         else
         {
             //whenever this module is done correctly, it should be checked first, what kind of type we are dealing with.  therefore i do not declare a throw clause.
-            LFATAL << "r_GMarray::get_base_type_schema() the type retrieved (" << typePtr->name() << ") was not a marray type";
+            LERROR << "r_GMarray::get_base_type_schema() the type retrieved (" << typePtr->name() << ") was not a marray type";
             throw r_Error(NOTANMARRAYTYPE);
         }
     }

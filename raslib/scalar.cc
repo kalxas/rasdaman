@@ -53,7 +53,7 @@ r_Scalar::r_Scalar(const r_Base_Type* newType)
     }
     else
     {
-        LFATAL << "r_Scalar::r_Scalar(NULL) base type must be not NULL";
+        LERROR << "r_Scalar::r_Scalar(NULL) base type must be not NULL";
         throw r_Error(SCALARWASPASSEDNULLTYPE);
     }
 }

@@ -52,7 +52,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
 
     if (!encoded)
     {
-        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << (encoded ? encoded : "NULL") << ")";
+        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << (encoded ? encoded : "NULL") << ")";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -67,7 +67,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     pRes = strstr(pStart, TCOLON);
     if (!pRes)
     {
-        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration from tilingparams.";
+        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration from tilingparams.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -85,8 +85,8 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
         }
         catch (r_Error& err)
         {
-            LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams.";
-            LFATAL << "Error " << err.get_errorno() << " : " << err.what();
+            LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams.";
+            LERROR << "Error " << err.get_errorno() << " : " << err.what();
             delete [] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -96,7 +96,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
         tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
         if (!tileD)
         {
-            LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams.";
+            LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams.";
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -110,7 +110,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     }
     else
     {
-        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tiling, end of stream.";
+        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tiling, end of stream.";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
@@ -118,7 +118,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     tileS = strtol(pRes, (char**) NULL, DefaultBase);
     if (!tileS)
     {
-        LFATAL << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
+        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
 
         if (tileConf)
         {

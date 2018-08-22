@@ -107,7 +107,7 @@ BLOBTile::updateInDb()
         }
         else if (SQLCODE == SQLNODATAFOUND)
         {
-            LFATAL << "BLOBTile::updateInDb(): error: object not in database";
+            LERROR << "BLOBTile::updateInDb(): error: object not in database";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     */
@@ -155,7 +155,7 @@ BLOBTile::updateInDb()
         int loResult = lo_write( pgConn, fd, cells, size );
         if (loResult < 0)
         {
-            LFATAL << "BLOBTile::updateInDb() cannot write blob, error: " << loResult;
+            LERROR << "BLOBTile::updateInDb() cannot write blob, error: " << loResult;
             generateException();
         }
         else if (loResult != static_cast<int>(size))          // did not get all
@@ -167,7 +167,7 @@ BLOBTile::updateInDb()
         loResult = lo_close( pgConn, fd );
         if (loResult < 0)               // can't close, don't know if data are written
         {
-            LFATAL << "BLOBTile::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+            LERROR << "BLOBTile::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
             generateException();
         }
     }
@@ -233,7 +233,7 @@ BLOBTile::insertInDb()
     blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );   // create -- not clear what INV_* here means so indicate all
     if (blobOid == 0)
     {
-        LFATAL << "BLOBTile::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "BLOBTile::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     
@@ -243,7 +243,7 @@ BLOBTile::insertInDb()
     int loResult = lo_write( pgConn, fd, cells, size );
     if (loResult < 0)
     {
-        LFATAL << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
+        LERROR << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
         generateException();
     }
     else if (loResult != static_cast<int>(size))          // did not get all
@@ -255,7 +255,7 @@ BLOBTile::insertInDb()
     loResult = lo_close( pgConn, fd );
     if (loResult < 0)               // cannot close, don't know if data are there
     {
-        LFATAL << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+        LERROR << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
         generateException();
     }
 
@@ -663,13 +663,13 @@ BLOBTile::readFromDb()
         EXEC SQL SELECT Tile, DataFormat INTO :blobOid, :dataformat3 FROM RAS_TILES WHERE BlobId = :indbmyOId3;
         if (SQLCODE < 0)
         {
-            LFATAL << "BLOBTile::readFromDb() Fatal error during RAS_TILES read: got SQLCODE " << SQLCODE << " for oid " << indbmyOId3;
+            LERROR << "BLOBTile::readFromDb() Fatal error during RAS_TILES read: got SQLCODE " << SQLCODE << " for oid " << indbmyOId3;
             check("BLOBTile::readFromDb() - find tuple\0");
             generateException();
         }
         else if (SQLCODE == SQLNODATAFOUND) // we've got no tuple
         {
-            LFATAL << "BLOBTile::readFromDb() error: object unknown for oid " << indbmyOId3;
+            LERROR << "BLOBTile::readFromDb() error: object unknown for oid " << indbmyOId3;
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     #endif NOTYET
@@ -716,14 +716,14 @@ BLOBTile::readFromDb()
         int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
         if (fd < 0)
         {
-            LFATAL << "BLOBTile::readFromDb() error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
+            LERROR << "BLOBTile::readFromDb() error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
             generateException();
         }
         LDEBUG << "lo_lseek() end";
         size = static_cast<r_Bytes>(lo_lseek( pgConn, fd, 0, SEEK_END ));     // determine blob size; FIXME: more efficient method??
         if (size <= 0)
         {
-            LFATAL << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid;
+            LERROR << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid;
             generateException();
         }
         LDEBUG << "lo_lseek() start";
@@ -731,7 +731,7 @@ BLOBTile::readFromDb()
         cells = static_cast<char*>(mymalloc( size * sizeof(char) ));    // allocate buffer for blob
         if (cells == NULL)
         {
-            LFATAL << "BLOBTile::readFromDb() error: cannot allocate " << size << " bytes ";
+            LERROR << "BLOBTile::readFromDb() error: cannot allocate " << size << " bytes ";
             generateException();
         }
 
@@ -739,7 +739,7 @@ BLOBTile::readFromDb()
         int loResult = lo_read( pgConn, fd, cells, size );
         if (loResult <= 0)
         {
-            LFATAL << "BLOBTile::readFromDb() cannot read blob with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
+            LERROR << "BLOBTile::readFromDb() cannot read blob with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
             generateException();
         }
         else if (loResult != static_cast<int>(size))              // did not get all
@@ -788,7 +788,7 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
         int loResult = lo_write( pgConn, fd, cells, size );
         if (loResult < 0)
         {
-            LFATAL << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
+            LERROR << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
             generateException();
         }
         else if (loResult != static_cast<int>(size))          // did not get all
@@ -800,7 +800,7 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
         loResult = lo_close( pgConn, fd );
         if (loResult < 0)               // cannot close, don't know if data are there
         {
-            LFATAL << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+            LERROR << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
             generateException();
         }
     }

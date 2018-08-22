@@ -153,7 +153,7 @@ const char* r_Conv_CSV::printValue(std::stringstream& f, const r_Base_Type& type
     }
     else
     {
-        LFATAL << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id();
+        LERROR << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id();
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
@@ -291,7 +291,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     }
     else
     {
-        LFATAL << "illegal CSV option string: \"" << options << "\", "
+        LERROR << "illegal CSV option string: \"" << options << "\", "
                << "only " << FormatParamKeys::Encode::CSV::ORDER << "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
                << "is supported.";
         throw r_Error(INVALIDFORMATPARAMETER);
@@ -343,12 +343,12 @@ void r_Conv_CSV::processDecodeOptions(const string& options)
     }
     if (domain.empty())
     {
-        LFATAL << "mandatory parameter '" << FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' must be specified.";
+        LERROR << "mandatory parameter '" << FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' must be specified.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
     if (basetype.empty())
     {
-        LFATAL << "mandatory parameter '" << FormatParamKeys::Decode::CSV::BASETYPE << "' must be specified.";
+        LERROR << "mandatory parameter '" << FormatParamKeys::Decode::CSV::BASETYPE << "' must be specified.";
         throw r_Error(INVALIDFORMATPARAMETER);
     }
 }
@@ -421,7 +421,7 @@ void r_Conv_CSV::addStructElem(char** dest, r_Structure_Type& st, std::istringst
                     addElem<r_UShort>(str, dest);
                     break;
                 case r_Type::BOOL:
-                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << ((*iter).type_of()).type_id();
+                    LERROR << "r_Conv_CSV::convertFrom: unsupported primitive type " << ((*iter).type_of()).type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                     break;
                 case r_Type::LONG:
@@ -443,13 +443,13 @@ void r_Conv_CSV::addStructElem(char** dest, r_Structure_Type& st, std::istringst
                     addCharElem(str, dest);
                     break;
                 default:
-                    LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type for structure attribute " << ((*iter).type_of()).type_id();
+                    LERROR << "r_Conv_CSV::convertFrom: unsupported primitive type for structure attribute " << ((*iter).type_of()).type_id();
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                 }
             }
             else
             {
-                LFATAL << "r_Conv_CSV::convertFrom: unsupported attribute type " << ((*iter).type_of()).type_id();
+                LERROR << "r_Conv_CSV::convertFrom: unsupported attribute type " << ((*iter).type_of()).type_id();
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
         }
@@ -479,7 +479,7 @@ void r_Conv_CSV::constructStruct(unsigned int numElem)
     }
     if (countVal != numElem)
     {
-        LFATAL << "r_Conv_CSV::convertFrom(): wrong number of values!";
+        LERROR << "r_Conv_CSV::convertFrom(): wrong number of values!";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -511,7 +511,7 @@ void constructPrimitive(char* dest, const char* src, unsigned int numElem)
 
     if (countVal != numElem)
     {
-        LFATAL << "r_Conv_CSV::convertFrom(): wrong number of values!";
+        LERROR << "r_Conv_CSV::convertFrom(): wrong number of values!";
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -529,7 +529,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
             constructPrimitive<r_UShort>(desc.dest, desc.src, numElem);
             break;
         case r_Type::BOOL:
-            LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
+            LERROR << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
             throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             break;
         case r_Type::LONG:
@@ -551,7 +551,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
             constructPrimitive<r_Char>(desc.dest, desc.src, numElem);
             break;
         default:
-            LFATAL << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
+            LERROR << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id();
             throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
         }
     }
@@ -561,7 +561,7 @@ void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
     }
     else
     {
-        LFATAL << "r_Conv_CSV::convertFrom: unsupported type " << type.type_id();
+        LERROR << "r_Conv_CSV::convertFrom: unsupported type " << type.type_id();
         throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
     }
 }
@@ -642,7 +642,7 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options,
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(stringsize)))) == NULL)
     {
-        LFATAL << "r_Conv_CSV::convertTo(): out of memory error";
+        LERROR << "r_Conv_CSV::convertTo(): out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memcpy(desc.dest, str.c_str(), static_cast<size_t>(stringsize));
@@ -680,7 +680,7 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(totalSize))) == NULL)
     {
-        LFATAL << "r_Conv_CSV::convertFrom(): out of memory error!";
+        LERROR << "r_Conv_CSV::convertFrom(): out of memory error!";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 

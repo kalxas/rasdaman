@@ -156,7 +156,7 @@ void TIFFError(__attribute__((unused)) const char* module, const char* fmt, va_l
 {
     char msg[10240];
     vsprintf(msg, fmt, argptr);
-    LFATAL << "TIFF error: " << msg;
+    LERROR << "TIFF error: " << msg;
     throw r_Error(r_Error::r_Error_General);
 }
 
@@ -340,13 +340,13 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
                 // check if all bands are of the same type
                 if ((*iter).type_of().type_id() != bandType)
                 {
-                    LFATAL << "r_Conv_TIFF::convertTo(): can't handle bands of different types";
+                    LERROR << "r_Conv_TIFF::convertTo(): can't handle bands of different types";
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
                 }
             }
             else
             {
-                LFATAL << "r_Conv_TIFF::convertTo(): can't handle band of non-primitive type "
+                LERROR << "r_Conv_TIFF::convertTo(): can't handle band of non-primitive type "
                        << (*iter).type_of().name();
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
@@ -360,7 +360,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     }
     default:
         LDEBUG << "r_Conv_TIFF::convertTo(): error: unsupported base type " << desc.baseType << ".";
-        LFATAL << "Error: encountered unsupported TIFF base type.";
+        LERROR << "Error: encountered unsupported TIFF base type.";
         throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
     }
 
@@ -379,7 +379,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
 
     if (tif == NULL)
     {
-        LFATAL << "r_Conv_TIFF::convertTo(): couldn't open file " << dummyFile;
+        LERROR << "r_Conv_TIFF::convertTo(): couldn't open file " << dummyFile;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -542,7 +542,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     if (row < height)  // error
     {
         LDEBUG << "r_Conv_TIFF::convertTo(): error writing data after " << row << " rows out of " << height << ".";
-        LFATAL << "Error: cannot write all TIFF data.";
+        LERROR << "Error: cannot write all TIFF data.";
         TIFFClose(tif);
         remove(dummyFile);
         throw r_Error(r_Error::r_Error_General);
@@ -558,7 +558,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
     {
         LDEBUG << "r_Conv_TIFF::convertTo(): out of memory.";
-        LFATAL << "Error: out of memory.";
+        LERROR << "Error: out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
@@ -603,7 +603,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
     if (tif == NULL)
     {
-        LFATAL << "r_Conv_TIFF::convertFrom(): unable to open file!";
+        LERROR << "r_Conv_TIFF::convertFrom(): unable to open file!";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -661,7 +661,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                 break;
             default:
             {
-                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of signed integer, of length: " << Bps;
+                LERROR << "r_Conv_TIFF::convertFrom(): can't handle band type of signed integer, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -682,7 +682,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                 break;
             default:
             {
-                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of unsigned integer, of length: " << Bps;
+                LERROR << "r_Conv_TIFF::convertFrom(): can't handle band type of unsigned integer, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -700,7 +700,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                 break;
             default:
             {
-                LFATAL << "r_Conv_TIFF::convertFrom(): can't handle band type of floating point, of length: " << Bps;
+                LERROR << "r_Conv_TIFF::convertFrom(): can't handle band type of floating point, of length: " << Bps;
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
             }
@@ -801,7 +801,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
         if ((desc.dest = static_cast<char*>(mystore.storage_alloc(width * height * typeSize * sizeof(char)))) == NULL)
         {
-            LFATAL << "r_Conv_TIFF::convertFrom(): out of memory error!";
+            LERROR << "r_Conv_TIFF::convertFrom(): out of memory error!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         else
@@ -918,7 +918,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
             if (row < height)
             {
                 LDEBUG << "r_Conv_TIFF::convertFrom(): error reading data: got only " << row << " rows out of " << height << ".";
-                LFATAL << "Error: cannot read all data.";
+                LERROR << "Error: cannot read all data.";
                 TIFFClose(tif);
                 remove(dummyFile);
                 throw r_Error(r_Error::r_Error_General);

@@ -1,0 +1,99 @@
+{#-
+ # test induced unary operations (not, +, -, cast) on array and 
+ # scalar operands (for 1d only, no need to repeat it for all dimensions)
+ #}
+{%- for op in oper_induced_unary -%}
+{%-   set op_name = oper_induced_unary_name[loop.index0] -%}
+query: SELECT {{op}}c FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name}}
+{{separator}}
+{%    if dimension == 1 -%}
+query: SELECT {{op}} {{cell_type_val}}
+id: {{test_id ~ "_" ~ op_name ~ "_scalar"}}
+{{separator}}
+{%    endif -%}
+{#-
+ # test operation on selected band for mdd and scalars
+-#}
+{%    for cname, ctype in cell_type_components -%}
+query: SELECT {{op}}c.{{cname}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_band_mdd_" ~ cname}}
+{{separator}}
+{%      if dimension == 1 -%}
+query: SELECT {{op}}{{cell_type_val}}.{{cname}}
+id: {{test_id ~ "_" ~ op_name ~ "_band_scalar_" ~ cname}}
+{{separator}}
+{%      endif -%}
+{%    endfor -%}
+{% endfor -%}
+{#-
+ # test casting to all possible types, and invalid type
+ #}
+{%- for op in cell_type_name_list -%}
+{%-   set op_name = "cast" -%}
+{%-   set op_composite = cell_type_components_dic[op]|length > 1 -%}
+query: SELECT ({{op}}) c FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ op}}
+{%-     if op_composite -%}
+known_fail: random results when casting an atomic type to a composite type
+skip: random results when casting an atomic type to a composite type
+{%      endif -%}
+{{separator}}
+{%    if dimension == 1 -%}
+query: SELECT ({{op}}) {{cell_type_val}}
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ op ~ "_scalar"}}
+{%-     if op_composite -%}
+known_fail: random results when casting an atomic type to a composite type
+skip: random results when casting an atomic type to a composite type
+{%      endif -%}
+{{separator}}
+{%    endif -%}
+{% endfor -%}
+{#-
+ # test casting to invalid type
+-#}
+{% if dimension == 1 and cell_type_name == 'bool' -%}
+query: SELECT (invalid_type) c FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_cast_invalid"}}
+{{separator}}
+query: SELECT ({{mdd_type_name}}) c FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_cast_invalid_mdd_type"}}
+{{separator}}
+query: SELECT ({{coll_type_name}}) c FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_cast_invalid_mdd_type"}}
+{{separator}}
+query: SELECT (invalid_type) {{cell_type_val}}
+id: {{test_id ~ "_" ~ op_name ~ "_cast_invalid_scalar"}}
+{{separator}}
+{% endif -%}
+{#-
+ # test invalid component selection
+ #}
+{%- set op_name = "component_selector" -%}
+{%- for comp in ['invalid', '-2', '100'] -%}
+query: SELECT c.{{comp}} FROM {{coll_name}} AS c
+{% if dimension == 1 -%}
+query: SELECT {{cell_type_val}}.{{comp}}
+{% endif -%}
+{% endfor -%}
+id: {{test_id ~ "_" ~ op_name ~ "_invalid_band_name"}}
+known_fail: sometimes returns a proper exception, sometimes fails with a segfault
+skip: sometimes returns a proper exception, sometimes fails with a segfault
+{{separator}}
+{#-
+ # test component selection for multiband data
+ #}
+{% for cname, ctype in cell_type_components -%}
+query: SELECT c.{{cname}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ cname}}
+{{separator}}
+query: SELECT c.{{loop.index0}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ loop.index0}}
+{{separator}}
+{% if dimension == 1 -%}
+query: SELECT {{cell_type_val}}.{{cname}}
+query: SELECT {{cell_type_val}}.{{loop.index0}}
+id: {{test_id ~ "_" ~ op_name ~ "_" ~ loop.index0 ~ "_scalar"}}
+{{separator}}
+{% endif -%}
+{% endfor -%}

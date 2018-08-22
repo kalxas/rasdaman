@@ -195,7 +195,7 @@ DBRCIndexDS::readFromDb()
     }
     else
     {
-        LFATAL << "DBHierIndex::readFromDb() - index entry: "
+        LERROR << "DBHierIndex::readFromDb() - index entry: "
                << id1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
@@ -301,7 +301,7 @@ DBRCIndexDS::readFromDb()
     // additional plausi check
     if (blobsize != bytesdone + completesize)
     {
-        LFATAL << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
+        LERROR << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         LDEBUG << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }

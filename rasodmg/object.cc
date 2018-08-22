@@ -84,7 +84,7 @@ r_Object::r_Object()
 
     if (next_object_type == persistent_object)
     {
-        LFATAL << "Error: A peristent object is constructed with default constructor.";
+        LERROR << "Error: A peristent object is constructed with default constructor.";
     }
     else
     {
@@ -119,7 +119,7 @@ r_Object::r_Object(unsigned short objType)
     {
         if (r_Transaction::actual_transaction == 0)
         {
-            LFATAL << "Error: Tried to create a persistent object outside a transaction.";
+            LERROR << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
         }
 
@@ -183,7 +183,7 @@ r_Object::r_Object( unsigned short objType, const char* name )
   {
     if( r_Transaction::actual_transaction == 0 )
     {
-      LFATAL << "Error: Tried to create a persistent object outside a transaction.";
+      LERROR << "Error: Tried to create a persistent object outside a transaction.";
       throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
 
@@ -224,7 +224,7 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType)
     {
         if (r_Transaction::actual_transaction == 0)
         {
-            LFATAL << "Error: Tried to create a persistent object outside a transaction.";
+            LERROR << "Error: Tried to create a persistent object outside a transaction.";
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
         }
 
@@ -290,7 +290,7 @@ r_Object::set_type_schema(const r_Type* tyy)
 {
     if (type_schema)
     {
-        LFATAL << "r_Object::set_type_schema(" << tyy->name() << ") this object has already a type";
+        LERROR << "r_Object::set_type_schema(" << tyy->name() << ") this object has already a type";
         throw r_Error(ILLEGALARGUMENT);
     }
     type_schema = tyy->clone();

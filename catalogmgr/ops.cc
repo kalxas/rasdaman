@@ -1165,7 +1165,7 @@ Ops::execUnaryConstOp(Ops::OpType op, const BaseType* resType,
 
     if (!myOp)
     {
-        LFATAL << "Ops::execUnaryConstOp: no operation for result type "
+        LERROR << "Ops::execUnaryConstOp: no operation for result type "
                << resType->getName() << ", argument type "
                << opType->getName() << ", operation " << (int)op;
         throw r_Error(367);
@@ -5954,7 +5954,7 @@ OpOVERLAY::OpOVERLAY(const BaseType* newResType, const BaseType* newOp1Type, con
 {
     if ((pattern == nullPattern) && (length > 16))
     {
-        LFATAL << "OpOVERLAY overlay with types larger than 16 bytes not supported yet";
+        LERROR << "OpOVERLAY overlay with types larger than 16 bytes not supported yet";
         throw r_Error(OVERLAYPATTERNTOOSMALL);
     }
 }

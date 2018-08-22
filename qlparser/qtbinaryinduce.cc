@@ -254,7 +254,7 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const
         }
         catch (int errcode)
         {
-            LFATAL << "Error: QtBinaryInduce::computeUnaryMDDOp() caught errno " << errcode;
+            LERROR << "Error: QtBinaryInduce::computeUnaryMDDOp() caught errno " << errcode;
             delete resTile;
             delete myOp;
             delete mddres;
@@ -400,7 +400,7 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
                 }
                 catch (int errcode)
                 {
-                    LFATAL << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode;
+                    LERROR << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode;
                     delete myOp;
                     delete resTile;
                     delete mddres;
@@ -465,7 +465,7 @@ QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, 
     }
     catch (int errcode)
     {
-        LFATAL << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode;
+        LERROR << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode;
         delete myOp;
         delete[] resultBuffer;
         parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
@@ -546,7 +546,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBinaryInduce::checkType() - binary induce (MDD + MDD): operand types are incompatible.";
+                LERROR << "Error: QtBinaryInduce::checkType() - binary induce (MDD + MDD): operand types are incompatible.";
                 parseInfo.setErrorNo(363);
                 throw parseInfo;
             }
@@ -566,7 +566,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBinaryInduce::checkType() - unary induce (MDD + BaseType): operand types are incompatible.";
+                LERROR << "Error: QtBinaryInduce::checkType() - unary induce (MDD + BaseType): operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -586,7 +586,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBinaryInduce::checkType() - unary induce (BaseType + MDD): operand types are incompatible.";
+                LERROR << "Error: QtBinaryInduce::checkType() - unary induce (BaseType + MDD): operand types are incompatible.";
                 parseInfo.setErrorNo(364);
                 throw parseInfo;
             }
@@ -606,7 +606,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
 
             if (!resultBaseType)
             {
-                LFATAL << "Error: QtBinaryInduce::checkType() - BaseType + BaseType : operand types are incompatible.";
+                LERROR << "Error: QtBinaryInduce::checkType() - BaseType + BaseType : operand types are incompatible.";
 
                 parseInfo.setErrorNo(365);
                 throw parseInfo;
@@ -619,7 +619,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
         {
             if (opType != Ops::OP_EQUAL)
             {
-                LFATAL << "Error: QtBinaryInduce::checkType() - String + String : operation is not supported on strings.";
+                LERROR << "Error: QtBinaryInduce::checkType() - String + String : operation is not supported on strings.";
                 parseInfo.setErrorNo(385);
                 throw parseInfo;
             }
@@ -628,7 +628,7 @@ QtBinaryInduce::checkType(QtTypeTuple* typeTuple)
         }
         else
         {
-            LFATAL << "Error: QtBinaryInduce::checkType() - operation is not supported on these data types.";
+            LERROR << "Error: QtBinaryInduce::checkType() - operation is not supported on these data types.";
             parseInfo.setErrorNo(403);
             throw parseInfo;
         }

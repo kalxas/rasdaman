@@ -50,7 +50,7 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj)
     }
     else
     {
-        LFATAL << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL.";
+        LERROR << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
 }
@@ -77,7 +77,7 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj)
     }
     else
     {
-        LFATAL << "r_Marray_Type::operator=( oldObj ) the element type is NULL.";
+        LERROR << "r_Marray_Type::operator=( oldObj ) the element type is NULL.";
         throw r_Error(MARRAYTYPEHASNOELEMENTTYPE);
     }
 

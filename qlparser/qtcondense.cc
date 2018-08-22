@@ -256,7 +256,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtCondense::evaluate() - operand must be multidimensional.";
+            LERROR << "Error: QtCondense::evaluate() - operand must be multidimensional.";
             parseInfo.setErrorNo(353);
             throw parseInfo;
         }
@@ -267,7 +267,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
         {
             if (baseType->getType() != BOOLTYPE)
             {
-                LFATAL << "Error: QtCondense::evaluate() - operand of quantifiers must be of type r_Marray<d_Boolean>.";
+                LERROR << "Error: QtCondense::evaluate() - operand of quantifiers must be of type r_Marray<d_Boolean>.";
                 parseInfo.setErrorNo(354);
                 throw parseInfo;
             }
@@ -277,7 +277,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
         {
             if (baseType->getType() != BOOLTYPE)
             {
-                LFATAL << "Error: QtCondense::evaluate() - operand of count_cells must be of type r_Marray<d_Boolean>.";
+                LERROR << "Error: QtCondense::evaluate() - operand of count_cells must be of type r_Marray<d_Boolean>.";
                 parseInfo.setErrorNo(415);
                 throw parseInfo;
             }

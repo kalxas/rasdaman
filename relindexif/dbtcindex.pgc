@@ -134,7 +134,7 @@ DBTCIndex::storeTiles()
             }
             else
             {
-                LFATAL << "Tile container index: error in BLOB Space." << endl << "Please contact Customer support.";
+                LERROR << "Tile container index: error in BLOB Space." << endl << "Please contact Customer support.";
                 LTRACE << "Tile container index: store tiles, but can't find my blob!";
                 throw r_Error(TILE_CONTAINER_NOT_FOUND);
             }
@@ -199,7 +199,7 @@ DBTCIndex::insertBlob()
         if (check("DBTCIndex::insertBlob()") != 0)
         {
             if (SQLCODE == -1)
-                LFATAL << "Counter for DBTCIndexs corrupted." << endl << "Please increment Rows in RAS_COUNTERS manually.";
+                LERROR << "Counter for DBTCIndexs corrupted." << endl << "Please increment Rows in RAS_COUNTERS manually.";
             generateException();
         }
     */
@@ -218,8 +218,8 @@ DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute_
 
     if (blobSize == 0)
     {
-        LFATAL << "DBTCIndex encountered an internal Error: blobSize is zero.";
-        LFATAL << "Please check your Oracle Instance and contact Customer Support.";
+        LERROR << "DBTCIndex encountered an internal Error: blobSize is zero.";
+        LERROR << "Please check your Oracle Instance and contact Customer Support.";
         LTRACE << "writeInlineTiles blobSize = 0!";
         throw r_Error(r_Error::r_Error_BaseDBMSFailed);
     }

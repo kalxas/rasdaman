@@ -58,7 +58,7 @@ BLOBTile::updateInDb()
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (!checkQuery.nextRow())
     {
-        LFATAL << "no tile with id " << blobOid << " found.";
+        LERROR << "no tile with id " << blobOid << " found.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "tile not found in database");
     }
     checkQuery.finalize();
@@ -88,7 +88,7 @@ BLOBTile::insertInDb()
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (checkQuery.nextRow())
     {
-        LFATAL << "tile with id " << blobOid << " already exists.";
+        LERROR << "tile with id " << blobOid << " already exists.";
         throw r_Ebase_dbms(SQLITE_ERROR, "a tile with the same id already exists in the database; see the server log for more details.");
     }
     checkQuery.finalize();
@@ -117,7 +117,7 @@ BLOBTile::deleteFromDb()
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (!checkQuery.nextRow())
     {
-        LFATAL << "no tile with id " << blobOid << " found.";
+        LERROR << "no tile with id " << blobOid << " found.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "tile not found in database");
     }
     checkQuery.finalize();
@@ -239,7 +239,7 @@ BLOBTile::readFromDb()
     }
     else
     {
-        LFATAL << "no tile with id " << blobOid << " found.";
+        LERROR << "no tile with id " << blobOid << " found.";
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
     query.finalize();

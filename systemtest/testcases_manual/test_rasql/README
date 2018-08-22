@@ -1,0 +1,38 @@
+# Templated tests for rasql
+
+This test allows to flexibly specify test cases as Jinja2 templates.
+The following files and directories are relevant:
+
+Test templates and rendering to queries:
+- templates/  - test cases as Jinja2 templates
+- queries/    - rendered templates
+- rasqte.py   - renders templates into concrete queries
+- util/       - helpers for rasqte.py and test.py
+
+Test evaluation:
+- test.sh     - calls test.py with the correct arguments for the systemtest
+- test.py     - evaluates rendered queries
+- outputs/    - test outputs from test.py (plus a few log files)
+- oracles/    - expected results for checking validity of outputs/
+
+Support scripts:
+- render_all_templates.sh  - update queries/ whenever templates/ is changed
+- update_archives.sh       - the queries/ and oracles/ directory are very big, 
+                             so they are versioned as .tar.gz archives
+
+
+# TODO
+
+rasqte.py:
+- collections with null values
+- collections with multiple arrays
+
+test.py:
+- parallelize test evaluation to improve evaluation speed
+
+Test cases not covered yet:
+- encode
+- decode
+- clip
+- marray constructor
+- condense

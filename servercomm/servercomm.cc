@@ -163,7 +163,7 @@ ServerComm::ServerComm()
 {
     if (actual_servercomm)
     {
-        LFATAL << "Internal Error: Tried to instantiate more than one ServerComm object.";
+        LERROR << "Internal Error: Tried to instantiate more than one ServerComm object.";
         exit(EXITCODE_ONE);
     }
 
@@ -183,7 +183,7 @@ ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval ,
 {
     if (actual_servercomm)
     {
-        LFATAL << "Internal Error: Tried to instantiate more than one ServerComm object.";
+        LERROR << "Internal Error: Tried to instantiate more than one ServerComm object.";
         exit(EXITCODE_ONE);
     }
 
@@ -250,7 +250,7 @@ ServerComm::startRpcServer()
     }
     else if (clnt_create(myName, listenPort, RPCIFVERS, "tcp"))
     {
-        LFATAL << MSG_FAILED;
+        LERROR << MSG_FAILED;
         exit(EXITCODE_ZERO);
     }
     else
@@ -266,14 +266,14 @@ ServerComm::startRpcServer()
     transp = svcudp_create(RPC_ANYSOCK);
     if (transp == NULL)
     {
-        LFATAL << MSG_FAILED;
+        LERROR << MSG_FAILED;
         throw r_Error(r_Error::r_Error_General);
     }
 
     LINFO << "registering UDP interface...";
     if (!svc_register(transp, listenPort, RPCIFVERS, rpcif_1_caller, IPPROTO_UDP))
     {
-        LFATAL << MSG_FAILED;
+        LERROR << MSG_FAILED;
         throw r_Error(r_Error::r_Error_General);
     }
     LINFO << MSG_OK;
@@ -282,14 +282,14 @@ ServerComm::startRpcServer()
     transp = svctcp_create(RPC_ANYSOCK, 0, 0);
     if (transp == NULL)
     {
-        LFATAL << MSG_FAILED;
+        LERROR << MSG_FAILED;
         throw r_Error(r_Error::r_Error_General);
     }
 
     LINFO << "registering TCP interface...";
     if (!svc_register(transp, listenPort, RPCIFVERS, rpcif_1_caller, IPPROTO_TCP))
     {
-        LFATAL << MSG_FAILED;
+        LERROR << MSG_FAILED;
         throw r_Error(r_Error::r_Error_General);
     }
     LINFO << MSG_OK;
@@ -374,7 +374,7 @@ void our_svc_run()
             if (bMemFailed)
             {
                 // no reason to continue
-                LFATAL << "Internal error: rasserver: memory exhausted.";
+                LERROR << "Internal error: rasserver: memory exhausted.";
                 exit(EXITCODE_ONE);
             }
         }
@@ -496,7 +496,7 @@ void rpcif_1_caller(struct svc_req* rqstp, SVCXPRT* transp)
     
         sigaction(SIGALRM, &garbageCollectionDummyHandler, NULL);
         ServerComm::actual_servercomm->callback_mgr.executePending();
-        LFATAL << "Internal error: rasserver panic: memory exhausted, terminating forcefully.";
+        LERROR << "Internal error: rasserver panic: memory exhausted, terminating forcefully.";
         exit(1);
     }
 
@@ -875,7 +875,7 @@ ServerComm::addClientTblEntry(ClientTblElt* context)
 {
     if (context == NULL)
     {
-        LFATAL << "Cannot register client in the client table: client context is NULL.";
+        LERROR << "Cannot register client in the client table: client context is NULL.";
         throw r_Error(r_Error::r_Error_RefNull);
     }
 

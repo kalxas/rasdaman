@@ -1,0 +1,51 @@
+{#-
+ # Test the where clause; it's sufficient to test for one dimension and type.
+ # Also cover the oid function.
+ #}
+{%- if dimension == 2 and cell_type_name == 'char' -%}
+query: SELECT true FROM {{coll_name}} AS c WHERE oid(c) > 0
+id: {{test_id ~ "_oid_selected_all"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE oid(c) < 0
+id: {{test_id ~ "_oid_selected_none"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE some_cells((c + 1) = 0c)
+id: {{test_id ~ "_scalar_expr_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE true
+id: {{test_id ~ "_scalar_const_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE add_cells(c)
+id: {{test_id ~ "_scalar_expr_non_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE 5d
+id: {{test_id ~ "_scalar_const_non_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE {true,false}
+id: {{test_id ~ "_scalar_const_composite_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE {0c,1c}
+id: {{test_id ~ "_scalar_const_composite_non_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE [0:1,2]
+id: {{test_id ~ "_minterval_const"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE c = 0c
+id: {{test_id ~ "_array_expr_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS c WHERE c + 1c
+id: {{test_id ~ "_array_expr_non_bool"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE oid(a) = oid(b)
+id: {{test_id ~ "_join_oid_selected_all"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE all_cells(a = b)
+id: {{test_id ~ "_join_expr_selected_all"}}
+{{separator}}
+query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE some_cells(a > b)
+id: {{test_id ~ "_join_expr_selected_none"}}
+{{separator}}
+query: SELECT oid(c) / oid(c) FROM {{coll_name}} AS c
+id: {{test_id ~ "_oid_expr"}}
+{{separator}}
+{% endif -%}

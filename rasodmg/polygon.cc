@@ -156,7 +156,7 @@ r_Polygon::r_Polygon(const char* init)
     if (init ==  NULL)
     {
         LDEBUG << "r_Polygon::r_Polygon(" << (init ? init : "NULL") << ")";
-        LFATAL << "r_Polygon::r_Polygon(" << (init ? init : "NULL") << ")";
+        LERROR << "r_Polygon::r_Polygon(" << (init ? init : "NULL") << ")";
         throw r_Error(POLYGONWRONGINITSTRING);
     }
     const int POINTBUFFERLEN = 512;
@@ -167,7 +167,7 @@ r_Polygon::r_Polygon(const char* init)
     if (startPos == NULL)
     {
         LDEBUG << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
-        LFATAL << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
+        LERROR << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
         throw r_Error(POLYGONWRONGINITSTRING);
     }
 
@@ -178,14 +178,14 @@ r_Polygon::r_Polygon(const char* init)
         if (endPos == NULL)
         {
             LDEBUG << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions";
-            LFATAL << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions";
+            LERROR << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions";
             throw r_Error(POLYGONWRONGINITSTRING);
         }
         pointLen = static_cast<size_t>(endPos - startPos);
         if (static_cast<int>(pointLen) >= POINTBUFFERLEN)
         {
             LDEBUG << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed";
-            LFATAL << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed";
+            LERROR << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed";
             throw r_Error(POLYGONWRONGINITSTRING);
         }
         memset(pointBuffer, 0, POINTBUFFERLEN);
@@ -239,13 +239,13 @@ r_Polygon::addPoint(const r_Point& newPoint)
 {
     if (newPoint.dimension() != polyPointDim)
     {
-        LFATAL << "r_Polygon::addPoint(" << newPoint << ") only " << polyPointDim << " dimensional r_Points allowed";
+        LERROR << "r_Polygon::addPoint(" << newPoint << ") only " << polyPointDim << " dimensional r_Points allowed";
         throw r_Error(POLYGONWRONGPOINTDIMENSION);
     }
 
     if (closed)
     {
-        LFATAL << "r_Polygon::addPoint(" << newPoint << ") polygon closed";
+        LERROR << "r_Polygon::addPoint(" << newPoint << ") polygon closed";
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -293,7 +293,7 @@ r_Polygon::getEdges() const
     if (!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        LFATAL << "r_Polygon::getEdges() polygon opened";
+        LERROR << "r_Polygon::getEdges() polygon opened";
         throw (r_Error(r_Error::r_Error_General));
     }
 
@@ -306,7 +306,7 @@ r_Polygon::getPoints() const
     if (!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        LFATAL << "r_Polygon::getPoints() polygon opened";
+        LERROR << "r_Polygon::getPoints() polygon opened";
         throw (r_Error(r_Error::r_Error_General));
     }
 
@@ -424,7 +424,7 @@ r_Polygon::fillMArray(r_GMarray& myArray, bool fillInside, const std::string& bg
     if (!closed)
     {
         // TO DO: This should be an internal error sometimes.
-        LFATAL << "r_Polygon::fillMArray(...) polygon opened";
+        LERROR << "r_Polygon::fillMArray(...) polygon opened";
         throw (r_Error(r_Error::r_Error_General));
     }
 
@@ -509,7 +509,7 @@ r_Polygon::getBoundingBox() const
     {
         // TO DO: This should be an internal error sometimes.
         LDEBUG << "r_Polygon::getBoundingBox() polygon opened";
-        LFATAL << "r_Polygon::getBoundingBox() polygon opened";
+        LERROR << "r_Polygon::getBoundingBox() polygon opened";
         throw (r_Error(r_Error::r_Error_General));
     }
 
@@ -543,7 +543,7 @@ r_Polygon::clip(const r_Minterval& clipDom)
     {
         // TO DO: This should be an internal error sometimes.
         LDEBUG << "r_Polygon::getBoundingBox() polygon opened";
-        LFATAL << "r_Polygon::getBoundingBox() polygon opened";
+        LERROR << "r_Polygon::getBoundingBox() polygon opened";
         throw (r_Error(r_Error::r_Error_General));
     }
 
@@ -679,7 +679,7 @@ r_Polygon::fromPoints(const std::vector<r_Point>& newPoints)
     if (newPoints.empty())
     {
         LDEBUG << "r_Polygon::fromPoinst(....) newPoints is empty";
-        LFATAL << "r_Polygon::fromPoinst(....) newPoints is empty";
+        LERROR << "r_Polygon::fromPoinst(....) newPoints is empty";
         throw r_Error(r_Error::r_Error_General);
     }
 

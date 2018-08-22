@@ -65,7 +65,7 @@ void BlobFile::insertData(BlobData& blob)
     }
     if (count < blob.size)
     {
-        LFATAL << "written only " << count << " out of " << blob.size << " bytes to blob file.";
+        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file.";
         generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
     }
     closeFileDescriptor();
@@ -81,7 +81,7 @@ void BlobFile::updateData(BlobData& blob)
     }
     if (count < blob.size)
     {
-        LFATAL << "written only " << count << " out of " << blob.size << " bytes to blob file.";
+        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file.";
         generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
     }
     closeFileDescriptor();
@@ -108,7 +108,7 @@ void BlobFile::readData(BlobData& blob)
     }
     if (count < blob.size)
     {
-        LFATAL << "read only " << count << " out of " << blob.size << " bytes from blob file.";
+        LERROR << "read only " << count << " out of " << blob.size << " bytes from blob file.";
         generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
     }
     closeFileDescriptor();
@@ -145,7 +145,7 @@ void BlobFile::closeFileDescriptor()
 {
     if (close(fd) == IO_ERROR_RC)
     {
-        LFATAL << "could not close blob file descriptor.";
+        LERROR << "could not close blob file descriptor.";
         generateError("failed I/O operation on blob file", FAILEDIOOPERATION);
     }
     fd = INVALID_FILE_DESCRIPTOR;
@@ -170,8 +170,8 @@ void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFi
 {
     if (rename(fromFilePath.c_str(), toFilePath.c_str()) == IO_ERROR_RC)
     {
-        LFATAL << "failed moving file from " << fromFilePath << " to " << toFilePath << ".";
-        LFATAL << "reason: " << strerror(errno);
+        LERROR << "failed moving file from " << fromFilePath << " to " << toFilePath << ".";
+        LERROR << "reason: " << strerror(errno);
         unsigned int errorCode = BLOBFILENOTFOUND;
         if (errno != ENOENT)
         {
@@ -210,7 +210,7 @@ long long BlobFile::getBlobId()
 
 void BlobFile::generateError(const char* message, int errorCode)
 {
-    LFATAL << message << " - " << filePath;
-    LFATAL << "reason: " << strerror(errno);
+    LERROR << message << " - " << filePath;
+    LERROR << "reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

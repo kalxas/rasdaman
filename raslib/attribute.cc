@@ -110,7 +110,7 @@ r_Attribute::operator[](unsigned int number) const
 {
     if (type_of().type_id() != r_Type::STRUCTURETYPE)
     {
-        LFATAL << "r_Attribute::operator[](" << number << ") not a struct type";
+        LERROR << "r_Attribute::operator[](" << number << ") not a struct type";
         throw r_Error(r_Error::r_Error_TypeInvalid) ;
     }
 
@@ -126,7 +126,7 @@ r_Attribute::get_boolean(const char* cell) const
 {
     if (type_of().type_id() != r_Type::BOOL)
     {
-        LFATAL << "r_Attribute::get_boolean(data) not a boolean";
+        LERROR << "r_Attribute::get_boolean(data) not a boolean";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -141,7 +141,7 @@ r_Attribute::get_char(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::CHAR)
     {
-        LFATAL << "r_Attribute::get_char(data) not a char";
+        LERROR << "r_Attribute::get_char(data) not a char";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -156,7 +156,7 @@ r_Attribute::get_octet(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::OCTET)
     {
-        LFATAL << "r_Attribute::get_octet(data) not a octet";
+        LERROR << "r_Attribute::get_octet(data) not a octet";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -171,7 +171,7 @@ r_Attribute::get_short(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::SHORT)
     {
-        LFATAL << "r_Attribute::get_short(data) not a short";
+        LERROR << "r_Attribute::get_short(data) not a short";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -186,7 +186,7 @@ r_Attribute::get_ushort(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::USHORT)
     {
-        LFATAL << "r_Attribute::get_ushort(data) not a ushort";
+        LERROR << "r_Attribute::get_ushort(data) not a ushort";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -201,7 +201,7 @@ r_Attribute::get_long(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::LONG)
     {
-        LFATAL << "r_Attribute::get_long(data) not a long";
+        LERROR << "r_Attribute::get_long(data) not a long";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -216,7 +216,7 @@ r_Attribute::get_ulong(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::ULONG)
     {
-        LFATAL << "r_Attribute::get_ulong(data) not a ulong";
+        LERROR << "r_Attribute::get_ulong(data) not a ulong";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -231,7 +231,7 @@ r_Attribute::get_float(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::FLOAT)
     {
-        LFATAL << "r_Attribute::get_float(data) not a float";
+        LERROR << "r_Attribute::get_float(data) not a float";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }
@@ -246,7 +246,7 @@ r_Attribute::get_double(const char* cell) const
 {
     if (type_of() .type_id() != r_Type::DOUBLE)
     {
-        LFATAL << "r_Attribute::get_double(data) not a double";
+        LERROR << "r_Attribute::get_double(data) not a double";
         r_Error err(r_Error::r_Error_TypeInvalid) ;
         throw (err) ;
     }

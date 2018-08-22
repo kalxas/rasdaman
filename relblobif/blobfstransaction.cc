@@ -112,7 +112,7 @@ const string BlobFSTransaction::getTmpBlobPath(long long blobId)
     }
     else
     {
-        LFATAL << "invalid blob id " << blobId;
+        LERROR << "invalid blob id " << blobId;
         throw r_Error(BLOBFILENOTFOUND);
     }
 }
@@ -146,7 +146,7 @@ const string BlobFSTransaction::getFinalBlobPath(long long blobId)
     }
     else
     {
-        LFATAL << "invalid blob id " << blobId;
+        LERROR << "invalid blob id " << blobId;
         throw r_Error(BLOBFILENOTFOUND);
     }
 }
@@ -251,8 +251,8 @@ void BlobFSTransaction::initTransactionDirectory(const string& transactionSubdir
     string tempDirPath = config.transactionsPath + transactionSubdir + ".XXXXXX";
     if (mkdtemp(const_cast<char*>(tempDirPath.c_str())) == NULL)
     {
-        LFATAL << "failed creating transaction directory: " << tempDirPath;
-        LFATAL << "reason: " << strerror(errno);
+        LERROR << "failed creating transaction directory: " << tempDirPath;
+        LERROR << "reason: " << strerror(errno);
         throw r_Error(static_cast<unsigned int>(FAILEDCREATINGDIR));
     }
     else
@@ -411,7 +411,7 @@ void BlobFSRemoveTransaction::add(BlobData& blob)
     }
     else
     {
-        LFATAL << "invalid blob id " << blob.blobId;
+        LERROR << "invalid blob id " << blob.blobId;
         throw r_Error(BLOBFILENOTFOUND);
     }
 }

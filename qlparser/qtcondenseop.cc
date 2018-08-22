@@ -464,7 +464,7 @@ QtCondenseOp::checkType(QtTypeTuple* typeTuple)
 
         if (domainExp.getDataType() != QT_MINTERVAL)
         {
-            LFATAL << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval";
+            LERROR << "Error: QtCondenseOp::checkType() - Can not evaluate domain expression to an minterval";
             parseInfo.setErrorNo(401);
             throw parseInfo;
         }
@@ -494,7 +494,7 @@ QtCondenseOp::checkType(QtTypeTuple* typeTuple)
                 valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 &&
                 valueExp.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD.";
+            LERROR << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD.";
             parseInfo.setErrorNo(412);
             throw parseInfo;
         }
@@ -513,7 +513,7 @@ QtCondenseOp::checkType(QtTypeTuple* typeTuple)
             // check type
             if (condExp.getDataType() != QT_BOOL)
             {
-                LFATAL << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean";
+                LERROR << "Error: QtCondenseOp::checkType() - Condition expression must be of type boolean";
                 parseInfo.setErrorNo(413);
                 throw parseInfo;
             }

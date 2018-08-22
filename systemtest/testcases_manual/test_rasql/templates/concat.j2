@@ -1,0 +1,55 @@
+{#-
+ # Test concat operation in various valid and invalid configurations.
+-#}
+{#-
+ # Test concat of the same array along each of its dimensions.
+ #}
+{%- for concat_dim in range(dimension) -%}
+query: SELECT CONCAT c WITH c ALONG {{concat_dim}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_itself_along_" ~ concat_dim}}
+{{separator}}
+{%  endfor -%}
+{#-
+ # Test concat of arrays of different cell types (for one dimension is enough)
+ #}
+{%- if dimension == 2 -%}
+{%- for cell_type_other in cell_type_name_list -%}
+{%-   if cell_type_name != cell_type_other -%}
+{%-     set coll_name_other = coll_name_dic[(dimension, cell_type_other)] -%}
+query: SELECT CONCAT a WITH b ALONG 0 FROM {{coll_name}} AS a, {{coll_name_other}} AS b
+id: {{test_id ~ "_with_" ~ cell_type_other}}
+{{separator}}
+{%    endif -%}
+{%  endfor -%}
+{%  endif -%}
+{%- if cell_type_name == 'char' %}
+{#-
+ # Test concat of the same array along an invalid dimension
+ #}
+{%-   for concat_dim in ["-1", "100", "1e+3", "x", "\\\"y\\\""] -%}
+query: SELECT CONCAT c WITH c ALONG {{concat_dim}} FROM {{coll_name}} AS c
+{%    endfor -%}
+knownfail: sometimes returns a proper exception, sometimes fails with a segfault
+skip: sometimes returns a proper exception, sometimes fails with a segfault
+id: {{test_id ~ "_itself_along_invalid_dim"}}
+{{separator}}
+{#-
+ # Test concat of array of dim with array of dim+1 along first dimension
+-#}
+{%    if dimension < dimension_max -%}
+{%-     set coll_name_other = coll_name_dic[(dimension+1, cell_type_name)] %}
+query: SELECT CONCAT a WITH b ALONG 0 FROM {{coll_name}} AS a, {{coll_name_other}} AS b
+id: {{test_id ~ "_different_dimension"}}
+{{separator}}
+{%    endif -%}
+{#-
+ # Test concat of scalars
+-#}
+{%    if dimension == 1 -%}
+query: SELECT CONCAT a WITH {{cell_type_val}} ALONG 0 FROM {{coll_name}} AS a
+query: SELECT CONCAT {{cell_type_val}} WITH a ALONG 0 FROM {{coll_name}} AS a
+query: SELECT CONCAT {{cell_type_val}} WITH {{cell_type_val}} ALONG 0
+id: {{test_id ~ "_scalars"}}
+{{separator}}
+{%    endif -%}
+{%  endif -%}

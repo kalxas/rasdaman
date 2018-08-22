@@ -143,7 +143,7 @@ QtRangeConstructor::evaluate(QtDataList* inputList)
                 }
                 else
                 {
-                    LFATAL << "Error: QtRangeConstructor::evaluate() - invalid scalar type.";
+                    LERROR << "Error: QtRangeConstructor::evaluate() - invalid scalar type.";
                     if (scalarOperandList)
                     {
                         delete scalarOperandList;
@@ -240,7 +240,7 @@ QtRangeConstructor::getResultMDD(QtDataList* operandList)
             //check that the domains match:
             if(destinationDomainSet && (currDomain != destinationDomain) )
             {
-                LFATAL << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
+                LERROR << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands have different domains.";
                 parseInfo.setErrorNo(351);
                 throw parseInfo;
             }

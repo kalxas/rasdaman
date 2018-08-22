@@ -232,7 +232,7 @@ QtMDDAccess::checkType()
 
 	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
 	{
-		LFATAL << "Error: QtMDDAccess::open(): Non-local collection is unsupported";
+		LERROR << "Error: QtMDDAccess::open(): Non-local collection is unsupported";
 		parseInfo.setErrorNo(499); //to be changed		
 		throw parseInfo; 
 	}
@@ -265,7 +265,7 @@ QtMDDAccess::checkType()
     }
     catch (...)
     {
-        LFATAL << "Error: QtMDDAccess::open() collection: " << collection.getCollectionName().c_str() << " is unknown";
+        LERROR << "Error: QtMDDAccess::open() collection: " << collection.getCollectionName().c_str() << " is unknown";
         parseInfo.setErrorNo(355);
         throw parseInfo;
     }

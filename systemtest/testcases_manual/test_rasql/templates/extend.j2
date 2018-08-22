@@ -1,0 +1,32 @@
+{#-
+ # test extending an array to a new sdom
+ #}
+{%- for k, subset in mdd_constant_subsets.iteritems() -%}
+{%    if k.startswith('trims_') -%}
+query: SELECT extend(c + {{cell_type_val}}, {{subset}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k}}
+{{separator}}
+query: SELECT extend(c + {{cell_type_val}}, {{subset}}){{subset}} FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ k ~ "_subset_result"}}
+{{separator}}
+{%      if dimension == 1 -%}
+query: SELECT extend({{cell_type_val}}, {{subset}})
+id: {{template_name ~ "_scalar_" ~ cell_type_name ~ "_" ~ k}}
+{{separator}}
+{%      endif -%}
+{%    endif -%}
+{% endfor -%}
+{% if dimension == 2 and cell_type_name == 'char' -%}
+query: SELECT extend(c, {{cell_type_val}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_scalar"}}
+{{separator}}
+query: SELECT extend(c, [5,5]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_point"}}
+{{separator}}
+query: SELECT extend(c, [0:2]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_1"}}
+{{separator}}
+query: SELECT extend(c, [0:4,0:5,0:4]) FROM {{coll_name}} AS c
+id: {{test_id ~ "_invalid_dim_3"}}
+{{separator}}
+{% endif -%}

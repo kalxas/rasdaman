@@ -93,7 +93,7 @@ r_Complex_Type::get_re(const char* cell) const
     if ((typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2))
     {
-        LFATAL << "r_Complex_Type::get_re(cell) type not a complex1 or complex2";
+        LERROR << "r_Complex_Type::get_re(cell) type not a complex1 or complex2";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -122,7 +122,7 @@ r_Complex_Type::get_im(const char* cell) const
     if ((typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2))
     {
-        LFATAL << "r_Complex_Type::get_im(cell) type not a complex1 or complex2";
+        LERROR << "r_Complex_Type::get_im(cell) type not a complex1 or complex2";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -152,7 +152,7 @@ r_Complex_Type::set_re(char* cell, r_Double re)
     if ((typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2))
     {
-        LFATAL << "r_Complex_Type::set_re(cell, re) type not a complex1 or complex2";
+        LERROR << "r_Complex_Type::set_re(cell, re) type not a complex1 or complex2";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }
@@ -180,7 +180,7 @@ r_Complex_Type::set_im(char* cell, r_Double im)
     if ((typeId != r_Type::COMPLEXTYPE1) &&
             (typeId != r_Type::COMPLEXTYPE2))
     {
-        LFATAL << "r_Complex_Type::set_im(cell, im) type not a complex1 or complex2";
+        LERROR << "r_Complex_Type::set_im(cell, im) type not a complex1 or complex2";
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw (err);
     }

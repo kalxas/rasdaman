@@ -113,7 +113,7 @@ QtPointOp::evaluate(QtDataList *inputList)
 
             if (!goOn)
             {
-                LFATAL << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer.";
+                LERROR << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer.";
 
                 parseInfo.setErrorNo(410);
 
@@ -218,7 +218,7 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
 
     if (!opTypesValid)
     {
-        LFATAL << "Error: QtPointOp::checkType() - operand of point expression must be of type integer.";
+        LERROR << "Error: QtPointOp::checkType() - operand of point expression must be of type integer.";
         parseInfo.setErrorNo(410);
         throw parseInfo;
     }

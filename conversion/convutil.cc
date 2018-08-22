@@ -215,7 +215,7 @@ GDALDataType ConvUtil::rasTypeToGdalType(r_Type* rasType)
         ret = GDT_CFloat64;
         break;
     default:
-        LFATAL << "Unable to convert rasdaman type " <<
+        LERROR << "Unable to convert rasdaman type " <<
                rasType->name() << " to GDAL type.";
         throw r_Error(r_Error::r_Error_General);
     }

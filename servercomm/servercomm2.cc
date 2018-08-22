@@ -127,13 +127,13 @@ char* ppInBuf = 0;
 char* ppOutBuf = 0;
 void ppreset()
 {
-    LFATAL << "Error: Preprocessor not compiled in.";
+    LERROR << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 
 int ppparse()
 {
-    LFATAL << "Error: Preprocessor not compiled in.";
+    LERROR << "Error: Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 #else
@@ -482,7 +482,7 @@ ServerComm::beginTA(unsigned long callingClientId,
         catch (r_Error& err)
         {
 #ifdef DEBUG
-            LFATAL << "Error: exception " << err.get_errorno() << ": " << err.what();
+            LERROR << "Error: exception " << err.get_errorno() << ": " << err.what();
 #endif
             context->release();
             throw;
@@ -3322,20 +3322,20 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         }
         catch (r_Ebase_dbms& myErr)
         {
-            LFATAL << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+            LERROR << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
             returnValue = 42;
             throw;
         }
         catch (r_Error& myErr)
         {
 #ifdef DEBUG
-            LFATAL << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+            LERROR << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
 #endif
             throw;
         }
         catch (std::bad_alloc)
         {
-            LFATAL << "Error: cannot allocate memory.";
+            LERROR << "Error: cannot allocate memory.";
             throw;
         }
         catch (...)
@@ -3591,13 +3591,13 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             }
             catch (r_Ebase_dbms& myErr)
             {
-                LFATAL << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+                LERROR << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
                 throw;
             }
             catch (r_Error& err)
             {
 #ifdef DEBUG
-                LFATAL << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+                LERROR << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
 #endif
                 throw;
             }
@@ -3686,14 +3686,14 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
             }
             catch (std::bad_alloc)
             {
-                LFATAL << "Error: cannot allocate memory.";
+                LERROR << "Error: cannot allocate memory.";
                 context->release();
                 throw;
             }
             catch (r_Error& err)
             {
 #ifdef DEBUG
-                LFATAL << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+                LERROR << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
 #endif
                 context->release();
                 throw;

@@ -959,7 +959,7 @@ void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int 
 
         if (mddStatus == 2)
         {
-            LFATAL << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
+            LERROR << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
@@ -1077,7 +1077,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
         if (tileStatus == 4)
         {
             freeGetTileRes(tileRes);
-            LFATAL << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
+            LERROR << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection";
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 

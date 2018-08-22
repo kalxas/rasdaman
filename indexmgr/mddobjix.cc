@@ -282,7 +282,7 @@ MDDObjIx::initializeLogicStructure()
     default:
     case r_Auto_Index:
         // should never get here. If Auto_Index, a specific index was
-        LFATAL << "MDDObjIx::initializeLogicStructure() illegal index (" << myStorageLayout.getIndexType() << ") chosen!";
+        LERROR << "MDDObjIx::initializeLogicStructure() illegal index (" << myStorageLayout.getIndexType() << ") chosen!";
         throw r_Error(ILLEGAL_INDEX_TYPE);
         break;
     }

@@ -61,7 +61,7 @@ MDDObj::checkStorage(const r_Minterval& domain2)
     {
         if (myStorageLayout->getTilingScheme() != r_RegularTiling)
         {
-            LFATAL << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a regular tiling defined";
+            LERROR << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a regular tiling defined";
             throw r_Error(RCINDEXWITHOUTREGULARTILING);
         }
         r_Dimension dim = domain2.dimension();
@@ -74,12 +74,12 @@ MDDObj::checkStorage(const r_Minterval& domain2)
         {
             if (!domain2[i].is_high_fixed() || !domain2[i].is_low_fixed() || !tileConfig[i].is_high_fixed() || !tileConfig[i].is_low_fixed())
             {
-                LFATAL << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
+                LERROR << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
                 throw r_Error(RCINDEXWITHINCOMPATIBLEMARRAYTYPE);
             }
             if (mddDomainExtent[i] % tileConfigExtent[i] != 0)
             {
-                LFATAL << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ").";
+                LERROR << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ").";
                 throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
             }
         }
@@ -95,7 +95,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
 {
     if (!mddType)
     {
-        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -114,7 +114,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalu
 {
     if (!mddType)
     {
-        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -134,7 +134,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 {
     if (!mddType)
     {
-        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -152,7 +152,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 {
     if (!mddType)
     {
-        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout();
@@ -197,7 +197,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
     LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this;
     if (!mddType)
     {
-        LFATAL << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout(ms);
@@ -254,7 +254,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
             newTile.reset();
             if (layoutDoms.size() != 1)
             {
-                LFATAL << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain";
+                LERROR << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain";
                 throw r_Error(LAYOUTALGORITHMPROBLEM);
             }
         }
@@ -271,7 +271,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 LTRACE << "found tiles (" << indexTiles->size() << ") in layout domain " << *it;
                 if (indexTiles->size() != 1)
                 {
-                    LFATAL << "MDDObj::insertTile(Tile " << tileDom << ") the index contains many entries for one layout domain";
+                    LERROR << "MDDObj::insertTile(Tile " << tileDom << ") the index contains many entries for one layout domain";
                     throw r_Error(LAYOUTALGORITHMPROBLEM);
                 }
                 // update the existing tile with the new data

@@ -78,7 +78,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
         if ((normalized + 1)* tileConfigExtent[dim] != mddDomainExtent[dim])
         {
             //cout << "got you" << endl;
-            LFATAL << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration";
+            LERROR << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration";
             throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
         }
         normalizedDomain[dim] = r_Sinterval(0LL, normalized);
@@ -138,7 +138,7 @@ SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const 
 {
     //this method should check if the tile is actually in the tiling
 
-    /* LFATAL << "SRCIndexLogic::insertObject(" << ixDS->getIdentifier() << ", " << newKeyObject << ", sl) insert operation not allowed";
+    /* LERROR << "SRCIndexLogic::insertObject(" << ixDS->getIdentifier() << ", " << newKeyObject << ", sl) insert operation not allowed";
     throw r_Error(INSERTINTORCINDEX); // thrown without a check and therefore commented out in order to make rc_index work MR 29.05.2012 */
     //if src is able to extend:
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();

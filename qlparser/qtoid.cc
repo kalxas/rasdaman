@@ -99,7 +99,7 @@ QtOId::evaluate(QtDataList* inputList)
             }
             else
             {
-                LFATAL << "Error: QtOId::evaluate() - could not get oid.";
+                LERROR << "Error: QtOId::evaluate() - could not get oid.";
 
                 // delete old operand
                 if (operand)
@@ -113,7 +113,7 @@ QtOId::evaluate(QtDataList* inputList)
         }
         else
         {
-            LFATAL << "Error: QtOId::evaluate() - operand is not a persistent MDD.";
+            LERROR << "Error: QtOId::evaluate() - operand is not a persistent MDD.";
 
             // delete old operand
             if (operand)
@@ -185,7 +185,7 @@ QtOId::checkType(QtTypeTuple* typeTuple)
 
         if (inputType.getDataType() != QT_MDD)
         {
-            LFATAL << "Error: QtOId::checkType() - operand is not of type MDD.";
+            LERROR << "Error: QtOId::checkType() - operand is not of type MDD.";
             parseInfo.setErrorNo(383);
             throw parseInfo;
         }
@@ -194,7 +194,7 @@ QtOId::checkType(QtTypeTuple* typeTuple)
     }
     else
     {
-        LFATAL << "Error: QtOId::checkType() - operand branch invalid.";
+        LERROR << "Error: QtOId::checkType() - operand branch invalid.";
     }
 
     return dataStreamType;

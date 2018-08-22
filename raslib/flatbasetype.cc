@@ -80,7 +80,7 @@ const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const
     }
     else
     {
-        LFATAL << "r_Flat_Base_Type::type(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
+        LERROR << "r_Flat_Base_Type::type(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }
@@ -94,7 +94,7 @@ const r_Primitive_Type* r_Flat_Base_Type::operator[](unsigned int num) const
     }
     else
     {
-        LFATAL << "r_Flat_Base_Type::operator[](" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
+        LERROR << "r_Flat_Base_Type::operator[](" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }
@@ -108,7 +108,7 @@ unsigned int r_Flat_Base_Type::offset(unsigned int num) const
     }
     else
     {
-        LFATAL << "r_Flat_Base_Type::offset(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
+        LERROR << "r_Flat_Base_Type::offset(" << num << ") index out of bounds (" << numPrimTypes - 1 << ")";
         throw r_Eindex_violation(0, numPrimTypes - 1, num);
     }
 }

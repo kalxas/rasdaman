@@ -487,7 +487,7 @@ DBStorageLayout::readFromDb()
     }
     else
     {
-        LFATAL << "DBStorageLayout::readFromDb() - storage id: "
+        LERROR << "DBStorageLayout::readFromDb() - storage id: "
                << storageid1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd storage data not found in the database.");
     }

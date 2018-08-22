@@ -84,7 +84,7 @@ MDDDomainType::readFromDb()
     }
     else
     {
-        LFATAL << "MDDDomainType::readFromDb() - mdd type: "
+        LERROR << "MDDDomainType::readFromDb() - mdd type: "
                << mddtypeid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }

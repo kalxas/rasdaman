@@ -234,7 +234,7 @@ DBObject::setPersistent(bool newPersistent)
             }
             else     //read only transaction
             {
-                LFATAL << "DBObject::setPersistent() read only transaction";
+                LERROR << "DBObject::setPersistent() read only transaction";
                 throw r_Error(r_Error::r_Error_TransactionReadOnly);
             }
         }
@@ -256,7 +256,7 @@ DBObject::setPersistent(bool newPersistent)
             }
             else     //read only transaction
             {
-                LFATAL << "DBObject::setPersistent() read only transaction";
+                LERROR << "DBObject::setPersistent() read only transaction";
                 throw r_Error(r_Error::r_Error_TransactionReadOnly);
             }
         }
@@ -358,7 +358,7 @@ DBObject::setModified()
     {
         LTRACE << "readonly transaction " << myOId;
         //this happens really a lot.
-        //LFATAL << "DBObject::setModified() read only transaction";
+        //LERROR << "DBObject::setModified() read only transaction";
         //throw r_Error(r_Error::r_Error_TransactionReadOnly);
         _isModified = true;
     }
@@ -433,14 +433,14 @@ DBObject::readFromDb()
 BinaryRepresentation
 DBObject::getBinaryRepresentation() const
 {
-    LFATAL << "getBinaryRepresentation() for " << objecttype << " not implemented";
+    LERROR << "getBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYEXPORTNOTSUPPORTEDFOROBJECT);
 }
 
 void
 DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation& br)
 {
-    LFATAL << "setBinaryRepresentation() for " << objecttype << " not implemented";
+    LERROR << "setBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);
 }
 

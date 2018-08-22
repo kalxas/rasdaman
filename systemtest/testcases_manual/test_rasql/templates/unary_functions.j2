@@ -1,0 +1,27 @@
+{#-
+ # test induced unary functions (sqrt, exp, sin, ...) on array and 
+ # scalar operands (for 1d only, no need to repeat it for all dimensions)
+ #}
+{%- for func in func_induced_unary -%}
+query: SELECT {{func}}(c) FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ func}}
+{{separator}}
+{%    if dimension == 1 -%}
+query: SELECT {{func}}({{cell_type_val}})
+id: {{test_id ~ "_" ~ func ~ "_scalar"}}
+{{separator}}
+{%    endif -%}
+{#-
+ # test function on selected band for mdd and scalars
+ #}
+{%    for cname, ctype in cell_type_components -%}
+query: SELECT {{func}}(c.{{cname}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_" ~ func ~ "_band_mdd_" ~ cname}}
+{{separator}}
+{%      if dimension == 1 -%}
+query: SELECT {{func}}({{cell_type_val}}.{{cname}})
+id: {{test_id ~ "_" ~ func ~ "_band_scalar_" ~ cname}}
+{{separator}}
+{%      endif -%}
+{%    endfor -%}
+{% endfor -%}

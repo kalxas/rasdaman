@@ -19,7 +19,7 @@
 #define LERROR LOG(ERROR)
 #endif
 #ifndef LFATAL
-#define LFATAL LOG(FATAL)
+#define LFATAL LOG(ERROR)
 #endif
 #ifndef LFLUSH
 #define LFLUSH el::Loggers::getLogger("default")->flush();
@@ -42,7 +42,7 @@
 #define NNLERROR CLOG(ERROR, "nnl")
 #endif
 #ifndef NNLFATAL
-#define NNLFATAL CLOG(FATAL, "nnl")
+#define NNLFATAL CLOG(ERROR, "nnl")
 #endif
 #ifndef NNLFLUSH
 #define NNLFLUSH el::Loggers::getLogger("nnl")->flush();
@@ -68,5 +68,14 @@
 #define BLERROR CLOG(ERROR, "bare")
 #endif
 #ifndef BLFATAL
-#define BLFATAL CLOG(FATAL, "bare")
+#define BLFATAL CLOG(ERROR, "bare")
+#endif
+
+// Enabled only if RASDEBUG is defined
+#ifdef RASDEBUG
+#define LRDEBUG(msg) LDEBUG << msg;
+#define LRTRACE(msg) LTRACE << msg;
+#else
+#define LRDEBUG(msg)
+#define LRTRACE(msg)
 #endif

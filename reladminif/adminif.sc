@@ -82,7 +82,7 @@ checkCounter(const char* counterName, const char* column,
         }
         else
         {
-            LFATAL << "Value for counter '" << counterName << "' not found in the RAS_COUNTERS table in RASBASE. "
+            LERROR << "Value for counter '" << counterName << "' not found in the RAS_COUNTERS table in RASBASE. "
                 << "Most likely you need to run update_db.sh to update the database schema.";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
@@ -102,7 +102,7 @@ AdminIf::AdminIf(bool createDb)
         struct stat status;
         if (stat(globalConnectId, &status) == -1)
         {
-            LFATAL << "Base DBMS file not found at '" << globalConnectId << "', please run create_db.sh first.";
+            LERROR << "Base DBMS file not found at '" << globalConnectId << "', please run create_db.sh first.";
             throw r_Error(DATABASE_NOTFOUND);
         }
     }
@@ -146,21 +146,21 @@ AdminIf::AdminIf(bool createDb)
             }
             else
             {
-                LFATAL << "Database schema out of date. Please stop rasdaman, run update_db.sh, and start rasdaman again.";
+                LERROR << "Database schema out of date. Please stop rasdaman, run update_db.sh, and start rasdaman again.";
                 closeDbConnection();
                 throw r_Error(DATABASE_INCOMPATIBLE);
             }
             
             if (!consistent)
             {
-                LFATAL << "Database inconsistent.";
+                LERROR << "Database inconsistent.";
                 closeDbConnection();
                 throw r_Error(DATABASE_INCONSISTENT);
             }
         }
         else
         {
-            LFATAL << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
+            LERROR << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
             closeDbConnection();
             throw r_Error(DATABASE_NOTFOUND);
         }

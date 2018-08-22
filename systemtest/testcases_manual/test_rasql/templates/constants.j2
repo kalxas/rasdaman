@@ -1,0 +1,42 @@
+{#-
+ # Test selection of constant values: mdd, minterval, point, scalar
+-#}
+query: SELECT {{mdd_constant}}
+id: {{test_id ~ "_mdd"}}
+{{separator}}
+{% if cell_type_name == 'char' -%}
+query: SELECT {{mdd_constant_sdom}}
+id: {{test_id ~ "_minterval"}}
+{{separator}}
+query: SELECT {{mdd_constant_extents}}
+id: {{test_id ~ "_point"}}
+{{separator}}
+{% endif -%}
+{% if dimension == 1 -%}
+query: SELECT {{cell_type_val}}
+id: {{test_id ~ "_scalar_val"}}
+{{separator}}
+query: SELECT {{cell_type_min}}
+id: {{test_id ~ "_scalar_min"}}
+{{separator}}
+query: SELECT {{cell_type_max}}
+id: {{test_id ~ "_scalar_max"}}
+{{separator}}
+{%   if cell_type_name == 'float' -%}
+query: SELECT nan
+id: {{test_id ~ "_scalar_nan"}}
+{{separator}}
+query: SELECT -NaN
+id: {{test_id ~ "_scalar_nan_minus"}}
+{{separator}}
+query: SELECT inf
+id: {{test_id ~ "_scalar_inf"}}
+{{separator}}
+query: SELECT -INF
+id: {{test_id ~ "_scalar_inf_minus"}}
+{{separator}}
+query: SELECT 1 -- test comments
+id: {{test_id ~ "_comments"}}
+{{separator}}
+{%   endif -%}
+{% endif -%}

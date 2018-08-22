@@ -1,0 +1,86 @@
+{#-
+ # test sdom and interval operations. No need to test for all types per dimension,
+ # so only char is checked below.
+ #}
+{%- if cell_type_name == 'char' -%}
+{%-   set trim = mdd_constant_subsets['trims_proper'] -%}
+{%-   set trim_containing = mdd_constant_subsets['trims_containing'] -%}
+{%-   set slice = mdd_constant_subsets['slices_intersecting'] -%}
+{%-   set mixed_slice = mdd_constant_subsets['mixed_slice_intersecting_trims_star_both'] -%}
+query: SELECT sdom(c) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom"}}
+{{separator}}
+query: SELECT sdom((c + c) / 2.0) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_expr"}}
+{{separator}}
+query: SELECT sdom(shift(c, {{slice}})) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_shift"}}
+{{separator}}
+query: SELECT sdom(extend(c, {{trim_containing}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_extend"}}
+{{separator}}
+query: SELECT sdom(scale(c, {{trim_containing}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_scale"}}
+{{separator}}
+query: SELECT sdom(c{{trim}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_subset"}}
+{{separator}}
+query: SELECT sdom(c{{slice}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_subset_point"}}
+{{separator}}
+query: SELECT sdom(c{{mixed_slice}}) FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_subset_mixed"}}
+{{separator}}
+query: SELECT sdom(c)[0:0] FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_subset"}}
+{{separator}}
+query: SELECT sdom(c)[0] FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_slice"}}
+{{separator}}
+query: SELECT sdom(c)[10] FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_slice_invalid_1"}}
+{{separator}}
+query: SELECT sdom(c)[-1] FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_slice_invalid_2"}}
+{{separator}}
+query: SELECT sdom(c)[0].lo FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_lo"}}
+{{separator}}
+query: SELECT sdom(c)[0].hi FROM {{coll_name}} AS c
+id: {{test_id ~ "_sdom_result_hi"}}
+{{separator}}
+query: SELECT {{trim}}[0:0]
+id: {{test_id ~ "_constant_subset"}}
+{{separator}}
+query: SELECT {{trim}}[0]
+id: {{test_id ~ "_constant_slice"}}
+{{separator}}
+query: SELECT {{trim}}[10]
+id: {{test_id ~ "_constant_slice_invalid_1"}}
+{{separator}}
+query: SELECT {{trim}}[-1]
+id: {{test_id ~ "_constant_slice_invalid_2"}}
+{{separator}}
+query: SELECT {{trim}}[0].lo
+id: {{test_id ~ "_constant_lo"}}
+{{separator}}
+query: SELECT {{trim}}[0].hi
+id: {{test_id ~ "_constant_hi"}}
+{{separator}}
+query: SELECT {{trim}}[0].hi - {{trim}}[0].lo + 1
+id: {{test_id ~ "_constant_extent"}}
+{{separator}}
+query: SELECT {{trim}}.lo
+id: {{test_id ~ "_constant_lo_invalid"}}
+{{separator}}
+query: SELECT {{trim}}.hi
+id: {{test_id ~ "_constant_hi_invalid"}}
+{{separator}}
+query: SELECT c[
+{%-   for i in range(dimension) -%}
+sdom(c)[{{i}}].lo : sdom(c)[{{i-1}}].hi - 1{{ "" if loop.last else ", " }}
+{%-   endfor -%}
+] FROM {{coll_name}} AS c
+id: {{test_id ~ "_subset_lo_hi"}}
+{{separator}}
+{%  endif -%}

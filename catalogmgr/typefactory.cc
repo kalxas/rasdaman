@@ -192,7 +192,7 @@ TypeFactory::addStructType(const StructType* type)
             case STRUCT:
                 LTRACE << "element is struct type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
                 //persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i)))); 
-                LFATAL << "Building a struct using a user-defined struct is currently not supported.";
+                LERROR << "Building a struct using a user-defined struct is currently not supported.";
                 throw r_Error(STRUCTOFSTRUCTSDISABLED);
                 break;
             case ULONG:
@@ -402,7 +402,7 @@ TypeFactory::deleteStructType(const char* typeName)
         }
         else
         {
-            LFATAL << "Struct type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            LERROR << "Struct type '" << typeName << "' is currently in use, so it cannot be dropped.";
             throw r_Error(TYPEISINUSE);
         }
     }
@@ -469,13 +469,13 @@ TypeFactory::deleteMDDType(const char* typeName)
             }
             else
             {
-                LFATAL << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
+                LERROR << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
                 throw r_Error(TYPEISINUSE);
             }
         }
         else
         {
-            LFATAL << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            LERROR << "MDD type '" << typeName << "' is currently in use, so it cannot be dropped.";
             throw r_Error(TYPEISINUSE);
         }
     }
@@ -513,7 +513,7 @@ TypeFactory::deleteSetType(const char* typeName)
         }
         else
         {
-            LFATAL << "set type '" << typeName << "' is currently in use, so it cannot be dropped.";
+            LERROR << "set type '" << typeName << "' is currently in use, so it cannot be dropped.";
             throw r_Error(TYPEISINUSE);
         }
     }

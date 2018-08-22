@@ -106,13 +106,13 @@ int main(int argc, char** argv)
     }
     catch (std::exception& ex)
     {
-        LFATAL << "rasmanager failed with exception: " << ex.what();
+        LERROR << "rasmanager failed with exception: " << ex.what();
         std::cerr << "rasmanager failed with exception: " << ex.what() << std::endl;
         return RASMGR_RESULT_FAILED;
     }
     catch (...)
     {
-        LFATAL << "rasmanager failed for an unknown reason.";
+        LERROR << "rasmanager failed for an unknown reason.";
         std::cerr << "rasmanager failed for an unknown reason." << std::endl;
         return RASMGR_RESULT_FAILED;
     }

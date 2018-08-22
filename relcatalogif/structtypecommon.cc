@@ -399,7 +399,7 @@ StructType::getOffset(const char* elemName) const
 #ifdef DEBUG
     if (found == false)
     {
-        LFATAL << "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
+        LERROR << "ERROR in StructType::getOffset(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
         throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
     }
 #endif
@@ -439,7 +439,7 @@ StructType::getElemType(const char* elemName) const
 #ifdef DEBUG
     if (retval == 0)
     {
-        LFATAL << "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
+        LERROR << "ERROR in StructType::getElemType(" << elemName << ") name not found " << getName() << " " << myOId  << " retval " << retval;
         throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
     }
 #endif
