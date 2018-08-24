@@ -81,7 +81,7 @@ java_server=external
 
 # parameter:     server.port
 # purpose:       Port for embedded secore using embedded Tomcat web application container. 
-#                It must be different from embedded Tomcat for Petascope in petascope.properties file (default is: 8080).
+#                It must be different from embedded Tomcat for Secore in secore.properties file (default is: 8080).
 # need to adapt: yes
 server.port=8081
 
@@ -95,23 +95,38 @@ secoredb.path=
 
 #------------------- log4j configuration -------------------
 
+# Configuration to write Secore's logs to secore.log file.
+# need to adapt: no
 log4j.rootLogger=INFO, rollingFile, stdout
 
 # Reduce the log information from Spring
 log4j.logger.org.springframework=WARN
+# Reduce the log information from Hibernate
+log4j.logger.org.hibernate=WARN
 
-log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern=%6p [%d{HH:mm:ss}] %c{1}@%L: %m%n
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout  
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n  
 
-log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 
+# NOTE: Select one strategy (and comment out the other!) for rolling files:
+#       1. by maximum size and index (default)
+#       2. by time interval
+
+# 1. Rolling files by maximum size and index (default)
 # Please make sure the path specified by log4j.appender.rollingFile.File is a
 # location where the system user running Tomcat has write access.
-# Otherwise, the secore log can only be found in catalina.out
+# Otherwise, secore logs can only be found in catalina.out
 log4j.appender.rollingFile.File=@LOG_DIR@/secore.log
-
 log4j.appender.rollingFile.MaxFileSize=10MB
 log4j.appender.rollingFile.MaxBackupIndex=10
-log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
-log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# 2. Rolling files by time interval (e.g. once a day, or once a month)
+# Please make sure the paths specified by log4j.appender.rollingFile.rollingPolicy.ActiveFileName
+# and log4j.appender.rollingFile.rollingPolicy.FileNamePattern are locations
+# where the system user running Tomcat has write access.
+# Otherwise, secore logs can only be found in catalina.out
+#log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/secore.log  
+#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/secore-.%d{yyyyMMdd}.log.gz
+#log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
+#log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  

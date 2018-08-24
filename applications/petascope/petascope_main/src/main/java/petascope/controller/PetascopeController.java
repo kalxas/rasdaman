@@ -115,7 +115,7 @@ public class PetascopeController extends AbstractController {
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)                
         try {
-            log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+            log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
             
             // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
             if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {

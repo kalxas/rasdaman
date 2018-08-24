@@ -216,7 +216,7 @@ rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
 # Configuration to write Petascope's logs to petascope.log file.
 # need to adapt: no
-log4j.rootLogger=TRACE, rollingFile, stdout
+log4j.rootLogger=INFO, rollingFile, stdout
 
 # Reduce the log information from Spring
 log4j.logger.org.springframework=WARN
@@ -236,14 +236,30 @@ log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 log4j.appender.stdout.layout.ConversionPattern=%m%n
 log4j.appender.stdout.Threshold=INFO
 
-log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 
+log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout  
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n  
+
+
+# NOTE: Select one strategy (and comment out the other!) for rolling files:
+#       1. by maximum size and index (default)
+#       2. by time interval
+
+# 1. Rolling files by maximum size and index (default)
 # Please make sure the path specified by log4j.appender.rollingFile.File is a
 # location where the system user running Tomcat has write access.
-# Otherwise, the secore and petascope logs can only be found in catalina.out
+# Otherwise, petascope logs can only be found in catalina.out
 log4j.appender.rollingFile.File=@LOG_DIR@/petascope.log
-
 log4j.appender.rollingFile.MaxFileSize=10MB
 log4j.appender.rollingFile.MaxBackupIndex=10
-log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout
-log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+
+# 2. Rolling files by time interval (e.g. once a day, or once a month)
+# Please make sure the paths specified by log4j.appender.rollingFile.rollingPolicy.ActiveFileName
+# and log4j.appender.rollingFile.rollingPolicy.FileNamePattern are locations
+# where the system user running Tomcat has write access.
+# Otherwise, petascope logs can only be found in catalina.out
+#log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log  
+#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope-.%d{yyyyMMdd}.log.gz
+#log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
+#log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  

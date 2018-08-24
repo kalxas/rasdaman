@@ -77,7 +77,7 @@ public class RasqlController extends AbstractController {
 
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
-        log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+        log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
         Response response = kvpRasqlServiceHandler.handle(kvpParameters);
         this.writeResponseResult(response);
     }

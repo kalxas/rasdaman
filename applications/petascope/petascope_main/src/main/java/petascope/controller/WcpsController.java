@@ -93,7 +93,7 @@ public class WcpsController extends AbstractController {
 
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
-        log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
+        log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
         if (startException != null) {
             throwStartException();
         }
