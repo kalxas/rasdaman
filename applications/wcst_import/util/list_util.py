@@ -65,13 +65,14 @@ def to_list_string(input_list):
     return output_list
 
 
-def sort_slices_by_datetime(slices):
+def sort_slices_by_datetime(slices, reverse=False):
     """
     Sort a list of slices (axes subsets from all analyzed files) by datetime
     e.g: we have a list of files: a_2005-01-01, b_2004-01-01, c_2003-01-01 and the datetime is extracted from file name
     Without the sort, the slices will be "2005-01-01", "2004-01-01", "2003-01-01" and cannot import in petascope
     as only can add the slice in top of a coverage for datetime axis.
     :param list input_list: list of slices
+    :param bool reverse: sort list by reverse order
     :return: list of sorted slices by datetime axis
     """
     # Determine which axis contains datetime string
@@ -79,7 +80,7 @@ def sort_slices_by_datetime(slices):
     # Time axis exists in the list of axis subsets
     if time_axis_order != None:
         # sort the list by the date time axis order
-        slices.sort(key=lambda slice : slice.axis_subsets[time_axis_order].interval.low)
+        slices.sort(key=lambda slice : slice.axis_subsets[time_axis_order].interval.low, reverse=reverse)
 
     return slices
 

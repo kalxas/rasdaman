@@ -52,7 +52,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
 
     def __init__(self, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
-                 axes_metadata_fields, metadata_type, grid_coverage):
+                 axes_metadata_fields, metadata_type, grid_coverage, import_order):
         """
         Converts a grib list of files to a coverage
         :param recipe_type: the type of recipe
@@ -69,8 +69,9 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         :param dict axes_metadata_fields: the axes metadata fields
         :param str metadata_type: the metadata type
         :param boolean grid_coverage: check if user want to import grid coverage
+        :param import_order: ascending(default), descending if specified in ingredient file
         """
-        AbstractToCoverageConverter.__init__(self, recipe_type, sentence_evaluator)
+        AbstractToCoverageConverter.__init__(self, recipe_type, sentence_evaluator, import_order)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands

@@ -60,14 +60,19 @@ class AbstractToCoverageConverter:
     DIRECT_POSITIONS_SLICING = [None]
     COEFFICIENT_SLICING = [0]
 
-    def __init__(self, recipe_type, sentence_evaluator):
+    IMPORT_ORDER_ASCENDING = "ascending"
+    IMPORT_ORDER_DESCENDING = "descending"
+
+    def __init__(self, recipe_type, sentence_evaluator, import_order):
         """
         Abstract class capturing common functionality between coverage converters.
         :param String recipe_type: the type of recipe (gdal|grib|netcdf)
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
+        :param import_order: ascending(default), descending if specified in ingredient file
         """
         self.recipe_type = recipe_type
         self.sentence_evaluator = sentence_evaluator
+        self.import_order = import_order
 
     def _user_axis(self, user_axis, evaluator_slice):
         """
@@ -340,11 +345,10 @@ class AbstractToCoverageConverter:
             coverage_slice = self._create_coverage_slice(file, crs_axes)
             slices.append(coverage_slice)
             count += 1
-        # NOTE: we want to sort all the slices by date time axis
-        # to avoid the case the later time slice is added before the sooner time slice
-        sorted_slices = sort_slices_by_datetime(slices)
 
-        return sorted_slices
+        # Currently, only sort by datetime to import coverage slices (default is ascending), option: to sort descending
+        reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
+        return sort_slices_by_datetime(slices, reverse)
 
     def _create_coverage_slice(self, file, crs_axes):
         """

@@ -21,7 +21,7 @@
         <coverageFunction>
             <GridFunction>
                 <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
+                <startPoint>0 0 -5</startPoint>
             </GridFunction>
         </coverageFunction>
         <gmlcov:metadata/>
@@ -31,8 +31,8 @@
                  >
                 <limits>
                     <GridEnvelope>
-                        <low>0 0 0</low>
-                        <high>6 13 5</high>
+                        <low>0 0 -5</low>
+                        <high>6 13 0</high>
                     </GridEnvelope>
                 </limits>
                 <axisLabels>Lat Long unix</axisLabels>

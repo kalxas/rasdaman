@@ -168,6 +168,17 @@ class Recipe(BaseRecipe):
                         color_palette_table = file_reader.read()
                         self.options['coverage']['metadata']['global']['colorPaletteTable'] = color_palette_table
 
+        if "import_order" in self.options:
+            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
+                    and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
+                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
+                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
+                                         self.options['import_order'])
+                raise RecipeValidationException(error_message)
+        else:
+            self.options['import_order'] = None
+
     def describe(self):
         """
         Implementation of the base recipe describe method
@@ -554,7 +565,8 @@ class Recipe(BaseRecipe):
                                            self._bands_metadata_fields(),
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
-                                           self.options['coverage']['grid_coverage']).to_coverage()
+                                           self.options['coverage']['grid_coverage'],
+                                           self.options['import_order']).to_coverage()
         return coverage
 
     def _get_netcdf_coverage(self, recipe_type):
@@ -578,7 +590,8 @@ class Recipe(BaseRecipe):
                                              self._netcdf_bands_metadata_fields(),
                                              self._netcdf_axes_metadata_fields(),
                                              self._metadata_type(),
-                                             self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
+                                             self.options['coverage']['grid_coverage'], pixel_is_point,
+                                             self.options['import_order']).to_coverage()
         return coverage
 
     def _get_grib_coverage(self, recipe_type):
@@ -601,7 +614,8 @@ class Recipe(BaseRecipe):
                                            self._local_metadata_fields(),
                                            self._axes_metadata_fields(),
                                            self._metadata_type(),
-                                           self.options['coverage']['grid_coverage'], pixel_is_point).to_coverage()
+                                           self.options['coverage']['grid_coverage'], pixel_is_point,
+                                           self.options['import_order']).to_coverage()
 
         return coverage
 

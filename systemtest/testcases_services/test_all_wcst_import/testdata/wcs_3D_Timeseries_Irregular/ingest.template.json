@@ -16,6 +16,7 @@
   "recipe": {
     "name": "time_series_irregular",
     "options": {
+      "import_order": "descending",
       "time_parameter": {
         "filename": {
           "regex": "(.*)_(.*)\\.(.*)",

@@ -43,6 +43,7 @@ from util.time_util import DateTimeUtil
 from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 
 
 class Recipe(BaseRecipe):
@@ -85,6 +86,17 @@ class Recipe(BaseRecipe):
 
         if 'scale_levels' not in self.options:
             self.options['scale_levels'] = None
+
+        if "import_order" in self.options:
+            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
+               and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
+                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
+                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
+                                         self.options['import_order'])
+                raise RecipeValidationException(error_message)
+        else:
+            self.options['import_order'] = None
 
     def describe(self):
         """
@@ -134,8 +146,10 @@ class Recipe(BaseRecipe):
             ret.append(time_tuple)
             time_offset += 1
 
-        # NOTE: we want to sort all the slices by date time axis
-        # to avoid the case the later time slice is added before the sooner time slice
+        # Currently, only sort by datetime to import coverage slices (default is ascending), option: to sort descending
+        if self.options["import_order"] == AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+            return sorted(ret, reverse=True)
+
         return sorted(ret)
 
     def _get_datetime_with_step(self, current, offset):
