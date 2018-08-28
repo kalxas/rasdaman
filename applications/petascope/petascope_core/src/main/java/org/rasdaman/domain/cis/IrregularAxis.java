@@ -24,11 +24,14 @@ package org.rasdaman.domain.cis;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.persistence.*;
 import java.util.List;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 
 /**
@@ -61,9 +64,12 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     public static final String TABLE_NAME = "irregular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
+    public static final int COEFFICIENT_ZERO = 0;
+    
     public enum CoefficientStatus {
-        NO_EXIST_AND_GREATER_THAN_UPPER_BOUND,
-        EXIST   
+        APPEND_TO_TOP,
+        APPEND_TO_BOTTOM,
+        UPDATE_EXISTING
     }
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -169,9 +175,45 @@ public class IrregularAxis extends GeoAxis implements Serializable {
 
             i++;
         }
+        
+        // Find the position of coefficient zero "0" in the list of direct positions.
+        i = this.getIndexOfCoefficientZero();
+        
+        // Then, the indices of input subset will need to rely on the index of fixed first coefficient (0).
+        if (minIndex != null) {
+            minIndex = minIndex - i;
+        }
+        if (maxIndex != null) {
+            maxIndex = maxIndex - i;
+        }
 
         return new Pair(minIndex, maxIndex);
     }
+    
+    /**
+     * Get the fixed first slice (0) imported coefficient's index from list of directPositions
+     */
+    public long getIndexOfCoefficientZero() {
+        int i = Collections.binarySearch(this.getDirectPositionsAsNumbers(), BigDecimal.ZERO);        
+        return i;
+    }
+    
+    /**
+     * Return the bound number of first imported coverage slice (coefficient zero)
+     * in direct positions list.
+     * 
+     * NOTE: This one is used as the anchor when needs to normalize other coefficients (greater than or lower than).
+     */
+    public BigDecimal getCoefficientZeroBoundNumber() throws PetascopeException, SecoreException {        
+        Long coefficientZeroIndex = this.getIndexOfCoefficientZero();
+        BigDecimal lowestCoefficient = this.getDirectPositionsAsNumbers().get(0);
+        // Distance value between lowest coefficient and coeffcient zero
+        BigDecimal distanceValue = this.getDirectPositionsAsNumbers().get(coefficientZeroIndex.intValue()).subtract(lowestCoefficient);
+        BigDecimal coefficientZeroBoundNumber = this.getLowerBoundNumber().add(distanceValue.multiply(this.getResolution()));
+        
+        return coefficientZeroBoundNumber;
+    }
+    
     /**
      *
      * Check if a coefficient is valid (i.e: it should be equals to an existing
@@ -194,20 +236,22 @@ public class IrregularAxis extends GeoAxis implements Serializable {
             // Check if coefficient > the upperBound of axis, if it is not then it is added between other coeffcients which is not valid
             int numberOfCoefficients = this.getDirectPositionsAsNumbers().size();
             BigDecimal upperBoundCoefficient = this.getDirectPositionsAsNumbers().get(numberOfCoefficients - 1);
-            if (upperBoundCoefficient.compareTo(coefficient) > 0) {                
-                if (!isInsitu) {
-                    throw new WCSException("Can not add new slice in between existing slices on irregular axis. Only " +
-                "adding slices on top is currently supported.");
-                } else {
-                    throw new WCSException(ExceptionCode.NoApplicableCode, "Adding slice in between existing slices on irregular axis is not supported.");
-                }
+            BigDecimal lowerBoundCoefficient = this.getDirectPositionsAsNumbers().get(0);
+            
+            if (coefficient.compareTo(upperBoundCoefficient) > 0) {
+                // insert on top
+                return CoefficientStatus.APPEND_TO_TOP;
+            } else if (coefficient.compareTo(lowerBoundCoefficient) < 0) {
+                // insert on bottom
+                return CoefficientStatus.APPEND_TO_BOTTOM;
             } else {
-                // the coefficient does not exist in the list of direct positions and greater than upperBound
-                return CoefficientStatus.NO_EXIST_AND_GREATER_THAN_UPPER_BOUND;
+		// insert to middle of direct positions
+
+                throw new WCSException(ExceptionCode.NoApplicableCode, "Adding slice in between existing slices on irregular axis is not supported.");
             }
         } else {
             // the coefficient does exist in list of direct positions
-            return CoefficientStatus.EXIST;
+            return CoefficientStatus.UPDATE_EXISTING;
         }
     }
 

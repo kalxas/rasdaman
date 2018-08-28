@@ -186,9 +186,10 @@ public class CrsComputerService {
 
             // then, they must be translated to coefficients as the directPositions is list of coefficient.
             // Normalize the input with the lowerBound of current geo axis first.
-            BigDecimal lowerBoundNumber = this.geoAxis.getLowerBoundNumber();
-            BigDecimal normalizedMinInput = minInput.subtract(lowerBoundNumber);
-            BigDecimal normalizedMaxInput = maxInput.subtract(lowerBoundNumber);
+            // NOTE: need to normalize based on first import coverage slice (coefficient zero) not the coeffcient for lower bound
+            BigDecimal coefficientZeroBoundNumber = ((IrregularAxis)this.geoAxis).getCoefficientZeroBoundNumber();
+            BigDecimal normalizedMinInput = minInput.subtract(coefficientZeroBoundNumber);
+            BigDecimal normalizedMaxInput = maxInput.subtract(coefficientZeroBoundNumber);
 
             // Get the grid indices which were mapped to the coefficients in irregular axis
             Pair<Long, Long> gridIndices = ((IrregularAxis) geoAxis).getGridIndices(normalizedMinInput, normalizedMaxInput);
@@ -245,13 +246,13 @@ public class CrsComputerService {
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(new BigDecimal(pxMin)).longValue();
         }
         
-        //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower            
+        //because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower           
         if (returnUpperLimit + 1 == returnLowerLimit) {
             if (returnUpperLimit < pxMin) {
                 returnUpperLimit = pxMin;
             }
             returnLowerLimit = returnUpperLimit;
-            
+
         }
         
         return new ParsedSubset<>(returnLowerLimit, returnUpperLimit);

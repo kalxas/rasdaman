@@ -1,0 +1,66 @@
+{
+    "config": {
+	    "service_url": "PETASCOPE_URL",
+	    "tmp_directory": "/tmp/",
+        "automated": true,
+        "track_files": false,
+        "subset_correction": false,
+        "insitu": false,
+        "mock": false
+    },
+    "input": {
+        "coverage_id": "test_append_prepend_irregular_coverage_slice",
+        "paths": [
+            "*.nc"
+        ]
+    },
+    "recipe": {
+        "name": "general_coverage",
+        "options": {
+            "coverage": {
+                "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+                "metadata": {
+                    "type": "xml",
+                    "global": {
+                        "Title": "'This is a test coverage'"
+                    }
+                },
+                "slicer": {
+                    "type": "netcdf",
+                    "pixelIsPoint": true,
+                    "bands": [{
+                        "name": "LAI",
+                        "variable": "LAI",
+                        "description": "Leaf Area Index",
+                        "nilReason": "The nil value represents an error in the sensor.",
+                        "nilValue": "-9999",
+                        "identifier": "LAI"
+                    }],
+                    "axes": {
+                        "ansi": {
+                            "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
+                            "gridOrder": 0,
+                            "type": "ansidate",
+                            "directPositions": "[datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')]",
+                            "irregular": true,
+                            "dataBound": false
+                        },
+                        "Long": {
+                            "min": "${netcdf:variable:lon:min}",
+                            "max": "${netcdf:variable:lon:max}",
+                            "gridOrder": 2,
+                            "resolution": "${netcdf:variable:lon:resolution}"
+                        },
+                        "Lat": {
+                            "min": "${netcdf:variable:lat:min}",
+                            "max": "${netcdf:variable:lat:max}",
+                            "gridOrder": 1,
+                            "resolution": "${netcdf:variable:lat:resolution}"
+                        }
+                    }
+                }
+            },
+            "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+        }
+    }
+}

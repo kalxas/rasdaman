@@ -43,21 +43,35 @@ DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/testdata"
 # change directory to the DATA_FOLDER
 cd "$DATA_FOLDER"
 
+deleted_coverages=()
+
 # list all the subdirectories of data folder
 for d in */ ; do
 	# check if folder name contains the services prefix
 	for service in "${SERVICES[@]}"; do
 		if [[ "$d" =~ "$service" ]]; then
-			# get the template json file
-			templateFile="$d/ingest.template.json"
+            # get the template json file
+            templateFile="$d/ingest.template.json"
 
-			# get the coverageID from template file
-			coverageID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $templateFile | awk -F'"' '{print $4}')
+            # get the coverageID from template file
+            coverage_id=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $templateFile | awk -F'"' '{print $4}')
 
-			logn "Removing coverageID: $coverageID... "
-			# remove the imported coverage
-			delete_coverage "$coverageID"
-			check
+            # check if coverage was deleted in other folder, if not skip it
+            found=0
+
+            for deleted_coverage in "${deleted_coverages[@]}"; do
+                [[ "$deleted_coverage" = "$coverage_id" ]] && found=1
+            done
+
+            if [[ "$found" -eq 0 ]]; then
+                logn "Removing coverage: $coverage_id... "
+                # remove the imported coverage
+                delete_coverage "$coverage_id"
+                check
+
+                # add this coverage to list of deleted coverages
+                deleted_coverages+=("$coverage_id")
+            fi
 		fi
 	done
 done

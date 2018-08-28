@@ -34,6 +34,7 @@ import petascope.util.CrsUtil;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.PetascopeException;
+import petascope.rasdaman.exceptions.RasdamanException;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
@@ -510,12 +511,14 @@ public class UpdateCoverageHandler {
                     // Check if this normalizedCoefficient is not in current axis list of directPositions then add it
                     boolean isInsitu = false;
                     CoefficientStatus coefficientStatus = currentIrregularAxis.validateCoefficient(isInsitu, normalizedCoefficient);
-                    
-                    // Coefficient does not exist in the list of direct positions and it > highest coefficient, so add it into the list
-                    // NOTE: no support to add new coefficient betweens coefficients (e.g: 0 2 3 and add 1)
-                    if (coefficientStatus == coefficientStatus.NO_EXIST_AND_GREATER_THAN_UPPER_BOUND) {
+
+                    if (coefficientStatus == coefficientStatus.APPEND_TO_TOP) {
+                        // add coefficient to top
                         currentIrregularAxis.getDirectPositions().add(normalizedCoefficient.toPlainString());
-                    } 
+                    } else if (coefficientStatus == coefficientStatus.APPEND_TO_BOTTOM) {
+                        // add coefficient to bottom
+                        currentIrregularAxis.getDirectPositions().add(0, normalizedCoefficient.toPlainString());
+                    }
                 }
             }
         }
@@ -555,9 +558,10 @@ public class UpdateCoverageHandler {
             normalizedSlicePoint = TimeUtil.countOffsets(datumOrigin, point, axisUoM, resolution);
         }
 
-        // The geo value of lowest directPositions (it is not the lowest coefficient which is 0 in most cases)
-        BigDecimal lowerBoundNumber = currentIrregularAxis.getLowerBoundNumber();
-        BigDecimal normalizedDomMin = BigDecimalUtil.divide(lowerBoundNumber, resolution);
+        // The geo value of lowest directPositions
+        // NOTE: need to normalize based on the first coverage slice (coefficient zero)
+        BigDecimal coefficientZeroBoundNumber = currentIrregularAxis.getCoefficientZeroBoundNumber();
+        BigDecimal normalizedDomMin = BigDecimalUtil.divide(coefficientZeroBoundNumber, resolution);
 
         // Coefficient is the normalized value with lowerBound
         // e.g: AnsiDate time is: 1601-01-01, and the coverage starts with first time slice in "2005-01-01"
