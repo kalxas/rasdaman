@@ -23,6 +23,7 @@ package petascope.wcps.metadata.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
@@ -58,6 +59,30 @@ public class IrregularAxis extends Axis {
     public void setDirectPositions(List<BigDecimal> directPositions) {
         this.directPositions = directPositions;
     }
+    
+    /**
+     * Get the fixed first slice (0) imported coefficient's index from list of directPositions
+     */
+    public long getIndexOfCoefficientZero() {
+        int i = Collections.binarySearch(this.directPositions, BigDecimal.ZERO);        
+        return i;
+    }
+    
+    /**
+     * Return the bound number of first imported coverage slice (coefficient zero)
+     * in direct positions list.
+     * 
+     * NOTE: This one is used as the anchor when needs to normalize other coefficients (greater than or lower than).
+     */
+    public BigDecimal getCoefficientZeroBoundNumber() throws PetascopeException {        
+        Long coefficientZeroIndex = this.getIndexOfCoefficientZero();
+        BigDecimal lowestCoefficient = this.directPositions.get(0);
+        // Distance value between lowest coefficient and coeffcient zero
+        BigDecimal distanceValue = this.directPositions.get(coefficientZeroIndex.intValue()).subtract(lowestCoefficient);
+        BigDecimal coefficientZeroBoundNumber = this.getGeoBounds().getLowerLimit().add(distanceValue.multiply(this.getResolution()));
+        
+        return coefficientZeroBoundNumber;
+    }
 
     /**
      *
@@ -79,6 +104,9 @@ public class IrregularAxis extends Axis {
         boolean foundMinIndex = false;
 
         Long i = Long.valueOf("0");
+        
+        minInput = minInput.add(this.directPositions.get(0));
+        maxInput = maxInput.add(this.directPositions.get(0));
 
         // coefficient in numbers for legacy coverages
         for (BigDecimal coefficient : directPositions) {
@@ -97,6 +125,15 @@ public class IrregularAxis extends Axis {
             }
 
             i++;
+        }
+        
+        // Then, the indices of input subset will need to rely on the index of fixed first coefficient (0).
+        i = this.getIndexOfCoefficientZero();
+        if (minIndex != null) {
+            minIndex = minIndex - i;
+        }
+        if (maxIndex != null) {
+            maxIndex = maxIndex - i;
         }
         
         if (minIndex == null) {
@@ -126,8 +163,9 @@ public class IrregularAxis extends Axis {
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
         List<BigDecimal> coefficients = new ArrayList<>();
+        Long coefficientZeroIndex = this.getIndexOfCoefficientZero();
         for (Long i = gridIndices.fst; i <= gridIndices.snd; i++) {
-            BigDecimal coefficient = this.directPositions.get(i.intValue());
+            BigDecimal coefficient = this.directPositions.get((int)(i.intValue() + coefficientZeroIndex));
             coefficients.add(coefficient);
         }
 

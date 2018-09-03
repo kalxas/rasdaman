@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+    id="test_append_prepend_irregular_coverage_slice"
+    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
+    
+    
+     >
+    <boundedBy>
+        <Envelope axisLabels="" srsName="" uomLabels="">
+            <lowerCorner/>
+            <upperCorner/>
+        </Envelope>
+    </boundedBy>
+    <domainSet/>
+    <rangeSet>
+        <DataBlock>
+            <rangeParameters/>
+            <tupleList cs=" " ts=",">0</tupleList>
+        </DataBlock>
+    </rangeSet>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="">Linear</sequenceRule>
+            <startPoint/>
+        </GridFunction>
+    </coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="LAI">
+                <swe:Quantity >
+                    <swe:label>LAI</swe:label>
+                    <swe:description>Leaf Area Index</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <covMetadata>
+                <bands>
+                    <LAI>
+                        <_FillValue>-1.0</_FillValue>
+                        <grid_mapping>crs</grid_mapping>
+                        <scale_factor>1.0</scale_factor>
+                        <FORTRAN_format>G10.6</FORTRAN_format>
+                        <long_name>Leaf Area Index</long_name>
+                        <units>m2/m2</units>
+                        <missing_value>-1.0</missing_value>
+                    </LAI>
+                </bands>
+                <Title>This is a test coverage</Title>
+            </covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
+</gmlcov:ReferenceableGridCoverage>
