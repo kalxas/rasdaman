@@ -133,7 +133,10 @@ TransactionIf::abort()
     OId::deinitialize();
     AdminIf::setReadOnlyTA(false);
 
-    SQLiteQuery::execute("ROLLBACK TRANSACTION");
+    if (SQLiteQuery::isTransactionActive())
+    {
+        SQLiteQuery::execute("ROLLBACK TRANSACTION");
+    }
     BlobFS::getInstance().postRasbaseAbort();
     if (lastBase)
     {

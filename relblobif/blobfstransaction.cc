@@ -423,7 +423,18 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
         transactionLock->lockForAbort();
         for (long unsigned int i = 0; i < blobIds.size(); i++)
         {
-            BlobFile::moveFile(getFinalBlobPath(blobIds[i]), getTmpBlobPath(blobIds[i]));
+            try
+            {
+                BlobFile::moveFile(getFinalBlobPath(blobIds[i]),
+                                   getTmpBlobPath(blobIds[i]));
+            }
+            catch (const r_Error &ex)
+            {
+                // in a remove transaction ignore a blob file not found error,
+                // otherwise the array gets locked and cannot be removed.
+                if (ex.get_errorno() != BLOBFILENOTFOUND)
+                    throw ex;
+            }
         }
         transactionLock->clearAbortLock();
     }
@@ -453,7 +464,17 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
             const string tmpBlobPath = getTmpBlobPath(blobIds[i]);
             if (BlobFile::fileExists(tmpBlobPath))
             {
-                BlobFile::moveFile(tmpBlobPath, getFinalBlobPath(blobIds[i]));
+                try
+                {
+                    BlobFile::moveFile(tmpBlobPath, getFinalBlobPath(blobIds[i]));
+                }
+                catch (const r_Error &ex)
+                {
+                    // in a remove transaction ignore a blob file not found error,
+                    // otherwise the array gets locked and cannot be removed.
+                    if (ex.get_errorno() != BLOBFILENOTFOUND)
+                        throw ex;
+                }
             }
         }
         blobIds.clear();

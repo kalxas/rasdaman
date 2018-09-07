@@ -125,7 +125,6 @@ QtDelete::evaluate()
             if (inputLeaf)
             {
                 inputLeaf->getMDDColl()->remove(targetObj);
-                LINFO << "deleted...";
             }
 
             if (targetMDD && targetObj && !targetObj->isPersistent()) {};
