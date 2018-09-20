@@ -121,28 +121,18 @@ const string BlobFSTransaction::getFinalBlobPath(long long blobId)
 {
     if (blobId > 0)
     {
-        if (config.nested)
-        {
-            std::stringstream blobPathStream;
-            blobPathStream << config.tilesPath;
+        std::stringstream blobPathStream;
+        blobPathStream << config.tilesPath;
 
-            long long dir2Index = blobId / FILESTORAGE_TILES_PER_DIR;
-            long long dir1Index = dir2Index / FILESTORAGE_DIRS_PER_DIR;
+        long long dir2Index = blobId / FILESTORAGE_TILES_PER_DIR;
+        long long dir1Index = dir2Index / FILESTORAGE_DIRS_PER_DIR;
 
-            blobPathStream << dir1Index << '/';
-            DirWrapper::createDirectory(blobPathStream.str());
-            blobPathStream << dir2Index << '/';
-            DirWrapper::createDirectory(blobPathStream.str());
-            blobPathStream << blobId;
-            return blobPathStream.str();
-        }
-        else
-        {
-            stringstream blobPath;
-            blobPath << config.tilesPath;
-            blobPath << blobId;
-            return blobPath.str();
-        }
+        blobPathStream << dir1Index << '/';
+        DirWrapper::createDirectory(blobPathStream.str());
+        blobPathStream << dir2Index << '/';
+        DirWrapper::createDirectory(blobPathStream.str());
+        blobPathStream << blobId;
+        return blobPathStream.str();
     }
     else
     {

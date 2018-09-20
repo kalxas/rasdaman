@@ -31,6 +31,7 @@
 #include "config.h"
 #include <ftw.h>
 #include <errno.h>
+#include <cassert>
 #include "dirwrapper.hh"
 #include "blobfscommon.hh"
 #include <logging.hh>
@@ -98,6 +99,18 @@ string DirWrapper::convertFromCanonicalPath(const string& dirPath)
     else
     {
         return dirPath;
+    }
+}
+
+string DirWrapper::getBasename(const std::string &filePath)
+{
+    assert(!filePath.empty());
+    auto index = filePath.find_last_of("/");
+    if (index != string::npos) {
+        return filePath.substr(0, index);
+    } else {
+        // relative string, i.e. just RASBASE or so
+        return "";
     }
 }
 

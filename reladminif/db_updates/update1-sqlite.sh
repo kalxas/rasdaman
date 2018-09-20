@@ -36,15 +36,14 @@ getNestedPath()
   echo "$nestedPath"
 }
 
-[ -n "$RASDATA" ] || error "please export RASDATA to point to the rasdaman data directory"
-[ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
+[ -n "$DBCONN" ] || { log "cannot run update, DBCONN env variable is not set."; exit 0; }
+RASDATA=$(dirname "$DBCONN") # $DBCONN is exported in update_db.sh
 [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
 
 pushd "$RASDATA" > /dev/null
 
 mkdir -p "$FILESTORAGE_TILES_SUBDIR"
 
-echo
 log "moving rasdaman blob files in $RASDATA to subdirectories of $FILESTORAGE_TILES_SUBDIR (this may take awhile)..."
 
 for f in *; do

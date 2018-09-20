@@ -78,8 +78,8 @@ public:
 
 private:
 
-    // Initialize with a root file storage path determined from the
-    // RASDATA env variable, or the --with-filedatadir configuration setting;
+    // Initialize with a root file storage path determined from the -connect
+    // option in rasmgr.conf
     BlobFS();
     // Initialize with a given root file storage path
     BlobFS(const std::string& rasdataPath);
@@ -87,19 +87,14 @@ private:
     // Initialize
     void init();
 
+    // Return root file storage path determined from the -connect
+    // option in rasmgr.conf
+    static const std::string getFileStorageRootPath();
     // Check that the root storage path is valid (exists, is writable, etc) and throw an exception if it isn't
     void validateFileStorageRootPath();
 
-    // Check if the organization of RASDATA is flat file (old) or nested (new)
-    bool isNestedStorage();
-
-    const std::string getNestedStorageRootPath();
+    const std::string getTilesRootPath();
     const std::string getTransactionsRootPath();
-
-    // Determine root file storage path from the
-    // RASDATA env variable, or the --with-filedatadir configuration setting;
-    // Empty string is returned the file storage path cannot be determined.
-    static const std::string getFileStorageRootPath();
 
     // Helper for generating an error
     void generateError(const char* message, const std::string& path, int errorCode);

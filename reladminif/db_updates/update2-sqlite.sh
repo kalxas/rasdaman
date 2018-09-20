@@ -25,8 +25,8 @@ PROG=$(basename $0)
 
 FILESTORAGE_TILES_SUBDIR="TILES"
 
-[ -n "$RASDATA" ] || error "please export RASDATA to point to the rasdaman data directory"
-[ -d "$RASDATA" ] || error "rasdaman data directory not found: $RASDATA"
+[ -n "$DBCONN" ] || { log "cannot run update, DBCONN env variable is not set."; exit 0; }
+RASDATA=$(dirname "$DBCONN") # $DBCONN is exported in update_db.sh
 [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
 
 echo

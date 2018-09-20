@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string>
 
 namespace blobfs
 {
@@ -66,15 +67,11 @@ public:
     // nested in subdirectories in subdir TILES
     std::string transactionsPath;
 
-    // Is the tilesPath pointing to the new nested directory tile organization (true),
-    // or old flat-file organization (false)?
-    bool nested;
-
     inline
     BlobFSConfig(const std::string& rootPathArg, const std::string& tilesPathArg,
-                 const std::string& transactionsPathArg, bool nestedArg)
+                 const std::string& transactionsPathArg)
         : rootPath(rootPathArg), tilesPath(tilesPathArg),
-          transactionsPath(transactionsPathArg), nested(nestedArg)
+          transactionsPath(transactionsPathArg)
     {
     }
 

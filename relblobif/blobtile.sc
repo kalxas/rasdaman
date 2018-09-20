@@ -53,7 +53,7 @@ void
 BLOBTile::updateInDb()
 {
     long long blobOid = myOId.getCounter();
-    LTRACE << "updating tile with id " << blobOid;
+    LDEBUG << "updating tile with id " << blobOid;
 
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (!checkQuery.nextRow())
@@ -83,7 +83,7 @@ void
 BLOBTile::insertInDb()
 {
     long long blobOid = myOId.getCounter();
-    LTRACE << "inserting tile with id " << blobOid;
+    LDEBUG << "inserting tile with id " << blobOid;
 
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (checkQuery.nextRow())
@@ -112,7 +112,7 @@ void
 BLOBTile::deleteFromDb()
 {
     long long blobOid = myOId.getCounter();
-    LTRACE << "deleting tile with id " << blobOid;
+    LDEBUG << "deleting tile with id " << blobOid;
 
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (!checkQuery.nextRow())
@@ -148,7 +148,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
         }
 
         long long blobOid = target.getCounter();
-        LTRACE << "deleting tile with id " << blobOid;
+        LDEBUG << "deleting (kill) tile with id " << blobOid;
 
         SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
         if (!checkQuery.nextRow())
@@ -182,7 +182,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
 
         long long blobOid = target.getCounter();
         long long blobOidEnd = end.getCounter();
-        LTRACE << "deleting tiles with ids " << blobOid << " - " << blobOidEnd;
+        LDEBUG << "deleting (kill) tiles with ids " << blobOid << " - " << blobOidEnd;
 
         SQLiteQuery query("SELECT BlobId FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", blobOid, blobOidEnd);
         while (query.nextRow())
@@ -229,7 +229,7 @@ BLOBTile::readFromDb()
 #endif
 
     long long blobOid = myOId.getCounter();
-    LTRACE << "reading tile with id " << blobOid;
+    LDEBUG << "reading tile with id " << blobOid;
 
     SQLiteQuery query("SELECT DataFormat FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (query.nextRow())
@@ -254,7 +254,7 @@ BLOBTile::readFromDb()
         cells = cached->getData();
         cached->addReferencingTile(this);
 
-        LTRACE << "data cached, copying cells: " << (void*) cached->getData() << ", to new cells: " << (void*) cells;
+        LDEBUG << "data cached, copying cells: " << (void*) cached->getData() << ", to new cells: " << (void*) cells;
     }
     else
     {

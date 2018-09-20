@@ -27,9 +27,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#undef FILEDATADIR
-#define FILEDATADIR "/tmp/rasdata"
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "../../applications/directql/template_inst.hh"

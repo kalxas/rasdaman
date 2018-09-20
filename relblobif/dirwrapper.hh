@@ -60,6 +60,9 @@ public:
 
     // Remove final '/' from dirPath if necessary
     static std::string convertFromCanonicalPath(const std::string& dirPath);
+
+    // /path/to/dir/file -> /path/to/dir
+    static std::string getBasename(const std::string& filePath);
 };
 
 /**

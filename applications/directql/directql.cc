@@ -140,9 +140,6 @@ typedef enum
     OUT_FORMATTED
 } OUTPUT_TYPE;
 
-// environment variable for the rasdaman data path
-#define RASDATA_ENV_VAR "RASDATA"
-
 // rasdaman MDD type for byte strings (default type used for file format reading)
 #define MDD_STRINGTYPE  "GreyString"
 
@@ -260,24 +257,51 @@ bool quietLog = false;
 // logging mechanism that respects 'quiet' flag:
 #define INFO(a) { if (!quietLog) std::cout << a; }
 
-const char* getDefaultDb()
+std::string getDefaultDb()
 {
-#ifdef BASEDB_SQLITE
-    char* rasdata = getenv(RASDATA_ENV_VAR);
-    if (rasdata)
+    string rasmgrConfFilePath(string(CONFDIR) + "/" + string(RASMGR_CONF_FILE));
+    if (rasmgrConfFilePath.length() >= PATH_MAX)
     {
-        string s = string(rasdata) + "/" + DEFAULT_DB;
-        return const_cast<const char*>(strdup(s.c_str()));
+        throw runtime_error("The path to the configuration file is longer than the maximum file system path.");
     }
-#endif
-    return DEFAULT_DB;
+    std::ifstream ifs(rasmgrConfFilePath);    // open config file
+
+    if (!ifs)
+    {
+        throw runtime_error("Failed opening '" + rasmgrConfFilePath + "'.");
+    }
+    else
+    {
+        static const size_t bufferSize = 1024;
+        char inBuffer[bufferSize];
+        while (!ifs.eof())
+        {
+            ifs.getline(inBuffer, bufferSize);
+            if (strlen(inBuffer) == 0)
+                continue;
+
+            char *token = strtok(inBuffer, " ");
+            if (strcmp(token, "define") != 0)
+                continue;
+            token = strtok(NULL, " ");
+            if (strcmp(token, "dbh") != 0)
+                continue;
+            token = strtok(NULL, " ");
+            token = strtok(NULL, " ");
+            if (strcmp(token, "-connect") != 0)
+                continue;
+            token = strtok(NULL, " ");
+            return string(token);
+        }
+    }
+    return string(DEFAULT_DB);
 }
 
 int optionValueIndex = 0;
 
 const char* serverName = DEFAULT_SERV;
 r_ULong serverPort = DEFAULT_PORT;
-const char* baseName = getDefaultDb();
+auto baseName = getDefaultDb();
 
 const char* user = DEFAULT_USER;
 const char* passwd = DEFAULT_PASSWD;
@@ -371,7 +395,7 @@ parseParams(int argc, char** argv)
 
     CommandLineParameter& clp_server = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
     CommandLineParameter& clp_port = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
-    CommandLineParameter& clp_database = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName);
+    CommandLineParameter& clp_database = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName.c_str());
     CommandLineParameter& clp_user = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
     CommandLineParameter& clp_passwd = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
     CommandLineParameter& clp_quiet = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
@@ -427,7 +451,7 @@ parseParams(int argc, char** argv)
         // evaluate optional parameter database --------------------------------------
         if (cmlInter.isPresent(PARAM_DB))
         {
-            baseName = cmlInter.getValueAsString(PARAM_DB);
+            baseName = string(cmlInter.getValueAsString(PARAM_DB));
         }
 
         // evaluate optional parameter user --------------------------------------
@@ -535,14 +559,14 @@ openDatabase()
 {
     if (!dbIsOpen)
     {
-        sprintf(globalConnectId, "%s", baseName);
+        sprintf(globalConnectId, "%s", baseName.c_str());
         INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
         server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT, const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
         r = new ServerComm::ClientTblElt(user, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
         accessControl.setServerName(DQ_SERVER_NAME);
         accessControl.crunchCapability(DQ_CAPABILITY);
-        server->openDB(DQ_CLIENT_ID, baseName, user);
+        server->openDB(DQ_CLIENT_ID, baseName.c_str(), user);
         myAdmin = AdminIf::instance();
 
         dbIsOpen = true;
