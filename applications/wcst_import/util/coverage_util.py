@@ -27,6 +27,8 @@ from master.error.runtime_exception import RuntimeException
 from session import Session
 from util.url_util import validate_and_read_url
 from util.url_util import url_read_exception
+from lxml import etree
+
 
 class CoverageUtil:
     def __init__(self, coverage_id):
@@ -43,16 +45,18 @@ class CoverageUtil:
         :rtype bool
         """
         try:
-            service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
-                           Session.get_WCS_VERSION_SUPPORTED() + "&coverageId=" + self.coverage_id
-            # Check if exception is thrown in the response
-            ret = url_read_exception(service_call, 'exceptionCode="NoSuchCoverage"')
-            if ret:
-                # exception is in the response, coverage does not exist
-                return False
-            else:
-                # exception is not the in the response, coverage does exist
-                return True
+            # Check if coverage exists in WCS GetCapabilities result
+            service_call = self.wcs_service + "?service=WCS&request=GetCapabilities&acceptVersions=" + \
+                           Session.get_WCS_VERSION_SUPPORTED()
+            response = validate_and_read_url(service_call)
+
+            root = etree.fromstring(response)
+            coverage_id_elements = root.xpath("//*[local-name() = 'CoverageId']")
+            # Iterate all <CoverageId> elements to check coverageId exists already
+            for element in coverage_id_elements:
+                if self.coverage_id == element.text:
+                    return True
+            return False
         except Exception as ex:
             raise RuntimeException("Could not check if the coverage exists. "
                                    "Check that the WCS service is up and running on url: {}. "
