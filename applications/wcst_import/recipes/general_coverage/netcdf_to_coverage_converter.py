@@ -48,13 +48,14 @@ numpy.set_printoptions(numpy.inf)
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     RECIPE_TYPE = "netcdf"
 
-    def __init__(self, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
+    def __init__(self, resumer, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
                  axes_metadata_fields,
                  metadata_type,
                  grid_coverage, pixel_is_point, import_order):
         """
         Converts a netcdf list of files to a coverage
+        :param resumer: Resumber object
         :param recipe_type: the type of recipe
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
@@ -72,7 +73,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :param boolean pixel_is_point: check if netCDF should be adjusted by +/- 0.5 * resolution for each regular axes
         :param import_order: ascending(default), descending if specified in ingredient file
         """
-        AbstractToCoverageConverter.__init__(self, recipe_type, sentence_evaluator, import_order)
+        AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands

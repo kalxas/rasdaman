@@ -75,12 +75,13 @@ def sort_slices_by_datetime(slices, reverse=False):
     :param bool reverse: sort list by reverse order
     :return: list of sorted slices by datetime axis
     """
-    # Determine which axis contains datetime string
-    time_axis_order = __get_time_axis_order(slices[0].axis_subsets)
-    # Time axis exists in the list of axis subsets
-    if time_axis_order != None:
-        # sort the list by the date time axis order
-        slices.sort(key=lambda slice : slice.axis_subsets[time_axis_order].interval.low, reverse=reverse)
+    if len(slices) > 0:
+        # Determine which axis contains datetime string
+        time_axis_order = __get_time_axis_order(slices[0].axis_subsets)
+        # Time axis exists in the list of axis subsets
+        if time_axis_order != None:
+            # sort the list by the date time axis order
+            slices.sort(key=lambda slice : slice.axis_subsets[time_axis_order].interval.low, reverse=reverse)
 
     return slices
 

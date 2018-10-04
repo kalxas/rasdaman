@@ -44,6 +44,7 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
+from master.importer.resumer import Resumer
 
 
 class Recipe(BaseRecipe):
@@ -55,6 +56,7 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
+        self.resumer = Resumer(self.session.get_coverage_id())
 
         validator = GDALValidator(self.session.files)
         if ConfigManager.skip:
@@ -194,12 +196,14 @@ class Recipe(BaseRecipe):
         timeseries = self._generate_timeseries_tuples()
         count = 1
         for tpair in timeseries:
-            # print which file is analyzing
-            FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
-            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill()
-            subsets = self._fill_time_axis(tpair, subsets)
-            slices.append(Slice(subsets, FileDataProvider(tpair.file)))
-            count += 1
+            # NOTE: don't process any imported file from *.resume.json as it is just waisted time
+            if not self.resumer.check_file_imported(tpair.file.filepath):
+                # print which file is analyzing
+                FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
+                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill()
+                subsets = self._fill_time_axis(tpair, subsets)
+                slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+                count += 1
         return slices
 
     def _fill_time_axis(self, tpair, subsets):
@@ -235,7 +239,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
+            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
         return self.importer
 
     @staticmethod

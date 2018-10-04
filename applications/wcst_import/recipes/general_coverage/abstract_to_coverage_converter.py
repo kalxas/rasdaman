@@ -63,13 +63,14 @@ class AbstractToCoverageConverter:
     IMPORT_ORDER_ASCENDING = "ascending"
     IMPORT_ORDER_DESCENDING = "descending"
 
-    def __init__(self, recipe_type, sentence_evaluator, import_order):
+    def __init__(self, resumer, recipe_type, sentence_evaluator, import_order):
         """
         Abstract class capturing common functionality between coverage converters.
         :param String recipe_type: the type of recipe (gdal|grib|netcdf)
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param import_order: ascending(default), descending if specified in ingredient file
         """
+        self.resumer = resumer
         self.recipe_type = recipe_type
         self.sentence_evaluator = sentence_evaluator
         self.import_order = import_order
@@ -340,11 +341,13 @@ class AbstractToCoverageConverter:
         slices = []
         count = 1
         for file in self.files:
-            # print which file is analyzing
-            FileUtil.print_feedback(count, len(self.files), file.filepath)
-            coverage_slice = self._create_coverage_slice(file, crs_axes)
-            slices.append(coverage_slice)
-            count += 1
+            # NOTE: don't process any imported file from *.resume.json as it is just waisted time
+            if not self.resumer.check_file_imported(file.filepath):
+                # print which file is analyzing
+                FileUtil.print_feedback(count, len(self.files), file.filepath)
+                coverage_slice = self._create_coverage_slice(file, crs_axes)
+                slices.append(coverage_slice)
+                count += 1
 
         # Currently, only sort by datetime to import coverage slices (default is ascending), option: to sort descending
         reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
@@ -376,10 +379,12 @@ class AbstractToCoverageConverter:
         # Build list of coverage slices from input files
         coverage_slices = self._create_coverage_slices(crs_axes)
 
-        first_coverage_slice = coverage_slices[0]
+        global_metadata = None
+        if len(coverage_slices) > 0:
+            first_coverage_slice = coverage_slices[0]
+            # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
+            global_metadata = self._generate_global_metadata(first_coverage_slice)
 
-        # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
-        global_metadata = self._generate_global_metadata(first_coverage_slice)
         # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
         self._evaluate_swe_bands_metadata(self.files[0], self.bands)
 

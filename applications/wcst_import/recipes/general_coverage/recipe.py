@@ -47,6 +47,8 @@ from util.string_util import escape_metadata_nested_dicts
 from util.import_util import import_netcdf4
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
+from master.importer.resumer import Resumer
+
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
@@ -58,6 +60,7 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
+        self.resumer = Resumer(self.session.get_coverage_id())
 
         validator = GDALValidator(self.session.files)
         if ConfigManager.skip:
@@ -557,7 +560,7 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GdalToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = GdalToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
@@ -582,7 +585,7 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = NetcdfToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = NetcdfToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._netcdf_global_metadata_fields(),
@@ -606,7 +609,7 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = GRIBToCoverageConverter(recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = GRIBToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
@@ -625,7 +628,7 @@ class Recipe(BaseRecipe):
         :rtype: Importer
         """
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'],
+            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'],
                                      self.options['coverage']['grid_coverage'])
         return self.importer
 

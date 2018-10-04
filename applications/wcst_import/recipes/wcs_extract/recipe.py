@@ -30,6 +30,7 @@ from session import Session
 from util.coverage_reader import CoverageReader
 from util.log import log
 from util.url_util import validate_and_read_url
+from master.importer.resumer import Resumer
 
 
 class Recipe(BaseRecipe):
@@ -42,6 +43,7 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
+        self.resumer = Resumer(self.session.get_coverage_id())
         self.coverage = None
 
     def validate(self):
@@ -119,7 +121,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
+            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'])
         return self.importer
 
     @staticmethod

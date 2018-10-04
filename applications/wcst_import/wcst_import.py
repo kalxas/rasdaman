@@ -120,6 +120,10 @@ def main():
     """
     Main function to put the pieces together and run the recipe
     """
+    # NOTE: not allow GDAL to create auxilary file which causes problem when no permission on the input data folder
+    command = "export GDAL_PAM_ENABLED=NO"
+    os.system(command)
+
     reg = RecipeRegistry()
     validate()
     try:

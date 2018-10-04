@@ -38,6 +38,7 @@ class Resumer:
         runs are performed
         :param str coverage_id: the id of the coverage that is imported
         """
+        self.imported_data = []
         if ConfigManager.track_files:
             self.__RESUMER_FILE_NAME__ = ConfigManager.resumer_dir_path + coverage_id + self.__RESUMER_FILE_SUFFIX__
             self.imported_data = []
@@ -58,7 +59,7 @@ class Resumer:
         """
         Adds a checkpoint and saves to the backing file
         """
-        if ConfigManager.track_files:
+        if ConfigManager.track_files and not ConfigManager.mock:
             self.resume_fp = open(self.__RESUMER_FILE_NAME__, "w")
             json.dump(self.imported_data, self.resume_fp)
             self.resume_fp.close()
@@ -68,7 +69,7 @@ class Resumer:
         Adds a data provider to the list of imported data
         :param DataProvider data_provider: The data provider that was imported
         """
-        if ConfigManager.track_files:
+        if ConfigManager.track_files and not ConfigManager.mock:
             self.imported_data.append(data_provider.to_eq_hash())
             self.checkpoint()
 
@@ -87,5 +88,16 @@ class Resumer:
                 ret_slices.append(slice)
         return ret_slices
 
+    def check_file_imported(self, input_file):
+        """
+        Check if a file was imported and exists in *.resume.json
+        :param input_file: path to input file
+        """
+        if not input_file.startswith(ConfigManager.root_url):
+            input_file = ConfigManager.root_url + input_file
+            for imported_file in self.imported_data:
+                if input_file == imported_file:
+                    return True
+        return False
 
     __RESUMER_FILE_SUFFIX__ = ".resume.json"

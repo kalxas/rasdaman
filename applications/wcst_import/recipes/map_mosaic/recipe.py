@@ -36,6 +36,7 @@ from util.log import log
 from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
+from master.importer.resumer import Resumer
 
 
 class Recipe(BaseRecipe):
@@ -48,6 +49,7 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options'] if "options" in session.get_recipe() else {}
         self.importer = None
+        self.resumer = Resumer(self.session.get_coverage_id())
 
         validator = GDALValidator(self.session.files)
         if  ConfigManager.skip == True:
@@ -113,11 +115,13 @@ class Recipe(BaseRecipe):
         slices = []
         count = 1;
         for file in files:
-            # print which file is analyzing
-            FileUtil.print_feedback(count, len(files), file.filepath)
-            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
-            slices.append(Slice(subsets, FileDataProvider(file)))
-            count += 1
+            # NOTE: don't process any imported file from *.resume.json as it is just waisted time
+            if not self.resumer.check_file_imported(file.filepath):
+                # print which file is analyzing
+                FileUtil.print_feedback(count, len(files), file.filepath)
+                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
+                slices.append(Slice(subsets, FileDataProvider(file)))
+                count += 1
         return slices
 
     def _get_coverage(self):
@@ -133,7 +137,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage(), self.options['wms_import'], self.options['scale_levels'], False)
+            self.importer = Importer(self.resumer, self._get_coverage(), self.options['wms_import'], self.options['scale_levels'], False)
         return self.importer
 
 

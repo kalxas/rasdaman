@@ -9,6 +9,7 @@ from master.recipe.base_recipe import BaseRecipe
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
+from master.importer.resumer import Resumer
 
 
 class Recipe(BaseRecipe):
@@ -20,6 +21,7 @@ class Recipe(BaseRecipe):
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options']
         self.importer = None
+        self.resumer = Resumer(self.session.get_coverage_id())
 
     def validate(self):
         super(Recipe, self).validate()
@@ -61,7 +63,7 @@ class Recipe(BaseRecipe):
 
     def _get_importer(self):
         if self.importer is None:
-            self.importer = Importer(self._get_coverage())
+            self.importer = Importer(self.resumer, self._get_coverage())
         return self.importer
 
     def _get_coverage(self):

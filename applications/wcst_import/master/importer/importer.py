@@ -51,13 +51,13 @@ from lxml import etree
 
 
 class Importer:
-    def __init__(self, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
+    def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
         """
         Imports a coverage into wcst
         :param Coverage coverage: the coverage to be imported
         """
         self.coverage = coverage
-        self.resumer = Resumer(coverage.coverage_id)
+        self.resumer = resumer
         self.coverage.slices = SliceRestricter(
                                     self.resumer.eliminate_already_imported_slices(self.coverage.slices)).get_slices()
         self.processed = 0
