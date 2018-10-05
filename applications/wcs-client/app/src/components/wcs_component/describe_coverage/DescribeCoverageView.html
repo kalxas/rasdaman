@@ -7,8 +7,7 @@
                 </span>
                 <input type="text" autocomplete ng-model="selectedCoverageId" class="form-control" source="availableCoverageIds" placeholder="Input coverage ID or part of it" />
                 <span class="input-group-btn">
-                    <button class="btn btn-default"
-                            type="button" class="btn btn-info"
+                    <button type="button" class="btn btn-info"
                             ng-disabled="!isCoverageIdValid()"
                             ng-click="describeCoverage()">
                         Describe Coverage
@@ -18,7 +17,7 @@
         </div>
 
         <div class="row top15" ng-repeat="coverageDescription in coverageDescriptions.coverageDescription">
-            <div class="col-sm-12">
+            <div class="col-sm-12" style="background-color: white;">
                 <p>Coverage <span class="important-text">{{coverageDescription.coverageId}} </span> is of type <span class="important-text"> {{coverageDescription.serviceParameters.coverageSubtype}}</span> with <span class="important-text">{{coverageDescription.boundedBy.envelope.srsDimension}}</span> axes:
                 </p>
 
@@ -50,9 +49,7 @@
         </div>
 
         <!-- WebWorldWind -->
-       
-        <br/>
-        <div class="row top15" ng-hide="isCoverageDescriptionsHideGlobe">
+        <div class="row" ng-hide="isCoverageDescriptionsHideGlobe">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -69,9 +66,8 @@
                 </uib-accordion-group>
             </uib-accordion>
         </div>
-
-        <br/>
-        <div class="row top15" ng-show="coverageDescriptionsDocument.value" style="margin-top: -15px;">
+       
+        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -20px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -87,8 +83,7 @@
             </uib-accordion>
         </div>
 
-        <br/>
-        <div class="row top15" ng-show="coverageDescriptionsDocument.value" style="margin-top: -15px;">
+        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -20px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -105,7 +100,7 @@
             </uib-accordion>
         </div>
 
-        <div class="row top5" ng-show="requestUrl">
+        <div class="row top5" ng-show="requestUrl" style="background-color: white; padding: 10px; margin-top: -20px;">
             The constructed GET KVP request is: <a href="{{requestUrl}}" target="_blank">{{requestUrl}}</a>
         </div>
 

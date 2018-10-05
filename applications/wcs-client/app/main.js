@@ -3086,19 +3086,55 @@ var rasdaman;
                     webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                 }
             };
-            var oldSelectedCoverageId = '';
-            $scope.getCoverageClickEvent = function () {
+            $scope.selectCoverageClickEvent = function () {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
                 }
-                if (oldSelectedCoverageId == $scope.selectedCoverageId) {
-                    $scope.getCoverage();
-                }
                 else {
-                    oldSelectedCoverageId = $scope.selectedCoverageId;
                     $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;
                     $scope.loadCoverageExtentOnGlobe();
+                }
+            };
+            $scope.getCoverageClickEvent = function () {
+                var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
+                var dimensionSubset = [];
+                for (var i = 0; i < numberOfAxis; ++i) {
+                    var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                    var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+                    if ($scope.core.isTrimSelected[i]) {
+                        if ($scope.core.trims[i].trimLow != min.toString()
+                            || $scope.core.trims[i].trimHigh != max.toString()) {
+                            dimensionSubset.push($scope.core.trims[i]);
+                        }
+                    }
+                    else {
+                        dimensionSubset.push($scope.core.slices[i]);
+                    }
+                }
+                var getCoverageRequest = new wcs.GetCoverage($scope.coverageDescription.coverageId, dimensionSubset, $scope.core.selectedCoverageFormat, $scope.core.isMultiPartFormat);
+                getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
+                getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
+                getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
+                getCoverageRequest.crs = $scope.crsExtension.getCRS();
+                getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
+                if ($scope.selectedHTTPRequest == "GET") {
+                    wcsService.getCoverageHTTPGET(getCoverageRequest)
+                        .then(function (requestUrl) {
+                        $scope.core.requestUrl = requestUrl;
+                    }, function () {
+                        var args = [];
+                        for (var _i = 0; _i < arguments.length; _i++) {
+                            args[_i] = arguments[_i];
+                        }
+                        $scope.core.requestUrl = null;
+                        alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
+                        $log.error(args);
+                    });
+                }
+                else {
+                    $scope.core.requestUrl = null;
+                    wcsService.getCoverageHTTPPOST(getCoverageRequest);
                 }
             };
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {
@@ -3219,46 +3255,6 @@ var rasdaman;
                     if ($scope.getCoverageTabStates.isClippingSupported) {
                         $scope.clippingExtension = new rasdaman.WCSClippingExtensionModel($scope.wcsStateInformation.serverCapabilities);
                     }
-                    $scope.getCoverage = function () {
-                        var dimensionSubset = [];
-                        for (var i = 0; i < numberOfAxis; ++i) {
-                            var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
-                            var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
-                            if ($scope.core.isTrimSelected[i]) {
-                                if ($scope.core.trims[i].trimLow != min.toString()
-                                    || $scope.core.trims[i].trimHigh != max.toString()) {
-                                    dimensionSubset.push($scope.core.trims[i]);
-                                }
-                            }
-                            else {
-                                dimensionSubset.push($scope.core.slices[i]);
-                            }
-                        }
-                        var getCoverageRequest = new wcs.GetCoverage($scope.coverageDescription.coverageId, dimensionSubset, $scope.core.selectedCoverageFormat, $scope.core.isMultiPartFormat);
-                        getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
-                        getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
-                        getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
-                        getCoverageRequest.crs = $scope.crsExtension.getCRS();
-                        getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
-                        if ($scope.selectedHTTPRequest == "GET") {
-                            wcsService.getCoverageHTTPGET(getCoverageRequest)
-                                .then(function (requestUrl) {
-                                $scope.core.requestUrl = requestUrl;
-                            }, function () {
-                                var args = [];
-                                for (var _i = 0; _i < arguments.length; _i++) {
-                                    args[_i] = arguments[_i];
-                                }
-                                $scope.core.requestUrl = null;
-                                alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
-                                $log.error(args);
-                            });
-                        }
-                        else {
-                            $scope.core.requestUrl = null;
-                            wcsService.getCoverageHTTPPOST(getCoverageRequest);
-                        }
-                    };
                     $scope.typeOfInputIsNotValid = function (isTemporalAxis, value) {
                         if (isTemporalAxis) {
                             value = value.substr(1, value.length - 2);

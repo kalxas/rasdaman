@@ -102,22 +102,12 @@ module rasdaman {
                 }                                
             }
 
-            var oldSelectedCoverageId = '';
-
-            $scope.getCoverageClickEvent = function () {
+            // Select a coverage to show WCS core and extensions form
+            $scope.selectCoverageClickEvent = function() {
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
                     return;
-                }
-
-                // allow the client to download the selected coverage if the the forms for trimming, slicing, range subsetting,... are displayed,
-                // so if the current coverage was selelected before 
-                if(oldSelectedCoverageId == $scope.selectedCoverageId) {
-                    $scope.getCoverage();
-                }
-                else {
-                    oldSelectedCoverageId = $scope.selectedCoverageId;
-
+                } else {
                     // trigger the DescribeCoverage in DescribeCoverageController to fill the data to both DescribeCoverage and GetCoverage tabs
                     $scope.wcsStateInformation.selectedGetCoverageId = $scope.selectedCoverageId;                
                     // $scope.$digest();
@@ -125,6 +115,51 @@ module rasdaman {
                     // load the coverage extent on the globe
                     $scope.loadCoverageExtentOnGlobe();
                 }
+            }
+
+            // Send a GetCoverage request to get result
+            $scope.getCoverageClickEvent = function () {
+                var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
+                var dimensionSubset:wcs.DimensionSubset[] = [];
+                for (var i = 0; i < numberOfAxis; ++i) {
+                    var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
+                    var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
+
+                    if ($scope.core.isTrimSelected[i]) {
+                        if ($scope.core.trims[i].trimLow != min.toString()
+                            || $scope.core.trims[i].trimHigh != max.toString()) {
+                            dimensionSubset.push($scope.core.trims[i]);
+                        }
+                    } else {
+                            dimensionSubset.push($scope.core.slices[i]);
+                    }
+                }
+
+                var getCoverageRequest = new wcs.GetCoverage($scope.coverageDescription.coverageId, dimensionSubset, $scope.core.selectedCoverageFormat, $scope.core.isMultiPartFormat);
+                getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
+                getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
+                getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
+                getCoverageRequest.crs = $scope.crsExtension.getCRS();
+                getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
+
+                if ($scope.selectedHTTPRequest == "GET") {
+                    // GET KVP request which open a new Window to show the result
+                    wcsService.getCoverageHTTPGET(getCoverageRequest)
+                    .then(
+                        (requestUrl:string)=> {                                        
+                            $scope.core.requestUrl = requestUrl;                                        
+                        },
+                        (...args:any[])=> {
+                            $scope.core.requestUrl = null;
+
+                            alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
+                            $log.error(args);
+                        });
+                } else {
+                    $scope.core.requestUrl = null;
+                    // POST KVP request which open a new Window to show the result
+                    wcsService.getCoverageHTTPPOST(getCoverageRequest);
+                }                           
             }
 
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions",
@@ -293,49 +328,6 @@ module rasdaman {
                         if ($scope.getCoverageTabStates.isClippingSupported) {
                             $scope.clippingExtension = new WCSClippingExtensionModel($scope.wcsStateInformation.serverCapabilities);
                         }
-
-                        $scope.getCoverage = function ():void {
-                            var dimensionSubset:wcs.DimensionSubset[] = [];
-                            for (var i = 0; i < numberOfAxis; ++i) {
-                                var min = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values[i];
-                                var max = $scope.coverageDescription.boundedBy.envelope.upperCorner.values[i];
-
-                                if ($scope.core.isTrimSelected[i]) {
-                                    if ($scope.core.trims[i].trimLow != min.toString()
-                                        || $scope.core.trims[i].trimHigh != max.toString()) {
-                                        dimensionSubset.push($scope.core.trims[i]);
-                                    }
-                                } else {
-                                        dimensionSubset.push($scope.core.slices[i]);
-                                }
-                            }
-
-                            var getCoverageRequest = new wcs.GetCoverage($scope.coverageDescription.coverageId, dimensionSubset, $scope.core.selectedCoverageFormat, $scope.core.isMultiPartFormat);
-                            getCoverageRequest.rangeSubset = $scope.rangeSubsettingExtension.rangeSubset;
-                            getCoverageRequest.scaling = $scope.scalingExtension.getScaling();
-                            getCoverageRequest.interpolation = $scope.interpolationExtension.getInterpolation();
-                            getCoverageRequest.crs = $scope.crsExtension.getCRS();
-                            getCoverageRequest.clipping = $scope.clippingExtension.getClipping();
-
-                            if ($scope.selectedHTTPRequest == "GET") {
-                                // GET KVP request which open a new Window to show the result
-                                wcsService.getCoverageHTTPGET(getCoverageRequest)
-                                .then(
-                                    (requestUrl:string)=> {                                        
-                                        $scope.core.requestUrl = requestUrl;                                        
-                                    },
-                                    (...args:any[])=> {
-                                        $scope.core.requestUrl = null;
-
-                                        alertService.error("Failed to execute GetCoverage operation in HTTP GET.");
-                                        $log.error(args);
-                                    });
-                            } else {
-                                $scope.core.requestUrl = null;
-                                // POST KVP request which open a new Window to show the result
-                                wcsService.getCoverageHTTPPOST(getCoverageRequest);
-                            }                           
-                        };
 
                         $scope.typeOfInputIsNotValid = function(isTemporalAxis:boolean, value:any):boolean {
                             if (isTemporalAxis) {
@@ -625,6 +617,9 @@ module rasdaman {
 
         getCoverageTabStates:GetCoverageTabStates;
 
+        // select a coverage to show the form
+        selectCoverageClickEvent():void;
+        // send a GetCoverage request to get result
         getCoverageClickEvent():void;
 
         getCoverage():void;
