@@ -113,9 +113,10 @@ public class PetascopeController extends AbstractController {
      */
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
-        // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)                
-        try {
+        // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)         
+        try {            
             log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
+            long start = System.currentTimeMillis();
             
             // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
             if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
@@ -155,6 +156,9 @@ public class PetascopeController extends AbstractController {
 
             // Dump the response result to client
             this.writeResponseResult(response);
+            long end = System.currentTimeMillis();
+            long totalTime = end - start;
+            log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
         } finally {
              // Here, the uploaded file (if exists) should be removed
             if (kvpParameters.get(KEY_UPLOADED_FILE_VALUE) != null) {

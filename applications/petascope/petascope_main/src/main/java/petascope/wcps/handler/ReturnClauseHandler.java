@@ -22,6 +22,9 @@
 package petascope.wcps.handler;
 
 import org.springframework.stereotype.Service;
+import petascope.util.MIMEUtil;
+import petascope.util.ras.RasConstants;
+import petascope.wcps.exception.processing.CoverageNotEncodedInReturnClauseException;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
 
@@ -41,6 +44,18 @@ public class ReturnClauseHandler {
     public  WcpsResult handle(WcpsResult processingExpr) {
         String template = TEMPLATE_RASQL.replace("$processingExpression", processingExpr.getRasql());
         WcpsCoverageMetadata metadata = processingExpr.getMetadata();
+        // NOTE: If result in RETURN clause is scalar (E.g: return 2, return 2 + 3, return avg($c))
+        // then WCPS coverage metadata object is null. If not, according to WCPS document, result should be encoded.
+        if (metadata != null) {
+            if (!metadata.getAxes().isEmpty()) {
+                // Coverage result is not scalar (it has axis domain(s)) so it must start with encode()
+                // NOTE: dem() is a special one in rasql and does not need encode().
+                String tmp = processingExpr.getRasql().toLowerCase().trim();
+                if (!(tmp.startsWith(RasConstants.RASQL_ENCODE) || tmp.startsWith(MIMEUtil.ENCODE_DEM))) {
+                    throw new CoverageNotEncodedInReturnClauseException();
+                }
+            }
+        }
         processingExpr.setMetadata(metadata);
         processingExpr.setRasql(template);
         return processingExpr;

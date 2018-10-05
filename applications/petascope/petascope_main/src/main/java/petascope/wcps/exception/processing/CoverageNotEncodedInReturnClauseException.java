@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU  General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003 - 2017 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,21 +25,15 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.ExceptionCode;
 
 /**
- * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+ * Exception that is thrown when a non-scalar coverage result is not encoded.
+ *
+ * @author <a href="mailto:b.phamhuu@jacobs-univeristy.de">Bang Pham Huu</a>
  */
-public class InvalidIntervalNumberFormat extends WCPSException {
-    
-    public InvalidIntervalNumberFormat(String low, String high, String errorMessage) {
-        super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$low", low)
-              .replace("$high", high)
-              .replace("$errorMessage", errorMessage));
-    }
-    
-    public InvalidIntervalNumberFormat(String low, String high, String errorMessage, Exception cause) {
-        super(ExceptionCode.WcpsError, EXCEPTION_TEXT.replace("$low", low)
-              .replace("$high", high)
-              .replace("$errorMessage", errorMessage), cause);
+public class CoverageNotEncodedInReturnClauseException extends WCPSException {
+
+    public CoverageNotEncodedInReturnClauseException() {
+        super(ExceptionCode.WcpsError, ERROR_TEMPLATE);
     }
 
-    private static final String EXCEPTION_TEXT = "Invalid number format in interval ($low:$high). Reason: $errorMessage";
+    private static final String ERROR_TEMPLATE = "Coverage result must use encode() as it is non-scalar value.";
 }

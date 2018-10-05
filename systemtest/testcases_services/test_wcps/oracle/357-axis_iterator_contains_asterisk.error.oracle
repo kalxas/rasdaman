@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.0.1"
+    
+      >
+    <ows:Exception exceptionCode="WcpsError">
+        <ows:ExceptionText>Invalid number format in interval (0:*). Reason: Lower bound or upper bound of axis iterator's interval cannot be '*'.</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>

@@ -1,0 +1,6 @@
+for $c in ( test_mr )
+return  
+          coverage histogram
+          over $n x(0:1)
+          values count( $c = $n )
+      

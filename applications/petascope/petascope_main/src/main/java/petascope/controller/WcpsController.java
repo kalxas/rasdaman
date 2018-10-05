@@ -94,6 +94,7 @@ public class WcpsController extends AbstractController {
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
+        long start = System.currentTimeMillis();
         if (startException != null) {
             throwStartException();
         }
@@ -110,6 +111,9 @@ public class WcpsController extends AbstractController {
         
         Response response = kvpProcessCoverageHandler.handle(kvpParameters);
         this.writeResponseResult(response);
+        long end = System.currentTimeMillis();
+        long totalTime = end - start;
+        log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
     }
 
     @Override

@@ -49,6 +49,7 @@ import petascope.core.service.CrsComputerService;
 import petascope.exceptions.PetascopeException;
 
 import static petascope.util.WCPSConstants.MSG_STAR;
+import static petascope.wcs2.parsers.subsets.AbstractSubsetDimension.ASTERISK;
 
 /**
  * This class has the purpose of translating subsets coming from the users into
@@ -180,24 +181,27 @@ public class SubsetParsingService {
     public Subset convertToRawNumericSubset(WcpsSubsetDimension dimension) {
         String axisName = dimension.getAxisName();
         String crs = dimension.getCrs();
-        BigDecimal lowerBound = BigDecimal.ZERO;
-        BigDecimal upperBound = BigDecimal.ZERO;
+        String lowerBound = "0";
+        String upperBound = "0";
 
         NumericSubset numericSubset = null;
         //try to parse numbers
         try {
-            if (dimension instanceof WcpsTrimSubsetDimension) {
-                lowerBound = new BigDecimal(((WcpsTrimSubsetDimension) dimension).getLowerBound());
-                upperBound = new BigDecimal(((WcpsTrimSubsetDimension) dimension).getUpperBound());
+                lowerBound = ((WcpsTrimSubsetDimension) dimension).getLowerBound();
+                upperBound = ((WcpsTrimSubsetDimension) dimension).getUpperBound();
+                
+                // check if lower bound or upper bound is "*" which is not valid for subset in axis iterator
+                if (lowerBound.equals(ASTERISK) || upperBound.equals(ASTERISK)) {
+                    throw new InvalidIntervalNumberFormat(lowerBound, upperBound, 
+                              "Lower bound or upper bound of axis iterator's interval cannot be '" + ASTERISK + "'.");
+                }
 
-                numericSubset = new NumericTrimming(lowerBound, upperBound);
-            } else {
-                lowerBound = new BigDecimal(((WcpsSliceSubsetDimension) dimension).getBound());
-                numericSubset = new NumericSlicing(lowerBound);
-            }
+                // Try to convert bounds to numbers
+                numericSubset = new NumericTrimming(new BigDecimal(lowerBound), new BigDecimal(upperBound));
         } catch (NumberFormatException ex) {
-            throw new InvalidIntervalNumberFormat(lowerBound.toPlainString(), upperBound.toPlainString(), ex);
+            throw new InvalidIntervalNumberFormat(lowerBound, upperBound, ex.getMessage(), ex);
         }
+        
         return new Subset(numericSubset, crs, axisName);
     }
 
