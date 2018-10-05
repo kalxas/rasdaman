@@ -172,10 +172,16 @@ public class CoverageRepostioryService {
             // e.g: [0:500,0:500] ALIGNED 4194304
             String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
             long oid = coverage.getRasdamanRangeSet().getOid();
-            String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
-            coverage.getRasdamanRangeSet().setTiling(tiling);                
-            // Then update coverage to database
-            this.save(coverage);
+            try {
+                String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
+                coverage.getRasdamanRangeSet().setTiling(tiling);                
+                // Then update coverage to database
+                this.save(coverage);
+            } catch (PetascopeException ex) {
+                // NOTE: In case of removing coverage without updated tiling in coverage object and rasdaman collection was deleted manually, 
+                // this causes exception as no collection found and it can be ignored.
+                log.warn("Cannot retrieve tiling from collection '" + collectionName + "'. Reason: " + ex.getMessage(), ex);
+            }
         }
         
         // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
