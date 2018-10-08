@@ -75,6 +75,8 @@ const QtNode::QtNodeType QtShift::nodeType = QT_SHIFT;
 QtShift::QtShift(QtOperation* mddOp, QtOperation* pointOp)
     :  QtBinaryOperation(mddOp, pointOp)
 {
+    skipCopy = mddOp->getNodeType() == QtNode::QT_CONVERSION || 
+               mddOp->getNodeType() == QtNode::QT_DECODE;
 }
 
 
@@ -142,7 +144,6 @@ QtShift::evaluate(QtDataList* inputList)
         // compute new domain
         r_Minterval destinationDomain(qtMDDObj->getLoadDomain().create_translation(transPoint));
 
-        // create a transient MDD object for the query result
         MDDObj* resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), destinationDomain, currentMDDObj->getNullValues());
 
         // get all tiles
@@ -159,8 +160,19 @@ QtShift::evaluate(QtDataList* inputList)
 
             // create a new transient tile, copy the transient data, and insert it into the mdd object
             // FIXME: how can this work without tile area allocation??? -- PB 2005-jun-19
-            Tile* newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType());
-            newTransTile->copyTile(destinationTileDomain, tileIter->get(), sourceTileDomain);
+            Tile* newTransTile = nullptr;
+
+            if (skipCopy)
+            {
+                // const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, char* newCells, r_Bytes newSize, r_Data_Format newFormat
+                newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType(), true, tileIter->get()->getContents(), 0, r_Array);
+                tileIter->get()->setContents(NULL);
+            }
+            else
+            {
+                newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType());
+                newTransTile->copyTile(destinationTileDomain, tileIter->get(), sourceTileDomain);
+            }
             resultMDD->insertTile(newTransTile);
         }
 

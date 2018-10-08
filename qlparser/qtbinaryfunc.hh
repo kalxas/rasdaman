@@ -81,6 +81,9 @@ public:
 private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
+
+    /// true if the mdd operand is decode
+    bool skipCopy{false};
 };
 
 
