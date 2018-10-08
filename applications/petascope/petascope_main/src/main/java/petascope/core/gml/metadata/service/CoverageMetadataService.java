@@ -131,10 +131,11 @@ public class CoverageMetadataService {
         //remove the slices and the gmlcov:metadata closing tag if it exists
         // metadata = removeMetadataSlices(metadata).replace("<gmlcov:metadata />", "");
         //convert to object
-        try {
+        try {           
+            
             //find out the type
-            if (XMLUtil.containsXMLContent(metadata)) {
-                //xml
+            if (!metadata.startsWith("{") || metadata.startsWith("<")) {            
+                // NOTE: if old coverage imported with metadata not in XML or JSON, consider it is XML by adding <metadata/> wrapper element.                
                 //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
                 //so we are just adding them
                 coverageMetadata = xmlMapper.readValue(METADATA_OPEN_TAG + metadata + METADATA_CLOSE_TAG, CoverageMetadata.class);
