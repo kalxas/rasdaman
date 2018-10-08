@@ -479,20 +479,7 @@ public class WMSGetMapService {
                 String combinedCollectionExpression = ListUtil.join(collectionExpressionsLayer, OVERLAY);
                 // e.g: (c + 1)[0:20, 30:45]
                 String subsetCollectionExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, combinedCollectionExpression);
-                String finalCollectionExpressionLayer = this.createBBoxGridSpatialDomainsForScaling(layerName, translatedGridDimensionSubsets, subsetCollectionExpression);
-                
-
-                if (!nativeCRS.equals(outputCRS)) {
-                    // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
-                    finalCollectionExpressionLayer = PROJECTION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayer)
-                                                                        .replace("$xMin", this.fittedBBbox.getXMin().toPlainString())
-                                                                        .replace("$yMin", this.fittedBBbox.getYMin().toPlainString())
-                                                                        .replace("$xMax", this.fittedBBbox.getXMax().toPlainString())
-                                                                        .replace("$yMax", this.fittedBBbox.getYMax().toPlainString())
-                                                                        .replace("$sourceCRS", nativeCRS)
-                                                                        .replace("$targetCRS", this.outputCRS);
-                }
-                
+                String finalCollectionExpressionLayer = this.createBBoxGridSpatialDomainsForScaling(layerName, nativeCRS, subsetCollectionExpression);
                 finalCollectionExpressions.add( " ( " + finalCollectionExpressionLayer + " ) ");
                 i++;
             }
@@ -708,7 +695,7 @@ public class WMSGetMapService {
      * Translate the geo bounding box from the input parameter to grid spatial domains by ****grid axes order****.
      * e.g: if coverage imported as YX (Lat, Long) grid axes order, it should keep this order.
      */
-    private String createBBoxGridSpatialDomainsForScaling(String layerName, List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets, String subsetCollectionExpression)
+    private String createBBoxGridSpatialDomainsForScaling(String layerName, String nativeCRS, String subsetCollectionExpression)
                    throws PetascopeException, SecoreException {
         WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
         
@@ -811,6 +798,17 @@ public class WMSGetMapService {
             temp = extendX;
             extendX = extendY;
             extendY = temp;                
+        }
+        
+        if (!nativeCRS.equals(outputCRS)) {
+            // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
+            subsetCollectionExpression = PROJECTION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, subsetCollectionExpression)
+                                                                .replace("$xMin", this.fittedBBbox.getXMin().toPlainString())
+                                                                .replace("$yMin", this.fittedBBbox.getYMin().toPlainString())
+                                                                .replace("$xMax", this.fittedBBbox.getXMax().toPlainString())
+                                                                .replace("$yMax", this.fittedBBbox.getYMax().toPlainString())
+                                                                .replace("$sourceCRS", nativeCRS)
+                                                                .replace("$targetCRS", this.outputCRS);
         }
 
         subsetCollectionExpression = "Scale( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
