@@ -521,19 +521,24 @@ DBHierIndex::deleteFromDb()
     while (!myKeyObjects.empty())
     {
         oi = myKeyObjects.begin()->getObject().getOId();
-        DBObjectId dbo;
         if ((oi.getType() == OId::BLOBOID) || (oi.getType() == OId::INLINETILEOID))
         {
             BLOBTile::kill(oi);
         }
         else
         {
-            dbo = DBObjectId(oi);
-            if (!dbo.is_null())
-            {
-                dbo->setCached(false);
-                dbo->setPersistent(false);
-                dbo = (unsigned int) 0;
+            try {
+                DBObjectId dbo(oi);
+                if (!dbo.is_null())
+                {
+                    dbo->setCached(false);
+                    dbo->setPersistent(false);
+                    dbo = (unsigned int) 0;
+                }
+            } catch (const r_Error &err) {
+                LWARNING << "Cannot delete invalid object with OId " << oi << ": " << err.what();
+            } catch (...) {
+                LWARNING << "Cannot delete invalid object with OId " << oi << ": unknown exception occurred.";
             }
         }
         myKeyObjects.erase(myKeyObjects.begin());
