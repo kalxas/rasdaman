@@ -2590,7 +2590,7 @@ var rasdaman;
             $scope.$watch("wcsStateInformation.serverCapabilities", function (newValue, oldValue) {
                 if (newValue) {
                     $scope.wcsDescribeCoverageTab.disabled = false;
-                    $scope.wcsGetLayerTab.disabled = false;
+                    $scope.wcsGetCoverageTab.disabled = false;
                     $scope.wcsProcessCoverageTab.disabled = !WCSMainController.isProcessCoverageEnabled(newValue);
                     $scope.wcsInsertCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
                     $scope.wcsDeleteCoverageTab.disabled = !WCSMainController.isCoverageTransactionEnabled(newValue);
@@ -2600,9 +2600,9 @@ var rasdaman;
                 }
             });
             $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (newValue, oldValue) {
-                $scope.wcsGetLayerTab.disabled = newValue ? false : true;
+                $scope.wcsGetCoverageTab.disabled = newValue ? false : true;
             });
-            $scope.tabs = [$scope.wcsGetCapabilitiesTab, $scope.wcsDescribeCoverageTab, $scope.wcsGetLayerTab, $scope.wcsProcessCoverageTab, $scope.wcsDeleteCoverageTab, $scope.wcsInsertCoverageTab];
+            $scope.tabs = [$scope.wcsGetCapabilitiesTab, $scope.wcsDescribeCoverageTab, $scope.wcsGetCoverageTab, $scope.wcsProcessCoverageTab, $scope.wcsDeleteCoverageTab, $scope.wcsInsertCoverageTab];
             $scope.wcsStateInformation = {
                 serverCapabilities: null,
                 getCoveragesExtents: null,
@@ -2628,7 +2628,7 @@ var rasdaman;
                 active: false,
                 disabled: false
             };
-            $scope.wcsGetLayerTab = {
+            $scope.wcsGetCoverageTab = {
                 heading: "GetCoverage",
                 view: "get_coverage",
                 active: false,
@@ -2655,7 +2655,7 @@ var rasdaman;
         };
         WCSMainController.prototype.resetState = function () {
             this.$scope.wcsDescribeCoverageTab.disabled = true;
-            this.$scope.wcsGetLayerTab.disabled = true;
+            this.$scope.wcsGetCoverageTab.disabled = true;
             this.$scope.wcsProcessCoverageTab.disabled = true;
             this.$scope.wcsDeleteCoverageTab.disabled = true;
             this.$scope.wcsInsertCoverageTab.disabled = true;
@@ -3141,6 +3141,7 @@ var rasdaman;
                 if (coverageDescriptions && coverageDescriptions.coverageDescription) {
                     $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
                     $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
+                    $scope.wcsStateInformation.selectedGetCoverageId = null;
                     $scope.typeOfAxis = [];
                     $scope.isTemporalAxis = [];
                     var coverageIds = [];
@@ -3208,6 +3209,16 @@ var rasdaman;
                         else {
                             for (var it = 0; it < numberOfAxis; ++it) {
                                 $scope.typeOfAxis.push(regularAxis);
+                            }
+                        }
+                        for (var i = 0; i < $scope.typeOfAxis.length; i++) {
+                            if ($scope.typeOfAxis[i] == irregularAxis) {
+                                var trimLow = $scope.core.trims[i].trimLow;
+                                var trimHigh = $scope.core.trims[i].trimHigh;
+                                $("#trimmIrrMin" + i).val(trimLow);
+                                $("#trimmIrrMax" + i).val(trimHigh);
+                                var slicePoint = $scope.core.slices[i].slicePoint;
+                                $("#sliceIrr" + i).val(slicePoint);
                             }
                         }
                     });

@@ -84,7 +84,7 @@ public class WCSDescribeCoverageTest extends WSAbstractSectionWebPageTest {
         // Click on a DescribeCoverage GML dropdown button
         testCaseName = this.getSectionTestCaseName("click_on_coverage_descriptions_dropdown_button");
         log.info("Testing click on GML coverage descriptions dropdown button...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[2]/div/div/div/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
     }
 
 }

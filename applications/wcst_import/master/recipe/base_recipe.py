@@ -117,7 +117,8 @@ class BaseRecipe:
         if ConfigManager.tmp_directory is None or (not os.access(ConfigManager.tmp_directory, os.W_OK)):
             raise RecipeValidationException("No valid tmp directory provided")
         if len(self.session.get_files()) == 0 and not ignore_no_files:
-            raise RecipeValidationException("No files provided. Check that the paths you provided are correct.")
+            log.warn("No files provided. Check that the paths you provided are correct. Done.")
+            exit(0)
         for file in self.session.get_files():
             if not os.access(file.get_filepath(), os.R_OK):
                 raise RecipeValidationException("File on path " + file.get_filepath() + " is not accessible")

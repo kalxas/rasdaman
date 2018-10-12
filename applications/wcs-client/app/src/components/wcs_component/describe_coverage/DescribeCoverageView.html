@@ -49,7 +49,7 @@
         </div>
 
         <!-- WebWorldWind -->
-        <div class="row" ng-hide="isCoverageDescriptionsHideGlobe">
+        <div class="row" ng-hide="isCoverageDescriptionsHideGlobe" style="margin-top: 10px; margin-bottom: -25px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -67,7 +67,7 @@
             </uib-accordion>
         </div>
        
-        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -20px;">
+        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: 20px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -83,7 +83,7 @@
             </uib-accordion>
         </div>
 
-        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -20px;">
+        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -10px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -100,7 +100,7 @@
             </uib-accordion>
         </div>
 
-        <div class="row top5" ng-show="requestUrl" style="background-color: white; padding: 10px; margin-top: -20px;">
+        <div class="row top5" ng-show="requestUrl" style="background-color: white; padding: 10px; margin-top: -10px; border-radius: 5px;">
             The constructed GET KVP request is: <a href="{{requestUrl}}" target="_blank">{{requestUrl}}</a>
         </div>
 

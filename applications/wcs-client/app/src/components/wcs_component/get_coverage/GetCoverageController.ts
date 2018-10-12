@@ -167,6 +167,13 @@ module rasdaman {
                     if (coverageDescriptions && coverageDescriptions.coverageDescription) {
                         $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
                         $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
+
+                        // NOTE: this one is important to make "Select Coverage" on a same coverage can trigger DescribeCoverage
+                        // to refresh description for current selected coverage on GetCoverage tab.
+                        // without it, in DescribeCoverage controller, the watch event listener for "selectedGetCoverageId"
+                        //  from GetCoverage does not work in this case.
+                        $scope.wcsStateInformation.selectedGetCoverageId = null;
+
                         $scope.typeOfAxis = [];
                         $scope.isTemporalAxis = [];
 
@@ -270,6 +277,19 @@ module rasdaman {
                                     // then there is no irregular axis
                                     for (var it = 0; it < numberOfAxis; ++it) {
                                         $scope.typeOfAxis.push(regularAxis);
+                                    }
+                                }
+
+                                // Set default values (low, high) in dropdown boxes for irregular axes from collected values
+                                for (var i = 0; i < $scope.typeOfAxis.length; i++) {
+                                    if ($scope.typeOfAxis[i] == irregularAxis) {
+                                        var trimLow = $scope.core.trims[i].trimLow;
+                                        var trimHigh = $scope.core.trims[i].trimHigh;
+                                        $("#trimmIrrMin" + i).val(trimLow);
+                                        $("#trimmIrrMax" + i).val(trimHigh);
+
+                                        var slicePoint = $scope.core.slices[i].slicePoint;
+                                        $("#sliceIrr" + i).val(slicePoint);
                                     }
                                 }
 

@@ -97,8 +97,8 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         dropdown = new Select(webDriver.findElement(By.xpath("//*[@id=\"select-coverage-format\"]")));
         dropdown.selectByVisibleText("image/png");
         // Then need to click on dropdown tab to show contents or it cannot add values to text boxes (CRS and clipping dropdowns)
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div[6]/uib-accordion/div/div/div[1]/h4/a/span/i");
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[5]/uib-accordion/div/div/div[1]/h4/a/span/i");
+        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[6]/uib-accordion/div/div/div[1]/h4/a/span/i");
 
         // Then add URL for subsettingCRS
         this.addTextToTextBox(webDriver, "http://localhost:8080/def/crs/EPSG/0/3857", "//*[@id=\"wcs-get-coverage-subsetting-crs\"]");
@@ -119,8 +119,8 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
         // Refocus on the tab
         this.focusOnTheIFrameTab(webDriver);
 
-        String minLatXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[3]";
-        String minLongXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[3]";
+        String minLatXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[2]/ul/li[1]/input[3]";
+        String minLongXPath = "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[3]/div/div/div/div[3]/div/div[2]/uib-accordion/div/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/ul/li[1]/input[3]";
 
         // Download a subset coverage in PNG (GML cannot be captured by PhantomJS)
         testCaseName = this.getSectionTestCaseName("get_subset_2D_coverage_in_png");
