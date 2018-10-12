@@ -76,6 +76,7 @@ import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.core.CrsDefinition;
 import petascope.core.gml.GeneralGridCoverageGMLService;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
@@ -809,15 +810,18 @@ public class UpdateCoverageHandler {
                     inputLowerBound = inputLowerBound.subtract(currentGeoAxis.getResolution().multiply(new BigDecimal("0.5")));
                     inputUpperBound = inputUpperBound.add(currentGeoAxis.getResolution().multiply(new BigDecimal("0.5")));
                 }
+                
+                CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(axisCRS);
 
                 // update when possible (currentMin > inputMin, currentMax < inputMax), but set it with dateTime format
                 if (currentLowerBound.compareTo(inputLowerBound) > 0) {
-                    currentGeoAxis.setLowerBound(inputLowerBound.toPlainString());
+                    String timeLowerBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, inputLowerBound, crsDefinition);
+                    currentGeoAxis.setLowerBound(timeLowerBound);
                 }
                 if (currentUpperBound.compareTo(inputUpperBound) < 0) {
-                    currentGeoAxis.setUpperBound(inputUpperBound.toPlainString());
+                    String timeUpperBound = TimeUtil.valueToISODateTime(BigDecimal.ZERO, inputUpperBound, crsDefinition);
+                    currentGeoAxis.setUpperBound(timeUpperBound);
                 }
-
             }
         }
     }
