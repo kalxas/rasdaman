@@ -37,8 +37,6 @@ rasdaman GmbH.
 #include <string>
 #include "sqlglobals.h"
 
-int busyHandler(void *data, int times);
-
 /**
  * Convenience class for executing SQLite queries.
  */

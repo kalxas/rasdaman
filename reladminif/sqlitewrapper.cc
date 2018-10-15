@@ -45,6 +45,7 @@ sqlite3* SQLiteQuery::sqliteConn = NULL;
 SQLiteQuery::SQLiteQuery(char q[]) :
     stmt(NULL), query(q), columnCounter(0)
 {
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_prepare_v2(sqliteConn, q, -1, &stmt, NULL);
     LDEBUG << "SQL query: " << query;
 }
@@ -59,6 +60,7 @@ SQLiteQuery::SQLiteQuery(const char* format, ...) :
     va_end(args);
     query = std::string(tmpQuery.get());
     LDEBUG << "SQL query: " << query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_prepare_v2(sqliteConn, query.c_str(), -1, &stmt, NULL);
 }
 
@@ -117,6 +119,7 @@ void SQLiteQuery::bindBlob(const char* param, int size)
 void SQLiteQuery::execute(int fail)
 {
     LDEBUG << "SQL query: " << query;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_step(stmt);
     if (fail)
     {
@@ -131,6 +134,7 @@ void SQLiteQuery::execute(int fail)
 void SQLiteQuery::execute(const char* q)
 {
     LDEBUG << "SQL query: " << q;
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, q, 0, 0, 0);
     failOnError(q, sqliteConn);
 }
@@ -143,6 +147,7 @@ void SQLiteQuery::executeWithParams(const char* format, ...)
     vsnprintf(q.get(), QUERY_MAXLEN, format, args);
     va_end(args);
     LDEBUG << "SQL query: " << q.get();
+    sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
     sqlite3_exec(sqliteConn, q.get(), 0, 0, 0);
     failOnError(q.get(), sqliteConn);
 }
@@ -225,12 +230,6 @@ void SQLiteQuery::closeConnection()
     }
 }
 
-int busyHandler(void *data, int times)
-{
-    sleep(2); // ms
-    return 1; // 1 = retry query, 0 = fail with SQLITE_BUSY
-}
-
 bool SQLiteQuery::openConnection(const char* globalConnectId)
 {
     sqlite3_enable_shared_cache(0);
@@ -245,7 +244,6 @@ bool SQLiteQuery::openConnection(const char* globalConnectId)
         std::string options = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=" + 
             std::to_string(SQLITE_BUSY_TIMEOUT);
         sqlite3_exec(sqliteConn, options.c_str(), NULL, 0, NULL);
-        sqlite3_busy_handler(sqliteConn, busyHandler, NULL);
     }
     return true;
 }
