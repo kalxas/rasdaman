@@ -28,8 +28,9 @@ oracle="$2"
 cp "$out" "$out".tmp
 cp "$oracle" "$oracle".tmp
 
-sort "$out".tmp > "$out".tmp2
-sort "$oracle".tmp > "$oracle".tmp2
+# Don't check layers as they can be different, only check first 70 lines to know WMS not return error
+sed -n 1,60p "$out".tmp > "$out".tmp2
+sed -n 1,60p "$oracle".tmp > "$oracle".tmp2
 
 diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
 rc=$?

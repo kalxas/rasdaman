@@ -376,7 +376,7 @@ public class WMSGetMapService {
      * 
      */
     private List<String> createCollectionExpressionsLayer(String layerName, String aliasName, int index,
-                                                          List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets) throws PetascopeException, SecoreException {
+                                                          List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets, String nativeCRS) throws PetascopeException, SecoreException {
         List<String> coverageExpressionsLayer = new ArrayList<>();
         
         // e.g: time="2015-05-12"&dim_pressure=20/30
@@ -412,6 +412,17 @@ public class WMSGetMapService {
                 // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5
                 // NOTE: select c0 + udf.c0test() only should replace c0 with c0[0:20, 30:40] not udf.c0test to udf.c0[0:20, 30:40]test
                 String valueToReplace = aliasName + gridSpatialDomain;
+                if (!nativeCRS.equals(outputCRS)) {
+                    // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
+                    valueToReplace = PROJECTION_TEMPLATE.replace("$collectionExpression", valueToReplace)
+                                                        .replace("$xMin", this.fittedBBbox.getXMin().toPlainString())
+                                                        .replace("$yMin", this.fittedBBbox.getYMin().toPlainString())
+                                                        .replace("$xMax", this.fittedBBbox.getXMax().toPlainString())
+                                                        .replace("$yMax", this.fittedBBbox.getYMax().toPlainString())
+                                                        .replace("$sourceCRS", nativeCRS)
+                                                        .replace("$targetCRS", this.outputCRS);
+                }
+
                 // NOTE: if WMS style already contains "[" (e.g: condense + over $ts t( imageCrsDomain($c[ansi:"CRS:1"(0:3)], ansi) ) using $c[ansi($ts)])
                 // It means user already picked the grid domains to be translated in WCPS query, don't add the additional subsets from bbox anymore.
                 if (styleExpression.contains(RASQL_OPEN_SUBSETS)) {
@@ -473,7 +484,7 @@ public class WMSGetMapService {
                 
                 
                 // Apply style if necessary on the geo subsetted coverage expressions and translate to Rasql collection expressions
-                List<String> collectionExpressionsLayer = this.createCollectionExpressionsLayer(layerName, aliasName, i, translatedGridDimensionSubsets);
+                List<String> collectionExpressionsLayer = this.createCollectionExpressionsLayer(layerName, aliasName, i, translatedGridDimensionSubsets, nativeCRS);
                 
                 // Now create a final coverageExpression which combines all the translated coverageExpression for styles with the OVERLAY operator            
                 String combinedCollectionExpression = ListUtil.join(collectionExpressionsLayer, OVERLAY);
@@ -800,19 +811,13 @@ public class WMSGetMapService {
             extendY = temp;                
         }
         
-        if (!nativeCRS.equals(outputCRS)) {
-            // It needs to be projected when the requesting CRS is different from the geo-referenced XY axes
-            subsetCollectionExpression = PROJECTION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, subsetCollectionExpression)
-                                                                .replace("$xMin", this.fittedBBbox.getXMin().toPlainString())
-                                                                .replace("$yMin", this.fittedBBbox.getYMin().toPlainString())
-                                                                .replace("$xMax", this.fittedBBbox.getXMax().toPlainString())
-                                                                .replace("$yMax", this.fittedBBbox.getYMax().toPlainString())
-                                                                .replace("$sourceCRS", nativeCRS)
-                                                                .replace("$targetCRS", this.outputCRS);
-        }
-
         subsetCollectionExpression = "Scale( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
-        finalCollectionExpressionLayer = "Extend( " + subsetCollectionExpression + ", [" + extendX + ", " + extendY + "] )"; 
+        finalCollectionExpressionLayer = subsetCollectionExpression;
+        
+        // No need to add extend if XY grid domains are as same as Scale() in the final generated rasql query
+        if (!(extendX.equals(scaleX) && extendY.equals(scaleY))) {
+            finalCollectionExpressionLayer = "Extend( " + subsetCollectionExpression + ", [" + extendX + ", " + extendY + "] )"; 
+        }
         
         return finalCollectionExpressionLayer;
     }

@@ -40,8 +40,8 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  * switch
  * case c > 1000 return """{red: 107; green:17; blue:68}"""
  * default return {red: 150; green:103; blue:14}
- * </code> returns  <code>
- * ((107) * {1c,0c,0c,0c} + (17) * {0c,1c,0c,0c} + (68) * {0c,0c,1c})
+ * </code> returns <code>
+ * {107c, 17c, 68c}
  * </code>
  *
  * @author <a href="mailto:bphamhuu@jacobs-university.de">Bang Pham Huu</a>
@@ -49,57 +49,32 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
  */
 @Service
 public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
-
+    
     public WcpsResult handle(Map<String, WcpsResult> fieldStructure) throws PetascopeException {
         List<String> translatedFields = new ArrayList();
-        // {red: 100, green: 100, blue: 20}
-        int i = 0;
-        int maxRange = fieldStructure.size();
-
+        
         List<RangeField> rangeFields = new ArrayList<>();
         for (Map.Entry<String, WcpsResult> entry : fieldStructure.entrySet()) {
             String scalarValue = entry.getValue().getRasql();
-            String scalarRange = getScalarRange(i, maxRange);
 
-            String result = TEMPLATE.replace("$scalarValue", scalarValue)
-                    .replace("$scalarRange", scalarRange);
+            String result = scalarValue;
+            
             translatedFields.add(result);
 
             // we create range field for the coverage metadata
             RangeField rangeField = new RangeField(RangeField.DATA_TYPE, entry.getKey(), "", new ArrayList<NilValue>(),
                     RangeField.UOM_CODE, "", null);
             rangeFields.add(rangeField);
-            i++;
         }
 
         List<NilValue> nilValues = new ArrayList<>();
 
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
         WcpsCoverageMetadata metadata = new WcpsCoverageMetadata(null, null, null, new ArrayList<Axis>(), "", rangeFields, nilValues, "");
-        String rasql = StringUtils.join(translatedFields, " + ");
+        
+        // {red: 100, green: 100, blue: 20} -> {100c, 100c, 20c}
+        String rasql = "{" + StringUtils.join(translatedFields, ", ") + "}";
+        
         return new WcpsResult(metadata, rasql);
     }
-
-    /**
-     * Create range constant (e.g: {1c,0c,0c,0c} according to the index
-     *
-     * @param index
-     * @param maxRange
-     * @return
-     */
-    private String getScalarRange(int index, int maxRange) {
-        List<String> tmp = new ArrayList<>();
-        for (int i = 0; i < maxRange; i++) {
-            if (i == index) {
-                tmp.add("1c");
-            } else {
-                tmp.add("0c");
-            }
-        }
-        String result = StringUtils.join(tmp, ",");
-        return result;
-    }
-
-    // e.g: (107) * {1c,0c,0c,0c}
-    private final String TEMPLATE = "($scalarValue) * { $scalarRange }";
 }

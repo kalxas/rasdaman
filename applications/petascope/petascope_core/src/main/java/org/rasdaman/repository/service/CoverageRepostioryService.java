@@ -411,6 +411,8 @@ public class CoverageRepostioryService {
 
         entityManager.flush();
         entityManager.clear();
+        
+        CoverageRepostioryService.addCrsPrefix(coverage);
 
         // Then add the coverage with abstractCRS SECORE to cache
         // Don't addCrsPrefix now as Hibernate not yet persists the coverage's metadata, so, it will only save the fixed CRSs instead of the abstract CRSs to database.
