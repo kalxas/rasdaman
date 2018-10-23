@@ -2932,7 +2932,13 @@ structSelection: DOT attributeIdent
 	{
 	  if( $2.negative )
 	    if( $2.svalue < 0 )
+	    {
 	      yyerror(mflag, "non negative integer expected");
+	      FREESTACK($1)
+	  	  FREESTACK($2)
+	  	  QueryTree::symtab.wipe();
+	      YYABORT;
+	    }
 	    else
 	      $$ = new QtDot( (unsigned int)$2.svalue );
 	  else
@@ -4499,7 +4505,7 @@ intArray : intLitExp
  */	
 %%  // C code section
 
-void yyerror(void* /*mflag*/, const char* /*s*/ )
+void yyerror(void* /*mflag*/, const char* /*s*/)
 {
   if( !parseError ) {
 
@@ -4509,7 +4515,7 @@ void yyerror(void* /*mflag*/, const char* /*s*/ )
    }
    else {
     // general parse error
-    parseError = new ParseInfo( 300, yytext, lineNo, columnNo - strlen(yytext) ); 
+    parseError = new ParseInfo( 300, yytext, lineNo, columnNo - strlen(yytext) );
    }
   }
 }
