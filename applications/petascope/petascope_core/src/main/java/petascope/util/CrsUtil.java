@@ -918,6 +918,9 @@ public class CrsUtil {
      * @return
      */
     public static String getCode(String crs) {
+        if (crs.contains(EPSG_AUTH + ":")) {
+            return crs.split(":")[1];
+        }
         return CrsUri.getCode(crs);
     }
 

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import org.rasdaman.domain.cis.Coverage;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
@@ -106,32 +107,88 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
     }
     
     /**
+     * Return new List of XY axes from projected GeoTransform (from nativeCRS to output CRS)
+     */
+    public static List<Axis> createGeoXYAxes(List<Axis> inputXYAxes, GeoTransform projectedGeoTransform) {
+        
+        // postive Axis (resolution > 0)
+        Axis inputAxisX = inputXYAxes.get(0);
+        
+        BigDecimal geoLowerBoundX = new BigDecimal(projectedGeoTransform.getUpperLeftGeoX());
+        BigDecimal geoUpperBoundX = new BigDecimal(projectedGeoTransform.getUpperLeftGeoX() 
+                                                     + projectedGeoTransform.getGeoXResolution() * projectedGeoTransform.getGridWidth());
+        NumericSubset geoBoundsX = new NumericTrimming(geoLowerBoundX, geoUpperBoundX);
+        
+        BigDecimal gridLowerBoundX = BigDecimal.ZERO;
+        BigDecimal gridUpperBoundX = new BigDecimal(projectedGeoTransform.getGridWidth() - 1);
+        NumericSubset gridBoundsX = new NumericTrimming(gridLowerBoundX, gridUpperBoundX);
+        
+        BigDecimal geoResolutionX = new BigDecimal(projectedGeoTransform.getGeoXResolution());
+        
+        Axis axisX = new RegularAxis(inputAxisX.getLabel(), geoBoundsX, gridBoundsX, gridBoundsX, inputAxisX.getDirection(), 
+                                    inputAxisX.getNativeCrsUri(), inputAxisX.getCrsDefinition(), inputAxisX.getAxisType(),
+                                    inputAxisX.getAxisUoM(), inputAxisX.getRasdamanOrder(), geoLowerBoundX, geoResolutionX);
+        
+        // negative Axis (resolution < 0)
+        Axis inputAxisY = inputXYAxes.get(1);
+        
+        BigDecimal geoUpperBoundY = new BigDecimal(projectedGeoTransform.getUpperLeftGeoY());
+        BigDecimal geoLowerBoundY = new BigDecimal(projectedGeoTransform.getUpperLeftGeoY() 
+                                                     - Math.abs(projectedGeoTransform.getGeoYResolution()) * projectedGeoTransform.getGridHeight());
+        NumericSubset geoBoundsY = new NumericTrimming(geoLowerBoundY, geoUpperBoundY);
+        
+        BigDecimal gridLowerBoundY = BigDecimal.ZERO;
+        BigDecimal gridUpperBoundY = new BigDecimal(projectedGeoTransform.getGridHeight() - 1);
+        NumericSubset gridBoundsY = new NumericTrimming(gridLowerBoundY, gridUpperBoundY);
+        
+        BigDecimal geoResolutionY = new BigDecimal(projectedGeoTransform.getGeoYResolution());
+        
+        Axis axisY = new RegularAxis(inputAxisY.getLabel(), geoBoundsY, gridBoundsY, gridBoundsY, inputAxisY.getDirection(), 
+                                    inputAxisY.getNativeCrsUri(), inputAxisY.getCrsDefinition(), inputAxisY.getAxisType(),
+                                    inputAxisY.getAxisUoM(), inputAxisY.getRasdamanOrder(), geoLowerBoundY, geoResolutionY);
+        
+        List<Axis> xyAxes = new ArrayList<>();
+        xyAxes.add(axisX);
+        xyAxes.add(axisY);
+        
+        return xyAxes;
+    }
+    
+    /**
+     * Create GDAL GeoTransform object based on XY geo axes
+     */
+    public static GeoTransform createGeoTransform(List<Axis> xyAxes) throws PetascopeException {
+        Axis axisX = xyAxes.get(0);
+        Axis axisY = xyAxes.get(1);
+
+        GeoTransform geoTransform = new GeoTransform();
+        
+        int sourceEPSGCode = new Integer(CrsUtil.getCode(axisX.getNativeCrsUri()));
+        geoTransform.setEPSGCode(sourceEPSGCode);
+        
+        geoTransform.setGeoXResolution(axisX.getResolution().doubleValue());
+        geoTransform.setGeoYResolution(axisY.getResolution().doubleValue());
+        geoTransform.setUpperLeftGeoX(new Double(axisX.getLowerGeoBoundRepresentation()));
+        geoTransform.setUpperLeftGeoY(new Double(axisY.getUpperGeoBoundRepresentation()));
+        
+        int width = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
+        int height = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
+        geoTransform.setGridWidth(width);
+        geoTransform.setGridHeight(height);
+        
+        return geoTransform;
+    }
+    
+    /**
      * Update the values of 2D geo, grid axes of current coverage to the corresponding values in OutputCRS.
      * e.g: coverage with 2 axes in EPSG:4326 Lat, Long order and outputCRS is EPSG:3857 X, Y order.
      */
     private void updateAxesByOutputCRS(WcpsCoverageMetadata covMetadata) throws PetascopeException, SecoreException {
-        List<Axis> axisList = covMetadata.getXYAxes();
-        Axis axisX = axisList.get(0);
-        Axis axisY = axisList.get(1);
+        List<Axis> xyAxes = covMetadata.getXYAxes();        
+        GeoTransform sourceGeoTransform = this.createGeoTransform(xyAxes);
 
-        GeoTransform sourceGeoTransform = new GeoTransform();
-        
-        int sourceEPSGCode = new Integer(CrsUtil.getCode(axisList.get(0).getNativeCrsUri()));
-        sourceGeoTransform.setEPSGCode(sourceEPSGCode);
-        
-        sourceGeoTransform.setGeoXResolution(axisX.getResolution().doubleValue());
-        sourceGeoTransform.setGeoYResolution(axisY.getResolution().doubleValue());
-        sourceGeoTransform.setUpperLeftGeoX(new Double(axisX.getLowerGeoBoundRepresentation()));
-        sourceGeoTransform.setUpperLeftGeoY(new Double(axisY.getUpperGeoBoundRepresentation()));
-        
-        int width = axisX.getGridBounds().getUpperLimit().subtract(axisX.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
-        int height = axisY.getGridBounds().getUpperLimit().subtract(axisY.getGridBounds().getLowerLimit()).toBigInteger().intValue() + 1;
-        sourceGeoTransform.setGridWidth(width);
-        sourceGeoTransform.setGridHeight(height);
-        
-        String outputCRS = covMetadata.getOutputCrsUri();
-        
         // Do the geo transform for this 2D geo, grid domains from source CRS to output CRS by GDAL
+        String outputCRS = covMetadata.getOutputCrsUri();
         GeoTransform targetGeoTransform = CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGeoTransform, outputCRS);
         CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(outputCRS);
         
@@ -153,10 +210,10 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         NumericSubset geoBoundsX = new NumericTrimming(geoLowerBoundX, geoUpperBoundX);
         NumericSubset originalGridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
         NumericSubset gridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
-
-        axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
+        
+        Axis axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
                 AxisTypes.AxisDirection.EASTING, outputCRS, crsDefinition, 
-                firstCRSAxis.getType(), firstCRSAxis.getUoM(), axisX.getRasdamanOrder(), 
+                firstCRSAxis.getType(), firstCRSAxis.getUoM(), xyAxes.get(0).getRasdamanOrder(), 
                 geoLowerBoundX, new BigDecimal(targetGeoTransform.getGeoXResolution()));
         
         BigDecimal geoUpperBoundY = new BigDecimal(targetGeoTransform.getUpperLeftGeoY());
@@ -166,9 +223,9 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         NumericSubset originalGridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
         NumericSubset gridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
 
-        axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
+        Axis axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
                 AxisTypes.AxisDirection.NORTHING, outputCRS, crsDefinition, 
-                secondCRSAxis.getType(), secondCRSAxis.getUoM(), axisY.getRasdamanOrder(), 
+                secondCRSAxis.getType(), secondCRSAxis.getUoM(), xyAxes.get(1).getRasdamanOrder(), 
                 geoLowerBoundY, new BigDecimal(targetGeoTransform.getGeoYResolution()));
         
         List<Axis> targetAxes;

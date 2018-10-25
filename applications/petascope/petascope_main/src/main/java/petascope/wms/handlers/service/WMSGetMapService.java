@@ -24,19 +24,16 @@ package petascope.wms.handlers.service;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.wms.BoundingBox;
 import org.rasdaman.domain.wms.Style;
-import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +43,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
 import petascope.core.CrsDefinition;
+import petascope.core.GeoTransform;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.core.service.CrsComputerService;
@@ -73,13 +71,10 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.JSONUtil;
-import petascope.util.ras.RasConstants;
-import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
-import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
-import petascope.wcps.exception.processing.DeserializationExtraParamsInJsonExcception;
+import petascope.wcps.handler.CrsTransformHandler;
 
 /**
  * Service class to build the response from a WMS GetMap request. In case of a
@@ -157,6 +152,7 @@ public class WMSGetMapService {
     // BBox already translated from requesting CRS to native CRS of XY geo-referenced axes
     // NOTE: it needs to keep the original BBox for Extend() to display result correctly in WMS client
     private BoundingBox originalBBox;
+    
     // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
     // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
     private BoundingBox fittedBBbox;
@@ -189,9 +185,7 @@ public class WMSGetMapService {
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
         String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
         if (!this.outputCRS.equalsIgnoreCase(nativeCRS)) {
-            // First, transform from the request BBox in outputCrs to nativeCrs to calculate the grid bounds on the current coverages
             // e.g: coverage's nativeCRS is EPSG:4326 and request BBox which contains coordinates in EPSG:3857
-            this.originalBBox = this.transformBoundingBox(this.originalBBox, this.outputCRS, nativeCRS);
             this.fittedBBbox = this.transformBoundingBox(this.fittedBBbox, this.outputCRS, nativeCRS);
         }
         
@@ -490,7 +484,7 @@ public class WMSGetMapService {
                 String combinedCollectionExpression = ListUtil.join(collectionExpressionsLayer, OVERLAY);
                 // e.g: (c + 1)[0:20, 30:45]
                 String subsetCollectionExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, combinedCollectionExpression);
-                String finalCollectionExpressionLayer = this.createBBoxGridSpatialDomainsForScaling(layerName, nativeCRS, subsetCollectionExpression);
+                String finalCollectionExpressionLayer = this.createBBoxGridSpatialDomainsForScaling(layerName, subsetCollectionExpression);
                 finalCollectionExpressions.add( " ( " + finalCollectionExpressionLayer + " ) ");
                 i++;
             }
@@ -706,22 +700,32 @@ public class WMSGetMapService {
      * Translate the geo bounding box from the input parameter to grid spatial domains by ****grid axes order****.
      * e.g: if coverage imported as YX (Lat, Long) grid axes order, it should keep this order.
      */
-    private String createBBoxGridSpatialDomainsForScaling(String layerName, String nativeCRS, String subsetCollectionExpression)
+    private String createBBoxGridSpatialDomainsForScaling(String layerName, String subsetCollectionExpression)
                    throws PetascopeException, SecoreException {
         WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
         
-        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
-        Axis axisX = xyAxes.get(0);
-        Axis axisY = xyAxes.get(1);
+        List<Axis> originalXYAxes = wcpsCoverageMetadata.getXYAxes();
+        Axis axisX = originalXYAxes.get(0);
+        Axis axisY = originalXYAxes.get(1);
         
-        String finalCollectionExpressionLayer = "";
+                    
+//      Transform ***layer BBox*** from layer's native CRS to output CRS (default EPSG:4326) as original request BBox is also in EPSG:4326
+        GeoTransform sourceGeoTransformLayerBBox = CrsTransformHandler.createGeoTransform(originalXYAxes);
+        GeoTransform targetGeoTransformLayerBBox = CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGeoTransformLayerBBox, outputCRS);
+            
+        List<Axis> transformedXYAxesLayerBBox = CrsTransformHandler.createGeoXYAxes(originalXYAxes, targetGeoTransformLayerBBox);
         
+        axisX = transformedXYAxesLayerBBox.get(0);
+        axisY = transformedXYAxesLayerBBox.get(1);
+        
+        // Default grid domains for scale, extend if request BBox is within layer's geo bounds.
         String scaleX = "0:" + (this.width - 1);
         String extendX = scaleX;
         
         String scaleY = "0:" + (this.height - 1);
         String extendY = scaleY;
         
+        // If request BBox is not within the layer's geo bounds
         if (! ( (originalBBox.getXMin().compareTo(axisX.getGeoBounds().getLowerLimit()) >= 0)
             && (originalBBox.getXMax().compareTo(axisX.getGeoBounds().getUpperLimit()) <= 0)     
             && (originalBBox.getYMin().compareTo(axisY.getGeoBounds().getLowerLimit()) >= 0)
@@ -799,7 +803,7 @@ public class WMSGetMapService {
             }
         }
         
-        if (xyAxes.get(0).getRasdamanOrder() > xyAxes.get(1).getRasdamanOrder()) {
+        if (originalXYAxes.get(0).getRasdamanOrder() > originalXYAxes.get(1).getRasdamanOrder()) {
             // NOTE: This case is layer imported with YX grid order (e.g: netCDF lat, long) not GeoTiff (long, lat).
             // Hence, it must need swap scale, extend and add transpose in encode to return correct result
             String temp = scaleX;
@@ -812,7 +816,7 @@ public class WMSGetMapService {
         }
         
         subsetCollectionExpression = "Scale( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
-        finalCollectionExpressionLayer = subsetCollectionExpression;
+        String finalCollectionExpressionLayer = subsetCollectionExpression;
         
         // No need to add extend if XY grid domains are as same as Scale() in the final generated rasql query
         if (!(extendX.equals(scaleX) && extendY.equals(scaleY))) {
