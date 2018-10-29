@@ -36,6 +36,7 @@ import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -279,6 +280,10 @@ public class WcpsCoverageMetadataGeneralService {
                         // NOTE: must normalize the inputs with origin first (e.g: for AnsiDate: origin is: 1601-01-01 and input is: 2008-01-01T01:00:02Z)
                         BigDecimal normalizedLowerBound = axis.getGeoBounds().getLowerLimit().subtract(axis.getOriginalOrigin());
                         BigDecimal normalizedUpperBound = axis.getGeoBounds().getUpperLimit().subtract(axis.getOriginalOrigin());
+                        
+                        normalizedLowerBound = normalizedLowerBound.add(((IrregularAxis) axis).getFirstCoefficient());
+                        normalizedUpperBound = normalizedUpperBound.add(((IrregularAxis) axis).getFirstCoefficient());
+                        
                         List<BigDecimal> newCoefficients = ((IrregularAxis) axis).getAllCoefficientsInInterval(normalizedLowerBound, normalizedUpperBound);
                         ((IrregularAxis) axis).setDirectPositions(newCoefficients);
                     }
@@ -932,12 +937,22 @@ public class WcpsCoverageMetadataGeneralService {
             // NOTE: if subsettingCrs is CRS:1, ( e.g: ansi:"CRS:1"(0) ) in irr_cube_2
             // Then the geo bound is the coefficient + axis original origin
             // e.g: test_irr_cube_2, ansi:"CRS:1"(0) then coefficient is 0, the original origin is the dateTime in number from the first date (note the AnsiDate's origin)
-            BigDecimal lowerBound = ((IrregularAxis) axis).getDirectPositions().get(parsedSubset.getLowerLimit().intValue());
-            BigDecimal upperBound = ((IrregularAxis) axis).getDirectPositions().get(parsedSubset.getUpperLimit().intValue());
-            lowerBound = lowerBound.add(axis.getOriginalOrigin());
-            upperBound = upperBound.add(axis.getOriginalOrigin());
+            
+            // e.g: coverage has list of coefficents (-30, -20, -10, -2, 0, 5, 7) and request ansi:"CRS:1"(-1), then the index of -1 in the list is: -3.
+            int lowerCoefficientIndex = ((IrregularAxis) axis).getIndexOfCoefficientZero() + parsedSubset.getLowerLimit().intValue();
+            int upperCoefficientIndex = ((IrregularAxis) axis).getIndexOfCoefficientZero() + parsedSubset.getUpperLimit().intValue();
+            BigDecimal lowerCoefficient = ((IrregularAxis) axis).getDirectPositions().get(lowerCoefficientIndex);
+            BigDecimal upperCoefficient = ((IrregularAxis) axis).getDirectPositions().get(upperCoefficientIndex);
+            
+            // Calculate the distance from this coefficient for CRS:1(GRID_INDEX) to coefficient zero.
+            // (NOTE: coefficient zero can be in random position, not only the first element in list of directPositions)
+            lowerCoefficient = ((IrregularAxis) axis).getFirstCoefficient().abs().add(lowerCoefficient);
+            upperCoefficient = ((IrregularAxis) axis).getFirstCoefficient().abs().add(upperCoefficient);
+            
+            BigDecimal geoLowerBound = lowerCoefficient.add(axis.getOriginalOrigin());
+            BigDecimal geoUpperBound = upperCoefficient.add(axis.getOriginalOrigin());
 
-            translatedSubset = new ParsedSubset<>(lowerBound, upperBound);
+            translatedSubset = new ParsedSubset<>(geoLowerBound, geoUpperBound);
         }
         return translatedSubset;
     }

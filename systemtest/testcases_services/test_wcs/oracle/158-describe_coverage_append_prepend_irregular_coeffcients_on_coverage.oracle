@@ -14,15 +14,15 @@
         <boundedBy>
             <Envelope axisLabels="ansi Lat Long" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-                <lowerCorner>"2003-01-19T00:00:00.000Z" -27.999995546745522493788595271293463301957551 -177.9999988873435326842837274</lowerCorner>
-                <upperCorner>"2003-01-21T00:00:00.000Z" 21.99999888997214484679665738 -166.000012239221140035577190541585535404643609</upperCorner>
+                <lowerCorner>"2003-01-06T00:00:00.000Z" 20.99999811002785515320334262 -167.9999988873435326842837274</lowerCorner>
+                <upperCorner>"2003-01-27T00:00:00.000Z" 21.99999888997214484679665738 -166.0000011126564673157162726</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_append_prepend_irregular_coverage_slice</wcs:CoverageId>
         <coverageFunction>
             <GridFunction>
                 <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-                <startPoint>-1 -17280 0</startPoint>
+                <startPoint>-1 0 0</startPoint>
             </GridFunction>
         </coverageFunction>
         <gmlcov:metadata>
@@ -49,28 +49,28 @@
                  >
                 <limits>
                     <GridEnvelope>
-                        <low>-1 -17280 0</low>
-                        <high>1 719 4319</high>
+                        <low>-1 0 0</low>
+                        <high>1 359 719</high>
                     </GridEnvelope>
                 </limits>
                 <axisLabels>ansi Lat Long</axisLabels>
                 <gmlrgrid:origin>
                     <Point
                         id="test_append_prepend_irregular_coverage_slice-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                        <pos>"2003-01-19T00:00:00.000Z" 21.9986100012377915783682846400835 -177.9986100000000000000000000008345</pos>
+                        <pos>"2003-01-06T00:00:00.000Z" 21.9986099999999999999999999983845 -167.9986100000000000000000000008345</pos>
                     </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
                         <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">1 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2003-01-19T00:00:00.000Z" "2003-01-20T00:00:00.000Z" "2003-01-21T00:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:coefficients>"2003-01-06T00:00:00.000Z" "2003-01-20T00:00:00.000Z" "2003-01-27T00:00:00.000Z"</gmlrgrid:coefficients>
                         <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -0.002777777468706536856745479833 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -0.002777779944289693593314763231 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>

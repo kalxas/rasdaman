@@ -1,1 +1,1 @@
-for c in (test_append_prepend_irregular_coverage_slice) return encode(c[ansi("2003-01-21T00:00:00.000Z"), Lat(20.99999811002785515320334262), Long(-167.9999988873435326842837274)], "application/gml+xml")
+for c in (test_append_prepend_irregular_coverage_slice) return encode(c[ansi("2003-01-27T00:00:00.000Z"), Lat(20.99999811002785515320334262), Long(-167.9999988873435326842837274)], "application/gml+xml")

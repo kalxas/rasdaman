@@ -187,8 +187,16 @@ public class CoordinateTranslationService {
         BigDecimal lowerCoefficient = ((numericSubset.getLowerLimit()).subtract(geoDomainMin)).divide(scalarResolution);
         BigDecimal upperCoefficient = ((numericSubset.getUpperLimit()).subtract(geoDomainMin)).divide(scalarResolution);
         
+        lowerCoefficient = lowerCoefficient.add(irregularAxis.getFirstCoefficient());
+        upperCoefficient = upperCoefficient.add(irregularAxis.getFirstCoefficient());
+        
         // Return the grid indices of the lower and upper coefficients in an irregular axis
         Pair<Long, Long> indices = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
+        
+        // Nomarlize the grid indices based on zeroCoefficient index (always >= 0 from the list of direct positions)
+        // to get correct Rasql grid indices (can be < 0) (!)
+        int coefficientZeroIndex = irregularAxis.getIndexOfCoefficientZero();
+        indices = new Pair<>(indices.fst - coefficientZeroIndex, indices.snd - coefficientZeroIndex);
 
         return new ParsedSubset(indices.fst, indices.snd);
     }
