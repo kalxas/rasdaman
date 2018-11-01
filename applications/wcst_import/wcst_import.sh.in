@@ -25,6 +25,7 @@
 export PETASCOPE_PROPERTIES_PATH="@CONF_DIR@/petascope.properties"
 
 RC_OK=0
+daemon_flag=false
 
 usage()
 {
@@ -38,26 +39,51 @@ Options:
     suppress regular output
   -h, --help
     display this help and exit
+  -d, --daemon
+    run wcst_import.sh as daemon
+    usage: -d|--daemon start|stop|status|restart
 "
   echo "$usage"
   exit $RC_OK
 }
-
 # ----------------------------------------------------------------------------
 # parse command-line options
 # ----------------------------------------------------------------------------
 quiet=false 
-for i in "$@"; do
-    case $i in
+while [ "$1" != "" ]; do
+    case $1 in
       -h|--help)     usage;;
       -q|--quiet)   quiet=true;;
-      *) ingredients_file="$i";;
+      -d|--daemon)
+        daemon_flag=true
+        shift
+        daemon_action="$1";;
+      *) ingredients_file="$1";;
     esac
+    shift
 done
 
-if [[ "$quiet" == true ]]; then
-    # Ignore stdout, redirect stderr to stdout when log level > INFO in wcst_import/.../log.py
-    python @WCST_IMPORT_PY_SCRIPT@ "$ingredients_file" 2>&1 > /dev/null
+# check if the daemon is active for this ingredients_file
+if ps aux | grep -E -v "grep|wcst_import.sh" | grep $ingredients_file > /dev/null
+then
+  daemon_is_active=true
 else
-    python @WCST_IMPORT_PY_SCRIPT@ "$ingredients_file"
+  daemon_is_active=false
+fi
+
+
+
+script=@WCST_IMPORT_DAEMON_PY_SCRIPT@
+if [[ "$daemon_flag" == false ]]; then
+  if [[ "$daemon_is_active" == true ]]; then
+    echo "A daemon instance for this ingredients file is already running; please stop it first."
+    usage
+  fi
+  script=@WCST_IMPORT_PY_SCRIPT@
+fi
+
+if [[ "$quiet" == true ]]; then
+    python $script "$ingredients_file" "$daemon_action" 2>&1 > /dev/null
+else
+    python $script "$ingredients_file" "$daemon_action"
 fi

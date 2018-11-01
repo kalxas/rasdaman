@@ -23,6 +23,7 @@
 if (ENABLE_JAVA)
     set(INSTALL_DIR "${SHARE_DATA_DIR}/wcst_import")
     set(WCST_IMPORT_PY_SCRIPT "${INSTALL_DIR}/wcst_import.py")
+    set(WCST_IMPORT_DAEMON_PY_SCRIPT "${INSTALL_DIR}/wcst_import_daemon.py")
 
     configure_file(wcst_import.sh.in "${CMAKE_CURRENT_BINARY_DIR}/wcst_import.sh" @ONLY)
 
