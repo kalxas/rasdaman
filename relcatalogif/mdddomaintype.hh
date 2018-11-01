@@ -99,7 +99,7 @@ public:
     looks like: \tr_Marray<myBaseType->getTypeName(), myDomain->print_status()\t>
     */
 
-    virtual ~MDDDomainType();
+    virtual ~MDDDomainType() noexcept(false);
     /*@Doc:
     virtual destructor.
     calls validate and deletes myDomain

@@ -87,7 +87,7 @@ SetType::SetType()
     objecttype = OId::SETTYPEOID;
 }
 
-SetType::~SetType()
+SetType::~SetType() noexcept(false)
 {
     validate();
 }

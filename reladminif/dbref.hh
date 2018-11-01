@@ -98,7 +98,7 @@ public:
     Object-constructor, binds smart pointer explicitly to the object ptr.
     */
 
-    ~DBRef(void);
+    ~DBRef(void) noexcept(false);
     /*@Doc:
     Destructor: decrements reference count for the object that was managed by this
     smart pointer.

@@ -63,8 +63,6 @@ void print_stacktrace(void* ucontext)
     // skip first stack frame (points here)
     LINFO << "Segmentation fault caught, stacktrace:";
 
-    printf("\n\nSegmentation fault caught, stacktrace:\n");
-
     for (int i = 3, j = 1; i < size && messages != NULL; ++i, ++j)
     {
         char* mangled_name = 0, *offset_begin = 0, *offset_end = 0;
@@ -105,7 +103,6 @@ void print_stacktrace(void* ucontext)
             if (snprintf(linkname, sizeof(linkname), "/proc/%i/exe", pid) < 0)
             {
                 LERROR << "Error getting binary path for print_stacktrace.";
-                printf("Error getting binary path for print_stackTrace.\n");
             }
 
 
@@ -135,7 +132,6 @@ void print_stacktrace(void* ucontext)
                 LINFO << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
                       << real_name << "+" << offset_begin << offset_end;
                 fflush(stdout);
-                printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
 
             }        // otherwise, output the mangled function name
             else
@@ -143,14 +139,12 @@ void print_stacktrace(void* ucontext)
                 LINFO << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
                       << mangled_name << "+" << offset_begin << offset_end;
                 fflush(stdout);
-                printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
             }
             free(real_name);
         }      // otherwise, print the whole line
         else
         {
             LINFO << "[bt]: (" << j << ") " << messages[i];
-            printf("[bt]: (%d) %s\n", j, messages[i]);
         }
     }
 

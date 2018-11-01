@@ -59,7 +59,7 @@ DBNullvalues::DBNullvalues(const r_Nullvalues& old)
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::~DBNullvalues()
+DBNullvalues::~DBNullvalues() noexcept(false)
 {
     validate();
 }

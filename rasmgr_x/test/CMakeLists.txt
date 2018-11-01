@@ -58,7 +58,7 @@ set(TEST_SOURCES ${TEST_DUMMY_SOURCES} ${TEST_MOCK_SOURCES} ${TEST_UTIL_SOURCES}
 # Include the binary directory where the protobuf files were generated
 add_executable(rasmgr_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 
-target_link_libraries(rasmgr_test rasmgr_lib ${GMOCK_LIBRARY})
+target_link_libraries(rasmgr_test rasmgr_lib common_logging ${GMOCK_LIBRARY})
 
 add_test(rasmgr_testrunner rasmgr_test)
 

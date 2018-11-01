@@ -146,7 +146,7 @@ StructType::operator=(const StructType& old)
     return *this;
 }
 
-StructType::~StructType()
+StructType::~StructType() noexcept(false)
 {
     ObjectBroker::deregisterDBObject(myOId);
     validate();

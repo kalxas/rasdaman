@@ -372,7 +372,16 @@ void
 doStuff();
 
 void
-crash_handler(int sig, siginfo_t* info, void* ucontext);
+crashHandler(int sig, siginfo_t* info, void* ucontext);
+
+void
+cleanupHandler(int sig, siginfo_t* info, void* ucontext);
+
+void
+doNothingHandler(int sig, siginfo_t* info, void* ucontext);
+
+void
+instalDirectqlSignalHandlers();
 
 
 
@@ -580,6 +589,7 @@ closeDatabase()
     if (dbIsOpen)
     {
         LDEBUG << "database was open, closing it";
+        ObjectBroker::clearBroker();
         server->closeDB(DQ_CLIENT_ID);
         delete myAdmin;
         dbIsOpen = false;
@@ -1191,7 +1201,6 @@ void doStuff()
             SECURE_FREE_PTR(marray->domain);
             SECURE_FREE_PTR(marray);
         }
-        ObjectBroker::clearBroker();
         throw err;
     }
 
@@ -1204,13 +1213,57 @@ void doStuff()
 }
 
 void
-crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
-    ObjectBroker::clearBroker();
+    closeDatabase();
     exit(SEGFAULT_EXIT_CODE);
+}
+
+void
+cleanupHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+{
+    static bool handleSignal = true;    // prevent nested signals
+    cerr << "Caught signal " << sig << ": ";
+    if (handleSignal)
+    {
+        handleSignal = false;
+        cerr << "terminating connection to server... ";
+        closeTransaction(false);
+        closeDatabase();
+        cerr << "done, exiting." << endl;
+        exit(sig);
+    }
+    else
+    {
+        cerr << "will be ignored." << endl;
+    }
+}
+
+void
+doNothingHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+{
+}
+
+void
+instalDirectqlSignalHandlers()
+{
+    installSigHandler(cleanupHandler, SIGINT);
+    installSigHandler(cleanupHandler, SIGTERM);
+    installSigHandler(cleanupHandler, SIGQUIT);
+
+    installSigHandler(crashHandler, SIGSEGV);
+    installSigHandler(crashHandler, SIGABRT);
+
+    installSigHandler(doNothingHandler, SIGHUP);
+    installSigHandler(doNothingHandler, SIGPIPE);
+    installSigHandler(doNothingHandler, SIGCONT);
+    installSigHandler(doNothingHandler, SIGTSTP);
+    installSigHandler(doNothingHandler, SIGTTIN);
+    installSigHandler(doNothingHandler, SIGTTOU);
+    installSigHandler(doNothingHandler, SIGWINCH);
 }
 
 INITIALIZE_EASYLOGGINGPP
@@ -1227,7 +1280,7 @@ int main(int argc, char** argv)
 
     int retval = EXIT_SUCCESS; // overall result status
 
-    installSigSegvHandler(crash_handler);
+    instalDirectqlSignalHandlers();
     TileCache::cacheLimit = 0;
 
     try

@@ -173,7 +173,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, con
     mddType = newMDDType;
 }
 
-DBMDDObj::~DBMDDObj()
+DBMDDObj::~DBMDDObj() noexcept(false)
 {
     validate();
     if (myDomain)

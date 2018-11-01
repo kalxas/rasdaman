@@ -148,7 +148,7 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
     ObjectBroker::registerDBObject(this);
 }
 
-BLOBTile::~BLOBTile()
+BLOBTile::~BLOBTile() noexcept(false)
 {
     validate();
 }

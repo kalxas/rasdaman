@@ -159,7 +159,7 @@ public:
         Should raise a r_Error.
     */
 
-    virtual ~DBMDDObj();
+    virtual ~DBMDDObj() noexcept(false);
     /*@Doc:
         Validates the object and deletes the definition domain.
     */

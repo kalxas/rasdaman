@@ -171,12 +171,9 @@ bool Client::isClientAliveOnServers()
 {
     bool isAlive = false;
 
-    map<string, weak_ptr<Server>>::iterator serverIt;
-    map<string, weak_ptr<Server>>::iterator assignedServerToEraseIt;
-
     boost::upgrade_lock<shared_mutex> serversLock(this->assignedServersMutex);
 
-    for (serverIt = this->assignedServers.begin(); !isAlive && serverIt != this->assignedServers.end(); ++serverIt)
+    for (auto serverIt = this->assignedServers.begin(); !isAlive && serverIt != this->assignedServers.end(); ++serverIt)
     {
         if (shared_ptr<Server> server = serverIt->second.lock())
         {
@@ -195,23 +192,21 @@ bool Client::isClientAliveOnServers()
 
 void Client::removeDeadServers()
 {
-    map<string, weak_ptr<Server>>::iterator assignedServerIt;
-    map<string, weak_ptr<Server>>::iterator assignedServerToEraseIt;
-
     unique_lock<shared_mutex> serversLock(this->assignedServersMutex);
-    assignedServerIt = this->assignedServers.begin();
-    while (assignedServerIt != this->assignedServers.end())
+
+    auto serverIt = this->assignedServers.begin();
+    while (serverIt != this->assignedServers.end())
     {
         //Try to aquire a valid pointer to the assigned server
-        shared_ptr<Server> server = assignedServerIt->second.lock();
+        shared_ptr<Server> server = serverIt->second.lock();
 
         //The server is dead,remove it
-        assignedServerToEraseIt = assignedServerIt;
-        ++assignedServerIt;
+        auto serverToEraseIt = serverIt;
+        ++serverIt;
 
         if (!server)
         {
-            this->assignedServers.erase(assignedServerToEraseIt);
+            this->assignedServers.erase(serverToEraseIt);
         }
     }
 }

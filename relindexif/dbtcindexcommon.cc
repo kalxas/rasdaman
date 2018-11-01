@@ -96,7 +96,7 @@ DBTCIndex::printStatus(unsigned int level, std::ostream& stream) const
 }
 
 
-DBTCIndex::~DBTCIndex()
+DBTCIndex::~DBTCIndex() noexcept(false)
 {
     if (!isModified())
     {

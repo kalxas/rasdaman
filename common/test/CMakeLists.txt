@@ -38,6 +38,7 @@ target_link_libraries(common_test
         common_grpc
         common_exceptions
         common_network
+        common_logging
         ${GMOCK_LIBRARY}
         ${Boost_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT})

@@ -53,10 +53,11 @@ using blobfs::BlobFS;
 void
 TransactionIf::begin(bool readOnly)
 {
-    // if a transaction is already started, then commit it first
+    // If a transaction is already started, then abort it first. Normally this shouldn't
+    // happen, so that's why we abort the previous transaction rather than commit.
     if (SQLiteQuery::isTransactionActive())
     {
-        SQLiteQuery::execute("COMMIT TRANSACTION");
+        abort();
     }
     if (readOnly)
         SQLiteQuery::execute("BEGIN TRANSACTION");
@@ -66,6 +67,9 @@ TransactionIf::begin(bool readOnly)
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
     AdminIf::setReadOnlyTA(readOnly);
+
+    OId::initialize();
+    TypeFactory::initialize();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.start();
@@ -81,9 +85,6 @@ TransactionIf::begin(bool readOnly)
     OId::oidResolve.start();
     OId::oidResolve.pause();
 #endif
-
-    OId::initialize();
-    TypeFactory::initialize();
 }
 
 void
@@ -91,19 +92,27 @@ TransactionIf::commit()
 {
     AdminIf::setAborted(false);
     TypeFactory::freeTempTypes();
-    ObjectBroker::clearBroker();
-    OId::deinitialize();
-    AdminIf::setReadOnlyTA(isReadOnly);
 
     try
     {
+        ObjectBroker::clearBroker();
+        OId::deinitialize();
+        AdminIf::setReadOnlyTA(isReadOnly);
+
         BlobFS::getInstance().preRasbaseCommit();
         SQLiteQuery::execute("COMMIT TRANSACTION");
     }
-    catch (r_Error& err)
+    catch (const r_Error& err)
     {
+        LERROR << "Commit failed: " << err.what() << "; aborting transaction.";
         abort();
         throw err;
+    }
+    catch (...)
+    {
+        LERROR << "Commit failed, aborting transaction.";
+        abort();
+        throw;
     }
 
     BlobFS::getInstance().postRasbaseCommit();
@@ -129,15 +138,25 @@ TransactionIf::abort()
 {
     AdminIf::setAborted(true);
     TypeFactory::freeTempTypes();
-    ObjectBroker::clearBroker();
-    OId::deinitialize();
+
+    try
+    {
+        ObjectBroker::clearBroker();
+    }
+    catch (...)
+    {
+        LWARNING << "Clearing object broker failed during transaction abort.";
+    }
+
     AdminIf::setReadOnlyTA(false);
 
     if (SQLiteQuery::isTransactionActive())
     {
         SQLiteQuery::execute("ROLLBACK TRANSACTION");
     }
+
     BlobFS::getInstance().postRasbaseAbort();
+
     if (lastBase)
     {
         lastBase->baseDBMSClose();

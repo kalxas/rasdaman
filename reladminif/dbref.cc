@@ -140,7 +140,7 @@ DBRef<T>::DBRef(T* newPtr)
 
 
 template <class T>
-DBRef<T>::~DBRef(void)
+DBRef<T>::~DBRef(void) noexcept(false)
 {
     if ((object != 0) && pointerCaching)
     {

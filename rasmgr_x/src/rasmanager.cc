@@ -79,12 +79,8 @@ void RasManager::start()
 
     if (common::GrpcUtils::isPortBusy(DEFAULT_HOSTNAME, this->port))
     {
-        std::ostringstream error;
-
-        error << "Failed to start rasmanager on port '"
-              << this->port
-              << "': address is already in use.";
-        throw common::ResourceBusyException(error.str());
+        throw common::ResourceBusyException(
+                "Failed to start rasmanager on port " + std::to_string(this->port) + ": address is already in use.");
     }
 
     shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
@@ -110,7 +106,6 @@ void RasManager::start()
     this->configManager->loadConfiguration();
     LINFO << "Finished loading rasmgr configuration.";
 
-
     boost::shared_ptr<rasnet::service::RasMgrRasServerService::Service> serverManagementService(new rasmgr::ServerManagementService(serverManager));
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService::Service> rasctrlService(new rasmgr::ControlService(commandExecutor));
     boost::shared_ptr<rasnet::service::RasmgrClientService::Service> clientService(new rasmgr::ClientManagementService(clientManager));
@@ -118,7 +113,6 @@ void RasManager::start()
 
     //The health service will only be used to report on the health of the server.
     boost::shared_ptr<common::HealthServiceImpl> healthService(new common::HealthServiceImpl());
-
 
     std::string serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
     //GreeterServiceImpl service;
@@ -133,7 +127,6 @@ void RasManager::start()
     builder.RegisterService(serverManagementService.get());
     builder.RegisterService(rasctrlService.get());
     builder.RegisterService(rasmgrService.get());
-
     builder.RegisterService(healthService.get());
 
     this->running = true;
@@ -142,12 +135,7 @@ void RasManager::start()
     
     if (this->server == nullptr)
     {
-        std::ostringstream error;
-
-        error << "Failed to start rasmanager on port '"
-              << this->port
-              << "'.";
-        throw common::Exception(error.str());
+        throw common::Exception("Failed to start rasmanager on port " + std::to_string(this->port) + ".");
     }
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.

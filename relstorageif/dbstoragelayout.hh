@@ -135,7 +135,7 @@ public:
     //@Man: Destruction
     //@{
     ///
-    ~DBStorageLayout();
+    ~DBStorageLayout() noexcept(false);
     //@}
 
 protected:

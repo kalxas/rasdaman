@@ -2011,7 +2011,7 @@ void RasnetClientComm::startRasMgrKeepAlive()
 
     //TODO-GM
     this->isRasmgrKeepAliveRunning = true;
-    this->rasMgrKeepAliveManagementThread.reset(new thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
+    this->rasMgrKeepAliveManagementThread.reset(new boost::thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
 
 }
 
@@ -2115,7 +2115,7 @@ void RasnetClientComm::startRasServerKeepAlive()
 
     this->isRasserverKeepAliveRunning = true;
     this->rasServerKeepAliveManagementThread.reset(
-        new thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
+        new boost::thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
 }
 
 void RasnetClientComm::stopRasServerKeepAlive()

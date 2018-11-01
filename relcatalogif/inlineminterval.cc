@@ -40,7 +40,6 @@ InlineMinterval::InlineMinterval()
 
 InlineMinterval::~InlineMinterval()
 {
-    LTRACE << "~InlineMinterval()";
 }
 
 InlineMinterval::InlineMinterval(r_Dimension dim)

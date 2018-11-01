@@ -86,7 +86,7 @@ public:
         is carried.
     */
 
-    ~KeyObject();
+    ~KeyObject() noexcept(false);
     /*@Doc:
         Does not delete the TransTile!!
     */

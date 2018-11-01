@@ -167,9 +167,7 @@ void ServerRasNet::startProcess()
 
         std::vector<std::string> commandVec;
 
-        for (boost::tokenizer<boost::char_separator<char>>::iterator it = tokens.begin();
-                it != tokens.end();
-                ++it)
+        for (auto it = tokens.begin(); it != tokens.end(); ++it)
         {
             commandVec.push_back((*it));
         }
@@ -189,8 +187,7 @@ void ServerRasNet::startProcess()
 
         if (execv(RASEXECUTABLE, commandArr) == -1)
         {
-            LERROR << "Starting RasServer  process failed." << strerror(errno);
-
+            LERROR << "Starting server process failed: " << strerror(errno);
             exit(EXIT_FAILURE);
         }
 
@@ -219,32 +216,22 @@ bool ServerRasNet::isAlive()
     bool result = false;
 
     unique_lock<shared_mutex> lock(this->stateMtx);
-    if (this->started)
+    if (this->started && isProcessAlive())
     {
-        //Remove the process from the process table if it has died.
-        int status;
-        waitpid(this->processId, &status, WNOHANG);
-
-        //Check if the process is still running
-        bool isProcessAlive = (kill(this->processId, 0) == 0);
-
         // If the process is alive and the server is responding.
-        if (isProcessAlive)
-        {
-            ServerStatusReq request = ServerStatusReq::default_instance();
-            ServerStatusRepl reply;
+        ServerStatusReq request = ServerStatusReq::default_instance();
+        ServerStatusRepl reply;
 
-            // Set timeout for API
-            ClientContext context;
-            this->configureClientContext(context);
+        // Set timeout for API
+        ClientContext context;
+        this->configureClientContext(context);
 
-            LDEBUG << "Check if server:" << this->serverId << " is alive";
-            Status callStatus = this->service->GetServerStatus(&context, request, &reply);
+        LDEBUG << "Check if server with ID " << this->serverId << " is alive";
+        Status callStatus = this->service->GetServerStatus(&context, request, &reply);
 
-            //If the communication has not failed, the server is alive
-            result = callStatus.ok();
-            LDEBUG << "Server with ID" << this->serverId << " alive status:" << result;
-        }
+        //If the communication has not failed, the server is alive
+        result = callStatus.ok();
+        LDEBUG << "Server with ID" << this->serverId << " alive status:" << result;
     }
 
     return result;
@@ -378,47 +365,50 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
 
 void ServerRasNet::stop(KillLevel level)
 {
-    switch (level)
+    if (isProcessAlive())
     {
-    case KillLevel::FORCE:
-    {
-        if (kill(this->processId, SIGTERM))
+        switch (level)
         {
-            LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
-        }
-    }
-    break;
-
-    case KillLevel::KILL:
-    {
-        if (kill(this->processId, SIGTERM))
+        case KillLevel::FORCE:
         {
-            LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
-        }
-
-        // wait until the server process is dead
-        boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
-        while (cleanupTimeout > 0 && isProcessAlive(this->processId))
-        {
-            usleep(SERVER_CHECK_INTERVAL);
-            cleanupTimeout -= SERVER_CHECK_INTERVAL;
-        }
-
-        // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
-        if (isProcessAlive(this->processId))
-        {
-            if (kill(this->processId, SIGKILL))
+            if (kill(this->processId, SIGTERM))
             {
-                LERROR << "Failed to send SIGKILL to server with ID:" << this->serverId;
+                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
             }
         }
-    }
-    break;
-    default:
+        break;
 
-        if (kill(this->processId, SIGTERM))
+        case KillLevel::KILL:
         {
-            LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
+            if (kill(this->processId, SIGTERM))
+            {
+                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
+            }
+
+            // wait until the server process is dead
+            boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
+            while (cleanupTimeout > 0 && isProcessAlive())
+            {
+                usleep(SERVER_CHECK_INTERVAL);
+                cleanupTimeout -= SERVER_CHECK_INTERVAL;
+            }
+
+            // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
+            if (isProcessAlive())
+            {
+                if (kill(this->processId, SIGKILL))
+                {
+                    LERROR << "Failed to send SIGKILL to server with ID:" << this->serverId;
+                }
+            }
+        }
+        break;
+        default:
+
+            if (kill(this->processId, SIGTERM))
+            {
+                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
+            }
         }
     }
 
@@ -446,7 +436,14 @@ bool ServerRasNet::isFree()
     }
     else
     {
-        this->allocatedClientsNo = this->getClientQueueSize();
+        try
+        {
+            this->allocatedClientsNo = this->getClientQueueSize();
+        }
+        catch (...)
+        {
+            return false;
+        }
         return (this->allocatedClientsNo == 0);
     }
 }
@@ -464,7 +461,14 @@ bool ServerRasNet::isAvailable()
     }
     else
     {
-        this->allocatedClientsNo = this->getClientQueueSize();
+        try
+        {
+            this->allocatedClientsNo = this->getClientQueueSize();
+        }
+        catch (...)
+        {
+            return false;
+        }
         return (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer());
     }
 }
@@ -603,10 +607,11 @@ const char* ServerRasNet::convertDatabRights(const UserDatabaseRights& dbRights)
     return buffer;
 }
 
-bool ServerRasNet::isProcessAlive(pid_t pid) const
+bool ServerRasNet::isProcessAlive() const
 {
     int status;
-    return waitpid(pid, &status, WNOHANG) == 0;
+    waitpid(processId, &status, WNOHANG) == 0;
+    return kill(processId, 0) == 0;
 }
 
 }

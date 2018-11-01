@@ -158,7 +158,7 @@ MDDDimensionType::getDimension() const
     return myDimension;
 }
 
-MDDDimensionType::~MDDDimensionType()
+MDDDimensionType::~MDDDimensionType() noexcept(false)
 {
     validate();
 }

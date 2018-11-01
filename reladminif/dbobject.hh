@@ -81,7 +81,7 @@ public:
     is allowed to.
     */
 
-    virtual ~DBObject();
+    virtual ~DBObject() noexcept(false);
     /*@Doc:
     deregisters this object with the ObjectBroker.
     the oid is not invalidated to allow the ObjectBroker to kill it.

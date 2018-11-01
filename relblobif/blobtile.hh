@@ -119,7 +119,7 @@ public:
 
     //@}
 
-    virtual ~BLOBTile();
+    virtual ~BLOBTile() noexcept(false);
     /*@Doc:
     validates the object.  deletes it cells.
     */

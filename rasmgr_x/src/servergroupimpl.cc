@@ -332,7 +332,6 @@ bool ServerGroupImpl::hasAvailableServers()
     {
         try
         {
-
             if ((*runningServer)->isAvailable())
             {
                 result = true;
@@ -469,10 +468,10 @@ void ServerGroupImpl::evaluateRestartingServers()
             restartingServerToEraseIt = restartingServerIt;
             ++restartingServerIt;
 
-            if ((*restartingServerToEraseIt)->isFree())
+            try
             {
-                try
-                {
+              if ((*restartingServerToEraseIt)->isFree())
+              {
                     (*restartingServerToEraseIt)->stop(KILL);
                     LDEBUG << "Stopping server with ID:" << (*restartingServerToEraseIt)->getServerId()
                            << " because it has to be restarted.";
@@ -482,19 +481,17 @@ void ServerGroupImpl::evaluateRestartingServers()
                     //restart the server
                     this->restartingServers.erase(restartingServerToEraseIt);
                 }
-                catch (std::exception& ex)
-                {
-                    LERROR << "Failed to kill server with ID"
-                           << (*restartingServerToEraseIt)->getServerId()
-                           << " reason:" << ex.what();
-
-                }
-                catch (...)
-                {
-                    LERROR << "Failed to kill server with ID"
-                           << (*restartingServerToEraseIt)->getServerId()
-                           << " for unknown reason.";
-                }
+            }
+            catch (std::exception& ex)
+            {
+                LERROR << "Failed to kill server with ID"
+                       << (*restartingServerToEraseIt)->getServerId()
+                   << ", reason:" << ex.what();
+            }
+            catch (...)
+            {
+                LERROR << "Failed to kill server with ID"
+                   << (*restartingServerToEraseIt)->getServerId();
             }
         }
     }
@@ -510,52 +507,55 @@ void ServerGroupImpl::removeDeadServers()
 {
     LTRACE << "Started removing dead servers in group(" << this->getGroupName() << ");";
 
-    map<string, pair<shared_ptr<Server>, Timer>>::iterator startingIt;
-    map<string, pair<shared_ptr<Server>, Timer>>::iterator startingToEraseIt;
-
-    list<shared_ptr<Server>>::iterator runningIt;
-    list<shared_ptr<Server>>::iterator runningToErase;
-
     /**
       1.Remove servers that have failed to register in the allocated time.
       2.Remove servers that are no longer responding to pings
       */
     try
     {
-        runningIt = this->runningServers.begin();
+        auto runningIt = this->runningServers.begin();
         while (runningIt != this->runningServers.end())
         {
-            runningToErase = runningIt;
+            auto runningToErase = runningIt;
             ++runningIt;
 
+            bool processIsDead{};
             try
             {
-                if (!(*runningToErase)->isAlive())
+                processIsDead = !(*runningToErase)->isAlive();
+            }
+            catch (...)
+            {
+                processIsDead = true;
+                LWARNING << "Server with id " << (*runningToErase)->getServerId() << " is not responding to pings; will be stopped.";
+            }
+            if (processIsDead)
+            {
+                try
                 {
-                    LTRACE << "Removed dead server with id:" << (*runningToErase)->getServerId();
+                    LTRACE << "Removing dead server with id: " << (*runningToErase)->getServerId();
                     (*runningToErase)->stop(KILL);
                     this->availablePorts.insert((*runningToErase)->getPort());
                     this->runningServers.erase(runningToErase);
                 }
-            }
-            catch (...)
-            {
-                LTRACE << "Server with id: " << (*runningToErase)->getServerId() << " is not responding to pings.";
+                catch (...)
+                {
+                    LERROR << "Failed to stop server " << (*runningToErase)->getServerId() << ".";
+                }
             }
         }
 
-        startingIt = this->startingServers.begin();
+        auto startingIt = this->startingServers.begin();
         while (startingIt != this->startingServers.end())
         {
-            startingToEraseIt = startingIt;
+            auto startingToEraseIt = startingIt;
             ++startingIt;
 
             try
             {
                 if (startingToEraseIt->second.second.hasExpired())
                 {
-                    LTRACE << "Removed server that failed to start with id:" << startingToEraseIt->second.first->getServerId();
-
+                    LTRACE << "Removing server that failed to start with id:" << startingToEraseIt->second.first->getServerId();
                     startingToEraseIt->second.first->stop(KILL);
                     this->availablePorts.insert(startingToEraseIt->second.first->getPort());
                     this->startingServers.erase(startingToEraseIt);
@@ -563,7 +563,7 @@ void ServerGroupImpl::removeDeadServers()
             }
             catch (...)
             {
-                LTRACE << "Server with id: " << (*runningToErase)->getServerId() << " is not responding to pings.";
+                LTRACE << "Server with id: " << startingToEraseIt->second.first->getServerId() << " is not responding to pings.";
             }
         }
     }

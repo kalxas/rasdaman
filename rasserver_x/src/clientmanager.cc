@@ -193,8 +193,7 @@ void ClientManager::evaluateClientStatus()
         }
         catch (std::exception& ex)
         {
-            LERROR << "Client management thread has failed";
-            LERROR << ex.what();
+            LERROR << "Client management thread has failed, reason: " << ex.what();
         }
         catch (...)
         {

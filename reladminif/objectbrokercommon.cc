@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include <set>
 #include <cstring>
 #include <cstdlib>
+#include <cassert>
 #include <malloc.h>
 
 #include "raslib/minterval.hh"
@@ -57,6 +58,9 @@ template class DBRef<InlineTile>;
 #endif
 
 using namespace std;
+
+OId::OIdType
+ObjectBroker::clearingObjectsOfType = OId::INVALID;
 
 LongType*
 ObjectBroker::theLong = 0;
@@ -148,16 +152,16 @@ ObjectBroker::theTileIndexMappings;
 bool
 ObjectBroker::freeMemory()
 {
-    LTRACE << "memoryOverFlow()";
+    LTRACE << "memory overflow: attempting to remove a blob tile to free memory.";
     bool retval = false;
     DBRef<BLOBTile>::setPointerCaching(false);
     DBRef<DBTile>::setPointerCaching(false);
     DBRef<InlineTile>::setPointerCaching(false);
     if (!ObjectBroker::theBLOBTiles.empty())
     {
-        int theLucky = ObjectBroker::theBLOBTiles.size() / 2;
+        int indexToDelete = ObjectBroker::theBLOBTiles.size() / 2;
         DBObjectPMap::iterator it = ObjectBroker::theBLOBTiles.begin();
-        for (int i = 0; i < theLucky; i++, it++);
+        std::advance(it, indexToDelete);
         delete(*it).second;
         retval = true;
     }
@@ -167,29 +171,22 @@ ObjectBroker::freeMemory()
 void
 ObjectBroker::init()
 {
+    LTRACE << "initializing object caches";
     ObjectBroker::theLong = new LongType();
-
     ObjectBroker::theShort = new ShortType();
-
     ObjectBroker::theOctet = new OctetType();
-
     ObjectBroker::theULong = new ULongType();
-
     ObjectBroker::theUShort = new UShortType();
-
     ObjectBroker::theChar = new CharType();
-
     ObjectBroker::theBool = new BoolType();
-
     ObjectBroker::theDouble = new DoubleType();
-
     ObjectBroker::theFloat = new FloatType();
-
     ObjectBroker::theComplex1 = new ComplexType1();
-
     ObjectBroker::theComplex2 = new ComplexType2();
 
-    DBObject* atomicTypes[] = {theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort, theLong, theUShort, theBool, theChar, theULong};
+    DBObject *atomicTypes[] =
+        {theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort,
+         theLong, theUShort, theBool, theChar, theULong};
 #ifdef DEBUG
     if (sizeof(atomicTypes) / sizeof(DBObject*) != TypeFactory::MaxBuiltInId)
     {
@@ -207,410 +204,258 @@ ObjectBroker::init()
 void
 ObjectBroker::deinit()
 {
-    LTRACE << "deinit()";
-    if (ObjectBroker::theLong != 0)
-    {
-        delete ObjectBroker::theLong;
-        ObjectBroker::theLong = 0;
-    }
+    LTRACE << "deinitializing object caches";
+    delete ObjectBroker::theLong; ObjectBroker::theLong = NULL;
+    delete ObjectBroker::theShort; ObjectBroker::theShort = NULL;
+    delete ObjectBroker::theOctet; ObjectBroker::theOctet = NULL;
+    delete ObjectBroker::theULong; ObjectBroker::theULong = NULL;
+    delete ObjectBroker::theUShort; ObjectBroker::theUShort = NULL;
+    delete ObjectBroker::theChar; ObjectBroker::theChar = NULL;
+    delete ObjectBroker::theBool; ObjectBroker::theBool = NULL;
+    delete ObjectBroker::theDouble; ObjectBroker::theDouble = NULL;
+    delete ObjectBroker::theFloat; ObjectBroker::theFloat = NULL;
+    delete ObjectBroker::theComplex1; ObjectBroker::theComplex1 = NULL;
+    delete ObjectBroker::theComplex2; ObjectBroker::theComplex2 = NULL;
 
-    if (ObjectBroker::theShort != 0)
-    {
-        delete ObjectBroker::theShort;
-        ObjectBroker::theShort = 0;
-    }
-
-    if (ObjectBroker::theOctet != 0)
-    {
-        delete ObjectBroker::theOctet;
-        ObjectBroker::theOctet = 0;
-    }
-
-    if (ObjectBroker::theULong != 0)
-    {
-        delete ObjectBroker::theULong;
-        ObjectBroker::theULong = 0;
-    }
-
-    if (ObjectBroker::theUShort != 0)
-    {
-        delete ObjectBroker::theUShort;
-        ObjectBroker::theUShort = 0;
-    }
-
-    if (ObjectBroker::theChar != 0)
-    {
-        delete ObjectBroker::theChar;
-        ObjectBroker::theChar = 0;
-    }
-
-    if (ObjectBroker::theBool != 0)
-    {
-        delete ObjectBroker::theBool;
-        ObjectBroker::theBool = 0;
-    }
-
-    if (ObjectBroker::theDouble != 0)
-    {
-        delete ObjectBroker::theDouble;
-        ObjectBroker::theDouble = 0;
-    }
-
-    if (ObjectBroker::theFloat != 0)
-    {
-        delete ObjectBroker::theFloat;
-        ObjectBroker::theFloat = 0;
-    }
-
-    if (ObjectBroker::theComplex1 != 0)
-    {
-        delete ObjectBroker::theComplex1;
-        ObjectBroker::theComplex1 = 0;
-    }
-
-    if (ObjectBroker::theComplex2 != 0)
-    {
-        delete ObjectBroker::theComplex2;
-        ObjectBroker::theComplex2 = 0;
-    }
-
+    // clear maps and other datastructures, in order from "simplest" to more complex objects
     theAtomicTypes.clear();
-
-    theSetTypes.clear();
-
-    theMDDTypes.clear();
-
-    theMDDBaseTypes.clear();
-
-    theMDDDimensionTypes.clear();
-
-    theMDDDomainTypes.clear();
-
     theStructTypes.clear();
-
+    theSetTypes.clear();
     theDBMintervals.clear();
-
     theDBNullvalues.clear();
 
-    theDBMDDObjs.clear();
+    theMDDTypes.clear();
+    theMDDBaseTypes.clear();
+    theMDDDimensionTypes.clear();
+    theMDDDomainTypes.clear();
 
+    theBLOBTiles.clear();
+    theInlineTiles.clear();
+
+    theDBMDDObjs.clear();
     theMDDSets.clear();
 
     theDBStorages.clear();
-
     theDBHierIndexs.clear();
-
     theDBTCIndexs.clear();
-
-    theBLOBTiles.clear();
-
-    theInlineTiles.clear();
-
     theRCIndexes.clear();
-
     theTileIndexMappings.clear();
 }
 
 DBObject*
 ObjectBroker::getObjectByOId(const OId& id)
 {
-    DBObject* retval = 0;
     if (id.getType() == OId::INVALID)
-    {
-        retval = 0;
-    }
-    else
-    {
-        retval = ObjectBroker::isInMemory(id);
-        if (retval == 0)
-        {
-            // TODO: check if we have enough memory available, if not, remove
-            // some not used objects from memory before loading from the DB
-            switch (id.getType())
-            {
-            case OId::MDDOID:
-                retval = loadDBMDDObj(id);
-                break;
-            case OId::MDDCOLLOID:
-                retval = loadMDDSet(id);
-                break;
-            case OId::MDDTYPEOID:
-                retval = loadMDDType(id);
-                break;
-            case OId::MDDBASETYPEOID:
-                retval = loadMDDBaseType(id);
-                break;
-            case OId::MDDDIMTYPEOID:
-                retval = loadMDDDimensionType(id);
-                break;
-            case OId::MDDDOMTYPEOID:
-                retval = loadMDDDomainType(id);
-                break;
-            case OId::STRUCTTYPEOID:
-                retval = loadStructType(id);
-                break;
-            case OId::SETTYPEOID:
-                retval = loadSetType(id);
-                break;
-            case OId::BLOBOID:
-                retval = loadBLOBTile(id);
-                break;
-            case OId::DBMINTERVALOID:
-                retval = loadDBMinterval(id);
-                break;
-            case OId::DBNULLVALUESOID:
-                retval = loadDBNullvalues(id);
-                break;
-            case OId::STORAGEOID:
-                retval = loadDBStorage(id);
-                break;
-            case OId::MDDHIERIXOID:
-                retval = loadDBHierIndex(id);
-                break;
-            case OId::DBTCINDEXOID:
-                retval = loadDBTCIndex(id);
-                break;
-            case OId::INLINETILEOID:
-                retval = loadInlineTile(id);
-                break;
-            case OId::MDDRCIXOID:
-                retval = loadDBRCIndexDS(id);
-                break;
-            case OId::ATOMICTYPEOID:
-                LERROR << "Atomic type not found in memory.";
-            default:
-                LERROR << "Retrival of Object Failed (Internal State 3).\n" << "Please contact Customer Support.";
-                throw r_Error(INVALID_OIDTYPE);
-                break;
-            }
-        }
-    }
-    return retval;
-}
+        return NULL;                // invalid OId, can't return any valid object
 
+    auto *cached = ObjectBroker::isInMemory(id);
+    if (cached)
+        return cached;              // return already cached
+    else
+        return loadObjectByOId(id); // not cached, have to load it from the database
+}
 
 DBObject*
 ObjectBroker::isInMemory(const OId& id)
 {
+    assert(id.getType() != OId::INVALID);
+
     DBObject* retval = 0;
     DBObjectPMap& theMap = ObjectBroker::getMap(id.getType());
-    DBObjectPMap::iterator i = theMap.find(id);
+    auto i = theMap.find(id);
     if (i != theMap.end())
     {
         retval = (*i).second;
-        LTRACE << "found object with that id in map at " << (unsigned long)retval << " with id " << retval->getOId();
+        LTRACE << "object with id " << id << " is cached in memory.";
     }
     else
     {
-        LTRACE << "did not find object with that id in map";
+        LTRACE << "object with id " << id << " is not cached in memory.";
     }
     return retval;
+}
+
+DBObject*
+ObjectBroker::loadObjectByOId(const OId& id)
+{
+    assert(id.getType() != OId::INVALID);
+
+    // Will iterate as long as:
+    //  1. object is successfully loaded and returned
+    //  2. object failed loading due to insufficient memory, and it was possible to free some of the cached memory
+    //
+    // Bottom line: this depends on ObjectBroker::freeMemory() working properly, i.e. returning true only when it
+    //              really managed to remove some cached object. So long as that is correct, the loop will terminate,
+    //              as there is a finite number of cached objects.
+    while (true)
+    {
+        try
+        {
+            // the cases exit the function, either via return or through an exception
+            switch (id.getType())
+            {
+                case OId::MDDOID:         return loadDBMDDObj(id);
+                case OId::MDDCOLLOID:     return loadMDDSet(id);
+                case OId::MDDTYPEOID:     return loadMDDType(id);
+                case OId::MDDBASETYPEOID: return loadMDDBaseType(id);
+                case OId::MDDDIMTYPEOID:  return loadMDDDimensionType(id);
+                case OId::MDDDOMTYPEOID:  return loadMDDDomainType(id);
+                case OId::STRUCTTYPEOID:  return loadStructType(id);
+                case OId::SETTYPEOID:     return loadSetType(id);
+                case OId::BLOBOID:        return loadBLOBTile(id);
+                case OId::DBMINTERVALOID: return loadDBMinterval(id);
+                case OId::DBNULLVALUESOID:return loadDBNullvalues(id);
+                case OId::STORAGEOID:     return loadDBStorage(id);
+                case OId::MDDHIERIXOID:   return loadDBHierIndex(id);
+                case OId::DBTCINDEXOID:   return loadDBTCIndex(id);
+                case OId::INLINETILEOID:  return loadInlineTile(id);
+                case OId::MDDRCIXOID:     return loadDBRCIndexDS(id);
+                case OId::ATOMICTYPEOID:  LERROR << "Atomic type not found in memory.";
+                default:
+                {
+                    LERROR << "Retrival of object failed, invalid object type: " << id.getType();
+                    throw r_Error(INVALID_OIDTYPE);
+                }
+            }
+        }
+        catch (const std::bad_alloc &ex)
+        {
+            // failed allocating memory: free some, and if successful retry loading again
+            if (!ObjectBroker::freeMemory())
+            {
+                LERROR << "Not enough memory to load object with OId " << id << "; freeing all cached memory did not help.";
+                throw ex;
+            }
+            else
+            {
+                // it's good to have this here as a debug statement, in case freeMemory() is faulty this will help
+                // catch the infinite loop
+                LDEBUG << "Not enough memory to load object with OId " << id << "; successfully freed some cached memory, retrying.";
+            }
+        }
+    }
 }
 
 void
 ObjectBroker::registerDBObject(DBObject* obj)
 {
-    DBObjectPPair myPair(obj->getOId(), obj);
-    ObjectBroker::getMap(obj->getOId().getType()).insert(myPair);
+    DBObjectPMap& t = ObjectBroker::getMap(obj->getOId().getType());
+    t.emplace(obj->getOId(), obj);
 }
 
 void
 ObjectBroker::deregisterDBObject(const OId& id)
 {
-    if (id.getType() != OId::INVALID)
+    if (id.getType() != OId::INVALID && id.getType() != clearingObjectsOfType)
     {
-        LTRACE << "size of map before\t: " << ObjectBroker::getMap(id.getType()).size();
         DBObjectPMap& t = ObjectBroker::getMap(id.getType());
-        DBObjectPMap::iterator i = t.find(id);
+        auto i = t.find(id);
         if (i != t.end())
         {
             (*i).second = 0;
-            t.erase(i);
+            i = t.erase(i);
         }
-        LTRACE << "size of map after \t: " << ObjectBroker::getMap(id.getType()).size();
     }
 }
 
 OIdSet*
 ObjectBroker::getAllObjects(OId::OIdType type)
 {
-    OIdSet* retval = 0;
     switch (type)
     {
-    case OId::MDDCOLLOID:
-        retval = getAllMDDSets();
-        break;
-    case OId::MDDOID:
-        retval = getAllMDDObjects();
-        break;
-    case OId::MDDTYPEOID:
-        retval = getAllMDDTypes();
-        break;
-    case OId::MDDBASETYPEOID:
-        retval = getAllMDDBaseTypes();
-        break;
-    case OId::MDDDIMTYPEOID:
-        retval = getAllMDDDimensionTypes();
-        break;
-    case OId::MDDDOMTYPEOID:
-        retval = getAllMDDDomainTypes();
-        break;
-    case OId::STRUCTTYPEOID:
-        retval = getAllStructTypes();
-        break;
-    case OId::SETTYPEOID:
-        retval = getAllSetTypes();
-        break;
-    case OId::ATOMICTYPEOID:
-        retval = getAllAtomicTypes();
-        break;
-
-    default:
-        LTRACE << "getAllObjects(" << type << ")";
-        LERROR << "Retrival of Object Failed (Internal State 4).\n" << "Please contact Customer Support.";
+    case OId::MDDCOLLOID:     return getAllMDDSets();
+    case OId::MDDOID:         return getAllMDDObjects();
+    case OId::MDDTYPEOID:     return getAllMDDTypes();
+    case OId::MDDBASETYPEOID: return getAllMDDBaseTypes();
+    case OId::MDDDIMTYPEOID:  return getAllMDDDimensionTypes();
+    case OId::MDDDOMTYPEOID:  return getAllMDDDomainTypes();
+    case OId::STRUCTTYPEOID:  return getAllStructTypes();
+    case OId::SETTYPEOID:     return getAllSetTypes();
+    case OId::ATOMICTYPEOID:  return getAllAtomicTypes();
+    default: {
+        LERROR << "Retrival of all cached objects of type " << type << " failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
-        break;
     }
-    return retval;
+    }
 }
 
 
 OId
 ObjectBroker::getOIdByName(OId::OIdType type, const char* name)
 {
-    OId id;
     switch (type)
     {
-    case OId::MDDCOLLOID:
-        id = getOIdOfMDDSet(name);
-        break;
-    case OId::MDDTYPEOID:
-        id = getOIdOfMDDType(name);
-        break;
-    case OId::MDDBASETYPEOID:
-        id = getOIdOfMDDBaseType(name);
-        break;
-    case OId::MDDDIMTYPEOID:
-        id = getOIdOfMDDDimensionType(name);
-        break;
-    case OId::MDDDOMTYPEOID:
-        id = getOIdOfMDDDomainType(name);
-        break;
-    case OId::STRUCTTYPEOID:
-        id = getOIdOfStructType(name);
-        break;
-    case OId::SETTYPEOID:
-        id = getOIdOfSetType(name);
-        break;
+    case OId::MDDCOLLOID:     return getOIdOfMDDSet(name);
+    case OId::MDDTYPEOID:     return getOIdOfMDDType(name);
+    case OId::MDDBASETYPEOID: return getOIdOfMDDBaseType(name);
+    case OId::MDDDIMTYPEOID:  return getOIdOfMDDDimensionType(name);
+    case OId::MDDDOMTYPEOID:  return getOIdOfMDDDomainType(name);
+    case OId::SETTYPEOID:     return getOIdOfSetType(name);
+    case OId::STRUCTTYPEOID:  return getOIdOfStructType(name);
     case OId::ATOMICTYPEOID:
         if (strcmp(name, ULongType::Name) == 0)
-        {
-            id = theULong->getOId();
-        }
+            return theULong->getOId();
         else if (strcmp(name, BoolType::Name) == 0)
-        {
-            id = theBool->getOId();
-        }
+            return theBool->getOId();
         else if (strcmp(name, CharType::Name) == 0)
-        {
-            id = theChar->getOId();
-        }
+            return theChar->getOId();
         else if (strcmp(name, UShortType::Name) == 0)
-        {
-            id = theUShort->getOId();
-        }
+            return theUShort->getOId();
         else if (strcmp(name, LongType::Name) == 0)
-        {
-            id = theLong->getOId();
-        }
+            return theLong->getOId();
         else if (strcmp(name, ShortType::Name) == 0)
-        {
-            id = theShort->getOId();
-        }
+            return theShort->getOId();
         else if (strcmp(name, OctetType::Name) == 0)
-        {
-            id = theOctet->getOId();
-        }
+            return theOctet->getOId();
         else if (strcmp(name, DoubleType::Name) == 0)
-        {
-            id = theDouble->getOId();
-        }
+            return theDouble->getOId();
         else if (strcmp(name, FloatType::Name) == 0)
-        {
-            id = theFloat->getOId();
-        }
+            return theFloat->getOId();
         else if (strcmp(name, ComplexType1::Name) == 0)
-        {
-            id = theComplex1->getOId();
-        }
+            return theComplex1->getOId();
         else if (strcmp(name, ComplexType2::Name) == 0)
-        {
-            id = theComplex2->getOId();
-        }
-        break;
-
+            return theComplex2->getOId();
+        else
+            return OId(); // invalid OId
     default:
-        LERROR << "Retrival of Object Failed (Internal State 5).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of OId of type " << type << " and name '" << name << "' failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
-        break;
     }
-    return id;
 }
 
 
 DBObject*
 ObjectBroker::getObjectByName(OId::OIdType type, const char* name)
 {
-    DBObject* retval = 0;
     DBObjectPMap* theMap = 0;
     switch (type)
     {
-    case OId::MDDCOLLOID:
-        theMap = &theMDDSets;
-        break;
-    case OId::MDDTYPEOID:
-        theMap = &theMDDTypes;
-        break;
-    case OId::MDDBASETYPEOID:
-        theMap = &theMDDBaseTypes;
-        break;
-    case OId::MDDDIMTYPEOID:
-        theMap = &theMDDDimensionTypes;
-        break;
-    case OId::MDDDOMTYPEOID:
-        theMap = &theMDDDomainTypes;
-        break;
-    case OId::STRUCTTYPEOID:
-        theMap = &theStructTypes;
-        break;
-    case OId::SETTYPEOID:
-        theMap = &theSetTypes;
-        break;
-    case OId::ATOMICTYPEOID:
-        theMap = &theAtomicTypes;
-        break;
+    case OId::MDDCOLLOID:     theMap = &theMDDSets; break;
+    case OId::MDDTYPEOID:     theMap = &theMDDTypes; break;
+    case OId::MDDBASETYPEOID: theMap = &theMDDBaseTypes; break;
+    case OId::MDDDIMTYPEOID:  theMap = &theMDDDimensionTypes; break;
+    case OId::MDDDOMTYPEOID:  theMap = &theMDDDomainTypes; break;
+    case OId::STRUCTTYPEOID:  theMap = &theStructTypes; break;
+    case OId::SETTYPEOID:     theMap = &theSetTypes; break;
+    case OId::ATOMICTYPEOID:  theMap = &theAtomicTypes; break;
     default:
-        LERROR << "Retrival of Object Failed (Internal State 6).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of object of type " << type << " and name '" << name << "' failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
-        break;
     }
 
-    //check if there is an object with that name already in memory
+    // check if there is an object with that name already in memory
+    // TODO: theMap should be a bidirectional map, this linear iteration mode is inefficient
+    DBObject* retval = 0;
     for (DBObjectPMap::iterator iter = theMap->begin(); iter != theMap->end(); iter++)
     {
         if (strcmp((static_cast<DBNamedObject*>((*iter).second))->getName(), name) == 0)
         {
-            LTRACE << name << " equals " << ((DBNamedObject*)(*iter).second)->getName();
             retval = (*iter).second;
             break;
         }
-        else
-        {
-            LTRACE << name << " equals NOT " << ((DBNamedObject*)(*iter).second)->getName();
-        }
     }
 
-    //no - no matching object.  try loading from db
+    // no matching object. try loading from db
     if (!retval)
     {
         retval = ObjectBroker::getObjectByOId(ObjectBroker::getOIdByName(type, name));
@@ -619,484 +464,239 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name)
 }
 
 void
-ObjectBroker::completelyClearMap(DBObjectPMap& theMap)
+ObjectBroker::clearMap(DBObjectPMap& theMap)
 {
-    DBObjectPVector test;
-    test.reserve(theMap.size());
-    for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
+    for (auto &p: theMap)
     {
-        LTRACE << "preparing to delete " << (*i).second->getOId() << " " << (*i).second->getOId().getType();
-        (*i).second->validate();
-        test.push_back((*i).second);
-        //(*i).second = 0; not good because of circular dependencies in the destructors
+        delete p.second;
     }
-    for (DBObjectPVector::iterator i2 = test.begin(); i2 != test.end(); i2++)
+    theMap.clear();
+}
+
+void
+ObjectBroker::validateMap(DBObjectPMap& theMap)
+{
+    for (auto &p: theMap)
     {
-        LTRACE << "deleting " << (*i2)->getOId() << " " << (*i2)->getOId().getType();
-        delete(*i2);
+        p.second->validate();
     }
-    test.clear();
 }
 
 void
 ObjectBroker::clearBroker()
 {
     //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDCOLLOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDHIERIXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDRCIXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBTCINDEXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::INLINETILEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::STORAGEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::SETTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDDOMTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDDIMTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDBASETYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::STRUCTTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBMINTERVALOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBNULLVALUESOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::BLOBOID));
+    // Important: the order matters, start from most basic datastructures and progress to more complex ones.
+
+    LDEBUG << "Clearing ObjectBroker...";
+    static const std::vector<OId::OIdType> objTypes = {
+            OId::STRUCTTYPEOID, OId::DBMINTERVALOID, OId::DBNULLVALUESOID,
+            OId::MDDDOMTYPEOID, OId::MDDDIMTYPEOID, OId::MDDBASETYPEOID, OId::MDDTYPEOID, OId::SETTYPEOID,
+            OId::BLOBOID,
+            OId::INLINETILEOID, OId::STORAGEOID,
+            OId::MDDOID, OId::MDDCOLLOID,
+            OId::MDDHIERIXOID, OId::MDDRCIXOID, OId::DBTCINDEXOID
+    };
+
+    // validate from smaller to upper
+    for (auto objType: objTypes) {
+        LDEBUG << "Validating map for objects of type: " << objType;
+        validateMap(getMap(objType));
+    }
+    // clear in reverse order
+    for (auto it = objTypes.rbegin(); it != objTypes.rend(); ++it) {
+        LDEBUG << "Clearing map for objects of type: " << *it;
+        clearingObjectsOfType = *it; // this prevents deregisterObject from modifying the map
+        clearMap(getMap(*it));
+        clearingObjectsOfType = OId::INVALID;
+    }
+
     theTileIndexMappings.clear();
 
     // It seems that free() doesn't always fully release the memory.
     // The malloc_trim(0) below will attempt to release free memory from the top of the heap.
     malloc_trim(0);
+    LDEBUG << "ObjectBroker cleared successfully.";
 }
 
 DBObjectPMap&
 ObjectBroker::getMap(OId::OIdType type)
 {
-    DBObjectPMap* theMap = 0;
     switch (type)
     {
-    case OId::MDDOID:
-        theMap = &theDBMDDObjs;
-        break;
-    case OId::MDDCOLLOID:
-        theMap = &theMDDSets;
-        break;
-    case OId::MDDTYPEOID:
-        theMap = &theMDDTypes;
-        break;
-    case OId::MDDBASETYPEOID:
-        theMap = &theMDDBaseTypes;
-        break;
-    case OId::MDDDIMTYPEOID:
-        theMap = &theMDDDimensionTypes;
-        break;
-    case OId::MDDDOMTYPEOID:
-        theMap = &theMDDDomainTypes;
-        break;
-    case OId::STRUCTTYPEOID:
-        theMap = &theStructTypes;
-        break;
-    case OId::SETTYPEOID:
-        theMap = &theSetTypes;
-        break;
-    case OId::BLOBOID:
-        theMap = &theBLOBTiles;
-        break;
-    case OId::INLINETILEOID:
-        theMap = &theInlineTiles;
-        break;
-    case OId::DBMINTERVALOID:
-        theMap = &theDBMintervals;
-        break;
-    case OId::DBNULLVALUESOID:
-        theMap = &theDBNullvalues;
-        break;
-    case OId::STORAGEOID:
-        theMap = &theDBStorages;
-        break;
-    case OId::DBTCINDEXOID:
-        theMap = &theDBTCIndexs;
-        break;
-    case OId::MDDHIERIXOID:
-        theMap = &theDBHierIndexs;
-        break;
-    case OId::ATOMICTYPEOID:
-        theMap = &theAtomicTypes;
-        break;
-    case OId::MDDRCIXOID:
-        theMap = &theRCIndexes;
-        break;
+    case OId::MDDOID:         return theDBMDDObjs;
+    case OId::MDDCOLLOID:     return theMDDSets;
+    case OId::MDDTYPEOID:     return theMDDTypes;
+    case OId::MDDBASETYPEOID: return theMDDBaseTypes;
+    case OId::MDDDIMTYPEOID:  return theMDDDimensionTypes;
+    case OId::MDDDOMTYPEOID:  return theMDDDomainTypes;
+    case OId::STRUCTTYPEOID:  return theStructTypes;
+    case OId::SETTYPEOID:     return theSetTypes;
+    case OId::BLOBOID:        return theBLOBTiles;
+    case OId::INLINETILEOID:  return theInlineTiles;
+    case OId::DBMINTERVALOID: return theDBMintervals;
+    case OId::DBNULLVALUESOID:return theDBNullvalues;
+    case OId::STORAGEOID:     return theDBStorages;
+    case OId::DBTCINDEXOID:   return theDBTCIndexs;
+    case OId::MDDHIERIXOID:   return theDBHierIndexs;
+    case OId::ATOMICTYPEOID:  return theAtomicTypes;
+    case OId::MDDRCIXOID:     return theRCIndexes;
     default:
-        LTRACE << "getMap(" << type << ")";
-        LERROR << "Retrival of Object Failed (Internal State 7).\n" << "Please contact Customer Support.";
+        LERROR << "Retrival of object of type " << type << " failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
-        break;
     }
-    return *theMap;
 }
 
 DBObject*
 ObjectBroker::loadDBStorage(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBStorageLayout(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBStorageLayout(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadSetType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new SetType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new SetType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadMDDType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new MDDType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new MDDType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 
 DBObject*
 ObjectBroker::loadMDDBaseType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new MDDBaseType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new MDDBaseType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadMDDDimensionType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new MDDDimensionType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new MDDDimensionType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadMDDDomainType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new MDDDomainType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new MDDDomainType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadStructType(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new StructType(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new StructType(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadDBMinterval(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBMinterval(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBMinterval(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadDBNullvalues(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBNullvalues(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBNullvalues(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 
 DBObject*
 ObjectBroker::loadDBMDDObj(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBMDDObj(id);
-        LTRACE << "found in db";
-        LDEBUG << "found object, inserting " << retval->getOId() << " into result list";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBMDDObj(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadMDDSet(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBMDDSet(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBMDDSet(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadDBTCIndex(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBTCIndex(id);
-        LTRACE << "found in db";
-        retval->setCached(true);
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBTCIndex(id));
+    retval->setCached(true);
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadDBHierIndex(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBHierIndex(id);
-        LTRACE << "found in db";
-        retval->setCached(true);
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
-}
-
-
-DBObject*
-ObjectBroker::loadBLOBTile(const OId& id)
-{
-    DBObject* retval = 0;
-    try
-    {
-        retval = new BLOBTile(id);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        if (retval)
-        {
-            delete retval;
-            retval = 0;
-        }
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBHierIndex(id));
+    retval->setCached(true);
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 DBObject*
 ObjectBroker::loadDBRCIndexDS(const OId& id)
 {
-    DBObject* retval = 0;
-    try
-    {
-        retval = new DBRCIndexDS(id);
-        retval->setCached(true);
-        LTRACE << "found in db";
-        registerDBObject(retval);
-    }
-    catch (r_Error& error)
-    {
-        LTRACE << "not found in db";
-        delete retval;
-        throw error;
-    }
-    return retval;
+    unique_ptr<DBObject> retval;
+    retval.reset(new DBRCIndexDS(id));
+    retval->setCached(true);
+    registerDBObject(retval.get());
+    return retval.release();
+}
+
+DBObject*
+ObjectBroker::loadBLOBTile(const OId& id)
+{
+    unique_ptr<DBObject> retval;
+    retval.reset(new BLOBTile(id));
+    registerDBObject(retval.get());
+    return retval.release();
 }
 
 void
 ObjectBroker::registerTileIndexMapping(const OId& tileoid, const OId& indexoid)
 {
-    OIdPair p(tileoid, indexoid);
-    theTileIndexMappings.insert(p);
+    theTileIndexMappings.emplace(tileoid, indexoid);
 }
 
 void
 ObjectBroker::deregisterTileIndexMapping(const OId& tileoid, const OId& indexoid)
 {
-    OIdPair p(tileoid, indexoid);
-    OIdMap::iterator i = theTileIndexMappings.find(tileoid);
+    auto i = theTileIndexMappings.find(tileoid);
     if (i != theTileIndexMappings.end())
     {
         theTileIndexMappings.erase(i);

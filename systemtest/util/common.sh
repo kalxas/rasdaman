@@ -315,7 +315,7 @@ check_filestorage_dependencies()
 {
   [ -f "$RMANHOME/bin/rasdl" ] || error "rasdl not found, RMANHOME not defined properly?"
   [ -f "$RASMGR_CONF" ] || error "$RASMGR_CONF not found, RMANHOME not defined properly?"
-  [ $(type sqlite3  &> /dev/null) ] || error "sqlite3 not found, please install."
+  type sqlite3 &> /dev/null || error "sqlite3 not found, please install."
 }
 
 # Check if rasdaman was built with -DENABLE_JAVA=ON

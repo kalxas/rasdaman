@@ -120,7 +120,7 @@ public:
     /*@Doc:
     */
 
-    virtual ~DBMDDSet();
+    virtual ~DBMDDSet() noexcept(false);
     /*@Doc:
     */
 

@@ -119,6 +119,7 @@ add_definitions(-DELPP_FEATURE_CRASH_LOG)
 add_definitions(-DELPP_STACKTRACE)
 add_definitions(-DELPP_DISABLE_DEFAULT_CRASH_HANDLING)
 add_definitions(-DELPP_NO_CHECK_MACROS)
+#add_definitions(-DELPP_THREAD_SAFE)
 
 # For development
 set(ENABLE_DEBUG OFF CACHE BOOL 

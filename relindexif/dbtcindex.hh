@@ -50,7 +50,7 @@ public:
         Prints current status of index, in hierarchical format.
     */
 
-    ~DBTCIndex();
+    ~DBTCIndex() noexcept(false);
     /*@Doc:
     */
 

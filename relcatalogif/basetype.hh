@@ -147,7 +147,7 @@ public:
 
     BaseType& operator=(const BaseType& old);
 
-    virtual ~BaseType();
+    virtual ~BaseType() noexcept(false);
     /*@Doc:
     virtual destructor.
     */

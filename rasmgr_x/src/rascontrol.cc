@@ -667,6 +667,7 @@ std::string RasControl::defineOutpeer(const DefineOutpeer& outpeerData)
         boost::uint32_t peerPort = outpeerData.port() == 0 ? DEFAULT_PORT : outpeerData.port();
 
         this->peerManager_->defineOutPeer(outpeerData.host_name(), peerPort);
+        LDEBUG << "Defined rasmgr outpeer on:" << outpeerData.host_name() << ":" << peerPort;
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }

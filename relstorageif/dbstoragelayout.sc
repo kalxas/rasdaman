@@ -343,7 +343,7 @@ DBStorageLayout::setPCTMax(r_Bytes newpctMax)
     setModified();
 }
 
-DBStorageLayout::~DBStorageLayout()
+DBStorageLayout::~DBStorageLayout() noexcept(false)
 {
     validate();
 }

@@ -71,7 +71,7 @@ public:
     SetType& operator=(const SetType& old);
 
     /// virtual destructor.
-    virtual ~SetType();
+    virtual ~SetType() noexcept(false);
 
 protected:
 

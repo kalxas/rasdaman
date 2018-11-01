@@ -45,7 +45,7 @@ NullValuesHandler::NullValuesHandler(r_Nullvalues* newNullValues)
 {
 }
 
-NullValuesHandler::~NullValuesHandler()
+NullValuesHandler::~NullValuesHandler() noexcept(false)
 {
 }
 

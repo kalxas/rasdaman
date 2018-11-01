@@ -4,7 +4,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/cstdint.hpp>
 
-#include <easylogging++.h>
+#include <logging.hh>
 #include "rasnet/messages/rasmgr_rasmgr_service.grpc.pb.h"
 
 namespace rasmgr

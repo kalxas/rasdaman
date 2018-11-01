@@ -85,7 +85,7 @@ DBMinterval::DBMinterval(const r_Minterval& old)
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::~DBMinterval()
+DBMinterval::~DBMinterval() noexcept(false)
 {
     validate();
 }

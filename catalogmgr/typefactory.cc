@@ -300,23 +300,19 @@ TypeFactory::addMDDType(const MDDType* type)
         switch (type->getSubtype())
         {
         case MDDType::MDDONLYTYPE:
-            LTRACE << "is MDDONLYTYPE";
             persistentType = new MDDType(type->getTypeName());
             break;
         case MDDType::MDDBASETYPE:
-            LTRACE << "is MDDBASETYPE";
             persistentType = new MDDBaseType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))));
             break;
         case MDDType::MDDDOMAINTYPE:
-            LTRACE << "is MDDDOMAINTYPE";
             persistentType = new MDDDomainType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), *(static_cast<MDDDomainType*>(const_cast<MDDType*>(type)))->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
-            LTRACE << "is MDDDIMENSIONTYPE";
             persistentType = new MDDDimensionType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), (static_cast<MDDDimensionType*>(const_cast<MDDType*>(type)))->getDimension());
             break;
         default:
-            LTRACE << "addMDDType(" << type->getName() << ") mddsubtype unknown";
+            LWARNING << "MDD sub-type '" << type->getName() << "' unknown.";
             break;
         }
         if (persistentType != 0)
@@ -387,7 +383,7 @@ TypeFactory::deleteStructType(const char* typeName)
             {
                 if ((static_cast<MDDBaseType*>(miter.get_element().ptr()))->getBaseType() == resultType)
                 {
-                    LTRACE << "mdd type " << miter.get_element()->getName() << " contains " << typeName;
+                    LWARNING << "mdd type " << miter.get_element()->getName() << " contains " << typeName;
                     canDelete = false;
                     break;
                 }
@@ -423,7 +419,7 @@ TypeFactory::deleteMDDType(const char* typeName)
         {
             if (miter.get_element()->getMDDType() == resultType)
             {
-                LTRACE << "set type " << miter.get_element()->getName() << " contains " << typeName;
+                LERROR << "set type " << miter.get_element()->getName() << " contains " << typeName;
                 canDelete = false;
                 break;
             }
@@ -438,7 +434,7 @@ TypeFactory::deleteMDDType(const char* typeName)
                 {
                     if (DBMDDObjId(*miter)->getMDDBaseType() == resultType)
                     {
-                        LTRACE << "mdd object " << *miter << " contains " << typeName;
+                        LERROR << "mdd object " << *miter << " contains " << typeName;
                         canDelete = false;
                         break;
                     }
@@ -497,7 +493,7 @@ TypeFactory::deleteSetType(const char* typeName)
         {
             if (DBMDDSetId(*miter)->getCollType() == resultType)
             {
-                LTRACE << "set object " << *miter << " contains " << typeName;
+                LERROR << "set object " << *miter << " contains " << typeName;
                 canDelete = false;
                 break;
             }

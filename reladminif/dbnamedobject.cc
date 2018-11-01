@@ -98,7 +98,7 @@ DBNamedObject::DBNamedObject(const OId& id, const char* name)
     setName(name);
 }
 
-DBNamedObject::~DBNamedObject()
+DBNamedObject::~DBNamedObject() noexcept(false)
 {
     if (myName)
     {

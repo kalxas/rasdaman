@@ -281,7 +281,7 @@ ServerComm::openDB(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     return returnValue;
@@ -339,7 +339,7 @@ ServerComm::closeDB(unsigned long callingClientId)
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     return returnValue;
@@ -451,7 +451,7 @@ ServerComm::beginTA(unsigned long callingClientId,
 
     if (context == 0)
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
     else if (transactionActive)
@@ -555,7 +555,7 @@ ServerComm::commitTA(unsigned long callingClientId)
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -612,7 +612,7 @@ ServerComm::abortTA(unsigned long callingClientId)
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2056,7 +2056,7 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2112,7 +2112,7 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -4127,7 +4127,7 @@ ServerComm::aliveSignal(unsigned long client)
 #ifndef DEBUG
         NNLINFO << "Client " << client << " called: endTransfer... ";
 #endif
-        BLERROR << "Error: client not registered.\n";
+        LERROR << "Error: client not registered.\n";
     }
 
     return returnValue;

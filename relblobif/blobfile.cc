@@ -65,7 +65,8 @@ void BlobFile::insertData(BlobData& blob)
     }
     if (count < blob.size)
     {
-        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file.";
+        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
+        clearFileDescriptor();
         generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
     }
     closeFileDescriptor();
@@ -81,7 +82,8 @@ void BlobFile::updateData(BlobData& blob)
     }
     if (count < blob.size)
     {
-        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file.";
+        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
+        clearFileDescriptor();
         generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
     }
     closeFileDescriptor();
@@ -141,14 +143,23 @@ void BlobFile::prepareForReading()
     }
 }
 
+void BlobFile::clearFileDescriptor()
+{
+    if (fd != INVALID_FILE_DESCRIPTOR)
+        ftruncate(fd, 0);
+}
+
 void BlobFile::closeFileDescriptor()
 {
-    if (close(fd) == IO_ERROR_RC)
+    if (fd != INVALID_FILE_DESCRIPTOR)
     {
-        LERROR << "could not close blob file descriptor.";
-        generateError("failed I/O operation on blob file", FAILEDIOOPERATION);
+        if (close(fd) == IO_ERROR_RC)
+        {
+            LERROR << "could not close blob file descriptor.";
+            generateError("failed I/O operation on blob file", FAILEDIOOPERATION);
+        }
+        fd = INVALID_FILE_DESCRIPTOR;
     }
-    fd = INVALID_FILE_DESCRIPTOR;
 }
 
 off_t BlobFile::getSize()
@@ -210,6 +221,7 @@ long long BlobFile::getBlobId()
 
 void BlobFile::generateError(const char* message, int errorCode)
 {
+    closeFileDescriptor();
     LERROR << message << " - " << filePath;
     LERROR << "reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));

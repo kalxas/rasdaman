@@ -59,7 +59,7 @@ public:
 
     DBMinterval(const DBMinterval& old);
 
-    ~DBMinterval();
+    ~DBMinterval() noexcept(false);
     /*@Doc:
     validates the object in the database.
     */

@@ -436,7 +436,7 @@ MDDObj::removeTile(shared_ptr<Tile>& tileToRemove)
     }
 }
 
-MDDObj::~MDDObj()
+MDDObj::~MDDObj() noexcept(false)
 {
     LTRACE << "~MDDObj() " << (r_Ptr)this;
 

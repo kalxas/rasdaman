@@ -117,6 +117,11 @@ private:
     void prepareForInserting();
     void prepareForUpdating();
     void prepareForReading();
+
+    /**
+     * Clear fd to an empty file.
+     */
+    void clearFileDescriptor();
     void closeFileDescriptor();
 
     /**

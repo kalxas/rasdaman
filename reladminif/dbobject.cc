@@ -392,7 +392,7 @@ DBObject::getObjectType() const
     return objecttype;
 }
 
-DBObject::~DBObject()
+DBObject::~DBObject() noexcept(false)
 {
     ObjectBroker::deregisterDBObject(myOId);
 }

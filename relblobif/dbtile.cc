@@ -247,12 +247,12 @@ DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_
 {
     if (takeOwnershipOfNewCells)
     {
-        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " without copying the given data " << newCells << ".";
+        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " without copying the given data.";
         cells = newCells;
     }
     else
     {
-        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " with copying the given data " << newCells << ".";
+        LDEBUG << "creating DBTile of size " << newSize << " bytes " << " with copying the given data.";
         cells = static_cast<char*>(mymalloc(size * sizeof(char)));
         memcpy(cells, newCells, newSize);
     }
@@ -270,7 +270,7 @@ DBTile::DBTile(const OId& id)
     ownCells = true;
 }
 
-DBTile::~DBTile()
+DBTile::~DBTile() noexcept(false)
 {
     if (!ownCells)
     {

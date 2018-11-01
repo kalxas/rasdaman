@@ -159,7 +159,7 @@ public:
     */
     //@}
 
-    virtual ~DBTile();
+    virtual ~DBTile() noexcept(false);
     /*@Doc:
     validates the object.  deletes it cells.
     */

@@ -191,7 +191,8 @@ Parse_typereference::getType(const char* /*typeName*/) const
     if (!catBaseType)
         // Error: Type reference not found..
     {
-        throw (r_Equery_execution_failed(902, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name()));
+        throw (r_Equery_execution_failed(902, static_cast<unsigned int>(symbol->where.line),
+                static_cast<unsigned int>(symbol->where.column), symbol->get_name()));
     }
 
     return catBaseType;
@@ -264,9 +265,8 @@ void Parse_struct::insertData() const
 {
     // get catalog type structure
     StructType* catType = static_cast<StructType*>(const_cast<CType*>(getType()));
-    LDEBUG << "got type " << catType->getTypeName();
 
-    LTRACE << "inserting type " << catType->getTypeName();
+    LDEBUG << "inserting type " << catType->getTypeName();
 
     if (TypeFactory::mapType(catType->getTypeName()))
         // Error: Struct type name exists already.

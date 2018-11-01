@@ -120,7 +120,7 @@ public:
     StructType& operator=(const StructType& old);
 
     /// virtual destructor.
-    virtual ~StructType();
+    virtual ~StructType() noexcept(false);
 
     virtual int compatibleWith(const Type* aType) const;
 

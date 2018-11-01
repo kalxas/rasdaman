@@ -697,7 +697,7 @@ DBHierIndex::destroy()
     DBObject::destroy();
 }
 
-DBHierIndex::~DBHierIndex()
+DBHierIndex::~DBHierIndex() noexcept(false)
 {
     validate();
     currentDbRows = 0;

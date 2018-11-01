@@ -98,7 +98,7 @@ DBMDDSet::removeAll()
     setModified();
 }
 
-DBMDDSet::~DBMDDSet()
+DBMDDSet::~DBMDDSet() noexcept(false)
 {
     validate();
     collType = NULL;

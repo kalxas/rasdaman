@@ -265,7 +265,7 @@ DBRCIndexDS::destroy()
     DBObject::destroy();
 }
 
-DBRCIndexDS::~DBRCIndexDS()
+DBRCIndexDS::~DBRCIndexDS() noexcept(false)
 {
     validate();
     currentDbRows = 0;

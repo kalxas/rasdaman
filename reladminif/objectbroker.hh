@@ -157,6 +157,12 @@ public:
     */
 
 protected:
+
+    static DBObject* loadObjectByOId(const OId& id);
+    /*@Doc:
+    load a dbobject from db.  passes (r_Error)s from DBObject up.
+    */
+
     static DBObject* loadDBMDDObj(const OId& id);
     /*@Doc:
     retrieves MDDObjects from memory and from database
@@ -243,13 +249,19 @@ protected:
     finds the oid of an object with the given type and name
     */
 
-    static void completelyClearMap(DBObjectPMap& theMap);
+    static void clearMap(DBObjectPMap& theMap);
     /*@Doc:
     deletes entries in this map
     (r_Error) is thrown when there is a problem in ~DBObject.
     the object is removed from the map though.
     */
 
+    static void validateMap(DBObjectPMap& theMap);
+    /*@Doc:
+    deletes entries in this map
+    (r_Error) is thrown when there is a problem in ~DBObject.
+    the object is removed from the map though.
+    */
 
     static OId getOIdOfMDDSet(const char* name);
     /*@Doc:
@@ -496,6 +508,11 @@ private:
     key (first/double) is oid of tile, value (second/oid) is oid of index.
     */
 
+    /**
+     * When set to something else than INVALID, it prevents deregisterObject from
+     * working on the map holding objects of the same type.
+     */
+    static OId::OIdType clearingObjectsOfType;
 };
 
 #endif

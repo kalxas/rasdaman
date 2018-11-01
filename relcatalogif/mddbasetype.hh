@@ -105,7 +105,7 @@ public:
     \tr_Marray < myBaseType->getTypeName() \t>
     */
 
-    virtual ~MDDBaseType();
+    virtual ~MDDBaseType() noexcept(false);
     /*@Doc:
     virtual destructor.
     validates the object.

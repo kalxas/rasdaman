@@ -88,7 +88,7 @@ MDDType& MDDType::operator=(const MDDType& old)
     return *this;
 }
 
-MDDType::~MDDType()
+MDDType::~MDDType() noexcept(false)
 {
     validate();
 }

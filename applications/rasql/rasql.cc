@@ -35,7 +35,6 @@
 */
 
 
-static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/11/06 21:59:01 rasdev Exp $";
 #include "version.h"
 #include "config.h"
 #ifndef RMANVERSION
@@ -56,6 +55,7 @@ static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/
 #include <stdexcept>
 #include <limits>
 #include <iomanip>
+
 #include "raslib/commonutil.hh"
 
 using namespace std;
@@ -280,9 +280,16 @@ void
 doStuff(int argc, char** argv);
 
 void
-crash_handler(int sig, siginfo_t* info, void* ucontext);
+crashHandler(int sig, siginfo_t* info, void* ucontext);
 
+void
+cleanupHandler(int sig, siginfo_t* info, void* ucontext);
 
+void
+doNothingHandler(int sig, siginfo_t* info, void* ucontext);
+
+void
+instalRasqlSignalHandlers();
 
 void
 parseParams(int argc, char** argv)
@@ -1062,12 +1069,57 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 }
 
 void
-crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
+    closeDatabase();
     exit(SEGFAULT_EXIT_CODE);
+}
+
+void
+cleanupHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+{
+    static bool handleSignal = true;    // prevent nested signals
+    cerr << "Caught signal " << sig << ": ";
+    if (handleSignal)
+    {
+        handleSignal = false;
+        cerr << "terminating connection to server... ";
+        closeTransaction(false);
+        closeDatabase();
+        cerr << "done, exiting." << endl;
+        exit(sig);
+    }
+    else
+    {
+        cerr << "will be ignored." << endl;
+    }
+}
+
+void
+doNothingHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+{
+}
+
+void
+instalRasqlSignalHandlers()
+{
+    installSigHandler(cleanupHandler, SIGINT);
+    installSigHandler(cleanupHandler, SIGTERM);
+    installSigHandler(cleanupHandler, SIGQUIT);
+
+    installSigHandler(crashHandler, SIGSEGV);
+    installSigHandler(crashHandler, SIGABRT);
+
+    installSigHandler(doNothingHandler, SIGHUP);
+    installSigHandler(doNothingHandler, SIGPIPE);
+    installSigHandler(doNothingHandler, SIGCONT);
+    installSigHandler(doNothingHandler, SIGTSTP);
+    installSigHandler(doNothingHandler, SIGTTIN);
+    installSigHandler(doNothingHandler, SIGTTOU);
+    installSigHandler(doNothingHandler, SIGWINCH);
 }
 
 INITIALIZE_EASYLOGGINGPP
@@ -1083,8 +1135,8 @@ int main(int argc, char** argv)
     SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
+    instalRasqlSignalHandlers();
 
-    installSigSegvHandler(crash_handler);
     // unset the http_proxy env variable if it is set, otherwise rasql will most likely fail
     // more info at http://rasdaman.org/ticket/1716
     unsetenv("http_proxy");

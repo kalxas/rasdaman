@@ -211,7 +211,10 @@ private:
     int messageDigest(const char* input, char* output, const char* mdName);
     const char* convertDatabRights(const UserDatabaseRights& dbRights);
 
-    bool isProcessAlive(pid_t pid) const;
+    /**
+     * @return true if the server process is still available on the system.
+     */
+    bool isProcessAlive() const;
 };
 
 }

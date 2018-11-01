@@ -109,7 +109,7 @@ public:
     return subclass of MDDType (runtime typing)
     */
 
-    virtual ~MDDType();
+    virtual ~MDDType() noexcept(false);
     /*@Doc:
     virtual destructor.
     */

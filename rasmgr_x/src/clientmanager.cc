@@ -322,7 +322,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
         if (this->serverManager->tryGetFreeServer(dbName, assignedServer))
         {
             std::string dbSessionId;
-            \
+            
             // A value will be assigned to dbSessionId by the ID
             client->addDbSession(dbName, assignedServer, dbSessionId);
 

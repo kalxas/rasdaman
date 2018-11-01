@@ -51,7 +51,7 @@ public:
 
     DBNullvalues(const DBNullvalues& old);
 
-    ~DBNullvalues();
+    ~DBNullvalues() noexcept(false);
     /*@Doc:
     validates the object in the database.
     */

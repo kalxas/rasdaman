@@ -437,18 +437,12 @@ ServerComm::stopRpcServer()
 void
 ServerComm::abortEveryThingNow()
 {
-    list<ServerComm::ClientTblElt*>::iterator iter;
     ServerComm* sc = ServerComm::actual_servercomm;
-    iter = sc->clientTbl.begin();
-
-    while (iter != sc->clientTbl.end())
+    for (auto iter = sc->clientTbl.begin(); iter != sc->clientTbl.end(); ++iter)
     {
         ServerComm::ClientTblElt* clnt = *iter;
-
         clnt->transaction.abort();
         clnt->database.close();
-
-        iter++;
     }
 }
 
@@ -694,36 +688,18 @@ ServerComm::getClientContext(unsigned long clientId)
 
     if (!clientTbl.empty())
     {
-        list<ClientTblElt*>::iterator iter;
-
-        iter = clientTbl.begin();
-        while (iter != clientTbl.end() && (*iter)->clientId != clientId)
-        {
-            LDEBUG << "  inspecting entry with clientID " << (*iter)->clientId;
-            iter++;
-        }
-
-        if (iter != clientTbl.end() && clientId && (*iter)->clientId == clientId)
-        {
-            returnValue = *iter;
-
+        auto it = std::find_if(clientTbl.begin(), clientTbl.end(),
+                [clientId](const ClientTblElt* curr) { return clientId == curr->clientId; });
+        if (it != clientTbl.end()) {
             // Valid entry was found, so increase the number of current users and
             // reset the client's lastActionTime to now.
-
-            (*iter)->currentUsers++;
-            (*iter)->lastActionTime = static_cast<long unsigned int>(time(NULL));
-            LDEBUG << "valid entry found, current users now: " << (*iter)->currentUsers;
+            (*it)->currentUsers++;
+            (*it)->lastActionTime = static_cast<long unsigned int>(time(NULL));
+            returnValue = *it;
         }
     }
 
-    // this output will be done lateron, in the caller:
-    // if( returnValue == 0 )
-    //  LERROR << "Error: client not registered.";
-
-    // this trick did not work, broke the HTTP server
-    //  if(isHttpServer==false ) uniqueClientContext = returnValue;
-
-#ifdef RMANDEBUG
+#ifdef RASDEBUG
     ServerComm::printServerStatus(RMInit::logOut);   // pretty verbose
 #endif
     return returnValue;

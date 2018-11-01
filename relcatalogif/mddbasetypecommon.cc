@@ -144,7 +144,7 @@ MDDBaseType::getBaseType() const
     return myBaseType;
 }
 
-MDDBaseType::~MDDBaseType()
+MDDBaseType::~MDDBaseType() noexcept(false)
 {
     validate();
 }

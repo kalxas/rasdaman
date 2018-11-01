@@ -103,7 +103,7 @@ public:
     return dimensionality
     */
 
-    virtual ~MDDDimensionType();
+    virtual ~MDDDimensionType() noexcept(false);
     /*@Doc:
     virtual destructor.
     */

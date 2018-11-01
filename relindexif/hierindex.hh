@@ -171,7 +171,7 @@ public:
 
     virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
 
-    virtual ~DBHierIndex();
+    ~DBHierIndex() noexcept(false) override;
 
     virtual void destroy();
 

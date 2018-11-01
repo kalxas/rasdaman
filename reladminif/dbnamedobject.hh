@@ -65,7 +65,7 @@ public:
     sets myName to name and calls DBObject(OId).  this is needed by MDDSet.
     */
 
-    virtual ~DBNamedObject();
+    virtual ~DBNamedObject() noexcept(false);
     /*@Doc:
     frees myName
     */

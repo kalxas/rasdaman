@@ -54,6 +54,8 @@ public:
 
     HierIndexDS(const OId& id): IndexDS(id) {}
 
+    ~HierIndexDS() override = default;
+
     virtual double getOccupancy() const = 0;
     /*@Doc:
         Return the relative occupancy of this index.

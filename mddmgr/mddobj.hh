@@ -243,7 +243,7 @@ public:
     //@Man: Destructor
     //@{
     /// Destructor - frees dynamic memory.
-    ~MDDObj();
+    ~MDDObj() noexcept(false);
     //@}
 
     /// release all tiles from the index

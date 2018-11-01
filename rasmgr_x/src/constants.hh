@@ -50,7 +50,7 @@ const boost::int32_t SERVER_MANAGER_CLEANUP_INTERVAL = 3000;
 
 /**
  * @brief CLIENT_MANAGER_CLEANUP_INTERVAL Number of milliseconds between consecutive cleanup runs
- * of the client manager. This value should be larger or equal that CLIENT_LIFETIME
+ * of the client manager. This value should be smaller or equal that CLIENT_LIFETIME
  */
 const boost::int32_t CLIENT_MANAGER_CLEANUP_INTERVAL = 3000;
 

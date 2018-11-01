@@ -50,7 +50,7 @@ public:
 
     NullValuesHandler(r_Nullvalues* nullValues);
 
-    virtual ~NullValuesHandler();
+    virtual ~NullValuesHandler() noexcept(false);
 
     /// clone data from obj to this object
     void cloneNullValues(const NullValuesHandler* obj);

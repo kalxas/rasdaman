@@ -69,7 +69,7 @@ KeyObject::KeyObject(const DBObjectId& obj, const r_Minterval& dom)
 {
 }
 
-KeyObject::~KeyObject()
+KeyObject::~KeyObject() noexcept(false)
 {
     transobject.reset();
 }

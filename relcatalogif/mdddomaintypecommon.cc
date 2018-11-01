@@ -152,7 +152,7 @@ MDDDomainType::print_status(ostream& s) const
     s << "\t>";
 }
 
-MDDDomainType::~MDDDomainType()
+MDDDomainType::~MDDDomainType() noexcept(false)
 {
     validate();
     if (myDomain)

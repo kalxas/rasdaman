@@ -55,6 +55,8 @@ public:
 
     IndexDS(const OId& id): DBObject(id) {}
 
+    ~IndexDS() noexcept(false) override = default;
+
     virtual r_Minterval getCoveredDomain() const = 0;
     /*@Doc:
         returns the domain which is covered by the entries of this index.

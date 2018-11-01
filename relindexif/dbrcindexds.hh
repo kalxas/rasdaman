@@ -163,7 +163,7 @@ public:
 
     virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
 
-    virtual ~DBRCIndexDS();
+    virtual ~DBRCIndexDS() noexcept(false);
 
     virtual void destroy();
 
