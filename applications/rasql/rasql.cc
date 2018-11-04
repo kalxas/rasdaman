@@ -55,6 +55,7 @@
 #include <stdexcept>
 #include <limits>
 #include <iomanip>
+#include <memory>
 
 #include "raslib/commonutil.hh"
 
@@ -88,6 +89,7 @@ using namespace std;
 #include "raslib/commonutil.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
+#include "common/src/logging/signalhandler.hh"
 
 #include "../../commline/cmlparser.hh"
 
@@ -130,7 +132,6 @@ typedef enum
 #define EXIT_SUCCESS    0
 #define EXIT_USAGE      2
 #define EXIT_FAILURE    -1
-
 
 // parameter names, defaults, and help texts
 
@@ -255,17 +256,20 @@ r_Set<r_Ref_Any> result_set;
 void
 parseParams(int argc, char** argv);
 
-void
+bool
 openDatabase();
 
-void
+bool
 closeDatabase();
 
-void
+bool
 openTransaction(bool readwrite);
 
-void
+bool
 closeTransaction(bool doCommit);
+
+void
+cleanConnection();
 
 void
 printScalar(const r_Scalar& scalar);
@@ -280,16 +284,10 @@ void
 doStuff(int argc, char** argv);
 
 void
+shutdownHandler(int sig, siginfo_t* info, void* ucontext);
+
+void
 crashHandler(int sig, siginfo_t* info, void* ucontext);
-
-void
-cleanupHandler(int sig, siginfo_t* info, void* ucontext);
-
-void
-doNothingHandler(int sig, siginfo_t* info, void* ucontext);
-
-void
-instalRasqlSignalHandlers();
 
 void
 parseParams(int argc, char** argv)
@@ -472,7 +470,7 @@ parseParams(int argc, char** argv)
 } // parseParams()
 
 
-void
+bool
 openDatabase()
 {
     if (! dbIsOpen)
@@ -480,69 +478,80 @@ openDatabase()
         NNLINFO << "Opening database " << baseName << " at " << serverName << ":" << serverPort << "... ";
         db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
-        LDEBUG << "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "...";
         db.open(baseName);
-        LDEBUG << "ok";
-        dbIsOpen = true;
         BLINFO << "ok.\n";
+        dbIsOpen = true;
     }
+    return dbIsOpen;
 } // openDatabase()
 
-void
+bool
 closeDatabase()
 {
     if (dbIsOpen)
     {
-        LDEBUG << "database was open, closing it";
+        LDEBUG << "Closing database...";
         db.close();
+        LDEBUG << "Successfully closed database.";
         dbIsOpen = false;
     }
-    return;
+    return !dbIsOpen;
 } // closeDatabase()
 
-void
+bool
 openTransaction(bool readwrite)
 {
     if (! taIsOpen)
     {
+        LDEBUG << "Opening " << (readwrite ? "rw" : "ro") << " transaction... ";
         if (readwrite)
-        {
-            LDEBUG << "transaction was closed, opening rw...";
             ta.begin(r_Transaction::read_write);
-            LDEBUG << "ok";
-        }
         else
-        {
-            LDEBUG << "transaction was closed, opening ro...";
             ta.begin(r_Transaction::read_only);
-            LDEBUG << "ok";
-        }
 
+        LDEBUG << "Successfully opened transaction.";
         taIsOpen = true;
     }
+    return taIsOpen;
 } // openTransaction()
 
-void
+bool
 closeTransaction(bool doCommit)
 {
     if (taIsOpen)
     {
+        LDEBUG << (doCommit ? "Committing" : "Aborting") << " transaction... ";
         if (doCommit)
-        {
-            LDEBUG << "transaction was open, committing it...";
             ta.commit();
-            LDEBUG << "ok";
-        }
         else
-        {
-            LDEBUG << "transaction was open, aborting it...";
             ta.abort();
-            LDEBUG << "ok";
-        }
+
+        LDEBUG << "Successfully closed transaction.";
         taIsOpen = false;
     }
-    return;
+    return !taIsOpen;
 } // closeTransaction()
+
+void
+cleanConnection()
+{
+    try
+    {
+        closeTransaction(false); // abort
+    }
+    catch (...)
+    {
+        // ignore
+    }
+    try
+    {
+        closeDatabase();
+    }
+    catch (...)
+    {
+        // ignore
+    }
+}
 
 void printScalar(const r_Scalar& scalar)
 {
@@ -800,23 +809,19 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
 r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 {
     r_Marray_Type* retval = NULL;
-    char* typeStructure = NULL;
+    std::unique_ptr<char[]> typeStructure;
 
     // first, try to get type structure from database using a separate r/o transaction
     try
     {
-        typeStructure = db.getComm()->getTypeStructure(mddTypeName2, ClientComm::r_MDDType_Type);
-        LDEBUG << "type structure is " << typeStructure;
+        typeStructure.reset(db.getComm()->getTypeStructure(mddTypeName2, ClientComm::r_MDDType_Type));
+        LDEBUG << "type structure is " << typeStructure.get();
     }
     catch (r_Error& err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
-            LDEBUG << "Type is not a well known type: " << typeStructure;
-            typeStructure = new char[strlen(mddTypeName2) + 1];
-            // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
-            // strcpy(typeStructure, mddTypeName2);
-            // LDEBUG << "using instead: " << typeStructure;
+            LDEBUG << "Type is not a well known type: " << typeStructure.get();
             throw RasqlError(MDDTYPEINVALID);
         }
         else    // unanticipated error
@@ -829,39 +834,29 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
     // next, find out whether it is an MDD type (and not a base or set type, eg)
     try
     {
-        r_Type* tempType = r_Type::get_any_type(typeStructure);
-        LDEBUG << "get_any_type() for this type returns: " << tempType;
+        std::unique_ptr<r_Type> tempType(r_Type::get_any_type(typeStructure.get()));
         if (tempType->isMarrayType())
         {
-            retval = static_cast<r_Marray_Type*>(tempType);
-            tempType = NULL;
-            LDEBUG << "found MDD type: " << retval;
+            retval = static_cast<r_Marray_Type*>(tempType.release());
         }
         else
         {
-            LDEBUG << "type is not an marray type: " << typeStructure;
-            delete tempType;
-            tempType = NULL;
-            retval = NULL;
             throw RasqlError(MDDTYPEINVALID);
         }
     }
     catch (r_Error& err)
     {
         LDEBUG << "Error during retrieval of MDD type structure (" 
-                << typeStructure << "): " << err.get_errorno() << " " << err.what();
+                << typeStructure.get() << "): " << err.get_errorno() << " " << err.what();
         throw;
     }
-
-    delete [] typeStructure;
-    typeStructure = NULL;
 
     return retval;
 } // getTypeFromDatabase()
 
 void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv)
 {
-    char* fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
+    std::unique_ptr<char[]> fileContents;                       // contents of file satisfying "$1" parameter in query
     r_Set<r_GMarray*>* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
     r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter
     r_Marray_Type* mddType = NULL;      // this MDD's type
@@ -871,35 +866,43 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
     if (fileName != NULL)
     {
-        openTransaction(false);
-
         // if no type name was specified then assume byte string (for encoded files)
         if (! mddTypeNameDef)
         {
             mddTypeName = MDD_STRINGTYPE;
         }
 
-        NNLINFO << "fetching type information for " << mddTypeName 
-                << " from database, using readonly transaction... ";
-        mddType = getTypeFromDatabase(mddTypeName);
-        closeTransaction(true);
-        BLINFO << "ok.\n";
+        if (openTransaction(false))
+        {
+            NNLINFO << "fetching type information for " << mddTypeName << " from database... ";
+            mddType = getTypeFromDatabase(mddTypeName);
+            if (closeTransaction(true))
+            {
+                BLINFO << "ok.\n";
+            }
+        }
+        else
+        {
+            return; // no point to continue
+        }
 
         NNLINFO << "reading file " << fileName << "... ";
+        errno = 0;
         FILE* fileD = fopen(fileName, "r");
         if (fileD == NULL)
         {
-            throw RasqlError(FILEINACCESSIBLE);
+            BLERROR << "failed: " << strerror(errno) << "\n";
+            throw RasqlError(FILEREADERROR);
         }
 
         fseek(fileD, 0, SEEK_END);
         long size = ftell(fileD);
-        LDEBUG << "file size is " << size << " bytes";
-
         if (size == 0)
         {
+            fclose(fileD);
             throw RasqlError(FILEEMPTY);
         }
+        LDEBUG << "file size is " << size << " bytes";
 
         // if no domain specified (this is the case with encoded files), then set to byte stream
         if (! mddDomainDef)
@@ -908,39 +911,42 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
             LDEBUG << "domain set to " << mddDomain;
 
             // compute tiles
-            r_Storage_Layout* storage_layout = new r_Storage_Layout(new r_Aligned_Tiling(1));
-            std::vector<r_Minterval>* tiles = storage_layout->decomposeMDD(mddDomain, 1);
+            std::unique_ptr<r_Storage_Layout> storage_layout;
+            storage_layout.reset(new r_Storage_Layout(new r_Aligned_Tiling(1)));
+            std::unique_ptr<std::vector<r_Minterval>> tiles;
+            tiles.reset(storage_layout->decomposeMDD(mddDomain, 1));
 
             // read data in each tile chunk
             long offset = 0;
             fileContentsChunked = new r_Set<r_GMarray*>();
-            std::vector<r_Minterval>::iterator chunkIt;
-            for (chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
+            for (auto chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
             {
                 r_Minterval chunkDom = *chunkIt;
                 r_Area chunkSize = chunkDom.cell_count();
-                char* chunkData = new char[chunkSize];
+                char* chunkData = NULL;
+                try
+                {
+                    chunkData = new char[chunkSize];
+                }
+                catch (const std::bad_alloc &e)
+                {
+                    throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
+                }
                 fseek(fileD, offset, SEEK_SET);
                 size_t rsize = fread(chunkData, 1, chunkSize, fileD);
+                if (rsize != chunkSize)
+                {
+                    BLERROR << "failed, read only " << rsize << " bytes of " << chunkSize << " bytes at offset " << offset << ".\n";
+                    throw RasqlError(FILEREADERROR);
+                }
                 r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
                 offset += static_cast<long>(chunkSize);
             }
-
-            // cleanup
-            if (tiles)
-            {
-                delete tiles;
-                tiles = NULL;
-            }
-            if (storage_layout)
-            {
-                delete storage_layout;
-                storage_layout = NULL;
-            }
         }
-        else if (size != static_cast<long>(mddDomain.cell_count()) * static_cast<long>(mddType->base_type().size()))
+        else if (size != static_cast<long>(mddDomain.cell_count()) * 
+                         static_cast<long>(mddType->base_type().size()))
         {
             throw RasqlError(FILESIZEMISMATCH);
         }
@@ -948,14 +954,18 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         {
             try
             {
-                fileContents = new char[size];
-                fseek(fileD, 0, SEEK_SET);
-                size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
+                fileContents.reset(new char[size]);
             }
-            catch (std::bad_alloc)
+            catch (const std::bad_alloc &e)
             {
-                LERROR << "Failed to allocate memory of " << size << " bytes.";
                 throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
+            }
+            fseek(fileD, 0, SEEK_SET);
+            size_t rsize = fread(fileContents.get(), 1, static_cast<size_t>(size), fileD);
+            if (rsize != size)
+            {
+                BLERROR << "failed, read only " << rsize << " bytes of " << size << " bytes.\n";
+                throw RasqlError(FILEREADERROR);
             }
         }
 
@@ -967,9 +977,9 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, false);
         fileMDD->set_type_schema(mddType);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
-        if (fileContents != NULL)
+        if (fileContents)
         {
-            fileMDD->set_array(fileContents);
+            fileMDD->set_array(fileContents.get());
         }
         else
         {
@@ -978,148 +988,99 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         query << *fileMDD;
 
-        LINFO << "constants are:";
+        if (!quietLog)
+        {
+            LINFO << "constants are:";
+        }
         r_Set<r_GMarray*>* myConstSet = const_cast<r_Set<r_GMarray*> *>(query.get_constants());
         r_Iterator<r_GMarray*> iter = myConstSet->create_iterator();
         int i;
         for (i = 1, iter.reset(); iter.not_done(); iter++, i++)
         {
             r_Ref<r_GMarray> myConstant = *iter;
-            NNLINFO << "  constant " << i << ": ";
             if (!quietLog)
+            {
+                NNLINFO << "  constant " << i << ": ";
                 myConstant->print_status(cout);
 // the following can be used for sporadic debugging of input files, but beware: is very verbose!
 #if 0
-            cout << "  Contents: " << hex;
-            const char* a = myConstant->get_array();
-            for (int m = 0; m < myConstant->get_array_size(); m++)
-            {
-                cout << (unsigned short)(a[m] & 0xFF) << " ";
-            }
-            cout << dec << endl;
+                cout << "  Contents: " << hex;
+                const char* a = myConstant->get_array();
+                for (int m = 0; m < myConstant->get_array_size(); m++)
+                {
+                    cout << (unsigned short)(a[m] & 0xFF) << " ";
+                }
+                cout << dec << endl;
 #endif
+            }
         }
     }
 
-    if (query.is_insert_query())
+    auto isInsert = query.is_insert_query();
+    if (isInsert || query.is_update_query()) // insert/update
     {
-        openTransaction(true);
-
-        r_Marray<r_ULong>* mddConst = NULL;
-
-        NNLINFO << "Executing insert query... ";
-        // third param is just to differentiate from retrieval
-        r_oql_execute(query, result_set, 1);
-        BLINFO << "ok.\n";
-
-        // generate output only if explicitly requested
-        if (output)
+        if (openTransaction(true))
         {
-            printResult(/* result_set */);
+            NNLINFO << "Executing " << (isInsert ? "insert" : "update") << " query... ";
+            // third param is just to differentiate from retrieval
+            if (isInsert)
+                r_oql_execute(query, result_set, 1);
+            else
+                r_oql_execute(query);
+
+            BLINFO << "ok.\n";
+            if (output)
+            {
+                printResult(/* result_set */);
+            }
+            closeTransaction(true);
         }
-
-        if (mddConst)
-        {
-            delete mddConst;
-        }
-
-        closeTransaction(true);
-    }
-    else if (query.is_update_query())
-    {
-        openTransaction(true);
-
-        r_Marray<r_ULong>* mddConst = NULL;
-
-        NNLINFO << "Executing update query... ";
-        r_oql_execute(query);
-        BLINFO << "ok.\n";
-
-        if (mddConst)
-        {
-            delete mddConst;
-        }
-
-        closeTransaction(true);
     }
     else // retrieval query
     {
-        openTransaction(false);
-
-        // should be defined here, but is global; see def for reason
-        // r_Set< r_Ref_Any > result_set;
-
-        NNLINFO << "Executing retrieval query... ";
-        r_oql_execute(query, result_set);
-        BLINFO << "ok.\n";
-
-        // generate output only if explicitly requested
-        if (output)
+        if (openTransaction(false))
         {
-            printResult(/* result_set */);
+            NNLINFO << "Executing retrieval query... ";
+            r_oql_execute(query, result_set);
+            BLINFO << "ok.\n";
+            if (output)
+            {
+                printResult(/* result_set */);
+            }
+            closeTransaction(true);
         }
-
-        closeTransaction(true);
-    }
-
-    if (fileContents != NULL)
-    {
-        delete [] fileContents;
     }
 }
 
 void
-crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+shutdownHandler(int sig, siginfo_t* info, void* ucontext)
 {
-    print_stacktrace(ucontext);
-    // clean up connection in case of segfault
-    closeTransaction(false);
-    closeDatabase();
-    exit(SEGFAULT_EXIT_CODE);
-}
-
-void
-cleanupHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
-{
-    static bool handleSignal = true;    // prevent nested signals
-    cerr << "Caught signal " << sig << ": ";
-    if (handleSignal)
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
     {
-        handleSignal = false;
-        cerr << "terminating connection to server... ";
-        closeTransaction(false);
-        closeDatabase();
-        cerr << "done, exiting." << endl;
+        alreadyExecuting = true;
+        NNLINFO << "\nrasql: Interrupted by signal " << common::SignalHandler::signalName(sig)
+                << "\nClosing server connection... ";
+        cleanConnection();
+        BLINFO << "done, exiting.";
         exit(sig);
     }
-    else
+}
+
+void
+crashHandler(int sig, siginfo_t* info, void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
     {
-        cerr << "will be ignored." << endl;
+        alreadyExecuting = true;
+        NNLERROR << "\nInterrupted by signal " << common::SignalHandler::toString(info)
+                 << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
+                 << "\nClosing server connection... ";
+        cleanConnection();
+        BLERROR << "done, exiting.";
+        exit(sig);
     }
-}
-
-void
-doNothingHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
-{
-}
-
-void
-instalRasqlSignalHandlers()
-{
-    installSigHandler(cleanupHandler, SIGINT);
-    installSigHandler(cleanupHandler, SIGTERM);
-    installSigHandler(cleanupHandler, SIGQUIT);
-
-    installSigHandler(crashHandler, SIGSEGV);
-    installSigHandler(crashHandler, SIGABRT);
-
-    installSigHandler(doNothingHandler, SIGHUP);
-    installSigHandler(doNothingHandler, SIGPIPE);
-    installSigHandler(doNothingHandler, SIGCONT);
-    installSigHandler(doNothingHandler, SIGTSTP);
-    installSigHandler(doNothingHandler, SIGTTIN);
-    installSigHandler(doNothingHandler, SIGTTOU);
-    installSigHandler(doNothingHandler, SIGWINCH);
 }
 
 INITIALIZE_EASYLOGGINGPP
@@ -1129,13 +1090,18 @@ INITIALIZE_EASYLOGGINGPP
  */
 int main(int argc, char** argv)
 {
+    // handle abort signals and ignore irrelevant signals
+    common::SignalHandler::handleAbortSignals(crashHandler);
+    common::SignalHandler::ignoreStandardSignals();
+    // setup log config
     common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
     logConf.configClientLogging();
+    // should come after the log config as it logs msgs
+    common::SignalHandler::handleShutdownSignals(shutdownHandler);
 
     SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
-    instalRasqlSignalHandlers();
 
     // unset the http_proxy env variable if it is set, otherwise rasql will most likely fail
     // more info at http://rasdaman.org/ticket/1716
@@ -1150,15 +1116,15 @@ int main(int argc, char** argv)
         // put INFO after parsing parameters to respect a '--quiet'
         LINFO << argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << ".";
 
-        openDatabase();
-        doStuff(argc, argv);
-        closeDatabase();
-        retval = EXIT_SUCCESS;
-    }
-    catch (std::runtime_error& ex)
-    {
-        LERROR << ex.what();
-        retval = EXIT_FAILURE;
+        if (openDatabase())
+        {
+            doStuff(argc, argv);
+            closeDatabase();
+        }
+        else
+        {
+            retval = EXIT_FAILURE;
+        }
     }
     catch (RasqlError& e)
     {
@@ -1170,25 +1136,20 @@ int main(int argc, char** argv)
         LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
         retval = EXIT_FAILURE;
     }
+    catch (std::exception& e)
+    {
+        LERROR << argv[0] << ": " << e.what();
+        retval = EXIT_FAILURE;
+    }
     catch (...)
     {
-        LERROR << argv[0] << ": panic: unexpected internal exception.";
+        LERROR << argv[0] << ": unexpected internal exception.";
         retval = EXIT_FAILURE;
     }
 
     if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen))
     {
-        try
-        {
-            NNLINFO << "aborting transaction... ";
-            closeTransaction(false);    // abort transaction and close database, ignore any further exceptions
-            BLINFO << "ok.\n";
-            closeDatabase();
-        }
-        catch (...)
-        {
-            LDEBUG << "Ignoring cleanup exceptions.";
-        }
+        cleanConnection();
     }
 
     LINFO << argv[0] << " done.";

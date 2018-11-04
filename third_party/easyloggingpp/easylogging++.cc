@@ -1567,6 +1567,11 @@ bool TypedConfigurations::toFile(Level level) {
   return getConfigByVal<bool>(level, &m_toFileMap, "toFile");
 }
 
+bool TypedConfigurations::hasFilename(Level level) {
+  return m_filenameMap.find(level) != m_filenameMap.end() ||
+          m_filenameMap.find(Level::Global) != m_filenameMap.end();
+}
+
 const std::string& TypedConfigurations::filename(Level level) {
   return getConfigByRef<std::string>(level, &m_filenameMap, "filename");
 }
@@ -2113,7 +2118,12 @@ void Storage::setApplicationArguments(int argc, char** argv) {
 void LogDispatchCallback::handle(const LogDispatchData* data) {
 #if defined(ELPP_THREAD_SAFE)
   base::threading::ScopedLock scopedLock(m_fileLocksMapLock);
-  std::string filename = data->logMessage()->logger()->typedConfigurations()->filename(data->logMessage()->level());
+  auto *config = data->logMessage()->logger()->typedConfigurations();
+  std::string filename;
+  if (config->hasFilename(data->logMessage()->level()))
+    filename = config->filename(data->logMessage()->level());
+  else
+    filename = "stdout";
   auto lock = m_fileLocks.find(filename);
   if (lock == m_fileLocks.end()) {
     m_fileLocks.emplace(std::make_pair(filename, std::unique_ptr<base::threading::Mutex>(new base::threading::Mutex)));
@@ -2122,7 +2132,13 @@ void LogDispatchCallback::handle(const LogDispatchData* data) {
 }
 
 base::threading::Mutex& LogDispatchCallback::fileHandle(const LogDispatchData* data) {
-  auto it = m_fileLocks.find(data->logMessage()->logger()->typedConfigurations()->filename(data->logMessage()->level()));
+  auto *config = data->logMessage()->logger()->typedConfigurations();
+  std::string filename;
+  if (config->hasFilename(data->logMessage()->level()))
+    filename = config->filename(data->logMessage()->level());
+  else
+    filename = "stdout";
+  auto it = m_fileLocks.find(filename);
   return *(it->second.get());
 }
 
@@ -2135,6 +2151,7 @@ void DefaultLogDispatchCallback::handle(const LogDispatchData* data) {
   base::threading::ScopedLock scopedLock(fileHandle(data));
 #endif
   m_data = data;
+
   dispatch(m_data->logMessage()->logger()->logBuilder()->build(m_data->logMessage(),
            m_data->dispatchAction() == base::DispatchAction::NormalLog));
 }

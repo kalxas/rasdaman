@@ -81,6 +81,7 @@ using namespace std;
 
 #include "raslib/rminit.hh"
 #include "loggingutils.hh"
+#include "common/src/logging/signalhandler.hh"
 
 #define MAXMSG 1024
 
@@ -220,6 +221,9 @@ bool isCommand(const char* command, const char* key);
 bool readRasmgrConf();
 void parseParams(int argc, char* argv[]);
 void readMode();
+
+void shutdownHandler(int sig, siginfo_t* info, void* ucontext);
+void crashHandler(int sig, siginfo_t* info, void* ucontext);
 
 
 void
@@ -760,14 +764,51 @@ readMode()
     cout << "ok" << endl;
 }
 
+void
+shutdownHandler(int sig, siginfo_t* info, void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        NNLINFO << "\nrasdl: Interrupted by signal " << common::SignalHandler::signalName(sig)
+                << "\nClosing database connection... ";
+        disconnectDB(false);
+        BLINFO << "done, exiting.";
+        exit(EXIT_SUCCESS);
+    }
+}
+
+void
+crashHandler(int sig, siginfo_t* info, void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        // stick to std cerr -- the signal might have been caused by a faulty easylogging
+        NNLERROR << "\nrasdl: Interrupted by signal " << common::SignalHandler::toString(info)
+                 << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
+                 << "\nClosing database connection... ";
+        disconnectDB(false);
+        BLERROR << "done, exiting.";
+        exit(sig);
+    }
+}
+
 INITIALIZE_EASYLOGGINGPP
 
 int
 main(int argc, char* argv[])
 {
+    // handle abort signals and ignore irrelevant signals
+    common::SignalHandler::handleAbortSignals(crashHandler);
+    common::SignalHandler::ignoreStandardSignals();
     // Default logging configuration
     common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
     logConf.configClientLogging();
+    // should come after the log config as it logs msgs
+    common::SignalHandler::handleShutdownSignals(shutdownHandler);
 
     SET_OUTPUT(false);          // ...unless we are otherwise instructed by --debug parameter
 

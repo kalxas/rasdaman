@@ -26,10 +26,13 @@
 #define SEGFAULT_EXIT_CODE 11
 
 #include <signal.h>
+
+#ifdef RASDEBUG
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <vector>
-#include <iostream>
+#include <ostream>
+#endif
 
 /**
  * Print stack trace.
@@ -91,6 +94,8 @@ char* execute_system_command(char* cmd);
  * http://stackoverflow.com/a/14927379
  */
 size_t get_current_rss();
+
+#ifdef RASDEBUG
 
 /**
  * Prints the stack trace from the line where this class is used.
@@ -234,5 +239,7 @@ private:
         free(strings);
     }
 };
+
+#endif
 
 #endif

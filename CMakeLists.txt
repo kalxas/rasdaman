@@ -119,7 +119,7 @@ add_definitions(-DELPP_FEATURE_CRASH_LOG)
 add_definitions(-DELPP_STACKTRACE)
 add_definitions(-DELPP_DISABLE_DEFAULT_CRASH_HANDLING)
 add_definitions(-DELPP_NO_CHECK_MACROS)
-#add_definitions(-DELPP_THREAD_SAFE)
+add_definitions(-DELPP_THREAD_SAFE)
 
 # For development
 set(ENABLE_DEBUG OFF CACHE BOOL 
@@ -129,11 +129,31 @@ if (ENABLE_DEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
     set(DEBUG ${ENABLE_DEBUG})
 
+    add_definitions(-DELPP_DEBUG_ERRORS)
+
     message(STATUS "Compile in debug mode enabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
 else ()
     message(STATUS "Compile in debug mode disabled " 
         "(-DENABLE_DEBUG=${ENABLE_DEBUG}).")
+endif ()
+
+# Find libdw
+find_path(LIBDW_INCLUDE_DIR NAMES "elfutils/libdw.h" "elfutils/libdwfl.h")
+find_library(LIBDW_LIBRARY dw)
+if (LIBDW_LIBRARY AND LIBDW_INCLUDE_DIR)
+    set(LIBDW_INCLUDE_DIRS ${LIBDW_INCLUDE_DIR} )
+    set(LIBDW_LIBRARIES ${LIBDW_LIBRARY} )
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(libdw DEFAULT_MSG
+            LIBDW_LIBRARY LIBDW_INCLUDE_DIR)
+    mark_as_advanced(LIBDW_INCLUDE_DIR LIBDW_LIBRARY)
+    add_definitions(-DBACKWARD_HAS_DW=1)
+    set(HAVE_LIBDW ON)
+    message(STATUS "libdw found.")
+else()
+    set(HAVE_LIBDW OFF)
+    message(STATUS "libdw not found, will use standard backtrace for stacktrace printing.")
 endif ()
 
 # If release and not ENABLE_DEBUG, disable Debug and Trace logs

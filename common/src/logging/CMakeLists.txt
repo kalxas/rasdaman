@@ -25,9 +25,11 @@ set(LOGGING_HEADERS loggingutils.hh logging.hh)
 
 add_library(common_logging STATIC
         loggingutils.cc
+        stacktrace.cc stacktrace.hh backward.hpp
+        signalhandler.cc signalhandler.hh
         ${LOGGING_HEADERS})
 
-target_link_libraries(common_logging ${ELPP_LIBRARY})
+target_link_libraries(common_logging ${ELPP_LIBRARY} ${LIBDW_LIBRARY})
 
 install(TARGETS common_logging
         DESTINATION "${LIB_DIR}")

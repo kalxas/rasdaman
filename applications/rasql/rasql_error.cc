@@ -52,7 +52,6 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 /// error object, carrying int error code
 RasqlError::RasqlError(int e)
 {
-    LDEBUG << "Exception: " << e;
     error_code = e;
 }
 
@@ -101,6 +100,12 @@ RasqlError::what()
         break;
     case UNABLETOWRITETOFILE:
         errorMsg = "Cannot write to file.";
+        break;
+    case FILEREADERROR:
+        errorMsg = "Failed reading from file.";
+        break;
+    case FILEWRITEERROR:
+        errorMsg = "Failed writing to file.";
         break;
     default :
         errorMsg = "Unknown error code.";

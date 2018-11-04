@@ -577,7 +577,14 @@ RPCFUNCTIONDEF(rpcclosedb_1, unsigned long* callingClientId)
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->closeDB(cci);
+    if (sc->getClientContext(cci) != NULL)
+    {
+        rpcDummy = sc->closeDB(cci);
+    }
+    else
+    {
+        rpcDummy = 1;
+    }
 
     if (rpcDummy == 0)
     {
@@ -752,8 +759,14 @@ RPCFUNCTIONDEF(rpcabortta_1, unsigned long* callingClientId)
     // Get a pointer to the actual servercomm object.
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    // Call the corresponding method.
-    rpcDummy = sc->abortTA(cci);
+    if (sc->getClientContext(cci) != NULL)
+    {
+        rpcDummy = sc->abortTA(cci);
+    }
+    else
+    {
+        rpcDummy = 1;
+    }
 
     // Return the result
     return &rpcDummy;

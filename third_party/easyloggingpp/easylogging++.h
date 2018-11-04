@@ -2007,6 +2007,7 @@ class TypedConfigurations : public base::threading::ThreadSafe {
 
   bool enabled(Level level);
   bool toFile(Level level);
+  bool hasFilename(Level level);
   const std::string& filename(Level level);
   bool toStandardOutput(Level level);
   const base::LogFormat& logFormat(Level level);
@@ -2077,6 +2078,7 @@ class TypedConfigurations : public base::threading::ThreadSafe {
         ELPP_INTERNAL_ERROR("Unable to get configuration [" << confName << "] for level ["
                             << LevelHelper::convertToString(level) << "]"
                             << std::endl << "Please ensure you have properly configured logger.", false);
+        throw;
       }
     }
     return it->second;

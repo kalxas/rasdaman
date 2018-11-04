@@ -56,6 +56,7 @@ using namespace std;
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "common/src/logging/signalhandler.hh"
 #include "relblobif/tilecache.hh"
 #include "raslib/commonutil.hh"
 #include "loggingutils.hh"
@@ -111,79 +112,102 @@ const char* serverName  = 0;
 int         serverListenPort = 0;
 ServerComm* server = NULL;
 
-void
-crash_handler(int sig, siginfo_t* info, void* ucontext);
-
 /**
  * Invoked on SIGUSR1 signal, this handler prints the stack trace and then kills
  * the server process with SIGKILL. This is used in crash testing of rasserver.
  */
 void
-test_handler(int sig, siginfo_t* info, void* ucontext);
-
-/**
-  * This function is called when a SIGTERM signal is received by the process.
-  * The function is placed here because it affects the global behavior of the process.
-  */
-void rasnetTerminationHandler(int sig, siginfo_t* info, void* ucontext);
-
+testHandler(int sig, siginfo_t* info, void* ucontext);
 
 void
-crash_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
-{
-    print_stacktrace(ucontext);
-    if (TileCache::cacheLimit > 0)
-    {
-        TileCache::clear();
-    }
-    if (server != NULL)
-    {
-        delete server;
-    }
-    server = NULL;
-    LINFO << "rasserver terminated.";
-
-    exit(SEGFAULT_EXIT_CODE);
-}
+shutdownHandler(int sig, siginfo_t* info, void* ucontext);
 
 void
-test_handler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
+crashHandler(int sig, siginfo_t* info, void* ucontext);
+
+void testHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
-    LINFO << "test handler caught signal SIGUSR1";
-    print_stacktrace(ucontext);
+    LINFO << "test handler caught signal SIGUSR1, stacktrace: \n" << common::SignalHandler::getStackTrace();
     LINFO << "killing rasserver with SIGKILL.";
     raise(SIGKILL);
 }
 
-/**
-  * This function is called when a SIGTERM signal is received by the process.
-  * The function is placed here because it affects the global behavior of the process.
-  */
-void rasnetTerminationHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, __attribute__((unused)) void* ucontext)
+void shutdownHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucontext)
 {
-    LINFO << "Exiting server process.";
-
-    exit(EXIT_SUCCESS);
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        LINFO << "Interrupted by signal " << common::SignalHandler::toString(info);
+        NNLINFO << "Shutting down... ";
+        {
+            TileCache::clear();
+            BLINFO << "aborting any open transactions... ";
+            auto &rasserverEntry = RasServerEntry::getInstance();
+            rasserverEntry.compat_abortTA();
+            rasserverEntry.compat_closeDB();
+            if (server)
+            {
+                server->abortEveryThingNow();
+                delete server;
+            }
+        }
+        BLINFO << "rasserver terminated.";
+        exit(EXIT_SUCCESS);
+    }
 }
+
+void crashHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        NNLERROR << "Interrupted by signal " << common::SignalHandler::toString(info);
+        BLERROR << "... stacktrace:\n" << common::SignalHandler::getStackTrace() << "\n";
+        BLFLUSH;
+        NNLERROR << "Shutting down... ";
+        {
+            TileCache::clear();
+            BLERROR << "aborting any open transactions... ";
+            auto &rasserverEntry = RasServerEntry::getInstance();
+            rasserverEntry.compat_abortTA();
+            rasserverEntry.compat_closeDB();
+            if (server)
+            {
+                server->abortEveryThingNow();
+                delete server;
+            }
+        }
+        BLERROR << "rasserver terminated." << endl;
+        exit(sig);
+    }
+}
+
+void installSignalHandlers()
+{
+    common::SignalHandler::handleAbortSignals(crashHandler);
+    common::SignalHandler::handleShutdownSignals(shutdownHandler);
+    common::SignalHandler::ignoreStandardSignals();
+#ifdef RASDEBUG
+    common::SignalHandler::handleSignals({SIGUSR1}, testHandler);
+#endif
+}
+
 
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
-    installSigSegvHandler(crash_handler);
-    installSigHandler(test_handler, SIGUSR1);
-
     SET_OUTPUT(true);       // enable debug output, if compiled so
-
-    //print startup text (this line will still go into forking rasmgr's log!)
-    // DM: commented out, it goes in nohup.out and is confusing.
-    //cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << "." << endl;
 
     if (configuration.parseCommandLine(argc, argv) == false)
     {
         LERROR << "Error: cannot parse command line.";
         return RC_ERROR;
     }
+
+    installSignalHandlers();
 
     LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << ".";
     LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
@@ -208,14 +232,6 @@ int main(int argc, char** argv)
     // body rasserver
     //
 
-    NNLINFO << "Installing signal handler for ignoring broken pipe signal... ";
-    struct sigaction signal;
-    memset(&signal,0,sizeof(signal));
-    signal.sa_handler = SIG_IGN;
-    
-    sigaction(SIGPIPE, &signal, NULL);
-    BLINFO << "ok.\n\n";
-
     int returnCode = 0;
     try
     {
@@ -230,22 +246,27 @@ int main(int argc, char** argv)
         else if (configuration.isHttpServer())
         {
             LDEBUG << "initializing HttpServer()...";
-            server = new HttpServer(clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
+            server = new HttpServer(clientTimeOut, managementInterval,
+                    static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
+                    static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
+            LDEBUG << "HttpServer initialized.";
         }
 #ifdef RMANRASNET
         else if (configuration.isRasnetServer())
         {
-            installSigHandler(rasnetTerminationHandler, SIGTERM);
-
+            LDEBUG << "initializing rasnet server...";
             //start rasnet server
             rasserver::RasnetServer rasnetServer(configuration);
             rasnetServer.startRasnetServer();
+            LDEBUG << "rasnet server started.";
         }
 #endif
         else
         {
             LDEBUG << "initializing ServerComm() (ie: RPC)...";
-            server = new ServerComm(clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
+            server = new ServerComm(clientTimeOut, managementInterval,
+                    static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
+                    static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 
         // in case of HTTP or RPC server: launch previously generated object
@@ -275,14 +296,14 @@ int main(int argc, char** argv)
     if (server)
     {
         delete server;
+        server = NULL;
     }
-    server = NULL;
 
     if (dbSchema)
     {
         free(dbSchema);
+        dbSchema = NULL;
     }
-    dbSchema = NULL;
 
     LINFO << "rasserver terminated.";
     return returnCode;

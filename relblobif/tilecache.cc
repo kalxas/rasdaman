@@ -150,6 +150,9 @@ void TileCache::removeKey(KeyType key)
 }
 void TileCache::clear()
 {
+    if (cacheLimit <= 0)
+        return;
+
     typedef CacheType::iterator it_type;
     for (it_type it = cache.begin(); it != cache.end(); it++)
     {

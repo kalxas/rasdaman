@@ -59,6 +59,8 @@
 #define NOFILEWRITEPERMISSION           9
 #define UNABLETOWRITETOFILE             10
 #define FILEEMPTY                       11
+#define FILEREADERROR                   12
+#define FILEWRITEERROR                  13
 
 class RasqlError // : public std::exception
 {
@@ -76,7 +78,6 @@ public:
 private:
     /// error information
     int error_code;
-
 };
 
 #endif // _RASQL_ERROR_HH_

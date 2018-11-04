@@ -32,6 +32,7 @@
 
 #include "common/src/crypto/crypto.hh"
 #include "common/src/grpc/grpcutils.hh"
+#include "common/src/logging/signalhandler.hh"
 #include "loggingutils.hh"
 
 #include "configuration.hh"
@@ -45,8 +46,8 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-void installSignalHandlers();
-void sigIntHandler(int sig);
+void crashHandler(int sig, siginfo_t* info, void* ucontext);
+void shutdownHandler(int sig, siginfo_t* info, void* ucontext);
 
 using common::Crypto;
 using rasmgr::Configuration;
@@ -55,11 +56,44 @@ using rasmgr::RasManager;
 //RasManager object that orchestrates
 boost::shared_ptr<rasmgr::RasManager> manager;
 
+void shutdownHandler(__attribute__ ((unused)) int sig,
+        __attribute__ ((unused)) siginfo_t* info, __attribute__ ((unused)) void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        if (manager)
+        {
+            manager->stop();
+        }
+        exit(RASMGR_RESULT_OK);
+    }
+}
+
+void crashHandler(int sig, siginfo_t* info, __attribute__ ((unused)) void* ucontext)
+{
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        LERROR << "Interrupted by signal " << common::SignalHandler::toString(info)
+               << "... stacktrace:\n" << common::SignalHandler::getStackTrace();
+        if (manager)
+        {
+            manager->stop();
+        }
+        exit(sig);
+    }
+}
+
 int main(int argc, char** argv)
 {
-    Configuration config;
+    // handle abort signals and ignore irrelevant signals
+    common::SignalHandler::handleAbortSignals(crashHandler);
+    common::SignalHandler::ignoreStandardSignals();
 
-    installSignalHandlers();
+    Configuration config;
 
     if (Crypto::isMessageDigestAvailable(DEFAULT_DIGEST) == false)
     {
@@ -73,8 +107,6 @@ int main(int argc, char** argv)
         return RASMGR_RESULT_ILL_ARGS;
     }
 
-    common::GrpcUtils::redirectGRPCLogToEasyLogging();
-    
     auto outputLogFilePath = config.getLogFile();
     if (outputLogFilePath.empty())
     {
@@ -84,8 +116,13 @@ int main(int argc, char** argv)
         outputLogFilePath += string("rasmgr.") + std::to_string(::getpid()) + ".log";
     }
 
+    // setup log config
     common::LogConfiguration logConfig(string(CONFDIR), RASMGR_LOG_CONF);
     logConfig.configServerLogging(outputLogFilePath, config.isQuiet());
+    common::GrpcUtils::redirectGRPCLogToEasyLogging();
+
+    // should come after the log config as it logs msgs
+    common::SignalHandler::handleShutdownSignals(shutdownHandler);
 
     LINFO << "rasmgr: rasdaman server manager tool. rasdaman "
           << RMANVERSION << ".\n"
@@ -118,28 +155,4 @@ int main(int argc, char** argv)
     }
 
     return RASMGR_RESULT_OK;
-}
-
-void sigIntHandler(__attribute__ ((unused)) int sig)
-{
-    if (manager)
-    {
-        manager->stop();
-    }
-}
-
-void installSignalHandlers()
-{
-    struct sigaction sigInt;
-    memset(&sigInt,0,sizeof(sigInt));
-    sigInt.sa_handler = sigIntHandler;
-    
-    sigaction(SIGINT, &sigInt, NULL);
-    sigaction(SIGTERM, &sigInt, NULL);
-    
-    sigInt.sa_handler = SIG_IGN;
-    
-    sigaction(SIGHUP, &sigInt, NULL);
-    sigaction(SIGPIPE, &sigInt, NULL);
-    sigaction(SIGTTOU, &sigInt, NULL);
 }
