@@ -47,6 +47,8 @@ RC_ERROR=1
 # Input file (errtxts)
 ERRTXTS_FILE="$SCRIPT_DIR/../bin/errtxts"
 
+ERRTXTS_FILE_RETRY="$SCRIPT_DIR/../../bin/errtxts"
+
 # Output template file (e.g: rasj: RasErrorTexts.java.in file)
 TEMPLATE_FILE="$1"
 
@@ -77,7 +79,12 @@ error()
 
 
 if [ ! -f "$ERRTXTS_FILE" ]; then
-    error "errtxts file $ERRTXTS_FILE not found."
+    # Try again to find the source error file in upper folder path
+    if [ ! -f "$ERRTXTS_FILE_RETRY" ]; then
+        error "errtxts file '$ERRTXTS_FILE' or '$ERRTXTS_FILE_RETRY' not found."
+    fi
+
+    ERRTXTS_FILE="$ERRTXTS_FILE_RETRY"
 fi
 
 if [ ! -f "$TEMPLATE_FILE" ]; then
