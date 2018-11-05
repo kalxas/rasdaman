@@ -113,7 +113,7 @@ ingest_data()
   [ $INGEST_DATA -eq 0 ] && return
   [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "clipping" ] && import_rasql_data "$TESTDATA_PATH"
   [ "$SVC_NAME" == "rasdapy" ] && py_import_rasql_data "$TESTDATA_PATH"
-  [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data "$TESTDATA_PATH"
+  [ "$SVC_NAME" == "nullvalues" ] && import_nullvalues_data
   [ "$SVC_NAME" == "subsetting" ] && import_subsetting_data "$TESTDATA_PATH"
   if [ -e "$TESTDATA_PATH/complex.binary" ] ; then
     if [ "$SVC_NAME" == "select" -o "$SVC_NAME" == "jit" -o "$SVC_NAME" == "nullvalues" -o "$SVC_NAME" == "cache" ]; then

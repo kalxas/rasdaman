@@ -29,7 +29,10 @@ add_library(common_logging STATIC
         signalhandler.cc signalhandler.hh
         ${LOGGING_HEADERS})
 
-target_link_libraries(common_logging ${ELPP_LIBRARY} ${LIBDW_LIBRARY})
+target_link_libraries(common_logging ${ELPP_LIBRARY})
+if (HAVE_LIBDW)
+    target_link_libraries(common_logging ${LIBDW_LIBRARY})
+endif()
 
 install(TARGETS common_logging
         DESTINATION "${LIB_DIR}")
