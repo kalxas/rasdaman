@@ -167,9 +167,8 @@ function insert_into()
     values="\$1"
   fi
 
-  logn "inserting data... "
+  logn "inserting data into $coll_name... "
   $RASQL --quiet -q "insert into $coll_name values $values $tiling" -f $file_name $rasql_opts > /dev/null
-  feedback
   feedback
 }
 
@@ -192,7 +191,7 @@ function export_to_file()
     values="c"
   fi
 
-  logn "selecting data... "
+  logn "selecting data from $coll_name... "
   $RASQL --quiet -q "select $values from $coll_name as c" --out file --outfile $file_name > /dev/null
   feedback
 }
@@ -207,7 +206,7 @@ function create_coll()
 {
   local coll_name="$1"
   local coll_type="$2"
-  logn "creating collection... "
+  logn "creating collection $coll_name $coll_type... "
   $RASQL --quiet -q "create collection $coll_name $coll_type" > /dev/null
   feedback
 }
@@ -227,21 +226,11 @@ function import_rasql_data()
   if [ ! -d "$TESTDATA_PATH" ]; then
     error "testdata path $TESTDATA_PATH not found."
   fi
-  if [ ! -f "$TESTDATA_PATH/mr_1.png" ]; then
-    error "testdata file $TESTDATA_PATH/mr_1.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/rgb.png" ]; then
-    error "testdata file $TESTDATA_PATH/rgb.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/mr2_1.png" ]; then
-    error "testdata file $TESTDATA_PATH/mr2_1.png not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/50k.bin" ]; then
-    error "testdata file $TESTDATA_PATH/50k.bin not found"
-  fi
-  if [ ! -f "$TESTDATA_PATH/23k.bin" ]; then
-    error "testdata file $TESTDATA_PATH/23k.bin not found"
-  fi
+  for f in mr_1.png rgb.png mr2_1.png 50k.bin 23k.bin; do
+    if [ ! -f "$TESTDATA_PATH/$f" ]; then
+      error "testdata file $TESTDATA_PATH/$f not found"
+    fi
+  done
   
   # check data types
   check_type GreySet
@@ -250,7 +239,7 @@ function import_rasql_data()
   
   drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
 
-#create the struct_cube_set type
+  # create the struct_cube_set type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
   if [ $? -ne 0 ]; then
     log "rasdaman type struct_cube_set not found, inserting..."
@@ -262,7 +251,7 @@ function import_rasql_data()
   create_coll $TEST_STRUCT struct_cube_set
   $RASQL -q "insert into $TEST_STRUCT values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/23k.bin" --mdddomain "[0:99,0:9,0:0]" --mddtype struct_cube > /dev/null
 
-#create the GreySet4 type
+  # create the GreySet4 type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bGreySet4\b"
   if [ $? -ne 0 ]; then
     log "rasdaman type GreySet4 not found, inserting..."
