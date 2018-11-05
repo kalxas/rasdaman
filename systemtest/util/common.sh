@@ -93,6 +93,7 @@ export STOP_RAS=stop_rasdaman.sh
 export CREATE_DB=create_db.sh
 
 export GDALINFO="gdalinfo -noct -checksum"
+export VALGRIND="valgrind --tool=memcheck --leak-check=full --track-origins=yes"
 
 # filestorage
 export DB_DIR="/tmp/rasdb"
@@ -851,7 +852,7 @@ run_test()
     esac
 
     #
-    # 2a. create $oracle from $ouput, if missing
+    # 2a. create $oracle from $output, if missing
     #
     outfiletype=`file "$out" | awk -F ':' '{print $2;}'`
     if [ ! -f "$oracle" ]; then

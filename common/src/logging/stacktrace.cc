@@ -132,7 +132,7 @@ void StackTrace::generateNew(void) {
 
 #else
   backward::StackTrace st;
-  st.load_here(32);
+  st.load_here(kMaxStack);
 
   backward::SnippetFactory sf;
   backward::TraceResolver tr;

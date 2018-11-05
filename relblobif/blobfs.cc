@@ -230,7 +230,7 @@ void BlobFS::finalizeUncompletedTransactions()
                         transaction->finalizeUncompleted();
                         delete transaction;
                         transaction = NULL;
-                        BLDEBUG << "ok.";
+                        BLDEBUG << "ok.\n";
                     }
                 }
                 checkTransactionLock.unlock();

@@ -67,7 +67,6 @@ void shutdownHandler(__attribute__ ((unused)) int sig,
         {
             manager->stop();
         }
-        exit(RASMGR_RESULT_OK);
     }
 }
 

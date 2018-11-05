@@ -129,7 +129,7 @@ ServerRasNet::~ServerRasNet()
     int waitOptions = 0;
     waitpid(this->processId, &status, waitOptions);
 
-    LDEBUG << "RasServer destructed.";
+    LDEBUG << "Rasserver destructed: " << serverId;
 }
 
 void ServerRasNet::startProcess()
@@ -160,7 +160,7 @@ void ServerRasNet::startProcess()
         //Child process
 
         std::string command = this->getStartProcessCommand();
-        LDEBUG << "Starting server process with command:" << command;
+        LDEBUG << "Starting server process " << serverId << " with command: " << command;
 
         boost::char_separator<char> sep(" \t\r\n");
         boost::tokenizer<boost::char_separator<char>> tokens(command, sep);
@@ -254,9 +254,11 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
         ClientContext context;
         this->configureClientContext(context);
 
+        LDEBUG << "Check if client with ID " << clientId << " is alive";
         Status status = this->service->GetClientStatus(&context, request, &response);
 
         result = (status.ok() && response.status() == ClientStatusRepl::ALIVE);
+        LDEBUG << "Client with ID " << clientId << " alive status: " << result;
     }
 
     return result;
@@ -288,10 +290,12 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
     ClientContext context;
     this->configureClientContext(context);
 
+    LDEBUG << "Allocating client with ID " << clientId << " on server " << serverId;
     Status status = this->service->AllocateClient(&context, request, &response);
 
     if (!status.ok())
     {
+        LDEBUG << "Failed allocating client with ID " << clientId << ".";
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
@@ -307,6 +311,9 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         unique_lock<shared_mutex> stateLock(this->stateMtx);
         this->allocatedClientsNo++;
     }
+
+    LDEBUG << "Allocated client with ID " << clientId << " on server " << serverId
+           << "; session counter: " << (this->sessionNo + 1);
 
     //Increase the session counter
     this->sessionNo++;
@@ -337,12 +344,15 @@ void ServerRasNet::deallocateClientSession(const std::string& clientId, const st
 
     ClientContext context;
     this->configureClientContext(context);
+    LDEBUG << "Deallocating client with ID " << clientId << " on server " << serverId;
     Status status = this->service->DeallocateClient(&context, request, &response);
 
     if (!status.ok())
     {
+        LDEBUG << "Failed deallocating client with ID " << clientId << " on server " << serverId;
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
+    LDEBUG << "Deallocated client with ID " << clientId << " on server " << serverId;
 }
 
 void ServerRasNet::registerServer(const std::string& serverId)
@@ -365,6 +375,7 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
 
 void ServerRasNet::stop(KillLevel level)
 {
+    LDEBUG << "Stopping server " << serverId;
     if (isProcessAlive())
     {
         switch (level)
@@ -411,6 +422,10 @@ void ServerRasNet::stop(KillLevel level)
             }
         }
     }
+    else
+    {
+        LDEBUG << "Process with pid " << processId << " for server " << serverId << " not found.";
+    }
 
     unique_lock<shared_mutex> lock(this->stateMtx);
     this->started = false;
@@ -424,53 +439,48 @@ bool ServerRasNet::isStarting()
 
 bool ServerRasNet::isFree()
 {
+    LDEBUG << "Checking if server " << serverId << " is free";
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if (!this->registered || !this->started)
     {
+        LDEBUG << "Error, server " << serverId << " not registered or not started.";
         throw common::InvalidStateException("The server is not registered with rasmgr.");
     }
-
-    if (this->allocatedClientsNo == 0)
+    try
     {
-        return true;
+        this->allocatedClientsNo = this->getClientQueueSize();
     }
-    else
+    catch (...)
     {
-        try
-        {
-            this->allocatedClientsNo = this->getClientQueueSize();
-        }
-        catch (...)
-        {
-            return false;
-        }
-        return (this->allocatedClientsNo == 0);
+        LDEBUG << "Caught exception, server  " << serverId << " is not free.";
+        return false;
     }
+    const auto ret = (this->allocatedClientsNo == 0);
+    LDEBUG << "Server  " << serverId << " is free: " << ret;
+    return ret;
 }
 
 bool ServerRasNet::isAvailable()
 {
+    LDEBUG << "Checking if server " << serverId << " is available";
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if (!this->registered || !this->started)
     {
-        throw common::InvalidStateException("The server is not registered with rasmgr.");
+        LDEBUG << "Error, server " << serverId << " not registered or not started.";
+        throw common::InvalidStateException("The server is not registered with rasmgr or is not started.");
     }
-    if (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer())
+    try
     {
-        return true;
+        this->allocatedClientsNo = this->getClientQueueSize();
     }
-    else
+    catch (...)
     {
-        try
-        {
-            this->allocatedClientsNo = this->getClientQueueSize();
-        }
-        catch (...)
-        {
-            return false;
-        }
-        return (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer());
+        LDEBUG << "Caught exception, server  " << serverId << " is not available.";
+        return false;
     }
+    const auto ret = (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer());
+    LDEBUG << "Server  " << serverId << " is available: " << ret;
+    return ret;
 }
 
 boost::int32_t ServerRasNet::getPort() const
@@ -496,13 +506,16 @@ boost::uint32_t ServerRasNet::getClientQueueSize()
     ClientContext context;
     this->configureClientContext(context);
 
+    LDEBUG << "Getting server status for " << serverId;
     Status status = this->service->GetServerStatus(&context, request, &reply);
 
     if (!status.ok())
     {
+        LDEBUG << "Failed getting server status for " << serverId << ", throwing exception.";
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
+    LDEBUG << "Client queue size for " << serverId << ": " << reply.clientqueuesize();
     return (reply.clientqueuesize());
 }
 
