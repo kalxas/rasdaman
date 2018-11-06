@@ -57,8 +57,6 @@
 #include <iomanip>
 #include <memory>
 
-#include "raslib/commonutil.hh"
-
 using namespace std;
 
 #ifdef __VISUALC__
@@ -86,7 +84,6 @@ using namespace std;
 #include "raslib/structure.hh"
 
 #include "raslib/rmdebug.hh"
-#include "raslib/commonutil.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 #include "common/src/logging/signalhandler.hh"

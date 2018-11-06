@@ -21,16 +21,24 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 //
-//  wrapper for malloc on client side - does nothing
+//  wrapper for malloc on client side
 //
-
-//using std::bad_alloc; // added for gcc3 -- PB 2005-feb-13
 
 #include "config.h"
 #include "mymalloc/mymalloc.h"
+#include <logging.hh>
 
-// added throw to be conformant with mymalloc_svc -- PB 2005-feb-01
-void* mymalloc(size_t size) // throw (std::bad_alloc) // FIXME: gcc3 doesn't like it
+void* mymalloc(size_t size)
 {
-    return malloc(size);
+    void *ret = malloc(size);
+    if (ret != (void*)NULL)
+    {
+        return ret;
+    }
+    else
+    {
+        const auto sizeGB = size / 1000000000.0;
+        LERROR << "Failed allocating " << size << " bytes (" << sizeGB << " GB) of memory.";
+        throw std::bad_alloc();
+    }
 }

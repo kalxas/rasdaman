@@ -28,53 +28,49 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include "reladminif/objectbroker.hh"
 #include <stdlib.h>
-#include <new>
 #include <logging.hh>
 
 using namespace std;
 
+// try to free memory from the ObjectBroker at most MAX_FREE_ATTEMPTS times;
+// this is used to guard against any fault in ObjectBroker::freeMemory()
+// that could lead to an infinite loop
+#define MAX_RETRIES 10000
+
 // try to allocate requested memory;
 // if impossible, try to free some, then retry allocation (by recursion)
 // if nothing can be freed & allocated, give up & throw exception
-
-void* mymalloc(size_t size) // // FIXME: gcc3 doesn't like it, & can't do that unless other places are adapted too
+void* mymalloc(size_t size)
 {
-    void* p = malloc(size);
-
-#ifdef OLD_VERSION
-// replaced this weird coding by the following below which should be semantically equivalent -- PB 2005-feb-01
-    // ...except for more detailed error messages
-    // FIXME: And SITF resolve this totally screwed up recursion to a while loop.
-    if (!p)
-        if (!ObjectBroker::freeMemory() || !(p = mymalloc(size)))
-        {
-            LERROR << "mymalloc: memory allocation failed.";
-            throw bad_alloc();
-        }
-#else   // improved structure, same logic:
-    if (p == (void*) NULL)
+    void* ret = malloc(size);
+    if (ret != (void*)NULL)
     {
-        bool freePossible = ObjectBroker::freeMemory();
-        if (freePossible)
+        // success, return
+        return ret;
+    }
+    else
+    {
+        // failed, retry
+        auto retriesSoFar = MAX_RETRIES;   // while all of these are true:
+        while (ret == (void*)NULL          //  - p is null == malloc failed
+            && retriesSoFar != 0           //  - retried less than MAX_RETRIES times so far
+            && ObjectBroker::freeMemory()) //  - it's possible to free some cached memory
         {
-            p = mymalloc(size);
-            if (p == (void*) NULL)
-            {
-                LERROR << "Error: mymalloc(): memory allocation failed.";
-                throw bad_alloc();
-            }
-            else
-            {
-                // all went fine, nothing to do, return p
-            }
-        }
-        else    // mem full, according to ObjectBroker, so throw alloc exception
-        {
-            LERROR << "Error: mymalloc(): ObjectBroker::freeMemory() failed.";
-            throw bad_alloc();
+            ret = malloc(size);
+            --retriesSoFar;
         }
     }
-#endif /* OLD_VERSION */
 
-    return p;
+    if (ret != (void*)NULL)
+    {
+        // success, return
+        return ret;
+    }
+    else
+    {
+        // failed, give up
+        const auto sizeGB = size / 1000000000.0;
+        LERROR << "Failed allocating " << size << " bytes (" << sizeGB << " GB) of memory.";
+        throw std::bad_alloc();
+    }
 }

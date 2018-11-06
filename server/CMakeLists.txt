@@ -25,7 +25,9 @@ add_definitions(${PNG_DEFINITIONS})
 add_executable(rasserver createinitmdd.hh createinitmdd.cc
         rasserver_config.hh rasserver_config.cc
         rasserver_entry.hh rasserver_entry.cc
-        rasserver_main.cc template_inst.hh)
+        rasserver_main.cc template_inst.hh
+        ../mymalloc/mymalloc.h ../mymalloc/mymalloc_svc.cc
+)
 
 target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})
 
@@ -34,7 +36,7 @@ target_link_libraries(rasserver servercomm qlparser conversion
         catalogmgr relmddif relstorageif
         relcatalogif indexmgr relblobif relindexif relcatalogif
         commline lockmanager servercomm
-        httpserver network
+        httpserver network mymalloc_svc
         ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES})
 
 if (RMANRASNET)

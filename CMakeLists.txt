@@ -150,10 +150,8 @@ if (LIBDW_LIBRARY AND LIBDW_INCLUDE_DIR)
     mark_as_advanced(LIBDW_INCLUDE_DIR LIBDW_LIBRARY)
     add_definitions(-DBACKWARD_HAS_DW=1)
     set(HAVE_LIBDW ON)
-    message(STATUS "libdw found.")
 else()
     set(HAVE_LIBDW OFF)
-    message(STATUS "libdw not found, will use standard backtrace for stacktrace printing.")
 endif ()
 
 # If release and not ENABLE_DEBUG, disable Debug and Trace logs

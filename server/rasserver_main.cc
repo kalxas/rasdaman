@@ -58,7 +58,6 @@ using namespace std;
 #include "storagemgr/sstoragelayout.hh"
 #include "common/src/logging/signalhandler.hh"
 #include "relblobif/tilecache.hh"
-#include "raslib/commonutil.hh"
 #include "loggingutils.hh"
 
 RMINITGLOBALS('C')

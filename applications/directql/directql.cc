@@ -87,7 +87,7 @@ using namespace std;
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
 
-#include "raslib/commonutil.hh"
+#include "common/src/logging/signalhandler.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 
@@ -376,9 +376,6 @@ crashHandler(int sig, siginfo_t* info, void* ucontext);
 
 void
 cleanupHandler(int sig, siginfo_t* info, void* ucontext);
-
-void
-doNothingHandler(int sig, siginfo_t* info, void* ucontext);
 
 void
 instalDirectqlSignalHandlers();
@@ -1215,55 +1212,42 @@ void doStuff()
 void
 crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
-    print_stacktrace(ucontext);
-    // clean up connection in case of segfault
-    closeTransaction(false);
-    closeDatabase();
-    exit(SEGFAULT_EXIT_CODE);
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
+    {
+        alreadyExecuting = true;
+        NNLERROR << "\nInterrupted by signal " << common::SignalHandler::toString(info)
+                 << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
+                 << "\nClosing server connection... ";
+        closeTransaction(false);
+        closeDatabase();
+        BLERROR << "done, exiting.";
+        exit(sig);
+    }
 }
 
 void
 cleanupHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
 {
-    static bool handleSignal = true;    // prevent nested signals
-    cerr << "Caught signal " << sig << ": ";
-    if (handleSignal)
+    static bool alreadyExecuting{false};
+    if (!alreadyExecuting)
     {
-        handleSignal = false;
-        cerr << "terminating connection to server... ";
+        alreadyExecuting = true;
+        NNLINFO << "\ndirectql: Interrupted by signal " << common::SignalHandler::signalName(sig)
+                << "\nClosing server connection... ";
         closeTransaction(false);
         closeDatabase();
-        cerr << "done, exiting." << endl;
+        BLINFO << "done, exiting.";
         exit(sig);
     }
-    else
-    {
-        cerr << "will be ignored." << endl;
-    }
-}
-
-void
-doNothingHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t* info, void* ucontext)
-{
 }
 
 void
 instalDirectqlSignalHandlers()
 {
-    installSigHandler(cleanupHandler, SIGINT);
-    installSigHandler(cleanupHandler, SIGTERM);
-    installSigHandler(cleanupHandler, SIGQUIT);
-
-    installSigHandler(crashHandler, SIGSEGV);
-    installSigHandler(crashHandler, SIGABRT);
-
-    installSigHandler(doNothingHandler, SIGHUP);
-    installSigHandler(doNothingHandler, SIGPIPE);
-    installSigHandler(doNothingHandler, SIGCONT);
-    installSigHandler(doNothingHandler, SIGTSTP);
-    installSigHandler(doNothingHandler, SIGTTIN);
-    installSigHandler(doNothingHandler, SIGTTOU);
-    installSigHandler(doNothingHandler, SIGWINCH);
+    common::SignalHandler::handleAbortSignals(crashHandler);
+    common::SignalHandler::handleShutdownSignals(cleanupHandler);
+    common::SignalHandler::ignoreStandardSignals();
 }
 
 INITIALIZE_EASYLOGGINGPP
@@ -1281,6 +1265,7 @@ int main(int argc, char** argv)
     int retval = EXIT_SUCCESS; // overall result status
 
     instalDirectqlSignalHandlers();
+
     TileCache::cacheLimit = 0;
 
     try
@@ -1299,13 +1284,6 @@ int main(int argc, char** argv)
  
         retval = EXIT_SUCCESS;
     }
-
-    catch (std::runtime_error& ex)
-    {
-        cerr << ex.what() << endl;
-        retval = EXIT_FAILURE;
-    }
-
     catch (RasqlError& e)
     {
         cerr << argv[0] << ": " << e.what() << endl;
@@ -1317,10 +1295,14 @@ int main(int argc, char** argv)
         cerr << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
         retval = EXIT_FAILURE;
     }
-
+    catch (std::exception& e)
+    {
+        LERROR << argv[0] << ": " << e.what();
+        retval = EXIT_FAILURE;
+    }
     catch (...)
     {
-        cerr << argv[0] << ": panic: unexpected internal exception." << endl;
+        LERROR << argv[0] << ": unexpected internal exception.";
         retval = EXIT_FAILURE;
     }
 

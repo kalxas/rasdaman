@@ -152,7 +152,7 @@ ObjectBroker::theTileIndexMappings;
 bool
 ObjectBroker::freeMemory()
 {
-    LTRACE << "memory overflow: attempting to remove a blob tile to free memory.";
+    LDEBUG << "memory overflow: attempting to remove a blob tile to free memory.";
     bool retval = false;
     DBRef<BLOBTile>::setPointerCaching(false);
     DBRef<DBTile>::setPointerCaching(false);
@@ -466,11 +466,23 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name)
 void
 ObjectBroker::clearMap(DBObjectPMap& theMap)
 {
+    if (theMap.size() > 0)
+    {
+        auto it = theMap.begin();
+        DBObject *obj = (*it).second;
+        if (obj)
+        {
+            // this prevents deregisterObject from modifying the map
+            // while it's being modified below
+            clearingObjectsOfType = obj->getOId().getType();
+        }
+    }
     for (auto &p: theMap)
     {
         delete p.second;
     }
     theMap.clear();
+    clearingObjectsOfType = OId::INVALID;
 }
 
 void
@@ -506,9 +518,7 @@ ObjectBroker::clearBroker()
     // clear in reverse order
     for (auto it = objTypes.rbegin(); it != objTypes.rend(); ++it) {
         LDEBUG << "Clearing map for objects of type: " << *it;
-        clearingObjectsOfType = *it; // this prevents deregisterObject from modifying the map
         clearMap(getMap(*it));
-        clearingObjectsOfType = OId::INVALID;
     }
 
     theTileIndexMappings.clear();
@@ -574,7 +584,6 @@ ObjectBroker::loadMDDType(const OId& id)
     return retval.release();
 }
 
-
 DBObject*
 ObjectBroker::loadMDDBaseType(const OId& id)
 {
@@ -628,7 +637,6 @@ ObjectBroker::loadDBNullvalues(const OId& id)
     registerDBObject(retval.get());
     return retval.release();
 }
-
 
 DBObject*
 ObjectBroker::loadDBMDDObj(const OId& id)

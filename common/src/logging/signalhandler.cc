@@ -311,7 +311,7 @@ std::string SignalHandler::extraSignalInfo(siginfo_t *info)
         }
     }
 
-    if (info->si_signo != SIGCHLD && info->si_pid != 0)
+    if (info->si_signo != SIGCHLD && info->si_pid > 0)
     {
         if (!ret.empty())
             ret += "; ";

@@ -24,28 +24,23 @@ package petascope.util.ras;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
 import org.odmg.Database;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
-import org.odmg.QueryException;
 import org.odmg.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
-import org.rasdaman.domain.cis.Coverage;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
@@ -54,10 +49,7 @@ import petascope.rasdaman.exceptions.RasdamanCollectionExistsException;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.util.ListUtil;
-import petascope.util.StringUtil;
 import static petascope.util.ras.RasConstants.RASQL_VERSION;
-import rasj.RasClientInternalException;
-import rasj.RasConnectionFailedException;
 import rasj.RasImplementation;
 import rasj.odmg.RasBag;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
@@ -73,12 +65,6 @@ public class RasUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RasUtil.class);
 
-    //Default time between re-connect attempts in seconds (If setting not found)
-    private static final int DEFAULT_TIMEOUT = 5;
-
-    //Default number of re-connect attempts  (If setting not fount)
-    private static final int DEFAULT_RECONNECT_ATTEMPTS = 3;
-
     /**
      * Execute a RasQL query with configured credentials.
      *
@@ -89,154 +75,104 @@ public class RasUtil {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
     }
     
+    private static void closeDB(Database db) {
+        if (db != null) {
+            try {
+                db.close();
+            } catch (Exception ex) {
+                log.warn("Failed closing rasdaman db connection: " + ex.getMessage());
+            }
+        }
+    }
+    
+    private static void abortTR(Transaction tr) {
+        if (tr != null) {
+            try {
+                tr.abort();
+            } catch (Exception ex) {
+                log.warn("Failed closing rasdaman transaction: " + ex.getMessage());
+            }
+        }
+    }
+    
     /**
-     * Executes a RasQL query, allowing write transactions by setting the flag.
+     * Executes a rasql query and returns result.
      *
-     * @param query
-     * @param username
-     * @param password
-     * @param isWriteTransaction
-     * @return
-     * @throws RasdamanException
+     * @param query rasql query string
+     * @param username rasdaman user
+     * @param password password for the user
+     * @param rw true if query will do DB updates
+     * @return result from query
      */
-    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws PetascopeException {
-        long start = System.currentTimeMillis();        
+    public static Object executeRasqlQuery(String query, String username, String password, Boolean rw) throws PetascopeException {
+        final long start = System.currentTimeMillis();
         log.debug("Executing rasql query: " + query);
 
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
+
         Database db = impl.newDatabase();
-        int maxAttempts, timeout, attempts = 0;
+        try {
+            // open db
+            db.open(ConfigManager.RASDAMAN_DATABASE, 
+                    rw ? Database.OPEN_READ_WRITE : Database.OPEN_READ_ONLY);
+        } catch (Exception ex) {
+            log.error("Failed opening " + (rw ? "rw" : "ro") + " database connection to rasdaman: " + ex.getMessage());
+            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex);
+        }
 
-        //The result of the query will be assigned to ret
-        //Should allways return a result (empty result possible)
-        //since a RasdamanException will be thrown in case of error
+        Transaction tr = null;
+        try {
+            // open transaction
+            tr = impl.newTransaction();
+            tr.begin();
+        } catch (Exception ex) {
+            log.error("Failed opening " + (rw ? "rw" : "ro") + " transaction to rasdaman: " + ex.getMessage());
+            closeDB(db);
+            throw new RasdamanException(ExceptionCode.RasdamanUnavailable, ex);
+        }
+        
+        OQLQuery q = null;
+        try {
+            q = impl.newOQLQuery();
+            q.create(query);
+        } catch (Exception ex) {
+            // not really supposed to ever throw an exception
+            log.error("Failed creating query object: " + ex.getMessage());
+            abortTR(tr);
+            closeDB(db);
+            throw new RasdamanException(ExceptionCode.InternalComponentError, ex);
+        }
+        
         Object ret = null;
-
         try {
-            timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
-        } catch (NumberFormatException ex) {
-            timeout = DEFAULT_TIMEOUT * 1000;
-            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is ill-defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
-            ConfigManager.RASDAMAN_RETRY_TIMEOUT = String.valueOf(DEFAULT_TIMEOUT);
-        }
-
-        try {
-            maxAttempts = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_ATTEMPTS);
-        } catch (NumberFormatException ex) {
-            maxAttempts = DEFAULT_RECONNECT_ATTEMPTS;
-            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is ill-defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
-            ConfigManager.RASDAMAN_RETRY_ATTEMPTS = String.valueOf(DEFAULT_RECONNECT_ATTEMPTS);
-        }
-
-        Transaction tr;
-
-        //Try to connect until the maximum number of attempts is reached
-        //This loop handles connection attempts to a saturated rasdaman
-        //complex which will refuse the connection until a server becomes
-        //available.
-        boolean queryCompleted = false, dbOpened = false;
-        while (!queryCompleted) {
-
-            //Try to obtain a free rasdaman server
-            try {
-                int openFlag = isWriteTransaction ? Database.OPEN_READ_WRITE : Database.OPEN_READ_ONLY;
-                db.open(ConfigManager.RASDAMAN_DATABASE, openFlag);
-                dbOpened = true;
-                tr = impl.newTransaction();
-                tr.begin();
-                OQLQuery q = impl.newOQLQuery();
-
-                //A free rasdaman server was obtain, executing query
-                try {
-                    q.create(query);                    
-                    ret = q.execute();
-                    tr.commit();
-                    queryCompleted = true;
-                } catch (QueryException ex) {
-
-                    //Executing a rasdaman query failed
-                    tr.abort();
-
-                    // Check if collection name exist then throw another exception
-                    if (ex.getMessage().contains("CREATE: Collection name exists already.")) {
-                        throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
-                    } else if (ex.getMessage().contains("Collection name is unknown.")) {
-                        throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
-                    } else {
-                        throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
-                                "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
-                    }
-                } catch (Error ex) {
-                    tr.abort();
-                    log.error("Critical error", ex);
-                    if (ex instanceof OutOfMemoryError) {
-                        throw new PetascopeException(ExceptionCode.InternalComponentError, "Requested more data than the server can handle at once. "
-                                + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
-                    } else {
-                        throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, ex.getMessage());
-                    }
-                } finally {
-
-                    //Done connection with rasdaman, closing database.
-                    try {
-                        db.close();
-                    } catch (ODMGException ex) {
-                        log.warn("Error closing database connection: ", ex);
-                    }
-                }
-            } catch (RasConnectionFailedException ex) {
-
-                //A connection with a Rasdaman server could not be established
-                //retry shortly unless connection attpempts exceded the maximum
-                //possible connection attempts.
-                attempts++;
-                if (dbOpened) {
-                    try {
-                        db.close();
-                    } catch (ODMGException e) {
-                        log.warn("Error closing database connection: ", e);
-                    }
-                }
-                dbOpened = false;
-                if (!(attempts < maxAttempts)) //Throw a RasConnectionFailedException if the connection
-                //attempts exceeds the maximum connection attempts.
-                {
-                    throw ex;
-                }
-
-                //Sleep before trying to open another connection
-                try {
-                    Thread.sleep(timeout);
-                } catch (InterruptedException e) {
-                    log.error("Thread " + Thread.currentThread().getName()
-                            + " was interrupted while searching a free server.");
-                    throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                            "Unable to get a free rasdaman server.");
-                }
-            } catch (ODMGException ex) {
-
-                //The maximum ammount of connection attempts was exceded
-                //and a connection could not be established. Return
-                //an exception indicating Rasdaman is unavailable.
-                log.error("A Rasdaman request could not be fullfilled since no "
-                        + "free Rasdaman server were available. Consider adjusting "
-                        + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
-                        + "or adding more Rasdaman servers.", ex);
-
-                throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                        "Unable to get a free rasdaman server.");
-            } catch (RasClientInternalException ex) {
-                //when no rasdaman servers are started, rasj throws this type of exception
-                throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-                        "Unable to get a free rasdaman server.");
+            ret = q.execute();
+            tr.commit();
+        } catch (ODMGException ex) {
+            abortTR(tr);
+            if (ex.getMessage().contains("CREATE: Collection name exists already.")) {
+                throw new RasdamanCollectionExistsException(ExceptionCode.CollectionExists, query, ex);
+            } else if (ex.getMessage().contains("Collection name is unknown.")) {
+                throw new RasdamanCollectionDoesNotExistException(ExceptionCode.CollectionDoesNotExist, query, ex);
+            } else {
+                throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
+                        "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
             }
-
+        } catch (OutOfMemoryError ex) {
+            abortTR(tr);
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Requested more data than the server can handle at once. "
+                    + "Try increasing the maximum memory allowed for Tomcat (-Xmx JVM option).");
+        } catch (Exception ex) {
+            abortTR(tr);
+            throw new RasdamanException(ExceptionCode.RasdamanRequestFailed, 
+                    "Error evaluating rasdaman query: '" + query + "'. Reason: " + ex.getMessage(), ex);
+        } finally {
+            closeDB(db);
         }
 
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
+        final long end = System.currentTimeMillis();
+        final long totalTime = end - start;
+        log.debug("Rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return ret;
     }
@@ -262,8 +198,6 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static String getRasdamanVersion() throws RasdamanException {
-        long start = System.currentTimeMillis();
-
         String version = "";
         Object tmpResult = null;
         try {
@@ -279,12 +213,6 @@ public class RasUtil {
             // rasdaman 9.4.0 on x86_64-redhat-linux ...
             version = result.split(" ")[1];
         }
-
-        log.debug("Read rasdaman version: \"" + version + "\"");
-
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return version;
     }
