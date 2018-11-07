@@ -51,24 +51,16 @@ grpc::Status ServerManagementService::RegisterServer(__attribute__ ((unused)) gr
 
     try
     {
-        LDEBUG << "Registering server with ID:" << request->serverid();
-
+        LDEBUG << "Registering server " << request->serverid();
         this->serverManager->registerServer(request->serverid());
-
-        LDEBUG << "Finished registering server with ID:" << request->serverid();
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
-
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Failed to register server for unknown reason.";
-        LERROR << failureReason;
-
-        status = common::GrpcUtils::convertExceptionToStatus(failureReason);
+        status = common::GrpcUtils::convertExceptionToStatus("Failed registering server");
     }
 
     return status;

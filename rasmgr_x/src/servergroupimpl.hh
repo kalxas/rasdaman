@@ -128,6 +128,8 @@ private:
 
     std::set<boost::int32_t> availablePorts;/*!< */
 
+    int failedRegistrations{};/*!< number of consecutive times a server failed to register */
+
     /**
      * @brief hasAvailableServers
      * @return TRUE if there is at least one server with capacity for one more client,

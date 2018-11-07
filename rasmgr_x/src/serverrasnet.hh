@@ -157,6 +157,12 @@ public:
     virtual std::string getServerId() const;
 
 private:
+
+    /**
+     * Send a signal sig to this server.
+     */
+    void sendSignal(int sig) const;
+
     /**
      * The number of microseconds between a SIGTERM signal and a SIGKILL signal sent to the server.
      * This timeout allows the server enough time to cleanup after itself.
@@ -215,6 +221,11 @@ private:
      * @return true if the server process is still available on the system.
      */
     bool isProcessAlive() const;
+    
+    /**
+     * @return true if the hostName:port is valid
+     */
+    bool isAddressValid() const;
 };
 
 }

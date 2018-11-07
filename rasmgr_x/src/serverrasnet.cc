@@ -23,6 +23,10 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include <cstring>
 #include <iostream>
@@ -39,6 +43,7 @@
 
 #include "common/src/grpc/grpcutils.hh"
 #include "common/src/uuid/uuid.hh"
+#include "common/src/logging/signalhandler.hh"
 #include <logging.hh>
 
 #include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
@@ -121,8 +126,8 @@ ServerRasNet::~ServerRasNet()
     //Wait for the process to finish
     if (this->started)
     {
-        LWARNING << "The server process is running."
-                 << "Waiting for the process will cause this thread to block.";
+        LWARNING << "The server process is running; "
+                 << "waiting for the process will cause this thread to block.";
     }
 
     int status;
@@ -150,7 +155,7 @@ void ServerRasNet::startProcess()
     case -1:
     {
         //Failure
-        LERROR << "Server spawning failed to fork process. Reason:" << strerror(errno);
+        LERROR << "Server spawning failed to fork process. Reason: " << strerror(errno);
         return;
     }
     break;
@@ -188,6 +193,7 @@ void ServerRasNet::startProcess()
         if (execv(RASEXECUTABLE, commandArr) == -1)
         {
             LERROR << "Starting server process failed: " << strerror(errno);
+            LERROR << "Failed command: " << command;
             exit(EXIT_FAILURE);
         }
 
@@ -226,12 +232,16 @@ bool ServerRasNet::isAlive()
         ClientContext context;
         this->configureClientContext(context);
 
-        LDEBUG << "Check if server with ID " << this->serverId << " is alive";
-        Status callStatus = this->service->GetServerStatus(&context, request, &reply);
+        LDEBUG << "Check if server " << this->serverId << " is alive";
+        Status status = this->service->GetServerStatus(&context, request, &reply);
 
         //If the communication has not failed, the server is alive
-        result = callStatus.ok();
-        LDEBUG << "Server with ID" << this->serverId << " alive status:" << result;
+        result = status.ok();
+        if (!result)
+            LDEBUG << "Failed getting status from server " << serverId 
+                   << ", error: " << status.error_message();
+        else
+            LDEBUG << "Server " << this->serverId << " is alive.";
     }
 
     return result;
@@ -254,11 +264,15 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
         ClientContext context;
         this->configureClientContext(context);
 
-        LDEBUG << "Check if client with ID " << clientId << " is alive";
+        LDEBUG << "Check if client " << clientId << " is alive";
         Status status = this->service->GetClientStatus(&context, request, &response);
 
         result = (status.ok() && response.status() == ClientStatusRepl::ALIVE);
-        LDEBUG << "Client with ID " << clientId << " alive status: " << result;
+        if (!result)
+            LDEBUG << "Failed getting status from client " << clientId 
+                   << ", error: " << status.error_message();
+        else
+            LDEBUG << "Client " << clientId << " is alive.";
     }
 
     return result;
@@ -290,12 +304,12 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
     ClientContext context;
     this->configureClientContext(context);
 
-    LDEBUG << "Allocating client with ID " << clientId << " on server " << serverId;
+    LDEBUG << "Allocating client " << clientId << " on server " << serverId;
     Status status = this->service->AllocateClient(&context, request, &response);
 
     if (!status.ok())
     {
-        LDEBUG << "Failed allocating client with ID " << clientId << ".";
+        LDEBUG << "Failed allocating client " << clientId;
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 
@@ -312,11 +326,11 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         this->allocatedClientsNo++;
     }
 
-    LDEBUG << "Allocated client with ID " << clientId << " on server " << serverId
-           << "; session counter: " << (this->sessionNo + 1);
-
     //Increase the session counter
     this->sessionNo++;
+
+    LDEBUG << "Allocated client " << clientId << " on server " << serverId
+           << "; session counter: " << this->sessionNo;
 }
 
 void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
@@ -344,27 +358,57 @@ void ServerRasNet::deallocateClientSession(const std::string& clientId, const st
 
     ClientContext context;
     this->configureClientContext(context);
-    LDEBUG << "Deallocating client with ID " << clientId << " on server " << serverId;
+    LDEBUG << "Deallocating client " << clientId << " on server " << serverId;
     Status status = this->service->DeallocateClient(&context, request, &response);
 
     if (!status.ok())
     {
-        LDEBUG << "Failed deallocating client with ID " << clientId << " on server " << serverId;
+        LDEBUG << "Failed deallocating client " << clientId << " on server " << serverId;
         GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
-    LDEBUG << "Deallocated client with ID " << clientId << " on server " << serverId;
+    LDEBUG << "Deallocated client" << clientId << " on server " << serverId;
 }
+
 
 void ServerRasNet::registerServer(const std::string& serverId)
 {
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if (this->started && serverId == this->serverId)
     {
-        this->registered = true;
+        if (isProcessAlive())
+        {
+            ServerStatusReq request = ServerStatusReq::default_instance();
+            ServerStatusRepl reply;
+            // Set timeout for API
+            ClientContext context;
+            this->configureClientContext(context);
+
+            Status status = this->service->GetServerStatus(&context, request, &reply);
+            if (status.ok())
+            {
+                this->registered = true;
+            }
+            else
+            {
+                if (this->isAddressValid())
+                {
+                    GrpcUtils::convertStatusToExceptionAndThrow(status);
+                }
+                else
+                {
+                    throw common::RuntimeException("Server could not be reached at " + 
+                        hostName + ":" + std::to_string(port) + ", invalid -host  in rasmgr.conf?");
+                }
+            }
+        }
+        else
+        {
+            throw common::RuntimeException("Server process with pid " + std::to_string(processId) + " not found.");
+        }
     }
     else
     {
-        throw common::RuntimeException("The registration of the server " + serverId + " failed.");
+        throw common::RuntimeException("The registration of server " + serverId + " failed.");
     }
 }
 
@@ -373,28 +417,31 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
     return this->sessionNo;
 }
 
+void ServerRasNet::sendSignal(int sig) const
+{
+    errno = 0;
+    if (kill(this->processId, sig) != 0)
+    {
+        LERROR << "Failed to send " << common::SignalHandler::signalName(sig) 
+               << " to server " << this->serverId << ": " << strerror(errno);
+    }
+}
+
 void ServerRasNet::stop(KillLevel level)
 {
+
     LDEBUG << "Stopping server " << serverId;
     if (isProcessAlive())
     {
         switch (level)
         {
         case KillLevel::FORCE:
-        {
-            if (kill(this->processId, SIGTERM))
-            {
-                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
-            }
-        }
-        break;
+            sendSignal(SIGTERM);
+            break;
 
         case KillLevel::KILL:
         {
-            if (kill(this->processId, SIGTERM))
-            {
-                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
-            }
+            sendSignal(SIGTERM);
 
             // wait until the server process is dead
             boost::int32_t cleanupTimeout = SERVER_CLEANUP_TIMEOUT;
@@ -407,19 +454,14 @@ void ServerRasNet::stop(KillLevel level)
             // if the server is still alive after SERVER_CLEANUP_TIMEOUT, send a SIGKILL
             if (isProcessAlive())
             {
-                if (kill(this->processId, SIGKILL))
-                {
-                    LERROR << "Failed to send SIGKILL to server with ID:" << this->serverId;
-                }
+                LDEBUG << "Stopping server with a SIGKILL signal.";
+                sendSignal(SIGKILL);
             }
         }
         break;
         default:
-
-            if (kill(this->processId, SIGTERM))
-            {
-                LERROR << "Failed to send SIGTERM to server with ID:" << this->serverId;
-            }
+            sendSignal(SIGTERM);
+            break;
         }
     }
     else
@@ -450,13 +492,18 @@ bool ServerRasNet::isFree()
     {
         this->allocatedClientsNo = this->getClientQueueSize();
     }
+    catch (std::exception &ex)
+    {
+        LDEBUG << "Caught exception, server  " << serverId << " is not free: " << ex.what();
+        return false;
+    }
     catch (...)
     {
         LDEBUG << "Caught exception, server  " << serverId << " is not free.";
         return false;
     }
     const auto ret = (this->allocatedClientsNo == 0);
-    LDEBUG << "Server  " << serverId << " is free: " << ret;
+    LDEBUG << "Server " << serverId << " is free: " << ret;
     return ret;
 }
 
@@ -472,6 +519,11 @@ bool ServerRasNet::isAvailable()
     try
     {
         this->allocatedClientsNo = this->getClientQueueSize();
+    }
+    catch (std::exception &ex)
+    {
+        LDEBUG << "Caught exception, server  " << serverId << " is not available: " << ex.what();
+        return false;
     }
     catch (...)
     {
@@ -625,6 +677,19 @@ bool ServerRasNet::isProcessAlive() const
     int status;
     waitpid(processId, &status, WNOHANG) == 0;
     return kill(processId, 0) == 0;
+}
+
+bool ServerRasNet::isAddressValid() const
+{
+    struct addrinfo* addr = NULL;
+    std::string portStr = std::to_string(port);
+    int ret = getaddrinfo(hostName.c_str(), portStr.c_str(), NULL, &addr);
+    if (addr)
+    {
+        freeaddrinfo(addr);
+        addr = NULL;
+     }
+    return ret == 0;
 }
 
 }

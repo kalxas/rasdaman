@@ -70,7 +70,7 @@ grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::Ser
      */
     try
     {
-        LDEBUG << "Started connecting client";
+        LDEBUG << "Connecting client...";
         std::string out_clientUUID;
 
         //Create the ClientCredentials object used for authentication.
@@ -85,20 +85,17 @@ grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::Ser
         response->set_clientuuid(out_clientUUID);
         response->set_keepalivetimeout(this->clientManager->getConfig().getClientLifeTime());
 
-        LDEBUG << "Finished connecting client with ID:"
-               << response->clientuuid();
+        LDEBUG << "Client connected, assigned ID " << response->clientuuid();
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
+        LERROR << "Failed connecting client: " << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Connect request failed for unknown reason.";
-        LERROR << failureReason;
-
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        LERROR << "Failed connecting client";
+        status = GrpcUtils::convertExceptionToStatus("Failed connecting client");
     }
 
     return status;
@@ -109,31 +106,21 @@ grpc::Status ClientManagementService::Disconnect(__attribute__ ((unused)) grpc::
         __attribute__ ((unused)) rasnet::service::Void* response)
 {
     grpc::Status status = Status::OK;
-
     try
     {
-        LDEBUG << "Started disconnecting client with ID:"
-               << request->clientuuid();
-
+        LDEBUG << "Disconnect client " << request->clientuuid();
         this->clientManager->disconnectClient(request->clientuuid());
-
-        LDEBUG << "Finished disconnecting client with ID:"
-               << request->clientuuid();
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
-
+        LERROR << "Failed disconnecting client: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Disconnect request failed for unknown reason";
-        LERROR << failureReason;
-
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        LERROR << "Failed disconnecting client";
+        status = GrpcUtils::convertExceptionToStatus("Failed disconnecting client");
     }
-
     return status;
 }
 
@@ -149,10 +136,8 @@ grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::Serv
         ClientServerSession session;
 
         //The session is initialized by the call
+        LDEBUG << "Open DB session for client " << clientId;
         this->clientManager->openClientDbSession(clientId, dbName, session);
-
-        LOG_IF(clientId != session.clientSessionId, DEBUG) << "Opened remote database session for client with ID:" << clientId;
-
         response->set_clientsessionid(session.clientSessionId);
         response->set_dbsessionid(session.dbSessionId);
         response->set_port(session.serverPort);
@@ -160,16 +145,13 @@ grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::Serv
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
-
+        LERROR << "Failed opening DB session: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Open Database request failed for unknown reason.";
-        LERROR << failureReason;
-
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        LERROR << "Failed opening DB session";
+        status = GrpcUtils::convertExceptionToStatus("Failed opening DB session");
     }
 
     return status;
@@ -183,30 +165,19 @@ grpc::Status ClientManagementService::CloseDb(__attribute__ ((unused)) grpc::Ser
 
     try
     {
-        LDEBUG << "Started closing database session: "
-               << request->dbsessionid()
-               << "by client with ID"
-               << request->clientid();
-
+        LDEBUG << "Close database session " << request->dbsessionid()
+               << " by client " << request->clientid();
         this->clientManager->closeClientDbSession(request->clientuuid(), request->dbsessionid());
-
-        LDEBUG << "Finished closing database session: "
-               << request->dbsessionid()
-               << "by client with ID"
-               << request->clientid();
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
-
+        LERROR << "Failed closing client database session: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "Close Database request failed with unknown exception";
-        LERROR << failureReason;
-
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        LERROR << "Failed closing client database session";
+        status = GrpcUtils::convertExceptionToStatus("Failed closing client database session");
     }
 
     return status;
@@ -220,24 +191,19 @@ grpc::Status ClientManagementService::KeepAlive(__attribute__ ((unused)) grpc::S
 
     try
     {
-        LDEBUG << "Start processing Keep Alive message from client with ID:" << request->clientuuid();
-
+        LDEBUG << "Process keep alive message from client " << request->clientuuid();
         this->clientManager->keepClientAlive(request->clientuuid());
-
-        LDEBUG << "Finished processing Keep Alive message from client with ID:" << request->clientuuid();
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
-
+        LERROR << "Failed processing keep alive message from client " << request->clientuuid()
+               << ": " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
-        string failureReason = "KeepAlive request failed with unknown exception";
-        LERROR << failureReason;
-
-        status = GrpcUtils::convertExceptionToStatus(failureReason);
+        LERROR << "Failed processing keep alive message from client " + request->clientuuid();
+        status = GrpcUtils::convertExceptionToStatus("Failed processing keep alive message from client");
     }
 
     return status;

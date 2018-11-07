@@ -176,18 +176,21 @@ RasnetClientComm::~RasnetClientComm() noexcept
 
 int RasnetClientComm::connectClient(string userName, string passwordHash)
 {
+    int retval = 0; // ok
     ConnectReq connectReq;
     ConnectRepl connectRepl;
 
     connectReq.set_username(userName);
     connectReq.set_passwordhash(passwordHash);
 
+    LDEBUG << "Connecting with rasmgr client with ID: " << clientId << ", UUID: " << clientUUID;
     ClientContext context;
     grpc::Status status = this->getRasMgrService()->Connect(&context, connectReq, &connectRepl);
 
     if (!status.ok())
     {
         handleError(status.error_message());
+        retval = 1;
     }
 
     //Kept for backwards compatibility
@@ -198,16 +201,18 @@ int RasnetClientComm::connectClient(string userName, string passwordHash)
     this->keepAliveTimeout = connectRepl.keepalivetimeout();
     this->startRasMgrKeepAlive();
 
-    return 0;
+    return retval;
 }
 
 int RasnetClientComm::disconnectClient()
 {
+    int retval = 0; // ok
     DisconnectReq disconnectReq;
     Void disconnectRepl;
 
     disconnectReq.set_clientuuid(this->clientUUID);
 
+    LDEBUG << "Disconnecting from rasmgr client with ID: " << clientId << ", UUID: " << clientUUID;
     ClientContext context;
     grpc::Status status = this->getRasMgrService()->Disconnect(&context, disconnectReq, &disconnectRepl);
 
@@ -217,14 +222,15 @@ int RasnetClientComm::disconnectClient()
     if (!status.ok())
     {
         handleError(status.error_message());
+        retval = 1;
     }
 
-    return 0;
+    return retval;
 }
 
 int RasnetClientComm::openDB(const char* database)
 {
-    int retval = 0;
+    int retval = 0; // ok
 
     OpenDbReq openDatabaseReq;
     OpenDbRepl openDatabaseRepl;
@@ -233,6 +239,7 @@ int RasnetClientComm::openDB(const char* database)
     openDatabaseReq.set_clientuuid(this->clientUUID.c_str());
     openDatabaseReq.set_databasename(database);
 
+    LDEBUG << "Opening rasmgr database for client with ID: " << clientId << ", UUID: " << clientUUID;
     ClientContext openDbContext;
     grpc::Status openDbStatus = this->getRasMgrService()->OpenDb(&openDbContext, openDatabaseReq, &openDatabaseRepl);
 
@@ -251,6 +258,7 @@ int RasnetClientComm::openDB(const char* database)
     {
         string errorText = openDbStatus.error_message();
         handleError(errorText);
+        retval = 1;
     }
 
     this->rasServerHost = openDatabaseRepl.serverhostname();
@@ -263,12 +271,14 @@ int RasnetClientComm::openDB(const char* database)
     openServerDatabaseReq.set_client_id(this->clientId);
     openServerDatabaseReq.set_database_name(database);
 
+    LDEBUG << "Opening rasserver database for client with ID: " << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext openServerDbContext;
     grpc::Status openServerDbStatus = this->getRasServerService()->OpenServerDatabase(&openServerDbContext, openServerDatabaseReq, &openServerDatabaseRepl);
 
     if (!openServerDbStatus.ok())
     {
         handleError(openServerDbStatus.error_message());
+        retval = 1;
     }
 
     // Send keep alive messages to rasserver until openDB is called
@@ -279,7 +289,7 @@ int RasnetClientComm::openDB(const char* database)
 
 int RasnetClientComm::closeDB()
 {
-    int retval = 0;
+    int retval = 0; // ok
 
     try
     {
@@ -294,18 +304,22 @@ int RasnetClientComm::closeDB()
         closeDbReq.set_clientuuid(this->remoteClientUUID);
         closeDbReq.set_dbsessionid(this->sessionId);
 
+        LDEBUG << "Closing rasserver database for client with ID: " << clientId << ", UUID: " << clientUUID;
         grpc::ClientContext closeServerDbContext;
         grpc::Status closeServerDbStatus = this->getRasServerService()->CloseServerDatabase(&closeServerDbContext, closeServerDatabaseReq, &closeDatabaseRepl);
         if (!closeServerDbStatus.ok())
         {
             handleError(closeServerDbStatus.error_message());
+            retval = 1;
         }
 
+        LDEBUG << "Closing rasmgr database for client with ID: " << clientId << ", UUID: " << clientUUID;
         grpc::ClientContext closeDbContext;
         grpc::Status closeDbStatus = this->getRasMgrService()->CloseDb(&closeDbContext, closeDbReq, &closeDatabaseRepl);
         if (!closeDbStatus.ok())
         {
             handleError(closeDbStatus.error_message());
+            retval = 1;
         }
 
         this->stopRasServerKeepAlive();
@@ -317,6 +331,7 @@ int RasnetClientComm::closeDB()
     catch (...)
     {
         LDEBUG << "Closing database failed.";
+        retval = 1;
     }
 
     return retval;
@@ -344,7 +359,7 @@ int RasnetClientComm::destroyDB(__attribute__ ((unused)) const char* name)
 
 int RasnetClientComm::openTA(unsigned short readOnly)
 {
-    int retval = 1;
+    int retval = 0; // ok
 
     BeginTransactionReq beginTransactionReq;
     BeginTransactionRepl beginTransactionRepl;
@@ -352,6 +367,8 @@ int RasnetClientComm::openTA(unsigned short readOnly)
     beginTransactionReq.set_rw(readOnly == 0);
     beginTransactionReq.set_client_id(this->clientId);
 
+    LDEBUG << "Begin rasserver transaction (ro: " << readOnly << "), client with ID: " 
+           << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext context;
     grpc::Status beginTransationStatus = this->getRasServerService()->BeginTransaction(&context, beginTransactionReq, &beginTransactionRepl);
     if (!beginTransationStatus.ok())
@@ -365,19 +382,22 @@ int RasnetClientComm::openTA(unsigned short readOnly)
 
 int RasnetClientComm::commitTA()
 {
-    int retval = 1;
+    int retval = 0; // ok
 
     CommitTransactionReq commitTransactionReq;
     CommitTransactionRepl commitTransactionRepl;
 
     commitTransactionReq.set_client_id(this->clientId);
 
+    LDEBUG << "Commit rasserver transaction, client with ID: " 
+           << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext context;
     grpc::Status commitStatus = this->getRasServerService()->CommitTransaction(&context, commitTransactionReq, &commitTransactionRepl);
 
     if (!commitStatus.ok())
     {
         handleError(commitStatus.error_message());
+        retval = 1;
     }
 
     return retval;
@@ -385,6 +405,7 @@ int RasnetClientComm::commitTA()
 
 int RasnetClientComm::abortTA()
 {
+    int retval = 0; // ok
     try
     {
         AbortTransactionReq abortTransactionReq;
@@ -392,19 +413,23 @@ int RasnetClientComm::abortTA()
 
         abortTransactionReq.set_client_id(this->clientId);
 
+        LDEBUG << "Abort rasserver transaction, client with ID: " 
+               << clientId << ", UUID: " << clientUUID;
         grpc::ClientContext context;
         grpc::Status abortTransactionStatus = this->getRasServerService()->AbortTransaction(&context, abortTransactionReq, &AbortTransactionRepl);
         if (!abortTransactionStatus.ok())
         {
             handleError(abortTransactionStatus.error_message());
+            retval = 1;
         }
     }
     catch (...)
     {
         LDEBUG << "Aborting transaction failed.";
+        retval = 1;
     }
 
-    return 0;
+    return retval;
 }
 
 void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
@@ -473,7 +498,8 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
     {
         origTile = *iter;
 
-        LTRACE << "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
+        LTRACE << "inserting Tile with domain " << origTile->spatial_domain() 
+               << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
 
         getMarRpcRepresentation(origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType);
 
@@ -811,11 +837,11 @@ boost::shared_ptr<rasnet::service::ClientRassrvrService::Stub> RasnetClientComm:
 {
     this->initRasserverService();
 
-    // Check if the rasmgr is serving
+    // Check if the rasserver is serving
     if (!GrpcUtils::isServerAlive(this->rasserverHealthService, SERVICE_CALL_TIMEOUT) && throwIfConnectionFailed)
     {
-        LERROR << "The client failed to connect to rasserver.";
-        handleConnectionFailure();
+        LDEBUG << "The client failed to connect to rasserver.";
+        throw r_EGeneral("The client failed to connect to rasserver.");
     }
 
     return this->rasserverService;
@@ -839,8 +865,8 @@ boost::shared_ptr<rasnet::service::RasmgrClientService::Stub> RasnetClientComm::
     // Check if the rasmgr is serving
     if (!GrpcUtils::isServerAlive(this->rasmgrHealthService, SERVICE_CALL_TIMEOUT) && throwIfConnectionFailed)
     {
-        LERROR << "The client failed to connect to rasmgr.";
-        handleConnectionFailure();
+        LDEBUG << "The client failed to connect to rasmgr.";
+        throw r_EGeneral("The client failed to connect to rasmgr.");
     }
 
     return this->rasmgrService;
@@ -1850,35 +1876,38 @@ void RasnetClientComm::handleError(const string& error)
 
     if (error.empty())
     {
+        LDEBUG << "Internal server error.";
         throw r_EGeneral("Internal server error.");
     }
     else if (message.ParseFromString(error))
     {
+        auto msg = message.DebugString();
         if (message.type() == ErrorMessage::RERROR)
         {
-            LDEBUG << "Throwing error received from the server:" << message.DebugString();
+            LDEBUG << "Throwing error received from the server: " << msg;
             throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
         }
         else if (message.type() == ErrorMessage::STL)
         {
-            LDEBUG << "Throwing error received from the server:" << message.DebugString();
+            LDEBUG << "Throwing error received from the server: " << msg;
             throw r_EGeneral(message.error_text());
         }
         else if (message.type() == ErrorMessage::UNKNOWN)
         {
-            LDEBUG << "Throwing error received from the server:" << message.DebugString();
+            LDEBUG << "Throwing error received from the server: " << msg;
             throw r_EGeneral(message.error_text());
         }
         else
         {
-            LDEBUG << "Throwing error received from the server:" << message.DebugString();
+            LDEBUG << "Throwing error received from the server: " << msg;
             throw r_EGeneral("General error received from the server.");
         }
     }
     else
     {
-        LERROR << "Client failed with error:" << error;
-        throw r_EGeneral("The client failed to contact the server.");
+        auto msg = "The client failed to contact the server: " + error;
+        LDEBUG << msg;
+        throw r_EGeneral(msg.c_str());
     }
 }
 
@@ -1902,6 +1931,7 @@ void RasnetClientComm::handleStatusCode(int status, const string& method)
         throw r_Error(r_Error::r_Error_ObjectUnknown);
         break;
     case 3:
+        LDEBUG << "RasnetClientComm::" << method << ": error: status = " << status;
         throw r_Error(r_Error::r_Error_ClientUnknown);
         break;
     default:

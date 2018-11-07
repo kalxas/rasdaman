@@ -92,7 +92,7 @@ ClientManager::~ClientManager()
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
+        LERROR << "ClientManager destructor has failed: " << ex.what();
     }
     catch (...)
     {
@@ -159,11 +159,11 @@ void ClientManager::disconnectClient(const std::string& clientId)
         boost::upgrade_to_unique_lock<shared_mutex> uniqueLock(lock);
         this->clients.erase(it);
 
-        LDEBUG << "The client with ID:\"" << clientId << "\" has been removed from the list";
+        LDEBUG << "Client " << clientId << " has been removed from the list";
     }
     else
     {
-        LDEBUG << "The client with ID:\"" << clientId << "\" was not present in the active clients list";
+        LDEBUG << "Client " << clientId << " was not found in the active clients list";
     }
 }
 
@@ -179,7 +179,7 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
         if (tryGetFreeLocalServer(client, dbName, out_serverSession))
         {
             LDEBUG << "Allocated local server running on " << out_serverSession.serverHostName << ":" << out_serverSession.serverPort
-                   << " to client with ID " << out_serverSession.clientSessionId;
+                   << " to client " << out_serverSession.clientSessionId;
         }
         else
         {
@@ -190,7 +190,7 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
             if (this->tryGetFreeRemoteServer(request, out_serverSession))
             {
                 LDEBUG << "Allocated remote server running on " << out_serverSession.serverHostName << ":" << out_serverSession.serverPort
-                       << " to client with ID " << out_serverSession.clientSessionId;
+                       << " to client " << out_serverSession.clientSessionId;
             }
             else
             {
@@ -282,21 +282,25 @@ void ClientManager::evaluateClientsStatus()
                             this->clients.erase(toErase);
                         }
                     }
+                    catch (std::exception &ex)
+                    {
+                        LERROR << "Failed evaluating status of client " << toErase->second->getClientId()
+                               << ": " << ex.what();
+                    }
                     catch (...)
                     {
-                        LERROR << "Evaluating status of client failed. Client ID:" << toErase->second->getClientId();
+                        LERROR << "Failed evaluating status of client " << toErase->second->getClientId();
                     }
                 }
             }
         }
         catch (std::exception& ex)
         {
-            LERROR << "Evaluating client status has failed";
-            LERROR << ex.what();
+            LERROR << "Failed evaluating client status: " << ex.what();
         }
         catch (...)
         {
-            LERROR << "Evaluating client status has failed for an unknown reason.";
+            LERROR << "Failed evaluating client status";
         }
     }
 }

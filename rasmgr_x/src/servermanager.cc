@@ -96,11 +96,11 @@ ServerManager::~ServerManager()
     }
     catch (std::exception& ex)
     {
-        LERROR << ex.what();
+        LERROR << "ServerManager destructor failed: " << ex.what();
     }
     catch (...)
     {
-        LERROR << "ServerManager destructor has failed";
+        LERROR << "ServerManager destructor failed";
     }
 }
 
@@ -196,11 +196,10 @@ void ServerManager::changeServerGroup(const std::string& oldServerGroupName, con
 
 void ServerManager::removeServerGroup(const std::string& serverGroupName)
 {
-    list<shared_ptr<ServerGroup>>::iterator it;
     bool removed = false;
 
     unique_lock<shared_mutex> lock(this->serverGroupMutex);
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->getGroupName() == serverGroupName)
         {
@@ -398,9 +397,6 @@ void ServerManager::workerCleanupRunner()
             // destructor when it is time to stop the worker thread
             if (!this->isThreadRunningCondition.timed_wait(threadLock, timeToSleepFor))
             {
-
-                shared_lock<shared_mutex> lock(this->serverGroupMutex);
-
                 this->evaluateServerGroups();
             }
         }
@@ -418,28 +414,38 @@ void ServerManager::workerCleanupRunner()
 void ServerManager::evaluateServerGroups()
 {
     /**
-                    * For each server group evaluate the group's status.
-                    * This means that dead server entries will be removed
-                    * and new servers will be started.
-                    */
-    LTRACE << "Evaluating server groups.";
-    for (list<shared_ptr<ServerGroup>>::iterator it = this->
-            serverGroupList.begin();
-            it != this->serverGroupList.end();
-            ++it)
+     * For each server group evaluate the group's status.
+     * This means that dead server entries will be removed
+     * and new servers will be started.
+     */
+    list<std::string> removeGroups;
     {
-        try
+        shared_lock<shared_mutex> lock(this->serverGroupMutex);
+        LTRACE << "Evaluating server groups.";
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
-            (*it)->evaluateServerGroup();
+            try
+            {
+                (*it)->evaluateServerGroup();
+            }
+            catch (std::exception& e)
+            {
+                LERROR << "Could not evaluate server in group: " << e.what();
+            }
+            catch (...)
+            {
+                LERROR << "Unexpected exception when starting server";
+            }
+            if ((*it)->isStopped())
+            {
+                removeGroups.push_back((*it)->getGroupName());
+            }
         }
-        catch (std::exception& e)
-        {
-            LERROR << "Could not evaluate server in group.Reason:" << e.what();
-        }
-        catch (...)
-        {
-            LERROR << "Unexpected exception when starting server";
-        }
+    }
+
+    for (const auto &group: removeGroups)
+    {
+        this->removeServerGroup(group);
     }
 }
 
