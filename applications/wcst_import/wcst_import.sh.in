@@ -63,6 +63,10 @@ while [ "$1" != "" ]; do
     shift
 done
 
+if [[ "$ingredients_file" == "" ]]; then
+  usage
+fi
+
 # check if the daemon is active for this ingredients_file
 if ps aux | grep -E -v "grep|wcst_import.sh" | grep $ingredients_file > /dev/null
 then
@@ -70,7 +74,6 @@ then
 else
   daemon_is_active=false
 fi
-
 
 
 script=@WCST_IMPORT_DAEMON_PY_SCRIPT@

@@ -9,11 +9,12 @@ import wcst_import as wi
 
 
 
-PIDFILE = '/run/user/' + str(os.getuid()) + '/Wcst_Import_Daemon.pid'
+PIDFILE = sys.argv[1] + '.wcst_import.pid'
 LOGFILE = sys.argv[1] + '.wcst_import.log'
 
 
 DAEMON_ACTION_ARGN = 2
+SLEEP_TIME = 3600 # sleeping time for daemon (in seconds)
 
 class wcst_import_daemon(Daemon):
 
@@ -22,7 +23,12 @@ class wcst_import_daemon(Daemon):
         wi.main()
         
         while True:
-            time.sleep(120)
+            time.sleep(SLEEP_TIME)
+
+            # if the pid file was deleted, exit
+            if not self.running():
+                sys.stderr.write("Pidfile was not found\n")
+                sys.exit(1)
 
             
         

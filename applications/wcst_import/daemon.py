@@ -12,6 +12,23 @@ class Daemon(object):
 		self._fd1 = fd1
 		self._fd2 = fd2
 
+	def __update_status(self):
+		if os.path.isfile(self._pidfile):
+			try:
+				pid = self.get_pid()
+				os.kill(pid, 0)
+				self._status = True
+			except OSError, e:
+				if e.errno == errno.ESRCH:
+					# if the pid doesn't exist, neither should the pidfile
+					if os.path.isfile(self._pidfile):
+						os.remove(self._pidfile)
+					self._status = False
+			except TypeError:
+				self._status = False
+		else:
+			self._status = False
+
 
 	def get_pid(self):
 		try:
@@ -21,11 +38,8 @@ class Daemon(object):
 			sys.stderr.write("Failed to read pid file: %s\n" % str(e))
 
 	def running(self):
-		self.status()
-		if self._status == True:
-			return True
-		else:
-			return False
+		self.__update_status()
+		return self._status
 
 
 	def daemonize(self):
@@ -73,7 +87,7 @@ class Daemon(object):
 
 	def start(self):
 
-		if os.path.isfile(self._pidfile):
+		if self.running():
 			pid = self.get_pid()
 			sys.stderr.write("Daemon with pid %s is already running, please stop it first\n" % str(pid))
 			sys.exit(1)
@@ -83,7 +97,7 @@ class Daemon(object):
 
 	def stop(self):
 		# Make sure _status is updated
-		self.status()
+		self.__update_status()
 		if self.running():
 			pid = self.get_pid()
 			try:
@@ -97,23 +111,6 @@ class Daemon(object):
 			sys.stderr.write("Daemon is not running\n")
 
 		self._status = False
-
-	def status(self):
-		if os.path.isfile(self._pidfile):
-			try:
-				pid = self.get_pid()
-				os.kill(pid, 0)
-				self._status = True
-			except OSError, e:
-				if e.errno == errno.ESRCH:
-					# if the pid doesn't exist, neither should the pidfile
-					if os.path.isfile(self._pidfile):
-						os.remove(self._pidfile)
-					self._status = False
-			except TypeError:
-				self._status = False
-		else:
-			self._status = False
 
 
 	def restart(self):
