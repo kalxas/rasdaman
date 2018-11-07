@@ -30,7 +30,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import petascope.util.ListUtil;
+import org.rasdaman.config.VersionManager;
+import static petascope.core.KVPSymbols.WCS_SERVICE;
 
 /**
  *
@@ -94,49 +95,11 @@ public class OwsServiceMetadata {
     public void setServiceProvider(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
     }
-
+    
     /**
-     * This is used when an empty database is created and does not have any OWS
-     * metadata
-     * @return 
+     * Supported WCS versions (e.g: 2.0.1, 2.1)
      */
-    public static OwsServiceMetadata createDefaultOWSMetadataService() {
-        OwsServiceMetadata owsServiceMetadata = new OwsServiceMetadata();
-
-        ServiceIdentification serviceIdentification = new ServiceIdentification();
-        owsServiceMetadata.setServiceIdentification(serviceIdentification);
-        serviceIdentification.setServiceTitle("rasdaman");
-        serviceIdentification.setServiceAbstract("rasdaman server - free download from www.rasdaman.org");
-        serviceIdentification.setServiceType("OGC WCS");
-        serviceIdentification.setServiceTypeVersions(ListUtil.valuesToList("2.0.1"));
-
-        ServiceProvider serviceProvider = new ServiceProvider();
-        owsServiceMetadata.setServiceProvider(serviceProvider);
-        serviceProvider.setProviderName("Jacobs University Bremen");
-        serviceProvider.setProviderSite("http://rasdaman.org/");        
-
-        ServiceContact serviceContact = new ServiceContact();
-        serviceProvider.setServiceContact(serviceContact);
-        serviceContact.setIndividualName("Prof. Dr. Peter Baumann");
-        serviceContact.setPositionName("Project Leader");
-
-        ContactInfo contactInfo = new ContactInfo();
-        serviceContact.setContactInfo(contactInfo);
-        serviceContact.setRole("pointOfContact");
-
-        Address address = new Address();
-        contactInfo.setAddress(address);
-        address.setDeliveryPoints(ListUtil.valuesToList("Campus Ring 1"));
-        address.setCity("Bremen");
-        address.setPostalCode("28717");
-        address.setCountry("Germany");
-        address.setElectronicMailAddresses(ListUtil.valuesToList("p.baumann@jacobs-university.de"));
-
-        Phone phone = new Phone();
-        contactInfo.setPhone(phone);
-        phone.setVoicePhones(ListUtil.valuesToList(Phone.DEFAULT_VOICE_PHONE));
-        
-        return owsServiceMetadata;
+    public void setServiceTypeVersions() {
+        this.getServiceIdentification().setServiceTypeVersions(VersionManager.getAllSupportedVersions(WCS_SERVICE));
     }
-
 }

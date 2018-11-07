@@ -1,0 +1,8 @@
+service=WCS&
+version=2.1.0&
+request=GetCoverage&
+coverageId=test_irr_cube_2&
+subset=ansi("2008-01-01T02:01:20.000Z")&
+subset=E(75042.7273594, 75042.7273594)&
+subset=N(5094865.55794, 5094865.55794)&
+outputType=GeneralGridCoverage

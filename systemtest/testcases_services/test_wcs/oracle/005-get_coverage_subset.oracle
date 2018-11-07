@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_mr"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -23,7 +23,7 @@
             </limits>
             <axisLabels>i j</axisLabels>
             <origin>
-                <Point id="test_mr-origin" srsName="/crs/OGC/0/Index2D">
+                <Point id="test_mr-point" srsName="/crs/OGC/0/Index2D">
                     <pos>10.5 10.5</pos>
                 </Point>
             </origin>
@@ -46,20 +46,20 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="value">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>value</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
-{
-    "resolution": "1"
-}
-                </covMetadata>
+            <rasdaman:covMetadata >{
+  "resolution": "1"
+}</rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

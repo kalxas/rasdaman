@@ -29,7 +29,7 @@ package petascope.wcst.handlers;
 
 import petascope.core.Pair;
 import petascope.core.XMLSymbols;
-import petascope.core.gml.GMLParserService;
+import petascope.core.gml.cis10.GMLParserService;
 import petascope.util.CrsUtil;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.SecoreException;
@@ -77,7 +77,7 @@ import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
-import petascope.core.gml.GeneralGridCoverageGMLService;
+import petascope.core.gml.cis10.GeneralGridCoverageGMLService;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
 import petascope.core.gml.metadata.service.CoverageMetadataService;

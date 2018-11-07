@@ -77,7 +77,6 @@ public class XMLWCSServiceHandler extends AbstractHandler {
     public XMLWCSServiceHandler() {
         // XML WCS is a part of WCS2
         service = KVPSymbols.WCS_SERVICE;
-        version = ConfigManager.WCS_VERSIONS;
         
         requestServices.add(KVPSymbols.VALUE_REQUEST_WCS_XML);
     }

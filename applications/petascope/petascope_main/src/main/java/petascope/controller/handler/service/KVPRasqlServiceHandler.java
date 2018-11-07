@@ -23,7 +23,6 @@ package petascope.controller.handler.service;
 
 import java.io.IOException;
 import java.util.Map;
-import org.rasdaman.config.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
@@ -47,7 +46,6 @@ public class KVPRasqlServiceHandler extends AbstractHandler {
     private KVPRasqlHandler kvpRasqlHandler;
 
     public KVPRasqlServiceHandler() {
-        version = ConfigManager.RASQL_SERVLET_VERSION;
         service = KVPSymbols.RASQL_SERVICE;
     }
 

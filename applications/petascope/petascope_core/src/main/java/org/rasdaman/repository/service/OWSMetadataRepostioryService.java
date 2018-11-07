@@ -22,7 +22,13 @@
 package org.rasdaman.repository.service;
 
 import java.util.List;
+import org.rasdaman.domain.owsmetadata.Address;
+import org.rasdaman.domain.owsmetadata.ContactInfo;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
+import org.rasdaman.domain.owsmetadata.Phone;
+import org.rasdaman.domain.owsmetadata.ServiceContact;
+import org.rasdaman.domain.owsmetadata.ServiceIdentification;
+import org.rasdaman.domain.owsmetadata.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.exceptions.WCSException;
 import org.rasdaman.repository.interfaces.OWSServiceMetadataRepository;
+import petascope.util.ListUtil;
 
 /**
  *
@@ -69,13 +76,15 @@ public class OWSMetadataRepostioryService {
             if (metadatas.isEmpty()) {
                 //throw new WCSException(ExceptionCode.InternalComponentError, "There is no OWS Service metadata persisted in database, please migrate it first.");
                 // If database is empty and not migrate from old database, yet, then create a default object and persist it.
-                owsServiceMetadata = owsServiceMetadata.createDefaultOWSMetadataService();
+                owsServiceMetadata = this.createDefaultOWSMetadataService();
                 this.save(owsServiceMetadata);
                 log.info("Creating default OWS Service Metadata for new database.");
             } else {
                 log.debug("Read OWS Service Metadata from database.");
                 owsServiceMetadata = metadatas.get(0);
             }
+            
+            owsServiceMetadata.setServiceTypeVersions();
             
             // Then keep it in cache
             owsServiceMetadataCache = owsServiceMetadata;
@@ -104,5 +113,49 @@ public class OWSMetadataRepostioryService {
     public void deleteAll() {
         this.owsServiceMetadataRepository.deleteAll();
         owsServiceMetadataCache = null;
+    }
+    
+    /**
+     * This is used when an empty database is created and does not have any OWS
+     * metadata
+     * @return 
+     */
+    public OwsServiceMetadata createDefaultOWSMetadataService() {
+        OwsServiceMetadata owsServiceMetadata = new OwsServiceMetadata();
+
+        ServiceIdentification serviceIdentification = new ServiceIdentification();
+        owsServiceMetadata.setServiceIdentification(serviceIdentification);
+        serviceIdentification.setServiceTitle("rasdaman");
+        serviceIdentification.setServiceAbstract("rasdaman server - free download from www.rasdaman.org");
+        serviceIdentification.setServiceType("OGC WCS");
+        owsServiceMetadata.setServiceTypeVersions();
+
+        ServiceProvider serviceProvider = new ServiceProvider();
+        owsServiceMetadata.setServiceProvider(serviceProvider);
+        serviceProvider.setProviderName("Jacobs University Bremen");
+        serviceProvider.setProviderSite("http://rasdaman.org/");        
+
+        ServiceContact serviceContact = new ServiceContact();
+        serviceProvider.setServiceContact(serviceContact);
+        serviceContact.setIndividualName("Prof. Dr. Peter Baumann");
+        serviceContact.setPositionName("Project Leader");
+
+        ContactInfo contactInfo = new ContactInfo();
+        serviceContact.setContactInfo(contactInfo);
+        serviceContact.setRole("pointOfContact");
+
+        Address address = new Address();
+        contactInfo.setAddress(address);
+        address.setDeliveryPoints(ListUtil.valuesToList("Campus Ring 1"));
+        address.setCity("Bremen");
+        address.setPostalCode("28759");
+        address.setCountry("Germany");
+        address.setElectronicMailAddresses(ListUtil.valuesToList("p.baumann@jacobs-university.de"));
+
+        Phone phone = new Phone();
+        contactInfo.setPhone(phone);
+        phone.setVoicePhones(ListUtil.valuesToList(Phone.DEFAULT_VOICE_PHONE));
+        
+        return owsServiceMetadata;
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
@@ -14,20 +15,18 @@
         </Envelope>
     </boundedBy>
     <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3"
-            id="test_irr_cube_1-grid"
-             >
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_1-grid">
             <limits>
                 <GridEnvelope>
                     <low>0 4 3</low>
                     <high>2 6 4</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>i j k</axisLabels>
+            <gmlrgrid:axisLabels>i j k</gmlrgrid:axisLabels>
             <gmlrgrid:origin>
-                <Point id="test_irr_cube_1-origin" srsName="/crs/OGC/0/Index3D">
-                    <pos>0.5 4.5 3</pos>
-                </Point>
+                <gmlrgrid:Point id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
+                    <gmlrgrid:pos>0.5 4.5 3</gmlrgrid:pos>
+                </gmlrgrid:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -70,7 +69,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="band_1">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>band_1</swe:label>
                     <swe:description>Test values</swe:description>
                     <swe:nilValues>
@@ -79,13 +78,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <bands>
                     <value>
                         <units>10</units>
@@ -96,7 +96,7 @@
                     </value>
                 </bands>
                 <description>This is a test coverage</description>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

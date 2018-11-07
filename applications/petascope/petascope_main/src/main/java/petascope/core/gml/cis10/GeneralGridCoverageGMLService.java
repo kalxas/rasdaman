@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.core.gml;
+package petascope.core.gml.cis10;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -65,7 +65,7 @@ import petascope.core.XMLSymbols;
 
 /**
  *
- * Build a General Grid Coverage object from GML (used in wcst_import)
+ * Build a General Grid Coverage object from GML of CIS 1.0 coverages (used in wcst_import)
  *
  @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */

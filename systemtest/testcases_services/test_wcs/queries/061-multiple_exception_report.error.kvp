@@ -1,5 +1,0 @@
-service=WCS&
-version=2.0.1&
-request=GetCoverage&
-coverageid=test_rgb&
-subset=i(2,10)&subset=j(110.0/2)

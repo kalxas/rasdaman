@@ -117,26 +117,29 @@ module rasdaman {
                             $scope.metaDataPrint = ' ';
 
                             var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
-                            //Define the starting and ending positions of the metadata
-                            var startPos = rawCoverageDescription.indexOf("<covMetadata>");
 
-                            if(startPos != -1){
-                                startPos += 13;
-                                var endPos = rawCoverageDescription.indexOf("</covMetadata>");
-                                //Extract the metadata from the coverage document
-                                $scope.metaDataPrint = rawCoverageDescription.substring(startPos, endPos);
+                            // Extract the metadata from the coverage document (inside <rasdaman:covMetadata></rasdaman:covMetadata>)
+                            var parser = new DOMParser();
+                            var xmlDoc = parser.parseFromString(rawCoverageDescription,"text/xml"); 
+                            var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+
+                            var metadataContent = "";
+                            if (elements.length > 0) {
+                                metadataContent = elements[0].innerHTML;
+                            }
+
+                            if (metadataContent != "") {  
+                                $scope.metaDataPrint = metadataContent;
                                 //Define the characters that indicates if the metadata string represents JSON code.
                                 var ch = /{/gi;
 
                                 //Checks if the metadata is written in JSON.
-                                if($scope.metaDataPrint.search(ch) != -1){
+                                if ($scope.metaDataPrint.search(ch) != -1) {
                                     $scope.typeMetadata = 'json';
-                                }
-                                else{
+                                } else {
                                     $scope.typeMetadata = 'xml';
                                 }
-                            }
-                                
+                            }                                
 
                             // Fetch the coverageExtent by coverageId to display on globe if possible
                             var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);

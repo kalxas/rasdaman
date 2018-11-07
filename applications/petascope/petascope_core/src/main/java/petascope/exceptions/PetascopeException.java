@@ -77,7 +77,7 @@ public class PetascopeException extends Exception {
      * @param ex original exception
      */
     public PetascopeException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-        this(exceptionCode, exceptionText, ex, ConfigManager.RASDAMAN_VERSION, ConfigManager.LANGUAGE);
+        this(exceptionCode, exceptionText, ex, ConfigManager.LANGUAGE);
     }
 
     /**
@@ -90,7 +90,7 @@ public class PetascopeException extends Exception {
      * @param version
      * @param language
      */
-    protected PetascopeException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String version, String language) {
+    protected PetascopeException(ExceptionCode exceptionCode, String exceptionText, Exception ex, String language) {
         super(exceptionText, ex);
         if (exceptionCode == null) {
             this.exceptionCode = ExceptionCode.UnknownError;

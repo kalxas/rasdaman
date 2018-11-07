@@ -22,6 +22,7 @@
 package petascope.exceptions;
 
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.config.VersionManager;
 
 /**
  * This exception can return an error report, than can be marshalled into a
@@ -53,7 +54,6 @@ public class WCSException extends PetascopeException {
     }
 
     public WCSException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-        super(exceptionCode, exceptionText, ex,
-              ConfigManager.WCS_VERSIONS, ConfigManager.LANGUAGE);
+        super(exceptionCode, exceptionText, ex, ConfigManager.LANGUAGE);
     }
 }

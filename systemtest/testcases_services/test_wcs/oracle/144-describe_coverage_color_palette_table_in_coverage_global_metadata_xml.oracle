@@ -7,10 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription
-        id="test_ecmwf_fire_4d_color_palette_table_metadata_xml"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_ecmwf_fire_4d_color_palette_table_metadata_xml">
         <boundedBy>
             <Envelope axisLabels="Lat Long ansi forecast"
                 srsDimension="4"
@@ -28,7 +25,7 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>
+                <rasdaman:covMetadata >
                     <bands>
                         <dc>
                             <units>%</units>
@@ -44,25 +41,23 @@
 100	200	0	0	200	255	255	0	 
 200	yellow	300	green</colorPaletteTable>
                     <Title>Drought code</Title>
-                </covMetadata>
+                </rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="4"
-                id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="4" gmlrgrid:id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-grid">
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0 0</low>
                         <high>1 1 5 5</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>Lat Long ansi forecast</axisLabels>
+                <gmlrgrid:axisLabels>Lat Long ansi forecast</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point
-                        id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                        <pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z" 0</pos>
-                    </Point>
+                    <gmlrgrid:Point
+                        id="test_ecmwf_fire_4d_color_palette_table_metadata_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+                        <gmlrgrid:pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z" 0</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -101,7 +96,7 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Drought code">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Drought code</swe:label>
                         <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
                         <swe:nilValues>
@@ -110,6 +105,7 @@
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

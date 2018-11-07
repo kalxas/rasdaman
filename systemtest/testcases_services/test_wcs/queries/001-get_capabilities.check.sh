@@ -39,7 +39,6 @@ do
          -e 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' \
          -e '/<ows:HTTP>/,/<\/ows:HTTP>/d' \
          "$file"
-  sort "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 done
 
 diff -b "$nout" "$nora" > /dev/null 2>&1

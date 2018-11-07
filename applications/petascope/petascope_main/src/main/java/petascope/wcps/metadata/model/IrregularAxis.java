@@ -32,6 +32,7 @@ import static petascope.core.AxisTypes.T_AXIS;
 import petascope.util.ListUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.BigDecimalUtil;
 import petascope.util.TimeUtil;
 
 /**
@@ -194,7 +195,7 @@ public class IrregularAxis extends Axis {
     }
 
     /**
-     * Return the list of translated coefficients (DateTime axis) or raw
+     * Return the concatenated string of a list of translated coefficients (DateTime axis) or raw
      * coefficients (non-datetime axis)
      *
      * @return
@@ -214,6 +215,31 @@ public class IrregularAxis extends Axis {
         }
 
         return coefficients;
+    }
+    
+    /**
+     * Return the list of translated coefficients (DateTime axis) or raw
+     * coefficients (non-datetime axis)
+     */
+    public List<String> getRepresentationCoefficientsList() throws PetascopeException  {
+        
+        List<String> coefficients = new ArrayList<>();
+        
+        // date time axis, need to translate from raw coefficients to datetime format based on CRS origin
+        if (this.getAxisType().equals(T_AXIS)) {
+            List<String> translatedCoefficients = TimeUtil.listValuesToISODateTime(this.getGeoBounds().getLowerLimit(),
+                    directPositions, this.getCrsDefinition());
+            
+            coefficients.addAll(translatedCoefficients);
+        } else {
+            // non date time axis
+            for (BigDecimal coefficient : this.directPositions) {
+                coefficients.add(BigDecimalUtil.stripDecimalZeros(coefficient).toPlainString());
+            }
+        }
+        
+        return coefficients;
+
     }
 
     @Override

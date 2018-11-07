@@ -69,12 +69,12 @@ public class XMLGetCapabilitiesParser extends XMLAbstractParser {
 //      <ows:AcceptVersions>
 //          <ows:Version>2.0.1</ows:Version>
 //      </ows:AcceptVersions>
-        Element acceptVersionsElement = XMLUtil.firstChildRecursive(rootElement, XMLSymbols.OWS_LABEL_ACCEPT_VERSIONS);
+        Element acceptVersionsElement = XMLUtil.firstChildRecursive(rootElement, XMLSymbols.LABEL_ACCEPT_VERSIONS);
         // e.g: 2.0,2.0.1
         String version = XMLUtil.childrenToString(acceptVersionsElement);
 
         if (version == null) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "Missing element: " + XMLSymbols.OWS_LABEL_ACCEPT_VERSIONS + " in request body.");
+            throw new WCSException(ExceptionCode.InvalidRequest, "Missing element: " + XMLSymbols.LABEL_ACCEPT_VERSIONS + " in request body.");
         } else {            
             this.validateRequestVersion(version);
         }

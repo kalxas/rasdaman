@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage id="test_irr_cube_2"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
@@ -14,20 +15,18 @@
         </Envelope>
     </boundedBy>
     <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="1"
-            id="test_irr_cube_2-grid"
-             >
+        <gmlrgrid:ReferenceableGridByVectors dimension="1" gmlrgrid:id="test_irr_cube_2-grid">
             <limits>
                 <GridEnvelope>
                     <low>0</low>
                     <high>62</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>i</axisLabels>
+            <gmlrgrid:axisLabels>i</gmlrgrid:axisLabels>
             <gmlrgrid:origin>
-                <Point id="test_irr_cube_2-origin" srsName="/crs/OGC/0/Index1D">
-                    <pos>0.5</pos>
-                </Point>
+                <gmlrgrid:Point id="test_irr_cube_2-point" srsName="/crs/OGC/0/Index1D">
+                    <gmlrgrid:pos>0.5</gmlrgrid:pos>
+                </gmlrgrid:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -54,15 +53,19 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="b1">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>b1</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
             <swe:field name="b2">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>b2</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>

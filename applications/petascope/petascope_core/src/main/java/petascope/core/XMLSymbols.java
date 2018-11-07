@@ -52,6 +52,7 @@ public interface XMLSymbols {
     // Prefixes
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    String PREFIX_CIS11 = "cis11";
     String PREFIX_XML = "xml";
     String PREFIX_XMLNS = "xmlns";
     String PREFIX_GML = "gml";
@@ -62,6 +63,7 @@ public interface XMLSymbols {
     String PREFIX_WCS = "wcs";
     String PREFIX_WSDL = "wsdl";
     String PREFIX_XSI = "xsi";
+    String PREFIX_RASDAMAN = "rasdaman";
     String PREFIX_XLINK = "xlink";
     // Used in CRS-Extensions
     String PREFIX_WCS_CRS = "wcscrs";
@@ -73,14 +75,16 @@ public interface XMLSymbols {
     // Namespaces
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    String NAMESPACE_CIS_11 = "http://www.opengis.net/cis/1.1/gml";
     String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
     String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
     String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
+    String NAMESPACE_RASDAMAN = "http://www.rasdaman.org";
     String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
     String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
     String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
-    String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
-    String NAMESPACE_WCS = "http://www.opengis.net/wcs/2.0";
+    String NAMESPACE_WCS_20 = "http://www.opengis.net/wcs/2.0";
+    String NAMESPACE_WCS_21 = "http://www.opengis.net/wcs/2.1";
     // nu xom to get the child element must need the namespace beside the nu
     String NAMESPACE_WCPS = "http://www.opengis.net/wcps/1.0";
     String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
@@ -101,6 +105,7 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // wcs/gml    
+    String LABEL_AXIS_EXTENT = "axisExtent";
     String LABEL_BOUNDEDBY = "boundedBy";
     String LABEL_CAPABILITIES = "Capabilities";
     String LABEL_COVERAGE_ID = "CoverageId";
@@ -109,29 +114,44 @@ public interface XMLSymbols {
     String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
     String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
     String LABEL_COVERAGE_FUNCTION = "coverageFunction";
+    String LABEL_IRREGULAR_AXIS_COEFFICIENT = "C";
     String LABEL_DATABLOCK = "DataBlock";
     String LABEL_DIMENSION = "Dimension";
     String LABEL_DIMENSION_TRIM = "DimensionTrim";
     String LABEL_DIMENSION_SLICE = "DimensionSlice";
     String LABEL_DOMAIN_SET = "domainSet";
     String LABEL_ENVELOPE = "Envelope";
+    String LABEL_INDEX_AXIS = "indexAxis";
     String LABEL_FILE = "File";
     String LABEL_FILE_REFERENCE = "fileReference";
     String LABEL_FILE_STRUCTURE = "fileStructure";
     String LABEL_FORMAT = "format";
+    String LABEL_GENERAL_GRID = "generalGrid";
     String LABEL_GRID_ENVELOPE = "GridEnvelope";
+    String LABEL_GRID_FUNCTION = "GridFunction";
+    String LABEL_IRREGULAR_AXIS = "irregularAxis";
     String LABEL_LIMITS = "limits";
+    String LABEL_GRID_LIMITS = "gridLimits";
+    String LABEL_LOWER_CORNER_ASSOCIATE_ROLE = "LowerCorner";
+    String LABEL_UPPER_CORNER_ASSOCIATE_ROLE = "UpperCorner";
     String LABEL_LOWER_CORNER = "lowerCorner";
     String LABEL_UPPER_CORNER = "upperCorner";
     String LABEL_MEDIATYPE = "mediaType";
+    String LABEL_NATIVE_FORMAT = "nativeFormat";
     String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
-    String LABEL_RANGEPARAMETERS = "rangeParameters";
+    String LABEL_RANGE_SET = "rangeSet";
+    String LABEL_REGULAR_AXIS = "regularAxis";
+    String LABEL_RANGE_PARAMETERS = "rangeParameters";
     String LABEL_SLICE_POINT = "SlicePoint";
     String LABEL_SRS_DIMENSION = "srsDimension";
+    String LABEL_SEQUENCE_RULE = "sequenceRule";
+    String LABEL_SERVICE_PARAMETERS = "ServiceParameters";
+    String LABEL_START_POINT = "startPoint";
     String LABEL_TRANSACTION = "Transaction";
     String LABEL_TRIM_LOW = "TrimLow";
     String LABEL_TRIM_HIGH = "TrimHigh";
     String LABEL_TUPLELIST = "tupleList";
+    String LABEL_CIS11_VALUE = "V";
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
 
     // wms gml
@@ -199,8 +219,9 @@ public interface XMLSymbols {
     String LABEL_CRS_SUPPORTED = "crsSupported";
     String LABEL_CRS = "CRS";
 
-    String LABEL_GENERAL_GRID_AXIS = "generalGridAxis";
-    String LABEL_GENERAL_GRID = "GeneralGridAxis";
+    String LABEL_GENERAL_GRID_AXIS_ASSOCIATION_ROLE = "generalGridAxis";
+    String LABEL_GENERAL_GRID_AXIS = "GeneralGridAxis";
+    String LABEL_GRID_AXES_SPANNED = "gridAxesSpanned";
     String LABEL_METADATA = "metadata";
     // wcs scaling extension
     String LABEL_SCALING = "Scaling";
@@ -244,71 +265,69 @@ public interface XMLSymbols {
     String LABEL_WCPS_QUERY = "query";
     String LABEL_WCPS_EXTRA_PARAMETER = "extraParameter";
     // wcs interpolation extension
-    String INT_LABEL_INTERPOLATION_METADATA = "int:InterpolationMetadata";
-    String INT_LABEL_INTERPOLATION_SUPPORTED = "int:InterpolationSupported";
+    String LABEL_INTERPOLATION_METADATA = "InterpolationMetadata";
+    String LABEL_INTERPOLATION_SUPPORTED = "InterpolationSupported";
 
     // ows
     // // Service Identification
-    String OWS_LABEL_SERVICE_IDENTIFICATION = "ows:ServiceIdentification";
-    String OWS_LABEL_TITLE = "ows:Title";
-    String OWS_LABEL_ABSTRACT = "ows:Abstract";
-    String OWS_LABEL_KEYWORDS = "ows:Keywords";
-    String OWS_LABEL_KEYWORD = "ows:Keyword";
-    String OWS_LABEL_TYPE = "ows:Type";
-    String OWS_LABEL_SERVICE_TYPE = "ows:ServiceType";
-    String OWS_LABEL_SERVICE_TYPE_VERSION = "ows:ServiceTypeVersion";
-    String OWS_LABEL_FEES = "ows:Fees";
-    String OWS_LABEL_ACCESS_CONSTRAINTS = "ows:AccessConstraints";
-    String OWS_LABEL_PROFILE = "ows:Profile";
+    String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
+    String LABEL_TITLE = "Title";
+    String LABEL_ABSTRACT = "Abstract";
+    String LABEL_KEYWORDS = "Keywords";
+    String LABEL_KEYWORD = "Keyword";
+    String LABEL_TYPE = "Type";
+    String LABEL_SERVICE_TYPE = "ServiceType";
+    String LABEL_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
+    String LABEL_FEES = "Fees";
+    String LABEL_ACCESS_CONSTRAINTS = "AccessConstraints";
+    String LABEL_PROFILE = "Profile";
     // // Service Provider
-    String OWS_LABEL_SERVICE_PROVIDER = "ows:ServiceProvider";
-    String OWS_LABEL_PROVIDER_NAME = "ows:ProviderName";
-    String OWS_LABEL_PROVIDER_SITE = "ows:ProviderSite";
+    String LABEL_SERVICE_PROVIDER = "ServiceProvider";
+    String LABEL_PROVIDER_NAME = "ProviderName";
+    String LABEL_PROVIDER_SITE = "ProviderSite";
     // // // Service Contact
-    String OWS_LABEL_SERVICE_CONTACT = "ows:ServiceContact";
-    String OWS_LABEL_INDIVIDUAL_NAME = "ows:IndividualName";
-    String OWS_LABEL_POSITION_NAME = "ows:PositionName";
-    String OWS_LABEL_ROLE = "ows:Role";
+    String LABEL_SERVICE_CONTACT = "ServiceContact";
+    String LABEL_INDIVIDUAL_NAME = "IndividualName";
+    String LABEL_POSITION_NAME = "PositionName";
+    String LABEL_ROLE = "Role";
     // // // // Contact Info
-    String OWS_LABEL_CONTACT_INFO = "ows:ContactInfo";
-    String OWS_LABEL_HOURS_OF_SERVICE = "ows:HoursOfService";
-    String OWS_LABEL_CONTACT_INSTRUCTIONS = "ows:ContactInstructions";
-    String OWS_LABEL_ONLINE_RESOURCE = "ows:OnlineResource";
+    String LABEL_CONTACT_INFO = "ContactInfo";
+    String LABEL_HOURS_OF_SERVICE = "HoursOfService";
+    String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
+    String LABEL_ONLINE_RESOURCE = "OnlineResource";
     // // // // // Address
-    String OWS_LABEL_ADDRESS = "ows:Address";
-    String OWS_LABEL_DELIVERY_POINT = "ows:DeliveryPoint";
-    String OWS_LABEL_CITY = "ows:City";
-    String OWS_LABEL_ADMINISTRATIVE_AREA = "ows:AdministrativeArea";
-    String OWS_LABEL_POSTAL_CODE = "ows:PostalCode";
-    String OWS_LABEL_COUNTRY = "ows:Country";
-    String OWS_LABEL_EMAIL_ADDRESS = "ows:ElectronicMailAddress";
+    String LABEL_ADDRESS = "Address";
+    String LABEL_DELIVERY_POINT = "DeliveryPoint";
+    String LABEL_CITY = "City";
+    String LABEL_ADMINISTRATIVE_AREA = "AdministrativeArea";
+    String LABEL_POSTAL_CODE = "PostalCode";
+    String LABEL_COUNTRY = "Country";
+    String LABEL_EMAIL_ADDRESS = "ElectronicMailAddress";
     // // // // // Phone
-    String OWS_LABEL_PHONE = "ows:Phone";
-    String OWS_LABEL_VOICE = "ows:Voice";
-    String OWS_LABEL_FACSIMILE = "ows:Facsimile";
+    String LABEL_PHONE = "Phone";
+    String LABEL_VOICE = "Voice";
+    String LABEL_FACSIMILE = "Facsimile";
 
     // // OperationsMetadata
-    String OWS_LABEL_OPERATIONS_METADATA = "ows:OperationsMetadata";
-    String OWS_LABEL_OPERATION = "ows:Operation";
-    String OWS_LABEL_DCP = "ows:DCP";
-    String OWS_LABEL_HTTP = "ows:HTTP";
-    String OWS_LABEL_GET = "ows:Get";
-    String OWS_LABEL_VERSION = "Version";
-    String OWS_LABEL_ACCEPT_VERSIONS = "AcceptVersions";
-    String OWS_LABEL_ACCEPT_FORMATS = "AcceptFormats";
-    String OWS_LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
+    String LABEL_OPERATIONS_METADATA = "OperationsMetadata";
+    String LABEL_OPERATION = "Operation";
+    String LABEL_DCP = "DCP";
+    String LABEL_HTTP = "HTTP";
+    String LABEL_GET = "Get";
+    String LABEL_POST = "Post";
+    String LABEL_VERSION = "version";
+    String LABEL_ACCEPT_VERSIONS = "AcceptVersions";
+    String LABEL_ACCEPT_FORMATS = "AcceptFormats";
+    String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
+    String ATT_VALUE_POST_ENDCODING = "PostEncoding";
 
     // // ServiceMetadata
-    String WCS_LABEL_SERVICE_METADATA = "wcs:ServiceMetadata";
-    String WCS_LABEL_FORMAT_SUPPORTED = "wcs:formatSupported";
-    // wcs Extention
-    String WCS_LABEL_EXTENSION = "wcs:Extension";
+    String LABEL_SERVICE_METADATA = "ServiceMetadata";
+    String LABEL_FORMAT_SUPPORTED = "formatSupported";
     // // Contents
-    String WCS_LABEL_CONTENTS = "wcs:Contents";
-    String WCS_LABEL_COVERAGE_SUMMARY = "wcs:CoverageSummary";
-    String OWS_LABEL_BOUNDING_BOX = "ows:BoundingBox";
-    String OWS_LABEL_LOWER_CORNER = "ows:LowerCorner";
-    String OWS_LABEL_UPPER_CORNER = "ows:UpperCorner";
+    String LABEL_CONTENTS = "Contents";
+    String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
+    String LABEL_BOUNDING_BOX = "BoundingBox";
 
     // gmlcov
     String LABEL_ABSTRACT_COVERAGE = "Coverage";
@@ -325,12 +344,15 @@ public interface XMLSymbols {
     String LABEL_RANGE_TYPE = "rangeType";
     String LABEL_RECTIFIED_GRID = "RectifiedGrid";
     String LABEL_GRID = "Grid";
+    String LABEL_GENERAL_GRID_COVERAGE = "GeneralGridCoverage";
     String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
+    String LABEL_REFERENCEABLE_GRID_BY_VECTORS = "ReferenceableGridByVectors";
 
     // swe    
     String LABEL_DATA_RECORD = "DataRecord";
     String LABEL_DESCRIPTION = "description";
+    String LABEL_CODE = "code";
     String LABEL_FIELD = "field";
     String LABEL_LABEL = "label";
     String LABEL_FIELD_NAME = "name";
@@ -341,10 +363,11 @@ public interface XMLSymbols {
     String LABEL_UOM = "uom";
 
     // contrain with AllowedValues
+    String LABEL_CONSTRAINT_ASSOCIATE_ROLE = "Constraint";
     String LABEL_CONSTRAINT = "constraint";
     String LABEL_ALLOWED_VALUES = "AllowedValues";
     String LABEL_INTERVAL = "interval";
-    String LABEL_VALUE = "value";
+    String LABEL_VALUE = "Value";
 
     // gmlrgrid
     String LABEL_COEFFICIENTS = "coefficients";
@@ -388,14 +411,25 @@ public interface XMLSymbols {
     String ATT_CODESPACE = "codeSpace";
     String ATT_LANG = "lang";
     String ATT_HREF = "href";
+    
+    String ATT_LOWER_BOUND = "lowerBound";
+    String ATT_UPPER_BOUND = "upperBound";
+    String ATT_RESOLUTION = "resolution";
+    
+    // GridFunction
+    String ATT_AXIS_ORDER = "axisOrder";
 
     String ATT_ID = "id";
 
     // gml:SRSReferenceGroup
     String ATT_SRS_NAME = "srsName";
     String ATT_SRS_DIMENSION = "srsDimension";
+    
     String ATT_UOM_LABELS = "uomLabels";
+    String ATT_UOM_LABEL = "uomLabel";
+    
     String ATT_AXIS_LABELS = "axisLabels";
+    String ATT_AXIS_LABEL = "axisLabel";
 
     // crs-extension
     String ATT_SUPPORTED_CRS = "supportedCrs";
@@ -404,11 +438,13 @@ public interface XMLSymbols {
 
     // bbox    
     String ATT_CRS = "crs";
+    String ATT_DIMENSION = "dimension";
     String ATT_DIMENSIONS = "dimensions";
 
     // CRS definitions
     String ATT_UOM = "uom";
     String ATT_NAME = "name";
+    
 
     // swe
     String ATT_DEFINITION = "definition";
@@ -417,16 +453,13 @@ public interface XMLSymbols {
 
     String ATT_CS = "cs";
     String ATT_TS = "ts";
-
+    
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // XPath Contexts
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     XPathContext CTX_XML = new XPathContext(PREFIX_XML, NAMESPACE_XML);
-    XPathContext CTX_WCS = new XPathContext(PREFIX_WCS, NAMESPACE_WCS);
-    XPathContext CTX_CRS = new XPathContext(PREFIX_WCS_CRS, NAMESPACE_WCS_CRS);
-    XPathContext CTX_PROCESS_COVERAGE = new XPathContext(PREFIX_PROCESS_COVERAGE, NAMESPACE_PROCESS_COVERAGE);
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -436,6 +469,15 @@ public interface XMLSymbols {
     String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
     String SCHEMA_LOCATION_GML = "http://schemas.opengis.net/gml/3.2.1/gml.xsd";
     String SCHEMA_LOCATION_GMLRGRID = "http://schemas.opengis.net/gml/3.3/referencableGrid.xsd";
+    
+    String SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES = "http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsGetCapabilities.xsd";
+    String SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES = "http://www.opengis.net/wcs/2.1 http://schemas.opengis.net/wcs/2.1/wcsGetCapabilities.xsd";
+    
+    String SCHEMA_LOCATION_WCS_CIS_10_COVERAGE_DESCRIBE_COVERAGE = "http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
+    String SCHEMA_LOCATION_WCS_CIS_10_REFERENCEABLE_COVERAGE_DESCRIBE_COVERAGE = "http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd";
+    
+    String SCHEMA_LOCATION_WCS_CIS_11_GET_COVERAGE = "http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd";    
+    String SCHEMA_LOCATION_WCS_CIS_11_DESCRIBE_COVERAGE = "http://www.opengis.net/wcs/2.1/gml http://schemas.opengis.net/wcs/2.1/gml/wcsAll.xsd";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -447,4 +489,13 @@ public interface XMLSymbols {
     String PREDEFINED_ENTITY_LESSTHAN_SIGN = "lt";
     String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
     String PREDEFINED_ENTITY_QUOTES = "quot";
+    
+    
+    // Default value for XML elements/attributes
+    String VALUE_SEQUENCE_RULE_TYPE_DEFAULT = "Linear";
+    String VALUE_COVERAGE_NATIVE_FORMAT = "application/octet-stream";
+    String VALUE_SEQUENCE_RULE_AXIS_ORDER_DEFAULT = "+1";
+    
+    String VALUE_CONSTRAINT_POST_ENCODING_XML = "XML";
+    String VALUE_CONSTRAINT_POST_ENCODING_SOAP = "SOAP";
 }

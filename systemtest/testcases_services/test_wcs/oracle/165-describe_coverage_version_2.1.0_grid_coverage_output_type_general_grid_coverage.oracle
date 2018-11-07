@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions
+    
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="test_mr">
+        <cis11:Envelope axisLabels="i j" srsDimension="2" srsName="/crs/OGC/0/Index2D">
+            <cis11:axisExtent axisLabel="i" lowerBound="0"
+                uomLabel="GridSpacing" upperBound="60"/>
+            <cis11:axisExtent axisLabel="j" lowerBound="0"
+                uomLabel="GridSpacing" upperBound="40"/>
+        </cis11:Envelope>
+        <wcs:CoverageId>test_mr</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+                <startPoint>0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <cis11:domainSet>
+            <cis11:generalGrid axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+                <cis11:regularAxis axisLabel="i" lowerBound="0"
+                    resolution="1" uomLabel="GridSpacing" upperBound="60"/>
+                <cis11:regularAxis axisLabel="j" lowerBound="0"
+                    resolution="-1" uomLabel="GridSpacing" upperBound="40"/>
+                <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+                    <cis11:indexAxis axisLabel="i" lowerBound="0" upperBound="59"/>
+                    <cis11:indexAxis axisLabel="j" lowerBound="0" upperBound="39"/>
+                </cis11:gridLimits>
+            </cis11:generalGrid>
+        </cis11:domainSet>
+        <cis11:rangeType>
+            <swe:DataRecord>
+                <swe:field name="value">
+                    <swe:Quantity>
+                        <swe:label>value</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </cis11:rangeType>
+        <cis11:metadata>{
+  "resolution": "1"
+}</cis11:metadata>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>GeneralGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

@@ -47,6 +47,7 @@ public class Templates {
     public static final String GENERAL_SOAP_MESSAGE = "SOAPMessage";
 
     // Replacement Strings in the template files (for ExceptionReport)
+    public static final String GENERAL_EXCEPTION_VERSION_REPLACEMENT = "%version%";
     public static final String GENERAL_EXCEPTION_CODE_REPLACEMENT = "%exceptionCode%";
     public static final String GENERAL_EXCEPTION_TEXT_REPLACEMENT = "%exceptionText%";
     public static final String PETASCOPE_URL = "%PetascopeURL%";

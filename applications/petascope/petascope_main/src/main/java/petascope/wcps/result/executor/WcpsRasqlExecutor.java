@@ -23,10 +23,10 @@ package petascope.wcps.result.executor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
@@ -34,13 +34,12 @@ import petascope.exceptions.SecoreException;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
-import petascope.core.gml.GmlCoverageBuilder;
 import petascope.util.MIMEUtil;
-import petascope.core.Templates;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
+import petascope.core.gml.GMLWCSRequestResultBuilder;
 import petascope.util.XMLUtil;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
@@ -60,7 +59,7 @@ import petascope.wcps.metadata.service.CoordinateTranslationService;
 public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
     @Autowired
-    private GmlCoverageBuilder gmlCoverageBuilder;
+    private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
 
     public WcpsRasqlExecutor() {
     }
@@ -179,14 +178,12 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
      */
     private byte[] buildGmlCovResult(WcpsCoverageMetadata wcpsCoverageMetadata, byte[] arrayData) throws PetascopeException, SecoreException {
         // Run the rasql query to get the data and put in <tupleList ts="," cs="> ... </tupleList>        
-        String data = new String(arrayData);
-        data = this.rasJsonToTupleList(data);
+        String tupleList = new String(arrayData);
+        tupleList = this.rasJsonToTupleList(tupleList);
 
-        // Get the GML Coverage in application/gml+xml format (text)
-        String gml = gmlCoverageBuilder.build(wcpsCoverageMetadata, Templates.WCS2_GET_COVERAGE_FILE);
-        // and add the rasdaman result in the tupeList element
-        gml = gml.replace(GmlCoverageBuilder.KEY_COVERAGEDATA, data);
-        
+        Element gmlGetCoverageElement = this.gmlWCSRequestResultBuilder.buildGetCoverageResult(wcpsCoverageMetadata, tupleList);
+        String gml = gmlGetCoverageElement.toXML();
+                
         // format the output with indentation
         gml = XMLUtil.formatXML(gml);
 

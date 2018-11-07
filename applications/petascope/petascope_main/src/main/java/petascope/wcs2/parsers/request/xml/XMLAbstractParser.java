@@ -37,6 +37,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.config.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -79,8 +80,8 @@ public abstract class XMLAbstractParser {
      * @throws WCSException 
      */
     protected void validateRequestVersion(String version) throws WCSException {
-        if (!version.equals(ConfigManager.WCS_VERSIONS)) {
-            throw new WCSException(ExceptionCode.InvalidRequest, "WCS only supports version: " + ConfigManager.WCS_VERSIONS + ", given: " + version + ".");
+        if (!VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE).contains(version)) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "WCS version '" + version + "' is not supported.");
         }
     }
 
@@ -165,13 +166,13 @@ public abstract class XMLAbstractParser {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Missing attribute '" + ATT_VERSION + "' in request body.");
                 }
             } else {
-                Element acceptVersionElement = rootElement.getFirstChildElement(XMLSymbols.OWS_LABEL_ACCEPT_VERSIONS, XMLSymbols.NAMESPACE_OWS);
+                Element acceptVersionElement = rootElement.getFirstChildElement(XMLSymbols.LABEL_ACCEPT_VERSIONS, XMLSymbols.NAMESPACE_OWS);
                 if (acceptVersionElement == null) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.OWS_LABEL_ACCEPT_VERSIONS + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_ACCEPT_VERSIONS + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
                 }
-                Element versionElement = acceptVersionElement.getFirstChildElement(XMLSymbols.OWS_LABEL_VERSION, XMLSymbols.NAMESPACE_OWS);
+                Element versionElement = acceptVersionElement.getFirstChildElement(XMLSymbols.LABEL_VERSION, XMLSymbols.NAMESPACE_OWS);
                 if (versionElement == null) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.OWS_LABEL_VERSION + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Missing element '" + XMLSymbols.LABEL_VERSION + "' in WCS '" + XMLSymbols.LABEL_GET_CAPABILITIES + "' request.");
                 }
                 // current only support WCS 2.0.1
                 version = versionElement.getValue();

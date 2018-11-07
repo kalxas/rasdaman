@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_mean_summer_airtemp"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -23,7 +23,7 @@
             </limits>
             <axisLabels>Lat Long</axisLabels>
             <origin>
-                <Point id="test_mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326">
+                <Point id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
                     <pos>-9.225 112.225</pos>
                 </Point>
             </origin>
@@ -46,9 +46,11 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="Gray">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>Gray</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>

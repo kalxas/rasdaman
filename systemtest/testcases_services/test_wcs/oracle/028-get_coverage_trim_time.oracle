@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_eobstest"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -23,7 +23,7 @@
             </limits>
             <axisLabels>t</axisLabels>
             <origin>
-                <Point id="test_eobstest-origin" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
+                <Point id="test_eobstest-point" srsName="/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
                     <pos>"1950-01-01T12:00:00.000Z"</pos>
                 </Point>
             </origin>
@@ -45,7 +45,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="tg">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>tg</swe:label>
                     <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
                     <swe:nilValues>
@@ -54,13 +54,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <Project>This is another test file</Project>
                 <bands>
                     <tg>
@@ -73,7 +74,7 @@
                 </bands>
                 <Creator>This is a test creator file</Creator>
                 <Title>This is a test file</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

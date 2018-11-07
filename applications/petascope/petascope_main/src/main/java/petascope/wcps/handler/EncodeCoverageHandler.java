@@ -128,46 +128,36 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
             // keep the arguments without need to calculate anything else
             otherParamsString = "\"" + extraParams + "\"";
             return otherParamsString;
-        } else if (!addDefaultParams(rasqlFormat)) {
-            // e.g: csv, json no add default params            
-            return otherParamsString;
-        } else if (rasqlFormat.contains(MIMEUtil.ENCODE_GML)) {
-            otherParamsString = "";
-            return otherParamsString;
         } else if (rasqlFormat.contains(MIMEUtil.ENCODE_NETCDF)) {
             // netcdf (we build some netCDF parameters separately)            
             netCDFExtraParams = netCDFParametersFactory.buildParameters(coverageExpression.getMetadata());
         }
 
-        // encode number or string which returns metadata is null in non csv/json will be invalid request
-        // e.g: encode(2, "png")
-        if (metadata == null) {
-            throw new EncodingCoverageMetadataIsNullException();
+        if (metadata != null) {
+            // this is the most imporatant parameter which need to be built from coverage metadata
+            GeoReferenceService geoReferenceService = new GeoReferenceService();
+            GeoReference geoReference = geoReferenceService.buildGeoReference(metadata);
+
+            String jsonOutput = "";
+
+            // Check if extra params is in old style or new JSON style
+            if (JSONUtil.isJsonValid(extraParams)) {
+                // extra params is new JSON style
+                jsonOutput = serializationEncodingService.serializeNewStyleExtraParamsToJson(rasqlFormat, extraParams,
+                        metadata, netCDFExtraParams, geoReference);
+            } else if (extraParams.contains("{") || extraParams.contains("}")) {
+                // it is invalid JSON format and not old style (e.g: "nodata=0")
+                log.error("Extra parameters string: " + extraParams + " is not valid JSON format.");
+                throw new InvalidJsonDeserializationException();
+            } else {
+                // extra params is old style (check if it has "nodata" as parameter to add to metadata)
+                parseNoDataFromExtraParams(extraParams, metadata);
+                jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
+            }
+
+            // as all of the parameters go inside the new JSON style, so replace "{" to "{\""
+            otherParamsString = ", \"" + jsonOutput.replace("\"", "\\\"") + "\"";
         }
-
-        // this is the most imporatant parameter which need to be built from coverage metadata
-        GeoReferenceService geoReferenceService = new GeoReferenceService();
-        GeoReference geoReference = geoReferenceService.buildGeoReference(metadata);
-
-        String jsonOutput = "";
-
-        // Check if extra params is in old style or new JSON style
-        if (JSONUtil.isJsonValid(extraParams)) {
-            // extra params is new JSON style
-            jsonOutput = serializationEncodingService.serializeNewStyleExtraParamsToJson(rasqlFormat, extraParams,
-                    metadata, netCDFExtraParams, geoReference);
-        } else if (extraParams.contains("{") || extraParams.contains("}")) {
-            // it is invalid JSON format and not old style (e.g: "nodata=0")
-            log.error("Extra parameters string: " + extraParams + " is not valid JSON format.");
-            throw new InvalidJsonDeserializationException();
-        } else {
-            // extra params is old style (check if it has "nodata" as parameter to add to metadata)
-            parseNoDataFromExtraParams(extraParams, metadata);
-            jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
-        }
-
-        // as all of the parameters go inside the new JSON style, so replace "{" to "{\""
-        otherParamsString = ", \"" + jsonOutput.replace("\"", "\\\"") + "\"";
 
         return otherParamsString;
     }

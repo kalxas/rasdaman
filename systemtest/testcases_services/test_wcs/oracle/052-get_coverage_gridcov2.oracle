@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:GridCoverage id="test_double_1d"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -39,7 +39,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="value">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>value</swe:label>
                     <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
                     <swe:nilValues>
@@ -48,13 +48,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <Project>This is another test file</Project>
                 <bands>
                     <value>
@@ -66,7 +67,7 @@
                 </bands>
                 <Creator>This is a test creator file</Creator>
                 <Title>This is a test file</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:GridCoverage>

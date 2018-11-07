@@ -22,8 +22,10 @@
 package petascope.wcs2.handlers.kvp;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.rasdaman.config.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,15 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_FORMAT;
+import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
+import static petascope.core.KVPSymbols.KEY_VERSION;
+import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.WMSException;
+import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
+import static petascope.util.MIMEUtil.MIME_GML;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
@@ -75,15 +83,16 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
     private KVPWCSGetCoverageScalingService kvpGetCoverageScalingService;
     @Autowired
     private KVPWCSGetcoverageClipService kvpGetCoverageClipService;
-
+    
     private static final Logger log = LoggerFactory.getLogger(KVPWCSGetCoverageHandler.class);
     
     
     public static final String ENCODE_FORMAT = "$encodeFormat";
     public static final String RANGE_NAME = ".$rangeName";
+    public static final String EXTRA_OPTIONS = "$extra_options";
 
     // e.g: for c in (test_mr) return encode(c[i(0:10), j(0:20)], "png")
-    private static final String WCPS_QUERY_TEMPLATE = "for c in ($coverageId) return encode($queryContent, \"" + ENCODE_FORMAT + "\")";
+    private static final String WCPS_QUERY_TEMPLATE = "for c in ($coverageId) return encode($queryContent, \"" + ENCODE_FORMAT + "\", \"" + EXTRA_OPTIONS + "\")";
     
     private static final String WCPS_COVERAGE_ALIAS = "c";
 
@@ -94,14 +103,19 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
         if (kvpParameters.get(KVPSymbols.KEY_COVERAGEID) == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "A GetCoverage request must specify at least one " + KVPSymbols.KEY_COVERAGEID + ".");
         }
+        
+        this.validateCoverageConversionCIS11(kvpParameters);
     }
 
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException {
         // Validate before handling the request
         this.validate(kvpParameters);
-
+        
         String[] coverageIds = kvpParameters.get(KVPSymbols.KEY_COVERAGEID)[0].split(",");
+        
+        // Store the extra params from WCS which can be added to WCPS's one
+        Map<String, String> extraOptions = new LinkedHashMap<>();
 
         // As GetCoverage can contain multiple coverageIds
         List<Response> responses = new ArrayList<>();
@@ -156,8 +170,21 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
                 // e.g: image/png if it exists in the request
                 requestedMime = kvpParameters.get(KVPSymbols.KEY_FORMAT)[0];
             }
+            
+            String outputType = this.getKVPValue(kvpParameters, KEY_OUTPUT_TYPE);
+            if (outputType != null && outputType.equalsIgnoreCase(VALUE_GENERAL_GRID_COVERAGE)) {
+                extraOptions.put(KEY_OUTPUT_TYPE, VALUE_GENERAL_GRID_COVERAGE);
+            }
+            
+            String options = "";
+            if (extraOptions.size() > 0) {
+                options = JSONUtil.serializeObjectToJSONStringNoIndentation(extraOptions);
+                options = JSONUtil.escapeQuote(options);
+            }
+            
             wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageId", coverageId)
-                    .replace("$queryContent", queryContent);
+                                           .replace("$queryContent", queryContent)
+                                           .replace(EXTRA_OPTIONS, options);
 
             // Handle multipart for WCS (WCPS) request if any or non multipart            
             Response responseTmp = responseService.handleWCPSResponse(kvpParameters, wcpsQuery, requestedMime);

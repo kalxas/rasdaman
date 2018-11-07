@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * JSON ultilities
@@ -38,24 +40,45 @@ public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     
     /**
+     * Escape quote " to \"
+     */
+    public static String escapeQuote(String text) {
+        text = text.replace("\"", "\\\"");
+        return text;
+    }
+    
+    /**
      * Serialize an object to JSON string with indentation (human readable)
      */
-    public static String serializeObjectToJSONString(Object obj) throws JsonProcessingException {
+    public static String serializeObjectToJSONString(Object obj) throws PetascopeException {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        String json = objectMapper.writeValueAsString(obj);
-        return json;
+        String result = serializeObjectToString(obj);
+        
+        return result;
     }
     
     /**
      * Serialize an object to JSON string without indentation (e.g: rasql encode(extra_params_json_inline))
      */
-    public static String serializeObjectToJSONStringNoIndentation(Object obj) throws JsonProcessingException {
+    public static String serializeObjectToJSONStringNoIndentation(Object obj) throws PetascopeException {
         objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
+        String result = serializeObjectToString(obj);
+        
+        return result;
+    }
+    
+    /**
+     * Serialize a JSON object to a string.
+     */
+    private static String serializeObjectToString(Object obj) throws PetascopeException {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        String json = objectMapper.writeValueAsString(obj);
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot serialize object to JSON string. Reason: " + ex.getMessage(), ex);
+        }
         return json;
     }
 

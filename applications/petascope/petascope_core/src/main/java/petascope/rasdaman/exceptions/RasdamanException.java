@@ -48,6 +48,6 @@ public class RasdamanException extends PetascopeException {
     }
 
     public RasdamanException(ExceptionCode exceptionCode, String exceptionText, Exception ex) {
-        super(exceptionCode, exceptionText, ex, ConfigManager.RASDAMAN_VERSION, "en");
+        super(exceptionCode, exceptionText, ex, ConfigManager.LANGUAGE);
     }
 }

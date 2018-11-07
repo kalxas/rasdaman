@@ -21,7 +21,6 @@
  */
 package petascope.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 import petascope.core.BoundingBox;
 import petascope.core.CoverageExtent;
 import petascope.core.response.Response;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
@@ -101,29 +99,25 @@ public class GetCoveragesExtentsController extends AbstractController {
         }
         
         String coveragesExtentsJSON = null;
-        try {
-            if (coverageId == null) {
-                // Return all coverages's extents
-                List<CoverageExtent> coveragesExtents = new ArrayList<>();
-                        
-                // This GetCoverageExtents request is sent from wcs_client after WCS GetCapabilities request, then all the coverages's metadata should be ready
-                // then create the XY axes's extent in EPSG:4326 for WCS_Client to display in WebWorldWind
-                coverageRepostioryService.createAllCoveragesExtents();
-                
-                for (Map.Entry<String, BoundingBox> entry : CoverageRepostioryService.coveragesExtentsCacheMap.entrySet()) {
-                    coveragesExtents.add(new CoverageExtent(entry.getKey(), entry.getValue()));
-                }
+        if (coverageId == null) {
+            // Return all coverages's extents
+            List<CoverageExtent> coveragesExtents = new ArrayList<>();
 
-                // Sort the list of coverages's extents by their areas descending to allow Openlayers select the smaller coverages in top of bigger coverages when hovering on extents.
-                Collections.sort(coveragesExtents);
-                coveragesExtentsJSON = JSONUtil.serializeObjectToJSONString(coveragesExtents);
-            } else {
-                // Return just specified coverage's extent
-                CoverageExtent coverageExtent = new CoverageExtent(coverageId, CoverageRepostioryService.coveragesExtentsCacheMap.get(coverageId));
-                coveragesExtentsJSON = JSONUtil.serializeObjectToJSONString(coverageExtent);
+            // This GetCoverageExtents request is sent from wcs_client after WCS GetCapabilities request, then all the coverages's metadata should be ready
+            // then create the XY axes's extent in EPSG:4326 for WCS_Client to display in WebWorldWind
+            coverageRepostioryService.createAllCoveragesExtents();
+
+            for (Map.Entry<String, BoundingBox> entry : CoverageRepostioryService.coveragesExtentsCacheMap.entrySet()) {
+                coveragesExtents.add(new CoverageExtent(entry.getKey(), entry.getValue()));
             }
-        } catch (JsonProcessingException ex) {
-            throw new WCSException(ExceptionCode.InternalComponentError, "Cannot serialize coverages's extents to JSON String", ex);
+
+            // Sort the list of coverages's extents by their areas descending to allow Openlayers select the smaller coverages in top of bigger coverages when hovering on extents.
+            Collections.sort(coveragesExtents);
+            coveragesExtentsJSON = JSONUtil.serializeObjectToJSONString(coveragesExtents);
+        } else {
+            // Return just specified coverage's extent
+            CoverageExtent coverageExtent = new CoverageExtent(coverageId, CoverageRepostioryService.coveragesExtentsCacheMap.get(coverageId));
+            coveragesExtentsJSON = JSONUtil.serializeObjectToJSONString(coverageExtent);
         }
 
         return new Response(Arrays.asList(coveragesExtentsJSON.getBytes()), MIMEUtil.MIME_JSON, null);

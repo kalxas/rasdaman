@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<identifiers  xmlns='http://www.opengis.net/crs-nts/1.0'  >
+<identifiers   >
  <identifier>/axis/EPSG</identifier>
  <identifier>/axis/OGC</identifier>
 </identifiers>

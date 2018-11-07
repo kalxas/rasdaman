@@ -7,9 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription id="test_AverageChloro"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_AverageChloro">
         <boundedBy>
             <Envelope axisLabels="unix Lat Long" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
@@ -26,20 +24,18 @@
         </coverageFunction>
         <gmlcov:metadata/>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3"
-                id="test_AverageChloro-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_AverageChloro-grid">
                 <limits>
                     <GridEnvelope>
                         <low>-5 0 0</low>
                         <high>0 6 13</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>unix Lat Long</axisLabels>
+                <gmlrgrid:axisLabels>unix Lat Long</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_AverageChloro-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326">
-                        <pos>"2015-01-01T00:00:00.000Z" 77.5 -167.5</pos>
-                    </Point>
+                    <gmlrgrid:Point id="test_AverageChloro-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326">
+                        <gmlrgrid:pos>"2015-01-01T00:00:00.000Z" 77.5 -167.5</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -70,21 +66,27 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Red">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Red</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="Green">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Green</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="Blue">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Blue</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

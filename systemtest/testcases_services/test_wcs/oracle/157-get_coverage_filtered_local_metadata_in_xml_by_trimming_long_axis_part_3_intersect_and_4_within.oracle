@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage
     id="test_wcs_local_metadata_tiff_map_mosaic"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -25,7 +25,7 @@
             <axisLabels>Lat Long</axisLabels>
             <origin>
                 <Point
-                    id="test_wcs_local_metadata_tiff_map_mosaic-origin" srsName="/crs/EPSG/0/4326">
+                    id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
                     <pos>-9.475 145.475</pos>
                 </Point>
             </origin>
@@ -48,16 +48,18 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="Gray">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>Gray</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <slices>
                     <slice>
                         <boundedBy>
@@ -85,7 +87,7 @@
                     </slice>
                 </slices>
                 <Title>Drought code</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

@@ -5,12 +5,8 @@
     
     
     
-    
      >
-    <wcs:CoverageDescription
-        id="test_nullvalues_no_update_map_mosaic"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_nullvalues_no_update_map_mosaic">
         <boundedBy>
             <Envelope axisLabels="Lat Long" srsDimension="2"
                 srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
@@ -37,7 +33,7 @@
                 <axisLabels>Lat Long</axisLabels>
                 <origin>
                     <Point
-                        id="test_nullvalues_no_update_map_mosaic-origin" srsName="/crs/EPSG/0/4326">
+                        id="test_nullvalues_no_update_map_mosaic-point" srsName="/crs/EPSG/0/4326">
                         <pos>89 -89</pos>
                     </Point>
                 </origin>
@@ -48,36 +44,42 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Red">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Red</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">1</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="Green">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Green</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">1</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="Blue">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Blue</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">1</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

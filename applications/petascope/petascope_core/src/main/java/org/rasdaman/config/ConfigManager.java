@@ -25,20 +25,33 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
+import static org.rasdaman.config.VersionManager.CIS_VERSION;
+import static org.rasdaman.config.VersionManager.SECORE_VERSION;
+import static org.rasdaman.config.VersionManager.WCPS_VERSION;
+import static org.rasdaman.config.VersionManager.WCST_VERSION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static petascope.core.KVPSymbols.CIS_SERVICE;
+import static petascope.core.KVPSymbols.WCPS_SERVICE;
+import static petascope.core.KVPSymbols.WCST_SERVICE;
+import static petascope.core.KVPSymbols.WCS_SERVICE;
+import static petascope.core.KVPSymbols.WMS_SERVICE;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.IOUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
+import static org.rasdaman.config.VersionManager.WCS_VERSION_20;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
@@ -77,16 +90,7 @@ public class ConfigManager {
     public static final String PETASCOPEDB_TABLE_EXIST = "coverage";
 
     /* ***** Services version configuration ***** */
-    // CRS resolver
-    public static final String SECORE_VERSION = "0.1.0";
-    // OGC services info    
-    public static final String CIS_VERSION = "1.1";
-    public static final String WCST_VERSION = "2.0.0";
-    public static final String WCPS_VERSION = "1.0.0";
-    public static final String WCS_VERSIONS = "2.0.1";
-    public static final String RASQL_SERVLET_VERSION = "1.0.0";
-    public static final String WMS_VERSIONS = "1.3.0";
-
+    
     /* **** Petascope configuration **** */
     // confdir parameter name
     public static final String PETASCOPE_PROPERTIES_FILE = "petascope.properties";    
@@ -451,12 +455,12 @@ public class ConfigManager {
         log.info("URL     " + SECORE_URLS);
         log.info("");
 
-        log.info("-- OGC STANDARDS --");
-        log.info("CIS     " + CIS_VERSION);
-        log.info("WCS     " + WCS_VERSIONS);
-        log.info("WCS-T   " + WCST_VERSION);
-        log.info("WCPS    " + WCPS_VERSION);
-        log.info("WMS     " + WMS_VERSIONS);
+        log.info("-- OGC STANDARDS");
+        log.info("CIS: " + VersionManager.getAllSupportedVersions(CIS_SERVICE));
+        log.info("WCS: " + VersionManager.getAllSupportedVersions(WCS_SERVICE));
+        log.info("WCS-T: " + VersionManager.getAllSupportedVersions(WCST_SERVICE));
+        log.info("WCPS: " + VersionManager.getAllSupportedVersions(WCPS_SERVICE));
+        log.info("WMS: " + VersionManager.getAllSupportedVersions(WMS_SERVICE));
 
         log.info("------------------------------------");
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_eobstest"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -23,7 +23,7 @@
             </limits>
             <axisLabels>Lat Long</axisLabels>
             <origin>
-                <Point id="test_eobstest-origin" srsName="/crs/EPSG/0/4326">
+                <Point id="test_eobstest-point" srsName="/crs/EPSG/0/4326">
                     <pos>29.75 39.75</pos>
                 </Point>
             </origin>
@@ -46,22 +46,23 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="tg">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>tg</swe:label>
                     <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
                     <swe:nilValues>
                         <swe:NilValues>
-                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                            <swe:nilValue>0</swe:nilValue>
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <Project>This is another test file</Project>
                 <bands>
                     <tg>
@@ -74,7 +75,7 @@
                 </bands>
                 <Creator>This is a test creator file</Creator>
                 <Title>This is a test file</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

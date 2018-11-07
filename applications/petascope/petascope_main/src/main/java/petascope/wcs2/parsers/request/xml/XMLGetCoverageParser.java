@@ -24,7 +24,6 @@ package petascope.wcs2.parsers.request.xml;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import nu.xom.Element;
 import nu.xom.Elements;
 import org.springframework.context.annotation.Scope;
@@ -36,9 +35,9 @@ import petascope.core.KVPSymbols;
 import static petascope.core.KVPSymbols.KEY_COVERAGEID;
 import petascope.util.ListUtil;
 import petascope.core.XMLSymbols;
+import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.exceptions.PetascopeException;
 import petascope.util.XMLUtil;
-import petascope.wcs2.handlers.kvp.KVPWCSGetCapabilitiesHandler;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SlicingSubsetDimension;
 import petascope.wcs2.parsers.subsets.TrimmingSubsetDimension;
@@ -277,7 +276,7 @@ public class XMLGetCoverageParser extends XMLAbstractParser {
             } else {
                 Element globalInterpolationElement = childElements.get(0);
                 String interpolationValue = globalInterpolationElement.getValue();
-                if (!KVPWCSGetCapabilitiesHandler.supportedInterpolations.contains(interpolationValue)) {
+                if (!GMLGetCapabilitiesBuilder.supportedInterpolations.contains(interpolationValue)) {
                     throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolationValue + " is not supported.");
                 } else {
                     // as the globalInterpolation URI as a KVP parameter

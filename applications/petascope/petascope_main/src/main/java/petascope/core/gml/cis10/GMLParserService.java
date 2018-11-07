@@ -19,7 +19,7 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.core.gml;
+package petascope.core.gml.cis10;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -469,11 +469,11 @@ public class GMLParserService {
         //in case coefficients exist, update them
         if (gridTypeElement.getLocalName().equals(XMLSymbols.LABEL_RGBV)) {
             //general grid axes
-            Elements generalGridAxes = gridTypeElement.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
+            Elements generalGridAxes = gridTypeElement.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS_ASSOCIATION_ROLE, XMLSymbols.NAMESPACE_GMLRGRID);
             //axis el in each
             for (int i = 0; i < generalGridAxes.size(); i++) {
                 // Each axis contains 1 offsetVector
-                Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID, XMLSymbols.NAMESPACE_GMLRGRID);
+                Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
                 // offset vector
                 // if axis is irregular it will contains coefficients
                 Elements coefficientsElement = axis.get(0).getChildElements(XMLSymbols.LABEL_COEFFICIENTS, XMLSymbols.NAMESPACE_GMLRGRID);
@@ -513,7 +513,7 @@ public class GMLParserService {
             offsetVectorElements = gridTypeElement.getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GML);
         } else {
             //general grid axes
-            generalGridAxes = gridTypeElement.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
+            generalGridAxes = gridTypeElement.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS_ASSOCIATION_ROLE, XMLSymbols.NAMESPACE_GMLRGRID);
         }
         
         int numberOfAxes = 0;
@@ -533,7 +533,7 @@ public class GMLParserService {
             //  <GeneralGridAxis><offsetVector/><GeneralGridAxis>
             //</generalGridAxis>
             if (generalGridAxes != null) {
-                Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID, XMLSymbols.NAMESPACE_GMLRGRID);
+                Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
                 Element offsetVectorElement = axis.get(0).getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GMLRGRID).get(0);
                 //e.g: 0 0 1 (1 is resolution of irregular axis by default)
                 values = offsetVectorElement.getValue().trim().split(" ");
@@ -760,7 +760,7 @@ public class GMLParserService {
      * @return
      */
     public static String parseRangeParameters(Element rangeSet) {
-        Elements rangeParameters = rangeSet.getChildElements(XMLSymbols.LABEL_RANGEPARAMETERS, XMLSymbols.NAMESPACE_GML);
+        Elements rangeParameters = rangeSet.getChildElements(XMLSymbols.LABEL_RANGE_PARAMETERS, XMLSymbols.NAMESPACE_GML);
         if (rangeParameters.size() == 1) {
             return rangeParameters.get(0).getValue().trim();
         } else {

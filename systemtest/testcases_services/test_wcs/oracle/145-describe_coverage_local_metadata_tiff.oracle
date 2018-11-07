@@ -7,9 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription id="test_wcs_local_metadata_tiff"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_wcs_local_metadata_tiff">
         <boundedBy>
             <Envelope axisLabels="Lat Long ansi" srsDimension="3"
                 srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
@@ -26,7 +24,7 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>
+                <rasdaman:covMetadata >
                     <slices>
                         <slice>
                             <boundedBy>
@@ -38,7 +36,7 @@
                                 </Envelope>
                             </boundedBy>
                             <local_metadata_key>value_1</local_metadata_key>
-                            <fileReferenceHistory>/opt/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
+                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
                         </slice>
                         <slice>
                             <boundedBy>
@@ -50,28 +48,27 @@
                                 </Envelope>
                             </boundedBy>
                             <local_metadata_key>value_2</local_metadata_key>
-                            <fileReferenceHistory>/opt/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20031001-20031010-H00V10-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
+                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20031001-20031010-H00V10-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
                         </slice>
                     </slices>
                     <Title>Drought code</Title>
-                </covMetadata>
+                </rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3"
-                id="test_wcs_local_metadata_tiff-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_tiff-grid">
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
                         <high>35 43 1</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>Lat Long ansi</axisLabels>
+                <gmlrgrid:axisLabels>Lat Long ansi</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_wcs_local_metadata_tiff-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                        <pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</pos>
-                    </Point>
+                    <gmlrgrid:Point
+                        id="test_wcs_local_metadata_tiff-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
+                        <gmlrgrid:pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -102,9 +99,11 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Gray">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Gray</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

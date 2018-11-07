@@ -24,6 +24,7 @@ package petascope.controller;
 import java.io.File;
 import petascope.controller.handler.service.AbstractHandler;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,9 @@ import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.WMSException;
 import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
+import petascope.exceptions.ExceptionReport;
+import petascope.util.ExceptionUtil;
+import petascope.util.MIMEUtil;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -112,7 +116,7 @@ public class PetascopeController extends AbstractController {
      * @throws petascope.exceptions.WMSException
      */
     @Override
-    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)         
         try {            
             log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
@@ -137,14 +141,14 @@ public class PetascopeController extends AbstractController {
 
                 // e.g: WCS, WMS
                 String service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
-                // e.g: 2.0.1 (WCS), 1.3.0 (WMS)
-                String version = kvpParameters.get(KVPSymbols.KEY_VERSION)[0];
+                // e.g: 2.0.1, 2.1.0 (WCS)
+                String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
                 // e.g: GetCapabilities, DescribeCoverage
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
 
                 // Check if any handlers can handle the request
                 for (AbstractHandler handler : handlers) {
-                    if (handler.canHandle(service, version, requestService)) {                    
+                    if (handler.canHandle(service, versions, requestService)) {                    
                         response = handler.handle(kvpParameters);
                         break;
                     }
@@ -159,6 +163,14 @@ public class PetascopeController extends AbstractController {
             long end = System.currentTimeMillis();
             long totalTime = end - start;
             log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
+        } catch(Exception ex) {
+            String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
+            String version = null;
+            if (versions != null) {
+                version = versions[0];
+            }
+
+            ExceptionUtil.handle(version, ex, httpServletResponse);            
         } finally {
              // Here, the uploaded file (if exists) should be removed
             if (kvpParameters.get(KEY_UPLOADED_FILE_VALUE) != null) {

@@ -21,6 +21,7 @@
  */
 package petascope.controller.handler.service;
 
+import org.rasdaman.config.VersionManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,6 @@ public abstract class AbstractHandler {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractHandler.class);
     // A Handler can only handle 1 kind of service (WCS / WMS)
     protected String service;
-    // A Handler can only handle 1 kind of version (e.g: WCS: 2.0.1, WMS: 1.3)
-    protected String version;
     // But it can handle multiple kind of service types (e.g: GetCapabilities, DescribeCoverage, ProcessCoverages)
     protected List<String> requestServices = new ArrayList<>();
 
@@ -82,13 +81,15 @@ public abstract class AbstractHandler {
      * @param requestService
      * @return
      */
-    public boolean canHandle(String service, String version, String requestService) {
+    public boolean canHandle(String service, String[] versions, String requestService) {
         // Handler could handle a service (WCS / WMS)
-        if (this.service.equals(service) && this.version.equals(version)) {
-            for (String handableRequestService : requestServices) {
-                if (handableRequestService.equals(requestService)) {
-                    log.debug("Found the request handler: " + this.getClass().getCanonicalName());
-                    return true;
+        for (String version : versions) {
+            if (this.service.equals(service) && VersionManager.isSupported(service, version)) {
+                for (String handableRequestService : requestServices) {
+                    if (handableRequestService.equals(requestService)) {
+                        log.debug("Found the request handler: " + this.getClass().getCanonicalName());
+                        return true;
+                    }
                 }
             }
         }

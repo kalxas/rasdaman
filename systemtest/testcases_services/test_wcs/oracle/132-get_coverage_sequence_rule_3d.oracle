@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_sequence_rule"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
     
     
     
@@ -23,7 +23,7 @@
             </limits>
             <axisLabels>ansi Lat Long</axisLabels>
             <origin>
-                <Point id="test_sequence_rule-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+                <Point id="test_sequence_rule-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
                     <pos>"2012-12-02T20:12:02.000Z" 35 3.333333333335</pos>
                 </Point>
             </origin>
@@ -47,9 +47,11 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="Gray">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>Gray</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>

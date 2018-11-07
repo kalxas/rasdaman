@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<ServiceExceptionReport version="1.3.0" xmlns="http://www.opengis.net/ogc"  >
+<ServiceExceptionReport version="1.3.0"   >
     <ServiceException code="StyleNotFound">
 	The given style name 'TempStyle' of layer 'test_wms_4326' does not exist in database.
 </ServiceException>

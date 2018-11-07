@@ -100,6 +100,9 @@ public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler 
         // However, the geo domains just be the reduced ones from original coverage's expression if axes joint in curtain's projection() expression.
         this.updateOuputCoverageGeoAxesDomains(metadata);
         
+        // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
+        metadata.updateCrsUri();
+        
         return result;
     }
 }

@@ -100,7 +100,10 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // NOTE: only fit if the axis is mentioned in the subsets (e.g: if coverage has 2 axes: Lat, Long), then c[Lat(20.5)] will only fit for Lat axis
         // don't change anything on Long axis
         subsetParsingService.fitToSampleSpaceRegularAxes(numericSubsets, metadata);
-
+        
+        // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
+        metadata.updateCrsUri();
+        
         WcpsResult result = new WcpsResult(metadata, rasqlSubset);
         return result;
     }

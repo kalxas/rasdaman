@@ -21,6 +21,7 @@
  */
 package petascope.wcps.metadata.model;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +36,11 @@ import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.service.AxesOrderComparator;
+import petascope.wcps.metadata.service.CrsUtility;
 
 /**
  * Class that keeps information about the coverages (such as domains, CRSs etc.)
@@ -58,7 +61,7 @@ public class WcpsCoverageMetadata {
     // List of axes after coverage expression (it will be stripped when there is a slicing expression, 
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
     private List<Axis> axes;
-    private final String crsUri;
+    private String crsUri;
     // use in crsTransform()
     private String outputCrsUri;
     private List<RangeField> rangeFields;
@@ -250,6 +253,20 @@ public class WcpsCoverageMetadata {
         return this.crsUri;
     }
 
+    /**
+     * Update coverage's native CRS URIs based on current axes
+     */
+    public void updateCrsUri() {
+        
+        List<String> axisCrsUris = new ArrayList<>();
+        for (Axis axis : this.axes) {
+            axisCrsUris.add(axis.getNativeCrsUri());
+        }
+        
+        String newCrsUri = CrsUtil.CrsUri.createCompound(axisCrsUris);
+        this.crsUri = newCrsUri;
+    }
+
     public void setOutputCrsUri(String outputCrsUri) {
         this.outputCrsUri = outputCrsUri;
     }
@@ -298,6 +315,10 @@ public class WcpsCoverageMetadata {
 
     public String getGridId() {
         return getCoverageName() + "-grid";
+    }
+    
+    public String getPointId() {
+        return getCoverageName() + "-point";
     }
     
     /**
@@ -434,5 +455,61 @@ public class WcpsCoverageMetadata {
 
     public void setNilValues(List<NilValue> nilValues) {
         this.nilValues = nilValues;
+    }
+    
+    /**
+     * Return the offset vector of an axis in coverage.
+     * e.g: Offset vector of Lat axis is: -20 0 0
+     */
+    public String getOffsetVectorByAxisLabel(String axisLabel) {
+        String offsetVector = "";
+        
+        for (Axis axis : this.axes) {
+            if (axisLabel.equals(axis.getLabel())) {
+                offsetVector += BigDecimalUtil.stripDecimalZeros(axis.getResolution()).toPlainString() + " ";
+            } else {
+                offsetVector += BigInteger.ZERO + " ";
+            }
+        }
+        
+        return offsetVector.trim();
+    }
+
+    /**
+     * Return a concatenated string for geo axis names (e.g: Lat Long time)
+     */
+    public String getGeoAxisNames() {
+        
+        String geoAxisNames = "";
+        
+        for (Axis axis : this.axes) {
+            geoAxisNames += axis.getLabel() + " ";
+        }
+        
+        return geoAxisNames.trim();
+    }
+    
+    /**
+     * Return a concatenated string for grid axis names (e.g: i j k), start from ASCII i (65).
+     */
+    public String getGridAxisNames() {
+        String gridAxisNames = "";
+        
+        for (int i = 0; i < this.axes.size(); i++) {
+            String gridAxisName = Axis.createAxisLabelByIndex(i);
+            gridAxisNames += " " + gridAxisName;
+        }
+        
+        return gridAxisNames.trim();
+    }
+    
+    /**
+     * Return IndexND CRS from number of axes in coverage.
+     * e.g: opengis.net/def/crs/OGC/0/Index3D
+     */
+    public String getIndexCrsUri() {
+        String indexCRS = CrsUtility.createIndexNDCrsUri(axes);
+        
+        return indexCRS;
     }
 }

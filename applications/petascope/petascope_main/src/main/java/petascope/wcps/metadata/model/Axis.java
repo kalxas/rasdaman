@@ -71,7 +71,7 @@ public abstract class Axis<T> {
     }
 
     public BigDecimal getResolution() {
-        return resolution;
+        return BigDecimalUtil.stripDecimalZeros(resolution);
     }
 
     public void setResolution(BigDecimal resolution) {

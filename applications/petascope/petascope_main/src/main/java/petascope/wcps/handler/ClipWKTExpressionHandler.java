@@ -94,6 +94,9 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
             this.updateOuputCoverageGeoAxesDomains(metadata);
         }
         
+        // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
+        metadata.updateCrsUri();
+        
         // Finished everything
         result.setMetadata(metadata);
         

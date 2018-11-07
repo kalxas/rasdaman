@@ -7,10 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription
-        id="test_import_order_descending_irregular_time_netcdf"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_import_order_descending_irregular_time_netcdf">
         <boundedBy>
             <Envelope axisLabels="ansi Lat Long" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
@@ -27,38 +24,37 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>
+                <rasdaman:covMetadata >
                     <bands>
                         <LAI>
                             <_FillValue>-1.0</_FillValue>
                             <grid_mapping>crs</grid_mapping>
                             <scale_factor>1.0</scale_factor>
                             <FORTRAN_format>G10.6</FORTRAN_format>
+                            <valid_range>[ 0.  7.]</valid_range>
                             <long_name>Leaf Area Index</long_name>
                             <units>m2/m2</units>
                             <missing_value>-1.0</missing_value>
                         </LAI>
                     </bands>
                     <Title>This is a test coverage</Title>
-                </covMetadata>
+                </rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3"
-                id="test_import_order_descending_irregular_time_netcdf-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_import_order_descending_irregular_time_netcdf-grid">
                 <limits>
                     <GridEnvelope>
                         <low>-6 0 0</low>
                         <high>0 359 719</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>ansi Lat Long</axisLabels>
+                <gmlrgrid:axisLabels>ansi Lat Long</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point
-                        id="test_import_order_descending_irregular_time_netcdf-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                        <pos>"2003-01-12T00:00:00.000Z" 21.9986099999999999999999999983845 -167.9986100000000000000000000008345</pos>
-                    </Point>
+                    <gmlrgrid:Point
+                        id="test_import_order_descending_irregular_time_netcdf-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+                        <gmlrgrid:pos>"2003-01-12T00:00:00.000Z" 21.9986099999999999999999999983845 -167.9986100000000000000000000008345</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -89,7 +85,7 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="LAI">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>LAI</swe:label>
                         <swe:description>Leaf Area Index</swe:description>
                         <swe:nilValues>
@@ -98,6 +94,7 @@
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

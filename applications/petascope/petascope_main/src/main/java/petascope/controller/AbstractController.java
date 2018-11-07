@@ -38,11 +38,15 @@ import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
+import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import petascope.controller.handler.service.AbstractHandler;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_VERSION;
+import static petascope.core.KVPSymbols.WCS_SERVICE;
+import static petascope.core.KVPSymbols.WMS_SERVICE;
 import petascope.core.XMLSymbols;
 import petascope.core.response.MultipartResponse;
 import petascope.core.response.Response;
@@ -155,40 +159,46 @@ public abstract class AbstractController {
     private Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
         Map<String, String[]> kvpParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        
+        final String QUERY = "query=";
 
         // then can decode the query string
         queryString = URLDecoder.decode(queryString, "utf-8");
+        
+        List<String> wcsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE);
+        String[] supportedWCSVersions = wcsVersions.toArray(new String[wcsVersions.size()]);
 
-        if (!XMLUtil.isXmlString(queryString)) {
+        if (!XMLUtil.isXmlString(queryString.replace(QUERY, ""))) {
             // The request is in KVP GET/POST requests
             kvpParameters = parseKVPParameters(queryString);
         } else {
             // NOTE: As only WCS 2.0.1 supports POST XML/SOAP
-            // @TODO: It can use a simple XML parser to get the version element to check it correctly.
-            kvpParameters.put(KVPSymbols.KEY_VERSION, new String[]{ConfigManager.WCS_VERSIONS});
+            // @TODO: It can use a simple XML parser to get the version element to check it correctly.            
+            kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCSVersions);
 
             // NOTE: Try to parse the query string in POST/SOAP XML as it have to be KVP and data url-encoded
             // e.g: query=<?xml.....> or without query= (in case of POST with curl --data, this has problem with "+" as it is not encoded as %2B, so just for backwards compatibility            
             String requestBody = queryString;
-            if (requestBody.startsWith("query=")) {
+            if (requestBody.startsWith(QUERY)) {
                 // Only get the request content in XML
-                requestBody = requestBody.split("query=")[1];
+                requestBody = requestBody.split(QUERY)[1];
             }
+            
             // The request is in POST XML or SOAP requests with XML syntax
             String root = XMLUtil.getRootElementName(requestBody);
 
             // NOTE: current only WCS supports POST XML, SOAP, add the service name so WCS handlers can handle
-            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[]{KVPSymbols.WCS_SERVICE});
+            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCS_SERVICE});
             if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
                 // It is a SOAP request (WCPS 1.0) or WCS, so extract the query content
                 requestBody = XMLUtil.extractWcsRequest(queryString);
                 // NOTE: response also needed to be add in SOAP body, not like XML which has same result as KVP
-                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_REQUEST_WCS_SOAP});
+                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_REQUEST_WCS_SOAP});
             } else {
-                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_REQUEST_WCS_XML});
+                kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_REQUEST_WCS_XML});
             }
 
-            kvpParameters.put(KVPSymbols.KEY_REQUEST_BODY, new String[]{requestBody});
+            kvpParameters.put(KVPSymbols.KEY_REQUEST_BODY, new String[] {requestBody});
         }
 
         // Validate the parsed KVP maps for all requirement parameters (only when it has at least 1 parameter as an empty request will return WCS-Client)
@@ -198,9 +208,9 @@ public abstract class AbstractController {
 
         // backwards compatibility for WCPS ows?query="" is ok to handle
         if (kvpParameters.containsKey(KVPSymbols.KEY_QUERY)) {
-            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[]{KVPSymbols.WCS_SERVICE});
-            kvpParameters.put(KVPSymbols.KEY_VERSION, new String[]{ConfigManager.WCS_VERSIONS});
-            kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[]{KVPSymbols.VALUE_PROCESS_COVERAGES});
+            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCS_SERVICE});
+            kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCSVersions);
+            kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_PROCESS_COVERAGES});
         }
 
         // e.g: Rasql servlet does not contains these requirement parameters
@@ -211,19 +221,22 @@ public abstract class AbstractController {
 
             // NOTE: WMS allows version is null, so just use the latest WMS version
             if (service.equals(KVPSymbols.WMS_SERVICE) && versions == null) {
-                log.debug("WMS received request without version parameter, use the default version: " + ConfigManager.WMS_VERSIONS);
-                kvpParameters.put(KVPSymbols.KEY_VERSION, new String[]{ConfigManager.WMS_VERSIONS});
+                log.debug("WMS received request without version parameter, use the default version: " + VersionManager.getLatestVersion(WMS_SERVICE));
+                kvpParameters.put(KVPSymbols.KEY_VERSION, new String[] {VersionManager.getLatestVersion(WMS_SERVICE)});
             } else if (service.equals(KVPSymbols.WCS_SERVICE) && request.equals(KVPSymbols.VALUE_GET_CAPABILITIES)) {
                 // NOTE: backwards compatibility for old clients which send WCS GetCapabilities with version parameter
                 if (versions != null) {
-                    log.warn("Using VERSION in a GetCapabilities request is invalid.");
-                } else {                    
-                    String[] version = new String[] {WCS_GETCAPABILITIES_DEFAULT_ACCEPTVERSIONS};
+                    log.warn("Using '" + KEY_VERSION + "' in a GetCapabilities request is invalid.");
+                } else {                     
                     // It should use AcceptVersions for WCS GetCapabilities
                     if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
-                        version = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS);
+                        String value = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS)[0];
+                        versions = value.split(",");
                     }
-                    kvpParameters.put(KVPSymbols.KEY_VERSION, version);
+                    
+                    // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
+                    versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
+                    kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
                 }
             }
 

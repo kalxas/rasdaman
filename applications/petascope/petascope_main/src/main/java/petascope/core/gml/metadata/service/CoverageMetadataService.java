@@ -22,13 +22,13 @@
 package petascope.core.gml.metadata.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import petascope.core.gml.cis10.model.metadata.Metadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
 import petascope.exceptions.ExceptionCode;
@@ -36,6 +36,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.XMLUtil;
 import petascope.wcps.exception.processing.InvalidCoverageMetadataToDeserializeException;
+import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 /**
  *
@@ -54,18 +55,46 @@ public class CoverageMetadataService {
     public CoverageMetadataService() {
         
     }  
+
+    
+    /**
+     * Get the metadata content of WCPS coverage metadata object.
+     */
+    public String getMetadataContent(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+        String metadataStr = "";
+        
+        // GMLCOV metadata
+        String originalCoverageMetadataStr = wcpsCoverageMetadata.getMetadata();
+        if (originalCoverageMetadataStr == null || originalCoverageMetadataStr.isEmpty()) {
+            return metadataStr;
+        }
+
+        metadataStr = originalCoverageMetadataStr;
+        // NOTE: as coverage can contain list of LocalMetadataChild and it was filtered when doing subsetting, so
+        // cannot just use original coverage's metadata.
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
+        
+        if (!coverageMetadata.getLocalMetadata().getLocalMetadataChildList().isEmpty()) {
+            //  Only serializing when coverage contains some LocalMetadataChild elements.
+            if (XMLUtil.containsXMLContent(originalCoverageMetadataStr)) {
+                // coverage's metadata is in XML
+                metadataStr = this.serializeCoverageMetadataInXML(coverageMetadata);
+            } else {
+                // coverage's metadata is in JSON
+                metadataStr = this.serializeCoverageMetadataInJSON(coverageMetadata);
+            }
+        }
+        
+        return metadataStr;
+    }
+    
     
     /**
      * Serialize CoverageMetadata object to JSON string to be persisted inside database.
      */
     public String serializeCoverageMetadataInJSON(CoverageMetadata coverageMetadata) throws PetascopeException {
         String output = "";
-        try {
-            output = JSONUtil.serializeObjectToJSONString(coverageMetadata);
-        } catch (JsonProcessingException ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, 
-                    "Cannot serialize CoverageMetadata object to JSON string. Reason: " + ex.getMessage(), ex);
-        }
+        output = JSONUtil.serializeObjectToJSONString(coverageMetadata);
         
         return output;
     }

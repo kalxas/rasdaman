@@ -5,11 +5,8 @@
     
     
     
-    
      >
-    <wcs:CoverageDescription id="test_malform_metadata"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_malform_metadata">
         <boundedBy>
             <Envelope axisLabels="i j" srsDimension="2"
                 srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
@@ -26,12 +23,10 @@
         </coverageFunction>
         <gmlcov:metadata>
             <gmlcov:Extension>
-                <covMetadata>
-{
+                <rasdaman:covMetadata >{
   "resolution": "1", 
   "slices": "[]"
-}
-                </covMetadata>
+}</rasdaman:covMetadata>
             </gmlcov:Extension>
         </gmlcov:metadata>
         <domainSet>
@@ -44,7 +39,7 @@
                 </limits>
                 <axisLabels>i j</axisLabels>
                 <origin>
-                    <Point id="test_malform_metadata-origin" srsName="/crs/OGC/0/Index2D">
+                    <Point id="test_malform_metadata-point" srsName="/crs/OGC/0/Index2D">
                         <pos>0.5 39.5</pos>
                     </Point>
                 </origin>
@@ -55,9 +50,11 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="value">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>value</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

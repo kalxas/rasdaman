@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
     
      >
     <boundedBy>
-        <Envelope axisLabels="" srsName="" uomLabels="">
+        <Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
             <lowerCorner/>
             <upperCorner/>
         </Envelope>
     </boundedBy>
-    <domainSet/>
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="0" gmlrgrid:id="test_irr_cube_1-grid">
+            <limits>
+                <GridEnvelope>
+                    <low/>
+                    <high/>
+                </GridEnvelope>
+            </limits>
+            <gmlrgrid:axisLabels/>
+            <gmlrgrid:origin>
+                <gmlrgrid:Point id="test_irr_cube_1-point" srsName="">
+                    <gmlrgrid:pos/>
+                </gmlrgrid:Point>
+            </gmlrgrid:origin>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
@@ -28,7 +44,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="band_1">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>band_1</swe:label>
                     <swe:description>Test values</swe:description>
                     <swe:nilValues>
@@ -37,13 +53,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <bands>
                     <value>
                         <units>10</units>
@@ -54,7 +71,7 @@
                     </value>
                 </bands>
                 <description>This is a test coverage</description>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

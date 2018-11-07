@@ -660,17 +660,11 @@ prepare_xml_file()
              -e 's|xsi:schemaLocation="[^"]*"||g' \
              -e 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' \
              -e 's|at=[^ ]*||g' \
+             -e '/fileReferenceHistory/d' \
+             -e '/PostCode/d' \
+             -e '/PostalCode/d' \
              "$xml_file"
   fi
-}
-
-# trim the leading spaces in XML from oracle in each line.
-trim_indentation()
-{
-  local out_file="$1"
-  # remove all the leading spaces in oracle and output in XML to compare also with fileReferenceHistory
-  # if coverage contains local metadata.
-  cat "$xml_file" | sed -e 's/^[ \t]*//' -e '/fileReferenceHistory/d' > "$out_file"
 }
 
 # prepare a "gdal" file for comparison
@@ -691,7 +685,8 @@ prepare_gdal_file()
   sed '/TOWGS84\[/d' -i "$tmpf"
   # remove fileReferenceHistory in local coverage's metadata as the path can be different
   sed -i '/fileReferenceHistory/d' "$tmpf"
-  # print output file
+
+  # print the file path to caller
   echo "$tmpf"
 }
 
@@ -703,6 +698,16 @@ prepare_netcdf_file()
   sed -i -n '/dimensions/,$p' "$tmpf"
   # remove fileReferenceHistory in local coverage's metadata as the path can be different
   sed -i '/fileReferenceHistory/d' "$tmpf"
+
+  # Differences between version 4.5+ and version < 4.5
+  sed -i '/_NCProperties/d' "$tmpf"
+  sed -i '/global attributes/d' "$tmpf"
+  sed -i 's/_ /0 /g' "$tmpf" 
+
+  # Remove all blank lines
+  sed -i '/^$/d' "$tmpf"
+  
+  # print the file path to caller
   echo "$tmpf"
 }
 
@@ -809,11 +814,6 @@ run_test()
   pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
   post_script="$QUERIES_PATH/${f%\.*}.post.sh"
   check_script="$QUERIES_PATH/${f%\.*}.check.sh"
-  # temporary files
-  oracle_tmp="$out.output_tmp"
-  output_tmp="$out.oracle_tmp"
-
-  rm -f "$out"
 
   #
   # run pre script if present
@@ -1026,6 +1026,13 @@ run_test()
     #
     # If query has associated custom script then use this script first and compare the result (only XML)
     #
+
+    # temporary files
+    oracle_tmp="$out.oracle_tmp"
+    output_tmp="$out.output_tmp"
+    cp "$oracle" "$oracle_tmp"
+    cp "$out" "$output_tmp"
+
     if [ -n "$check_script" -a -f "$check_script" ]; then
 
       export -f prepare_xml_file
@@ -1039,32 +1046,32 @@ run_test()
 
       # check that oracle is gdal readable (e.g: tiff, png, jpeg,..)
       gdalinfo "$oracle" &> /dev/null
+
       if [ $? -eq 0 ]; then
 
         # 1.1 oracle could be read by gdal, do image comparison
 
         # if oracle/output is netcdf then compare them with ncdump
-        if [[ "$orafiletype" =~ "NetCDF" ]]; then
-          output_tmp=$(prepare_netcdf_file "$out" output)
-          oracle_tmp=$(prepare_netcdf_file "$out" oracle)
+        if [[ "$orafiletype" =~ "NetCDF" || "$orafiletype=" =~ "Hierarchical Data Format" ]]; then
+          output_tmp_prepared_file=$(prepare_netcdf_file "$output_tmp" output)
+          oracle_tmp_prepared_file=$(prepare_netcdf_file "$oracle_tmp" oracle)
         else
-          output_tmp=$(prepare_gdal_file "$out" output)
-          oracle_tmp=$(prepare_gdal_file "$out" oracle)
+          output_tmp_prepared_file=$(prepare_gdal_file "$output_tmp" output)
+          oracle_tmp_prepared_file=$(prepare_gdal_file "$oracle_tmp" oracle)
         fi
 
-        cmp "$output_tmp" "$oracle_tmp" > /dev/null 2>&1
+        # Compare the prepared file (output of ncdump/gdalinfo)
+        cmp "$output_tmp_prepared_file" "$oracle_tmp_prepared_file" > /dev/null 2>&1
         update_result
 
       else
 
         # 1.2 oracle could not be read by gdal
-
         if [[ "$orafiletype" == *XML* ]]; then
           # need special function to extract the URL before comparison
-          prepare_xml_file "$out"
-          # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-          trim_indentation "$oracle_tmp"
-          trim_indentation "$output_tmp"
+          prepare_xml_file "$oracle_tmp"
+          prepare_xml_file "$output_tmp"
+
           # diff comparison ignoring EOLs [see ticket #551]
           diff -b "$oracle_tmp" "$output_tmp"> /dev/null 2>&1 
         else

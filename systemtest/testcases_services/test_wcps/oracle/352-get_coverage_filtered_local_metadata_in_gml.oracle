@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
     id="test_wcs_local_metadata_netcdf_in_xml"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
@@ -15,21 +16,19 @@
         </Envelope>
     </boundedBy>
     <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3"
-            id="test_wcs_local_metadata_netcdf_in_xml-grid"
-             >
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_netcdf_in_xml-grid">
             <limits>
                 <GridEnvelope>
                     <low>0 0 0</low>
                     <high>1 1 1</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>Lat Long ansi</axisLabels>
+            <gmlrgrid:axisLabels>Lat Long ansi</gmlrgrid:axisLabels>
             <gmlrgrid:origin>
-                <Point
-                    id="test_wcs_local_metadata_netcdf_in_xml-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                    <pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z"</pos>
-                </Point>
+                <gmlrgrid:Point
+                    id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
+                    <gmlrgrid:pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z"</gmlrgrid:pos>
+                </gmlrgrid:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -72,7 +71,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="Drought code">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>Drought code</swe:label>
                     <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
                     <swe:nilValues>
@@ -81,13 +80,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <slices>
                     <slice>
                         <boundedBy>
@@ -99,11 +99,11 @@
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>FROM FILE 2</local_metadata_key>
-                        <fileReferenceHistory>/test/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
+                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

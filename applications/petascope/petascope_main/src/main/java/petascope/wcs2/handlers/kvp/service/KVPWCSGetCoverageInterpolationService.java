@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
-import petascope.wcs2.handlers.kvp.KVPWCSGetCapabilitiesHandler;
+import petascope.core.gml.GMLGetCapabilitiesBuilder;
 
 /**
  * Service class for Interpolation handler of GetCoverageKVP class
@@ -50,7 +50,7 @@ public class KVPWCSGetCoverageInterpolationService {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "Multiple \"" + KEY_INTERPOLATION + "\" parameters in the request: must be unique.");
         } // if set, it must be a supported one:
-        else if (!KVPWCSGetCapabilitiesHandler.supportedInterpolations.contains(interpolations[0])) {
+        else if (!GMLGetCapabilitiesBuilder.supportedInterpolations.contains(interpolations[0])) {
             throw new WCSException(ExceptionCode.InterpolationMethodNotSupported, "Received interpolation URL: " + interpolations[0] + " is not supported.");
         }
     }

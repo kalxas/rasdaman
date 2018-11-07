@@ -624,12 +624,8 @@ public class WMSGetMapService {
         }
         
         String encodeFormatParameters = "";
-        try {
-            encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
-            encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");
-        } catch (JsonProcessingException ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot serialize encode format parameters in JSON. Reason: " + ex.getMessage());
-        }
+        encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
+        encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");
         
         return encodeFormatParameters;
     }

@@ -7,9 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription id="test_nilvalue_interval"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_nilvalue_interval">
         <boundedBy>
             <Envelope axisLabels="ansi E N" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630" uomLabels="d metre metre">
@@ -26,20 +24,19 @@
         </coverageFunction>
         <gmlcov:metadata/>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3"
-                id="test_nilvalue_interval-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_nilvalue_interval-grid">
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
                         <high>0 0 0</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>ansi E N</axisLabels>
+                <gmlrgrid:axisLabels>ansi E N</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_nilvalue_interval-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">
-                        <pos>"2016-03-25T00:00:00.000Z" 599980 4300040</pos>
-                    </Point>
+                    <gmlrgrid:Point
+                        id="test_nilvalue_interval-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">
+                        <gmlrgrid:pos>"2016-03-25T00:00:00.000Z" 599980 4300040</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -70,113 +67,133 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Gray">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Gray</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_2">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_2</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_3">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_3</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_4">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_4</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_5">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_5</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_6">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_6</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_7">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_7</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_8">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_8</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_9">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_9</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="field_10">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>field_10</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

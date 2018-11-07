@@ -122,11 +122,20 @@ public class JsonExtraParams {
         return this.configOptions;
     }
 
+    public String getOutputType() {
+        return outputType;
+    }
+
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
     private Dimensions dimensions;
     private Variables variables;
     private GeoReference geoReference;
     private NoData nodata;
     private ColorPalette colorPalette;
+    private String outputType;
         
     private List<Integer> transpose = new ArrayList<>();    
     private Map<String, String> formatParameters = new HashMap<>();

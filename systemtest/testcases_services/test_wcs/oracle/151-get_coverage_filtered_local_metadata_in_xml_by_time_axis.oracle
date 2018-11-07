@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
     id="test_wcs_local_metadata_netcdf_in_xml"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
@@ -15,21 +16,19 @@
         </Envelope>
     </boundedBy>
     <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3"
-            id="test_wcs_local_metadata_netcdf_in_xml-grid"
-             >
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_netcdf_in_xml-grid">
             <limits>
                 <GridEnvelope>
                     <low>0 0 0</low>
                     <high>1 1 1</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>Lat Long forecast</axisLabels>
+            <gmlrgrid:axisLabels>Lat Long forecast</gmlrgrid:axisLabels>
             <gmlrgrid:origin>
-                <Point
-                    id="test_wcs_local_metadata_netcdf_in_xml-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                    <pos>34.650524 29.671875 0</pos>
-                </Point>
+                <gmlrgrid:Point
+                    id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+                    <gmlrgrid:pos>34.650524 29.671875 0</gmlrgrid:pos>
+                </gmlrgrid:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -72,7 +71,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="Drought code">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>Drought code</swe:label>
                     <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
                     <swe:nilValues>
@@ -81,13 +80,14 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <slices>
                     <slice>
                         <boundedBy>
@@ -103,7 +103,7 @@
                     </slice>
                 </slices>
                 <Title>Drought code</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

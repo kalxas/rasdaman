@@ -93,9 +93,16 @@ public class WcpsCoverageMetadataTranslator {
         List<NilValue> nilValues = coverage.getAllUniqueNullValues();
         
         String rasdamanCollectionName = coverage.getRasdamanRangeSet().getCollectionName();
+        
+        List<String> axisCrsUris = new ArrayList<>();
+        for (Axis axis : axes) {
+            axisCrsUris.add(axis.getNativeCrsUri());
+        }
+        
+        String crsUri = CrsUtil.CrsUri.createCompound(axisCrsUris);
 
         WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, rasdamanCollectionName,
-                                                        coverage.getCoverageType(), axes, coverage.getEnvelope().getEnvelopeByAxis().getSrsName(), 
+                                                        coverage.getCoverageType(), axes, crsUri, 
                                                         rangeFields, nilValues, extraMetadata, originalAxes);
 
         return wcpsCoverageMetadata;

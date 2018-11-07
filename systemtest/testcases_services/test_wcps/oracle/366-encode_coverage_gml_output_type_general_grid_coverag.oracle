@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cis11:GeneralGridCoverage id="test_irr_cube_2"
+    
+    
+    
+    
+    
+     >
+    <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="/crs/EPSG/0/32633">
+        <cis11:axisExtent axisLabel="E" lowerBound="75042.7273594"
+            uomLabel="metre" upperBound="75042.7273594"/>
+        <cis11:axisExtent axisLabel="N" lowerBound="5094865.55794"
+            uomLabel="metre" upperBound="5094865.55794"/>
+    </cis11:Envelope>
+    <coverageFunction>
+        <GridFunction>
+            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+            <startPoint>-1 35</startPoint>
+        </GridFunction>
+    </coverageFunction>
+    <cis11:domainSet>
+        <cis11:generalGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
+            <cis11:regularAxis axisLabel="E" lowerBound="75042.7273594"
+                resolution="10000" uomLabel="metre" upperBound="75042.7273594"/>
+            <cis11:regularAxis axisLabel="N" lowerBound="5094865.55794"
+                resolution="-10000" uomLabel="metre" upperBound="5094865.55794"/>
+            <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+                <cis11:indexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
+                <cis11:indexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
+            </cis11:gridLimits>
+        </cis11:generalGrid>
+    </cis11:domainSet>
+    <cis11:rangeType>
+        <swe:DataRecord>
+            <swe:field name="b1">
+                <swe:Quantity>
+                    <swe:label>b1</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+            <swe:field name="b2">
+                <swe:Quantity>
+                    <swe:label>b2</swe:label>
+                    <swe:description/>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </cis11:rangeType>
+    <rangeSet>
+        <rangeSet>
+            <cis11:V>9.697354 4.181835</cis11:V>
+        </rangeSet>
+    </rangeSet>
+    <cis11:metadata/>
+</cis11:GeneralGridCoverage>

@@ -60,7 +60,6 @@ public class KVPWMSServiceHandler extends AbstractHandler {
     public KVPWMSServiceHandler() {
         // WMS is a part of WMS 1.3
         service = KVPSymbols.WMS_SERVICE;
-        version = ConfigManager.WMS_VERSIONS;
 
         requestServices.add(KVPSymbols.VALUE_GET_CAPABILITIES);
         requestServices.add(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER);

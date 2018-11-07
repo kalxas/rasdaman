@@ -5,11 +5,8 @@
     
     
     
-    
      >
-    <wcs:CoverageDescription id="test_time3d"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_time3d">
         <boundedBy>
             <Envelope axisLabels="time Lat Long" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
@@ -35,7 +32,7 @@
                 </limits>
                 <axisLabels>time Lat Long</axisLabels>
                 <origin>
-                    <Point id="test_time3d-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">
+                    <Point id="test_time3d-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">
                         <pos>"1950-01-01T00:00:00.000Z" -35.14 147.8</pos>
                     </Point>
                 </origin>
@@ -47,14 +44,16 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="Gray">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>Gray</swe:label>
+                        <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
                                 <swe:nilValue reason="">155</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

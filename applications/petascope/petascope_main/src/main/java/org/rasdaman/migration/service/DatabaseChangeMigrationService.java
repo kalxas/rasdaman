@@ -239,7 +239,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
         Criteria criteria = this.getSourceHibernateSession().createCriteria(OwsServiceMetadata.class);
         OwsServiceMetadata owsServiceMetadata;
         if (criteria.list().isEmpty()) {
-            owsServiceMetadata = OwsServiceMetadata.createDefaultOWSMetadataService();
+            owsServiceMetadata = this.owsMetadataRepostioryService.createDefaultOWSMetadataService();
             return owsServiceMetadata;
         } else {
             owsServiceMetadata = (OwsServiceMetadata) criteria.list().get(0);

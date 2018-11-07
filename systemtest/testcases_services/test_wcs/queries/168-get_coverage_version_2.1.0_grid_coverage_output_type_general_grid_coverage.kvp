@@ -1,0 +1,7 @@
+service=WCS&
+version=2.1.0&
+request=GetCoverage&
+coverageId=test_mr&
+subset=i(0,10)&
+subset=j(0,10)&
+outputType=GeneralGridCoverage

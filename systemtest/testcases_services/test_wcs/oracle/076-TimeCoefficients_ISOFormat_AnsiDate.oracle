@@ -7,9 +7,7 @@
     
     
      >
-    <wcs:CoverageDescription id="test_irr_cube_2"
-        xmlns="http://www.opengis.net/gml/3.2"
-         >
+    <wcs:CoverageDescription id="test_irr_cube_2">
         <boundedBy>
             <Envelope axisLabels="ansi E N" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
@@ -26,20 +24,18 @@
         </coverageFunction>
         <gmlcov:metadata/>
         <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3"
-                id="test_irr_cube_2-grid"
-                 >
+            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
                         <high>3 62 35</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>ansi E N</axisLabels>
+                <gmlrgrid:axisLabels>ansi E N</gmlrgrid:axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-                        <pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</pos>
-                    </Point>
+                    <gmlrgrid:Point id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+                        <gmlrgrid:pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</gmlrgrid:pos>
+                    </gmlrgrid:Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -70,15 +66,19 @@
         <gmlcov:rangeType>
             <swe:DataRecord>
                 <swe:field name="b1">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>b1</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
                 <swe:field name="b2">
-                    <swe:Quantity >
+                    <swe:Quantity>
                         <swe:label>b2</swe:label>
+                        <swe:description/>
                         <swe:uom code="10^0"/>
+                        <swe:constraint/>
                     </swe:Quantity>
                 </swe:field>
             </swe:DataRecord>

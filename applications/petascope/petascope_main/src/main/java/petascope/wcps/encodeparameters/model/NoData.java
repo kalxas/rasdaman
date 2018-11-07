@@ -32,6 +32,8 @@ import org.rasdaman.domain.cis.NilValue;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class NoData {
+    private static final String NO_DATA_NAN = "NaN";
+    
     public NoData() {
 
     }
@@ -41,7 +43,12 @@ public class NoData {
         // store the nil values of metadata
         this.nilValues = nilValues;
         for (NilValue nilValue:nilValues) {
-            this.nodataValues.add(new BigDecimal(nilValue.getValue()));
+            if (nilValue.getValue() != null) {
+                // NOTE: rasql does not support parsing NaN as float number yet.
+                if (!nilValue.getValue().equalsIgnoreCase(NO_DATA_NAN)) {
+                    this.nodataValues.add(new BigDecimal(nilValue.getValue()));
+                }
+            }
         }        
     }   
     

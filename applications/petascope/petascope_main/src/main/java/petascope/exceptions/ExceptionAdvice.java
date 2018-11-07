@@ -39,8 +39,6 @@ import petascope.util.MIMEUtil;
 @ControllerAdvice
 public class ExceptionAdvice {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ExceptionAdvice.class);
-
     /**
      * To Overwrite the body of the white page with a custom response in String.
      * NOTE: this one is only used as a fallback for rare cases as exceptions are parsed as exception report in PetascopeController.
@@ -51,14 +49,6 @@ public class ExceptionAdvice {
     @ExceptionHandler(Exception.class)    
     @ResponseBody    
     public void generalExceptionHandler(Exception ex, HttpServletResponse httpServletResponse) throws IOException {        
-        OutputStream outputStream = httpServletResponse.getOutputStream();
-
-        httpServletResponse.setContentType(MIMEUtil.MIME_XML);
-        log.error("Caught an exception:", ex);
-
-        ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex);
-        httpServletResponse.setStatus(exceptionReport.getHttpCode());
-        IOUtils.write(exceptionReport.getExceptionText(), outputStream);
-        IOUtils.closeQuietly(outputStream);
+        ExceptionUtil.handle(null, ex, httpServletResponse);
     }
 }

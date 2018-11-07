@@ -32,6 +32,7 @@ import org.rasdaman.repository.service.CoverageRepostioryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static petascope.core.XMLSymbols.LABEL_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
@@ -128,6 +129,11 @@ public class SerializationEncodingService {
             jsonExtraParams = objectMapper.readValue(extraParams, JsonExtraParams.class);
         } catch (IOException ex) {
             throw new DeserializationExtraParamsInJsonExcception(ex);
+        }
+        
+        // CIS 1.1
+        if (jsonExtraParams.getOutputType() != null && jsonExtraParams.getOutputType().equals(LABEL_GENERAL_GRID_COVERAGE)) {
+            wcpsCoverageMetadata.setCoverageType(LABEL_GENERAL_GRID_COVERAGE);
         }
 
         // update each range of coverage with value from passing nodata_values

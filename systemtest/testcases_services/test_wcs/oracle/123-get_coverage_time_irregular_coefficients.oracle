@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
     id="test_time_irregular_coefficients_subset"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
@@ -15,21 +16,19 @@
         </Envelope>
     </boundedBy>
     <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3"
-            id="test_time_irregular_coefficients_subset-grid"
-             >
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_time_irregular_coefficients_subset-grid">
             <limits>
                 <GridEnvelope>
                     <low>5 0 0</low>
                     <high>12 5 3</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>ansi E N</axisLabels>
+            <gmlrgrid:axisLabels>ansi E N</gmlrgrid:axisLabels>
             <gmlrgrid:origin>
-                <Point
-                    id="test_time_irregular_coefficients_subset-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-                    <pos>"2016-01-02T00:00:06.000Z" 125042.7273594 5404865.55794</pos>
-                </Point>
+                <gmlrgrid:Point
+                    id="test_time_irregular_coefficients_subset-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+                    <gmlrgrid:pos>"2016-01-02T00:00:06.000Z" 125042.7273594 5404865.55794</gmlrgrid:pos>
+                </gmlrgrid:Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -72,15 +71,19 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="b1">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>b1</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
             <swe:field name="b2">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>b2</swe:label>
+                    <swe:description/>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>

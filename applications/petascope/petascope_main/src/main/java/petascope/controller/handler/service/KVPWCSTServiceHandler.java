@@ -77,7 +77,6 @@ public class KVPWCSTServiceHandler extends AbstractHandler {
     public KVPWCSTServiceHandler() {
         // WCST is a part of WCS2
         service = KVPSymbols.WCS_SERVICE;
-        version = ConfigManager.WCS_VERSIONS;
         
         requestServices.add(KVPSymbols.VALUE_INSERT_COVERAGE);
         requestServices.add(KVPSymbols.VALUE_UPDATE_COVERAGE);

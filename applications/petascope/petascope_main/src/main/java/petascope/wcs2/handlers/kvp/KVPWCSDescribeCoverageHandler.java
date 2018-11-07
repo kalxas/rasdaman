@@ -24,20 +24,21 @@ package petascope.wcs2.handlers.kvp;
 import java.util.Arrays;
 import petascope.core.response.Response;
 import java.util.Map;
+import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import petascope.core.Templates;
-import petascope.core.gml.GmlCoverageBuilder;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_COVERAGEID;
+import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
+import petascope.core.gml.GMLWCSRequestResultBuilder;
 import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
-import petascope.wcps.metadata.model.WcpsCoverageMetadata;
-import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
+import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
 
 /**
  * Class which handle WCS 2.0.1 DescribeCoverage request NOTE: 1 coverage can
@@ -50,15 +51,15 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
 
     @Autowired
-    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslator;
-    @Autowired
-    private GmlCoverageBuilder gmlCoverageBuilder;
+    private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
         if (kvpParameters.get(KVPSymbols.KEY_COVERAGEID) == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "A DescribeCoverage request must specify at least one " + KVPSymbols.KEY_COVERAGEID + ".");
         }
+        
+        this.validateCoverageConversionCIS11(kvpParameters);
     }
 
     @Override
@@ -67,31 +68,25 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
         this.validate(kvpParameters);
 
         // DecribeCoverage can contain multiple coverageIds (e.g: coverageIds=test_mr,test_irr_cube_2)
-        String[] coverageIds = kvpParameters.get(KVPSymbols.KEY_COVERAGEID)[0].split(",");
-
-        // the DescribeCoverage template which can contain multiples coverages's description
-        String gmlTemplate = Templates.getTemplate(Templates.WCS2_DESCRIBE_COVERAGE_FILE);
-        String content = "";
+        String[] coverageIds = kvpParameters.get(KEY_COVERAGEID)[0].split(",");
+        String outputType = this.getKVPValue(kvpParameters, KEY_OUTPUT_TYPE);
+        
+        if (outputType != null && !outputType.equalsIgnoreCase(VALUE_GENERAL_GRID_COVERAGE)) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "GET KVP value for key '" + KEY_OUTPUT_TYPE + "' is not valid. Given: '" + outputType + "'.");
+        }
 
         // The result is:
 //        <wcs:CoverageDescriptions>
 //          <wcs:CoverageDescription gml:id="test_mr">...</wcs:CoverageDescription>
 //          <wcs:CoverageDescription gml:id="test_rgb">...</wcs:CoverageDescription>
 //        </wcs:CoverageDescriptions>
-        for (String coverageId : coverageIds) {
-            WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(coverageId);
-            // After that, we can build the GML string for the DescribeCoverage
-            String gml = gmlCoverageBuilder.build(wcpsCoverageMetadata, Templates.WCS2_DESCRIBE_COVERAGE_COVERAGE_DESCRIPTION_FILE);
-            content += gml + "\n";
-        }
 
-        // Replace the content in the template
-        gmlTemplate = gmlTemplate.replace(Templates.WCS2_DESCRIBE_COVERAGE_CONTENT, content);
+        Element coverageDescriptionsElement = this.gmlWCSRequestResultBuilder.buildDescribeCoverageResult(outputType, Arrays.asList(coverageIds));
+        String result = coverageDescriptionsElement.toXML();
+        
+        result = XMLUtil.formatXML(result);
 
-        // format the output with indentation
-        gmlTemplate = XMLUtil.formatXML(gmlTemplate);
-
-        return new Response(Arrays.asList(gmlTemplate.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, null);
     }
 
 }

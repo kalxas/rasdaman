@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
     id="test_append_prepend_irregular_coverage_slice"
-    xmlns="http://www.opengis.net/gml/3.2"
+    
+    
     
     
     
     
      >
     <boundedBy>
-        <Envelope axisLabels="" srsName="" uomLabels="">
+        <Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
             <lowerCorner/>
             <upperCorner/>
         </Envelope>
     </boundedBy>
-    <domainSet/>
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="0" gmlrgrid:id="test_append_prepend_irregular_coverage_slice-grid">
+            <limits>
+                <GridEnvelope>
+                    <low/>
+                    <high/>
+                </GridEnvelope>
+            </limits>
+            <gmlrgrid:axisLabels/>
+            <gmlrgrid:origin>
+                <gmlrgrid:Point
+                    id="test_append_prepend_irregular_coverage_slice-point" srsName="">
+                    <gmlrgrid:pos/>
+                </gmlrgrid:Point>
+            </gmlrgrid:origin>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
@@ -29,7 +46,7 @@
     <gmlcov:rangeType>
         <swe:DataRecord>
             <swe:field name="LAI">
-                <swe:Quantity >
+                <swe:Quantity>
                     <swe:label>LAI</swe:label>
                     <swe:description>Leaf Area Index</swe:description>
                     <swe:nilValues>
@@ -38,26 +55,28 @@
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
+                    <swe:constraint/>
                 </swe:Quantity>
             </swe:field>
         </swe:DataRecord>
     </gmlcov:rangeType>
     <gmlcov:metadata>
         <gmlcov:Extension>
-            <covMetadata>
+            <rasdaman:covMetadata >
                 <bands>
                     <LAI>
                         <_FillValue>-1.0</_FillValue>
                         <grid_mapping>crs</grid_mapping>
                         <scale_factor>1.0</scale_factor>
                         <FORTRAN_format>G10.6</FORTRAN_format>
+                        <valid_range>[ 0.  7.]</valid_range>
                         <long_name>Leaf Area Index</long_name>
                         <units>m2/m2</units>
                         <missing_value>-1.0</missing_value>
                     </LAI>
                 </bands>
                 <Title>This is a test coverage</Title>
-            </covMetadata>
+            </rasdaman:covMetadata>
         </gmlcov:Extension>
     </gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

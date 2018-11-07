@@ -2,7 +2,7 @@
 <ows:ExceptionReport version="2.0.1"
     
       >
-    <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>Encoding coverage's metadata is null, cannot use encode expression.</ows:ExceptionText>
+    <ows:Exception exceptionCode="RasdamanRequestFailed">
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode({0,0,0}, "png" ) FROM test_rgb AS c'. Reason: Execution error 380 in line 1, column 8, near token encode: Data type can not be converted to selected data exchange format.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

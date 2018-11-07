@@ -443,10 +443,10 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @return
      */
     private Element buildKeywordListElement(List<String> keywords) {
-        Element keywordsElement = new Element(XMLSymbols.OWS_LABEL_KEYWORDS);
+        Element keywordsElement = new Element(XMLSymbols.LABEL_KEYWORDS);
         // keyWords element can contain multiple KeyWord elements
         for (String keyWord : keywords) {
-            Element keyWordElement = new Element(XMLSymbols.OWS_LABEL_KEYWORD);
+            Element keyWordElement = new Element(XMLSymbols.LABEL_KEYWORD);
             keyWordElement.appendChild(keyWord);
 
             keywordsElement.appendChild(keyWordElement);

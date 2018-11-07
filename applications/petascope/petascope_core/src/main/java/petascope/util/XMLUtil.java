@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,6 +61,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
@@ -95,11 +97,14 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+import static petascope.core.XMLSymbols.ATT_SCHEMA_LOCATION;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import static petascope.core.XMLSymbols.ATT_SERVICE;
 import static petascope.core.XMLSymbols.ATT_VERSION;
+import static petascope.core.XMLSymbols.NAMESPACE_XSI;
+import static petascope.core.XMLSymbols.PREFIX_XSI;
 
 /**
  * Common utility methods for working with XML.
@@ -110,6 +115,8 @@ public class XMLUtil {
 
     private static Logger log = LoggerFactory.getLogger(XMLUtil.class);
     private static final XmlMapper xmlMapper = new XmlMapper();
+    
+    private static final String XML_DECLERATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     /**
      * Given a XML text, e.g: <a><b>123</b></a> and one element (open and close tags, e.g: <b>  123   </b>)
@@ -459,13 +466,9 @@ public class XMLUtil {
 
     /**
      * Shortcut method for creating a XOM Attribute in the XML namespace.
-     *
-     * @param name name of the attribute
-     * @param value value of the attribute
-     * @return the created attribute
      */
-    public static Attribute createXMLAttribute(String name, String value) {
-        return new Attribute(XMLSymbols.PREFIX_XML + ":" + name, XMLSymbols.NAMESPACE_XML, value);
+    public static Attribute createXMLAttribute(String namespace, String prefix, String attributeName, String attributeValue) {
+        return new Attribute(prefix + ":" + attributeName, namespace, attributeValue);
     }
 
     /**
@@ -1227,6 +1230,12 @@ public class XMLUtil {
      * @return
      */
     public static String formatXML(String inputXML) {
+        
+        // Add XML declaration if not exist
+        if (!inputXML.startsWith(XML_DECLERATION)) {
+            inputXML = XML_DECLERATION + inputXML;
+        }
+        
         if (ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
             return formatXMLForOGCCITE(inputXML);
         } else {
@@ -1346,7 +1355,7 @@ public class XMLUtil {
      * @return
      */
     public static boolean isXmlString(String input) {
-        return input.contains("<?xml");
+        return input.startsWith("<");
     }
 
     /**
@@ -1404,5 +1413,56 @@ public class XMLUtil {
         xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         String xml = xmlMapper.writer().writeValueAsString(obj);
         return xml;
+    }
+    
+    /**
+     * Return XML label combined from namespace and label, e.g: wcs:CoverageDescriptions
+     */
+    public static String createXMLLabel(String namespace, String label) {
+        String result = namespace + ":" + label;
+        return result;
+    }
+    
+    /**
+     * Create a XML string from <prefix:label>content</prefix:label>
+     */
+    public static String createXMLString(String namespace, String prefix, String label, String content) {
+        String result = MessageFormat.format("<{0}:{1} xmlns:{0}=\"{2}\">{3}</{0}:{1}>", prefix, label, namespace, content);
+        return result;
+    }
+    
+        public static void addXMLNameSpacesOnRootElement(Map<String, String> xmlNameSpacesMap, Element rootElement) {
+        
+        for (Map.Entry<String, String> entry : xmlNameSpacesMap.entrySet()) {
+            String prefix = entry.getKey();
+            String namespace = entry.getValue();
+            rootElement.addNamespaceDeclaration(prefix, namespace);
+        }
+    }
+    
+    /**
+     * Add all possible XML schemaLocations to root element.
+     */
+    public static void addXMLSchemaLocationsOnRootElement(Set<String> schemaLocations, Element rootElement) {
+        
+        String attribute = "";
+        for (String schemaLocation : schemaLocations) {
+            attribute += schemaLocation + " ";
+        }
+        Attribute schemaLocationAttribute = XMLUtil.createXMLAttribute(NAMESPACE_XSI, PREFIX_XSI, ATT_SCHEMA_LOCATION, attribute.trim());
+        rootElement.addAttribute(schemaLocationAttribute);
+    }
+    
+    /**
+     * Get XML NameSpace by prefix, e.g: gml -> http://www.opengis.net/gml/3.2
+     * @param prefix
+     * @return 
+     */
+    public static String getNameSpaceByPrefix(String prefix) {
+        if (prefix.equals(XMLSymbols.PREFIX_GMLRGRID)) {
+            return XMLSymbols.NAMESPACE_GMLRGRID;
+        } else {
+            return XMLSymbols.NAMESPACE_GML;
+        }
     }
 }

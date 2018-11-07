@@ -150,6 +150,9 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
         axes.add(projectionAxis2);
         
         metadata.setAxes(axes);
+        
+        // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
+        metadata.updateCrsUri();
 
         return result;
     }

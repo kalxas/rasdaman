@@ -37,6 +37,8 @@ public interface KVPSymbols {
     String KEY_MEDIATYPE = "mediatype";
     String KEY_RANGESUBSET = "rangesubset";
     String KEY_REQUEST = "request";
+    // Used to transform CIS 1.0 coverages to CIS 1.1 if output Type is GML in DescribeCoverage/GetCoverage requests.
+    String KEY_OUTPUT_TYPE = "outputType";
     String KEY_SCALE_PREFIX = "scale";
     String KEY_SCALEAXES = "scaleaxes";
     String KEY_SCALEEXTENT = "scaleextent";
@@ -74,6 +76,7 @@ public interface KVPSymbols {
     String VALUE_GET_COVERAGE = "GetCoverage";    
     // it is the name of file parameter to be posted to server
     String KEY_UPLOADED_FILE_VALUE = "file";
+    String VALUE_GENERAL_GRID_COVERAGE = "GeneralGridCoverage";
 
     // WCST
     String VALUE_INSERT_COVERAGE = "InsertCoverage";
@@ -149,7 +152,9 @@ public interface KVPSymbols {
     /**
      * Service name
      */
+    String CIS_SERVICE = "CIS";
     String WCS_SERVICE = "WCS";
+    String WCST_SERVICE = "WCST";
     String WMS_SERVICE = "WMS";
     String WCPS_SERVICE = "WCPS";
     // Make up for RASQL servlet

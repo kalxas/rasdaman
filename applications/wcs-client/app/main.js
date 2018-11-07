@@ -2865,11 +2865,15 @@ var rasdaman;
                     $scope.coverageDescriptions = response.value;
                     $scope.metaDataPrint = ' ';
                     var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
-                    var startPos = rawCoverageDescription.indexOf("<covMetadata>");
-                    if (startPos != -1) {
-                        startPos += 13;
-                        var endPos = rawCoverageDescription.indexOf("</covMetadata>");
-                        $scope.metaDataPrint = rawCoverageDescription.substring(startPos, endPos);
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(rawCoverageDescription, "text/xml");
+                    var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                    var metadataContent = "";
+                    if (elements.length > 0) {
+                        metadataContent = elements[0].innerHTML;
+                    }
+                    if (metadataContent != "") {
+                        $scope.metaDataPrint = metadataContent;
                         var ch = /{/gi;
                         if ($scope.metaDataPrint.search(ch) != -1) {
                             $scope.typeMetadata = 'json';

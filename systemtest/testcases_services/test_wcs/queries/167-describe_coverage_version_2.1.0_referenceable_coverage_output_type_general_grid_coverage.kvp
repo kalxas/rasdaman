@@ -1,0 +1,5 @@
+service=WCS&
+version=2.1.0&
+request=DescribeCoverage&
+coverageId=test_irr_cube_2&
+outputType=GeneralGridCoverage
