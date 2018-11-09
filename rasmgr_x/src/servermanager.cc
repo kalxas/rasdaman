@@ -107,11 +107,10 @@ ServerManager::~ServerManager()
 bool ServerManager::tryGetFreeServer(const std::string& databaseName, boost::shared_ptr<Server>& out_server)
 {
     bool success = false;
-    list<shared_ptr<ServerGroup>>::iterator it;
 
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->tryGetAvailableServer(databaseName, out_server))
         {
@@ -127,11 +126,10 @@ bool ServerManager::tryGetFreeServer(const std::string& databaseName, boost::sha
 void ServerManager::registerServer(const string& serverId)
 {
     bool registered = false;
-    list<shared_ptr<ServerGroup>>::iterator it;
 
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if (((*it)->tryRegisterServer(serverId)))
         {
@@ -148,11 +146,9 @@ void ServerManager::registerServer(const string& serverId)
 
 void ServerManager::defineServerGroup(const ServerGroupConfigProto& serverGroupConfig)
 {
-    list<shared_ptr<ServerGroup>>::iterator it;
-
     unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->getGroupName() == serverGroupConfig.name())
         {
@@ -165,11 +161,10 @@ void ServerManager::defineServerGroup(const ServerGroupConfigProto& serverGroupC
 
 void ServerManager::changeServerGroup(const std::string& oldServerGroupName, const ServerGroupConfigProto& newServerGroupConfig)
 {
-    list<shared_ptr<ServerGroup>>::iterator it;
     bool changed = false;
 
     unique_lock<shared_mutex> lock(this->serverGroupMutex);
-    for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+    for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
         if ((*it)->getGroupName() == oldServerGroupName)
         {
@@ -225,13 +220,12 @@ void ServerManager::removeServerGroup(const std::string& serverGroupName)
 
 void ServerManager::startServerGroup(const StartServerGroup& startGroup)
 {
-    list<shared_ptr<ServerGroup>>::iterator it;
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
     if (startGroup.has_group_name())
     {
         bool found = false;
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             shared_ptr<ServerGroup>  srv = (*it);
             if (srv->getGroupName() == startGroup.group_name())
@@ -253,7 +247,7 @@ void ServerManager::startServerGroup(const StartServerGroup& startGroup)
         bool hostExists = false;
         std::string onHost = startGroup.host_name();
 
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             if ((*it)->getConfig().host() == onHost)
             {
@@ -272,7 +266,7 @@ void ServerManager::startServerGroup(const StartServerGroup& startGroup)
     }
     else if (startGroup.has_all())
     {
-        for (it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
+        for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             if ((*it)->isStopped())
             {

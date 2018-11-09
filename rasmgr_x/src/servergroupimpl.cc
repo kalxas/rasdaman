@@ -128,6 +128,7 @@ void ServerGroupImpl::stop(KillLevel level)
     else
     {
         this->stopped = true;
+        this->failedRegistrations = 0;
 
         this->stopActiveServers(level);
         this->evaluateGroup();
@@ -171,18 +172,19 @@ bool ServerGroupImpl::tryRegisterServer(const std::string& serverId)
             {
                 LWARNING << "Failed registering server " << serverId;
             }
+
+            // record failed registrations
+            if (registered)
+            {
+                failedRegistrations = 0; // all good, reset
+            }
+            else if (failedRegistrations++ >= MAX_GET_SERVER_RETRIES)
+            {
+                LERROR << "Server registration in group " << getGroupName()
+                       << " failed too many times; stopping group.";
+                this->stop(KillLevel::KILL);
+            }
         }
-        // record failed registrations
-        if (registered)
-            failedRegistrations = 0; // all good, reset
-        else
-            ++failedRegistrations;   // increase failures
-    }
-    // too many failures
-    if (failedRegistrations >= MAX_GET_SERVER_RETRIES)
-    {
-        LERROR << "Server registration in group " << getGroupName() << " failed too many times.";
-        this->stop(KillLevel::KILL);
     }
 
     return registered;
