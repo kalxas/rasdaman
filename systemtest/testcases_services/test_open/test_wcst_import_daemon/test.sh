@@ -45,7 +45,9 @@ sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$SCRIPT_D
 declare -a daemon_commands=("wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon start" \
 	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon status" \
 	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon restart" \
-	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon stop")
+	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon stop" \
+	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --watch 0.5")
+
 
 check_start() {
 	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
@@ -99,10 +101,55 @@ check_stop() {
 	fi
 }
 
+# check if --watch is looking for existence of pidfile each [interval] seconds
+check_watch_pid() {
+	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
+
+	logn "Checking --watch [interval] ... "
+
+	if [ "$daemon_pid" > /dev/null ]; then
+		rm "$SCRIPT_DIR/ingest.json.wcst_import.pid"
+		sleep 1
+
+		daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
+		if ! [ "$daemon_pid" > /dev/null ];then 
+			check_passed
+		else
+			check_failed
+		fi
+	else
+		check_failed
+	fi
+
+	# stop the daemon
+	log_message=`${daemon_commands[3]} > /dev/null 2>&1`
+}
+
+# check if --watch is looking for new data each [interval] seconds
+check_watch_data() {
+	logn "Checking --watch [interval] ... "
+
+	log_message=`${daemon_commands[4]}`
+
+	first_modified=$(stat -c "%Y" $SCRIPT_DIR/ingest.json.wcst_import.log)
+	sleep 1
+	last_modified=$(stat -c "%Y" $SCRIPT_DIR/ingest.json.wcst_import.log)
+
+	if [ "$first_modified" != "$last_modified" ]; then
+		check_passed
+	else
+		check_failed
+	fi
+
+	# stop the daemon
+	log_message=`${daemon_commands[3]} > /dev/null 2>&1`
+
+}
+
 
 
 test_case_1() {
-	loge "\n #### Running: Test_case_1 ####\n\n"
+	loge "\nRunning: Test_case_1 ...\n\n"
 
 	log_message=`${daemon_commands[0]} > /dev/null 2>&1`
 
@@ -120,9 +167,22 @@ test_case_1() {
 
 }
 
+# set the daemon to look for pidfile and newdata every 1 seconds
+# remove the pidfile
+# check if the daemon correctly exists
+test_case_2() {
+	loge "\nRunning: Test_case_2 ...\n\n"
+
+	`${daemon_commands[4]} > /dev/null 2>&1`
+	rm "$SCRIPT_DIR/ingest.json.wcst_import.pid"
+	sleep 1
+
+	check_stop
+}
+
 
 for (( i = 0; i < ${#daemon_commands[@]} ; i++ )); do
-	loge "\n #### Running: ${daemon_commands[$i]} ####\n\n"
+	loge "\nRunning: ${daemon_commands[$i]} ...\n\n"
 
 	current_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json" | tr -s " " | cut -d " " -f2)
 	log_message=`${daemon_commands[$i]}`
@@ -144,6 +204,11 @@ for (( i = 0; i < ${#daemon_commands[@]} ; i++ )); do
 			check_stop
 			;;
 
+		4)
+			check_watch_pid
+			check_watch_data
+			;;
+
 		*)
 
 	esac
@@ -154,5 +219,6 @@ for (( i = 0; i < ${#daemon_commands[@]} ; i++ )); do
 done
 
 test_case_1
+test_case_2
 
 print_summary

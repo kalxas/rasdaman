@@ -14,21 +14,23 @@ LOGFILE = sys.argv[1] + '.wcst_import.log'
 
 
 DAEMON_ACTION_ARGN = 2
-SLEEP_TIME = 3600 # sleeping time for daemon (in seconds)
+WATCH_INTERVAL_ARGN = 3
 
 class wcst_import_daemon(Daemon):
 
     def run(self):
-
-        wi.main()
         
         while True:
-            time.sleep(SLEEP_TIME)
-
             # if the pid file was deleted, exit
             if not self.running():
                 sys.stderr.write("Pidfile was not found\n")
                 sys.exit(1)
+
+            wi.main()
+            time.sleep(SLEEP_TIME)
+
+            
+
 
             
         
@@ -40,6 +42,7 @@ if __name__ == "__main__":
 
 
     if 'start' == sys.argv[DAEMON_ACTION_ARGN]:
+        SLEEP_TIME = float(sys.argv[WATCH_INTERVAL_ARGN])
         daemon.start()
        
 
@@ -49,6 +52,7 @@ if __name__ == "__main__":
 
     elif 'restart' == sys.argv[DAEMON_ACTION_ARGN]:
         print "Restarting ..."
+        SLEEP_TIME = float(sys.argv[WATCH_INTERVAL_ARGN])
         daemon.restart()
 
     elif 'status' == sys.argv[DAEMON_ACTION_ARGN]:

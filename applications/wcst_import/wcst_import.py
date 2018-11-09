@@ -81,9 +81,9 @@ def validate():
         print_usage()
         exit(1)
 
-    # daemon flag is optional
-    if len(sys.argv) != 2 and len(sys.argv) != 3:
-        log.error("WCST Import expects exactly one or two argument. See the manual entry for the script below:")
+    # daemon flag and watch flag are optional
+    if len(sys.argv) <= 2 and len(sys.argv) >= 4:
+        log.error("WCST Import: wrong number of arguments. See the manual entry for the script below:")
         print_usage()
         exit_error()
 

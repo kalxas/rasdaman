@@ -25,7 +25,11 @@
 export PETASCOPE_PROPERTIES_PATH="@CONF_DIR@/petascope.properties"
 
 RC_OK=0
+
 daemon_flag=false
+watch_flag=false
+
+watch_interval=3600
 
 usage()
 {
@@ -42,10 +46,17 @@ Options:
   -d, --daemon
     run wcst_import.sh as daemon
     usage: -d|--daemon start|stop|status|restart
+  -w, --watch [interval (seconds)]
+    the daemon waits for [interval] seconds before checking the ingredients file for new data
+    [interval] must be a positive number; by default the interval is 3600 (1 hour)
+
+    usage: wcst_import <ingredients_file> --daemon start|restart --watch [interval]
+
 "
   echo "$usage"
   exit $RC_OK
 }
+
 # ----------------------------------------------------------------------------
 # parse command-line options
 # ----------------------------------------------------------------------------
@@ -58,6 +69,10 @@ while [ "$1" != "" ]; do
         daemon_flag=true
         shift
         daemon_action="$1";;
+      -w|--watch)
+        watch_flag=true
+        shift
+        watch_interval=$1;;      
       *) ingredients_file="$1";;
     esac
     shift
@@ -65,6 +80,15 @@ done
 
 if [[ "$ingredients_file" == "" ]]; then
   usage
+fi
+
+if ! [[ $watch_interval =~ ^[\0-9]*\.?[0-9]+$  && (( watch_interval > 0)) ]]; then
+  usage
+fi
+
+if [[ "$watch_flag" == true && "$daemon_flag" == false ]]; then
+  daemon_action='start'
+  daemon_flag=true
 fi
 
 # check if the daemon is active for this ingredients_file
@@ -86,7 +110,7 @@ if [[ "$daemon_flag" == false ]]; then
 fi
 
 if [[ "$quiet" == true ]]; then
-    python $script "$ingredients_file" "$daemon_action" 2>&1 > /dev/null
+    python $script "$ingredients_file" "$daemon_action" "$watch_interval" 2>&1 > /dev/null
 else
-    python $script "$ingredients_file" "$daemon_action"
+    python $script "$ingredients_file" "$daemon_action" "$watch_interval"
 fi
