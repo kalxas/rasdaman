@@ -249,7 +249,12 @@ public class UpdateCoverageHandler {
         
         if (!localMetadata.isEmpty()) {
             // Only update current coverage's metadata if input coverage has metadata to be added            
-            LocalMetadataChild inputLocalMetadata = this.coverageMetadataService.deserializeLocalMetadata(inputCoverage.getMetadata());
+            LocalMetadataChild inputLocalMetadata = null;
+            try {
+                inputLocalMetadata = this.coverageMetadataService.deserializeLocalMetadata(inputCoverage.getMetadata());
+            } catch (Exception ex) {
+                log.warn("Error deserializing local metadata from input coverage's metadata.", ex);
+            }
             CoverageMetadata currentCoverageMetadata = this.coverageMetadataService.deserializeCoverageMetadata(currentCoverage.getMetadata());
             
             // Only add local meta from input coverage if current coverage does not contain it inside coverage's metadata

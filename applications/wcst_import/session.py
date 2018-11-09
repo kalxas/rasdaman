@@ -23,6 +23,7 @@
 """
 import os
 import glob2 as glob
+import time
 from config_manager import ConfigManager
 from util.file_obj import File
 
@@ -163,16 +164,26 @@ class Session:
         return updated_crs
 
 
+    def __get_file_paths(self, paths):
+        """"
+        Get the list of file paths to be imported
+        """
+        file_paths = []
+        for path in paths:
+            path = path.strip()
+            file_paths = file_paths + FileUtil.get_file_paths_by_regex(self.ingredients_dir_path, path)
+
+        return file_paths
+
+
     def parse_input(self, paths):
         """
         Parses the list of paths and returns an ordered list of complete file paths
         :param list[str] paths: the list of paths
         :rtype list[File]
         """
-        file_paths = []
-        for path in paths:
-            path = path.strip()
-            file_paths = file_paths + FileUtil.get_file_paths_by_regex(self.ingredients_dir_path, path)
+        file_paths = self.__get_file_paths(paths)
+
         if len(file_paths) < len(paths):
             log.warn("WARNING: The materialized paths contain less files than the initial paths. This can be normal if "
                      "a directory provided in the paths is empty or if a path regex returns no results. If this is not "

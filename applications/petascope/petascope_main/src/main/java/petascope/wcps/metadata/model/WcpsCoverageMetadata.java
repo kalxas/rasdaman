@@ -27,7 +27,10 @@ import java.util.HashMap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.rasdaman.domain.cis.NilValue;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import petascope.core.AxisTypes;
@@ -66,6 +69,8 @@ public class WcpsCoverageMetadata {
     private final String metadata;
     private final CoverageMetadata coverageMetadata;
     
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
+    
     
     public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
             List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) throws PetascopeException {
@@ -84,9 +89,19 @@ public class WcpsCoverageMetadata {
     /**
      * Build CoverageMetadata object from coverage's metadata in string and coverage's axes.
      */
-    private CoverageMetadata buildCoverageMetadata(String metadata, List<Axis> axes) throws PetascopeException {
-        CoverageMetadata covMetadata = this.coverageMetadataService.deserializeCoverageMetadata(metadata);
-        covMetadata.getLocalMetadata().buildEnvelopeSubsetsForChildList(axes);
+    private CoverageMetadata buildCoverageMetadata(String metadata, List<Axis> axes) {
+        CoverageMetadata covMetadata = new CoverageMetadata();
+        try {
+            covMetadata = this.coverageMetadataService.deserializeCoverageMetadata(metadata);            
+        } catch (Exception ex) {
+            log.warn("Cannot deserialize coverage's metadata string to CoverageMetadata object. Reason: " + ex.getMessage(), ex);
+        }
+        
+        try {
+            covMetadata.getLocalMetadata().buildEnvelopeSubsetsForChildList(axes);
+        } catch (PetascopeException ex) {
+            log.warn("Cannot build envelope subsets from coverage's local metadata. Reason: " + ex.getMessage(), ex);
+        }
         
         return covMetadata;
     }
