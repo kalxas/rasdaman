@@ -335,8 +335,10 @@ std::string SignalHandler::extraSignalInfo(siginfo_t *info)
 std::string SignalHandler::pointerToString(const void *p)
 {
     std::ostringstream ss;
-    ss << "0x" << p;
+    ss << p;
     auto ret = ss.str();
+    if (ret.size() > 2 && ret[0] != '0' && ret[1] != 'x')
+        ret = "0x" + ret;
     return ret;
 }
 

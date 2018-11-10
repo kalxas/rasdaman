@@ -179,8 +179,8 @@ public:
 //@{
     /// get function object for unary operation.
     static UnaryOp* getUnaryOp(Ops::OpType op, const BaseType* restype,
-                               const BaseType* optype, unsigned int resOff = 0,
-                               unsigned int opOff = 0);
+                               const BaseType* optype, size_t resOff = 0,
+                               size_t opOff = 0);
     /*@Doc:
       An \Ref{UnaryOp} carrying out #op# on the given types is
       returned. If #op# is not applicable to the given types,
@@ -189,9 +189,9 @@ public:
     /// get function object for binary operation.
     static BinaryOp* getBinaryOp(Ops::OpType op, const BaseType* resType,
                                  const BaseType* op1Type, const BaseType* op2Type,
-                                 unsigned int resOff = 0,
-                                 unsigned int op1Off = 0,
-                                 unsigned int op2Off = 0);
+                                 size_t resOff = 0,
+                                 size_t op1Off = 0,
+                                 size_t op2Off = 0);
     /*@Doc:
       An \Ref{BinaryOp} carrying out #op# on the given types is
       returned. If #op# is not applicable to the given types,
@@ -199,13 +199,13 @@ public:
     */
     static CondenseOp* getCondenseOp(Ops::OpType op, const BaseType* resType,
                                      const BaseType* opType = 0,
-                                     unsigned int resOff = 0,
-                                     unsigned int opOff = 0);
+                                     size_t resOff = 0,
+                                     size_t opOff = 0);
     /// get function object for condense operation.
     static CondenseOp* getCondenseOp(Ops::OpType op, const BaseType* resType,
                                      char* newAccu, const BaseType* opType = 0,
-                                     unsigned int resOff = 0,
-                                     unsigned int opOff = 0);
+                                     size_t resOff = 0,
+                                     size_t opOff = 0);
     /*@Doc:
       An \Ref{CondenseOp} carrying out #op# on the given types is
       returned. If #op# is not applicable to the given types,
@@ -243,16 +243,16 @@ public:
     /// executes operation on a constant.
     static void execUnaryConstOp(Ops::OpType op, const BaseType* resType,
                                  const BaseType* opType, char* res,
-                                 const char* op1, unsigned int resOff = 0,
-                                 unsigned int opOff = 0, double param = 0);
+                                 const char* op1, size_t resOff = 0,
+                                 size_t opOff = 0, double param = 0);
     /// executes operation on two constants.
     static void execBinaryConstOp(Ops::OpType op, const BaseType* resType,
                                   const BaseType* op1Type,
                                   const BaseType* op2Type, char* res,
                                   const char* op1, const char* op2,
-                                  unsigned int resOff = 0,
-                                  unsigned int op1Off = 0,
-                                  unsigned int op2Off = 0);
+                                  size_t resOff = 0,
+                                  size_t op1Off = 0,
+                                  size_t op2Off = 0);
 //@}
 
 private:
@@ -292,11 +292,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     CondenseOp(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /*@ManMemo: constructor gets RasDaMan base type of result and operand,
       initial value, and offsets to result and operand (for structs) . */
     CondenseOp(const BaseType* newResType, char* newAccu, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu) = 0;
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -311,8 +311,8 @@ protected:
     char* accu;
     const BaseType* opType;
     const BaseType* resType;
-    unsigned int resOff;
-    unsigned int opOff;
+    size_t resOff;
+    size_t opOff;
     bool initialized;
     bool nullAccu;
 };
@@ -328,11 +328,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSOMECChar(const BaseType* newResType, const BaseType* newOpType,
-                unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSOMECChar(const BaseType* newResType, char* newAccu,
-                const BaseType* newOpType, unsigned int newResOff,
-                unsigned int newOpOff);
+                const BaseType* newOpType, size_t newResOff,
+                size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -350,11 +350,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpALLCChar(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpALLCChar(const BaseType* newResType, char* newAccu,
-               const BaseType* newOpType, unsigned int newResOff,
-               unsigned int newOpOff);
+               const BaseType* newOpType, size_t newResOff,
+               size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -372,11 +372,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpCOUNTCChar(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpCOUNTCChar(const BaseType* newResType, char* newAccu,
-                 const BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -394,11 +394,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMAXCULong(const BaseType* newResType, const BaseType* newOpType,
-                unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMAXCULong(const BaseType* newResType, char* newAccu,
-                const BaseType* newOpType, unsigned int newResOff,
-                unsigned int newOpOff);
+                const BaseType* newOpType, size_t newResOff,
+                size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -416,11 +416,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMAXCLong(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMAXCLong(const BaseType* newResType, char* newAccu,
-               const BaseType* newOpType, unsigned int newResOff,
-               unsigned int newOpOff);
+               const BaseType* newOpType, size_t newResOff,
+               size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -438,11 +438,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMAXCDouble(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMAXCDouble(const BaseType* newResType, char* newAccu,
-                 const BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -460,11 +460,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMINCULong(const BaseType* newResType, const BaseType* newOpType,
-                unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMINCULong(const BaseType* newResType, char* newAccu,
-                const BaseType* newOpType, unsigned int newResOff,
-                unsigned int newOpOff);
+                const BaseType* newOpType, size_t newResOff,
+                size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -482,11 +482,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMINCLong(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMINCLong(const BaseType* newResType, char* newAccu,
-               const BaseType* newOpType, unsigned int newResOff,
-               unsigned int newOpOff);
+               const BaseType* newOpType, size_t newResOff,
+               size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -504,11 +504,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMINCDouble(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMINCDouble(const BaseType* newResType, char* newAccu,
-                 const BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -526,11 +526,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSUMCULong(const BaseType* newResType, const BaseType* newOpType,
-                unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSUMCULong(const BaseType* newResType, char* newAccu,
-                const   BaseType* newOpType, unsigned int newResOff,
-                unsigned int newOpOff);
+                const   BaseType* newOpType, size_t newResOff,
+                size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -548,11 +548,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSUMCLong(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSUMCLong(const BaseType* newResType, char* newAccu,
-               const   BaseType* newOpType, unsigned int newResOff,
-               unsigned int newOpOff);
+               const   BaseType* newOpType, size_t newResOff,
+               size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -570,11 +570,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSUMCDouble(const BaseType* newResType, char* newAccu,
-                 const   BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const   BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -592,11 +592,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSQSUMCDouble(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSQSUMCDouble(const BaseType* newResType, char* newAccu,
-                 const   BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const   BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -620,7 +620,7 @@ public:
         const BaseType* newResType,
         const BaseType* newOpType,
         Ops::OpType op,
-        unsigned int newResOff = 0, unsigned int newOpOff = 0
+        size_t newResOff = 0, size_t newOpOff = 0
     );
     /// constructor gets struct type and initial value for internal accu.
     OpCondenseStruct(
@@ -628,8 +628,8 @@ public:
         char* newAccu,
         const BaseType* newOpType,
         Ops::OpType op,
-        unsigned int newResOff,
-        unsigned int newOpOff
+        size_t newResOff,
+        size_t newOpOff
     );
     /// destructor.
     virtual ~OpCondenseStruct();
@@ -640,7 +640,7 @@ public:
 protected:
     StructType* myResType;
     StructType* myOpType;
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     CondenseOp** elemOps;
 };
@@ -661,7 +661,7 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     UnaryOp(const BaseType* newResType, const BaseType* newOpType,
-            unsigned int newResOff = 0, unsigned int newOpOff = 0);
+            size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op}.
     virtual void operator()(char* result, const char* op) = 0;
     /*@ManMemo: virtual destructor because subclasse OpUnaryStruct has
@@ -671,8 +671,8 @@ public:
 protected:
     const BaseType* opType;
     const BaseType* resType;
-    unsigned int resOff;
-    unsigned int opOff;
+    size_t resOff;
+    size_t opOff;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -691,8 +691,8 @@ public:
         const BaseType* newResType,
         const BaseType* newOpType,
         Ops::OpType op,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     /// destructor.
     virtual ~OpUnaryStruct();
@@ -702,7 +702,7 @@ public:
 protected:
     StructType* myResType;
     StructType* myOpType;
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     UnaryOp** elemOps;
 };
@@ -717,7 +717,7 @@ class OpIDENTITYStruct : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYStruct(const BaseType* newResType, const BaseType* newOpType,
-                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                     size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     void operator()(char* result, const char* op) override;
 };
@@ -732,13 +732,13 @@ class OpUpdateStruct : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateStruct(const BaseType* newResType, const BaseType* newOpType,
-                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                     size_t newResOff = 0, size_t newOpOff = 0);
     ~OpUpdateStruct() override;
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     void operator()(char* result, const char* op) override;
     void setNullValues(r_Nullvalues* newNullValues) override;
 protected:
-    unsigned int numElems;
+    size_t numElems;
     UnaryOp** assignmentOps;
 };
 
@@ -752,7 +752,7 @@ class OpNOTCULong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpNOTCULong(const BaseType* newResType, const BaseType* newOpType,
-                unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -767,7 +767,7 @@ class OpIDENTITYCULong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYCULong(const BaseType* newResType, const BaseType* newOpType,
-                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                     size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -782,7 +782,7 @@ class OpUpdateCULong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateCULong(const BaseType* newResType, const BaseType* newOpType,
-                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                     size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     void operator()(char* result, const char* op) override;
 };
@@ -797,7 +797,7 @@ class OpNOTCLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpNOTCLong(const BaseType* newResType, const BaseType* newOpType,
-               unsigned int newResOff = 0, unsigned int newOpOff = 0);
+               size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -812,7 +812,7 @@ class OpNOTBool : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpNOTBool(const BaseType* newResType, const BaseType* newOpType,
-              unsigned int newResOff = 0, unsigned int newOpOff = 0);
+              size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -827,7 +827,7 @@ class OpIDENTITYCLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYCLong(const BaseType* newResType, const BaseType* newOpType,
-                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                    size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -842,7 +842,7 @@ class OpUpdateCLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateCLong(const BaseType* newResType, const BaseType* newOpType,
-                     unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                     size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     void operator()(char* result, const char* op) override;
 };
@@ -857,7 +857,7 @@ class OpIDENTITYCDouble : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYCDouble(const BaseType* newResType, const BaseType* newOpType,
-                      unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                      size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -872,7 +872,7 @@ class OpUpdateCDouble : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateCDouble(const BaseType* newResType, const BaseType* newOpType,
-                      unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                      size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -896,8 +896,8 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operands
                 and offsets to result and operands (for structs). */
     BinaryOp(const BaseType* newResType, const BaseType* newOp1Type,
-             const BaseType* newOp2Type, unsigned int newResOff = 0,
-             unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+             const BaseType* newOp2Type, size_t newResOff = 0,
+             size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -912,9 +912,9 @@ protected:
     const BaseType* op1Type;
     const BaseType* op2Type;
     const BaseType* resType;
-    unsigned int resOff;
-    unsigned int op1Off;
-    unsigned int op2Off;
+    size_t resOff;
+    size_t op1Off;
+    size_t op2Off;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -931,8 +931,8 @@ public:
     /// constructor gets struct type.
     OpBinaryStruct(const BaseType* newStructType, Ops::OpType op,
                    const BaseType* op1typeArg, const BaseType* op2typeArg,
-                   unsigned int newResOff = 0, unsigned int newOp1Off = 0,
-                   unsigned int newOp2Off = 0);
+                   size_t newResOff = 0, size_t newOp1Off = 0,
+                   size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpBinaryStruct();
     /// operator to carry out operation on struct {\tt op}.
@@ -941,7 +941,7 @@ public:
     virtual void getCondenseInit(char* init);
 protected:
     StructType* myStructType;
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
     BinaryOp** equalOps;
@@ -964,9 +964,9 @@ public:
         const BaseType* resType,
         const BaseType* op1Type,
         const BaseType* op2Type,
-        Ops::OpType op, unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0);
+        Ops::OpType op, size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpBinaryStructConst();
     /// operator to carry out operation on struct {\tt op}.
@@ -975,7 +975,7 @@ public:
 protected:
     StructType* resStructType;
     StructType* opStructType;
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
 };
@@ -994,9 +994,9 @@ public:
         const BaseType* resType,
         const BaseType* op1Type,
         const BaseType* op2Type,
-        Ops::OpType op, unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0);
+        Ops::OpType op, size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpBinaryConstStruct();
     /// operator to carry out operation on struct {\tt op}.
@@ -1005,7 +1005,7 @@ public:
 protected:
     StructType* resStructType;
     StructType* opStructType;
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
 };
@@ -1017,8 +1017,8 @@ class OpEQUALStruct : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpEQUALStruct(const BaseType* newResType, const BaseType* newOp1Type,
-                  const BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                  const BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0, size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpEQUALStruct();
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1026,7 +1026,7 @@ public:
     virtual void operator()(char* res, const char* op1,
                             const char* op2);
 protected:
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
 };
@@ -1038,9 +1038,9 @@ class OpNOTEQUALStruct : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpNOTEQUALStruct(const BaseType* newResType, const BaseType* newOp1Type,
-                     const BaseType* newOp2Type, unsigned int newResOff = 0,
-                     unsigned int newOp1Off = 0,
-                     unsigned int newOp2Off = 0);
+                     const BaseType* newOp2Type, size_t newResOff = 0,
+                     size_t newOp1Off = 0,
+                     size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpNOTEQUALStruct();
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1048,7 +1048,7 @@ public:
     virtual void operator()(char* res, const char* op1,
                             const char* op2);
 protected:
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
 };
@@ -1060,8 +1060,8 @@ class OpComparisonStruct : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpComparisonStruct(Ops::OpType op, const BaseType* newResType, const BaseType* newOp1Type,
-                  const BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                  const BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0, size_t newOp2Off = 0);
     /// destructor.
     virtual ~OpComparisonStruct();
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1069,7 +1069,7 @@ public:
     virtual void operator()(char* res, const char* op1,
                             const char* op2);
 protected:
-    unsigned int numElems;
+    size_t numElems;
     // array of operations on the elements.
     BinaryOp** elemOps;
     BinaryOp** equalOps;
@@ -1085,8 +1085,8 @@ class OpPLUSCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpPLUSCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                 const   BaseType* newOp2Type, size_t newResOff = 0,
+                 size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1101,8 +1101,8 @@ class OpPLUSULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpPLUSULong(const BaseType* newResType, const BaseType* newOp1Type,
-                const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const   BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1120,8 +1120,8 @@ class OpMAX_BINARYCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMAX_BINARYCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                       const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                       const   BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1136,8 +1136,8 @@ class OpMAX_BINARYULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMAX_BINARYULong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const   BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1155,8 +1155,8 @@ class OpMIN_BINARYCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMIN_BINARYCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                       const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                       const   BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1171,8 +1171,8 @@ class OpMIN_BINARYULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMIN_BINARYULong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const   BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1190,8 +1190,8 @@ class OpMINUSCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMINUSCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                  const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                  const   BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1208,8 +1208,8 @@ class OpDIVCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1226,8 +1226,8 @@ class OpMODCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMODCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1244,8 +1244,8 @@ class OpMULTCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMULTCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                 const   BaseType* newOp2Type, size_t newResOff = 0,
+                 size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1263,8 +1263,8 @@ class OpANDCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpANDCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1282,8 +1282,8 @@ class OpANDBool : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpANDBool(const BaseType* newResType, const BaseType* newOp1Type,
-              const BaseType* newOp2Type, unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+              const BaseType* newOp2Type, size_t newResOff = 0,
+              size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1301,8 +1301,8 @@ class OpORCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpORCULong(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1320,8 +1320,8 @@ class OpORBool : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpORBool(const BaseType* newResType, const BaseType* newOp1Type,
-             const BaseType* newOp2Type, unsigned int newResOff = 0,
-             unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+             const BaseType* newOp2Type, size_t newResOff = 0,
+             size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1339,8 +1339,8 @@ class OpXORCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpXORCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1357,8 +1357,8 @@ class OpXORBool : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpXORBool(const BaseType* newResType, const BaseType* newOp1Type,
-              const BaseType* newOp2Type, unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+              const BaseType* newOp2Type, size_t newResOff = 0,
+              size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1375,8 +1375,8 @@ class OpPLUSCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpPLUSCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1394,8 +1394,8 @@ class OpMAX_BINARYCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMAX_BINARYCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1413,8 +1413,8 @@ class OpMIN_BINARYCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMIN_BINARYCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1431,8 +1431,8 @@ class OpMINUSCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMINUSCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                 const   BaseType* newOp2Type, size_t newResOff = 0,
+                 size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1449,8 +1449,8 @@ class OpDIVCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVCLong(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1467,8 +1467,8 @@ class OpMODCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMODCLong(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1485,8 +1485,8 @@ class OpMULTCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMULTCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const   BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1504,8 +1504,8 @@ class OpANDCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpANDCLong(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1523,8 +1523,8 @@ class OpORCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpORCLong(const BaseType* newResType, const BaseType* newOp1Type,
-              const BaseType* newOp2Type, unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+              const BaseType* newOp2Type, size_t newResOff = 0,
+              size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1542,8 +1542,8 @@ class OpXORCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpXORCLong(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1560,8 +1560,8 @@ class OpPLUSCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpPLUSCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                  const BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                  const BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1579,8 +1579,8 @@ class OpMAX_BINARYCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMAX_BINARYCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                        const BaseType* newOp2Type, unsigned int newResOff = 0,
-                        unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                        const BaseType* newOp2Type, size_t newResOff = 0,
+                        size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1598,8 +1598,8 @@ class OpMIN_BINARYCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMIN_BINARYCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                        const BaseType* newOp2Type, unsigned int newResOff = 0,
-                        unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                        const BaseType* newOp2Type, size_t newResOff = 0,
+                        size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1617,8 +1617,8 @@ class OpMINUSCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMINUSCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                   const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                   unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                   const   BaseType* newOp2Type, size_t newResOff = 0,
+                   size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1635,8 +1635,8 @@ class OpDIVCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                 const BaseType* newOp2Type, unsigned int newResOff = 0,
-                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                 const BaseType* newOp2Type, size_t newResOff = 0,
+                 size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1653,8 +1653,8 @@ class OpMULTCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMULTCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                  const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                  const   BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1672,8 +1672,8 @@ class OpEQUALCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpEQUALCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                       const BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                       const BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1690,8 +1690,8 @@ class OpLESSCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1708,9 +1708,9 @@ class OpLESSEQUALCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSEQUALCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                           const BaseType* newOp2Type, unsigned int newResOff = 0,
-                           unsigned int newOp1Off = 0,
-                           unsigned int newOp2Off = 0);
+                           const BaseType* newOp2Type, size_t newResOff = 0,
+                           size_t newOp1Off = 0,
+                           size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1727,9 +1727,9 @@ class OpNOTEQUALCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpNOTEQUALCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                          const BaseType* newOp2Type, unsigned int newResOff = 0,
-                          unsigned int newOp1Off = 0,
-                          unsigned int newOp2Off = 0);
+                          const BaseType* newOp2Type, size_t newResOff = 0,
+                          size_t newOp1Off = 0,
+                          size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1746,9 +1746,9 @@ class OpGREATERCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATERCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                         const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                         unsigned int newOp1Off = 0,
-                         unsigned int newOp2Off = 0);
+                         const   BaseType* newOp2Type, size_t newResOff = 0,
+                         size_t newOp1Off = 0,
+                         size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1765,9 +1765,9 @@ class OpGREATEREQUALCCharCULong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATEREQUALCCharCULong(const BaseType* newResType, const BaseType* newOp1Type,
-                              const BaseType* newOp2Type, unsigned int newResOff = 0,
-                              unsigned int newOp1Off = 0,
-                              unsigned int newOp2Off = 0);
+                              const BaseType* newOp2Type, size_t newResOff = 0,
+                              size_t newOp1Off = 0,
+                              size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1784,8 +1784,8 @@ class OpEQUALCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpEQUALCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                      const BaseType* newOp2Type, unsigned int newResOff = 0,
-                      unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                      const BaseType* newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1802,8 +1802,8 @@ class OpLESSCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                     const BaseType* newOp2Type, unsigned int newResOff = 0,
-                     unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                     const BaseType* newOp2Type, size_t newResOff = 0,
+                     size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1820,9 +1820,9 @@ class OpLESSEQUALCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSEQUALCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                          const BaseType* newOp2Type, unsigned int newResOff = 0,
-                          unsigned int newOp1Off = 0,
-                          unsigned int newOp2Off = 0);
+                          const BaseType* newOp2Type, size_t newResOff = 0,
+                          size_t newOp1Off = 0,
+                          size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1839,9 +1839,9 @@ class OpNOTEQUALCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpNOTEQUALCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                         const BaseType* newOp2Type, unsigned int newResOff = 0,
-                         unsigned int newOp1Off = 0,
-                         unsigned int newOp2Off = 0);
+                         const BaseType* newOp2Type, size_t newResOff = 0,
+                         size_t newOp1Off = 0,
+                         size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1858,9 +1858,9 @@ class OpGREATERCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATERCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                        const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                        unsigned int newOp1Off = 0,
-                        unsigned int newOp2Off = 0);
+                        const   BaseType* newOp2Type, size_t newResOff = 0,
+                        size_t newOp1Off = 0,
+                        size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1877,9 +1877,9 @@ class OpGREATEREQUALCCharCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATEREQUALCCharCLong(const BaseType* newResType, const BaseType* newOp1Type,
-                             const BaseType* newOp2Type, unsigned int newResOff = 0,
-                             unsigned int newOp1Off = 0,
-                             unsigned int newOp2Off = 0);
+                             const BaseType* newOp2Type, size_t newResOff = 0,
+                             size_t newOp1Off = 0,
+                             size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1896,8 +1896,8 @@ class OpEQUALCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpEQUALCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                        const BaseType* newOp2Type, unsigned int newResOff = 0,
-                        unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                        const BaseType* newOp2Type, size_t newResOff = 0,
+                        size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1914,8 +1914,8 @@ class OpLESSCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                       const BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                       const BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1932,9 +1932,9 @@ class OpLESSEQUALCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSEQUALCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                            const BaseType* newOp2Type, unsigned int newResOff = 0,
-                            unsigned int newOp1Off = 0,
-                            unsigned int newOp2Off = 0);
+                            const BaseType* newOp2Type, size_t newResOff = 0,
+                            size_t newOp1Off = 0,
+                            size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1951,9 +1951,9 @@ class OpNOTEQUALCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpNOTEQUALCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                           const BaseType* newOp2Type, unsigned int newResOff = 0,
-                           unsigned int newOp1Off = 0,
-                           unsigned int newOp2Off = 0);
+                           const BaseType* newOp2Type, size_t newResOff = 0,
+                           size_t newOp1Off = 0,
+                           size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1970,9 +1970,9 @@ class OpGREATERCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATERCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                          const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                          unsigned int newOp1Off = 0,
-                          unsigned int newOp2Off = 0);
+                          const   BaseType* newOp2Type, size_t newResOff = 0,
+                          size_t newOp1Off = 0,
+                          size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -1989,9 +1989,9 @@ class OpGREATEREQUALCCharCDouble : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATEREQUALCCharCDouble(const BaseType* newResType, const BaseType* newOp1Type,
-                               const BaseType* newOp2Type, unsigned int newResOff = 0,
-                               unsigned int newOp1Off = 0,
-                               unsigned int newOp2Off = 0);
+                               const BaseType* newOp2Type, size_t newResOff = 0,
+                               size_t newOp1Off = 0,
+                               size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2008,8 +2008,8 @@ class OpPLUSChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpPLUSChar(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2027,8 +2027,8 @@ class OpMAX_BINARYChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMAX_BINARYChar(const BaseType* newResType, const BaseType* newOp1Type,
-                     const BaseType* newOp2Type, unsigned int newResOff = 0,
-                     unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                     const BaseType* newOp2Type, size_t newResOff = 0,
+                     size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2046,8 +2046,8 @@ class OpMIN_BINARYChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMIN_BINARYChar(const BaseType* newResType, const BaseType* newOp1Type,
-                     const BaseType* newOp2Type, unsigned int newResOff = 0,
-                     unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                     const BaseType* newOp2Type, size_t newResOff = 0,
+                     size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2065,8 +2065,8 @@ class OpMINUSChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMINUSChar(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2083,8 +2083,8 @@ class OpMULTChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMULTChar(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2102,8 +2102,8 @@ class OpDIVChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVChar(const BaseType* newResType, const BaseType* newOp1Type,
-              const BaseType* newOp2Type, unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+              const BaseType* newOp2Type, size_t newResOff = 0,
+              size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2120,8 +2120,8 @@ class OpMODChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpMODChar(const BaseType* newResType, const BaseType* newOp1Type,
-              const BaseType* newOp2Type, unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+              const BaseType* newOp2Type, size_t newResOff = 0,
+              size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2138,8 +2138,8 @@ class OpEQUALChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpEQUALChar(const BaseType* newResType, const BaseType* newOp1Type,
-                const BaseType* newOp2Type, unsigned int newResOff = 0,
-                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                const BaseType* newOp2Type, size_t newResOff = 0,
+                size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2156,8 +2156,8 @@ class OpLESSChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSChar(const BaseType* newResType, const BaseType* newOp1Type,
-               const BaseType* newOp2Type, unsigned int newResOff = 0,
-               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+               const BaseType* newOp2Type, size_t newResOff = 0,
+               size_t newOp1Off = 0, size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2174,9 +2174,9 @@ class OpLESSEQUALChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpLESSEQUALChar(const BaseType* newResType, const BaseType* newOp1Type,
-                    const BaseType* newOp2Type, unsigned int newResOff = 0,
-                    unsigned int newOp1Off = 0,
-                    unsigned int newOp2Off = 0);
+                    const BaseType* newOp2Type, size_t newResOff = 0,
+                    size_t newOp1Off = 0,
+                    size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2193,9 +2193,9 @@ class OpNOTEQUALChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpNOTEQUALChar(const BaseType* newResType, const BaseType* newOp1Type,
-                   const BaseType* newOp2Type, unsigned int newResOff = 0,
-                   unsigned int newOp1Off = 0,
-                   unsigned int newOp2Off = 0);
+                   const BaseType* newOp2Type, size_t newResOff = 0,
+                   size_t newOp1Off = 0,
+                   size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2212,9 +2212,9 @@ class OpGREATERChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATERChar(const BaseType* newResType, const BaseType* newOp1Type,
-                  const   BaseType* newOp2Type, unsigned int newResOff = 0,
-                  unsigned int newOp1Off = 0,
-                  unsigned int newOp2Off = 0);
+                  const   BaseType* newOp2Type, size_t newResOff = 0,
+                  size_t newOp1Off = 0,
+                  size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2232,9 +2232,9 @@ class OpGREATEREQUALChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpGREATEREQUALChar(const BaseType* newResType, const BaseType* newOp1Type,
-                       const BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0,
-                       unsigned int newOp2Off = 0);
+                       const BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0,
+                       size_t newOp2Off = 0);
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
     virtual void operator()(char* res, const char* op1,
@@ -2252,7 +2252,7 @@ class OpIDENTITYChar : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYChar(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2265,7 +2265,7 @@ class OpUpdateChar : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateChar(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2281,7 +2281,7 @@ class OpIDENTITYShort : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYShort(const BaseType* newResType, const BaseType* newOpType,
-                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                    size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2294,7 +2294,7 @@ class OpUpdateShort : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateShort(const BaseType* newResType, const BaseType* newOpType,
-                    unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                    size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2310,7 +2310,7 @@ class OpIDENTITYLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpIDENTITYLong(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2323,7 +2323,7 @@ class OpUpdateLong : public UnaryOp
 public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateLong(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2343,7 +2343,7 @@ class OpISNULLCLong : public UnaryOp
 public:
 	/// constructor gets RasDaMan base type of result and operand.
     OpISNULLCLong(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2356,7 +2356,7 @@ class OpISNULLCULong : public UnaryOp
 public:
 	/// constructor gets RasDaMan base type of result and operand.
     OpISNULLCULong(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2369,7 +2369,7 @@ class OpISNULLCDouble : public UnaryOp
 public:
 	/// constructor gets RasDaMan base type of result and operand.
     OpISNULLCDouble(const BaseType* newResType, const BaseType* newOpType,
-                   unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char* result, const char* op);
 };
@@ -2392,7 +2392,7 @@ class MarrayOp
 public:
     /*@ManMemo: constructor gets RasDaMan base type of result and its
       offset (for structs). Subclasses will have additional parameters. */
-    MarrayOp(const BaseType* newResType, unsigned int newResOff = 0);
+    MarrayOp(const BaseType* newResType, size_t newResOff = 0);
     /// operator to carry out operation on {\tt p}. Has a dummy implementation.
     virtual void operator()(char* result, const r_Point& p);
     /*@ManMemo: virtual destructor because subclasses may have
@@ -2401,7 +2401,7 @@ public:
 
 protected:
     const BaseType* resType;
-    unsigned int resOff;
+    size_t resOff;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -2428,7 +2428,7 @@ public:
       accumulation is given and an optional init value. Subclasses
       will have additional parameters. Note that newInitVal has to be
       deleted by the caller! */
-    GenCondenseOp(const BaseType* newResType, unsigned int newResOff,
+    GenCondenseOp(const BaseType* newResType, size_t newResOff,
                   BinaryOp* newAccuOp, char* newInitVal = 0);
     /// operator to carry out operation on {\tt p}. Has a dummy implementation.
     virtual void operator()(const r_Point& p);
@@ -2437,7 +2437,7 @@ public:
     /// returns result type (needed in class {\ref Tile}.)
     const BaseType* getResultType();
     /// returns result offset (needed in class {\ref Tile}.)
-    unsigned int getResultOff();
+    size_t getResultOff();
     /// returns accumulated result.
     char* getAccuVal();
     /*@ManMemo: virtual destructor because subclasses may have
@@ -2446,7 +2446,7 @@ public:
 
 protected:
     const BaseType* resType;
-    unsigned int resOff;
+    size_t resOff;
     BinaryOp* accuOp;
     // used to flag if destructor should delete initVal
     bool myInitVal;
@@ -2470,21 +2470,21 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2499,21 +2499,21 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2528,21 +2528,21 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2557,20 +2557,20 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2585,20 +2585,20 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2613,21 +2613,21 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
         BinaryOp::ScalarFlag flag = NONE
     );
     virtual void operator()(char* res, const char* op1, const char* op2);
     virtual void getCondenseInit(char* init);
 
 protected:
-    unsigned int op1ReOff;
-    unsigned int op1ImOff;
-    unsigned int op2ReOff;
-    unsigned int op2ImOff;
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
     BinaryOp::ScalarFlag scalarFlag;
 };
 
@@ -2637,13 +2637,13 @@ protected:
 class OpIDENTITYComplex : public UnaryOp
 {
 public:
-    OpIDENTITYComplex(const BaseType*, const BaseType*, unsigned int = 0, unsigned int = 0);
+    OpIDENTITYComplex(const BaseType*, const BaseType*, size_t = 0, size_t = 0);
     virtual void operator()(char* result, const char* op);
 };
 class OpUpdateComplex : public UnaryOp
 {
 public:
-    OpUpdateComplex(const BaseType*, const BaseType*, unsigned int = 0, unsigned int = 0);
+    OpUpdateComplex(const BaseType*, const BaseType*, size_t = 0, size_t = 0);
     virtual void operator()(char* result, const char* op);
 };
 
@@ -2656,11 +2656,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMINComplex(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMINComplex(const BaseType* newResType, char* newAccu,
-                 const BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -2679,11 +2679,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpMAXComplex(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpMAXComplex(const BaseType* newResType, char* newAccu,
-                 const BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -2702,11 +2702,11 @@ public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
                 and offsets to result and operand (for structs). */
     OpSUMComplex(const BaseType* newResType, const BaseType* newOpType,
-                 unsigned int newResOff = 0, unsigned int newOpOff = 0);
+                 size_t newResOff = 0, size_t newOpOff = 0);
     /// constructor initializing internal accu.
     OpSUMComplex(const BaseType* newResType, char* newAccu,
-                 const   BaseType* newOpType, unsigned int newResOff,
-                 unsigned int newOpOff);
+                 const   BaseType* newOpType, size_t newResOff,
+                 size_t newOpOff);
     /// operator to carry out operation on {\tt op}.
     virtual char* operator()(const char* op, char* myAccu);
     /// operator to carry out operation on {\tt op} using internal accu.
@@ -2723,12 +2723,12 @@ class OpConstructComplex : public BinaryOp
 {
 public:
     OpConstructComplex(const BaseType* newResType, const BaseType* newOp1Type,
-                       const BaseType* newOp2Type, unsigned int newResOff = 0,
-                       unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+                       const BaseType* newOp2Type, size_t newResOff = 0,
+                       size_t newOp1Off = 0, size_t newOp2Off = 0);
     virtual void operator()(char* res, const char* op1, const char* op2);
 private:
-    unsigned int resReOff;
-    unsigned int resImOff;
+    size_t resReOff;
+    size_t resImOff;
 };
 
 /**
@@ -2740,13 +2740,13 @@ public:
     OpRealPart(
         const BaseType* newResType,
         const BaseType* newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char* result, const char* op);
 
 private:
-    unsigned int opReOff;
+    size_t opReOff;
 };
 
 /**
@@ -2758,13 +2758,13 @@ public:
     OpImaginarPart(
         const BaseType* newResType,
         const BaseType* newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     virtual void operator()(char* result, const char* op);
 
 private:
-    unsigned int opImOff;
+    size_t opImOff;
 };
 
 //--------------------------------------------
@@ -2783,8 +2783,8 @@ public:
     OpCAST(
         const BaseType* newResType,
         const BaseType* newOpType,
-        unsigned int newResOff = 0,
-        unsigned int newOpOff = 0
+        size_t newResOff = 0,
+        size_t newOpOff = 0
     );
     /// operator to carry out cast operation.
     virtual void operator()(char* result, const char* op);
@@ -2810,9 +2810,9 @@ public:
               const BaseType* newOp2Type,
               size_t typeSize,
               const char* transparentPattern = OpOVERLAY::nullPattern,
-              unsigned int newResOff = 0,
-              unsigned int newOp1Off = 0,
-              unsigned int newOp2Off = 0);
+              size_t newResOff = 0,
+              size_t newOp1Off = 0,
+              size_t newOp2Off = 0);
 
     /*@ManMemo: operator to carry out operation on {\tt op1} and
                 {\tt op2} with result {\tt res}. */
@@ -2839,9 +2839,9 @@ public:
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
-        unsigned int newResOff = 0,
-        unsigned int newOp1Off = 0,
-        unsigned int newOp2Off = 0
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0
     );
 
     /// operator to carry out bit operation
