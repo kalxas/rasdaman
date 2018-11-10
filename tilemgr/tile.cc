@@ -37,11 +37,11 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)cachetamgr,Tile: $Id: tile.cc,v 1.79 2005/09/03 21:05:53 rasdev Exp $";
-
 #include <iostream>
-#include "catalogmgr/ops.hh"
+#include <cstring>
+
 #include "tile.hh"
+#include "catalogmgr/ops.hh"
 #include "relblobif/blobtile.hh"
 #include "reladminif/adminif.hh"
 #include "relblobif/inlinetile.hh"
@@ -52,7 +52,6 @@ static const char rcsid[] = "@(#)cachetamgr,Tile: $Id: tile.cc,v 1.79 2005/09/03
 
 #include <logging.hh>
 
-#include <cstring>
 
 #ifdef RMANBENCHMARK
 RMTimer Tile::opTimer("Tile", "opTimer");
@@ -276,7 +275,6 @@ Tile::setPersistent(bool state)
 r_Bytes
 Tile::getCompressedSize() const
 {
-    LTRACE << "getCompressedSize()";
     return blobTile->getSize();
 }
 
@@ -289,10 +287,6 @@ Tile::isPersistent() const
 
 Tile::~Tile()
 {
-    LTRACE << "~Tile() " << (r_Ptr) this;
-    // this function has to check now if a tile has to be compressed.
-    // The old scheme of compression in AdminIf::compCompTiles does
-    // not work, because tiles may be destroyed before with releaseAll.
 }
 
 DBTileId
@@ -306,6 +300,7 @@ Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
 {
     char* cellOp = NULL;
     char* dummy = getContents();
+    assert(dummy);
     r_Miter opTileIter(&areaOp, &getDomain(), getType()->getSize(), dummy);
 #ifdef RMANBENCHMARK
     opTimer.resume();
@@ -334,6 +329,7 @@ Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile,
 
     char* dummy1 = getContents();
     const char* dummy2 = opTile->getContents();
+    assert(dummy1 && dummy2);
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
     r_Miter opTileIter(&areaOp, &opTile->getDomain(), opTile->getType()->getSize(), dummy2);
 
@@ -354,6 +350,7 @@ Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile,
 #endif
 }
 
+
 void
 Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Tile, const r_Minterval& areaOp1, const Tile* op2Tile, const r_Minterval& areaOp2)
 
@@ -369,6 +366,8 @@ Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Ti
     char* dummy1 = getContents();
     const char* dummy2 = op1Tile->getContents();
     const char* dummy3 = op2Tile->getContents();
+
+    assert(dummy1 && dummy2 && dummy3);
 
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
     r_Miter op1TileIter(&areaOp1, &op1Tile->getDomain(), op1Tile->getType()->getSize(), dummy2);
@@ -399,6 +398,8 @@ Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile
     const char* cellOp = NULL;
     char* dummy1 = getContents();
     const char* dummy2 = opTile->getContents();
+
+    assert(dummy1 && dummy2);
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
     r_Miter opTileIter(&areaOp, &opTile->getDomain(), opTile->getType()->getSize(), dummy2);
 #ifdef RMANBENCHMARK
@@ -695,6 +696,7 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
     // this may trigger decompression
     cellOp = opTile->getContents();
     cellRes = getContents();
+    assert(cellOp && cellRes);
 
     r_Dimension dimRes = areaRes.dimension();
     r_Dimension dimOp = areaOp.dimension();
@@ -703,7 +705,7 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
     if (width > areaOp[dimOp - 1].get_extent())
     {
         width = areaOp[dimOp - 1].get_extent();
-        LWARNING << "RMDebug::module_tilemgr::copyTile() WARNING: had to adjust high dim width to " << width;
+        LWARNING << "Had to adjust high dim width to " << width;
     }
 
     unsigned int tsize = getType()->getSize();
@@ -711,9 +713,9 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
 
     if (tsize != tsizeOp)
     {
-        LTRACE << "copyTile() ERROR: type sizes incompatible!\n"
-               << "this type: " << getType()->getName() << "(" << tsize << "), opTile type: "
-               << opTile->getType()->getName() << "(" << tsizeOp << ")";
+        LTRACE << "Type sizes incompatible:\n"
+               << "type " << getType()->getName() << " (size: " << tsize << "), op type "
+               << opTile->getType()->getName() << " (size: " << tsizeOp << ")";
         // FIXME here we have to check if is appropiate to continue
     }
 
@@ -753,6 +755,7 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         
         char* targetData = this->getContents() + resOff;
         const char* sourceData = opTile->getContents() + opOff;
+        assert(targetData && sourceData);
         
         size_t cellSize = this->getType()->getSize();
         size_t opCellSize = opTile->getType()->getSize();
@@ -774,6 +777,7 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         // this may trigger decompression
         cellOp = opTile->getContents();
         cellRes = getContents();
+        assert(cellOp && cellRes);
 
         size_t cellSize = this->getType()->getSize();
 
@@ -784,7 +788,7 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         if (width > areaOp[dimOp - 1].get_extent()) 
         {
             width = areaOp[dimOp - 1].get_extent();
-            LWARNING << "RMDebug::module_tilemgr::copyTile() WARNING: had to adjust high dim width to " << width;
+            LWARNING << "Had to adjust high dim width to " << width;
         }
 
         // these iterators iterate last dimension first, i.e. minimal step size
@@ -798,8 +802,8 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         // for faster computations in the iteration in 2+ dimensions.
         std::vector<size_t> srcJumpsFullWidth;
         std::vector<size_t> opJumpsFullWidth;
-        srcJumpsFullWidth.reserve(static_cast<size_t>(width));
-        opJumpsFullWidth.reserve(static_cast<size_t>(width));
+        srcJumpsFullWidth.reserve(width);
+        opJumpsFullWidth.reserve(width);
         for (unsigned int i = 0; i < width; i++) 
         {
             srcJumpsFullWidth.push_back(i * cellSize);
@@ -1001,20 +1005,29 @@ Tile::getDataFormat() const
 const char*
 Tile::getCell(r_Area index) const
 {
-    return &(blobTile->getCells()[index * type->getSize()]);
+    const auto *ret = getContents();
+    const auto offset = index * type->getSize();
+    assert(ret);
+    assert(offset < getSize());
+    return &ret[offset];
 }
 
 char*
 Tile::getCell(r_Area index)
 {
-    return &(blobTile->getCells()[index * type->getSize()]);
+    auto *ret = getContents();
+    const auto offset = index * type->getSize();
+    assert(ret);
+    assert(offset < getSize());
+    return &ret[offset];
 }
 
 void
 Tile::setCell(r_Area index, const char* newCell)
 {
+    assert(newCell);
     char* cells = getCell(index);
-    unsigned int typeSize = type->getSize();
+    const auto typeSize = type->getSize();
     memcpy(cells, newCell, typeSize);
 }
 
@@ -1039,15 +1052,14 @@ Tile::setContents(char* newContents)
 r_Bytes
 Tile::calcOffset(const r_Point& point) const
 {
-    int i = 0;
     r_Bytes offset = 0;
     r_Bytes factor = 1;
 
     // calculate offset
-    for (i = static_cast<int>(domain.dimension()) - 1; i >= 0; i--)
+    for (auto i = domain.dimension(); i-- > 0; )
     {
-        offset += (point[static_cast<r_Dimension>(i)] - domain[static_cast<r_Dimension>(i)].low()) * factor;
-        factor *= domain[static_cast<r_Dimension>(i)].high() - domain[static_cast<r_Dimension>(i)].low() + 1;
+        offset += (point[i] - domain[i].low()) * factor;
+        factor *= domain[i].high() - domain[i].low() + 1;
     }
 
     return offset;

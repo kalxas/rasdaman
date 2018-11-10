@@ -33,6 +33,11 @@
 # GRPC_JAVA_PLUGIN_EXECUTABLE - Plugin used to generate GRPC Java code from proto files.
 # JSONCPP - Used by the encoders and decoders for extra parameter passing
 
+# `make clean` will not remove files built here with the setting below; we don't change
+# third_party (often) so no need to rebuild on every make clean. If it is changed, then
+# build dir would need to be removed instead of make clean because of this setting.
+set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM 1)
+
 # Enable ExternalProject CMake module
 include(ExternalProject)
 
