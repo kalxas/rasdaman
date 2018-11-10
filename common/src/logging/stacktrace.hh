@@ -35,6 +35,7 @@ class StackTrace {
       m_fileloc(fileloc) {
     }
 
+    std::string getFileLoc() const;
     std::string toString() const;
     std::string toString(size_t offset) const;
     std::string toSingleLineString() const;

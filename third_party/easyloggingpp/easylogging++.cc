@@ -762,6 +762,13 @@ std::string File::extractPathFromFilename(const std::string& fullPath, const cha
 
 void File::buildStrippedFilename(const char* filename, char buff[], std::size_t limit) {
   std::size_t sizeOfFilename = strlen(filename);
+#ifdef SRC_DIR
+  static const auto SRC_DIR_SIZE = strlen(SRC_DIR);
+  if (SRC_DIR_SIZE < sizeOfFilename) {
+    filename += SRC_DIR_SIZE;
+    STRCAT(buff, filename, limit);
+  }
+#else
   if (sizeOfFilename >= limit) {
     filename += (sizeOfFilename - limit);
     if (filename[0] != '.' && filename[1] != '.') {  // prepend if not already
@@ -770,6 +777,7 @@ void File::buildStrippedFilename(const char* filename, char buff[], std::size_t 
     }
   }
   STRCAT(buff, filename, limit);
+#endif
 }
 
 void File::buildBaseFilename(const std::string& fullPath, char buff[], std::size_t limit, const char* separator) {

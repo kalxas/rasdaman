@@ -12,6 +12,7 @@
 #endif
 #include <stdio.h>       // for feof, fgets, popen, pclose, FILE
 #include <unistd.h>      // for getpid
+#include <string.h>
 #include <array>         // for array
 #include <iomanip>       // for operator<<, setw
 #include <iostream>      // for operator<<, basic_ostream, bas...
@@ -45,7 +46,7 @@ string StackTrace::StackTraceEntry::toString() const {
 std::string StackTrace::StackTraceEntry::toString(size_t offset) const {
   stringstream ss;
   ss << std::setw(5) << ("[" + std::to_string(m_index - offset) + "] ")
-     << m_fileloc
+     << getFileLoc()
      << (m_demangled.empty() ? "" : (" in " + m_demangled))
      << (m_hex.empty() ? "" : ("+" + m_hex))
      << (m_addr.empty() ? "" : (" [" + m_addr + "]"));
@@ -56,18 +57,21 @@ std::string StackTrace::StackTraceEntry::toString(size_t offset) const {
 
 string StackTrace::StackTraceEntry::toSingleLineString() const {
   stringstream ss;
-  string fileloc = m_fileloc;
-  size_t pos = m_fileloc.size() - 1;
-  size_t countSlashes = 0;
-  while (pos-- > 0) {
-    if (m_fileloc[pos] == '/') ++countSlashes;
-    if (countSlashes == 3) fileloc = m_fileloc.substr(pos);
-  }
-  ss << fileloc
+  ss << getFileLoc()
      << (m_demangled.empty() ? "" : (" in " + m_demangled))
      << (m_hex.empty() ? "" : ("+" + m_hex))
      << (m_addr.empty() ? "" : (" [" + m_addr + "]"));
   return ss.str();
+}
+
+std::string StackTrace::StackTraceEntry::getFileLoc() const {
+  auto index = m_fileloc.find(SRC_DIR);
+  if (index == 0) {
+      auto offset = strlen(SRC_DIR);
+      if (offset < m_fileloc.size())
+          return m_fileloc.substr(offset);
+  }
+  return m_fileloc;
 }
 
 string StackTrace::getCaller() const {

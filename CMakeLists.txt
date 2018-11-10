@@ -491,6 +491,7 @@ add_definitions(-DBINDIR="${BIN_DIR}/")
 add_definitions(-DLOGDIR="${LOG_DIR}/")
 add_definitions(-DINCLUDE_DIR="${INCLUDE_DIR}/")
 add_definitions(-DSHARE_DATA_DIR="${SHARE_DATA_DIR}/")
+add_definitions(-DSRC_DIR="${CMAKE_SOURCE_DIR}/")
 
 # Definition added for use of protobuf libraries. In particular, the protobuf
 # libraries (correctly) assume that when a variable x is not defined, it is
