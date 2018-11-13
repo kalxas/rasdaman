@@ -83,7 +83,14 @@ BLOBTile::BLOBTile(r_Data_Format dataformat)
 BLOBTile::BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   DBTile(newSize, c, dataformat)
 {
-    LTRACE << "BLOBTile(" << newSize << ", data, " << dataformat << ")";
+    LTRACE << "BLOBTile(" << newSize << ", char " << (int)c << ", " << dataformat << ")";
+    objecttype = OId::BLOBOID;
+}
+
+BLOBTile::BLOBTile(r_Bytes newSize, r_Data_Format dataformat)
+    :   DBTile(newSize, dataformat)
+{
+    LTRACE << "BLOBTile(" << newSize << ", " << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
 
@@ -130,6 +137,7 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
 BLOBTile::BLOBTile(const OId& id)
     :   DBTile(id)
 {
+    LTRACE << "BLOBTile(oid " << id << ")";
     readFromDb();
 }
 
@@ -143,13 +151,18 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
     dataFormat = newFmt;
     currentFormat = r_Array;
     size = newSize;
+    LTRACE << "BLOBTile(oid " << id << ", " << size << ", format " << newFmt << ")";
     cells = static_cast<char*>(mymalloc(size * sizeof(char)));
-    memset(cells, 0, size);
+
+    // memset seems unnecessary here
+//    memset(cells, 0, size);
+
     ObjectBroker::registerDBObject(this);
 }
 
 BLOBTile::~BLOBTile() noexcept(false)
 {
+    LTRACE << "~BLOBTile, size " << size;
     validate();
 }
 

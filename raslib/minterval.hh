@@ -35,8 +35,9 @@ rasdaman GmbH.
 
 #include <iostream>
 #include <vector>
-using std::endl;
+
 using std::vector;
+using std::endl;
 
 #ifdef __VISUALC__
 // Diable warning for exception specification.
@@ -279,12 +280,15 @@ public:
     inline
 #endif
     /// read access the i-th interval
-    r_Sinterval  operator[](r_Dimension) const;
+    const r_Sinterval &operator[](r_Dimension) const;
 #ifdef OPT_INLINE
     inline
 #endif
     /// write access the i-th interval
     r_Sinterval& operator[](r_Dimension);
+
+    const r_Sinterval &at_unsafe(r_Dimension dim) const;
+    r_Sinterval &at_unsafe(r_Dimension dim);
 
     /// assignment: cleanup + copy
     const r_Minterval& operator= (const r_Minterval&);
@@ -299,6 +303,9 @@ public:
 
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Minterval&) const;
+
+    /// equal operator, but ignores slices (dimensions of extent 1) in either minterval
+    bool equal_extents(const r_Minterval &other) const;
 
     /// does this interval cover the given point
     inline bool covers(const r_Point& pnt) const;
@@ -421,7 +428,7 @@ public:
       Scales respective extents by factor.
     */
     /// scales this by a factor.
-    r_Minterval& scale(const vector<double>&);
+    r_Minterval& scale(const std::vector<double>&);
     /*@Doc:
       Scales respective extents by vector of factors.
     */
@@ -431,7 +438,7 @@ public:
       Scales respective extents by factor.
     */
     /// returns new interval as scaled from this by a point.
-    r_Minterval create_scale(const vector<double>&) const;
+    r_Minterval create_scale(const std::vector<double>&) const;
     /*@Doc:
       Scales respective extents by vector of factors.
     */
@@ -565,6 +572,8 @@ public:
     r_Point cell_point(r_Area) const;
     /// delete the specified dimension
     void delete_dimension(r_Dimension);
+    /// delete slices (false values in trims); does nothing if trims size != dimension
+    void delete_non_trims(const std::vector<bool> &trims);
     /// calculate the size of the storage space occupied
     r_Bytes get_storage_size() const;
     /// transpose two axes
@@ -595,7 +604,7 @@ protected:
 */
 extern std::ostream& operator<<(std::ostream& s, const r_Minterval& d);
 extern std::ostream& operator<<(std::ostream& s, const std::vector<r_Minterval>& d);
-extern std::ostream& operator<<(std::ostream& s, const vector<double>& doubleVec);
+extern std::ostream& operator<<(std::ostream& s, const std::vector<double>& doubleVec);
 
 #include "raslib/minterval.icc"
 

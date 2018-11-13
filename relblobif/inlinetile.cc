@@ -58,6 +58,13 @@ InlineTile::InlineTile(r_Data_Format dataformat)
     objecttype = OId::INLINETILEOID;
 }
 
+InlineTile::InlineTile(r_Bytes newSize, r_Data_Format dataformat)
+    :   BLOBTile(newSize, dataformat)
+{
+    LTRACE << "InlineTile(" << newSize << ", data)";
+    objecttype = OId::INLINETILEOID;
+}
+
 InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   BLOBTile(newSize, c, dataformat)
 {

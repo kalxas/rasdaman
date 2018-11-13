@@ -12,6 +12,7 @@
 #include <list>
 #include <string>
 #endif
+#include <functional>
 
 #include "raslib/rmdebug.hh"
 #include "raslib/sinterval.hh"
@@ -76,6 +77,7 @@ class QtNode
 public:
     /// list of QtData pointers
     typedef std::vector<QtData*> QtDataList;
+    using QtDataListPtr = std::unique_ptr<QtDataList, std::function<void(QtDataList*)>>;
 
     typedef std::vector<QtDataList*> QtNestedDataList;
 

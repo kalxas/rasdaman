@@ -41,6 +41,8 @@ public:
 
     void configServerLogging(const std::string& outputLogFilePath, bool quiet = false);
 
+    el::Configurations &getConfig();
+
 private:
     void initConfig(const std::string& outputLogFilePath, bool quiet);
 

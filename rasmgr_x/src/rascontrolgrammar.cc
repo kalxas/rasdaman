@@ -37,7 +37,7 @@ RasControlGrammar::RasControlGrammar(
 
 void RasControlGrammar::parse(const std::string &reqMessage)
 {
-    LDEBUG << "Parsing command '" + reqMessage + "'...";
+    LDEBUG << "Parsing command '" << reqMessage << "'...";
     this->tokens.clear();
     char *token = strdup(reqMessage.c_str());
     token = strtok(token, " \r\n\t\0");
@@ -48,7 +48,7 @@ void RasControlGrammar::parse(const std::string &reqMessage)
         this->tokens.emplace_back(token);
         token = strtok(NULL, " \r\n\t\0");
     }
-    LDEBUG << "Done, " + tokens.size() << " tokens parsed.";
+    LDEBUG << "Done, " << tokens.size() << " tokens parsed.";
     free(token);
 }
 
@@ -82,7 +82,7 @@ std::string RasControlGrammar::processRequest()
         else if (isCommand(exitLit))
             return exitCommand();
         else if (isCommand(commentPrefix))
-            return "";
+            return empty;
         else
         {
             LERROR << "Invalid command '" << command << "'; try HELP.";
@@ -146,7 +146,7 @@ std::string RasControlGrammar::exitCommand()
 
 std::string RasControlGrammar::listCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
         return listRasServers();
@@ -259,7 +259,7 @@ std::string RasControlGrammar::listDatabases()
 
 std::string RasControlGrammar::defineCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
         return defineRasServers();
@@ -335,8 +335,8 @@ std::string RasControlGrammar::defineUsers()
                     defUser.set_dbwrite_rights(true);
                     break;
                 default:
-                    return error("Invalid character '" + rights[i] +
-                        string{"' in -rights parameter."});
+                    return error("Invalid character '" + string{rights[i]} +
+                        "' in -rights parameter.");
             }
         }
     }
@@ -474,7 +474,7 @@ std::string RasControlGrammar::defineOutPeers()
 
 std::string RasControlGrammar::removeCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
         return removeRasServers();
@@ -548,7 +548,7 @@ std::string RasControlGrammar::removeDatabases()
 
 std::string RasControlGrammar::changeCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, userLit))
         return changeUserCmd();
@@ -723,8 +723,8 @@ std::string RasControlGrammar::changeUserCmd()
                     changeUser.set_n_dbwrite_rights(true);
                     break;
                 default:
-                    return error("Invalid character '" + rights[i] +
-                        string{"' in -rights parameter."});
+                    return error("Invalid character '" + string{rights[i]} +
+                        "' in -rights parameter.");
             }
         }
     }
@@ -736,7 +736,7 @@ std::string RasControlGrammar::changeUserCmd()
 
 std::string RasControlGrammar::upCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
     if (strieq(what, srvLit))
         return upRasServers();
     else if (strieq(what, helpLit))
@@ -773,7 +773,7 @@ std::string RasControlGrammar::upRasServers()
 
 std::string RasControlGrammar::downCommand()
 {
-    const auto &what = tokens.size() == 1 ? "" : tokens[1];
+    const auto &what = tokens.size() == 1 ? empty : tokens[1];
     if (strieq(what, hostLit))
         return downRasHosts();
     else if (strieq(what, srvLit))
@@ -1036,26 +1036,26 @@ std::string RasControlGrammar::getValueOf(const std::string &flag, bool acceptMi
             {
                 if (value[0] == '-' && value.size() > 1)
                 {
-                    return "";
+                    return empty;
                 }
             }
             else if (value[0] == '-')
             {
-                return "";
+                return empty;
             }
             return value;
         }
     }
-    return "";
+    return empty;
 }
 
 std::string RasControlGrammar::getValueOptionalFlag(const std::string &flag,
                                                     bool acceptMinus)
 {
     if (!isFlag(flag))
-        return "";
+        return empty;
     auto value = getValueOf(flag, acceptMinus);
-    if (value == "")
+    if (value == empty)
         throw RCErrorMissingParam(flag);
     return value;
 }
@@ -1064,7 +1064,7 @@ std::string RasControlGrammar::getValueMandatoryFlag(const std::string &flag,
                                                     bool acceptMinus)
 {
     auto ret = getValueOptionalFlag(flag, acceptMinus);
-    if (ret == "")
+    if (ret == empty)
         throw RCErrorMissingParam(flag);
     return ret;
 }

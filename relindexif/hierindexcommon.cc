@@ -105,8 +105,7 @@ DBHierIndex::removeObject(const KeyObject& entry)
     OId oid(entry.getObject().getOId());
     for (KeyObjectVector::iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
-        LTRACE << "at pos " << pos << " of " << myKeyObjects.size();
-        LDEBUG << "DBHierIndex::removeObject() touching object in vector at pos " << pos << " of " << myKeyObjects.size();
+        LTRACE << "remove object in vector at pos " << pos << " of " << myKeyObjects.size();
         if (oid == (*i).getObject().getOId())
         {
             found = true;
@@ -155,10 +154,8 @@ DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
         extendCoveredDomain(theKey.getDomain());
     }
     myKeyObjects.insert(myKeyObjects.begin() + pos, theKey);
-    LDEBUG << "now have " << myKeyObjects.size() << " objects in key object vector.";
+    LTRACE << "after inserting object now have " << myKeyObjects.size() << " objects in key object vector.";
     setModified();
-
-    LDEBUG << "  CoveredDomain=" << getCoveredDomain();
 }
 
 void
@@ -190,16 +187,14 @@ DBHierIndex::setObject(const KeyObject& theKey, unsigned int pos)
 r_Minterval
 DBHierIndex::getCoveredDomain() const
 {
-    LTRACE << "getCoveredDomain() const " << myOId << " " << myDomain;
-    LDEBUG << "DBHierIndex::getCoveredDomain( " << myOId << ") -> " << myDomain;
+    LTRACE << "DBHierIndex::getCoveredDomain( " << myOId << ") -> " << myDomain;
     return myDomain;
 }
 
 r_Dimension
 DBHierIndex::getDimension() const
 {
-    LTRACE << "getDimension() const " << myOId << " " << myDomain.dimension();
-    LDEBUG << "DBHierIndex::getDimension( " << myOId << ") -> " << myDomain.dimension();
+    LTRACE << "DBHierIndex::getDimension( " << myOId << ") -> " << myDomain.dimension();
     return myDomain.dimension();
 }
 
@@ -226,7 +221,7 @@ DBHierIndex::isValid() const
     {
         area = myDomain.cell_count();
         DBHierIndexId tempIx;
-        LDEBUG << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
+        LTRACE << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
         for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
         {
             if (myDomain.covers((*i).getDomain()))
@@ -326,7 +321,7 @@ DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
     DBObject::printStatus(level, stream);
     stream << " size " << myKeyObjects.size() << " domain " << myDomain << std::endl;
     int count = 0;
-    LDEBUG << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
+    LTRACE << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
     for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
         stream << indent << " entry #" << count << " is " << *i << std::endl;
@@ -352,7 +347,6 @@ unsigned int
 DBHierIndex::getSize() const
 {
     LTRACE << "getSize() " << myOId << " " << myKeyObjects.size();
-    LDEBUG << "DBHierIndex::getSize() - myOId=" << myOId << ", size=" << myKeyObjects.size();
     return myKeyObjects.size();
 }
 
@@ -360,7 +354,7 @@ bool
 DBHierIndex::isUnderFull() const
 {
     //redistribute in srptindexlogic has to be checked first before any other return value may be assigned
-    LDEBUG << "DBHierIndex::isUnderFull() -> false";
+    LTRACE << "DBHierIndex::isUnderFull() -> false";
     return false;
 }
 
@@ -433,14 +427,14 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
 unsigned int
 DBHierIndex::getOptimalSize() const
 {
-    LDEBUG << "DBHierIndex::getOptimalSize() -> " << maxSize;
+    LTRACE << "DBHierIndex::getOptimalSize() -> " << maxSize;
     return maxSize;
 }
 
 r_Minterval
 DBHierIndex::getAssignedDomain() const
 {
-    LDEBUG << "DBHierIndex::getAssignedDomain() -> " << myDomain;
+    LTRACE << "DBHierIndex::getAssignedDomain() -> " << myDomain;
     return myDomain;
 }
 
@@ -481,7 +475,6 @@ bool
 DBHierIndex::isRoot() const
 {
     LTRACE << "isRoot() const " << myOId << " " << (int)(parent.getType() == OId::INVALID);
-    LDEBUG << "DBHierIndex::isRoot() -> " << (parent.getType() == OId::INVALID);
     return (parent.getType() == OId::INVALID);
 }
 
@@ -497,14 +490,13 @@ void
 DBHierIndex::setIsNode(bool isNodea)
 {
     LTRACE << "setIsNode(" << isNodea << ") " << myOId << " was " << _isNode;
-    LDEBUG << "DBHierIndex::setIsNode() - isNodea=" << isNodea;
     _isNode = isNodea;
 }
 
 void
 DBHierIndex::freeDS()
 {
-    LDEBUG << "DBHierIndex::freeDS()";
+    LTRACE << "DBHierIndex::freeDS()";
     setPersistent(false);
 }
 bool
@@ -524,8 +516,7 @@ DBHierIndex::isSameAs(const IndexDS* other) const
 double
 DBHierIndex::getOccupancy() const
 {
-    cout << "DBHierIndex::getOccupancy() const NOT IMPLEMENTED" << std::endl;
-    LDEBUG << "DBHierIndex::getOccupancy() NOT IMPLEMENTED";
+    LTRACE << "DBHierIndex::getOccupancy() NOT IMPLEMENTED";
     return 0;
 }
 
@@ -533,8 +524,6 @@ const KeyObject&
 DBHierIndex::getObject(unsigned int pos) const
 {
     LTRACE << "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos];
-    //LDEBUG << "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos];
-
     return myKeyObjects[pos];
 }
 
@@ -551,14 +540,13 @@ r_Minterval
 DBHierIndex::getObjectDomain(unsigned int pos) const
 {
     LTRACE << "getObjectDomain(" <<  pos << ") " << myOId << " " << myKeyObjects[pos];
-    //LDEBUG << "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos];
     return myKeyObjects[pos].getDomain();
 }
 
 unsigned int
 DBHierIndex::getHeight() const
 {
-    LDEBUG << "DBHierIndex::getHeight() -> " << getHeightToLeaf();
+    LTRACE << "DBHierIndex::getHeight() -> " << getHeightToLeaf();
     return getHeightToLeaf();
 }
 
@@ -566,7 +554,6 @@ unsigned int
 DBHierIndex::getHeightOfTree() const
 {
     unsigned int retval = getHeightToLeaf() + getHeightToRoot();
-
     LTRACE << "getHeightOfTree() const " << myOId << " " << retval;
     return retval;
 }
@@ -574,7 +561,6 @@ DBHierIndex::getHeightOfTree() const
 unsigned int
 DBHierIndex::getHeightToRoot() const
 {
-
     unsigned int retval = 0;
     if (isRoot())
     {
@@ -693,7 +679,7 @@ DBHierIndex::getTotalEntryCount() const
 void
 DBHierIndex::destroy()
 {
-    LDEBUG << "DBObject::destroy()";
+    LTRACE << "DBObject::destroy()";
     DBObject::destroy();
 }
 
@@ -857,17 +843,17 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     // This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
     {
-        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not a correct data set " << brp.binaryData;
+        LERROR << "binary representation " << brp.binaryName << " - incorrect data set " << brp.binaryData;
         throw r_Error();
     }
     if (brp.binaryData[5] != 1)
     {
-        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]);
+        LERROR << "binary representation " << brp.binaryName << " - unknown export version " << static_cast<int>(brp.binaryData[5]);
         throw r_Error();
     }
     if (brp.binaryData[6] != (r_Endian::get_endianness() == r_Endian::r_Endian_Little))
     {
-        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") endianess conversion not supported";
+        LERROR << "binary representation " << brp.binaryName << " - endianess conversion not supported";
         throw r_Error();
     }
     size_t size1;
@@ -883,7 +869,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     char* temp = getBinaryName();
     if (strcmp(temp, brp.binaryName) != 0)
     {
-        LERROR << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") my name should be " << temp;
+        LERROR << "binary representation " << brp.binaryName << " - expected name " << temp;
         delete [] temp;
         throw r_Error();
     }
@@ -918,7 +904,6 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     r_Bytes completesize = boundssize * 2 + fixessize * 2 + idssize + typessize;
 
     LTRACE << "size " << size1 << " dimension " << dimension1 << " fixes " << fixessize << " ids " << idssize << " types " << typessize;
-    LDEBUG << "DBHierIndex::setBinaryRepresentation(): size=" << size1 << ", dimension=" << dimension1 << ", fixes=" << fixessize << ", ids=" << idssize << ", types=" << typessize;
 
     char* completebuffer = new char[completesize];
     r_Range* upperboundsbuf = new r_Range[boundssize];

@@ -49,7 +49,7 @@ public:
     virtual ~QtCaseEquality();
 
     /// setter for the commonOperandDeleted attribute
-    void setCommonOperadDeleted(bool commonOperandDeleted);
+    void setCommonOperandDeleted(bool commonOperandDeleted);
 
 private:
     bool commonOperandDeleted;

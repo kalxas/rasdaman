@@ -372,14 +372,13 @@ check_result()
   res="$2"
   msg="$3"
 
-  logn "$msg... "
+  [ -n "$msg" ] && logn "$msg... "
   if [ "$exp" != "$res" ]; then
     NUM_FAIL=$(($NUM_FAIL + 1))
-    loge failed.
-    log "expected: '$exp', got '$res'"
+    loge "failed, expected: '$exp', got '$res'."
   else
     NUM_SUC=$(($NUM_SUC + 1))
-    loge ok.
+    loge "ok."
   fi
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }

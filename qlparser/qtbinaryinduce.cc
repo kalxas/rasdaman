@@ -84,7 +84,7 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
         }
         catch (int errcode)
         {
-            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            parseInfo.setErrorNo(errcode);
             throw parseInfo;
         }
         delete myOp;
@@ -103,7 +103,7 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
         }
         catch (int errcode)
         {
-            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            parseInfo.setErrorNo(errcode);
             throw parseInfo;
         }
     }
@@ -121,7 +121,7 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
         }
         catch (int errcode)
         {
-            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            parseInfo.setErrorNo(errcode);
             throw parseInfo;
         }
     }
@@ -139,7 +139,7 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
         }
         catch (int errcode)
         {
-            parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+            parseInfo.setErrorNo(errcode);
             throw parseInfo;
         }
     }
@@ -160,8 +160,6 @@ QtBinaryInduce::computeOp(QtData* operand1, QtData* operand2)
 QtData*
 QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const BaseType* resultBaseType, int scalarPos)
 {
-    QtData* returnValue = NULL;
-
     // get the MDD object
     MDDObj* op = operand1->getMDDObject();
     auto* nullValues = op->getNullValues();
@@ -267,7 +265,7 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD* operand1, QtScalarData* operand2, const
         mddres->insertTile(resTile);
     }
     // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD(mddres);
+    QtData* returnValue = new QtMDD(mddres);
     returnValue->cloneNullValues(myOp);
 
     delete myOp;
@@ -424,20 +422,16 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD* operand1, QtMDD* operand2, const BaseT
     }
     else
     {
-        LERROR << "Error: QtBinaryInduce::computeBinaryMDDOp() - domains of the operands are incompatible.";
+        LERROR << "Domains of the operands are incompatible.";
         LERROR << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent();
         LERROR << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent();
-
         throw 351;
     }
 
-    // The following is now done, when the last reference is deleted.
-    // delete obsolete MDD objects
-    //  delete op1;
-    //  delete op2;
-
     return returnValue;
 }
+
+
 
 QtData*
 QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, const BaseType* resultBaseType)
@@ -468,7 +462,7 @@ QtBinaryInduce::computeBinaryOp(QtScalarData* operand1, QtScalarData* operand2, 
         LERROR << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode;
         delete myOp;
         delete[] resultBuffer;
-        parseInfo.setErrorNo(static_cast<unsigned long>(errcode));
+        parseInfo.setErrorNo(errcode);
         throw parseInfo;
     }
 

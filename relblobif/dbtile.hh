@@ -131,6 +131,11 @@ public:
     Passes to DBObject.
     */
 
+    DBTile(r_Bytes newSize, r_Data_Format dataformat);
+    /*@Doc:
+    constructs a new DBTile of size newSize; cells will not be set to any particular value.
+    */
+
     DBTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with c.

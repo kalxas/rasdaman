@@ -39,6 +39,7 @@ rasdaman GmbH.
 
 #include <logging.hh>
 #include <limits>
+#include <cassert>
 #include <boost/algorithm/string.hpp>
 
 #include <string.h>
@@ -73,14 +74,14 @@ const string r_Conv_GDAL::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};
 /// constructor using an r_Type object. Exception if the type isn't atomic.
 
 r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp)
-    : r_Convert_Memory(src, interv, tp, true)
+    : r_Convert_Memory(src, interv, tp, true), poDataset{NULL}
 {
 }
 
 /// constructor using convert_type_e shortcut
 
 r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp)
-    : r_Convert_Memory(src, interv, tp)
+    : r_Convert_Memory(src, interv, tp), poDataset{NULL}
 {
 }
 
@@ -89,6 +90,11 @@ r_Conv_GDAL::r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp)
 
 r_Conv_GDAL::~r_Conv_GDAL(void)
 {
+    if (poDataset != NULL)
+    {
+        GDALClose(poDataset);
+        poDataset = NULL;
+    }
 }
 
 #ifdef HAVE_GDAL
@@ -139,7 +145,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
         LERROR << "Could not init GDAL driver: " << CPLGetLastErrorMsg();
         throw r_Error(r_Error::r_Error_Conversion);
     }
-    GDALDataset* poDataset = hMemDriver->Create("in_memory_image", static_cast<int>(width), static_cast<int>(height),
+    poDataset = hMemDriver->Create("in_memory_image", static_cast<int>(width), static_cast<int>(height),
                              static_cast<int>(numBands), gdalBandType, NULL);
     if (poDataset == NULL)
     {
@@ -148,27 +154,19 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     }
 
     r_TmpFile tmpFile;
-    try
-    {
-        encodeImage(poDataset, gdalBandType, rasBandType, width, height, numBands);
-        setEncodeParams(poDataset);
-        CPLStringList formatParameters;
-        getFormatParameters(formatParameters);
+    encodeImage(gdalBandType, rasBandType, width, height, numBands);
+    setEncodeParams();
+    CPLStringList formatParameters;
+    getFormatParameters(formatParameters);
 
-        string tmpFilePath = tmpFile.getFileName();
-        GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
-        if (!gdalResult)
-        {
-            LERROR << "Failed encoding to format '" << format << "': " << CPLGetLastErrorMsg();
-            throw r_Error(r_Error::r_Error_Conversion);
-        }
-        GDALClose(gdalResult);
-        GDALClose(poDataset);
-    }
-    catch (r_Error& err)
+    string tmpFilePath = tmpFile.getFileName();
+    GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
+    if (!gdalResult)
     {
-        GDALClose(poDataset);
+        LERROR << "Failed encoding to format '" << format << "': " << CPLGetLastErrorMsg();
+        throw r_Error(r_Error::r_Error_Conversion);
     }
+    GDALClose(gdalResult);
 
     long fileSize = 0;
     desc.dest = tmpFile.readData(fileSize);
@@ -179,7 +177,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     return desc;
 }
 
-void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
+void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
                               unsigned int width, unsigned int height, unsigned int numBands)
 {
     bool isBoolean = rasBandType->type_id() == r_Type::BOOL;
@@ -187,37 +185,37 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
     {
     case GDT_Byte:
     {
-        encodeImage<r_Char>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Char>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_UInt16:
     {
-        encodeImage<r_UShort>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_UShort>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_Int16:
     {
-        encodeImage<r_Short>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Short>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_UInt32:
     {
-        encodeImage<r_ULong>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_ULong>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_Int32:
     {
-        encodeImage<r_Long>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Long>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_Float32:
     {
-        encodeImage<r_Float>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Float>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     case GDT_Float64:
     {
-        encodeImage<r_Double>(poDataset, gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Double>(gdalBandType, isBoolean, width, height, numBands);
         break;
     }
     default:
@@ -229,7 +227,7 @@ void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType,
 }
 
 template<typename T>
-void r_Conv_GDAL::encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, bool isBoolean,
+void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, bool isBoolean,
                               unsigned int width, unsigned int height, unsigned int numBands)
 {
     size_t area = static_cast<size_t>(width) * static_cast<size_t>(height);
@@ -334,47 +332,36 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
     }
 
     GDALAllRegister();
-    GDALDataset* poDataset = static_cast<GDALDataset*>(GDALOpen(tmpFilePath.c_str(), GA_ReadOnly));
+    poDataset = static_cast<GDALDataset*>(GDALOpen(tmpFilePath.c_str(), GA_ReadOnly));
     if (poDataset == NULL)
     {
         LERROR << "failed opening file with GDAL, reason: " << CPLGetLastErrorMsg();
         throw r_Error(r_Error::r_Error_Conversion);
     }
 
-    try
-    {
-        vector<int> bandIds = getBandIds(poDataset);
-        desc.destType = ConvUtil::gdalTypeToRasType(poDataset, bandIds);
-        desc.dest = decodeImage(poDataset, bandIds);
-        GDALClose(poDataset);
-    }
-    catch (r_Error& err)
-    {
-        GDALClose(poDataset);
-        throw err;
-    }
-    
-    
-    //if selected, transposes rasdaman data after converting from gdal
-    if(formatParams.isTranspose())
-    {
-        transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType, formatParams.getTranspose());
-    }    
+    bandIds = getBandIds();
+    desc.destType = ConvUtil::gdalTypeToRasType(poDataset, bandIds);
+    setTargetDomain();
+    desc.dest = decodeImage();  
 
     return desc;
 
 }
 
-char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& bandIds)
+char* r_Conv_GDAL::decodeImage()
 {
-    setTargetDomain(poDataset);
-    int width = desc.destInterv[0].get_extent();
-    int height = desc.destInterv[1].get_extent();
-    int offsetX = desc.destInterv[0].low();
-    int offsetY = desc.destInterv[1].low();
+    assert(desc.destType);
+
+    const auto &a = formatParams.isTranspose() ? desc.destInterv[1] : desc.destInterv[0];
+    const auto &b = formatParams.isTranspose() ? desc.destInterv[0] : desc.destInterv[1];
+    int width = a.get_extent();
+    int height = b.get_extent();
+    int offsetX = a.low();
+    int offsetY = b.low();
 
     size_t tileBaseTypeSize = static_cast<size_t>(((r_Base_Type*)desc.destType)->size());
     size_t dataSize = static_cast<size_t>(width) * static_cast<size_t>(height) * tileBaseTypeSize;
+    LTRACE << "allocating tile cells of size " << dataSize;
     char* tileCells = (char*) mymalloc(dataSize);
     if (tileCells == NULL)
     {
@@ -390,6 +377,7 @@ char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& b
     {
         size_t bandBaseTypeSize = ConvUtil::getBandBaseTypeSize(desc.destType, bandId);
         size_t newBandSize = static_cast<size_t>(width) * static_cast<size_t>(height) * bandBaseTypeSize;
+        LTRACE << "allocating band cells of size " << newBandSize;
         bandCells = upsizeBufferIfNeeded(bandCells, bandSize, newBandSize);
 
         GDALRasterBand* gdalBand = poDataset->GetRasterBand(bandId + 1);
@@ -426,9 +414,9 @@ char* r_Conv_GDAL::decodeImage(GDALDataset* poDataset, const std::vector<int>& b
     return tileCells;
 }
 
-void r_Conv_GDAL::setTargetDomain(GDALDataset* poDataset)
+void r_Conv_GDAL::setTargetDomain(bool transpose)
 {
-    r_Minterval subsetDomain = formatParams.getSubsetDomain();
+    const auto &subsetDomain = formatParams.getSubsetDomain();
     if (subsetDomain.dimension() == 2)
     {
         desc.destInterv = subsetDomain;
@@ -436,7 +424,6 @@ void r_Conv_GDAL::setTargetDomain(GDALDataset* poDataset)
     else if (subsetDomain.dimension() != 0)
     {
         LERROR << "invalid 'subsetDomain' parameter '" << subsetDomain << "', the GDAL convertor supports only 2D subsets.";
-        GDALClose(poDataset);
         throw r_Error(INVALIDFORMATPARAMETER);
     }
     else
@@ -444,6 +431,8 @@ void r_Conv_GDAL::setTargetDomain(GDALDataset* poDataset)
         desc.destInterv = r_Minterval(2) << r_Sinterval(0ll, static_cast<r_Range>(poDataset->GetRasterXSize()) - 1)
                           << r_Sinterval(0ll, static_cast<r_Range>(poDataset->GetRasterYSize()) - 1);
     }
+    if (transpose && formatParams.isTranspose())
+        desc.destInterv.transpose(0, 1);
 }
 
 char* r_Conv_GDAL::upsizeBufferIfNeeded(char* buffer, size_t& bufferSize, size_t newBufferSize)
@@ -466,99 +455,128 @@ char* r_Conv_GDAL::upsizeBufferIfNeeded(char* buffer, size_t& bufferSize, size_t
     return buffer;
 }
 
-void r_Conv_GDAL::decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize, int width, int height, GDALDataType gdalBandType, bool signedByte)
+void r_Conv_GDAL::decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize, int w, int h,
+        GDALDataType gdalBandType, bool signedByte)
 {
+    size_t width = static_cast<size_t>(w);
+    size_t height = static_cast<size_t>(h);
     switch (gdalBandType)
     {
     case GDT_Byte:
     {
         if (!signedByte)
         {
-            decodeBand<r_Char>(bandCells, tileCells, tileBaseTypeSize, width, height);
+            transposeBand<r_Char>(bandCells, tileCells, tileBaseTypeSize, width, height);
         }
         else
         {
-            decodeBand<r_Octet>(bandCells, tileCells, tileBaseTypeSize, width, height);
+            transposeBand<r_Octet>(bandCells, tileCells, tileBaseTypeSize, width, height);
         }
         break;
     }
     case GDT_UInt16:
     {
-        decodeBand<r_UShort>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_UShort>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     case GDT_Int16:
     {
-        decodeBand<r_Short>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_Short>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     case GDT_UInt32:
     {
-        decodeBand<r_ULong>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_ULong>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     case GDT_Int32:
     {
-        decodeBand<r_Long>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_Long>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     case GDT_Float32:
     {
-        decodeBand<r_Float>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_Float>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     case GDT_Float64:
     {
-        decodeBand<r_Double>(bandCells, tileCells, tileBaseTypeSize, width, height);
+        transposeBand<r_Double>(bandCells, tileCells, tileBaseTypeSize, width, height);
         break;
     }
     default:
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
-        break;
     }
 }
 
 template<typename T>
-void r_Conv_GDAL::decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize, int width, int height)
+void r_Conv_GDAL::transposeBand(const char *__restrict__ srcIn,
+                                char *__restrict__ dst, size_t tileBaseTypeSize,
+                                size_t width, size_t height)
 {
-    T* bandPos = reinterpret_cast<T*>(const_cast<char*>(bandCells));
-    char* tilePos = tileCells;
-    for (size_t col = 0; col < (size_t)width; col++)
-    {
-        for (size_t row = 0; row < (size_t)height; row++, tilePos += tileBaseTypeSize)
-        {
-            *((T*)tilePos) = *(bandPos + (row * (size_t)width + col));
-        }
-    }
-}
+    const T* __restrict__ src = reinterpret_cast<T*>(const_cast<char*>(srcIn));
 
-vector<int> r_Conv_GDAL::getBandIds(GDALDataset* poDataset)
-{
-    vector<int> bandIds = formatParams.getBandIds();
-    int noOfBands = 0;
-    if (bandIds.empty())
+    if (!formatParams.isTranspose())
     {
-        noOfBands = poDataset->GetRasterCount();
-        for (int band = 0; band < noOfBands; band++)
+        LTRACE << "transposing " << width << " x " << height << " matrix...";
+        if (bandIds.size() > 1)
         {
-            bandIds.push_back(band);
+            for (size_t col = 0; col < width; ++col)
+                for (size_t row = 0; row < height; ++row, dst += tileBaseTypeSize)
+                    *((T *) dst) = src[row * width + col];
+        }
+        else
+        {
+            // single band optimization
+            T* __restrict__ dstT = reinterpret_cast<T*>(dst);
+            for (size_t col = 0; col < width; ++col)
+                for (size_t row = 0; row < height; ++row, ++dstT)
+                    *dstT = src[row * width + col];
         }
     }
     else
     {
-        noOfBands = (int) bandIds.size();
+        LTRACE << "copying " << width << " x " << height << " matrix...";
+        if (bandIds.size() > 1)
+        {
+            for (size_t i = 0; i < width * height; ++i, dst += tileBaseTypeSize)
+                *((T *) dst) = src[i];
+        }
+        else
+        {
+            // single band optimization
+            memcpy(dst, srcIn, width * height * tileBaseTypeSize);
+        }
+    }
+}
+
+vector<int> r_Conv_GDAL::getBandIds()
+{
+    vector<int> ret = formatParams.getBandIds();
+    int noOfBands = 0;
+    if (ret.empty())
+    {
+        noOfBands = poDataset->GetRasterCount();
+        for (int band = 0; band < noOfBands; band++)
+        {
+            ret.push_back(band);
+        }
+    }
+    else
+    {
+        noOfBands = (int) ret.size();
         for (int i = 0; i < noOfBands; i++)
         {
-            int bandId = bandIds[(size_t)i];
+            int bandId = ret[(size_t)i];
             if (bandId < 0 || bandId >= poDataset->GetRasterCount())
             {
                 LERROR << "band id '" << bandId << "' out of range 0 - " << (poDataset->GetRasterCount() - 1) << ".";
                 throw r_Error(INVALIDFORMATPARAMETER);
             }
-            bandIds.push_back(bandId);
+            ret.push_back(bandId);
         }
     }
-    return bandIds;
+    return ret;
 }
 
 r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType)
@@ -673,16 +691,16 @@ r_Conv_GDAL::initEncodeParams(const string& paramsIn)
 }
 
 void
-r_Conv_GDAL::setEncodeParams(GDALDataset* poDataset)
+r_Conv_GDAL::setEncodeParams()
 {
-    setMetadata(poDataset);
-    setNodata(poDataset);
-    setGeoreference(poDataset);
-    setColorPalette(poDataset);
+    setMetadata();
+    setNodata();
+    setGeoreference();
+    setColorPalette();
 }
 
 void
-r_Conv_GDAL::setMetadata(GDALDataset* poDataset)
+r_Conv_GDAL::setMetadata()
 {
     if (!formatParams.getMetadata().empty())
     {
@@ -707,7 +725,7 @@ r_Conv_GDAL::setMetadata(GDALDataset* poDataset)
 }
 
 void
-r_Conv_GDAL::setNodata(GDALDataset* poDataset)
+r_Conv_GDAL::setNodata()
 {
     const vector<double>& nodata = formatParams.getNodata();
     if (!nodata.empty())
@@ -744,14 +762,14 @@ r_Conv_GDAL::setNodata(GDALDataset* poDataset)
 }
 
 void
-r_Conv_GDAL::setGeoreference(GDALDataset* poDataset)
+r_Conv_GDAL::setGeoreference()
 {
     if (formatParams.getXmin() != numeric_limits<double>::max() &&
             formatParams.getXmax() != numeric_limits<double>::max() &&
             formatParams.getYmin() != numeric_limits<double>::max() &&
             formatParams.getYmax() != numeric_limits<double>::max())
     {
-        setGeotransform(poDataset);
+        setGeotransform();
     }
     else
     {
@@ -760,14 +778,14 @@ r_Conv_GDAL::setGeoreference(GDALDataset* poDataset)
         {
             if (geoRefJson.isMember(GCPS))
             {
-                setGCPs(poDataset, geoRefJson[GCPS]);
+                setGCPs(geoRefJson[GCPS]);
             }
         }
     }
 }
 
 void
-r_Conv_GDAL::setGeotransform(GDALDataset* poDataset)
+r_Conv_GDAL::setGeotransform()
 {
     double adfGeoTransform[6];
     adfGeoTransform[0] = formatParams.getXmin();
@@ -789,7 +807,7 @@ r_Conv_GDAL::setGeotransform(GDALDataset* poDataset)
 }
 
 void
-r_Conv_GDAL::setGCPs(GDALDataset* poDataset, const Json::Value& gcpsJson)
+r_Conv_GDAL::setGCPs(const Json::Value& gcpsJson)
 {
     const string& key = GCPS;
     if (gcpsJson.isArray())
@@ -901,7 +919,7 @@ string r_Conv_GDAL::getCrsWkt()
 }
 
 void
-r_Conv_GDAL::setColorPalette(GDALDataset* poDataset)
+r_Conv_GDAL::setColorPalette()
 {
     const Json::Value& colorPaletteJson = formatParams.getParams().get(COLOR_PALETTE, Json::Value::null);
     if (colorPaletteJson.isNull())

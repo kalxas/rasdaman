@@ -59,6 +59,7 @@ static const char rcsid[] = "@(#)servercomm, ServerComm: $Id: servercomm.cc,v 1.
 
 #include<openssl/evp.h>
 
+#include <cstring>
 #include <iostream>
 #ifdef __APPLE__
 #include <sys/malloc.h>
@@ -1112,21 +1113,8 @@ ServerComm::ClientTblElt::releaseTransferStructures()
         for (dataIter = transferData->begin(); dataIter != transferData->end(); dataIter++)
             if (*dataIter)
             {
-                // Note: The following consistency check does not hold for the case when data objects occur
-                //       more than once in the result set (e.g., constants).
-
-                // Consistency Check: should be the last reference.
-                //        if( (*dataIter)->getRefNo() > 1 )
-                //        {
-                //          LERROR << "Internal error in releaseTransferStructures: references left, object ";
-                //        }
-
-                // Just tuple elements which are not further referenced are deleted.
-                if (*dataIter)
-                {
-                    (*dataIter)->deleteRef();
-                    (*dataIter) = 0;
-                }
+                (*dataIter)->deleteRef();
+                (*dataIter) = 0;
             }
         delete transferData;
         transferData = 0;

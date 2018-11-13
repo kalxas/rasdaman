@@ -92,14 +92,12 @@ DBObject::getMemorySize() const
 void
 DBObject::setCached(bool newCached)
 {
-    LTRACE << "setCached(" << (int)newCached << ") " << myOId;
     _isCached = newCached;
 }
 
 bool
 DBObject::isCached() const
 {
-    LTRACE << "isCached()" << (int) _isCached;
     return _isCached;
 }
 
@@ -132,22 +130,21 @@ DBObject::destroy()
 void
 DBObject::release()
 {
-    LTRACE << "release() ";
-    //no dynamic memory
 }
 
 void DBObject::incrementReferenceCount(void)
 {
-    LTRACE << "incrementReferenceCount() " << referenceCount;
     referenceCount++;
+    LTRACE << "DBObject " << (void*)this << " refs increased to " << referenceCount;
 }
 
 void DBObject::decrementReferenceCount(void)
 {
-    LTRACE << "decrementReferenceCount() " << referenceCount;
     referenceCount--;
+    LTRACE << "DBObject " << (void*)this << " refs decreased to " << referenceCount;
     if (referenceCount == 0)
     {
+        LTRACE << "  destroying object...";
         destroy();
     }
 }
@@ -155,7 +152,6 @@ void DBObject::decrementReferenceCount(void)
 int
 DBObject::getReferenceCount(void) const
 {
-    LTRACE << "getReferenceCount() " << referenceCount;
     return referenceCount;
 }
 
@@ -169,7 +165,7 @@ DBObject::DBObject()
         objecttype(OId::INVALID),
         referenceCount(0)
 {
-    LTRACE << "DBObject() " << myOId;
+    LTRACE << "DBObject()";
 }
 
 DBObject::DBObject(const DBObject& old)
@@ -181,7 +177,7 @@ DBObject::DBObject(const DBObject& old)
         objecttype(old.objecttype),
         referenceCount(old.referenceCount)
 {
-    LTRACE << "DBObject(const DBObject& old)" << myOId;
+    LTRACE << "DBObject(copy from " << myOId << ")";
 }
 
 //constructs an object and reads it from the database.  the oid must match the type of the object.
@@ -271,7 +267,6 @@ DBObject::setPersistent(bool newPersistent)
 bool
 DBObject::isPersistent() const
 {
-    LTRACE << "isPersistent()" << (int)_isPersistent;
     return _isPersistent;
 }
 
@@ -356,9 +351,7 @@ DBObject::setModified()
     }
     else
     {
-        LTRACE << "readonly transaction " << myOId;
-        //this happens really a lot.
-        //LERROR << "DBObject::setModified() read only transaction";
+        LTRACE << "readonly transaction, cannot persist object " << myOId;
         //throw r_Error(r_Error::r_Error_TransactionReadOnly);
         _isModified = true;
     }
@@ -367,28 +360,24 @@ DBObject::setModified()
 bool
 DBObject::isModified() const
 {
-    LTRACE << "isModified() " << (int)_isModified;
     return _isModified;
 }
 
 OId
 DBObject::getOId() const
 {
-//    LTRACE << "getOId() " << myOId;
     return myOId;
 }
 
 EOId
 DBObject::getEOId() const
 {
-    LTRACE << "getEOId() " << myOId;
     return EOId(myOId);
 }
 
 OId::OIdType
 DBObject::getObjectType() const
 {
-    LTRACE << "getObjectType() " << objecttype;
     return objecttype;
 }
 

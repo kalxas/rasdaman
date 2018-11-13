@@ -77,6 +77,11 @@ public:
     constructs a InlineTile out of the database
     */
 
+    InlineTile(r_Bytes newSize, r_Data_Format dataformat);
+    /*@Doc:
+    constructs a new InlineTile of size newSize, not initialized with any value.
+    */
+
     InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with c.

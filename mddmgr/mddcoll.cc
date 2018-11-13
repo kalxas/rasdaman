@@ -143,6 +143,7 @@ MDDColl::insert(const MDDObj* newObj)
 void
 MDDColl::releaseAll()
 {
+    LDEBUG << "release all MDD objects in coll " << getName();
     MDDObj* tempMDD = 0;
     while (!mddCache.empty())
     {
@@ -155,7 +156,6 @@ MDDColl::releaseAll()
 
 MDDColl::~MDDColl()
 {
-    LTRACE << (r_Ptr)this;
     if (isPersistent())
     {
         releaseAll();
@@ -373,6 +373,29 @@ MDDColl::getMDDCollection(const OId& collOId)
     t->isModified();
     MDDColl* retval = new MDDColl(t);
     return retval;
+}
+
+bool MDDColl::isVirtual(const char *collName) {
+    return strcmp(collName, AllCollectionnamesName) == 0 ||
+           strcmp(collName, AllStructTypesName) == 0 ||
+           strcmp(collName, AllMarrayTypesName) == 0 ||
+           strcmp(collName, AllSetTypesName) == 0;
+}
+
+bool MDDColl::collExists(const char *collName)
+{
+    try
+    {
+        return isVirtual(collName) ||
+               DBMDDSet::getDBMDDSet(collName).isInitialised();
+    }
+    catch (const r_Error &ex)
+    {
+        if (ex.get_kind() == r_Error::r_Error_ObjectUnknown)
+            return false;
+        else
+            throw;
+    }
 }
 
 MDDColl*

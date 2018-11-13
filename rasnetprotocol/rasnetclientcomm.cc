@@ -763,7 +763,9 @@ char* RasnetClientComm::getTypeStructure(const char* typeName, r_Type_Type typeT
     int status = getTypeStructureRepl.status();
     handleStatusCode(status, "getTypeStructure");
 
-    char* typeStructure = strdup(getTypeStructureRepl.type_structure().c_str());
+    const auto &src = getTypeStructureRepl.type_structure();
+    char* typeStructure = new char[src.size() + 1];
+    strcpy(typeStructure, src.c_str());
     return typeStructure;
 }
 

@@ -174,11 +174,10 @@ void BlobFSTransaction::finalizeRasbaseCrash()
         SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
         if (checkTable.nextRow())
         {
-            if (blobIds.size() > 0)
+            if (!blobIds.empty())
                 BLINFO << "\n";
-            for (long unsigned int i = 0; i < blobIds.size(); i++)
+            for (auto blobId: blobIds)
             {
-                long long blobId = blobIds[i];
                 const string tmpBlobPath = getTmpBlobPath(blobId);
 
                 SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobId);
@@ -318,9 +317,9 @@ void BlobFSInsertTransaction::postRasbaseCommit()
     if (!blobIds.empty())
     {
         transactionLock->lockForCommit();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            BlobFile::moveFile(getTmpBlobPath(blobIds[i]), getFinalBlobPath(blobIds[i]));
+            BlobFile::moveFile(getTmpBlobPath(blobId), getFinalBlobPath(blobId));
         }
         blobIds.clear();
         transactionLock->clearCommitLock();
@@ -332,9 +331,9 @@ void BlobFSInsertTransaction::postRasbaseAbort()
     if (!blobIds.empty())
     {
         transactionLock->lockForAbort();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            BlobFile::removeFile(getTmpBlobPath(blobIds[i]));
+            BlobFile::removeFile(getTmpBlobPath(blobId));
         }
         blobIds.clear();
         transactionLock->clearAbortLock();
@@ -362,9 +361,9 @@ void BlobFSUpdateTransaction::postRasbaseCommit()
     if (!blobIds.empty())
     {
         transactionLock->lockForCommit();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            BlobFile::moveFile(getTmpBlobPath(blobIds[i]), getFinalBlobPath(blobIds[i]));
+            BlobFile::moveFile(getTmpBlobPath(blobId), getFinalBlobPath(blobId));
         }
         blobIds.clear();
         transactionLock->clearCommitLock();
@@ -376,9 +375,9 @@ void BlobFSUpdateTransaction::postRasbaseAbort()
     if (!blobIds.empty())
     {
         transactionLock->lockForAbort();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            BlobFile::removeFile(getTmpBlobPath(blobIds[i]));
+            BlobFile::removeFile(getTmpBlobPath(blobId));
         }
         blobIds.clear();
         transactionLock->clearAbortLock();
@@ -411,12 +410,11 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
     if (!blobIds.empty())
     {
         transactionLock->lockForAbort();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
             try
             {
-                BlobFile::moveFile(getFinalBlobPath(blobIds[i]),
-                                   getTmpBlobPath(blobIds[i]));
+                BlobFile::moveFile(getFinalBlobPath(blobId), getTmpBlobPath(blobId));
             }
             catch (const r_Error &ex)
             {
@@ -435,9 +433,9 @@ void BlobFSRemoveTransaction::postRasbaseCommit()
     if (!blobIds.empty())
     {
         transactionLock->lockForCommit();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            BlobFile::removeFile(getTmpBlobPath(blobIds[i]));
+            BlobFile::removeFile(getTmpBlobPath(blobId));
         }
         blobIds.clear();
         transactionLock->clearCommitLock();
@@ -449,14 +447,14 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
     if (!blobIds.empty())
     {
         transactionLock->lockForAbort();
-        for (long unsigned int i = 0; i < blobIds.size(); i++)
+        for (auto blobId: blobIds)
         {
-            const string tmpBlobPath = getTmpBlobPath(blobIds[i]);
+            const string tmpBlobPath = getTmpBlobPath(blobId);
             if (BlobFile::fileExists(tmpBlobPath))
             {
                 try
                 {
-                    BlobFile::moveFile(tmpBlobPath, getFinalBlobPath(blobIds[i]));
+                    BlobFile::moveFile(tmpBlobPath, getFinalBlobPath(blobId));
                 }
                 catch (const r_Error &ex)
                 {

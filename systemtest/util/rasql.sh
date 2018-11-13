@@ -383,3 +383,29 @@ drop_nullvalues_data()
   drop_types NullValueFloatSetTest NullValueFloatArrayTest
   drop_types NullValueSetTest NullValueArrayTest 
 }
+
+#
+# Generate an array (at given file path) encoded in given format, sdom and values in each cell.
+#
+# Usage: generate_data <result_file_path> <format> <sdom> <cell_values>
+#
+# The script runs a rasql expression of the form:
+# SELECT encode(MARRAY i IN <sdom> VALUES <cell_values>, "<format>")
+#
+# Therefore the <cell_values> can include an iterator i as well.
+#
+# The result file path is printed to stdout, which might be slightly different from the
+# provided path (an extension could be automatically appended). Non-zero exit code indicates
+# success as usual.
+#
+# Example: ./generate_data.sh "/tmp/test_ones" "GTiff" "[0:10,0:10]" "i[0] + 0.5f"
+#
+generate_data()
+{                            # example values:
+  local result_filepath="$1" #   myresult.tif
+  local encode_format="$2"   #   tiff
+  local data_sdom="$3"       #   [0:10,0:10]
+  local data_values="$4"     #   1.5f
+  $DIRECTQL -q "select encode(marray i in $data_sdom values ($data_values), \"$encode_format\")" \
+            --out file --outfile "$result_filepath" | grep '  Result object' | sed 's/^ *Result .* file \(.*\)\.\.\..*/\1/'
+}

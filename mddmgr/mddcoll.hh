@@ -107,6 +107,16 @@ public:
     static const char* AllMarrayTypesName;
     static const char* AllSetTypesName;
 
+    static bool isVirtual(const char* collName);
+    /**
+     * @return true if collName is a virtual collection (e.g. RAS_COLLECTIONNAMES)
+     */
+
+    static bool collExists(const char* collName);
+    /**
+     * @return true if collName exists in the database.
+     */
+
     static MDDColl* getMDDCollection(const char* collName);
     /**
         Retrieve a mdd collection from database.

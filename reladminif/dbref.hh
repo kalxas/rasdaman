@@ -55,7 +55,7 @@ template <class T> class DBRef;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
-DBRef is a smart pointer class operating on classes derived from DbObject. A smart
+DBRef is a smart pointer class operating on classes derived from DBObject. A smart
 pointer to an object with a known id is created using DBRef<T>(id). The object
 managed by a given smart pointer can be changed (rebinding) by using the assignment
 operator.

@@ -557,7 +557,7 @@ void
 r_Error::setTextParameter(const char* parameterName, int value)
 {
     // convert long value to string
-    ostringstream valueStream;
+    stringstream valueStream;
     valueStream << value;
 
     setTextParameter(parameterName, valueStream.str().c_str());
@@ -584,10 +584,12 @@ r_Error::setTextParameter(const char* parameterName, const char* value)
 
             *paramStart = '\0';
 
-            ostringstream queryStream;
+            stringstream queryStream;
             queryStream << errorText << value << paramEnd;
             delete[] errorText;
-            errorText = strdup(queryStream.str().c_str());
+            auto tmpStr = queryStream.str();
+            errorText = new char[tmpStr.size() + 1];
+            strcpy(errorText, tmpStr.c_str());
 
         }
     }
@@ -620,7 +622,8 @@ r_Eno_interval::r_Eno_interval()
 
 r_EGeneral::r_EGeneral(const std::string& errorText2)
 {
-    this->errorText = strdup(errorText2.c_str());
+    errorText = new char[errorText2.size() + 1];
+    strcpy(errorText, errorText2.c_str());
 }
 
 

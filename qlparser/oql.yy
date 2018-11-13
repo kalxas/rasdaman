@@ -383,7 +383,7 @@ createExp: CREATE COLLECTION namedCollection typeName
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
-		FREESTACK($3)
+		delete $3.value;
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
@@ -398,7 +398,7 @@ createExp: CREATE COLLECTION namedCollection typeName
 	  
 	  FREESTACK($1)
 	  FREESTACK($2)
-	  FREESTACK($3)
+	  delete $3.value;
 	  FREESTACK($4)
 	};
 
@@ -414,7 +414,7 @@ dropExp: DROP COLLECTION namedCollection
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($2)
-			FREESTACK($3)
+		    delete $3.value;
 	    QueryTree::symtab.wipe();
             YYABORT;
 	  }
@@ -428,7 +428,7 @@ dropExp: DROP COLLECTION namedCollection
 	  	  
 	  FREESTACK($1)
 	  FREESTACK($2)
-	  FREESTACK($3);
+		delete $3.value;;
 	};
 
 selectIntoExp:
@@ -446,6 +446,7 @@ selectIntoExp:
             FREESTACK($1)
             FREESTACK($3)
             FREESTACK($5)
+		    delete $4.value;
             FREESTACK($7)
             QueryTree::symtab.wipe();
             YYABORT;
@@ -491,6 +492,7 @@ selectIntoExp:
 	  
 	  FREESTACK($1)
 	  FREESTACK($3)
+      delete $4.value;
 	  FREESTACK($5)
 	  FREESTACK($7)
 	}
@@ -508,6 +510,7 @@ selectIntoExp:
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
+            delete $4.value;
             FREESTACK($5)
             QueryTree::symtab.wipe();
             YYABORT;
@@ -541,6 +544,7 @@ selectIntoExp:
 	  
 	  FREESTACK($1)
 	  FREESTACK($3)
+      delete $4.value;
 	  FREESTACK($5)
 	};
 
@@ -921,6 +925,7 @@ alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
                                     $1.info->getLineNo(), $1.info->getColumnNo() );
         FREESTACK($1)
         FREESTACK($2)
+        delete $3.value;
         FREESTACK($4)
         FREESTACK($5)
         QueryTree::symtab.wipe();
@@ -936,6 +941,7 @@ alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
       
       FREESTACK($1)
       FREESTACK($2)
+      delete $3.value;
       FREESTACK($4)
       FREESTACK($5)
     };
@@ -952,7 +958,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
             FREESTACK($2)
-            FREESTACK($3)
+        delete $3.value;
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
@@ -968,7 +974,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 	  
 	  FREESTACK($1)
 	  FREESTACK($2)
-	  FREESTACK($3)
+      delete $3.value;
 	  FREESTACK($4)
 	}
 	|
@@ -984,7 +990,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
                                         $2.info->getLineNo(), $2.info->getColumnNo() );
 	    FREESTACK($1)
 	    FREESTACK($2)
-		FREESTACK($3)
+        delete $3.value;
 	    FREESTACK($4)
 	    QueryTree::symtab.wipe();
             YYABORT;
@@ -1000,7 +1006,7 @@ insertExp: INSERT INTO namedCollection VALUES generalExp
 
 	  FREESTACK($1)
 	  FREESTACK($2)
-	  FREESTACK($3)
+      delete $3.value;
 	  FREESTACK($4)
 	}
 
@@ -3493,7 +3499,7 @@ iteratedCollection: namedCollection AS collectionIterator
 	  parseQueryTree->addDynamicObject( $$ );
 	  
 
-	  FREESTACK($1)
+      delete $1.value;
 	  FREESTACK($2)
 	  FREESTACK($3)
 	}
@@ -3503,7 +3509,7 @@ iteratedCollection: namedCollection AS collectionIterator
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 
-	  FREESTACK($1)
+      delete $1.value;
 	  FREESTACK($2)
 	}
 	| namedCollection   
@@ -3512,7 +3518,7 @@ iteratedCollection: namedCollection AS collectionIterator
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 
-	  FREESTACK($1)
+      delete $1.value;
 	};
 
 variable: Identifier                          

@@ -215,7 +215,8 @@ QtDomainOperation::optimizeLoad(QtTrimList* trimList)
 
                 // no previous specification for that dimension
                 trimming = true;
-                for (unsigned int i = 0; i != domain.dimension(); i++)
+                auto* newTrimList = new QtTrimList();
+                for (unsigned int i = 0, j = 0; i != domain.dimension(); i++)
                 {
                     // create a new element
                     QtTrimElement* elem = new QtTrimElement;
@@ -224,11 +225,29 @@ QtDomainOperation::optimizeLoad(QtTrimList* trimList)
                     elem->intervalFlag = (*trimFlags)[i];
                     elem->dimension    = i;
 
-                    // and add it to the list
-                    trimList->push_back(elem);
-
                     trimming &= (*trimFlags)[i];
+
+                    // and add it to the list
+                    newTrimList->push_back(elem);
+
+                    // The passed trimList only has an effect on trims (as slices remove dimensions).
+                    // E.g. assume this method is evaluating c[0:5,5] in the expression c[0:5,5][5];
+                    // the passed trimList contains slice 5, newTrimList contains trim 0:5 and slice 5;
+                    // the passed trimList is only applicable to the trim 0:5, which is sliced at 5.
+                    if (elem->intervalFlag && trimList->size() > j)
+                    {
+                        newTrimList->at(i)->interval = trimList->at(j)->interval;
+                        newTrimList->at(i)->intervalFlag = trimList->at(j)->intervalFlag;
+                        ++j;
+                    }
                 }
+                for (size_t i = 0; i < trimList->size(); ++i)
+                    delete trimList->at(i);
+                trimList->clear();
+                for (size_t i = 0; i < newTrimList->size(); ++i)
+                    trimList->push_back(newTrimList->at(i));
+                delete newTrimList;
+                newTrimList = NULL;
 
                 if (trimFlags)
                 {
@@ -253,14 +272,17 @@ QtDomainOperation::optimizeLoad(QtTrimList* trimList)
     // Eliminate node QtDomainOperation if only trimming occurs.
     if (trimming)
     {
-        LTRACE << "all trimming";
-
-        getParent()->setInput(this, input);
-
-        // Delete the node itself after resetting its input because
-        // otherwise the input is delete either.
-        setInput(input, NULL);
-        delete this;
+        auto inputType = input ? input->getNodeType() : QtNode::QT_UNDEFINED_NODE;
+        if (inputType != QtNode::QT_PROJECT && inputType != QtNode::QT_CONVERSION && 
+            inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
+        {
+            LTRACE << "all trimming";
+            getParent()->setInput(this, input);
+            // Delete the node itself after resetting its input because
+            // otherwise the input is delete either.
+            setInput(input, NULL);
+            delete this;
+        }
     }
 }
 
@@ -960,7 +982,6 @@ QtDomainOperation::printAlgebraicExpression(ostream& s)
     }
 
     s << ",";
-
     if (input)
     {
         input->printAlgebraicExpression(s);

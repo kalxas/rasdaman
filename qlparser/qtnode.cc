@@ -344,9 +344,6 @@ QtNode::num_node(const QtNodePair* arr, const enum QtNodeType x)
     int i;
     static int ID = 0 ;
     enum QtNodeType child;
-    if (x >= QtNodes) {
-        LERROR << "Illegal access for node " << (int)x;
-    }
     minim[x] = ID++;
     for (i = child_range[x]; i < child_range[x + 1]; i++)
     {

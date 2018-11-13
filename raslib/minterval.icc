@@ -146,7 +146,7 @@ r_Minterval::within_bounds( const castType point )
 {
     for (r_Dimension i = 0; i < dimensionality ; i++)
     {
-        if (point >= intervals[i].low() && point <= intervals[i].high())
+        if ((!intervals[i].is_low_fixed() || point >= intervals[i].low()) && (!intervals[i].is_high_fixed() || point <= intervals[i].high()))
         {
             return true;
         }

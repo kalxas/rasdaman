@@ -48,7 +48,7 @@ QtCaseEquality::QtCaseEquality(QtOperation* commonOperand, QtOperation* newInput
  * Setter for the commonOperandDeleted attribute.
  * @param commonOperandDeleted
  */
-void QtCaseEquality::setCommonOperadDeleted(bool newCommonOperandDeleted)
+void QtCaseEquality::setCommonOperandDeleted(bool newCommonOperandDeleted)
 {
     this->commonOperandDeleted = newCommonOperandDeleted;
 }

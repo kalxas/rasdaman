@@ -54,7 +54,7 @@ QtSimpleCaseOp::~QtSimpleCaseOp()
     {
         if (i > 0 && i % 2 == 0 && i != operationList->size() - 1)
         {
-            ((QtCaseEquality*) operationList->at(i))->setCommonOperadDeleted(true);
+            ((QtCaseEquality*) operationList->at(i))->setCommonOperandDeleted(true);
         }
     }
 }

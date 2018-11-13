@@ -121,6 +121,7 @@ private:
     // If key is not found, then return ""
     std::string getExtraParams(const std::string &key);
 
+    std::string empty;
     std::vector<std::string> tokens;
     int argc;
     boost::shared_ptr<RasControl> rascontrol;

@@ -312,12 +312,12 @@ void r_Format_Params::setFilePaths(const std::vector<std::string>& filePathsArg)
     this->filePaths = filePathsArg;
 }
 
-string r_Format_Params::getFilePath() const
+const string &r_Format_Params::getFilePath() const
 {
     return filePaths[0];
 }
 
-vector<string> r_Format_Params::getVariables() const
+const vector<string> &r_Format_Params::getVariables() const
 {
     return variables;
 }
@@ -342,7 +342,7 @@ vector<pair<string, string>> r_Format_Params::getConfigOptions() const
     return configOptions;
 }
 
-r_Minterval r_Format_Params::getSubsetDomain() const
+const r_Minterval &r_Format_Params::getSubsetDomain() const
 {
     return subsetDomain;
 }

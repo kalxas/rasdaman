@@ -323,11 +323,9 @@ MDDObj::intersect(const r_Minterval& searchInter) const
 #ifdef DEBUG
     if (retval)
     {
-        for (std::vector<shared_ptr<Tile>>::iterator it = retval->begin(); it != retval->end(); it++)
+        for (auto it = retval->begin(); it != retval->end(); it++)
         {
             LTRACE << "FOUND " << (*it)->getDomain() << " ";
-// TODO: fix with proper stream, RMInit is deprecated
-//            (*it)->printStatus(0, RMInit::dbgOut);
         }
     }
 #endif
@@ -455,6 +453,7 @@ MDDObj::~MDDObj() noexcept(false)
 void
 MDDObj::releaseTiles()
 {
+    LDEBUG << "release tiles in MDD object " << myDBMDDObj->getOId();
     myMDDIndex->releasePersTiles();
 }
 

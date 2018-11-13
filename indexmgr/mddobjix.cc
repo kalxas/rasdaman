@@ -153,7 +153,8 @@ MDDObjIx::releasePersTiles()
 void
 MDDObjIx::printStatus(unsigned int level, std::ostream& stream) const
 {
-    stream << "MDDObjIx [ last access interval = " << lastAccess << " tile cache size = " << lastAccessTiles.size() << " index structure = ";
+    stream << "MDDObjIx [ last access interval = " << lastAccess
+           << " tile cache size = " << lastAccessTiles.size() << " index structure = ";
     actualIx->printStatus(level, stream);
 }
 

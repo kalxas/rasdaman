@@ -61,13 +61,6 @@ ParseInfo::getColumnNo() const
 
 
 
-inline void
-ParseInfo::setErrorNo( unsigned long newNo )
-{
-  errorNo = newNo;
-}
-
-
 
 inline void
 ParseInfo::setErrorNo(int newNo)

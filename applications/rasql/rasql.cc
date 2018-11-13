@@ -854,9 +854,9 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
 void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv)
 {
     std::unique_ptr<char[]> fileContents;                       // contents of file satisfying "$1" parameter in query
-    r_Set<r_GMarray*>* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
-    r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter
-    r_Marray_Type* mddType = NULL;      // this MDD's type
+    std::unique_ptr<r_Set<r_GMarray*>> fileContentsChunked; // file contents partitioned into smaller chunks
+    r_Ref<r_GMarray> fileMDD;    // MDD to satisfy a "$1" parameter
+    std::unique_ptr<r_Marray_Type> mddType;      // this MDD's type
 
     r_OQL_Query query(queryString);
     LDEBUG << "query is: " << query.get_query();
@@ -872,7 +872,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         if (openTransaction(false))
         {
             NNLINFO << "fetching type information for " << mddTypeName << " from database... ";
-            mddType = getTypeFromDatabase(mddTypeName);
+            mddType.reset(getTypeFromDatabase(mddTypeName));
             if (closeTransaction(true))
             {
                 BLINFO << "ok.\n";
@@ -915,7 +915,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
             // read data in each tile chunk
             long offset = 0;
-            fileContentsChunked = new r_Set<r_GMarray*>();
+            fileContentsChunked.reset(new r_Set<r_GMarray*>());
             for (auto chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
             {
                 r_Minterval chunkDom = *chunkIt;
@@ -972,15 +972,17 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
         fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, false);
-        fileMDD->set_type_schema(mddType);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
+        fileMDD->set_type_schema(mddType.get());
+        mddType.release();
         if (fileContents)
         {
             fileMDD->set_array(fileContents.get());
         }
         else
         {
-            fileMDD->set_tiled_array(fileContentsChunked);
+            fileMDD->set_tiled_array(fileContentsChunked.get());
+            fileContentsChunked.release();
         }
 
         query << *fileMDD;

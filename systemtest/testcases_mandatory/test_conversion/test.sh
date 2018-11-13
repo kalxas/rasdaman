@@ -224,8 +224,9 @@ function run_test()
     else
       cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
     fi
-
-    check_result 0 $? "input and output match"
+    rc=$?
+    check_result 0 $rc "input and output match"
+    #[ $rc -ne 0 ] && exit 1
 
     drop_colls test_tmp
     rm -f $f*

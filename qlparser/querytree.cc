@@ -33,16 +33,12 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QueryTree: $Id: querytree.cc,v 1.52 2005/06/28 08:42:13 rasdev Exp $";
-
-
 #include "config.h"
 #include "version.h"
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else
 #include <string>
-using namespace std;
 #endif
 #include <iostream>
 #include <dlfcn.h>
@@ -66,6 +62,8 @@ using namespace std;
 #include "relcatalogif/settype.hh"
 
 #include <logging.hh>
+
+using namespace std;
 
 unsigned int QueryTree::nextCSENo = 0;
 

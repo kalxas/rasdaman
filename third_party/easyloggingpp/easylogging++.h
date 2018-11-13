@@ -731,7 +731,7 @@ enum class LoggingFlag : base::type::EnumType {
   /// @brief Creates logger automatically when not available
   CreateLoggerAutomatically = 4096,
   /// @brief Adds spaces b/w logs that separated by left-shift operator
-  AutoSpacing = 8192,
+  // AutoSpacing = 8192,
   /// @brief Preserves time format and does not convert it to sec, hour etc (performance tracking only)
   FixedTimeFormat = 16384
 };
@@ -2957,9 +2957,6 @@ class MessageBuilder {
 #  define ELPP_SIMPLE_LOG(LOG_TYPE)\
 MessageBuilder& operator<<(LOG_TYPE msg) {\
 m_logger->stream() << msg;\
-if (ELPP->hasFlag(LoggingFlag::AutoSpacing)) {\
-m_logger->stream() << " ";\
-}\
 return *this;\
 }
 
@@ -3251,9 +3248,6 @@ ELPP_LITERAL("(") << elem->first << ELPP_LITERAL(", ") << elem->second << ELPP_L
       m_logger->stream() << ELPP_LITERAL("...");
     }
     m_logger->stream() << ELPP_LITERAL("]");
-    if (ELPP->hasFlag(LoggingFlag::AutoSpacing)) {
-      m_logger->stream() << " ";
-    }
     return *this;
   }
 };

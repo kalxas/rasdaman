@@ -223,6 +223,7 @@ void BlobFile::generateError(const char* message, int errorCode)
 {
     closeFileDescriptor();
     LERROR << message << " - " << filePath;
-    LERROR << "reason: " << strerror(errno);
+    if (errno != 0)
+        LERROR << "reason: " << strerror(errno);
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

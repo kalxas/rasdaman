@@ -150,7 +150,7 @@ public:
     */
 
     /// Inserts new tile into the object.
-    void insertTile(boost::shared_ptr<Tile> newTile);
+    void insertTile(boost::shared_ptr<Tile> insertTile);
 
     /// Inserts new tile into the object. MDDObj becomes the owner of the pointer.
     void insertTile(Tile* newTile);

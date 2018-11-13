@@ -63,8 +63,6 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lpthread               \
        -lboost_thread          \
        -lboost_system          \
-       -lpgtypes               \
-       -lpq                    \
        -lnetcdf_c++            \
        -lnetcdf                \
        -ltiff                  \
@@ -72,7 +70,10 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lfl                    \
        -ldl                    \
        -lcrypto                \
-       -lcrypt
+       -lcrypt                 \
+       -ljsoncpp               \
+       -lgdal                  \
+       -lgrib_api              \
 
 LIBS_UBUNTU = $(LIBS) -lmfhdfalt
 

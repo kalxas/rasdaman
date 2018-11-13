@@ -1,5 +1,3 @@
-#include "config.h"
-#include "mymalloc/mymalloc.h"
 
 /*
 * This file is part of rasdaman community.
@@ -36,6 +34,8 @@ rasdaman GmbH.
  *   none
  *
  ************************************************************/
+#include "config.h"
+#include "mymalloc/mymalloc.h"
 
 #include <iostream>
 #include <cstring>
@@ -59,11 +59,14 @@ RMTimer Tile::relTimer("Tile", "relTimer");
 // RMTimer Tile::o2Timer("Tile","o2Timer");
 #endif
 
+using namespace std;
+
 const Tile&
 Tile::operator=(const Tile& tile)
 {
     if (this != &tile)
     {
+        LTRACE << "Tile::operator=(this tile size " << getSize() << ", other tile size " << tile.getSize() << ")";
         type = tile.type;
         domain = tile.domain;
         blobTile->resize(tile.blobTile->getSize());
@@ -210,7 +213,8 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format new
     }
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, char* newCells, r_Bytes newSize, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, 
+           char* newCells, r_Bytes newSize, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
         blobTile((DBTile*)NULL)
@@ -329,6 +333,7 @@ Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile,
 
     char* dummy1 = getContents();
     const char* dummy2 = opTile->getContents();
+
     assert(dummy1 && dummy2);
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
     r_Miter opTileIter(&areaOp, &opTile->getDomain(), opTile->getType()->getSize(), dummy2);

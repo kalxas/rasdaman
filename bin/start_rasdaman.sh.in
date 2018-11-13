@@ -110,6 +110,7 @@ check_process()
     pid=$!
     # wait 1 second for the process to establish
     sleep 1
+
     if [ $exit_code -ne 0 ]; then
         echo "failed; please check the logs for more information."
         [ "$2" == "1" ] && exit $RC_ERROR
@@ -117,8 +118,25 @@ check_process()
         echo "failed, pid $pid not found; please check the logs for more information."
         [ "$2" == "1" ] && exit $RC_ERROR
     else
-        echo "ok, pid $pid."
-        echo $pid > $1.pid
+        local ok=1
+        if [ -n "$2" -a "$2" != "1" ]; then
+            local TIMEOUT=5
+            local waited=0
+            while [ 1 -eq 1 ]; do
+                (echo > /dev/tcp/localhost/$2) > /dev/null 2>&1 && break
+                sleep 1
+                waited=$(($waited + 1))
+                if [ $waited -ge $TIMEOUT ]; then
+                    echo "failed, cannot connect to process on port $2."
+                    ok=0
+                    break
+                fi
+            done
+        fi
+        if [ $ok -eq 1 ]; then
+            echo "ok, pid $pid."
+            echo $pid > $1.pid
+        fi
     fi
 }
 
@@ -157,6 +175,13 @@ fi
 # determine rascontrol login
 if [ -z "$RASLOGIN" ]; then
     export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+fi
+
+# check if rasmgr is already running first of all
+pgrep -f @bindir@rasmgr > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  log "rasdaman is currently running, nothing to do."
+  exit $RC_OK
 fi
 
 # clear previous log file

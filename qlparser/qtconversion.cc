@@ -192,6 +192,9 @@ QtConversion::evaluate(QtDataList* inputList)
     operand = input->evaluate(inputList);
     if (operand)
     {
+        std::unique_ptr<QtData, std::function<void(QtData*)>> deleteOperand(
+                operand, [](QtData* op) { op->deleteRef(); });
+
         char* typeStructure = NULL;
         unique_ptr<Tile> sourceTile = NULL;
 
@@ -209,12 +212,6 @@ QtConversion::evaluate(QtDataList* inputList)
             {
                 LERROR << "Internal error in QtConversion::evaluate() - "
                        << "runtime type checking failed (MDD).";
-
-                // delete old operand
-                if (operand)
-                {
-                    operand->deleteRef();
-                }
                 return 0;
             }
 #endif
@@ -253,16 +250,18 @@ QtConversion::evaluate(QtDataList* inputList)
         //
 
         r_Conv_Desc convDesc;
+        std::unique_ptr<char[]> convDescDest;
         r_Minterval tileDomain = sourceTile->getDomain();
 
         r_Data_Format convType = r_Array;   // convertor type
         r_Data_Format convFormat = r_Array; // result type from convertor
         setConversionTypeAndResultFormat(convType, convFormat);
 
+        std::shared_ptr<r_Convertor> convertor;
         try
         {
-            unique_ptr<r_Convertor> convertor;
-            convertor.reset(r_Convertor_Factory::create(convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
+            convertor.reset(r_Convertor_Factory::create(
+                    convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
             if (gdalConversion)
             {
                 convertor->set_format(format);
@@ -273,7 +272,8 @@ QtConversion::evaluate(QtDataList* inputList)
                 // nullValue passed to convertTo is NULL.
                 r_Range* nullValue = NULL;
                 r_Range tmpNullValue{};
-                if (nullValues) {
+                if (nullValues)
+                {
                     tmpNullValue = currentMDDObj->getNullValue();
                     nullValue = &tmpNullValue;
                 }
@@ -285,30 +285,28 @@ QtConversion::evaluate(QtDataList* inputList)
                 LDEBUG << "convertor '" << convType << "' converting from format '" << format << "'.";
                 convDesc = convertor->convertFrom(paramStr);
             }
+            convDescDest.reset(convDesc.dest);
         }
         catch (r_Error& err)
         {
-            // delete old operand
-            if (operand)
-            {
-                operand->deleteRef();
-            }
             //catch an error based on the error type, if assigned to FeatureNotSupported, or the error number.
             //in case no error number has been set (0 is the initialized value, and does not correspond to any error)
             //we catch a default error (381 -- conversion format not supported)
             if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
-            {
                 parseInfo.setErrorNo(218);
-            }
             else if (err.get_errorno() != 0)
-            {
                 parseInfo.setErrorNo(err.get_errorno());
-            }
             else
             {
+                LERROR << "Format conversion failed: " << err.what();
                 parseInfo.setErrorNo(381);
             }
             throw parseInfo;
+        }
+        catch (const std::exception &ex)
+        {
+            LERROR << "Format conversion failed: " << ex.what();
+            throw;
         }
 
         //
@@ -318,25 +316,22 @@ QtConversion::evaluate(QtDataList* inputList)
         sourceTile.reset();
 
         // create a transient tile for the compressed data
-        const BaseType* baseType = rasTypeToBaseType(convDesc.destType);
+        auto baseType = std::unique_ptr<const BaseType>(rasTypeToBaseType(convDesc.destType));
 
         // here we have to update the dataStreamType.getType(), as it has changed since checkType
         if (strcasecmp(dataStreamType.getType()->getTypeName(), baseType->getTypeName()))
         {
-            MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
+            MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType.get());
             TypeFactory::addTempType(mddBaseType);
             dataStreamType.setType(mddBaseType);
-#ifdef DEBUG
-            LDEBUG << " QtConversion::evaluate() for conversion " << conversionType << " real result is ";
-            dataStreamType.printStatus(RMInit::logOut);
-#endif
         }
 
         r_Bytes convResultSize = static_cast<r_Bytes>(convDesc.destInterv.cell_count()) * static_cast<r_Bytes>(baseType->getSize());
 
-        Tile* resultTile = new Tile(convDesc.destInterv, baseType, true, convDesc.dest, convResultSize, convFormat);
-
-        // delete destination type
+        std::unique_ptr<Tile> resultTile;
+        resultTile.reset(new Tile(convDesc.destInterv, baseType.release(), true, convDesc.dest, convResultSize, convFormat));
+        
+        convDescDest.release();
         if (convDesc.destType)
         {
             delete convDesc.destType;
@@ -344,19 +339,15 @@ QtConversion::evaluate(QtDataList* inputList)
         }
 
         // create a transient MDD object for the query result
-        MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType()));
-        MDDObj* resultMDD = new MDDObj(mddBaseType, convDesc.destInterv, nullValues);
-        resultMDD->insertTile(resultTile);
+        auto mddBaseType = std::unique_ptr<MDDBaseType>(static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())));
+        auto resultMDD = std::unique_ptr<MDDObj>(new MDDObj(mddBaseType.release(), convDesc.destInterv, nullValues));
+        resultMDD->insertTile(resultTile.get());
+        resultTile.release();
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD(resultMDD);
-        (static_cast<QtMDD*>(returnValue))->setFromConversion(true);
-
-        // delete old operand
-        if (operand)
-        {
-            operand->deleteRef();
-        }
+        auto tmp = std::unique_ptr<QtMDD>(new QtMDD(resultMDD.release()));
+        tmp->setFromConversion(true);
+        returnValue = tmp.release();
     }
     else
     {

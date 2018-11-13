@@ -24,6 +24,7 @@ rasdaman GmbH.
 #define _PARSEINFO_
 
 #include <string>
+#include <iostream>
 
 /*************************************************************
  *
@@ -70,8 +71,6 @@ public:
     inline unsigned int  getLineNo() const;
     ///
     inline unsigned int  getColumnNo() const;
-    ///
-    inline void          setErrorNo(unsigned long errorNo);
     ///
     inline void          setErrorNo(int errorNo);
     ///

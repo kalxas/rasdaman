@@ -249,7 +249,6 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
                                                queryResult, RequestInfo.Capability);
 
         resultBuffer = queryResult;
-        LINFO << MSG_OK;
     }
     else
     {

@@ -1809,8 +1809,9 @@ ServerComm::executeQuery(unsigned long callingClientId,
                                 r_Minterval tmpDomain = mddObj->getLoadDomain();
                                 totalReturnedSize += (tmpDomain.cell_count() * baseTypeSize);
                             }
-                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)"
-                                  << ", total size " << totalReturnedSize << " bytes.\n";
+                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', "
+                                   << context->transferData->size() << " element(s)"
+                                   << ", total size " << totalReturnedSize << " bytes.\n";
                         }
                         else
                         {
@@ -1823,7 +1824,8 @@ ServerComm::executeQuery(unsigned long callingClientId,
                             returnStructure.typeStructure = static_cast<char*>(mymalloc(strlen(elementType) + 6));
                             sprintf(returnStructure.typeStructure, "set<%s>", elementType);
                             free(elementType);
-                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s).\n";
+                            BLINFO << MSG_OK << ", result type '" << returnStructure.typeStructure << "', "
+                                   << context->transferData->size() << " element(s).\n";
                         }
 
                         strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
@@ -2196,10 +2198,10 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 vector<QtData*>* updateResult = qtree->evaluateUpdate();
 
                 // release data
-                for(vector<QtData*>::iterator iter = updateResult->begin(); iter!= updateResult->end(); iter++)
+                for(auto *iter: *updateResult)
                 {
-                    delete *iter;
-                    *iter = NULL;
+                    delete iter;
+                    iter = NULL;
                 }
                 delete updateResult;
                 updateResult = NULL;
@@ -3128,8 +3130,6 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 // initialize mddDomain to give it back
                 mddDomain = mddData->getLoadDomain();
 
-                LDEBUG << "domain " << mddDomain;
-
                 //
                 // initialize tiles to transfer
                 //
@@ -3230,7 +3230,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
 
                 const BaseType* baseType = mddObj->getCellType();
 
-                LDEBUG << "cell length " << baseType->getSize();
+                LTRACE << "domain " << mddDomain << "cell length " << baseType->getSize();
 
                 //
                 // set typeName and typeStructure
@@ -3323,7 +3323,6 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         catch (r_Ebase_dbms& myErr)
         {
             LERROR << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
-            returnValue = 42;
             throw;
         }
         catch (r_Error& myErr)
@@ -3891,7 +3890,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                 // if there is the rest of a tile to transfer, do it!
                 if (context->bytesToTransfer)
                 {
-                    LDEBUG << " resuming block transfer...";
+                    LTRACE << " resuming block transfer...";
                     transOffset = totalSize - context->bytesToTransfer;
                     if (context->bytesToTransfer > maxTransferBufferSize)
                     {
@@ -3908,7 +3907,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                 }
                 else // transfer first block of too large tile
                 {
-                    LDEBUG << " has to be split...";
+                    LTRACE << " has to be split...";
                     transSize = maxTransferBufferSize;
                     context->bytesToTransfer = totalSize - transSize;
                     statusValue = 1;
@@ -3925,7 +3924,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
             (*rpcMarray)->domain = mddDomain.get_string_representation();
 
             // 2. copy data pointers
-            LDEBUG << " domain " << mddDomain << ", " << transSize << " bytes";
+            LTRACE << " domain " << mddDomain << ", " << transSize << " bytes";
 
             // allocate memory for the output parameter data and assign its fields
             (*rpcMarray)->data.confarray_len = static_cast<unsigned int>(transSize);
@@ -3995,7 +3994,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
 
                 if ((context->totalTransferedSize != context->totalRawSize) && (context->totalRawSize != 0))
                 {
-                    LDEBUG << "(compressed using " <<  context->transferFormat << " to " << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) ";
+                    LTRACE << "(compressed using " <<  context->transferFormat << " to " << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) ";
                 }
             }
             else

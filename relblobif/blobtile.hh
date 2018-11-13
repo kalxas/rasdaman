@@ -94,6 +94,11 @@ public:
     this is used by the rc index.
     */
 
+    BLOBTile(r_Bytes newSize, r_Data_Format dataformat);
+    /*@Doc:
+    constructs a new BLOBTile of size newSize, not initialized with any value.
+    */
+
     BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with c.

@@ -869,7 +869,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                 unsigned short currentFormat;
 
                 int resultIndex = 0;
-                while ((status = server->getNextMDD(DQ_CLIENT_ID, mddDomain, typeName, typeStructure, oid, currentFormat)) == STATUS_MORE_ELEMS)
+                while (server->getNextMDD(DQ_CLIENT_ID, mddDomain, typeName, typeStructure, oid, currentFormat) == STATUS_MORE_ELEMS)
                 {
                     Tile* resultTile = new Tile(r->transTiles);
                     printResult(resultTile, ++resultIndex);
@@ -1169,6 +1169,7 @@ void doStuff()
             openTransaction(false);
 
             ExecuteQueryRes result;
+            result.errorNo = 0;
             result.token = NULL;
             result.typeName = NULL;
             result.typeStructure = NULL;
@@ -1178,7 +1179,7 @@ void doStuff()
 
             if (status >= 0 && status <= 2) {
                 printOutput(status, &result);
-            } else {
+            } else if (result.token != NULL) {
                 r_Equery_execution_failed e(
                     result.errorNo, result.lineNo, result.columnNo, result.token);
                 LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
@@ -1206,7 +1207,6 @@ void doStuff()
         SECURE_FREE_PTR(marray->domain);
         SECURE_FREE_PTR(marray);
     }
-    ObjectBroker::clearBroker();
 }
 
 void

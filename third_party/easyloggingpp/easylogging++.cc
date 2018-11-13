@@ -2476,9 +2476,6 @@ MessageBuilder& MessageBuilder::operator<<(const wchar_t* msg) {
   m_logger->stream() << buff_;
   free(buff_);
 #  endif
-  if (ELPP->hasFlag(LoggingFlag::AutoSpacing)) {
-    m_logger->stream() << " ";
-  }
   return *this;
 }
 

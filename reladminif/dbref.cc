@@ -609,7 +609,6 @@ DBRef<T>::operator DBRef<InlineTile>() const
 template <class T>
 DBRef<T>::operator DBRef<DBTile>() const
 {
-    LDEBUG << "DBRef::DBRef<DBTile>(): object=" << (long) object;
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::BLOBOID) || (object->getObjectType() == OId::INLINETILEOID))
@@ -767,26 +766,21 @@ DBRef<T>::operator IndexDS* () const
     }
     else
     {
-        if (objId.getType() == OId::MDDHIERIXOID)
+        switch (objId.getType())
         {
-            DBRef<DBHierIndex> t(objId);
-            return (IndexDS*)t.ptr();
-        }
-        else
-        {
-            if (objId.getType() == OId::DBTCINDEXOID)
-            {
+            case OId::MDDHIERIXOID: {
+                DBRef<DBHierIndex> t(objId);
+                return static_cast<IndexDS*>(t.ptr());
+            }
+            case OId::DBTCINDEXOID: {
                 DBRef<DBTCIndex> t(objId);
                 return static_cast<IndexDS*>(t.ptr());
             }
-            else
-            {
-                if (objId.getType() == OId::MDDRCIXOID)
-                {
-                    DBRef<DBRCIndexDS> t(objId);
-                    return static_cast<IndexDS*>(t.ptr());
-                }
+            case OId::MDDRCIXOID: {
+                DBRef<DBRCIndexDS> t(objId);
+                return static_cast<IndexDS *>(t.ptr());
             }
+            default: break;
         }
     }
     LDEBUG << "DBRef::IndexDS*(): operator mismatch" << objId;
@@ -797,72 +791,25 @@ DBRef<T>::operator IndexDS* () const
 template <class T>
 bool DBRef<T>::is_null(void) const
 {
-    bool retval = false;
-    T* t = 0;
-    if (object == 0)
+    if (object == 0 || (!pointerCaching && !pointerValid))
     {
         if (objId.getType() == OId::INVALID)
-        {
             throw r_Error(r_Error::r_Error_OIdInvalid);
-        }
-        else
+        try
         {
-            try
-            {
-                t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
-                LTRACE << "found object";
-                t->incrementReferenceCount();
-                (const_cast<DBRef<T>*>(this))->object = t;
-                LTRACE << "object is at: " << object << " found object was at: " << t;
-            }
-            catch (r_Error& err)
-            {
-                if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
-                {
-                    retval = true;
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            T* t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
+            t->incrementReferenceCount();
+            (const_cast<DBRef<T>*>(this))->object = t;
+            LTRACE << "found object " << object << " with oid " << objId
+                   << " in database and increased ref count";
         }
-    }
-    else
-    {
-        if (pointerCaching == false)
+        catch (const r_Error& err)
         {
-            if (pointerValid == false)
-            {
-                try
-                {
-                    t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
-                    LTRACE << "found object";
-                    t->incrementReferenceCount();
-                    (const_cast<DBRef<T>*>(this))->object = t;
-                    LTRACE << "object is at: " << object << " found object was at: " << t;
-                }
-                catch (r_Error& err)
-                {
-                    if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
-                    {
-                        retval = true;
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
+            if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+                return true;
             else
-            {
-                //retval = false; is done in initialize
-            }
-        }
-        else
-        {
-            //retval = false; is done in initialize
+                throw;
         }
     }
-    return retval;
+    return false;
 }

@@ -51,6 +51,7 @@ static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,
 #include <logging.hh>
 
 #include <sstream>
+#include <memory>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else

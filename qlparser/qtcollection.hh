@@ -67,7 +67,7 @@ public:
 	/// get methods
 	inline std::string getHostname() const;
 	inline int getPort() const;
-	inline std::string getCollectionName() const;
+	inline const std::string &getCollectionName() const;
 
 private:
 	std::string hostname;
@@ -87,7 +87,7 @@ QtCollection::getPort() const
 	return port;
 }
 
-inline std::string
+inline const std::string &
 QtCollection::getCollectionName() const
 {
 	return collectionName;

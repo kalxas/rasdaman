@@ -30,17 +30,13 @@ rasdaman GmbH.
  *
 */
 
-static const char rcsid[] = "@(#)raslib, r_Minterval: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/minterval.cc,v 1.54 2005/09/03 20:31:22 rasdev Exp $";
-
-using namespace std;
-
-using namespace std;
-
 #include "config.h"
 #include "raslib/minterval.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/dlist.hh"
 #include "mymalloc/mymalloc.h"
+#include "minterval.hh"
+
 
 #include <logging.hh>
 
@@ -49,6 +45,8 @@ using namespace std;
 #include <stdlib.h>
 
 #include <sstream>
+
+using namespace std;
 
 
 r_Minterval::r_Minterval(r_Dimension dim)
@@ -295,8 +293,19 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
     return true;
 }
 
+const r_Sinterval &
+r_Minterval::at_unsafe(r_Dimension dim) const
+{
+    return intervals[dim];
+}
+r_Sinterval &
+r_Minterval::at_unsafe(r_Dimension dim)
+{
+    return intervals[dim];
+}
+
 #ifndef OPT_INLINE
-r_Sinterval
+const r_Sinterval &
 r_Minterval::operator[](r_Dimension i) const
 {
     if (i < dimensionality)
@@ -376,6 +385,19 @@ r_Minterval::operator==(const r_Minterval& mint) const
     }
 
     return returnValue;
+}
+
+bool
+r_Minterval::equal_extents(const r_Minterval &other) const
+{
+    if (dimension() == other.dimension())
+    {
+        for (r_Dimension i = 0; i < dimensionality; i++)
+            if (intervals[i].get_extent() != other[i].get_extent())
+                return false;
+        return true;
+    }
+    return false;
 }
 
 bool
@@ -1145,6 +1167,20 @@ r_Minterval::delete_dimension(r_Dimension dim)
     delete[] intervals;
 
     intervals = newIntervals;
+}
+
+void
+r_Minterval::delete_non_trims(const std::vector<bool> &trims)
+{
+    if (trims.size() != dimension())
+        return;
+    for (r_Dimension i = 0, j = 0; i < dimensionality; ++i)
+    {
+        if (!trims[i])
+            this->delete_dimension(j);
+        else
+            ++j;
+    }
 }
 
 void r_Minterval::transpose(r_Dimension a, r_Dimension b)

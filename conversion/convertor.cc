@@ -122,6 +122,7 @@ r_Convertor::~r_Convertor(void)
 {
     // Don't delete the resulting object pointer (desc->dest) !
     //   This is the job of the external application.
+    LTRACE << "r_Convertor destructor.";
     if (params != NULL)
     {
         delete params;

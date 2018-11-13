@@ -82,7 +82,6 @@ private:
     /**
      * Transforms the rasdaman array desc.src array to a GDAL dataset.
      *
-     * @param poDataset the target GDAL dataset
      * @param gdalBandType band type, they have to be all equal
      * @param isBoolean indicate if the rasdaman data is boolean
      * @param bandTypeSize base type size of one band
@@ -91,13 +90,12 @@ private:
      * @param numBands number of bands
      * @param rasBandType rasdaman band type
      */
-    void encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
+    void encodeImage(GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
                      unsigned int width, unsigned int height, unsigned int numBands);
 
     /**
      * Transforms the rasdaman array desc.src array of a given band base type T to a GDAL dataset.
      *
-     * @param poDataset the target GDAL dataset
      * @param gdalBandType band type, they have to be all equal
      * @param isBoolean indicate if the rasdaman data is boolean
      * @param bandTypeSize base type size of one band
@@ -106,7 +104,7 @@ private:
      * @param numBands number of bands
      */
     template<typename T>
-    void encodeImage(GDALDataset* poDataset, GDALDataType gdalBandType, bool isBoolean,
+    void encodeImage(GDALDataType gdalBandType, bool isBoolean,
                      unsigned int width, unsigned int height, unsigned int numBands);
 
     /**
@@ -117,13 +115,8 @@ private:
 
     /**
      * Transforms the file read with GDAL to an internal rasdaman array.
-     *
-     * @param poDataSet the dataset read with GDAL
-     * @param bandIds typically all bands from a file are read, but with the format parameters
-     *                a subset of the bands can be selected: this vector holds the ids (0-based)
-     *                of the bands that should be read, whether all or a subset.
      */
-    char* decodeImage(GDALDataset* poDataSet, const std::vector<int>& bandIds);
+    char* decodeImage();
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
@@ -143,25 +136,25 @@ private:
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
      *
-     * @param bandCells source GDAL band data
-     * @param tileCells target internal rasdaman array, this is in pixel interleaved format and
+     * @param src source GDAL band data
+     * @param dstIn target internal rasdaman array, this is in pixel interleaved format and
      *                  it is assumed to be properly offset to the current band.
      * @param tileBaseTypeSize size of the struct base type (sum of the base type sizes of all bands)
-     * @param width image width; it is int as this is the type that GDAL returns
-     * @param height image height; it is int as this is the type that GDAL returns
+     * @param N image width; it is int as this is the type that GDAL returns
+     * @param M image height; it is int as this is the type that GDAL returns
      */
     template<typename T>
-    void decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize, int width, int height);
+    void transposeBand(const char *__restrict__ srcIn, char *__restrict__ dstIn,
+                       size_t tileBaseTypeSize, size_t N, size_t M);
 
     /**
      * Determine the band ids (0-indexed) to be imported.
      *
-     * @param poDataset the dataset read with GDAL
      * @return if the format parameters specify the bands to be imported than those
      * are returned, otherwise the returned vector contains 0..bandNo-1, i.e.
      * all bands.
      */
-    std::vector<int> getBandIds(GDALDataset* poDataset);
+    std::vector<int> getBandIds();
 
     /**
      * @return the base type of a single band (equals to baseType in case it is
@@ -178,9 +171,8 @@ private:
 
     /**
      * Set the result array domain from decode (desc.destInterv).
-     * @param poDataset the dataset read with GDAL
      */
-    void setTargetDomain(GDALDataset* poDataset);
+    void setTargetDomain(bool transpose = true);
 
     /**
      * Initialize the format parameters (third parameter of the encode function).
@@ -195,13 +187,13 @@ private:
      *
      * @param gdalDataSet GDAL dataset to be written
      */
-    void setEncodeParams(GDALDataset* gdalDataSet);
-    void setMetadata(GDALDataset* gdalDataSet);
-    void setNodata(GDALDataset* gdalDataSet);
-    void setGeoreference(GDALDataset* gdalDataSet);
-    void setGeotransform(GDALDataset* gdalDataSet);
-    void setGCPs(GDALDataset* gdalDataSet, const Json::Value& gcpsJson);
-    void setColorPalette(GDALDataset* gdalDataSet);
+    void setEncodeParams();
+    void setMetadata();
+    void setNodata();
+    void setGeoreference();
+    void setGeotransform();
+    void setGCPs(const Json::Value& gcpsJson);
+    void setColorPalette();
 
     /**
      * @return the crs specified in the format parameters in WKT format, or NULL
@@ -251,6 +243,9 @@ private:
     static const std::string GDAL_KEY_IMAGE_STRUCTURE;
     static const std::string GDAL_KEY_PIXELTYPE;
     static const std::string GDAL_VAL_SIGNEDBYTE;
+
+    GDALDataset* poDataset;
+    vector<int> bandIds;
 };
 
 #endif

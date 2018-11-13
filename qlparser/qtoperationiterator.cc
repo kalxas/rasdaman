@@ -119,14 +119,12 @@ QtOperationIterator::getChilds(QtChildType flag)
 
 #ifdef DEBUG
             LTRACE << "3. merge of the lists ";
-            list<QtNode*>::iterator debugIter;
             for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
             {
                 (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
             }
 
             LTRACE << "4. old list (must be empty)";
-            list<QtNode*>::iterator debugIter;
             if (subList) for (debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
                 {
                     (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
@@ -146,7 +144,6 @@ QtOperationIterator::getChilds(QtChildType flag)
 
 #ifdef DEBUG
         LTRACE << "4. current child list including direct childs ";
-        list<QtNode*>::iterator debugIter;
         for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
         {
             (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
@@ -226,72 +223,31 @@ QtOperationIterator::next()
 
     if (inputs)
     {
-        QtDataList* nextTuple = NULL;
-        QtDataList* resultList = NULL;
-
         // create a composed tuple of type QtDataList of the next elements of the input streams
         // right now, just take the QtDataList vector of the first input stream
-        nextTuple = (*inputs)[0]->next();
+        QtNode::QtDataListPtr nextTuple((*inputs)[0]->next(), [](QtDataList *l) {
+            for (auto *d: *l) if (d) d->deleteRef();
+            delete l;
+        });
 
         if (nextTuple)
         {
-            QtOperationList::iterator iter;
-            vector<QtData*>::iterator dataIter;
+            QtNode::QtDataListPtr resultList(new QtDataList(operationTreeList->size()), [](QtDataList* l) {
+                for (auto *d: *l) delete d;
+                delete l;
+            });
 
-            resultList = new QtDataList(operationTreeList->size());
-
-            unsigned int pos = 0;
-
-            for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
+            size_t pos = 0;
+            for (auto *op: *operationTreeList)
             {
                 // send them through the operand tree
-
-                try
+                if (op)
                 {
-                    if (*iter)
-                    {
-                        (*resultList)[pos] = (*iter)->evaluate(nextTuple);
-                    }
+                    (*resultList)[pos] = op->evaluate(nextTuple.get());
                 }
-                catch (...)
-                {
-                    // Delete the tuple vector received by next(). Just tuple elements which are not
-                    // further referenced are deleted.
-                    for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
-                        if ((*dataIter))
-                        {
-                            (*dataIter)->deleteRef();
-                        }
-
-                    for (QtDataList::iterator deleteIter = resultList->begin(); deleteIter != resultList->end(); deleteIter++)
-                    {
-                        delete *deleteIter;
-                        *deleteIter = NULL;
-                    }
-                    delete resultList;
-                    resultList = NULL;
-                    delete nextTuple;
-                    nextTuple = NULL;
-
-                    throw;
-                }
-
-                pos++;
+                ++pos;
             }
-
-            // Delete the tuple vector received by next(). Just tuple elements which are not
-            // further referenced are deleted.
-            for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
-                if ((*dataIter))
-                {
-                    (*dataIter)->deleteRef();
-                }
-
-            // ... and now the vector itself
-            delete nextTuple;
-            nextTuple = NULL;
-
-            returnValue = resultList;
+            returnValue = resultList.release();
         }
     }
 

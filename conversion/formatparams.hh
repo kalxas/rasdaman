@@ -74,16 +74,16 @@ public:
     void setFilePaths(const std::vector<std::string>& filePaths);
 
     /// get the path to a file to be decoded
-    std::string getFilePath() const;
+    const std::string &getFilePath() const;
 
     /// (subset of) variable names to be decoded from the input file
-    std::vector<std::string> getVariables() const;
+    const std::vector<std::string> &getVariables() const;
 
     /// (subset of) band ids (0-indexed) to be decoded from the input file
     std::vector<int> getBandIds() const;
 
     /// subset region to be decoded from the input file, instead of the whole file
-    r_Minterval getSubsetDomain() const;
+    const r_Minterval &getSubsetDomain() const;
 
     /// sets subset region to be decoded from the input file, instead of the whole file
     void setSubsetDomain(const r_Minterval& domain);

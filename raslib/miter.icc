@@ -40,10 +40,9 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
       firstCell(newFirstCell), done(false)
 {
     // the following initializes incArrIter and calculates the first offset
-    int tIncIter = 1;     // total increment for current dimension
-    int prevTIncIter = 1; // total increment for previous dimension
-    r_Bytes incIter = cellSize; // current increment
-    r_Dimension i;
+    size_t tIncIter = 1;     // total increment for current dimension
+    size_t prevTIncIter = 1; // total increment for previous dimension
+    size_t incIter = cellSize; // current increment
     size_t firstOff = 0;
 
     LTRACE << "area for iteration: " << *newAreaIter;
@@ -54,28 +53,28 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     // stores the increments
     incArrIter = new incArrElem[dim];
 
-    for( i=0; i<dim; i++ )
+    for( r_Dimension i=0; i<dim; ++i )
     {
         // in RasDaMan the order of dimensions is the other way round!
-        unsigned int r = dim - 1 - i;
+        size_t r = dim - 1 - i;
         // used for counting in iteration, initialize with 0
         incArrIter[i].curr = 0;
         // how often is the increment added?
-        incArrIter[i].repeat = (*areaIter)[r].high() - (*areaIter)[r].low() + 1;
-        LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat ;
+        incArrIter[i].repeat = areaIter->at_unsafe(r).high() - areaIter->at_unsafe(r).low() + 1;
+        //LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat ;
         // the increment for the result tile (higher dimensions calculated
         // further down)
         incArrIter[i].inc = static_cast<int>(incIter);
-        LTRACE << "incIter dim " << i << ": " << incIter;
+        //LTRACE << "incIter dim " << i << ": " << incIter;
 
         // calculate starting offset and increments for higher dimensions
         // firstOff is the offset in chars of the first cell
-        firstOff += ((*areaIter)[r].low()-(*areaTile)[r].low()) * prevTIncIter * cellSize;
+        firstOff += static_cast<size_t>(areaIter->at_unsafe(r).low() - areaTile->at_unsafe(r).low()) * prevTIncIter * cellSize;
         // tInc is the increment if the dimension would be skipped
-        tIncIter = ((*areaTile)[r].high()-(*areaTile)[r].low()+1) * prevTIncIter;
+        tIncIter = static_cast<size_t>(areaTile->at_unsafe(r).high() - areaTile->at_unsafe(r).low() + 1) * prevTIncIter;
         // inc is the real increment, after some cells in the dimensions
         // have been iterated through.
-        incIter = static_cast<unsigned int>((tIncIter - incArrIter[i].repeat*prevTIncIter)) * cellSize;
+        incIter = static_cast<size_t>(tIncIter - incArrIter[i].repeat * prevTIncIter) * cellSize;
         // remember total increment of last dimension
         prevTIncIter = tIncIter;
     }

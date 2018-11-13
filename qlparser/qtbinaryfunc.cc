@@ -150,7 +150,7 @@ QtShift::evaluate(QtDataList* inputList)
         vector<boost::shared_ptr<Tile>>* tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
 
         // iterate over source tiles
-        for (vector<boost::shared_ptr<Tile>>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+        for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
         {
             // get relevant area of source tile
             r_Minterval sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection((*tileIter)->getDomain());

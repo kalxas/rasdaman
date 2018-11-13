@@ -33,7 +33,7 @@
 # - do not edit while rasmgr is running, may be overwritten!
 # - see Installation Guide for a complete list of options
 #
-# Copyright (c) 2005 rasdaman GmbH
+# Copyright (c) 2018 rasdaman GmbH
 #
 # ----------------------------------------------------------------------------
 
@@ -85,28 +85,28 @@ change srv N1 -countdown 10000 -autorestart on -xp --timeout 300
 # more server definitions, following the above pattern; add any number you want.
 # Parameters can be adjusted individually, but be sure to avoid a clash in the ports.
 define srv N2 -host @hostname@ -type n -port 7003 -dbh rasdaman_host
-change srv N2 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N2 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N3 -host @hostname@ -type n -port 7004 -dbh rasdaman_host
-change srv N3 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N3 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N4 -host @hostname@ -type n -port 7005 -dbh rasdaman_host
-change srv N4 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N4 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N5 -host @hostname@ -type n -port 7006 -dbh rasdaman_host
-change srv N5 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N5 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N6 -host @hostname@ -type n -port 7007 -dbh rasdaman_host
-change srv N6 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N6 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N7 -host @hostname@ -type n -port 7008 -dbh rasdaman_host
-change srv N7 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N7 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N8 -host @hostname@ -type n -port 7009 -dbh rasdaman_host
-change srv N8 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N8 -countdown 100000 -autorestart on -xp --timeout 300
 
 define srv N9 -host @hostname@ -type n -port 7010 -dbh rasdaman_host
-change srv N9 -countdown 10000 -autorestart on -xp --timeout 300
+change srv N9 -countdown 100000 -autorestart on -xp --timeout 300
 
 # end of rasmgr.conf
 

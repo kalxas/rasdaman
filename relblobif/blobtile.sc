@@ -53,7 +53,7 @@ void
 BLOBTile::updateInDb()
 {
     long long blobOid = myOId.getCounter();
-    LDEBUG << "updating tile with id " << blobOid;
+    LDEBUG << "updating tile with id " << blobOid << ", size " << size;
 
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (!checkQuery.nextRow())
@@ -83,8 +83,6 @@ void
 BLOBTile::insertInDb()
 {
     long long blobOid = myOId.getCounter();
-    LDEBUG << "inserting tile with id " << blobOid;
-
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (checkQuery.nextRow())
     {

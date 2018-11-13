@@ -489,9 +489,7 @@ void
 ObjectBroker::validateMap(DBObjectPMap& theMap)
 {
     for (auto &p: theMap)
-    {
         p.second->validate();
-    }
 }
 
 void
@@ -512,12 +510,12 @@ ObjectBroker::clearBroker()
 
     // validate from smaller to upper
     for (auto objType: objTypes) {
-        LDEBUG << "Validating map for objects of type: " << objType;
+        LTRACE << "Validating map for objects of type: " << objType;
         validateMap(getMap(objType));
     }
     // clear in reverse order
     for (auto it = objTypes.rbegin(); it != objTypes.rend(); ++it) {
-        LDEBUG << "Clearing map for objects of type: " << *it;
+        LTRACE << "Clearing map for objects of type: " << *it;
         clearMap(getMap(*it));
     }
 

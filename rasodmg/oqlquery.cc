@@ -378,9 +378,11 @@ r_OQL_Query::operator<<(r_GMarray& in)
     try
     {
         replaceNextArgument(valueString);
+        free(valueString);
     }
     catch (...)
     {
+        free(valueString);
         throw;
     }
 
@@ -485,7 +487,6 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
         throw err;
     }
 
-    //  while( *argumentEnd != ' ' && *argumentEnd != '\0' )
     argumentEnd++;
 
     //is digit or invalid argument format
@@ -513,19 +514,26 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
 
         queryStream << queryString << valueString << argumentEnd;
         delete[] queryString;
-        queryString = strdup(queryStream.str().c_str());
+        queryString = 0;
+
+        auto tmpStr = queryStream.str();
+        queryString = new char[tmpStr.length() + 1];
+        memcpy(queryString, tmpStr.c_str(), tmpStr.length());
+        queryString[tmpStr.length()] = '\0';
 
         //update the reference
-        argumentEnd = queryString + length + strlen(valueString);
+        auto offset = length + strlen(valueString);
+        if (offset > strlen(queryString))
+            break;
+
+        argumentEnd = queryString + offset;
 
         //search again for this parameter
         argumentEnd = argumentBegin = strstr(argumentEnd, argumentVal);
 
         //end string?
         if (argumentBegin == NULL)
-        {
             break;
-        }
 
         //skip $
         argumentEnd++;

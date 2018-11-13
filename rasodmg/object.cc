@@ -281,7 +281,8 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType)
 
     if (obj.type_structure)
     {
-        type_structure = strdup(obj.type_structure);
+        type_structure = new char[strlen(obj.type_structure) + 1];
+        strcpy(type_structure, obj.type_structure);
     }
 }
 
@@ -576,13 +577,16 @@ r_Object::get_type_schema()
             }
             catch (r_Error& errObj)
             {
-                LERROR << "r_Object::get_type_schema() failed retriving typestructure";
-                LERROR << "Error " << errObj.get_errorno() << " : " << errObj.what();
+                LERROR << "Failed retriving type structure, error " 
+                       << errObj.get_errorno() << ": " << errObj.what();
                 return NULL;
             }
         }
 
-        type_schema = r_Type::get_any_type(type_structure);
+        if (type_structure != NULL)
+        {
+            type_schema = r_Type::get_any_type(type_structure);
+        }
     }
     return type_schema;
 }

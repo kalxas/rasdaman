@@ -127,4 +127,8 @@ void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
     }
 }
 
+el::Configurations &LogConfiguration::getConfig() {
+  return conf;
+}
+
 }

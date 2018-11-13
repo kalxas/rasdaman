@@ -74,7 +74,7 @@ r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
         incArrIter[i].repeat = (imgDom->get_extent()[i] / iterDom->get_extent()[i]) +
                                (imgDom->get_extent()[i] % iterDom->get_extent()[i] != 0);
 
-        LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
+        //LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
     }
     reset();
 }
