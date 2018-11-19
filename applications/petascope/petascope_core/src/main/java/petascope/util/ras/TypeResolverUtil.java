@@ -30,6 +30,7 @@ import java.util.Map;
 import org.rasdaman.domain.cis.NilValue;
 import petascope.exceptions.PetascopeException;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
@@ -104,12 +105,38 @@ public class TypeResolverUtil {
     }
     
     /**
-     * Return the abbreviation of mdd type for a given collection type.
-     * 
-     * e.g: MDD type: char -> c
-     *      MDD type: struct {red char blue float red short} -> char,float,short -> c,f,s
+     * Return the default value for an input data type, e.g: char -> 0c, complexd -> complex(0.0d, 0.0d), boolean -> false
      */
-    public static List<String> getBaseTypeAbbreviationsForCollectionType(String collectionType) throws PetascopeException, TypeRegistryEntryMissingException {
+    private static String getDefaultValueForCellDataType(String cellDataType) throws PetascopeException {
+        String initValue = "0";
+        
+        if (cellDataType.equals(R_Complexd)) {
+            // complexd -> double
+            return R_Complexd + "(0.0d, 0.0d)";
+        } else if (cellDataType.equals(R_Complex)) {
+            // complex -> float
+            return R_Complex + "(0.0f, 0.0f)";
+        } else if (cellDataType.equals(R_Boolean)) {
+            // boolean -> falses
+            return "false";
+        } else {
+            // char -> c
+            String result = RAS_TYPES_TO_ABBREVIATION.get(cellDataType);
+            if (result == null) {
+                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot find abbreviation for cell data type '" + cellDataType + "' from registry.");
+            }
+            
+            return initValue + result;
+        }
+    }
+     
+    /**
+     * Return the default values of an MDD type for a given collection type.
+     * 
+     * e.g: MDD type: char -> 0c
+     *      MDD type: struct {red char blue float red short} -> char,float,short -> 0c,0f,0s
+     */
+    public static List<String> getDefaultBandValues(String collectionType) throws PetascopeException, TypeRegistryEntryMissingException {
         
         List<String> results = new ArrayList<>();
         TypeRegistry typeRegistry = TypeRegistry.getInstance();
@@ -118,16 +145,18 @@ public class TypeResolverUtil {
         
         if (!cellType.contains("{")) {
             // cell type is not a struct
-            // e.g: float -> f
-            results.add(RAS_TYPES_TO_ABBREVIATION.get(cellType));
+            // e.g: float -> 0f
+            String result = getDefaultValueForCellDataType(cellType);
+            results.add(result);
         } else {
             // cell type is a struct, e.g: struct {red char blue float red short}
             String structContent = cellType.substring(cellType.indexOf("{") + 1, cellType.length() - 1);
             String[] tempArray = structContent.split(" ");
             for (int i = 0; i < tempArray.length; i++) {
                 if (i % 2 == 1) {
-                    // e.g: char -> c
-                    results.add(RAS_TYPES_TO_ABBREVIATION.get(tempArray[i]));
+                    // e.g: char -> 0c
+                    String result = getDefaultValueForCellDataType(tempArray[i]);
+                    results.add(result);
                 }
             }
         }
@@ -249,21 +278,29 @@ public class TypeResolverUtil {
 
     //rasdaman base types
     private static final String R_Char = "char";
-    private static final String R_UShort = "unsigned short";
-    private static final String R_Short = "short";
-    private static final String R_ULong = "unsigned long";
+    private static final String R_Octet = "octet";
+    private static final String R_UnsignedShort = "unsigned short";
+    private static final String R_UShort = "ushort";
+    private static final String R_Short = "short";    
+    private static final String R_UnsignedLong = "unsigned long";
+    private static final String R_ULong = "ulong";
     private static final String R_Long = "long";
     private static final String R_Float = "float";
     private static final String R_Double = "double";
+    private static final String R_Complex = "complex";
+    private static final String R_Complexd = "complexd";
+    private static final String R_Boolean = "boolean";
 
     //rasdaman abbreviations
     private static final String R_Abb_Char = "c";
+    private static final String R_Abb_Octet = "o";
     private static final String R_Abb_UShort = "us";
     private static final String R_Abb_Short = "s";
     private static final String R_Abb_ULong = "ul";
     private static final String R_Abb_Long = "l";
     private static final String R_Abb_Float = "f";
     private static final String R_Abb_Double = "d";
+    
 
     //gdal base types
     private static final String GDT_Byte = "Byte";
@@ -279,16 +316,19 @@ public class TypeResolverUtil {
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UnsignedShort);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_UnsignedLong);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float32, R_Float);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float64, R_Double);
 
         RAS_TYPES_TO_ABBREVIATION.put(R_Char, R_Abb_Char);
+        RAS_TYPES_TO_ABBREVIATION.put(R_Octet, R_Abb_Octet);
+        RAS_TYPES_TO_ABBREVIATION.put(R_UnsignedShort, R_Abb_UShort);
         RAS_TYPES_TO_ABBREVIATION.put(R_UShort, R_Abb_UShort);
         RAS_TYPES_TO_ABBREVIATION.put(R_Short, R_Abb_Short);
+        RAS_TYPES_TO_ABBREVIATION.put(R_UnsignedLong, R_Abb_ULong);
         RAS_TYPES_TO_ABBREVIATION.put(R_ULong, R_Abb_ULong);
         RAS_TYPES_TO_ABBREVIATION.put(R_Long, R_Abb_Long);
         RAS_TYPES_TO_ABBREVIATION.put(R_Float, R_Abb_Float);

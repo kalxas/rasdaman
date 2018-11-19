@@ -266,31 +266,27 @@ public class RasUtil {
             String collectionType, String tileSetting, String collectionName) throws PetascopeException {
 
         List<String> domainsTmp = new ArrayList<>();
-        List<String> bandsTmp = new ArrayList<>();
+        
         for (int i = 0; i < numberOfDimensions; i++) {
             domainsTmp.add("0:0");
         }
 
-        List<String> baseTypeAbbreviations;
+        List<String> mddBandValues;
         try {
-            baseTypeAbbreviations = TypeResolverUtil.getBaseTypeAbbreviationsForCollectionType(collectionType);
+            mddBandValues = TypeResolverUtil.getDefaultBandValues(collectionType);
         } catch (TypeRegistryEntryMissingException ex) {
             throw new PetascopeException(ExceptionCode.RuntimeError,
                     "Cannot get the base type abbreviation for collection type '" + collectionType + "' from type registry. Reason: " + ex.getMessage());
         }
-
-        for (int i = 0; i < numberOfBands; i++) {
-            bandsTmp.add("0" + baseTypeAbbreviations.get(i));
-        }
-
         String domainValue = ListUtil.join(domainsTmp, ",");
-        String bandValue = ListUtil.join(bandsTmp, ",");
-        if (bandsTmp.size() > 1) {
-            bandValue = "{" + bandValue + "}";
+        String multibandValue = ListUtil.join(mddBandValues, ",");
+        
+        if (mddBandValues.size() > 1) {
+            multibandValue = "{" + multibandValue + "}";
         }
 
         // e.g: 3 dimensions and 3 bands: <[0:0,0:0,0:0] {0c,0c,0c}>
-        String values = "<[" + domainValue + "] " + bandValue + ">";
+        String values = "<[" + domainValue + "] " + multibandValue + ">";
         Long oid = RasUtil.executeInsertStatement(collectionName, values, tileSetting);
         
         return oid;
