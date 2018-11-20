@@ -40,15 +40,21 @@ COVERAGE_ID="C0001"
 
 log "Testing import a coverage from tuple list in GML file..."
 
+GML_TEMPLATE_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1.xml.in"
+GML_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1.xml"
+
+# update local SECORE URL from template file
+sed "s@SECORE_URL@$SECORE_URL@g" "$GML_TEMPLATE_FILE" > "$GML_FILE"
+
 # this query will be encoded in python script with urllib
-import_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=InsertCoverage&coverageRef=http://schemas.opengis.net/gmlcov/1.0/examples/exampleRectifiedGridCoverage-1.xml"
-curl -s "$import_coverage_request" >> /dev/null
+import_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=InsertCoverage&coverageRef=file://$GML_FILE"
+curl -s -S "$import_coverage_request" 2>&1 >> "$LOG_FILE"
 
 # then, check the imported coverage encoded in PNG
 get_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=$COVERAGE_ID&format=image/png"
 curl -s "$get_coverage_request" > "$OUTPUT_FILE"
 
-cmp "$ORACLE_FILE" "$OUTPUT_FILE" >> /dev/null
+cmp "$ORACLE_FILE" "$OUTPUT_FILE" 2>&1 > /dev/null
 
 # check result
 check
@@ -57,6 +63,7 @@ check
 delete_coverage "$COVERAGE_ID"
 
 rm -rf "$OUTPUT_FILE"
+rm -rf "$GML_FILE"
 
 log "done."
 
