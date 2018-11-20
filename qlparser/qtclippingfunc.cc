@@ -50,7 +50,10 @@ rasdaman GmbH.
 //includes relcatalogif
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/syntaxtypes.hh"
+#include "qtclippingfunc.hh"
+
 
 //included libraries
    
@@ -66,6 +69,8 @@ rasdaman GmbH.
 #include <iostream>
 #include <stack> 
 #include <vector>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 struct mapCmpMinterval
 {
@@ -398,6 +403,32 @@ bool isSingleton(const r_Minterval& interval )
     return interval.cell_count() == 1;
 }
 
+BaseType *QtClipping::getTypeWithCoordinates(const BaseType* valuesType, const r_Dimension dim) const {
+    bool isStructValuesType = valuesType->getType() == TypeEnum::STRUCT;
+    const size_t bandNo = isStructValuesType ? static_cast<const StructType *>(valuesType)->getNumElems() : 1;
+
+    auto *stype = new StructType("coordinates_values_base_type", dim + bandNo);
+    // add coodinate types
+    for (size_t i = 1; i <= dim; ++i)
+    {
+        string bandName = "d" + std::to_string(i);
+        stype->addElement(bandName.c_str(), TypeFactory::mapType("Long"));
+    }
+    // add value types (flatten if type is composite)
+    if (isStructValuesType)
+    {
+        const auto *structValuesType = static_cast<const StructType *>(valuesType);
+        for (size_t i = 0; i < bandNo; ++i)
+            stype->addElement(structValuesType->getElemName(i), structValuesType->getElemType(i));
+    }
+    else
+    {
+        stype->addElement("value", valuesType);
+    }
+    TypeFactory::addTempType(stype);
+    return stype;
+}
+
 MDDObj* 
 QtClipping::extractLinestring(const MDDObj* op, 
         const QtMShapeData* mshape, 
@@ -442,92 +473,89 @@ QtClipping::extractLinestring(const MDDObj* op,
     //construct the resulting tile intervals
     vector<r_Minterval> resultTileMintervals = vectorOfResultTileDomains(bBoxes, longestExtentDims);
     
-    //construct the result MMDDObj
-    
-    r_Minterval resultDomainGlobal(1);
-    r_Sinterval totalDomain(static_cast<r_Range>(0), resultTileMintervals.back()[0].high());
-    resultDomainGlobal[0] = totalDomain;
-
-    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), dim);
-    MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(mddDimensionType);
-
-    TypeFactory::addTempType(mddBaseType);    
-
-    std::unique_ptr<MDDObj> resultMDD;
-    resultMDD.reset(new MDDObj(mddBaseType, resultDomainGlobal, op->getNullValues()));
-    
     //   loop over source tiles
     //  loop over bresenhamLines vector
     //first check the intersection of the source tile with the bounding box, then construct the startEndIndices pair for that line segment
     //process Bresenham into the respective output tile
     
     // get all tiles in relevant area
-    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> allTiles;
-    allTiles.reset(op->getTiles());
+    std::unique_ptr<std::vector<boost::shared_ptr<Tile>>> srcTiles;
+    srcTiles.reset(op->getTiles());
     
     //initialize the result tiles here
-    boost::shared_ptr<Tile> tempTile;
-    tempTile = *(allTiles->begin());
-    size_t typeSize = tempTile->getType()->getSize();
+    const BaseType *resultType = srcTiles->front()->getType();
+
+    // if coordinates should be included
+    if (withCoordinates)
+        resultType = getTypeWithCoordinates(resultType, dim);
+
+    // prepare result tiles with null values
     vector< boost::shared_ptr<Tile> > resultTiles;
     resultTiles.reserve(resultTileMintervals.size());
     for(size_t i = 0; i < resultTileMintervals.size(); i++)
     {
         //build a new tile        
-        boost::shared_ptr<Tile> resTilePtr;
-        resTilePtr.reset(new Tile(resultTileMintervals[i], tempTile->getType()));
-        //Tile* resTilePtr = new Tile(resultTileMintervals[i], tempTile->getType());
-        //initialize contents to 0
-        char* resData = resTilePtr->getContents();
+        auto resultTile = boost::make_shared<Tile>(resultTileMintervals[i], resultType);
+        //initialize contents to null values
+        char* resData = resultTile->getContents();
         op->fillTileWithNullvalues(resData, resultTileMintervals[i].cell_count());
         //add tile to vector of result tiles
-        resultTiles.emplace_back(resTilePtr);
+        resultTiles.emplace_back(resultTile);
     }
+
+    //construct the result MMDDObj
+    r_Minterval resultDomain(1);
+    resultDomain << r_Sinterval(static_cast<r_Range>(0), resultTileMintervals.back()[0].high());
+
+    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", resultType, dim);
+    TypeFactory::addTempType(mddDimensionType);
+    std::unique_ptr<MDDObj> resultMDD;
+    resultMDD.reset(new MDDObj(mddDimensionType, resultDomain, op->getNullValues()));
 
     try
     {
+        const size_t typeSize = srcTiles->front()->getType()->getSize();
         //loop over source tiles
-        for (auto tileIt = allTiles->begin(); tileIt != allTiles->end(); tileIt++)
+        for (const auto &srcTile : *srcTiles)
         {
-            // domain of the current source tile
-            r_Minterval tileDom = (*tileIt)->getDomain();
-
             //loop over bresenham line segments (we do not use an iterator because we need the index for various vectors of the same length)
-            for(size_t i = 0; i < bBoxes.size(); i++)
+            for (size_t i = 0; i < bBoxes.size(); ++i)
             {
-
                 //current result tile's data
-                char* resData = ( resultTiles[i] )->getContents();
-                
-                bool firstElementSkipped = false;
+                char *resData = (resultTiles[i])->getContents();
+
+                auto ptIt = vectorOfBresenhamLines[i].cbegin();
+                if (i > 0) ++ptIt; // skip first coordinate for all intervals except the first one (i == 0)
+
                 //iterate over the points in the current bresenham line segment
-                for(auto ptIter = vectorOfBresenhamLines[i].begin(); ptIter != vectorOfBresenhamLines[i].end(); ptIter++)
+                for (auto ptEnd = vectorOfBresenhamLines[i].cend(); ptIt != ptEnd; ++ptIt)
                 {
-                    if(!firstElementSkipped && i != 0 )
+                    const auto &pt = *ptIt;
+
+                    // add coordinates first
+                    if (withCoordinates)
                     {
-                        //skip the first point for all but the first interval
-                        ptIter++;
-                        firstElementSkipped = true;
+                        for (size_t i = 0; i < dim; ++i)
+                        {
+                            *((r_Long *) resData) = pt[i];
+                            resData += sizeof(r_Long);
+                        }
                     }
-                    //if the current point is in the domain, we copy that point to the next point in resData
-                    if ( tileDom.covers(*ptIter) )
+                    // then add src value if the point is in the src domain
+                    if (srcTile->getDomain().covers(pt))
                     {
                         //ptr to source data cell
-                        char* srcData = (*tileIt)->getCell(*ptIter);
+                        char *srcData = srcTile->getCell(pt);
                         memcpy(resData, srcData, typeSize);
-                        resData += typeSize;
                     }
-                    else
-                    {
-                        resData += typeSize;
-                    }
+                    resData += typeSize;
                 }
             }
         }
         //add result tiles to result MDDObj
-        for(auto resTileIt = resultTiles.begin(); resTileIt != resultTiles.end(); resTileIt++)
+        for (const auto resTile : resultTiles)
         {
-            resultMDD->insertTile(*resTileIt);
+            resultMDD->insertTile(resTile);
         }
     }
     catch (r_Error &err)
@@ -1317,7 +1345,44 @@ QtClipping::checkType(QtTypeTuple *typeTuple)
             throw parseInfo;
         }
 
-        dataStreamType = inputType1;
+        if (!withCoordinates)
+        {
+            dataStreamType = inputType1;
+        }
+        else
+        {
+            r_Dimension dim{};
+            const BaseType *baseType{nullptr};
+            const auto *inputType = static_cast<const MDDType*>(inputType1.getType());
+            switch (inputType->getSubtype())
+            {
+            case MDDType::MDDDOMAINTYPE: {
+                dim = static_cast<const MDDDomainType*>(inputType)->getDomain()->dimension();
+                baseType = static_cast<const MDDDomainType*>(inputType)->getBaseType();
+                break;
+            }
+            case MDDType::MDDDIMENSIONTYPE: {
+                dim = static_cast<const MDDDimensionType*>(inputType)->getDimension();
+                baseType = static_cast<const MDDDimensionType*>(inputType)->getBaseType();
+                break;
+            }
+            case MDDType::MDDBASETYPE: {
+                LWARNING << "Cannot determine dimension from MDD base type.";
+                dim = 2;
+                baseType = static_cast<const MDDBaseType*>(inputType)->getBaseType();
+                break;
+            }
+            default: {
+                LWARNING << "Cannot determine dimension and base type from generic MDD type.";
+                parseInfo.setErrorNo(MDDARGREQUIRED);
+                throw parseInfo;
+            }
+            }
+            auto *newBaseType = getTypeWithCoordinates(baseType, dim);
+            auto *newMddType = new MDDDimensionType("tmp", newBaseType, dim);
+            TypeFactory::addTempType(newMddType);
+            dataStreamType = QtTypeElement{newMddType};
+        }
     }
     else
     {
@@ -1541,4 +1606,9 @@ QtClipping::computeMaskEmbedding(
     }
     
     return result;
+}
+
+void QtClipping::setWithCoordinates(bool withCoordinatesArg)
+{
+    withCoordinates = withCoordinatesArg;
 }

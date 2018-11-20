@@ -72,66 +72,45 @@ QtMShapeOp::evaluate(QtDataList *inputList)
     QtData* returnValue = NULL;
     QtDataList* operandList = NULL;
 
-    if (getOperands(inputList, operandList))
+    if (!getOperands(inputList, operandList) || !operandList)
     {
-        
-        if (operandList)
-        {
-            // first check operand types
-            bool pointAndMshapeOnly = true;
-            for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-            {
-                if ((*dataIter)->getDataType() != QT_POINT && (*dataIter)->getDataType() != QT_MSHAPE)
-                {
-                    pointAndMshapeOnly = false;
-                    break;
-                }
-            }
-
-            if (!pointAndMshapeOnly)
-            {
-                LERROR << "Error: Operands of point expression must be of type integer.";
-
-                parseInfo.setErrorNo(GRIDPOINTSONLY);
-
-                // delete the old operands
-                if (operandList)
-                {
-                    for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                    {
-                        if ((*dataIter))
-                        {
-                            (*dataIter)->deleteRef();
-                        }
-                    }
-
-                    delete operandList;
-                    operandList = NULL;
-                }
-
-                throw parseInfo;
-            }
-            else
-            {
-                std::vector<r_Point> resultPoints;
-                resultPoints.reserve(operandList->size());
-                for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                {
-                    if ((*dataIter)->getDataType() == QT_POINT )
-                    {
-                        resultPoints.emplace_back((dynamic_cast<QtPointData*>(*dataIter))->getPointData());
-                    }
-                    else if ( (*dataIter)->getDataType() == QT_MSHAPE )
-                    {
-                        std::vector<r_Point> appendingVector = (dynamic_cast<QtMShapeData*>(*dataIter))->getPolytopePoints();
-                        resultPoints.insert(resultPoints.end(), appendingVector.begin(), appendingVector.end());
-                    }
-                }
-                
-                returnValue = new QtMShapeData(resultPoints);
-            }
-        }
+        stopTimer();
+        return returnValue;
     }
+
+    std::unique_ptr<QtDataList> operandListPtr{operandList};
+
+    // TODO: should be in checkType?
+    // first check operand types
+    bool pointAndMshapeOnly = std::all_of(operandList->begin(), operandList->end(), [](const QtData *val) {
+        return val->getDataType() == QT_POINT || val->getDataType() == QT_MSHAPE;
+    });
+    if (!pointAndMshapeOnly)
+    {
+        LERROR << "Operands of mshape expression must be points or mshapes.";
+        for (auto *dataIter : *operandList)
+            if (dataIter) dataIter->deleteRef();
+        parseInfo.setErrorNo(GRIDPOINTSONLY);
+        throw parseInfo;
+    }
+
+    std::vector<r_Point> resultPoints;
+    resultPoints.reserve(operandList->size());
+    for (auto *data: *operandList)
+    {
+        if (data->getDataType() == QT_POINT)
+        {
+            resultPoints.emplace_back((static_cast<QtPointData *>(data))->getPointData());
+        }
+        else if (data->getDataType() == QT_MSHAPE)
+        {
+            std::vector<r_Point> appendingVector = (static_cast<QtMShapeData *>(data))->getPolytopePoints();
+            resultPoints.insert(resultPoints.end(), appendingVector.begin(), appendingVector.end());
+        }
+        data->deleteRef();
+    }
+
+    returnValue = new QtMShapeData(resultPoints);
 
     stopTimer();
 

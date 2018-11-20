@@ -72,6 +72,9 @@ class QtClipping : public QtBinaryOperation
     QtClipping(QtOperation* mddOp, QtOperation* geometryOp);
     
     ~QtClipping();
+
+    void setWithCoordinates(bool withCoordinates);
+
         /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
@@ -123,6 +126,8 @@ class QtClipping : public QtBinaryOperation
     
 protected:
         
+    BaseType* getTypeWithCoordinates(const BaseType* valuesType, const r_Dimension dim) const;
+        
     /// computes the result mask domain for the mshapeList
     std::shared_ptr<r_Minterval> buildResultDom(const r_Minterval& areaOp, 
             vector<QtPositiveGenusClipping>& clipVector);
@@ -161,6 +166,8 @@ protected:
             QtGeometryData::QtGeometryType geomType);
     
   private:
+    bool withCoordinates{false};
+
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };

@@ -1,0 +1,1 @@
+select encode(clip( c, linestring(0 39, 119 141, 121 176)) WITH COORDINATES, "csv") from test_rgb2 as c

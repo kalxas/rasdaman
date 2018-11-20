@@ -37,74 +37,59 @@ QtGeometryOp::evaluate(QtDataList* inputList)
     QtData* returnValue = NULL;
     QtDataList *operandList = NULL;
 
-    if (getOperands(inputList, operandList))
+    if (!getOperands(inputList, operandList) || !operandList)
     {
-        if (operandList)
+        stopTimer();
+        return returnValue;
+    }
+
+    std::unique_ptr<QtDataList> operandListPtr{operandList};
+
+    //we want to create a QtGeometryData object (derived class from QtData)
+    //geometry data objects are constructed from vectors of vectors of QtMShapeData and a geometry type
+
+    //build the result data vector
+    vector<vector<QtMShapeData *> > resultDataVector;
+    resultDataVector.reserve(geomType == QtGeometryData::GEOM_POLYGON ? 1 : operandList->size());
+
+    vector<QtMShapeData *> intPolyRow;
+    intPolyRow.reserve(operandList->size());
+
+    for (auto *data : *operandList)
+    {
+        //in this case, we can recast to QtGeometryData and concatenate with our result
+        if (data->getDataType() == QT_GEOMETRY)
         {
-            //we want to create a QtGeometryData object (derived class from QtData)
-            //geometry data objects are constructed from vectors of vectors of QtMShapeData and a geometry type
-            
-            //build the result data vector
-            vector< vector< QtMShapeData* > > resultDataVector;
-            if(geomType == QtGeometryData::GEOM_POLYGON)
+            vector<vector<QtMShapeData *> > ptData = (static_cast< QtGeometryData * >(data))->getData();
+            //do not foresee this ever being of dims more than 1 x N, but just in case, let's do a concatenation here.
+            for (auto &ptDataIter : ptData)
+                resultDataVector.push_back(std::move(ptDataIter));
+        }
+        else if (geomType == QtGeometryData::GEOM_POLYGON && data->getDataType() == QT_MSHAPE)
+        {
+            //check dimensionality of the polygon
+            auto *mshape = static_cast<QtMShapeData *>(data);
+            mshape->computeDimensionality();
+            if (mshape->getDimension() < 2)
             {
-                resultDataVector.reserve(1);
+                LERROR << "The polygon is degenerate (its vertices are colinear).";
+                throw r_Error(INCORRECTPOLYGON);
             }
-            else
-            {
-                resultDataVector.reserve(operandList->size());                
-            }
-            vector< QtMShapeData* > intPolyRow;
-            intPolyRow.reserve(operandList->size());
-            for (auto dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-            {
-                //in this case, we can recast to QtGeometryData and concatenate with our result
-                if((*dataIter)->getDataType() == QT_GEOMETRY)
-                {
-                    vector< vector< QtMShapeData* > > ptData = (dynamic_cast< QtGeometryData* >(*dataIter))->getData();
-                    //do not foresee this ever being of dims more than 1 x N, but just in case, let's do a concatenation here.
-                    for(auto ptDataIter = ptData.begin(); ptDataIter != ptData.end(); ++ptDataIter)
-                    {
-                        //each row is a positive genus polygon
-                        vector< QtMShapeData* > rowOfData;
-                        rowOfData.reserve(ptData.size());
-                        for(auto it = ptDataIter->begin(); it != ptDataIter->end(); ++it)
-                        {
-                            rowOfData.emplace_back(*it);
-                        }
-                        resultDataVector.emplace_back(rowOfData);
-                    }
-                }
-                else if(geomType == QtGeometryData::GEOM_POLYGON && (*dataIter)->getDataType() == QT_MSHAPE)
-                {
-                    //check dimensionality of the polygon
-                    static_cast< QtMShapeData* >(*dataIter)->computeDimensionality();
-                    if(static_cast< QtMShapeData* >(*dataIter)->getDimension() < 2)
-                    {
-                        LERROR << "Error: The polygon is degenerate in the sense that its vertices are colinear.";
-                        throw r_Error(INCORRECTPOLYGON);
-                    }
-                    
-                    intPolyRow.emplace_back(static_cast< QtMShapeData* >(*dataIter));
-                }
-                //in this case, we can recast to the point data, and push it back
-                else if((*dataIter)->getDataType() == QT_MSHAPE)
-                {                    
-                    vector< QtMShapeData* > ptData;
-                    ptData.reserve(1);
-                    ptData.emplace_back(static_cast< QtMShapeData* >(*dataIter));
-                    resultDataVector.push_back(ptData);
-                }
-            }
-            if(geomType == QtGeometryData::GEOM_POLYGON)
-            {
-                resultDataVector.emplace_back(intPolyRow);
-            }
-            //the result object
-            returnValue = new QtGeometryData(resultDataVector, geomType, geomFlag);
-            
+            intPolyRow.emplace_back(mshape);
+        }
+        //in this case, we can recast to the point data, and push it back
+        else if (data->getDataType() == QT_MSHAPE)
+        {
+            vector<QtMShapeData *> ptData{static_cast< QtMShapeData * >(data)};
+            resultDataVector.emplace_back(std::move(ptData));
         }
     }
+    if (geomType == QtGeometryData::GEOM_POLYGON)
+    {
+        resultDataVector.emplace_back(std::move(intPolyRow));
+    }
+    //the result object
+    returnValue = new QtGeometryData(resultDataVector, geomType, geomFlag);
 
     stopTimer();
 

@@ -251,7 +251,7 @@ struct QtUpdateSpecElement
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE
                          MDDPARAM OID SHIFT CLIP CURTAIN CORRIDOR POLYGON LINESTRING MULTIPOLYGON MULTILINESTRING RANGE SCALE SQRT ABS EXP 
-                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE DISCRETE
+                         LOGFN LN SIN COS TAN SINH COSH TANH ARCSIN ASIN SUBSPACE DISCRETE COORDINATES
                          ARCCOS ACOS ARCTAN ATAN POW POWER OVERLAY BIT UNKNOWN FASTSCALE MEMBERS ADD ALTER LIST PROJECTION
 			 INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
@@ -2059,6 +2059,43 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	for( iter=$6->begin(); iter!=$6->end(); ++iter )
         {
 	    parseQueryTree->removeDynamicObject( *iter );
+        }
+
+        //add this object to the query tree
+        parseQueryTree->addDynamicObject( $$ );
+
+        //cleanup tokens
+        FREESTACK($1)
+        FREESTACK($2)
+        FREESTACK($4)
+        FREESTACK($5)
+        FREESTACK($7)
+    }
+    // same as previous, but attach coordinates
+    | CLIP LRPAR generalExp COMMA LINESTRING parentheticalLinestring RRPAR WITH COORDINATES
+    {
+        QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
+        concatOpList->reserve(2);
+
+        QtMShapeOp* projOp = new QtMShapeOp( $6 );
+        concatOpList->emplace_back( projOp );
+
+        //final geometry
+        QtGeometryOp* geomOp = new QtGeometryOp( concatOpList, QtGeometryData::QtGeometryType::GEOM_LINESTRING );
+
+        //generate the result mdd containing the curtain-clipped values
+        auto *res = new QtClipping( $3, geomOp);
+        res->setWithCoordinates(true);
+        $$ = res;
+        $$->setParseInfo( *($1.info) );
+
+        //cleanup mdd arg
+        parseQueryTree->removeDynamicObject( $3 );
+
+        QtNode::QtOperationList::iterator iter;
+        for( iter=$6->begin(); iter!=$6->end(); ++iter )
+        {
+            parseQueryTree->removeDynamicObject( *iter );
         }
 
         //add this object to the query tree

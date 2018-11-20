@@ -84,6 +84,14 @@ QtMShapeData::QtMShapeData(vector<QtMShapeData*> &mShapeEdges )
 
 QtMShapeData::~QtMShapeData()
 {
+    if (midPoint)
+    {
+        delete midPoint;
+        midPoint = NULL;
+    }
+//    for (auto *mshape: polytopeEdges)
+//        if (mshape)
+//            mshape->deleteRef();
 }
 
 QtDataType

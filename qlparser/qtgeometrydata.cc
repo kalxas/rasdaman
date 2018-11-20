@@ -16,6 +16,19 @@
 
 QtGeometryData::~QtGeometryData()
 {
+//    for (auto &v: geomData)
+//        for (auto *mshape: v)
+//            if (mshape)
+//                mshape->deleteRef();
+//    for (auto &v: multiPolygonData)
+//        for (auto *mshape: v)
+//            if (mshape)
+//                mshape->deleteRef();
+//    for (auto *mshape: multiLinestringData)
+//        if (mshape)
+//            mshape->deleteRef();
+//    if (projectionData)
+//        projectionData->deleteRef();
 }
 
 QtGeometryData::QtGeometryData(const vector< vector< QtMShapeData* > >& geomDataArg, 

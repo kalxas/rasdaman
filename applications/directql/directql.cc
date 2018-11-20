@@ -1216,12 +1216,12 @@ crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t*
     if (!alreadyExecuting)
     {
         alreadyExecuting = true;
-        NNLERROR << "\nInterrupted by signal " << common::SignalHandler::toString(info)
+        cerr << "\nInterrupted by signal " << common::SignalHandler::toString(info)
                  << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
                  << "\nClosing server connection... ";
         closeTransaction(false);
         closeDatabase();
-        BLERROR << "done, exiting.";
+        cerr << "done, exiting." << endl;
         exit(sig);
     }
 }
