@@ -33,8 +33,11 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 # Petascope should throw exception if axis label specified in GML for WCS-T does not exist in the coverage's CRS.
 # In this example: 'Height' does not exist in 'http://www.opengis.net/def/crs/EPSG/0/5621' but 'H'.
-
+GML_TEMPLATE_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1-1band-1d.gml.in"
 GML_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1-1band-1d.gml"
+
+# update local SECORE URL from template file
+sed "s@SECORE_URL@$SECORE_URL@g" "$GML_TEMPLATE_FILE" > "$GML_FILE"
 
 WCST_REQUEST="$PETASCOPE_URL?coverageRef=file://$GML_FILE&request=InsertCoverage&service=WCS&version=2.0.1"
 
@@ -49,6 +52,7 @@ cmp "$ORACLE_FILE" "$OUTPUT_FILE" >> /dev/null
 check
 
 rm -rf "$OUTPUT_FILE"
+rm -rf "$GML_FILE"
 
 # print summary from util/common.sh
 print_summary

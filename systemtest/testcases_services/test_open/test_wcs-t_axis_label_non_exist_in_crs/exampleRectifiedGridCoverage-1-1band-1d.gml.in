@@ -16,7 +16,7 @@
 		gml:id="wcst_axis_label_not_exist_in_crs">
 	<gml:boundedBy>
 		<!-- Note: The srsName attribute of the Envelope element shall be used as the default coordinate reference system for "all geometric objects encoded inline" [GML 3.2.1], i.e.: for all range set values. -->
-		<gml:Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/5621" axisLabels="Height" uomLabels="m" srsDimension="1">
+		<gml:Envelope srsName="SECORE_URL/crs/EPSG/0/5621" axisLabels="Height" uomLabels="m" srsDimension="1">
 			<gml:lowerCorner>1.0</gml:lowerCorner>
 			<gml:upperCorner>10.0</gml:upperCorner>
 		</gml:Envelope>
@@ -31,11 +31,11 @@
 			</gml:limits>
 			<gml:axisLabels>Height</gml:axisLabels>
 			<gml:origin>
-				<gml:Point gml:id="p0001_C0001-X" srsName="http://www.opengis.net/def/crs/EPSG/0/5621">
+				<gml:Point gml:id="p0001_C0001-X" srsName="SECORE_URL/crs/EPSG/0/5621">
 					<gml:pos>1.0</gml:pos>
 				</gml:Point>
 			</gml:origin>
-			<gml:offsetVector srsName="http://www.opengis.net/def/crs/EPSG/0/5621">1.0</gml:offsetVector>
+			<gml:offsetVector srsName="SECORE_URL/crs/EPSG/0/5621">1.0</gml:offsetVector>
 		</gml:RectifiedGrid>
 	</gml:domainSet>
 	<gml:rangeSet>
@@ -50,13 +50,13 @@
 	<gmlcov:rangeType>
 		<swe:DataRecord>
 			<swe:field name="CPHLPM01" xlink:href="http://vocab.nerc.ac.uk/collection/P01/current/CPHLPM01/">
-				<swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/double">
+				<swe:Quantity definition="SECORE_URL/dataType/OGC/0/double">
 					<swe:label>chl-a_water_ISfluor_manufctrcal_sensor1</swe:label>
 					<swe:description>Blue Channel</swe:description>
 					<swe:nilValues>
 						<swe:NilValues>
-							<swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/BelowDetectionRange">0</swe:nilValue>
-							<swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/AboveDetectionRange">255</swe:nilValue>
+							<swe:nilValue reason="SECORE_URL/nil/OGC/0/BelowDetectionRange">0</swe:nilValue>
+							<swe:nilValue reason="SECORE_URL/nil/OGC/0/AboveDetectionRange">255</swe:nilValue>
 						</swe:NilValues>
 					</swe:nilValues>
 					<swe:uom code="mg/m^3" xlink:href="http://vocab.nerc.ac.uk/collection/P06/current/UMMC"/>
