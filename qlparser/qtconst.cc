@@ -248,7 +248,7 @@ QtConst::printAlgebraicExpression(ostream& s)
     }
     else
     {
-        s << "<nn>";
+        dataObj->printStatus(s);
     }
 }
 

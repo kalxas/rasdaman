@@ -1612,3 +1612,9 @@ void QtClipping::setWithCoordinates(bool withCoordinatesArg)
 {
     withCoordinates = withCoordinatesArg;
 }
+
+void QtClipping::printTree(int tab, ostream &s, QtNode::QtChildType mode)
+{
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtClipping Object:" << endl;
+    QtBinaryOperation::printTree(tab, s, mode);
+}

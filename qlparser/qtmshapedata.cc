@@ -163,16 +163,14 @@ void QtMShapeData::printStatus(std::ostream &stream) const
 {
     stream << "MShape, value: " << std::flush;
 
+    bool comma = false;
     for(auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
     {
-        if(it +1 != polytopePoints.end())
-        {
-            stream << "(" + it->to_string() +"), " << std::flush;                         
-        }
+        if (comma)
+            stream << ", ";
         else
-        {                
-            stream << "(" + it->to_string() +")" << std::flush;   
-        }
+            comma = true;
+        stream << it->to_string() << std::flush;
     }
 
     QtData::printStatus(stream);

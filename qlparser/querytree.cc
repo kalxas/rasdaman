@@ -330,7 +330,7 @@ QueryTree::evaluateUpdate()
                 rootNode->getNodeType() != QtNode::QT_DROP_TYPE
            )
         {
-            LERROR << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
+            LERROR << "Update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
             delete resultData;
@@ -367,12 +367,31 @@ void QueryTree::printTree(int tab, ostream& s)
 {
     if (rootNode)
     {
-        s <<  SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:" << endl;
+        s <<  SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:\n";
         rootNode->printTree(tab + 2, s);
     }
     else
     {
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree: Qt has no root node." << endl;
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree: Qt has no root node.\n";
+    }
+}
+
+ostream &QueryTree::operator<<(ostream &os)
+{
+    printTree(0, os);
+    return os;
+}
+
+void QueryTree::log(el::base::type::ostream_t &s) const
+{
+    if (rootNode)
+    {
+        s << "QueryTree:\n";
+        rootNode->printTree(2, s);
+    }
+    else
+    {
+        s << "QueryTree: Qt has no root node.\n";
     }
 }
 

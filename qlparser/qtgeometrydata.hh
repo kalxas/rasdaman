@@ -65,12 +65,18 @@ public:
     vector< vector< QtMShapeData* > > getData();
     QtGeometryData::QtGeometryType getGeometryType();
     
-    inline QtGeometryFlag getGeomFlag(){return geomFlag;};
+    inline QtGeometryFlag getGeomFlag(){return geomFlag;}
+
+    void printStatus(ostream &s) const override;;
     
 protected:
     void initializeData();
     
 private:
+    void printMultiPolygon(ostream &s) const;
+    void printLineString(ostream &s) const;
+    void printProjection(ostream &s) const;
+
     //projection data
     QtMShapeData* projectionData;
     //linestring data

@@ -99,47 +99,26 @@ void QtNaryOperation::simplify()
     QtNode::simplify();
 
     // Test, if all operands are available.
-    bool success = (operationList != NULL);
-    QtOperationList::iterator iter;
+    if (!operationList)
+        return;
 
-    if (success)
-        for (iter = operationList->begin(); iter != operationList->end(); iter++)
-            if ((*iter) == NULL)
-            {
-                success = false;
-                break;
-            }
+    // Test, if all operands are of const type.
+    for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
+        if (!(*iter) || (*iter)->getNodeType() != QT_CONST)
+            return;
 
-    if (success)
+    // evaluate the self node with no input list
+    QtData *newConst = this->evaluate(NULL);
+    if (newConst)
     {
-        // Test, if all operands are of const type.
-        for (iter = operationList->begin(); iter != operationList->end(); iter++)
-            if ((*iter)->getNodeType() != QT_CONST)
-            {
-                success = false;
-                break;
-            }
-
-        if (success)
-        {
-            // evaluate the self node with no input list
-            QtData *newConst = this->evaluate(NULL);
-
-            if (newConst)
-            {
-                // create a new constant node and fill it with newConst
-                QtConst *newNode = new QtConst(newConst);
-
-                // set its data stream type
-                newNode->checkType(NULL);
-
-                // link it to the parent
-                getParent()->setInput(this, newNode);
-
-                // delete the self node and its descendants
-                delete this;
-            }
-        }
+        // create a new constant node and fill it with newConst
+        QtConst *newNode = new QtConst(newConst);
+        // set its data stream type
+        newNode->checkType(NULL);
+        // link it to the parent
+        getParent()->setInput(this, newNode);
+        // delete the self node and its descendants
+        delete this;
     }
 }
 

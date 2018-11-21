@@ -341,14 +341,10 @@ operator<(const QtNode::QtNodePair a, const QtNode::QtNodePair b)
 void
 QtNode::num_node(const QtNodePair* arr, const enum QtNodeType x)
 {
-    int i;
     static int ID = 0 ;
-    enum QtNodeType child;
     minim[x] = ID++;
-    for (i = child_range[x]; i < child_range[x + 1]; i++)
-    {
+    for (int i = child_range[x]; i < child_range[x + 1]; i++)
         num_node(arr, arr[i].deriv);
-    }
     maxim[x] = ID++;
 }
 
@@ -358,26 +354,19 @@ QtNode::set_child_range(const QtNodePair* arr)
     int i;
     child_range[QtNodes] = QtNodes - 1;
     for (i = QtNodes - 3; i >= 0; i--)
-    {
         if (arr[i].base != arr[i + 1].base)
-        {
             child_range[arr[i + 1].base] = i + 1;
-        }
-    }
     child_range[arr[0].base] = 0;
     for (i = QtNodes - 1; i > 0; i--)
         if (child_range[i] == 0)
-        {
             child_range[i] = child_range[i + 1];
-        }
 }
 
 void
 QtNode::SetMinMax()
 {
-    int i;
     QtNodePair *arr = new QtNodePair[QtNodes - 1];
-    for (i = 0; i < (QtNodes - 1); i++)
+    for (int i = 0; i < (QtNodes - 1); i++)
     {
         arr[i].base = QtInheritance[i][0];
         arr[i].deriv = QtInheritance[i][1];
@@ -563,26 +552,27 @@ QtTypeElement::printStatus(std::ostream& s) const
         case QT_STRING:
             s << "string" << std::flush;
             break;
-
         case QT_INTERVAL:
             s << "interval" << std::flush;
             break;
-
         case QT_MINTERVAL:
             s << "minterval" << std::flush;
             break;
-
         case QT_POINT:
             s << "point" << std::flush;
             break;
-
+        case QT_MSHAPE:
+            s << "mshape" << std::flush;
+            break;
+        case QT_GEOMETRY:
+            s << "geometry" << std::flush;
+            break;
         default:
             // including case QT_TYPE_UNKNOWN
             s << "<unknown type>" << std::flush;
             break;
         }
     }
-
     if (name)
     {
         s << ":" << name << std::flush;
@@ -648,6 +638,8 @@ QtTypeElement::setDataType(const QtDataType newDataType)
     case QT_INTERVAL:
     case QT_MINTERVAL:
     case QT_POINT:
+    case QT_MSHAPE:
+    case QT_GEOMETRY:
     default:
         // transient types
         break;

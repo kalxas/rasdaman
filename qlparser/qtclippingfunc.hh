@@ -123,6 +123,9 @@ class QtClipping : public QtBinaryOperation
 
     /// type checking of the subtree
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
+
+    /// debugging method
+    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
     
 protected:
         

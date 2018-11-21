@@ -29,6 +29,7 @@ rasdaman GmbH.
 #include <string>
 #endif
 #include <algorithm>
+#include <ostream>
 
 #include "mddmgr/mddcoll.hh"
 
@@ -79,7 +80,7 @@ QtNode. It consists of the entry point and methods working on the whole tree
 
 */
 
-class QueryTree
+class QueryTree: public el::Loggable
 {
 public:
 
@@ -134,6 +135,10 @@ public:
 
     /// debugging method
     void printTree(int tab, ostream& s = cout);
+
+    virtual ostream &operator<<(ostream &os);
+
+    void log(el::base::type::ostream_t &ostream1) const override;
 
     //@Man: read/write methods
     //@{

@@ -14,21 +14,18 @@
 #include "qlparser/qtgeometrydata.hh"
 #include "qlparser/qtclippingutil.hh"
 
+
 QtGeometryData::~QtGeometryData()
 {
-//    for (auto &v: geomData)
-//        for (auto *mshape: v)
-//            if (mshape)
-//                mshape->deleteRef();
-//    for (auto &v: multiPolygonData)
-//        for (auto *mshape: v)
-//            if (mshape)
-//                mshape->deleteRef();
-//    for (auto *mshape: multiLinestringData)
-//        if (mshape)
-//            mshape->deleteRef();
-//    if (projectionData)
-//        projectionData->deleteRef();
+    for (auto &v: multiPolygonData)
+        for (auto *mshape: v)
+            if (mshape)
+                mshape->deleteRef();
+    for (auto *mshape: multiLinestringData)
+        if (mshape)
+            mshape->deleteRef();
+    if (projectionData)
+        projectionData->deleteRef();
 }
 
 QtGeometryData::QtGeometryData(const vector< vector< QtMShapeData* > >& geomDataArg, 
@@ -104,6 +101,112 @@ QtGeometryData::QtGeometryType
 QtGeometryData::getGeometryType()
 {
     return geomType;
+}
+
+void QtGeometryData::printStatus(ostream &s) const
+{
+    switch(geomType)
+    {
+    case GEOM_SUBSPACE :
+    {
+        s << "subspace: ";
+        printProjection(s);
+        break;
+    }
+    case GEOM_MULTILINESTRING :
+    case GEOM_LINESTRING :
+    {
+        printLineString(s);
+        break;
+    }
+    case GEOM_MULTIPOLYGON :
+    case GEOM_POLYGON :
+    {
+        printMultiPolygon(s);
+        break;
+    }
+    case GEOM_CURTAIN_LINESTRING :
+    {
+        s << "curtain: ";
+        printProjection(s);
+        s << ", ";
+        printLineString(s);
+        break;
+    }
+    case GEOM_CURTAIN_MULTILINESTRING_EMBEDDED :
+    case GEOM_CURTAIN_MULTILINESTRING :
+    case GEOM_CURTAIN_MULTIPOLYGON :
+    case GEOM_CURTAIN_LINESTRING_EMBEDDED :
+    case GEOM_CURTAIN_POLYGON :
+    {
+        s << "curtain: ";
+        printProjection(s);
+        s << ", ";
+        printMultiPolygon(s);
+        break;
+    }
+    case GEOM_CORRIDOR_MULTILINESTRING_EMBEDDED :
+    case GEOM_CORRIDOR_MULTILINESTRING :
+    case GEOM_CORRIDOR_MULTIPOLYGON :
+    case GEOM_CORRIDOR_LINESTRING_EMBEDDED :
+    case GEOM_CORRIDOR_POLYGON :
+    {
+
+        s << "corridor: ";
+        printProjection(s);
+        s << ", ";
+        printLineString(s);
+        s << ", ";
+        printMultiPolygon(s);
+        break;
+    }
+    default :
+    {
+        break;
+    }
+    }
+}
+
+void QtGeometryData::printMultiPolygon(ostream &s) const
+{
+    s << "polygon ";
+    bool comma = false;
+    for (const auto &p: multiPolygonData) {
+        if (comma)
+            s << ", ";
+        else
+            comma = true;
+        s << "(";
+        bool comma2 = false;
+        for (const auto *mshape: p) {
+            if (comma2)
+                s << ", ";
+            else
+                comma2 = true;
+            mshape->printStatus(s);
+        }
+        s << ")";
+    }
+}
+
+void QtGeometryData::printLineString(ostream &s) const
+{
+    s << "linestring ";
+    bool comma = false;
+    for (const auto *mshape: multiLinestringData) {
+        if (comma)
+            s << ", ";
+        else
+            comma = true;
+        mshape->printStatus(s);
+    }
+}
+
+void QtGeometryData::printProjection(ostream &s) const
+{
+    s << "projection ";
+    if (projectionData)
+        projectionData->printStatus(s);
 }
 
 void 
