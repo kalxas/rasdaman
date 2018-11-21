@@ -45,6 +45,9 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
     private final String RASQL_TEMPLATE = this.OPERATOR 
                                   + "( " + this.TRANSLATED_COVERAGE_EXPRESSION_RASQL_TEMPLATE + ", "
                                          +  this.TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE + " )";
+    
+    // Current only with encode( clip(c, Linestring(...) WITH COORDINATES, "csv/json") 
+    public static final String WITH_COORDINATES = " WITH COORDINATES ";
 
     /**
      * Handle the clip operator from current collection and input WKT to be
@@ -58,14 +61,20 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
      * LineString((..)))
      * @return WcpsResult an object to be used in upper parsing tree.
      */
-    public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS) throws PetascopeException {
+    public WcpsResult handle(WcpsResult coverageExpression, AbstractWKTShape wktShape, String wktCRS, boolean withCoordinate) throws PetascopeException {
         // NOTE: Coverage's dimensions must match with number of listed dimensions in each vertex of WKT,
         // then, translate each vertex's coordinates on all coverage's axes.
         List<String> axisNames = new ArrayList<>();
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             axisNames.add(axis.getLabel());
         }
-        WcpsResult result = this.mainHandle(coverageExpression, axisNames, wktShape, wktCRS, RASQL_TEMPLATE);
+        
+        String rasqlTemplate = RASQL_TEMPLATE;
+        if (withCoordinate) {
+            rasqlTemplate += WITH_COORDINATES;
+        }
+        
+        WcpsResult result = this.mainHandle(coverageExpression, axisNames, wktShape, wktCRS, rasqlTemplate);
         WcpsCoverageMetadata metadata = result.getMetadata();
         String rasql = result.getRasql();
         

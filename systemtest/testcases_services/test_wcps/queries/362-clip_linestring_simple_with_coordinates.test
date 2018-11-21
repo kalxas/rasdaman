@@ -1,0 +1,1 @@
+for $c in (test_mr) return encode( clip($c, LineString(0 0, 60 0)) WITH     COORDINATES, "csv")

@@ -1,0 +1,1 @@
+for c in (test_irr_cube_2) return encode( clip(c[ansi("2008-01-01T02:01:20.000Z")], LineString(75042.7273594 5094865.55794, 705042.727359 5454865.55794)), "application/json")

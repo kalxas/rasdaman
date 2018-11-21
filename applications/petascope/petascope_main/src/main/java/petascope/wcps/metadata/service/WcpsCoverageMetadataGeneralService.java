@@ -505,7 +505,7 @@ public class WcpsCoverageMetadataGeneralService {
             axes.add(axis);
         }
         
-        WcpsCoverageMetadata outputMetadata = new WcpsCoverageMetadata(coverageName, coverageName, coverageType, axes, crsURI, rangeFields, nilValues, metadata);
+        WcpsCoverageMetadata outputMetadata = new WcpsCoverageMetadata(coverageName, coverageName, coverageType, axes, crsURI, rangeFields, nilValues, metadata, sourceMetadata.getAxes());
         return outputMetadata;
     }
 
@@ -587,7 +587,7 @@ public class WcpsCoverageMetadataGeneralService {
 
         List<NilValue> nilValues = new ArrayList<>();
 
-        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "");
+        WcpsCoverageMetadata result = new WcpsCoverageMetadata(coverageName, null, XMLSymbols.LABEL_GRID_COVERAGE, axes, indexNDCrsUri, rangeFields, nilValues, "", axes);
         return result;
     }
 

@@ -132,6 +132,7 @@ LINESTRING: ('l'|'L')('i'|'I')('n'|'N')('e'|'E')('s'|'S')('t'|'T')('r'|'R')('i'|
 MULTIPOLYGON: ('m'|'M')('u'|'U')('l'|'L')('t'|'T')('i'|'I')('p'|'P')('o'|'O')('l'|'L')('y'|'Y')('g'|'G')('o'|'O')('n'|'N')?;
 
 PROJECTION: ('p'|'P')('r'|'R')('o'|'O')('j'|'J')('e'|'E')('c'|'C')('t'|'T')('i'|'I')('o'|'O')('n'|'N');
+WITH_COORDINATES: ('w'|'W')('i'|'I')('t'|'T')('h'|'H')(' ')+('c'|'C')('o'|'O')('o'|'O')('r'|'R')('d'|'D')('i'|'I')('n'|'N')('a'|'A')('t'|'T')('e'|'E')('s'|'S');
 
 REAL_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?;
 SCIENTIFIC_NUMBER_CONSTANT: [0-9]+('.'[0-9]*)?('e'|'E')(('+'|'-'))?[0-9]+;

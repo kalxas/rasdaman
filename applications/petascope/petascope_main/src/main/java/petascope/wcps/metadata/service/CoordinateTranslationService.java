@@ -129,7 +129,7 @@ public class CoordinateTranslationService {
      * @param geoDomainMin
      * @return 
      */
-    public ParsedSubset<BigDecimal> gridToGeoForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal gridDomainMin,
+    public static ParsedSubset<BigDecimal> gridToGeoForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal gridDomainMin,
             BigDecimal gridDomainMax, BigDecimal resolution, BigDecimal geoDomainMin) {
         boolean zeroIsMin = resolution.compareTo(BigDecimal.ZERO) > 0;
         BigDecimal returnLowerLimit, returnUpperLimit;
@@ -142,11 +142,6 @@ public class CoordinateTranslationService {
 
             // because we use ceil - 1, when values are close (less than 1 resolution dif), the upper will be pushed below the lower
             if (returnUpperLimit.compareTo(returnLowerLimit) < 0) {
-                returnUpperLimit = returnLowerLimit;
-            }
-            // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
-            if ((gridDomainMax.compareTo(gridDomainMin) != 0) && numericSubset.getLowerLimit().equals(numericSubset.getUpperLimit()) && numericSubset.getUpperLimit().equals(gridDomainMax)) {
-                returnLowerLimit = returnLowerLimit.subtract(BigDecimal.ONE);
                 returnUpperLimit = returnLowerLimit;
             }
         } else {
@@ -199,5 +194,19 @@ public class CoordinateTranslationService {
         indices = new Pair<>(indices.fst - coefficientZeroIndex, indices.snd - coefficientZeroIndex);
 
         return new ParsedSubset(indices.fst, indices.snd);
+    }
+    
+    /**
+     * Translate grid subset to geo subset for irregular axis (e.g: time).
+     * 1 grid coordinate is attached to 1 geo coefficient of irregular axis.
+     */
+    public static ParsedSubset<BigDecimal> gridToGeoForIrregularAxes(ParsedSubset<BigDecimal> numericSubset, IrregularAxis irregularAxis) {
+        BigDecimal lowerBoundCoefficient = irregularAxis.getDirectPositions().get(numericSubset.getLowerLimit().intValue());
+        BigDecimal geoLowerBound = irregularAxis.getOrigin().add(lowerBoundCoefficient);
+        
+        BigDecimal upperBoundCoefficient = irregularAxis.getDirectPositions().get(numericSubset.getUpperLimit().intValue());
+        BigDecimal geoUpperBound = irregularAxis.getOrigin().add(upperBoundCoefficient);
+        
+        return new ParsedSubset(geoLowerBound, geoUpperBound);
     }
 }

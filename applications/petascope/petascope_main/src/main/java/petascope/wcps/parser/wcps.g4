@@ -680,7 +680,7 @@ clipCorridorExpression: CLIP LEFT_PARENTHESIS coverageExpression
   A geo CRS (e.g: http://opengis.net/def/CRS/EPSG/0/4326) can be input parameter for clip operator and the XY coordinates in WKT will be transformed 
   from this CRS to coverage's native CRS for XY axes (e.g: EPSG:3857). The output clipped coverage will keep native CRS EPSG:3857.
 */
-clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression (COMMA crsName)? RIGHT_PARENTHESIS
+clipWKTExpression: CLIP LEFT_PARENTHESIS coverageExpression COMMA wktExpression (COMMA crsName)? RIGHT_PARENTHESIS (WITH_COORDINATES)?
 #ClipWKTExpressionLabel;
 
 

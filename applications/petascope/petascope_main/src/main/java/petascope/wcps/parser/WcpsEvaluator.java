@@ -335,6 +335,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         try {
             result = encodeCoverageHandler.handle(coverageExpression, formatType, extraParams);
+            result.setWithCoordinates(coverageExpression.withCoordinates());
         } catch (PetascopeException | JsonProcessingException ex) {
             String errorMessage = "Error processing encode() operator expression. Reason: " + ex.getMessage() + ".";
             throw new WCPSException(errorMessage, ex);
@@ -462,9 +463,20 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         if (ctx.crsName() != null) {
             wktCRS = StringUtil.stripQuotes(ctx.crsName().getText());
         }        
+        
+        // Optional parameter for encoding in JSON/CSV to show grid coordinates and their values (e.g: "x1 y1 value1", "x2 y2 value2", ...)
+        boolean withCoordinate = false;
+        if (ctx.WITH_COORDINATES() != null) {
+            if (!(wktShape instanceof WKTLineString)) {
+                throw new InvalidWKTClippingException("'" + ClipWKTExpressionHandler.WITH_COORDINATES + "' can be only applied with clipping by WKT 'LineString'.");
+            }
+            withCoordinate = true;
+        }
+        
         WcpsResult result = null;
         try {
-            result = clipWKTExpressionHandler.handle(coverageExpression, wktShape, wktCRS);
+            result = clipWKTExpressionHandler.handle(coverageExpression, wktShape, wktCRS, withCoordinate);
+            result.setWithCoordinates(withCoordinate);
         } catch (PetascopeException ex) {           
             throw new ClipExpressionException(ex.getExceptionText(), ex);
         }

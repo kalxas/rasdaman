@@ -34,6 +34,10 @@ public class WcpsResult extends VisitorResult {
 
     //the rasql string resulting from the evaluation
     private String rasql;
+    
+    // if result of encode(clip(c, linestring()) with coordinates, "csv/json") then needs to translate
+    // grid to geo coordinates from result of rasql ("grid_x1 grid_y1 value1", "grid_x2 grid_y2 value2", ...)
+    private boolean withCoordinates;
 
     public WcpsResult(WcpsCoverageMetadata metadata, String rasql) {
         this.rasql = rasql;
@@ -70,5 +74,13 @@ public class WcpsResult extends VisitorResult {
         if (this.mimeType == null) {            
             this.mimeType = MIMEUtil.MIME_XML;
         }
+    }
+
+    public boolean withCoordinates() {
+        return withCoordinates;
+    }
+
+    public void setWithCoordinates(boolean withCoordinates) {
+        this.withCoordinates = withCoordinates;
     }
 }

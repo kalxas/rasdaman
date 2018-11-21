@@ -70,7 +70,7 @@ public class RangeConstructorSwitchCaseHandler extends AbstractOperatorHandler {
         List<NilValue> nilValues = new ArrayList<>();
 
         //for now no metadata is forwarded, but it can be constructed from the fields (we need this to set extrametadata with netcdf)
-        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata(null, null, null, new ArrayList<Axis>(), "", rangeFields, nilValues, "");
+        WcpsCoverageMetadata metadata = new WcpsCoverageMetadata(null, null, null, new ArrayList<Axis>(), "", rangeFields, nilValues, "", new ArrayList<Axis>());
         
         // {red: 100, green: 100, blue: 20} -> {100c, 100c, 20c}
         String rasql = "{" + StringUtils.join(translatedFields, ", ") + "}";

@@ -1,0 +1,1 @@
+for c in (test_irr_cube_2) return encode( clip(c, LineString(75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z", 705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z")) WITH COORDINATES, "json")

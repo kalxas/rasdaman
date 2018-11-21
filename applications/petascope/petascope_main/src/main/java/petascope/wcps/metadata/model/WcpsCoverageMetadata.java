@@ -27,12 +27,8 @@ import java.util.HashMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.rasdaman.domain.cis.NilValue;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import petascope.core.AxisTypes;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.CoverageMetadata;
@@ -69,11 +65,16 @@ public class WcpsCoverageMetadata {
     private final String metadata;
     private final CoverageMetadata coverageMetadata;
     
+    // NOTE: By default, original axes are the coverage's axes persisted in database and not used anywhere (use axes instead!)
+    // But in case WCPS coverage changes completely e.g: clip(c, linestring()) from 2D geo coverage -> 1D grid coverage
+    // Then, axes are changed to contain only 1D grid axis and original axes is updated to previous axes (geo coverage).
+    private final List<Axis> originalAxes;
+    
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsCoverageMetadata.class);
     
     
     public WcpsCoverageMetadata(String coverageName, String rasdamanCollectionName, String coverageType, List<Axis> axes, String crsUri,
-            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata) throws PetascopeException {
+            List<RangeField> rangeFields, List<NilValue> nilValues, String metadata, List<Axis> originalAxes) throws PetascopeException {
         this.crsUri = crsUri;
         // this axes could be stripped when a slicing expression is processed
         this.axes = axes;
@@ -84,6 +85,7 @@ public class WcpsCoverageMetadata {
         this.metadata = (metadata == null ? "" : metadata);
         this.coverageType = coverageType;
         this.coverageMetadata = this.buildCoverageMetadata(metadata, axes);
+        this.originalAxes = originalAxes;
     }
     
     /**
@@ -168,6 +170,63 @@ public class WcpsCoverageMetadata {
             }
         }
         throw new CoverageAxisNotFoundExeption(axisName);
+    }
+    
+    public List<Axis> getOriginalAxes() {
+        return this.originalAxes;
+    }
+    
+    public int getNumberOfOriginalAxes() {
+        return this.originalAxes.size();
+    }
+    
+    /**
+     * Return the list of axes by grid Order e.g: EPSG:4326&AnsiDate, the grid
+     * axes order is: ansi, Long, Lat
+     *
+     * NOTE: used only when writing the rasql domains for each axis by grid
+     * order
+     *
+     * @return
+     */
+    public List<Axis> getSortedOriginalAxesByGridOrder() {
+        List<Axis> sortedAxis = new ArrayList<>();
+        // create a copy of the original list
+        for (Axis axis : this.originalAxes) {
+            if (axis instanceof RegularAxis) {
+                sortedAxis.add((RegularAxis) axis);
+            } else {
+                sortedAxis.add((IrregularAxis) axis);
+            }
+        }
+
+        // then sort this list by the grid order
+        Collections.sort(sortedAxis, new AxesOrderComparator());
+
+        return sortedAxis;
+    }
+    
+    /**
+     * Find original axis by name.
+     */
+    public Axis getOriginalAxisByName(String axisName) {
+        for (int i = 0; i < originalAxes.size(); i++) {
+            Axis axis = originalAxes.get(i);
+            if (axis.getLabel().equals(axisName)) {
+                return axis;
+            }
+        }
+        throw new CoverageAxisNotFoundExeption(axisName);
+    }
+    
+    /**
+     * Find original axis by grid order (rasdaman order).
+     */
+    public Axis getOriginalAxisByGridOrder(int index) {
+        List<Axis> axesTmp = this.getSortedOriginalAxesByGridOrder();
+        Axis originalAxis = axesTmp.get(index);
+        
+        return originalAxis;
     }
 
     public String getCrsUri() {

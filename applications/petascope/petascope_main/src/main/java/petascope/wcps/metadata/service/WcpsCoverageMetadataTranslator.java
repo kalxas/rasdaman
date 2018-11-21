@@ -83,6 +83,7 @@ public class WcpsCoverageMetadataTranslator {
 
         // wcpsCoverageMetadata axis
         List<Axis> axes = buildAxes(geoAxes, indexAxes);
+        List<Axis> originalAxes = buildAxes(geoAxes, indexAxes);
         List<RangeField> rangeFields = buildRangeFields(coverage.getRangeType().getDataRecord().getFields());
         // parse extra metadata of coverage to map
         String extraMetadata = coverage.getMetadata();
@@ -92,7 +93,7 @@ public class WcpsCoverageMetadataTranslator {
 
         WcpsCoverageMetadata wcpsCoverageMetadata = new WcpsCoverageMetadata(coverageId, rasdamanCollectionName,
                                                         coverage.getCoverageType(), axes, coverage.getEnvelope().getEnvelopeByAxis().getSrsName(), 
-                                                        rangeFields, nilValues, extraMetadata);
+                                                        rangeFields, nilValues, extraMetadata, originalAxes);
 
         return wcpsCoverageMetadata;
     }
