@@ -34,6 +34,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
+rm -rf "$SCRIPT_DIR/output"
 
 # This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)
 # then will remove the coverageName with WCS DeleteCoverage service which will remove the imported coverage and correspondent WMS layers if available.

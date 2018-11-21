@@ -557,7 +557,27 @@ trim_indentation()
 delete_coverage() {
   # $1 is the coverageId to be deleted
   local WCS_END_POINT="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$1"
-  wget -q --spider "$WCS_END_POINT"
+
+  local OUTPUT_DIR="$SCRIPT_DIR/output"
+  mkdir -p "$OUTPUT_DIR"
+  
+  local OUTPUT_FILE="$OUTPUT_DIR/DeleteCoverage-$1.out"
+
+  local result=0
+
+  # Store the result of deleting request to a temp file
+  curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"
+ 
+  # Check HTTP code is 200, coverage is deleted successfully
+  cat "$OUTPUT_FILE" | head -n 1 | grep "200" --quiet
+
+  if [ $? -ne 0 ]; then
+    # In case of error, grap error message from Petascope to test.log
+    cat "$OUTPUT_FILE" | tail -n +6 >> "$LOG_FILE"
+    result=1
+  fi
+
+  return $result
 }
 
 # -----------------------------------------------------------------------------
