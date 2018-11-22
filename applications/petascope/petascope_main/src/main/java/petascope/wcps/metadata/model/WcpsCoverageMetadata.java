@@ -33,6 +33,7 @@ import petascope.core.AxisTypes;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
@@ -131,6 +132,22 @@ public class WcpsCoverageMetadata {
      */
     public List<Axis> getAxes() {
         return this.axes;
+    }
+    
+    /**
+     * Find the geo order of an original axis by name.
+     */
+    public int getOriginalAxisGeoOrder(String axisName) throws PetascopeException {
+        int i = 0;
+        for (Axis originalAxis : this.originalAxes) {
+            if (originalAxis.getLabel().equals(axisName)) {
+                return i;
+            }
+            
+            i++;
+        }
+        
+        throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot find original axis '" + axisName + "' from WCPS coverage metadata.");
     }
 
     /**

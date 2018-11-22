@@ -23,7 +23,10 @@ package petascope.wcps.result.executor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
@@ -108,6 +111,9 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
         // e.g: "x1 y1 value1","x2 y2 value2","x3 y3 value3"            
         String[] arrayValues = data.substring(1, data.length() - 1).split(",");
         
+        // Grid coordinates should be translated to geo coordinates with geo axes order (not rasdaman order).
+        Map<Integer, String> geoCoordinatesMap = new TreeMap<>();
+        
         for (String arrayValue : arrayValues) {
             arrayValue = arrayValue.replace("\"", "");
 
@@ -135,14 +141,17 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
                     // Time value should strip "2018-01-01" -> 2018-01-01 to present in CSV/JSON encode
                     geoCoordinate = TimeUtil.valueToISODateTime(BigDecimal.ZERO, geoSubset.getLowerLimit(), CrsUtil.getCrsDefinition(axis.getNativeCrsUri())).replace("\"", "");
                 }
-                geoCoordinates.add(geoCoordinate);
+                
+                int geoAxisOrder = wcpsCoverageMetadata.getOriginalAxisGeoOrder(axis.getLabel());
+                geoCoordinatesMap.put(geoAxisOrder, geoCoordinate);                
             }
 
             List<String> bandValues = new ArrayList<>();
             for (int i = numberOfOriginalAxes; i < values.length; i++) {
                 bandValues.add(values[i]);
             }
-
+            
+            geoCoordinates.addAll(geoCoordinatesMap.values());
             geoCoordinates.addAll(bandValues);                
             String translatedArrayValue = "\"" +  ListUtil.join(geoCoordinates, " ") + "\"";
             translatedArrayValues.add(translatedArrayValue);
