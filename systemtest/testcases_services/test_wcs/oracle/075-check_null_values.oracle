@@ -11,16 +11,16 @@
         xmlns="http://www.opengis.net/gml/3.2"
          >
         <boundedBy>
-            <Envelope axisLabels="Lat Long time" srsDimension="3"
-                srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;" uomLabels="degree degree d">
-                <lowerCorner>-39.34 147.2 "1949-12-31T12:00:00.000Z"</lowerCorner>
-                <upperCorner>-34.54 152 "1950-01-05T12:00:00.000Z"</upperCorner>
+            <Envelope axisLabels="time Lat Long" srsDimension="3"
+                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+                <lowerCorner>"1949-12-31T12:00:00.000Z" -39.34 147.2</lowerCorner>
+                <upperCorner>"1950-01-05T12:00:00.000Z" -34.54 152</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_time3d</wcs:CoverageId>
         <coverageFunction>
             <GridFunction>
-                <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
+                <sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
                 <startPoint>0 0 0</startPoint>
             </GridFunction>
         </coverageFunction>
@@ -30,18 +30,18 @@
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
-                        <high>3 3 4</high>
+                        <high>4 3 3</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>Lat Long time</axisLabels>
+                <axisLabels>time Lat Long</axisLabels>
                 <origin>
-                    <Point id="test_time3d-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">
-                        <pos>-35.14 147.8 "1950-01-01T00:00:00.000Z"</pos>
+                    <Point id="test_time3d-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">
+                        <pos>"1950-01-01T00:00:00.000Z" -35.14 147.8</pos>
                     </Point>
                 </origin>
-                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">-1.2 0 0</offsetVector>
-                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">0 1.2 0</offsetVector>
-                <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;">0 0 1</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">1 0 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">0 -1.2 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;time&quot;&amp;2=/crs/EPSG/0/4326">0 0 1.2</offsetVector>
             </RectifiedGrid>
         </domainSet>
         <gmlcov:rangeType>

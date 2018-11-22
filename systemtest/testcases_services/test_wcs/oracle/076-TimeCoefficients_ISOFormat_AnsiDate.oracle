@@ -11,10 +11,10 @@
         xmlns="http://www.opengis.net/gml/3.2"
          >
         <boundedBy>
-            <Envelope axisLabels="E N ansi" srsDimension="3"
-                srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" uomLabels="metre metre d">
-                <lowerCorner>75042.7273594 5094865.55794 "2008-01-01T02:01:20.000Z"</lowerCorner>
-                <upperCorner>705042.727359 5454865.55794 "2008-01-08T00:02:58.000Z"</upperCorner>
+            <Envelope axisLabels="ansi E N" srsDimension="3"
+                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
+                <lowerCorner>"2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794</lowerCorner>
+                <upperCorner>"2008-01-08T00:02:58.000Z" 705042.727359 5454865.55794</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
@@ -32,18 +32,26 @@
                 <limits>
                     <GridEnvelope>
                         <low>0 0 0</low>
-                        <high>62 35 3</high>
+                        <high>3 62 35</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>E N ansi</axisLabels>
+                <axisLabels>ansi E N</axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">
-                        <pos>80042.7273594 5449865.55794 "2008-01-01T02:01:20.000Z"</pos>
+                    <Point id="test_irr_cube_2-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+                        <pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</pos>
                     </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">10000 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 10000 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -51,17 +59,9 @@
                 </gmlrgrid:generalGridAxis>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">0 -10000 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 0 -10000</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
-                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

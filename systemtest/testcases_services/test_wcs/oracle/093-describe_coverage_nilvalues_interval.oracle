@@ -11,10 +11,10 @@
         xmlns="http://www.opengis.net/gml/3.2"
          >
         <boundedBy>
-            <Envelope axisLabels="E N ansi" srsDimension="3"
-                srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate" uomLabels="metre metre d">
-                <lowerCorner>499980 4200040 "2016-03-25T00:00:00.000Z"</lowerCorner>
-                <upperCorner>699980 4400040 "2016-03-25T00:00:00.000Z"</upperCorner>
+            <Envelope axisLabels="ansi E N" srsDimension="3"
+                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630" uomLabels="d metre metre">
+                <lowerCorner>"2016-03-25T00:00:00.000Z" 499980 4200040</lowerCorner>
+                <upperCorner>"2016-03-25T00:00:00.000Z" 699980 4400040</upperCorner>
             </Envelope>
         </boundedBy>
         <wcs:CoverageId>test_nilvalue_interval</wcs:CoverageId>
@@ -35,15 +35,23 @@
                         <high>0 0 0</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>E N ansi</axisLabels>
+                <axisLabels>ansi E N</axisLabels>
                 <gmlrgrid:origin>
-                    <Point id="test_nilvalue_interval-origin" srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">
-                        <pos>599980 4300040 "2016-03-25T00:00:00.000Z"</pos>
+                    <Point id="test_nilvalue_interval-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">
+                        <pos>"2016-03-25T00:00:00.000Z" 599980 4300040</pos>
                     </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">200000 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">1 0 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:coefficients>"2016-03-25T00:00:00.000Z"</gmlrgrid:coefficients>
+                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+                    </gmlrgrid:GeneralGridAxis>
+                </gmlrgrid:generalGridAxis>
+                <gmlrgrid:generalGridAxis>
+                    <gmlrgrid:GeneralGridAxis>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">0 200000 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
@@ -51,17 +59,9 @@
                 </gmlrgrid:generalGridAxis>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">0 -200000 0</gmlrgrid:offsetVector>
+                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32630">0 0 -200000</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
                         <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32630&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2016-03-25T00:00:00.000Z"</gmlrgrid:coefficients>
-                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

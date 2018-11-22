@@ -200,7 +200,7 @@ class Recipe(BaseRecipe):
             if not self.resumer.check_file_imported(tpair.file.filepath):
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
-                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill()
+                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill(True)
                 subsets = self._fill_time_axis(tpair, subsets)
                 slices.append(Slice(subsets, FileDataProvider(tpair.file)))
                 count += 1
@@ -230,7 +230,7 @@ class Recipe(BaseRecipe):
         Returns the coverage to be used for the importer
         """
         gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
-        crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
+        crs = CRSUtil.get_compound_crs([self.options['time_crs'], gdal_dataset.get_crs()])
         slices = self._get_slices(crs)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()
         coverage = Coverage(self.session.get_coverage_id(), slices, fields, crs,

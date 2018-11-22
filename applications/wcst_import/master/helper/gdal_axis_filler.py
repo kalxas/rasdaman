@@ -33,6 +33,14 @@ from util.gdal_util import GDALGmlUtil
 
 
 class GdalAxisFiller:
+
+    GRID_AXIS_X_ORDER = 0
+    GRID_AXIS_Y_ORDER = 1
+
+    # In case import time series with time as grid order 0
+    GRID_AXIS_X_ORDER_SHIFTED = 1
+    GRID_AXIS_Y_ORDER_SHIFTED = 2
+
     def __init__(self, axes, gdal_dataset):
         """
         Adds the necesary info for an axis derived from a gdal dataset
@@ -45,13 +53,14 @@ class GdalAxisFiller:
         self.subsets = []
         """:type : list[AxisSubset]"""
 
-    def fill(self):
+    def fill(self, timeseries_recipe=False):
         """
         Returns the self.subsets for the given crs axes
+        :param boolean timeseries_recipe: Determine if it should create grid axes for 3D coverage in time/x/y order.
         :rtype: list[AxisSubset]
         """
         self._fill_domain_axes()
-        self._fill_grid_axis()
+        self._fill_grid_axis(timeseries_recipe)
         return self.subsets
 
     def _fill_domain_axes(self):
@@ -75,10 +84,17 @@ class GdalAxisFiller:
                 unknown_axis = Axis(axis.label, axis.uom, 0, 0, 0, axis)
                 self.subsets.append(AxisSubset(CoverageAxis(unknown_axis, None, False), Interval(0)))
 
-    def _fill_grid_axis(self):
-        grid_axis_x = GridAxis(0, "", self.gdal_dataset.get_resolution_x(), 0,
+    def _fill_grid_axis(self, timeseries_recipe=False):
+        x_order = self.GRID_AXIS_X_ORDER
+        y_order = self.GRID_AXIS_Y_ORDER
+
+        if timeseries_recipe:
+            x_order = self.GRID_AXIS_X_ORDER_SHIFTED
+            y_order = self.GRID_AXIS_Y_ORDER_SHIFTED
+
+        grid_axis_x = GridAxis(x_order, "", self.gdal_dataset.get_resolution_x(), 0,
                                self.gdal_dataset.get_raster_x_size() - 1)
-        grid_axis_y = GridAxis(1, "", self.gdal_dataset.get_resolution_y(), 0,
+        grid_axis_y = GridAxis(y_order, "", self.gdal_dataset.get_resolution_y(), 0,
                                self.gdal_dataset.get_raster_y_size() - 1)
         for i in range(0, len(self.subsets)):
             if self.subsets[i].coverage_axis.axis.crs_axis.is_easting():

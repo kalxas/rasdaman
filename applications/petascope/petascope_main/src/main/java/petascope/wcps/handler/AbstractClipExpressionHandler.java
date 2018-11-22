@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import petascope.core.Pair;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
@@ -147,6 +148,23 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             clippedCoverageAxesGeoBounds.put(axisName, new Pair<>(newLowerBound, newUpperBound));
         }
     }
+    
+    /**
+     * Get the axis's order in list of axis names.
+     */
+    private int getAxisOrder(List<String> axisNames, String name) throws PetascopeException {
+        int i = 0;
+        
+        for (String axisName : axisNames) {
+            if (axisName.equals(name)) {
+                return i;
+            }
+            
+            i++;
+        }
+        
+        return -1;
+    }
 
     /**
      * Translate from the coordinates with geo-axes order (e.g: Time, Lat, Long
@@ -162,14 +180,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      */
     protected String translateGeoToGridCoorinates(WcpsCoverageMetadata metadata, List<String> axisNames, 
                                                   String[] geoCoordinateArray, String wktCRS) throws PetascopeException {
-        // First, determine the XY axes from this coverage.
-        Integer xOrder = -1;
-        Integer yOrder = -1;
-        if (metadata.hasXYAxes()) {
-            Pair<Integer, Integer> xyOrder = metadata.getXYAxesOrder();
-            xOrder = xyOrder.fst;
-            yOrder = xyOrder.snd;
-        }
+        int geoCoordinateXOrder = -1;
+        int geoCoordinateYOrder = -1;
         
         // Check if WKT contains XY axes from input specific axisNames
         boolean hasXYAxesInWKT = false;
@@ -192,14 +204,17 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 }
                 
             }
+            
+            geoCoordinateXOrder = this.getAxisOrder(axisNames, axisX.getLabel());
+            geoCoordinateYOrder = this.getAxisOrder(axisNames, axisY.getLabel());
         }
-
+        
         List<Pair<String, Integer>> translatedGridCoordinates = new ArrayList<>();
         // Then, translate non XY-axes geo coordinate as single coordinate
         for (int i = 0; i < axisNames.size(); i++) {
             String axisName = axisNames.get(i);
             
-            if (!hasXYAxesInWKT || (i != xOrder && i != yOrder)) {
+            if (!hasXYAxesInWKT || (i != geoCoordinateXOrder && i != geoCoordinateYOrder)) {
                 // Non XY-axes, translate as 1 point in 1 axis normally                
                 Axis axis = metadata.getAxisByName(axisName);
                 String geoCoordinate = geoCoordinateArray[i];
@@ -211,10 +226,11 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisName, numericGeoCoordinate);
             } else {
                 // XY axes, translate as a pair of geo coordinates in 2 axes (e.g: Lat, Long)
-                Axis axisX = metadata.getAxes().get(xOrder);
-                Axis axisY = metadata.getAxes().get(yOrder);
-                String geoCoordinateX = geoCoordinateArray[xOrder];
-                String geoCoordinateY = geoCoordinateArray[yOrder];
+                Axis axisX = metadata.getXYAxes().get(0);
+                Axis axisY = metadata.getXYAxes().get(1);
+
+                String geoCoordinateX = geoCoordinateArray[geoCoordinateXOrder];
+                String geoCoordinateY = geoCoordinateArray[geoCoordinateYOrder];
                 BigDecimal numericGeoCoordinateX = this.getNumericGeoCoordinate(metadata, axisX, geoCoordinateX);
                 BigDecimal numericGeoCoordinateY = this.getNumericGeoCoordinate(metadata, axisY, geoCoordinateY);
                 // (e.g: WKT in EPSG:4326, native coverage XY axes is EPSG:3857, then XY coordinates in WKT are translated to EPSG:3857)
@@ -235,9 +251,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 BigDecimal newGeoCoordinateY = subsets.get(1).getNumericSubset().getLowerLimit();
 
                 // Update the geo bounds for clipped output coverage
-                if (xOrder < yOrder) {
-                    // XY Axes order
-                    
+                if (metadata.isXYOrder()) {
+                    // XY Axes order                    
                     this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
                     this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
                 } else {

@@ -7,10 +7,10 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="Lat Long ansi" srsDimension="3"
-            srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
-            <lowerCorner>20 0 "2012-12-01T20:07:00.500Z"</lowerCorner>
-            <upperCorner>40 20 "2012-12-05T20:27:06.500Z"</upperCorner>
+        <Envelope axisLabels="ansi Lat Long" srsDimension="3"
+            srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+            <lowerCorner>"2012-12-01T20:07:00.500Z" 20 0</lowerCorner>
+            <upperCorner>"2012-12-05T20:27:06.500Z" 40 20</upperCorner>
         </Envelope>
     </boundedBy>
     <domainSet>
@@ -18,29 +18,29 @@
             <limits>
                 <GridEnvelope>
                     <low>0 0 0</low>
-                    <high>1 2 1</high>
+                    <high>1 1 2</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>Lat Long ansi</axisLabels>
+            <axisLabels>ansi Lat Long</axisLabels>
             <origin>
-                <Point id="test_sequence_rule-origin" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                    <pos>35 3.333333333335 "2012-12-02T20:12:02.000Z"</pos>
+                <Point id="test_sequence_rule-origin" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+                    <pos>"2012-12-02T20:12:02.000Z" 35 3.333333333335</pos>
                 </Point>
             </origin>
-            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-10 0 0</offsetVector>
-            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 6.66666666667 0</offsetVector>
-            <offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 2.00697916667</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">2.00697916667 0 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -10 0</offsetVector>
+            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 6.66666666667</offsetVector>
         </RectifiedGrid>
     </domainSet>
     <rangeSet>
         <DataBlock>
             <rangeParameters/>
-            <tupleList cs=" " ts=",">0,6,1,7,2,8,3,9,4,10,5,11</tupleList>
+            <tupleList cs=" " ts=",">0,1,2,3,4,5,6,7,8,9,10,11</tupleList>
         </DataBlock>
     </rangeSet>
     <coverageFunction>
         <GridFunction>
-            <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
+            <sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
             <startPoint>0 0 0</startPoint>
         </GridFunction>
     </coverageFunction>
