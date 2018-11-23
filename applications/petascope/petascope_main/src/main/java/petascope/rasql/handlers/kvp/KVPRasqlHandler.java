@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import petascope.core.response.Response;
 import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
@@ -135,7 +136,9 @@ public class KVPRasqlHandler implements IKVPHandler {
             if (!queryResult.getScalars().isEmpty()) {
                 bytes = queryResult.getScalars().get(0).getBytes();
             } else if (!queryResult.getMdds().isEmpty()) {
-                bytes = queryResult.getMdds().get(0);
+                for (byte[] byteData : queryResult.getMdds()) {
+                    bytes = ArrayUtils.addAll(bytes, byteData);
+                }
             }
             response.setDatas(Arrays.asList(bytes));
         } catch (IOException ex) {
