@@ -690,18 +690,15 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                         while (in.read(b1) == 0) ;
                         endianess = b1[0];
                         // read Error Number
-                        while (in.available() < 4)
-                    ;
+                        while (in.available() < 4) ;
                         in.read(b4);
                         int errNo = RasUtils.ubytesToInt(b4, endianess);
                         // read Line Number
-                        while (in.available() < 4)
-                    ;
+                        while (in.available() < 4) ;
                         in.read(b4);
                         int lineNo = RasUtils.ubytesToInt(b4, endianess);
                         // read Column Number
-                        while (in.available() < 4)
-                    ;
+                        while (in.available() < 4) ;
                         in.read(b4);
                         int colNo = RasUtils.ubytesToInt(b4, endianess);
                         // read token

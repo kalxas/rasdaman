@@ -311,7 +311,7 @@ r_Error::setErrorTextOnKind()
     switch (theKind)
     {
     case r_Error_General :
-        strcpy(buffer, " ODMG General");
+        strcpy(buffer, "ODMG General");
         break;
 
     case r_Error_DatabaseClassMismatch :
@@ -398,6 +398,10 @@ r_Error::setErrorTextOnKind()
         strcpy(buffer, "Client Unknown");
         break;
 
+    case r_Error_FileNotFound:
+        strcpy(buffer,  "Referenced file not found.");
+        break;
+
     case r_Error_ObjectUnknown :
         strcpy(buffer, "Object Unknown");
         break;
@@ -468,6 +472,18 @@ r_Error::setErrorTextOnKind()
 
     case r_Error_InvalidTargetCRS:
         strcpy(buffer, "Cannot use target coordinate reference system, as reported by GDAL library");
+        break;
+
+    case r_Error_FileTileStructureInconsistent:
+        strcpy(buffer, "Structure of file tile is inconsistent with the original read one");
+        break;
+
+    case r_Error_RasFedMessageParsingFailed:
+        strcpy(buffer, "Error while parsing a message from the federation daemon.");
+        break;
+
+    case r_Error_UDFInstallationDirectoryNotDefined:
+        strcpy(buffer, "UDF Installation Directory not found or inaccessible.");
         break;
 
     default:

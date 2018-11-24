@@ -26,15 +26,17 @@ rasdaman GmbH.
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "rasnet/messages/client_rassrvr_service.grpc.pb.h"
-#include "common/src/grpc/messages/health_service.grpc.pb.h"
+#include "common/grpc/messages/health_service.grpc.pb.h"
 
 #include "clientcomm/clientcomm.hh"
 #include "clientcomm/rpcif.h"

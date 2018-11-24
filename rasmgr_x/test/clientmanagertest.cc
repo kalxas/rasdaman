@@ -27,17 +27,17 @@
 #include <gmock/gmock.h>
 #include <logging.hh>
 
-#include "../src/client.hh"
-#include "../src/user.hh"
-#include "../src/userdatabaserights.hh"
-#include "../src/useradminrights.hh"
-#include "../src/rasmgrconfig.hh"
-#include "../src/usermanager.hh"
-#include "../src/clientmanager.hh"
-#include "../src/clientcredentials.hh"
-#include "../src/clientmanagerconfig.hh"
-#include "../src/exceptions/rasmgrexceptions.hh"
-#include "../src/constants.hh"
+#include "rasmgr_x/src/client.hh"
+#include "rasmgr_x/src/user.hh"
+#include "rasmgr_x/src/userdatabaserights.hh"
+#include "rasmgr_x/src/useradminrights.hh"
+#include "rasmgr_x/src/rasmgrconfig.hh"
+#include "rasmgr_x/src/usermanager.hh"
+#include "rasmgr_x/src/clientmanager.hh"
+#include "rasmgr_x/src/clientcredentials.hh"
+#include "rasmgr_x/src/clientmanagerconfig.hh"
+#include "rasmgr_x/src/exceptions/rasmgrexceptions.hh"
+#include "rasmgr_x/src/constants.hh"
 
 #include "rasmgr_x/src/messages/rasmgrmess.pb.h"
 

@@ -98,7 +98,8 @@ public:
     };
 
     /// error kinds
-    enum kind { r_Error_General,
+    enum kind { r_EGeneral,
+                r_Error_General,
                 r_Error_DatabaseClassMismatch,
                 r_Error_DatabaseClassUndefined,
                 r_Error_DatabaseClosed,
@@ -115,7 +116,7 @@ public:
                 r_Error_TransactionOpen,
                 r_Error_TransactionNotOpen,
                 r_Error_TypeInvalid,
-
+                r_Error_FileNotFound,
                 r_Error_OIdInvalid,
                 r_Error_OIdNotUnique,
 
@@ -151,6 +152,10 @@ public:
                 r_Error_RuntimeProjectionError,
                 r_Error_InvalidSourceCRS,
                 r_Error_InvalidTargetCRS,
+                r_Error_FileTileStructureInconsistent,
+                r_Error_RasFedMessageParsingFailed,
+
+                r_Error_UDFInstallationDirectoryNotDefined,
 
                 r_Error_TileCannotBeLocked,
 
@@ -204,16 +209,19 @@ public:
     */
 
     /// read error text file into text table
-    static void initTextTable();
+    friend void initTextTable();
 
     /// free the text table again
-    static void freeTextTable();
+    friend void freeTextTable();
 
     /// replace the specified parameter by the integer value
     void setTextParameter(const char* parameterName, int value);
 
     /// replace the specified parameter by the string value
     void setTextParameter(const char* parameterName, const char* value);
+
+    static void initTextTable();
+    static void freeTextTable();
 
 protected:
     /// set error text according to the actual error kind
@@ -545,6 +553,7 @@ public:
 #define RCINDEXWITHINCOMPATIBLEMARRAYTYPE   223
 #define TILECONFIGMARRAYINCOMPATIBLE        224
 #define RCINDEXWITHOUTREGULARTILING         225
+#define UDFBODYTOOLARGE                     226
 #define POLYGONWRONGPOINTDIMENSION          227
 #define POLYGONWRONGINITSTRING              228
 #define QUERYPARAMETERINVALID               229

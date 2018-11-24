@@ -22,9 +22,9 @@ rasdaman GmbH.
 */
 
 #include <logging.hh>
-#include "common/src/uuid/uuid.hh"
+#include "common/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
-#include "common/src/exceptions/missingresourceexception.hh"
+#include "common/exceptions/missingresourceexception.hh"
 
 #include "clientmanager.hh"
 
@@ -45,6 +45,8 @@ using boost::shared_lock;
 using boost::thread;
 using boost::unique_lock;
 using common::UUID;
+
+const int ClientManager::ALIVE_PERIOD = 30000;
 
 ClientManager::ClientManager()
 {

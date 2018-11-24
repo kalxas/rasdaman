@@ -39,11 +39,11 @@
 #include <grpc++/security/credentials.h>
 
 #include "include/globals.hh"
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
 
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/uuid/uuid.hh"
-#include "common/src/logging/signalhandler.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/uuid/uuid.hh"
+#include "common/logging/signalhandler.hh"
 #include <logging.hh>
 
 #include "rasnet/messages/rassrvr_rasmgr_service.pb.h"

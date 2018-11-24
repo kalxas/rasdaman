@@ -207,6 +207,8 @@
 905^E^Erreur d'evaluation $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Structure deja existante.
 906^E^Erreur d'evaluation $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Type MDD deja existant.
 907^E^Erreur d'evaluation $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Type d'ensemble deja existant.
+908^E^Erreur d'evaluation $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: La requete contient tuiles qui se chevauchent.
+909^E^Erreur d'evaluation $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les domaines donnes ne peuvent pas etre fusionnes.
 #
 950^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: La cible de mise a jour doit etre une variable iterator.
 951^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: La source de mise a jour doit etre un expression r_Marray<>.
@@ -232,7 +234,8 @@
 971^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Invalid type de cellule.
 972^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Dimensionnalité non valide.
 973^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Invalid type de Marray.
-
+998^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Fichier reference introuvable.
+999^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Chemin du fichier reference pas absolue.
 #
 # 1xxx errors: General errors
 #

@@ -1762,7 +1762,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 {
                     // parse error or execution error
                     returnValue = encodeError(result, resultError.errorNo, resultError.lineNo, resultError.columnNo, resultError.token);
-
                 }
                 else
                 {
@@ -1780,14 +1779,20 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             break;
         }
     }
+    catch (r_Error& e) // this shouldn't be here, but ...
+    {
+        return encodeError(result, e.get_errorno(), 0, 0, e.what());
+    }
     catch (r_Eno_permission& e) // this shouldn't be here, but ...
     {
         return encodeError(result, e.get_errorno(), 0, 0, "");
     }
+    catch (std::exception& e)
+    {
+        return encodeError(result, UNEXPECTED_INTERNAL_ERROR, 0, 0, e.what());
+    }
     catch (...)
     {
-        // really? flagInformRasMgr = true; //  client should ask for a new server
-
         return encodeError(result, UNEXPECTED_INTERNAL_ERROR, 0, 0, "");
     }
 

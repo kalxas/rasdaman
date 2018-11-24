@@ -24,7 +24,7 @@
 #ifndef RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 #define RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
 
 namespace rascontrol
 {

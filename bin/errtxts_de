@@ -204,6 +204,8 @@
 905^E^Auswertungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Strukturen-Typname existiert bereits.
 906^E^Auswertungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: MDD-Typname existiert bereits.
 907^E^Auswertungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Set-Typname existiert bereits.
+908^E^Auswertungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Anfrage enthält überlappenden Kachel.
+909^E^Auswertungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Domains können nicht zusammengeführt werden.
 #
 950^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Update-Ziel muss eine Iteratorvariable sein.
 951^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Update-Quelle muss ein Ausdruck mit dem Ergebnis eines r_Marray<> sein.
@@ -229,7 +231,8 @@
 971^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültiger Zelltyp.
 972^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültige Dimensionsangabe.
 973^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültiger Marray-Typ.
-
+998^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Referenzierte Datei nicht gefunden.
+999^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Referenzierte Pfad nicht absolut.
 #
 # 1xxx errors: Allgemeiner Fehlers
 #

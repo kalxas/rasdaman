@@ -48,6 +48,10 @@ public abstract class RasErrorTexts {
     public static String[] errorMessages = { $ARRAY_OF_ERROR_MESSAGES_FROM_ERRTXTS_FILE };
 
     public static String getErrorMessage(int errNo) {
+        return getErrorMessage(errNo, null);
+    }
+
+    public static String getErrorMessage(int errNo, String token) {
         StringBuffer buf;
         String prefix = String.valueOf(errNo) + ":";
         int index = 0;
@@ -63,10 +67,15 @@ public abstract class RasErrorTexts {
             } else {
                 index++;
             }
-
         }
         if (retVal == null) {
-            retVal = "No error message available for error number " + errNo + ".";
+            if (token == null) {
+                retVal = "No error message available for error number " + errNo + ".";
+            } else if (token.startsWith("Exception: ")) {
+                retVal = token.substring("Exception: ".length());
+            } else {
+                retVal = token;
+            }
         }
 
         return retVal;

@@ -32,14 +32,14 @@ rasdaman GmbH.
 
 DBNullvalues::DBNullvalues()
     :   DBObject(),
-        r_Nullvalues({})
+        r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
 DBNullvalues::DBNullvalues(const OId& id)
     :   DBObject(id),
-        r_Nullvalues({})
+        r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
     readFromDb();

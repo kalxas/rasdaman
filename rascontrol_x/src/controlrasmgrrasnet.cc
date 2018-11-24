@@ -28,8 +28,8 @@
 #include "rasnet/messages/rasmgr_rasctrl_service.pb.h"
 
 #include <logging.hh>
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/exceptions/rasexceptions.hh"
 
 #include "controlrasmgrrasnet.hh"
 

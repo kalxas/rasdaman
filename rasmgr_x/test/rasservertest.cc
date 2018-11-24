@@ -30,7 +30,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <logging.hh>
-#include "common/src/grpc/grpcutils.hh"
+#include "common/grpc/grpcutils.hh"
 
 #include "rasnet/messages/rassrvr_rasmgr_service.grpc.pb.h"
 

@@ -1,4 +1,4 @@
-215
+295
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -169,6 +169,18 @@
 432^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed retreiving information for the specified object.
 433^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Division by zero.
 #
+434^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Shared library could not be opened.
+435^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The language template does not contain a UDF processing function.
+436^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General error reported by the language template when executing the UDF.
+437^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Wrong format for UDF options.
+438^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown datatype for UDF arguments.
+439^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown command type for UDF management.
+440^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF function with the same namespace and name has already been registered.
+441^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF function not found.
+442^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF argument type mismatch.
+443^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Wrong number of arguments given to UDF function.
+444^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed to compile and create shared library.
+#
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #
 # 5XX errors for overflow situations
@@ -235,6 +247,8 @@
 905^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: Struct type name exists already.
 906^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: MDD type name exists already.
 907^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: Set type name exists already.
+908^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: The query contains overlapping tiles.
+909^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: The given domains cannot be merged.
 #
 950^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Update target must be an iterator variable.
 951^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Update source must be an expression resulting in an r_Marray<>.
@@ -264,6 +278,8 @@
 975^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The marray type name is longer than 200 characters.
 976^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The set type name is longer than 200 characters.
 977^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The struct type name is longer than 200 characters.
+998^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced file not found.
+999^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced path not absolute.
 #
 # 1xxx errors: General errors
 #

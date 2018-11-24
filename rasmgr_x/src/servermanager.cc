@@ -36,9 +36,9 @@
 #include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
 
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
 #include <logging.hh>
-#include "common/src/uuid/uuid.hh"
+#include "common/uuid/uuid.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
 

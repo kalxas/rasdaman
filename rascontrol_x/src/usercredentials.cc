@@ -28,7 +28,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "common/src/crypto/crypto.hh"
+#include "common/crypto/crypto.hh"
 #include <logging.hh>
 
 #include "../include/globals.hh"

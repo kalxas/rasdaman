@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "common/src/grpc/grpcutils.hh"
+#include "common/grpc/grpcutils.hh"
 
 #include "../src/clientmanager.hh"
 #include "../src/servermanager.hh"

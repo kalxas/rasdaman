@@ -48,6 +48,12 @@ function(CompileProtobufFile PROTO_FILE DESTINATION_DIR GENERATED_SOURCES)
             COMMAND ${SED_EXECUTABLE}
             ARGS -i 1i'\#pragma GCC diagnostic ignored \"-Wshadow\"' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.h"
 
+            # Remove the operator= definition as it messes up rascontrolgrammar.hh
+            COMMAND ${SED_EXECUTABLE}
+            ARGS -i '/DefineQueryCacheRule_Argument\(DefineQueryCacheRule_Argument&&/,+12d' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.h"
+            COMMAND ${SED_EXECUTABLE}
+            ARGS -i '/DefineQueryCacheRule\(DefineQueryCacheRule&&/,+12d' "${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.h"
+
             DEPENDS ${PROTO_FILE_PATH} ${PROTOBUF_PROTOC_EXECUTABLE})
 
     set(${GENERATED_SOURCES} ${${GENERATED_SOURCES}} ${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.h ${DESTINATION_DIR}/${FILE_NAME_NO_EXT}.pb.cc PARENT_SCOPE)

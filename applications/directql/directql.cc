@@ -87,7 +87,7 @@ using namespace std;
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
 
-#include "common/src/logging/signalhandler.hh"
+#include "common/logging/signalhandler.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 
@@ -567,7 +567,8 @@ openDatabase()
     {
         sprintf(globalConnectId, "%s", baseName.c_str());
         INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
-        server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT, const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
+        server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT,
+                const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
         r = new ServerComm::ClientTblElt(user, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
         accessControl.setServerName(DQ_SERVER_NAME);

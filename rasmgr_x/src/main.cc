@@ -30,9 +30,9 @@
 #include "../../config.h"
 #include "../../version.h"
 
-#include "common/src/crypto/crypto.hh"
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/logging/signalhandler.hh"
+#include "common/crypto/crypto.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/logging/signalhandler.hh"
 #include "loggingutils.hh"
 
 #include "configuration.hh"

@@ -157,7 +157,7 @@ protoc-gen-grpc-java
 third_party/grpc-java/protoc-gen-grpc-java
 
 #rasnet protocol
-common/src/grpc/messages/
+common/grpc/messages/
 rasnet/src/messages/
 rasmgr_x/src/messages/
 rasmgr_x/src/rasmgr
@@ -206,7 +206,6 @@ applications/petascope/out
 Makefile.am.user
 config.guess
 config.sub
-manuals_and_examples/examples/c++/Standalone_Makefile
 
 # testing
 phantomjs
@@ -234,6 +233,7 @@ systemtest/testcases_services/test_update_properties/tmp/
 manuals_and_examples/manuals/doc-all/
 manuals_and_examples/manuals/doc-api/
 manuals_and_examples/manuals/doc-basedbms/
+manuals_and_examples/examples/c++/Makefile
 
 # IDE NetBeans
 applications/secore/secore-web/nb-configuration.xml

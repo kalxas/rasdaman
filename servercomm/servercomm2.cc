@@ -288,7 +288,6 @@ ServerComm::openDB(unsigned long callingClientId,
 }
 
 
-
 /*************************************************************************
  * Method name...: closeDB( unsigned long callingClientId )
  ************************************************************************/
@@ -1641,15 +1640,15 @@ ServerComm::executeQuery(unsigned long callingClientId,
         {
             try
             {
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                LDEBUG << "\n" << *qtree;
 #endif
 
                 BLINFO << "checking semantics... ";
                 qtree->checkSemantics();
 
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                BLDEBUG << "query tree after semantic check:\n" << *qtree;
 #endif
 
 #ifdef RMANBENCHMARK
@@ -2174,16 +2173,15 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         {
             try
             {
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                LDEBUG << "\n" << *qtree;
 #endif
 
                 BLINFO << "checking semantics... ";
-
                 qtree->checkSemantics();
 
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                BLDEBUG << "query tree after semantic check:\n" << *qtree;
 #endif
 
 #ifdef RMANBENCHMARK
@@ -2358,16 +2356,16 @@ ServerComm::executeInsert(unsigned long callingClientId,
         {
             try
             {
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                LDEBUG << "\n" << *qtree;
 #endif
 
                 BLINFO << "checking semantics... ";
 
                 qtree->checkSemantics();
 
-#ifdef DEBUG
-                qtree->printTree(2, RMInit::logOut);
+#ifdef RASDEBUG
+                BLDEBUG << "query tree after semantic check:\n" << *qtree;
 #endif
 
 #ifdef RMANBENCHMARK

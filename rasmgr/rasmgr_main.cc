@@ -51,7 +51,7 @@ rasdaman GmbH.
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
 
-#include "common/src/grpc/grpcutils.hh"
+#include "common/grpc/grpcutils.hh"
 
 #ifndef COMPDATE
 #error "Please specify the COMPDATE variable!"

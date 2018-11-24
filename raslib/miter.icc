@@ -45,8 +45,8 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     size_t incIter = cellSize; // current increment
     size_t firstOff = 0;
 
-    LTRACE << "area for iteration: " << *newAreaIter;
-    LTRACE << "whole area: " << *newAreaTile;
+    //LTRACE << "area for iteration: " << *newAreaIter;
+    //LTRACE << "whole area: " << *newAreaTile;
 
     // dimensionality of both areaIter and areaTile
     r_Dimension dim = areaIter->dimension();

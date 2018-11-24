@@ -32,7 +32,7 @@
 #include <map>
 #include <string>
 
-#include "common/src/time/timer.hh"
+#include "common/time/timer.hh"
 
 #include "clientmanagerconfig.hh"
 #include "clientserverrequest.hh"

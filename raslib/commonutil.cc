@@ -48,6 +48,10 @@
 
 void print_stacktrace(void* ucontext)
 {
+#ifndef WITH_DEBUG_SYMBOLS
+    return;
+#endif
+
     // code adapted from
     // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes/2526298#2526298
     void* fault_address;

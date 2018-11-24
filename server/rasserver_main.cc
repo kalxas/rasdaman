@@ -56,11 +56,11 @@ using namespace std;
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
-#include "common/src/logging/signalhandler.hh"
+#include "common/logging/signalhandler.hh"
 #include "relblobif/tilecache.hh"
 #include "loggingutils.hh"
 
-RMINITGLOBALS('C')
+RMINITGLOBALS('C');
 
 // from some unknown location the debug-srv.hh guard seems to be defined already, so get rid of it -- PB 2005-jan-10
 #undef DEBUG_HH

@@ -45,9 +45,34 @@ rasdaman GmbH.
 #include <stdlib.h>
 
 #include <sstream>
+#include <memory>
 
 using namespace std;
 
+r_Minterval::r_Minterval(const r_Point& low, const r_Point& high)
+{
+    dimensionality = low.dimension();
+    if (dimensionality != high.dimension())
+    {
+        throw r_Edim_mismatch(low.dimension(), high.dimension());
+    }
+    std::unique_ptr<r_Sinterval> temp_intervals(new r_Sinterval[ dimensionality ]);
+
+
+    for (int i = 0; i < low.dimension(); ++i)
+    {
+        r_Sinterval aux;
+        if (low[i] > high[i])
+        {
+            throw r_Elimits_mismatch(low[i], high[i]);
+        }
+        aux.set_low(low[i]);
+        aux.set_high(high[i]);
+        temp_intervals.get()[i] = aux;
+    }
+
+    intervals = temp_intervals.release();
+}
 
 r_Minterval::r_Minterval(r_Dimension dim)
     : intervals(NULL),

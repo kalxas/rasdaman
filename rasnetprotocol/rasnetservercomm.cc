@@ -25,8 +25,9 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include "server/rasserver_entry.hh"
 #include "debug/debug-srv.hh"
-#include "common/src/grpc/messages/error.pb.h"
-#include "common/src/uuid/uuid.hh"
+#include "common/grpc/messages/error.pb.h"
+#include "common/uuid/uuid.hh"
+#include "rasserver_x/src/clientquerystreamedresult.hh"
 
 using common::ErrorMessage;
 using rasserver::ClientQueryStreamedResult;

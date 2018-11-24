@@ -86,7 +86,7 @@ using namespace std;
 #include "raslib/rmdebug.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
-#include "common/src/logging/signalhandler.hh"
+#include "common/logging/signalhandler.hh"
 
 #include "../../commline/cmlparser.hh"
 

@@ -13,7 +13,8 @@ point to the rasdaman installation dir. The script establishes its own
 RASBASE in /tmp/rasdb, so original data is not touched. For this to work
 rasmgr.conf is updated (original config is restored at the end, but it is
 recommended to create a backup) and rasdaman is restarted automatically.
-Needless to say, never run this script on a production rasdaman.
+
+IMPORTANT: due to the above, never run this script on a production rasdaman.
 
 The test script tests rasql queries in the queries directory. To add a new
 query for testing copy the query.template into a new queryN.sh, which must have

@@ -1,4 +1,4 @@
-276
+299
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -81,6 +81,7 @@
 332^E^Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: number of actual arguments for the called function differs from the number of formal arguments.
 333^E^Preprocessing error $errorNo in line $lineNo, column $columnNo, token $token: the called function name is ambiguous, try the full qualified name.
 #
+348^E^Execution error: Remote object in the FROM clause doesn't reference any variable in the SELECT clause.
 349^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Operand out of range.
 350^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General. 
 351^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Spatial domains of the binary induce operands are incompatible.
@@ -175,6 +176,18 @@
 434^E^Execution error: Cell base types of binary induce operation are incompatible.
 435^E^Execution error: Cell base type of unary induce operation is not supported.
 436^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second Operand must be a multidimensional shape.
+437^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Wrong format for UDF options.
+438^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown datatype for UDF arguments.
+439^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown command type for UDF management.
+440^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF function with the same namespace and name has already been registered.
+441^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF function not found.
+442^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: UDF argument type mismatch.
+443^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Wrong number of arguments given to UDF function.
+444^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed to compile and create shared library.
+445^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Shared library could not be opened.
+446^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The language template does not contain a UDF processing function.
+447^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second Operand must be a multidimensional shape.
+448^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General error reported by the language template when executing the UDF.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #
@@ -232,6 +245,7 @@
 718^E^Admin error: Failed opening blob file for updating; check the server log for more details.
 719^E^Admin error: Failed I/O operation on blob file; check the server log for more details.
 720^E^Admin error: Empty blob file found; check the server log for more details.
+721^E^Admin error: File storage data directory is not an absolute path; please set an absolute path for the -connect option in rasmgr.conf.
 #
 # 80x errors for RasManager problems
 #
@@ -267,6 +281,8 @@
 905^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: Struct type name exists already.
 906^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: MDD type name exists already.
 907^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: Set type name exists already.
+908^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: The query contains overlapping tiles.
+909^E^Evaluation error $errorNo in line $lineNo, column $columnNo, near token $token: The given domains cannot be merged.
 #
 950^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Update target must be an iterator variable.
 951^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Update source must be an expression resulting in an r_Marray<>.
@@ -296,6 +312,13 @@
 975^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The marray type name is longer than 200 characters.
 976^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The set type name is longer than 200 characters.
 977^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The struct type name is longer than 200 characters.
+
+995^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid expansion position, operation breaks tile alignment.
+996^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid expansion direction.
+997^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is too long.
+998^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced file not found.
+999^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Referenced path not absolute.
+
 #
 # 1xxx errors: General errors
 #

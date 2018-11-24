@@ -30,10 +30,10 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include <logging.hh>
-#include "common/src/crypto/crypto.hh"
-#include "common/src/uuid/uuid.hh"
-#include "common/src/file/fileutils.hh"
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/crypto/crypto.hh"
+#include "common/uuid/uuid.hh"
+#include "common/file/fileutils.hh"
+#include "common/exceptions/rasexceptions.hh"
 #include "include/globals.hh"
 
 #include "rasmgr_x/src/messages/rasmgrmess.pb.h"

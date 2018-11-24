@@ -29,7 +29,7 @@
 #include <boost/bind.hpp>
 
 #include <logging.hh>
-#include "common/src/uuid/uuid.hh"
+#include "common/uuid/uuid.hh"
 
 #include "exceptions/rasmgrexceptions.hh"
 

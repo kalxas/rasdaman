@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_USERDBRIGHTSEXCEPTION_HH
 #define RASMGR_X_SRC_EXCEPTIONS_USERDBRIGHTSEXCEPTION_HH
 
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
 
 namespace rasmgr
 {

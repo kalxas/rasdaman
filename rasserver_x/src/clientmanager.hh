@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "common/src/time/timer.hh"
+#include "common/time/timer.hh"
 #include "clientquerystreamedresult.hh"
 
 namespace rasserver
@@ -105,7 +105,7 @@ private:
     * from the client. If a KeepAlive message is not received in this amount of time,
     * the client is removed from the server.
     */
-    static const int ALIVE_PERIOD = 30000; /* milliseconds */
+    static const int ALIVE_PERIOD; /* milliseconds */
 
     boost::scoped_ptr<boost::thread> managementThread;
 

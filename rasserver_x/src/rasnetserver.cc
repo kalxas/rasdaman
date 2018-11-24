@@ -30,8 +30,8 @@ rasdaman GmbH.
 #include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
 
 #include <logging.hh>
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/exceptions/rasexceptions.hh"
 #include "rasnetprotocol/rasnetservercomm.hh"
 
 #include "server/rasserver_entry.hh"

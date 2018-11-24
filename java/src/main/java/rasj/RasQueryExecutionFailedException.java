@@ -105,9 +105,10 @@ public class RasQueryExecutionFailedException extends QueryInvalidException {
         int index;
 
         if (super.getMessage() == null)
-
         {
-            String msg = RasErrorTexts.getErrorMessage(errNo);
+            String msg = RasErrorTexts.getErrorMessage(errNo, token);
+            if (token != null && msg.equals(token))
+                return msg;
 
             StringBuffer buf = new StringBuffer(msg);
             index = msg.indexOf(RasGlobalDefs.KEYWORD_TOKEN);

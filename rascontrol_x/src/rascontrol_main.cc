@@ -23,8 +23,8 @@
 #include <boost/cstdlib.hpp>
 
 #include <logging.hh>
-#include "common/src/crypto/crypto.hh"
-#include "common/src/grpc/grpcutils.hh"
+#include "common/crypto/crypto.hh"
+#include "common/grpc/grpcutils.hh"
 #include "loggingutils.hh"
 
 #include "config.h"

@@ -30,10 +30,10 @@ if (ENABLE_JAVA)
 
         set(GRPC_SRC "${RASNET_SRC_DIR}/protomessages/client_rassrvr_service.proto"
                 "${RASNET_SRC_DIR}/protomessages/rasmgr_client_service.proto"
-                "${COMMON_SRC_DIR}/src/grpc/protomessages/health_service.proto")
+                "${COMMON_SRC_DIR}/grpc/protomessages/health_service.proto")
 
         set(PROTO_SRC ${GRPC_SRC}
-                "${COMMON_SRC_DIR}/src/grpc/protomessages/error.proto"
+                "${COMMON_SRC_DIR}/grpc/protomessages/error.proto"
                 "${RASNET_SRC_DIR}/protomessages/common_service.proto")
 
         set(GENERATED_PROTO_SOURCES "")

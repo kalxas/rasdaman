@@ -64,9 +64,15 @@ set(CPP_FILE_EXTENSIONS *.cc *.hh *.sc *.icc)
 include(CTest)
 add_custom_target(unit-check COMMAND ${CMAKE_CTEST_COMMAND})
 
+#include(cmake/CPPCheck.cmake)
+#AddCPPCheckTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
+
 # Add make format target. This will format all the files in the source tree.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ExtraTargets.cmake)
-AddFormatTarget("${CMAKE_SOURCE_DIR}/third_party" "*.cc *.hh")
+AddFormatTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
+
+#include(cmake/ClangTidy.cmake)
+#AddClangTidyTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
 
 include(CheckLibraryExists)
 
@@ -111,6 +117,9 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdy
 SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdynamic ${ASAN_FLAG}")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
+
+set(PROJECT_RASDAMAN 1)
+add_definitions(-DPROJECT_RASDAMAN)
 
 # Disable default log file from easylogging, otherwise we get by default
 # logs/myeasylog.log
@@ -522,8 +531,8 @@ include(third_party/CMakeLists.txt)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/debug)
-include_directories(${CMAKE_SOURCE_DIR}/common/src/logging)
-include_directories(${CMAKE_SOURCE_DIR}/third_party/easyloggingpp)
+include_directories(${CMAKE_SOURCE_DIR}/common/logging)
+include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/third_party/easyloggingpp)
 # All the generated files should be placed in the binary dir. We add this to the
 # include path so that the compiler can find the files.
 include_directories(${CMAKE_BINARY_DIR})

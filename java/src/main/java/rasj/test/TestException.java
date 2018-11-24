@@ -32,31 +32,12 @@ rasdaman GmbH.
  * </pre>
  *********************************************************** */
 
+package rasj.test;
 import java.io.*;
 
 import rasj.*;
 import rasj.global.*;
 import org.odmg.*;
-
-
-// auxiliary classes for exception testing
-class TestRasResultIsNoCellException extends RasResultIsNoCellException {
-    TestRasResultIsNoCellException() {
-        super();
-    }
-}
-
-class TestRasResultIsNoIntervalException extends RasResultIsNoIntervalException {
-    TestRasResultIsNoIntervalException() {
-        super();
-    }
-}
-
-class TestRasClientInternalException extends RasClientInternalException {
-    TestRasClientInternalException(String msg) {
-        super("TestException", "TestExceptions", msg);
-    }
-}
 
 /**
  * class for testing rasj interface
@@ -93,10 +74,6 @@ public class TestException {
         String passwd = DEFAULT_PASSWD;
         boolean wrongUsage = false;
 
-        // get args
-        if (args.length == 0) {
-            wrongUsage = true;
-        }
         for (int i = 0; i < args.length; i += 2) {
             if (args[i].equals("--server")) {
                 server = args[i + 1];
@@ -181,27 +158,6 @@ public class TestException {
             byte[] retVal = myMDD.getCell(new RasPoint(4, 7));
             System.out.println(ERROR_TAG + "does not catch this.");
         } catch (RasIndexOutOfBoundsException e) {
-            System.out.println("OK, recognized: " + e.getMessage());
-        }
-
-        System.out.print(PREFIX_TESTCASE + "provoking RasClientInternalException (via subclassed e.)...");
-        try {
-            throw new TestRasClientInternalException("This is a test error");
-        } catch (RasClientInternalException e) {
-            System.out.println("OK, recognized: " + e.getMessage());
-        }
-
-        System.out.print(PREFIX_TESTCASE + "provoking RasResultIsNoCellException (via subclassed e.)...");
-        try {
-            throw new TestRasResultIsNoCellException();
-        } catch (RasResultIsNoCellException e) {
-            System.out.println("OK, recognized: " + e.getMessage());
-        }
-
-        System.out.print(PREFIX_TESTCASE + "provoking RasResultIsNoIntervalException (via subclassed e.)...");
-        try {
-            throw new TestRasResultIsNoIntervalException();
-        } catch (RasResultIsNoIntervalException e) {
             System.out.println("OK, recognized: " + e.getMessage());
         }
 

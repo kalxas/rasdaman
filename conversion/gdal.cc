@@ -362,7 +362,7 @@ char* r_Conv_GDAL::decodeImage()
     size_t tileBaseTypeSize = static_cast<size_t>(((r_Base_Type*)desc.destType)->size());
     size_t dataSize = static_cast<size_t>(width) * static_cast<size_t>(height) * tileBaseTypeSize;
     LTRACE << "allocating tile cells of size " << dataSize;
-    char* tileCells = (char*) mymalloc(dataSize);
+    char* tileCells RAS_ALIGNED = (char*) mymalloc(dataSize);
     if (tileCells == NULL)
     {
         LERROR << "failed allocating " << dataSize << " bytes for decoding input file.";
@@ -372,7 +372,7 @@ char* r_Conv_GDAL::decodeImage()
     // copy data from all GDAL bands to rasdaman
     size_t bandOffset = 0;
     size_t bandSize = 0;
-    char* bandCells = NULL;
+    char* bandCells RAS_ALIGNED = NULL;
     for (int bandId : bandIds)
     {
         size_t bandBaseTypeSize = ConvUtil::getBandBaseTypeSize(desc.destType, bandId);
@@ -514,7 +514,7 @@ void r_Conv_GDAL::transposeBand(const char *__restrict__ srcIn,
                                 char *__restrict__ dst, size_t tileBaseTypeSize,
                                 size_t width, size_t height)
 {
-    const T* __restrict__ src = reinterpret_cast<T*>(const_cast<char*>(srcIn));
+    const T* __restrict__ src RAS_ALIGNED = reinterpret_cast<T*>(const_cast<char*>(srcIn));
 
     if (!formatParams.isTranspose())
     {
@@ -528,7 +528,7 @@ void r_Conv_GDAL::transposeBand(const char *__restrict__ srcIn,
         else
         {
             // single band optimization
-            T* __restrict__ dstT = reinterpret_cast<T*>(dst);
+            T* __restrict__ dstT RAS_ALIGNED = reinterpret_cast<T*>(dst);
             for (size_t col = 0; col < width; ++col)
                 for (size_t row = 0; row < height; ++row, ++dstT)
                     *dstT = src[row * width + col];

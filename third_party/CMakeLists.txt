@@ -68,6 +68,20 @@ macro(AddExternalExecutable NAME PATH DEPENDENCIES)
     add_dependencies(${NAME} ${DEPENDENCIES})
 endmacro()
 
+# This macro is used to create a shared, imported library from an external project.
+# Syntax InstallExternalStaticLibrary(LIBRARY_NAME LIBRARY_PATH DEPENDENCIES)
+#   LIBRARY_NAME: The name of the library that will be used within the project
+#   LIBRARY_PATH: The path to the library object
+#   DEPENDENCIES: The name of the project or object this library depends on.
+macro(InstallExternalDynamicLibrary LIBRARY_NAME LIBRARY_PATH DEPENDENCIES)
+    add_library(${LIBRARY_NAME} SHARED IMPORTED GLOBAL)
+    set_property(TARGET ${LIBRARY_NAME} PROPERTY
+        IMPORTED_LOCATION ${LIBRARY_PATH})
+
+    # The library depends on the external project.
+    add_dependencies(${LIBRARY_NAME} ${DEPENDENCIES})
+endmacro()
+
 #########################################
 # DOWNLOAD THE SUBMODULES				#
 #########################################
@@ -243,7 +257,7 @@ if (RMANRASNET)
             && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
             COMMAND $(MAKE) ARGS -j install
             WORKING_DIRECTORY ${PROTOBUF_SOURCE_DIR}
-            COMMENT "Building Google Protocol Buffers. library."
+            COMMENT "Building Google Protocol Buffers library."
             VERBATIM)
 
     add_custom_target(google-protobuf

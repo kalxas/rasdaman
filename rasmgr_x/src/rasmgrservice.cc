@@ -21,7 +21,7 @@
  */
 
 #include <logging.hh>
-#include "common/src/grpc/grpcutils.hh"
+#include "common/grpc/grpcutils.hh"
 
 #include "clientcredentials.hh"
 #include "clientmanager.hh"

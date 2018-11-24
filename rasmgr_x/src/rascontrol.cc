@@ -26,7 +26,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/format.hpp>
 
-#include "common/src/crypto/crypto.hh"
+#include "common/crypto/crypto.hh"
 #include <logging.hh>
 #include "include/globals.hh"
 

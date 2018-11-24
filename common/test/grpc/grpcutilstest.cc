@@ -32,7 +32,7 @@
 //#include <netinet/in.h>
 
 #include <gtest/gtest.h>
-#include "../../src/grpc/grpcutils.hh"
+#include "common/grpc/grpcutils.hh"
 
 namespace common
 {

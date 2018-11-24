@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="InternalComponentError">
-        <ows:ExceptionText>The user RASGUEST does not exist.. Please check the log for the detail error.</ows:ExceptionText>
+        <ows:ExceptionText>Failed connecting client. Please check the log for the detail error.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

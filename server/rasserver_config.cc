@@ -237,29 +237,6 @@ Configuration::initLogFiles()
     // Default logging configuration
     common::LogConfiguration defaultConf(string(CONFDIR), SERVER_LOG_CONF);
     defaultConf.configServerLogging(logFileName);
-
-    if (logToStdOut == true)
-    {
-        RMInit::logOut.rdbuf(cout.rdbuf());
-        RMInit::dbgOut.rdbuf(cout.rdbuf());
-        RMInit::bmOut.rdbuf(cout.rdbuf());
-    }
-    else
-    {
-        if (RMInit::logFileOut.is_open())
-        {
-            RMInit::logFileOut.close();
-        }
-
-        RMInit::logFileOut.open(logFileName, ios::out | ios::app);
-        RMInit::logOut.rdbuf(RMInit::logFileOut.rdbuf());
-        RMInit::dbgOut.rdbuf(RMInit::logFileOut.rdbuf());
-        RMInit::bmOut.rdbuf(RMInit::logFileOut.rdbuf());
-    }
-#ifndef RMANDEBUG
-    RMInit::dbgFileOut.open("/dev/null", ios::app);
-    RMInit::dbgOut.rdbuf(RMInit::dbgFileOut.rdbuf());
-#endif
 }
 
 const char*

@@ -250,6 +250,8 @@ class r_Error;
 class r_Minterval
 {
 public:
+    /// constructor getting a low, high pair
+    r_Minterval(const r_Point& low, const r_Point& high);
     /// constructor getting dimensionality for stream initializing
     r_Minterval(r_Dimension);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
@@ -318,6 +320,13 @@ public:
     /**
     throws r_Edim_mismatch when dimensions do not match
     */
+
+    //@Man: Split into multiple smaller mintervals
+    //@{
+    ///
+    std::vector<r_Minterval> split_equal(int n);
+    ///
+    //@}
 
     /// checks whether point (scalar) is between any of the single intervals in this minterval
     /// used to check whether a null value is in an interval

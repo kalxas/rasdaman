@@ -56,6 +56,7 @@ rasdaman GmbH.
 #define DEFAULT_DBNAME      "RASBASE"
 
 /// name of rasmgr configuration file
+#define RASMGR_CONF_DIR     "/etc"
 #define RASMGR_CONF_FILE    "rasmgr.conf"
 
 /// name of server logging configuration file
@@ -80,6 +81,9 @@ rasdaman GmbH.
 
 #define DEFAULT_ADMIN        "rasadmin"
 #define DEFAULT_ADMIN_PASSWD    "rasadmin"
+
+/// binaries directory (cannot name it 'BINDIR', that's used by autotools)
+#define BINSUBDIR       "/bin"
 
 /// log file suffix
 #define LOG_SUFFIX          "log"

@@ -26,9 +26,9 @@
 #include <grpc/support/time.h>
 
 #include "include/globals.hh"
-#include "common/src/crypto/crypto.hh"
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/grpc/healthserviceimpl.hh"
+#include "common/crypto/crypto.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/grpc/healthserviceimpl.hh"
 #include <logging.hh>
 #include "rasnet/messages/rasmgr_rasctrl_service.grpc.pb.h"
 #include "rasnet/messages/rasmgr_rassrvr_service.grpc.pb.h"
@@ -54,8 +54,8 @@
 #include "servermanagerconfig.hh"
 #include "servermanager.hh"
 #include "usermanager.hh"
-#include "common/src/grpc/grpcutils.hh"
-#include "common/src/exceptions/resourcebusyexception.hh"
+#include "common/grpc/grpcutils.hh"
+#include "common/exceptions/resourcebusyexception.hh"
 
 #include "rasmanager.hh"
 

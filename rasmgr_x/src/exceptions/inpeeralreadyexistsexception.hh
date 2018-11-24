@@ -26,7 +26,7 @@
 #include <string>
 #include <boost/cstdint.hpp>
 
-#include "common/src/exceptions/rasexceptions.hh"
+#include "common/exceptions/rasexceptions.hh"
 
 namespace rasmgr
 {

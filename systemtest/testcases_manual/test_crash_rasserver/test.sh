@@ -35,7 +35,7 @@
 #
 
 # Variables
-readonly PROG=$(basename $0)
+PROG=$(basename $0)
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -43,10 +43,10 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
-export RASDATA="$DB_DIR"
+export RASDATA=
 
-set -u
-set -e
+#set -u
+#set -e
 
 # ------------------------------------------------------------------------------
 

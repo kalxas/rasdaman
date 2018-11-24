@@ -21,5 +21,18 @@
 #
 ###################################################################
 
-add_subdirectory(src)
+add_subdirectory(crypto)
+add_subdirectory(uuid)
+add_subdirectory(exceptions)
+add_subdirectory(logging)
+add_subdirectory(network)
+add_subdirectory(time)
+add_subdirectory(file)
+add_subdirectory(pragmas)
+add_subdirectory(stl)
+
+if (RMANRASNET)
+    add_subdirectory(grpc)
+endif ()
+
 add_subdirectory(test)

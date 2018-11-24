@@ -24,7 +24,7 @@
 
 #include <logging.hh>
 #include <gtest/gtest.h>
-#include "common/src/crypto/crypto.hh"
+#include "common/crypto/crypto.hh"
 #include "include/globals.hh"
 
 #include "rascontrol_x/src/usercredentials.hh"

@@ -26,8 +26,8 @@
 #include <boost/thread/locks.hpp>
 
 #include <logging.hh>
-#include "common/src/uuid/uuid.hh"
-#include "common/src/grpc/grpcutils.hh"
+#include "common/uuid/uuid.hh"
+#include "common/grpc/grpcutils.hh"
 
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "rasnet/messages/rasmgr_client_service.pb.h"

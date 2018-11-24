@@ -3,6 +3,6 @@
     
       >
     <ows:Exception exceptionCode="RasdamanRequestFailed">
-        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(clip( c, POLYGON((22 21,23 21,22 21,23 21,22 21)) ), "png" , "{\"geoReference\":{\"crs\":\"EPSG:4326\",\"bbox\":{\"xmin\":123.2384,\"ymin\":-19.9133,\"xmax\":123.8612,\"ymax\":-19.519}}}") FROM test_mean_summer_airtemp AS c'. Reason: No error message available for error number 10000.</ows:ExceptionText>
+        <ows:ExceptionText>Error evaluating rasdaman query: 'SELECT encode(clip( c, POLYGON((22 21,23 21,22 21,23 21,22 21)) ), "png" , "{\"geoReference\":{\"crs\":\"EPSG:4326\",\"bbox\":{\"xmin\":123.2384,\"ymin\":-19.9133,\"xmax\":123.8612,\"ymax\":-19.519}}}") FROM test_mean_summer_airtemp AS c'. Reason: Error: The polygon must be 2D and be defined by vertices in a 2D grid.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

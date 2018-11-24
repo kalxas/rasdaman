@@ -23,7 +23,7 @@
 #ifndef RASMGR_X_SRC_EXCEPTIONS_INEXISTENTUSEREXCEPTION_HH_
 #define RASMGR_X_SRC_EXCEPTIONS_INEXISTENTUSEREXCEPTION_HH_
 
-#include "common/src/exceptions/missingresourceexception.hh"
+#include "common/exceptions/missingresourceexception.hh"
 
 namespace rasmgr
 {

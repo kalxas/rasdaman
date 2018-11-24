@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 #include "conversion/tiff.hh"
 #include "conversion/memfs.hh"
+#include "conversion/tmpfile.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/structuretype.hh"
@@ -574,11 +575,20 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     return desc;
 }
 
+r_Conv_Desc& r_Conv_TIFF::convertFrom(r_Format_Params options)
+{
+    formatParams = options;
+    return convertFrom(NULL);
+}
+
 
 /// convert TIFF stream into array
 r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TIFF TO DATA
 {
-    params->process(options); //==> CHECK THIS "IMP"
+    if (options && !formatParams.parse(options))
+    {
+        params->process(options); //==> CHECK THIS "IMP"
+    }
     TIFF* tif = NULL;
     char dummyFile[256];
     unsigned int typeSize = 0;
@@ -589,17 +599,25 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
     uint16* reds = NULL, *greens = NULL, *blues = NULL;
 
     // Init simple (chunky) memFS
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv.cell_count())); //==> CHECK THIS
+
     desc.dest = NULL;
 
-    // Create dummy file for use in the TIFF open function
-    sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
-    fclose(fopen(dummyFile, "wb"));
-
-    // Open and force memory mapping mode
-    tif = TIFFClientOpen(dummyFile, "rM", handle,
-                         memfs_chunk_read, memfs_chunk_read, memfs_chunk_seek, memfs_chunk_close,
-                         memfs_chunk_size, memfs_chunk_map, memfs_chunk_unmap);
+    if (formatParams.getFilePaths().empty())
+    {
+        memfs_chunk_initfs(handle, (char*)desc.src, static_cast<r_Long>(desc.srcInterv.cell_count())); //==> CHECK THIS
+        // Create dummy file for use in the TIFF open function
+        sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
+        fclose(fopen(dummyFile, "wb"));
+        // Open and force memory mapping mode
+        tif = TIFFClientOpen(dummyFile, "rM", handle,
+                             memfs_chunk_read, memfs_chunk_read, memfs_chunk_seek, memfs_chunk_close,
+                             memfs_chunk_size, memfs_chunk_map, memfs_chunk_unmap);
+    }
+    else
+    {
+        auto filePath = formatParams.getFilePath();
+        tif = TIFFOpen(filePath.c_str(), "r");
+    }
 
     if (tif == NULL)
     {
@@ -902,7 +920,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                     break;
                     default:
                     {
-                        for (i = 0; i < width; i++, l += pixelAdd, normal += lineAdd)
+                        for (i = 0; i < width; ++i, l += pixelAdd, normal += lineAdd)
                         {
                             memcpy(l, normal, lineAdd);
                         }
@@ -979,11 +997,6 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
     }
 
     return desc;
-}
-
-r_Conv_Desc& r_Conv_TIFF::convertFrom(__attribute__ ((unused)) r_Format_Params options)
-{
-    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 

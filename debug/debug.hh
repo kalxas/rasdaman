@@ -58,23 +58,14 @@ in the target code; needs one main! */
 // no output by default
 #define DEBUG_OUTPUT_DEFAULT false
 
-/// for C++, we declare refs as "C" to exclude them from name mangling;
-/// for C it's like always
-/// --- well nice, but doesn't work for now, so we set it back
-#ifdef __cplusplus
-#   define EXTERN extern // "C"
-#else
-#   define EXTERN extern
-#endif
-
 /// variables are allocated in the main module (i.e., the source where main() resides),
 ///  and referened from all other places
 #ifdef DEBUG_MAIN
 int indentLevel = 0;
 bool debugOutput = DEBUG_OUTPUT_DEFAULT;
 #else
-EXTERN int indentLevel;
-EXTERN bool debugOutput;
+extern int indentLevel;
+extern bool debugOutput;
 #endif // DEBUG_MAIN
 
 /// enable/disable debug output from program

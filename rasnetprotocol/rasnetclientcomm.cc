@@ -49,12 +49,12 @@ rasdaman GmbH.
 
 #include "../debug/debug.hh"
 
-#include "common/src/crypto/crypto.hh"
-#include "common/src/uuid/uuid.hh"
-#include "common/src/grpc/grpcutils.hh"
+#include "common/crypto/crypto.hh"
+#include "common/uuid/uuid.hh"
+#include "common/grpc/grpcutils.hh"
 #include <logging.hh>
 
-#include "common/src/grpc/messages/error.pb.h"
+#include "common/grpc/messages/error.pb.h"
 
 #include "globals.hh"
 #include "rasnetclientcomm.hh"

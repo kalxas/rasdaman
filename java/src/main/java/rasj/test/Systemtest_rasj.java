@@ -68,14 +68,11 @@ class TestRasClientInternalException extends RasClientInternalException {
 public class Systemtest_rasj {
 
     public static void main(String[] args) {
-        String server = null;
+        String server = "localhost";
         String port = "7001";
         boolean wrongUsage = false;
 
         // get args
-        if (args.length == 0) {
-            wrongUsage = true;
-        }
         for (int i = 0; i < args.length; i += 2) {
             if (args[i].equals("-server")) {
                 server = args[i + 1];

@@ -22,7 +22,7 @@
 
 #include <stdexcept>
 
-#include "common/src/uuid/uuid.hh"
+#include "common/uuid/uuid.hh"
 #include <logging.hh>
 
 #include "exceptions/rasmgrexceptions.hh"
@@ -116,6 +116,7 @@ void Client::addDbSession(const std::string& dbName,
     //Check if the client is allowed to access the db
     out_dbRights = this->user->getDefaultDbRights();
 
+    // TODO(DM) - remove this rights mgmt here
     if (out_dbRights.hasReadAccess()  || out_dbRights.hasWriteAccess())
     {
         this->assignedServers[out_sessionId] = assignedServer;

@@ -23,7 +23,7 @@
 #include <boost/cstdint.hpp>
 
 #include <gtest/gtest.h>
-#include "../../src/time/timer.hh"
+#include "common/time/timer.hh"
 
 namespace common
 {

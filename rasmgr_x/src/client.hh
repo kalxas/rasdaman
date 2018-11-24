@@ -28,7 +28,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "common/src/time/timer.hh"
+#include "common/time/timer.hh"
 
 namespace rasmgr
 {

@@ -81,7 +81,7 @@ using namespace std;
 
 #include "raslib/rminit.hh"
 #include "loggingutils.hh"
-#include "common/src/logging/signalhandler.hh"
+#include "common/logging/signalhandler.hh"
 
 #define MAXMSG 1024
 

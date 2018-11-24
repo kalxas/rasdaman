@@ -32,6 +32,7 @@ rasdaman GmbH.
 class r_Nullvalues
 {
 public:
+    r_Nullvalues() = default;
     r_Nullvalues(std::vector<std::pair<r_Double, r_Double> >&& nullvaluesArg);
     
     const std::vector<std::pair<r_Double, r_Double> >& getNullvalues() const

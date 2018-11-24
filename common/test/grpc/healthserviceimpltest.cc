@@ -23,7 +23,7 @@
 #include <boost/cstdint.hpp>
 
 #include <gtest/gtest.h>
-#include "../../src/grpc/healthserviceimpl.hh"
+#include "common/grpc/healthserviceimpl.hh"
 
 namespace common
 {
