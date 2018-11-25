@@ -30,6 +30,11 @@
 
 #ifdef HAVE_GDAL
 class GDALDataset;
+
+using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset*)>;
+
+/// Closes and frees the dataset
+void deleteGDALDataset(GDALDataset* dataset);
 #endif
 
 /**************************************************************
@@ -46,6 +51,7 @@ class GDALDataset;
   The class represents a (coordinate system) projection operation.
 
 */
+
 
 class QtProject : public QtUnaryOperation
 {
@@ -90,13 +96,12 @@ private:
 #ifdef HAVE_GDAL
 
     // Conversion methods between rasdaman and GDAL
-    GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
-    Tile* convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile* sourceTile, r_Type* bandType);
-
-    void saveDatasetToFile(GDALDataset* ds, const char* filename, const char* driverName);
+    GDALDatasetPtr convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
+    std::unique_ptr<Tile> convertDatasetToTile(
+        const GDALDatasetPtr &gdalResult, int nBands, Tile* sourceTile, r_Type* bandType);
 
     // Perform reprojection with the help of GDAL library
-    GDALDataset* performGdalReprojection(GDALDataset* gdalSource);
+    GDALDatasetPtr performGdalReprojection(const GDALDatasetPtr &gdalSource);
 
     // For checking the "bounds" input string
     void parseNumbers(const char* str);
@@ -105,7 +110,7 @@ private:
     // Expands a CRS definition (e.g. "EPSG:4326" etc) into its Well-Known-Text representation
     bool setCrsWKT(const char* srsin, char*& wkt);
 
-    void setBounds(GDALDataset* dataset);
+    void setBounds(const GDALDatasetPtr &dataset);
 
     void testCrsTransformation(const char* in, const char* out);
 #endif

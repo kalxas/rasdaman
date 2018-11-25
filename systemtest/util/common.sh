@@ -469,8 +469,6 @@ update_result()
       fi
 
       # must enquote file content in "" or it will lose the new line from test case query
-      log_failed "$(cat "$f")"
-      log_failed ""
       log_failed "$fail_result"
     fi
   else

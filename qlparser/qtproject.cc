@@ -33,6 +33,7 @@
 #include "relcatalogif/basetype.hh"
 #include "tilemgr/tile.hh"
 #include "mddmgr/mddobj.hh"
+#include "mymalloc/mymalloc.h"
 
 
 #include <iostream>
@@ -42,6 +43,14 @@
 #include <string>
 using namespace std;
 #endif
+
+void deleteGDALDataset(GDALDataset* dataset)
+{
+  if (dataset)
+  {
+    GDALClose(dataset);
+  }
+}
 
 const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
 
@@ -138,8 +147,7 @@ QtData* QtProject::evaluate(QtDataList* inputList)
 #endif
 
         // Perform the actual evaluation
-        QtMDD*  qtMDD         = (QtMDD*) operand;
-        returnValue = evaluateMDD(qtMDD);
+        returnValue = evaluateMDD(static_cast<QtMDD*>(operand));
 
         // delete old operand
         if (operand)
@@ -206,32 +214,26 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD)
 {
 #ifdef HAVE_GDAL
 
-    QtData* returnValue = NULL;
     MDDObj* currentMDDObj = qtMDD->getMDDObject();
-    Tile*   sourceTile    = NULL;
-    vector<boost::shared_ptr<Tile>>* tiles = NULL;
-
     if (currentMDDObj->getDimension() != 2)
     {
         LERROR << "MDD dimension is not 2D. Aborting CRS transformation.";
         throw r_Error(r_Error::r_Error_ObjectInvalid);
     }
-    else
+    else if (xmin == -1 && ymin == -1 && xmax == -1 && ymax == -1)
     {
-        if (xmin == -1 && ymin == -1 && xmax == -1 && ymax == -1)
-        {
-            const r_Minterval& sourceDomain = qtMDD->getLoadDomain();
-            xmin = sourceDomain[0].low();
-            ymin = sourceDomain[1].low();
-            xmax = sourceDomain[0].high();
-            ymax = sourceDomain[1].high();
-        }
+        const r_Minterval& sourceDomain = qtMDD->getLoadDomain();
+        xmin = sourceDomain[0].low();
+        ymin = sourceDomain[1].low();
+        xmax = sourceDomain[0].high();
+        ymax = sourceDomain[1].high();
     }
 
+    std::unique_ptr<vector<boost::shared_ptr<Tile>>> tiles;
     if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
     {
         // get relevant tiles
-        tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
+        tiles.reset(currentMDDObj->intersect(qtMDD->getLoadDomain()));
     }
     else
     {
@@ -246,41 +248,33 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD)
         return qtMDD;
     }
 
-    // create one single tile with the load domain
-    sourceTile = new Tile(tiles, qtMDD->getLoadDomain());
-
-    // delete the tile vector
-    delete tiles;
-    tiles = NULL;
-
     // get type structure of the operand base type
     char*  typeStructure = qtMDD->getCellType()->getTypeStructure();
     // convert structure to r_Type
-    r_Type* baseSchema = r_Type::get_any_type(typeStructure);
-    r_Type* bandType = NULL;
+    std::unique_ptr<r_Type> baseSchema(r_Type::get_any_type(typeStructure));
     free(typeStructure);
     typeStructure = NULL;
 
     int numBands = 0;
+    std::unique_ptr<r_Type> bandType;
 
     if (baseSchema->isPrimitiveType())      // = one band
     {
         numBands = 1;
-        bandType = baseSchema;
+        bandType = std::move(baseSchema);
     }
     else if (baseSchema->isStructType())    // = multiple bands
     {
-        r_Structure_Type* myStruct = (r_Structure_Type*) baseSchema;
+        r_Structure_Type* myStruct = static_cast<r_Structure_Type*>(baseSchema.get());
+        numBands = static_cast<int>(myStruct->count_elements());
         r_Structure_Type::attribute_iterator iter(myStruct->defines_attribute_begin());
         while (iter != myStruct->defines_attribute_end())
         {
-            r_Type* newType = (*iter).type_of().clone();
-            numBands++;
             // check the band types, they have to be of the same type
             if ((*iter).type_of().isPrimitiveType())
             {
-                const r_Primitive_Type pt = (const r_Primitive_Type&)(*iter).type_of();
-                if (bandType != NULL)
+                const auto pt = static_cast<const r_Primitive_Type&>((*iter).type_of());
+                if (bandType)
                 {
                     if (bandType->type_id() != pt.type_id())
                     {
@@ -290,7 +284,7 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD)
                 }
                 else
                 {
-                    bandType = pt.clone();
+                    bandType.reset(pt.clone());
                 }
             }
             else
@@ -304,50 +298,42 @@ QtData* QtProject::evaluateMDD(QtMDD* qtMDD)
 
     /* Now the core of the reprojection */
 
+    // create one single tile with the load domain
+    std::unique_ptr<Tile> sourceTile;
+    sourceTile.reset(new Tile(tiles.get(), qtMDD->getLoadDomain()));
+
     // Convert tile "sourceTile" to GDAL format
-    GDALDataset* gdalSource = convertTileToDataset(sourceTile, numBands, bandType);
-    if (gdalSource == NULL)
+    auto gdalSource = convertTileToDataset(sourceTile.get(), numBands, bandType.get());
+    if (!gdalSource)
     {
         LERROR << "Could not convert tile to a GDAL dataset. ";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
 
-//      saveDatasetToFile(gdalSource, "gdalSource.tiff", "GTiff");
-
     // Perform GDAL reprojection
-    GDALDataset* gdalResult = performGdalReprojection(gdalSource);
-    if (gdalResult == NULL)
+    auto gdalResult = performGdalReprojection(gdalSource);
+    if (!gdalResult)
     {
-        LERROR << "GDAL Reprojection Result is a null dataset.";
+        LERROR << "GDAL reprojection result is a null dataset.";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
 
-//      saveDatasetToFile(gdalResult, "gdalResult.tiff", "GTiff");
-
-    // Convert result of GDAL to a so-called "resultTile"
-    Tile* resultTile = convertDatasetToTile(gdalResult, numBands, sourceTile, bandType);
-    if (resultTile == NULL)
+    auto resultTile = convertDatasetToTile(gdalResult, numBands, sourceTile.get(), bandType.get());
+    if (!resultTile)
     {
         LERROR << "Could not read the projection results from GDAL.";
         throw r_Error(r_Error::r_Error_RuntimeProjectionError);
     }
+    sourceTile.release();
 
     // create a transient MDD object for the query result
     MDDBaseType* mddBaseType = const_cast<MDDBaseType*>(qtMDD->getMDDObject()->getMDDBaseType());
     MDDObj* resultMDD = new MDDObj(mddBaseType, resultTile->getDomain(), currentMDDObj->getNullValues());
-    resultMDD->insertTile(resultTile);
+    resultMDD->insertTile(resultTile.get());
+    resultTile.release();
 
     // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD((MDDObj*)resultMDD);
-
-    // delete base type schema
-    delete baseSchema;
-    baseSchema = NULL;
-
-    // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD((MDDObj*)resultMDD);
-
-    return returnValue;
+    return new QtMDD((MDDObj*)resultMDD);
 #else // HAVE_GDAL
     LERROR << "GDAL support has been disabled, hence the project function is not available.";
     return NULL;
@@ -363,22 +349,9 @@ QtProject::printTree(int tab, ostream& s, QtChildType mode)
 }
 
 #ifdef HAVE_GDAL
-void QtProject::saveDatasetToFile(GDALDataset* ds, const char* filename, const char* driverName)
-{
-    GDALAllRegister();
-    GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(driverName);
-    GDALDataset* copyDS = driver->CreateCopy(filename, ds, FALSE, NULL, NULL, NULL);
-    if (copyDS != NULL)
-    {
-        GDALClose(copyDS);
-    }
-}
 
-GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* bandType)
+GDALDatasetPtr QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* bandType)
 {
-
-    r_Bytes typeSize = ((r_Primitive_Type*) bandType)->size();
-    bool isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
     r_Range width = domain[0].high() - domain[0].low() + 1;
     r_Range height = domain[1].high() - domain[1].low() + 1;
@@ -388,74 +361,76 @@ GDALDataset* QtProject::convertTileToDataset(Tile* tile, int nBands, r_Type* ban
     if (hMemDriver == NULL)
     {
         LERROR << "Could not init GDAL driver.";
-        return NULL;
+        return GDALDatasetPtr(nullptr, deleteGDALDataset);
     }
 
     // convert rasdaman type to GDAL type
     GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(bandType);
 
-    GDALDataset* hMemDS = hMemDriver->Create("in_memory_image", (int)width, (int)height, nBands, gdalBandType, NULL);
+    GDALDatasetPtr hMemDS(
+        hMemDriver->Create("in_memory_image", (int)width, (int)height, nBands, gdalBandType, NULL),
+        deleteGDALDataset);
 
-    char* tileCells = tile->getContents();
-    size_t tileSize = typeSize * (size_t)height * (size_t)width;
-    char* datasetCells = (char*) malloc(tileSize);
-    if (datasetCells == NULL)
-    {
-        LERROR << "Could not allocate memory.";
-        return NULL;
-    }
-    char* dst;
-    char* src;
-    int col_offset;
+    const size_t w = static_cast<size_t>(width);
+    const size_t h = static_cast<size_t>(height);
+    const size_t n = static_cast<size_t>(nBands);
+    const size_t cellBandSize = static_cast<size_t>(((r_Primitive_Type*) bandType)->size());
+    const size_t cellSize = n * cellBandSize;
+
+    const char* tileCells = tile->getContents();
+    size_t tileSize = cellBandSize * h * w;
+    char* datasetCells RAS_ALIGNED = static_cast<char*>(mymalloc(w * h * cellBandSize));
+
+    bool isBoolean = ((r_Primitive_Type*) bandType)->type_id() == r_Type::BOOL;
+    size_t colOffset{};
 
     // for all bands, convert data from column-major form (from Rasdaman) to row-major form (GDAL)
     // and then write the data to GDAL datasets
-    for (int band = 0; band < nBands; band++)
+    for (int band = 0; band < nBands; ++band)
     {
-        dst = (char*) datasetCells;
+        const char* src = tileCells + (static_cast<size_t>(band) * cellBandSize);
+        char* dst = datasetCells;
 
-        for (int row = 0; row < height; row++)
-            for (int col = 0; col < width; col++, dst += typeSize)
-            {
-                col_offset = ((row + height * col) * nBands * typeSize + band);
-                src = tileCells + col_offset;
-                if (isNotBoolean)
-                {
-                    memcpy(dst, src, typeSize);
-                }
-                else
-                {
-                    if (src[0] == 1)
-                    {
-                        dst[0] = std::numeric_limits<char>::max();
-                    }
-                    else
-                    {
-                        dst[0] = 0;
-                    }
-                }
+        if (!isBoolean) {
+          for (size_t row = 0; row < h; ++row) {
+            for (size_t col = 0; col < w; ++col, dst += cellBandSize) {
+              colOffset = (row + h * col) * cellSize;
+              memcpy(dst, src + colOffset, cellBandSize);
             }
+          }
+        } else {
+          for (size_t row = 0; row < h; ++row)
+            for (size_t col = 0; col < w; ++col, dst += cellBandSize) {
+              colOffset = (row + h * col) * cellSize;
+              dst[0] = src[colOffset] == 0 ? 0 : std::numeric_limits<char>::max();
+            }
+        }
 
-        CPLErr error =
-            hMemDS->GetRasterBand(band + 1)->
-            RasterIO(GF_Write, 0, 0, width, height, datasetCells,
-                     width, height, gdalBandType, 0, 0);
+        GDALRasterBand* gdalBand = hMemDS->GetRasterBand(band + 1);
+        CPLErr error = gdalBand->RasterIO(GF_Write, 0, 0, width, height,
+                                          (void*) datasetCells, width, height,
+                                          gdalBandType, 0, 0);
         if (error != CE_None)
         {
-            LERROR << "Could not write data to GDAL raster band " << band;
+            LERROR << "failed writing data to GDAL raster band, reason: " << CPLGetLastErrorMsg();;
             free(datasetCells);
-            return NULL;
+            datasetCells = NULL;
+            return GDALDatasetPtr(nullptr, deleteGDALDataset);
         }
     }
 
     free(datasetCells);
+    datasetCells = NULL;
 
     return hMemDS;
 }
 
 
-Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile* sourceTile, r_Type* bandType)
+std::unique_ptr<Tile> QtProject::convertDatasetToTile(
+    const GDALDatasetPtr &gdalResultPtr, int nBands, Tile* sourceTile, r_Type* bandType)
 {
+    auto *gdalResult = gdalResultPtr.get();
+
     /* Read image sizes from GDAL */
     int width = GDALGetRasterXSize(gdalResult);
     int height = GDALGetRasterYSize(gdalResult);
@@ -470,92 +445,84 @@ Tile* QtProject::convertDatasetToTile(GDALDataset* gdalResult, int nBands, Tile*
         ymax = gt[3];
     }
 
+    const size_t w = static_cast<size_t>(width);
+    const size_t h = static_cast<size_t>(height);
+    const size_t n = static_cast<size_t>(nBands);
+    const size_t cellBandSize = static_cast<size_t>(((r_Primitive_Type*) bandType)->size());
+    const size_t cellSize = n * cellBandSize;
     /* And init rasdaman data structures */
-    r_Minterval testInterval = r_Minterval(2);
-    testInterval << r_Sinterval((r_Range)0, ((r_Range)width) - 1);
-    testInterval << r_Sinterval((r_Range)0, ((r_Range)height) - 1);
 
+    char* tileCells RAS_ALIGNED =
+        static_cast<char*>(mymalloc(w * h * n * cellBandSize));
     /* Allocate memory */
-    int typeSize = (int)((r_Primitive_Type*) bandType)->size();
-    bool isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
-    size_t tileSize = (size_t)(width * height * typeSize * nBands);
-    char* tileCells = (char*) malloc(tileSize);
-    if (tileCells == NULL)
+    char* bandCells RAS_ALIGNED = NULL;
+    try
     {
-        LERROR << "failed allocating memory for the result data Tile.";
-        return NULL;
+        bandCells = static_cast<char*>(mymalloc(w * h * cellBandSize));
     }
-
-    size_t gdalBandSize = (size_t)(width * height * typeSize);
-    char* gdalBand = (char*) malloc(gdalBandSize);
-    if (gdalBand == NULL)
+    catch (std::bad_alloc &e)
     {
-        LERROR << "failed allocating memory for transfer between GDAL and rasdaman.";
-        if (tileCells)
-        {
-            free(tileCells);
-            tileCells = NULL;
-        }
+        free(tileCells);
+        tileCells = NULL;
         return NULL;
     }
 
     // convert rasdaman type to GDAL type
     GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(bandType);
+    bool isBoolean = ((r_Primitive_Type*) bandType)->type_id() == r_Type::BOOL;
+    size_t colOffset{};
 
     /* Copy data from all GDAL bands to rasdaman */
-    for (int band = 0; band < nBands; band ++)
+    for (int band = 0; band < nBands; ++band)
     {
-        CPLErr error = gdalResult->GetRasterBand(band + 1)->RasterIO(GF_Read, 0, 0, width, height, gdalBand, width, height, gdalBandType, 0, 0);
+        GDALRasterBand* gdalBand = gdalResult->GetRasterBand(band + 1);
+        CPLErr error = gdalBand->RasterIO(GF_Read, 0, 0, width, height,
+                                          (void*) bandCells, width, height,
+                                          gdalBandType, 0, 0);
         if (error != CE_None)
         {
-            LERROR << "failed reading the raster band data from GDAL.";
-            LERROR << "reason: " << CPLGetLastErrorMsg();
-            GDALClose(gdalResult);
-            free(gdalBand);
+            LERROR << "failed reading raster band data from GDAL, reason: " << CPLGetLastErrorMsg();
             return NULL;
         }
 
-        /*** Convert data from GDAL to rasdaman format.
-        Rasdaman stores data in column-major form. So walk through the rasdaman 1-D target array (so we walk along the columns), and copy data from the row-major image that GDAL returns.
-        Multi-band data is stored pixel interleaved in rasdaman.  ***/
+        /* Convert data from GDAL to rasdaman format.
+           Rasdaman stores data in column-major form. So walk through the rasdaman
+           1-D target array (so we walk along the columns), and copy data from the
+           row-major image that GDAL returns.
+           Multi-band data is stored pixel interleaved in rasdaman.
+        */
 
-        char* dst = gdalBand;
-        char* src;
-        int col_offset;
+        const char* src RAS_ALIGNED = bandCells;
+        char* dst RAS_ALIGNED = tileCells + (static_cast<size_t>(band) * cellBandSize);
 
-        for (int row = 0; row < height; row++)
-            for (int col = 0; col < width; col++, dst += typeSize)
-            {
-                col_offset = ((row + height * col) * nBands * typeSize + band);
-                src = tileCells + col_offset;
-                if (isNotBoolean)
-                {
-                    memcpy(src, dst, (size_t)typeSize);
-                }
-                else
-                {
-                    if (dst[0] == 0)
-                    {
-                        src[0] = 0;
-                    }
-                    else
-                    {
-                        src[0] = 1;
-                    }
-                }
+        if (!isBoolean) {
+          for (size_t row = 0; row < h; ++row) {
+            for (size_t col = 0; col < w; ++col, src += cellBandSize) {
+              colOffset = (row + h * col) * cellSize;
+              memcpy(dst + colOffset, src, cellBandSize);
             }
+          }
+        } else {
+          for (size_t row = 0; row < h; ++row)
+            for (size_t col = 0; col < w; ++col, src += cellBandSize) {
+              colOffset = (row + h * col) * cellSize;
+              dst[colOffset] = src[0] == 0 ? 0 : 1;
+            }
+        }
     }
 
-    /* Close the GDAL dataset */
-    GDALClose(gdalResult);
-    free(gdalBand);
+    /* And init rasdaman data structures */
+    r_Minterval resDomain = r_Minterval(2);
+    resDomain << r_Sinterval((r_Range)0, ((r_Range)width) - 1);
+    resDomain << r_Sinterval((r_Range)0, ((r_Range)height) - 1);
 
     /* And finally build the tile */
-    Tile* resultTile = new Tile(testInterval, sourceTile->getType(), true, tileCells, (r_Bytes)0, r_Array);
+    std::unique_ptr<Tile> resultTile;
+    resultTile.reset(new Tile(resDomain, sourceTile->getType(), true, tileCells, (r_Bytes)0, r_Array));
     return resultTile;
 }
 
-GDALDataset* QtProject::performGdalReprojection(GDALDataset* hSrcDS)
+GDALDatasetPtr QtProject::performGdalReprojection(const GDALDatasetPtr &hSrcDS)
 {
     if (xmin == -1 || ymin == -1 || xmax == -1 || ymax == -1)
     {
@@ -568,8 +535,9 @@ GDALDataset* QtProject::performGdalReprojection(GDALDataset* hSrcDS)
     setBounds(hSrcDS);
 
     // Do the actual conversion
-    GDALDataset* resultDS = (GDALDataset*)GDALAutoCreateWarpedVRT(
-                                hSrcDS, wktCrsIn, wktCrsOut, GRA_Bilinear, 0, NULL);
+    GDALDatasetPtr resultDS(
+        static_cast<GDALDataset*>(GDALAutoCreateWarpedVRT(hSrcDS.get(), wktCrsIn, wktCrsOut, GRA_Bilinear, 0, NULL)),
+        deleteGDALDataset);
 
     return resultDS;
 }
@@ -592,11 +560,11 @@ bool QtProject::setCrsWKT(const char* srsin, char*& wkt)
     return true;
 }
 
-void QtProject::setBounds(GDALDataset* dataset)
+void QtProject::setBounds(const GDALDatasetPtr &dataset)
 {
     double adfGeoTransform[6];
-    int nRasterXSize = GDALGetRasterXSize(dataset);
-    int nRasterYSize = GDALGetRasterYSize(dataset);
+    int nRasterXSize = GDALGetRasterXSize(dataset.get());
+    int nRasterYSize = GDALGetRasterYSize(dataset.get());
 
     adfGeoTransform[0] = xmin;
     adfGeoTransform[1] = (xmax - xmin) / nRasterXSize;

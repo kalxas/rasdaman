@@ -1,0 +1,1 @@
+select encode((char)project( <[0:1,0:1] {1d,2d}, {3d,4d}; {5d,6d}, {7d,8d}>, "EPSG:32651", "EPSG:4326"), "json")
