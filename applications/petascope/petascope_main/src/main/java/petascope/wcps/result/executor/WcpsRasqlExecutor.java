@@ -44,12 +44,12 @@ import petascope.util.TimeUtil;
 import petascope.util.XMLUtil;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
+import static petascope.wcps.handler.ClipWKTExpressionHandler.WITH_COORDINATES;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.RegularAxis;
 import petascope.wcps.metadata.service.CoordinateTranslationService;
-import static petascope.wcps.parser.wcpsParser.WITH_COORDINATES;
 
 /**
  * Execute the Rasql query and return result.
@@ -85,7 +85,7 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
             if (wcpsResult.withCoordinates()) {
                 if (!(mimeType.equals(MIMEUtil.MIME_CSV) || mimeType.equals(MIMEUtil.MIME_JSON))) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest, 
-                                                 "'" + WITH_COORDINATES + "' can be applied with encode in CSV/JSON only, given '" + mimeType + "'.");
+                                                 "'" + WITH_COORDINATES.trim() + "' can be applied with encode in CSV/JSON only, given '" + mimeType + "'.");
                 }
                 arrayData = this.buildWithCoordinatesResult(wcpsResult.getMetadata(), arrayData, mimeType);
             } else if (mimeType.equals(MIMEUtil.MIME_GML)) {
