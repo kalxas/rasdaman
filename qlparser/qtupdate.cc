@@ -236,6 +236,10 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     MDDObj* targetObj = targetMDD->getMDDObject();
     MDDObj* sourceObj = sourceMDD->getMDDObject();
     r_Nullvalues* sourceNullValues = sourceObj->getNullValues();
+    // the null values of source object have precedence; if they are not specified, only then take
+    // the null values of the target object.
+    if (!sourceNullValues)
+        sourceNullValues = targetObj->getNullValues();
 
     // test, if target is a persistent object
     if (!targetObj->isPersistent())
