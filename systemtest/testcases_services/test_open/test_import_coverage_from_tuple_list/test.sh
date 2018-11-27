@@ -38,7 +38,7 @@ OUTPUT_FILE="$SCRIPT_DIR/output.png"
 
 COVERAGE_ID="C0001"
 
-log "Testing import a coverage from tuple list in GML file..."
+logn "Testing import a coverage from tuple list in GML file..."
 
 GML_TEMPLATE_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1.xml.in"
 GML_FILE="$SCRIPT_DIR/exampleRectifiedGridCoverage-1.xml"
@@ -62,10 +62,7 @@ check
 # delete imported test coverage
 delete_coverage "$COVERAGE_ID"
 
-rm -rf "$OUTPUT_FILE"
-rm -rf "$GML_FILE"
-
-log "done."
+rm -rf "$OUTPUT_FILE" "$GML_FILE"
 
 # print summary from util/common.sh
 print_summary

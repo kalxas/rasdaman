@@ -24,17 +24,19 @@
 out="$1"
 oracle="$2"
 
+nout="$out.output_tmp"
+nora="$out.oracle_tmp"
+
 # create tmp files
-cp "$out" "$out".tmp
-cp "$oracle" "$oracle".tmp
+cp "$out" "$nout"
+cp "$oracle" "$nora"
 
-# Don't check layers as they can be different, only check first 70 lines to know WMS not return error
-sed -n 1,60p "$out".tmp > "$out".tmp2
-sed -n 1,60p "$oracle".tmp > "$oracle".tmp2
+# remove variable lines
+for file in "$nout" "$nora"
+do
+  prepare_xml_file "$file"
+  sed -i -n 1,60p "$file"
+done
 
-diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
-rc=$?
-cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp* "$oracle".tmp*
-
-exit $rc
+diff -b "$nout" "$nora" > /dev/null 2>&1
+exit $?

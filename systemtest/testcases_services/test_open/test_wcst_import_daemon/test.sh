@@ -38,187 +38,158 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 ingredients_file_testdata="$SCRIPT_DIR/../../test_all_wcst_import/testdata/wcs_import_order_descending_test_import_order_descending_irregular_time_netcdf/ingest.template.json"
 
-sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$SCRIPT_DIR/ingest.json"
+relpath() { 
+    python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"
+}
+ingest_json=$(relpath "$SCRIPT_DIR/ingest.json")
+
+sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$ingredients_file_testdata" > "$ingest_json"
 
 # array for holding posible daemon commands
 # in case the daemon's functionality is extended, add the new commands at the end of the array
-declare -a daemon_commands=("wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon start" \
-	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon status" \
-	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon restart" \
-	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --daemon stop" \
-	"wcst_import.sh "$SCRIPT_DIR/ingest.json" --watch 0.5")
+declare -a daemon_commands=( \
+    "wcst_import.sh $ingest_json --daemon start" \
+    "wcst_import.sh $ingest_json --daemon status" \
+    "wcst_import.sh $ingest_json --daemon restart" \
+    "wcst_import.sh $ingest_json --daemon stop" \
+    "wcst_import.sh $ingest_json --watch 0.5")
 
+get_daemon_pid() {
+    ps aux | grep "$ingest_json" | grep -v "grep" | tr -s " " | cut -d " " -f2
+}
+
+stop_daemon() {
+    log_message=`${daemon_commands[3]} > /dev/null 2>&1`
+}
+start_daemon() {
+    log_message=`${daemon_commands[0]} > /dev/null 2>&1`
+}
+status_daemon() {
+    ${daemon_commands[1]}
+}
+watch_daemon_0_5s() {
+    log_message=`${daemon_commands[4]}`
+}
 
 check_start() {
-	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
-
-	logn "Checking --daemon start ... "
-
-	if [ "$daemon_pid" > /dev/null ]; then
-		check_passed
-	else
-		check_failed
-	fi
-
+    daemon_pid=$(get_daemon_pid)
+    [ -n "$daemon_pid" ]
+    check_result 0 $? "checking --daemon start"
 }
-
 check_status() {
-	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json" | tr -s " " | cut -d " " -f2)
-	message=$"$1"
-
-	logn "Checking --daemon status ... "
-
-	if [ "$daemon_pid" == "${message//[^0-9]/}" ]; then
-		check_passed
-	else
-		check_failed
-	fi
-
+    daemon_pid=$(get_daemon_pid)
+    message=$"$1"
+    check_result "$daemon_pid" "${message//[^0-9]/}" "checking --daemon status"
 }
-
 check_restart() {
-	old_pid=$"$1"
-	new_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json" | tr -s " " | cut -d " " -f2)
-
-	logn "Checking --daemon restart ... "
-
-	if ! [ "$old_pid" == "$new_pid" ]; then
-		check_passed
-	else
-		check_failed
-	fi
+    old_pid=$"$1"
+    new_pid=$(get_daemon_pid)
+    [ "$old_pid" != "$new_pid" ]
+    check_result 0 $? "checking --daemon restart"
 }
-
 check_stop() {
-	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
-
-	logn "Checking --daemon stop ... "
-
-	if ! [ "$daemon_pid" > /dev/null ];then 
-		check_passed
-	else
-		check_failed
-	fi
+    daemon_pid=$(get_daemon_pid)
+    [ -z "$daemon_pid" ]
+    check_result 0 $? "checking --daemon stop"
 }
 
 # check if --watch is looking for existence of pidfile each [interval] seconds
 check_watch_pid() {
-	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
+    check_start
+    rm -f "$ingest_json.wcst_import.pid"
+    sleep 2
 
-	logn "Checking --watch [interval] ... "
-
-	if [ "$daemon_pid" > /dev/null ]; then
-		rm "$SCRIPT_DIR/ingest.json.wcst_import.pid"
-		sleep 1
-
-		daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json")
-		if ! [ "$daemon_pid" > /dev/null ];then 
-			check_passed
-		else
-			check_failed
-		fi
-	else
-		check_failed
-	fi
-
-	# stop the daemon
-	log_message=`${daemon_commands[3]} > /dev/null 2>&1`
+    [ -z "$(get_daemon_pid)" ]
+    check_result 0 $? "checking pidfile removal during --watch [interval]"
+    stop_daemon
 }
 
 # check if --watch is looking for new data each [interval] seconds
 check_watch_data() {
-	logn "Checking --watch [interval] ... "
+    watch_daemon_0_5s
+    first_modified=$(stat -c "%Y" $ingest_json.wcst_import.log)
+    sleep 2
+    last_modified=$(stat -c "%Y" $ingest_json.wcst_import.log)
 
-	log_message=`${daemon_commands[4]}`
-
-	first_modified=$(stat -c "%Y" $SCRIPT_DIR/ingest.json.wcst_import.log)
-	sleep 1
-	last_modified=$(stat -c "%Y" $SCRIPT_DIR/ingest.json.wcst_import.log)
-
-	if [ "$first_modified" != "$last_modified" ]; then
-		check_passed
-	else
-		check_failed
-	fi
-
-	# stop the daemon
-	log_message=`${daemon_commands[3]} > /dev/null 2>&1`
-
+    [ "$first_modified" != "$last_modified" ]
+    check_result 0 $? "checking data access during --watch [interval]"
+    stop_daemon
 }
 
+#
+# actual tests
+#
 
+check_daemon_status_on_manuall_kill() {
+    log "check daemon status on manual daemon kill..."
 
-test_case_1() {
-	loge "\nRunning: Test_case_1 ...\n\n"
+    start_daemon
+    sleep 1
 
-	log_message=`${daemon_commands[0]} > /dev/null 2>&1`
+    # kill the process of the daemon manually and check for correct behaviour afterwards
+    daemon_pid=$(get_daemon_pid)
+    for pid in $daemon_pid; do
+        kill "$pid"
+    done
+    check_status "$(status_daemon)"
 
-	# kill the process of the daemon manually and check for correct behaviour afterwards
-	daemon_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json" | tr -s " " | cut -d " " -f2)
-	kill "$daemon_pid"
-	status_message=`${daemon_commands[1]}`
-	check_status "$status_message"
-
-	`${daemon_commands[0]} > /dev/null 2>&1`
-	check_start
-	
-	# stop the daemon
-	`${daemon_commands[3]} > /dev/null 2>&1`
-
+    start_daemon
+    check_start
+    stop_daemon
+    check_stop
 }
 
 # set the daemon to look for pidfile and newdata every 1 seconds
 # remove the pidfile
 # check if the daemon correctly exists
-test_case_2() {
-	loge "\nRunning: Test_case_2 ...\n\n"
+check_pidfile_removed() {
+    log "check that daemon stops when pid file is removed..."
 
-	`${daemon_commands[4]} > /dev/null 2>&1`
-	rm "$SCRIPT_DIR/ingest.json.wcst_import.pid"
-	sleep 1
+    watch_daemon_0_5s
+    rm "$ingest_json.wcst_import.pid"
+    sleep 1
 
-	check_stop
+    check_stop
 }
 
 
 for (( i = 0; i < ${#daemon_commands[@]} ; i++ )); do
-	loge "\nRunning: ${daemon_commands[$i]} ...\n\n"
+    log ""
+    log "test ${daemon_commands[$i]}"
 
-	current_pid=$(ps aux | grep -E -v "grep" | grep "$SCRIPT_DIR/ingest.json" | tr -s " " | cut -d " " -f2)
-	log_message=`${daemon_commands[$i]}`
+    current_pid=$(get_daemon_pid)
+    log_message=`${daemon_commands[$i]}`
 
-	case "$i" in
-		0)
-			check_start
-			;;
+    case "$i" in
+        0)
+            check_start
+            ;;
+        1)
+            check_status "$log_message"
+            ;;
+        2) 
+            check_restart "$current_pid"
+            ;;
+        3)
+            check_stop
+            ;;
+        4)
+            check_watch_pid
+            check_watch_data
+            ;;
+        *)
+    esac
 
-		1)
-			check_status "$log_message"
-			;;
-
-		2) 
-			check_restart "$current_pid"
-			;;
-
-		3)
-			check_stop
-			;;
-
-		4)
-			check_watch_pid
-			check_watch_data
-			;;
-
-		*)
-
-	esac
-
-	if [ -n "$log_message" ]; then
-		loge "$log_message"
-	fi
+    if [ -n "$log_message" ]; then
+        log "wcst_import.sh output: $log_message"
+    fi
 done
 
-test_case_1
-test_case_2
+log ""
+check_daemon_status_on_manuall_kill
+
+log ""
+check_pidfile_removed
 
 print_summary
+exit $RC

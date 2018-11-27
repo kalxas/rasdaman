@@ -4,9 +4,9 @@ dimensions:
 	dim_1 = 10 ;
 	dim_2 = 5 ;
 variables:
-	short values(dim_0, dim_1, dim_2) ;
-		values:valid_min = 0s ;
-		values:valid_max = 255s ;
+	ubyte values(dim_0, dim_1, dim_2) ;
+		values:valid_min = 0UB ;
+		values:valid_max = 255UB ;
 data:
 
  values =

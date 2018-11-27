@@ -143,8 +143,8 @@ void shutdownHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* uc
             TileCache::clear();
             BLINFO << "aborting any open transactions... ";
             auto &rasserverEntry = RasServerEntry::getInstance();
-            rasserverEntry.compat_abortTA();
-            rasserverEntry.compat_closeDB();
+            if (rasserverEntry.compat_isOpenTA())
+                rasserverEntry.compat_abortTA();
             if (server)
             {
                 server->abortEveryThingNow();

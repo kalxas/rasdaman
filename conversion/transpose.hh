@@ -34,9 +34,6 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "raslib/basetype.hh"
 
-//find size of data type of an r_Type object in case it can be recast to r_Base_Type
-//e.g. srcType and destType in r_Conv_Desc
-int dataTypeSize(const r_Type* base_type);
 //transpose the last two dimensions of data via a temporary 2D object dataTemp
 void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType);
 

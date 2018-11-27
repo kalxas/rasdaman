@@ -5,7 +5,8 @@ dimensions:
 	dim_2 = 10 ;
 variables:
 	double values(dim_0, dim_1, dim_2) ;
-		values:missing_value = "NaN" ;
+		values:valid_min = -1.79769313486232e+308 ;
+		values:valid_max = 1.79769313486232e+308 ;
 data:
 
  values =

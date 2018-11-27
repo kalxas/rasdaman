@@ -5,7 +5,8 @@ dimensions:
 	dim_2 = 10 ;
 variables:
 	float values(dim_0, dim_1, dim_2) ;
-		values:missing_value = "NaNf" ;
+		values:valid_min = -3.402823e+38f ;
+		values:valid_max = 3.402823e+38f ;
 data:
 
  values =

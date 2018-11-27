@@ -36,14 +36,12 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-log "Testing Petascope context path with slash..."
-
-log "Sending GET request to $PETASCOPE_URL/..."
-wget -q  -O/dev/null --spider "$PETASCOPE_URL/"
+logn "sending GET request to $PETASCOPE_URL/..."
+wget -q -O/dev/null --spider "$PETASCOPE_URL/"
 check
 
-log "Sending POST request to $PETASCOPE_URL/..."
-wget -q  -O/dev/null "$PETASCOPE_URL/" --post-data ""
+logn "sending POST request to $PETASCOPE_URL/..."
+wget -q -O/dev/null "$PETASCOPE_URL/" --post-data ""
 check
 
 # print summary from util/common.sh

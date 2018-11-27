@@ -42,48 +42,16 @@ UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 . "$UTIL_SCRIPT_DIR"/../conf/test.cfg
 
 
-# ------------------------------------------------------------------------------
-# script return codes
-#
-RC_OK=0
-RC_ERROR=1
-RC_SKIP=2
-
-
-# ------------------------------------------------------------------------------
-# testing statistics
-#
-NUM_TOTAL=0 # the number of tests
-NUM_FAIL=0  # the number of failed tests
-NUM_SUC=0   # the number of successful tests
-
-# testing data
-TEST_STRUCT=test_struct
-TEST_GREY=test_grey
-TEST_GREY2=test_grey2
-TEST_RGB2=test_rgb2
-TEST_GREY3D=test_grey3d
-TEST_GREY4D=test_grey4d
-TEST_COMPLEX=test_complex
-TEST_NULL=nulltest
-TEST_NULL_FLOAT=test_nulltest_float
-TEST_NULL3D=test_nulltest3d
-TEST_SUBSETTING_1D=test_subsetting_1d
-TEST_SUBSETTING=test_subsetting
-TEST_SUBSETTING_SINGLE=test_subsetting_single
-TEST_SUBSETTING_3D=test_subsetting_3d
-
-
-# ------------------------------------------------------------------------------
-# command shortcuts
+# --------------------------------------------------------
+# command shortcuts; variables configured in conf/test.cfg
 #
 export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
-              --passwd $RASMGR_ADMIN_PASSWD"
+--passwd $RASMGR_ADMIN_PASSWD"
 export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD \
-                 --database $RASDB"
-# This one is used only for test_rasdapy
-export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
-              --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
+--database $RASDB"
+export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py \
+--server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
+--passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
 export RASIMPORT="rasimport"
@@ -100,83 +68,174 @@ export DB_DIR="/tmp/rasdb"
 export LOG_DIR="$RMANHOME/log"
 export RASMGR_CONF="$RMANHOME/etc/rasmgr.conf"
 
+# -------------------
+# script return codes
+#
+RC_OK=0
+RC_ERROR=1
+RC_SKIP=2
+
+# ----------------
+# test case status
+#
+ST_PASS=OK    # test passed
+ST_FAIL=FAIL  # test failed
+ST_SKIP=SKIP  # test failed, and also marked in known_fails so it was skipped
+ST_FIX=FIX    # marked as known_fail but actually passes, i.e. it was fixed
+ST_COPY=COPY  # oracle not found = copy output file to the oracle
+
+# ------------------
+# testing statistics
+#
+NUM_TOTAL=0 # the number of tests
+NUM_FAIL=0  # the number of failed tests
+NUM_SUC=0   # the number of successful tests
+
+# ----------------------
+# testing data
+# TODO: move to rasql.sh
+#
+TEST_STRUCT=test_struct
+TEST_GREY=test_grey
+TEST_GREY2=test_grey2
+TEST_RGB2=test_rgb2
+TEST_GREY3D=test_grey3d
+TEST_GREY4D=test_grey4d
+TEST_COMPLEX=test_complex
+TEST_NULL=nulltest
+TEST_NULL_FLOAT=test_nulltest_float
+TEST_NULL3D=test_nulltest3d
+TEST_SUBSETTING_1D=test_subsetting_1d
+TEST_SUBSETTING=test_subsetting
+TEST_SUBSETTING_SINGLE=test_subsetting_single
+TEST_SUBSETTING_3D=test_subsetting_3d
+
+# ------------------------------------------------------------------------------
+# OS version; the current os can be determined with the get_os function
+#
+OS_UNKNOWN="unknown"
+OS_CENTOS7="centos7" # CentOS 7.x
+OS_JESSIE="jessie"   # Debian 8
+OS_STRETCH="stretch" # Debian 9
+OS_BUSTER="buster"   # Debian testing (buster)
+OS_TRUSTY="trusty"   # Ubuntu 14.04
+OS_XENIAL="xenial"   # Ubuntu 16.04
+OS_BIONIC="bionic"   # Ubuntu 18.04
+
 # ------------------------------------------------------------------------------
 # logging
 #
 
 LOG_FILE="$SCRIPT_DIR/test.log"
-OLD_LOG_FILE="$LOG_FILE.save"
 FAILED_LOG_FILE="$SCRIPT_DIR/failed_cases.log"
-FIXED=0
+SVC_NAME=
 
+# ---------------------------
+# terminal color escape codes
+#
+C_OFF="\e[0m"
+C_BOLD="\e[1m"
+C_UNDERLINE="\e[4m"
+# color text is also bold for better visibility
+C_RED="$C_BOLD\e[31m"
+C_GREEN="$C_BOLD\e[32m"
+C_YELLOW="$C_BOLD\e[33m"
 
-log()
+# print the color passed as an argument only if it's a terminal
+get_color() { [ -t 0 -o -t 1 -o -t 2 ] && echo "$1"; }
+
+# colors set properly depending on whether the test is run in a terminal
+# (rather than output redirected for example)
+c_off=$(get_color "$C_OFF")
+c_bold=$(get_color "$C_BOLD")
+c_underline=$(get_color "$C_UNDERLINE")
+c_green=$(get_color "$C_GREEN")
+c_red=$(get_color "$C_RED")
+c_yellow=$(get_color "$C_YELLOW")
+
+# $1: test status
+# stdout: $color_on and $color_on if $1 != $ST_PASS
+get_status_color()
 {
-  echo "$PROG: $*" | tee -a "$LOG_FILE"
+  [ "$1" == $ST_PASS ] && return # pass, no special color
+  case "$1" in
+    $ST_FAIL) echo "$c_red";;
+    *)        echo "$c_yellow";;
+  esac
 }
 
-loge()
+# log as is to stdout, but remove colors from file output
+log_colored()
 {
-  echo -e "$*" | tee -a "$LOG_FILE"
+  echo -e "$PROG: $@"
+  echo -e "$PROG: $@" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
+}
+log_colored_failed()
+{
+  echo -e "$PROG: ${c_red}$@${c_off}"
+  echo -e "$PROG: $@" >> "$LOG_FILE"
+}
+loge_colored()
+{
+  echo -e "$@"
+  echo -e "$@" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> "$LOG_FILE"
+}
+loge_colored_failed()
+{
+  echo -e "${c_red}$@${c_off}"
+  echo -e "$@" >> "$LOG_FILE"
 }
 
-logn()
-{
-  echo -n "$PROG: $*" | tee -a "$LOG_FILE"
+# normal log
+log() {
+  echo -e "$PROG: $@" | tee -a "$LOG_FILE"
+}
+loge() {
+  echo -e "$@" | tee -a "$LOG_FILE"
+}
+logn() {
+  echo -n -e "$PROG: $@" | tee -a "$LOG_FILE"
+}
+error() {
+  log_colored_failed "$@"
+  log_colored_failed "exiting."
+  exit $RC_ERROR
 }
 
 # write the detail error in failed_cases.log
-log_failed()
-{
-  echo "$PROG: $*" | tee -a "$FAILED_LOG_FILE"
+log_failed() {
+  echo "$PROG: $@" | tee -a "$FAILED_LOG_FILE"
 }
 
-feedback()
-{
+feedback() {
   if [ $? -ne 0 ]; then
-    loge failed.
+    loge_colored_failed failed.
   else
     loge ok.
   fi
 }
-
-check()
-{
+check_exit() {
   if [ $? -ne 0 ]; then
-    echo "$PROG: failed, exiting." | tee -a "$LOG_FILE"
+    log_colored_failed "failed, exiting."
     exit $RC_ERROR
   else
     loge ok.
   fi
 }
 
-error()
-{
-  echo "$PROG: $*" | tee -a "$LOG_FILE"
-  echo "$PROG: exiting." | tee -a "$LOG_FILE"
-  exit $RC_ERROR
-}
-
-# ------------------------------------------------------------------------------
+# ---------
 # setup log
 #
-
 if [ -n "$SCRIPT_DIR" ] ; then
-  if [ -f $LOG_FILE ] ; then
-    echo "Old logfile found, copying it to $OLD_LOG_FILE"
-    rm -f "$OLD_LOG_FILE"
-    mv "$LOG_FILE" "$OLD_LOG_FILE"
-  fi
-
-  rm -f "$FAILED_LOG_FILE"
-
-  NOW=`date`
-  log "starting test at $NOW"
+  rm -f "$LOG_FILE" "$FAILED_LOG_FILE"
+  log "starting test at $(date)"
   log ""
 fi
 
-#
+
+# ------------------------------------------------------------------------------
 # manage timing, in ms
+# @global variable: timer_start
 #
 start_timer()
 {
@@ -186,10 +245,51 @@ stop_timer()
 {
   timer_stop=$(date +%s%N)
 }
+# ms
 get_time()
 {
-  echo "scale=3; ($timer_stop - $timer_start) / 1000000.0" | bc
+  echo "scale=2; ($timer_stop - $timer_start) / 1000000.0" | bc
 }
+# s
+get_time_s()
+{
+  echo "scale=2; ($timer_stop - $timer_start) / 1000000000.0" | bc
+}
+
+# set a global timestamp when this file is loaded by a test script
+# @global variable: total_timer_start
+#
+start_timer
+total_timer_start="$timer_start"
+
+
+# ------------------------------------------------------------------------------
+# OS mgmt
+#
+
+# @global variable: OS_VERSION (one of the $OS_* values)
+get_os()
+{
+  OS_VERSION=$OS_UNKNOWN
+  if [ -f "/etc/centos-release" ]; then
+    grep -q "CentOS Linux release 7" /etc/centos-release
+    [ $? -eq 0 ] && OS_VERSION=$OS_CENTOS7
+  else
+    local version=$(lsb_release -a 2>&1 | grep Description \
+      | sed 's/Description: *//' | tr -d '[:space:]')
+    case "$version" in
+      Ubuntu14.*)       OS_VERSION=$OS_TRUSTY;;
+      Ubuntu16.*)       OS_VERSION=$OS_XENIAL;;
+      Ubuntu18.*)       OS_VERSION=$OS_BIONIC;;
+      Debian*8*)        OS_VERSION=$OS_JESSIE;;
+      Debian*9*)        OS_VERSION=$OS_STRETCH;;
+      Debian*buster*)   OS_VERSION=$OS_BUSTER;;
+    esac
+  fi
+}
+
+# determine $OS_VERSION on startup
+get_os
 
 # ------------------------------------------------------------------------------
 # dependency checks
@@ -207,6 +307,26 @@ check_rasdaman()
   $RASCONTROL -x 'list srv -all' &> /dev/null
   if [ $? -ne 0 ]; then
     error "no rasdaman servers started."
+  fi
+}
+
+check_rasdaman_available()
+{
+  # check if rasdaman is running and exit if not
+  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
+  if [ $? -ne 0 ]; then
+    # retry test
+    sleep 2
+    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
+    if [ $? -ne 0 ]; then
+        log "rasdaman down, exiting..."
+        # cleanup if cleanup function is defined
+        if declare -f "cleanup" &> /dev/null; then
+            cleanup
+        else
+            exit $RC_ERROR
+        fi
+    fi
   fi
 }
 
@@ -293,24 +413,16 @@ check_jpeg2000_enabled()
   return 0
 }
 
-
 # check if query should be run (e.g: JPEG2000)
 check_query_runable()
 {
   if [[ "$1" == *"jp2"* || "$1" == *"jpeg2000"*  || "$1" == *"jp2openjpeg"* ]]; then
     # call the function and get the return in integer by $?
     check_jpeg2000_enabled
-    if [[ $? -eq 0 ]]; then
-      return 0
-    else
-      log "skipping test as it is not runable."
-      loge
-      return 1
-    fi
+    return $?
   fi
   return 0
 }
-
 
 check_filestorage_dependencies()
 {
@@ -324,38 +436,57 @@ check_java_enabled() {
   if [ "$ENABLE_JAVA" == "ON" ]; then
     return 0
   else
-    log "Test cannot be executed as compilation of Java components in rasdaman is disabled; to enable it, please run cmake again with -DENABLE_JAVA=ON, followed by make and make install."
+    log "Test cannot be executed as compilation of Java components in rasdaman is disabled."
+    log "To enable it, please run cmake again with -DENABLE_JAVA=ON, followed by make and make install."
     return 1
   fi
 }
 
 # ------------------------------------------------------------------------------
 # print test summary
+# exports $RC - return code that the caller can use in: exit $RC
 #
 print_summary()
 {
   if [ $NUM_TOTAL -eq 0 ]; then
     NUM_TOTAL=$(($NUM_FAIL + $NUM_SUC))
   fi
-  NOW=`date`
 
-  echo
+  local test_name="$0"
+  if [ -n "$SVC_NAME" ]; then
+    test_name="$SVC_NAME"
+  elif [ -n "$SCRIPT_DIR" ]; then
+    test_name="$(basename "$SCRIPT_DIR")"
+  fi
+
+  log
   log "-------------------------------------------------------"
-  log "Test summary"
+  log "Test summary for $test_name"
   log ""
-  log "  Test finished at: $NOW"
+  log "  Test finished at: $(date)"
+  if [ -n "$total_timer_start" ]; then
+  timer_start="$total_timer_start"
+  stop_timer
+  log "  Elapsed time    : $(get_time_s)s"
+  fi
   log "  Total tests run : $NUM_TOTAL"
+  if [ $NUM_SUC -gt 0 ]; then
   log "  Successful tests: $NUM_SUC"
-  log "  Failed tests    : $NUM_FAIL"
-  log "  Skipped tests   : $(($NUM_TOTAL - ($NUM_FAIL + $NUM_SUC)))"
+  fi
+  if [ $NUM_FAIL -gt 0 ]; then
+  log_colored_failed "  Failed tests    : $NUM_FAIL"
+  fi
+  local skipped_tests=$(($NUM_TOTAL - ($NUM_FAIL + $NUM_SUC)))
+  if [ $skipped_tests -gt 0 ]; then
+  log "  Skipped tests   : $skipped_tests"
+  fi
   log "  Detail test log : $LOG_FILE"
   log "-------------------------------------------------------"
 
-  # compute return code
-  if [ $NUM_FAIL -eq 0 ]; then
-    RC=$RC_OK
-  else
+  if [ $NUM_FAIL -ne 0 ]; then
     RC=$RC_ERROR
+  else
+    RC=$RC_OK
   fi
 }
 
@@ -375,42 +506,39 @@ check_result()
   [ -n "$msg" ] && logn "$msg... "
   if [ "$exp" != "$res" ]; then
     NUM_FAIL=$(($NUM_FAIL + 1))
-    loge "failed, expected: '$exp', got '$res'."
+    loge_colored_failed "failed, expected: '$exp', got '$res'."
   else
     NUM_SUC=$(($NUM_SUC + 1))
     loge "ok."
   fi
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
-
-check()
-{
-  if [ $? -ne 0 ]; then
-    loge failed.
-    NUM_FAIL=$(($NUM_FAIL + 1))
-  else
-    loge ok.
-    NUM_SUC=$(($NUM_SUC + 1))
-  fi
-  NUM_TOTAL=$(($NUM_TOTAL + 1))
-}
-
 # this test case is failed (and cannot check by the return of $?)
+# if $1 is specified then the test is silent (doesn't print anything)
 check_failed()
 {
-  loge failed.
+  [ -z "$1" ] && loge_colored_failed failed.
   NUM_FAIL=$(($NUM_FAIL + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
-
-# this test case is passed (and cannot check by the return of $?)
+# this test case is passed (and does not check by the return of $?)
+# if $1 is specified then the test is silent (doesn't print anything)
 check_passed()
 {
-  loge ok.
+  [ -z "$1" ] && loge ok.
   NUM_SUC=$(($NUM_SUC + 1))
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
-
+# check the result of previously executed command ($? variable)
+# and print failed/ok accordingly + update NUM_* variables
+check()
+{
+  if [ $? -ne 0 ]; then
+    check_failed "$1"
+  else
+    check_passed "$1"
+  fi
+}
 
 #
 # Ultilities functions
@@ -424,6 +552,20 @@ get_http_return_code()
   echo $http_code
 }
 
+#
+# if "$f" is found in known_fails, then return 0, otherwise to 1
+#
+check_known_fail()
+{
+  local testcase="$f"
+  [ -n "$1" ] && testcase="$1"
+
+  if [ -f "$KNOWN_FAILS" -a -n "$testcase" ]; then
+    grep -F "$testcase" "$KNOWN_FAILS" --quiet
+    return $? # 0 if "$f" is a known fail
+  fi
+  return 1
+}
 
 #
 # Check return code ($?) and update variables tracking number of
@@ -432,55 +574,40 @@ get_http_return_code()
 #
 update_result()
 {
-
   local rc=$?
 
-  grep -F "$f" "$KNOWN_FAILS" &> /dev/null
+  check_known_fail
   local known_fail=$?
 
-  if [ $rc != 0 ]; then
-    echo "$SCRIPT_DIR" | grep "testcases_open" > /dev/null
-    rc_open=$?
-    echo "$f" | egrep "\.fixed$" > /dev/null
-    rc_fixed=$?
+  if [ $rc != 0 ]; then 
 
-    fail_result="TEST FAILED"
-    if [ $rc_open -ne 0 -o $rc_fixed -eq 0 ]; then
-      if [ $known_fail -ne 0 ]; then
-        NUM_FAIL=$(($NUM_FAIL + 1))
-        log " ->  TEST FAILED"
-      else
-        # Known failed case, add it to known_failed_cases.log.
-        log " -> TEST SKIPPED"
-        fail_result="TEST SKIPPED"
-      fi
-    else
-      log " ->  TEST SKIPPED"
-      fail_result="TEST SKIPPED"
-    fi
-
-    # Beside writing to test.log, need to write the failed cases and test results to failed_cases.log as well
-    if [ -n "$FAILED_LOG_FILE" ]; then
-      echo "----------------------------------------------------------------------" >> "$FAILED_LOG_FILE"
-      if [ -n "$f" ]; then
-        # log test case file name.
-        log_failed "$f"
-        log_failed ""
-      fi
-
-      # must enquote file content in "" or it will lose the new line from test case query
-      log_failed "$fail_result"
-    fi
-  else
-    NUM_SUC=$(($NUM_SUC + 1))
-    log " ->  TEST PASSED"
+    # failed
     if [ $known_fail -eq 0 ]; then
-      log " ->"
-      log " -> Case known to fail has been fixed!"
-      log " -> Please remove $f from $KNOWN_FAILS"
+      # known fail, skip
+      status=$ST_SKIP
+    else
+      # proper fail
+      status=$ST_FAIL
+      NUM_FAIL=$(($NUM_FAIL + 1))
+      if [ -n "$FAILED_LOG_FILE" -a -n "$f" ]; then
+        echo "$f" >> "$FAILED_LOG_FILE"
+      fi
     fi
+
+  else
+
+    # passed
+    if [ $known_fail -eq 0 ]; then
+      # marked as known failed = now fixed
+      status=$ST_FIX
+    else
+      # proper pass
+      status=$ST_PASS
+    fi
+    NUM_SUC=$(($NUM_SUC + 1))
+
   fi
-  log "--------------------------------------------------------------------------------------------"
+
   NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
 
@@ -488,7 +615,7 @@ update_result()
 #
 # run rasql query test
 # expects several global variables to be set:
-# - $f      - input file
+# - "$f"      - input file
 # - $out    - output file
 # - $oracle - oracle file with expected result
 # - $custom_script - bash script to be executed for special comparison of result
@@ -497,7 +624,7 @@ update_result()
 run_rasql_test()
 {
   rm -f "$out"
-  local QUERY=`cat $f`
+  local QUERY=`cat "$f"`
   $RASQL -q "$QUERY" --out file --outfile "$out"
 
   # move to proper output file
@@ -523,30 +650,60 @@ run_rasql_test()
 #
 prepare_xml_file()
 {
-  xml_file="${1}"
-  echo "Preparing XML file $xml_file for oracle comparison... "
-  if [ -n "${1}" ]; then
-      sed -i 's/gml://g' "$xml_file"
-      sed -i $'s/\r//g' "$xml_file"
-      sed -i '/xlink:href/d' "$xml_file"
-      sed -i '/identifier /d' "$xml_file"
-      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$xml_file"
-      sed -i 's|xsi:schemaLocation="[^"]*"||g' "$xml_file"
-      sed -i 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps_crs!
-      sed -i 's|at=[^ ]*||g' "$xml_file"                                   # e.g. See ``/crs/OGC/0'' Vs ``/crs?authority=OGC&version=0''.
+  xml_file="$1"
+  if [ -n "$xml_file" -a -f "$xml_file" ]; then
+      sed -i -e 's/gml://g' \
+             -e $'s/\r//g' \
+             -e '/xlink:href/d' \
+             -e '/identifier /d' \
+             -e 's|xmlns[^"]*"[^"]*"||g' \
+             -e 's|xsi:schemaLocation="[^"]*"||g' \
+             -e 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' \
+             -e 's|at=[^ ]*||g' \
+             "$xml_file"
   fi
-  echo "ok."
 }
 
 # trim the leading spaces in XML from oracle in each line.
 trim_indentation()
 {
-  echo "Removing indentation to compare..."
-  xml_file="${1}"
+  local out_file="$1"
   # remove all the leading spaces in oracle and output in XML to compare also with fileReferenceHistory
   # if coverage contains local metadata.
-  echo $(cat "$xml_file") | sed -e 's/^[ \t]*//' |  sed '/fileReferenceHistory/d'  > "$xml_file.tmp"
-  echo "Done."
+  cat "$xml_file" | sed -e 's/^[ \t]*//' -e '/fileReferenceHistory/d' > "$out_file"
+}
+
+# prepare a "gdal" file for comparison
+# $1: input file
+# $2: tmp prefix (output/oracle)
+# stdout: the prepared filepath
+prepare_gdal_file()
+{
+  local tmpf="$1.${2}_tmp"
+  # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
+  # here we compare the metadata and statistic values on output and oracle files directly
+  gdalinfo -approx_stats "$1" > "$tmpf" 2> /dev/null
+  # remove the gdalinfo tmp file
+  rm -f "$1.aux.xml"
+  # then remove the first different few lines (driver, filename and filename.aux)
+  sed -i -n '/Size is/,$p' "$tmpf"
+  # some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
+  sed '/TOWGS84\[/d' -i "$tmpf"
+  # remove fileReferenceHistory in local coverage's metadata as the path can be different
+  sed -i '/fileReferenceHistory/d' "$tmpf"
+  # print output file
+  echo "$tmpf"
+}
+
+prepare_netcdf_file()
+{
+  local tmpf="$1.${2}_tmp"
+  ncdump -c "$1" > "$tmpf"
+  # remove the line to 'dimensions'
+  sed -i -n '/dimensions/,$p' "$tmpf"
+  # remove fileReferenceHistory in local coverage's metadata as the path can be different
+  sed -i '/fileReferenceHistory/d' "$tmpf"
+  echo "$tmpf"
 }
 
 
@@ -587,13 +744,11 @@ get_request_kvp() {
   # $4 only use for SECORE as it will only GET KVP in the URL directly without encoding
   url="$1"
   # replace the "\n" in the query to be a valid GET request without break lines
-  kvpValues=`echo "$2" | tr -d '\n'`
+  kvpValues=$(echo "$2" | tr -d '\n')
   if [[ -z "$4" ]]; then
-    echo "$url?$kvpValues"
     curl -s -G -X GET "$url" --data-urlencode "$kvpValues" > "$3"
   else
     # SECORE (just send the request as it is without encoding)
-    echo "$url$kvpValues"
     curl -s -X GET "$url""$kvpValues" > "$3"
   fi
 }
@@ -604,8 +759,7 @@ post_request_kvp() {
   # $2 is KVP parameters (e.g: service=WCS&version=2.0.1&query=....)
   # $3 is output file
   url="$1"
-  kvpValues=`echo "$2" | tr -d '\n'`  
-  echo "$url?$kvpValues"
+  kvpValues=$(echo "$2" | tr -d '\n')
   curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -613,8 +767,7 @@ post_request_kvp() {
 post_request_xml() {
   # curl -s -X POST --data-urlencode "$kvpValues" "$PETASCOPE_URL" -o "$2"
   url="$1"
-  kvpValues=`echo "$2" | tr -d '\n'`  
-  echo "$url?$kvpValues"
+  kvpValues=$(echo "$2" | tr -d '\n')
   curl -s -X POST --data-urlencode "$kvpValues" "$url" > "$3"
 }
 
@@ -626,8 +779,7 @@ post_request_file() {
   # $3 is the path to the file to be uploaded to server
   # $4 is output file from HTTP response
   url="$1"
-  kvpValues=`echo "$2" | tr -d '\n'`
-  echo "$url?$kvpValues"
+  kvpValues=$(echo "$2" | tr -d '\n')
   upload_file="$3"
   curl -s -F "file=@$upload_file" "$url?$kvpValues" > "$4"
 }
@@ -637,7 +789,7 @@ post_request_file() {
 #
 # run a test suite, expected global vars:
 #  $SVC_NAME - service name, e.g. wcps, wcs, etc.
-#  $f        - test file
+#  "$f"        - test file
 #
 run_test()
 {
@@ -645,51 +797,28 @@ run_test()
     error "test case not found: $f"
   fi
 
-  # check if rasdaman is running and exit if not
-  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
-  if [ $? -ne 0 ]; then
-    # retry test
-    sleep 2
-    $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string &> /dev/null
-    if [ $? -ne 0 ]; then
-        log "rasdaman down, exiting..."
-        cleanup
-    fi
-  fi
-
-  # if testcase marked as fixed temporarily we remove the .fixed extension
-  oldf="$f"
-  if [ -n "$FIXED" -a $FIXED -eq 1 ]; then
-    f="$fixedf"
-    FIXED=0
-  fi
-
   # get test type - file extension
-  test_type=`echo "$f" | sed 's/.*\.//'`
+  test_type=$(echo "$f" | sed 's/.*\.//')
 
   # various other files expected  by the run_*_test functions
-  # NOTE: remove input protocol extension: all queries with the same basename shall refer to the same oracle.
+  # NOTE: remove input protocol extension: all queries with the same basename 
+  #       shall refer to the same oracle.
   oracle="$ORACLE_PATH/${f%\.*}.oracle"
   out="$OUTPUT_PATH/$f.out"
   err="$OUTPUT_PATH/$f.err"
-  rm -f "$out"
   pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
   post_script="$QUERIES_PATH/${f%\.*}.post.sh"
   check_script="$QUERIES_PATH/${f%\.*}.check.sh"
-
-  # restore original filename
-  f="$oldf"
-
-
   # temporary files
-  oracle_tmp="$OUTPUT_PATH/temporary_oracle"
-  output_tmp="$OUTPUT_PATH/temporary_out"
+  oracle_tmp="$out.output_tmp"
+  output_tmp="$out.oracle_tmp"
+
+  rm -f "$out"
 
   #
   # run pre script if present
   #
   if [ -f "$pre_script" ]; then
-    log "running pre-test script..."
     $pre_script
     if [ $? -ne 0 ]; then
       log "warning: pre script failed execution - $pre_script"
@@ -701,46 +830,51 @@ run_test()
     #
     # 0. run custom test script if present
     #
-    $f "$out" "$oracle"
+    "$f" "$out" "$oracle"
     update_result
 
   else
-    # error: if in file has "*" then it replaces it with file name, then must turn off this feature
-    QUERY=`cat $f | tr -d '\n'`
+    # error: if file contents has "*" then it replaces it with file name, 
+    # then must turn off this feature
+    QUERY=$(cat "$f" | tr -d '\n')
 
     #
-    # 1. execute test query (NOTE: rasql is actually rasql_servlet test)
+    # 1. execute test query (NOTE: rasql is actually test_rasql_servlet)
     #
     case "$SVC_NAME" in
+
       rasql)
               case "$test_type" in
                 kvp)
-                    QUERY=`cat $f`
-                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    QUERY=$(cat "$f")
+                    # check if query contains "jpeg2000"-approx_stats and gdal 
+                    # supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       get_request_kvp "$RASQL_SERVLET" "$QUERY" "$out"
                     fi
-                    echo "Done."
                     ;;
                 input)
                     templateFile="$SCRIPT_DIR/queries/post-upload.template"
                     inputFile="$SCRIPT_DIR/queries/$f"
                     # read parameters from *.input file (NOTE: need to escape special characters like: &)
-                    parameters=`cat $inputFile`
+                    parameters=$(cat "$inputFile")
                     # replace the parameters from current .input file into templateFile
-                    sed "s#PARAMETERS#$parameters#g" $templateFile > "$templateFile".tmp.sh
-                    # run the replaced script to upload file and rasql query to rasql-servlet and redirect output to /out directory
-                    sh "$templateFile".tmp.sh > "$OUTPUT_PATH/"$f".out"
+                    sed "s#PARAMETERS#$parameters#g" "$templateFile" > "$templateFile.tmp.sh"
+                    # run the replaced script to upload file and rasql query to 
+                    # rasql-servlet and redirect output to /out directory
+                    bash "$templateFile.tmp.sh" > "$out" 2> "$err"
                     # remove the temp bash script
-                    rm -f "$templateFile".tmp.sh
+                    rm -f "$templateFile.tmp.sh"
               esac
               ;;
+
       wcps)   case "$test_type" in
                 post_file)
-                    # It will send a WCS POST request with a file to petascope (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
+                    # It will send a WCS POST request with a file to petascope 
+                    # (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
                     # NOTE: $ is not valid character for curl, it must be escaped inside test request file
-                    QUERY=$(cat $f | sed 's/\$/%24/g')
+                    QUERY=$(cat "$f" | sed 's/\$/%24/g')
                     
                     # File to upload to server, same name with test request file but with .file                
                     upload_file="${f%.*}.file"
@@ -752,8 +886,9 @@ run_test()
                     fi
                     ;;
                 test)
-                    QUERY=`cat $f`
-                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    QUERY=$(cat "$f")
+                    # check if query contains "jpeg2000"-approx_stats and gdal 
+                    # supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
 
@@ -767,12 +902,12 @@ run_test()
                     else
                       continue
                     fi
-                    echo "Done."
                     ;;
                 xml)
-                    QUERY=`cat $f`
+                    QUERY=$(cat "$f")
 
-                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    # check if query contains "jpeg2000"-approx_stats and gdal 
+                    # supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       # send POST/SOAP to petascope
@@ -780,17 +915,18 @@ run_test()
                     else
                         continue
                     fi
-                    echo "Done."
                     rm -f "$postdata"
                     ;;
-                *)   error "unknown wcps test type: $test_type"
+                *)  error "unknown wcps test type: $test_type"
               esac
               ;;
+
       wcs)    case "$test_type" in
                 post_file)
-                    # It will send a WCS POST request with a file to petascope (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
+                    # It will send a WCS POST request with a file to petascope 
+                    # (e.g: for WCS clipping extension: &clip=$1 and file=FILE_PATH_TO_WKT)
                     # NOTE: $ is not valid character for curl, it must be escaped inside test request file
-                    QUERY=$(cat $f | sed 's/\$/%24/g')
+                    QUERY=$(cat "$f" | sed 's/\$/%24/g')
                     
                     # File to upload to server, same name with test request file but with .file                
                     upload_file="${f%.*}.file"
@@ -802,8 +938,9 @@ run_test()
                     fi
                     ;;
                 kvp)
-                    QUERY=`cat $f`
-                    # check if query contains "jpeg2000"-approx_stats and gdal supports this format, then the query should be run.
+                    QUERY=$(cat "$f")
+                    # check if query contains "jpeg2000"-approx_stats and gdal 
+                    # supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                       get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
@@ -812,12 +949,12 @@ run_test()
                     fi
                     # SERVICE=WCS&VERSION=2.0.1&REQUEST=ProcessCoverages&query=for c in (test_mr) return avg(c)
                     # this query will need to be encoded for value of parameter "query" only
-                    echo "Done."
                     ;;
                 xml) 
-                    QUERY=`cat $f`
+                    QUERY=$(cat "$f")
 
-                    # check if query contains "jpeg2000" and gdal supports this format, then the query should be run.
+                    # check if query contains "jpeg2000"-approx_stats and gdal 
+                    # supports this format, then the query should be run.
                     check_query_runable "$QUERY"
                     if [[ $? -eq 0 ]]; then
                         # send POST/SOAP XML
@@ -825,33 +962,36 @@ run_test()
                     else
                         continue
                     fi
-
                     rm -f "$postdata"
                     ;;
                 *)  error "unknown wcs test type: $test_type"
               esac
               ;;
+
       wms)    get_request_kvp "$PETASCOPE_URL" "$QUERY" "$out"
               ;;
-      secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g'`
+
+      secore) QUERY=$(echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g')
               get_request_kvp "$SECORE_URL" "$QUERY" "$out" "secore"
               ;;
+
       select|rasql|nullvalues|subsetting|clipping|rasdapy)
-              QUERY=`cat $f`
-              if [ "$SVC_NAME" == "rasdapy" ]; then                 
-                $PY_RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
-              else
-                $RASQL -q "$QUERY" --out file --outfile "$out" > /dev/null 2> "$err"
-              fi
+
+              QUERY=$(cat "$f")
+
+              RASQL_CMD="$RASQL"
+              [ "$SVC_NAME" == "rasdapy" ] && RASQL_CMD="$PY_RASQL"
+              out_scalar="${out}_scalar"
+
+              $RASQL_CMD -q "$QUERY" --out file --outfile "$out" 2> "$err" | grep "  Result " > $out_scalar
 
               # if an exception was thrown, then the err file has non-zero size
               grep -q "Warning 6: PNG" "$err"
               if [ -s "$err" -a $? -ne 0 ]; then
                 mv "$err" "$out"
-
               else
                 # move to proper output file (e.g: output.rasql.out.uknown to output.rasql.out)
-                for tmpf in `ls "$out".*  2> /dev/null`; do
+                for tmpf in $(ls "$out".* 2> /dev/null); do
                     # $tmpf here is  a file in the output directory from --outfile
                     [ -f "$tmpf" ] || continue
                     mv "$tmpf" "$out"
@@ -859,22 +999,22 @@ run_test()
                 done
 
                 # if the result is a scalar, there will be no tmp file by rasql,
-                # here we output the Result element scalar into tmp.unknown
-                if [ ! -f "$out" ]; then
-                    $RASQL -q "$QUERY" --out string | grep "  Result " > $out
+                # here we move the Result lines in stdout to $out
+                if [ ! -f "$out" -a -f "$out_scalar" ]; then
+                    mv "$out_scalar" "$out"
                 fi
               fi
-              ;;              
+              ;;  
+
       *)      error "unknown service: $SVC_NAME"
     esac
 
     #
     # 2a. create $oracle from $output, if missing
     #
-    outfiletype=`file "$out" | awk -F ':' '{print $2;}'`
+    outfiletype=$(file "$out" | awk -F ':' '{print $2;}')
     if [ ! -f "$oracle" ]; then
-      log " -> NO ORACLE FOUND"
-      log " -> copying $out to $oracle"
+      status=$ST_COPY
       if [[ "$outfiletype" == *XML* ]]; then
           prepare_xml_file "$out"
       fi
@@ -885,88 +1025,55 @@ run_test()
     # 2b. check result
     #
     # If query has associated custom script then use this script first and compare the result (only XML)
+    #
     if [ -n "$check_script" -a -f "$check_script" ]; then
-      log "custom script"
-      prepare_xml_file "$out"
+
+      export -f prepare_xml_file
       "$check_script" "$out" "$oracle"
       update_result
-    else
-      # check the file type of oracle
-      filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
 
-      # 1. If oracle does exists then check if could be read by gdal or it is in text format
-      # 1.1 File exists and could be read by gdal
+    else
+
+      # check the file type of oracle
+      orafiletype=$(file "$oracle" | awk -F ':' '{print $2;}')
+
       # check that oracle is gdal readable (e.g: tiff, png, jpeg,..)
       gdalinfo "$oracle" &> /dev/null
       if [ $? -eq 0 ]; then
-        # do image comparison
-        output_tmp="$out"."output.tmp"
-        oracle_tmp="$out"."oracle.tmp"
 
-        log "image comparison, type: $filetype"
+        # 1.1 oracle could be read by gdal, do image comparison
 
-        # if oracle/output is netcdf then compare them by ncdump
-        if [[ "$filetype" =~ "NetCDF" ]]; then
-          ncdump -c "$out" > "$output_tmp"
-          ncdump -c "$oracle" > "$oracle_tmp"
-
-          # remove the line to 'dimensions'
-          sed -i -n '/dimensions/,$p' "$output_tmp"
-          sed -i -n '/dimensions/,$p' "$oracle_tmp"
-
-          # Remove fileReferenceHistory in local coverage's metadata as the path can be different
-          sed -i '/fileReferenceHistory/d' "$output_tmp"
-          sed -i '/fileReferenceHistory/d' "$oracle_tmp"
+        # if oracle/output is netcdf then compare them with ncdump
+        if [[ "$orafiletype" =~ "NetCDF" ]]; then
+          output_tmp=$(prepare_netcdf_file "$out" output)
+          oracle_tmp=$(prepare_netcdf_file "$out" oracle)
         else
-          # only for gdal file (e.g: tiff, png, jpeg, jpeg2000)
-          # here we compare the metadata and statistic values on output and oracle files directly
-          gdalinfo -approx_stats "$out" > "$output_tmp" 2> /dev/null
-          gdalinfo -approx_stats "$oracle" > "$oracle_tmp" 2> /dev/null
-
-          # remove the gdalinfo tmp file
-          rm -f "$out"".aux.xml"
-          rm -f "$oracle"".aux.xml"
-
-          # then remove the first different few lines (driver, filename and filename.aux)
-          sed -i -n '/Size is/,$p' "$output_tmp"
-          sed -i -n '/Size is/,$p' "$oracle_tmp"
-          # NOTE: some small values can be neglectable in Coordinate System to compare (e.g: TOWGS84[0,0,0,0,0,0,0],)
-          sed '/TOWGS84\[/d' -i "$output_tmp"
-          sed '/TOWGS84\[/d' -i "$oracle_tmp"
-
-          # Remove fileReferenceHistory in local coverage's metadata as the path can be different
-          sed -i '/fileReferenceHistory/d' "$output_tmp"
-          sed -i '/fileReferenceHistory/d' "$oracle_tmp"
+          output_tmp=$(prepare_gdal_file "$out" output)
+          oracle_tmp=$(prepare_gdal_file "$out" oracle)
         fi
 
-        cmp "$output_tmp" "$oracle_tmp" 2>&1
+        cmp "$output_tmp" "$oracle_tmp" > /dev/null 2>&1
         update_result
 
       else
-        # 1.2 File exists and could not be read by gdal
-        # oracle must be in xml, csv, json
-        # (with xml need special function to extract the URL before comparison)
-        if [[ "$filetype" == *XML* ]]; then
+
+        # 1.2 oracle could not be read by gdal
+
+        if [[ "$orafiletype" == *XML* ]]; then
+          # need special function to extract the URL before comparison
           prepare_xml_file "$out"
           # strip indentation from $oracle -> $oracle.tmp and $out -> $out.tmp
-          trim_indentation "$oracle"
-          trim_indentation "$out"
-          log "XML comparison"
-
+          trim_indentation "$oracle_tmp"
+          trim_indentation "$output_tmp"
           # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle.tmp" "$out.tmp" 2>&1 > /dev/null
-          update_result
-
-          # remove the temp files
-          rm -f "$oracle.tmp"
-          rm -f "$out.tmp"
+          diff -b "$oracle_tmp" "$output_tmp"> /dev/null 2>&1 
         else
-          # csv, json
-          log "byte comparison"
+          # csv, json, raw binary
           # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle" "$out" 2>&1 > /dev/null
-          update_result
+          diff -b "$oracle" "$out" > /dev/null 2>&1
         fi
+
+        update_result
 
       fi # end of text oracle file
 
@@ -978,7 +1085,6 @@ run_test()
   # run post script if present
   #
   if [ -f "$post_script" ]; then
-    log "running post-test script..."
     $post_script
     if [ $? -ne 0 ]; then
       log "warning: post script failed execution - $post_script"

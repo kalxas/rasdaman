@@ -39,15 +39,10 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 WCPS_ENDPOINT=$PETASCOPE_URL
 QUERY='for c in (test_mr) return encode (c[i(0:20),j(0:20)] + 5, "png")'
 
-log "Test encoded WCPS query..."
-log $WCPS_ENDPOINT
-log $QUERY
 python "$SCRIPT_DIR"/test.py "$WCPS_ENDPOINT" "$QUERY"
 
 # defined in common.sh
-check
-
-log "done."
+check_result 0 $? "test encoded WCPS query"
 
 # print summary from util/common.sh
 print_summary

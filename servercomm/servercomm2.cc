@@ -281,7 +281,7 @@ ServerComm::openDB(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
     return returnValue;
@@ -338,7 +338,7 @@ ServerComm::closeDB(unsigned long callingClientId)
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
     return returnValue;
@@ -450,12 +450,12 @@ ServerComm::beginTA(unsigned long callingClientId,
 
     if (context == 0)
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
     else if (transactionActive)
     {
-        LERROR << "Error: transaction already active.";
+        LERROR << "transaction already active.";
         returnValue = 2;
         context->release();
     }
@@ -554,7 +554,7 @@ ServerComm::commitTA(unsigned long callingClientId)
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
 
@@ -611,7 +611,7 @@ ServerComm::abortTA(unsigned long callingClientId)
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
 
@@ -2057,7 +2057,7 @@ ServerComm::startInsertTransMDD(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        BLERROR << "Error: client not registered.\n";
         returnValue = 1;
     }
 
@@ -2113,7 +2113,7 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.\n";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
 
@@ -3320,7 +3320,8 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         }
         catch (r_Ebase_dbms& myErr)
         {
-            LERROR << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+            LERROR << "base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind())
+                   << ", errno " << myErr.get_errorno() << ") " << myErr.what();
             throw;
         }
         catch (r_Error& myErr)
@@ -3332,17 +3333,18 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         }
         catch (std::bad_alloc)
         {
-            LERROR << "Error: cannot allocate memory.";
+            LERROR << "cannot allocate memory.";
             throw;
         }
         catch (...)
         {
-            LERROR << "Error: unspecified exception.";
+            LERROR << "unspecified exception.";
+            throw;
         }
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         returnValue = 2;
     }
 
@@ -3628,7 +3630,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             else
             {
                 returnValue = 2;  // no actual transfer collection
-                LERROR << "Error: no transfer collection.";
+                LERROR << "no transfer collection.";
             }
         }
 
@@ -3640,7 +3642,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         returnValue = 2;
     }
 
@@ -3806,7 +3808,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         returnValue = 1; // client context not found
     }
 
@@ -4024,7 +4026,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
     else
     {
         // client context not found
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         returnValue = 4;
     }
 
@@ -4083,7 +4085,7 @@ ServerComm::endTransfer(unsigned long client)
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         returnValue = 1;
     }
 
@@ -4124,7 +4126,7 @@ ServerComm::aliveSignal(unsigned long client)
 #ifndef DEBUG
         NNLINFO << "Client " << client << " called: endTransfer... ";
 #endif
-        LERROR << "Error: client not registered.\n";
+        BLERROR << "Error: client not registered.\n";
     }
 
     return returnValue;
@@ -4332,7 +4334,7 @@ ServerComm::setTransferMode(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         retval = 1;
     }
 
@@ -4379,7 +4381,7 @@ ServerComm::setStorageMode(unsigned long callingClientId,
     }
     else
     {
-        LERROR << "Error: client not registered.";
+        LERROR << "client not registered.";
         retval = 1;
     }
 

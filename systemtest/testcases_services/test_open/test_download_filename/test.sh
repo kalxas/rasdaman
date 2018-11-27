@@ -36,73 +36,53 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-log "--- Testing download result with coverage ID as file name ---"
-WCS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT'
-WCPS_ENDPOINT_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c,"$FORMAT")'
+#
+# test functions
+#
 
-# with multipart
-WCS_ENDPOINT_MULTIPART_TEMPLATE=$PETASCOPE_URL'?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$FORMAT&mediaType=multipart/related'
-# WCPS does not have this feature, but the output should have same file name
-
-OUTPUT_DIR=$SCRIPT_DIR"/"output
-
-# function to download coverage to output
-function downloadAndCheck() {
-    wget -q --trust-server-names --content-disposition "$1" -P  $OUTPUT_DIR
-    wget -q --trust-server-names --content-disposition "$2" -P  $OUTPUT_DIR
-    # e.g: png
-    TYPE=$3
-
-    RESULT=0
-
-    # test_mr
-    if [ -f "$OUTPUT_DIR/test_mr."$TYPE ]; then
-        log "PASS: test_mr."$TYPE" exist"
-    else
-        log "FAIL: test_mr."$TYPE" does not exist"
-        RESULT=1
-    fi
-
-    # test_rgb
-    if [ -f "$OUTPUT_DIR/test_rgb."$TYPE ]; then
-        log "PASS: test_rgb."$TYPE" exist"
-    else
-        log "FAIL: test_rgb."$TYPE" does not exist"
-        RESULT=1
-    fi
-
-    if [ $RESULT == 0 ]; then
-        NUM_SUC=$(($NUM_SUC + 1))
-    else
-        NUM_FAIL=$(($NUM_FAIL + 1))
-    fi
+run_test() {
+    wget --content-on-error --trust-server-names --content-disposition \
+         "$endpoint" > "$OUTPUT_DIR/$f.log" 2>&1
+    [ -f "$f" ]
+    check_result 0 $? "  check if $f exists"
+}
+test_wcs() {
+    endpoint="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mr&subset=i(0,20)&subset=j(0,5)&format=$1"
+    f="test_mr.$2"
+    run_test
+}
+test_wcps() {
+    endpoint="$PETASCOPE_URL?service=WCS&version=2.0.1&request=ProcessCoverages&query=for c in (test_rgb) return encode(c, \"$1\")"
+    f="test_rgb.$2"
+    run_test
+}
+test_multipart() {
+    endpoint="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=test_mean_summer_airtemp&format=$1&mediaType=multipart/related"
+    f="test_mean_summer_airtemp.$2"
+    run_test
 }
 
+OUTPUT_DIR="$SCRIPT_DIR/output"
+rm -rf "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 
-# 1. PNG
-log "+ Test download encoding PNG..."
-WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/image\/png/g')
-WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/png/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "png"
+log "Testing download result with coverage ID as file name"
+log ""
 
-# 2. TIFF
-log "+ Test download encoding TIFF..."
-WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/image\/tiff/g')
-WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/tiff/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "tiff"
+pushd "$OUTPUT_DIR" > /dev/null
 
-# 3. NETCDF
-log "+ Test download encoding NETCDF..."
-WCS_ENDPOINT=$(echo $WCS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/application\/netcdf/g')
-WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/netcdf/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "nc"
+for args in "application/netcdf netcdf nc" "image/png png png" "image/tiff tiff tiff"; do
+    mime=$(echo "$args" | awk '{print $1}')
+    format=$(echo "$args" | awk '{print $2}')
+    suffix=$(echo "$args" | awk '{print $3}')
 
-# 4. JPEG
-log "+ Test download encoding JPEG..."
-WCS_ENDPOINT=$(echo $WCS_ENDPOINT_MULTIPART_TEMPLATE | sed 's/$FORMAT/image\/jpeg/g')
-WCPS_ENDPOINT=$(echo $WCPS_ENDPOINT_TEMPLATE | sed 's/$FORMAT/jpeg/g')
-downloadAndCheck "$WCS_ENDPOINT" "$WCPS_ENDPOINT" "jpeg"
+    log "test download output encoded in $format"
+    test_wcs $mime $suffix
+    test_multipart $mime $suffix
+    test_wcps $format $suffix
+done
 
-# print summary from util/common.sh
+popd > /dev/null
+
 print_summary
 exit $RC

@@ -47,18 +47,18 @@ log "Testing Petascope allow CORS..."
 curl -s -H "Origin:*" -I "$PETASCOPE_URL" > "$OUTPUT_FILE"
 
 # Check the result to see Petascope allows CORS
-log "Check doGet() with enabled CORS..."
+logn "Check doGet() with enabled CORS..."
 grep -q "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
 check
 
 # clear output file
-rm "$OUTPUT_FILE"
+rm -f "$OUTPUT_FILE"
 
 # 2. Test doOptions()
 # Redirect standar error to file to get the verbose result (not download from URL and export to output file).
 curl -s -H "Origin: http://test.com"   -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS "$PETASCOPE_URL" --verbose 2> "$OUTPUT_FILE"
 # Check the result to see Petascope allows CORS
-log "Check doOptions() with enabled CORS..."
+logn "Check doOptions() with enabled CORS..."
 grep -q "Access-Control-Allow-Origin: *" "$OUTPUT_FILE"
 check
 

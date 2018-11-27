@@ -250,7 +250,8 @@ QtConversion::evaluate(QtDataList* inputList)
         //
 
         r_Conv_Desc convDesc;
-        std::unique_ptr<char[]> convDescDest;
+        convDesc.dest = NULL;
+
         r_Minterval tileDomain = sourceTile->getDomain();
 
         r_Data_Format convType = r_Array;   // convertor type
@@ -285,7 +286,6 @@ QtConversion::evaluate(QtDataList* inputList)
                 LDEBUG << "convertor '" << convType << "' converting from format '" << format << "'.";
                 convDesc = convertor->convertFrom(paramStr);
             }
-            convDescDest.reset(convDesc.dest);
         }
         catch (r_Error& err)
         {
@@ -297,10 +297,7 @@ QtConversion::evaluate(QtDataList* inputList)
             else if (err.get_errorno() != 0)
                 parseInfo.setErrorNo(err.get_errorno());
             else
-            {
-                LERROR << "Format conversion failed: " << err.what();
                 parseInfo.setErrorNo(381);
-            }
             throw parseInfo;
         }
         catch (const std::exception &ex)
@@ -326,28 +323,36 @@ QtConversion::evaluate(QtDataList* inputList)
             dataStreamType.setType(mddBaseType);
         }
 
-        r_Bytes convResultSize = static_cast<r_Bytes>(convDesc.destInterv.cell_count()) * static_cast<r_Bytes>(baseType->getSize());
+        r_Bytes convResultSize = static_cast<r_Bytes>(convDesc.destInterv.cell_count()) *
+                                 static_cast<r_Bytes>(baseType->getSize());
 
+        // single result tile
         std::unique_ptr<Tile> resultTile;
-        resultTile.reset(new Tile(convDesc.destInterv, baseType.release(), true, convDesc.dest, convResultSize, convFormat));
-        
-        convDescDest.release();
+        resultTile.reset(new Tile(convDesc.destInterv, baseType.get(), true,
+                                  convDesc.dest, convResultSize, convFormat));
+
+        // cleanup
+        baseType.release();
         if (convDesc.destType)
         {
             delete convDesc.destType;
             convDesc.destType = NULL;
         }
+        convertor->releaseDest();
 
         // create a transient MDD object for the query result
-        auto mddBaseType = std::unique_ptr<MDDBaseType>(static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType())));
-        auto resultMDD = std::unique_ptr<MDDObj>(new MDDObj(mddBaseType.release(), convDesc.destInterv, nullValues));
+        const auto *mddType = static_cast<const MDDBaseType*>(dataStreamType.getType());
+        std::unique_ptr<MDDObj> resultMDD;
+        resultMDD.reset(new MDDObj(mddType, convDesc.destInterv, nullValues));
         resultMDD->insertTile(resultTile.get());
         resultTile.release();
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        auto tmp = std::unique_ptr<QtMDD>(new QtMDD(resultMDD.release()));
-        tmp->setFromConversion(true);
-        returnValue = tmp.release();
+        auto resultQtMDD = std::unique_ptr<QtMDD>(new QtMDD(resultMDD.get()));
+        resultMDD.release();
+
+        resultQtMDD->setFromConversion(true);
+        returnValue = resultQtMDD.release();
     }
     else
     {

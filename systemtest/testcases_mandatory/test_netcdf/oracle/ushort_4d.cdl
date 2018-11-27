@@ -5,9 +5,9 @@ dimensions:
 	dim_2 = 10 ;
 	dim_3 = 5 ;
 variables:
-	int values(dim_0, dim_1, dim_2, dim_3) ;
-		values:valid_min = 0 ;
-		values:valid_max = 65535 ;
+	ushort values(dim_0, dim_1, dim_2, dim_3) ;
+		values:valid_min = 0US ;
+		values:valid_max = 65535US ;
 data:
 
  values =

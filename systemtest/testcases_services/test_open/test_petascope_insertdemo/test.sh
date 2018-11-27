@@ -37,9 +37,8 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 
 # run the petascope_insertdemo script
+logn "petascope_insertdemo.sh exit code is 0... "
 petascope_insertdemo.sh > /dev/null 2>&1
-
-# check result
 check
 
 # Remove imported sample coverages
@@ -48,8 +47,6 @@ delete_coverage "AverageTemperature"
 delete_coverage "AverageChlorophyll"
 # don't delete this one as it is used for WS client test with WCS ProcessCoverages tab in dropdownbox
 # delete_coverage "mean_summer_airtemp"
-
-log "done."
 
 # print summary from util/common.sh
 print_summary

@@ -21,25 +21,23 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
+
 out="$1"
 oracle="$2"
 
+nout="$out.output_tmp"
+nora="$out.oracle_tmp"
+
 # create tmp files
-cp "$out" "$out".tmp
-cp "$oracle" "$oracle".tmp
+cp "$out" "$nout"
+cp "$oracle" "$nora"
 
 # remove variable lines
-for file in "$out".tmp "$oracle".tmp
+for file in "$nout" "$nora"
 do
+  prepare_xml_file "$file"
   sed -i 's/Center/CENTER/g' "$file"
-  sed -i 's/Centre/CENTER/g' "$file"
 done
-sort "$out".tmp > "$out".tmp2
-sort "$oracle".tmp > "$oracle".tmp2
 
-diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
-rc=$?
-cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp* "$oracle".tmp*
-
-exit $rc
+diff -b "$nout" "$nora" > /dev/null 2>&1
+exit $?

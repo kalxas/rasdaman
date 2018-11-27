@@ -51,9 +51,6 @@ rasdaman GmbH.
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/dirdecompose.hh"
 
-
-static const char rcsid[] = "@(#)qlparser, QtInsert: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtinsert.cc,v 1.27 2003/12/27 20:40:21 rasdev Exp $";
-
 #include "qlparser/qtinsert.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
@@ -364,18 +361,16 @@ QtInsert::evaluate()
             r_Dimension sourceDimension = sourceObj->getDefinitionDomain().dimension();
             r_Minterval tileCfg = getTileConfig(mddConfig, cellSize, sourceDimension);
 
-            if (sourceDimension ==
-                    tileCfg.dimension())
+            if (sourceDimension == tileCfg.dimension())
             {
                 tempStorageLayout.setTileConfiguration(tileCfg);
             }
 
-            MDDObj* persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid,
-                                            tempStorageLayout);
+            MDDObj* persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid, tempStorageLayout);
             persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
-            for (vector<boost::shared_ptr<Tile>>::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
+            for (auto sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
                 Tile* sourceTile = sourceIt->get();

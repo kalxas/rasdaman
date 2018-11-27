@@ -19,9 +19,9 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
-set(TEST_SEQUENCE "testcases_mandatory/* testcases_open/* testcases_fixed/*")
+set(TEST_SEQUENCE "testcases_mandatory/* ")
 if (ENABLE_JAVA)
-	set(TEST_SEQUENCE "testcases_mandatory/* testcases_open/* testcases_fixed/* testcases_services/*")	
+	set(TEST_SEQUENCE "testcases_mandatory/* testcases_services/*")
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh.in" "${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh" @ONLY)

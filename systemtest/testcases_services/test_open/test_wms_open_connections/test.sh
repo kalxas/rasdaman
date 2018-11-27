@@ -71,8 +71,6 @@ do
   fi
 done
 
-log "done."
-
 # check result
 check_result "yes" "$fixed" "testing WMS open connections"
 

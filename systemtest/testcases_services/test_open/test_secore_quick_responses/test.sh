@@ -41,39 +41,29 @@ pids=""
 OUTPUT_FOLDER="output"
 mkdir "$OUTPUT_FOLDER"
 
-log "Test SECORE queries's response time..."
-for i in {1..100}
-do
+N=50
+log "Test SECORE response time with $N concurrent queries..."
+for i in {1..$N}; do
    #echo "test $i time..."
    wget -q "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &
    # add current process pid to an array, then later it can finish the script when all processes are stopped.
-   pids="$pids $!"    
+   pids="$pids $!"
 done
 
 wait $pids
 
-
 result=true
-fileContent=""
-log "All queries finished. Checking the result files."
+log "All queries finished, checking results."
 for f in "output/*"; do
-   fileContent=`cat $f`
-   if [[ "$fileContent" != *"ellipsoid"* ]]; then
-      result=false
-      break
-   fi
+   grep ellipsoid "$f" -q
+   [ $? -eq 0 ] && { result=false; break; }
 done
 
 # clean the output file
 rm -rf "$OUTPUT_FOLDER"
-log "Done."
 
 # check the test result
-if [[ $result == true ]]; then
-    check_result "ok" "ok" "SECORE responses in accepted time."
-else 
-    check_result "ok" "failed" "SECORE return exception: $fileContent"
-fi
+check_result "true" "$result" "SECORE responses as expected"
 
 # print summary from util/common.sh
 print_summary

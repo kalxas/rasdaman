@@ -24,23 +24,23 @@
 out="$1"
 oracle="$2"
 
+nout="$out.output_tmp"
+nora="$out.oracle_tmp"
+
 # create tmp files
-cp "$out" "$out".tmp
-cp "$oracle" "$oracle".tmp
+cp "$out" "$nout"
+cp "$oracle" "$nora"
 
 # remove variable lines
-for file in "$out".tmp "$oracle".tmp
+for file in "$nout" "$nora"
 do
-  sed -i '/<wcs:CoverageSummary>/,/<\/wcs:CoverageSummary>/d' "$file"
-  sed -i 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' "$file" # it's a Set in Java, order is not fixed.
-  sed -i '/<ows:HTTP>/,/<\/ows:HTTP>/d' "$file"
+  prepare_xml_file "$file"
+  sed -i -e '/<wcs:CoverageSummary>/,/<\/wcs:CoverageSummary>/d' \
+         -e 's/<\(wcs:\)\?formatSupported>.*<\/\(wcs:\)\?formatSupported>/%formatSupported%/g' \
+         -e '/<ows:HTTP>/,/<\/ows:HTTP>/d' \
+         "$file"
+  sort "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 done
-sort "$out".tmp > "$out".tmp2
-sort "$oracle".tmp > "$oracle".tmp2
 
-diff -b "$out".tmp2 "$oracle".tmp2 > /dev/null 2>&1
-rc=$?
-cp "$out".tmp "$out" # for post-test manual verifications
-rm -f "$out".tmp* "$oracle".tmp*
-
-exit $rc
+diff -b "$nout" "$nora" > /dev/null 2>&1
+exit $?

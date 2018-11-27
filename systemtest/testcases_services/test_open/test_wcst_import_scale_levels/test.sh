@@ -52,7 +52,7 @@ check_data() {
         rasql -q 'select encode(c, "tiff") from '"$collection_name"' as c' > /dev/null 2>&1 --out file
         mv "rasql_1.tif" "$OUTPUT/$file_name" > /dev/null 2>&1
         cmp "$ORACLE/$file_name" "$OUTPUT/$file_name" > /dev/null 2>&1
-        check_result "0" "$?" "Downscaled level $level"
+        check_result "0" "$?" "downscaled level $level"
     done
 }
 
@@ -64,31 +64,32 @@ mkdir -p "$OUTPUT"
 
 # First, import 2D coverage with scale levels from ingredient file
 wcst_import.sh "$SCRIPT_DIR/ingest.json" > /dev/null 2>&1
+check_result 0 $? "importing data"
 
 # Then, check downscaled collections with oracles
-logn "Test downscaled collections outputs as same as oracles..."
-loge
+log "Test that downscaled collections match the oracles..."
 check_data
 
 # Then, delete one of the downscaled collection by level
 delete_scale_level_request="$PETASCOPE_URL?service=WCS&request=DeleteScaleLevel&version=2.0.1&coverageId=$COVERAGE_ID&level=4"
 result=$(get_http_return_code "$delete_scale_level_request")
-check_result "200" "$result" "Delete downscaled collection level 4"
+check_result "200" "$result" "delete downscaled collection level 4"
 
 # Then, insert this downscaled collection by level
 insert_scale_level_request="$PETASCOPE_URL?service=WCS&request=InsertScaleLevel&version=2.0.1&coverageId=$COVERAGE_ID&level=4"
 result=$(get_http_return_code "$insert_scale_level_request")
-check_result "200" "$result" "Insert downscaled collection level 4"
+check_result "200" "$result" "insert downscaled collection level 4"
 
 # Finally, recheck the downscaled collections data with oracle files
-logn "Retest downscaled collections outputs as same as oracles..."
-loge
+log "Retest that downscaled collections match the oracles..."
 check_data
 
 # And delete this test coverage
 delete_coverage_request="$PETASCOPE_URL?service=WCS&request=DeleteCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
 result=$(get_http_return_code "$delete_coverage_request")
-check_result "200" "$result" "Delete coverate $COVERAGE_ID"
+check_result "200" "$result" "delete coverate $COVERAGE_ID"
+
+# TODO: check that downscaled collections are deleted as well
 
 # ------------------------------------------------------------------------------
 # test summary

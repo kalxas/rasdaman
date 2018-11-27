@@ -23,7 +23,7 @@
 # SYNOPSIS
 #    test.sh
 # Description
-#    Using wcst-import coverages to Petascope and test result
+#    Using wcst-import coverages to petascope and test result
 #
 ################################################################################
 
@@ -78,16 +78,16 @@ write_to_failed_log() {
     log_failed ""
 }
 
-# Check if Petascope is deployed (imported from util/petascope.sh)
+# Check if petascope is deployed (imported from util/petascope.sh)
 check_petascope || exit $RC_ERROR
 
 # 0. cleaning output directory
-log "Cleaning output directory..."
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 # 1. Iterate folders in test data
 for test_case in $TEST_DATA/*; do
+
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
     recipe_file_template=$(find -L $test_case -type f -name "*.template.json")
@@ -98,15 +98,15 @@ for test_case in $TEST_DATA/*; do
     fi
 
     # 1.2 copy the template file to ingest.json (this file will be used to ingest data)
-    recipe_file="$test_case"/'ingest.json'
+    recipe_file="$test_case/ingest.json"
     cp "$recipe_file_template" "$recipe_file"
 
     test_case_name=$(basename "$test_case")
-    log "Checking test case name: ""$test_case_name"
+    log_colored "Checking test case name ${c_underline}$test_case_name${c_off}"
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-	    logn "Ingesting a sample collection: $COLLECTION_NAME."
+	    log "Ingesting a sample collection: $COLLECTION_NAME."
         rasql -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
     fi
 
@@ -137,7 +137,6 @@ for test_case in $TEST_DATA/*; do
         clear_resume_file "$test_case"
         # Got the test result for this test case, check next test case        
         log "----------------------------------------------------------------------"
-        log ""
 
         continue
     else
@@ -168,7 +167,6 @@ for test_case in $TEST_DATA/*; do
         check_failed        
         write_to_failed_log "$test_case" "Failed importing coverage."                
         log "----------------------------------------------------------------------"
-        log ""
 
         continue
     else
@@ -179,7 +177,6 @@ for test_case in $TEST_DATA/*; do
         if [[ $? == 0 ]]; then
             # It is a mock import, nothing has been ingested
             log "----------------------------------------------------------------------"
-            log ""
             continue
         fi
         
@@ -189,15 +186,14 @@ for test_case in $TEST_DATA/*; do
         # 2.4 Get coverage id from ingest.json
         COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $recipe_file | awk -F'"' '{print $4}')
 
-        # 2.4.1 using WCS to check coverage does exist in Petascope
+        # 2.4.1 using WCS to check coverage does exist in petascope
         DESCRIBE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DescribeCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
-        logn "Check if coverage exists in Petascope WCS..."
+        logn "Check if coverage exists in petascope WCS..."
         RETURN=$(get_http_return_code "$DESCRIBE_COVERAGE_URL")
         if [[ $RETURN != 200 ]]; then            
             check_failed
-            write_to_failed_log "$test_case" "CoverageID does not exist in Petascope WCS."  
+            write_to_failed_log "$test_case" "CoverageID does not exist in petascope WCS."  
             log "----------------------------------------------------------------------"
-            log ""                      
             continue
         else # 2.5 coverage does exist (return HTTP 200)
             check_passed
@@ -207,13 +203,12 @@ for test_case in $TEST_DATA/*; do
             # Return 0 means wms_import does exist in recipe file
             if [[ $? == 0 ]]; then
                 # Get page content
-                logn "Test coverage does exist in Petascope WMS... "
+                logn "Check if coverage exists in petascope WMS... "
                 content=$(wget "$PETASCOPE_URL?service=WMS&version=1.3.0&request=GetCapabilities" -q -O -)
                 if [[ $content != *$COVERAGE_ID* ]]; then                    
                     check_failed
-                    write_to_failed_log "$test_case" "CoverageID does not exist in Petascope WMS."                    
+                    write_to_failed_log "$test_case" "CoverageID does not exist in petascope WMS."                    
                     log "----------------------------------------------------------------------"
-                    log ""                    
                     continue
                 else
                     check_passed
@@ -226,11 +221,11 @@ for test_case in $TEST_DATA/*; do
 
             if [[ "$IS_REMOVE" == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
-                logn "Test delete coverage from Petascope WCS... "
+                logn "Test delete coverage from petascope WCS... "
                 delete_coverage "$COVERAGE_ID"
                 if [[ $? != 0 ]]; then                    
                     check_failed         
-                    write_to_failed_log "$test_case" "Cannot delete CoverageID in Petascope WCS."
+                    write_to_failed_log "$test_case" "Cannot delete CoverageID in petascope WCS."
                 else # 2.8 coverage is deleted (return HTTP 200)
                     check_passed
                 fi
@@ -240,15 +235,12 @@ for test_case in $TEST_DATA/*; do
 
     # 2.7.1 remove created collection in rasdaman
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        logn "Removing collection: $COLLECTION_NAME."
+        logn "Removing collection $COLLECTION_NAME... "
         rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
-        logn "Done."
-        log ""
+        check
     fi
-    echo -e
 
     log "----------------------------------------------------------------------"
-    log ""
 done
 
 

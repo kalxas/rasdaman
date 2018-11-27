@@ -58,13 +58,13 @@ class r_Parse_Params;
 
 typedef struct r_Conv_Desc
 {
-    const char* src;              // pointer to source data
-    char* dest;                   // pointer to destination data
+    const char* src{NULL};        // pointer to source data
+    char* dest{NULL};             // pointer to destination data
     r_Minterval srcInterv;        // dimensions of source data
     r_Minterval destInterv;       // dimensions of destination data
     int baseType;                 // shortcut to src basetype
-    const r_Type* srcType;        // basetypes of src data
-    r_Type* destType;             // basetypes of dest data
+    const r_Type* srcType{NULL};  // basetypes of src data
+    r_Type* destType{NULL};       // basetypes of dest data
 } r_Conv_Desc;
 //@ManMemo: Module {\bf conversion}
 
@@ -149,6 +149,9 @@ public:
 
     /// get storage handler, default is malloc/free
     const r_Storage_Man& get_storage_handler() const;
+
+    /// release the resulting object
+    void releaseDest();
 
     //@{ helper structure for encoding string-to-int parameters
     typedef struct convert_string_s

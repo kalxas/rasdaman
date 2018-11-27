@@ -33,6 +33,8 @@ from osgeo import gdal
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+prog="main.py: "
+
 if len(sys.argv) != 2:
     print "Usage: python main.py PETASCOPE_ENDPOINT (e.g: http://localhost:8080/rasdaman/ows)"
     exit(0)
@@ -65,11 +67,11 @@ for f in glob.glob(input_files_path + "/*.tif"):
     list_files.append(f)
 list_files = collections.deque(list_files)
 
-print "Testing results from gdal_merge.py and Petascope WCS-T ..."
+print prog + "testing results from gdal_merge.py and petascope WCS-T ..."
 
 # Rotate the list of files to import and check with result from gdal_merge
 for x in range(len(list_files)):
-    print "Testing import files with rotation number: " + str(x + 1) + " ..."
+    print prog + "testing import files with rotation number: " + str(x + 1) + " ..."
     # Clean tmp folder
     for f in glob.glob(tmp_folder + "/*.*"):
         os.unlink(f)
@@ -119,21 +121,21 @@ for x in range(len(list_files)):
     subprocess.call("wget -q '" + delete_coverage_request + "' -O /dev/null", shell=True, stdout=open(os.devnull, 'wb'))
 
     if src_tmp[2] != dst_tmp[2]:
-        print "Size is different, gdal_merge: " + src_tmp[2] + ", petascope: " + dst_tmp[2] + "."
+        print prog + "Size is different, gdal_merge: " + src_tmp[2] + ", petascope: " + dst_tmp[2] + "."
         exit(1)
     # output from petascope containing nodata_value in tiff metadata while gdal_merge doesn't, 
     # hence different indices in string array.
     elif src_tmp[19] != dst_tmp[20]:
-        print "Upper Left is different, gdal_merge: " + src_tmp[19] + ", petascope: " + dst_tmp[20] + "."
+        print prog + "Upper Left is different, gdal_merge: " + src_tmp[19] + ", petascope: " + dst_tmp[20] + "."
         exit(1)
     elif src_tmp[20] != dst_tmp[21]:
-        print "Lower Left is different, gdal_merge: " + src_tmp[20] + ", petascope: " + dst_tmp[21] + "."
+        print prog + "Lower Left is different, gdal_merge: " + src_tmp[20] + ", petascope: " + dst_tmp[21] + "."
         exit(1)
     elif src_tmp[21] != dst_tmp[22]:
-        print "Upper Right is different, gdal_merge: " + src_tmp[21] + ", petascope: " + dst_tmp[22] + "."
+        print prog + "Upper Right is different, gdal_merge: " + src_tmp[21] + ", petascope: " + dst_tmp[22] + "."
         exit(1)
     elif src_tmp[22] != dst_tmp[23]:
-        print "Lower Right is different, gdal_merge: " + src_tmp[22] + ", petascope: " + dst_tmp[23] + "."
+        print prog + "Lower Right is different, gdal_merge: " + src_tmp[22] + ", petascope: " + dst_tmp[23] + "."
         exit(1)
 
     # Finally, rotate the list_files and continue testing different file combinations

@@ -226,9 +226,7 @@ result=$($RASQL -q 'select avg_cells(c[2,1,*:*,*:*]) from test_grib2_4d as c' --
 check_result "$expected" "$result" "check empty array slice contents"
 
 log ""
-log "--------------------------------------------------------------------------------------------"
-log "Test error conditions:"
-log ""
+log "test error conditions"
 
 $RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:360,0:719]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:360,0:719]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:360,0:719]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:360,0:719]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:360,0:719]\" } ] } }")' -f "$TEST_FILE" > /dev/null 2>&1
 check_result $EXIT_CODE_FAIL $? "swapped x and y"

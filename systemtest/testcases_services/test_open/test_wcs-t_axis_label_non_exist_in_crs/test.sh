@@ -49,10 +49,9 @@ curl -s "$WCST_REQUEST" 2>&1 > "$OUTPUT_FILE"
 cmp "$ORACLE_FILE" "$OUTPUT_FILE" >> /dev/null
 
 # check result
-check
+check_result 0 $? "throw exception if axis label in GML does not exist in coverage CRS"
 
-rm -rf "$OUTPUT_FILE"
-rm -rf "$GML_FILE"
+rm -rf "$OUTPUT_FILE" "$GML_FILE"
 
 # print summary from util/common.sh
 print_summary

@@ -49,5 +49,3 @@ else
    echo "Failed uploading file to rasql-servlet."
    exit $RC_ERROR
 fi
-
-

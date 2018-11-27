@@ -261,7 +261,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     {
         return;
     }
-    char* order_option = ORDER_OUTER_INNER;    
+    const char* order_option = ORDER_OUTER_INNER;
     bool allocated = false;
     if (formatParams.parse(options))
     {
@@ -269,7 +269,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
         {
             if (configParam.first == FormatParamKeys::Encode::CSV::ORDER)
             {
-                order_option = const_cast<char*>(configParam.second.c_str());
+                order_option = configParam.second.c_str();
             }
         }
     }

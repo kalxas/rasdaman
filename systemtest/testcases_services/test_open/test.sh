@@ -42,17 +42,17 @@ cd "$SCRIPT_DIR"
 
 # list all the subdirectories of test_open
 for d in */ ; do
-	scriptFile="$d/test.sh"
-	if [ ! -f "$scriptFile" ]; then
-		log "Script test.sh does not exist in folder: $d, skipping..."
+	testscript="$d/test.sh"
+	if [ ! -f "$testscript" ]; then
+		log "$testscript not found, skipping."
 	else
-		log "Running test case: $d"
-		"./$scriptFile"
-
-		# check the result of script
-		check
+		log_colored "running test case ${c_underline}$d${c_off}"
+		"./$testscript"
+        check quiet
 	fi
 done
 
-log "done."
+SVC_NAME="open"
+log ""
+print_summary
 exit_script

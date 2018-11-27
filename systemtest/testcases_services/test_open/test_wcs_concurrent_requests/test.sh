@@ -44,33 +44,47 @@ rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 readonly WCS_REQUEST="$PETASCOPE_URL?service=WCS&Request=GetCoverage&version=2.0.1&subset=Lat(-30,-10.5)&subset=Long(120,150)&CoverageId=test_mean_summer_airtemp&format=image/jpeg"
-readonly REQUEST_NO=20
 
-log "Test petascope WCS with $REQUEST_NO concurrent requests..."
+readonly rasserver_count=$(ps aux | grep rasserver | grep -v grep | wc -l)
+readonly REQUEST_NO=$(($rasserver_count * 2))
+
+log "test petascope WCS with $REQUEST_NO concurrent requests..."
 pids=""
 for i in $(seq $REQUEST_NO); do
-   log "  sending request $i..."
    out="$OUTPUT_DIR/wcs_request_${i}.out"
    wget -q "$WCS_REQUEST" -O "$out" &
    pids="$pids $!"
 done
 
+log "waiting for requests to finish..."
 wait $pids
+log "all requests finished."
 
-log "All queries finished."
-pass_count=0
+ORACLE_FILE_OUT="$OUTPUT_DIR/valid_response.oracle"
+cp "$ORACLE_FILE" "$ORACLE_FILE_OUT"
+oracle_tmp=$(prepare_gdal_file "$ORACLE_FILE_OUT")
+rm -f "$ORACLE_FILE_OUT"
+
 for i in $(seq $REQUEST_NO); do
    out="$OUTPUT_DIR/wcs_request_${i}.out"
+   NUM_TOTAL=$(($NUM_TOTAL+1))
+
+   # skip non-existing files
    if [ ! -f "$out" ]; then
-     error "Output file $out not found."
+     log_colored_failed "output file $out not found."
+     NUM_FAIL=$(($NUM_FAIL + 1))
+     continue
    fi
-   cmp "$out" "$ORACLE_FILE" 2>&1 > /dev/null
-   [ $? -eq 0 ] && pass_count=$(($pass_count + 1))
+   [ -s "$out" ] || continue # skip empty files
+
+   output_tmp=$(prepare_gdal_file "$out")
+   cmp "$output_tmp" "$oracle_tmp" > /dev/null 2>&1
+   [ $? -eq 0 ] && check_passed quiet
+   NUM_TOTAL=$(($NUM_TOTAL-1)) # it was added again in check_passed
 done
 
-logn "Check if at least one request returned valid result... "
-[ $pass_count -gt 0 ]
-check
+[ $NUM_SUC -gt 0 ]
+check_result 0 $? "at least one request returned valid result"
 
 # print summary from util/common.sh
 print_summary

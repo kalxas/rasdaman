@@ -36,51 +36,44 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include <logging.hh>
 
-int dataTypeSize(const r_Type* base_type){
-    //size of the data type, used for offset computation in memcpy
-    r_Base_Type* st = static_cast<r_Base_Type*>(const_cast<r_Type*>(base_type));
-    return (int) st->size();
-}
 
 void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) {
-    int sizeOfDataType = dataTypeSize(dataType);
+    LDEBUG << "transposing last two dimensions...";
+    const auto dim = dimData.dimension();
+    size_t typeSize = static_cast<r_Base_Type*>(const_cast<r_Type*>(dataType))->size();
     //the number of 2D slices we need to transpose
-    unsigned int s = 1;
-    for (unsigned int i = 0; i < dimData.dimension() - 2; i++) {
-        s *= (dimData[i].get_extent());
-    }    
+    size_t s = 1;
+    for (size_t i = 0; i < static_cast<size_t>(dim - 2); i++) {
+        s *= static_cast<size_t>(dimData[i].get_extent());
+    }
     //the number of rows in the 2d slices
-    int n = dimData[dimData.dimension() - 2].get_extent();
+    size_t n = static_cast<size_t>(dimData[dim - 2].get_extent());
     //the number of columns in the 2d slices
-    int m = dimData[dimData.dimension() - 1].get_extent();
+    size_t m = static_cast<size_t>(dimData[dim - 1].get_extent());
     //a relatively small placeholder for storing the locally transposed data
-    char* dataTemp;
-    dataTemp = new char [m*n*sizeOfDataType];
+    const size_t sliceSize = m * n * typeSize;
+    std::unique_ptr<char[]> dataTempPtr;
+    dataTempPtr.reset(new char [sliceSize]);
+    char* dataTemp = dataTempPtr.get();
     //a loop for changing each 2D data slice
-    for (unsigned int v = 0; v < s; v++) {
+    for (size_t v = 0; v < s; v++) {
         //change the current 2D data slice
-        for (int k = 0; k < m * n; k++) {
+        for (size_t k = 0; k < m * n; k++) {
             //column
-            int a = k / n;
+            size_t col = k / n;
             //row
-            int b = k % n;
-            for(int l = 0; l < sizeOfDataType; l++){
-                dataTemp[k * sizeOfDataType + l] = data[(m * b * sizeOfDataType) + a * sizeOfDataType + l];
-            }
+            size_t row = k % n;
+            memcpy(dataTemp + k * typeSize,
+                   data + (m * row * typeSize) + col * typeSize,
+                   typeSize);
         }
-        for (int k = 0; k < m * n; k++) {
-            for(int l = 0; l < sizeOfDataType; l++){
-                data[k * sizeOfDataType + l] = dataTemp[k * sizeOfDataType + l];
-            }
-        }
-
+        //copy transposed data back to original ptr
+        memcpy(data, dataTemp, sliceSize);
         //move to the next 2D data slice
-        data += m*n*sizeOfDataType;
+        data += sliceSize;
     }   
-    //cleanup that small placeholder
-    delete [] dataTemp;
     //swap the index assignments in the corresponding r_Minterval
-    dimData.transpose(dimData.dimension()-2, dimData.dimension()-1);
+    dimData.transpose(dim - 2, dim - 1);
 }
 
 void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)
@@ -88,6 +81,7 @@ void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const s
     int dims = static_cast<int>(dimData.dimension());
     int tParam0 = std::get<0>(transposeParams);
     int tParam1 = std::get<1>(transposeParams);
+    LDEBUG << "dims: " << dims << ", transpose dim 1: " << tParam0 << ", transpose dim 2: " << tParam1;
     
     if( ( dims-1 == tParam0 || dims-1 == tParam1 ) 
      && ( dims-2 == tParam0 || dims-2 == tParam1 ) 
@@ -97,7 +91,7 @@ void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const s
     }
     else
     {
-        LERROR << "Selected transposition dimensions do not coincide with the last two dimensions of your MDD.";
+        LERROR << "Selected transposition dimensions do not coincide with the last two MDD dimensions.";
         throw r_Error(TRANSPOSEPARAMETERSINVALID);
     }
 }

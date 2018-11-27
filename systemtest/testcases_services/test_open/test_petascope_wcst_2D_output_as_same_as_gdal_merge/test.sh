@@ -38,4 +38,7 @@ sed "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$SCRIPT_DIR/ingest.template.json" > "$SC
 
 # Run the import test and compare with result from gdal_merge
 python "$SCRIPT_DIR/main.py" "$PETASCOPE_URL"
-check_passed
+check 0 $? "check import = gdal_merge result"
+
+print_summary
+exit_script

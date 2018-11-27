@@ -63,7 +63,6 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lpthread               \
        -lboost_thread          \
        -lboost_system          \
-       -lnetcdf_c++            \
        -lnetcdf                \
        -ltiff                  \
        -ledit                  \

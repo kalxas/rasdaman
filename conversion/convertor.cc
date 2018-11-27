@@ -36,12 +36,13 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include "conversion/convertor.hh"
 #include "conversion/memfs.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
+#include "convertor.hh"
+
 #include <logging.hh>
 
 
@@ -120,8 +121,6 @@ r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type)
 
 r_Convertor::~r_Convertor(void)
 {
-    // Don't delete the resulting object pointer (desc->dest) !
-    //   This is the job of the external application.
     LTRACE << "r_Convertor destructor.";
     if (params != NULL)
     {
@@ -133,6 +132,23 @@ r_Convertor::~r_Convertor(void)
         delete desc.src;
         destroySrc = false;
     }
+    // delete unless there was a releaseDest() call beforehand
+    if (desc.dest)
+    {
+        free(desc.dest);
+        desc.dest = NULL;
+    }
+    if (desc.destType)
+    {
+        delete desc.destType;
+        desc.destType = NULL;
+    }
+}
+
+void r_Convertor::releaseDest()
+{
+    desc.dest = NULL;
+    desc.destType = NULL;
 }
 
 

@@ -43,7 +43,7 @@ rasdaman GmbH.
 #include "conversion/convertor.hh"
 
 #ifdef HAVE_NETCDF
-#include <netcdfcpp.h>
+#include <netcdf.h>
 #endif
 
 #include <json/json.h>
@@ -89,8 +89,12 @@ private:
 #ifdef HAVE_NETCDF
     struct RasType
     {
-        unsigned int cellSize;
+        RasType(unsigned int cellSizeArg, std::string cellTypeArg, convert_type_e ct)
+        : cellType(std::move(cellTypeArg)), cellSize(cellSizeArg), convertType{ct} {}
+
         std::string cellType;
+        unsigned int cellSize;
+        convert_type_e convertType;
     };
 
     /**
@@ -99,7 +103,7 @@ private:
     void parseDecodeOptions(const std::string& options);
 
 
-    void validateDecodeOptions(const NcFile& dataFile);
+    void validateDecodeOptions();
 
     void parseEncodeOptions(const std::string& options);
 
@@ -108,100 +112,98 @@ private:
     /**
      * read single variable data
      */
-    void readDimSizes(const NcFile& dataFile);
+    void readDimSizes();
 
     /**
-     * read single variable data
+     * read variable data into a struct
      */
-    void readSingleVar(const NcFile& dataFile);
+    void readVars();
 
     /**
-     * read multiple variable data into a struct
-     */
-    void readMultipleVars(const NcFile& dataFile);
-
-    /**
-     * read single variable data
-     */
-    template <class T>
-    void readData(NcVar* var, convert_type_e);
-
-    /**
-     * read struct variable data
+     * read variable data
      *
      * @param bandOffset offset bytes at the current variable.
      */
     template <class T>
-    void readDataStruct(NcVar* var, size_t structSize, size_t& bandOffset);
+    void readVarData(int var, size_t cellSize, size_t& bandOffset, bool isStruct);
 
     /**
      * Build struct type
      */
-    size_t buildStructType(const NcFile& dataFile);
+    size_t buildCellType();
 
     /**
      * Get a rasdaman type from a netcdf variable type.
      */
-    RasType getRasType(NcVar* var);
+    RasType getRasType(int var);
 
     /**
      * write single variable data
      */
-    void writeSingleVar(NcFile& dataFile, const NcDim** dims);
+    void writeSingleVar(const std::vector<int> &dims);
 
     /**
      * write multiple variables from a struct
      */
-    void writeMultipleVars(NcFile& dataFile, const NcDim** dims);
+    void writeMultipleVars(const std::vector<int> &dims);
 
     /**
      * write extra metadata (specified by json parameters)
      */
-    void writeMetadata(NcFile& dataFile);
+    void addMetadata();
 
     /**
      * add metadata attributes to var if not null, otherwise to dataFile.
      */
-    void addJsonAttributes(NcFile& dataFile, const Json::Value& metadata, NcVar* var = NULL);
+    void addJsonAttributes(const Json::Value& metadata, int var = NC_GLOBAL);
+
+    template <class T>
+    void addVarAttributes(int var, nc_type nctype, T validMin, T validMax,
+                          size_t dimNum);
+
+    // return true if attribute att exists, false otherwise
+    bool attExists(int var, const char *att) const;
 
     /**
-     * Convert type to a NcType; returns ncNoType in case of invalid type.
+     * Convert type to a nc_type; returns ncNoType in case of invalid type.
      */
-    NcType stringToNcType(std::string type);
+    nc_type stringToNcType(std::string type);
 
     /**
      * Add json array values to a netCDF variable.
      */
-    void jsonArrayToNcVar(NcVar* var, Json::Value jsonArray);
+    void jsonArrayToNcVar(int var, int dimid, Json::Value jsonArray);
 
-    /**
-     * Unsigned data has to be transformed to data of 2x more bytes
-     * as NetCDF only supports exporting signed data;
-     * so unsigned char is transformed to short for example, and we add the
-     * valid_min/valid_max attributes to describe the range.
-     */
-    template <class S, class T>
-    void writeData(NcFile& dataFile, std::string& varName, const NcDim** dims, NcType ncType,
-                   long validMin, long validMax, const char* missingValue = NULL);
+    template <class T>
+    void writeData(const std::string& varName, const std::vector<int> &dims,
+                   const char *src, nc_type nctype,
+                   T validMin, T validMax, size_t dimNum = 0);
 
     /**
      * write struct variable data
      *
      * @param bandOffset offset bytes in the rasdaman struct at the current variable.
      */
-    template <class S, class T>
-    void writeDataStruct(NcFile& dataFile, std::string& varName, const NcDim** dims, size_t structSize, size_t bandOffset, NcType ncType,
-                         long validMin, long validMax, const char* missingValue = NULL, size_t dimNum = 0);
+    template <class T>
+    void writeDataStruct(const std::string& varName,
+                         const std::vector<int> &dims,
+                         size_t structSize, size_t bandOffset, nc_type nctype,
+                         T validMin, T validMax, size_t dimNum = 0);
 
     /**
      * @return dimension name given it's index
      */
-    std::string getDimensionName(unsigned int dimId);
+    std::string getDimName(unsigned int dimId);
 
     /**
      * @return single variable name for exporting to netcdf
      */
-    std::string getVariableName();
+    const std::string &getVariableName();
+
+    // close the netCDF dataFile
+    void closeDataFile();
+
+    Json::Value encodeOptions;
 
     // variable names
     std::vector<std::string> varNames;
@@ -212,14 +214,23 @@ private:
     // dimension variables
     std::vector<std::string> dimVarNames;
 
-    Json::Value encodeOptions;
+    // length of each dimension
+    std::vector<size_t> dimSizes;
 
+    // offset at each dimension (subset read/write)
+    std::vector<size_t> dimOffsets;
+
+    // number of dimensions
     size_t numDims;
+
+    // cell count
     size_t dataSize;
-    std::vector<long> dimSizes;
-    std::vector<long> dimOffsets;
+
 #endif
 
+    int dataFile{invalidDataFile};
+
+    static const int invalidDataFile;
     static const std::string DEFAULT_VAR;
     static const std::string DEFAULT_DIM_NAME_PREFIX;
     static const std::string VAR_SEPARATOR_STR;
@@ -227,6 +238,7 @@ private:
     static const std::string VALID_MIN;
     static const std::string VALID_MAX;
     static const std::string MISSING_VALUE;
+    static const std::string FILL_VALUE;
 };
 
 #endif

@@ -65,7 +65,7 @@ for d in */ ; do
             done
 
             if [[ "$found" -eq 0 ]]; then
-                logn "Removing coverage: $coverage_id... "
+                logn "removing coverage $coverage_id... "
                 # remove the imported coverage
                 delete_coverage "$coverage_id"
                 check
@@ -81,6 +81,5 @@ done
 # after the test interface for WS client, now it can be removed here as other imported test coverages
 delete_coverage "mean_summer_airtemp"
 
-log "done."
 print_summary
 exit_script

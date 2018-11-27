@@ -40,13 +40,13 @@
 #       2013-Dec-03     DM         known_fails file listing queries that are known to fail
 #
 
-PROG=`basename $0`
+PROG=$(basename $0)
 
 # get dir of linking script
 SOURCE="${BASH_SOURCE[0]}"
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-SYSTEST_DIR=`echo "$SCRIPT_DIR" | sed 's|\(.*/systemtest\).*|\1|'`
+SYSTEST_DIR=$(echo "$SCRIPT_DIR" | sed 's|\(.*/systemtest\).*|\1|')
 [ -d "$SYSTEST_DIR/util" ] || error "could not determine system test dir: $SYSTEST_DIR"
 
 . "$SYSTEST_DIR/util/common.sh"
@@ -65,12 +65,9 @@ ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Oracles directory not found: $ORACLE_PATH"
 OUTPUT_PATH="$SCRIPT_DIR/output"
 
-# NOTE: before running any test queries in test directory, remove all the output files to make it clean first
-if [ -d "$OUTPUT_PATH" ]; then
-    logn "Cleaning output directory... "
-    rm -rf "$OUTPUT_PATH"
-    echo "Done."
-fi
+# before running any test queries in test directory, 
+# remove all the output files to make it clean first
+rm -rf "$OUTPUT_PATH"
 # then create the output directory
 mkdir -p "$OUTPUT_PATH"
 
@@ -160,8 +157,7 @@ if [ $? -eq 0 ]; then
     check_petascope || exit $RC_SKIP
   fi
 fi
-[ "$SVC_NAME" != "secore" ] && check_rasdaman
-
+[ "$SVC_NAME" != "secore" ] && check_rasdaman && check_rasdaman_available
 
 #
 # check options
@@ -174,33 +170,38 @@ for i in $*; do
   esac
 done
 
+start_timer
+
 # run import if necessary
 drop_data
 ingest_data
 
-echo
+stop_timer
+
+loge
+
+log "$(printf '%4s %5ss   data preparation' '' $(get_time_s))"
 
 pushd "$QUERIES_PATH" > /dev/null
 
 loge
 
+total_test_no=$(ls | grep -E -v '\.(pre|post|check)\.sh$' | grep -E -v '\.(template|file)$' | wc -l)
+curr_test_no=0
+
 for f in *; do
+
+  # uncomment for single test run
+  #[[ "$f" == 094-* ]] || continue
 
   # skip non-files
   [ -f "$f" ] || continue
-
   # skip scripts, we only want queries
-  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh  || "$f" == *.template || "$f" == *.file ]] && continue
+  [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh ]] && continue
+  [[ "$f" == *.template || "$f" == *.file ]] && continue
 
-  # uncomment for single test run
-  #[[ "$f" == 01-* ]] || continue
+  curr_test_no=$(($curr_test_no + 1))
 
-  if [ "$SVC_NAME" == "wcps" ]; then
-    # skip rasql tests in WCPS test suite for now (enable .xml for testing SOAP)
-    [[ "$f" == *.rasql || "$f" == *.sql ]] && continue
-    # Skip multipoint tests
-    [[ "$f" == *multipoint* ]] && continue
-  fi
   if [ "$SVC_NAME" == "wcs" ]; then
     # Skip multipoint tests
     [[ "$f" == *multipoint* ]] && continue
@@ -212,13 +213,15 @@ for f in *; do
     fi
   fi
 
-  # print test header (also to find $LOG) with tee in util/common.sh
-  loge "running test: $f"
-  loge
-  cat "$f" | tee -a $LOG_FILE
-  loge
+  start_timer
 
   run_test
+
+  stop_timer
+
+  c_on=$(get_status_color "$status")
+  msg=$(printf "%3d/$total_test_no ${c_on}%5s${c_off} %5ss   $f\n" $curr_test_no $status $(get_time_s))
+  log_colored "$msg"
 
 done
 

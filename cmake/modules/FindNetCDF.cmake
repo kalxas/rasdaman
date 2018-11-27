@@ -38,7 +38,6 @@
 #
 #    Additional variables set
 #    NetCDF_C_LIBRARY        (FILE)       NetCDF C library
-#    NetCDF_CXX_LIBRARY      (FILE)       NetCDF C++ library
 #    NetCDF_LARGE_DIMS       (BOOL)       Checks the header files for size of
 #                                          NC_MAX_DIMS, NC_MAX_VARS and NC_MAX_VARS_DIMS
 #                                          Returns TRUE if
@@ -151,15 +150,9 @@ else (NetCDF_LIBRARIES AND NetCDF_INCLUDE_DIRS)
                     HINTS ${NetCDF_LIBRARY_DIR}
                     NO_DEFAULT_PATH)
 
-            find_library(NetCDF_CXX_LIBRARY
-                    NAMES netcdf_c++
-                    HINTS ${NetCDF_LIBRARY_DIR}
-                    NO_DEFAULT_PATH)
-
         else ()
             message(SEND_ERROR "NetCDF_LIBRARY_DIR=${NetCDF_LIBRARY_DIR} does not exist")
             set(NetCDF_LIBRARY "NetCDF_C_LIBRARY-NOTFOUND")
-            set(NetCDF_LIBRARY "NetCDF_CXX_LIBRARY-NOTFOUND")
         endif ()
 
     else ()
@@ -173,17 +166,9 @@ else (NetCDF_LIBRARIES AND NetCDF_INCLUDE_DIRS)
                         HINTS ${NetCDF_DIR}
                         PATH_SUFFIXES "lib" "Lib"
                         NO_DEFAULT_PATH)
-
-                find_library(NetCDF_CXX_LIBRARY
-                        NAMES netcdf_c++
-                        HINTS ${NetCDF_DIR}
-                        PATH_SUFFIXES "lib" "Lib"
-                        NO_DEFAULT_PATH)
-
             else ()
                 message(SEND_ERROR "NetCDF_DIR=${NetCDF_DIR} does not exist")
                 set(NetCDF_LIBRARY "NetCDF_C_LIBRARY-NOTFOUND")
-                #                 set(NetCDF_LIBRARY "NetCDF_CXX_LIBRARY-NOTFOUND")
             endif ()
 
 
@@ -191,10 +176,6 @@ else (NetCDF_LIBRARIES AND NetCDF_INCLUDE_DIRS)
 
             find_library(NetCDF_C_LIBRARY
                     NAMES netcdf
-                    PATH_SUFFIXES ${netcdf_lib_suffixes})
-
-            find_library(NetCDF_CXX_LIBRARY
-                    NAMES netcdf_c++
                     PATH_SUFFIXES ${netcdf_lib_suffixes})
         endif ()
 
@@ -204,14 +185,10 @@ else (NetCDF_LIBRARIES AND NetCDF_INCLUDE_DIRS)
         message(SEND_ERROR "Can not locate NetCDF C library")
     endif ()
 
-    if (NOT NetCDF_CXX_LIBRARY)
-        message(SEND_ERROR "Can not locate NetCDF CXX library")
-    endif ()
-
 
     # Define the LIBRARIES and INCLUDE_DORS
     set(NetCDF_INCLUDE_DIRS ${NetCDF_INCLUDE_DIR})
-    set(NetCDF_LIBRARIES ${NetCDF_CXX_LIBRARY} ${NetCDF_C_LIBRARY})
+    set(NetCDF_LIBRARIES ${NetCDF_C_LIBRARY})
 
     # Need to find the NetCDF config script to check for HDF5
     if (NetCDF_DIR OR NetCDF_BIN_DIR)
@@ -262,6 +239,5 @@ mark_as_advanced(
         NetCDF_INCLUDE_DIR
         NetCDF_INCLUDE_DIRS
         NetCDF_C_LIBRARY
-        NetCDF_CXX_LIBRARY
         NetCDF_LIBRARIES
         NetCDF_LIBRARY_DIR)
