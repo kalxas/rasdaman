@@ -140,7 +140,11 @@ public class KVPRasqlHandler implements IKVPHandler {
                     bytes = ArrayUtils.addAll(bytes, byteData);
                 }
             }
-            response.setDatas(Arrays.asList(bytes));
+            
+            // If no result is returned from rasdaman, nothing to write to client
+            if (bytes != null) {
+                response.setDatas(Arrays.asList(bytes));
+            }
         } catch (IOException ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError,
                     "Failed writing result to output stream", ex);

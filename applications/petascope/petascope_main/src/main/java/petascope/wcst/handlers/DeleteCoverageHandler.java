@@ -125,6 +125,9 @@ public class DeleteCoverageHandler {
                         RasUtil.dropRasdamanType(collectionType);
                     }
                     if (mddTypeExist) {
+                        if (!setTypeExist) { 
+                            log.warn("mdd type found but corresponding set type '" + collectionType + "'  not found in rasdaman.");
+                        }
                         RasUtil.dropRasdamanType(mddType);
                     }
                     if (cellTypeExist) {
