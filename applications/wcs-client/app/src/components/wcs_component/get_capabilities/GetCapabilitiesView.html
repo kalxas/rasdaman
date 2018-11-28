@@ -23,6 +23,10 @@
                         Available coverages <i class="pull-right glyphicon"
                                                ng-class="{'glyphicon-chevron-down': isAvailableCoveragesOpen, 'glyphicon-chevron-right': !isAvailableCoveragesOpen}"></i>
                     </uib-accordion-heading>
+                    <b style="color: red; margin-left: 3%;" ng-show="showFirefoxWebWorldWindWarning">                        
+                        Note: WebWorldWind does not display properly on Firefox 63 (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1502889">bug report </a>).
+                        Please use Google Chrome instead if your current browser is Firefox 63.
+                    </b>
                     <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->
                     <table st-table="coverageSummaries" st-safe-src="capabilities.contents.coverageSummary"
                            class="table table-striped">

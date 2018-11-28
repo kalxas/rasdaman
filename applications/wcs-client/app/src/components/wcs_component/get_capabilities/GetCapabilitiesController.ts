@@ -60,6 +60,22 @@ module rasdaman {
             // Only display 10 rows in a smart table's page
             $scope.rowPerPageSmartTable = 10;
 
+            // Shown a warning about WebWorldWind if firefox version is 63 or 64
+            $scope.showFirefoxWebWorldWindWarning = false;
+            var userAgent = navigator.userAgent;
+            if (navigator.userAgent.indexOf("Firefox") > 0) {                
+                
+                var startIndex = userAgent.indexOf("rv:");
+                var endIndex = userAgent.indexOf(")");
+                if (startIndex > 0 && endIndex > 0) {
+                    var version = parseInt(userAgent.substring(startIndex, endIndex).split(":")[1]);
+
+                    if (version == 63 || version == 64) {
+                        $scope.showFirefoxWebWorldWindWarning = true;
+                    }
+                }
+            }
+
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             // To init the Globe on this canvas           
             var canvasId = "wcsCanvasGetCapabilities";
@@ -230,7 +246,10 @@ module rasdaman {
 	
 	    selectedCoverageId:string;
 	    initCheckboxesForCoverageIds():void;
-	    getCoverageSummaryByCoverageId(coverageId):{displayFootprint:boolean};
+        getCoverageSummaryByCoverageId(coverageId):{displayFootprint:boolean};
+        
+        // In Firefox version 63, WebWorldWind not working
+        showFirefoxWebWorldWindWarning:boolean;
 	
     }
 
