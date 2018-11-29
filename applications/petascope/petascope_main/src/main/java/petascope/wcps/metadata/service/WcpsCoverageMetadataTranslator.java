@@ -45,6 +45,7 @@ import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
+import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.RegularAxis;
 
 /**
@@ -60,6 +61,8 @@ public class WcpsCoverageMetadataTranslator {
     private CoverageRepostioryService persistedCoverageService;
     @Autowired
     private PyramidService pyramidService;
+    @Autowired
+    private CoordinateTranslationService coordinateTranslationService;
 
 
     public WcpsCoverageMetadataTranslator() {
@@ -117,6 +120,31 @@ public class WcpsCoverageMetadataTranslator {
     }
     
     /**
+     * Update geo-referenced axis's geo bounds and grid bounds by downscaled level.
+     */
+    private void updateAxisBounds(Axis axis, Pair<BigDecimal, BigDecimal> geoSubsetPair, BigDecimal downscaledLevel) {
+        BigDecimal scaleRatio = BigDecimalUtil.divide(BigDecimal.ONE, downscaledLevel);
+        BigDecimal axisResolutionTmp = axis.getResolution().multiply(downscaledLevel);
+
+        BigDecimal newGridLowerBound = new BigDecimal(axis.getGridBounds().getLowerLimit().multiply(scaleRatio).longValue());
+        BigDecimal newGridUpperBound = new BigDecimal(axis.getGridBounds().getUpperLimit().multiply(scaleRatio).longValue());
+        BigDecimal newAxisResolution = axisResolutionTmp;
+        axis.setResolution(newAxisResolution);
+
+        NumericSubset newOriginalGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
+        axis.setOriginalGridBounds(newOriginalGridBounds);
+        
+        ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(geoSubsetPair.fst, geoSubsetPair.snd);
+        ParsedSubset<Long> gridSubset = coordinateTranslationService.geoToGridForRegularAxis(parsedSubset, 
+                                                                        axis.getGeoBounds().getLowerLimit(), axis.getGeoBounds().getUpperLimit(), 
+                                                                        newAxisResolution, newGridLowerBound);
+        NumericSubset geoSubset = new NumericTrimming(geoSubsetPair.fst, geoSubsetPair.snd);
+        axis.setGeoBounds(geoSubset);
+        NumericSubset gridBound = new NumericTrimming(new BigDecimal(gridSubset.getLowerLimit().toString()), new BigDecimal(gridSubset.getUpperLimit().toString()));
+        axis.setGridBounds(gridBound);
+    }
+    
+    /**
      * Create a WcpsCoverageMetadata metadata object depending on the input GeoXY axes domains. 
      * This method will check which Rasdaman downscaled collection the metadata object should contain and also the XY grid domains accordingly.
      * 
@@ -139,19 +167,15 @@ public class WcpsCoverageMetadataTranslator {
             Axis axis = newMetadata.getAxes().get(i);
             
             if (axis.isXYGeoreferencedAxis()) {
-                BigDecimal scaleRatio = BigDecimalUtil.divide(BigDecimal.ONE, downscaledLevel);
-                BigDecimal axisResolutionTmp = axis.getResolution().multiply(downscaledLevel);
+                if (axis.isXAxis()) {
+                    this.updateAxisBounds(axis, geoSubsetX, downscaledLevel);
+                } else {
+                    this.updateAxisBounds(axis, geoSubsetY, downscaledLevel);
+                }
                     
-                BigDecimal newGridLowerBound = new BigDecimal(axis.getGridBounds().getLowerLimit().multiply(scaleRatio).longValue());
-                BigDecimal newGridUpperBound = new BigDecimal(axis.getGridBounds().getUpperLimit().multiply(scaleRatio).longValue());
-                BigDecimal newAxisResolution = axisResolutionTmp;
-
-                NumericSubset newOriginalGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
-                NumericSubset newGridBounds = new NumericTrimming(newGridLowerBound, newGridUpperBound);
-                    
-                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), newOriginalGridBounds, newGridBounds, axis.getDirection(), 
+                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), axis.getOriginalGridBounds(), axis.getGridBounds(), axis.getDirection(), 
                                        axis.getNativeCrsUri(), axis.getCrsDefinition(), axis.getAxisType(), axis.getAxisUoM(), 
-                                       axis.getRasdamanOrder(), axis.getOrigin(), newAxisResolution);
+                                       axis.getRasdamanOrder(), axis.getOrigin(), axis.getResolution());
                 
                 // Replace the old geo axis with new geo axis.
                 newMetadata.updateAxisByIndex(i, axis);

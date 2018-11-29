@@ -72,6 +72,13 @@ public class BoundingBox {
     public BoundingBox() {
 
     }
+    
+    public BoundingBox(BigDecimal xMin, BigDecimal yMin, BigDecimal xMax, BigDecimal yMax) {
+        this.setXMin(xMin);
+        this.setXMax(xMax);
+        this.setYMin(yMin);
+        this.setYMax(yMax);
+    }
 
     public long getId() {
         return id;
