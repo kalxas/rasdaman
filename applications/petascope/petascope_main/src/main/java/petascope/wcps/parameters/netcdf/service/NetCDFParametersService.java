@@ -47,7 +47,6 @@ import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
-import petascope.core.gml.metadata.service.CoverageMetadataService;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.RangeField;
@@ -170,8 +169,8 @@ public class NetCDFParametersService {
                 }
             }
             
-            BandVariableMetadata bandVariableMetadata = new BandVariableMetadata(band.getDescription(), parseNodataValues(band.getNodata()),
-                    band.getUomCode(), band.getDefinition(), bandsMetadataMap);
+            BandVariableMetadata bandVariableMetadata = new BandVariableMetadata(band.getDescription(), 
+                                                                                 band.getUomCode(), band.getDefinition(), bandsMetadataMap);
             bandVariables.add(new BandVariable(band.getDataType(), band.getName(), bandVariableMetadata));
         }
         return bandVariables;

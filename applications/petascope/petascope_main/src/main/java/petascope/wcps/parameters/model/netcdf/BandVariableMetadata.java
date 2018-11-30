@@ -35,17 +35,14 @@ public class BandVariableMetadata {
 
     private String description;
 
-    private List<BigDecimal> missing_value;
-
     private String units;
 
     private String definition;
     
     private Map<String, String> metadataMap;
 
-    public BandVariableMetadata(String description, List<BigDecimal> missing_value, String units, String definition, Map<String, String> metadataMap) {
+    public BandVariableMetadata(String description, String units, String definition, Map<String, String> metadataMap) {
         this.description = description;
-        this.missing_value = missing_value;
         this.units = units;
         this.definition = definition;
         this.metadataMap = metadataMap;
@@ -56,10 +53,6 @@ public class BandVariableMetadata {
 
     public String getDescription() {
         return description;
-    }
-
-    public List<BigDecimal> getMissing_value() {
-        return missing_value;
     }
 
     public String getUnits() {
