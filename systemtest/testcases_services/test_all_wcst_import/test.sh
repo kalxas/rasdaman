@@ -78,6 +78,17 @@ write_to_failed_log() {
     log_failed ""
 }
 
+run_wcst_import() {
+    # $1 is test case name
+    # $2 is input ingredient file
+    local test_cases_output_dir="$OUTPUT_DIR/$1"
+    mkdir -p "$test_cases_output_dir"
+    local wcst_import_log="$test_cases_output_dir/wcst_import.log"
+
+    local ingredient_file="$2"
+    wcst_import.sh "$ingredient_file" -q >> "$wcst_import_log" 2>&1
+}
+
 # Check if petascope is deployed (imported from util/petascope.sh)
 check_petascope || exit $RC_ERROR
 
@@ -142,7 +153,7 @@ for test_case in $TEST_DATA/*; do
     else
         logn "Test coverage import... "
         # This test will succeed, check coverage exists later
-        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
+        run_wcst_import "$test_case_name" "$recipe_file"
     fi
 
     if [[ $? != 0 ]]; then
@@ -150,7 +161,7 @@ for test_case in $TEST_DATA/*; do
         # In Debian, it can fail without reason in some test cases, try it again can make it work
         echo ""
         logn "Failed, trying one more time... "
-        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"        
+        run_wcst_import "$test_case_name" "$recipe_file"    
     fi
     
     if [[ $? != 0 ]]; then
@@ -158,7 +169,7 @@ for test_case in $TEST_DATA/*; do
         # In Debian, it can fail without reason in some test cases, try it again can make it work
         echo ""
         logn "Failed, trying one more time... "
-        wcst_import.sh "$recipe_file" -q >> "$LOG_FILE"
+        run_wcst_import "$test_case_name" "$recipe_file"
     fi    
 
     # 2 Check if wcst_import runs successfully
@@ -244,11 +255,10 @@ for test_case in $TEST_DATA/*; do
 done
 
 
-# Finally, copy result log file of this testcase to output directory
+# Finally, copy result log file of these testcases to output directory
 # Iterate folders in test data
 for test_case in $TEST_DATA/*; do
     test_case_name=$(basename "$test_case")
-    mkdir -p "$OUTPUT_DIR/$test_case_name"
     mv "$test_case/ingest.json.log" "$OUTPUT_DIR/$test_case_name/" 2> /dev/null
 done
 

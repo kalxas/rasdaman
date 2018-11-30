@@ -34,8 +34,9 @@ def import_pygrib():
     """
     try:
         import pygrib
-    except ImportError:
-        raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip install pygrib).")
+    except ImportError as e:
+        raise RuntimeException("Cannot import GRIB data, please install pygrib first (sudo pip install pygrib). "
+                               "Reason: {}.".format(e))
 
     return pygrib
 
@@ -46,8 +47,9 @@ def import_netcdf4():
     """
     try:
         import netCDF4
-    except ImportError:
+    except ImportError as e:
         raise RuntimeException("Cannot import netCDF data, please install netCDF4 first \
-                                (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4).")
+                                (yum install netcdf4-python, or apt-get install python-netcdf, or apt-get install python-netcdf4)."
+                               "Reason: {}.".format(e))
 
     return netCDF4
