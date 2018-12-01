@@ -54,9 +54,6 @@ class Recipe(BaseRecipe):
         if 'coverage_id' not in self.options:
             self.options['coverage_id'] = self.session.get_coverage_id()
 
-        if 'tiling' not in self.options:
-            self.options['tiling'] = None
-
         if 'partitioning_scheme' not in self.options:
             self.options['partitioning_scheme'] = self.__DEFAULT_PARTITIONING
 
@@ -72,13 +69,6 @@ class Recipe(BaseRecipe):
             if not os.access(self.options['backup_dir'], os.W_OK):
                 raise RuntimeException("Your backup directory is not writable, please remedy this.")
 
-        if 'wms_import' not in self.options:
-            self.options['wms_import'] = False
-        else:
-            self.options['wms_import'] = bool(self.options['wms_import'])
-
-        if 'scale_levels' not in self.options:
-            self.options['scale_levels'] = None
 
         # Validate wcs_endpoint
         validate_and_read_url(self.options['wcs_endpoint'])

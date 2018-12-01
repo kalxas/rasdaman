@@ -27,6 +27,8 @@ import os
 from config_manager import ConfigManager
 
 from master.error.validate_exception import RecipeValidationException
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
+
 from session import Session
 from util.coverage_util import CoverageUtil
 from util.log import log
@@ -122,6 +124,28 @@ class BaseRecipe:
         for file in self.session.get_files():
             if not os.access(file.get_filepath(), os.R_OK):
                 raise RecipeValidationException("File on path " + file.get_filepath() + " is not accessible")
+
+        if 'wms_import' not in self.options:
+            self.options['wms_import'] = False
+        else:
+            self.options['wms_import'] = bool(self.options['wms_import'])
+
+        if 'tiling' not in self.options:
+            self.options['tiling'] = None
+
+        if 'scale_levels' not in self.options:
+            self.options['scale_levels'] = None
+
+        if "import_order" in self.options:
+            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
+                    and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
+                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
+                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
+                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
+                                         self.options['import_order'])
+                raise RecipeValidationException(error_message)
+        else:
+            self.options['import_order'] = None
 
     @staticmethod
     @abstractmethod

@@ -61,19 +61,8 @@ class Recipe(BaseRecipe):
         """
         super(Recipe, self).validate()
 
-        if 'wms_import' not in self.options:
-            self.options['wms_import'] = False
-        else:
-            self.options['wms_import'] = bool(self.options['wms_import'])
-
-        if 'tiling' not in self.options:
-            self.options['tiling'] = None
-
         if 'band_names' not in self.options:
             self.options['band_names'] = None
-
-        if 'scale_levels' not in self.options:
-            self.options['scale_levels'] = None
 
     def describe(self):
         """

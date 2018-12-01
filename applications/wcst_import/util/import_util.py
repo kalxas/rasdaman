@@ -22,6 +22,7 @@
  *
 """
 from master.error.runtime_exception import RuntimeException
+from util.log import log
 
 """
   Utilities to import optional dependencies and throw proper exceptions for user to install these missing libraries. 
@@ -53,3 +54,15 @@ def import_netcdf4():
                                "Reason: {}.".format(e))
 
     return netCDF4
+
+def import_jsonschema():
+    """
+    Import jsonschema which is used for validating the options in the ingredients file
+    """
+    try:
+        import jsonschema
+    except ImportError:
+         log.warning("The jsonschema package is not installed, ingredient file validation will be skipped. \
+          To enable validation please install jsonschema (sudo pip install jsonschema)")
+
+    return jsonschema

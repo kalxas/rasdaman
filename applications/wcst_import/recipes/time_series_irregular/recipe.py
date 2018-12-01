@@ -34,6 +34,7 @@ from master.provider.data.file_data_provider import FileDataProvider
 from master.provider.metadata.irregular_axis import IrregularAxis
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
@@ -42,7 +43,6 @@ from util.time_util import DateTimeUtil
 from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
-from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from master.importer.resumer import Resumer
 
 
@@ -86,30 +86,9 @@ class Recipe(BaseRecipe):
                 and self.options['time_parameter']['filename']['group'] == "":
             raise RecipeValidationException("No filename regex and group to extract time from gdal was provided")
 
-        if 'tiling' not in self.options:
-            self.options['tiling'] = None
-
         if 'band_names' not in self.options:
             self.options['band_names'] = None
 
-        if 'wms_import' not in self.options:
-            self.options['wms_import'] = False
-        else:
-            self.options['wms_import'] = bool(self.options['wms_import'])
-
-        if 'scale_levels' not in self.options:
-            self.options['scale_levels'] = None
-
-        if "import_order" in self.options:
-            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
-                and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
-                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
-                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
-                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
-                                         self.options['import_order'])
-                raise RecipeValidationException(error_message)
-        else:
-            self.options['import_order'] = None
 
     def describe(self):
         """

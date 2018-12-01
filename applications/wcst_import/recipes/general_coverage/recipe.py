@@ -34,10 +34,10 @@ from master.helper.user_axis import UserAxis, UserAxisType
 from master.helper.user_band import UserBand
 from master.importer.importer import Importer
 from master.recipe.base_recipe import BaseRecipe
-from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from recipes.general_coverage.grib_to_coverage_converter import GRIBToCoverageConverter
 from recipes.general_coverage.netcdf_to_coverage_converter import NetcdfToCoverageConverter
+from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from session import Session
 from util.crs_util import CRSUtil
 from util.gdal_validator import GDALValidator
@@ -71,17 +71,6 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe validate method
         """
         super(Recipe, self).validate()
-
-        if 'wms_import' not in self.options:
-            self.options['wms_import'] = False
-        else:
-            self.options['wms_import'] = bool(self.options['wms_import'])
-
-        if 'scale_levels' not in self.options:
-            self.options['scale_levels'] = None
-
-        if 'tiling' not in self.options:
-            self.options['tiling'] = None
 
         if 'coverage' not in self.options:
             raise RecipeValidationException("No coverage parameter supplied in the recipe parameters.")
@@ -171,16 +160,6 @@ class Recipe(BaseRecipe):
                         color_palette_table = file_reader.read()
                         self.options['coverage']['metadata']['global']['colorPaletteTable'] = color_palette_table
 
-        if "import_order" in self.options:
-            if self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING \
-                    and self.options['import_order'] != AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING:
-                error_message = "'import_order' option must be '{}' or '{}', given '{}'.".\
-                                  format(AbstractToCoverageConverter.IMPORT_ORDER_ASCENDING,
-                                         AbstractToCoverageConverter.IMPORT_ORDER_DESCENDING,
-                                         self.options['import_order'])
-                raise RecipeValidationException(error_message)
-        else:
-            self.options['import_order'] = None
 
     def describe(self):
         """

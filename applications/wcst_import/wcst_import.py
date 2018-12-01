@@ -39,6 +39,7 @@ from master.error.validate_exception import RecipeValidationException
 from session import Session
 from util.file_util import FileUtil
 from util.log import log
+from util.import_util import import_jsonschema
 from wcst.wcst import WCSTException
 
 
@@ -72,10 +73,33 @@ def exit_error():
     """
     exit(1)
 
+def load_schema():
+    script_dir = os.path.dirname(os.path.abspath( __file__ ))
+    try:
+        with open(script_dir + "/ingredients/ingredients_schema.json", "r") as ingredients_schema_fd:
+            ingredients_schema = json.load(ingredients_schema_fd)
+            return ingredients_schema
+    except IOError as e:
+        log.error("We could not open the ingredients schema file. Make sure the file exists and is readable.\n" + str(e))
+        exit_error()
+
+def validate_ingredients(ingredients):
+    """
+    Validates against unkown settings
+    """
+    jsonschema = import_jsonschema()
+    ingredients_schema = load_schema()
+    try:
+        jsonschema.validate(ingredients, ingredients_schema)
+    except NameError:
+        pass
+    except jsonschema.exceptions.ValidationError as e:
+        log.error("The ingredients file contains unkown option(s): \n" + str(e.message))
+        exit_error()
 
 def validate():
     """
-    Validates the commandline arguments (i.e. makes sure it's only one)
+    Validates the commandline arguments
     """
     if len(sys.argv) == 1:
         print_usage()
@@ -108,14 +132,19 @@ def decode_ingredients(ingredients_raw):
     NOTE: keep all the numbers as decimal to avoid losing precision (e.g: 0.041666666666666666666666 to 0.04116666666667 as float)
     :param str ingredients_raw: the raw json string
     :rtype: dict[str,dict|str|bool|int|float]
-    """
+    """    
     try:
-        return json.loads(ingredients_raw, parse_float = decimal.Decimal)
+        ingredients = json.loads(ingredients_raw, parse_float = decimal.Decimal)
     except Exception as ex:
         log.error("We could not decode the ingredients file. This is usually due to " \
                   "a problem with the json format. Please check that you have a valid json file." \
                   " The JSON decoder error was: " + str(ex))
         exit_error()
+
+    validate_ingredients(ingredients)
+
+    return ingredients
+
 
 
 def main():

@@ -1,0 +1,126 @@
+{
+    "type" : "object",
+    "properties": {
+        "config": {
+            "type" : "object",
+            "required": [
+                "service_url"
+            ],
+            "properties": {
+                "service_url": {
+                    "type": "string"
+                },
+                "tmp_directory": {
+                    "type": "string"
+                },
+                "automated": {
+                    "type": "boolean"
+                },
+                "track_files": {
+                    "type": "boolean"
+                },
+                "subset_correction": {
+                    "type": "boolean"
+                },
+                "insitu": {
+                    "type": "boolean"
+                },
+                "mock": {
+                    "type": "boolean"
+                },
+                "default_null_values": {
+                    "type": "array"
+                },
+                "crs_resolver": {
+                    "type": "string"
+                },
+                "url_root": {
+                    "type": "string"
+                },
+                "skip": {
+                    "type": "boolean"
+                },
+                "retry": {
+                    "type": "boolean"
+                },
+                "retries": {
+                    "type": "number",
+                    "default": 5
+                },
+                "resumer_dir_path": {
+                    "type": "string"
+                },
+                "slice_restriction": {
+                    "type": "array"
+                },
+                "description_max_no_slices": {
+                    "type": "number"
+                },
+                "default_crs": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "input": {
+            "type" : "object",
+            "required": [
+                "coverage_id"
+            ],
+            "properties": {
+                "coverage_id": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "recipe": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                   "type": "string"
+                },
+                "options": {
+                    "properties": {
+                            "import_order": {
+                                "type": "string",
+                                "default": "ascending"
+                            },
+                            "coverage": {
+                                "type": "object",
+                                "properties": {
+                                    "crs": {},
+                                    "grid_coverage": {},
+                                    "metadata": {},
+                                    "slicer": {}                                 
+                                },
+                                "additionalProperties": false
+                            },
+                            "band_names": {},
+                            "coverage_id": {},
+                            "partitioning_scheme": {},
+                            "scale_levels": {},
+                            "tiling": {},
+                            "time_crs": {},
+                            "time_format": {},
+                            "time_parameter": {},
+                            "time_start": {},
+                            "time_step": {},
+                            "time_tag": {},
+                            "wcs_endpoint": {},
+                            "wms_import": {}
+                    },
+                    "additionalProperties": false
+                }
+            }
+        }            
+    }
+}
