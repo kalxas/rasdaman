@@ -24,8 +24,12 @@ if (ENABLE_JAVA)
 	set(TEST_SEQUENCE "testcases_mandatory/* testcases_services/*")
 endif()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh.in" "${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh" @ONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/conf/test.cfg.in" "${CMAKE_CURRENT_SOURCE_DIR}/conf/test.cfg" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh.in"
+               "${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh" @ONLY)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/conf/test.cfg.in"
+               "${CMAKE_CURRENT_SOURCE_DIR}/conf/test.cfg" @ONLY)
+               
 
 add_custom_target(check
         COMMAND ./run_test.sh ${BIN_DIR}

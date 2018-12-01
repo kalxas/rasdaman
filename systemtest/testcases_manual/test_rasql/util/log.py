@@ -53,17 +53,17 @@ def add_coloring_to_emit_ansi(fn):
         # then add colors if it's run interactively
         levelno = args[1].levelno
         if levelno >= logging.CRITICAL:
-            color = '\x1b[31m'  # red
+            color = '\033[1m\x1b[31m'  # red
         elif levelno >= logging.ERROR:
-            color = '\x1b[31m'  # red
+            color = '\033[1m\x1b[31m'  # red
         elif levelno >= logging.WARNING:
-            color = '\x1b[33m'  # yellow
+            color = '\033[1m\x1b[33m'  # yellow
         elif levelno == SUCCESS_LEVEL:
-            color = '\x1b[32m'  # green
+            color = '\033[1m\x1b[32m'  # green
         elif levelno == TITLE_LEVEL:
-            color = '\033[1m'  # bold
+            color = '\033[1m'          # bold
         else:
-            color = '\x1b[0m'  # normal
+            color = '\x1b[0m'          # normal
         args[1].msg = color + args[1].msg + '\x1b[0m'  # normal
         # print "after"
         return fn(*args)

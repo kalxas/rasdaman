@@ -60,8 +60,6 @@ if (ENABLE_JAVA)
         COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/rasj/global/RasErrorTexts.java.in
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 
-    # Run maven to build the project and copy rasj.jar to maven local repository
-    find_package(Maven REQUIRED)
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} -B package -P${NETWORK_PROTOCOL}
             COMMAND mvn install:install-file -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
