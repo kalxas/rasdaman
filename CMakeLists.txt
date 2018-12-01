@@ -56,6 +56,11 @@ endif ()
 
 set(CPP_FILE_EXTENSIONS *.cc *.hh *.sc *.icc)
 
+# Print elapsed time to build targets
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/report_compile_time.sh")
+set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/report_link_time.sh")
+set_property(GLOBAL PROPERTY RULE_LAUNCH_CUSTOM  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/report_custom_time.sh")
+
 ################################################################################
 # Configure options
 ################################################################################
@@ -272,7 +277,7 @@ message(STATUS "Support for data formats:")
 
 set(USE_HDF4 OFF CACHE BOOL "Enable inclusion of HDF4 library during installation.")
 if (USE_HDF4)
-    set(HAVE_HDF ON) # Flag used in config-cmake.h
+    set(HAVE_HDF ON)
     message(STATUS "  HDF4 enabled (-DUSE_HDF4=${USE_HDF4}).")
 else()
     message(STATUS "  HDF4 disabled (-DUSE_HDF4=${USE_HDF4}).")
@@ -280,7 +285,7 @@ endif ()
 
 set(USE_NETCDF OFF CACHE BOOL "Enable inclusion of netCDF library during installation.")
 if (USE_NETCDF)
-    set(HAVE_NETCDF ON) # Flag used in config-cmake.h
+    set(HAVE_NETCDF ON)
     message(STATUS "  NetCDF enabled (-DUSE_NETCDF=${USE_NETCDF}).")
 else()
     message(STATUS "  NetCDF disabled (-DUSE_NETCDF=${USE_NETCDF}).")
@@ -288,8 +293,7 @@ endif ()
 
 set(USE_GDAL ON CACHE BOOL "Enable inclusion of GDAL library during installation. ")
 if (USE_GDAL)
-    set(HAVE_GDAL ON) # Flag used in config-cmake.h
-
+    set(HAVE_GDAL ON)
     message(STATUS "  GDAL enabled (-DUSE_GDAL=${USE_GDAL}).")
 else()
     message(STATUS "  GDAL disabled (-DUSE_GDAL=${USE_GDAL}).")
@@ -297,8 +301,7 @@ endif ()
 
 set(USE_GRIB OFF CACHE BOOL "Enable inclusion of GRIB library during installation.")
 if (USE_GRIB)
-    set(HAVE_GRIB ON) # Flag used in config-cmake.h
-
+    set(HAVE_GRIB ON)
     message(STATUS "  GRIB enabled (-DUSE_GRIB=${USE_GRIB}).")
 else()
     message(STATUS "  GRIB disabled (-DUSE_GRIB=${USE_GRIB}).")

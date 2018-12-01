@@ -109,12 +109,9 @@ configure_file("${CREATE_PETASCOPEDB_SCRIPT_TEMPLATE}" "${CREATE_PETASCOPEDB_SCR
 # Do the same for petascope_insertdemo.sh.in
 configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
-# Make sure maven is available
-find_package(Maven REQUIRED)
-
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} -B package -f "${BUILD_DIR}/pom.xml"
+    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml"
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM)
@@ -153,7 +150,7 @@ install(DIRECTORY "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo_data"
 
 if (GENERATE_DOCS)
     add_custom_target(petascope_doc ALL
-                      COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
+                      COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc 2>&1 > /dev/null || exit 0
                       WORKING_DIRECTORY ${SRC_DIR}
                       VERBATIM)
 

@@ -61,16 +61,20 @@ if (ENABLE_JAVA)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 
     add_custom_target(rasj ALL
-            COMMAND ${MAVEN_EXECUTABLE} -B package -P${NETWORK_PROTOCOL}
-            COMMAND mvn install:install-file -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
-		   -DgroupId=org.rasdaman -DartifactId=rasj -Dversion=${PROJECT_VERSION} -Dpackaging=jar
+            COMMAND ${MAVEN_EXECUTABLE} -q -B package -P${NETWORK_PROTOCOL}
+            COMMAND ${MAVEN_EXECUTABLE} -q install:install-file 
+                                        -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
+                                        -DgroupId=org.rasdaman
+                                        -DartifactId=rasj
+                                        -Dversion=${PROJECT_VERSION}
+                                        -Dpackaging=jar
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES} ${GENERATED_ERRTXTS_MESSAGE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 
     if (GENERATE_DOCS)
         add_custom_target(rasj_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 > /dev/null || exit 0
+            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -P${NETWORK_PROTOCOL} 2>&1 > /dev/null || exit 0
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)

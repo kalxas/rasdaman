@@ -28,8 +28,6 @@ if (ENABLE_JAVA)
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-    find_package(Maven REQUIRED)
-
     configure_file(pom.xml.in "${BUILD_DIR}/pom.xml" @ONLY)    
 
     # Generate files from *.in by replacing any variables that can be configured at compile time
@@ -44,7 +42,7 @@ if (ENABLE_JAVA)
 
     if (GENERATE_DOCS)
         add_custom_target(secore_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} -B javadoc:javadoc 2>&1 > /dev/null || exit 0
+            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc 2>&1 > /dev/null || exit 0
             WORKING_DIRECTORY ${SRC_DIR}
             VERBATIM)
 
@@ -55,7 +53,7 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} -B package -f "${BUILD_DIR}/pom.xml"
+            COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml"
             WORKING_DIRECTORY ${SRC_DIR}
             VERBATIM)
 
