@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
         sprintf(queryString, "CREATE COLLECTION %s GreySet", collname);
         cout << "Collection " << collname << flush;
         r_OQL_Query query(queryString);
-        r_oql_execute(query);
+        r_oql_execute(query, &ta);
         ta.commit();
         cout << " created." << endl;
     }
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
         sprintf(queryString, "INSERT INTO %s VALUES $1", collname);
         r_OQL_Query query(queryString);
         query << (*mddPtr);
-        r_oql_execute(query);
+        r_oql_execute(query, &ta);
 
         while (fgetc(stdin) == EOF) ;
 

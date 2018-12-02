@@ -440,6 +440,8 @@ int RnpClientComm::executeInsertCollection(const char* collName, const char* typ
 // common function using the dynamic parameter facility of RNP
 r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r_OId& oid)
 {
+    updateTransaction();
+
     startRequest(RnpRasserver::cmd_getcoll);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     if (collName != NULL)
@@ -487,7 +489,7 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r
 
     // create the set
     r_OId rOId(oidstring);
-    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
+    set = new(database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
 
     // initialize data elements
     set->set_type_by_name(typeName);
@@ -503,7 +505,7 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r
     }
     //  else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
-    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set, transaction);
     return result;
 }
 
@@ -511,6 +513,8 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r
 // common function using the dynamic parameter facility of RNP
 r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid)
 {
+    updateTransaction();
+
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     if (collName != NULL)
@@ -558,7 +562,7 @@ r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, con
 
     // create the set
     r_OId rOId(oidstring);
-    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
+    set = new(database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
     set->set_type_by_name(typeName);
     set->set_type_structure(typeStructure);
@@ -570,13 +574,13 @@ r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, con
         while (decoder.getNextParameter() != 0)
         {
             r_OId roid(decoder.getDataAsString());
-            set->insert_element(r_Ref<r_GMarray>(roid), 1);
+            set->insert_element(r_Ref<r_GMarray>(roid, transaction), 1);
         }
     }
 
     clearAnswer();
 
-    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set, transaction);
     return result;
 }
 

@@ -1065,7 +1065,7 @@ void doStuff()
                 size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
 
                 baseTypeSize = mddType->base_type().size();
-                r_GMarray* fileMDD = new r_GMarray(mddDomain, baseTypeSize, 0, false);
+                r_GMarray* fileMDD = new r_GMarray(mddDomain, baseTypeSize, 0, NULL, false);
                 fileMDD->set_type_schema(mddType);
                 fileMDD->set_array_size(baseTypeSize);
                 query << *fileMDD;

@@ -379,9 +379,10 @@ r_Collection<T>::insert_obj_into_db()
         throw err;
     }
 
+    update_transaction();
+
     // Insert myself into the database even if i'm empty.
-//  r_Database::actual_database->communication->insertColl( object_name, type_name, get_oid() );
-    r_Database::actual_database->insertColl(object_name, type_name, get_oid());
+    transaction->getDatabase()->insertColl(object_name, type_name, get_oid());
     if (!is_empty())
     {
         r_Iterator<T> iter = create_iterator();
@@ -468,6 +469,8 @@ r_Collection<T>::update_obj_in_db()
     // inspect removed objects
     if (removed_objects->elem)
     {
+        update_transaction();
+
         r_Iterator<T> iter = create_removed_iterator();
         for (iter.reset(1); iter.not_done(); iter++)
         {
@@ -486,8 +489,7 @@ r_Collection<T>::update_obj_in_db()
             LINFO << "state REMOVED,  removing ... ";
             try
             {
-//        r_Database::actual_database->communication->removeObjFromColl( object_name, currentOId );
-                r_Database::actual_database->removeObjFromColl(object_name, currentOId);
+                transaction->getDatabase()->removeObjFromColl(object_name, currentOId);
                 LINFO << "OK";
             }
             catch (r_Error& obj)

@@ -35,7 +35,6 @@ static const char rcsid[] = "@(#)clientcomm, ClientComm: $Id: clientcomm.cc,v 1.
 using namespace std;
 
 #include "config.h"
-#include "clientcomm/clientcomm.hh"
 #include "clientcomm/rpcclientcomm.hh"
 #include "rnprotocol/rnpclientcomm.hh"
 
@@ -45,6 +44,8 @@ using namespace std;
 
 
 #include "raslib/endian.hh"
+#include "clientcomm.hh"
+
 int
 ClientComm::changeEndianness(r_GMarray* mdd, const r_Base_Type* bt)
 {
@@ -165,5 +166,22 @@ bool ClientComm::internalSettingIsRNP()
     return DEFAULT_PROTOCOL == RNP;
 }
 
+void ClientComm::setTransaction(r_Transaction* transaction)
+{
+    this->transaction = transaction;
+}
 
+void ClientComm::setDatabase(r_Database* database)
+{
+    this->database = database;
+}
 
+void ClientComm::updateTransaction()
+{
+    if (!transaction)
+        transaction = r_Transaction::actual_transaction;
+    if (!database && transaction)
+        database = transaction->getDatabase();
+    if (!database)
+        database = r_Database::actual_database;
+}

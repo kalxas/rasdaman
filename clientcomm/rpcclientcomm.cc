@@ -133,6 +133,8 @@ void  aliveSignal(int)
 {
     if (!RMInit::noTimeOut)
     {
+        // Disabled: depends on a global r_Database object == not thread-safe
+
         // get the current clientcomm object
         ClientComm* myComm = r_Database::actual_database->getComm();
         if (myComm == 0)
@@ -302,8 +304,8 @@ RpcClientComm::executeQuery(const r_OQL_Query& query)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -607,8 +609,8 @@ RpcClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, 
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -928,8 +930,8 @@ RpcClientComm::insertColl(const char* collName, const char* typeName, const r_OI
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -1004,8 +1006,8 @@ RpcClientComm::deleteCollByName(const char* collName)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -1075,8 +1077,8 @@ RpcClientComm::deleteObjByOId(const r_OId& oid)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -1145,8 +1147,8 @@ RpcClientComm::removeObjFromColl(const char* collName, const r_OId& oid)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -1218,8 +1220,8 @@ RpcClientComm::insertMDD(const char* collName, r_GMarray* mar)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -1613,6 +1615,8 @@ r_Ref_Any
 RpcClientComm::getCollByName(const char* collName)
 
 {
+    updateTransaction();
+
     if (binding_h == NULL)
     {
         LERROR << "RpcClientComm::getCollByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
@@ -1676,7 +1680,7 @@ RpcClientComm::getCollByName(const char* collName)
 
     // create the set
     r_OId rOId(thisResult->oid);
-    set = new(r_Database::actual_database, r_Object::read, rOId) r_Set<r_Ref_Any>;
+    set = new(database, r_Object::read, rOId) r_Set<r_Ref_Any>;
 
     // initialize data elements
     set->set_type_by_name(thisResult->typeName);
@@ -1693,7 +1697,7 @@ RpcClientComm::getCollByName(const char* collName)
     }
     // else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
-    return r_Ref_Any(set->get_oid(), set);
+    return r_Ref_Any(set->get_oid(), set, transaction);
 }
 
 
@@ -1766,7 +1770,7 @@ RpcClientComm::getCollByOId(const r_OId& oid)
 
     // create the set
     r_OId rOId(thisResult->oid);
-    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
+    set = new(database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
 
     // initialize data elements
     set->set_type_by_name(thisResult->typeName);
@@ -1783,7 +1787,8 @@ RpcClientComm::getCollByOId(const r_OId& oid)
     }
     // else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
-    return r_Ref_Any(set->get_oid(), set);
+    updateTransaction();
+    return r_Ref_Any(set->get_oid(), set, transaction);
 }
 
 
@@ -1792,6 +1797,8 @@ r_Ref_Any
 RpcClientComm::getCollOIdsByName(const char* collName)
 
 {
+    updateTransaction();
+
     if (binding_h == NULL)
     {
         LERROR << "RpcClientComm::getCollOIdsByName(collName) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
@@ -1855,7 +1862,7 @@ RpcClientComm::getCollOIdsByName(const char* collName)
 
     // create the set
     r_OId rOId(thisResult->oid);
-    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
+    set = new(database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
     set->set_type_by_name(thisResult->typeName);
     set->set_type_structure(thisResult->typeStructure);
@@ -1866,7 +1873,7 @@ RpcClientComm::getCollOIdsByName(const char* collName)
     {
         for (unsigned int i = 0; i < thisResult->oidTable.oidTable_len; i++)
         {
-            set->insert_element(r_Ref<r_GMarray>(r_OId(thisResult->oidTable.oidTable_val[i].oid)), 1);
+            set->insert_element(r_Ref<r_GMarray>(r_OId(thisResult->oidTable.oidTable_val[i].oid), transaction), 1);
 
             LTRACE << "oid " << i << ": " << thisResult->oidTable.oidTable_val[i].oid;
         }
@@ -1875,7 +1882,7 @@ RpcClientComm::getCollOIdsByName(const char* collName)
     // now the transfer structure can be freed
     XDRFREE(GetCollOIdsRes, thisResult);
 
-    return r_Ref_Any(set->get_oid(), set);
+    return r_Ref_Any(set->get_oid(), set, transaction);
 }
 
 
@@ -1884,6 +1891,8 @@ r_Ref_Any
 RpcClientComm::getCollOIdsByOId(const r_OId& oid)
 
 {
+    updateTransaction();
+
     if (binding_h == NULL)
     {
         LERROR << "RpcClientComm::getCollOIdsByOId(oid) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
@@ -1947,7 +1956,7 @@ RpcClientComm::getCollOIdsByOId(const r_OId& oid)
 
     // create the set
     r_OId rOId(thisResult->oid);
-    set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
+    set = new(database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
     set->set_type_by_name(thisResult->typeName);
     set->set_type_structure(thisResult->typeStructure);
@@ -1958,7 +1967,7 @@ RpcClientComm::getCollOIdsByOId(const r_OId& oid)
     {
         for (unsigned int i = 0; i < thisResult->oidTable.oidTable_len; i++)
         {
-            set->insert_element(r_Ref<r_GMarray>(r_OId(thisResult->oidTable.oidTable_val[i].oid)), 1);
+            set->insert_element(r_Ref<r_GMarray>(r_OId(thisResult->oidTable.oidTable_val[i].oid), transaction), 1);
             LTRACE << "contains oid #" << i << ":" << thisResult->oidTable.oidTable_val[i].oid;
         }
     }
@@ -1966,7 +1975,7 @@ RpcClientComm::getCollOIdsByOId(const r_OId& oid)
     // now the transfer structure can be freed
     XDRFREE(GetCollOIdsRes, thisResult);
 
-    return r_Ref_Any(set->get_oid(), set);
+    return r_Ref_Any(set->get_oid(), set, transaction);
 }
 
 int
@@ -2271,35 +2280,6 @@ RpcClientComm::executeOpenTA(unsigned short readOnly)
     LTRACE << "Continue now";
 #endif
     setRPCInactive();
-
-    /* not necessary with V5
-      int             sleepCntr = 1;
-      while( rpcStatus == 2 )
-      {
-        if( sleepCntr == 64 ) sleepCntr /= 2;
-        LWARNING << "Another transaction is already active, sleeping " << sleepCntr*2 << " secs...";
-        sleepCntr *= 2;
-        secsWaited += sleepCntr;
-    #ifndef __VISUALC__
-        sleep( sleepCntr );
-    #else
-        Sleep( sleepCntr*1000 );
-    #endif
-        setRPCActive();
-        do
-        {
-          rpcStatusPtr = rpcbeginta_1( &params, binding_h );
-
-          if( !rpcStatusPtr )
-        {
-            LWARNING << "WARNING: RPC NULL POINTER (rpcbeginta_1)";
-        sleep(RMInit::clientcommSleep);
-        }
-        }while( rpcStatusPtr == 0 );
-        rpcStatus = *rpcStatusPtr;
-        setRPCInactive();
-      }
-    */
     return rpcStatus;
 }
 
@@ -2441,8 +2421,8 @@ RpcClientComm::getNewOId(unsigned short objType)
     }
 
     // update -> check for read_only transaction
-    if (r_Transaction::actual_transaction == 0 ||
-            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only)
+    updateTransaction();
+    if (transaction == 0 || transaction->get_mode() == r_Transaction::read_only)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionReadOnly);
         throw err;
@@ -2829,6 +2809,8 @@ void
 RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
 {
+    updateTransaction();
+
     if (binding_h == NULL)
     {
         LERROR << "RpcClientComm::getElementCollection(resultColl) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
@@ -2907,20 +2889,20 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         case r_Type::DOUBLE:
         {
             element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
         }
         break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
             element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
             break;
 
         case r_Type::STRUCTURETYPE:
         {
             element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
         }
         break;
 
@@ -2932,7 +2914,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Point* typedElement = new r_Point(stringRep);
             element               = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::POINT, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::POINT, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -2944,7 +2926,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
             stringRep[thisResult->data.confarray_len] = '\0';
             r_Sinterval* typedElement = new r_Sinterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SINTERVAL, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::SINTERVAL, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -2957,7 +2939,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Minterval* typedElement = new r_Minterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::MINTERVAL, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::MINTERVAL, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -2970,7 +2952,7 @@ RpcClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_OId* typedElement = new r_OId(stringRep);
             element             = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::OID, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::OID, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -3023,6 +3005,8 @@ unsigned short
 RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
 
 {
+    updateTransaction();
+
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
     r_OId       rOId(thisResult->oid);
@@ -3031,11 +3015,11 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
     //cout << "getMDDCore..." << endl;
     if (isQuery)
     {
-        marray = new(r_Database::actual_database, r_Object::transient, rOId) r_GMarray();
+        marray = new(database, r_Object::transient, rOId) r_GMarray(transaction);
     }
     else
     {
-        marray = new(r_Database::actual_database, r_Object::read     , rOId) r_GMarray();
+        marray = new(database, r_Object::read     , rOId) r_GMarray(transaction);
     }
 
     marray->set_spatial_domain(mddDomain);
@@ -3126,7 +3110,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
         memCopy    = new char[ memCopyLen ];
 
         // create temporary tile
-        tile = new r_GMarray();
+        tile = new r_GMarray(transaction);
         tile->set_spatial_domain(tileDomain);
         tile->set_array(memCopy);
         tile->set_array_size(memCopyLen);
@@ -3263,7 +3247,7 @@ RpcClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
     }  // end while( MDD is not transferred completely )
 
 
-    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray);
+    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray, transaction);
 
     return tileStatus;
 }

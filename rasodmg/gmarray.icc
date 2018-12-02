@@ -136,3 +136,4 @@ r_GMarray::set_array_size( r_Bytes newValue )
 {
     data_size = newValue;
 }
+

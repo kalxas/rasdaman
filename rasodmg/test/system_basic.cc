@@ -1710,7 +1710,7 @@ SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval&
                     RMInit::dbgOut << "Waiting 10 sec before execute\n" << std::endl; \
                     sleep(10); \
                     RMInit::dbgOut << "Continue now\n" << std::endl;);
-            r_oql_execute(query);
+            r_oql_execute(query, &ta);
             RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                     RMInit::dbgOut << "Waiting 10 sec after execute\n" << std::endl; \
                     sleep(10); \
@@ -1763,7 +1763,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
             stream << "SELECT A" << downScaleDomain << " FROM " << collectionName << " AS A";
             r_OQL_Query query(stream.str().c_str());
             r_Set<r_Ref_Any> result;
-            r_oql_execute(query, result);
+            r_oql_execute(query, result, &ta);
             r_Iterator<r_Ref_Any> iter = result.create_iterator();
             r_Ref<r_GMarray> selectedMDD = r_Ref<r_GMarray>(*iter);
             if (retval == 0)

@@ -89,10 +89,10 @@ int main(int ac, char** av)
     r_Minterval where_domain    = r_Minterval("[8:9,8:9]");
     r_ULong     threshold_value = 0;
 
-    r_Database                       database;
-    r_Transaction                    transaction;
-    r_Set<r_Ref<r_GMarray>>      image_set;
-    r_Ref<r_GMarray>               image;
+    r_Database database;
+    r_Transaction transaction{&database};
+    r_Set<r_Ref<r_GMarray>> image_set;
+    r_Ref<r_GMarray> image;
     r_Iterator<r_Ref<r_GMarray>> iter;
 
     try
@@ -121,7 +121,7 @@ int main(int ac, char** av)
         cout << "Executing the query ..." << flush;
         try
         {
-            r_oql_execute(query, image_set);
+            r_oql_execute(query, image_set, &transaction);
         }
         catch (r_Error& errorObj)
         {

@@ -87,7 +87,6 @@ RnpRasDaManComm::RnpRasDaManComm() noexcept
 
 RnpRasDaManComm::~RnpRasDaManComm() noexcept
 {
-    LDEBUG << "RnpRasDaManComm::~RnpRasDaManComm";
 }
 
 // we need our implementation because of r_Error, but we will go for the default when r_Error is AkgException

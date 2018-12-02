@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include "src/common/pragmas/pragmas.hh"
+#include "common/pragmas/pragmas.hh"
 
 DIAGNOSTIC_PUSH
 IGNORE_WARNING("-Wsign-conversion")

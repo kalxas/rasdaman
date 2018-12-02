@@ -223,7 +223,7 @@ void
 MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
     std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
-#ifdef DEBUG
+#ifdef RASDEBUG
     LTRACE << "storage layout returned the following domains";
     for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
     {
@@ -320,7 +320,7 @@ std::vector<shared_ptr<Tile>>*
 MDDObj::intersect(const r_Minterval& searchInter) const
 {
     std::vector<shared_ptr<Tile>>* retval = myMDDIndex->intersect(searchInter);
-#ifdef DEBUG
+#ifdef RASDEBUG
     if (retval)
     {
         for (auto it = retval->begin(); it != retval->end(); it++)

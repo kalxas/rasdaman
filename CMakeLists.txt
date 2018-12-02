@@ -99,6 +99,19 @@ else()
 endif()
 
 #
+# Use clang + lld for compilation
+#
+set(USE_LLD "") # do not use lld
+set(USE_CLANG OFF CACHE BOOL
+    "Use clang + lld for compiling/linking.")
+if (USE_CLANG)
+    set(CMAKE_CXX_COMPILER "clang")
+    set(CMAKE_C_COMPILER "clang")
+    set(CMAKE_CXX_COMPILER_ID "Clang")
+    set(USE_LLD "-Qunused-arguments -fuse-ld=lld")
+endif ()
+
+#
 # Enable C++11
 #
 include(CheckCXXCompilerFlag)
@@ -118,10 +131,28 @@ if (ENABLE_ASAN)
     message(STATUS "AddressSanitizer enabled (-DENABLE_ASAN=${ENABLE_ASAN}).")
 endif ()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdynamic ${ASAN_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -rdynamic ${ASAN_FLAG}")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${ASAN_FLAG}")
+#
+# Set warnings
+#
+set(COMPILER_WARNINGS "-pedantic -Wall -Wextra -Wshadow -Wcast-align -Wcast-qual -Wsign-promo -Wredundant-decls")
+set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wctor-dtor-privacy -Wdisabled-optimization -Wsign-conversion -Wstrict-overflow=5")
+set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wformat=2 -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Woverloaded-virtual")
+set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wno-unused -Wno-unused-parameter -Wno-format-nonliteral -Wno-switch-default")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # using Clang
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wlogical-op -Wno-long-long")
+    set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wnoexcept -Wstrict-null-sentinel")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    # using Intel C++
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # using Visual Studio C++
+endif()
+
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
 
 set(PROJECT_RASDAMAN 1)
 add_definitions(-DPROJECT_RASDAMAN)
@@ -141,7 +172,9 @@ set(ENABLE_DEBUG OFF CACHE BOOL
 if (ENABLE_DEBUG)
     add_definitions(-DRASDEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
-    set(DEBUG ${ENABLE_DEBUG})
+    # Do not enable below as it clashes with define from easylogging
+    # set(DEBUG ${ENABLE_DEBUG})
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
 
     add_definitions(-DELPP_DEBUG_ERRORS)
 
@@ -164,6 +197,7 @@ if (LIBDW_LIBRARY AND LIBDW_INCLUDE_DIR)
     mark_as_advanced(LIBDW_INCLUDE_DIR LIBDW_LIBRARY)
     add_definitions(-DBACKWARD_HAS_DW=1)
     set(HAVE_LIBDW ON)
+    message(STATUS "Libdw enabled.")
 else()
     set(HAVE_LIBDW OFF)
 endif ()
@@ -194,6 +228,14 @@ if (${NETWORK_PROTOCOL} STREQUAL rasnet)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 else ()
     set(RMANRASNET 0)
+endif ()
+
+#
+# clang-tidy
+#
+set(ENABLE_CLANG_TIDY OFF CACHE BOOL "Enable static analysis with clang-tidy.")
+if (ENABLE_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-style=file;-header-filter=.*/(src|test)/.*")
 endif ()
 
 #
@@ -294,6 +336,11 @@ endif ()
 set(USE_GDAL ON CACHE BOOL "Enable inclusion of GDAL library during installation. ")
 if (USE_GDAL)
     set(HAVE_GDAL ON)
+
+    find_package(GDAL REQUIRED)
+    set(GDAL_LIBRARIES ${GDAL_LIBRARY})
+    set(GDAL_INCLUDE_DIRECTORIES ${GDAL_INCLUDE_DIR})
+
     message(STATUS "  GDAL enabled (-DUSE_GDAL=${USE_GDAL}).")
 else()
     message(STATUS "  GDAL disabled (-DUSE_GDAL=${USE_GDAL}).")

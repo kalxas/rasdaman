@@ -206,7 +206,7 @@ public:
 private:
 
     static sqlite3* sqliteConn;
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* stmt{NULL};
     // saved for debugging purposes, e.g. in case the query execution fails
     std::string query;
     int columnCounter;

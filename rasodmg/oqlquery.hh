@@ -41,6 +41,8 @@ rasdaman GmbH.
 #include "raslib/point.hh"
 #include "raslib/sinterval.hh"
 #include "raslib/minterval.hh"
+#include "rasodmg/database.hh"
+#include "rasodmg/transaction.hh"
 
 template <class T> class r_Set;
 template <class T> class r_Ref;
@@ -167,6 +169,7 @@ private:
   The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
   the query to execute. The second parameter, {\tt result}, is used for returning the
   result of the query. The query result is of type {\tt r_Set< r_Ref_Any >}.
+  Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
   exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
@@ -186,7 +189,7 @@ private:
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -196,8 +199,9 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result);
   of type {\tt r_Set< r_Ref< r_GMarray > >}. The function is supported for
   compatibility reasons only. We suggest to use the general function
   \Ref{r_oql_execute} able to maintain query results of any type.
+  Important: If the transaction parameter is not provided this function is not thread-safe.
 */
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transaction* transaction = NULL);
 
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an insert query
@@ -207,13 +211,14 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result);
   result of the query. The query result is of type {\tt r_Set< r_Ref_Any >}.
   The third parameter is a dummy parameter, it is used to differentiate from retrieval queries.
   The function used the same return values as the retrieval function above.
+  Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
   exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
   transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Transaction* transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -223,6 +228,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
   It is also used by older ( < v9.1 ) clients for insert queries.
   The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
   the query to execute.
+  Important: If the transaction parameter is not provided this function is not thread-safe.
 
   If the function is not called within the scope of an opened database, a \Ref{r_Error}
   exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
@@ -241,7 +247,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query);
+void r_oql_execute(r_OQL_Query& query, r_Transaction* transaction = NULL);
 
 #include "rasodmg/oqlquery.icc"
 

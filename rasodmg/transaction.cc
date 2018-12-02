@@ -58,14 +58,13 @@ template class r_Set<r_Ref<r_Object>>;
 #endif
 
 #include <iostream>
-
+#include<fstream>
 // Initially there is no transaction active.
 r_Transaction* r_Transaction::actual_transaction = 0;
 
 
-
-r_Transaction::r_Transaction()
-    : ta_state(inactive), ta_mode(read_write)
+r_Transaction::r_Transaction(r_Database *db)
+    : ta_state(inactive), ta_mode(read_write), database{db}
 {
 }
 
@@ -84,15 +83,18 @@ r_Transaction::~r_Transaction()
 void
 r_Transaction::begin(r_Transaction::r_TAMode mode)
 {
+    if (!this->database)
+        this->database = r_Database::actual_database;
+
     // check if no other transaction is running
-    if (ta_state != inactive || actual_transaction)
+    if (ta_state != inactive)
     {
         r_Error err = r_Error(r_Error::r_Error_TransactionOpen);
         throw err;
     }
 
     // check if a database is opened
-    if (r_Database::actual_database == 0)
+    if (this->database == 0)
     {
         r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
         throw err;
@@ -101,10 +103,14 @@ r_Transaction::begin(r_Transaction::r_TAMode mode)
     ta_state = active;
 
     // if a database is opened, a communication object is existing
-    //r_Database::actual_database->communication->openTA( mode == read_only ? 1 : 0 );
-    r_Database::actual_database->getComm()->openTA(mode == read_only ? 1 : 0);
+    this->database->getComm()->openTA(mode == read_only ? 1 : 0);
+    this->database->getComm()->setTransaction(this);
 
-    actual_transaction = this;
+    if (actual_transaction == NULL)
+    {
+        actual_transaction = this;
+    }
+
     ta_mode  = mode;
 }
 
@@ -236,11 +242,12 @@ r_Transaction::commit()
         // commit transaction on the server
         //
 
-//    r_Database::actual_database->communication->commitTA();
-        r_Database::actual_database->getComm()->commitTA();
-
+        this->database->getComm()->commitTA();
         ta_state = inactive;
-        actual_transaction = 0;
+        if (this == actual_transaction)
+        {
+            actual_transaction = 0;
+        }
     }
 }
 
@@ -323,18 +330,21 @@ r_Transaction::abort()
         //
         // Abort transaction on the server.
         //
-        if (r_Database::actual_database)
-//      r_Database::actual_database->communication->abortTA();
+        if (this->database && this->database->getComm())
         {
-            r_Database::actual_database->getComm()->abortTA();
+            this->database->getComm()->abortTA();
         }
         else
         {
-            LDEBUG << "  Database was already closed.  Please abort every transaction before closing the database.  Please also check for any try/catches with a close database but without transaction abort.";
+            LDEBUG << "Database was already closed. Please abort every transaction before closing the database. "
+                      "Please also check for any try/catches with a close database but without transaction abort.";
         }
 
         ta_state = inactive;
-        actual_transaction = 0;
+        if (this == actual_transaction)
+        {
+            actual_transaction = 0;
+        }
     }
 }
 
@@ -367,7 +377,7 @@ r_Transaction::load_object(const r_OId& oid)
     {
         // load object and return reference
         LTRACE << "load_object( oid ) - load object";
-        return r_Database::actual_database->lookup_object(oid);
+        return this->database->lookup_object(oid);
     }
 }
 
@@ -392,3 +402,16 @@ r_Transaction::add_object_list(GenRefType type, void* ref)
     non_object_list.insert_element(element);
 }
 
+
+void
+r_Transaction::setDatabase(r_Database* database)
+{
+    this->database = database;
+}
+
+
+r_Database*
+r_Transaction::getDatabase()
+{
+    return database != NULL ? database : r_Database::actual_database;
+}

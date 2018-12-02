@@ -103,7 +103,7 @@ cmp_files()
 {
     local out="$1"
     local ora="$2"
-    if [ "$OS_VERSION" == "$OS_CENTOS7" ]; then
+    if [ "$OS_VERSION" == "$OS_CENTOS7" -o "$OS_VERSION" == "$OS_TRUSTY" ]; then
         # on CentOS 7 we get only L as a suffix for long metadata scalars..
         # so it's necessary to fix the output/oracle
         sed -i 's/LL/L/g' "$out"

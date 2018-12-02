@@ -57,7 +57,6 @@ class r_Transaction;
 #ifndef __EXECUTABLE__
 
 r_Ref_Any::r_Ref_Any()
-    : memptr(0), oid()
 {
     LTRACE << "r_Ref_Any", "r_Ref_Any()";
 }
@@ -69,21 +68,21 @@ r_Ref_Any::r_Ref_Any(const r_Ref_Any& obj)
     LTRACE << "r_Ref_Any( const r_Ref_Any& )";
     memptr       = obj.memptr;
     oid          = obj.oid;
+    ta           = obj.ta;
 }
 
 
 
-r_Ref_Any::r_Ref_Any(const r_OId& initOId)
-    : memptr(0)
+r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Transaction *taArg)
+    : ta{taArg}, memptr(0), oid{initOId}
 {
     LTRACE << "r_Ref_Any( const r_OId& )";
-    oid = initOId;
 }
 
 
 
 r_Ref_Any::r_Ref_Any(r_Object* ptr)
-    : memptr(ptr), oid()
+    : ta{ptr->get_transaction()}, memptr(ptr), oid()
 {
     LTRACE << "r_Ref_Any( r_Object* )";
 }
@@ -97,8 +96,8 @@ r_Ref_Any::r_Ref_Any(void* ptr)
 }
 
 
-r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Object* ptr)
-    : memptr(ptr), oid(initOId)
+r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Object* ptr, r_Transaction *taArg)
+    : ta{taArg}, memptr(ptr), oid(initOId)
 {
     LTRACE << "r_Ref_Any( const r_OId &oid, const r_Object* )";
 }
@@ -121,6 +120,7 @@ r_Ref_Any::~r_Ref_Any()
 r_Ref_Any&
 r_Ref_Any::operator=(const r_Ref_Any& objptr)
 {
+    ta        = objptr.ta;
     memptr    = objptr.memptr;
     oid       = objptr.oid;
 
@@ -132,6 +132,7 @@ r_Ref_Any::operator=(const r_Ref_Any& objptr)
 r_Ref_Any&
 r_Ref_Any::operator=(r_Object* ptr)
 {
+    ta        = ptr->get_transaction();
     memptr    = ptr;
     oid       = r_OId();
 
@@ -294,13 +295,17 @@ r_Ref_Any::get_memory_ptr() const
     return memptr;
 }
 
+r_Transaction *r_Ref_Any::get_transaction() const
+{
+    return ta;
+}
+
 #endif  // __EXECUTABLE__
 
 
 
 template<class T>
 r_Ref<T>::r_Ref()
-    : memptr(0), oid()
 {
     LTRACE << "r_Ref()";
 }
@@ -311,6 +316,7 @@ template<class T>
 r_Ref<T>::r_Ref(const r_Ref<T>& obj)
 {
     LTRACE << "r_Ref( const r_Ref<T>& )";
+    ta           = obj.ta;
     memptr       = obj.memptr;
     oid          = obj.oid;
 }
@@ -318,11 +324,10 @@ r_Ref<T>::r_Ref(const r_Ref<T>& obj)
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_OId& initOId)
-    : memptr(0)
+r_Ref<T>::r_Ref(const r_OId& initOId, r_Transaction *taArg)
+    : ta{taArg}, memptr(0), oid{initOId}
 {
     LTRACE << "r_Ref( const r_OId& )";
-    oid = initOId;
 }
 
 
@@ -332,6 +337,7 @@ r_Ref<T>::r_Ref(const r_Ref_Any& obj)
 {
     LTRACE << "r_Ref( const r_Ref_Any& )";
 
+    ta        = obj.get_transaction();
     memptr    = static_cast<T*>(obj.get_memory_ptr());
     oid       = obj.get_oid();
 }
@@ -339,8 +345,8 @@ r_Ref<T>::r_Ref(const r_Ref_Any& obj)
 
 
 template<class T>
-r_Ref<T>::r_Ref(T* newPtr)
-    : memptr(newPtr), oid()
+r_Ref<T>::r_Ref(T* newPtr, r_Transaction *taArg)
+    : ta{taArg}, memptr(newPtr), oid()
 {
     LTRACE << "r_Ref( const T* )";
 }
@@ -348,8 +354,8 @@ r_Ref<T>::r_Ref(T* newPtr)
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_OId& initOId, T* newPtr)
-    : memptr(newPtr), oid(initOId)
+r_Ref<T>::r_Ref(const r_OId& initOId, T* newPtr, r_Transaction *taArg)
+    : ta{taArg}, memptr(newPtr), oid(initOId)
 {
     LTRACE << "r_Ref( const r_OId &oid, const T* )";
 }
@@ -374,7 +380,7 @@ template<class T>
 r_Ref<T>::operator r_Ref_Any() const
 {
     LTRACE << "operator r_Ref_Any()";
-    return r_Ref_Any(oid, (r_Object*)memptr);
+    return r_Ref_Any(oid, (r_Object*)memptr, ta);
 }
 
 
@@ -391,6 +397,7 @@ template<class T>
 r_Ref<T>&
 r_Ref<T>::operator=(const r_Ref_Any& newPtr)
 {
+    ta        = newPtr.get_transaction();
     memptr    = static_cast<T*>(newPtr.get_memory_ptr());
     oid       = newPtr.get_oid();
 
@@ -428,6 +435,7 @@ template<class T>
 r_Ref<T>&
 r_Ref<T>::operator=(const r_Ref<T>& objptr)
 {
+    ta        = objptr.ta;
     memptr    = objptr.memptr;
     oid       = objptr.oid;
 
@@ -442,15 +450,10 @@ r_Ref<T>::operator*() const
 {
     LTRACE << "operator*()";
     if (!memptr)
-    {
         load_object();
-    }
 
     if (!memptr)
-    {
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_RefNull);
 
     return *memptr;
 }
@@ -462,15 +465,10 @@ r_Ref<T>::operator*()
 {
     LTRACE << "operator*()";
     if (!memptr)
-    {
         load_object();
-    }
 
     if (!memptr)
-    {
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_RefNull);
 
     return *memptr;
 }
@@ -483,15 +481,10 @@ r_Ref<T>::operator->() const
 {
     LTRACE << "operator->()";
     if (!memptr)
-    {
         load_object();
-    }
 
     if (!memptr)
-    {
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_RefNull);
 
     return memptr;
 }
@@ -502,15 +495,10 @@ r_Ref<T>::operator->()
 {
     LTRACE << "operator->()";
     if (!memptr)
-    {
         load_object();
-    }
 
     if (!memptr)
-    {
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_RefNull);
 
     return memptr;
 }
@@ -523,9 +511,7 @@ r_Ref<T>::ptr() const
 {
     LTRACE << "ptr()";
     if (!memptr)
-    {
         load_object();
-    }
 
     return memptr;
 }
@@ -537,9 +523,7 @@ r_Ref<T>::ptr()
 {
     LTRACE << "ptr()";
     if (!memptr)
-    {
         load_object();
-    }
 
     return memptr;
 }
@@ -653,21 +637,16 @@ r_Ref<T>::load_object() const
 {
     if (oid.is_valid())
     {
-        if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
-        {
-            r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-            throw err;
-        }
+        auto *tmpTa = ta == NULL ? r_Transaction::actual_transaction : ta;
+        if (tmpTa == 0 || tmpTa->get_status() != r_Transaction::active)
+            throw r_Error(r_Error::r_Error_TransactionNotOpen);
 
-        if (r_Transaction::actual_transaction == 0 ||
-                r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-        {
-            r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-            throw err;
-        }
+        auto *db = ta->getDatabase();
+        if (db == 0 || db->get_status() == r_Database::not_open)
+            throw r_Error(r_Error::r_Error_DatabaseClosed);
 
         // load object and take its memory pointer
-        r_Ref<T> ref = r_Transaction::actual_transaction->load_object(oid);
+        r_Ref<T> ref = ta->load_object(oid);
         memptr       = ref.get_memory_ptr();
     }
 }

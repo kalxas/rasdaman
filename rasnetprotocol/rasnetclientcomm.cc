@@ -1057,6 +1057,8 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
 
 unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
 {
+    this->updateTransaction();
+
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
     r_OId       rOId(thisResult->oid);
@@ -1064,11 +1066,11 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
 
     if (isQuery)
     {
-        marray = new(r_Database::actual_database, r_Object::transient, rOId) r_GMarray();
+        marray = new(database, r_Object::transient, rOId) r_GMarray(transaction);
     }
     else
     {
-        marray = new(r_Database::actual_database, r_Object::read     , rOId) r_GMarray();
+        marray = new(database, r_Object::read     , rOId) r_GMarray(transaction);
     }
 
     marray->set_spatial_domain(mddDomain);
@@ -1128,7 +1130,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
             memCopy    = new char[ memCopyLen ];
 
             // create temporary tile
-            tile = new r_GMarray();
+            tile = new r_GMarray(transaction);
             tile->set_spatial_domain(tileDomain);
             tile->set_array(memCopy);
             tile->set_array_size(memCopyLen);
@@ -1259,7 +1261,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
     }  // end while( MDD is not transferred completely )
 
 
-    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray);
+    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray, transaction);
 
     return tileStatus;
 }
@@ -1392,8 +1394,10 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char* collName, cons
     int status = getCollectionByNameOrOidRepl.status();
     handleStatusCode(status, "getCollByName");
 
+    this->updateTransaction();
+
     r_OId rOId(getCollectionByNameOrOidRepl.oid().c_str());
-    r_Set<r_Ref_Any>* set  = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
+    r_Set<r_Ref_Any>* set  = new(database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
 
     set->set_type_by_name(getCollectionByNameOrOidRepl.type_name().c_str());
     set->set_type_structure(getCollectionByNameOrOidRepl.type_structure().c_str());
@@ -1405,7 +1409,7 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char* collName, cons
     }
     //  else rpcStatus == 1 -> Result collection is empty and nothing has to be got.
 
-    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set, transaction);
     return result;
 }
 
@@ -1446,8 +1450,10 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char* collName, 
     const char* oidString = getCollOidsByNameOrOidRepl.oids_string().c_str();
     const char* collectionName = getCollOidsByNameOrOidRepl.collection_name().c_str();
 
+    this->updateTransaction();
+
     r_OId rOId(oidString);
-    r_Set<r_Ref<r_GMarray>>* set = new(r_Database::actual_database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
+    r_Set<r_Ref<r_GMarray>>* set = new(database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
     set->set_type_by_name(typeName);
     set->set_type_structure(typeStructure);
@@ -1456,10 +1462,10 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char* collName, 
     for (int i = 0; i < getCollOidsByNameOrOidRepl.oid_set_size(); ++i)
     {
         r_OId roid(getCollOidsByNameOrOidRepl.oid_set(i).c_str());
-        set->insert_element(r_Ref<r_GMarray>(roid), 1);
+        set->insert_element(r_Ref<r_GMarray>(roid, transaction), 1);
     }
 
-    r_Ref_Any result = r_Ref_Any(set->get_oid(), set);
+    r_Ref_Any result = r_Ref_Any(set->get_oid(), set, transaction);
     return result;
 }
 
@@ -1653,6 +1659,7 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
 void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 {
     unsigned short rpcStatus = 0;
+    this->updateTransaction();
 
     LDEBUG << "got set of type " << resultColl.get_type_structure();
 
@@ -1682,18 +1689,18 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
             element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
+            transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
             break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
             element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void*)element);
+            transaction->add_object_list(r_Transaction::SCALAR, (void*)element);
             break;
 
         case r_Type::STRUCTURETYPE:
             element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
+            transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
             break;
 
         case r_Type::POINTTYPE:
@@ -1704,7 +1711,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Point* typedElement = new r_Point(stringRep);
             element               = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::POINT, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::POINT, (void*) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1717,7 +1724,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Sinterval* typedElement = new r_Sinterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SINTERVAL, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::SINTERVAL, (void*) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1730,7 +1737,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Minterval* typedElement = new r_Minterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::MINTERVAL, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::MINTERVAL, (void*) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1743,7 +1750,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_OId* typedElement = new r_OId(stringRep);
             element             = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::OID, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::OID, (void*) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1864,7 +1871,8 @@ int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format forma
 
 void RasnetClientComm::checkForRwTransaction()
 {
-    r_Transaction* trans = r_Transaction::actual_transaction;
+    this->updateTransaction();
+    r_Transaction* trans = transaction;
     if (trans == 0 || trans->get_mode() == r_Transaction::read_only)
     {
         LDEBUG << "RasnetClientComm::checkForRwTransaction(): throwing exception from failed TA rw check.";

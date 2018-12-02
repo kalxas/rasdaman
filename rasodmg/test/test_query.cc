@@ -529,7 +529,7 @@ int main(int argc, char** argv)
 
             try
             {
-                r_oql_execute(q1);
+                r_oql_execute(q1, &ta);
             }
             catch (r_Error& errorObj)
             {
@@ -582,7 +582,7 @@ int main(int argc, char** argv)
 
             try
             {
-                r_oql_execute(q1, result_set);
+                r_oql_execute(q1, result_set, &ta);
             }
             catch (r_Error& errorObj)
             {

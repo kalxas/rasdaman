@@ -521,6 +521,8 @@ void freeGetTileRes(GetTileRes* ptr)
 unsigned short
 RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
 {
+    updateTransaction();
+
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
     r_OId       rOId(thisResult->oid);
@@ -528,11 +530,11 @@ RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
 
     if (isQuery)
     {
-        marray = new(r_Database::actual_database, r_Object::transient, rOId) r_GMarray();
+        marray = new(database, r_Object::transient, rOId) r_GMarray(transaction);
     }
     else
     {
-        marray = new(r_Database::actual_database, r_Object::read     , rOId) r_GMarray();
+        marray = new(database, r_Object::read, rOId) r_GMarray(transaction);
     }
 
     marray->set_spatial_domain(mddDomain);
@@ -592,7 +594,7 @@ RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
             memCopy    = new char[ memCopyLen ];
 
             // create temporary tile
-            tile = new r_GMarray();
+            tile = new r_GMarray(transaction);
             tile->set_spatial_domain(tileDomain);
             tile->set_array(memCopy);
             tile->set_array_size(memCopyLen);
@@ -723,7 +725,7 @@ RnpClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned
     }  // end while( MDD is not transferred completely )
 
 
-    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray);
+    mdd = r_Ref<r_GMarray>(marray->get_oid(), marray, transaction);
 
     return tileStatus;
 }
@@ -763,6 +765,8 @@ int RnpClientComm::concatArrayData(const char* source, unsigned long srcSize, ch
 void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 {
     unsigned short rpcStatus = 0;
+
+    updateTransaction();
 
     LDEBUG << "got set of type " << resultColl.get_type_structure();
 
@@ -807,18 +811,18 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
             element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
             break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
             element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
             break;
 
         case r_Type::STRUCTURETYPE:
             element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
+            transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element));
             break;
 
         case r_Type::POINTTYPE:
@@ -829,7 +833,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Point* typedElement = new r_Point(stringRep);
             element               = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::POINT, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::POINT, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -842,7 +846,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Sinterval* typedElement = new r_Sinterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SINTERVAL, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::SINTERVAL, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -855,7 +859,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_Minterval* typedElement = new r_Minterval(stringRep);
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::MINTERVAL, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::MINTERVAL, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -868,7 +872,7 @@ void RnpClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
             r_OId* typedElement = new r_OId(stringRep);
             element             = typedElement;
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::OID, static_cast<void*>(typedElement));
+            transaction->add_object_list(r_Transaction::OID, static_cast<void*>(typedElement));
             delete [] stringRep;
         }
         break;
@@ -1514,7 +1518,9 @@ int RnpClientComm::writeWholeMessage(int socket, char* destBuffer, int buffSize)
 
 void RnpClientComm::checkForRwTransaction()
 {
-    r_Transaction* trans = r_Transaction::actual_transaction;
+    updateTransaction();
+
+    r_Transaction* trans = transaction;
     if (trans == 0 || trans->get_mode() == r_Transaction::read_only)
     {
         LDEBUG << "RnpClientComm::checkForRwTransaction(): throwing exception from failed TA rw check.";

@@ -45,6 +45,7 @@ class r_Oid;
 class r_Scalar;
 class r_Primitive;
 class r_Structure;
+class r_Transaction;
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -73,7 +74,7 @@ public:
     r_Ref_Any(const r_Ref_Any&);
 
     /// constructor for creating a reference with an oid
-    r_Ref_Any(const r_OId& initOId);
+    r_Ref_Any(const r_OId& initOId, r_Transaction *ta = NULL);
     /**
       Dereferencing the self object results in loading the object with {\tt initOId}.
     */
@@ -158,17 +159,22 @@ public:
     //@{
     ///
     /// constructor getting oid and memory pointer
-    r_Ref_Any(const r_OId&, r_Object*);
+    r_Ref_Any(const r_OId&, r_Object*, r_Transaction *ta = NULL);
     ///
     inline unsigned int is_oid_valid() const;
     /// get memory pointer (without loading the object)
     void* get_memory_ptr() const;
+    /// get transaction
+    r_Transaction *get_transaction() const;
     ///
     //@}
 
+protected:
+    r_Transaction *ta{NULL};
+
 private:
     /// main memory pointer
-    void* memptr;
+    void* memptr{NULL};
 
     /// object identifier
     r_OId oid;
@@ -205,7 +211,7 @@ public:
     r_Ref(const r_Ref_Any&);
 
     /// constructor for creating a reference with an oid
-    r_Ref(const r_OId& initOId);
+    r_Ref(const r_OId& initOId, r_Transaction *ta = NULL);
     /**
       Dereferencing the self object results in loading the object with {\tt initOId}.
     */
@@ -300,10 +306,10 @@ public:
     //@{
     ///
     /// constructor getting memory pointer
-    r_Ref(T*);
+    r_Ref(T*, r_Transaction *ta = NULL);
 
     /// constructor getting oid and memory pointer
-    r_Ref(const r_OId&, T*);
+    r_Ref(const r_OId&, T*, r_Transaction *ta = NULL);
 
     /// get memory pointer (without loading the object)
     T* get_memory_ptr() const;
@@ -313,6 +319,9 @@ public:
 
     ///
     //@}
+
+protected:
+    r_Transaction *ta{NULL};
 
 private:
     /// loads an object from database

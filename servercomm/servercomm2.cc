@@ -127,13 +127,13 @@ char* ppInBuf = 0;
 char* ppOutBuf = 0;
 void ppreset()
 {
-    LERROR << "Error: Preprocessor not compiled in.";
+    LERROR << "Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 
 int ppparse()
 {
-    LERROR << "Error: Preprocessor not compiled in.";
+    LERROR << "Preprocessor not compiled in.";
     throw r_Error(ILLEGALSTATEREACHED);
 }
 #else
@@ -218,7 +218,7 @@ ServerComm::openDB(unsigned long callingClientId,
                    const char* userName)
 {
     unsigned short returnValue = 0;
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'open DB', name = " << dbName << "'...";
 #endif
 
@@ -238,18 +238,18 @@ ServerComm::openDB(unsigned long callingClientId,
         {
             if (err.get_kind() == r_Error::r_Error_DatabaseUnknown)
             {
-                LERROR << "Error: database does not exist.";
+                LERROR << "database does not exist.";
                 returnValue = 2;
             }
             else if (err.get_kind() == r_Error::r_Error_DatabaseOpen)
             {
                 // ignore re-open to be fault tolerant -- PB 2004-dec-16
-                // LERROR << "Error: database is already open.";
+                // LERROR << "database is already open.";
                 returnValue = 3;
             }
             else
             {
-                LERROR << "Error: exception " << err.get_errorno() << ": " << err.what();
+                LERROR << "exception " << err.get_errorno() << ": " << err.what();
                 //should be something else.  but better than no message about the problem at all
                 returnValue = 2;
             }
@@ -265,7 +265,7 @@ ServerComm::openDB(unsigned long callingClientId,
             delete[] context->userName;
             context->userName = new char[strlen(userName) + 1];
             strcpy(context->userName, userName);
-#ifdef DEBUG
+#ifdef RASDEBUG
             BLINFO << MSG_OK << "\n";
 #endif
         }
@@ -296,7 +296,7 @@ ServerComm::closeDB(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LDEBUG << "Request: 'close DB'...";
 #endif
 
@@ -332,7 +332,7 @@ ServerComm::closeDB(unsigned long callingClientId)
         purify_new_leaks();
 #endif
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
     }
@@ -356,7 +356,7 @@ ServerComm::createDB(char* name)
 
     // FIXME: what about client id? -- PB 2005-aug-27
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'create DB', name = " << name << "'...";
 #endif
 
@@ -366,24 +366,24 @@ ServerComm::createDB(char* name)
     try
     {
         tempDbIf->createDB(name, dbSchema);
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
     }
     catch (r_Error& myErr)
     {
-#ifdef DEBUG
-        LERROR << "Error: exception " << myErr.get_errorno() << ": " << myErr.what();
+#ifdef RASDEBUG
+        LERROR << "exception " << myErr.get_errorno() << ": " << myErr.what();
 #endif
     }
     catch (std::bad_alloc)
     {
-        LERROR << "Error: cannot allocate memory.";
+        LERROR << "cannot allocate memory.";
         throw;
     }
     catch (...)
     {
-        LERROR << "Error: Unspecified exception.";
+        LERROR << "Unspecified exception.";
     }
 
     delete tempDbIf;
@@ -406,7 +406,7 @@ ServerComm::destroyDB(char* name)
 
     unsigned short returnValue = 0;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'destroy DB', name = " << name << "'...";
 #endif
 
@@ -424,7 +424,7 @@ ServerComm::destroyDB(char* name)
 
     delete tempDbIf;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     BLINFO << MSG_OK << "\n";
 #endif
 
@@ -442,7 +442,7 @@ ServerComm::beginTA(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'begin TA', mode = " << (readOnly ? "read" : "write") << "...";
 #endif
 
@@ -474,14 +474,14 @@ ServerComm::beginTA(unsigned long callingClientId,
         {
             // start the transaction
             context->transaction.begin(&(context->database), readOnly);
-#ifdef DEBUG
+#ifdef RASDEBUG
             BLINFO << MSG_OK << "\n";
 #endif
         }
         catch (r_Error& err)
         {
-#ifdef DEBUG
-            LERROR << "Error: exception " << err.get_errorno() << ": " << err.what();
+#ifdef RASDEBUG
+            LERROR << "exception " << err.get_errorno() << ": " << err.what();
 #endif
             context->release();
             throw;
@@ -508,7 +508,7 @@ ServerComm::commitTA(unsigned long callingClientId)
 
     ClientTblElt* context = getClientContext(callingClientId);
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'commit TA'...";
 #endif
 
@@ -548,7 +548,7 @@ ServerComm::commitTA(unsigned long callingClientId)
 
         context->release();
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
     }
@@ -579,7 +579,7 @@ ServerComm::abortTA(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'abort TA'...";
 #endif
 
@@ -605,7 +605,7 @@ ServerComm::abortTA(unsigned long callingClientId)
 
         context->release();
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
     }
@@ -637,13 +637,13 @@ ServerComm::abortTA(unsigned long callingClientId)
 bool
 ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'is TA open'...";
 #endif
 
     bool returnValue = transactionActive;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << MSG_OK << (transactionActive ? "yes." : "no.");
 #endif
 
@@ -688,14 +688,14 @@ ServerComm::insertColl(unsigned long callingClientId,
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     BLERROR << "Error: collection exists already.\n";
 #endif
                     returnValue = 3;
                 }
                 else
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     BLERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << "\n";
 #endif
                     //this should be another code...
@@ -876,14 +876,14 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
             // collection name invalid
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-#ifdef DEBUG
+#ifdef RASDEBUG
                 BLERROR << "Error: collection not found.\n";
 #endif
                 returnValue = 2;
             }
             else
             {
-#ifdef DEBUG
+#ifdef RASDEBUG
                 BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                 // there should be another return code
@@ -985,20 +985,20 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                     }
                     else
                     {
-                        BLFATAL << "Error: inserting into system collection is illegal.\n";
+                        BLERROR << "Error: inserting into system collection is illegal.\n";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch (std::bad_alloc)
                 {
-                    BLFATAL << "Error: cannot allocate memory.\n";
+                    BLERROR << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& err)
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                     returnValue = 5;
@@ -1019,7 +1019,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
                 r_Minterval   domain(rpcMarray->domain);
 
-#ifdef DEBUG
+#if 0
                 char* collTypeStructure = collection->getCollectionType()->getTypeStructure();
                 char* mddTypeStructure  = mddType->getTypeStructure();
                 LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
@@ -1091,13 +1091,13 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 }
                 catch (std::bad_alloc)
                 {
-                    BLFATAL << "Error: cannot allocate memory.\n";
+                    BLERROR << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& obj)
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                     context->release(); //!!!
@@ -1432,22 +1432,22 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                     context->transferColl = MDDColl::getMDDCollection(collName);
                     if (!context->transferColl->isPersistent())
                     {
-                        BLFATAL << "Error: inserting into system collection is illegal.\n";
+                        BLERROR << "Error: inserting into system collection is illegal.\n";
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch (r_Error& obj)
                 {
-#ifdef DEBUG
-                    BLFATAL << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
+#ifdef RASDEBUG
+                    BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
 #endif
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    BLFATAL << "Error: cannot allocate memory.\n";
+                    BLERROR << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
@@ -1464,7 +1464,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                 //
                 // check MDD and collection type for compatibility
                 //
-#ifdef DEBUG
+#if 0
                 char* collTypeStructure = context->transferColl->getCollectionType()->getTypeStructure();
                 char* mddTypeStructure  = mddType->getTypeStructure();
                 LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
@@ -1524,15 +1524,15 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-#ifdef DEBUG
-                    BLFATAL << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << "\n";
+#ifdef RASDEBUG
+                    BLERROR << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    BLFATAL << "Error: cannot allocate memory.\n";
+                    BLERROR << "Error: cannot allocate memory.\n";
                     context->release(); //!!!
                     throw;
                 }
@@ -2072,7 +2072,7 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     NNLINFO << "Request: 'end insert MDD'...";
 #endif
 
@@ -2105,7 +2105,7 @@ ServerComm::endInsertMDD(unsigned long callingClientId,
             // of MDD objects will be used as constants for executeUpdate().
         }
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
 
@@ -2226,8 +2226,8 @@ ServerComm::executeUpdate(unsigned long callingClientId,
             {
                 context->releaseTransferStructures();
                 context->release();
-#ifdef DEBUG
-                BLFATAL << "Error: " << err.get_errorno() << " " << err.what() << "\n";
+#ifdef RASDEBUG
+                BLERROR << "Error: " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
@@ -2398,8 +2398,8 @@ ServerComm::executeInsert(unsigned long callingClientId,
             {
                 context->releaseTransferStructures();
                 context->release();
-#ifdef DEBUG
-                BLFATAL << "Error: " << err.get_errorno() << " " << err.what() << "\n";
+#ifdef RASDEBUG
+                BLERROR << "Error: " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
@@ -2585,14 +2585,14 @@ ServerComm::getCollByName(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            BLFATAL << "Error: cannot allocate memory.\n";
+            BLERROR << "Error: cannot allocate memory.\n";
             context->release(); //!!!
             throw;
         }
         catch (r_Error& err)
         {
-#ifdef DEBUG
-            BLFATAL << "Error " << err.get_errorno() << " " << err.what() << "\n";
+#ifdef RASDEBUG
+            BLERROR << "Error " << err.get_errorno() << " " << err.what() << "\n";
 #endif
             context->release(); //!!!
             throw;
@@ -2701,13 +2701,13 @@ ServerComm::getCollByOId(unsigned long callingClientId,
             }
             catch (std::bad_alloc)
             {
-                BLFATAL << "Error: cannot allocate memory.\n";
+                BLERROR << "Error: cannot allocate memory.\n";
                 throw;
             }
             catch (r_Error& err)
             {
-#ifdef DEBUG
-                BLFATAL << "Error " << err.get_errorno() << " " << err.what() << "\n";
+#ifdef RASDEBUG
+                BLERROR << "Error " << err.get_errorno() << " " << err.what() << "\n";
 #endif
                 throw;
             }
@@ -2823,7 +2823,7 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
             if (!almost->isPersistent())
             {
                 LTRACE << "retrieved system collection";
-                BLFATAL << "Error: trying to get oid of system collection: " << collName << "\n";
+                BLERROR << "Error: trying to get oid of system collection: " << collName << "\n";
                 throw r_Error(SYSTEM_COLLECTION_HAS_NO_OID);
             }
             else
@@ -2834,12 +2834,12 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            BLFATAL << "Error: cannot allocate memory.\n";
+            BLERROR << "Error: cannot allocate memory.\n";
             throw;
         }
         catch (r_Error& err)
         {
-#ifdef DEBUG
+#ifdef RASDEBUG
             BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
             returnValue = 2;  // collection name invalid
@@ -2976,12 +2976,12 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
             }
             catch (std::bad_alloc)
             {
-                BLFATAL << "Error: cannot allocate memory.\n";
+                BLERROR << "Error: cannot allocate memory.\n";
                 throw;
             }
             catch (r_Error& err)
             {
-#ifdef DEBUG
+#ifdef RASDEBUG
                 BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
 #endif
                 returnValue = 2;  // collection name invalid
@@ -3103,7 +3103,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                        r_OId&           oid,
                        unsigned short&  currentFormat)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request (continuing): 'get next MDD'...";
 #endif
 
@@ -3282,14 +3282,14 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
 
                 if (context->transTiles->size() > 0)
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";
 #endif
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 2;
-                    LERROR << "Error: no tiles in MDD object.";
+                    LERROR << "no tiles in MDD object.";
                 }
 
                 context->totalTransferedSize = 0;
@@ -3300,7 +3300,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 if (context->transferDataIter && *(context->transferDataIter) == context->transferData->end())
                 {
                     returnValue = 1;  // nothing left in the collection
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", no more tiles.";
 #endif
                     context->releaseTransferStructures();
@@ -3308,7 +3308,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 else
                 {
                     returnValue = 2;  // no actual transfer collection
-                    LERROR << "Error: no transfer collection.";
+                    LERROR << "no transfer collection.";
                 }
             }
 
@@ -3326,8 +3326,8 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         }
         catch (r_Error& myErr)
         {
-#ifdef DEBUG
-            LERROR << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+#ifdef RASDEBUG
+            LERROR << "(kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
 #endif
             throw;
         }
@@ -3429,7 +3429,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
                            char*&           buffer,
                            unsigned int&    bufferSize)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request (continuing): 'get next element'...";
 #endif
 
@@ -3511,7 +3511,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
                         if ((strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
-#ifdef DEBUG
+#ifdef RASDEBUG
                             LINFO << "changing endianness...";
 #endif
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
@@ -3590,13 +3590,13 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             }
             catch (r_Ebase_dbms& myErr)
             {
-                LERROR << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+                LERROR << "base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
                 throw;
             }
             catch (r_Error& err)
             {
-#ifdef DEBUG
-                LERROR << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+#ifdef RASDEBUG
+                LERROR << "exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
 #endif
                 throw;
             }
@@ -3607,14 +3607,14 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             if (*(context->transferDataIter) != context->transferData->end())
             {
                 returnValue = 0;
-#ifdef DEBUG
+#ifdef RASDEBUG
                 LINFO << MSG_OK << ", some more tile(s) left.";
 #endif
             }
             else
             {
                 returnValue = 1;
-#ifdef DEBUG
+#ifdef RASDEBUG
                 LINFO << MSG_OK << ", no more tiles.";
 #endif
             }
@@ -3659,7 +3659,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
                         char*&           typeStructure,
                         unsigned short&  currentFormat)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";
 #endif
 
@@ -3685,14 +3685,14 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
             }
             catch (std::bad_alloc)
             {
-                LERROR << "Error: cannot allocate memory.";
+                LERROR << "cannot allocate memory.";
                 context->release();
                 throw;
             }
             catch (r_Error& err)
             {
-#ifdef DEBUG
-                LERROR << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
+#ifdef RASDEBUG
+                BLERROR << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
 #endif
                 context->release();
                 throw;
@@ -3700,7 +3700,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
             catch (...)
             {
                 returnValue = 2;
-                BLERROR << "Error: unspecified exception.\n";
+                LERROR << "Error: unspecified exception.";
             }
 
             if (!returnValue)
@@ -3783,21 +3783,21 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
 
                 if (context->transTiles->size() > 0)
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";
 #endif
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 3;
-                    LERROR << "Error: no tiles in MDD object.";
+                    LERROR << "no tiles in MDD object.";
                 }
             }
         }
         else
         {
             returnValue = 2; // oid does not belong to an MDD object
-            LERROR << "Error: oid does not belong to an MDD object.";
+            LERROR << "oid does not belong to an MDD object.";
         }
 
         //
@@ -3824,7 +3824,7 @@ unsigned short
 ServerComm::getNextTile(unsigned long   callingClientId,
                         RPCMarray**     rpcMarray)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request (continuing): 'get next tile',...";
 #endif
 
@@ -3965,7 +3965,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                     if (*(context->transferDataIter) != context->transferData->end())
                     {
                         returnValue = 1;
-#ifdef DEBUG
+#ifdef RASDEBUG
                         LDEBUG << " some MDDs left...";
                         LINFO << MSG_OK << ", some MDD(s) left.";
 #endif
@@ -3979,7 +3979,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                         // context->releaseTransferStructures();
 
                         returnValue = 0;
-#ifdef DEBUG
+#ifdef RASDEBUG
                         LINFO << MSG_OK << ", all MDDs fetched.";
 #endif
                     }
@@ -3987,7 +3987,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                 else
                 {
                     returnValue = 0;
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", MDD transfer complete.";
 #endif
                 }
@@ -4001,14 +4001,14 @@ ServerComm::getNextTile(unsigned long   callingClientId,
             {
                 if (statusValue == 1)    // at least one block in actual tile is left
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", some block(s) left.";
 #endif
                     returnValue = 3;
                 }
                 else  // tiles left in actual MDD
                 {
-#ifdef DEBUG
+#ifdef RASDEBUG
                     LINFO << MSG_OK << ", some tile(s) left.";
 #endif
                     returnValue = 2;
@@ -4039,7 +4039,7 @@ ServerComm::endTransfer(unsigned long client)
 {
     unsigned short returnValue = 0;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Client " << client << " called: endTransfer...";
 #endif
 
@@ -4079,7 +4079,7 @@ ServerComm::endTransfer(unsigned long client)
 
         context->release();
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         LINFO << MSG_OK;
 #endif
     }
@@ -4102,7 +4102,7 @@ ServerComm::aliveSignal(unsigned long client)
 {
     unsigned short returnValue = 0;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
     NNLINFO << "Client " << client << " called: endTransfer... ";
 #endif
 
@@ -4117,7 +4117,7 @@ ServerComm::aliveSignal(unsigned long client)
 
         context->release();
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         BLINFO << MSG_OK << "\n";
 #endif
     }
@@ -4296,7 +4296,7 @@ ServerComm::setTransferMode(unsigned long callingClientId,
                             unsigned short format,
                             const char* formatParams)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'...";
 #endif
 
@@ -4323,7 +4323,7 @@ ServerComm::setTransferMode(unsigned long callingClientId,
         }
         context->transferFormat = fmt;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         LINFO << MSG_OK;
 #endif
         retval = 0;
@@ -4346,7 +4346,7 @@ ServerComm::setStorageMode(unsigned long callingClientId,
                            __attribute__((unused)) unsigned short format,
                            const char* formatParams)
 {
-#ifdef DEBUG
+#ifdef RASDEBUG
     LINFO << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "...";
 #endif
 
@@ -4370,7 +4370,7 @@ ServerComm::setStorageMode(unsigned long callingClientId,
         }
         context->storageFormat = fmt;
 
-#ifdef DEBUG
+#ifdef RASDEBUG
         LINFO << MSG_OK;
 #endif
         retval = 0;

@@ -124,23 +124,28 @@ template std::ostream& operator<< (std::ostream&, const vector<KeyObject>&);
 //template  std::ostream& operator << (std::ostream& os, const std::vector<double>& list);
 //template  std::ostream& operator << (std::ostream& os, const std::vector<r_Minterval>& list);
 
+namespace __gnu_cxx 
+{
 template class rb_tree<OId, pair<OId const, DBMDDObj*>, select1st<pair<OId const, DBMDDObj*>>, less<OId>>;
 template class rb_tree<OId, pair<OId const, DBMinterval*>, select1st<pair<OId const, DBMinterval*>>, less<OId>>;
 template class rb_tree<OId, pair<OId const, DBNullvalues*>, select1st<pair<OId const, DBNullvalues*>>, less<OId>>;
 template class rb_tree<OId, pair<OId const, DBRef<DBMDDObj>>, select1st<pair<OId const, DBRef<DBMDDObj>>>, less<OId>>;
-                       template class rb_tree<OId, pair<OId const, DBMDDSet*>, select1st<pair<OId const, DBMDDSet*>>, less<OId>>;
-                       template class rb_tree<OId, pair<OId const, MDDType*>, select1st<pair<OId const, MDDType*>>, less<OId>>;
-                       template class rb_tree<OId, pair<OId const, SetType*>, select1st<pair<OId const, SetType*>>, less<OId>>;
-                       template class rb_tree<OId, pair<OId const, StructType*>, select1st<pair<OId const, StructType*>>, less<OId>>;
-                       template class rb_tree<long, pair<long const, BLOBTile*>, select1st<pair<long const, BLOBTile*>>, less<long>>;
-                       template class rb_tree<long, pair<long const, InlineTile*>, select1st<pair<long const, InlineTile*>>, less<long>>;
-                       template class vector<BaseType const*>;
-                       template class vector<OId>;
-                       template class vector<Tile*>;
-                       template class vector<Type*>;
-                       template class vector<char*>;
-                       template class vector<char>;
-                       template class vector<r_Data_Format>;
-                       template class vector<unsigned int>;
-
-                       template class Tile** std::fill_n<Tile**, unsigned int, Tile*>(Tile**, unsigned int, Tile* const&);
+template class rb_tree<OId, pair<OId const, DBMDDSet*>, select1st<pair<OId const, DBMDDSet*>>, less<OId>>;
+template class rb_tree<OId, pair<OId const, MDDType*>, select1st<pair<OId const, MDDType*>>, less<OId>>;
+template class rb_tree<OId, pair<OId const, SetType*>, select1st<pair<OId const, SetType*>>, less<OId>>;
+template class rb_tree<OId, pair<OId const, StructType*>, select1st<pair<OId const, StructType*>>, less<OId>>;
+template class rb_tree<long, pair<long const, BLOBTile*>, select1st<pair<long const, BLOBTile*>>, less<long>>;
+template class rb_tree<long, pair<long const, InlineTile*>, select1st<pair<long const, InlineTile*>>, less<long>>;
+}
+namespace std 
+{
+template class vector<BaseType const*>;
+template class vector<OId>;
+template class vector<Tile*>;
+template class vector<Type*>;
+template class vector<char*>;
+template class vector<char>;
+template class vector<r_Data_Format>;
+template class vector<unsigned int>;
+}
+template class Tile** std::fill_n<Tile**, unsigned int, Tile*>(Tile**, unsigned int, Tile* const&);

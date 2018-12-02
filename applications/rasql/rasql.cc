@@ -209,7 +209,7 @@ typedef enum
 // -------------------------------------
 
 r_Database db;
-r_Transaction ta;
+r_Transaction ta{&db};
 
 bool dbIsOpen = false;
 bool taIsOpen = false;
@@ -936,7 +936,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
                     BLERROR << "failed, read only " << rsize << " bytes of " << chunkSize << " bytes at offset " << offset << ".\n";
                     throw RasqlError(FILEREADERROR);
                 }
-                r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
+                r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, &ta, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
                 offset += static_cast<long>(chunkSize);
@@ -971,7 +971,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         BLINFO << "ok.\n";
 
         LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
-        fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, false);
+        fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, &ta, false);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
         fileMDD->set_type_schema(mddType.get());
         mddType.release();
@@ -996,7 +996,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         int i;
         for (i = 1, iter.reset(); iter.not_done(); iter++, i++)
         {
-            r_Ref<r_GMarray> myConstant = *iter;
+            auto myConstant = r_Ref<r_GMarray>(*iter, &ta);
             if (!quietLog)
             {
                 NNLINFO << "  constant " << i << ": ";
@@ -1023,9 +1023,9 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
             NNLINFO << "Executing " << (isInsert ? "insert" : "update") << " query... ";
             // third param is just to differentiate from retrieval
             if (isInsert)
-                r_oql_execute(query, result_set, 1);
+                r_oql_execute(query, result_set, 1, &ta);
             else
-                r_oql_execute(query);
+                r_oql_execute(query, &ta);
 
             BLINFO << "ok.\n";
             if (output)
@@ -1040,7 +1040,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         if (openTransaction(false))
         {
             NNLINFO << "Executing retrieval query... ";
-            r_oql_execute(query, result_set);
+            r_oql_execute(query, result_set, &ta);
             BLINFO << "ok.\n";
             if (output)
             {

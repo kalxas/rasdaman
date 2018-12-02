@@ -30,8 +30,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.45 2003/12/27 23:02:56 rasdev Exp $";
-
 #include "config.h"
 #include <vector>
 
@@ -64,8 +62,8 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #include <logging.hh>
 
 
-r_GMarray::r_GMarray()
-    : r_Object(1),
+r_GMarray::r_GMarray(r_Transaction* ta)
+    : r_Object(1, ta),
       data(0),
       tiled_data(0),
       data_size(0),
@@ -78,8 +76,9 @@ r_GMarray::r_GMarray()
 
 
 
-r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl, bool initialize)
-    : r_Object(1),
+r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl,
+        r_Transaction* ta, bool initialize)
+    : r_Object(1, ta),
       domain(initDomain),
       data(0),
       tiled_data(0),
@@ -315,7 +314,6 @@ r_GMarray::insert_obj_into_db()
     // of a collection which invokes r_GMarray::insert_obj_into_db(const char* collName)
     // of the r_Marray objects.
 
-    // r_Database::actual_database->communication->insertSingleMDDObj(this);
     LINFO << " do nothing ";
 }
 
@@ -324,15 +322,14 @@ r_GMarray::insert_obj_into_db()
 void
 r_GMarray::insert_obj_into_db(const char* collName)
 {
+    update_transaction();
+
     // Insert myself in database only if I have a type name, otherwise
     // an exception is thrown.
-    if (!type_name)
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClassUndefined);
-        throw err;
-    }
+    if (!type_name || !transaction || !transaction->getDatabase())
+        throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
 
-    r_Database::actual_database->getComm()->insertMDD(collName, this);
+    transaction->getDatabase()->getComm()->insertMDD(collName, this);
 }
 
 
@@ -480,7 +477,7 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
 
 r_GMarray* r_GMarray::intersect(r_Minterval where) const
 {
-    r_GMarray* tile = new r_GMarray();
+    r_GMarray* tile = new r_GMarray(get_transaction());
 
     r_Minterval obj_domain = spatial_domain();
     r_Dimension num_dims = obj_domain.dimension();

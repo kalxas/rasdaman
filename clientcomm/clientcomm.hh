@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/marray.hh"
-
+#include "rasodmg/transaction.hh"
 #include "raslib/primitivetype.hh"
 
 
@@ -266,6 +266,15 @@ public:
     virtual void setTimeoutInterval(int seconds) = 0;
     virtual int  getTimeoutInterval() = 0;
 
+    /// sets the database that is using this client communicator
+    void setDatabase(r_Database* database);
+
+    /// sets the transaction that is using this client communicator
+    void setTransaction(r_Transaction* transaction);
+
+    /// resets to the global r_Transaction::actual_transaction if necessary
+    virtual void updateTransaction();
+
     ///
     //@}
 
@@ -273,8 +282,13 @@ protected:
     /// constructor getting nothing
     ClientComm();
 
-private:
+    /// reference to the database that created this client communicator
+    r_Database* database;
 
+    /// reference to the transaction being used by this client communicator
+    r_Transaction* transaction;
+
+private:
     enum CommunicationProtocol
     {
         RNP,

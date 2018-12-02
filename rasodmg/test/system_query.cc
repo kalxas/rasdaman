@@ -112,7 +112,7 @@ SystemQuery::doStuff(int argc, char** argv)
                                     RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                     sleep(100); \
                                     RMInit::dbgOut << "Continue now\n" << std::endl;);
-                            r_oql_execute(q1);
+                            r_oql_execute(q1, &ta);
                             RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                     RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                     sleep(100); \
@@ -147,7 +147,7 @@ SystemQuery::doStuff(int argc, char** argv)
                                 RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                 sleep(100); \
                                 RMInit::dbgOut << "Continue now\n" << std::endl;);
-                        r_oql_execute(q1, result_set);
+                        r_oql_execute(q1, result_set, &ta);
                         RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                 RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
                                 sleep(100); \

@@ -21,17 +21,15 @@
 #
 ###################################################################
 
-add_executable(rasql rasql.cc
-        rasql_error.hh rasql_error.cc)
+# do not build on make, only on make unit-check
 
-target_link_libraries(rasql rasodmg clientcomm raslib
-        commline network common_logging)
+add_executable(concurrentquery EXCLUDE_FROM_ALL concurrentquery.cc)
+
+target_link_libraries(concurrentquery rasodmg clientcomm raslib
+        commline network common_logging -lpthread)
 
 if (RMANRASNET)
-    target_link_libraries(rasql rasnet)
+    target_link_libraries(concurrentquery rasnet)
 endif (RMANRASNET)
 
-install(TARGETS rasql
-        DESTINATION ${BIN_DIR})
-
-add_subdirectory(test)
+add_dependencies(unit-check concurrentquery)

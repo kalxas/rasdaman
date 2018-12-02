@@ -27,14 +27,15 @@ set(CONVERSION_HEADER_FILES
         convtypes.hh
         convutil.hh
         csv.hh
-        dem.hh
+        json.hh
         formatparams.hh
         gdal.hh
         grib.hh
-        hdf.hh
-        memfs.hh
         mimetypes.hh
         netcdf.hh
+        dem.hh
+        hdf.hh
+        memfs.hh
         tiff.hh
         tmpfile.hh
         transpose.hh)
@@ -69,9 +70,8 @@ if (USE_NETCDF)
 endif ()
 
 if (USE_GDAL)
-    find_package(GDAL REQUIRED)
-    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${GDAL_LIBRARY})
-    set(OPTIONAL_INCLUDE_DIRECTORIES ${OPTIONAL_INCLUDE_DIRECTORIES} ${GDAL_INCLUDE_DIR})
+    target_link_libraries(conversion ${GDAL_LIBRARY})
+    target_include_directories(conversion SYSTEM PUBLIC ${GDAL_INCLUDE_DIR})
 endif ()
 
 if (USE_HDF4)

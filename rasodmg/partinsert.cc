@@ -53,14 +53,16 @@ rasdaman GmbH.
 #define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %.0f"
 
 
-r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype, const char* settype, const r_Storage_Layout& stl) : mydb(usedb)
+r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype,
+        const char* settype, const r_Storage_Layout& stl) : mydb(usedb), myta(&mydb)
 {
     init_share(collname, mddtype, settype);
     mystl = stl.clone();
 }
 
 
-r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype, const char* settype, const r_Minterval& dom, unsigned int tsize) : mydb(usedb)
+r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype,
+        const char* settype, const r_Minterval& dom, unsigned int tsize) : mydb(usedb), myta(&mydb)
 {
     init_share(collname, mddtype, settype);
     r_Aligned_Tiling* tilingObj = new r_Aligned_Tiling(dom, tsize * dom.cell_count());
@@ -68,7 +70,7 @@ r_Partial_Insert::r_Partial_Insert(r_Database& usedb, const char* collname, cons
 }
 
 
-r_Partial_Insert::r_Partial_Insert(const r_Partial_Insert& src) : mydb(src.mydb)
+r_Partial_Insert::r_Partial_Insert(const r_Partial_Insert& src) : mydb(src.mydb), myta(src.myta)
 {
     init_share(src.collName, src.mddType, src.setType);
     mystl = src.mystl->clone();
@@ -138,7 +140,7 @@ int r_Partial_Insert::update(r_GMarray* mddPtr,
             mydb.set_transfer_format(transferFormat, transferFormatParams);
             mydb.set_storage_format(storageFormat, storageFormatParams);
             r_OQL_Query query(queryBuffer);
-            r_oql_execute(query);
+            r_oql_execute(query, &myta);
             myta.commit();
             LTRACE << "update(): created new collection " << collName << " with type " << setType;
         }
@@ -156,7 +158,7 @@ int r_Partial_Insert::update(r_GMarray* mddPtr,
             myta.begin();
             mydb.set_transfer_format(transferFormat, transferFormatParams);
             mydb.set_storage_format(storageFormat, storageFormatParams);
-            r_Ref<r_GMarray> mddp = new(&mydb, mddType) r_GMarray(*mddPtr);
+            r_Ref<r_GMarray> mddp = r_Ref<r_GMarray>(new(&mydb, mddType) r_GMarray(*mddPtr), &myta);
             r_Ref<r_Set<r_Ref<r_GMarray>>> mddCollPtr;
             mddCollPtr = static_cast<r_Ref<r_Set<r_Ref<r_GMarray>>>>(mydb.lookup_object(collName));
             mddCollPtr->insert_element(mddp);
@@ -187,7 +189,7 @@ int r_Partial_Insert::update(r_GMarray* mddPtr,
             LTRACE << "update(): QUERY: " << queryBuffer;
             r_OQL_Query query(queryBuffer);
             query << (*mddPtr);
-            r_oql_execute(query);
+            r_oql_execute(query, &myta);
             myta.commit();
             LTRACE << "update(): update object OK";
         }

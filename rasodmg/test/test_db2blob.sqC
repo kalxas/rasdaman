@@ -51,7 +51,7 @@ rasdaman GmbH.
 #include <stdlib.h> // for drand48()
 
 #include "rasodmg/marray.hh"
-#include "raslib/shhopt.h"
+#include "raslib/shhopt.hh"
 
 #include <sys/time.h>
 

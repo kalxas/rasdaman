@@ -23,17 +23,12 @@
 #
 ###################################################################
 
-#set(TEST_DUMMY_SOURCES)
-
-#set(TEST_MOCK_SOURCES)
-
-#set(TEST_UTIL_SOURCES util/testutil.hh)
 
 set(TEST_SOURCES 
         clippingtests/clippinghelpfunctions.cc
         main_test.cc)
 
-add_executable(clipping_test ${TEST_SOURCES})
+add_executable(clipping_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 
 find_package(Threads REQUIRED)
 target_link_libraries(clipping_test

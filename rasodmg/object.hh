@@ -41,6 +41,7 @@ rasdaman GmbH.
 
 // forward declarations
 class r_Database;
+class r_Transaction;
 class r_Type;
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -65,19 +66,21 @@ class r_Object
 {
 public:
     /// default constructor
-    r_Object();
+    r_Object(r_Transaction* transaction = NULL);
 
     /// constructor getting objType
-    r_Object(unsigned short objType);
+    r_Object(unsigned short objType, r_Transaction* transaction = NULL);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
+      {\tt transaction} the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
       This is needed for oid allocation and propably dropped in future.
     */
 
     /// copy constructor
-    r_Object(const r_Object&, unsigned short objType = 0);
+    r_Object(const r_Object&, unsigned short objType = 0, r_Transaction* transaction = NULL);
     /**
       {\tt objType} specifies the type of the object (1=Marray, 2=Collection).
+      {\tt transaction} the transaction object under which this object is registered. Internal casting to void is necesarry due to circural referencing.
       This is needed for oid allocation and propably dropped in future.
     */
 
@@ -124,7 +127,7 @@ public:
     /// get oid
     inline const r_OId& get_oid() const;
 
-    /// get type schema
+    /// get type schema. returns NULL in case of error
     const r_Type* get_type_schema();
 
     void set_type_schema(const r_Type* type);
@@ -192,7 +195,13 @@ public:
     ///
     //@}
 
+    r_Transaction *get_transaction() const;
+
 protected:
+
+    /// resets to the global r_Transaction::actual_transaction if necessary
+    void update_transaction();
+
     /// test object type returns 1 if it matches
     int test_type(ObjectType type);
 
@@ -210,6 +219,10 @@ protected:
 
     /// internal object type (1 marray, 2 collection)
     unsigned short internal_obj_type;
+
+    /// pointer to the transaction this object belongs to. Void* to avoid compilation errors caused
+    /// by cyclic dependencies in the raslib between transaction, database and r_Object
+    r_Transaction* transaction{NULL};
 
 private:
     /// right now, the object life status is either deleted, created, or read

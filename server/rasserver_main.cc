@@ -170,8 +170,8 @@ void crashHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucont
             TileCache::clear();
             BLERROR << "aborting any open transactions... ";
             auto &rasserverEntry = RasServerEntry::getInstance();
-            rasserverEntry.compat_abortTA();
-            rasserverEntry.compat_closeDB();
+            if (rasserverEntry.compat_isOpenTA())
+                rasserverEntry.compat_abortTA();
             if (server)
             {
                 server->abortEveryThingNow();

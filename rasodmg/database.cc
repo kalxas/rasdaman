@@ -30,8 +30,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)rasodmg, r_Database: $Id: database.cc,v 1.47 2005/09/03 20:39:35 rasdev Exp $";
-
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__
 #define __EXECUTABLE__
@@ -73,7 +71,7 @@ r_Database::r_Database(const char* name)
 {
     if (!name)
     {
-        LERROR << "Error: null database name.";
+        LERROR << "null database name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     this->rasmgrName = strdup(name);
@@ -92,21 +90,9 @@ r_Database::get_type_schema(const char* typeName, type_schema typeType)
     {
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
-    else if (r_Database::actual_database == NULL)
+    else if (this->get_status() == r_Database::not_open)
     {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
-    }
-    else if (r_Database::actual_database->get_status() == r_Database::not_open)
-    {
-        throw r_Error(r_Error::r_Error_DatabaseClosed);
-    }
-    else if (r_Transaction::actual_transaction == NULL)
-    {
-        throw r_Error(r_Error::r_Error_TransactionNotOpen);
-    }
-    else if (r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-    {
-        throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
     else
     {
@@ -119,7 +105,7 @@ r_Database::get_type_schema(const char* typeName, type_schema typeType)
         {
             type = ClientComm::r_MDDType_Type;
         }
-        char* temp = r_Database::actual_database->communication->getTypeStructure(typeName, type);
+        char* temp = this->communication->getTypeStructure(typeName, type);
         retval = r_Type::get_any_type(temp);
         delete [] temp;
         temp = 0;
@@ -151,7 +137,7 @@ r_Database::~r_Database()
 void
 r_Database::open(const char* database_name, access_status new_status)
 {
-    if (db_status != not_open || actual_database)
+    if (db_status != not_open)
     {
         r_Error err = r_Error(r_Error::r_Error_DatabaseOpen);
         throw err;
@@ -182,7 +168,7 @@ r_Database::open(const char* database_name, access_status new_status)
         }
         throw;  // re-throw the exception (r_Error_HostInvalid, r_Error_ServerInvalid)
     }
-
+    communication->setDatabase(this);
     // open database
     unsigned int status = 0;
     try
@@ -234,8 +220,11 @@ r_Database::open(const char* database_name, access_status new_status)
 
         throw err;
     }
-
-    actual_database = this;
+    //if no other database was set as default, make this one default.
+    if (actual_database == 0)
+    {
+        actual_database = this;
+    }
     db_status       = new_status;
 }
 
@@ -252,23 +241,18 @@ r_Database::close()
             // Actual transaction is a pointer to this in a TA.
             // Since the TA was allocated by the application program
             // it should be save to use it like this.
-            if (r_Transaction::actual_transaction != 0)
-            {
-                // make _very_ sure we have sequential evaluation -> nested ifs
-                if (r_Transaction::actual_transaction->get_status() == r_Transaction::active)
-                {
-                    r_Transaction::actual_transaction->abort();
-                }
-            }
-
             communication->closeDB();
             delete communication;
             communication = 0;
         }
 
         db_status = not_open;
-        actual_database = 0;
-    }
+        //remove the default database only if this is the same as this database object.
+        if (this == actual_database)
+        {
+            actual_database = 0;
+        }
+}
 }
 
 void
@@ -354,13 +338,6 @@ r_Database::lookup_object(const char* name) const
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
-    if (!r_Transaction::actual_transaction
-            || r_Transaction::actual_transaction->get_status() !=  r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-        throw err;
-    }
-
     try
     {
         // get collection
@@ -384,13 +361,6 @@ r_Database::lookup_object(const r_OId& oid) const
     if (db_status == not_open)
     {
         r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
-
-    if (!r_Transaction::actual_transaction
-            || r_Transaction::actual_transaction->get_status() !=  r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
         throw err;
     }
 
@@ -512,15 +482,4 @@ ClientComm* r_Database::getComm()
 {
     return communication;
 }
-
-
-
-
-
-
-
-
-
-
-
 

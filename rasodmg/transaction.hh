@@ -42,6 +42,7 @@ class r_Object;
 
 #include "rasodmg/set.hh"
 #include "rasodmg/ref.hh"
+#include "rasodmg/database.hh"
 
 /*@Doc:
 
@@ -64,8 +65,9 @@ public:
     /// possible transaction modes
     enum r_TAMode { read_write, read_only };
 
-    /// default constructor
-    r_Transaction();
+    /// create a new transaction object; if the db object is not provided, this
+    /// class not thread-safe.
+    r_Transaction(r_Database *db = NULL);
 
     /// destructor, an active transaction is aborted
     ~r_Transaction();
@@ -123,6 +125,14 @@ public:
     /// adds a non-r_Object to the list of persistent objects
     void add_object_list(GenRefType type, void* ref);
 
+    /// sets the database reference that this transaction is using.
+    /// if none is provided the default static database is used
+    /// NOTE: The setDatabase method should be called before any other operation that uses the database
+    void setDatabase(r_Database* database);
+
+    /// returns the database used by this transaction
+    r_Database* getDatabase();
+
     ///
     //@}
 
@@ -150,6 +160,9 @@ private:
     r_Set<GenRefElement*> non_object_list;
 
     friend class r_Object;
+
+    /// reference to the database used by this transaction
+    r_Database* database;
 };
 
 #define DEF_TRANSACTION

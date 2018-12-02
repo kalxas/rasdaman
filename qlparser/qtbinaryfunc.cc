@@ -1291,7 +1291,13 @@ int QtScale::scaleDomain(const r_Minterval& areaOp,
     catch (r_Error)
     {
         //error scaling
-        LERROR << "Error: QtScale::scaleDomain() - exception while determining scale target interval for " << areaOp << " and " << scaleFactors;
+        std::string scaleStr{};
+        for (const auto &f: scaleFactors)
+        {
+            if (!scaleStr.empty()) scaleStr += ",";
+            scaleStr += std::to_string(f);
+        }
+        LERROR << "Error: QtScale::scaleDomain() - exception while determining scale target interval for " << areaOp << " and " << scaleStr;
         return 0;
     }
 

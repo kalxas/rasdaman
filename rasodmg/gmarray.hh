@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
 #include "rasodmg/set.hh"
-
+#include "rasodmg/transaction.hh"
 #include <iostream>
 #include <vector>
 
@@ -69,10 +69,11 @@ class r_GMarray : public r_Object
 {
 public:
     /// default constructor (no memory is allocated!)
-    r_GMarray();
+    r_GMarray(r_Transaction* transaction = NULL);
 
     /// constructor for uninitialized MDD objects
-    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = true);
+    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0,
+            r_Transaction* transaction = NULL, bool initialize = true);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_GMarray} class.

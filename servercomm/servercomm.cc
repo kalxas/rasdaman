@@ -876,7 +876,7 @@ ServerComm::deleteClientTblEntry(unsigned long clientId)
 
     if (!context)
     {
-        LDEBUG << "Warning: in ServerComm::deleteClientTblEntry(): null context, " << "client " << clientId << " not found.";
+        LDEBUG << "Warning: in ServerComm::deleteClientTblEntry(): null context, client " << clientId << " not found.";
         return 1;  // desired client id was not found in the client table
     }
 
@@ -927,13 +927,15 @@ ServerComm::deleteClientTblEntry(unsigned long clientId)
 #endif
 
     // remove the entry from the client table
+
+//    std::remove_if(clientTbl.begin(), clientTbl.end(),
+//            [clientId](const ClientTblElt* curr) { return clientId == curr->clientId; });
+
     list<ClientTblElt*>::iterator iter;
     for (iter = clientTbl.begin(); iter != clientTbl.end() && (*iter)->clientId != clientId; iter++)
         ;
     if (iter != clientTbl.end())
-    {
         clientTbl.erase(iter);
-    }
 
     // delete the client table entry data itself
     // (delete is controlled by the destructor of the ClientTblElt object)

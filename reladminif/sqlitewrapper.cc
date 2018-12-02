@@ -232,6 +232,7 @@ void SQLiteQuery::closeConnection()
 
 bool SQLiteQuery::openConnection(const char* globalConnectId)
 {
+    LDEBUG << "opning SQLite connection to " << globalConnectId;
     sqlite3_enable_shared_cache(0);
     if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
     {

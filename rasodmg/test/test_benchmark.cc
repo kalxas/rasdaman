@@ -151,11 +151,11 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
             execTimer.start();
             if (q1.is_update_query())
             {
-                r_oql_execute(q1);
+                r_oql_execute(q1, &ta);
             }
             else
             {
-                r_oql_execute(q1, image_set);
+                r_oql_execute(q1, image_set, &ta);
             }
             execTimer.stop();
         }

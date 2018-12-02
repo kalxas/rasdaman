@@ -31,8 +31,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)rasodmg, r_OQL_Query and r_oql_execute(): $Id: oqlquery.cc,v 1.25 2002/08/28 12:21:57 coman Exp $";
-
 #include "config.h"
 #include "rasodmg/oqlquery.hh"
 
@@ -555,89 +553,67 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
     delete[] argumentVal;
 }
 
-
-
-// HP COMPILER BUG
-// The iterator type needs a typedef because otherwise the compiler creates a duplicate
-// definition for each instance of the following template function.
-typedef r_Iterator<r_GMarray*> r_Iterator_r_GMarray;
-
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result)
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* transaction)
 {
-    if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
+    if (transaction == NULL)
+        transaction = r_Transaction::actual_transaction;
 
-    if (r_Transaction::actual_transaction == 0 || r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-        throw err;
-    }
+    if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
 
-    try
-    {
-        r_Database::actual_database->getComm()->executeQuery(query, result);
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
-    }
+    auto *database = transaction->getDatabase();
+    if (database == NULL || database->get_status() == r_Database::not_open)
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
+
+    transaction->setDatabase(database);
+
+    database->getComm()->executeQuery(query, result);
 
     // reset the arguments of the query object
     query.reset_query();
 }
 
 
-// select query
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result)
+
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transaction* transaction)
 {
-    if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
+    if (transaction == NULL)
+        transaction = r_Transaction::actual_transaction;
+
+    if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
+
+    auto *database = transaction->getDatabase();
+    if (database == NULL || database->get_status() == r_Database::not_open)
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
+
+    r_Set<r_Ref_Any> genericSet;
+
+    transaction->setDatabase(database);
+
+    database->getComm()->executeQuery(query, genericSet);
+
+    if (!genericSet.is_empty())
     {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
+        const r_Type* typeSchema = genericSet.get_element_type_schema();
 
-    if (r_Transaction::actual_transaction == 0 || r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-        throw err;
-    }
-
-    try
-    {
-        r_Set<r_Ref_Any> genericSet;
-
-
-        r_Database::actual_database->getComm()->executeQuery(query, genericSet);
-
-        if (!genericSet.is_empty())
+        if (!typeSchema || typeSchema->type_id() != r_Type::MARRAYTYPE)
         {
-            const r_Type* typeSchema = genericSet.get_element_type_schema();
-
-            if (!typeSchema || typeSchema->type_id() != r_Type::MARRAYTYPE)
-            {
-                r_Error err(r_Error::r_Error_TypeInvalid);
-                throw err;
-            }
-
-            //
-            // iterate through the generic set and build a specific one
-            //
-            result.set_type_by_name(genericSet.get_type_name());
-            result.set_type_structure(genericSet.get_type_structure());
-
-            r_Iterator<r_Ref_Any> iter;
-            for (iter = genericSet.create_iterator(); iter.not_done(); iter++)
-            {
-                result.insert_element(r_Ref<r_GMarray>(*iter));
-            }
+            r_Error err(r_Error::r_Error_TypeInvalid);
+            throw err;
         }
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
+
+        //
+        // iterate through the generic set and build a specific one
+        //
+        result.set_type_by_name(genericSet.get_type_name());
+        result.set_type_structure(genericSet.get_type_structure());
+
+        r_Iterator<r_Ref_Any> iter;
+        for (iter = genericSet.create_iterator(); iter.not_done(); iter++)
+        {
+            result.insert_element(r_Ref<r_GMarray>(*iter));
+        }
     }
 
     // reset the arguments of the query object
@@ -645,56 +621,43 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result)
 }
 
 // insert query returning OID
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy)
+void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Transaction* transaction)
 {
-    if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
+    if (transaction == NULL)
+        transaction = r_Transaction::actual_transaction;
 
-    if (r_Transaction::actual_transaction == 0 || r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-        throw err;
-    }
+    if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
 
-    try
-    {
-        r_Database::actual_database->getComm()->executeQuery(query, result, dummy);
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
-    }
+    auto *database = transaction->getDatabase();
+    if (database == NULL || database->get_status() == r_Database::not_open)
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
+
+    transaction->setDatabase(database);
+
+    database->getComm()->executeQuery(query, result, dummy);
+
     // reset the arguments of the query object
     query.reset_query();
 }
 
 
 // update and delete and insert (< v9.1)
-void r_oql_execute(r_OQL_Query& query)
+void r_oql_execute(r_OQL_Query& query, r_Transaction* transaction)
 {
-    if (r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open)
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
+    if (transaction == NULL)
+        transaction = r_Transaction::actual_transaction;
 
-    if (r_Transaction::actual_transaction == 0 || r_Transaction::actual_transaction->get_status() != r_Transaction::active)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionNotOpen);
-        throw err;
-    }
+    if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
 
-    try
-    {
-        r_Database::actual_database->getComm()->executeQuery(query);
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
-    }
+    auto *database = transaction->getDatabase();
+    if (database == NULL || database->get_status() == r_Database::not_open)
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
+
+    transaction->setDatabase(database);
+
+    database->getComm()->executeQuery(query);
 
     // reset the arguments of the query object
     query.reset_query();

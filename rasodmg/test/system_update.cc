@@ -300,7 +300,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     bool dataFound = true;
                     try
                     {
-                        r_oql_execute(query, result);
+                        r_oql_execute(query, result, &ta);
                     }
                     catch (r_Error& err)
                     {
@@ -358,7 +358,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                                 RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
                                 sleep(100); \
                                 RMInit::dbgOut << "Continue now\n" << std::endl;);
-                        r_oql_execute(query);
+                        r_oql_execute(query, &ta);
                         RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                 RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
                                 sleep(100); \
@@ -389,7 +389,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                                         RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
                                         sleep(100); \
                                         RMInit::dbgOut << "Continue now\n" << std::endl;);
-                                r_oql_execute(query);
+                                r_oql_execute(query, &ta);
                                 RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
                                         RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
                                         sleep(100); \
