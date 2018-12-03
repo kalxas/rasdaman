@@ -33,7 +33,8 @@ on the resultant arrays efficiently on the local machine
 
 import os
 
-from grpc.beta import implementations
+import grpc.beta.implementations
+from grpc._cython import cygrpc
 from rasdapy.cores.utils import StoppableTimeoutThread, \
     get_spatial_domain_from_type_structure, get_type_structure_from_string, \
     convert_binary_data_stream
@@ -60,6 +61,7 @@ from rasdapy.stubs import rasmgr_client_service_pb2 as rasmgr
 from utils import int_to_bytes, str_to_encoded_bytes, get_tiling_domain, convert_data_from_bin
 
 
+
 class Connection(object):
     """
     Class to represent the connection from the python client to the rasdaman
@@ -80,7 +82,7 @@ class Connection(object):
         self.port = port
         self.username = username
         self.password = password
-        self.channel = implementations.insecure_channel(hostname, port)
+        self.channel = insecure_channel(hostname, port)
         self.stub = rasmgr.beta_create_RasmgrClientService_stub(self.channel)
         self.session = None
         self._rasmgr_keep_alive_running = None
@@ -184,7 +186,7 @@ class Database(object):
                                         self.name)
         if self.rasmgr_db.dbSessionId == self.connection.session.clientUUID:
             self.connection._stop_keep_alive()
-        self.channel = implementations.insecure_channel(
+        self.channel = insecure_channel(
             self.rasmgr_db.serverHostName, self.rasmgr_db.port)
         self.stub = rassrvr.beta_create_ClientRassrvrService_stub(self.channel)
         self.rassrvr_db = rassrvr_open_db(self.stub,
@@ -644,3 +646,14 @@ class ArrayMetadata(object):
         """
         self.spatial_domain = spatial_domain
         self.band_types = band_types
+
+def insecure_channel(host, port):
+    """
+    Override grpc.beta.implementations.insecure_channel function in 
+    oder to to set max_message_length
+    """
+    channel = grpc.insecure_channel(
+        target=host if port is None else '%s:%d' % (host, port),
+        options=[(cygrpc.ChannelArgKey.max_send_message_length, -1),
+                 (cygrpc.ChannelArgKey.max_receive_message_length, -1)])
+    return grpc.beta.implementations.Channel(channel)
