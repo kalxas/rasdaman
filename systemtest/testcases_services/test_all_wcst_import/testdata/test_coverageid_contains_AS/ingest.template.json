@@ -1,0 +1,79 @@
+{
+        "config": {
+                "service_url": "PETASCOPE_URL",
+                "tmp_directory": "/tmp/",
+                "mock": false,
+                "automated": true,
+                "track_files": false
+        },
+        "input": {
+                "coverage_id": "test_S2_L2A_SOUTH_TYROL_RAS",
+                "paths": [
+                        "*.tiff"
+                ]
+        },
+        "recipe": {
+                "name": "general_coverage",
+                "options": {
+                        "coverage": {
+                                "crs": "OGC/0/UnixTime?axis-label=\"DATE\"@EPSG/0/32632",
+                                "metadata": {
+                                        "type": "xml",
+                                        "global": {
+                                                "Title": "'S2 L1C Data'",
+                                                "Project": "'Sentinel Alpine Observatory'",
+                                                "Creator": "'Eurac Research - Institute for Earth Observation'"
+                                        }
+                                },
+                                "slicer": {
+                                        "type": "gdal",
+                                        "bands": [
+                                                {
+                                                        "name": "B08",
+                                                        "identifier": "1",
+                                                        "description": "B8, central wavelength 842 nm"
+                                                },
+                                                {
+                                                        "name": "B04",
+                                                        "identifier": "2",
+                                                        "description": "B4, central wavelength 665 nm"
+                                                },
+                                                {
+                                                        "name": "B03",
+                                                        "identifier": "3",
+                                                        "description": "B3, central wavelength 560 nm"
+                                                },
+                                                {
+                                                        "name": "B02",
+                                                        "identifier": "4",
+                                                        "description": "B2, central wavelength 490 nm"
+                                                }
+                                        ],
+                                        "axes": {
+                                                "DATE": {
+                                                        "min": "datetime(regex_extract('S2A_MSIL1C_20181114T104301_N0207', '(.*)_(.*)_(.*)_(.*)',3), 'YYYYMMDD')",
+                                                        "gridOrder": 0,
+                                                        "irregular": true,
+                                                        "dataBound": false
+                                                },
+                                                "E": {
+                                                        "min": "${gdal:minX}",
+                                                        "max": "${gdal:maxX}",
+                                                        "gridOrder": 1,
+                                                        "resolution": "${gdal:resolutionX}"
+                                                },
+                                                "N": {
+                                                        "min": "${gdal:minY}",
+                                                        "max": "${gdal:maxY}",
+                                                        "gridOrder": 2,
+                                                        "resolution": "${gdal:resolutionY}"
+                                                }
+                                        }
+                                }
+                        },
+                        "tiling": "ALIGNED [0:0, 0:1419, 0:1419]",
+			"scale_levels": [32],
+			"wms_import": true
+                }
+        }
+}

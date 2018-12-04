@@ -211,8 +211,9 @@ public class TypeRegistry {
     private void initializeSetTypes() throws RasdamanException, PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_SET_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
-        String[] fullStringResult = queryResult.toString().split("\0");
-        for (String setLine : fullStringResult) {
+        
+        for (byte[] bytes : queryResult.getMdds()) {
+            String setLine = new String(bytes);
             String setName = parseSetName(setLine);
             String marrayName = parseSetMarrayName(setLine);
             String nilValues = parseSetNullValues(setLine);
@@ -277,46 +278,47 @@ public class TypeRegistry {
     private void initializeStructRegistry() throws RasdamanException, PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_STRUCT_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
-        String[] fullStringResult = queryResult.toString().split("\0");
-        for (String i : fullStringResult) {
-            String[] parts = i.split("CREATE TYPE ");
-            String typeName = "";
-            String typeStructure = "";
-            if (parts.length > 1) {
-                String[] nameParts = parts[1].split(" ");
-                if (nameParts.length > 0) {
-                    typeName = nameParts[0].trim();
-                }
+        for (byte[] bytes : queryResult.getMdds()) {
+            // e.g: CREATE TYPE RGBPixel AS (red char, green char, blue char)
+            String str = new String(bytes);
+            String[] parts = str.split(AS);
+            if (parts.length != 2) {
+                throw new RasdamanException(ExceptionCode.RuntimeError, "Type cannot be parsed from rasdaman result, given '" + str + "'.");
             }
-            String[] structParts = i.split("AS");
-            if (structParts.length > 1) {
-                typeStructure = "struct " + structParts[1].trim().replace("(", "{").replace(")", "}");
+
+            String[] nameParts = parts[0].split(" ");
+            if (nameParts.length != 3) {
+                throw new RasdamanException(ExceptionCode.RuntimeError, "Struct type cannot be parsed from rasdaman result, given '" + parts[0] + "'.");
             }
+            String typeName = nameParts[2];
+
+            String typeStructure = "struct " + parts[1].trim().replace("(", "{").replace(")", "}");
             structTypeDefinitions.put(typeName, typeStructure);
         }
     }
 
-    private String parseMarrayName(String marrayLine) {
-        String[] parts = marrayLine.split("CREATE TYPE ");
-        if (parts.length < 2) { //invalid line
-            return "";
+    private String parseMarrayName(String marrayLine) throws RasdamanException {
+        // e.g: CREATE TYPE BoolString AS bool MDARRAY [a0]        
+        String[] parts = marrayLine.split(" ");
+        if (parts.length < 3) {
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Array name cannot be parsed from rasdaman result, given '" + marrayLine + "'.");
         }
-        String[] marrayParts = parts[1].split(" ");
-        if (marrayParts.length < 1) { //invalid line
-            return "";
-        }
-        return marrayParts[0];
+
+        // e.g: BoolString
+        String marrayName = parts[2];
+        return marrayName; 
     }
 
     private String parseMarrayStructure(String marrayLine) throws RasdamanException {
-        String[] parts = marrayLine.split("AS");
-        if (parts.length < 2) { //invalid line
-            return "";
+        // e.g: CREATE TYPE S2_L2A_SOUTH_TYROL_RAS_new7_Array AS S2_L2A_SOUTH_TYROL_RAS_new7_Cell MDARRAY [a0,a1,a2]
+        String[] parts = marrayLine.split(AS);
+        if (parts.length < 2) {
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Array structure cannot be parsed from rasdaman result, given '" + marrayLine + "'.");
         }
         String marrayStructure = parts[1].trim();
         String[] marrayStructureParts = marrayStructure.split("MDARRAY");
-        if (marrayStructureParts.length < 2) { //invalid line
-            return "";
+        if (marrayStructureParts.length < 2) {
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Array structure cannot be parsed from rasdaman result, given '" + marrayLine + "'.");
         }
         //marrayStructureParts[0] is the type or structure name, marrayStructureParts[1] is the dimensionality
         return (expandStructureType(marrayStructureParts[0].trim()) + "," + marrayStructureParts[1].split(",").length);
@@ -434,7 +436,8 @@ public class TypeRegistry {
                             nullValues.add(nullValue);
                         }
                     }
-                    typeRegistry.put(entry.fst, new TypeRegistryEntry(baseType, domainType, nullValues));
+                    TypeRegistryEntry typeRegistryEntry = new TypeRegistryEntry(baseType, domainType, nullValues);
+                    typeRegistry.put(entry.fst, typeRegistryEntry);
                 }
             }
         }
@@ -496,6 +499,8 @@ public class TypeRegistry {
     public static final String SET_TYPE_SUFFIX = "_Set";
     public static final String ARRAY_TYPE_SUFFIX = "_Array";
     public static final String CELL_TYPE_SUFFIX = "_Cell";
+    
+    private static final String AS = " AS ";
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
     private final HashMap<String, String> marrayTypeDefinitions = new HashMap<String, String>();

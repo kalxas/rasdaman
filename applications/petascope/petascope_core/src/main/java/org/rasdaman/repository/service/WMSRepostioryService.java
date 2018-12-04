@@ -149,7 +149,7 @@ public class WMSRepostioryService {
         entityManager.flush();
         entityManager.clear();
 
-        log.debug("WMS Layer: " + layer.getName() + "is persisted to database.");
+        log.debug("WMS Layer: " + layer.getName() + " is persisted to database.");
     }
 
     /**
