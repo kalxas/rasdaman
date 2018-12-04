@@ -141,13 +141,14 @@ check_daemon_status_on_manuall_kill() {
 
 # set the daemon to look for pidfile and newdata every 1 seconds
 # remove the pidfile
-# check if the daemon correctly exists
+# check if the daemon was stopped
 check_pidfile_removed() {
     log "check that daemon stops when pid file is removed..."
 
     watch_daemon_0_5s
     rm "$ingest_json.wcst_import.pid"
-    sleep 1
+    # daemon will stop when pid file is removed, but wait more than 0.5 seconds to make sure it really stopped
+    sleep 2
 
     check_stop
 }
