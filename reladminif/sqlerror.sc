@@ -55,13 +55,13 @@ char* error_message;
 int error_code;
 
 /*
- * Return true if return_code is an error, or false else.
+ * Return true if rc is an error, or false else.
  */
 bool
-is_error_code(int return_code)
+is_error_code(int rc)
 {
-    return return_code > 0 &&
-           return_code <= SQLITE_NOTADB;
+    return rc != SQLITE_OK && rc != SQLITE_ROW && rc != SQLITE_DONE &&
+        rc != SQLITE_NOTICE && rc != SQLITE_WARNING;
 }
 
 /*
