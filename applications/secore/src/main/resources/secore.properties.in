@@ -97,7 +97,7 @@ secoredb.path=
 
 # Configuration to write Secore's logs to secore.log file.
 # need to adapt: no
-log4j.rootLogger=INFO, rollingFile, stdout
+log4j.rootLogger=INFO, rollingFile
 
 # Reduce the log information from Spring
 log4j.logger.org.springframework=WARN

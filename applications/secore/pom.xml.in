@@ -118,10 +118,12 @@
                             <!-- NOTE: as pom.xml is in built directory, it must need to copy all files in src/main/resources and jsp files manually
                                  as maven doesn't do it as before when pom.xml is created inside source directory. -->
                             <tasks>
-                                <gunzip src="@SRC_DIR@/src/main/resources/gml.tar.gz" />
-                                <untar src="@SRC_DIR@/src/main/resources/gml.tar" dest="@BUILD_DIR@/src/main/resources/" />
-                                <delete file="@SRC_DIR@/src/main/resources/gml.tar" />
-                                <copy file="@SRC_DIR@/src/main/resources/gml.tar.gz" tofile="@BUILD_DIR@/src/main/resources/" />
+                                <!-- Use this bash script to untar gml.tar.gz file if necessary -->
+                                <exec executable="/bin/bash">
+                                    <arg value="@SRC_DIR@/untar_gml_file.sh" />
+                                    <arg value="@SRC_DIR@/src/main/resources/gml.tar.gz" />
+                                    <arg value="@BUILD_DIR@/src/main/resources/gml.tar.gz" />
+                                </exec>                               
                                 <copy todir="@SECORE_TARGET_DIR@/def/WEB-INF/jsp/">
                                     <fileset dir="@SRC_DIR@/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
                                 </copy>
