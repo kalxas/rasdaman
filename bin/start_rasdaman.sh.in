@@ -57,8 +57,10 @@ RC_ERROR=1    # something went wrong
 # --- CONSTANTS -----------------------------------------------------
 
 RASMGR_PORT=7001
+
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+[ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 
 # error messages:
 ERROR_PARAM="ERS001 Error: illegal parameter: $1"
@@ -66,37 +68,36 @@ ERROR_PARAM="ERS001 Error: illegal parameter: $1"
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
 
-log()
-{
-  echo "$PROG: $*"
-}
+log()  { echo "$PROG: $@"; }
+logn() { echo -n "$PROG: $@"; }
+error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+check(){ [ $? ] && echo "ok." || echo "failed."; }
 
-logn()
-{
-  echo -n "$PROG: $*"
-}
+sleep --help | grep -q GNU && GNU_SLEEP=true
+get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 
 # give rasserver processes time to disappear (10 second timeout)
 wait_for_rasservers_to_shutdown()
 {
-count=0
-while [ $count -lt 100 ]; do
-    pgrep -f @bindir@rasserver > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        break # no rasservers found, no need to wait more
+    local max_count=$(get_sleep_value 100 10)
+    local sleep_sec=$(get_sleep_value 0.1 1)
+    local count=0
+    while [ $count -lt $max_count ]; do
+        pgrep -f "@bindir@rasserver" -a | grep -q -- "--mgrport $RASMGR_PORT"
+        if [ $? -ne 0 ]; then
+            break # no rasservers found, no need to wait more
+        fi
+        count=$(($count+1))
+        # otherwise, wait 0.1 (or 1) seconds and try again
+        sleep $sleep_sec
+    done
+    if [ $count -eq $max_count ]; then
+        echo
+        log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
+        log "please manually check and kill any still running rasserver processes:"
+        log " 1. list the running rasserver processes: pgrep -f @bindir@rasserver"
+        log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
     fi
-    count=$(($count+1))
-    # otherwise, wait 0.1 seconds and try again
-    # if sleep 0.1 fails (0.1 not supported), try sleep 1
-    sleep 0.1 || sleep 1
-done
-if [ $count -eq 100 ]; then
-    echo
-    log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
-    log "please manually check and kill any still running rasserver processes:"
-    log " 1. list the running rasserver processes: pgrep -f @bindir@rasserver"
-    log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
-fi
 }
 
 # Check if the last executed command is successfull
@@ -107,7 +108,7 @@ check_process()
 {
     # get exit code and pid of the last executed command
     local exit_code=$?
-    pid=$!
+    local pid=$!
     # wait 1 second for the process to establish
     sleep 1
 
@@ -141,7 +142,8 @@ check_process()
 }
 
 # Read the property of a value by input key from input properties file
-get_property_value() {
+get_property_value()
+{
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
     # $2 is the key of a property in this file which needs to get the value of this key.
     local -r properties_file="$1"
@@ -156,33 +158,19 @@ log "starting rasdaman server complex..."
 # --- start rasmgr: -------------------------------------------------
 
 # check if rasmgr exists
-if [ ! -f @bindir@rasmgr ];
-then
-    log "rasmgr does not exist in "@bindir@", rasdaman cannot be started."
-    exit $RC_ERROR
-fi
+[ -f @bindir@rasmgr ] || \
+    error "rasmgr does not exist in @bindir@, rasdaman cannot be started."
 
 # here we want to put all log files
 cd @logdir@
 
 # check if we can actually write anything here
-if [ ! -w . ]
-then
-    log "User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
-    exit $RC_ERROR
-fi
-
-# determine rascontrol login
-if [ -z "$RASLOGIN" ]; then
-    export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
-fi
+[ -w . ] || \
+    error "User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
 
 # check if rasmgr is already running first of all
-pgrep -f @bindir@rasmgr > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-  log "rasdaman is currently running, nothing to do."
-  exit $RC_OK
-fi
+pgrep -f "@bindir@rasmgr --port $RASMGR_PORT" > /dev/null 2>&1 && \
+  { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
 
 # clear previous log file
 rm -f nohup.out
@@ -245,7 +233,7 @@ start_embedded() {
             fuser -s -n tcp "$server_port"   
              # Return 1 means port is available  
             if [[ ! $? -eq 0 ]]; then
-                nohup java -jar "$war_path/""$war_file_name" >> "$application_name.log" & 2>&1
+                nohup java -jar "$war_path/""$war_file_name" >> "$application_name.log" 2>&1 &
                 check_process "$application_name"
             else
                 echo "failed, port '$server_port' is occupied."
