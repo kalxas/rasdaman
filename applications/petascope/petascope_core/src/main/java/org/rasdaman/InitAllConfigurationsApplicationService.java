@@ -77,15 +77,6 @@ public class InitAllConfigurationsApplicationService {
     public static void addLibraryPath(String libraryName, String pathToAdd) throws Exception {
         final String tmpNativeParentFolderPath = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + "/" + libraryName;
         File tmpNativeParentFolder = new File(tmpNativeParentFolderPath);
-        if (tmpNativeParentFolder.exists()) {
-            // Remove this temp directory for the gdal library as it is already loaded in JVM
-            try {
-                FileUtils.deleteDirectory(tmpNativeParentFolder);
-            } catch (IOException ex) {
-                throw new PetascopeException(ExceptionCode.RuntimeError,
-                        "Cannot delete temp native library folder at '" + tmpNativeParentFolder.getCanonicalPath() + "'. Reason: " + ex.getMessage() + ".");
-            }
-        }
         
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         
@@ -115,7 +106,7 @@ public class InitAllConfigurationsApplicationService {
         // NOTE: As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
         Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec("chmod -R 777 " + tmpNativeParentFolder);
+        Process process = rt.exec("chmod -R 777 " + ConfigManager.DEFAULT_PETASCOPE_DIR_TMP);
         process.waitFor();
     }
 

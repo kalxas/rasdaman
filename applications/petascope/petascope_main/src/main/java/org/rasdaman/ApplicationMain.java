@@ -22,12 +22,14 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import org.apache.commons.io.FileUtils;
 import static org.rasdaman.InitAllConfigurationsApplicationService.APPLICATION_PROPERTIES_FILE;
 import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_GDAL_JAVA_DIR;
@@ -71,6 +73,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
     // This one is to determine when application is started inside a external servlet container (e.g: tomcat/webapps)
     // or it is invoked from command line (e.g: java -jar rasdaman.war), default is external.
     public static boolean MIGRATE = false;
+    
+    // NOTE: Only used when running embedded petascope, to set a path to a new directory 
+    // which contains a customized petascope.properties (e.g: /opt/rasdaman/new_etc)
+    private static String petascopeConfigDir = "";
 
     @Resource
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
@@ -88,7 +94,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
         properties.load(resourceStream);
 
         PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        File initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
+        File initialFile = null;
+        if (petascopeConfigDir.isEmpty()) {
+             initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
+        } else {
+            initialFile = new File(petascopeConfigDir + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
+        }
+        
         propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
         initConfigurations(properties);
 
@@ -136,7 +148,16 @@ public class ApplicationMain extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
         // user runs Petascope in the command line to migrate petascopedb
-        MIGRATE = Arrays.asList(args).contains("--migrate");
+        for (String arg : args) {
+            // In case of running java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc
+            if (arg.startsWith(KEY_PETASCOPE_CONF_DIR)) {
+                String value = arg.split("=")[1];
+                petascopeConfigDir = value;
+            } else if (arg.startsWith("--migrate")) {
+                MIGRATE = true;
+            }
+        }
+        
         init();
         
         try {
@@ -159,9 +180,10 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static void initConfigurations(Properties properties) throws Exception {
         String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
         String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
+        final String TMP_DIR = "gdal_java";
         try {
             // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
-            addLibraryPath("gdal_java", GDAL_JAVA_DIR);
+            addLibraryPath(TMP_DIR, GDAL_JAVA_DIR);
             // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
             // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
             CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});            
@@ -170,6 +192,19 @@ public class ApplicationMain extends SpringBootServletInitializer {
                     + "please restart Tomcat containing Petascope to fix this problem. Reason: " + ex.getMessage();
             log.error(errorMessage, ex);
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+        } finally {
+            final String tmpNativeParentFolderPath = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + "/" + TMP_DIR;
+            File tmpNativeParentFolder = new File(tmpNativeParentFolderPath);
+            // Clean anything inside /tmp/rasdaman_petascope/gdal-java/ as it either loaded to memory or failed to start
+            if (tmpNativeParentFolder.exists()) {
+                // Clean content of this temp directory for the gdal library as it is already loaded in JVM
+                try {
+                    FileUtils.cleanDirectory(tmpNativeParentFolder);
+                } catch (IOException ex) {
+                    log.warn("Cannot clear content of temp directory '" + tmpNativeParentFolder.getCanonicalPath() + "',"
+                            + " please remove it manually. Reason:" + ex.getMessage(), ex);
+                }
+            }
         }
 
         // Load properties for Spring, Hibernate from external petascope.properties
