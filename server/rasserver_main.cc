@@ -179,8 +179,10 @@ void crashHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucont
             }
         }
         BLERROR << "rasserver terminated." << endl;
-        exit(sig);
+    } else {
+        while (1) ;
     }
+    exit(sig);
 }
 
 void installSignalHandlers()

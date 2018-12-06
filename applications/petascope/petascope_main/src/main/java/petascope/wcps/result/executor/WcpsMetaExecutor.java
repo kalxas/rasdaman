@@ -27,7 +27,7 @@ import petascope.wcps.result.WcpsMetadataResult;
 
 /**
  *
- * Return Meta value.
+ * Return metadata value.
  * @author <a href="mailto:bphamhuux@jacobs-university.de">Bang Pham Huu</a>
  */
 @Service
@@ -36,17 +36,9 @@ public class WcpsMetaExecutor implements WcpsExecutor<WcpsMetadataResult> {
     public WcpsMetaExecutor() {
     }
 
-    /**
-     * Get result from Meta value.
-     * @param wcpsMetaResult
-     * @return
-     * @throws petascope.exceptions.WCSException
-     */
     @Override
-    public byte[] execute(WcpsMetadataResult wcpsMetaResult) throws WCSException {
-        byte[] result;
-        result = wcpsMetaResult.getResult().getBytes();
-        return result;
+    public byte[] execute(WcpsMetadataResult result) throws WCSException {
+        return result.getResult().getBytes();
     }
 
 }

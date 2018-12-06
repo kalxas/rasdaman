@@ -67,9 +67,6 @@ public class RasUtil {
 
     /**
      * Execute a RasQL query with configured credentials.
-     *
-     * @param query
-     * @throws RasdamanException
      */
     public static Object executeRasqlQuery(String query) throws PetascopeException {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
@@ -180,11 +177,6 @@ public class RasUtil {
     /**
      * Execute a RasQL query with specified credentials, allowing only read
      * transactions.
-     *
-     * @param query
-     * @param username
-     * @param password
-     * @throws RasdamanException
      */
     // FIXME - should return just String?
     public static Object executeRasqlQuery(String query, String username, String password) throws PetascopeException {
@@ -195,7 +187,6 @@ public class RasUtil {
      * Fetch rasdaman version by parsing RasQL ``version()'' output.
      *
      * @return The rasdaman version
-     * @throws RasdamanException
      */
     public static String getRasdamanVersion() throws RasdamanException {
         String version = "";
@@ -219,10 +210,6 @@ public class RasUtil {
 
     /**
      * Deletes an array from rasdaman.
-     *
-     * @param oid
-     * @param collectionName
-     * @throws RasdamanException
      */
     public static void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
         long start = System.currentTimeMillis();
@@ -310,9 +297,6 @@ public class RasUtil {
      * "INSERT INTO PM10_2 VALUES <[0:0,0:0,0:0] 0f> TILING ALIGNED [0:366,
      * 0:500, 0:500]"
      *
-     * @param collectionName
-     * @param values
-     * @param tiling
      * @return the oid of the newly inserted object
      * @throws RasdamanException
      */
@@ -347,14 +331,6 @@ public class RasUtil {
 
     /**
      * Insert an image to an existing collection by decoding file
-     *
-     * @param collectionName
-     * @param filePath
-     * @param mime
-     * @param tiling
-     * @return
-     * @throws petascope.rasdaman.exceptions.RasdamanException
-     * @throws java.io.IOException
      */
     public static Long executeInsertFileStatement(String collectionName, String filePath, String mime,
             String tiling) throws RasdamanException, IOException, PetascopeException {
@@ -405,15 +381,9 @@ public class RasUtil {
      * rasql query e.g: rasql -q 'insert into float_3d values inv_netcdf($1,
      * "vars=values")' -f "float_3d.nc" 'update mr_test1 set mr_test1 assign
      * decode($1)'
-     *
-     * @param orgQuery
-     * @param filePath
-     * @param username
-     * @param password
-     * @throws petascope.rasdaman.exceptions.RasdamanException
-     * @throws java.io.IOException
      */
-    public static void executeInsertUpdateFileStatement(String orgQuery, String filePath, String username, String password) throws RasdamanException, IOException {
+    public static void executeInsertUpdateFileStatement(String orgQuery, String filePath, String username, String password) 
+            throws RasdamanException, IOException {
         long start = System.currentTimeMillis();
         
         String query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q "
@@ -473,9 +443,6 @@ public class RasUtil {
 
     /**
      * Check if the query contains decode() or inv_* to read data from file
-     *
-     * @param query
-     * @return
      */
     public static boolean isDecodeQuery(String query) {
         query = query.toLowerCase().trim();
@@ -502,9 +469,6 @@ public class RasUtil {
     /**
      * Parse the domainIntervals (e.g: [0:20,0:30,10] to list of pairs
      * (lowerBound, upperBound)
-     *
-     * @param domainIntervals
-     * @return
      */
     public static List<Pair<Long, Long>> parseDomainIntervals(String domainIntervals) {
         List<Pair<Long, Long>> results = new ArrayList<>();
@@ -532,10 +496,6 @@ public class RasUtil {
 
     /**
      * Run a rasql query and return results as array of bytes
-     *
-     * @param rasqlQuery
-     * @return
-     * @throws petascope.rasdaman.exceptions.RasdamanException
      */
     public static byte[] getRasqlResultAsBytes(String rasqlQuery) throws RasdamanException, PetascopeException {
         byte[] result = new byte[0];
@@ -563,9 +523,6 @@ public class RasUtil {
     }
     
      /* Get the tiling information from rasql query of a collection.
-     * 
-     * @param coverageId
-     * @return 
      */
     public static String retrieveTilingInfo(String collectionName, long oid) throws PetascopeException {
         String query = "select dbinfo(c) from " + collectionName + " as c where oid(c) = " + oid;

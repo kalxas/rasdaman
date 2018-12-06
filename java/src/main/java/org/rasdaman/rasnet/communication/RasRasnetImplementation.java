@@ -412,6 +412,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             
             byte[] b1 = new byte[1];
             byte[] b4 = new byte[4];
+            byte[] b8 = new byte[8];
             byte endianess = 0;
             String collType = null;
             int numberOfResults = 0;
@@ -469,11 +470,19 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                             roid = new RasOID(oid);
 
                             // read size of binData
-                            while (in.available() < 4) ;
-                            currentChunkSize -= in.read(b4);
+                            while (in.available() < 8) ;
+                            currentChunkSize -= in.read(b8);
 
-                            arraySize = RasUtils.ubytesToInt(b4, endianess);
+                            long tmpArraySize = RasUtils.ubytesToLong(b8, endianess);
+                            if (tmpArraySize > Integer.MAX_VALUE) {
+                                String msg = "Cannot handle array result from rasdaman of size " + tmpArraySize +
+                                        " bytes; maximum supported size is " + Integer.MAX_VALUE + " bytes";
+                                Debug.talkCritical("RasNetImplementation.queryRequest: " + msg);
+                                Debug.leaveVerbose("RasNetImplementation.queryRequest: " + msg);
+                                throw new RasClientInternalException("RasNetImplementation", "queryRequest()", msg);
+                            }
 
+                            arraySize = (int) tmpArraySize;
                             arrayData = new byte[arraySize];
                             totalReadBytes = 0;
                             currentlyReadBytes = 0;

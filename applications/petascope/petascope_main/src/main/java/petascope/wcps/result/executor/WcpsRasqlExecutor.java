@@ -63,17 +63,8 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
     private GmlCoverageBuilder gmlCoverageBuilder;
 
     public WcpsRasqlExecutor() {
-
     }
 
-    /**
-     * Execute the Rasql query and return result.
-     *
-     * @param wcpsResult
-     * @return
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
-     */
     @Override
     public byte[] execute(WcpsResult wcpsResult) throws PetascopeException, SecoreException {
         // mimeType is a full mime, e.g: application/gml+xml, image/png,...
@@ -185,12 +176,6 @@ public class WcpsRasqlExecutor implements WcpsExecutor<WcpsResult> {
 
     /**
      * Build a GML coverage in application/gml+xml as a GetCoverage request
-     *
-     * @param wcpsCoverageMetadata
-     * @param arrayData
-     * @return
-     * @throws PetascopeException
-     * @throws SecoreException
      */
     private byte[] buildGmlCovResult(WcpsCoverageMetadata wcpsCoverageMetadata, byte[] arrayData) throws PetascopeException, SecoreException {
         // Run the rasql query to get the data and put in <tupleList ts="," cs="> ... </tupleList>        

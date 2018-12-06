@@ -25,7 +25,7 @@ import java.util.List;
 import petascope.util.MIMEUtil;
 
 /**
- * Bean holding the response from executing a request operation.
+ * Holds the response from executing a request operation.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
@@ -44,28 +44,20 @@ public class Response {
     private String coverageID = DEFAULT_COVERAGE_ID;
 
     public Response() {
-
-    }
-
-    public Response(List<byte[]> datas, String formatType, String coverageID) {
-        this.datas = datas;
-        this.formatType = formatType;
-        this.coverageID = coverageID;
-    }
-    
-    public Response(List<byte[]> datas, int httpCode) {
-        this.datas = datas;
-        this.httpCode = httpCode;
     }
     
     public Response(List<byte[]> datas, String formatType) {
         this.datas = datas;
         this.formatType = formatType;
     }
+
+    public Response(List<byte[]> datas, String formatType, String coverageID) {
+        this(datas, formatType);
+        this.coverageID = coverageID;
+    }
     
     public Response(List<byte[]> datas, String formatType, int httpCode) {
-        this.datas = datas;
-        this.formatType = formatType;
+        this(datas, formatType);
         this.httpCode = httpCode;
     }
 
@@ -76,7 +68,15 @@ public class Response {
     // data (NOTE: in case of multipart, this can contain mixing of text: gml and binary: e.g: tiff and so on)
     public List<byte[]> getDatas() {
         return datas;
-    }        
+    }
+    
+    public boolean hasDatas() {
+        return datas != null && !datas.isEmpty();
+    }
+    
+    public boolean isMultipart() {
+        return hasDatas() && datas.size() > 1;
+    }
     
     public void setFormatType(String formatType) {
         this.formatType = formatType;

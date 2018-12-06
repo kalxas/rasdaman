@@ -65,29 +65,18 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     @Autowired
     private CoverageAliasRegistry coverageAliasRegistry;
 
-    /**
-     * Constructor for the class.
-     *
-     */
     public KVPWCSProcessCoverageHandler() {
-
     }
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
-
     }
 
     /**
      * Handles a general WCPS request and delegates the execution to the
      * corresponding internal services based on the version of the request.
      *
-     * @param kvpParameters
      * @return the result of the processing as a Response object
-     * @throws PetascopeException
-     * @throws WCSException
-     * @throws SecoreException
-     * @throws petascope.exceptions.WMSException
      */
     @Override
     public Response handle(Map<String, String[]> kvpParameters) throws PetascopeException, WCSException, SecoreException, WMSException {
@@ -128,9 +117,6 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
     
     /**
      * Build a wcpsQuery which will return a Rasql query
-     * @param wcpsQuery 
-     * @return  
-     * @throws petascope.exceptions.PetascopeException 
      */
     public String buildRasqlQuery(String wcpsQuery) throws WCPSException, PetascopeException {
         VisitorResult visitorResult = wcpsTranslator.translate(wcpsQuery);
@@ -142,13 +128,6 @@ public class KVPWCSProcessCoverageHandler extends KVPWCSAbstractHandler {
 
     /**
      * Process a WCPS query and returns the Response
-     *
-     * @param wcpsQuery
-     * @return
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.WCSException
-     * @throws petascope.exceptions.SecoreException
-     * @throws petascope.exceptions.WMSException
      */
     public Response processQuery(final String wcpsQuery) throws PetascopeException, WCSException, SecoreException, WMSException {
         Map<String, String[]> kvpParameters = new HashMap<String, String[]>() {

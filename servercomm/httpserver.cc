@@ -646,10 +646,10 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
         // vector with mdds in transfer encoding
         vector<HttpServer::MDDEncoding*> transferredMDDs;
         Tile* resultTile = NULL; // temporary tile with the whole MDD
-        unsigned int i;
+        size_t i;
         unsigned short objType;
         r_OId* roid = NULL;
-        int totalLength;
+        size_t totalLength;
         long l;
         ClientTblElt* context = NULL;
         // server endianess
@@ -826,27 +826,29 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
                 // prepare for transfer
                 // calculate total length of the result array
-                for (i = 0; i < static_cast<unsigned int>(numMDD); i++)
+
+                // for the type of the collection
+                totalLength += strlen(globalHTTPSetTypeStructure) + 1;
+                for (i = 0; i < static_cast<size_t>(numMDD); i++)
                 {
-                    totalLength += static_cast<int>(strlen(resultTypes[i])) + 1;
-                    totalLength += static_cast<int>(strlen(resultDomains[i])) + 1;
+                    totalLength += strlen(resultTypes[i]) + 1;
+                    totalLength += strlen(resultDomains[i]) + 1;
                     // OID might be NULL
                     if (resultOIDs[i].get_string_representation() != NULL)
                     {
-                        totalLength += static_cast<int>(strlen(resultOIDs[i].get_string_representation())) + 1;
+                        totalLength += strlen(resultOIDs[i].get_string_representation()) + 1;
                     }
                     else
                     {
                         totalLength++;
                     }
-                    totalLength += static_cast<int>(resultTiles[i]->getSize());
-                    totalLength += 4;
+                    totalLength += sizeof(r_Bytes);
+                    totalLength += resultTiles[i]->getSize();
                 }
-                // for the type of the collection
-                totalLength += static_cast<int>(strlen(globalHTTPSetTypeStructure)) + 1;
 
                 // allocate the result
-                result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+                LDEBUG << "allocating " << totalLength;
+                result = static_cast<char*>(mymalloc(totalLength));
                 currentPos = result;
                 // fill it with data
                 *currentPos = 1; // result is MDD collection
@@ -856,16 +858,21 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 // type of the collection
                 strcpy(currentPos, globalHTTPSetTypeStructure);
                 currentPos += strlen(globalHTTPSetTypeStructure) + 1;
+
                 encodeLong(currentPos, &numMDD);
                 currentPos += sizeof(r_Long);
+
                 // encode MDDs
-                for (i = 0; i < static_cast<unsigned int>(numMDD); i++)
+                for (i = 0; i < static_cast<size_t>(numMDD); i++)
                 {
-                    r_Long dummy = static_cast<r_Long>(resultTiles[i]->getSize());
+                    r_Bytes dummy = resultTiles[i]->getSize();
+
                     strcpy(currentPos, resultTypes[i]);
                     currentPos += strlen(resultTypes[i]) + 1;
+
                     strcpy(currentPos, resultDomains[i]);
                     currentPos += strlen(resultDomains[i]) + 1;
+
                     // OID might be NULL
                     if (resultOIDs[i].get_string_representation() != NULL)
                     {
@@ -877,14 +884,14 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         *currentPos = '\0';
                         currentPos++;
                     }
-                    encodeLong(currentPos, &dummy);
-                    currentPos += sizeof(r_Long);
-                    memcpy(currentPos, resultTiles[i]->getContents(), static_cast<size_t>(dummy));
+                    *reinterpret_cast<r_Bytes*>(currentPos) = dummy;
+                    currentPos += sizeof(r_Bytes);
+                    memcpy(currentPos, resultTiles[i]->getContents(), dummy);
                     currentPos += dummy;
                 }
 
                 // delete all the temporary storage
-                for (i = 0; i < static_cast<unsigned int>(numMDD); i++)
+                for (i = 0; i < static_cast<size_t>(numMDD); i++)
                 {
                     delete resultTiles[i];
                     free(resultTypes[i]);
@@ -905,7 +912,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 resultLengths.reserve(20);
 
                 // we have to get the type of the collection
-                totalLength += static_cast<int>(strlen(resultError.typeStructure)) + 1;
+                totalLength += strlen(resultError.typeStructure) + 1;
 
                 // then we have to get all elements in the collection
                 unsigned short dummyRes;
@@ -924,15 +931,15 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                     resultElems.push_back(buffer);
                     resultLengths.push_back(bufferSize);
                     // length of data
-                    totalLength += static_cast<int>(bufferSize);
+                    totalLength += bufferSize;
                     // this will be length of type
                     totalLength += 1;
                     // size of each element
-                    totalLength += static_cast<int>(sizeof(r_Long));
+                    totalLength += sizeof(r_Long);
                 }
 
                 // allocate the result
-                result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+                result = static_cast<char*>(mymalloc(totalLength));
                 currentPos = result;
                 // fill it with data
                 *currentPos = 2; // result is collection of other types
@@ -975,7 +982,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 totalLength = 7; // total length of result in bytes
                 // the result collection is empty. It is returned as an empty MDD collection.
                 // allocate the result
-                result = static_cast<char*>(mymalloc(static_cast<unsigned int>(totalLength)));
+                result = static_cast<char*>(mymalloc(totalLength));
                 currentPos = result;
                 // fill it with data
                 *currentPos = 1; // result is MDD collection
@@ -995,7 +1002,8 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             else if (execResult == 4 || execResult == 5)
             {
                 // parse error or execution error
-                returnValue = encodeError(result, resultError.errorNo, resultError.lineNo, resultError.columnNo, resultError.token);
+                returnValue = encodeError(result, resultError.errorNo, 
+                    resultError.lineNo, resultError.columnNo, resultError.token);
 
             }
             else
@@ -1017,11 +1025,11 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             valid = false;
             while (!transferredMDDs.empty())
             {
-                LINFO << "Freeing old transfer structures...";
+                NNLINFO << "Freeing old transfer structures... ";
                 free(transferredMDDs.back()->binData);
                 delete(transferredMDDs.back());
                 transferredMDDs.pop_back();
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK;
             }
 
             // do we have an insert statement?
@@ -1059,13 +1067,15 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         for (i = 0; i < 3; i++)
                         {
                             // delete spaces, tabs  ...
-                            while ((*endPtr == ' ' || *endPtr == '\t' || *endPtr == '\r' || *endPtr == '\n') && *endPtr != '\0')
+                            while ((*endPtr == ' ' || *endPtr == '\t' || *endPtr == '\r' || 
+                                    *endPtr == '\n') && *endPtr != '\0')
                             {
                                 endPtr++;
                             }
                             startPtr = endPtr;
                             // parse next word
-                            while (*endPtr != ' ' && *endPtr != '\t' && *endPtr != '\r' && *endPtr != '\n' && *endPtr != '\0')
+                            while (*endPtr != ' ' && *endPtr != '\t' && *endPtr != '\r' && 
+                                   *endPtr != '\n' && *endPtr != '\0')
                             {
                                 endPtr++;
                             }
@@ -1127,7 +1137,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                             default:
                                 errNo = 350;
                             }
-                            LERROR << "Error: while inserting MDD";
+                            LERROR << "Failed inserting MDD";
                         }
 
                         returnValue = encodeError(result, errNo, 0, 0, transferredMDDs.back()->objectTypeName);
@@ -1135,14 +1145,12 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         //clean up
                         while (!transferredMDDs.empty())
                         {
-                            LINFO << "Freeing old transfer structures...";
+                            NNLINFO << "Freeing old transfer structures... ";
                             free(transferredMDDs.back()->binData);
                             delete(transferredMDDs.back());
                             transferredMDDs.pop_back();
-                            LINFO << MSG_OK;
+                            BLINFO << MSG_OK;
                         }
-
-
 
                         return returnValue;
                     }
@@ -1221,7 +1229,8 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 // parsing or execution error
                 else if (execResult == 2 || execResult == 3)
                 {
-                    returnValue = encodeError(result, returnStructure.errorNo, returnStructure.lineNo, returnStructure.columnNo, returnStructure.token);
+                    returnValue = encodeError(result, returnStructure.errorNo, 
+                        returnStructure.lineNo, returnStructure.columnNo, returnStructure.token);
                 }
                 else
                 {
@@ -1246,10 +1255,10 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
             // prepare returnValue
             totalLength = 9; // total length of result in bytes
-            totalLength += static_cast<int>(strlen(roid->get_system_name())) + 1;
-            totalLength += static_cast<int>(strlen(roid->get_base_name())) + 1;
+            totalLength += strlen(roid->get_system_name()) + 1;
+            totalLength += strlen(roid->get_base_name()) + 1;
             // allocate the result
-            result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+            result = static_cast<char*>(mymalloc(totalLength));
             currentPos = result;
             // fill it with data
             *currentPos = 4; // result is a OID
@@ -1262,7 +1271,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             // base
             strcpy(currentPos, roid->get_base_name());
             currentPos += strlen(roid->get_base_name()) + 1;
-
 
             context = getClientContext(callingClientId);
             // server endianess
@@ -1299,11 +1307,11 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             valid = false;
             while (!transferredMDDs.empty())
             {
-                LINFO << "Freeing old transfer structures...";
+                NNLINFO << "Freeing old transfer structures... ";
                 free(transferredMDDs.back()->binData);
                 delete(transferredMDDs.back());
                 transferredMDDs.pop_back();
-                LINFO << MSG_OK;
+                BLINFO << MSG_OK;
             }
 
             // do we have an insert statement?
@@ -1341,13 +1349,15 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         for (i = 0; i < 3; i++)
                         {
                             // delete spaces, tabs  ...
-                            while ((*endPtr == ' ' || *endPtr == '\t' || *endPtr == '\r' || *endPtr == '\n') && *endPtr != '\0')
+                            while ((*endPtr == ' ' || *endPtr == '\t' || *endPtr == '\r' || 
+                                    *endPtr == '\n') && *endPtr != '\0')
                             {
                                 endPtr++;
                             }
                             startPtr = endPtr;
                             // parse next word
-                            while (*endPtr != ' ' && *endPtr != '\t' && *endPtr != '\r' && *endPtr != '\n' && *endPtr != '\0')
+                            while (*endPtr != ' ' && *endPtr != '\t' && *endPtr != '\r' && 
+                                   *endPtr != '\n' && *endPtr != '\0')
                             {
                                 endPtr++;
                             }
@@ -1417,11 +1427,11 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         //clean up
                         while (!transferredMDDs.empty())
                         {
-                            LINFO << "Freeing old transfer structures...";
+                            NNLINFO << "Freeing old transfer structures... ";
                             free(transferredMDDs.back()->binData);
                             delete(transferredMDDs.back());
                             transferredMDDs.pop_back();
-                            LINFO << MSG_OK;
+                            BLINFO << MSG_OK;
                         }
 
                         return returnValue;
@@ -1594,25 +1604,25 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                     // calculate total length of the result array
                     for (i = 0; i < static_cast<unsigned int>(numMDD); i++)
                     {
-                        totalLength += static_cast<int>(strlen(resultTypes[i])) + 1;
-                        totalLength += static_cast<int>(strlen(resultDomains[i])) + 1;
+                        totalLength += strlen(resultTypes[i]) + 1;
+                        totalLength += strlen(resultDomains[i]) + 1;
                         // OID might be NULL
                         if (resultOIDs[i].get_string_representation() != NULL)
                         {
-                            totalLength += static_cast<int>(strlen(resultOIDs[i].get_string_representation())) + 1;
+                            totalLength += strlen(resultOIDs[i].get_string_representation()) + 1;
                         }
                         else
                         {
                             totalLength++;
                         }
-                        totalLength += static_cast<int>(resultTiles[i]->getSize());
-                        totalLength += 4;
+                        totalLength += resultTiles[i]->getSize();
+                        totalLength += sizeof(r_Bytes);
                     }
                     // for the type of the collection
-                    totalLength += static_cast<int>(strlen(globalHTTPSetTypeStructure)) + 1;
+                    totalLength += strlen(globalHTTPSetTypeStructure) + 1;
 
                     // allocate the result
-                    result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+                    result = static_cast<char*>(mymalloc(totalLength));
                     currentPos = result;
                     // fill it with data
                     *currentPos = 1; // result is MDD collection
@@ -1627,7 +1637,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                     // encode MDDs
                     for (i = 0; i < static_cast<unsigned int>(numMDD); i++)
                     {
-                        r_Long dummy = static_cast<r_Long>(resultTiles[i]->getSize());
+                        r_Bytes dummy = resultTiles[i]->getSize();
                         strcpy(currentPos, resultTypes[i]);
                         currentPos += strlen(resultTypes[i]) + 1;
                         strcpy(currentPos, resultDomains[i]);
@@ -1643,9 +1653,9 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                             *currentPos = '\0';
                             currentPos++;
                         }
-                        encodeLong(currentPos, &dummy);
-                        currentPos += sizeof(r_Long);
-                        memcpy(currentPos, resultTiles[i]->getContents(), static_cast<size_t>(dummy));
+                        *reinterpret_cast<r_Bytes*>(currentPos) = dummy;
+                        currentPos += sizeof(r_Bytes);
+                        memcpy(currentPos, resultTiles[i]->getContents(), dummy);
                         currentPos += dummy;
                     }
 
@@ -1690,15 +1700,15 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                         resultElems.push_back(buffer);
                         resultLengths.push_back(bufferSize);
                         // length of data
-                        totalLength += static_cast<int>(bufferSize);
+                        totalLength += bufferSize;
                         // this will be length of type
                         totalLength += 1;
                         // size of each element
-                        totalLength += static_cast<int>(sizeof(r_Long));
+                        totalLength += sizeof(r_Long);
                     }
 
                     // allocate the result
-                    result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+                    result = static_cast<char*>(mymalloc(totalLength));
                     currentPos = result;
                     // fill it with data
                     *currentPos = 2; // result is collection of other types
@@ -1741,7 +1751,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                     totalLength = 7; // total length of result in bytes
                     // the result collection is empty. It is returned as an empty MDD collection.
                     // allocate the result
-                    result = static_cast<char*>(mymalloc(static_cast<size_t>(totalLength)));
+                    result = static_cast<char*>(mymalloc(totalLength));
                     currentPos = result;
                     // fill it with data
                     *currentPos = 1; // result is MDD collection
@@ -1761,7 +1771,8 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 else if (execResult == 4 || execResult == 5)
                 {
                     // parse error or execution error
-                    returnValue = encodeError(result, resultError.errorNo, resultError.lineNo, resultError.columnNo, resultError.token);
+                    returnValue = encodeError(result, resultError.errorNo, 
+                        resultError.lineNo, resultError.columnNo, resultError.token);
                 }
                 else
                 {

@@ -83,6 +83,38 @@ public final class RasUtils implements RasCommDefs {
     }
 
     /**
+     * This method is used for turning up to 8 unsigned bytes into signed integers.
+     *
+     * @param uBytes one to eight Bytes which are interpreted as an unsigned Integer
+     * @param endianess determines the order of the bytes: 0 = bigendian, 1 = little endian
+     */
+    public static long ubytesToLong(byte[] uBytes, byte endianess) {
+        long  tmpi;
+        byte  tmpb;
+        long  retval = 0;
+
+        for (int i = 0; i < uBytes.length; i++) {
+            if (endianess == BIG_ENDIAN) {
+                tmpb = uBytes[uBytes.length - i - 1];
+            } else {
+                tmpb = uBytes[i];
+            }
+
+            tmpi = 0;
+            /* Byte < 0 */
+            if ((int)tmpb < 0) {
+                tmpi = 256 + tmpb;
+            } else {
+                tmpi = tmpb;
+            }
+
+            tmpi <<= (i * 8);
+            retval += tmpi;
+        }
+        return retval;
+    }
+
+    /**
      * Reads characters from a stream until a '\0' character is reached.
      *
      * @param in BufferedInputStream to be read from ( must have been initialized before! )

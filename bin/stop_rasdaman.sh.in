@@ -160,6 +160,7 @@ wait_for_rasservers_to_shutdown
 # --- stop rasmgr -------------------------------------------------
 
 # finally shut down the server manager
+logn "  "
 @bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
 
 log "done."

@@ -23,13 +23,14 @@ package petascope.rasql.handlers.kvp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import petascope.core.response.Response;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import petascope.core.KVPSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import static petascope.core.KVPSymbols.KEY_PASSWORD;
@@ -44,9 +45,9 @@ import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 
 /**
- * Class which handle WCS 2.0.1 DescribeCoverage request NOTE: 1 coverage can
- * have multiple coverageIds e.g: coverageIds=test_mr,test_irr_cube_2 the XML
- * result is concatenated from both GML results.
+ * Class to handle KVP rasql requests of the format:
+ * 
+ * <code>query=<q>&username=<u>&password=<p></code>
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
@@ -57,17 +58,15 @@ public class KVPRasqlHandler implements IKVPHandler {
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
-        String[] userName = kvpParameters.get(KVPSymbols.KEY_USERNAME);
-        String[] password = kvpParameters.get(KVPSymbols.KEY_PASSWORD);
-        String[] query = kvpParameters.get(KVPSymbols.KEY_QUERY);
-
-        if (userName == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KEY_USERNAME + ".");
-        } else if (password == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KEY_PASSWORD + ".");
-        } else if (query == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + KEY_QUERY + ".");
-        }
+        checkRequiredParameter(kvpParameters, KEY_USERNAME);
+        checkRequiredParameter(kvpParameters, KEY_PASSWORD);
+        checkRequiredParameter(kvpParameters, KEY_QUERY);
+    }
+    
+    private void checkRequiredParameter(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
+        String[] value = kvpParameters.get(key);
+        if (value == null)
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Missing required parameter: " + key + ".");
     }
 
     @Override
@@ -80,7 +79,8 @@ public class KVPRasqlHandler implements IKVPHandler {
         String query = kvpParameters.get(KEY_QUERY)[0];
 
         // check if user wants to upload file to server by find decode() or inv_*() in the requested query
-        String filePath = kvpParameters.get(KEY_UPLOADED_FILE_VALUE) == null ? null : kvpParameters.get(KEY_UPLOADED_FILE_VALUE)[0];
+        String[] filePathValue = kvpParameters.get(KEY_UPLOADED_FILE_VALUE);
+        String filePath = filePathValue == null ? null : filePathValue[0];
 
         // select, delete, update without decode()
         Response response = this.executeQuery(userName, password, query, filePath);
@@ -90,9 +90,6 @@ public class KVPRasqlHandler implements IKVPHandler {
 
     /**
      * Return the value of the requested key
-     *
-     * @param key
-     * @return
      */
     private String getValue(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
         String values[] = kvpParameters.get(key);
@@ -104,7 +101,7 @@ public class KVPRasqlHandler implements IKVPHandler {
     }
 
     /**
-     * Execute rasql query.
+     * Execute rasql query and return response.
      *
      * @param username rasdaman username
      * @param password rasdaman password
@@ -114,55 +111,53 @@ public class KVPRasqlHandler implements IKVPHandler {
     private Response executeQuery(String username, String password, String query, String filePath) throws PetascopeException {
         Response response = new Response();
         response.setFormatType(MIMEUtil.MIME_TEXT);
+        
         try {
-            Object tmpResult = null;
-
             if (filePath == null) {
-                // no decode() or inv_*() in rasql query
-                if (RasUtil.isSelectQuery(query)) {
-                    // no need to open transaction with "select" query
-                    tmpResult = RasUtil.executeRasqlQuery(query, username, password, false);
-                } else {
-                    // drop, delete need to open transacation
-                    tmpResult = RasUtil.executeRasqlQuery(query, username, password, true);
-                }
+                boolean rw = !RasUtil.isSelectQuery(query);
+                Object rasjResult = RasUtil.executeRasqlQuery(query, username, password, rw);
+                response.setDatas(getResultDatas(rasjResult));
             } else {
-                // decode() or inv_*() in rasql query
+                // decode() or inv_*() in rasql query, no result returned
                 RasUtil.executeInsertUpdateFileStatement(query, filePath, username, password);
-            }
-            RasQueryResult queryResult = new RasQueryResult(tmpResult);
-
-            byte[] bytes = null;
-            if (!queryResult.getScalars().isEmpty()) {
-                bytes = queryResult.getScalars().get(0).getBytes();
-            } else if (!queryResult.getMdds().isEmpty()) {
-                for (byte[] byteData : queryResult.getMdds()) {
-                    bytes = ArrayUtils.addAll(bytes, byteData);
-                }
-            }
-            
-            // If no result is returned from rasdaman, nothing to write to client
-            if (bytes != null) {
-                response.setDatas(Arrays.asList(bytes));
             }
         } catch (IOException ex) {
             throw new PetascopeException(ExceptionCode.IOConnectionError,
                     "Failed writing result to output stream", ex);
         } finally {
-            // remove the uploaded filePath after insert/update to collection
-            if (filePath != null) {
-                File file = new File(filePath);
-                if (file.delete()) {
-                    log.debug("Removed the uploaded file: " + filePath);
-                } else {
-                    log.error("Failed removing uploaded file: " + filePath);
-                }
-            }
+            removeUploadedFile(filePath);
         }
 
         log.debug("Rasql query finished successfully.");
-
         return response;
+    }
+    
+    private List<byte[]> getResultDatas(Object rasjResult) {
+        RasQueryResult result = new RasQueryResult(rasjResult);
+        if (!result.getScalars().isEmpty()) {
+            List<byte[]> ret = new ArrayList<>();
+            for (String res: result.getScalars())
+                ret.add(res.getBytes());
+            return ret;
+        } else if (!result.getMdds().isEmpty()) {
+            return result.getMdds();
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Remove the uploaded filePath after insert/update to collection
+     */
+    private void removeUploadedFile(String filePath) {
+        if (filePath != null) {
+            File file = new File(filePath);
+            if (file.delete()) {
+                log.debug("Removed uploaded file: " + filePath);
+            } else {
+                log.error("Failed removing uploaded file: " + filePath);
+            }
+        }
     }
 
 }

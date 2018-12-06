@@ -93,8 +93,8 @@ public abstract class AbstractController {
     // If URL contains this parameter (e.g: ?logout) then remove the logged in session and returns the login.jsp page
     public static final String LOGOUT_PARAM = "logout";
     
-    // When result_bytes of all processed requests > this number, call the gabarge co
-    private static final Long GARBAGE_COLLECTION_THRESHOLD = 104857600l;
+    // When result_bytes of all processed requests > this number (500MB), call the gabarge co
+    private static final Long GARBAGE_COLLECTION_THRESHOLD = 500000000l;
     // All the returned bytes to clients up to this current request
     private static Long totalReturnedBytes = 0l;
     
@@ -108,22 +108,12 @@ public abstract class AbstractController {
     }
 
     /**
-     * Handler GET request
-     *
-     * @param httpServletRequest
-     * @throws WCSException
-     * @throws IOException
-     * @throws PetascopeException
-     * @throws SecoreException
-     * @throws Exception
+     * Handler for GET requests.
      */
     abstract protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception;
 
     /**
-     * From the GET request query string to map of keys, values which is encoded
-     * @param queryString
-     * @return
-     * @throws Exception 
+     * From the GET request query string to map of key / values which is encoded
      */
     protected Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
         if (queryString == null) {
@@ -141,10 +131,6 @@ public abstract class AbstractController {
     /**
      * From the POST request query string to a map of keys, values which is
      * encoded or raw.
-     *
-     * @param queryString
-     * @return
-     * @throws Exception
      */
     protected Map<String, String[]> buildPostRequestKvpParametersMap(String queryString) throws Exception {
         if (queryString == null) {
@@ -165,10 +151,6 @@ public abstract class AbstractController {
 
     /**
      * Build the map of keys values for both GET/POST request
-     *
-     * @param queryString
-     * @return
-     * @throws Exception
      */
     private Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
@@ -256,7 +238,6 @@ public abstract class AbstractController {
      * Write the uploaded file from client and store to a folder in server
      * @param uploadedFile uploaded File object
      * @return the stored file path in server
-     * @throws petascope.exceptions.PetascopeException
      */
     protected String storeUploadFileOnServer(MultipartFile uploadedFile) throws PetascopeException {
         // It is a upload file request
@@ -264,7 +245,8 @@ public abstract class AbstractController {
         try {
             bytes = uploadedFile.getBytes();
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot get data from uploaded file. Reason: " + ex.getMessage() + ".", ex);
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                    "Cannot get data from uploaded file. Reason: " + ex.getMessage() + ".", ex);
         }
         // Check if temp folder exist first
         File folderPath = new File(UPLOADED_FILE_DIR_TMP);
@@ -277,7 +259,8 @@ public abstract class AbstractController {
         try {
             Files.write(path, bytes);
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot store uploaded file to '" + filePath + "'. Reason: " + ex.getMessage() + ".", ex);
+            throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                    "Cannot store uploaded file to '" + filePath + "'. Reason: " + ex.getMessage() + ".", ex);
         }
         
         log.debug("Uploaded file to '" + filePath + "'.");
@@ -287,12 +270,8 @@ public abstract class AbstractController {
 
     /**
      * Validate all the strict requirement parameters.
-     *
-     * @param kvpParameters
-     * @throws PetascopeException
      */
     private void validateRequiredParameters(Map<String, String[]> kvpParameters) throws PetascopeException {
-
         // Do some check requirements
         String[] service = kvpParameters.get(KVPSymbols.KEY_SERVICE);
         String[] version = kvpParameters.get(KVPSymbols.KEY_VERSION);
@@ -310,21 +289,11 @@ public abstract class AbstractController {
     /**
      * Depend on the requested service then pass the map of keys, values
      * parameters to the corresponding handler
-     *
-     * @param kvpParameters
-     * @throws IOException
-     * @throws PetascopeException
-     * @throws petascope.exceptions.SecoreException
-     * @throws petascope.exceptions.WMSException
      */
     abstract protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, SecoreException, WMSException;
 
     /**
      * Parse the POST request body from the input HTTP request
-     *
-     * @param httpServletRequest
-     * @return
-     * @throws java.io.IOException
      */
     protected String getPOSTRequestBody(HttpServletRequest httpServletRequest) throws IOException {
         String requestBody;
@@ -336,91 +305,111 @@ public abstract class AbstractController {
             // case 2: a POST XML, SOAP body
             requestBody = IOUtils.toString(httpServletRequest.getReader());
         }
-
         return requestBody;
     }
 
     /**
      * Write the response as text or binary to the requesting client.
-     *
-     * @param response
-     * @throws java.io.IOException
-     * @throws petascope.exceptions.PetascopeException
      */
     protected void writeResponseResult(Response response) throws IOException, PetascopeException {
-        OutputStream outputStream = httpServletResponse.getOutputStream();
-        // This one is needed as normally it write the result with HTTP:200, but for SOAP case when error message is enclosed in envelope, it can return HTTP:400, 404
+        // This one is needed as normally it write the result with HTTP:200, 
+        // but for SOAP case when error message is enclosed in envelope, it can return HTTP:400, 404
         httpServletResponse.setStatus(response.getHTTPCode());
-
+        addFileNameToHeader(response);
+        OutputStream os = httpServletResponse.getOutputStream();
+        try {
+            String mimeType = getMimeType(response);
+            if (!response.hasDatas())
+                writeEmptyResponse(os);
+            else if (response.isMultipart())
+                writeMultipartResponse(response, mimeType, os);
+            else
+                writeSinglepartResponse(response, mimeType, os);
+        } finally {
+            IOUtils.closeQuietly(os);
+            runGarbageCollectionIfNeeded(response);
+            // Release the data occupied by byte[] right now
+            response = null;
+        }
+    }
+    
+    protected String getMimeType(Response response) {
         String mimeType = response.getFormatType();
-        if (!response.getCoverageID().equals(Response.DEFAULT_COVERAGE_ID)) {
-            String fileName = response.getCoverageID() + "." + MIMEUtil.getFileNameExtension(mimeType);
-            httpServletResponse.setHeader("File-name", fileName);
-            // If multipart then must download file from Browser
-            if (response.getDatas() != null && response.getDatas().size() > 1) {
+        // To display application/gml+xml in browser, change in HTTP response to text/xml
+        if (mimeType.equals(MIMEUtil.MIME_GML)) {
+            mimeType = MIMEUtil.MIME_XML;
+        }
+        return mimeType;
+    }
+    
+    protected void addFileNameToHeader(Response response) throws IOException, PetascopeException {
+        if (response.getCoverageID().equals(Response.DEFAULT_COVERAGE_ID))
+            return;
+        
+        String mimeType = response.getFormatType();
+        String fileName = response.getCoverageID() + "." + MIMEUtil.getFileNameExtension(mimeType);
+        httpServletResponse.setHeader("File-name", fileName);
+        // If multipart then must download file from Browser
+        if (response.hasDatas()) {
+            if (response.isMultipart()) {
                 httpServletResponse.setHeader("Content-disposition", "attachment; filename=" + fileName);
-            } else if (response.getCoverageID() != null) {
+            } else {
                 // If a GetCoverage request or a processCoverage request with coverageId result, then download the result with file name
                 // e.g: query=for c in (test_mr) return encode(c, "tiff"), then download file: test_mr.tiff
                 // NOTE: Content-Disposition: attachment; will download file in WebBrowser instead of trying to display (GML/PNG/JPEG) type.
                 httpServletResponse.setHeader("Content-disposition", "inline; filename=" + fileName);                
             }
         }
-
-        // NOTE: to display application/gml+xml in browser, change in HTTP response to text/xml
-        if (mimeType.equals(MIMEUtil.MIME_GML)) {
-            mimeType = MIMEUtil.MIME_XML;
+    }
+    
+    /**
+     * Write single result to output stream os. Does not do any checks, assumes
+     * that response contains at least one result.
+     */
+    protected void writeSinglepartResponse(Response response, String mimeType, OutputStream os) throws IOException {
+        httpServletResponse.setContentType(mimeType);
+        IOUtils.write(response.getDatas().get(0), os);
+    }
+    
+    /**
+     * Write multiple results to output stream os. Does not do any checks, assumes
+     * that response contains at least one result.
+     */
+    protected void writeMultipartResponse(Response response, String mimeType, OutputStream os) throws IOException {
+        MultipartResponse multi;
+        multi = new MultipartResponse(httpServletResponse);
+        for (byte[] data : response.getDatas()) {
+            multi.startPart(mimeType);
+            IOUtils.write(data, os);
+            multi.endPart();
         }
-
-        try {
-            if (response.getDatas() == null) {
-                // In wcst_import like deleteCoverage, it just returns empty string as a success
-                IOUtils.write("", outputStream);
-            } else {
-                // The data returns can contain multipart (i.e: gml, binary or binary, binary for WCS or WCPS)
-                if (response.getDatas().size() > 1) {
-                    MultipartResponse multi = new MultipartResponse(httpServletResponse);
-                    for (byte[] data : response.getDatas()) {
-                        multi.startPart(mimeType);
-                        IOUtils.write(data, outputStream);
-                        multi.endPart();
-                    }
-                    multi.finish();
-                } else {
-                    // Not multipart, so response should contain either 1 binary data (e.g: png, tiff)
-                    // or 1 xml data (e.g: GetCapabilities, DescribeCoverage, getCoverage in application/gml+xml)
-                    httpServletResponse.setContentType(mimeType);
-                    IOUtils.write(response.getDatas().get(0), outputStream);
-                }
+        multi.finish();
+    }
+    
+    /**
+     * In wcst_import like deleteCoverage, it just returns empty string as a success.
+     */
+    protected void writeEmptyResponse(OutputStream os) throws IOException {
+        IOUtils.write("", os);
+    }
+    
+    private void runGarbageCollectionIfNeeded(Response response) {                           
+        if (response.hasDatas()) {
+            for (byte[] bytes : response.getDatas()) {
+                totalReturnedBytes += bytes.length;
             }
-        } finally {
-            IOUtils.closeQuietly(outputStream);                                    
-            boolean clearGabarge = false;
-            if (response.getDatas() != null) {
-                // NOTE: don't call gabarge collector in every cases, it will slow down the time to receive new request to petascope controller
-                // Only call it when the result of current request is big size ( > 100 MB ).
-                for (byte[] bytes : response.getDatas()) {
-                    if (totalReturnedBytes > GARBAGE_COLLECTION_THRESHOLD) {
-                        clearGabarge = true;                        
-                    }
-                    totalReturnedBytes += bytes.length;
-                }
-                if (clearGabarge) {
-                    System.gc();
-                    totalReturnedBytes = 0l;
-                }
-                
-                // NOTE: it must release the data occupied by byte[] so doing like this will release memory right after the response is done.            
-                response = null;
-            }
+        }
+        // Don't call gabarge collector in every case, it will slow down the time 
+        // to receive new request to petascope controller.
+        // Only call it when the cumulative result of past requests reaches > 500 MB
+        if (totalReturnedBytes > GARBAGE_COLLECTION_THRESHOLD) {
+            System.gc();
+            totalReturnedBytes = 0l;
         }
     }
 
     /**
      * Log the request GET/POST from kvpParameters map
-     *
-     * @param kvpParametersMap
-     * @return
      */
     protected String getRequestRepresentation(Map<String, String[]> kvpParametersMap) {
         String request = "";
@@ -430,7 +419,6 @@ public abstract class AbstractController {
                 request = request + value + "&";
             }
         }
-
         if (!request.isEmpty()) {
             return request.substring(0, request.length() - 1);
         } else {
@@ -440,9 +428,6 @@ public abstract class AbstractController {
 
     /**
      * Parse the KVP parameters to map of keys and values
-     *
-     * @param queryString
-     * @return
      */
     private Map<String, String[]> parseKVPParameters(String queryString) {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -490,14 +475,12 @@ public abstract class AbstractController {
 
     /**
      * Return the single value of a key in KVP parameters
-     *
-     * @param kvpParameters
-     * @param key
      */
     private String[] getValuesByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
         String[] values = kvpParameters.get(key);
         if (values == null) {
-            throw new PetascopeException(ExceptionCode.InvalidRequest, "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Cannot find value from KVP parameters map for key parameter, given: " + key + ".");
         }
 
         return values;

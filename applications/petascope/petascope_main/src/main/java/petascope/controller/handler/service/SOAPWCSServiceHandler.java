@@ -38,6 +38,7 @@ import petascope.exceptions.WCSException;
 import petascope.util.ExceptionUtil;
 import petascope.util.SOAPUtil;
 import petascope.util.XMLUtil;
+import petascope.util.MIMEUtil;
 
 /**
  * Service class to handler SOAP POST WCS
@@ -56,7 +57,6 @@ public class SOAPWCSServiceHandler extends AbstractHandler {
         // SOAP WCS is a part of WCS2
         service = KVPSymbols.WCS_SERVICE;
         version = ConfigManager.WCS_VERSIONS;
-        
         requestServices.add(KVPSymbols.VALUE_REQUEST_WCS_SOAP);
     }
 
@@ -75,7 +75,8 @@ public class SOAPWCSServiceHandler extends AbstractHandler {
             response.setDatas(Arrays.asList(textResult.getBytes()));
         } catch (Exception ex) {            
             ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportStringSOAP(ex);
-            response = new Response(Arrays.asList(exceptionReport.getExceptionText().getBytes()), exceptionReport.getHttpCode());
+            response = new Response(Arrays.asList(exceptionReport.getExceptionText().getBytes()), 
+                    MIMEUtil.MIME_XML, exceptionReport.getHttpCode());
             log.error("Exception when handling SOAP request", ex);
         }
 
