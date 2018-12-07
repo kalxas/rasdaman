@@ -88,14 +88,15 @@ def validate_ingredients(ingredients):
     Validates against unkown settings
     """
     jsonschema = import_jsonschema()
-    ingredients_schema = load_schema()
-    try:
-        jsonschema.validate(ingredients, ingredients_schema)
-    except NameError:
-        pass
-    except jsonschema.exceptions.ValidationError as e:
-        log.error("The ingredients file contains unkown option(s): \n" + str(e.message))
-        exit_error()
+    if (jsonschema != None):
+        ingredients_schema = load_schema()
+        try:
+            jsonschema.validate(ingredients, ingredients_schema)
+        except NameError:
+            pass
+        except jsonschema.exceptions.ValidationError as e:
+            log.error("The ingredients file contains unkown option(s): \n" + str(e.message))
+            exit_error()
 
 def validate():
     """

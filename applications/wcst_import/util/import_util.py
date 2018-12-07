@@ -61,8 +61,8 @@ def import_jsonschema():
     """
     try:
         import jsonschema
+        return jsonschema
     except ImportError:
          log.warning("The jsonschema package is not installed, ingredient file validation will be skipped. \
           To enable validation please install jsonschema (sudo pip install jsonschema)")
-
-    return jsonschema
+         pass
