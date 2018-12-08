@@ -46,20 +46,27 @@
 
 # --- CONSTANTS -----------------------------------------------------
 
-PROG=`basename $0`
+PROG=$(basename $0)
 
-# RETURN CODES
 RC_OK=0        # everything went fine
 RC_ERROR=1    # something went wrong
 
 RASMGR_PORT=7001
 
-# rasadmin/rasadmin
-DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
-[ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
+# binaries
+rasmgr_bin="@bindir@rasmgr"
+rasserver_bin="@bindir@rasserver"
+rascontrol_bin="@bindir@rascontrol"
+
+petascope_props="@sysconfdir@petascope.properties"
+secore_props="@sysconfdir@secore.properties"
 
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
+
+# rasadmin/rasadmin
+DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+[ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
 
 log()  { echo "$PROG: $@"; }
 logn() { echo -n "$PROG: $@"; }
@@ -69,26 +76,35 @@ check(){ [ $? ] && echo "ok." || echo "failed."; }
 sleep --help | grep -q GNU && GNU_SLEEP=true
 get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 
-# give rasserver processes time to disappear (10 second timeout)
-wait_for_rasservers_to_shutdown()
+# give process matching time to disappear
+# $1 - process path to match in pgrep
+# $2 - timeout in seconds
+# $3 - [optional] grep the output of pgrep
+wait_for_process_to_shutdown()
 {
-    local max_count=$(get_sleep_value 100 10)
+    local proc_path="$1"
+    local proc_name=$(basename "$1")
+    local timeout="$2"
+    local timeout_tenths=$(($timeout * 10))
+
+    local max_count=$(get_sleep_value $timeout_tenths $timeout)
     local sleep_sec=$(get_sleep_value 0.1 1)
     local count=0
     while [ $count -lt $max_count ]; do
-        pgrep -f "@bindir@rasserver" -a | grep -q -- "--mgrport $RASMGR_PORT"
-        if [ $? -ne 0 ]; then
-            break # no rasservers found, no need to wait more
+        if [ -n "$3" ]; then
+          pgrep -f "$proc_path" -a | grep -q "$3"
+        else
+          pgrep -f "$proc_path" -a > /dev/null 2>&1
         fi
+        [ $? -ne 0 ] && break # no process found, no need to wait more
         count=$(($count+1))
-        # otherwise, wait 0.1 (or 1) seconds and try again
-        sleep $sleep_sec
+        sleep $sleep_sec      # otherwise, wait 0.1 (or 1) seconds and try again
     done
     if [ $count -eq $max_count ]; then
         echo
-        log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
-        log "please manually check and kill any still running rasserver processes:"
-        log " 1. list the running rasserver processes: pgrep -f @bindir@rasserver"
+        log "timeout of 3 seconds on waiting for $proc_name to shutdown reached;"
+        log "please manually check and kill any still running $proc_name processes:"
+        log " 1. list the running $proc_name processes: pgrep -f $proc_path"
         log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
     fi
 }
@@ -99,71 +115,70 @@ get_property_value() {
     # $2 is the key of a property in this file which needs to get the value of this key.
     local -r properties_file="$1"
     local -r key="$2"
-
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
 
-# --- kill embedded petascope, secore if they are running ---------
+# --- kill embedded petascope and secore if they are running ---------
 
+# Stop embedded tomcat from values in properties file
+# $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+# $2: the web application name (e.g: petascope, secore).
 stop_embedded() {
-    # Stop embedded tomcat from values in properties file
-    # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
-    # $2: the web application name (e.g: petascope, secore).
-    local -r properties_file_path="$1"
-    local -r application_name="$2"
+    local -r props_path="$1"
+    local -r app_name="$2"
 
-    if [ -f "$properties_file_path" ]; then
+    if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
-        java_server=$(get_property_value "$properties_file_path" "java_server")
+        java_server=$(get_property_value "$props_path" "java_server")
         # check if java-server is embedded
         if [ "$java_server" == "embedded" ]; then
             # Check if the port for this application is running and kill this process
             # Get the embedded port for server
-            server_port=$(get_property_value "$properties_file_path" "server.port")
+            server_port=$(get_property_value "$props_path" "server.port")
             # Check if port is available
             fuser -s -n tcp "$server_port" 
             # Return 0 means port is occupied and embedded server is running.
             if [[ $? -eq 0 ]]; then
                 # kill process on this port
                 kill -9 $(lsof -t -i:"$server_port" -sTCP:LISTEN)
-                log "embedded $application_name is terminated on port '$server_port'."
+                log "embedded $app_name is terminated on port '$server_port'."
             fi
         fi
     else
-        log "could not find properties file '$properties_file_path' to stop embedded $application_name."
-        exit $RC_ERROR
+        log "Warning - cannot stop embedded $app_name, $props_path not found."
     fi
 }
 
-petascope_properties_path="@sysconfdir@/petascope.properties"
-secore_properties_path="@sysconfdir@/secore.properties"
+
+# --- ACTION ------------------------------------------------------
 
 # Check if it should stop embedded tomcat, secore
-stop_embedded "$secore_properties_path" "secore"
-stop_embedded "$petascope_properties_path" "petascope"
+stop_embedded "$secore_props" "secore"
+stop_embedded "$petascope_props" "petascope"
 
 # --- stop rasdaman servers ---------------------------------------
 
 # check if rasmgr is already running first of all
-pgrep -f "@bindir@rasmgr --port $RASMGR_PORT" > /dev/null 2>&1 || \
+pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
   { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
 
 log "terminating rasdaman server complex... "
 
 logn "  terminating rasserver processes... "
-@bindir@rascontrol --port $RASMGR_PORT -e -q -x down srv -all -kill
+"$rascontrol_bin" --port $RASMGR_PORT -e -q -x down srv -all -kill
 check
-
-wait_for_rasservers_to_shutdown
+wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"
 
 # --- stop rasmgr -------------------------------------------------
 
 # finally shut down the server manager
 logn "  "
-@bindir@rascontrol --port $RASMGR_PORT -e -q -x down host -all
+"$rascontrol_bin" --port $RASMGR_PORT -e -q -x down host -all
+wait_for_process_to_shutdown "$rasmgr_bin" 3 "port $RASMGR_PORT"
 
 log "done."
 
 exit $RC_OK
 
+# --- END ACTION ----------------------------------------------------

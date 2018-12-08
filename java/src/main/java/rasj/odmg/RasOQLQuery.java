@@ -213,14 +213,14 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs {
                 }
             }
 
-            String queryStringCopy = queryString;
             // what kind of query do we have?
             // FIXME: this way you don't see it keyword is in comment, and you miss mixed case!! -- PB 2003-jun-15
-            if (queryStringCopy.toLowerCase().startsWith(SELECT_KEYWORD.toLowerCase()) && !queryStringCopy.toLowerCase().contains(" " + INTO_KEYWORD.toLowerCase() + " ")) {
+            String upper = queryString.toUpperCase();
+            if (upper.startsWith(SELECT_KEYWORD) && !upper.contains(INTO_KEYWORD)) {
                 //select query
                 params = "Command=" + RasODMGGlobal.commQueryExec + "&ClientID=" +
                          rasImplementation.getClientID() + "&QueryString=" + queryString;
-            } else if (queryStringCopy.toLowerCase().startsWith(INSERT_KEYWORD.toLowerCase())) {
+            } else if (upper.startsWith(INSERT_KEYWORD)) {
                 // insert query
                 params = "Command=" + RasODMGGlobal.commInsertQueryExec + "&ClientID=" +
                          rasImplementation.getClientID() + "&QueryString=" + queryString +

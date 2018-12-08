@@ -303,6 +303,17 @@ r_Error::r_Error(int errorno)
     resetErrorText();
 }
 
+r_Error::r_Error(const char* what)
+    :   theKind(r_Error_General),
+        errorText(NULL),
+        errorNo(0u)
+{
+    errorText = new char[strlen(what) + 1];
+    strcpy(errorText, what);
+}
+
+
+
 void
 r_Error::setErrorTextOnKind()
 {
@@ -638,6 +649,7 @@ r_Eno_interval::r_Eno_interval()
 
 r_EGeneral::r_EGeneral(const std::string& errorText2)
 {
+    delete [] errorText;
     errorText = new char[errorText2.size() + 1];
     strcpy(errorText, errorText2.c_str());
 }
@@ -797,24 +809,8 @@ r_Ebase_dbms::r_Ebase_dbms(const r_Ebase_dbms& obj)
     LDEBUG << "r_Error::r_Ebase_dbms()";
 
     dbmsErrNum = obj.dbmsErrNum;
-    if (obj.baseDBMS)
-    {
-        baseDBMS = static_cast<char*>(mymalloc(strlen(obj.baseDBMS) + 1));
-        strcpy(baseDBMS, obj.baseDBMS);
-    }
-    else
-    {
-        baseDBMS = 0;
-    }
-    if (obj.dbmsErrTxt)
-    {
-        dbmsErrTxt = static_cast<char*>(mymalloc(strlen(obj.dbmsErrTxt) + 1));
-        strcpy(dbmsErrTxt, obj.dbmsErrTxt);
-    }
-    else
-    {
-        dbmsErrTxt = 0;
-    }
+    baseDBMS = obj.baseDBMS ? strdup(obj.baseDBMS) : 0;
+    dbmsErrTxt = obj.dbmsErrTxt ? strdup(obj.dbmsErrTxt) : 0;
     buildWhat();
 }
 

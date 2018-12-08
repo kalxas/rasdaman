@@ -473,10 +473,9 @@ MDDColl::getMDDCollection(const char* collName)
                 transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
                 transObj->insertTile(transTile);
                 retval->insert(transObj);
-
-                free(typeStructure);
-                typeStructure = NULL;
             }
+            free(typeStructure);
+            typeStructure = NULL;
 
             structIter.advance();
         }

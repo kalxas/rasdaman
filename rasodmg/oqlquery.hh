@@ -146,6 +146,15 @@ public:
     //@}
 
 private:
+
+    /**
+     * Return true if s starts with (lower-case, no whitespace) prefix.
+     * All whitespace in s is ignored.
+     *
+     * Copied from servercomm.hh, should be refactored into a common place.
+     */
+    bool startsWith(const char* s, const char* prefix) const;
+
     /// method replaces the next argument with the delivered valueString
     void replaceNextArgument(const char* valueString);
 

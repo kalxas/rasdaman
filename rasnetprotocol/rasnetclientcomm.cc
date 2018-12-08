@@ -339,22 +339,12 @@ int RasnetClientComm::closeDB()
 
 int RasnetClientComm::createDB(__attribute__ ((unused)) const char* name)
 {
-    char* errorStr = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorStr);
-    r_Error tmp = *error;
-    delete error;
-    delete errorStr;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 int RasnetClientComm::destroyDB(__attribute__ ((unused)) const char* name)
 {
-    char* errorStr = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorStr);
-    r_Error tmp = *error;
-    delete error;
-    delete errorStr;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 int RasnetClientComm::openTA(unsigned short readOnly)
@@ -1953,12 +1943,7 @@ void RasnetClientComm::handleStatusCode(int status, const string& method)
 
 bool RasnetClientComm::effectivTypeIsRNP()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 long unsigned int RasnetClientComm::getClientID() const
@@ -1968,32 +1953,17 @@ long unsigned int RasnetClientComm::getClientID() const
 
 void RasnetClientComm::triggerAliveSignal()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void RasnetClientComm::sendAliveSignal()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 const char* RasnetClientComm::getExtendedErrorInfo()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void RasnetClientComm::setUserIdentification(const char* userName, const char* plainTextPassword)
@@ -2004,42 +1974,22 @@ void RasnetClientComm::setUserIdentification(const char* userName, const char* p
 
 void RasnetClientComm::setMaxRetry(__attribute__ ((unused)) unsigned int newMaxRetry)
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 unsigned int RasnetClientComm::getMaxRetry()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void RasnetClientComm::setTimeoutInterval(__attribute__ ((unused)) int seconds)
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 int RasnetClientComm::getTimeoutInterval()
 {
-    char* errorMsg = strdup("Not implemented exception;");
-    r_Error* error = r_Error::getAnyError(errorMsg);
-    r_Error tmp = *error;
-    delete error;
-    delete errorMsg;
-    throw tmp;
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 /* START: KEEP ALIVE */

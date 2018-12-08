@@ -974,7 +974,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, &ta, false);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
         fileMDD->set_type_schema(mddType.get());
-        mddType.release();
+//        mddType.release();
         if (fileContents)
         {
             fileMDD->set_array(fileContents.get());
@@ -1078,8 +1078,12 @@ crashHandler(int sig, siginfo_t* info, void* ucontext)
                  << "\nClosing server connection... ";
         cleanConnection();
         BLERROR << "done, exiting.";
-        exit(sig);
     }
+    else
+    {
+        while (1) ;
+    }
+    exit(sig);
 }
 
 INITIALIZE_EASYLOGGINGPP

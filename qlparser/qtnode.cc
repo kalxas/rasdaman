@@ -164,8 +164,8 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
 
 
 
-int QtNode::minim[QtNodes];
-int QtNode::maxim[QtNodes];
+int QtNode::minim[QtNodes+1];
+int QtNode::maxim[QtNodes+1];
 int QtNode::child_range[QtNodes + 1];
 
 bool QtNode::MinMaxDone = false;

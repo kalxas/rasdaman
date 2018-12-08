@@ -47,26 +47,32 @@
 #    - need to have a valid rasdaman installation
 #
 
-# get script name
-PROG=`basename $0`
+# --- CONSTANTS -----------------------------------------------------
 
-# RETURN CODES
+PROG=$(basename $0)
+
 RC_OK=0        # everything went fine
 RC_ERROR=1    # something went wrong
 
-# --- CONSTANTS -----------------------------------------------------
-
 RASMGR_PORT=7001
+
+# binaries
+rasmgr_bin="@bindir@rasmgr"
+rasserver_bin="@bindir@rasserver"
+rascontrol_bin="@bindir@rascontrol"
+
+petascope_props="@sysconfdir@petascope.properties"
+secore_props="@sysconfdir@secore.properties"
+
+log_path="@logdir@"
+war_path="@pkgdatadir@war"
+
+# base DBMS used by petascope
+PETASCOPEDB=@petascopedb@
 
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 [ -z "$RASLOGIN" ] && export RASLOGIN=$DEFAULT_RASCONTROL_LOGIN
-
-# error messages:
-ERROR_PARAM="ERS001 Error: illegal parameter: $1"
-
-# base DBMS used by petascope
-PETASCOPEDB=@petascopedb@
 
 log()  { echo "$PROG: $@"; }
 logn() { echo -n "$PROG: $@"; }
@@ -75,30 +81,6 @@ check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 sleep --help | grep -q GNU && GNU_SLEEP=true
 get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
-
-# give rasserver processes time to disappear (10 second timeout)
-wait_for_rasservers_to_shutdown()
-{
-    local max_count=$(get_sleep_value 100 10)
-    local sleep_sec=$(get_sleep_value 0.1 1)
-    local count=0
-    while [ $count -lt $max_count ]; do
-        pgrep -f "@bindir@rasserver" -a | grep -q -- "--mgrport $RASMGR_PORT"
-        if [ $? -ne 0 ]; then
-            break # no rasservers found, no need to wait more
-        fi
-        count=$(($count+1))
-        # otherwise, wait 0.1 (or 1) seconds and try again
-        sleep $sleep_sec
-    done
-    if [ $count -eq $max_count ]; then
-        echo
-        log "timeout of 10 seconds on waiting for rasserver processes to shutdown reached;"
-        log "please manually check and kill any still running rasserver processes:"
-        log " 1. list the running rasserver processes: pgrep -f @bindir@rasserver"
-        log " 2. kill each process with: kill <pid> (or kill -9 <pid> if kill fails)"
-    fi
-}
 
 # Check if the last executed command is successfull
 # $1 - process name
@@ -134,10 +116,7 @@ check_process()
                 fi
             done
         fi
-        if [ $ok -eq 1 ]; then
-            echo "ok, pid $pid."
-            echo $pid > $1.pid
-        fi
+        [ $ok -eq 1 ] && echo "ok, pid $pid."
     fi
 }
 
@@ -148,28 +127,63 @@ get_property_value()
     # $2 is the key of a property in this file which needs to get the value of this key.
     local -r properties_file="$1"
     local -r key="$2"
-
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 } 
+
+#------ start embedded petascope/secore if needed --------------------------
+
+# Start embedded tomcat from values in properties file
+# $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+# $2: the web application name (e.g: petascope, secore).
+# $3: the war file of application (e.g: rasdaman.war, def.war).
+start_embedded() {
+    local -r props_path="$1"
+    local -r app_name="$2"
+    local -r war_file_name="$3"  
+
+    if [ -f "$props_path" ]; then
+        # check if java-server is embedded/external
+        java_server=$(get_property_value "$props_path" "java_server")
+        # check if java-server is embedded
+        if [ "$java_server" == "embedded" ]; then
+            # Get the embedded port for server
+            server_port=$(get_property_value "$props_path" "server.port")
+            logn "  starting $app_name on port $server_port... "
+            # Check if port is available
+            fuser -s -n tcp "$server_port"   
+            if [ ! $? ]; then
+                nohup java -jar "$war_path/$war_file_name" >> "$app_name.log" 2>&1 &
+                check_process "$app_name"
+            else
+                echo "failed, port $server_port is occupied."
+            fi
+        fi
+    else
+        log "Warning - cannot start embedded $app_name, $props_path not found."
+    fi
+}
+
+
+# --- ACTION ------------------------------------------------------
 
 log "starting rasdaman server complex..."
 
 # --- start rasmgr: -------------------------------------------------
 
 # check if rasmgr exists
-[ -f @bindir@rasmgr ] || \
-    error "rasmgr does not exist in @bindir@, rasdaman cannot be started."
+[ -f "$rasmgr_bin" ] || \
+    error "$rasmgr_bin not found, rasdaman cannot be started."
 
 # here we want to put all log files
-cd @logdir@
+cd "$log_path"
 
 # check if we can actually write anything here
 [ -w . ] || \
-    error "User $USER has no write permissions in @logdir@, rasdaman cannot be started." >&2
+    error "User $USER has no write permissions in $log_path, rasdaman cannot be started."
 
 # check if rasmgr is already running first of all
-pgrep -f "@bindir@rasmgr --port $RASMGR_PORT" > /dev/null 2>&1 && \
+pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
   { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
 
 # clear previous log file
@@ -178,11 +192,10 @@ rm -f nohup.out
 # start rasdaman server manager as demon; log will go into nohup.out
 # the manager is started in quiet mode
 logn "  starting rasmgr... "
-nohup @bindir@rasmgr --port $RASMGR_PORT > nohup.out 2>&1 &
+nohup "$rasmgr_bin" --port $RASMGR_PORT > nohup.out 2>&1 &
 check_process "rasmgr" 1
 
 # --- start servers: -------------------------------------------------
-
 
 # these servers will be started:
 if [ -n "$1" ]; then
@@ -196,60 +209,21 @@ fi
 if [ -n "$SERVERS" ]; then
     for SRV in $SERVERS; do
         logn "  starting server $SRV... "
-        @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
-        echo "ok."
+        "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
+        check
     done
 else
     logn "  starting all rasdaman servers... "
-    @bindir@rascontrol --port $RASMGR_PORT -e -q -x up srv -all || exit $!
-    echo "ok."
+    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv -all || exit $!
+    check
 fi
 
-#------start embedded petascope/secore if needed--------------------------
-log_path="@logdir@"
-# war files also copied to this share folder: /opt/rasdaman/share/rasdaman/war/
-war_path="@pkgdatadir@/war"
-petascope_properties_path="@sysconfdir@/petascope.properties"
-secore_properties_path="@sysconfdir@/secore.properties"
-
-start_embedded() {
-    # Start embedded tomcat from values in properties file
-    # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
-    # $2: the web application name (e.g: petascope, secore).
-    # $3: the war file of application (e.g: rasdaman.war, def.war).
-    local -r properties_file_path="$1"
-    local -r application_name="$2"
-    local -r war_file_name="$3"  
-
-    if [ -f "$properties_file_path" ]; then
-        # check if java-server is embedded/external
-        java_server=$(get_property_value "$properties_file_path" "java_server")
-        # check if java-server is embedded
-        if [ "$java_server" == "embedded" ]; then
-            # Get the embedded port for server
-            server_port=$(get_property_value "$properties_file_path" "server.port")
-            log "  starting $application_name on port $server_port... "
-            # Check if port is available
-            fuser -s -n tcp "$server_port"   
-             # Return 1 means port is available  
-            if [[ ! $? -eq 0 ]]; then
-                nohup java -jar "$war_path/""$war_file_name" >> "$application_name.log" 2>&1 &
-                check_process "$application_name"
-            else
-                echo "failed, port '$server_port' is occupied."
-            fi
-        fi
-    else
-        log "Warning: '$properties_file_path' not found, $application_name cannot be started."
-    fi
-}
-
-# Check if it should start embedded tomcat, secore
-start_embedded "$secore_properties_path" "secore" "def.war"
-start_embedded "$petascope_properties_path" "petascope" "rasdaman.war"
+# start embedded petascope and secore if needed
+start_embedded "$secore_props" "secore" "def.war"
+start_embedded "$petascope_props" "petascope" "rasdaman.war"
 
 log "done."
+
 exit $RC_OK
 
 # --- END ACTION ----------------------------------------------------
-

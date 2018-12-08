@@ -1109,6 +1109,24 @@ public:
     // constant for clientID
     static const char* HTTPCLIENT;
 
+    static const int RESPONSE_ERROR;
+    static const int RESPONSE_MDDS;
+    static const int RESPONSE_SCALARS;
+    static const int RESPONSE_INT;
+    static const int RESPONSE_OID;
+    static const int RESPONSE_OK_NEGATIVE;
+    static const int RESPONSE_OK;
+
+    static const unsigned short EXEC_RESULT_MDDS = 0;
+    static const unsigned short EXEC_RESULT_SCALARS = 1;
+    static const unsigned short EXEC_RESULT_EMPTY = 2;
+    static const unsigned short EXEC_RESULT_PARSE_ERROR = 4;
+    static const unsigned short EXEC_RESULT_EXEC_ERROR = 5;
+
+    static const int ENDIAN_BIG;
+    static const int ENDIAN_LITTLE;
+
+
 private:
     /// copy constructor is private and therefore can not be used
     ServerComm(const ServerComm&);  //and then why this? : clientTimeout(3600), garbageCollectionInterval(600){;};
@@ -1132,10 +1150,6 @@ protected:
     char*         rasmgrHost;
     unsigned int  rasmgrPort;
     char*         serverName;
-
-    bool          isHttpServer;
-    //this trick didn't work and we are out of time
-    // ClientTblElt  *uniqueClientContext;
 };
 
 

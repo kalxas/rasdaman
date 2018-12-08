@@ -177,6 +177,9 @@ public:
     /// constructor getting an error number
     r_Error(int errorno);
 
+    /// constructor getting an error text
+    r_Error(const char* what);
+
     /// destructor
     virtual ~r_Error() noexcept;
 
@@ -288,6 +291,8 @@ class r_EGeneral : public r_Error
 {
 public:
     r_EGeneral(const std::string& errorText);
+
+    ~r_EGeneral() override = default;
 };
 
 

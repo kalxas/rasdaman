@@ -592,7 +592,7 @@ QtClipping::extractMultipolygon(const MDDObj* op,
         return NULL;
     }
     
-    std::shared_ptr<char> resultMask = buildResultMask(resultMaskDom, clipVector, geomType);
+    auto resultMask = buildResultMask(resultMaskDom, clipVector, geomType);
     
     //generate resultMDD
     MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 3);
@@ -678,7 +678,7 @@ QtClipping::extractMultipolygon(const MDDObj* op,
 MDDObj*
 QtClipping::extractCurtain(const MDDObj* op, const r_Minterval& areaOp, 
         const std::vector<r_Dimension>& maskDims, 
-        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask)
+        const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> >& mask)
 {   
     // algo for extracting curtain from op using the stored mask
     
@@ -784,7 +784,7 @@ MDDObj*
 QtClipping::extractCorridor(const MDDObj* op, const r_Minterval& areaOp, 
         QtMShapeData* lineStringData, 
         const std::vector<r_Dimension>& maskDims,
-        const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask,
+        const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> >& mask,
         QtGeometryData::QtGeometryFlag geomFlagArg)
 {   
     // algo for extracting corridor from op using the stored mask
@@ -1074,7 +1074,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
             
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
             
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
             
@@ -1092,7 +1092,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
             
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
            
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();           
 
@@ -1108,7 +1108,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
             
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
          
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
 
@@ -1129,7 +1129,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
 
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
           
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
             
@@ -1150,7 +1150,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
 
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
 
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
             
@@ -1168,7 +1168,7 @@ QtClipping::computeOp(QtMDD* operand, QtGeometryData* geomData)
             vector< vector< QtMShapeData* > > polygonData = geomData->getPolygons();
             vector< QtPositiveGenusClipping > clipVector = buildMultipoly(polygonData, geomType);
 
-            std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > mask = buildAbstractMask(clipVector, geomType);
+            auto mask = buildAbstractMask(clipVector, geomType);
             
             vector< r_Dimension > maskDims = geomData->getProjections()->computeFirstProjection();
             
@@ -1453,14 +1453,14 @@ QtClipping::buildResultDom(const r_Minterval& areaOp,
     return resultDom;
 }
 
-std::shared_ptr<char>
+std::unique_ptr<char[]>
 QtClipping::buildResultMask(
         std::shared_ptr<r_Minterval> resultDom, 
         vector<QtPositiveGenusClipping>& mshapeList,
         QtGeometryData::QtGeometryType geomType)
 {
     //result mask
-    std::shared_ptr<char> resultMask;
+    std::unique_ptr<char[]> resultMask;
     resultMask.reset(new char[resultDom->cell_count()]);
     memset(resultMask.get(), 2, resultDom->cell_count());
     
@@ -1512,7 +1512,7 @@ QtClipping::buildResultMask(
     return resultMask;
 }
 
-std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >
+std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> >
 QtClipping::buildAbstractMask(vector<QtPositiveGenusClipping>& mshapeList, 
         QtGeometryData::QtGeometryType geomType)
 {
@@ -1533,7 +1533,7 @@ QtClipping::buildAbstractMask(vector<QtPositiveGenusClipping>& mshapeList,
      
     //result mask & domain
     
-    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > retVal(buildResultMask(resultDom, mshapeList, geomType), resultDom);
+    std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> > retVal(buildResultMask(resultDom, mshapeList, geomType), resultDom);
     
     return retVal;
 }

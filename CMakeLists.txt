@@ -149,6 +149,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
+#
+# Set compiler flags
+#
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
 SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
@@ -197,7 +200,6 @@ if (LIBDW_LIBRARY AND LIBDW_INCLUDE_DIR)
     mark_as_advanced(LIBDW_INCLUDE_DIR LIBDW_LIBRARY)
     add_definitions(-DBACKWARD_HAS_DW=1)
     set(HAVE_LIBDW ON)
-    message(STATUS "Libdw enabled.")
 else()
     set(HAVE_LIBDW OFF)
 endif ()

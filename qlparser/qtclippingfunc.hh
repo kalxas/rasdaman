@@ -102,14 +102,14 @@ class QtClipping : public QtBinaryOperation
     MDDObj* extractCurtain(const MDDObj* op, 
             const r_Minterval& areaOp, 
             const vector<r_Dimension>& maskDims, 
-            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask);
+            const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> >& mask);
 
     //if the bool operand is true, then the integration uses the counting measure, otherwise it defaults to lebesgue
     MDDObj* extractCorridor(const MDDObj* op, 
             const r_Minterval& areaOp, 
             QtMShapeData* lineStringData, 
             const std::vector<r_Dimension>& maskDims,
-            const std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> >& mask,
+            const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> >& mask,
             QtGeometryData::QtGeometryFlag geomFlagArg = QtGeometryData::QtGeometryFlag::NONE);    
        
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
@@ -138,12 +138,12 @@ protected:
     /// takes the result of buildResultDom and builds the result mask from the stored mshapeList (polygons w/ interiors)
     /// one can pass other resultDom's to this method, if needed, but the intersection needs to be nonempty (unknown prior to the method called)
     /// or else a segfault will occur!
-    std::shared_ptr<char> buildResultMask(std::shared_ptr<r_Minterval> resultDom, 
+    std::unique_ptr<char[]> buildResultMask(std::shared_ptr<r_Minterval> resultDom,
             vector<QtPositiveGenusClipping>& clipVector,
             QtGeometryData::QtGeometryType geomType);
 
     /// uses the internal mshapeList only to build a result mask and a specified domain
-    std::pair< std::shared_ptr<char>, std::shared_ptr<r_Minterval> > buildAbstractMask(
+    std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval> > buildAbstractMask(
             std::vector<QtPositiveGenusClipping>& clipVector, 
             QtGeometryData::QtGeometryType geomType);
 

@@ -123,7 +123,10 @@ extern "C" int gethostname(char* name, int namelen);
 
 #include <logging.hh>
 
+#include "rnprotocol/srvrasmgrcomm.hh"
+
 using namespace std;
+
 // init globals for server initialization
 // RMINITGLOBALS('S')
 
@@ -147,9 +150,24 @@ ServerComm* ServerComm::actual_servercomm = 0;
 list<ServerComm::ClientTblElt*>  ServerComm::clientTbl;
 unsigned long ServerComm::clientCount = 0;
 
-#include "rnprotocol/srvrasmgrcomm.hh"
-
 extern SrvRasmgrComm rasmgrComm;
+
+
+// --------------------------------------------------------------------------------
+//                          constants
+// --------------------------------------------------------------------------------
+
+const int ServerComm::RESPONSE_ERROR        = 0;
+const int ServerComm::RESPONSE_MDDS         = 1;
+const int ServerComm::RESPONSE_SCALARS      = 2;
+const int ServerComm::RESPONSE_INT          = 3;
+const int ServerComm::RESPONSE_OID          = 4;
+const int ServerComm::RESPONSE_OK_NEGATIVE  = 98;
+const int ServerComm::RESPONSE_OK           = 99;
+
+const int ServerComm::ENDIAN_BIG            = 0;
+const int ServerComm::ENDIAN_LITTLE         = 1;
+
 
 /*************************************************************************
  * Method name...: ServerComm()   (constructor)
@@ -167,10 +185,6 @@ ServerComm::ServerComm()
         LERROR << "Internal Error: Tried to instantiate more than one ServerComm object.";
         exit(EXITCODE_ONE);
     }
-
-    // uniqueClientContext = NULL;
-    isHttpServer        = false;
-
     actual_servercomm = this;
 }
 
@@ -193,9 +207,6 @@ ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval ,
     this->rasmgrHost  = newRasmgrHost;
     this->rasmgrPort  = newRasmgrPort;
     this->serverName  = newServerName;
-
-    isHttpServer        = false;
-    //uniqueClientContext = NULL;
 }
 
 
@@ -222,7 +233,6 @@ void our_svc_run();
 
 void
 ServerComm::startRpcServer()
-
 {
     // create administraion object (O2 session is initialized)
     admin = AdminIf::instance();
@@ -712,11 +722,6 @@ ServerComm::clientEndRequest()
 #ifdef RMANDEBUG
     printServerStatus(RMInit::dbgOut);          // pretty verbose
 #endif
-
-    // this trick did not work, broke the HTTp server
-
-    //  if(isHttpServer==false && uniqueClientContext != NULL)
-    //    uniqueClientContext->endRequest();
 }
 
 /*************************************************************************
@@ -1348,7 +1353,9 @@ int AccessControl::crunchCapability(const char* capability)
 
     weHaveClient = true;
 
-    LDEBUG << "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout << "(remaining time: " << DeltaT << "), cServerName=" << cServerName << ", okToRead=" << okToRead << ", okToWrite=" << okToWrite << "";
+    LDEBUG << "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout 
+           << "(remaining time: " << DeltaT << "), cServerName=" << cServerName << ", okToRead=" << okToRead << ", okToWrite=" << okToWrite
+           << "";
 
     return 0; // OK for now
 }

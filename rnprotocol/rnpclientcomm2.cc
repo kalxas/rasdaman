@@ -513,8 +513,6 @@ r_Ref_Any RnpClientComm::executeGetCollByNameOrOId(const char* collName, const r
 // common function using the dynamic parameter facility of RNP
 r_Ref_Any RnpClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid)
 {
-    updateTransaction();
-
     startRequest(RnpRasserver::cmd_getcolloids);
     encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
     if (collName != NULL)
@@ -978,13 +976,13 @@ void RnpClientComm::reassemble_r_Error()
 
     decoder.getNextParameter();
 
-    r_Error* temp = r_Error::getAnyError(const_cast<char*>(decoder.getDataAsString()));
+    r_Error* temp = new r_Error(decoder.getDataAsString());
 
     r_Error err = *temp;
 
     delete temp;
 
-    LDEBUG << "npClientComm::reassemble_r_Error() throwing exception: " << decoder.getDataAsString();
+    LDEBUG << "RnpClientComm::reassemble_r_Error() throwing exception: " << decoder.getDataAsString();
     throw err;
 }
 

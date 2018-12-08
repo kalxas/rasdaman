@@ -51,58 +51,23 @@ rasdaman GmbH.
 class HttpServer : public ServerComm
 {
 public:
-
-    /// the class represents an MDD in HTTP transfer encoding
-    class MDDEncoding
+    /// this class represents an MDD in HTTP transfer encoding
+    struct MDDEncoding
     {
-    public:
+        int      objectType{0};
+        char*    objectTypeName{NULL};
+        char*    typeStructure{NULL};
+        unsigned long typeLength{0};
+        char*    domain{NULL};
+        char*    tileSize{NULL};
+        char*    oidString{NULL};
+        unsigned long dataSize{0};
+        char*    binData{NULL};
 
-        int      objectType;
-        char*    objectTypeName;
-        char*    typeStructure;
-        int      typeLength;
-        char*    domain;
-        char*    tileSize;
-        char*    oidString;
-        int      dataSize;
-        char*    binData;
-        char*    stringRepresentation;
-
-        /// default constructor
-        MDDEncoding();
-
-        /// destructor
+        MDDEncoding() = default;
         ~MDDEncoding();
 
-        // set objectType
-        void setObjectType(int type);
-
-        // set objectTypeName
-        void setObjectTypeName(char* name);
-
-        // set typeStructure
-        void setTypeStructure(char* type);
-
-        // set typeLength
-        void setTypeLength(int len);
-
-        // set domain
-        void setDomain(char* dom);
-
-        // set oid
-        void setOID(char* o);
-
-        // set tile size
-        void setTileSize(char* size);
-
-        // set dataSize
-        void setDataSize(int size);
-
-        // set binData
-        void setBinData(char* data);
-
-        // print Values
-        const char* toString();
+        std::string toString() const;
     };
 
 
@@ -161,12 +126,71 @@ public:
        the same global context is returned.
     */
 private:
+
+    long encodeResult(unsigned short execResult, unsigned long callingClientId,
+                      char *&result, ExecuteQueryRes &resultError);
+
+    long encodeMDDs(unsigned long callingClientId, char*& result);
+
+    long encodeScalars(unsigned long callingClientId, char*& result, const char* typeStructure);
+
+    long encodeEmpty(char*& result);
+
+    long encodeError(char*& result, const r_ULong  errorNo,
+                     const r_ULong lineNo, const r_ULong columnNo, const char* text);
+
+    size_t getHeaderSize(const char* collType) const;
+
+    void encodeHeader(char** dst, int responseType, int endianess,
+            r_Long numObjects, const char* collType, const char* dstStart, size_t totalLength) const;
+
+    void swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Minterval &dom) const;
+
+    void releaseContext(ClientTblElt* context) const;
+
+    void skipWhitespace(char** s) const;
+    void skipWord(char** s) const;
+
+    long insertIfNeeded(unsigned long callingClientId, char* query,
+                        int binDataSize, char* binData, int Endianess,
+                        char*& result, bool& isPersistent);
+
+    unsigned short startInsertMDD(unsigned long callingClientId, char* query,
+                                  const vector<HttpServer::MDDEncoding*> &transferredMDDs, bool &isPersistent);
+
+    unsigned short insertMDD(unsigned long callingClientId,
+                             vector<HttpServer::MDDEncoding*> &transferredMDDs, bool isPersistent);
+
+    long encodeInsertError(char*& result, unsigned short execResult, vector<HttpServer::MDDEncoding*> &transferredMDDs);
+
+    // client requests allowed; this should be in sync with RasODMGGlobal.java
+    static const int commOpenDB;
+    static const int commCloseDB;
+    static const int commBeginTAreadOnly;
+    static const int commBeginTAreadWrite;
+    static const int commCommitTA;
+    static const int commAbortTA;
+    static const int commIsOpenTA;
+    static const int commQueryExec;
+    static const int commUpdateQueryExec;
+    static const int commGetNewOID;
+    static const int commInsertQueryExec;
+
+    // processRequest returns this value in case of an unknown error
+    static const long unknownError;
+
     int   doIt_httpserver(int argc, char* argv[]);
 
 
     bool flagInformRasMgr; // used to trigger informRasMGR(SERVERAVAILABLE)
 
 };
+
+//function prototypes:
+void getMDDs(int binDataSize, char* binData, int endianess, vector<HttpServer::MDDEncoding*>& resultVector);
+int encodeAckn(char*& result, int ackCode);
+void cleanExecuteQueryRes(ExecuteQueryRes& res);
+
 
 #include "httpserver.icc"
 

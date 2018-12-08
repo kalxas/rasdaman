@@ -88,7 +88,6 @@ extern "C" int gethostname(char* name, int namelen);
 #include "raslib/odmgtypes.hh"
 #include "raslib/parseparams.hh"
 
-#include "servercomm/servercomm.hh"
 #include "catalogmgr/typefactory.hh"
 
 #include "mddmgr/mddcoll.hh"
@@ -120,6 +119,8 @@ extern "C" int gethostname(char* name, int namelen);
 // include and extern declarations for the query parsing
 #include "qlparser/querytree.hh"
 #include "relcatalogif/structtype.hh"
+#include "servercomm.hh"
+
 extern int           yyparse(void*);
 extern void          yyreset();
 #ifdef NOPRE
@@ -1694,9 +1695,6 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 parseQueryTree      = 0;
                 currentClientTblElt = 0;
                 delete qtree;
-
-                returnValue = 42;           // general serialisable exception
-
                 throw;
             }
             catch (r_Error& myErr)

@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include <string.h>
 #include <ctype.h>     // isdigit()
 #include <sstream>
+#include <cassert>
 
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__
@@ -396,6 +397,33 @@ r_OQL_Query::operator<<(r_GMarray& in)
 }
 
 
+bool
+r_OQL_Query::startsWith(const char *s, const char *prefix) const
+{
+    if (!s)
+        return false;
+
+    assert(prefix);
+
+    while (s[0] != '\0' && prefix[0] != '\0')
+    {
+        if (isspace(s[0]))
+        {
+            ++s;
+        }
+        else
+        {
+            assert(islower(prefix[0]));
+
+            if (tolower(s[0]) != prefix[0])
+                return false;
+            else
+                ++s, ++prefix;
+        }
+    }
+    return true;
+}
+
 
 
 int
@@ -413,14 +441,11 @@ r_OQL_Query::is_retrieval_query() const
     if (parameterizedQueryString)
     {
         // convert string to upper case
-        std::string upperCaseQueryString(parameterizedQueryString);
-        std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
-        upperCaseQueryString.erase(upperCaseQueryString.begin(),
-                                   std::find_if(upperCaseQueryString.begin(), upperCaseQueryString.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+        std::string q(parameterizedQueryString);
+        std::transform(q.begin(), q.end(), q.begin(), ::tolower);
 
         // it is retrieval if it's a SELECT but not SELECT INTO expression
-        returnValue = upperCaseQueryString.find("SELECT ") == 0 &&
-                      upperCaseQueryString.find(" INTO ") == std::string::npos;
+        returnValue = (startsWith(q.c_str(), "select") && q.find(" into ") == std::string::npos);
     }
 
     return returnValue;
@@ -430,21 +455,7 @@ r_OQL_Query::is_retrieval_query() const
 int
 r_OQL_Query::is_insert_query() const
 {
-    int returnValue = 0;
-
-    if (parameterizedQueryString)
-    {
-        // convert string to upper case
-        std::string upperCaseQueryString(parameterizedQueryString);
-        std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
-        upperCaseQueryString.erase(upperCaseQueryString.begin(),
-                                   std::find_if(upperCaseQueryString.begin(), upperCaseQueryString.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-
-        // it is insert if it's an INSERT expression
-        returnValue = upperCaseQueryString.find("INSERT ") == 0;
-    }
-
-    return returnValue;
+    return startsWith(parameterizedQueryString, "insert");
 }
 
 void

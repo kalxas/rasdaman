@@ -220,6 +220,8 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
 
 int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer)
 {
+    delete [] currentClientContext->clientIdText;
+    currentClientContext->clientIdText = new char[strlen(ServerComm::HTTPCLIENT) + 1];
     strcpy(currentClientContext->clientIdText, ServerComm::HTTPCLIENT);
 
     HTTPRequest   RequestInfo;

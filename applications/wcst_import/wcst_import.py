@@ -88,7 +88,7 @@ def validate_ingredients(ingredients):
     Validates against unkown settings
     """
     jsonschema = import_jsonschema()
-    if (jsonschema != None):
+    if jsonschema is not None:
         ingredients_schema = load_schema()
         try:
             jsonschema.validate(ingredients, ingredients_schema)

@@ -152,7 +152,9 @@ r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLo
     oidStream << std::setprecision(50) << localOId;
 
     // allocate memory taking the final string
-    oidString = strdup(oidStream.str().c_str());
+    const auto tmpstr = oidStream.str();
+    oidString = new char[ tmpstr.size() + 1 ];
+    strcpy(oidString, tmpstr.c_str());
 }
 
 r_OId::r_OId(const r_OId& obj)
