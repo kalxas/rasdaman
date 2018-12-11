@@ -58,6 +58,9 @@
                 },
                 "default_crs": {
                     "type": "string"
+                },
+                "__comment__": {
+                    "type": "string"
                 }
             },
             "additionalProperties": false
@@ -100,11 +103,15 @@
                                     "crs": {},
                                     "grid_coverage": {},
                                     "metadata": {},
-                                    "slicer": {}                                 
+                                    "slicer": {},
+                                    "__comment__": {
+                                        "type": "string"
+                                    }                                 
                                 },
                                 "additionalProperties": false
                             },
                             "band_names": {},
+                            "__comment__": {},
                             "coverage_id": {},
                             "partitioning_scheme": {},
                             "scale_levels": {},
