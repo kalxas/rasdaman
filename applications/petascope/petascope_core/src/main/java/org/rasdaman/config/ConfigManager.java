@@ -213,10 +213,6 @@ public class ConfigManager {
 
     /**
      * Initialize all the keys, values of petascope.properties
-     *
-     * @param confDir
-     * @throws petascope.rasdaman.exceptions.RasdamanException
-     * @para
      */
     public static void init(String confDir) throws RasdamanException, PetascopeException {
         if (instance == null) {
@@ -230,11 +226,11 @@ public class ConfigManager {
      *
      * @param confDir Path to the settings file
      * @return instance of the ConfigManager class
-     * @throws RasdamanException
      */
     public static ConfigManager getInstance(String confDir) throws PetascopeException {
         if (instance == null) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Could not intialize ConfigManager object.");
+            throw new PetascopeException(ExceptionCode.InternalComponentError, 
+                    "Could not intialize ConfigManager object.");
         }
         return instance;
     }
@@ -243,71 +239,48 @@ public class ConfigManager {
      * Private constructor. Use <i>getInstance()</i>.
      *
      * @param confDir Path to the properties directory
-     * @throws RasdamanException
      */
     private ConfigManager(String confDir) throws RasdamanException, PetascopeException {
+        confDir = validateConfDir(confDir);
 
-        if (confDir == null) {
-            StringBuilder msg = new StringBuilder();
-            msg.append("Your petascope.properties file is missing the configuration dir parameter.\n");
-            throw new IllegalArgumentException(msg.toString());
-        }
+        String petaPropsPath = confDir + PETASCOPE_PROPERTIES_FILE;
 
-        if (!(new File(confDir)).isDirectory()) {
-            String msg = "Configuration directory not found.";
-            throw new IllegalArgumentException(msg);
-        }
+        initLogger(petaPropsPath);
+        initSettings(confDir, petaPropsPath);
+    }
 
-        confDir = IOUtil.wrapDir(confDir);
-        log.debug("Configuration dir: " + confDir);
-
-        // load logging configuration from setting files first to print the general metadata for services with log.info
+    private void initLogger(String petaPropsPath) {
         try {
-            PropertyConfigurator.configure(confDir + PETASCOPE_PROPERTIES_FILE);            
+            PropertyConfigurator.configure(petaPropsPath);
         } catch (Exception ex) {
-            System.err.println("Error loading logger configuration: " + confDir + PETASCOPE_PROPERTIES_FILE + ", error mesage: " + ex.getMessage());
+            System.err.println("Failed loading logger configuration from '" + petaPropsPath + 
+                    "', will use default configuration. Reason: " + ex.getMessage());
             BasicConfigurator.configure();
         }
+    }
 
-        // load petascope configuration
-        props = new Properties();
+    /**
+     * Overwrite defaults settings with user-defined values in
+     * petascope.properties
+     *
+     * @throws RasdamanException
+     */
+    private void initSettings(String confDir, String petaPropsPath) throws RasdamanException, PetascopeException {
         try {
-            InputStream is = new FileInputStream(new File(confDir + PETASCOPE_PROPERTIES_FILE));
-            props.load(is);
-            this.initSettings();
+            props = new Properties();
+            props.load(new FileInputStream(petaPropsPath));
         } catch (IOException e) {
-            log.error("Failed loading the settings file " + confDir + PETASCOPE_PROPERTIES_FILE, e);
-            throw new RuntimeException("Failed loading the settings file " + confDir + PETASCOPE_PROPERTIES_FILE, e);
-        }
-
-        String logFilePath = props.getProperty(KEY_LOG_FILE_PATH);
-
-        // there is log file path in petascope.properties
-        if (logFilePath != null) {
-            File f = new File(logFilePath);
-            // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
-            if (f.isAbsolute()) {
-                if (!f.canWrite()) {
-                    log.warn("Cannot write to the petascope log file defined in petascope.properties: " + logFilePath + ".\n"
-                            + "Please make sure the path specified by " + KEY_LOG_FILE_PATH + " in petascope.properties is"
-                            + " a location where the system user running Tomcat has write access."
-                            + " Otherwise, the petascope log can only be found in the Tomcat log (usually catalina.out).");
-                }
-            } else {
-                // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
-                log.warn(KEY_LOG_FILE_PATH + " is set to relative path: " + logFilePath + " in petascope.properties; it is recommended to set it to an absolute path."
-                        + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
-            }
+            log.error("Failed loading the settings file " + petaPropsPath, e);
+            throw new RuntimeException("Failed loading the settings file " + petaPropsPath, e);
         }
         
-        try {
-            File wcstTmpDir = new File(ConfigManager.WCST_TMP_DIR);
-            FileUtils.forceMkdir(wcstTmpDir);
-            wcstTmpDir.setReadable(true, false);
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.RuntimeError,
-                        "Cannot create WCST temp directory at '" + ConfigManager.WCST_TMP_DIR + "'. Reason: " + ex.getMessage() + ".");
-        }
+        initPetascopeSettings();
+        initRasdamanSettings();
+        initSecoreSettings();
+        initTempUploadDirs();
+        validateLogFilePath();
+
+        printStartupMessage();
     }
 
     /**
@@ -323,16 +296,8 @@ public class ConfigManager {
         }
         return result;
     }
-
-    /**
-     * Overwrite defaults settings with user-defined values in
-     * petascope.properties
-     *
-     * @throws RasdamanException
-     */
-    private void initSettings() throws RasdamanException {
-
-        /* ***** Petascope configuration ***** */
+    
+    private void initPetascopeSettings() {
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
 
@@ -350,8 +315,17 @@ public class ConfigManager {
         // For simple admin user to update OWS Service metadata
         PETASCOPE_ADMIN_USERNAME = get(KEY_PETASCOPE_ADMIN_USERNAME);
         PETASCOPE_ADMIN_PASSWORD = get(KEY_PETASCOPE_ADMIN_PASSWORD);
-
-        /* ***** Rasdaman configuration ***** */
+        
+        /* ***** WCS configuration ***** */
+        // XML-encoded request schema validation for input request in XML POST
+        XML_VALIDATION = Boolean.parseBoolean(get(KEY_XML_VALIDATION));
+        // Only used when testing OGC CITE (with xml_validation is set to false)
+        OGC_CITE_OUTPUT_OPTIMIZATION = Boolean.parseBoolean(get(KEY_OGC_CITE_OUTPUT_OPTIMIZATION));
+        // Disable write operations
+        DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
+    }
+    
+    private void initRasdamanSettings() {
         RASDAMAN_DATABASE = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL = get(KEY_RASDAMAN_URL);
         RASDAMAN_USER = get(KEY_RASDAMAN_USER);
@@ -360,26 +334,26 @@ public class ConfigManager {
         RASDAMAN_ADMIN_PASS = get(KEY_RASDAMAN_ADMIN_PASS);
         RASDAMAN_RETRY_TIMEOUT = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
-        RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);        
-
-        /* ***** SECORE configuration ***** */
+        RASDAMAN_BIN_PATH = get(KEY_RASDAMAN_BIN_PATH);
+        
+        // Get rasdaman version from RasQL (see #546)
+        try {
+            RASDAMAN_VERSION = RasUtil.getRasdamanVersion(); 
+        } catch (RasdamanException ex) {
+            // cannot connect to rasdaman server, set default version
+            RASDAMAN_VERSION = "9.7";
+        }   
+    }
+    
+    private void initSecoreSettings() {
         SECORE_URLS = StringUtil.csv2list(get(KEY_SECORE_URLS));
         if (SECORE_URLS.isEmpty()) {
             log.error("Failed loading secore urls from petascope.properties");
             throw new RuntimeException("Failed loading secore urls from petascope.properties");
         }
-
-        /* ***** WCS configuration ***** */
-        // XML-encoded request schema validation for input request in XML POST
-        XML_VALIDATION = Boolean.parseBoolean(get(KEY_XML_VALIDATION));
-        // Only used when testing OGC CITE (with xml_validation is set to false)
-        OGC_CITE_OUTPUT_OPTIMIZATION = Boolean.parseBoolean(get(KEY_OGC_CITE_OUTPUT_OPTIMIZATION));
-
-        /* ***** WCST configuration ***** */
-        // Disable write operations
-        DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
-
-        /* ***** Petascope uploaded files directory configuration ***** */
+    }
+    
+    private void initTempUploadDirs() {
         UPLOADED_FILE_DIR_TMP = get(KEY_UPLOADED_FILE_DIR_TMP);
         if (!StringUtils.isEmpty(UPLOADED_FILE_DIR_TMP)) {
             // try to create this folder (e.g: /tmp/rasdaman/petascope/upload)
@@ -389,49 +363,95 @@ public class ConfigManager {
             } catch (Exception ex) {
                 // Cannot create uploaded files folder configured in properties file, fallback to /tmp
                 UPLOADED_FILE_DIR_TMP = DEFAULT_DIR_TMP;
-                log.warn("Cannot create folder for this key '" + KEY_UPLOADED_FILE_DIR_TMP + "' from properties file. Reason '" + ex + "'."
-                        + "Uploaded files will be set to " + DEFAULT_DIR_TMP + " folder.'");
+                log.warn("Cannot create directory '" + UPLOADED_FILE_DIR_TMP + 
+                        "', uploaded files will be placed in the default directory '" + DEFAULT_DIR_TMP + 
+                        "'. Reason: " + ex.getMessage());
             }
         } else {
             // no configuration for this key in properties file, set it to default /tmp folder
             UPLOADED_FILE_DIR_TMP = DEFAULT_DIR_TMP;
         }
         
-        // Get rasdaman version from RasQL (see #546)
+        // setup wcs-t tmp dir
         try {
-            RASDAMAN_VERSION = RasUtil.getRasdamanVersion(); 
-        } catch (RasdamanException ex) {
-            // cannot connect to rasdaman server, set default version
-            RASDAMAN_VERSION = "9.5";
+            File wcstTmpDir = new File(ConfigManager.WCST_TMP_DIR);
+            FileUtils.forceMkdir(wcstTmpDir);
+            wcstTmpDir.setReadable(true, false);
+        } catch (IOException ex) {
+            log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
+                    "', reason: " + ex.getMessage());
         }
-        
+    }
+    
+    /**
+     * Validate the log file path specified in petascope.properties
+     */
+    private void validateLogFilePath() {
+        String logFilePath = props.getProperty(KEY_LOG_FILE_PATH);
+        // there is log file path in petascope.properties
+        if (logFilePath != null) {
+            File f = new File(logFilePath);
+            // If the log file path is configured as absolute path, we check the write permision of Tomcat username on this file.
+            if (f.isAbsolute()) {
+                if (!f.canWrite()) {
+                    log.warn("Cannot write to the petascope log file defined in petascope.properties: " + logFilePath + ".\n"
+                            + "Please make sure the path specified by " + KEY_LOG_FILE_PATH + " in petascope.properties is"
+                            + " a location where the system user running Tomcat has write access."
+                            + " Otherwise, the petascope log can only be found in the Tomcat log (usually catalina.out).");
+                }
+            } else {
+                // log file path is relative, we don't know where directory user want to set the log file, so user will need to see the log in catalina.out
+                log.warn(KEY_LOG_FILE_PATH + " is set to relative path '" + logFilePath + "' in petascope.properties;"
+                        + " it is recommended to set it to an absolute path."
+                        + " In any case, the petascope log can be found in the Tomcat log (usually catalina.out).");
+            }
+        }
+    }
+    
+    private String validateConfDir(String confDir) {
+        if (confDir == null) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Internal applications.properties is missing the petascope configuration directory setting.");
+            throw new IllegalArgumentException(msg.toString());
+        }
 
+        if (!(new File(confDir)).isDirectory()) {
+            String msg = "Configuration directory '" + confDir + "' not found.";
+            throw new IllegalArgumentException(msg);
+        }
+
+        confDir = IOUtil.wrapDir(confDir);
+        log.debug("Configuration dir: " + confDir);
+        return confDir;
+    }
+    
+    private void printStartupMessage() {
         log.info("------------------------------------");
 
-        log.info("-- PETASCOPE");
-        log.info("Version: " + RASDAMAN_VERSION);
-        log.info("DB URL: " + PETASCOPE_DATASOURCE_URL);
-        log.info("DB User: " + PETASCOPE_DATASOURCE_USERNAME);
+        log.info("-- PETASCOPE --");
+        log.info("Version " + RASDAMAN_VERSION);
+        log.info("DB URL  " + PETASCOPE_DATASOURCE_URL);
+        log.info("DB User " + PETASCOPE_DATASOURCE_USERNAME);
         log.info("");
 
-        log.info("-- RASDAMAN");
-        log.info("Version: " + RASDAMAN_VERSION);
-        log.info("URL: " + RASDAMAN_URL);
-        log.info("DB: " + RASDAMAN_DATABASE);
-        log.info("User: " + RASDAMAN_USER);
+        log.info("-- RASDAMAN --");
+        log.info("Version " + RASDAMAN_VERSION);
+        log.info("URL     " + RASDAMAN_URL);
+        log.info("DB      " + RASDAMAN_DATABASE);
+        log.info("User    " + RASDAMAN_USER);
         log.info("");
 
-        log.info("-- SECORE");
-        log.info("Version: " + SECORE_VERSION);
-        log.info("URL: " + SECORE_URLS);
+        log.info("-- SECORE --");
+        log.info("Version " + SECORE_VERSION);
+        log.info("URL     " + SECORE_URLS);
         log.info("");
 
-        log.info("-- OGC STANDARDS");
-        log.info("CIS: " + CIS_VERSION);
-        log.info("WCS: " + WCS_VERSIONS);
-        log.info("WCS-T: " + WCST_VERSION);
-        log.info("WCPS: " + WCPS_VERSION);
-        log.info("WMS: " + WMS_VERSIONS);
+        log.info("-- OGC STANDARDS --");
+        log.info("CIS     " + CIS_VERSION);
+        log.info("WCS     " + WCS_VERSIONS);
+        log.info("WCS-T   " + WCST_VERSION);
+        log.info("WCPS    " + WCPS_VERSION);
+        log.info("WMS     " + WMS_VERSIONS);
 
         log.info("------------------------------------");
     }

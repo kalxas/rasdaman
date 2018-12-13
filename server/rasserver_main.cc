@@ -180,7 +180,10 @@ void crashHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucont
         }
         BLERROR << "rasserver terminated." << endl;
     } else {
-        while (1) ;
+        // if a signal comes while the handler has already been invoked,
+        // wait here for max 10 seconds, so that the handler above has some time
+        // (hopefully) finish
+        sleep(10);
     }
     exit(sig);
 }

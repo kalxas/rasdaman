@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include <unistd.h>
 #include <logging.hh>
 
-sqlite3* SQLiteQuery::sqliteConn = NULL;
+sqlite3* sqliteConn = NULL;
 
 SQLiteQuery::SQLiteQuery(char q[]) :
     stmt(NULL), query(q), columnCounter(0)
@@ -232,7 +232,6 @@ void SQLiteQuery::closeConnection()
 
 bool SQLiteQuery::openConnection(const char* globalConnectId)
 {
-    LDEBUG << "opning SQLite connection to " << globalConnectId;
     sqlite3_enable_shared_cache(0);
     if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
     {

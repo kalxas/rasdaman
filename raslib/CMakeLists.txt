@@ -29,7 +29,7 @@ add_library(raslib attribute.hh attribute.cc
         complextype.hh complextype.cc
         dlist.hh dlist.cc
         endian.hh endian.cc
-        error.hh error.cc error.icc
+        error.hh error.cc
         flatbasetype.hh flatbasetype.cc
         itertype.hh itertype.cc
         marraytype.hh marraytype.cc
@@ -121,7 +121,6 @@ install(FILES
     structuretype.hh
     template_inst.hh
     type.hh
-    error.icc
     minterval.icc
     miterd.icc
     miterf.icc

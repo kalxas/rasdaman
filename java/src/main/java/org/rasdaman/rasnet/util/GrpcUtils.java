@@ -35,14 +35,10 @@ import java.util.concurrent.TimeUnit;
 public class GrpcUtils {
     private static RuntimeException convertStatusToGenericException(Status status) {
         StringBuilder builder = new StringBuilder();
-        builder.append("GRPC Exception:\n");
-        builder.append("Status code:");
+        builder.append("GRPC Exception, status code: ");
         builder.append(status.getCode());
-        builder.append("\n");
-        builder.append("Status description:");
+        builder.append(", description: ");
         builder.append(status.getDescription());
-        builder.append("\n");
-
         return new RuntimeException(builder.toString());
     }
 
@@ -70,7 +66,6 @@ public class GrpcUtils {
                 }
                 }
             } catch (InvalidProtocolBufferException e) {
-                e.printStackTrace();
                 result = GrpcUtils.convertStatusToGenericException(status);
             }
         } else {
@@ -93,13 +88,12 @@ public class GrpcUtils {
      */
     public static boolean isServerAlive(HealthServiceGrpc.HealthServiceBlockingStub healthService, int timeoutMilliseconds) {
         boolean isAlive = false;
-        org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest request = org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest.newBuilder().build();
-
+        org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest request = 
+                org.rasdaman.rasnet.service.HealthServiceOuterClass.HealthCheckRequest.newBuilder().build();
         try {
             healthService.withDeadlineAfter(timeoutMilliseconds, TimeUnit.MILLISECONDS).check(request);
             isAlive = true;
         } catch (Exception ex) {
-            Debug.talkWarning(ex.getStackTrace().toString());
             Debug.talkWarning(ex.getLocalizedMessage());
         }
 

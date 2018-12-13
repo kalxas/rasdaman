@@ -247,7 +247,7 @@ DBHierIndex::readFromDb()
     // blobformat == 9: OIDcounter is now long, but r_Range is still int
     // blobformat == 10: r_Range is long as well
 
-    LDEBUG << "blobbuffer[0]: " << blobbuffer[0];
+    LDEBUG << "blobbuffer[0]: " << (int)blobbuffer[0];
     if (blobbuffer[0] == 13)
     {
         // old format

@@ -44,10 +44,12 @@ public class RasQueryResult extends AbstractRasQueryResult {
         inspect();
     }
 
+    @Override
     public void mdd(RasGMArray res) {
         mdds.add(res.getArray());
     }
 
+    @Override
     public void scalar(Object res) {
         String scalarResult = res.toString();
         // NOTE: keep the result consistent as from rasql.

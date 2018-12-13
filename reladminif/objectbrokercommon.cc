@@ -171,7 +171,7 @@ ObjectBroker::freeMemory()
 void
 ObjectBroker::init()
 {
-    LTRACE << "initializing object caches";
+    LDEBUG << "initializing object caches";
     ObjectBroker::theLong = new LongType();
     ObjectBroker::theShort = new ShortType();
     ObjectBroker::theOctet = new OctetType();

@@ -275,70 +275,62 @@ DBObject::isPersistent() const
 void
 DBObject::validate()
 {
-    if (_isModified)
+    if (_isModified && !_validationFailed && !AdminIf::isReadOnlyTA() && !AdminIf::isAborted())
     {
-        if (!AdminIf::isReadOnlyTA())
+        try
         {
-            if (!AdminIf::isAborted())
+            if (_isInDatabase)
             {
-                if (_isInDatabase)
+                if (_isPersistent)
                 {
-                    if (_isPersistent)
-                    {
-                        LTRACE << "is persistent and modified and in database";
+                    LTRACE
+                        << "is persistent and modified and in database";
 #ifdef RMANBENCHMARK
-                        updateTimer.resume();
+                    updateTimer.resume();
 #endif
-                        this->updateInDb();
+                    this->updateInDb();
 #ifdef RMANBENCHMARK
-                        updateTimer.pause();
+                    updateTimer.pause();
 #endif
-                    }
-                    else
-                    {
-                        LTRACE << "is not persistent and in database";
-#ifdef RMANBENCHMARK
-                        deleteTimer.resume();
-#endif
-                        this->deleteFromDb();
-#ifdef RMANBENCHMARK
-                        deleteTimer.pause();
-#endif
-                    }
                 }
                 else
                 {
-                    if (_isPersistent)
-                    {
-                        LTRACE << "is persistent and modified and not in database";
-
+                    LTRACE << "is not persistent and in database";
 #ifdef RMANBENCHMARK
-                        insertTimer.resume();
+                    deleteTimer.resume();
 #endif
-                        this->insertInDb();
+                    this->deleteFromDb();
 #ifdef RMANBENCHMARK
-                        insertTimer.pause();
+                    deleteTimer.pause();
 #endif
-                    }
-                    else
-                    {
-                        //do not do anything: not in db and not persistent
-                    }
                 }
             }
             else
             {
-                //do not do anything: is aborted
+                if (_isPersistent)
+                {
+                    LTRACE
+                        << "is persistent and modified and not in database";
+
+#ifdef RMANBENCHMARK
+                    insertTimer.resume();
+#endif
+                    this->insertInDb();
+#ifdef RMANBENCHMARK
+                    insertTimer.pause();
+#endif
+                }
+                else
+                {
+                    // do not do anything: not in db and not persistent
+                }
             }
         }
-        else
+        catch (...)
         {
-            //do not do anything: is read only
+            _validationFailed = true;
+            throw;
         }
-    }
-    else
-    {
-        //do not do anything: not modified
     }
 }
 

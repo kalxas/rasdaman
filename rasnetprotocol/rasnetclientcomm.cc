@@ -363,8 +363,7 @@ int RasnetClientComm::openTA(unsigned short readOnly)
     grpc::Status beginTransationStatus = this->getRasServerService()->BeginTransaction(&context, beginTransactionReq, &beginTransactionRepl);
     if (!beginTransationStatus.ok())
     {
-        const char* errorText = beginTransationStatus.error_message().c_str();
-        throw r_Ebase_dbms(r_Error::r_Error_TransactionOpen, errorText);
+        handleError(beginTransationStatus.error_message());
     }
 
     return retval;
@@ -1885,7 +1884,11 @@ void RasnetClientComm::handleError(const string& error)
         if (message.type() == ErrorMessage::RERROR)
         {
             LDEBUG << "Throwing error received from the server: " << msg;
-            throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
+            const auto &what = message.error_text();
+            if (!what.empty() && message.kind() == 1 && message.error_no() == 0)
+                throw r_Error(what.c_str());
+            else
+                throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
         }
         else if (message.type() == ErrorMessage::STL)
         {

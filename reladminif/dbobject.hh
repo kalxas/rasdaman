@@ -264,6 +264,11 @@ protected:
     tells , if this objects is cached or not
     */
 
+    bool _validationFailed{false};
+    /*@Doc:
+    set to true if validate() failed on this object
+    */
+
     OId myOId;
     /*@Doc:
     the oid of this object.  is set by setPersistent(1) or by the constructor

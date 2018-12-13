@@ -88,7 +88,10 @@ Tile::Tile(const Tile& tile)
     }
     else
     {
-        blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
+            if (tile.blobTile->getCells())
+                blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
+            else
+                blobTile = new BLOBTile(tile.blobTile->getDataFormat());
     }
     blobTile->setCurrentFormat(tile.blobTile->getCurrentFormat());
 }

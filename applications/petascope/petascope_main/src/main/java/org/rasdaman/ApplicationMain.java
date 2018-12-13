@@ -23,18 +23,19 @@ package org.rasdaman;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.apache.commons.io.FileUtils;
-import static org.rasdaman.InitAllConfigurationsApplicationService.APPLICATION_PROPERTIES_FILE;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.config.ConfigManager;
-import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_GDAL_JAVA_DIR;
-import static org.rasdaman.InitAllConfigurationsApplicationService.KEY_PETASCOPE_CONF_DIR;
-import static org.rasdaman.InitAllConfigurationsApplicationService.addLibraryPath;
 import org.rasdaman.migration.service.AbstractMigrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,60 +52,303 @@ import org.springframework.core.io.FileSystemResource;
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCSException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 
-@SpringBootApplication
-@EnableCaching
-@ComponentScan({"org.rasdaman", "petascope"})
-// NOTE: classpath is important when running as war package or it will have error resource not found
-@PropertySource({"classpath:application.properties"})
 /**
- * This class initialize the Petascope properties then run the application as
- * jar file
+ * This class initializes the petascope properties and runs the application as jar file.
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
+ * @author Dimitar Misev
  */
+@SpringBootApplication
+@EnableCaching
+@ComponentScan({"com.rasdaman", "org.rasdaman", "petascope"})
+// NOTE: classpath is important when running as war package or it will have error: resource not found
+@PropertySource({"classpath:application.properties"})
 public class ApplicationMain extends SpringBootServletInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationMain.class);
-    // This one is to determine when application is started inside a external servlet container (e.g: tomcat/webapps)
-    // or it is invoked from command line (e.g: java -jar rasdaman.war), default is external.
+    
+    public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
+    // path to gdal native files (.so) which are needed for GDAL java to invoke.
+    public static final String KEY_GDAL_JAVA_DIR = "gdal-java.libDir";
+    public static final String KEY_PETASCOPE_CONF_DIR = "petascope.confDir";
+    
+    private static final String TMP_GDAL_JAVA_DIR_NAME = "gdal_java";
+    private static final String[] GDAL_LIB_PREFIXES = new String[] {"libgdal", "libogr", "libosr"};
+    
+    // When invoked from command line (e.g: java -jar rasdaman.war), the migration
+    // is set with a command-line parameter --migrate which makes this option true.
     public static boolean MIGRATE = false;
     
-    // NOTE: Only used when running embedded petascope, to set a path to a new directory 
-    // which contains a customized petascope.properties (e.g: /opt/rasdaman/new_etc)
-    private static String petascopeConfigDir = "";
+    // Only used when running embedded petascope to set a custom directory containing petascope.properties
+    private static String OPT_PETASCOPE_CONFDIR = "";
 
-    @Resource
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
+    @Resource
     List<AbstractMigrationService> migrationServices;
 
     /**
-     * Load properties files and init all necessary configurations.
-     *
-     * @throws Exception
+     * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
+     * It loads properties files for both the Spring Framework and ConfigManager.
      */
-    private static PropertySourcesPlaceholderConfigurer init() throws Exception {
-        String resourceName = APPLICATION_PROPERTIES_FILE; // could also be a constant
-        Properties properties = new Properties();
-        InputStream resourceStream = ApplicationMain.class.getClassLoader().getResourceAsStream(resourceName);
-        properties.load(resourceStream);
-
-        PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        File initialFile = null;
-        if (petascopeConfigDir.isEmpty()) {
-             initialFile = new File(properties.getProperty(KEY_PETASCOPE_CONF_DIR) + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
-        } else {
-            initialFile = new File(petascopeConfigDir + "/" + ConfigManager.PETASCOPE_PROPERTIES_FILE);
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws Exception {
+        return init();
         }
         
-        propertyResourcePlaceHolderConfigurer.setLocation(new FileSystemResource(initialFile));
-        initConfigurations(properties);
+    /**
+     * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
+     */
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(ApplicationMain.class);
+    }
 
-        return propertyResourcePlaceHolderConfigurer;
+    /**
+     * Load properties files and init all necessary configurations.
+     */
+    private static PropertySourcesPlaceholderConfigurer init() throws Exception {
+        // load application.properties
+        Properties applicationProperties = loadApplicationProperties();
+
+        // load petascope.properties
+        PropertySourcesPlaceholderConfigurer ret = loadPetascopeProperties(applicationProperties);
+        initConfigurations(applicationProperties);
+
+        return ret;
+    }
+
+    private static Properties loadApplicationProperties() throws Exception {
+        Properties properties = new Properties();
+        properties.load(ApplicationMain.class.getClassLoader().getResourceAsStream(APPLICATION_PROPERTIES_FILE));
+        return properties;
+    }
+    
+    private static PropertySourcesPlaceholderConfigurer loadPetascopeProperties(Properties applicationProperties) throws Exception {
+        PropertySourcesPlaceholderConfigurer ret = new PropertySourcesPlaceholderConfigurer();
+        String petaPropsDir = OPT_PETASCOPE_CONFDIR;
+        if (petaPropsDir.isEmpty()) {
+            petaPropsDir = applicationProperties.getProperty(KEY_PETASCOPE_CONF_DIR);
+        }
+        File petaProps = new File(petaPropsDir, ConfigManager.PETASCOPE_PROPERTIES_FILE);
+        ret.setLocation(new FileSystemResource(petaProps));
+        return ret;
+    }
+
+    /**
+     * Initialize all configurations for GDAL libraries, ConfigManager and OGC WCS XML Schema
+     */
+    private static void initConfigurations(Properties applicationProperties) throws Exception {
+        loadGdalLibrary(applicationProperties);
+        ConfigManager.init(applicationProperties.getProperty(KEY_PETASCOPE_CONF_DIR));
+        
+        try {
+            // Load all the type registry (set, mdd, base types) of rasdaman
+            TypeRegistry.getInstance();
+        } catch (Exception ex) {
+            log.warn("Failed initializing type registry from rasdaman.", ex);
+        }
+
+        try {
+            // Load the WCS Schema to validation if it is needed
+            XMLAbstractParser.loadWcsSchema();
+        } catch (Exception ex) {
+            log.error("Failed loading the OGC WCS Schema for POST/SOAP request validation.", ex);
+            AbstractController.startException = ex;
+        }
+    }
+    
+    private static void loadGdalLibrary(Properties applicationProperties) {
+        String systemGdalJavaDir = applicationProperties.getProperty(KEY_GDAL_JAVA_DIR);
+        try {
+            // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
+            addGdalLibraryPath(TMP_GDAL_JAVA_DIR_NAME, systemGdalJavaDir);
+            // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
+            // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
+            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
+        } catch (Error | Exception ex) {
+            String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
+                    + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
+            log.error(errorMessage, ex);
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+        } 
+    }
+    
+    // -----------------------------------------------------------------------------------
+    // Load GDAL native library
+    // 
+    // TODO: these methods should be generalized with a library name (e.g. libgdal.so)
+    //       and moved to a Util class.
+    // -----------------------------------------------------------------------------------
+
+    /**
+     * Adds the specified path to the java library path (very important to load gdal-java)
+     */
+    private static void addGdalLibraryPath(String tmpLibPath, String systemLibPath) throws Exception {
+        File parentTmpLibDir = getParentTmpLibDir(tmpLibPath);
+
+        // Each time application starts, copy the system library to a temp folder to be loaded by Classloader
+        File currentTmpLibDir = createUniqueTmpLibDir(parentTmpLibDir);
+        copyFilesWithPrefix(systemLibPath, currentTmpLibDir, GDAL_LIB_PREFIXES);
+
+        // Then load this new created tmp native library folder by Java class loader
+        loadGdalLibraryByClassLoader(parentTmpLibDir.getPath(), currentTmpLibDir);              
+
+        // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
+        // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
+        setFullDirPermissions(parentTmpLibDir);
+    }
+    
+    private static File getParentTmpLibDir(String tmpLibPath) throws PetascopeException {
+        File ret = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
+        if (ret.exists()) {
+            // Remove this temp directory for the gdal library as it is already loaded in JVM
+            try {
+                FileUtils.cleanDirectory(ret);
+            } catch (IOException ex) {
+                throw new PetascopeException(ExceptionCode.RuntimeError,
+                        "Cannot delete temp directory '" + ret + 
+                        "', please remove manually and restart Tomcat. Reason: " + ex.getMessage());
+            }
+        }
+        return ret;
+    }
+    
+    private static File createUniqueTmpLibDir(File tmpLibDir) throws PetascopeException {
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        File ret = new File(tmpLibDir, timeStamp);
+        try {
+            FileUtils.forceMkdir(ret);
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError,
+                        "Cannot create temp directory '" + ret +  "'. Reason: " + ex.getMessage());
+        }
+        return ret;
+    }
+    
+    /**
+     * Given a file name prefix, it copies all matches from srcPath to dstDir.
+     */
+    private static void copyFilesWithPrefix(String srcPath, File dstDir, String... fileNamePrefixes) throws PetascopeException {
+        File srcDir = new File(srcPath);
+        
+        IOFileFilter[] fileFilters = new IOFileFilter[fileNamePrefixes.length];
+        for (int i = 0; i < fileNamePrefixes.length; ++i)
+            fileFilters[i] = FileFilterUtils.prefixFileFilter(fileNamePrefixes[i]);
+        
+        try {
+            FileUtils.copyDirectory(srcDir, dstDir, FileFilterUtils.or(fileFilters));
+        } catch (IOException ex) {
+            throw new PetascopeException(ExceptionCode.RuntimeError,
+                        "Cannot copy native library folder from '" + srcDir + 
+                        "' to '" + dstDir + "'. Reason: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Copy native library files from original source folder (e.g: /usr/lib) 
+     * to a temp folder (e.g: /tmp/rasdaman_petascope/gdal_java/2018-04-08_13_31_00).
+     * Then the Java class loader can load the libraries from this temp folder.
+     * 
+     * NOTE: it is critical that Java class loader needs different paths to temp native library folders 
+     * specified by date-time stamp to load correctly.
+     * Any old loaded folder by Java class loader will be removed when *petascope restarts*.
+     * If Java class loader cannot load native library, the only way to solve is to *restart Tomcat*.
+     * 
+     * @paam tmpLibPath the tmp parent folder (e.g: /tmp/rasdaman/petascope/gdal_java) 
+     * to store children folders containing native library files.
+     * @param currentTmpLibDir the child folder of the tmp native library parent folder.
+     */
+    private static void loadGdalLibraryByClassLoader(String tmpLibPath, File currentTmpLibDir) 
+            throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        // Based on this guide to change JNI at run time
+        // http://fahdshariff.blogspot.de/2011/08/changing-java-library-path-at-runtime.html
+        final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+        usrPathsField.setAccessible(true);
+        // get array of paths
+        final String[] paths = (String[]) usrPathsField.get(null);
+
+        int i = 0;
+        boolean pathExist = false;
+        // check if the path to add is already present
+        for (String path : paths) {
+            String pathFolder = StringUtils.substringBeforeLast(path, "/");
+            if (pathFolder.equals(tmpLibPath)) {                
+                // Override the old path of rasdaman/gdal_native with the new one
+                paths[i] = currentTmpLibDir.getPath();
+                usrPathsField.set(null, paths);
+                pathExist = true;
+                break;
+            }
+            i++;
+        }
+
+        if (pathExist == false) {
+            //add the new path
+            final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);        
+            newPaths[newPaths.length - 1] = currentTmpLibDir.getPath();
+            usrPathsField.set(null, newPaths);
+        }
+    }
+    
+    /**
+     * Set full directory permissions for dir.
+     * TODO: move to a FileUtil class.
+     */
+    private static void setFullDirPermissions(File dir) throws IOException, InterruptedException {
+        Runtime rt = Runtime.getRuntime();
+        Process process = rt.exec("chmod -R 777 " + dir);
+        process.waitFor();
+    }
+    
+    // -----------------------------------------------------------------------------------
+
+    /**
+     * Invoked when all beans are created to check it should run the migration
+     * or not.
+     */
+    @PostConstruct
+    private void handleMigrate() {
+
+        if (MIGRATE && AbstractController.startException == null) {
+            log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + 
+                    "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
+            /*
+             * NOTE: Hibernate is already connected when migration application starts,
+             * so with the embedded database, if another connection tries to connect, it will return exception.
+             */
+            // Then, check what kind of migration should be done
+            // NOTE: There are 2 types of migration:
+            // + From legacy petascopedb prior version 9.5, it checks if petascopedb contains a 
+            //   legacy table name then it migrates to new petascopedb version 9.5.
+            // + From petascopedb after version 9.5 to a different database, it checks if both source JDBC, 
+            //   target JDBC can be connected then it migrates entities to new database.
+            for (AbstractMigrationService migrationService : migrationServices) {
+                if (migrationService.isMigrating()) {
+                    // A migration process is running, don't do anything else
+                    log.error("A migration process is already running.");
+                    System.exit(ExitCode.FAILURE.getExitCode());
+                }
+                
+                try {
+                    if (migrationService.canMigrate()) {
+                        migrationService.migrate();
+                        // Just do one migration
+                        break;
+                    }
+                } catch (Exception ex) {
+                    log.error("An error occured while migrating, aborting the migration process. Reason: " + ex.getMessage());
+                    // Release the lock on Migration table so later can run migration again
+                    migrationService.releaseLock();
+                    System.exit(ExitCode.FAILURE.getExitCode());
+                }
+            }
+            log.info("petascopedb migrated successfully.");
+            System.exit(ExitCode.SUCCESS.getExitCode());
+        }
     }
 
     /**
@@ -125,34 +369,13 @@ public class ApplicationMain extends SpringBootServletInitializer {
         }
     }
 
-    /**
-     * NOTE: This one is used when running Petascope (rasdaman.war) only inside
-     * an external servlet application (not embedded one). And it is used to
-     * invoke loading properties files both for Spring Framework and
-     * ConfigManager.
-     */
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws Exception {
-        PropertySourcesPlaceholderConfigurer propertyResourcePlaceHolderConfigurer = init();
-        return propertyResourcePlaceHolderConfigurer;
-    }
-
-    @Override
-    /**
-     * NOTE: This one will be invoked only when running in external servlet
-     * application (i.e: not embedded).
-     */
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(ApplicationMain.class);
-    }
-
     public static void main(String[] args) throws Exception {
         // user runs Petascope in the command line to migrate petascopedb
         for (String arg : args) {
             // In case of running java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc
             if (arg.startsWith(KEY_PETASCOPE_CONF_DIR)) {
                 String value = arg.split("=")[1];
-                petascopeConfigDir = value;
+                OPT_PETASCOPE_CONFDIR = value;
             } else if (arg.startsWith("--migrate")) {
                 MIGRATE = true;
             }
@@ -170,100 +393,6 @@ public class ApplicationMain extends SpringBootServletInitializer {
                 log.error("Error starting petascope with embedded Tomcat. Reason: " + ex.getMessage(), ex);
                 System.exit(ExitCode.FAILURE.getExitCode());
             }
-        }
-    }
-
-    /**
-     * Initialize all the configurations for GDAL libraries, ConfigManager and
-     * OGC WCS XML Schema
-     */
-    private static void initConfigurations(Properties properties) throws Exception {
-        String GDAL_JAVA_DIR = properties.getProperty(KEY_GDAL_JAVA_DIR);
-        String CONF_DIR = properties.getProperty(KEY_PETASCOPE_CONF_DIR);
-        final String TMP_DIR = "gdal_java";
-        try {
-            // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")        
-            addLibraryPath(TMP_DIR, GDAL_JAVA_DIR);
-            // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
-            // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
-            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});            
-        } catch (Error ex) {
-            String errorMessage = "Cannot add GDAL java native library from '" + GDAL_JAVA_DIR + "' to java library path, "
-                    + "please restart Tomcat containing Petascope to fix this problem. Reason: " + ex.getMessage();
-            log.error(errorMessage, ex);
-            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
-        } finally {
-            final String tmpNativeParentFolderPath = ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + "/" + TMP_DIR;
-            File tmpNativeParentFolder = new File(tmpNativeParentFolderPath);
-            // Clean anything inside /tmp/rasdaman_petascope/gdal-java/ as it either loaded to memory or failed to start
-            if (tmpNativeParentFolder.exists()) {
-                // Clean content of this temp directory for the gdal library as it is already loaded in JVM
-                try {
-                    FileUtils.cleanDirectory(tmpNativeParentFolder);
-                } catch (IOException ex) {
-                    log.warn("Cannot clear content of temp directory '" + tmpNativeParentFolder.getCanonicalPath() + "',"
-                            + " please remove it manually. Reason:" + ex.getMessage(), ex);
-                }
-            }
-        }
-
-        // Load properties for Spring, Hibernate from external petascope.properties
-        ConfigManager.init(CONF_DIR);
-        try {
-            // Load all the type registry (set, mdd, base types) of rasdaman
-            TypeRegistry.getInstance();
-        } catch (Exception ex) {
-            log.warn("Failed initializing type registry from rasdaman.", ex);
-        }
-
-        try {
-            // Load the WCS Schema to validation if it is needed
-            XMLAbstractParser.loadWcsSchema();
-        } catch (WCSException ex) {
-            log.error("Cannot load the OGC WCS Schema to validate POST/SOAP requests.", ex);
-            AbstractController.startException = ex;
-        }
-    }
-
-    /**
-     * Invoked when all beans are created to check it should run the migration
-     * or not.
-     */
-    @PostConstruct
-    private void handleMigrate() {
-
-        if (MIGRATE && AbstractController.startException == null) {
-            log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + "' to JDBC URL '" + ConfigManager.PETASCOPE_DATASOURCE_URL + "'...");
-            /*
-            NOTE: Hibernate already connected when migration application starts,
-            so With the embedded database, if another connection tries to connect, it will return exception.
-             */
-            // Then, check what kind of migration should be done
-            // NOTE: There are 2 types of migration:
-            // + From legacy petascopedb prior version 9.5, it checks if petascopedb contains a legacy table name then it migrates to new petascopedb version 9.5.
-            // + From petascopedb after version 9.5 to a different database, it checks if both source JDBC, target JDBC can be connected then it migrates entities to new database.
-            for (AbstractMigrationService migrationService : migrationServices) {
-                if (migrationService.isMigrating()) {
-                    // A migration process is running, don't do anything else
-                    log.error("A migration process is already running.");
-                    System.exit(ExitCode.FAILURE.getExitCode());
-                }
-                
-                try {
-                    if (migrationService.canMigrate()) {
-                        migrationService.migrate();
-                        // Just do one migration
-                        break;
-                    }
-                } catch (Exception ex) {
-                    log.error("An error occured while migrating, aborting the migration process.\n Reason: " + ex.getMessage());
-                    // Release the lock on Migration table so later can run migration again
-                    migrationService.releaseLock();
-                    System.exit(ExitCode.FAILURE.getExitCode());
-                }
-            }
-            log.info("petascopedb migrated successfully.");
-            System.exit(ExitCode.SUCCESS.getExitCode());
         }
     }
 }

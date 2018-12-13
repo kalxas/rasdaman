@@ -40,7 +40,7 @@ nodebug==1            { print $0; next; }
 			print "\t\tif (counter == RMInit::rpcMaxRetry)";
 			print "\t\t\tt = new r_Error(RPCCOMMUNICATIONFAILURE);";
 			print "\t\telse";
-			print "\t\t\tt = r_Error::getAnyError(result->errorText);";
+			print "\t\t\tt = new r_Error(result->errorText);";
 			print "\t\te=*t;";
 			print "\t\tdelete t;";
 			print "\t\tthrow e;";

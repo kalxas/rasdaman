@@ -974,10 +974,10 @@ grpc::Status RasnetServerComm::ExecuteHttpQuery(__attribute__ ((unused)) grpc::S
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
         char* resultBuffer = 0;
-        int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
+        long resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
         response->set_data(resultBuffer, static_cast<size_t>(resultLen));
-        delete[] resultBuffer;
+        free(resultBuffer);
     }
     catch (r_Ebase_dbms& edb)
     {
@@ -1012,7 +1012,7 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__ ((unused)) g
     {
         RasServerEntry& rasserver = RasServerEntry::getInstance();
         char* resultBuffer = 0;
-        int resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
+        long resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
         string requestUUID = UUID::generateUUID();
 
@@ -1059,7 +1059,7 @@ grpc::Status RasnetServerComm::GetNextStreamedHttpQuery(__attribute__ ((unused))
     grpc::Status status = grpc::Status::OK;
     try
     {
-        boost::shared_ptr<ClientQueryStreamedResult> result = this->clientManager->getQueryStreamedResult(request->uuid());
+        auto result = this->clientManager->getQueryStreamedResult(request->uuid());
         rasserver::DataChunk nextChunk = result->getNextChunk();
         response->set_data(nextChunk.bytes, nextChunk.length);
         response->set_bytes_left(result->getRemainingBytesLength());

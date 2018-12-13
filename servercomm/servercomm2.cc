@@ -208,6 +208,28 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
 }
 #endif
 
+// -----------------------------------------------------------------------------------------
+// handle logging requests
+
+std::stringstream requestStream;
+
+#ifdef RASDEBUG
+#define DBGREQUEST(msg)   NNLINFO << "Request: " << msg << "... ";
+#define DBGOK             BLINFO  << MSG_OK << "\n";
+#define DBGINFO(msg)      BLINFO  << msg << "\n";
+#define DBGERROR(msg)     BLERROR << "Error: " << msg << "\n";
+#define DBGWARN(msg)      BLWARNING << "Warning: " << msg << "\n";
+#else
+#define DBGREQUEST(msg) { requestStream.clear(); requestStream << "Request: " << msg << "... "; }
+#define DBGOK           // nothing to log if release mode if all is ok
+#define DBGINFO(msg)    // nothing to log if release mode if all is ok
+#define DBGERROR(msg)   { NNLINFO << requestStream.str(); BLERROR << "Error: " << msg << "\n"; requestStream.clear(); }
+#define DBGWARN(msg)    { NNLINFO << requestStream.str(); BLWARNING << "Warning: " << msg << "\n"; requestStream.clear(); }
+#endif
+
+// -----------------------------------------------------------------------------------------
+
+
 /*************************************************************************
  * Method name...: openDB( unsigned long callingClientId,
  *                         const char*   dbName ,
@@ -219,9 +241,8 @@ ServerComm::openDB(unsigned long callingClientId,
                    const char* userName)
 {
     unsigned short returnValue = 0;
-#ifdef RASDEBUG
-    LINFO << "Request: 'open DB', name = " << dbName << "'...";
-#endif
+
+    DBGREQUEST("'open DB', name = " << dbName);
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -239,7 +260,7 @@ ServerComm::openDB(unsigned long callingClientId,
         {
             if (err.get_kind() == r_Error::r_Error_DatabaseUnknown)
             {
-                LERROR << "database does not exist.";
+                DBGERROR("database does not exist.");
                 returnValue = 2;
             }
             else if (err.get_kind() == r_Error::r_Error_DatabaseOpen)
@@ -250,7 +271,7 @@ ServerComm::openDB(unsigned long callingClientId,
             }
             else
             {
-                LERROR << "exception " << err.get_errorno() << ": " << err.what();
+                DBGERROR(err.what());
                 //should be something else.  but better than no message about the problem at all
                 returnValue = 2;
             }
@@ -266,9 +287,7 @@ ServerComm::openDB(unsigned long callingClientId,
             delete[] context->userName;
             context->userName = new char[strlen(userName) + 1];
             strcpy(context->userName, userName);
-#ifdef RASDEBUG
-            BLINFO << MSG_OK << "\n";
-#endif
+            DBGOK;
         }
 
         context->release();
@@ -276,13 +295,13 @@ ServerComm::openDB(unsigned long callingClientId,
         // ignore "already open" error to be more fault tolerant -- PB 2004-dec-16
         if (returnValue == 3)
         {
-            LWARNING << "Warning: database already open for user '" << userName << "', ignoring command.";
+            DBGWARN("database already open for user '" << userName << "', ignoring command.");
             returnValue = 0;
         }
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
     return returnValue;
@@ -297,9 +316,7 @@ ServerComm::closeDB(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-#ifdef RASDEBUG
-    LDEBUG << "Request: 'close DB'...";
-#endif
+    DBGREQUEST("'close DB'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -311,7 +328,7 @@ ServerComm::closeDB(unsigned long callingClientId)
         // If the current transaction belongs to this client, abort it.
         if (transactionActive == callingClientId)
         {
-            LWARNING << "Warning: transaction is open; aborting this transaction...";
+            DBGWARN("transaction is open; aborting this transaction...");
 
             context->transaction.abort();
             transactionActive = 0;
@@ -333,13 +350,11 @@ ServerComm::closeDB(unsigned long callingClientId)
         purify_new_leaks();
 #endif
 
-#ifdef RASDEBUG
-        BLINFO << MSG_OK << "\n";
-#endif
+        DBGOK
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
     return returnValue;
@@ -357,37 +372,31 @@ ServerComm::createDB(char* name)
 
     // FIXME: what about client id? -- PB 2005-aug-27
 
-#ifdef RASDEBUG
-    LINFO << "Request: 'create DB', name = " << name << "'...";
-#endif
+    DBGREQUEST("'create DB', name = " << name);
 
-    DatabaseIf* tempDbIf = new DatabaseIf;
+    auto tempDbIf = std::unique_ptr<DatabaseIf>(new DatabaseIf());
 
     // create the database
     try
     {
         tempDbIf->createDB(name, dbSchema);
-#ifdef RASDEBUG
-        BLINFO << MSG_OK << "\n";
-#endif
+        DBGOK;
     }
     catch (r_Error& myErr)
     {
-#ifdef RASDEBUG
-        LERROR << "exception " << myErr.get_errorno() << ": " << myErr.what();
-#endif
+        DBGERROR(myErr.what());
+        throw;
     }
     catch (std::bad_alloc)
     {
-        LERROR << "cannot allocate memory.";
+        DBGERROR("cannot allocate memory.");
         throw;
     }
     catch (...)
     {
-        LERROR << "Unspecified exception.";
+        DBGERROR("Unspecified exception.");
+        throw;
     }
-
-    delete tempDbIf;
 
     // FIXME: set proper return value on failure (update .hh!) -- PB 2005-aug-27
     returnValue = 0;
@@ -407,9 +416,7 @@ ServerComm::destroyDB(char* name)
 
     unsigned short returnValue = 0;
 
-#ifdef RASDEBUG
-    LINFO << "Request: 'destroy DB', name = " << name << "'...";
-#endif
+    DBGREQUEST("'destroy DB', name = " << name);
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -425,9 +432,7 @@ ServerComm::destroyDB(char* name)
 
     delete tempDbIf;
 
-#ifdef RASDEBUG
-    BLINFO << MSG_OK << "\n";
-#endif
+    DBGOK;
 
     return returnValue;
 }
@@ -443,20 +448,18 @@ ServerComm::beginTA(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-#ifdef RASDEBUG
-    LINFO << "Request: 'begin TA', mode = " << (readOnly ? "read" : "write") << "...";
-#endif
+    DBGREQUEST("'begin TA', mode = " << (readOnly ? "read" : "write"));
 
     ClientTblElt* context = getClientContext(callingClientId);
 
     if (context == 0)
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
     else if (transactionActive)
     {
-        LERROR << "transaction already active.";
+        DBGERROR("transaction already active.");
         returnValue = 2;
         context->release();
     }
@@ -475,15 +478,11 @@ ServerComm::beginTA(unsigned long callingClientId,
         {
             // start the transaction
             context->transaction.begin(&(context->database), readOnly);
-#ifdef RASDEBUG
-            BLINFO << MSG_OK << "\n";
-#endif
+            DBGOK;
         }
         catch (r_Error& err)
         {
-#ifdef RASDEBUG
-            LERROR << "exception " << err.get_errorno() << ": " << err.what();
-#endif
+            DBGERROR(err.what());
             context->release();
             throw;
         }
@@ -507,11 +506,9 @@ ServerComm::commitTA(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-    ClientTblElt* context = getClientContext(callingClientId);
+    DBGREQUEST("'commit TA'");
 
-#ifdef RASDEBUG
-    LINFO << "Request: 'commit TA'...";
-#endif
+    ClientTblElt* context = getClientContext(callingClientId);
 
     if (context != 0)
     {
@@ -549,13 +546,11 @@ ServerComm::commitTA(unsigned long callingClientId)
 
         context->release();
 
-#ifdef RASDEBUG
-        BLINFO << MSG_OK << "\n";
-#endif
+        DBGOK;
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -580,9 +575,7 @@ ServerComm::abortTA(unsigned long callingClientId)
 {
     unsigned short returnValue;
 
-#ifdef RASDEBUG
-    LINFO << "Request: 'abort TA'...";
-#endif
+    DBGREQUEST("'abort TA'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -606,13 +599,11 @@ ServerComm::abortTA(unsigned long callingClientId)
 
         context->release();
 
-#ifdef RASDEBUG
-        BLINFO << MSG_OK << "\n";
-#endif
+        DBGOK;
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -638,15 +629,11 @@ ServerComm::abortTA(unsigned long callingClientId)
 bool
 ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
 {
-#ifdef RASDEBUG
-    LINFO << "Request: 'is TA open'...";
-#endif
+    DBGREQUEST("'is TA open'");
 
     bool returnValue = transactionActive;
 
-#ifdef RASDEBUG
-    LINFO << MSG_OK << (transactionActive ? "yes." : "no.");
-#endif
+    DBGINFO((transactionActive ? "yes." : "no."));
 
     return returnValue;
 }
@@ -661,7 +648,7 @@ ServerComm::insertColl(unsigned long callingClientId,
 {
     unsigned short returnValue = 0;
 
-    NNLINFO << "Request: 'insert collection', collection name = '" << collName << "', type = '" << typeName << "'... ";
+    DBGREQUEST("'insert collection', collection name = '" << collName << "', type = '" << typeName << "'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -689,16 +676,12 @@ ServerComm::insertColl(unsigned long callingClientId,
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error: collection exists already.\n";
-#endif
+                    DBGERROR("collection exists already.");
                     returnValue = 3;
                 }
                 else
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << "\n";
-#endif
+                    DBGERROR("cannot create collection, reason: " << obj.what());
                     //this should be another code...
                     returnValue = 3;
                 }
@@ -707,7 +690,7 @@ ServerComm::insertColl(unsigned long callingClientId,
         }
         else
         {
-            BLERROR << "Error: unknown collection type: '" << typeName << "'.\n";
+            DBGERROR("unknown collection type: '" << typeName << "'.");
             returnValue = 2;
         }
 
@@ -719,7 +702,7 @@ ServerComm::insertColl(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -738,7 +721,7 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    NNLINFO << "Request: 'delete collection by name', name = '" << collName << "'... ";
+    DBGREQUEST("'delete collection by name', name = '" << collName << "'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -754,12 +737,12 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
         // delete root object with collection name
         if (MDDColl::dropMDDCollection(collName))
         {
-            BLINFO << MSG_OK << "\n";
+            DBGOK;
             returnValue = 0;
         }
         else
         {
-            BLERROR << "Error: collection does not exist.\n";
+            DBGERROR("collection does not exist.");
             returnValue = 2;
         }
 
@@ -771,7 +754,7 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -786,7 +769,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    NNLINFO << "Request: 'delete MDD by OID', oid = '" << oid << "'... ";
+    DBGREQUEST("'delete MDD by OID', oid = '" << oid << "'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -805,25 +788,24 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
         {
         case OId::MDDOID:
             // FIXME: why not deleted?? -- PB 2005-aug-27
-            BLINFO << "found MDD object; NOT deleted yet..." << MSG_OK << "\n";
+            DBGINFO("found MDD object; NOT deleted yet... " << MSG_OK);
             returnValue = 0;
             break;
         case OId::MDDCOLLOID:
-            BLINFO << "deleting collection... ";
             // delete root object with collection name
             if (MDDColl::dropMDDCollection(oidIf))
             {
-                BLINFO << MSG_OK << "\n";
+                DBGOK;
                 returnValue = 0;
             }
             else
             {
-                BLERROR << "Error: Collection does not exist.\n";
+                DBGERROR("Collection does not exist.");
                 returnValue = 2;
             }
             break;
         default:
-            BLERROR << "Error: object has unknown type: " << objType << "\n";
+            DBGERROR("object has unknown type: " << objType);
             returnValue = 2;
         }
 
@@ -835,7 +817,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -851,7 +833,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 {
     unsigned short returnValue;
 
-    NNLINFO << "Request: 'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'... ";
+    DBGREQUEST("'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -862,31 +844,24 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 
         OId oidIf(oid.get_local_oid());
 
-        LTRACE << "mdd object oid " << oidIf;
-
         // open collection
         MDDColl* coll = 0;
 
         try
         {
             coll = MDDColl::getMDDCollection(collName);
-            LTRACE << "retrieved mdd coll";
         }
         catch (r_Error& obj)
         {
             // collection name invalid
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-#ifdef RASDEBUG
-                BLERROR << "Error: collection not found.\n";
-#endif
+                DBGERROR("collection not found.");
                 returnValue = 2;
             }
             else
             {
-#ifdef RASDEBUG
-                BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
-#endif
+                DBGERROR(obj.what());
                 // there should be another return code
                 returnValue = 2;
             }
@@ -894,13 +869,12 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
         }
         catch (std::bad_alloc)
         {
-            BLERROR << "Error: cannot allocate memory.\n";
+            DBGERROR("cannot allocate memory.");
             throw;
         }
         catch (...)
         {
-            // collection name invalid
-            BLERROR << "Error: unspecified exception.\n";
+            DBGERROR("unspecified exception.");
             returnValue = 2;
         }
 
@@ -908,16 +882,13 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
         {
             if (coll->isPersistent())
             {
-                LTRACE << "retrieved persistent mdd coll";
-
                 OId collId;
                 coll->getOId(collId);
-                LTRACE << "mdd coll oid " << collId;
                 MDDColl::removeMDDObject(collId, oidIf);
 
                 // no error management yet -> returnValue = 3
 
-                BLINFO << MSG_OK << "\n";
+                DBGOK;
                 returnValue = 0;
 
                 delete coll;
@@ -932,7 +903,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -949,7 +920,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    NNLINFO << "Request: 'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'... ";
+    DBGERROR("'insert MDD type', type = '" << typeName << "', collection = '" << collName << "'");
 
     ClientTblElt* context = getClientContext(callingClientId);
     r_Data_Format myDataFmt = r_Array;
@@ -986,22 +957,20 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                     }
                     else
                     {
-                        BLERROR << "Error: inserting into system collection is illegal.\n";
+                        DBGERROR("inserting into system collection is illegal.");
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch (std::bad_alloc)
                 {
-                    BLERROR << "Error: cannot allocate memory.\n";
+                    DBGERROR("cannot allocate memory.");
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& err)
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error " << err.get_errorno() << ": " << err.what() << "\n";
-#endif
+                    DBGERROR(err.what());
                     returnValue = 5;
                     context->release(); //!!!
                     throw;
@@ -1009,7 +978,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 catch (...)
                 {
                     returnValue = 5;
-                    BLERROR << "Error: unspecific exception during collection read.\n";
+                    DBGERROR("unspecific exception during collection read.");
                     context->release();
                     return returnValue;
                 }
@@ -1038,7 +1007,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    BLERROR << "Error: MDD type is not compatible wrt. its domain: " << domain << "\n";
+                    DBGERROR("MDD type is not compatible wrt. its domain: " << domain);
 
                     context->release();
 
@@ -1053,7 +1022,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    BLERROR << "Error: MDD and collection types are incompatible.\n";
+                    DBGERROR("MDD and collection types are incompatible.");
 
                     context->release();
 
@@ -1092,22 +1061,20 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 }
                 catch (std::bad_alloc)
                 {
-                    BLERROR << "Error: cannot allocate memory.\n";
+                    DBGERROR("cannot allocate memory.");
                     context->release(); //!!!
                     throw;
                 }
                 catch (r_Error& obj)
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
-#endif
+                    DBGERROR(obj.what());
                     context->release(); //!!!
                     throw;
                 }
                 catch (...)
                 {
                     returnValue = 6;
-                    BLERROR << "Error: unspecific exception during creation of persistent object.\n";
+                    DBGERROR("unspecific exception during creation of persistent object.");
 
                     context->release();
 
@@ -1131,7 +1098,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 {
                     //FIXME returnValue
                     returnValue = 6;
-                    BLERROR << "Error: illegal tile format for creating object.\n";
+                    DBGERROR("illegal tile format for creating object.");
 
                     context->release();
 
@@ -1172,7 +1139,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                     }
                     delete entireTile;
 
-                    BLINFO << "creating " << tileSet->size() << " tile(s)... ";
+                    DBGINFO("creating " << tileSet->size() << " tile(s)... ");
 
                     for (vector<Tile*>::iterator iter = tileSet->begin(); iter != tileSet->end(); iter++)
                     {
@@ -1204,17 +1171,17 @@ ServerComm::insertMDD(unsigned long  callingClientId,
                 // done
                 //
 
-                BLINFO << MSG_OK << "\n";
+                DBGOK;
             }
             else
             {
-                BLERROR << "Error: MDD type name '" << typeName << "' has no base type.\n";
+                DBGERROR("MDD type name '" << typeName << "' has no base type.");
                 returnValue = 2;
             }
         }
         else
         {
-            BLERROR << "Error: MDD type name '" << typeName << "' not found.\n";
+            DBGERROR("MDD type name '" << typeName << "' not found.");
             returnValue = 2;
         }
 
@@ -1222,7 +1189,7 @@ ServerComm::insertMDD(unsigned long  callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -1238,7 +1205,7 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    NNLINFO << "Request: 'insert tile'... ";
+    DBGREQUEST("'insert tile'");
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -1365,18 +1332,18 @@ ServerComm::insertTileSplitted(unsigned long  callingClientId,
             // done
             //
 
-            BLINFO << MSG_OK << "\n";
+            DBGOK;
         }
         else
         {
-            BLERROR << "Error: tile and MDD base type do not match.\n";
+            DBGERROR("tile and MDD base type do not match.");
         }
 
         context->release();
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -1407,9 +1374,9 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 {
     unsigned short returnValue = 0;
 
-    NNLINFO << "Request: 'start inserting persistent MDD type', type = '" << typeName
+    DBGREQUEST("'start inserting persistent MDD type', type = '" << typeName
           << "', collection = '" << collName << "', domain = " << domain << ", cell size = " << typeLength
-          << ", " << domain.cell_count()*typeLength << "... ";
+          << ", " << (domain.cell_count()*typeLength));
 
     ClientTblElt* context = getClientContext(callingClientId);
 
@@ -1433,29 +1400,27 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                     context->transferColl = MDDColl::getMDDCollection(collName);
                     if (!context->transferColl->isPersistent())
                     {
-                        BLERROR << "Error: inserting into system collection is illegal.\n";
+                        DBGERROR("inserting into system collection is illegal.");
                         context->release(); //!!!
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
                     }
                 }
                 catch (r_Error& obj)
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error " << obj.get_errorno() << ": " << obj.what() << "\n";
-#endif
+                    DBGERROR(obj.what());
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    BLERROR << "Error: cannot allocate memory.\n";
+                    DBGERROR("cannot allocate memory.");
                     context->release(); //!!!
                     throw;
                 }
                 catch (...)
                 {
                     returnValue = 5;
-                    BLERROR << "Error: unspecific exception while opening collection.\n";
+                    DBGERROR("unspecific exception while opening collection.");
 
                     context->release();
 
@@ -1484,7 +1449,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 4;
-                    BLERROR << "Error: MDD type not compatible wrt. its domain: " << domain << MSG_FAILED << "\n";
+                    DBGERROR("MDD type not compatible wrt. its domain: " << domain);
 
                     context->release();
 
@@ -1500,7 +1465,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
 
                     // return error
                     returnValue = 3;
-                    BLERROR << "Error: incompatible MDD and collection types.\n";
+                    DBGERROR("incompatible MDD and collection types.");
 
                     context->release();
 
@@ -1525,22 +1490,20 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-#ifdef RASDEBUG
-                    BLERROR << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << "\n";
-#endif
+                    DBGERROR("while creating persistent tile, " << err.what());
                     context->release(); //!!!
                     throw;
                 }
                 catch (std::bad_alloc)
                 {
-                    BLERROR << "Error: cannot allocate memory.\n";
+                    DBGERROR("cannot allocate memory.");
                     context->release(); //!!!
                     throw;
                 }
                 catch (...)
                 {
                     returnValue = 6;
-                    BLERROR << "Error: unspecific exception during creation of persistent object.\n";
+                    DBGERROR("unspecific exception during creation of persistent object.");
 
                     context->release();
 
@@ -1551,13 +1514,13 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
             }
             else
             {
-                BLERROR << "Error: MDD type '" << typeName << "' has no base type.\n";
+                DBGERROR("MDD type '" << typeName << "' has no base type.");
                 returnValue = 2;
             }
         }
         else
         {
-            BLERROR << "Error: MDD type name '" << typeName << "' not found.\n";
+            DBGERROR("MDD type name '" << typeName << "' not found.");
             returnValue = 2;
         }
 
@@ -1565,7 +1528,7 @@ ServerComm::startInsertPersMDD(unsigned long  callingClientId,
     }
     else
     {
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -3101,9 +3064,7 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                        r_OId&           oid,
                        unsigned short&  currentFormat)
 {
-#ifdef RASDEBUG
-    LINFO << "Request (continuing): 'get next MDD'...";
-#endif
+    DBGREQUEST("(continuing): 'get next MDD'");
 
     unsigned short returnValue = 0;
 
@@ -3281,13 +3242,13 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 if (context->transTiles->size() > 0)
                 {
 #ifdef RASDEBUG
-                    LINFO << MSG_OK << ", " << context->transTiles->size() << " more tile(s)";
+                    DBGINFO(MSG_OK << ", " << context->transTiles->size() << " more tile(s)");
 #endif
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 2;
-                    LERROR << "no tiles in MDD object.";
+                    DBGWARN("no tiles in MDD object.");
                 }
 
                 context->totalTransferedSize = 0;
@@ -3298,15 +3259,13 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
                 if (context->transferDataIter && *(context->transferDataIter) == context->transferData->end())
                 {
                     returnValue = 1;  // nothing left in the collection
-#ifdef RASDEBUG
-                    LINFO << MSG_OK << ", no more tiles.";
-#endif
+                    DBGINFO(MSG_OK << ", no more tiles.");
                     context->releaseTransferStructures();
                 }
                 else
                 {
                     returnValue = 2;  // no actual transfer collection
-                    LERROR << "no transfer collection.";
+                    DBGWARN("no transfer collection.");
                 }
             }
 
@@ -3318,31 +3277,29 @@ ServerComm::getNextMDD(unsigned long   callingClientId,
         }
         catch (r_Ebase_dbms& myErr)
         {
-            LERROR << "base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind())
-                   << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+            DBGERROR("base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind())
+                   << ", errno " << myErr.get_errorno() << ") " << myErr.what());
             throw;
         }
         catch (r_Error& myErr)
         {
-#ifdef RASDEBUG
-            LERROR << "(kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what();
-#endif
+            DBGERROR("kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << " - " << myErr.what());
             throw;
         }
         catch (std::bad_alloc)
         {
-            LERROR << "cannot allocate memory.";
+            DBGERROR("cannot allocate memory.");
             throw;
         }
         catch (...)
         {
-            LERROR << "unspecified exception.";
+            DBGERROR("unspecified exception.");
             throw;
         }
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 2;
     }
 
@@ -3427,9 +3384,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
                            char*&           buffer,
                            unsigned int&    bufferSize)
 {
-#ifdef RASDEBUG
-    LINFO << "Request (continuing): 'get next element'...";
-#endif
+    DBGREQUEST("(continuing): 'get next element'");
 
     unsigned short returnValue = 0;
 
@@ -3437,8 +3392,6 @@ ServerComm::getNextElement(unsigned long   callingClientId,
 
     if (context != 0)
     {
-        LTRACE << "getNextElement(...) TRANSFER " << context->transferFormat << ", EXACT " << (bool)context->exactFormat;
-
         if (context->transferData && context->transferDataIter &&
                 *(context->transferDataIter) != context->transferData->end())
         {
@@ -3509,9 +3462,6 @@ ServerComm::getNextElement(unsigned long   callingClientId,
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
                         if ((strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
-#ifdef RASDEBUG
-                            LINFO << "changing endianness...";
-#endif
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
                             switch (scalarDataObj->getDataType())
                             {
@@ -3588,14 +3538,13 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             }
             catch (r_Ebase_dbms& myErr)
             {
-                LERROR << "base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what();
+                DBGERROR("base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind())
+                         << ", errno " << myErr.get_errorno() << ") " << myErr.what());
                 throw;
             }
             catch (r_Error& err)
             {
-#ifdef RASDEBUG
-                LERROR << "exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
-#endif
+                DBGERROR("kind " << err.get_kind() << ", errno " << err.get_errorno() << " - " << err.what());
                 throw;
             }
 
@@ -3605,16 +3554,12 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             if (*(context->transferDataIter) != context->transferData->end())
             {
                 returnValue = 0;
-#ifdef RASDEBUG
-                LINFO << MSG_OK << ", some more tile(s) left.";
-#endif
+                DBGINFO(MSG_OK << ", some more tile(s) left.");
             }
             else
             {
                 returnValue = 1;
-#ifdef RASDEBUG
-                LINFO << MSG_OK << ", no more tiles.";
-#endif
+                DBGINFO(MSG_OK << ", no more tiles.");
             }
         }
         else
@@ -3622,13 +3567,13 @@ ServerComm::getNextElement(unsigned long   callingClientId,
             if (context->transferDataIter && *(context->transferDataIter) == context->transferData->end())
             {
                 returnValue = 1;  // nothing left in the collection
-                LDEBUG << "nothing left..." << MSG_OK;
+                DBGINFO("nothing left... " << MSG_OK);
                 context->releaseTransferStructures();
             }
             else
             {
                 returnValue = 2;  // no actual transfer collection
-                LERROR << "no transfer collection.";
+                DBGWARN("no transfer collection.");
             }
         }
 
@@ -3640,7 +3585,7 @@ ServerComm::getNextElement(unsigned long   callingClientId,
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 2;
     }
 
@@ -3657,9 +3602,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
                         char*&           typeStructure,
                         unsigned short&  currentFormat)
 {
-#ifdef RASDEBUG
-    LINFO << "Request: 'get MDD by OId', oid = " << oid << "...";
-#endif
+    DBGREQUEST("'get MDD by OId', oid = " << oid);
 
     unsigned short returnValue = 0;
 
@@ -3689,16 +3632,14 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
             }
             catch (r_Error& err)
             {
-#ifdef RASDEBUG
-                BLERROR << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what();
-#endif
+                DBGERROR("kind " << err.get_kind() << ", errno " << err.get_errorno() << " - " << err.what());
                 context->release();
                 throw;
             }
             catch (...)
             {
                 returnValue = 2;
-                LERROR << "Error: unspecified exception.";
+                DBGERROR("unspecified exception.");
             }
 
             if (!returnValue)
@@ -3781,21 +3722,19 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
 
                 if (context->transTiles->size() > 0)
                 {
-#ifdef RASDEBUG
-                    LINFO << MSG_OK << ", got " << context->transTiles->size() << " tile(s).";
-#endif
+                    DBGINFO(MSG_OK << ", got " << context->transTiles->size() << " tile(s).");
                 }
                 else   // context->transTiles->size() == 0
                 {
                     returnValue = 3;
-                    LERROR << "no tiles in MDD object.";
+                    DBGERROR("no tiles in MDD object.");
                 }
             }
         }
         else
         {
             returnValue = 2; // oid does not belong to an MDD object
-            LERROR << "oid does not belong to an MDD object.";
+            DBGERROR("oid does not belong to an MDD object.");
         }
 
         //
@@ -3806,7 +3745,7 @@ ServerComm::getMDDByOId(unsigned long   callingClientId,
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1; // client context not found
     }
 
@@ -3822,9 +3761,7 @@ unsigned short
 ServerComm::getNextTile(unsigned long   callingClientId,
                         RPCMarray**     rpcMarray)
 {
-#ifdef RASDEBUG
-    LINFO << "Request (continuing): 'get next tile',...";
-#endif
+    DBGREQUEST("(continuing): 'get next tile'");
 
     unsigned long  transOffset = 0;
     unsigned long  transSize = 0;
@@ -3963,10 +3900,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                     if (*(context->transferDataIter) != context->transferData->end())
                     {
                         returnValue = 1;
-#ifdef RASDEBUG
-                        LDEBUG << " some MDDs left...";
-                        LINFO << MSG_OK << ", some MDD(s) left.";
-#endif
+                        DBGINFO(MSG_OK << ", some MDD(s) left.");
                     }
                     else
                     {
@@ -3977,38 +3911,31 @@ ServerComm::getNextTile(unsigned long   callingClientId,
                         // context->releaseTransferStructures();
 
                         returnValue = 0;
-#ifdef RASDEBUG
-                        LINFO << MSG_OK << ", all MDDs fetched.";
-#endif
+                        DBGINFO(MSG_OK << ", all MDDs fetched.");
                     }
                 }
                 else
                 {
                     returnValue = 0;
-#ifdef RASDEBUG
-                    LINFO << MSG_OK << ", MDD transfer complete.";
-#endif
+                    DBGINFO(MSG_OK << ", MDD transfer complete.");
                 }
 
                 if ((context->totalTransferedSize != context->totalRawSize) && (context->totalRawSize != 0))
                 {
-                    LTRACE << "(compressed using " <<  context->transferFormat << " to " << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) ";
+                    LTRACE << "(compressed using " <<  context->transferFormat << " to "
+                           << ((r_Double)(100 * context->totalTransferedSize)) / context->totalRawSize << "%) ";
                 }
             }
             else
             {
                 if (statusValue == 1)    // at least one block in actual tile is left
                 {
-#ifdef RASDEBUG
-                    LINFO << MSG_OK << ", some block(s) left.";
-#endif
+                    DBGINFO(MSG_OK << ", some block(s) left.");
                     returnValue = 3;
                 }
                 else  // tiles left in actual MDD
                 {
-#ifdef RASDEBUG
-                    LINFO << MSG_OK << ", some tile(s) left.";
-#endif
+                    DBGINFO(MSG_OK << ", some tile(s) left.");
                     returnValue = 2;
                 }
             }
@@ -4016,7 +3943,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
         else    // no actual transfer collection or nothing left in the collection
         {
             returnValue = 4;
-            LERROR << "Error: no transfer collection or nothing left in collection.";
+            DBGERROR("no transfer collection or nothing left in collection.");
         }
 
         context->release();
@@ -4024,7 +3951,7 @@ ServerComm::getNextTile(unsigned long   callingClientId,
     else
     {
         // client context not found
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 4;
     }
 
@@ -4037,9 +3964,7 @@ ServerComm::endTransfer(unsigned long client)
 {
     unsigned short returnValue = 0;
 
-#ifdef RASDEBUG
-    LINFO << "Client " << client << " called: endTransfer...";
-#endif
+    DBGREQUEST("'endTransfer'");
 
     ClientTblElt* context = getClientContext(client);
 
@@ -4077,13 +4002,11 @@ ServerComm::endTransfer(unsigned long client)
 
         context->release();
 
-#ifdef RASDEBUG
-        LINFO << MSG_OK;
-#endif
+        DBGOK;
     }
     else
     {
-        LERROR << "client not registered.";
+        DBGERROR("client not registered.");
         returnValue = 1;
     }
 
@@ -4100,9 +4023,7 @@ ServerComm::aliveSignal(unsigned long client)
 {
     unsigned short returnValue = 0;
 
-#ifdef RASDEBUG
-    NNLINFO << "Client " << client << " called: endTransfer... ";
-#endif
+    DBGREQUEST("'aliveSignal'");
 
     ClientTblElt* context = getClientContext(client);
 
@@ -4114,17 +4035,11 @@ ServerComm::aliveSignal(unsigned long client)
         returnValue = 1;
 
         context->release();
-
-#ifdef RASDEBUG
-        BLINFO << MSG_OK << "\n";
-#endif
+        DBGOK;
     }
     else
     {
-#ifndef DEBUG
-        NNLINFO << "Client " << client << " called: endTransfer... ";
-#endif
-        BLERROR << "Error: client not registered.\n";
+        DBGERROR("client not registered.");
     }
 
     return returnValue;

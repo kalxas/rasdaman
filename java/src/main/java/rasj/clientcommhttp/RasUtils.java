@@ -119,8 +119,7 @@ public final class RasUtils implements RasCommDefs {
      *
      * @param in BufferedInputStream to be read from ( must have been initialized before! )
      */
-    public static String readString(InputStream in)
-    throws IOException {
+    public static String readString(InputStream in) throws IOException {
         byte b = (byte) '\0';
         byte[] b1 = new byte[1];
         String retval = "";

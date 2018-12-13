@@ -218,7 +218,7 @@ bool RasServerEntry::compat_isOpenTA()
 
 int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestInfo);
 
-int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer)
+long RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer)
 {
     delete [] currentClientContext->clientIdText;
     currentClientContext->clientIdText = new char[strlen(ServerComm::HTTPCLIENT) + 1];
@@ -237,7 +237,7 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
     RequestInfo.BinData = NULL;
     RequestInfo.Capability = NULL;
 
-    int resultLen = 0;
+    long resultLen = 0;
     if (GetHTTPRequestTemp(const_cast<char*>(httpParams), httpParamsLen, &RequestInfo) == 0)
     {
         // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)

@@ -245,8 +245,6 @@ ServerComm* server;
 // global variables and default settings
 // -------------------------------------
 
-AdminIf* myAdmin;
-
 bool dbIsOpen = false;
 bool taIsOpen = false;
 
@@ -574,7 +572,8 @@ openDatabase()
         accessControl.setServerName(DQ_SERVER_NAME);
         accessControl.crunchCapability(DQ_CAPABILITY);
         server->openDB(DQ_CLIENT_ID, baseName.c_str(), user);
-        myAdmin = AdminIf::instance();
+
+        ObjectBroker::init();
 
         dbIsOpen = true;
         INFO(" ok" << endl << flush);
@@ -588,8 +587,8 @@ closeDatabase()
     {
         LDEBUG << "database was open, closing it";
         ObjectBroker::clearBroker();
+        ObjectBroker::deinit();
         server->closeDB(DQ_CLIENT_ID);
-        delete myAdmin;
         dbIsOpen = false;
     }
 
@@ -870,7 +869,8 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                 unsigned short currentFormat;
 
                 int resultIndex = 0;
-                while (server->getNextMDD(DQ_CLIENT_ID, mddDomain, typeName, typeStructure, oid, currentFormat) == STATUS_MORE_ELEMS)
+                while (server->getNextMDD(DQ_CLIENT_ID, mddDomain, typeName, 
+                    typeStructure, oid, currentFormat) == STATUS_MORE_ELEMS)
                 {
                     Tile* resultTile = new Tile(r->transTiles);
                     printResult(resultTile, ++resultIndex);
@@ -908,6 +908,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                 }
             }
         }
+        server->endTransfer(DQ_CLIENT_ID);
     }
 }
 
@@ -1193,7 +1194,6 @@ void doStuff()
     }
     catch (r_Error& err)
     {
-        LERROR << "Exception: " << err.what() << endl << flush;
         SECURE_FREE_PTR(fileContents);
         if (marray)
         {
@@ -1223,8 +1223,15 @@ crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t*
         closeTransaction(false);
         closeDatabase();
         cerr << "done, exiting." << endl;
-        exit(sig);
     }
+    else
+    {
+        // if a signal comes while the handler has already been invoked,
+        // wait here for max 10 seconds, so that the handler above has some time
+        // (hopefully) finish
+        sleep(10);
+    }
+    exit(sig);
 }
 
 void

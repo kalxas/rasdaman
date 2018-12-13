@@ -41,7 +41,7 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unu
 {
     grpc::Status result = grpc::Status::OK;
 
-    LDEBUG << "Allocating client with data:" << request->SerializeAsString();
+    LDEBUG << "Allocating client " << request->clientid();
 
     if (!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
@@ -53,7 +53,7 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unu
         rasServerEntry.compat_connectNewClient(request->capabilities().c_str());
     }
 
-    LDEBUG << "Allocated client with data:" << request->SerializeAsString();
+    LDEBUG << "Allocated client " << request->clientid();
 
     return grpc::Status::OK;
 }
@@ -82,7 +82,7 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((un
         const rasnet::service::ClientStatusReq* request, 
         rasnet::service::ClientStatusRepl* response)
 {
-    LDEBUG << "Starting GetClientStatus of client:" << request->SerializeAsString();
+    LDEBUG << "Starting GetClientStatus " << request->clientid();
 
     if (this->clientManager->isAlive(request->clientid()))
     {
@@ -93,7 +93,7 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(__attribute__ ((un
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
     }
 
-    LDEBUG << "Finish GetClientStatus of client:" << request->SerializeAsString();
+    LDEBUG << "Finish GetClientStatus of client " << request->clientid();
 
     return grpc::Status::OK;
 }
@@ -102,7 +102,6 @@ grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(__attribute__ ((un
         __attribute__ ((unused)) const rasnet::service::ServerStatusReq* request, 
         rasnet::service::ServerStatusRepl* response)
 {
-    LTRACE << "GetServerStatus";
     response->set_clientqueuesize(this->clientManager->getClientQueueSize());
     return grpc::Status::OK;
 }

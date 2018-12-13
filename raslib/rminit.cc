@@ -268,9 +268,6 @@ RMInit::~RMInit()
     dbgOut.rdbuf(NULL);
     bmOut.rdbuf(NULL);
 
-    // free error text table
-    r_Error::freeTextTable();
-
     if (userName)
     {
         delete [] userName;

@@ -5,6 +5,8 @@
 
 #include "signalhandler.hh"
 #include "stacktrace.hh"
+#include <sys/types.h>
+#include <unistd.h>
 #include <memory>
 #include <logging.hh>
 
@@ -317,10 +319,17 @@ std::string SignalHandler::extraSignalInfo(siginfo_t *info)
     {
         if (!ret.empty())
             ret += "; ";
-        ret += "Sent by process with pid ";
-        ret += std::to_string(info->si_pid);
-        ret += " run by user with uid ";
-        ret += std::to_string(info->si_uid);
+        if (info->si_pid == getpid())
+        {
+            ret += "Raised internally by this process";
+        }
+        else
+        {
+            ret += "Sent by process with pid ";
+            ret += std::to_string(info->si_pid);
+            ret += " run by user with uid ";
+            ret += std::to_string(info->si_uid);
+        }
     }
 
     if (info->si_errno != 0)

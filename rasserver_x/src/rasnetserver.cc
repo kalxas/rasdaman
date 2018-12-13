@@ -113,9 +113,8 @@ void RasnetServer::registerServerWithRasmgr()
 
     if (!status.ok())
     {
-        //TODO-GM: Throw the appropriate exception
-        LERROR << status.error_message();
-        throw std::runtime_error("Could not register server with rasmgr.");
+        LERROR << "Could not register rasserver with rasmgr.";
+        GrpcUtils::convertStatusToExceptionAndThrow(status);
     }
 }
 

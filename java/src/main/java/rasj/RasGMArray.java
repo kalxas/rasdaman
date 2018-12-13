@@ -424,7 +424,7 @@ public class RasGMArray extends RasObject implements RasGlobalDefs {
         RasType typeSchema = (RasType)(((RasGMArray)this).getTypeSchema());
         RasBaseType baseTypeSchema = (RasBaseType)(((RasGMArray)this).getBaseTypeSchema());
 
-        if (storageLayout.getSpatialDomain() == null) {
+        if (storageLayout.getSpatialDomain() == null && domain != null) {
             tileDomain = getTilingDomain(domain, typeLength);
         } else {
             tileDomain = storageLayout.getSpatialDomain().toString();

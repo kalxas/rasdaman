@@ -285,7 +285,10 @@ DBTile::~DBTile() noexcept(false)
             if (!TileCache::contains(myOId))
             {
                 LTRACE << "DBTile::~DBTile() not cached, freeing blob cells of size: " << size;
-                free(cells);
+                if (!allocatedWithNew)
+                    free(cells);
+                else
+                    delete[] cells;
                 cells = NULL;
             }
             else
@@ -299,7 +302,10 @@ DBTile::~DBTile() noexcept(false)
         else
         {
             LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
-            free(cells);
+            if (!allocatedWithNew)
+                free(cells);
+            else
+                delete[] cells;
             cells = NULL;
         }
     }

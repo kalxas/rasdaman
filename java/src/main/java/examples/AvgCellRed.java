@@ -104,7 +104,6 @@ public class AvgCellRed {
                 Iterator iter = resultBag.iterator();
                 while (iter.hasNext()) {
                     result = (RasGMArray)iter.next();
-                    System.out.println(result);
                     if (result.getTypeLength() != 3) {
                         System.out.println("skipping image because of non-RGB cell type");
                     } else {

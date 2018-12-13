@@ -78,7 +78,7 @@ public:
     // provided for temporary compatibility with the encoding of the java interface
     // resultBuffer will be allocated and it's address stored in the given pointer
     // result is the length of the result
-    int compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer);
+    long compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer);
 
     r_OId compat_getNewOId(unsigned short objType); // 1 - mddType, 2 -collType
 

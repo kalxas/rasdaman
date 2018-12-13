@@ -54,7 +54,7 @@ public class ExceptionAdvice {
         OutputStream outputStream = httpServletResponse.getOutputStream();
 
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
-        log.error("Catched an exception: ", ex);
+        log.error("Caught an exception:", ex);
 
         ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex);
         httpServletResponse.setStatus(exceptionReport.getHttpCode());

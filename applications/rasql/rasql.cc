@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -1081,7 +1082,10 @@ crashHandler(int sig, siginfo_t* info, void* ucontext)
     }
     else
     {
-        while (1) ;
+        // if a signal comes while the handler has already been invoked,
+        // wait here for max 10 seconds, so that the handler above has some time
+        // (hopefully) finish
+        sleep(10);
     }
     exit(sig);
 }

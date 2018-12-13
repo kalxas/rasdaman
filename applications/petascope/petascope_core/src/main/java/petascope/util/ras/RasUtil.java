@@ -69,7 +69,7 @@ public class RasUtil {
      * Execute a RasQL query with configured credentials.
      */
     public static Object executeRasqlQuery(String query) throws PetascopeException {
-        return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
+        return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS, false);
     }
     
     private static void closeDB(Database db) {
@@ -101,7 +101,7 @@ public class RasUtil {
      * @param rw true if query will do DB updates
      * @return result from query
      */
-    public static Object executeRasqlQuery(String query, String username, String password, Boolean rw) throws PetascopeException {
+    public static Object executeRasqlQuery(String query, String username, String password, boolean rw) throws PetascopeException {
         final long start = System.currentTimeMillis();
         log.debug("Executing rasql query: " + query);
 
@@ -175,15 +175,6 @@ public class RasUtil {
     }
 
     /**
-     * Execute a RasQL query with specified credentials, allowing only read
-     * transactions.
-     */
-    // FIXME - should return just String?
-    public static Object executeRasqlQuery(String query, String username, String password) throws PetascopeException {
-        return executeRasqlQuery(query, username, password, false);
-    }
-
-    /**
      * Fetch rasdaman version by parsing RasQL ``version()'' output.
      *
      * @return The rasdaman version
@@ -197,14 +188,16 @@ public class RasUtil {
             log.error("Cannot retrieve rasdaman version", ex);
             throw new RasdamanException(ExceptionCode.RasdamanUnavailable, "Could not retrieve rasdaman version; is rasdaman started?", ex);
         }
-
         if (null != tmpResult) {
             RasQueryResult queryResult = new RasQueryResult(tmpResult);
             String result = queryResult.toString();
-            // rasdaman 9.4.0 on x86_64-redhat-linux ...
-            version = result.split(" ")[1];
+            if (result != null && !result.isEmpty()) {
+                // rasdaman 9.4.0 on x86_64-redhat-linux ...
+                version = result.split(" ")[1];
+            } else {
+                log.warn("Failed retrieving rasdaman version, got: " + result);
+            }
         }
-
         return version;
     }
 

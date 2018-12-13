@@ -95,44 +95,33 @@ DatabaseIf::open(const char* dbName)
         LTRACE << "another database is already open";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
+    //cannot do any further error checking
+    if (0)   // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
+    {
+        LTRACE << "database name unknown";
+        LERROR << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
+        throw r_Error(r_Error::r_Error_DatabaseUnknown);
+    }
     else
     {
-        //cannot do any further error checking
-        if (0)   // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
-        {
-            LTRACE << "database name unknown";
-            LERROR << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
-            throw r_Error(r_Error::r_Error_DatabaseUnknown);
-        }
-        else
-        {
-            opened = true;
-            myName = strdup(dbName);
-        }
+        opened = true;
+        myName = strdup(dbName);
+        connect();
+        connected = true;
     }
 }
 
 void
 DatabaseIf::baseDBMSOpen()
 {
-    if (connected)
-    {
-        LERROR << "Connection to database is already open.";
-        throw r_Error(r_Error::r_Error_TransactionOpen);
-    }
 #ifdef RMANDEBUG
     if (AdminIf::getCurrentDatabaseIf())
     {
-        LTRACE << "baseDBMSOpen() CurrentDatabaseIf != 0";
-        LERROR << "Transaction begin:\n" \
-               << "There seems to be another database connection active (Internal State 1).\n" \
-               << "Please contact Customer support.";
+        LERROR << "There seems to be another database connection active.";
         throw r_Error(DATABASE_OPEN);
     }
 #endif
     AdminIf::setCurrentDatabaseIf(this);
-    connect();
-    connected = true;
 
 #ifdef DBMS_PGSQL // cannot have this check in PostgreSQL -- PB 2005-jan-09
     if (!databaseExists(myName))
@@ -189,8 +178,6 @@ DatabaseIf::baseDBMSClose()
         LTRACE << "baseDBMSClose() current DatabaseIf != this";
     }
 #endif
-    disconnect();
-    connected = false;
 }
 
 DatabaseIf::DatabaseIf()

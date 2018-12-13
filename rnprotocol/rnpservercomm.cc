@@ -1264,20 +1264,18 @@ int  RnpRasDaManComm::makeNewClientID()
 
 void RnpRasDaManComm::answerr_Error(r_Error& err)
 {
-    const char* errText = err.serialiseError();
+    auto errText = err.serialiseError();
 
     LDEBUG << "Error in response: (" << errText << ") " << err.what();
 
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_Other, 0);
-    encoder.addStringParameter(RnpRasserver::pmt_rErrorString, errText);
+    encoder.addStringParameter(RnpRasserver::pmt_rErrorString, errText.c_str());
 
     // add descriptive text -- PB 2003-nov-24
     encoder.addStringParameter(RnpRasserver::pmt_rErrorString, err.what());
 
     encoder.endFragment();
-
-    delete[] errText;
 }
 
 //######################################################

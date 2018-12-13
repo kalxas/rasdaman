@@ -35,7 +35,7 @@ boost::uint64_t ClientQueryStreamedResult::getRemainingBytesLength() const
 
 ClientQueryStreamedResult::~ClientQueryStreamedResult()
 {
-    delete[] this->data;
+    free(this->data);
     this->data = NULL;
 }
 

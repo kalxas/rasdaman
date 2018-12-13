@@ -18,7 +18,7 @@ BEGIN			{
 			print "\t\t}";
 			print "\tcatch (r_Error& e)";
 			print "\t\t{";
-			print "\t\tretvalTxt = e.serialiseError();";
+			print "\t\tretvalTxt = strdup(e.serialiseError().c_str());";
 			print "\t\tu_short temp = 42;";
 			print "\t\tresult = secureResultBufferForRPC;";
 			print "\t\tmemcpy(result, (char*)&temp, sizeof(u_short));"
@@ -28,7 +28,7 @@ BEGIN			{
 			print "\t\tbMemFailed = true;"
 			print "\t\tServerComm* sc = ServerComm::actual_servercomm;"			
 			print "\t\tr_Ememory_allocation e;"
-			print "\t\tretvalTxt = e.serialiseError();"
+			print "\t\tretvalTxt = strdup(e.serialiseError().c_str());"
 			print "\t\tu_short temp = 42;";
 			print "\t\tresult = secureResultBufferForRPC;"
 			print "\t\tmemcpy(result, (char*)&temp, sizeof(u_short));"

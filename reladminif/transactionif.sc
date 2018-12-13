@@ -53,12 +53,6 @@ using blobfs::BlobFS;
 void
 TransactionIf::begin(bool readOnly)
 {
-    // If a transaction is already started, then abort it first. Normally this shouldn't
-    // happen, so that's why we abort the previous transaction rather than commit.
-    if (SQLiteQuery::isTransactionActive())
-    {
-        abort();
-    }
     if (readOnly)
         SQLiteQuery::execute("BEGIN TRANSACTION");
     else

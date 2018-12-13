@@ -117,6 +117,9 @@ public:
       Modification is set to dirty.
     */
 
+    // indicate that the tile cells were allocated with new, instead of malloc
+    void setAllocatedWithNew(bool allocatedWithNewArg = true);
+
     //@}
 
     //@Man: constructors
@@ -225,6 +228,7 @@ protected:
     /*@Doc:
     if true, the tile will eventually free cells
     */
+    bool allocatedWithNew{false};
 };
 
 #endif

@@ -130,6 +130,12 @@ T decodeNumber(char **input, int endianess) {
 
 template <typename T>
 void encodeNumber(char **output, T value) {
+#ifdef RASDEBUG
+    if (sizeof(T) == 1)
+        LDEBUG << "encoding number: " << (int) value << ", bytes: " << sizeof(T);
+    else
+        LDEBUG << "encoding number: " << value << ", bytes: " << sizeof(T);
+#endif
     *reinterpret_cast<T*>(*output) = value;
     *output += sizeof(T);
 }
@@ -171,6 +177,9 @@ static void encodeString(char** dst, const char* src, const char* dstStart, size
                << ") is greater than the estimated response length (" << totalLength << ").";
         throw r_Error(r_Error::r_Error_TransferFailed);
     }
+#ifdef RASDEBUG
+    LDEBUG << "encoding string: '" << src << "', bytes: " << srcLen + 1;
+#endif
     strcpy(*dst, src);
     *dst += srcLen + 1;
 }
@@ -184,6 +193,9 @@ static void encodeBinary(char** dst, const char* src, size_t srcLen, const char*
                << ") is greater than the estimated response length (" << totalLength << ").";
         throw r_Error(r_Error::r_Error_TransferFailed);
     }
+#ifdef RASDEBUG
+    LDEBUG << "encoding binary, bytes: " << srcLen;
+#endif
     memcpy(*dst, src, srcLen);
     *dst += srcLen;
 }
@@ -873,7 +885,7 @@ void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Mi
     if (systemEndianess == ENDIAN_BIG)
         return;
 
-    // LINFO << "Changing endianness...";
+    LDEBUG << "Changing endianness of tile with domain " << dom;
     // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
     char* typeStruct = tile->getType()->getTypeStructure();
     auto* baseType = static_cast<r_Base_Type*>(r_Type::get_any_type(typeStruct));

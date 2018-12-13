@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: error.hh
- *
- * MODULE:  raslib
- * CLASS:   r_Error
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _D_ERROR_
 #define _D_ERROR_
@@ -64,38 +55,13 @@ rasdaman GmbH.
  include error.hh to use the same settings.
 */
 
-#ifdef __VISUALC__
-#pragma warning( disable : 4290 )
-#endif
-
-#include <exception>
-
 #include "raslib/mddtypes.hh"
-#include <list>
-
-/*
- * error text file ------------------
- */
-
-/// relative path to error text file, starting from rasdaman installation root
-#define ERRORTEXT_PATH "/bin"
-
-/// error text file name
-#define ERRORTEXT_FILE "errtxts"
-
-/* end error text file ------------------ */
+#include <exception>
+#include <string>
 
 class r_Error : public std::exception
 {
 public:
-
-    /// error information
-    struct errorInfo
-    {
-        int num;
-        char kind;
-        char* text;
-    };
 
     /// error kinds
     enum kind { r_EGeneral,
@@ -138,7 +104,7 @@ public:
                 r_Error_LimitsMismatch,
                 r_Error_NameInvalid,
                 r_Error_FeatureNotSupported,
-                // r_Error_SerialisableException is used for subclasses which can be serialised
+                // used for subclasses which can be serialised
                 // as strings for client / server transfer
                 r_Error_SerialisableException,
 
@@ -162,69 +128,35 @@ public:
                 r_Error_Conversion
               };
 
-    /// default constructor
     r_Error();
 
-    /// copy constructor
-    r_Error(const r_Error&);
-
     /// constructor getting the kind
-    r_Error(kind the_kind, unsigned int newErrorNo = 0);
+    explicit r_Error(kind theKindArg, unsigned int newErrorNo = 0);
 
     /// constructor getting an error number
-    r_Error(unsigned int errorno);
-    
-    /// constructor getting an error number
-    r_Error(int errorno);
+    explicit r_Error(unsigned int errorno);
 
     /// constructor getting an error text
     r_Error(const char* what);
 
-    /// destructor
-    virtual ~r_Error() noexcept;
+    ~r_Error() noexcept override = default;
 
-    /// get an error description
-    virtual const char* what() const noexcept;
-
-    /// assignment operator
-    const r_Error& operator=(const r_Error& obj);
-
-    //@Man: Read/Write methods:
-    //@{
-    ///
-    inline kind          get_kind() const;
-    ///
-    inline unsigned long get_errorno() const;
-    ///
-    //@}
+    const char*         what() const noexcept override;
+    virtual const std::string&  what_str() const noexcept;
+    kind                get_kind() const;
+    unsigned long       get_errorno() const;
 
     /// used to transfer exceptions of kind r_Error_SerialisableException to the client.
-    virtual char* serialiseError();
-    /*@Doc:
-      The char* returned is allocated with malloc (for potential RPC transfer) and has
-      to be freed by the caller.
-    */
-
-    /// This function parses a serialised error.
-    static r_Error* getAnyError(char* serErr);
-    /*@Doc:
-      Useful results can only be expected for errors of kind r_Error_SerialisableException.
-    */
-
-    /// read error text file into text table
-    friend void initTextTable();
-
-    /// free the text table again
-    friend void freeTextTable();
+    virtual std::string serialiseError() const;
 
     /// replace the specified parameter by the integer value
-    void setTextParameter(const char* parameterName, int value);
+    void setTextParameter(const char* parameterName, long long value);
 
     /// replace the specified parameter by the string value
     void setTextParameter(const char* parameterName, const char* value);
 
+    /// read error text file into text table
     static void initTextTable();
-    static void freeTextTable();
 
 protected:
     /// set error text according to the actual error kind
@@ -233,90 +165,43 @@ protected:
     /// set error text according to the actual error number
     void setErrorTextOnNumber();
 
-    /// reset error text
+    /// The virtual method is redefined in each subclass which supports text parameters.
+    /// Usually it is invoked in the constructor of the subclass.
     virtual void resetErrorText();
-    /**
-      The virtual method is redefined in each subclass which supports text parameters.
-      Usually it is invoked in the constructor of the subclass.
-    */
-
-    /// attribute storing the error kind
-    kind  theKind;
 
     /// attribute storing the error description text
-    char* errorText;
+    std::string errorText;
 
     /// attribute storing the number of the error
-    unsigned int errorNo;
+    unsigned int errorNo{0u};
 
-private:
-    static errorInfo* textList;
-
-    /*
-     * list of error codes, contining numerical error code, error flag char
-     * (warning or error), and error text.
-     * It is modelled as nested pairs to allow using standard classes.
-     * Filled from file.
-     */
-    static std::list<std::pair<std::pair<int, char>, char*>>* errorTexts;
-    static bool errorTextsLoaded;
-
+    /// attribute storing the error kind
+    kind theKind{r_Error_General};
 };
 
-
-/* Modified by Constantin Jucovschi */
-/* Added the definition of the initTextTable() and freeTextTable()*/
-//    void initTextTable();
-//    void freeTextTable();
-
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an array object saying that the
-  result is no interval.
-
-*/
-
+/// Result is no interval.
 class r_Eno_interval : public r_Error
 {
 public:
-    /// default constructor
     r_Eno_interval();
 };
 
+/// General error with no error number/kind.
 class r_EGeneral : public r_Error
 {
 public:
     r_EGeneral(const std::string& errorText);
-
-    ~r_EGeneral() override = default;
 };
 
-
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an array object saying that the
-  specified index is not within the bounds.
-
-*/
-
+/// The specified index is not within the bounds.
 class r_Eindex_violation : public r_Error
 {
 public:
     /// constructor getting lower and upper bound, and the index
     r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex);
-
 protected:
     /// reset error text
-    virtual void resetErrorText();
-
+    void resetErrorText() override;
 private:
     /// lower bound
     r_Range low;
@@ -326,28 +211,15 @@ private:
     r_Range index;
 };
 
-
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an array object saying that the
-  dimensionalies of two objects do not match.
-
-*/
-
+/// dimensions of two objects do not match.
 class r_Edim_mismatch : public r_Error
 {
 public:
     /// constructor getting two dimensionalities
     r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2);
-
 protected:
     /// reset error text
-    virtual void resetErrorText();
-
+    void resetErrorText() override;
 private:
     /// first dimensionality
     r_Dimension dim1;
@@ -355,19 +227,10 @@ private:
     r_Dimension dim2;
 };
 
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an error object saying that an
-  initialization overflow occured. This happens f.e. if the
-  stream input operator is invoked more often than the
-  object has dimensions.
-
-*/
-
+/**
+ * initialization overflow occurred, e.g. if the
+ * stream input operator is invoked more often than the object has dimensions.
+ */
 class r_Einit_overflow : public r_Error
 {
 public:
@@ -375,19 +238,10 @@ public:
     r_Einit_overflow();
 };
 
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an error object saying that the
-  result is no cell. This happens f.e. if the cast operator
-  for casting to the base type of class \Ref{r_Marray} is invoked
-  on an object which is not 'zero-dimensional'.
-
-*/
-
+/**
+ * result is no cell, e.g. if the cast operator for casting to the base type
+ * of class \Ref{r_Marray} is invoked on an object which is not 'zero-dimensional'.
+ */
 class r_Eno_cell : public r_Error
 {
 public:
@@ -395,78 +249,43 @@ public:
     r_Eno_cell();
 };
 
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  The class is used for errors occuring through query execution. In most cases, the position which
-  caused the error can be fixed. This position is specified by line number, column number, and
-  the token which is involved.
-  Additionally, the class is generic concerning the error type. Different error types can be specified
-  by stating the error number.
-
-*/
-
+/**
+ * The class is used for errors occuring through query execution. In most cases, the position which
+ * caused the error can be fixed. This position is specified by line number, column number, and
+ * the token which is involved. Additionally, the class is generic concerning the error type.
+ * Different error types can be specified by stating the error number.
+ */
 class r_Equery_execution_failed : public r_Error
 {
 public:
     /// default constructor
-    r_Equery_execution_failed(unsigned int errorno, unsigned int lineno, unsigned int columnno, const char* token);
+    r_Equery_execution_failed(unsigned int errorno, unsigned int lineno,
+            unsigned int columnno, const char* token);
 
-    /// copy constructor
-    r_Equery_execution_failed(const r_Equery_execution_failed& err);
-
-    /// destructor
-    ~r_Equery_execution_failed() noexcept;
-
-    //@Man: Read methods:
-    //@{
-    ///
-    inline unsigned int get_lineno() const;
-    ///
-    inline unsigned int get_columnno() const;
-    ///
-    inline const char*   get_token() const;
-    ///
-    //@}
-
+    unsigned int get_lineno() const;
+    unsigned int get_columnno() const;
+    const char*  get_token() const;
 protected:
     /// reset error text
-    virtual void resetErrorText();
-
+    void resetErrorText() override;
 private:
     /// line number in which the error is caused
     unsigned int lineNo;
-
     /// column number which caused the error or is near to the error position
     unsigned int columnNo;
-
     /// token which caused the error or is near to the error position
-    char*         token;
+    std::string  token;
 };
 
-
-
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
-
-  This class represents an error when the limits reported on the same
-  object (array) by two sources do not match (at least in one end).
-*/
-
+/// The limits reported on the same array by two sources do not match (at least in one end).
 class r_Elimits_mismatch : public r_Error
 {
 public:
     /// constructor getting two limits on the same interval
     r_Elimits_mismatch(r_Range lim1, r_Range lim2);
-
 protected:
     /// reset error text
-    virtual void resetErrorText();
-
+    void resetErrorText() override;
 private:
     /// first interval
     r_Range i1;
@@ -474,66 +293,38 @@ private:
     r_Range i2;
 };
 
-//@ManMemo: Module: {\bf raslib}
-
-/*@Doc:
+/**
   This class represents an error in the base DBMS. It stores the error
   number in the base DBMS and the error text of the base DBMS. The
   interpretation of the error is specific for the base DBMS. The
   errtxt mechanism of RasDaMan is not used, instead what() returns the
-  error of the base DBMS. Note that the const char* parameters of the
-  constructor are not copied, but the pointers are stored. They are
-  never freed (to enable use of constants).
+  error of the base DBMS.
 */
-
 class r_Ebase_dbms : public r_Error
 {
 public:
-    /// constructor.
-    r_Ebase_dbms(const long& newErrNum, const char* newErrTxt);
-
-    /// copy constructor
-    r_Ebase_dbms(const r_Ebase_dbms& oldErr);
-
-    /// constructor reading from a char* containing serialised representation.
-    r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char* myStr);
-
-    /// destructor
-    ~r_Ebase_dbms() noexcept;
-
-    /// assignment operator
-    const r_Ebase_dbms& operator=(const r_Ebase_dbms& obj);
-
-    // overloads from r_Error
-    virtual const char* what() const noexcept;
-    virtual char* serialiseError();
-
+    r_Ebase_dbms();
+    r_Ebase_dbms(long newDbmsErrNum, const char* newErrTxt);
+protected:
+    /// reset error text
+    void resetErrorText() override;
 private:
-
-    /// build what text
-    void buildWhat();
-    /// the name of the base DBMS.
-    char* baseDBMS;
     /// error number of the base DBMS.
     long dbmsErrNum;
     /// error text of the base DBMS.
-    char* dbmsErrTxt;
-    /// used as return value for what()
-    char* whatTxt;
+    std::string dbmsErrTxt;
 };
 
 class r_Eno_permission : public r_Error
 {
 public:
     r_Eno_permission();
-
 };
 
 class r_Ecapability_refused : public r_Error
 {
 public:
     r_Ecapability_refused();
-
 };
 
 class r_Ememory_allocation: public r_Error
@@ -542,9 +333,19 @@ public:
     r_Ememory_allocation();
 };
 
+// ----------------------------------------------------------------------------------------------
+// constants for errors in bin/errtxts
+// ----------------------------------------------------------------------------------------------
+
 #define MEMMORYALLOCATIONERROR              66
 #define INTERNALDLPARSEERROR                100
 #define NOPOINT                             200
+#define NOINTERVAL                          201
+#define INDEXVIOLATION                      202
+#define DIMENSIONMISMATCH                   203
+#define DIMOVERFLOW                         204
+#define RESULTISNOCELL                      205
+#define BASEDBMSERROR                       206
 #define RASTYPEUNKNOWN                      209
 #define BASETYPENOTSUPPORTED                210
 #define RPCCOMMUNICATIONFAILURE             212
@@ -671,7 +472,5 @@ public:
 #define TRYINGTOINFERHOOKFROMNULLNODE       2023
 #define QTNODETYPEPARENTDOESNOTEXIST        2024
 #define TRANSPOSEPARAMETERSINVALID          3001
-
-#include "raslib/error.icc"
 
 #endif

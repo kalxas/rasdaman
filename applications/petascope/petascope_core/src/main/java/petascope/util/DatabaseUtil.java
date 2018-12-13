@@ -28,8 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
-import org.rasdaman.InitAllConfigurationsApplicationService;
-import static org.rasdaman.InitAllConfigurationsApplicationService.POSTGRESQL_NEUTRAL_DATABASE;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +46,12 @@ public class DatabaseUtil {
     
     private static final String LIQUIBASE_LOCK_TABLE = "databasechangeloglock";
 
+    // A hidden database of postgresql which allows to connect and create/rename other databases.
+    public static final String POSTGRESQL_NEUTRAL_DATABASE = "template1";
+
     // To rename a database, connect to a default neutral database of Postgresql
     private static final String SOURCE_NEUTRAL_POSTGRESQL_DATASOURCE_URL = ConfigManager.SOURCE_DATASOURCE_URL.substring(0,
-            ConfigManager.SOURCE_DATASOURCE_URL.lastIndexOf("/") + 1) + InitAllConfigurationsApplicationService.POSTGRESQL_NEUTRAL_DATABASE;
+            ConfigManager.SOURCE_DATASOURCE_URL.lastIndexOf("/") + 1) + POSTGRESQL_NEUTRAL_DATABASE;
 
     /**
      * Close the connection to petascopedb from manual query.
