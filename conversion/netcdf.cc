@@ -46,6 +46,7 @@ rasdaman GmbH.
 #include "formatparamkeys.hh"
 
 #include "conversion/transpose.hh"
+
 #include "netcdf.hh"
 
 
@@ -65,6 +66,9 @@ rasdaman GmbH.
 
 using namespace std;
 
+
+#ifdef HAVE_NETCDF
+
 const int r_Conv_NETCDF::invalidDataFile{-1};
 const string r_Conv_NETCDF::DEFAULT_VAR{"data"};
 const string r_Conv_NETCDF::DEFAULT_DIM_NAME_PREFIX{"dim_"};
@@ -81,11 +85,13 @@ int status{NC_NOERR};
     if ((errcode) != NC_NOERR) { \
         LERROR << msg << ", reason: " << nc_strerror(errcode); \
         throw r_Error(r_Error::r_Error_Conversion); \
-    } \
+    }
 
 #define warnOnError(errcode, msg) \
     if ((errcode) != NC_NOERR) \
-        LWARNING << msg << ", reason: " << nc_strerror(errcode); \
+        LWARNING << msg << ", reason: " << nc_strerror(errcode);
+
+#endif
 
 /// constructor using an r_Type object.
 r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, const r_Type* tp)
@@ -102,6 +108,21 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char* src, const r_Minterval& interv, int tp)
 /// destructor
 r_Conv_NETCDF::~r_Conv_NETCDF(void)
 {
+}
+
+r_Convertor* r_Conv_NETCDF::clone(void) const
+{
+  return new r_Conv_NETCDF(desc.src, desc.srcInterv, desc.baseType);
+}
+
+const char* r_Conv_NETCDF::get_name(void) const
+{
+  return format_name_netcdf;
+}
+
+r_Data_Format r_Conv_NETCDF::get_data_format(void) const
+{
+  return r_NETCDF;
 }
 
 /// convert to NETCDF
@@ -968,23 +989,6 @@ const string &r_Conv_NETCDF::getVariableName()
     return varNames.size() >= 1 ? varNames[0] : DEFAULT_VAR;
 }
 
-#endif
-
-r_Convertor* r_Conv_NETCDF::clone(void) const
-{
-    return new r_Conv_NETCDF(desc.src, desc.srcInterv, desc.baseType);
-}
-
-const char* r_Conv_NETCDF::get_name(void) const
-{
-    return format_name_netcdf;
-}
-
-r_Data_Format r_Conv_NETCDF::get_data_format(void) const
-{
-    return r_NETCDF;
-}
-
 void r_Conv_NETCDF::closeDataFile()
 {
     if (dataFile != invalidDataFile)
@@ -994,3 +998,5 @@ void r_Conv_NETCDF::closeDataFile()
         dataFile = invalidDataFile;
     }
 }
+
+#endif

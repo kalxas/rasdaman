@@ -226,8 +226,6 @@ private:
     // cell count
     size_t dataSize;
 
-#endif
-
     int dataFile{invalidDataFile};
 
     static const int invalidDataFile;
@@ -239,6 +237,8 @@ private:
     static const std::string VALID_MAX;
     static const std::string MISSING_VALUE;
     static const std::string FILL_VALUE;
+
+#endif
 };
 
 #endif
