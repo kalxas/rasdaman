@@ -24,9 +24,10 @@ package petascope.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.gdal.gdal.Dataset;
-import org.gdal.gdal.Driver;
 import org.gdal.gdal.gdal;
 import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.osr.CoordinateTransformation;
@@ -34,7 +35,6 @@ import org.gdal.osr.SpatialReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCSException;
-import petascope.core.BoundingBox;
 import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -50,60 +50,48 @@ public class CrsProjectionUtil {
 
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
 
+    // caches SpatialReference objects, as computing them is relatively expensive
+    // cf. https://gdal.org/java/org/gdal/osr/SpatialReference.html#ImportFromEPSG-int-
+    private static Map<Integer, SpatialReference> srMap = new HashMap<>();
+
     /**
      * Transform a XY values from sourceCRS to targetCRS (e.g: Long Lat (EPSG:4326) to ESPG:3857).
-     * NOTE: Not every reprojection is possible, even both sourceCRS, targetCRS are from EPSG codes.
+     * NOTE: Not every reprojection is possible, even if both sourceCR and targetCRS are EPSG CRS.
      *
      * @param sourceCrs source CRS of axis
      * @param targetCrs target CRS to project
-     * @param sourceCoordinates Array of input coordinates: min values first,
+     * @param sourceCoords Array of input coordinates: min values first,
      * max values next. E.g. [xMin,yMin,xMax,yMax].
-     * @return List<BigDecimal> Locations transformed to targetCRS (defined at
-     * construction time).
-     * @throws WCSException
+     * @return List<BigDecimal> Locations transformed to targetCRS (defined at construction time).
      */
-    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] sourceCoordinates) throws WCSException, PetascopeException {
-
-        gdal.AllRegister();
-        
-        String sourceCrsEPSGCode = sourceCrs;
-        String targetCrsEPSGCode = targetCrs;
-        // NOTE: sourceCrs and targetCrs can be CRS Uri (e.g: http://.../4326) or already EPSG:4326
-        if (!sourceCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
-            sourceCrsEPSGCode = CrsUtil.getEPSGCode(sourceCrsEPSGCode);
-        }
-        if (!targetCrsEPSGCode.contains(CrsUtil.EPSG_AUTH + ":")) {
-            targetCrsEPSGCode = CrsUtil.getEPSGCode(targetCrsEPSGCode);
-        }
-
+    public static List<BigDecimal> transform(String sourceCrs, String targetCrs, double[] sourceCoords) throws WCSException, PetascopeException {
         // e.g: 4326, 32633
-        int sourceCode = Integer.valueOf(sourceCrsEPSGCode.split(":")[1]);
-        int targetCode = Integer.valueOf(targetCrsEPSGCode.split(":")[1]);
+        int sourceCode = CrsUtil.getEpsgCodeAsInt(sourceCrs);
+        int targetCode = CrsUtil.getEpsgCodeAsInt(targetCrs);
 
-        // Using gdal native library to transform the coordinates from source crs to target crs
-        SpatialReference sourceSpatialReference = new SpatialReference();
-        sourceSpatialReference.ImportFromEPSG(sourceCode);
-
-        SpatialReference targetSpatialReference = new SpatialReference();
-        targetSpatialReference.ImportFromEPSG(targetCode);
-
-        CoordinateTransformation coordinateTransformation = CoordinateTransformation.CreateCoordinateTransformation(sourceSpatialReference, targetSpatialReference);
+        // Use gdal native library to transform the coordinates from source crs to target crs
+        CoordinateTransformation coordTrans = CoordinateTransformation.CreateCoordinateTransformation(
+                getSpatialReference(sourceCode), getSpatialReference(targetCode));
+        if (coordTrans == null) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError,
+                    "Failed creating coordinate transformation from " + sourceCrs + " to " + targetCrs);
+        }
         // This will returns 3 values, translated X, translated Y and another value which is not used
-        double[] transformedCoordinate = coordinateTransformation.TransformPoint(sourceCoordinates[0], sourceCoordinates[1]);
+        double[] transCoords = coordTrans.TransformPoint(sourceCoords[0], sourceCoords[1]);
 
-        List<BigDecimal> out = new ArrayList<>(sourceCoordinates.length);
+        List<BigDecimal> ret = new ArrayList<>(sourceCoords.length);
         // NOTE: projection can return NaN which means cannot reproject from sourceCRS to targetCRS
         // e.g: EPSG:3577 (75042.7273594 5094865.55794) to EPSG:4326
-        for (int i = 0; i < transformedCoordinate.length - 1; i++) {
-            Double value = transformedCoordinate[i];
+        for (int i = 0; i < transCoords.length - 1; i++) {
+            Double value = transCoords[i];
             if (Double.isNaN(value)) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError, 
-                        "Cannot reproject from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + "' with XY values '" + Arrays.toString(sourceCoordinates) + " as result is NaN.");
+                        "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
+                                "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is NaN.");
             }
-            out.add(new BigDecimal(value));
+            ret.add(new BigDecimal(value));
         }
-
-        return out;
+        return ret;
     }
     
     /**
@@ -122,50 +110,60 @@ public class CrsProjectionUtil {
      * 
      * No file should be created and GDAL only needs to calculate this GeoTransform object quickly.
      */
-    public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGeoTransform, String targetCRS) throws PetascopeException, SecoreException {
+    public static GeoTransform getGeoTransformInTargetCRS(GeoTransform sourceGT, String targetCRS) throws PetascopeException, SecoreException {
         
         // Source extents
-        Dataset sourceDataSet = gdal.GetDriverByName("VRT").Create("", sourceGeoTransform.getGridWidth(), sourceGeoTransform.getGridHeight());
+        Dataset sourceDS = gdal.GetDriverByName("VRT").Create("", sourceGT.getGridWidth(), sourceGT.getGridHeight());
         // e.g: test_mean_summer_airtemp ([111.9750000, 0.05, 0, -8.9750000, 0, -0.05])
-        double[] gdalGeoTransform = new double[] {sourceGeoTransform.getUpperLeftGeoX(), 
-                                    sourceGeoTransform.getGeoXResolution(), 0, sourceGeoTransform.getUpperLeftGeoY(), 0, sourceGeoTransform.getGeoYResolution()};
-        sourceDataSet.SetGeoTransform(gdalGeoTransform);
+        double[] gdalGeoTransform = new double[] {
+            sourceGT.getUpperLeftGeoX(), sourceGT.getGeoXResolution(), 0,
+            sourceGT.getUpperLeftGeoY(), 0, sourceGT.getGeoYResolution()};
+        sourceDS.SetGeoTransform(gdalGeoTransform);
         
-        SpatialReference sourceSpatialReference = new SpatialReference();
-        sourceSpatialReference.ImportFromEPSG(sourceGeoTransform.getEPSGCode());
-        String sourceCRSWKT = sourceSpatialReference.ExportToWkt();
-        
-        SpatialReference targetSpatialReference = new SpatialReference();
-        int targetEPSGCode = new Integer(CrsUtil.getCode(targetCRS));
-        targetSpatialReference.ImportFromEPSG(targetEPSGCode);
-        String targetCRSWKT = targetSpatialReference.ExportToWkt();
-        
+        String sourceCRSWKT = getSpatialReference(sourceGT.getEPSGCode()).ExportToWkt();
+        int targetEPSGCode = CrsUtil.getEpsgCodeAsInt(targetCRS);
+        String targetCRSWKT = getSpatialReference(targetEPSGCode).ExportToWkt();
         
         // error threshold for transformation approximation (in pixel units - defaults to 0.125)
-        double error_threshold = 0.125;
+        // TODO: why 0.125?
+        double errorThreshold = 0.125;
+        int interpolation = gdalconstConstants.GRA_NearestNeighbour;
         // Expected target extents
-        Dataset targetDataSet = gdal.AutoCreateWarpedVRT(sourceDataSet, sourceCRSWKT, targetCRSWKT, gdalconstConstants.GRA_NearestNeighbour, error_threshold);
-        if (targetDataSet == null) {
+        Dataset targetDS = gdal.AutoCreateWarpedVRT(sourceDS, sourceCRSWKT, targetCRSWKT, interpolation, errorThreshold);
+        if (targetDS == null) {
             // NOTE: this happens when gdal cannot translate a 2D bounding box from source CRS (e.g: EPSG:4326) to a target CRS (e.g: EPSG:32652)
-            throw new PetascopeException(ExceptionCode.RuntimeError, "Cannot estimte the input geo domains "
-                    + "from source CRS 'EPSG:" + sourceGeoTransform.getEPSGCode() + "' to target CRS 'EPSG:" + targetEPSGCode + "', given source geoTransform values '" + sourceGeoTransform + "'.");
+            throw new PetascopeException(ExceptionCode.RuntimeError, "Failed estimating the input geo domains "
+                    + "from source CRS 'EPSG:" + sourceGT.getEPSGCode() + "' to target CRS 'EPSG:" + targetEPSGCode + 
+                    "', given source geoTransform values '" + sourceGT + "'.");
         }
-        double[] values = targetDataSet.GetGeoTransform();
         
-        GeoTransform targetGeoTransform = new GeoTransform();
-        targetGeoTransform.setEPSGCode(targetEPSGCode);
+        GeoTransform targetGT = new GeoTransform();
+        targetGT.setEPSGCode(targetEPSGCode);
         
         // OutputCRS is also X-Y order, e.g: EPSG:3857
-        targetGeoTransform.setUpperLeftGeoX(values[0]);
-        targetGeoTransform.setGeoXResolution(values[1]);
+        double[] values = targetDS.GetGeoTransform();
+        targetGT.setUpperLeftGeoX(values[0]);
+        targetGT.setGeoXResolution(values[1]);
+        targetGT.setUpperLeftGeoY(values[3]);
+        targetGT.setGeoYResolution(values[5]);
 
-        targetGeoTransform.setUpperLeftGeoY(values[3]);
-        targetGeoTransform.setGeoYResolution(values[5]);
+        targetGT.setGridWidth(targetDS.GetRasterXSize());
+        targetGT.setGridHeight(targetDS.GetRasterYSize());
 
-        targetGeoTransform.setGridWidth(targetDataSet.GetRasterXSize());
-        targetGeoTransform.setGridHeight(targetDataSet.GetRasterYSize());
+        return targetGT;
+    }
         
-        return targetGeoTransform;
+    /**
+     * Manage caching of SpatialReference objects.
+     */
+    public static SpatialReference getSpatialReference(int code) throws PetascopeException {
+        SpatialReference ret = srMap.get(code);
+        if (ret == null) {
+            ret = new SpatialReference();
+            ret.ImportFromEPSG(code);
+            srMap.put(code, ret);
+        }
+        return ret;
     }
 
     /**

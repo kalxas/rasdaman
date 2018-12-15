@@ -35,6 +35,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
 import org.slf4j.Logger;
@@ -142,8 +143,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all configurations for GDAL libraries, ConfigManager and OGC WCS XML Schema
      */
     private static void initConfigurations(Properties applicationProperties) throws Exception {
-        loadGdalLibrary(applicationProperties);
         ConfigManager.init(applicationProperties.getProperty(KEY_PETASCOPE_CONF_DIR));
+        loadGdalLibrary(applicationProperties);
         
         try {
             // Load all the type registry (set, mdd, base types) of rasdaman
@@ -163,17 +164,33 @@ public class ApplicationMain extends SpringBootServletInitializer {
     
     private static void loadGdalLibrary(Properties applicationProperties) {
         String systemGdalJavaDir = applicationProperties.getProperty(KEY_GDAL_JAVA_DIR);
+        
+        // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
         try {
-            // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
             addGdalLibraryPath(TMP_GDAL_JAVA_DIR_NAME, systemGdalJavaDir);
-            // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
-            // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
-            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
-        } catch (Error | Exception ex) {
+        } catch (Exception ex) {
             String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
                     + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
-            log.error(errorMessage, ex);
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
+            return;
+        } catch (Error ex) {
+            String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
+                    + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage);
+            return;
+        }
+        
+        // NOTE: to make sure that GDAL is loaded properly, do a simple CRS transformation here 
+        // (if not, user has to restart Tomcat for JVM class loader does the load JNI again).
+        try {
+            gdal.AllRegister(); // should be done once on application startup
+            // test projection
+            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
+        } catch (Exception ex) {
+            String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library from '" + 
+                    systemGdalJavaDir + "' to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
+            AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
+            return;
         } 
     }
     

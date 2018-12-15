@@ -893,8 +893,6 @@ public class CrsUtil {
 
     /**
      * Utility to get the epsg code from CRS URI
-     *
-     * @return
      */
     public static String getEPSGCode(String crs) {
         return EPSG_AUTH + ":" + getCode(crs);
@@ -903,9 +901,6 @@ public class CrsUtil {
     /**
      * Return the opengis full uri for EPSG code, e.g: EPSG:4326 ->
      * http://www.opengis.net/def/crs/EPSG/0/4326
-     *
-     * @param epsgCode
-     * @return
      */
     public static String getEPSGFullUri(String epsgCode) {
         return EPSG_ALL_CRS + "/" + epsgCode.split(":")[1];
@@ -913,15 +908,29 @@ public class CrsUtil {
  
     /**
      * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326)
-     *
-     * @param crs
-     * @return
      */
     public static String getCode(String crs) {
         if (crs.contains(EPSG_AUTH + ":")) {
             return crs.split(":")[1];
         }
         return CrsUri.getCode(crs);
+    }
+    
+    /**
+     * Ultility to get the code from CRS (e.g: EPSG:4326 -> 4326).
+     */
+    public static int getEpsgCodeAsInt(String crs) throws PetascopeException {
+        String code = CrsUtil.getCode(crs);
+        if (code == null || code.equals("")) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Failed extracting EPSG code from CRS: " + crs);
+        }
+        try {
+            return Integer.valueOf(code);
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, 
+                    "Invalid EPSG code '" + code + "' extracted from CRS '" + crs + "'");
+        }
     }
 
     /**
