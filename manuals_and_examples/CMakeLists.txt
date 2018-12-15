@@ -21,35 +21,30 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 ####################################################################
 
-#TODO:Create a CMakeLists.txt for the C++ examples, and a pom.xml or a CMakeLists.txt for the Java examples.
+# TODO: Create a CMakeLists.txt for the C++ examples, and a pom.xml or a CMakeLists.txt for the Java examples.
+
+set(EXAMPLES_DIR "${SHARE_DATA_DIR}/examples")
 install(DIRECTORY examples/images
-        DESTINATION "${SHARE_DATA_DIR}/examples")
-
+        DESTINATION "${EXAMPLES_DIR}")
 install(DIRECTORY examples/java
-        DESTINATION "${SHARE_DATA_DIR}/examples"
+        DESTINATION "${EXAMPLES_DIR}"
 		PATTERN "*.in" EXCLUDE)
-
-install(FILES examples/c++/query.cc
-        examples/c++/basictypes.hh
-        DESTINATION "${SHARE_DATA_DIR}/examples/c++")
-
+install(FILES examples/c++/query.cc examples/c++/basictypes.hh
+        DESTINATION "${EXAMPLES_DIR}/c++")
 install(DIRECTORY examples/queries
-        DESTINATION "${SHARE_DATA_DIR}/examples")
-
+        DESTINATION "${EXAMPLES_DIR}")
 install(FILES examples/rasdl/basictypes.dl
-        DESTINATION "${SHARE_DATA_DIR}/examples/rasdl/")
+        DESTINATION "${EXAMPLES_DIR}/rasdl/")
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/java/Makefile.in" "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Makefile.in" 
+               "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/java/Makefile.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile" @ONLY)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile"
-        DESTINATION "${SHARE_DATA_DIR}/examples/c++/"
-        RENAME Makefile)
-
+        DESTINATION "${EXAMPLES_DIR}/c++/")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/examples/java/Makefile"
-        DESTINATION "${SHARE_DATA_DIR}/examples/java/"
-        RENAME Makefile)
+        DESTINATION "${EXAMPLES_DIR}/java/")
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/manuals/"
         DESTINATION "${SHARE_DATA_DIR}/doc"
@@ -57,19 +52,26 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/manuals/"
         PATTERN "*.sh" EXCLUDE)
 
 if (GENERATE_DOCS)
-    find_package(Doxygen REQUIRED)
 
-    add_custom_target(documentation ALL
-            COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
-            COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
-            COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+    find_package(Doxygen)
 
-            DEPENDS "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
-            "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
-            "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+    if (Doxygen_FOUND)
 
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            COMMENT "Building documentation."
-            VERBATIM)
+        add_custom_target(doc-cpp ALL
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+
+                DEPENDS "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
+                "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
+                "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                COMMENT "Building documentation."
+                VERBATIM)
+
+        add_dependencies(doc doc-cpp)
+
+    endif()
 
 endif ()

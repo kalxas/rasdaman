@@ -1,0 +1,7 @@
+span.caption-number:after {
+   content: ": ";
+}
+
+.wy-side-nav-search{
+    background-color: #181515;
+}

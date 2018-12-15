@@ -23,8 +23,6 @@
 # Directories
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
 set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/")
-set(SRC_MAIN "${SRC_DIR}/src/main")
-set(SRC_RES "${SRC_MAIN}/resources")
 set(SRC_COVERAGE_EXAMPLES "${SRC_DIR}/coverages_example")
 
 # Constants used in the template (.in) files; if you change the key you need to change the corresponding files as well
@@ -111,9 +109,10 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml"
+    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml" > /dev/null
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
+    COMMENT "building petascope"
     VERBATIM)
 add_dependencies(petascope rasj)
 
@@ -149,15 +148,24 @@ install(DIRECTORY "${SRC_COVERAGE_EXAMPLES}/petascope_insertdemo_data"
         DESTINATION "${PETASCOPE_SHARE_DIR}")
 
 if (GENERATE_DOCS)
-    add_custom_target(petascope_doc ALL
-                      COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc 2>&1 > /dev/null || exit 0
-                      WORKING_DIRECTORY ${SRC_DIR}
-                      VERBATIM)
 
+    #TODO: make install fails (cannot find applications/petascope//target/petascope_core/site)
+
+    #add_custom_target(doc-petascope ALL
+    #                  COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -f "${BUILD_DIR}/petascope_core/pom.xml"
+    #                  WORKING_DIRECTORY ${SRC_DIR}/petascope_core
+    #                  VERBATIM)
     # Copy java doc from target folders to (e.g: /opt/rasdaman/share/doc/)
-    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_core/site"
-        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_core")
-    install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_main/site"
-        DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_main")
+    #install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_core/site"
+    #    DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_core")
+
+    #TODO: not working at the moment (javadoc: error - No public or protected classes found to document)
+
+    #add_custom_target(doc-petascope-main ALL
+    #                  COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -f "${BUILD_DIR}/petascope_main/pom.xml"
+    #                  WORKING_DIRECTORY ${SRC_DIR}/petascope_main
+    #                  VERBATIM)
+    #install(DIRECTORY "${PETASCOPE_TARGET_DIR}/petascope_main/site"
+    #    DESTINATION "${SHARE_DATA_DIR}/doc/doc-petascope/classes/petascope_main")
 
 endif(GENERATE_DOCS)

@@ -41,20 +41,22 @@ if (ENABLE_JAVA)
     configure_file("src/main/resources/log4j.properties.in" "${BUILD_DIR}/src/main/resources/log4j.properties" @ONLY)
 
     if (GENERATE_DOCS)
-        add_custom_target(secore_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc 2>&1 > /dev/null || exit 0
-            WORKING_DIRECTORY ${SRC_DIR}
-            VERBATIM)
 
-        install(DIRECTORY "${SECORE_TARGET_DIR}/site/apidocs/"
-            DESTINATION "${SHARE_DATA_DIR}/doc/doc-secore/classes"
-            PATTERN "*.sh" EXCLUDE)
+        #TODO: make install fails (cannot find applications/secore//target/site/apidocs)
+        #add_custom_target(secore_doc ALL
+        #    COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc 2>&1 > /dev/null || exit 0
+        #    WORKING_DIRECTORY ${SRC_DIR}
+        #    VERBATIM)
+        #install(DIRECTORY "${SECORE_TARGET_DIR}/site/apidocs/"
+        #    DESTINATION "${SHARE_DATA_DIR}/doc/doc-secore/classes"
+        #    PATTERN "*.sh" EXCLUDE)
 
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml"
+            COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml" > /dev/null
             WORKING_DIRECTORY ${SRC_DIR}
+            COMMENT "building secore"
             VERBATIM)
 
     # install secore.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
