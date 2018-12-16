@@ -36,7 +36,12 @@ if (GENERATE_DOCS)
 
         include(AddSphinxTarget)
         AddSphinxTarget(html rasdaman)
-        AddSphinxTarget(pdf rasdaman)
+
+        find_package(LATEX COMPONENTS PDFLATEX)
+        find_package(LatexMk)
+        if (LATEX_PDFLATEX_FOUND AND LATEXMK_FOUND)
+            AddSphinxTarget(pdf rasdaman)
+        endif()
 
     endif()
 
