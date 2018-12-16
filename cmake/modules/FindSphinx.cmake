@@ -49,6 +49,6 @@ find_package_handle_standard_args(Sphinx DEFAULT_MSG
 option(SPHINX_OUTPUT_HTML "Output standalone HTML documentation" ON)
 option(SPHINX_OUTPUT_PDF "Output standalone PDF documentation" ON)
 option(SPHINX_OUTPUT_MAN "Output standalone MAN documentation" OFF)
-option(SPHINX_WARNINGS_AS_ERRORS "When building documentation treat warnings as errors" ON)
+option(SPHINX_WARNINGS_AS_ERRORS "When building documentation treat warnings as errors" OFF)
 
 mark_as_advanced(SPHINX_EXECUTABLE)

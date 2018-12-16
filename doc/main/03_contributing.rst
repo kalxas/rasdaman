@@ -101,17 +101,16 @@ Getting started
 
     $ sudo pip install -U sphinx sphinx_rtd_theme
 
-2. Get the sources: ::
+2. Main documentation can be found in ``doc/main`` (``*.rst`` files).
 
-    $ git clone http://codereview.rasdaman.org/source/rasdocs.git
-    $ cd rasdocs
+3. Build the docs specifically: ::
 
-3. Build the docs: ::
+    $ make doc       # generate all documentation
+    $ make doc-html  # generate HTML documentation (requires sphinx)
+    $ make doc-pdf   # generate PDF documentation (requires sphinx, latexmk, texlive)
+    $ make doc-cpp   # generate C++ API documentation (requires doxygen)
 
-    $ make html      # output in _build/html/index.html
-    $ make latexpdf  # output in _build/latex/rasdaman.pdf
-
-    # alternatively
+    # alternatively in doc/main/
     $ ./build.sh
 
 

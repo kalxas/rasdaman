@@ -480,6 +480,8 @@ Default Installer configuration:
     protocol = "rasnet"
     # Apply a particular patch before building; can be a URL or a path
     patch = "http://rasdaman.org/patchmanager?patchop=Download+Selected-{patch_id}"
+    # Whether to generate documentation
+    generate_docs = false
 
     # Common servlet container settings for an externally deployed petascope/SECORE.
     [install.webapps]
@@ -652,7 +654,8 @@ Install Required Packages
 * *libnetcdf-dev*, *python-netcdf4* -- required for NetCDF support
 * *libgrib-api-dev*, *libgrib2c-dev*, *python-grib* - for GRIB data support
 * *libdw-dev* / *elfutils-devel* -- for segfault stacktraces, useful in development
-* *doxygen* -- required for HTML system documentationm
+* *sphinx*, *sphinx_rtd_theme*, *latexmk*, *texlive* -- main HTML / PDF documentation
+* *doxygen* -- required for C++ API documentation
 * *r-base*, *r-base-dev* -- required for :ref:`sec-rrasdaman-install`, an R package
   providing database interface for rasdaman
 * *performance boosters and additional service components* offered by
@@ -680,22 +683,32 @@ CentOS 7
     # To build rasdaman
     $ sudo yum install \
       git make libtool autoconf bison flex flex-devel git curl \
-      gcc gcc-c++ unzip boost-devel libstdc++-static boost-static elfutils-devel \
+      gcc gcc-c++ unzip boost-devel libstdc++-static boost-static \
       libtfiff-devel gdal-devel zlib-devel libedit-devel readline-devel \
-      netcdf-devel postgresql-devel sqlite-devel \
+      netcdf-devel postgresql-devel sqlite-devel elfutils-devel \
       openssl-devel grib_api-devel hdf-devel libxml2-devel \
       java-1.8.0-openjdk java-1.8.0-openjdk-devel maven ant gdal-java
-    # CMake needs to be manually downloaded and installed as the system provided
-    # version is too outdated.
+    # CMake needs to be manually downloaded and installed as the system 
+    # provided version is too outdated.
+
+    # To generate HTML documentation
+    $ sudo pip install sphinx sphinx_rtd_theme
+    # To generate PDF documentation (in addition to above)
+    $ sudo yum install latexmk texlive-cm texlive-ec texlive-ucs texlive-cmap \
+      texlive-metafont-bin texlive-fncychap texlive-pdftex-def texlive-fancyhdr \
+      texlive-titlesec texlive-framed texlive-wrapfig texlive-parskip \
+      texlive-upquote texlive-ifluatex texlive-makeindex-bin texlive-times \
+      texlive-courier texlive-helvetic texlive-dvips
+    # To generate C++ API documentation
+    $ sudo yum install doxygen
 
     # To run rasdaman
     $ sudo yum install \
       postgresql-server postgresql-contrib sqlite zlib elfutils \
-      gdal netcdf libtiff libedit readline openssl \
-      gcc python-devel python-dateutil python-magic which \
-      python-lxml python-pip python-setuptools grib_api \
-      gdal-python pyproj netcdf4-python hdf grib_api-devel gdal-java \
-      sysvinit-tools libxml2
+      gdal netcdf libtiff libedit readline openssl gcc python-devel \
+      python-dateutil python-magic which python-lxml python-pip \
+      python-setuptools grib_api gdal-python pyproj netcdf4-python hdf \
+      grib_api-devel gdal-java sysvinit-tools libxml2
 
     # To run wcst_import.sh
     $ sudo pip install glob2 pygrib grpcio
@@ -706,23 +719,29 @@ Debian 9
 ::
 
     # To build rasdaman
-    $ sudo apt-get install \
-      make libtool gawk autoconf \
-      bison flex git g++ unzip \
-      libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
+    $ sudo apt-get install --no-install-recommends \
+      make libtool gawk autoconf automake bison flex git g++ unzip \
+      libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
       libsqlite3-dev libgrib-api-dev libgrib2c-dev curl libssl1.0-dev
       openjdk-8-jdk maven ant libgdal-java
-    # CMake needs to be manually downloaded and installed as the system provided
-    # version is too outdated.
+    # CMake needs to be manually downloaded and installed as the system 
+    # provided version is too outdated.
+
+    # To generate HTML documentation
+    $ sudo pip install sphinx sphinx_rtd_theme
+    # To generate PDF documentation (in addition to above)
+    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+      texlive-latex-extra texlive-fonts-recommended 
+    # To generate C++ API documentation
+    $ sudo yum install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
       postgresql postgresql-contrib sqlite3 zlib1g libssl1.0.2 \
-      gdal-bin python-dev debianutils libdw1 \
-      python-dateutil python-lxml python-grib python-pip \
-      python-gdal libnetcdf-dev netcdf-bin \
+      gdal-bin python-dev debianutils libdw1 python-dateutil python-lxml \
+      python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
       openjdk-8-jre libgdal-java
 
@@ -735,23 +754,29 @@ Ubuntu 16.04
 ::
 
     # To build rasdaman
-    $ sudo apt-get install \
-      make libtool gawk autoconf \
-      bison flex git g++ unzip \
-      libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libdw-dev \
+    $ sudo apt-get install --no-install-recommends \
+      make libtool gawk autoconf automake bison flex git g++ unzip \
+      libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev libdw-dev \
       libedit-dev libreadline-dev libecpg-dev \
       libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
       openjdk-8-jdk maven ant libgdal-java
-    # CMake needs to be manually downloaded and installed as the system provided
-    # version is too outdated.
+    # CMake needs to be manually downloaded and installed as the system 
+    # provided version is too outdated.
+
+    # To generate HTML documentation
+    $ sudo pip install sphinx sphinx_rtd_theme
+    # To generate PDF documentation (in addition to above)
+    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+      texlive-latex-extra texlive-fonts-recommended 
+    # To generate C++ API documentation
+    $ sudo yum install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
       postgresql postgresql-contrib sqlite3 zlib1g libdw1 \
-      gdal-bin python-dev debianutils \
-      python-dateutil python-lxml python-grib python-pip \
-      python-gdal libnetcdf-dev netcdf-bin \
+      gdal-bin python-dev debianutils python-dateutil python-lxml \
+      python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
       openjdk-8-jre libgdal-java
 
@@ -764,23 +789,27 @@ Ubuntu 18.04
 ::
 
     # To build rasdaman
-    $ sudo apt-get install \
-      make libtool gawk autoconf \
-      bison flex git g++ unzip \
+    $ sudo apt-get install --no-install-recommends \
+      make libtool gawk autoconf automake cmake bison flex git g++ unzip \
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
       libsqlite3-dev libgrib-api-dev libgrib2c-dev curl libssl1.0-dev
       openjdk-8-jdk maven ant libgdal-java
-    # CMake needs to be manually downloaded and installed as the system provided
-    # version is too outdated.
+
+    # To generate HTML documentation
+    $ sudo pip install sphinx sphinx_rtd_theme
+    # To generate PDF documentation (in addition to above)
+    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+      texlive-latex-extra texlive-fonts-recommended 
+    # To generate C++ API documentation
+    $ sudo yum install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
       postgresql postgresql-contrib sqlite3 zlib1g libssl1.0.0 \
-      gdal-bin python-dev debianutils \
-      python-dateutil python-lxml python-pip libdw1 \
-      python-gdal libnetcdf-dev netcdf-bin \
+      gdal-bin python-dev debianutils python-dateutil python-lxml 
+      python-pip libdw1 python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
       openjdk-8-jre libgdal-java
 
@@ -834,7 +863,6 @@ options that can be specified with -D<option>:
 .. tabularcolumns:: |p{5.2cm}|p{3.5cm}|p{6cm}|
 .. _table-cmake:
 .. table:: CMake options for configuring the installation
-    :align: center
 
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | Option                   | Alternatives      | Description                                                              |
@@ -862,7 +890,7 @@ options that can be specified with -D<option>:
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``ENABLE_R``             | ON / **OFF**      | Enable compilation of R support.                                         |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``GENERATE_DOCS``        | ON / **OFF**      | Generate and install documentation (manuals, doxygen, javadoc).          |
+    | ``GENERATE_DOCS``        | **ON** / OFF      | Generate and install documentation (manuals, doxygen, javadoc).          |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``GENERATE_PIC``         | **ON** / OFF      | Generate position independent code (PIC).                                |
     +--------------------------+-------------------+--------------------------------------------------------------------------+

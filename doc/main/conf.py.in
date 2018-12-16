@@ -253,6 +253,10 @@ latex_documents = [
      u'rasdaman team', 'manual'),
 ]
 
+latex_additional_files = [
+    "_latex/capt-of.sty", "_latex/needspace.sty", "_latex/tabulary.sty"
+]
+
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
 #latex_logo = '_static/logo_black.png'

@@ -1,21 +1,29 @@
 # rasdaman documentation
 
-This repository hosts the rasdaman documentation in reStructuredText format.
+This directory contains the rasdaman documentation in reStructuredText format.
 
 
 ## Getting started
 
 ### Install dependencies
 
+*CentOS 7.x*
+
+- `sudo yum install doxygen python-pip latexmk texlive-cm texlive-ec texlive-ucs texlive-cmap texlive-metafont-bin texlive-fncychap texlive-pdftex-def texlive-fancyhdr texlive-titlesec texlive-framed texlive-wrapfig texlive-parskip texlive-upquote texlive-ifluatex texlive-makeindex-bin texlive-times texlive-courier texlive-helvetic texlive-dvips`
 - `sudo pip install -U sphinx sphinx_rtd_theme`
-- `sudo yum install latexmk texlive-collection-xetex`
+
+*Ubuntu 16.04*
+
+- `apt install python-pip doxygen latexmk texlive-latex-base texlive-latex-extra texlive-fonts-recommended --no-install-recommends`
+- `sudo pip install -U sphinx sphinx_rtd_theme`
 
 ### Build the docs
 
-1. `git clone http://codereview.rasdaman.org/source/rasdocs.git && cd rasdocs`
+1. Rasdaman has to be configured with `-DGENERATE_DOCS=ON` (turned on by default).
 2. Build the docs:
  - `make html` or `make latexpdf`
- - alternatively try `./build.sh`. If error with 'import name 'EscapeFormatter' then:
+ - alternatively try `./build.sh`. If you get an error
+   `import name 'EscapeFormatter'` then:
    - sudo pip uninstall markupsafe
    - sudo pip install markupsafe==0.23
 3. Find the docs in `_build/html/index.html` or `_build/latex/rasdaman.pdf`

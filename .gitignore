@@ -261,3 +261,7 @@ binprint
 systemtest/testcases_manual/test_rasql/oracles
 systemtest/testcases_manual/test_rasql/queries
 systemtest/testcases_manual/test_rasql/outputs
+
+# generated from conf.py.in
+doc/main/conf.py
+doc/main/_build
