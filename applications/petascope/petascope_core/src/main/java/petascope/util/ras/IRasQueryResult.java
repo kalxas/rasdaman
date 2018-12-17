@@ -43,7 +43,6 @@ public interface IRasQueryResult {
 
     /**
      * Executed when the result contains mdds
-     * @param res
      */
     void mdd(RasGMArray res);
 

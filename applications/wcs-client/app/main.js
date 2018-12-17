@@ -2691,18 +2691,6 @@ var rasdaman;
             $scope.isServiceProviderOpen = false;
             $scope.isCapabilitiesDocumentOpen = false;
             $scope.rowPerPageSmartTable = 10;
-            $scope.showFirefoxWebWorldWindWarning = false;
-            var userAgent = navigator.userAgent;
-            if (navigator.userAgent.indexOf("Firefox") > 0) {
-                var startIndex = userAgent.indexOf("rv:");
-                var endIndex = userAgent.indexOf(")");
-                if (startIndex > 0 && endIndex > 0) {
-                    var version = parseInt(userAgent.substring(startIndex, endIndex).split(":")[1]);
-                    if (version == 63 || version == 64) {
-                        $scope.showFirefoxWebWorldWindWarning = true;
-                    }
-                }
-            }
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             var canvasId = "wcsCanvasGetCapabilities";
             $scope.initCheckboxesForCoverageIds = function () {

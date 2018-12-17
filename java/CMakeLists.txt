@@ -23,6 +23,7 @@
 
 # will not rebuild rasj when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
 if (ENABLE_JAVA)
     if (RMANRASNET)
         set(RASNET_SRC_DIR "${CMAKE_SOURCE_DIR}/rasnet")
@@ -37,15 +38,11 @@ if (ENABLE_JAVA)
                 "${RASNET_SRC_DIR}/protomessages/common_service.proto")
 
         set(GENERATED_PROTO_SOURCES "")
-
         foreach (PROTO_FILE ${PROTO_SRC})
             CompileJavaProtobufFile(${PROTO_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_PROTO_SOURCES)
         endforeach ()
 
         set(GENERATED_GRPC_SOURCES "")
-
-        set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
-
         foreach (GRPC_FILE ${GRPC_SRC})
             CompileJavaGRPCFile(${GRPC_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_GRPC_SOURCES)
         endforeach ()
@@ -56,9 +53,11 @@ if (ENABLE_JAVA)
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
     # Create error messages from bin/errtxts via bash script to a java file
+    set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
     add_custom_target(${GENERATED_ERRTXTS_MESSAGE} ALL
-        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/rasj/global/RasErrorTexts.java.in
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_errtxts_messages.sh "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/rasj/global/RasErrorTexts.java.in"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        VERBATIM)
 
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} -q -B package -P${NETWORK_PROTOCOL}
