@@ -83,15 +83,6 @@ public class TypeResolverUtil {
     }
     
     /**
-     * From collection type, return the TypeRegistryEntry objects contains information about MDD, Cell types
-     */
-    public static TypeRegistryEntry getTypeRegistryEntry(String collectionType) throws PetascopeException {
-        TypeRegistry typeRegistry = TypeRegistry.getInstance();
-        TypeRegistryEntry entry = typeRegistry.getTypeEntry(collectionType);
-        return entry;
-    }
-
-    /**
      * Returns the mdd type for a give collection type.
      *
      * @param collectionType the collection type.
@@ -166,10 +157,6 @@ public class TypeResolverUtil {
     
     /**
      * Guesses the collection type. If no type is found, a new one is created.
-     *
-     * @param numberOfDimensions
-     * @param gdalBandTypes
-     * @return
      */
     private static String guessCollectionType(String collectionName, Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nilValues) throws PetascopeException {
         String result = "";

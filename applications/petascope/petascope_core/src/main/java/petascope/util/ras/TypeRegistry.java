@@ -56,20 +56,17 @@ public class TypeRegistry {
      * @throws petascope.exceptions.PetascopeException
      */
     public static TypeRegistry getInstance() throws PetascopeException {
-        if (instance == null) {
-            instance = new TypeRegistry();
-            try {
-                instance.initializeRegistry();
-            } catch (Exception ex) {
-                instance = null;
-                throw ex;
-            }
-        }
+        if (instance != null)
+            return instance;
+        
+        // instance is null, initialize
+        TypeRegistry tmp = new TypeRegistry();
+        tmp.initializeRegistry();
+        instance = tmp;
         return instance;
     }
 
     private TypeRegistry() {
-
     }
 
     /**
@@ -78,7 +75,6 @@ public class TypeRegistry {
      *
      * @param typeName the name of the type for which the entry is required
      * @return the type entry for the given type name
-     * @throws petascope.util.ras.TypeRegistryEntryMissingException
      */
     public TypeRegistryEntry getTypeEntry(String typeName) throws PetascopeException {
         TypeRegistryEntry type = typeRegistry.get(typeName);
@@ -106,39 +102,37 @@ public class TypeRegistry {
     }
 
     private String generateNullValuesRepresentation(List<NilValue> nullValues) {
-        
         String result = "";
         if (!nullValues.isEmpty()) {
             String values = "";
-            int count = 0;
             for (NilValue nullValue : nullValues) {
-                String val = nullValue.getValue();
-                values += val;
-                //add "," on all but last dim
-                if (count < nullValues.size() - 1) {
+                if (!values.isEmpty())
                     values += ",";
-                }
-                count++;
+                values += nullValue.getValue();
             }
             result = NULL_VALUES_TEMPLATE.replace("$values", values);
         }
         return result;
     }
 
-    private String expandDimensions(int numberOfDimensions) {
+    private String expandDimensions(int dimNo) {
         StringBuilder result = new StringBuilder();
-        for (int i = 0 ; i < numberOfDimensions; i++) {
-            result.append("D" + String.valueOf(i));
-            if (i < numberOfDimensions - 1) {
+        for (int i = 0 ; i < dimNo; i++) {
+            if (i != 0) {
                 result.append(",");
             }
+            result.append("D" + String.valueOf(i));
         }
 
         return result.toString();
     }
 
-    public String createNewType(String collectionName, Integer numberOfDimensions, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
-        log.info("Creating new type.");
+    /**
+     * @return the name of the created set (collection) type.
+     */
+    public String createNewType(String collectionName, Integer dimNo, List<String> bandBaseTypes, List<NilValue> nullValues) throws PetascopeException {
+        log.debug("Creating new type for collection '" + collectionName + "' of dimension " + dimNo + 
+                  ", base types: " + bandBaseTypes.toString() + ", with null values: " + (!nullValues.isEmpty()) + ".");
         String cellName = collectionName + CELL_TYPE_SUFFIX;
         String marrayName = collectionName + ARRAY_TYPE_SUFFIX;
         String setName = collectionName + SET_TYPE_SUFFIX;
@@ -147,7 +141,7 @@ public class TypeRegistry {
             //simple types
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                                  .replace("$typeStructure", bandBaseTypes.get(0))
-                                 .replace("$dimensions", expandDimensions(numberOfDimensions));
+                                 .replace("$dimensions", expandDimensions(dimNo));
             //create the marray type
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         } else {
@@ -159,7 +153,7 @@ public class TypeRegistry {
             //marray type
             String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
                                  .replace("$typeStructure", cellName)
-                                 .replace("$dimensions", expandDimensions(numberOfDimensions));
+                                 .replace("$dimensions", expandDimensions(dimNo));
             //create it
             RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
@@ -169,6 +163,8 @@ public class TypeRegistry {
                           .replace("$nullValues", generateNullValuesRepresentation(nullValues));
         //create it
         RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        
+        // TODO: shouldn't reinitialize from scratch but just add the new types to the registry
         this.reinitialize();
         return setName;
     }
@@ -191,21 +187,24 @@ public class TypeRegistry {
     
     
     /**
-     * Collects the types from rasdl and inserts them into an internal registry
+     * Collects the types from rasdaman and inserts them into an internal registry
      */
     private void initializeRegistry() throws PetascopeException {
-        try {
-            log.trace("Initializing the type registry");
-            initializeStructRegistry();
-            initializeMarrayTypes();
-            initializeSetTypes();
-            this.buildRegistry();
-            log.info("Succesfully initialized the type registry.");
-            log.debug("Contents: {}", typeRegistry.toString());
-        } catch (RasdamanException e) {
-            //log.error(MessageFormat.format("Could not read the rasdaman type registry. Tried with {0}rasdl -p", ConfigManager.RASDAMAN_BIN_PATH));
-            throw e;
-        }
+        log.trace("Initializing the type registry");
+        initializeStructRegistry();
+        initializeMarrayTypes();
+        initializeSetTypes();
+        this.buildRegistry();
+        log.info("Succesfully initialized the type registry.");
+        log.trace("Type registry contents: {}", typeRegistry.toString());
+    }
+
+    private void reinitialize() throws PetascopeException {
+        structTypeDefinitions.clear();
+        setTypeDefinitions.clear();
+        marrayTypeDefinitions.clear();
+        typeRegistry.clear();
+        initializeRegistry();
     }
 
     private void initializeSetTypes() throws RasdamanException, PetascopeException {
@@ -214,47 +213,51 @@ public class TypeRegistry {
         
         for (byte[] bytes : queryResult.getMdds()) {
             String setLine = new String(bytes);
-            String setName = parseSetName(setLine);
-            String marrayName = parseSetMarrayName(setLine);
-            String nilValues = parseSetNullValues(setLine);
-            setTypeDefinitions.add(Pair.of(setName, marrayName));
-            setTypeNullValues.put(setName, nilValues);
+            try {
+                String setName = parseSetName(setLine);
+                String marrayName = parseSetMarrayName(setLine);
+                String nilValues = parseSetNullValues(setLine);
+                setTypeDefinitions.add(Pair.of(setName, marrayName));
+                setTypeNullValues.put(setName, nilValues);
+            } catch (Exception ex) {
+                log.warn(ex.getMessage());
+            }
         }
     }
 
-    private String parseSetNullValues(String setLine) {
+    private String parseSetNullValues(String setLine) throws RasdamanException {
         String[] parts = setLine.split("NULL VALUES \\[");
         if (parts.length < 2) { //no nil values
             return "";
         }
         String[] nilParts = parts[1].split("]");
         if (nilParts.length < 1) { //invalid line
-            return "";
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Null values cannot be parsed from rasdaman result: '" + setLine + "'.");
         }
         return nilParts[0].trim();
     }
 
-    private String parseSetName(String setLine) {
+    private String parseSetName(String setLine) throws RasdamanException {
         String[] parts = setLine.split("CREATE TYPE ");
         if (parts.length < 2) { //invalid line
-            return "";
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Set type name cannot be parsed from rasdaman result: '" + setLine + "'.");
         }
         String[] setNameParts = parts[1].split(" ");
         if (setNameParts.length < 1) { //invalid line
-            return "";
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Set type name cannot be parsed from rasdaman result: '" + setLine + "'.");
         }
         return setNameParts[0].trim();
     }
 
-    private String parseSetMarrayName(String setLine) {
+    private String parseSetMarrayName(String setLine) throws RasdamanException {
         String result;
         String[] parts = setLine.split("AS SET \\(");
         if (parts.length < 2) { //invalid line
-            return "";
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Set type cannot be parsed from rasdaman result: '" + setLine + "'.");
         }
         String[] marrayNameParts = parts[1].split("\\)");
         if (parts.length < 1) { //invalid line
-            return "";
+            throw new RasdamanException(ExceptionCode.RuntimeError, "Set type cannot be parsed from rasdaman result: '" + setLine + "'.");
         }
         if (marrayNameParts[0].contains("NULL VALUES")) {
             result = marrayNameParts[0].split("NULL VALUES")[0].trim();
@@ -264,18 +267,22 @@ public class TypeRegistry {
         return result;
     }
 
-    private void initializeMarrayTypes() throws RasdamanException, PetascopeException {
+    private void initializeMarrayTypes() throws PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_MARRAY_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         String[] fullStringResult = queryResult.toString().split("\0");
         for (String marrayLine : fullStringResult) {
-            String marrayName = parseMarrayName(marrayLine);
-            String marrayStructure = parseMarrayStructure(marrayLine);
-            marrayTypeDefinitions.put(marrayName, marrayStructure);
+            try {
+                String marrayName = parseMarrayName(marrayLine);
+                String marrayStructure = parseMarrayStructure(marrayLine);
+                marrayTypeDefinitions.put(marrayName, marrayStructure);
+            } catch (RasdamanException ex) {
+                log.warn(ex.getExceptionText());
+            }
         }
     }
 
-    private void initializeStructRegistry() throws RasdamanException, PetascopeException {
+    private void initializeStructRegistry() throws PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_STRUCT_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
         for (byte[] bytes : queryResult.getMdds()) {
@@ -283,12 +290,14 @@ public class TypeRegistry {
             String str = new String(bytes);
             String[] parts = str.split(AS);
             if (parts.length != 2) {
-                throw new RasdamanException(ExceptionCode.RuntimeError, "Type cannot be parsed from rasdaman result, given '" + str + "'.");
+                log.warn("Struct type cannot be parsed from rasdaman result: '" + str + "'.");
+                continue;
             }
 
             String[] nameParts = parts[0].split(" ");
             if (nameParts.length != 3) {
-                throw new RasdamanException(ExceptionCode.RuntimeError, "Struct type cannot be parsed from rasdaman result, given '" + parts[0] + "'.");
+                log.warn("Struct type cannot be parsed from rasdaman result: '" + parts[0] + "'.");
+                continue;
             }
             String typeName = nameParts[2];
 
@@ -367,44 +376,6 @@ public class TypeRegistry {
      */
     public boolean deleteCellTypeFromRegistry(String cellType) {
         return this.structTypeDefinitions.remove(cellType) != null;
-    }
-
-    /**
-     * @deprectaed
-     * Parses one rasdl line retrieving the base type and the domain type. We differentiate each line based on its contents
-     * into two cases:
-     * Marray definition: typedef marray <struct { char red, char green, char blue }, 2> RGBImage;
-     * Set definition:    typedef set <GreyImage> GreySet;
-     *
-     * @param line
-     */
-    private void parseRasdlLine(String line) {
-        if (line.startsWith(RASDL_MARRAY_IDENTIFIER)) {
-            String[] marrayParts = line.substring(RASDL_MARRAY_IDENTIFIER.length()).split(">");
-            if (marrayParts.length < 2) { //invalid line
-                return;
-            }
-            String marrayName = marrayParts[1].replace(";", "").trim();
-            String marrayDef = marrayParts[0].replace("<", "").trim();
-            marrayTypeDefinitions.put(marrayName, marrayDef);
-        } else if (line.startsWith(RASDL_SET_IDENTIFIER)) {
-            String[] setParts = line.substring(RASDL_SET_IDENTIFIER.length()).split(">");
-            if (setParts.length < 2) {
-                return;
-            }
-            String[] setNameWithNullValuesParts = setParts[1].replace(";", "").trim().split(" ");
-            String setName = setNameWithNullValuesParts[setNameWithNullValuesParts.length - 1];
-            String marrayTypeName = setParts[0].replace(">", "").replace("<", "").trim();
-            setTypeDefinitions.add(Pair.of(setName, marrayTypeName));
-        }
-    }
-
-    private void reinitialize() throws PetascopeException {
-        structTypeDefinitions.clear();
-        setTypeDefinitions.clear();
-        marrayTypeDefinitions.clear();
-        typeRegistry.clear();
-        initializeRegistry();
     }
 
     /**
