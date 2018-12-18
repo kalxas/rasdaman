@@ -502,7 +502,17 @@ MDDColl::getMDDCollection(const char* collName)
         while (mddIter.not_done())
         {
             MDDType* typePtr = mddIter.get_element();
-            char* typeStructure = typePtr->getNewTypeStructure();
+
+            char* tmpTypeStructure = typePtr->getNewTypeStructure();
+            std::string typeStructure{tmpTypeStructure};
+            free(tmpTypeStructure);
+
+            if (typePtr->getSubtype() == MDDType::MDDBASETYPE ||
+                typePtr->getSubtype() == MDDType::MDDONLYTYPE)
+            {
+                LDEBUG << "Internal MDD type cannot be serialized: " << tmpTypeStructure;
+                continue;
+            }
 
             std::string result = "";
             result.append("CREATE TYPE ");
@@ -515,9 +525,6 @@ MDDColl::getMDDCollection(const char* collName)
             transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
             transObj->insertTile(transTile);
             retval->insert(transObj);
-
-            free(typeStructure);
-            typeStructure = NULL;
 
             mddIter.advance();
         }
