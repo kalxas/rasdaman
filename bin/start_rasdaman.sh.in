@@ -131,6 +131,24 @@ get_property_value()
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 } 
 
+# Return non-zero if port is available
+# $1: the port to check
+check_port_available()
+{
+    local port="$1"
+    if type fuser > /dev/null 2>&1; then
+        fuser -s -n tcp "$port" > /dev/null 2>&1
+    elif type lsof > /dev/null 2>&1; then
+        lsof -i ":$port" > /dev/null 2>&1
+    elif type netstat > /dev/null 2>&1; then
+        netstat -lntu | grep "LISTEN" | awk '{ print $4 }' | grep -q ":$port\$"
+    elif type ss > /dev/null 2>&1; then
+        ss -lntu | grep "LISTEN" | awk '{ print $5 }' | grep -q ":$port\$"
+    else
+        return 1 # assume it's available
+    fi
+}
+
 #------ start embedded petascope/secore if needed --------------------------
 
 # Start embedded tomcat from values in properties file
@@ -150,9 +168,8 @@ start_embedded() {
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
             logn "  starting $app_name on port $server_port... "
-            # Check if port is available
-            fuser -s -n tcp "$server_port"   
-            if [ ! $? ]; then
+            check_port_available "$server_port"
+            if [ $? -ne 0 ]; then
                 nohup java -jar "$war_path/$war_file_name" >> "$app_name.log" 2>&1 &
                 check_process "$app_name"
             else

@@ -119,6 +119,24 @@ get_property_value() {
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
 
+# Return non-zero if port is available
+# $1: the port to check
+check_port_available()
+{
+    local port="$1"
+    if type fuser > /dev/null 2>&1; then
+        fuser -s -n tcp "$port" > /dev/null 2>&1
+    elif type lsof > /dev/null 2>&1; then
+        lsof -i ":$port" > /dev/null 2>&1
+    elif type netstat > /dev/null 2>&1; then
+        netstat -lntu | grep "LISTEN" | awk '{ print $4 }' | grep -q ":$port\$"
+    elif type ss > /dev/null 2>&1; then
+        ss -lntu | grep "LISTEN" | awk '{ print $5 }' | grep -q ":$port\$"
+    else
+        return 1 # assume it's available
+    fi
+}
+
 # --- kill embedded petascope and secore if they are running ---------
 
 # Stop embedded tomcat from values in properties file
@@ -127,6 +145,7 @@ get_property_value() {
 stop_embedded() {
     local -r props_path="$1"
     local -r app_name="$2"
+    local -r war_file_name="$3"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
@@ -136,13 +155,12 @@ stop_embedded() {
             # Check if the port for this application is running and kill this process
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
-            # Check if port is available
-            fuser -s -n tcp "$server_port" 
-            # Return 0 means port is occupied and embedded server is running.
-            if [[ $? -eq 0 ]]; then
+            check_port_available "$server_port"
+            if [ $? -eq 0 ]; then
                 # kill process on this port
-                kill -9 $(lsof -t -i:"$server_port" -sTCP:LISTEN)
-                log "embedded $app_name is terminated on port '$server_port'."
+                local pid=$(pgrep -f "$war_path/$war_file_name" 2> /dev/null)
+                kill -9 $pid
+                log "embedded $app_name terminated on port $server_port."
             fi
         fi
     else
@@ -154,8 +172,8 @@ stop_embedded() {
 # --- ACTION ------------------------------------------------------
 
 # Check if it should stop embedded tomcat, secore
-stop_embedded "$secore_props" "secore"
-stop_embedded "$petascope_props" "petascope"
+stop_embedded "$secore_props" "secore" "def.war"
+stop_embedded "$petascope_props" "petascope" "rasdaman.war"
 
 # --- stop rasdaman servers ---------------------------------------
 
