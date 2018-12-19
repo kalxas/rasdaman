@@ -25,6 +25,11 @@ try:
 except KeyError:
     from confrasql import RasqlLexer
 
+try:
+    from .json_lexer import JSONLexer
+except KeyError:
+    from json_lexer import JSONLexer
+
 # try:
 #     from .confrasql import RasqlDomain
 # except KeyError:
@@ -112,11 +117,12 @@ exclude_patterns = ['_build', 'README.rst']
 
 def setup(sphinx):
     sphinx.add_lexer('rasql', RasqlLexer())
+    sphinx.add_lexer('json', JSONLexer())
     # sphinx.add_domain(RasqlDomain)
     sphinx.add_stylesheet('css/custom.css')
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'trac'
 highlight_language = 'rasql'
 
 # A list of ignored prefixes for module index sorting.

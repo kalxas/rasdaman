@@ -1541,7 +1541,7 @@ Some options are commonly applicable to all recipes.
 
 * ``service_url`` - The endpoint of the WCS service with the WCS-T extension enabled
 
-  .. code-block::javascript
+  .. code-block::json
 
       "service_url": "http://localhost:8080/rasdaman/ows"
 
@@ -1558,7 +1558,7 @@ Some options are commonly applicable to all recipes.
   parameter should be an array containing the desired null value either as a
   closed interval ``low:high`` or single values. E.g. for a coverage with 3 bands
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "default_null_values": [ "9995:9999", "-9, -10, -87", 3.14 ],
 
@@ -1600,7 +1600,7 @@ Some options are commonly applicable to all recipes.
   ``{ "low": 0, "high": <max> }``, where low/high are given in the axis format.
   Example:
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "slice_restriction": [
         { "low": 0, "high": 36000 },
@@ -1626,7 +1626,7 @@ Some options are commonly applicable to all recipes.
   or ``descending``).Currently, it sorts by *datetime* which allows
   to import coverage from the first date or the recent date. Example:
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "import_order": "descending"
 
@@ -1634,7 +1634,7 @@ Some options are commonly applicable to all recipes.
   in rasdaman. You can set arbitrary tile sizes for the tiling option only
   if the tile name is ``ALIGNED``. Example:
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "tiling": "ALIGNED [0:0, 0:1023, 0:1023] TILE SIZE 5000000"
 
@@ -1645,14 +1645,14 @@ Some options are commonly applicable to all recipes.
   metadata for this layer. After that, this layer will be available from
   *WMS GetCapabilties request*. Example:
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "wms_import": true
 
 * ``scale_levels`` - Enable the :ref:`WMS pyramids <wms-image-pyramids>` feature.
   Syntax:
 
-  .. code-block:: javascript
+  .. code-block:: json
 
       "scale_levels": [ level1, level2, ... ]
 
@@ -1667,7 +1667,7 @@ Well suited for importing a tiled map, not necessarily continuous; it
 will place all input files given under a single coverage and deal with
 their position in space. Parameters are explained below.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       "config": {
@@ -1709,7 +1709,7 @@ Well suited for importing multiple 2-D slices created at regular
 intervals of time (e.g sensor data, satelite imagery etc) as 3-D cube
 with the third axis being a temporal one. Parameters are explained below
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       "config": {
@@ -1771,7 +1771,7 @@ particular use case:
   from the data file paths. `Here is an example with the "filename" option
   <http://www.rasdaman.org/attachment/wiki/WCSTImportGuide/ingredient_irregulartime_filename.txt>`_
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       "config": {
@@ -1883,30 +1883,30 @@ options of the ingredients file. Each coverage model contains a
  * *global* - specifies fields which should be saved (e.g. the licence, the creator
    etc) once for the whole coverage. Example:
 
-   ::
+    .. code-block:: json
 
-      "global": {
-              "Title": "'Drought code'"
-         	  },
+        "global": {
+          "Title": "'Drought code'"
+        },
 
  * *local* - specifies fields which are fetched from each input file
    to be stored in coverage's metadata. Then, when subsetting output coverage,
    only associated *local* metadata will be added to the result. Example:
 
-   ::
+   .. code-block:: json
 
-      "local": {
-		"local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
-              }
+        "local": {
+		  "local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
+        }
 
 
  * *colorPaletteTable* - specifies the path to a Color Palette Table (.cpt)
    file which can be used internally when encoding coverage to PNG to
    colorize result. Example:
 
-   ::
+   .. code-block:: json
 
-     "colorPaletteTable": "PATH/TO/color_palette_table.cpt"
+        "colorPaletteTable": "PATH/TO/color_palette_table.cpt"
 
 
 * ``slicer`` - specifies the driver (**netcdf**, **gdal** or **grib**) to use to
@@ -1922,7 +1922,7 @@ and for **PNG** `here
 <http://rasdaman.org/browser/systemtest/testcases_services/test_all_wcst_import/testdata/wcps_mr/ingest.template.json>`__.
 Here's an example ingredient file for *grib* data:
 
-.. code-block:: javascript
+.. code-block:: json
 
     "recipe": {
       "name": "general_coverage",
@@ -2124,170 +2124,174 @@ complicated cases:
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
 
 
-**Band's unit of measurement (uom) code for netCDF, Grib recipes**
+**Band's unit of measurement (uom) code for netCDF and GRIB recipes**
 
-* For netCDF recipe, you can add *uom* for each band with syntax:
+* In netCDF recipes you can add *uom* for each band by referencing the metadata
+  key of the specific variable. For example, for variable ``LAI``:
 
-.. code-block:: javascript
+.. code-block:: json
 
-   "uomCode": "${netcdf:variable:LAI:units}" (LAI is a specified netCDF variable example)
+   "uomCode": "${netcdf:variable:LAI:units}"
 
-* For GRIB recipe, it is as same as netCDF to add uom for bands, except, you use
-  the *GRIB expression* to fetch this data from any metadata of GRIB file.
+* In GRIB recipes adding uom for bands is same as for netCDF, except that
+  a *GRIB expression* is used to fetch this information from metadata in the
+  GRIB file. Example:
 
-::
+.. code-block:: json
 
-   "bands": [
-             {
-               "name": "Temperature_isobaric",
-               "identifier": "Temperature_isobaric",
-               "description": "Bands description",
-               "nilReason": "Nil value represents missing values.",
-               "nilValue": 9999,
-                # can be any other metadata from GRIB file
-               "uomCode": "${grib:unitsOfFirstFixedSurface}"
-             }
-           ]
+    "bands": [
+      {
+        "name": "Temperature_isobaric",
+        "identifier": "Temperature_isobaric",
+        "description": "Bands description",
+        "nilReason": "Nil value represents missing values.",
+        "nilValue": 9999,
+        "uomCode": "${grib:unitsOfFirstFixedSurface}"
+      }
+    ]
 
 .. _local-metadata:
 
 **Local metadata from input files**
 
 Beside the *global metadata* of a coverage, you can add *local metadata*
-from each file which contributes to create the whole coverage (e.g: importing
-3D coverage from 2D GeoTiff files with timeseries come from file names).
+for each file which is a part of the whole coverage (e.g a 3D time-series 
+coverage mosaiced from 2D GeoTiff files).
 
-In ingredient file of *general recipe*, under metadata section add "local"
-object with keys and values accordingly (values should be extracted by using
-format type expression (e.g: ${netcdf:metadata:...}) to extract metadata
-from file, e.g: netCDF attribute, GeoTiff tag). Example of extracting netCDF
-attribute from an input file:
+In ingredient file of *general recipe*, under the metadata section add a "local"
+object with keys and values extracted by using format type expression. Example 
+of extracting an attribute from a netCDF input file:
 
-::
+.. code-block:: json
 
-   "metadata": {
-            "type": "xml",
-            "global": {
-                ...
-         	  },
-             "local": {
-           		"local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
-              }
-    },
+    "metadata": {
+      "type": "xml",
+      "global": {
+        ...
+      },
+      "local": {
+        "local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
+      }
+    }
 
-After that, each file's envelope (geo domains) and its local metadata
-will be added to coverage's metadata under *<slice>...</slice>* element
+Afterwards, each file's envelope (geo domain) and its local metadata
+will be added to the coverage metadata under ``<slice>...</slice>`` element
 if coverage metadata is imported in XML format. Example of a coverage
 containing local metadata in XML from 2 netCDF files:
 
-::
+.. code-block:: xml
 
     <slices>
-        <slice>
-            <boundedBy>
-                <Envelope>
-                    <axisLabels>Lat Long ansi forecast</axisLabels>
-                    <srsDimension>4</srsDimension>
-                    <lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00+00:00" 0</lowerCorner>
-                    <upperCorner>34.7208095 29.8828125 "2017-01-10T00:00:00+00:00" 0</upperCorner>
-                </Envelope>
-            </boundedBy>
-            <local_metadata_key>FROM FILE 1</local_metadata_key>
-            <fileReferenceHistory>/tmp/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc</fileReferenceHistory>
-        </slice>
-        <slice>
-            <boundedBy>
-                <Envelope>
-                    <axisLabels>Lat Long ansi forecast</axisLabels>
-                    <srsDimension>4</srsDimension>
-                    <lowerCorner>34.4396675 29.6015625 "2017-02-10T00:00:00+00:00" 3</lowerCorner>
-                    <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00+00:00" 3</upperCorner>
-                </Envelope>
-            </boundedBy>
-            <local_metadata_key>FROM FILE 2</local_metadata_key>
-            <fileReferenceHistory>/tmp/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc</fileReferenceHistory>
-        </slice>
+      <slice>
+        <boundedBy>
+          <Envelope>
+            <axisLabels>Lat Long ansi forecast</axisLabels>
+            <srsDimension>4</srsDimension>
+            <lowerCorner>34.4396675 29.6015625 
+                         "2017-01-10T00:00:00+00:00" 0</lowerCorner>
+            <upperCorner>34.7208095 29.8828125 
+                         "2017-01-10T00:00:00+00:00" 0</upperCorner>
+          </Envelope>
+        </boundedBy>
+        <local_metadata_key>FROM FILE 1</local_metadata_key>
+        <fileReferenceHistory>
+        /tmp/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc
+        </fileReferenceHistory>
+      </slice>
+      <slice>
+        <boundedBy>
+          <Envelope>
+            <axisLabels>Lat Long ansi forecast</axisLabels>
+            <srsDimension>4</srsDimension>
+            <lowerCorner>34.4396675 29.6015625 
+                         "2017-02-10T00:00:00+00:00" 3</lowerCorner>
+            <upperCorner>34.7208095 29.8828125 
+                         "2017-02-10T00:00:00+00:00" 3</upperCorner>
+          </Envelope>
+        </boundedBy>
+        <local_metadata_key>FROM FILE 2</local_metadata_key>
+        <fileReferenceHistory>
+        /tmp/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc
+        </fileReferenceHistory>
+      </slice>
     </slices>
+
 
 When subsetting a coverage which contains local metadata section
 from input files (via WC(P)S requests), if the geo domains of subsetted
-coverage intersect with some input files' envelopes, only these
-files' local metadata will be added as output coverage's local metadata.
+coverage intersect with some input files' envelopes, only local metadata of
+these files will be added to the output coverage metadata.
 
-**Band, Dimension's metadata to support in encoding netCDF**
 
-Beside the *global metadata* of a coverage, you can add the metadata
-for *each band* and *each defined axis* in the ingredient file.
-Then, when you encode the output result from WCS or WCPS in netCDF,
-you will see the metadata is copied to the corresponding sections.
+**Band and dimension metadata in netCDF**
 
-::
+Metadata can be individually specified for each *band* and *axis* in the 
+ingredient file. This metadata is automatically added to the result output when
+encoding to netCDF. Example:
 
-        "metadata": {
-          "type": "xml",
-          "global": {
-	    "description": "'This file has 3 different nodata values for bands and they could be fetched implicitly.'",
-            "resolution": "'1'"
-          },
-          // metadata of each band
-          "bands": {
-	      "red": {
-		  "metadata1": "metadata_red1",
-  		  "metadata2": "metadata_red2"
-               },
-	      "green": {
-		  "metadata3": "metadata_green3",
-  		  "metadata4": "metadata_green4"
-               },
-	      "blue": {
-		  "metadata5": "metadata_blue5"
-               }
-           },
-          // meta data of each dimension (axis)
-	   "axes": {
-	      "i": {
-		   "metadata_i_1": "metadata_1",
-		   "metadata_i_2": "metadata_2"
-	       },
-              "j": {
-		   "metadata_j_1": "metadata_3"
-	      }
-           }
+.. code-block:: json
+
+    "metadata": {
+      "type": "xml",
+      "global": {
+        "description": "'3-band data.'",
+        "resolution": "'1'"
+      },
+      "bands": {
+        "red": {
+          "metadata1": "metadata_red1",
+          "metadata2": "metadata_red2"
+        },
+        "green": {
+          "metadata3": "metadata_green3",
+          "metadata4": "metadata_green4"
+        },
+        "blue": {
+          "metadata5": "metadata_blue5"
         }
+      },
+      "axes": {
+        "i": {
+          "metadata_i_1": "metadata_1",
+          "metadata_i_2": "metadata_2"
+        },
+        "j": {
+          "metadata_j_1": "metadata_3"
+        }
+      }
+    }
 
-Since version 9.7, for *netCDF recipe only*, user can set metadata
-for **bands** and **axes** like below:
+Since v9.7, for this metadata can be automatically derived from the input 
+netCDF files.
 
-* For *bands' metadata*:
+* **band** metadata:
 
-  * If **"bands"** is *set* to **"auto"** or **"bands"** does not exist
-    under **"metadata"** object in ingredient file, all user-specified bands
-    will have metadata which is fetched directly from netCDF file.
+  * If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+    in the ingredient file, all user-specified bands will have metadata which is 
+    fetched directly from the netCDF file.
 
-  * If **"bands"** is *not set* to **"auto"**, then, user needs to specify
-    the a dictionary of (**"keys"**, **"values"**) for *each band*
-    which user want to have metadata and *no specify for unwanted bands*.
+  * Otherwise, if ``"bands"`` is not set to ``"auto"``, the user could specify 
+    metadata explicitly as the usual list of key / values.
 
-* For *axes' metadata*:
+* **axis** metadata:
 
-  * User has to match *each axis's metadata* from netCDF file's dimension
-    manually with this syntax:
+  * Can be fetched automatically, with syntax as follows:
 
-  ::
+    .. code-block:: json
 
-   "CRS_Axis_Name": "${netcdf:variable:netCDF_DimensionName:metadata}"
+        "CRS_Axis_Name": "${netcdf:variable:DimensionName:metadata}"
 
-    to fetch axis's metadata automatically from netCDF file.
-    Example: dimension name in netCDF file is *lon*, but CRS name
-    (EPSG:4326) is *Long*, so in ingredient, it will be:
 
-  ::
+    For example if the dimension name in netCDF file is *lon* but the CRS axis
+    name (for EPSG:4326) is *Long*, in the ingredient we would have:
 
-   "Long": "${netcdf:variable:lon:metadata}"
+    .. code-block:: json
 
-  * If axis is *not specified*, its metadata *is empty*, otherwise,
-    user can specify axis's metadata as a dictionary of
-    **"keys"**, **"values"** normally.
+        "Long": "${netcdf:variable:lon:metadata}"
+
+  * Otherwise, if axis is not specified its metadata will be empty. As usual,
+    the user can explicitly specify axis metadata as a dictionary of keys and 
+    values as well.
 
 
 .. _data-import-recipe-wcs_extract:
@@ -2298,7 +2302,7 @@ Import from external WCS
 Allows to import a coverage from a remote petascope endpoint into the local
 petascope. Parameters are explained below.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       "config": {
@@ -2338,31 +2342,29 @@ Image pyramids
 
 This feature (v9.7+) allows to create downscaled versions of a given coverage,
 eventually achieving something like an image pyramid, in order to enable
-faster WMS requests.
+faster WMS requests when zooming in/out.
 
-By using ``scale_levels`` option of wcst_import when importing coverage
+By using the ``scale_levels`` option of wcst_import when importing a coverage
 with WMS enabled, petascope will create downscaled collections in rasdaman
 following this pattern: ``coverageId_<level>``.
 If level is a float, then *the dot* is replaced with an *underscore*,
-as *dots are not permitted in a collection name*. Some examples:
+as dots are not permitted in a collection name. Some examples:
 
-::
+- MyCoverage, level 2 -> MyCoverage_2
+- MyCoverage, level 2.45 -> MyCoverage_2_45
 
-    MyCoverage, level 2 -> MyCoverage_2
-    MyCoverage, level 2.45 -> MyCoverage_2_45
+Example ingredients specification to create two downscaled levels which are 
+*8x* and *32x* smaller than the original coverage:
 
-For example, create two downscaled levels with that are *8x* and *32x* smaller
-than the original coverage:
-
-.. code-block: javascript
+.. code-block: json
 
     "options": {
-        "scale_levels": [8,32],
-        "tiling": "ALIGNED [0:500, 0:500]"
+      "scale_levels": [8, 32],
+      ...
     }
 
-There are *2 new WCS-T non-standard requests* which wcst_import utilizes
-for this feature, see :ref:`WCST non-standard requests for WMS<wcs-t-non-standard-requests-wms>`.
+Two new WCS-T non-standard requests are utilized by wcst_import for this feature, 
+see :ref:`here for more information <wcs-t-non-standard-requests-wms>`.
 
 
 .. _data-import-recipe-create-own:
@@ -2468,11 +2470,11 @@ IDE will help you auto import them)):
 The first thing you need to do is to make sure the ``get_name()`` method returns
 the name of your recipe. This name will be used to determine if an ingredient file
 should be processed by your recipe. Next, you will need to focus on the
-constructor. Let's examine it. We get a single parameter called session which
+constructor. Let's examine it. We get a single parameter called ``session`` which
 contains all the information collected from the user plus a couple more useful
 things. You can check all the available methods of the class in the session.py
 file, for now we will just save the options provided by the user that are
-available in session.get_recipe() in a class attribute.
+available in ``session.get_recipe()`` in a class attribute.
 
 In the ``validate()`` method, you will validate the options for the recipe
 provided by the user. It's generally a good idea to call the super method to
@@ -2480,7 +2482,7 @@ validate some of the general things like the WCST Service availability and so on
 although it is not mandatory. We also want to validate our custom recipe options
 here. This is how the recipe looks like now:
 
-.. code-block:: text
+.. code-block:: python
 
     class Recipe(BaseRecipe):
         def __init__(self, session):
@@ -2493,14 +2495,17 @@ here. This is how the recipe looks like now:
 
         def validate(self):
             super(Recipe, self).validate()
-            if "time_crs" not in self.options or self.options['time_crs'] == "":
-                raise RecipeValidationException("No valid time crs provided")
+            if "time_crs" not in self.options:
+                raise RecipeValidationException(
+                    "No valid time crs provided")
 
             if 'time_tag' not in self.options:
-                raise RecipeValidationException("No valid time tag parameter provided")
+                raise RecipeValidationException(
+                    "No valid time tag parameter provided")
 
             if 'time_format' not in self.options:
-                raise RecipeValidationException("You have to provide a valid time format")
+                raise RecipeValidationException(
+                    "You have to provide a valid time format")
 
         def describe(self):
             """
@@ -2525,7 +2530,7 @@ here. This is how the recipe looks like now:
         def get_name():
             return "my_custom_recipe"
 
-Now that our recipe can validate the recipe options, let's move to the describe
+Now that our recipe can validate the recipe options, let's move to the ``describe()``
 method. This method allows you to let your users know any relevant information
 about the ingestion before it actually starts. The irregular_timeseries recipe
 prints the timestamp for the first couple of slices for the user to check if
@@ -2537,13 +2542,13 @@ assumptions about how the correct method of ingesting is, however it offers a
 lot of utility functionality that help you do it in a more standardized way. We
 will continue this tutorial by describing how to take advantage of this
 functionality, however, note that this is not required for the recipe to work.
-The first thing that you need to do is to define an importer object. This
-importer object, takes a coverage object and ingests it using WCST requests. The
-object has two public methods, ingest, which ingests the coverage into the WCST
-service (note: ingest can be an insert operation when the coverage was not
+The first thing that you need to do is to define an *importer* object. This
+importer object, takes a *coverage* object and ingests it using WCST requests. The
+object has two public methods, ``ingest()``, which ingests the coverage into the 
+WCS-T service (note: ingest can be an insert operation when the coverage was not
 defined, or update if the coverage exists. The importer will handle both cases
 for you, so you don't have to worry if the coverage already exists.) and
-get_progress which returns a tuple containing the number of imported slices and
+``get_progress()`` which returns a tuple containing the number of imported slices and
 the total number of slices. After adding the importer, the code should look like
 this:
 
@@ -2561,14 +2566,17 @@ this:
 
         def validate(self):
             super(Recipe, self).validate()
-            if "time_crs" not in self.options or self.options['time_crs'] == "":
-                raise RecipeValidationException("No valid time crs provided")
+            if "time_crs" not in self.options:
+                raise RecipeValidationException(
+                    "No valid time crs provided")
 
             if 'time_tag' not in self.options:
-                raise RecipeValidationException("No valid time tag parameter provided")
+                raise RecipeValidationException(
+                    "No valid time tag parameter provided")
 
             if 'time_format' not in self.options:
-                raise RecipeValidationException("You have to provide a valid time format")
+                raise RecipeValidationException(
+                    "You have to provide a valid time format")
 
         def describe(self):
             """
@@ -2620,7 +2628,7 @@ how we can do that. The coverage constructor requires a
 You can construct the coverage object in many ways, we will present further a
 specific method of doing it. Let's start from the crs of the coverage. For our
 recipe, we want a 3D crs, composed of the CRS of the 2D images and a time crs
-indicated. The two lines of code would give us exactly this:
+as indicated. The two lines of code would give us exactly this:
 
 .. code-block:: python
 
@@ -2631,7 +2639,7 @@ indicated. The two lines of code would give us exactly this:
     crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
 
 Let's also get the range fields for this coverage. We can extract them again
-form the 2D image using a helper class that can use GDAL to get the relevant
+from the 2D image using a helper class that can use GDAL to get the relevant
 information:
 
 .. code-block:: python
@@ -2660,14 +2668,17 @@ Let's see what we have so far:
 
         def validate(self):
             super(Recipe, self).validate()
-            if "time_crs" not in self.options or self.options['time_crs'] == "":
-                raise RecipeValidationException("No valid time crs provided")
+            if "time_crs" not in self.options:
+                raise RecipeValidationException(
+                    "No valid time crs provided")
 
             if 'time_tag' not in self.options:
-                raise RecipeValidationException("No valid time tag parameter provided")
+                raise RecipeValidationException(
+                    "No valid time tag parameter provided")
 
             if 'time_format' not in self.options:
-                raise RecipeValidationException("You have to provide a valid time format")
+                raise RecipeValidationException(
+                    "You have to provide a valid time format")
 
         def describe(self):
             """
@@ -2698,7 +2709,8 @@ Let's see what we have so far:
           # We are assuming all images have the same CRS.
           gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
           # Get the crs of the coverage by compounding the two crses
-          crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
+          crs = CRSUtil.get_compound_crs(
+            [gdal_dataset.get_crs(), self.options['time_crs']])
           fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()
           pixel_type = gdal_dataset.get_band_gdal_type()
           coverage_id = self.session.get_coverage_id()
@@ -2727,11 +2739,12 @@ for each. Here's an example on how we could do that
         for infile in self.session.get_files():
           # We need to create the exact position in time and space in which to
           # place this slice # For the space coordinates we can use the GDAL
-          # helper to extract it for us # The helper will return a list of subsets
+          # helper to extract it for us, which will return a list of subsets
           # based on the crs axes that we extracted # and will fill the
           # coordinates for the ones that it can (the easting and northing axes)
-          subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(infile.get_filepath())).fill()
-          # Now we must fill the time axis as well and indicate the position in time
+          subsets = GdalAxisFiller(
+            crs_axes, GDALGmlUtil(infile.get_filepath())).fill()
+          # fill the time axis as well and indicate the position in time
           for subset in subsets:
             # Find the time axis
             if subset.coverage_axis.axis.crs_axis.is_future():
@@ -2771,14 +2784,17 @@ see how it works.
 
         def validate(self):
             super(Recipe, self).validate()
-            if "time_crs" not in self.options or self.options['time_crs'] == "":
-                raise RecipeValidationException("No valid time crs provided")
+            if "time_crs" not in self.options:
+                raise RecipeValidationException(
+                    "No valid time crs provided")
 
             if 'time_tag' not in self.options:
-                raise RecipeValidationException("No valid time tag parameter provided")
+                raise RecipeValidationException(
+                    "No valid time tag parameter provided")
 
             if 'time_format' not in self.options:
-                raise RecipeValidationException("You have to provide a valid time format")
+                raise RecipeValidationException(
+                    "You have to provide a valid time format")
 
         def describe(self):
             """
@@ -2809,7 +2825,8 @@ see how it works.
           # We are assuming all images have the same CRS.
           gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
           # Get the crs of the coverage by compounding the two crses
-          crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
+          crs = CRSUtil.get_compound_crs(
+            [gdal_dataset.get_crs(), self.options['time_crs']])
           fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()
           pixel_type = gdal_dataset.get_band_gdal_type()
           coverage_id = self.session.get_coverage_id()
@@ -2825,11 +2842,12 @@ see how it works.
           for infile in self.session.get_files():
             # We need to create the exact position in time and space in which to
             # place this slice # For the space coordinates we can use the GDAL
-            # helper to extract it for us # The helper will return a list of subsets
+            # helper to extract it for us, which will return a list of subsets
             # based on the crs axes that we extracted # and will fill the
             # coordinates for the ones that it can (the easting and northing axes)
-            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(infile.get_filepath())).fill()
-            # Now we must fill the time axis as well and indicate the position in time
+            subsets = GdalAxisFiller(
+                crs_axes, GDALGmlUtil(infile.get_filepath())).fill()
+            # fill the time axis as well and indicate the position in time
             for subset in subsets:
                 # Find the time axis
                 if subset.coverage_axis.axis.crs_axis.is_future():
@@ -2869,10 +2887,6 @@ response:
     <wcs:formatSupported>text/csv</wcs:formatSupported>
     <wcs:formatSupported>application/json</wcs:formatSupported>
     <wcs:formatSupported>application/dem</wcs:formatSupported>
-    <wcs:formatSupported>application/x-ogc-dted</wcs:formatSupported>
-    <wcs:formatSupported>application/x-ogc-ehdr</wcs:formatSupported>
-    <wcs:formatSupported>application/x-ogc-elas</wcs:formatSupported>
-    <wcs:formatSupported>application/x-ogc-envi</wcs:formatSupported>
     ...
 
 In case of *encode* processing expressions, besides MIME types **WCPS** (and
@@ -2984,19 +2998,22 @@ Below we outline the steps for migrating ``petascopedb`` (from vX.X to vY.Y,
 or from one DBMS to another, like PostgreSQL to HSQLDB):
 
 1. If using an embedded database like HSQLDB, which does not support multiple
-   connections from different applications, make sure that the (new) petascope 9.5 is stopped.
+   connections from different applications, make sure that the (new) petascope 
+   9.5 is stopped.
 
 2. Execute the migration script: ``./migrate_petascopedb.sh``
 
-3. All coverages in pre 9.5 ``petascopedb`` will be read by the old ``CoverageMetadata`` model which
-   is imported in the new petascope as a legacy package.
+3. All coverages in pre 9.5 ``petascopedb`` will be read by the old 
+   ``CoverageMetadata`` model which is imported in the new petascope as a legacy 
+   package.
 
-4. If coverage id doesn't exist in the new ``petascopedb``, a process to translate from
-   old ``CoverageMetadata`` model to CIS coverage data model is done and
+4. If coverage id doesn't exist in the new ``petascopedb``, a process to translate 
+   from old ``CoverageMetadata`` model to CIS coverage data model is done and
    then persisted in ``petascopedb``.
 
-5. While running the migration, all services of the new petascope web application, such as: WCS, WCPS, WMS,
-   and WCS-T, will not be available to make sure the data is migrated safely.
+5. While running the migration, all services of the new petascope web application, 
+   such as: WCS, WCPS, WMS, and WCS-T, will not be available to make sure the data 
+   is migrated safely.
 
 .. note::
     Migrating from v9.4 to v9.5 will create a new database ``petascopedb``, and will

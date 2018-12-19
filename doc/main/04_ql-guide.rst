@@ -3670,9 +3670,9 @@ parameters are common to all formats:
 **Quote escaping**: when used in a query the format parameters are the third
 argument of the ``decode``/``encode`` functions. They need to be in quotes, i.e.
 ``"formatParameters"``. Because of these outer quotes, all quotes inside of the
-``formatParameters`` need to be escaped (``\"``). For example, ``"{
-\"transpose\": [0,1] }"`` is the right way to specify transposition, while ``"{
-"transpose": [0,1] }"`` will lead to failure.
+``formatParameters`` need to be escaped (``\"``). For example, 
+``"{\"transpose\": [0,1] }"`` is the right way to specify transposition, while 
+``"{"transpose": [0,1] }"`` will lead to failure.
 
 **Single line**: the format parameters JSON string must be a single line when
 specified on the command-line.
@@ -3680,7 +3680,7 @@ specified on the command-line.
 decode
 ------
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       // Specify variable names, band ids (0-based), etc.
@@ -3732,7 +3732,7 @@ decode
 encode
 ------
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
       // netCDF-specific
