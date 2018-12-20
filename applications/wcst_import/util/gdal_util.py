@@ -26,8 +26,12 @@ from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
 from util.gdal_field import GDALField
 from util.log import log
+from functools import wraps # for caching in _get_spatial_ref
 import re
 import math
+
+
+_spatial_ref_cache = {}
 
 
 class GDALGmlUtil:
@@ -44,6 +48,13 @@ class GDALGmlUtil:
         self.gdal_dataset = gdal.Open(str(self.gdal_file_path).encode('utf8'))
         if self.gdal_dataset is None:
             raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
+    
+    def close(self):
+        """
+        Close the dataset if it was open.
+        """
+        if self.gdal_dataset is not None:
+            self.gdal_dataset = None
 
     def get_filepath(self):
         """
@@ -238,11 +249,8 @@ class GDALGmlUtil:
         Returns the CRS associated with this dataset. If none is found the default for the session is returned
         :rtype: str
         """
-        import osgeo.osr as osr
-
         wkt = self.gdal_dataset.GetProjection()
-        spatial_ref = osr.SpatialReference()
-        spatial_ref.ImportFromWkt(wkt)
+        spatial_ref = self._get_spatial_ref(wkt)
         crs = ConfigManager.default_crs
         if spatial_ref.GetAuthorityName(None) is not None:
             crs = CRSUtil.get_crs_url(spatial_ref.GetAuthorityName(None),
@@ -254,12 +262,22 @@ class GDALGmlUtil:
         Returns the CRS code associated with this dataset. If none is found the default for the session is returned
         :rtype: str
         """
-        import osgeo.osr as osr
-
         wkt = self.gdal_dataset.GetProjection()
-        spatial_ref = osr.SpatialReference()
-        spatial_ref.ImportFromWkt(wkt)
-        return spatial_ref.GetAuthorityCode(None)
+        return self._get_spatial_ref(wkt).GetAuthorityCode(None)
+    
+    def _get_spatial_ref(self, wkt):
+        """
+        Return a SpatialReference for the given wkt. Takes care of caching the returned objects.
+        :rtype: SpatialReference
+        """
+        global _spatial_ref_cache
+        if wkt not in _spatial_ref_cache:
+            import osgeo.osr as osr
+            spatial_ref = osr.SpatialReference()
+            spatial_ref.ImportFromWkt(wkt)
+            _spatial_ref_cache[wkt] = spatial_ref
+
+        return _spatial_ref_cache[wkt]
 
     def get_raster_x_size(self):
         """
@@ -300,6 +318,13 @@ class GDALGmlUtil:
             raise RuntimeException(
                 "No tifftag " + tag + " found for " + self.gdal_file_path)
         return metadata[tag]
+
+    def get_subdatasets(self):
+        """
+        Returns the subdatasets in the GDAL dataset as a list of (name, description) pairs.
+        :return: list[(str, str)]
+        """
+        return self.gdal_dataset.GetSubDatasets()
 
     @staticmethod
     def data_type_to_gdal_type(data_type):

@@ -50,3 +50,13 @@ class ReflectionUtil:
             if recursive and is_pkg:
                 results.update(self.import_submodules(full_name))
         return results
+    
+    def get_all_subclasses(self, cls):
+        """
+        Returns all subclasses (not just direct ones) of given class cls.
+        Credits: https://stackoverflow.com/a/3862957
+        """
+        return set(cls.__subclasses__()).union(
+            [s for c in cls.__subclasses__() \
+                   for s in self.get_all_subclasses(c)])
+

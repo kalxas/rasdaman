@@ -73,6 +73,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         :param import_order: ascending(default), descending if specified in ingredient file
         """
         AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
+        self.resumer = resumer
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands

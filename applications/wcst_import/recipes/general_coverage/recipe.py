@@ -53,8 +53,6 @@ from master.importer.resumer import Resumer
 class Recipe(BaseRecipe):
     def __init__(self, session):
         """
-        The recipe class for map_mosaic. To get an overview of the ingredients needed for this
-        recipe check ingredients/map_mosaic
         :param Session session: the session for this import
         """
         super(Recipe, self).__init__(session)

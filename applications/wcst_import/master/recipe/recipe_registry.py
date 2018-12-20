@@ -48,7 +48,7 @@ class RecipeRegistry:
         """
         util = ReflectionUtil()
 
-        # NOTE: Add provided recipes from rasdaman here manually.
+        # load "official" rasdaman recipes manually
         import recipes.general_coverage
         import recipes.map_mosaic
         import recipes.time_series_irregular
@@ -61,12 +61,14 @@ class RecipeRegistry:
         util.import_submodules(recipes.time_series_regular)
         util.import_submodules(recipes.wcs_extract)
 
-        # NOTE: If user ever created a customized recipe, then the recipe needs to be added in recipes_custom folder
-        # And in this case, WCST_Import just load all possible recipes in this folder.
+        # user-created recipes are put in the recipes_custom directory, so
+        # wcst_import needs to load all possible recipes in this directory.
         import recipes_custom
         util.import_submodules(recipes_custom)
 
-        for recipe in BaseRecipe.__subclasses__():
+        # register all loaded recipes
+        all_recipes = util.get_all_subclasses(BaseRecipe)
+        for recipe in all_recipes:
             self.registry[recipe.get_name()] = recipe
 
     def run_recipe(self, session):
