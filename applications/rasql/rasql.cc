@@ -273,7 +273,19 @@ void
 printScalar(const r_Scalar& scalar);
 
 void
+writeScalarToFile(const r_Scalar& scalar, unsigned int fileNum);
+
+void
+writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file);
+
+void
+writeStructToFileStream(const r_Structure* const structValue, std::ofstream& file);
+
+void
 printResult();
+
+void
+writeStringToFile(const std::string &str, unsigned int fileNum);
 
 r_Marray_Type*
 getTypeFromDatabase(const char* mddTypeName2);
@@ -617,6 +629,143 @@ void printScalar(const r_Scalar& scalar)
     }
 } // printScalar()
 
+/*
+ * writes the given scalar to the output file with file number
+ * uses default file naming convention with file number for auto numbering
+ * preserves high precision for float and double values
+ * throws UNABLETOWRITETOFILE on write failure
+ */
+void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
+{
+    char defFileName[FILENAME_MAX];
+    (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
+    strcat(defFileName, ".txt");
+
+    std::ofstream file(defFileName, std::ios::out);
+    if (file.is_open())
+    {
+        NNLINFO << "  Result object " << fileNum << ": going into file " << defFileName << "... ";
+        file << "  Result element " << fileNum << ": ";
+
+        switch (scalar.get_type()->type_id())
+        {
+            case r_Type::BOOL:
+            case r_Type::CHAR:
+            case r_Type::OCTET:
+            case r_Type::SHORT:
+            case r_Type::USHORT:
+            case r_Type::ULONG:
+            case r_Type::LONG:
+            case r_Type::DOUBLE:
+            case r_Type::FLOAT:
+            case r_Type::COMPLEXTYPE1:
+            case r_Type::COMPLEXTYPE2:
+                writeScalarToFileStream(scalar, file);
+                break;
+
+            // structure type oracles do not expect spaces - but string representation has spaces
+            case r_Type::STRUCTURETYPE:
+            {
+                const r_Structure* const structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
+                writeStructToFileStream(structValue, file);
+                break;
+            }
+
+            default:
+                LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+                break;
+        }
+
+        file << std::endl;
+        file.close();
+    }
+    else {
+        throw RasqlError(UNABLETOWRITETOFILE);
+    }
+}
+
+/*
+ * Write the scalar value to file.
+ * This function is needed because default string implementations print out spaces and test oracles do not accept spaces
+ */
+void writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file)
+{
+    const r_Base_Type* scalarType = scalar.get_type();
+    switch (scalarType->type_id())
+    {
+        case r_Type::BOOL:
+            file << ((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f");
+            break;
+
+        case r_Type::CHAR:
+            file << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char());
+            break;
+
+        case r_Type::OCTET:
+            file << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet());
+            break;
+
+        case r_Type::SHORT:
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short();
+            break;
+
+        case r_Type::USHORT:
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort();
+            break;
+
+        case r_Type::LONG:
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long();
+            break;
+
+        case r_Type::ULONG:
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong();
+            break;
+
+        case r_Type::DOUBLE:
+            file << std::setprecision(std::numeric_limits<double>::digits10 + 1);
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double();
+            break;
+
+        case r_Type::FLOAT:
+            file << std::setprecision(std::numeric_limits<float>::digits10 + 1);
+            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float();
+            break;
+
+        case r_Type::COMPLEXTYPE1:
+        case r_Type::COMPLEXTYPE2:
+            // default string representation of complex type has space - rejected by system test oracles.
+            // eg: complex string representation: (34, 45) - oracle expected: (34,45)
+            file << "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")";
+            break;
+
+        case r_Type::STRUCTURETYPE:
+        {
+            const r_Structure *const structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
+            writeStructToFileStream(structValue, file);
+            break;
+        }
+
+        default:
+            LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+            break;
+    }
+}
+
+/*
+ * Write the struct to the file stream.
+ * Needed because of all test oracles with no spaces - but default string implementation has spaces
+ */
+void writeStructToFileStream(const r_Structure* const structValue, std::ofstream& file)
+{
+    file << "{ ";
+    for (unsigned int i = 0; i < structValue->count_elements(); i++) {
+        writeScalarToFileStream((*structValue)[i], file);
+        if (i < structValue->count_elements() - 1) {
+            file << ", ";
+        }
+    }
+    file << " }";
+}
 
 // result_set should be parameter, but is global -- see def for reason
 void printResult(/* r_Set< r_Ref_Any > result_set */)
@@ -773,15 +922,25 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
         case r_Type::POINTTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Point>(*iter)) << "\n";
+            if (outputType == OUT_FILE) {
+                writeStringToFile(r_Ref<r_Point>(*iter)->to_string(), i);
+            }
             break;
         case r_Type::SINTERVALTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Sinterval>(*iter)) << "\n";
+            if (outputType == OUT_FILE) {
+                std::string strRep(r_Ref<r_Sinterval>(*iter)->get_string_representation());
+                writeStringToFile(strRep, i);
+            }
             break;
 
         case r_Type::MINTERVALTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Minterval>(*iter)) << "\n";
+            if (outputType == OUT_FILE) {
+                writeStringToFile(r_Ref<r_Minterval>(*iter)->to_string(), i);
+            }
             break;
 
         case r_Type::OIDTYPE:
@@ -791,12 +950,38 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
 
         default:
             NNLINFO << "  Result element " << i << ": ";
-            printScalar(*(r_Ref<r_Scalar>(*iter)));
+            r_Ref<r_Scalar> scalar(*iter);
+            printScalar(*scalar);
+            if (outputType == OUT_FILE) {
+                writeScalarToFile(*scalar, i);
+            }
             BLINFO << "\n";
         } // switch
     }  // for(...)
 } // printResult()
 
+/*
+ * writes the given string to file
+ * used for intervals, and point results, or any class with a valid string representation defined
+ * uses default file naming convention with the specified file number for auto numbering
+ * throws UNABLETOWRITETOFILE on file write failure
+ */
+void writeStringToFile(const std::string &str, unsigned int fileNum)
+{
+    char defFileName[FILENAME_MAX];
+    (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
+    strcat(defFileName, ".txt");
+
+    std::ofstream file(defFileName, std::ios::out);
+    if (file.is_open()) {
+        NNLINFO << "  Result object " << fileNum << ": going into file " << defFileName << "... ";
+        file << "  Result element " << fileNum << ": " << str << std::endl;
+        file.close();
+    }
+    else {
+        throw RasqlError(UNABLETOWRITETOFILE);
+    }
+}
 
 /*
  * get database type structure from type name
