@@ -110,6 +110,8 @@ public class UpdateCoverageHandler {
     private PyramidService pyramidService;
     @Autowired
     private CoverageMetadataService coverageMetadataService;
+    
+    private static final String FILE_PROTOCOL = "file://";
 
     /**
      * Handles the update of an existing WCS coverage.
@@ -179,10 +181,8 @@ public class UpdateCoverageHandler {
                 boolean isLocal = false;
                 File valuesFile;
                 String fileUrl = GMLParserService.parseFilePath(rangeSet);
-                if (fileUrl.startsWith("file://")) {
-                    fileUrl = fileUrl.replace("file://", "");
-                }
-                if (fileUrl.startsWith("/")) {
+                if (isLocalFile(fileUrl)) {
+                    fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
                     isLocal = true;
                     valuesFile = new File(fileUrl);
                 } else {
@@ -237,6 +237,13 @@ public class UpdateCoverageHandler {
         }
 
         return new Response();
+    }
+    
+    /**
+     * Check if a file path is a local file (local server) or remote file (remote server).
+     */
+    private boolean isLocalFile(String filePath) {
+        return filePath.startsWith(FILE_PROTOCOL) || !filePath.matches("\\w+://.*");        
     }
     
     /**
