@@ -141,7 +141,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * @param maxInput
      * @return
      */
-    public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) {
+    public Pair<Long, Long> getGridIndices(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
 
         Long minIndex = null;
         Long maxIndex = null;
@@ -193,9 +193,14 @@ public class IrregularAxis extends GeoAxis implements Serializable {
     /**
      * Get the fixed first slice (0) imported coefficient's index from list of directPositions
      */
-    public long getIndexOfCoefficientZero() {
-        int i = Collections.binarySearch(this.getDirectPositionsAsNumbers(), BigDecimal.ZERO);        
-        return i;
+    public long getIndexOfCoefficientZero() throws PetascopeException {
+        int ret = Collections.binarySearch(this.getDirectPositionsAsNumbers(), BigDecimal.ZERO);
+        if (ret >= 0) {
+            return ret;
+        } else {
+            throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration, 
+                    "Coefficient 0 (zero) not found for irregular axis '" + getAxisLabel() + "'.");
+        }
     }
     
     /**
@@ -263,7 +268,7 @@ public class IrregularAxis extends GeoAxis implements Serializable {
      * @param maxInput
      * @return
      */
-    public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) {
+    public List<BigDecimal> getAllCoefficientsInInterval(BigDecimal minInput, BigDecimal maxInput) throws PetascopeException {
         // Find the min and max grid incides in the List of directPositions
         Pair<Long, Long> gridIndices = this.getGridIndices(minInput, maxInput);
         List<BigDecimal> coefficients = new ArrayList<>();
