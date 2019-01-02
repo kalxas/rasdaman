@@ -10,7 +10,7 @@
   "input": {
     "coverage_id": "mean_summer_airtemp",
     "paths": [
-      "mean_summer_airtemp.tif"
+      "DATA_FOLDER_PATH/mean_summer_airtemp.tif"
     ]
   },
   "recipe": {

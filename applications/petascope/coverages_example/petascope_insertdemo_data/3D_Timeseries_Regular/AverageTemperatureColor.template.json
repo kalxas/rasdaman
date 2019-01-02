@@ -12,7 +12,7 @@
   "input": {
     "coverage_id": "AverageTemperature",
     "paths": [
-      "SCALED*.TIFF"
+      "DATA_FOLDER_PATH/SCALED*.TIFF"
     ]
   },
   "recipe": {

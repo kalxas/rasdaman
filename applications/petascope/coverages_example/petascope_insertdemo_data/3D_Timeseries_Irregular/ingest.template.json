@@ -10,7 +10,7 @@
   "input": {
     "coverage_id": "AverageChlorophyll",
     "paths": [
-      "SCALE*.TIFF"
+      "DATA_FOLDER_PATH/SCALE*.TIFF"
     ]
   },
   "recipe": {

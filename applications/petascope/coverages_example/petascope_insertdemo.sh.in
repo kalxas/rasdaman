@@ -119,7 +119,7 @@ import_all_coverages()
 import_coverage()
 {
   COVERAGE_ID="$1"
-  DATA="$2" # coverage directory
+  DATA_FOLDER_PATH="$2" # coverage directory
   RECIPE_TEMPLATE_FILE="$3"
 
   # START
@@ -127,8 +127,10 @@ import_coverage()
   # 1. Insert coverage by WCS
 
   # 1.1 Copy file from template.json to ingest.json
-  RECIPE_FILE="$DATA"/'ingest.json'
+  RECIPE_FILE="/tmp/ingest.json"
   cp "$RECIPE_TEMPLATE_FILE" "$RECIPE_FILE"
+
+  sed -i "s|DATA_FOLDER_PATH|$DATA_FOLDER_PATH|g" "$RECIPE_FILE"
 
   # 1.2 Replace PETASCOPE_URL and SECORE_URL in petascope_insertdemo.template.json
   sed -i "s|PETASCOPE_URL|$PETASCOPE_URL|g" "$RECIPE_FILE"
@@ -139,15 +141,10 @@ import_coverage()
   "@bindir@/wcst_import.sh" $RECIPE_FILE
   echo "Done."
 
-  # 1.4 Remove $RECIPE_FILE and $RECIPE_RESUME_FILE
-  logn "Cleaning temporary files..."
+  # 1.4 Remove tmp $RECIPE_FILE
+  logn "Cleaning temporary file..."
   if [ -f "$RECIPE_FILE" ]; then
      rm "$RECIPE_FILE"
-  fi
-
-  RECIPE_RESUME_FILE=$(find $DATA -type f -name "*.resume.json")
-  if [ -f "$RECIPE_RESUME_FILE" ]; then
-     rm "$RECIPE_RESUME_FILE"
   fi
   echo "Done."
 }
