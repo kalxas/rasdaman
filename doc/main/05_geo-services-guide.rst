@@ -2966,18 +2966,40 @@ to specify connection details for the existing database like this:
 Standalone deployment
 ---------------------
 
-Instead of running petascope in an external Tomcat, you can run it through its
-embedded Tomcat which is included inside the petascope java web application
-(rasdaman.war). To do this, you need to change the ``java_server`` option in
-``petascope.properties`` to ``embedded``, and change the ``server.port`` to a
-port which is not used in your system (e.g. ``server.port=8082``).
-Then restart rasdaman and you can access petascope at
-``http://localhost:8082/rasdaman/ows`` (if ``server.port=8082`` has been set).
+**petascope**
 
-.. code-block:: ini
+petascope can run as a standalone web application with embedded tomcat by running: ::
 
-    java_server=embedded
-      server.port=8082
+    $ java -jar rasdaman.war
+
+In this case, the port for embedded tomcat will be fetched from ``server.port``
+configuration in ``petascope.properties`` (e.g: 9009). Then petascope
+can be accessed via URL: ::
+
+    http://localhost:9009/rasdaman/ows
+
+One can also run embedded petascope with *its own dedicated 
+petascope.propeties* by adding an option which points to a folder
+containing this property file, e.g: ::
+
+    $ java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc/
+
+**secore**
+
+Same as petascope, one can run secore as a standalone web application with 
+embedded tomcat by running: ::
+
+    $ java -jar def.war
+
+.. note::
+   Configuration ``secoredb.path`` must be set in ``secore.properties`` file first
+   to a folder which system user can create XML database files inside it,
+   e.g: secoredb.path=/tmp/
+
+The port for embedded tomcat will be fetched from ``server.port`` configuration
+in ``secore.properties`` file (e.g: 9010). Then secore can be accessed via URL: ::
+
+    http://localhost:9010/def
 
 
 Logging
