@@ -41,8 +41,6 @@ from util.crs_util import CRSAxis
 from util.file_obj import File
 from util.gdal_util import GDALGmlUtil
 from util.import_util import import_netcdf4
-import numpy
-numpy.set_printoptions(numpy.inf)
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
