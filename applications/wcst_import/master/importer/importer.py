@@ -155,22 +155,16 @@ class Importer:
                 # NOTE: in case of using wcs_extract recipe, it will fetch file from server, so don't know the file size
                 if hasattr(self.coverage.slices[i].data_provider, "file"):
                     file_path = self.coverage.slices[i].data_provider.file.filepath
-                    file_size_in_mb = round((float)(os.path.getsize(file_path)) / (1000*1000), 2)
                     file_name = os.path.basename(file_path)
+                    file_size_in_mb = 0
+                    try:
+                        file_size_in_mb = round((float)(os.path.getsize(file_path)) / (1000*1000), 2)
+                    except:
+                        file_name = file_path
+                        pass
                     start_time = time.time()
                     self._insert_slice(self.coverage.slices[i])
-                    end_time = time.time()
-                    time_to_ingest = round(end_time - start_time, 2)
-                    if time_to_ingest < 0.0000001:
-                        time_to_ingest = 0.0000001
-                    size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-                    log_text = "\nFile '" + file_name + "' with size " + str(file_size_in_mb) + " MB; " \
-                           "Total time to ingest " + str(time_to_ingest) + "s @ " + str(size_per_second) + " MB/s."
-                    # write to console
-                    log.info(log_text)
-                    if is_loggable:
-                        # write to log file
-                        log_file.write(log_text)
+                    self._log_file_ingestion(file_name, start_time, file_size_in_mb, is_loggable, log_file)
                 else:
                     is_ingest_file = False
                     # extract coverage from petascope to ingest a new coverage
@@ -197,6 +191,25 @@ class Importer:
 
         log_file.write("\nResult: success.")
         log_file.close()
+    
+    def _log_file_ingestion(self, file_name, start_time, file_size_in_mb, is_loggable, log_file):
+        end_time = time.time()
+        time_to_ingest = round(end_time - start_time, 2)
+        if time_to_ingest < 0.0000001:
+            time_to_ingest = 0.0000001
+        log_text = ""
+        if file_size_in_mb != 0:
+            size_per_second = round(file_size_in_mb / time_to_ingest, 2)
+            log_text = "\nFile {} of size {} MB; Total time to ingest {} s @ {} MB/s.".format(
+                file_name, file_size_in_mb, time_to_ingest, size_per_second)
+        else:
+            log_text = "\nTotal time to ingest file {}: {} s.".format(file_name, time_to_ingest);
+        # write to console
+        log.info(log_text)
+        if is_loggable:
+            # write to log file
+            log_file.write(log_text)
+        
 
     def _initialize_coverage(self):
         """

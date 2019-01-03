@@ -133,7 +133,7 @@ def decode_ingredients(ingredients_raw):
     NOTE: keep all the numbers as decimal to avoid losing precision (e.g: 0.041666666666666666666666 to 0.04116666666667 as float)
     :param str ingredients_raw: the raw json string
     :rtype: dict[str,dict|str|bool|int|float]
-    """    
+    """
     try:
         ingredients = json.loads(ingredients_raw, parse_float = decimal.Decimal)
     except Exception as ex:

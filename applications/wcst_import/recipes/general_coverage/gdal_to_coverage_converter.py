@@ -25,7 +25,6 @@
 import math
 import decimal
 from lib import arrow
-
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import GDALEvaluatorSlice
 from master.evaluator.sentence_evaluator import SentenceEvaluator

@@ -341,7 +341,7 @@ class AbstractToCoverageConverter:
         slices = []
         count = 1
         for file in self.files:
-            # NOTE: don't process any imported file from *.resume.json as it is just waisted time
+            # NOTE: don't process any previously imported file (recorded in *.resume.json)
             if not self.resumer.check_file_imported(file.filepath):
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(self.files), file.filepath)
@@ -349,7 +349,7 @@ class AbstractToCoverageConverter:
                 slices.append(coverage_slice)
                 count += 1
 
-        # Currently, only sort by datetime to import coverage slices (default is ascending), option: to sort descending
+        # Currently, only sort by datetime to import coverage slices (default is ascending)
         reverse = (self.import_order == self.IMPORT_ORDER_DESCENDING)
         return sort_slices_by_datetime(slices, reverse)
 
