@@ -92,7 +92,7 @@ if [[ "$watch_flag" == true && "$daemon_flag" == false ]]; then
 fi
 
 # check if the daemon is active for this ingredients_file
-if ps aux | grep -E -v "grep|wcst_import.sh" | grep $ingredients_file > /dev/null
+if ps aux | grep -E -v "grep|wcst_import.sh" | grep python | grep $ingredients_file > /dev/null
 then
   daemon_is_active=true
 else
