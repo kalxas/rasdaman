@@ -158,7 +158,7 @@ public class ConfigManager {
     public static boolean DISABLE_WRITE_OPERATIONS = false;
 
     /* ***** WMS configuration ***** */
-    public static long WMS_MAXIMUM_CACHE_SIZE = 100000000; // 100 MB
+    public static long MAX_WMS_CACHE_SIZE = 100000000; // 100 MB (in bytes)
 
     // properties's keys in petascope.properties file
     /* ***** Petascope configuration ***** */
@@ -180,6 +180,9 @@ public class ConfigManager {
     // For simple admin login to update OWS Service metadata
     private static final String KEY_PETASCOPE_ADMIN_USERNAME = "petascope_admin_user";
     private static final String KEY_PETASCOPE_ADMIN_PASSWORD = "petascope_admin_pass";
+    
+    // How much memory in bytes to allow to cache WMS results
+    private static final String KEY_MAX_WMS_CACHE_SIZE = "max_wms_cache_size";
 
     /* ***** Rasdaman configuration ***** */
     private static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
@@ -315,6 +318,8 @@ public class ConfigManager {
         // For simple admin user to update OWS Service metadata
         PETASCOPE_ADMIN_USERNAME = get(KEY_PETASCOPE_ADMIN_USERNAME);
         PETASCOPE_ADMIN_PASSWORD = get(KEY_PETASCOPE_ADMIN_PASSWORD);
+        
+        MAX_WMS_CACHE_SIZE = new Long(get(KEY_MAX_WMS_CACHE_SIZE));
         
         /* ***** WCS configuration ***** */
         // XML-encoded request schema validation for input request in XML POST

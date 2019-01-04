@@ -99,6 +99,8 @@ else
   daemon_is_active=false
 fi
 
+# Do not allow gdal to create auxiliary file as it can have no permission to do it in input data folders
+export GDAL_PAM_ENABLED=NO
 
 script=@WCST_IMPORT_DAEMON_PY_SCRIPT@
 if [[ "$daemon_flag" == false ]]; then

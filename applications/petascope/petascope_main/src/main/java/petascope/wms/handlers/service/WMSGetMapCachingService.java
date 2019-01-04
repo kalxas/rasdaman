@@ -54,7 +54,7 @@ public class WMSGetMapCachingService {
     public void addResponseToCache(String queryString, Response response) {
         byte[] bytes = response.getDatas().get(0);
         // Check if cache's size is greater than the maximum configuration
-        if (!(totalCachedSize + bytes.length <= ConfigManager.WMS_MAXIMUM_CACHE_SIZE)) {
+        if (!(totalCachedSize + bytes.length <= ConfigManager.MAX_WMS_CACHE_SIZE)) {
             // Remove all the less received cached objects until there is enough bytes for the new cache response    
             Iterator<Map.Entry<String, Response>> iterator = responseCachingMap.entrySet().iterator();
             long removedBytes = 0;
@@ -71,7 +71,7 @@ public class WMSGetMapCachingService {
         }
         // In case of the response is much bigger than the maximum of cache, no store anything.
         totalCachedSize += bytes.length;
-        if (totalCachedSize <= ConfigManager.WMS_MAXIMUM_CACHE_SIZE) {
+        if (totalCachedSize <= ConfigManager.MAX_WMS_CACHE_SIZE) {
             // then add the new bytes[] to cached
             this.responseCachingMap.put(queryString, response);
         }
