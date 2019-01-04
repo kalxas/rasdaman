@@ -46,17 +46,18 @@ public class RasdamanUpdaterFactory {
 
     public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType,
                                       String shiftDomain, String rangeParameters) throws IOException {
+        String filePath = getFilePath(file);
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
             // Add the filePaths to the rangeParameters json string
-            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, file.getAbsolutePath());
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
             return new RasdamanGribUpdater(collectionName, collectionOid, domain, rangeParameters, shiftDomain);
         } else if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.NETCDF_MIMETYPE)) {
             // Add the filePaths to the rangeParameters json string
-            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, file.getAbsolutePath());
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
             return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         } else {
             // with other kind of gdal format (tiff, png, jpeg,...) don't add any range parameters to rasql update query
-            rangeParameters = this.updateFilePathsInRangeParameters(EMPTY_ROOT_NODE, file.getAbsolutePath());
+            rangeParameters = this.updateFilePathsInRangeParameters(EMPTY_ROOT_NODE, filePath);
             return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         }
     }
@@ -85,5 +86,16 @@ public class RasdamanUpdaterFactory {
         filePathsNode.add(filePath);
         // e.g: "...{\"filePaths\":[\"PATH/test.png\"]}..."
         return root.toString().replace("\"", "\\\"");       
-    }     
+    }
+    
+    private String getFilePath(File file) {
+        String ret = file.getPath();
+        if (!ret.contains(":")) {
+            ret = file.getAbsolutePath();
+        } else {
+            // do not get an absolute path, the original path contains a ':' which means 
+            // it's probably a GDAL subdataset, e.g. of the form NETCDF:filepath:variable
+        }
+        return ret;
+    }
 }
