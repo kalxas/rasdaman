@@ -41,7 +41,6 @@
                             "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
                             "gridOrder": 0,
                             "type": "ansidate",
-                            "directPositions": "[datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')]",
                             "irregular": true,
                             "dataBound": false
                         },

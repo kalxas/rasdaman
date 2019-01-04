@@ -41,7 +41,6 @@
           "axes": {
             "ansi": {
               "min": "datetime(regex_extract('${file:name}', '(.+?)(Z.+)', 1), 'YYYY-MM-DDTHH:mm:ss.SSS')",
-              "directPositions": "[datetime(regex_extract('${file:name}', '(.+?)(Z.+)', 1), 'YYYY-MM-DDTHH:mm:ss.SSS')]",
               "gridOrder": 0,
               "type": "ansidate",
               "irregular": true,

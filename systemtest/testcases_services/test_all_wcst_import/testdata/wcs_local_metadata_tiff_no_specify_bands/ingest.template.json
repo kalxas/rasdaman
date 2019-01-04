@@ -1,61 +1,60 @@
 {
-  "config": {
-	"service_url": "PETASCOPE_URL",
-        "tmp_directory": "/tmp/",
-    "mock": false,
-    "automated": true,
-    "track_files": false,
-    "subset_correction": false,
-    "insitu": false
-  },
-  "input": {
-    "coverage_id": "test_wcs_local_metadata_tiff",
-    "paths": [
-      "*.tiff"
-    ]
-  },
-  "recipe": {
-    "name": "general_coverage",
-    "options": {
-        "coverage": {
-          "crs": "EPSG/0/4326@OGC/0/AnsiDate",
-          "metadata": {
-            "type": "xml",
-            "global": {
-              "Title": "'Drought code'"
-         	  },
-             "local": {
-                  "local_metadata_key": "${gdal:metadata:local_metadata_key}"
-              }
-          },
-          "slicer": {
-            "type": "gdal",
+	"config": {
+		"service_url": "PETASCOPE_URL",
+		"tmp_directory": "/tmp/",
+		"mock": false,
+		"automated": true,
+		"track_files": false,
+		"subset_correction": false,
+		"insitu": false
+	},
+	"input": {
+		"coverage_id": "test_wcs_local_metadata_tiff",
+		"paths": [
+			"*.tiff"
+		]
+	},
+	"recipe": {
+		"name": "general_coverage",
+		"options": {
+			"coverage": {
+				"crs": "EPSG/0/4326@OGC/0/AnsiDate",
+				"metadata": {
+					"type": "xml",
+					"global": {
+						"Title": "'Drought code'"
+					},
+					"local": {
+						"local_metadata_key": "${gdal:metadata:local_metadata_key}"
+					}
+				},
+				"slicer": {
+					"type": "gdal",
 
-            "axes": {
-                        "ansi": {
-                            "min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
-                            "gridOrder": 2,
-                            "type": "ansidate",
-                            "directPositions": "[datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')]",
-                            "irregular": true,
-                            "dataBound": false
-                        },
-              "Long": {
-                "min": "${gdal:minX}",
-                "max": "${gdal:maxX}",
-                "gridOrder": 0,
-                "resolution": "${gdal:resolutionX}"
-              },
-              "Lat": {
-                "min": "${gdal:minY}",
-                "max": "${gdal:maxY}",
-                "gridOrder": 1,
-                "resolution": "${gdal:resolutionY}"
-              }
-          }
-        }      
-      },
-      "tiling": "ALIGNED [0:366, 0:500, 0:500, 0:10]"
-    }
-  }
+					"axes": {
+						"ansi": {
+							"min": "datetime(regex_extract('${file:name}', '(GlobLAI-)(.+?)(-.+?)\\.(.*)', 2), 'YYYYMMDD')",
+							"gridOrder": 2,
+							"type": "ansidate",
+							"irregular": true,
+							"dataBound": false
+						},
+						"Long": {
+							"min": "${gdal:minX}",
+							"max": "${gdal:maxX}",
+							"gridOrder": 0,
+							"resolution": "${gdal:resolutionX}"
+						},
+						"Lat": {
+							"min": "${gdal:minY}",
+							"max": "${gdal:maxY}",
+							"gridOrder": 1,
+							"resolution": "${gdal:resolutionY}"
+						}
+					}
+				}
+			},
+			"tiling": "ALIGNED [0:366, 0:500, 0:500, 0:10]"
+		}
+	}
 }

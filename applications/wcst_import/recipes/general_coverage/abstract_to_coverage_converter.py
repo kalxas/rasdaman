@@ -84,6 +84,11 @@ class AbstractToCoverageConverter:
         :param evaluator_slice: the sentence evaluator for the slice
         :rtype: UserAxis | IrregularUserAxis
         """
+        if isinstance(user_axis, IrregularUserAxis):
+            if not user_axis.dataBound and user_axis.directPositions != self.DIRECT_POSITIONS_SLICING:
+                raise RuntimeException("The dataBound option is set to false for irregular axis '{}', "
+                                       "so directPositions option can not be set in the ingredients file for this axis.".format(user_axis.name))
+
         min = self.sentence_evaluator.evaluate(user_axis.interval.low, evaluator_slice, user_axis.statements)
         max = None
         if user_axis.interval.high:
