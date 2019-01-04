@@ -44,9 +44,8 @@ public class RasdamanUpdaterFactory {
         return new RasdamanValuesUpdater(collectionName, collectionOid, domain, values, shiftDomain);
     }
 
-    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, File file, String mimeType,
+    public RasdamanUpdater getUpdater(String collectionName, String collectionOid, String domain, String filePath, String mimeType,
                                       String shiftDomain, String rangeParameters) throws IOException {
-        String filePath = getFilePath(file);
         if (mimeType != null && mimeType.toLowerCase().contains(IOUtil.GRIB_MIMETYPE)) {
             // Add the filePaths to the rangeParameters json string
             rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
@@ -86,16 +85,5 @@ public class RasdamanUpdaterFactory {
         filePathsNode.add(filePath);
         // e.g: "...{\"filePaths\":[\"PATH/test.png\"]}..."
         return root.toString().replace("\"", "\\\"");       
-    }
-    
-    private String getFilePath(File file) {
-        String ret = file.getPath();
-        if (!ret.contains(":")) {
-            ret = file.getAbsolutePath();
-        } else {
-            // do not get an absolute path, the original path contains a ':' which means 
-            // it's probably a GDAL subdataset, e.g. of the form NETCDF:filepath:variable
-        }
-        return ret;
     }
 }

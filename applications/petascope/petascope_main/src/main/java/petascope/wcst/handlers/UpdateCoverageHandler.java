@@ -179,15 +179,17 @@ public class UpdateCoverageHandler {
                 //tuple list given as file
                 //retrieve the file, if needed
                 boolean isLocal = false;
-                File valuesFile;
                 String fileUrl = GMLParserService.parseFilePath(rangeSet);
                 if (isLocalFile(fileUrl)) {
                     fileUrl = fileUrl.replace(FILE_PROTOCOL, "");
                     isLocal = true;
-                    valuesFile = new File(fileUrl);
+                    if (!fileUrl.contains(":")) {
+                        fileUrl = new File(fileUrl).getAbsolutePath();
+                    }
                 } else {
                     //remote file, get it
-                    valuesFile = getReplacementValuesFromFile(rangeSet);
+                    File valuesFile = getReplacementValuesFromFile(rangeSet);
+                    fileUrl = valuesFile.getAbsolutePath();
                 }
                 String mimetype = GMLParserService.parseMimeType(rangeSet);
                 // e.g: netCDF test_eobstest: "{"variables": ["tg"]}",
@@ -198,13 +200,11 @@ public class UpdateCoverageHandler {
                 String decodeParameters = convertor.toRasdamanDecodeParameters();
 
                 updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
-                        affectedDomain, valuesFile, mimetype, shiftDomain,
-                        decodeParameters);                
+                        affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters);                
                 updater.update();                
-
                 //delete the file
                 if (!isLocal) {
-                    valuesFile.delete();
+                    new File(fileUrl).delete();
                 }
             }
 
