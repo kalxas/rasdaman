@@ -375,14 +375,16 @@ class AbstractToCoverageConverter:
 
         return Slice(axis_subsets, FileDataProvider(file, file_structure), local_metadata)
 
-    def to_coverage(self):
+    def to_coverage(self, coverage_slices=None):
         """
         Returns a Coverage from all the importing files (gdal|grib|netcdf)
         :rtype: Coverage
         """
         crs_axes = CRSUtil(self.crs).get_axes()
-        # Build list of coverage slices from input files
-        coverage_slices = self._create_coverage_slices(crs_axes)
+
+        if coverage_slices is None:
+            # Build list of coverage slices from input files
+            coverage_slices = self._create_coverage_slices(crs_axes)
 
         global_metadata = None
         if len(coverage_slices) > 0:

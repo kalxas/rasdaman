@@ -203,7 +203,9 @@ class Recipe(GeneralCoverageRecipe):
         ret = []
         convertors = self._get_convertors()
         for cov_id, conv in convertors.iteritems():
-            importer = Importer(conv.resumer, conv.to_coverage(), 
+            coverage_slices = conv.coverage_slices
+
+            importer = Importer(conv.resumer, conv.to_coverage(coverage_slices),
                                 self.wms_import, self.scale_levels, self.grid_cov)
             ret.append(importer)
         return ret
@@ -224,7 +226,12 @@ class Recipe(GeneralCoverageRecipe):
                 crs_code = self._get_crs_code(subds_file.get_filepath(), crs_code)
                 cov_id = self._get_coverage_id(self.coverage_id, crs_code, level, res)
                 conv = self._get_convertor(convertors, cov_id, crs_code, level, res)
-                conv.files.append(subds_file) 
+
+                conv.files = [subds_file]
+                crs_axes = CRSUtil(conv.crs).get_axes()
+                coverage_slices = conv._create_coverage_slices(crs_axes)
+                conv.coverage_slices = coverage_slices
+
         return convertors
     
     def _get_subdatasets(self, gdal_ds, f):
