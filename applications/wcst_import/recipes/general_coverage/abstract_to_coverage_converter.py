@@ -74,6 +74,7 @@ class AbstractToCoverageConverter:
         self.recipe_type = recipe_type
         self.sentence_evaluator = sentence_evaluator
         self.import_order = import_order
+        self.coverage_slices = []
 
     def _user_axis(self, user_axis, evaluator_slice):
         """

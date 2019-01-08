@@ -229,8 +229,8 @@ class Recipe(GeneralCoverageRecipe):
 
                 conv.files = [subds_file]
                 crs_axes = CRSUtil(conv.crs).get_axes()
-                coverage_slices = conv._create_coverage_slices(crs_axes)
-                conv.coverage_slices = coverage_slices
+                slices = conv._create_coverage_slices(crs_axes)
+                conv.coverage_slices += slices
 
         return convertors
     
