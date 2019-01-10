@@ -59,6 +59,7 @@ class GDALEvaluatorSlice(FileEvaluatorSlice):
         :param gdal_file: the path to the gdal file
         """
         FileEvaluatorSlice.__init__(self, gdal_file)
+        self.dataset = None
 
     def get_dataset(self):
         """
@@ -67,10 +68,18 @@ class GDALEvaluatorSlice(FileEvaluatorSlice):
         when getting dataset object and store inside list, so only open dataset when it is needed.
         :rtype: gdal Dataset
         """
-        if isinstance(self.get_file(), GDALGmlUtil):
-            return self.get_file()
-        else:
-            return GDALGmlUtil(self.get_file().filepath)
+        if self.dataset is None:
+            self.dataset = GDALGmlUtil(self.get_file().filepath)
+
+        return self.dataset
+
+    def get_data_type(self, gdal_recipe_converter=None):
+        """
+        Return the data type of opened dataset
+        :return: str data_type
+        """
+        data_type = self.get_dataset().get_band_gdal_type()
+        return data_type
 
 
 class GribMessageEvaluatorSlice(FileEvaluatorSlice):
@@ -108,6 +117,15 @@ class GribMessageEvaluatorSlice(FileEvaluatorSlice):
         """
         return self.direct_positions
 
+    def get_data_type(self, grib_recipe_converter=None):
+        """
+        Return the data type of opened dataset
+        :return: str data_type
+        """
+        # TODO: it does not have a way to get the data type of grib, yet, so use the default float64 as before
+        data_type = "Float64"
+        return data_type
+
 
 class NetcdfEvaluatorSlice(FileEvaluatorSlice):
     def __init__(self, netcdf_file):
@@ -116,11 +134,27 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         :param netcdf_file: the path to the netcdf file
         """
         FileEvaluatorSlice.__init__(self, netcdf_file)
+        self.dataset = None
 
     def get_dataset(self):
         """
         Returns the dataset ofthe file
         :rtype: netCDF4.Dataset
         """
-        netCDF4 = import_netcdf4()
-        return netCDF4.Dataset(self.get_file().get_filepath(), "r")
+        if self.dataset is None:
+            netCDF4 = import_netcdf4()
+            self.dataset = netCDF4.Dataset(self.get_file().get_filepath(), "r")
+
+        return self.dataset
+
+    def get_data_type(self, netcdf_recipe_converter):
+        """
+        Return the data type of opened dataset
+        :param: AbstractToCoverageConverter netcdf_recipe: Converter for netCDF recipe
+        :return: str data_type
+        """
+        band_id = netcdf_recipe_converter.bands[0].identifier
+        netcdf_data_type = self.get_dataset().variables[band_id].dtype.name
+        data_type = GDALGmlUtil.data_type_to_gdal_type(netcdf_data_type)
+
+        return data_type

@@ -86,19 +86,14 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
         self.pixel_is_point = pixel_is_point
+        self.data_type = None
 
     def _data_type(self):
         """
         Returns the data type for this netcdf dataset
         :rtype: str
         """
-        if len(self.files) < 1:
-            raise RuntimeException("No files to import were specified.")
-        netCDF4 = import_netcdf4()
-        nci = netCDF4.Dataset(self.files[0].get_filepath(), 'r')
-        netcdf_data_type = nci.variables[self.bands[0].identifier].dtype.name
-
-        return GDALGmlUtil.data_type_to_gdal_type(netcdf_data_type)
+        return self.data_type
 
     def _file_band_nil_values(self, index):
         """
@@ -128,14 +123,15 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         else:
             return [nil_value]
 
-    def _axis_subset(self, crs_axis, nc_file):
+    def _axis_subset(self, crs_axis, evaluator_slice, resolution=None):
         """
         Returns an axis subset using the given crs axis in the context of the nc file
         :param CRSAxis crs_axis: the crs definition of the axis
-        :param File nc_file: the netcdf file
+        :param NetcdfEvaluatorSlice evaluator_slice: the evaluator for netCDF file
+        :param number resolution: the known axis resolution if any
         :rtype AxisSubset
         """
-        user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), NetcdfEvaluatorSlice(nc_file))
+        user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label), evaluator_slice)
 
         # Normally, without pixelIsPoint:true, in the ingredient needs to +/- 0.5 * resolution for each regular axis
         # e.g: resolution for axis E is 10000, then

@@ -23,6 +23,7 @@
 """
 
 import re
+import time
 
 from master.helper.gdal_axis_filler import GdalAxisFiller
 from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
@@ -44,6 +45,7 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
+from util.timer_util import Timer
 
 
 class Recipe(BaseRecipe):
@@ -171,11 +173,17 @@ class Recipe(BaseRecipe):
         for tpair in timeseries:
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
             if not self.resumer.check_file_imported(tpair.file.filepath):
+                timer = Timer()
+
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
+
                 subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill(True)
                 subsets = self._fill_time_axis(tpair, subsets)
                 slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+
+                timer.print_elapsed_time()
+
                 count += 1
         return slices
 

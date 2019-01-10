@@ -22,6 +22,7 @@
  *
 """
 from config_manager import ConfigManager
+from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
 from master.importer.importer import Importer
 from master.importer.multi_importer import MultiImporter
 from master.error.runtime_exception import RuntimeException
@@ -51,6 +52,9 @@ class Recipe(GeneralCoverageRecipe):
     RES_20m = '20m'
     RES_60m = '60m'
     RES_TCI = 'TCI'
+
+    RES_DICT = {RES_10m: [1, 10, -10], RES_20m: [1, 20, -20], RES_60m: [1, 60, -60], RES_TCI: [1, 10, -10]}
+
     # variables that can be used to template the coverage id
     VAR_CRS_CODE = '${crsCode}'
     VAR_RESOLUTION = '${resolution}'
@@ -216,11 +220,16 @@ class Recipe(GeneralCoverageRecipe):
         """
         convertors = {}
         for f in self.session.get_files():
+            # This one does not contain any information for geo bounds
             gdal_ds = GDALGmlUtil(f.get_filepath())
             subdatasets = self._get_subdatasets(gdal_ds, f)
             gdal_ds.close()
+
             level = self._get_level(f.get_filepath())
             crs_code = ""
+
+            evaluator_slice = None
+
             for res in [self.RES_10m, self.RES_20m, self.RES_60m, self.RES_TCI]:
                 subds_file = self._get_subdataset_file(subdatasets, res)
                 crs_code = self._get_crs_code(subds_file.get_filepath(), crs_code)
@@ -229,7 +238,15 @@ class Recipe(GeneralCoverageRecipe):
 
                 conv.files = [subds_file]
                 crs_axes = CRSUtil(conv.crs).get_axes()
-                slices = conv._create_coverage_slices(crs_axes)
+
+                if evaluator_slice is None:
+                    # This one contains information for geo bounds
+                    evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(GdalToCoverageConverter.RECIPE_TYPE,
+                                                                                subds_file)
+
+                # Fixed values for 3 axes of Sentinel 2 coverage
+                axis_resolutions = self.RES_DICT[res]
+                slices = conv._create_coverage_slices(crs_axes, evaluator_slice, axis_resolutions)
                 conv.coverage_slices += slices
 
         return convertors

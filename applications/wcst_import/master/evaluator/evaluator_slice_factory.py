@@ -64,3 +64,4 @@ class EvaluatorSliceFactory:
             raise RuntimeException("Cannot generate metadata for recipe_type: {}".format(recipe_type))
 
         return EvaluatorSliceFactory.evaluator_slice
+

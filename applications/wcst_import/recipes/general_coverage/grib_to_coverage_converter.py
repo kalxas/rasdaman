@@ -122,6 +122,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
 
         # dataSet of a processing grib file
         self.dataset = None
+        self.data_type = None
 
     def _file_band_nil_values(self, index):
         """
@@ -331,14 +332,15 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         Returns the data type for this grib dataset
         :rtype: str
         """
-        # TODO: it does not have a way to get the data type of grib, yet, so use the default float64 as before
-        return self.DEFAULT_DATA_TYPE
+        return self.data_type
 
-    def _create_coverage_slice(self, grib_file, crs_axes):
+    def _create_coverage_slice(self, grib_file, crs_axes, evaluator_slice=None, axis_resolutions=None):
         """
         Returns a slice for a grib file
         :param File grib_file: the path to the grib file
         :param list[CRSAxis] crs_axes: the crs axes for the coverage
+        :param FileEvaluatorSlice evaluator_slice
+        :param list[number] axis_resolutions
         :rtype: Slice
         """
         evaluated_messages = self._evaluated_messages(grib_file)

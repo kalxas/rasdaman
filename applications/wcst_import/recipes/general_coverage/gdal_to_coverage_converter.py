@@ -86,13 +86,10 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         self.axes_metadata_fields = axes_metadata_fields
         self.metadata_type = metadata_type
         self.grid_coverage = grid_coverage
+        self.data_type = None
 
     def _data_type(self):
-        if len(self.files) < 1:
-            raise RuntimeException("No files to import were specified.")
-
-        # as all files should have same data type, so first file is ok
-        return GDALGmlUtil(self.files[0].get_filepath()).get_band_gdal_type()
+        return self.data_type
 
     def _file_band_nil_values(self, index):
         """
@@ -116,15 +113,19 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         else:
             return [nil_value]
 
-    def _axis_subset(self, crs_axis, gdal_file):
+    def _axis_subset(self, crs_axis, evaluator_slice, resolution=None):
         """
         Returns an axis subset using the given crs axis in the context of the gdal file
         :param CRSAxis crs_axis: the crs definition of the axis
-        :param File gdal_file: the gdal file
+        :param GDALEvaluatorSlice evaluator_slice: the evaluator for GDAL file
+        :param resolution: Known axis resolution, no need to evaluate sentence expression from ingredient file (e.g: Sentinel2 recipe)
         :rtype AxisSubset
         """
         user_axis = self._user_axis(self._get_user_axis_by_crs_axis_name(crs_axis.label),
-                                    GDALEvaluatorSlice(GDALGmlUtil(gdal_file.get_filepath())))
+                                    evaluator_slice)
+        if resolution is not None:
+            user_axis.resolution = resolution
+
         high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
 
         if user_axis.type == UserAxisType.DATE:

@@ -37,6 +37,9 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
+import time
+
+from util.timer_util import Timer
 
 
 class Recipe(BaseRecipe):
@@ -106,10 +109,15 @@ class Recipe(BaseRecipe):
         for file in files:
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
             if not self.resumer.check_file_imported(file.filepath):
+                timer = Timer()
+
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(files), file.filepath)
                 subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
                 slices.append(Slice(subsets, FileDataProvider(file)))
+
+                timer.print_elapsed_time()
+
                 count += 1
         return slices
 
