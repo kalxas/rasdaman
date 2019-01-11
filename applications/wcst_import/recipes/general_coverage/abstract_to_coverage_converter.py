@@ -415,9 +415,11 @@ class AbstractToCoverageConverter:
             # Build list of coverage slices from input files
             coverage_slices = self._create_coverage_slices(crs_axes)
 
-        first_coverage_slice = coverage_slices[0]
-        # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
-        global_metadata = self._generate_global_metadata(first_coverage_slice)
+        global_metadata = None
+        if len(coverage_slices) > 0:
+            first_coverage_slice = coverage_slices[0]
+            # generate coverage extra_metadata from ingredient file based on first input file of first coverage slice.
+            global_metadata = self._generate_global_metadata(first_coverage_slice)
 
         # Evaluate all the swe bands's metadata (each file should have same swe bands's metadata), so first file is ok
         self._evaluate_swe_bands_metadata(self.files[0], self.bands)
