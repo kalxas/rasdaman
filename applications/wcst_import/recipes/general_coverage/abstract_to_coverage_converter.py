@@ -354,8 +354,11 @@ class AbstractToCoverageConverter:
             if not self.resumer.check_file_imported(file.filepath):
                 timer = Timer()
 
-                # print which file is analyzing
                 FileUtil.print_feedback(count, len(self.files), file.filepath)
+
+                # print which file is analyzing
+                if not FileUtil.validate_file_path(file.filepath):
+                    continue
 
                 evaluator_slice = None
 

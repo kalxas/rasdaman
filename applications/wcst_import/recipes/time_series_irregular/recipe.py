@@ -46,6 +46,7 @@ from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
 from util.timer_util import Timer
+import os
 
 
 class Recipe(BaseRecipe):
@@ -177,6 +178,9 @@ class Recipe(BaseRecipe):
 
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
+
+                if not FileUtil.validate_file_path(tpair.file.filepath):
+                    continue
 
                 subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill(True)
                 subsets = self._fill_time_axis(tpair, subsets)

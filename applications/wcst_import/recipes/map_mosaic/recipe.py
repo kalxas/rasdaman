@@ -113,6 +113,9 @@ class Recipe(BaseRecipe):
 
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(files), file.filepath)
+                if not FileUtil.validate_file_path(file.filepath):
+                    continue
+
                 subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
                 slices.append(Slice(subsets, FileDataProvider(file)))
 

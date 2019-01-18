@@ -32,6 +32,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 from session import Session
 from util.coverage_util import CoverageUtil
 from util.log import log
+from util.file_util import FileUtil
 
 
 class BaseRecipe:
@@ -121,9 +122,14 @@ class BaseRecipe:
         if len(self.session.get_files()) == 0 and not ignore_no_files:
             log.warn("No files provided. Check that the paths you provided are correct. Done.")
             exit(0)
+
+        checked_files = []
+
         for file in self.session.get_files():
-            if not os.access(file.get_filepath(), os.R_OK):
-                raise RecipeValidationException("File on path " + file.get_filepath() + " is not accessible")
+            if FileUtil.validate_file_path(file.get_filepath()):
+                checked_files.append(file)
+
+        self.session.files = checked_files
 
         if 'wms_import' not in self.options:
             self.options['wms_import'] = False

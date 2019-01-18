@@ -183,6 +183,8 @@ class Recipe(BaseRecipe):
 
                 # print which file is analyzing
                 FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
+                if not FileUtil.validate_file_path(tpair.file.filepath):
+                    continue
 
                 subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill(True)
                 subsets = self._fill_time_axis(tpair, subsets)

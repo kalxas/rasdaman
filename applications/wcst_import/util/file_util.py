@@ -26,9 +26,11 @@ import os
 import uuid
 from config_manager import ConfigManager
 from util.log import log
+import re
 
 
 class FileUtil:
+
     def __init__(self):
         """
         A utility function to do most of the repetitive work
@@ -97,3 +99,24 @@ class FileUtil:
         file_paths = file_paths + glob.glob(file_path_regex)
 
         return file_paths
+
+    @staticmethod
+    def validate_file_path(file_path):
+        """
+        Check if file exists, if not just log it and continue
+        :param file_path: path to an input file
+        :return: boolean
+        """
+
+        # For gdal virtual file path, example:
+        # SENTINEL2_L1C:/vsizip//*_20181204T111726.zip/*_20181204T111726.SAFE/MTD_MSIL1C.xml:TCI:EPSG_32632
+        pattern = re.compile(".*/vsi[a-z]+/.*")
+
+        if pattern.match(file_path):
+            # It is gdal virtual file system, just ignore
+            return True
+        elif not os.access(file_path, os.R_OK):
+            log.warn("File '" + file_path + "' is not accessible, will be skipped from further processing.")
+            return False
+
+        return True

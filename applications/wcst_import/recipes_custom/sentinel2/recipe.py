@@ -32,6 +32,7 @@ from master.helper.user_band import UserBand
 from recipes.general_coverage.recipe import Recipe as GeneralCoverageRecipe
 from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 from util.crs_util import CRSUtil
+from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from util.file_obj import File
 from util.log import log
@@ -221,6 +222,9 @@ class Recipe(GeneralCoverageRecipe):
         convertors = {}
         for f in self.session.get_files():
             # This one does not contain any information for geo bounds
+            if not FileUtil.validate_file_path(f.get_filepath()):
+                continue
+
             gdal_ds = GDALGmlUtil(f.get_filepath())
             subdatasets = self._get_subdatasets(gdal_ds, f)
             gdal_ds.close()
