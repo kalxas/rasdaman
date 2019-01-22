@@ -32,6 +32,7 @@ trademark of the respective manufacturer.
 .. rubric:: Contents:
 
 .. toctree::
+   :numbered: 3
    :maxdepth: 2
 
    01_introduction.rst
