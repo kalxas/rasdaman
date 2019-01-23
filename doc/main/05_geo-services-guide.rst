@@ -160,9 +160,9 @@ single grid point (look-up tables).
 
 .. note::
   In petascope only grids whose lines are *rectilinear* and *aligned* with a
-  Cartesian CRS are supported (for WCS 2.0.1, they are: GridCoverage,
-  RectifiedGridCoverage, ReferenceableGridCoverage). This means: no rotated nor
-  warped (curvilinear) grids.
+  Cartesian CRS are supported. This means: no rotated nor warped
+  (curvilinear) grids.
+  
 
 Grid axis labels and CRS axis labels
 ------------------------------------
@@ -337,6 +337,61 @@ value by setting the parameter in the URL query:
 
 * default ``ansi`` axis label: ``http://rasdaman.org:8080/def/crs/OGC/0/AnsiDate``
 * custom ``ansi_date`` axis label: ``http://rasdaman.org:8080/def/crs/OGC/0/AnsiDate?axis-label="ansi_date"``
+
+.. _coverage-implementation-schema-in-petascope:
+
+Coverage Implementation Schema (CIS) in petascope
+-------------------------------------------------
+
+`CIS <http://docs.opengeospatial.org/is/09-146r6/09-146r6.html>`_ specifies the OGC
+coverage model by establishing a concrete, interoperable,
+conformance-testable coverage structure regardless of their data
+format encoding down to the level of single "pixels" or "voxels".
+
+Coverages can be encoded in any suitable format (such as GML, JSON, GeoTIFF,
+or netCDF). Coverages are independent from service definitions and,
+therefore, can be accessed through a variety of OGC services types,
+such as the Web Coverage Service (WCS) Standard
+
+Since rasdaman version 9.7+, petascope supports CIS version 1.1 with these
+conformance classes:
+
+* Class **coverage**.
+* Class **grid-regular** (in *CIS 1.0*: **GridCoverage** and **RectifiedGridCoverage** 
+  coverage types).
+
+* Class **grid-irregular** (*only* supports **CIS::IrregularAxis**,
+  in *CIS 1.0*: **ReferenceableGridCoverage** coverage type).
+
+* Class **gml-coverage**: For *WCS version 2.1.0*, petascope allows
+  to transform *CIS 1.0* coverage types to *CIS 1.1* in GML format:
+
+  * For WCS requests (**DescribeCoverage/GetCoverage**) with non-standard
+    parameter **outputType=GeneralGridCoverage**. Example: 
+   
+    ::
+  
+       http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+         &request=DescribeCoverage
+         &coverageId=test_mean_summer_airtemp
+         &outputType=GeneralGridCoverage
+
+       http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+         &request=GetCoverage
+         &coverageId=test_mean_summer_airtemp
+         &outputType=GeneralGridCoverage
+
+  * For WCPS requests, the same can be achieved using the extra parameter
+    **outputType=GeneralGridCoverage** in **encode()**, when the GML format is used. Example: 
+    
+    ::
+
+      for c in (test_irr_cube_2) return encode(c, 
+              "gml",
+              "{\"outputType\":\"GeneralGridCoverage\"}")
+
+* Class **other-format-coverage**.
+* Class **multipart-coverage**.
 
 .. _subsets-in-petascope:
 
@@ -1896,7 +1951,7 @@ options of the ingredients file. Each coverage model contains a
    .. code-block:: json
 
         "local": {
-		  "local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
+		  "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
         }
 
 
@@ -2170,7 +2225,7 @@ of extracting an attribute from a netCDF input file:
         ...
       },
       "local": {
-        "local_metadata_key": "${netcdf:metadata:LOCAL_METADATA}"
+        "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
       }
     }
 
@@ -2182,6 +2237,8 @@ containing local metadata in XML from 2 netCDF files:
 .. code-block:: xml
 
     <slices>
+
+      <!--- Begin Local Metadata from netCDF file 1 -->
       <slice>
         <boundedBy>
           <Envelope>
@@ -2193,11 +2250,15 @@ containing local metadata in XML from 2 netCDF files:
                          "2017-01-10T00:00:00+00:00" 0</upperCorner>
           </Envelope>
         </boundedBy>
-        <local_metadata_key>FROM FILE 1</local_metadata_key>
+        <LocalMetadataKey>FROM FILE 1</LocalMetadataKey>
         <fileReferenceHistory>
         /tmp/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc
         </fileReferenceHistory>
       </slice>
+      <!--- End Local Metadata from netCDF file 1 -->
+
+
+      <!--- Begin Local Metadata from netCDF file 2 -->
       <slice>
         <boundedBy>
           <Envelope>
@@ -2209,19 +2270,59 @@ containing local metadata in XML from 2 netCDF files:
                          "2017-02-10T00:00:00+00:00" 3</upperCorner>
           </Envelope>
         </boundedBy>
-        <local_metadata_key>FROM FILE 2</local_metadata_key>
+        <LocalMetadataKey>FROM FILE 2</LocalMetadataKey>
         <fileReferenceHistory>
         /tmp/wcs_local_metadata_netcdf_in_xml/20170210_3_ecfire_fwi_dc.nc
         </fileReferenceHistory>
       </slice>
+      <!--- End Local Metadata from netCDF file 2 -->
+
     </slices>
 
 
 When subsetting a coverage which contains local metadata section
 from input files (via WC(P)S requests), if the geo domains of subsetted
 coverage intersect with some input files' envelopes, only local metadata of
-these files will be added to the output coverage metadata.
+these files will be added to the output coverage metadata. 
 
+For example: a ``GetCoverage`` request which get a trim
+(crs axis subsets are within netCDF file 1): ::
+
+   http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
+          &request=GetCoverage
+          &subset=ansi("2017-01-10T00:00:00+00:00")
+          &subset=Lat(34.4396675,34.4396675)
+          &subset=Long(29.6015625,29.6015625)
+          &subset=forecast(0)
+
+The coverage's metadata result will contain *only* local metadata from
+netCDF file 1:
+
+.. code-block:: xml
+
+
+   <slices>
+
+      <!--- Begin Local Metadata from netCDF file 1 -->
+      <slice>
+        <boundedBy>
+          <Envelope>
+            <axisLabels>Lat Long ansi forecast</axisLabels>
+            <srsDimension>4</srsDimension>
+            <lowerCorner>34.4396675 29.6015625 
+                         "2017-01-10T00:00:00+00:00" 0</lowerCorner>
+            <upperCorner>34.7208095 29.8828125 
+                         "2017-01-10T00:00:00+00:00" 0</upperCorner>
+          </Envelope>
+        </boundedBy>
+        <LocalMetadataKey>FROM FILE 1</LocalMetadataKey>
+        <fileReferenceHistory>
+        /tmp/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc
+        </fileReferenceHistory>
+      </slice>
+      <!--- End Local Metadata from netCDF file 1 -->
+
+   <slices>
 
 **Band and dimension metadata in netCDF**
 
