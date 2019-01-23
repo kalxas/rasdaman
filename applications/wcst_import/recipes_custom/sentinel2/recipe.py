@@ -248,6 +248,12 @@ class Recipe(GeneralCoverageRecipe):
                     evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(GdalToCoverageConverter.RECIPE_TYPE,
                                                                                 subds_file)
 
+                # Resolution 10m, 20m and 60m have same data type (UInt16) while TCI has data type (Byte)
+                if res == self.RES_TCI:
+                    conv.data_type = "Byte"
+                else:
+                    conv.data_type = "UInt16"
+
                 # Fixed values for 3 axes of Sentinel 2 coverage
                 axis_resolutions = self.RES_DICT[res]
                 slices = conv._create_coverage_slices(crs_axes, evaluator_slice, axis_resolutions)
