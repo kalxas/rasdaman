@@ -22,12 +22,11 @@
                     <high>3 3 3</high>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels>i ansi forecast</gmlrgrid:axisLabels>
+            <axisLabels>i ansi forecast</axisLabels>
             <gmlrgrid:origin>
-                <gmlrgrid:Point
-                    id="test_wms_4d_ecmwf_fire_netcdf-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                    <gmlrgrid:pos>0.5 "2017-01-10T00:00:00.000Z" 0</gmlrgrid:pos>
-                </gmlrgrid:Point>
+                <Point id="test_wms_4d_ecmwf_fire_netcdf-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/OGC/0/AnsiDate&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+                    <pos>0.5 "2017-01-10T00:00:00.000Z" 0</pos>
+                </Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>

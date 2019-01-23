@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.InvalidScaleExtentException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSubset;
@@ -71,7 +72,7 @@ public class WcsScaleExpressionByScaleExtentHandler extends AbstractWcsScaleHand
                 if (dimension instanceof WcpsSliceScaleDimension) {
                     throw new InvalidScaleExtentException(axis.getLabel(), ((WcpsSliceScaleDimension) dimension).getBound());
                 }
-                if (axis.getLabel().equals(dimension.getAxisName())) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), dimension.getAxisName())) {
                     // here scaleFactor is the number of pixels for the dimension
                     scaledLowerBound = new BigDecimal(((WcpsTrimScaleDimension) dimension).getLowerBound());
                     scaledUpperBound = new BigDecimal(((WcpsTrimScaleDimension) dimension).getUpperBound());

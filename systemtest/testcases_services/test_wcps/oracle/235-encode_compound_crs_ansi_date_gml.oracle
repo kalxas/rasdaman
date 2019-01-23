@@ -22,11 +22,11 @@
                     <high>3 0 1</high>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels>ansi E N</gmlrgrid:axisLabels>
+            <axisLabels>ansi E N</axisLabels>
             <gmlrgrid:origin>
-                <gmlrgrid:Point id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-                    <gmlrgrid:pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</gmlrgrid:pos>
-                </gmlrgrid:Point>
+                <Point id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+                    <pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</pos>
+                </Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -72,6 +72,11 @@
                 <swe:Quantity>
                     <swe:label>b1</swe:label>
                     <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
                     <swe:uom code="10^0"/>
                     <swe:constraint/>
                 </swe:Quantity>
@@ -80,6 +85,11 @@
                 <swe:Quantity>
                     <swe:label>b2</swe:label>
                     <swe:description/>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
                     <swe:uom code="10^0"/>
                     <swe:constraint/>
                 </swe:Quantity>

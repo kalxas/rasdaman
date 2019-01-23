@@ -102,7 +102,7 @@ class Recipe(BaseRecipe):
 
     def _get_slices(self, crs):
         # Let's first extract all the axes from our crs
-        crs_axes = CRSUtil(crs).get_axes()
+        crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id)
         # Prepare a list container for our slices
         slices = []
         # Iterate over the files and create a slice for each one

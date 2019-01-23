@@ -22,11 +22,11 @@
                     <high>2 0 0</high>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels>unix E N</gmlrgrid:axisLabels>
+            <axisLabels>unix E N</axisLabels>
             <gmlrgrid:origin>
-                <gmlrgrid:Point id="test_irregular_time_nc-point" srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">
-                    <gmlrgrid:pos>"2013-06-02T01:49:10.370Z" -1000012.5 -1000012.5</gmlrgrid:pos>
-                </gmlrgrid:Point>
+                <Point id="test_irregular_time_nc-point" srsName="/crs-compound?1=/crs/OGC/0/UnixTime&amp;2=/crs/EPSG/0/3577">
+                    <pos>"2013-06-02T01:49:10.370Z" -1000012.5 -1000012.5</pos>
+                </Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>

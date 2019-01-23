@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import javax.persistence.*;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.util.BigDecimalUtil;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
@@ -61,6 +63,8 @@ import petascope.exceptions.WCSException;
 @PrimaryKeyJoinColumn(name = IrregularAxis.COLUMN_ID, referencedColumnName = GeoAxis.COLUMN_ID)
 public class IrregularAxis extends GeoAxis implements Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger(IrregularAxis.class);
+
     public static final String TABLE_NAME = "irregular_axis";
     public static final String COLUMN_ID = TABLE_NAME + "_id";
     
@@ -72,12 +76,16 @@ public class IrregularAxis extends GeoAxis implements Serializable {
         UPDATE_EXISTING
     }
 
+
+
+    // Ordered sequence of direct positions (coefficients) along this axis
+    // NOTE: Postgresql can set precision and scale defined, it will use only use 2 numbers for scale 
+    //       e.g: 19.3434534534534534533333333....33 -> 19.34
+    //       However, SQLite does not support and it is stripped to only eights numbers after the "." 
+    //       and will have wrong calculations, so we use String to store BigDecimal
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "irregular_axis_direct_positions")
     @OrderColumn
-    // Ordered sequence of direct positions (coefficients) along this axis
-    // NOTE: Postgresql can set precision and scale defined, it will use only use 2 numbers for scale (e.g: 19.3434534534534534533333333....33 -> 19.34)
-    // However, SQLite does not support and it is stripped to only eights numbers after the "." and will have wrong calculations, so use String to store BigDecimal    
     private List<String> directPositions;
 
     public IrregularAxis() {
@@ -198,6 +206,14 @@ public class IrregularAxis extends GeoAxis implements Serializable {
         if (ret >= 0) {
             return ret;
         } else {
+            if (log.isDebugEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                for (BigDecimal pos: this.getDirectPositionsAsNumbers()) {
+                    sb.append(pos.toString());
+                    sb.append(", ");
+                }
+                log.debug("Current direct positions: " + sb.toString());
+            }
             throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration, 
                     "Coefficient 0 (zero) not found for irregular axis '" + getAxisLabel() + "'.");
         }

@@ -61,6 +61,8 @@ import static petascope.core.CrsDefinition.ELEVATION_DOWN_ALIASES;
 import petascope.core.XMLSymbols;
 import static petascope.util.StringUtil.ENCODING_UTF8;
 import static petascope.core.CrsDefinition.ELEVATION_UP_ALIASES;
+import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_0;
+import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_85;
 
 /**
  * Coordinates transformation utility in case a spatial reprojection is needed
@@ -950,6 +952,32 @@ public class CrsUtil {
         }
 
         return true;
+    }
+    /**
+     * return true if both axis labels are longitude axes
+     */
+    private static boolean isLongitudeAxis(String axisLabel1, String axisLabel2) {
+        if (axisLabel1.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85) 
+           || axisLabel1.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
+            if (axisLabel2.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_85)
+                || axisLabel2.equals(LONGITUDE_AXIS_LABEL_EPGS_VERSION_0)) {
+               return true;
+            }
+        }
+                
+        return false;
+    }
+    
+    /**
+     * Return true if aixs labels have same name ("Long" or "Lon" is also accepted).
+     */
+    public static boolean axisLabelsMatch(String axisLabel1, String axisLabel2) {
+        if (axisLabel1.equals(axisLabel2)
+           || isLongitudeAxis(axisLabel1, axisLabel2)) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**

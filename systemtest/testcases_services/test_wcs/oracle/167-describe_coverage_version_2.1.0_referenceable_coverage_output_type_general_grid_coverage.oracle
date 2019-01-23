@@ -50,6 +50,11 @@
                     <swe:Quantity>
                         <swe:label>b1</swe:label>
                         <swe:description/>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
                         <swe:uom code="10^0"/>
                         <swe:constraint/>
                     </swe:Quantity>
@@ -58,6 +63,11 @@
                     <swe:Quantity>
                         <swe:label>b2</swe:label>
                         <swe:description/>
+                        <swe:nilValues>
+                            <swe:NilValues>
+                                <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                            </swe:NilValues>
+                        </swe:nilValues>
                         <swe:uom code="10^0"/>
                         <swe:constraint/>
                     </swe:Quantity>

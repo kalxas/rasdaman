@@ -33,6 +33,7 @@ import org.rasdaman.secore.db.DbManager;
 import org.rasdaman.secore.req.RequestParam;
 import org.rasdaman.secore.Constants;
 import static org.rasdaman.secore.Constants.*;
+import org.rasdaman.secore.db.DbSecoreVersion;
 import org.rasdaman.secore.util.Pair;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.StringUtil;
@@ -112,23 +113,31 @@ public class GeneralHandler extends AbstractHandler {
 
         // NOTE: check if requested ID is in userdb first (e.g: def/crs/AUTO/1.3/42001?lon=10)
         Boolean existsDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumber);
+        
+        String versionTmp = versionNumber;
 
         // If versionNumber does not exist in userdb, then it should be from GML dictionaries.
         if (!existsDefInUserDB) {
-            if (!DbManager.collectionExistByVersionNumber(versionNumber)) {
+            
+            versionTmp = DbSecoreVersion.getLatestEPSGVersionIfVersionZero(url, versionNumber);
+            
+            if (!DbManager.collectionExistByVersionNumber(versionTmp)) {
                 throw new SecoreException(ExceptionCode.InvalidRequest, "Failed resolving request '" + request.toString() + "', check if version number is valid or crs definition exists first.");
             }
         }
-
-        ResolveResponse ret = resolveId(parseRequest(request).snd, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
+        
+        ResolveResponse ret = resolveId(parseRequest(request).snd, versionTmp, versionNumber, request.getExpandDepth(), new ArrayList<Parameter>());
 
         // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
         if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
-            ret = resolveId(parseRequest(request).snd, versionNumber, ZERO, new ArrayList<Parameter>());
+            ret = resolveId(parseRequest(request).snd, versionTmp, versionNumber, ZERO, new ArrayList<Parameter>());
             ParameterizedCrsHandler phandler = new ParameterizedCrsHandler();
             phandler.setDefinition(ret);
             ret = phandler.handle(request);
         }
+        
+        String result = DbSecoreVersion.updateEPSGResultIfVersionZero(url, versionNumber, ret.getData());
+        ret.setData(result);
 
         return ret;
     }

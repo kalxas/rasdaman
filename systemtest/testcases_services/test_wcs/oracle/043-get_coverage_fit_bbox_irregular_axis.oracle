@@ -22,11 +22,11 @@
                     <high>2 6 4</high>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels>i j k</gmlrgrid:axisLabels>
+            <axisLabels>i j k</axisLabels>
             <gmlrgrid:origin>
-                <gmlrgrid:Point id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
-                    <gmlrgrid:pos>0.5 4.5 4</gmlrgrid:pos>
-                </gmlrgrid:Point>
+                <Point id="test_irr_cube_1-point" srsName="/crs/OGC/0/Index3D">
+                    <pos>0.5 4.5 4</pos>
+                </Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>

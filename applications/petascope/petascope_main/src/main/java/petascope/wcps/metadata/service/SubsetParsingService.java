@@ -219,8 +219,10 @@ public class SubsetParsingService {
         String sourceCrs = dimension.getCrs();
         
         Axis axis = null;
+        
         for (int i = 0; i < axes.size(); i++) {
-            if (axes.get(i).getLabel().equals(axisName)){
+            String axisLabel = axes.get(i).getLabel();
+            if (CrsUtil.axisLabelsMatch(axisLabel, axisName)) {
                 axis = axes.get(i);
                 break;
             }
@@ -268,7 +270,7 @@ public class SubsetParsingService {
         for (Axis axis : metadata.getAxes()) {
             for (Subset subset : subsets) {
                 // Only fit the axis if subset of axis is specified
-                if (axis.getLabel().equals(subset.getAxisName())) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), subset.getAxisName())) {
                     String crs = axis.getNativeCrsUri();
                     // Just don't fit to sample space when axis type is not geo-reference (e.g: time coefficient will be wrong value)
                     // NOTE: Not support to fit on irregular axis

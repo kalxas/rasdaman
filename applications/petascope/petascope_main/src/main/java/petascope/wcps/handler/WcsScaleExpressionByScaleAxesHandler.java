@@ -27,6 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericSlicing;
 import petascope.wcps.metadata.model.NumericSubset;
@@ -66,7 +67,7 @@ public class WcsScaleExpressionByScaleAxesHandler extends AbstractWcsScaleHandle
             // Check if axis is mentioned in scaleAxesDimensionList, then divide by the scaleFactor or just keep the same pixels for unmentioned axis
             BigDecimal scaleFactor = BigDecimal.ONE;
             for (AbstractWcpsScaleDimension dimension : scaleAxesDimensionList.getIntervals()) {
-                if (axis.getLabel().equals(dimension.getAxisName())) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), dimension.getAxisName())) {
                     scaleFactor = new BigDecimal(((WcpsSliceScaleDimension) dimension).getBound());
                     break;
                 }

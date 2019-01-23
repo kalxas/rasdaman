@@ -154,8 +154,8 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
-    public static final int CRSRESOLVER_CONN_TIMEOUT = 10000;
-    public static final int CRSRESOLVER_READ_TIMEOUT = 10000;
+    public static final int CRSRESOLVER_CONN_TIMEOUT = 60000;
+    public static final int CRSRESOLVER_READ_TIMEOUT = 60000;
 
     /* ***** WCST configuration ***** */
     // disable write operations (WCST)

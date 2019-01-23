@@ -25,6 +25,8 @@
 import decimal
 import os
 import time
+
+import session
 from lib import arrow
 from collections import OrderedDict
 from time import sleep

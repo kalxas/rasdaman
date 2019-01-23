@@ -663,6 +663,7 @@ prepare_xml_file()
              -e '/fileReferenceHistory/d' \
              -e '/PostCode/d' \
              -e '/PostalCode/d' \
+             -e 's/Long/Lon/g' \
              "$xml_file"
   fi
 }
@@ -706,6 +707,9 @@ prepare_netcdf_file()
 
   # Remove all blank lines
   sed -i '/^$/d' "$tmpf"
+
+  # Long axis and Lon axis are the same
+  sed -i 's/Long/Lon/g' "$tmpf"
   
   # print the file path to caller
   echo "$tmpf"

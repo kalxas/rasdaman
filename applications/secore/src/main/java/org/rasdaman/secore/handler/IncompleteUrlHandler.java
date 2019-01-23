@@ -41,6 +41,7 @@ import org.rasdaman.secore.req.RequestParam;
 import org.rasdaman.secore.ConfigManager;
 import org.rasdaman.secore.Constants;
 import static org.rasdaman.secore.Constants.*;
+import org.rasdaman.secore.db.DbSecoreVersion;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.SecoreUtil.QueryDB;
 import org.rasdaman.secore.util.StringUtil;
@@ -124,9 +125,12 @@ public class IncompleteUrlHandler extends AbstractHandler {
                         + ", while missing version or authority");
             }
         }
+        
+        String versionTmp = DbSecoreVersion.getLatestEPSGVersionIfVersionZero(url, versionNumberParam);
 
         // Return list of definitions from the incomplete Url
-        String res = queryIncompleteUrl(request, url, versionNumberParam);
+        String res = queryIncompleteUrl(request, url, versionTmp);
+        res = DbSecoreVersion.updateEPSGResultIfVersionZero(url, versionNumberParam, res);
 
         // adapt result to XML
         ret = new ResolveResponse(res);

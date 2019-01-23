@@ -62,7 +62,7 @@ public class KVPRasqlHandler implements IKVPHandler {
         checkRequiredParameter(kvpParameters, KEY_PASSWORD);
         checkRequiredParameter(kvpParameters, KEY_QUERY);
     }
-    
+
     private void checkRequiredParameter(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
         String[] value = kvpParameters.get(key);
         if (value == null)

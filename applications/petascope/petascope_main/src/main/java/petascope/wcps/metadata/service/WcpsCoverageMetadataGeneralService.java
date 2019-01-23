@@ -160,7 +160,7 @@ public class WcpsCoverageMetadataGeneralService {
         String nativeCrs = subsettingCrsX;
 
         for (Subset subset : subsets) {
-            if (xAxisName.equals(subset.getAxisName())) {
+            if (CrsUtil.axisLabelsMatch(xAxisName, subset.getAxisName())) {
                 // subset can contain CRS or not (e.g: Long(0:20) is not, but Long:"http://.../4326" is)
                 String crs = subset.getCrs();
                 if (crs != null) {
@@ -216,7 +216,7 @@ public class WcpsCoverageMetadataGeneralService {
             // e.g: c[Lat:"http://.../3857"(3000,60000), Long:"http://.../3857"(4000,60000")]
             // and without CrsTransform then, the outputCrs is set to subsettingCRS (i.e: coverage is transformed from native CRS: EPSG:4326 to EPSG:3857)
             for (Subset subset : subsets) {
-                if (subset.getAxisName().equals(xAxisName)) {
+                if (CrsUtil.axisLabelsMatch(subset.getAxisName(), xAxisName)) {
                     subset.getNumericSubset().setLowerLimit(xyMin.get(0));
                     subset.getNumericSubset().setUpperLimit(xyMax.get(0));
                 } else if (subset.getAxisName().equals(yAxisName)) {
@@ -255,7 +255,7 @@ public class WcpsCoverageMetadataGeneralService {
             //identify the corresponding axis in the coverage metadata
             for (Axis axis : metadata.getAxes()) {
                 // Only apply to correspondent axis with same name
-                if (axis.getLabel().equals(subset.getAxisName())) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), subset.getAxisName())) {
                     // If subset has a given CRS, e.g: Lat:"http://../3857" then set it to outputCrs
                     if (axis.isXYGeoreferencedAxis() && subset.getCrs() != null && !subset.getCrs().equals(axis.getNativeCrsUri())) {
                         // subsettingCrs is given, if crsTransform does not exist then the outputCRS is set to subsettingCRS by XY-georefenced axes
@@ -306,10 +306,13 @@ public class WcpsCoverageMetadataGeneralService {
      */
     public void stripSlicingAxes(WcpsCoverageMetadata metadata, List<WcpsSubsetDimension> subsetDimensions) {
         List<Integer> removeIndexes = new ArrayList<>();
-        int i = 0;
+        int i = 0
+                ;
         for (Axis axis : metadata.getAxes()) {
             for (WcpsSubsetDimension subset : subsetDimensions) {
-                if (axis.getLabel().equals(subset.getAxisName())) {
+                
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), subset.getAxisName())) {
+                    
                     // Subset is slice then the axis should be removed from coverage's metadata
                     if (subset instanceof WcpsSliceSubsetDimension) {
                         removeIndexes.add(i);
@@ -1092,7 +1095,7 @@ public class WcpsCoverageMetadataGeneralService {
     private boolean checkAxisExists(String axisName, WcpsCoverageMetadata metadata) {
         boolean found = false;
         for (Axis axis : metadata.getAxes()) {
-            if (axis.getLabel().equals(axisName)) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
                 found = true;
                 break;
             }

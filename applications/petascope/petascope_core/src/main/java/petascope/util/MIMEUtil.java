@@ -23,6 +23,7 @@ public class MIMEUtil {
     public static final String MIME_TIFF = "image/tiff";
     public static final String MIME_BMP = "image/bmp";
     public static final String MIME_JP2 = "image/jp2";
+    public static final String MIME_BINARY = "application/octet-stream";
 
     public static final String MIME_NETCDF = "application/netcdf";
     public static final String MIME_CSV = "text/csv";

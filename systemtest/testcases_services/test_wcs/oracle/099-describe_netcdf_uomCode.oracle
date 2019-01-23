@@ -9,7 +9,7 @@
      >
     <wcs:CoverageDescription id="test_meris_lai_3d_data_bound_time_axis_false">
         <boundedBy>
-            <Envelope axisLabels="ansi Lat Long" srsDimension="3"
+            <Envelope axisLabels="ansi Lat Lon" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
                 <lowerCorner>"2003-01-01T01:00:00.001Z" 49.9972221114198388443 -88.9999998885801611557</lowerCorner>
                 <upperCorner>"2014-11-12T10:59:02.001Z" 49.9999998885801611557 -88.5999981114198388443</upperCorner>
@@ -49,12 +49,12 @@
                         <high>5 0 143</high>
                     </GridEnvelope>
                 </limits>
-                <gmlrgrid:axisLabels>ansi Lat Long</gmlrgrid:axisLabels>
+                <axisLabels>ansi Lat Lon</axisLabels>
                 <gmlrgrid:origin>
-                    <gmlrgrid:Point
+                    <Point
                         id="test_meris_lai_3d_data_bound_time_axis_false-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                        <gmlrgrid:pos>"2003-01-01T01:00:00.001Z" 49.998611 -88.998611</gmlrgrid:pos>
-                    </gmlrgrid:Point>
+                        <pos>"2003-01-01T01:00:00.001Z" 49.998611 -88.998611</pos>
+                    </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -76,7 +76,7 @@
                     <gmlrgrid:GeneralGridAxis>
                         <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 0.0027777771603223114</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

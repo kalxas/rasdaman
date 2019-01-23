@@ -1,0 +1,29 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "default_crs": "SECORE_URL/crs/EPSG/0/4326",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+	"default_null_values": [
+	  "9999", "9998", "9997", "9996", "9995", "9994", "9993", "9992", "9991"
+	], 
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_wcs_multiple_null_values_9_bands",
+    "paths": [
+      "*.tif"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_regular",
+    "options": {
+      "time_start": "2017-01-01T00:00:00",
+      "time_format": "auto",
+      "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+      "time_step": "30 minutes 0 seconds",
+      "tiling": "ALIGNED [0:47, 0:19, 0:19] TILE SIZE 19200"
+    }
+  }
+}

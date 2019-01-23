@@ -172,7 +172,8 @@ class Recipe(BaseRecipe):
         """
         Returns the slices for the collection of files given
         """
-        crs_axes = CRSUtil(crs).get_axes()
+        crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id)
+
         slices = []
         timeseries = self._generate_timeseries_tuples()
         count = 1

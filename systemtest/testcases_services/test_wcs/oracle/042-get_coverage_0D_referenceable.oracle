@@ -21,11 +21,11 @@
                     <high/>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels/>
+            <axisLabels/>
             <gmlrgrid:origin>
-                <gmlrgrid:Point id="test_irr_cube_1-point" srsName="">
-                    <gmlrgrid:pos/>
-                </gmlrgrid:Point>
+                <Point id="test_irr_cube_1-point" srsName="">
+                    <pos/>
+                </Point>
             </gmlrgrid:origin>
         </gmlrgrid:ReferenceableGridByVectors>
     </domainSet>

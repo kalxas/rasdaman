@@ -204,6 +204,9 @@ public class ExceptionCode {
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. "
             + "Locator: List of violating coverage identifiers", SC_NOT_FOUND);
+    public static final ExceptionCode NoSuchLayer = new ExceptionCode("NoSuchLayer",
+            "One of the identifiers passed does not match with any of the layers offered by this server. "
+            + "Locator: List of violating coverage identifiers", SC_NOT_FOUND);
     public static final ExceptionCode NoSuchMediaType = new ExceptionCode("NoSuchMediaType",
             "The requested mediatype is not valid", SC_NOT_FOUND);
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage");

@@ -241,7 +241,7 @@ class Recipe(GeneralCoverageRecipe):
                 conv = self._get_convertor(convertors, cov_id, crs_code, level, res)
 
                 conv.files = [subds_file]
-                crs_axes = CRSUtil(conv.crs).get_axes()
+                crs_axes = CRSUtil(conv.crs).get_axes(self.coverage_id)
 
                 if evaluator_slice is None:
                     # This one contains information for geo bounds

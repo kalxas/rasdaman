@@ -98,8 +98,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
     @Bean
     public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws Exception {
         return init();
-        }
-        
+    }
+
     /**
      * Invoked when running Petascope (rasdaman.war) only in an external servlet container. 
      */
@@ -191,7 +191,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
                     systemGdalJavaDir + "' to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
             return;
-        } 
+        }
     }
     
     // -----------------------------------------------------------------------------------

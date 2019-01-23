@@ -26,6 +26,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.Subset;
@@ -120,7 +121,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
             axisName = subset.getAxisName();
             boolean isExist = false;
             for (Axis axis : metadata.getAxes()) {
-                if (axis.getLabel().equals(axisName)) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
                     isExist = true;
                     break;
                 }

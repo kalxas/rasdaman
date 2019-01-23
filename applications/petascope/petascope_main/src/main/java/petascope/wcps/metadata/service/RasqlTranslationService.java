@@ -66,11 +66,11 @@ public class RasqlTranslationService {
             //we should use the grid bounds, unless we have a dollar subset on this axis
             boolean nonNumericSubsetFound = false;
             for (WcpsSubsetDimension nonNumericSubset : nonNumericSubsets) {
-                if (nonNumericSubset.getAxisName().equals(axis.getLabel())) {
+                if (CrsUtil.axisLabelsMatch(nonNumericSubset.getAxisName(), axis.getLabel())) {
                     // found subset containing axis iterator alias or expression
                     //only allow this kind of subsets for index and grid axes
                     boolean isSubsetValid = validateExpressionSubset(axis.getNativeCrsUri(), nonNumericSubset);
-                    if(!isSubsetValid){
+                    if (!isSubsetValid) {
                         throw new InvalidExpressionSubsetException(nonNumericSubset);
                     }
                     String subsetDimensionStr = nonNumericSubset.getStringBounds();
@@ -186,7 +186,7 @@ public class RasqlTranslationService {
      */
     private boolean isNeededAxis(String axisName, List<Subset> subsets) {
         for (Subset subset : subsets) {
-            if (subset.getAxisName().equals(axisName)) {
+            if (CrsUtil.axisLabelsMatch(subset.getAxisName(), axisName)) {
                 return true;
             }
         }

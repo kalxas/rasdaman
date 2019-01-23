@@ -148,7 +148,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             clippedCoverageAxesGeoBounds.put(axisName, new Pair<>(newLowerBound, newUpperBound));
         }
     }
-    
+
     /**
      * Get the axis's order in list of axis names.
      */

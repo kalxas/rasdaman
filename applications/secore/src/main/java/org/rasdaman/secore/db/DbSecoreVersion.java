@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
 import org.rasdaman.secore.Constants;
+import static org.rasdaman.secore.db.DbManager.FIX_GML_VERSION_ALIAS;
 import org.rasdaman.secore.util.SecoreException;
 import org.rasdaman.secore.util.SecoreUtil;
 import org.rasdaman.secore.util.StringUtil;
@@ -53,6 +54,8 @@ public class DbSecoreVersion {
     private final String SECORE_VERSION = "SecoreVersion";
     private final String DELETE_FILE = "delete";
     private final String INSERT_FILE = "insert";
+    
+    public static final String EPSG = "EPSG";
 
     public DbSecoreVersion(Database baseX) {
         this.baseX = baseX;
@@ -196,5 +199,44 @@ public class DbSecoreVersion {
         DbManager.clearCache();
         log.debug("Updated Secoredb's version number to: " + version);
         return output;
+    }
+    
+    /**
+     * Check if URL is requesting EPSG database with version=0
+     */
+    public static boolean isEPSGVersionZero(String url, String version) {
+        return url.contains(EPSG) && version.equals(DbManager.FIX_GML_VERSION_ALIAS);
+    }
+    
+    /**
+     * NOTE: When requesting EPSG version 0 (e.g: def/crs/EPSG/0), 
+     * it needs to change to latest EPSG version in GML database (e.g: 9.4.2).
+     */
+    public static String getLatestEPSGVersionIfVersionZero(String url, String version) throws SecoreException {
+        String latestVersion = version;
+        
+        // Only do it CRS comes from EPSG (e.g: def/crs/OGC/0 should be intact)
+        if (isEPSGVersionZero(url, version)) {
+            latestVersion = DbManager.getInstance().getLatestGMLCollectionVersion();
+        }
+        
+        return latestVersion;
+    }
+    
+    /**
+     * From the result of request with the latest EPSG version, replace all version occurrences
+     * with version 0 (as it always point to the latest EPSG version).
+     * 
+     */
+    public static String updateEPSGResultIfVersionZero(String url, String version, String result) throws SecoreException {
+        String updatedResult = result; 
+        
+        if (isEPSGVersionZero(url, version)) {
+            String latestVersion = DbManager.getInstance().getLatestGMLCollectionVersion();
+            // e.g: EPSG/9.4.2 -> EPSG/0
+            updatedResult = result.replace(EPSG + "/" + latestVersion, EPSG + "/" + FIX_GML_VERSION_ALIAS);
+        }
+        
+        return updatedResult;
     }
 }

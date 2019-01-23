@@ -23,7 +23,6 @@ package petascope.core.gml.cis10.model.domainset.rectifiedgrid;
 
 import nu.xom.Element;
 import static petascope.core.XMLSymbols.LABEL_ORIGIN;
-import static petascope.core.XMLSymbols.NAMESPACE_GML;
 import static petascope.core.XMLSymbols.PREFIX_GML;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.util.XMLUtil;
@@ -60,7 +59,6 @@ public class Origin implements ISerializeToXMElement {
 
     public void setPrefixLabelXML(String prefixLabelXML) {
         this.prefixLabelXML = prefixLabelXML;
-        this.point.setPrefixLabelXML(prefixLabelXML);
     }
 
     @Override

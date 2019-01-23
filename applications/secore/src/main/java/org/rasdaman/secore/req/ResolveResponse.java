@@ -40,7 +40,7 @@ public class ResolveResponse {
     // regex pattern matching empty XML returned from BaseX
     private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
 
-    private final String data;
+    private String data;
 
     public ResolveResponse(String data) {
         // Add copyright
@@ -104,6 +104,10 @@ public class ResolveResponse {
      */
     public String getData() {
         return data;
+    }
+    
+    public void setData(String data) {
+        this.data = data;
     }
 
     /**

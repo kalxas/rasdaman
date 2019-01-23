@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -51,7 +52,7 @@ import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
  */
 @Entity
 @Table(name = MetadataURL.TABLE_NAME)
-public class MetadataURL {
+public class MetadataURL implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_metadata_url";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

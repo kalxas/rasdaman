@@ -306,10 +306,11 @@ public class WcpsCoverageMetadata {
 
     public Axis getAxisByName(String axisName) {
         for (Axis axis : this.axes) {
-            if (axis.getLabel().equals(axisName)) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
                 return axis;
             }
         }
+        
         throw new CoverageAxisNotFoundExeption(axisName);
     }
 

@@ -67,6 +67,9 @@ public class CrsDefinition {
                 "j"     // eg ImageCRS
             );
     
+    public static final String LONGITUDE_AXIS_LABEL_EPGS_VERSION_85 = "Long";
+    public static final String LONGITUDE_AXIS_LABEL_EPGS_VERSION_0 = "Lon";
+    
     // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS, CS EPSG:1030
     public static final List<String> ELEVATION_UP_ALIASES = Arrays.asList("h", "H");
     // eg CS EPSG:6495 |-VERTICAL

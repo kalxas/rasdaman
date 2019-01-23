@@ -184,7 +184,15 @@ class GDALGmlUtil:
         import osgeo.gdal as gdal
 
         fields = []
-        for i in range(1, self.gdal_dataset.RasterCount + 1):
+
+        number_of_bands = self.gdal_dataset.RasterCount
+
+        if len(ConfigManager.default_null_values) > 0 and \
+            (len(ConfigManager.default_null_values) != 1 and len(ConfigManager.default_null_values) != number_of_bands):
+            raise RuntimeException("Default null values must be a list containing 1 null value for all bands, "
+                                   "or N individual null values for N bands.")
+
+        for i in range(1, number_of_bands + 1):
             band = self.gdal_dataset.GetRasterBand(i)
 
             # Get the field name
@@ -193,39 +201,22 @@ class GDALGmlUtil:
             else:
                 field_name = ConfigManager.default_field_name_prefix + str(i)
 
-            nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
-            # Check if the nil value is an integer and if it is float then split it to 2 integers (e.g: -10.4 -> [-11:-10] as rasdaman does not support floating null values
-            # TODO: Remove this check once rasdaman supports floating null values
-            is_number = False
-            if nil_value != "nan" and nil_value != "":
-                # if string is not nan or "", so just consider it is a float number
-                nil_value = float(nil_value)
-                is_number = True
-
-            if is_number:
-                floor_nill_value = int(math.floor(float(nil_value)))
-                ceil_nill_value = int(math.ceil(float(nil_value)))
-
-                if ceil_nill_value > 9223372036854775807 or floor_nill_value < -9223372036854775808:
-                    log.info("\033[1mThe nodata value {} of band {} has been ignored "
-                             "as it cannot be represented as a 64 bit integer.".format(nil_value, field_name))
-                    nil_value = None
+            # Check if nullvalue is specified in ingredient file
+            if len(ConfigManager.default_null_values) > 0:
+                if len(ConfigManager.default_null_values) == 1:
+                    # Only 1 nilValue for all bands
+                    nil_value = ConfigManager.default_null_values[0]
                 else:
-                    if floor_nill_value == ceil_nill_value:
-                        nil_value = str(floor_nill_value)
-                    else:
-                        # NOTE: There is no nilValues interval e.g: 0:200 in Rasdaman, everything has to be separated, such as: 0,200
-                        nil_value = str(floor_nill_value) + "," + str(ceil_nill_value)
+                    # 1 nilValue for 1 separate band
+                    nil_value = ConfigManager.default_null_values[i - 1]
             else:
-                # Band does not contain any nodata_value, then check if nullvalue is specified in ingredient file
-                dfn = ConfigManager.default_null_values
-                if len(dfn) > i - 1:
-                    nil_value = str(dfn[i - 1])
+                # If not, then detects it from file's bands
+                nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
 
             if nil_value is None:
                 nil_values = [None]
             else:
-                nil_values = nil_value.strip().split(",")
+                nil_values = str(nil_value).strip().split(",")
 
             # Get the unit of measure
             uom = band.GetUnitType() if band.GetUnitType() else ConfigManager.default_unit_of_measure

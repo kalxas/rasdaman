@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -49,7 +50,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = Layer.TABLE_NAME)
-public class Layer {
+public class Layer implements Serializable {
 
     public static final String TABLE_PREFIX = "wms13_";
     public static final String TABLE_NAME = TABLE_PREFIX + "_layer";

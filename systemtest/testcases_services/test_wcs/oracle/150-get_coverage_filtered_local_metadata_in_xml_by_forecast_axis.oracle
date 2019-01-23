@@ -9,7 +9,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="Lat Long ansi" srsDimension="3"
+        <Envelope axisLabels="Lat Lon ansi" srsDimension="3"
             srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
             <lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00.000Z"</lowerCorner>
             <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00.000Z"</upperCorner>
@@ -23,12 +23,12 @@
                     <high>1 1 1</high>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels>Lat Long ansi</gmlrgrid:axisLabels>
+            <axisLabels>Lat Lon ansi</axisLabels>
             <gmlrgrid:origin>
-                <gmlrgrid:Point
+                <Point
                     id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                    <gmlrgrid:pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z"</gmlrgrid:pos>
-                </gmlrgrid:Point>
+                    <pos>34.650524 29.671875 "2017-01-10T00:00:00.000Z"</pos>
+                </Point>
             </gmlrgrid:origin>
             <gmlrgrid:generalGridAxis>
                 <gmlrgrid:GeneralGridAxis>
@@ -42,7 +42,7 @@
                 <gmlrgrid:GeneralGridAxis>
                     <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0.140625 0</gmlrgrid:offsetVector>
                     <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                    <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
                     <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                 </gmlrgrid:GeneralGridAxis>
             </gmlrgrid:generalGridAxis>
@@ -92,14 +92,13 @@
                     <slice>
                         <boundedBy>
                             <Envelope>
-                                <axisLabels>Lat Long ansi forecast</axisLabels>
+                                <axisLabels>Lat Lon ansi forecast</axisLabels>
                                 <srsDimension>4</srsDimension>
                                 <lowerCorner>34.4396675 29.6015625 "2017-01-10T00:00:00+00:00" 0</lowerCorner>
                                 <upperCorner>34.7208095 29.8828125 "2017-01-10T00:00:00+00:00" 0</upperCorner>
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>FROM FILE 1</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_netcdf_in_xml/20170110_0_ecfire_fwi_dc.nc</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

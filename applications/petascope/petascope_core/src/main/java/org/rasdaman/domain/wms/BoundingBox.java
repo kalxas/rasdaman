@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -59,7 +60,7 @@ import petascope.util.BigDecimalUtil;
  */
 @Entity
 @Table(name = BoundingBox.TABLE_NAME)
-public class BoundingBox {
+public class BoundingBox implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_bounding_box";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

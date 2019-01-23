@@ -175,7 +175,7 @@ class AbstractToCoverageConverter:
         :param user_axis_name:
         :return: crs_axis
         """
-        crs_axes = CRSUtil(self.crs).get_axes()
+        crs_axes = CRSUtil(self.crs).get_axes(self.coverage_id)
 
         for i in range(0, len(crs_axes)):
             crs_axis = crs_axes[i]
@@ -412,7 +412,7 @@ class AbstractToCoverageConverter:
         Returns a Coverage from all the importing files (gdal|grib|netcdf)
         :rtype: Coverage
         """
-        crs_axes = CRSUtil(self.crs).get_axes()
+        crs_axes = CRSUtil(self.crs).get_axes(self.coverage_id)
 
         if coverage_slices is None:
             # Build list of coverage slices from input files

@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -96,7 +97,7 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         // After scale, the geo domains are kept and grid domain will be: Lat":CRS1:"(0:20), Long:"CRS:1"(0:20)
         for (Axis axis : metadata.getAxes()) {
             for (Pair<String, NumericTrimming> pair : geoBoundAxes) {
-                if (axis.getLabel().equals(pair.fst)) {
+                if (CrsUtil.axisLabelsMatch(axis.getLabel(), pair.fst)) {
                     axis.getGeoBounds().setLowerLimit(pair.snd.getLowerLimit());
                     axis.getGeoBounds().setUpperLimit(pair.snd.getUpperLimit());
                     

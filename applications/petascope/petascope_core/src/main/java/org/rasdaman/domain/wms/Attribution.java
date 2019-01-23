@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -60,7 +61,7 @@ import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
  */
 @Entity
 @Table(name = Attribution.TABLE_NAME)
-public class Attribution {
+public class Attribution implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_attribution";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

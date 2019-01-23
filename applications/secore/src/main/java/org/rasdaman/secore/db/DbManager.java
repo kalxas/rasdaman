@@ -64,7 +64,7 @@ public class DbManager {
     // collection name -> absolute path to initalization file
     // NOTE: gml database can have many versions (e.g: 8.5, 8.6,...) then use gml_version as key (e.g: gml_8.5)
     public static final String FIX_GML_COLLECTION_NAME = createGMLCollectionName(FIX_GML_VERSION_NUMBER);    
-
+    
     private Database db;
     private static DbManager instance;
 
@@ -131,7 +131,10 @@ public class DbManager {
                     }
                 }
             }
-        }
+        } 
+        
+        // Sort the versions of EPSG GML from oldest to newest
+        java.util.Collections.sort(supportedGMLCollectionVersions);
 
         // Check if it has FixVersion file
         if (!hasFixVersion) {
@@ -231,6 +234,15 @@ public class DbManager {
     
     public List<String> getSupportedGMLCollectionVersions() {
         return this.supportedGMLCollectionVersions;
+    }
+    
+    
+    /**
+     * Get the latest supported EPSG GML version in SECORE (e.g: 9.4.2)
+     */
+    public String getLatestGMLCollectionVersion() {
+        int index = this.supportedGMLCollectionVersions.size() - 1;
+        return this.supportedGMLCollectionVersions.get(index);
     }
 
     public Database getDb() {

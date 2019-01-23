@@ -417,7 +417,7 @@ class CoverageReader():
             xmlstr = self.description();
             root = etree.fromstring(xmlstr)
             crs = self._get_crs(root)
-            crs_axes = CRSUtil(crs).get_axes()
+            crs_axes = CRSUtil(crs).get_axes(self.coverage_id)
             range_type = self._get_range_types(root)
             raster_coords = self._get_raster_coords(root)
             geo_coords = self._get_geo_coords(root)

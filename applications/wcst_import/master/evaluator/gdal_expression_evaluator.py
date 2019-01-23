@@ -71,7 +71,8 @@ class GdalExpressionEvaluator(ExpressionEvaluator):
         else:
             user_bands = []
             for band in GDALGmlUtil.get_fields_range_type(gdal_dataset):
-                user_bands.append(UserBand(band.field_name, "", band.uom_code, "", band.nill_values))
+                user_band = UserBand(band.field_name, "", "", "", "", band.nill_values, band.uom_code)
+                user_bands.append(user_band)
 
             gdal_dictionary = {
                 "resolutionX": gdal_dataset.get_offset_vectors()[0],

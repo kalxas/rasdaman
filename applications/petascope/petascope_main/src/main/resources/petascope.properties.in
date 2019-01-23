@@ -247,7 +247,7 @@ log4j.appender.stdout.Threshold=INFO
 
 
 log4j.appender.rollingFile.layout=org.apache.log4j.PatternLayout  
-log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n  
+log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}] %c{1}@%L: %m%n
 
 
 # NOTE: Select one strategy (and comment out the other!) for rolling files:

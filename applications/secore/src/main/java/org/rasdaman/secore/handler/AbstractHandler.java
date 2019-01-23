@@ -64,7 +64,7 @@ public abstract class AbstractHandler implements Handler {
      * @throws SecoreException usually if the text content of el hasn't been
      * matched with id
      */
-    protected ResolveResponse resolveId(String url, String versionNumber, String depth, List<Parameter> parameters) throws SecoreException {       
+    protected ResolveResponse resolveId(String url, String versionNumber, String originalVersionNumber, String depth, List<Parameter> parameters) throws SecoreException {       
         // NOTE: remove the /def/ from the URL as same as in other handlers 
         // and this help determine the index of version number from URL (e.g: /crs/EPSG/0/4326, version is 0).
         String urlTmp = StringUtil.stripServiceURI(url);
@@ -78,7 +78,7 @@ public abstract class AbstractHandler implements Handler {
         if (!ret.isValidDefinition()) {
             // no definition found
             if (url.contains(Constants.VERSION_NUMBER)) {
-                url = url.replace(Constants.VERSION_NUMBER, versionNumber);
+                url = url.replace(Constants.VERSION_NUMBER, originalVersionNumber);
             }
             log.error("Failed resolving " + url);
             throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + url);

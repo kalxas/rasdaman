@@ -28,6 +28,8 @@ import urlparse
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from url_util import validate_and_read_url
+from util.coverage_util import CoverageUtil
+from util.log import log
 
 
 class CRSAxis:
@@ -80,7 +82,34 @@ class CRSAxis:
             return True
         return False
 
+
 class CRSUtil:
+
+
+    LAT_AXIS_LABEL = "Lat"
+
+    LONG_AXIS_LABEL_EPSG_VERSION_85 = "Long"
+    LONG_AXIS_LABEL_EPSG_VERSION_0 = "Lon"
+
+    AUTHORITY = "authority"
+    VERSION = "version"
+
+    EPSG = "EPSG"
+    EPSG_VERSION_85 = "8.5"
+    EPSG_VERSION_0 = "0"
+
+    # CRS in REST format
+    EPSG_VERSION_85_REST = EPSG + "/" + EPSG_VERSION_85
+    EPSG_VERSION_0_REST = EPSG + "/" + EPSG_VERSION_0
+
+    # CRS in KVP format
+    EPSG_AUTHORITY_KVP = AUTHORITY + "=" + EPSG
+    EPSG_VERSION_85_KVP = VERSION + "=" + EPSG_VERSION_85
+    EPSG_VERSION_0_KVP = VERSION + "=" + EPSG_VERSION_0
+
+    # NOTE: Only fetch coverage axis labels once only for 1 coverage Id
+    coverage_axis_labels = []
+
     def __init__(self, crs_url):
         """
         Initializes the crs util
@@ -92,11 +121,15 @@ class CRSUtil:
         self._parse()
         pass
 
-    def get_axes(self):
+    def get_axes(self, coverage_id, axes_configurations=None):
         """
         Returns the axes of the CRS
+        :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
         :rtype: list[CRSAxis]
         """
+        # update crs_axes if necessary for EPSG:4326
+        CRSUtil.update_lon_axis_to_epsg_version_85_if_needed(coverage_id, self.axes, axes_configurations)
+
         return self.axes
 
     def get_crs_code(self):
@@ -149,6 +182,69 @@ class CRSUtil:
             index += 1
         compound = ConfigManager.crs_resolver + "crs-compound?" + "&".join(crs_list)
         return compound
+
+    @staticmethod
+    def update_lon_axis_to_epsg_version_85_if_needed(coverage_id, crs_axes, axes_configurations=None):
+        """
+        NOTE: since rasdaman version 9.7+, in SECORE def/crs/EPSG/0 points to the newest EPSG version (e.g: 9.4.2 instead
+        of 8.5 as before). The problem is for EPSG:4326, Longitude axis's abbreviation changes from "Long" -> "Lon".
+        This method is used to allow import slices to existing coverage ("Lat Long" axes).
+        :param str coverage_id: existing coverage
+        :param list[CRSAxis] crs_axes: parsed CRSAxes from SECORE URL (e.g: def/crs/EPSG/4326 returns 2 CRSAxes: Lat, Lon)
+        :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
+        """
+
+        is_update = False
+
+        cov = CoverageUtil(coverage_id)
+
+        # Case 1: Coverage exists with "Lat Long" axes
+        if len(CRSUtil.coverage_axis_labels) == 0:
+            if cov.exists():
+                CRSUtil.coverage_axis_labels = cov.get_axis_labels()
+
+                if CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85 in CRSUtil.coverage_axis_labels:
+                    is_update = True
+
+        # Case 2: Coverage not exist, but in ingredient file for general recipes, it contains configuration for "Lat Long" axes
+        if axes_configurations is not None:
+            for key, value in axes_configurations.iteritems():
+                if key == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
+                    is_update = True
+
+                CRSUtil.coverage_axis_labels.append(key)
+
+        # If it needs to update "Lon" -> "Long" axis
+        if is_update:
+            lat_axis = None
+            long_axis = None
+
+            for crs_axis in crs_axes:
+                if crs_axis.label == CRSUtil.LAT_AXIS_LABEL:
+                    lat_axis = crs_axis
+                elif crs_axis.label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0:
+                    long_axis = crs_axis
+
+                if lat_axis != None and long_axis != None:                   
+                    
+                    log.warn("EPSG/0/NNNN points to the latest EPSG dictionary version, "
+                             "so CRS definitions may change with new releases of the EPSG dataset. \n"
+                             "In particular, coverage '" + coverage_id + "' was created when latest EPSG "
+                             "version was 8.5, which for longitude axis is now incompatible with the current "
+                             "EPSG version (Long axis label changed to Lon). \n Therefore wcst_import will change "
+                             "the CRS URL from EPSG/0/NNNN to EPSG/8.5/NNNN.")
+
+                    long_axis.label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
+
+                    if CRSUtil.EPSG_VERSION_0_KVP in long_axis.uri:
+                        # CRS in KVP format
+                        long_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_KVP, CRSUtil.EPSG_VERSION_85_KVP)
+                        lat_axis.uri = lat_axis.uri.replace(CRSUtil.EPSG_VERSION_0_KVP, CRSUtil.EPSG_VERSION_85_KVP)
+                    else:
+                        # CRS in REST format
+                        long_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_REST, CRSUtil.EPSG_VERSION_85_REST)
+                        lat_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_REST, CRSUtil.EPSG_VERSION_85_REST)
+                    break
 
     def _parse(self):
         self.axes = self.get_from_cache(self.crs_url)["axes"]

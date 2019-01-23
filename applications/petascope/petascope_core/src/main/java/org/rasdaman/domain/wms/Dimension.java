@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,7 +66,7 @@ import petascope.core.XMLSymbols;
  */
 @Entity
 @Table(name = Dimension.TABLE_NAME)
-public class Dimension {
+public class Dimension implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_dimension";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

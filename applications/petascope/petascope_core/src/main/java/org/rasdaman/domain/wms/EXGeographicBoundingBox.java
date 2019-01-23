@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,7 +61,7 @@ import petascope.util.BigDecimalUtil;
  */
 @Entity
 @Table(name = EXGeographicBoundingBox.TABLE_NAME)
-public class EXGeographicBoundingBox {
+public class EXGeographicBoundingBox implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_ex_geographic_bounding_box";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

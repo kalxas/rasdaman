@@ -37,6 +37,8 @@ import org.rasdaman.domain.cis.RegularAxis;
 import org.rasdaman.domain.cis.Uom;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
+import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_0;
+import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_85;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -297,8 +299,9 @@ public class GMLParserService {
         for (String srsUri : srsUris) {
             CrsDefinition crsDef = CrsUtil.getCrsDefinition(srsUri);
             for (CrsDefinition.Axis crsDefinitionAxis : crsDef.getAxes()) {
+
                 // A CRS can contains multiple axes (e.g: EPSG:4326 has Lat, Long axes)
-                if (axisLabel.equals(crsDefinitionAxis.getAbbreviation())) {
+                if (CrsUtil.axisLabelsMatch(axisLabel, crsDefinitionAxis.getAbbreviation())) {
                     // e.g: EPSG:4326 -> metre
                     Pair<String, String> crsUom = new Pair<>(srsUri, crsDefinitionAxis.getUoM());
 

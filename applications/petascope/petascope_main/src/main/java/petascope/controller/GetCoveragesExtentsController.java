@@ -75,7 +75,6 @@ public class GetCoveragesExtentsController extends AbstractController {
 
     @Override
     protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
-        log.debug("Received request: " + this.getRequestRepresentation(kvpParameters));
         if (startException != null) {
             throwStartException();
         }

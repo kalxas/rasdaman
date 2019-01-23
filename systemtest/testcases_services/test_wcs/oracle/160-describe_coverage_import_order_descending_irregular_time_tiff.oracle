@@ -9,7 +9,7 @@
      >
     <wcs:CoverageDescription id="test_AverageChloro">
         <boundedBy>
-            <Envelope axisLabels="unix Lat Long" srsDimension="3"
+            <Envelope axisLabels="unix Lat Lon" srsDimension="3"
                 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
                 <lowerCorner>"2015-01-01T00:00:00.000Z" -85 -180</lowerCorner>
                 <upperCorner>"2015-07-01T00:00:00.000Z" 90 170</upperCorner>
@@ -31,11 +31,11 @@
                         <high>0 6 13</high>
                     </GridEnvelope>
                 </limits>
-                <gmlrgrid:axisLabels>unix Lat Long</gmlrgrid:axisLabels>
+                <axisLabels>unix Lat Lon</axisLabels>
                 <gmlrgrid:origin>
-                    <gmlrgrid:Point id="test_AverageChloro-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326">
-                        <gmlrgrid:pos>"2015-01-01T00:00:00.000Z" 77.5 -167.5</gmlrgrid:pos>
-                    </gmlrgrid:Point>
+                    <Point id="test_AverageChloro-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326">
+                        <pos>"2015-01-01T00:00:00.000Z" 77.5 -167.5</pos>
+                    </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -57,7 +57,7 @@
                     <gmlrgrid:GeneralGridAxis>
                         <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate?axis-label=&quot;unix&quot;&amp;2=/crs/EPSG/0/4326">0 0 25</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

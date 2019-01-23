@@ -46,9 +46,6 @@ public class Point implements ISerializeToXMElement {
     private String id;
     private String srsName;
     private String coordinates;
-    
-    // By default it is gml:offsetvector (RectifiedGridCoverage)
-    private String prefixLabelXML = PREFIX_GML;
 
     public Point(String id, String srsName, String coordinates) {
         this.id = id;
@@ -79,14 +76,10 @@ public class Point implements ISerializeToXMElement {
     public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
     }
-
-    public void setPrefixLabelXML(String prefixLabelXML) {
-        this.prefixLabelXML = prefixLabelXML;
-    }
     
     @Override
     public Element serializeToXMLElement() {
-        Element pointElement = new Element(XMLUtil.createXMLLabel(prefixLabelXML, LABEL_POINT), XMLUtil.getNameSpaceByPrefix(prefixLabelXML));
+        Element pointElement = new Element(XMLUtil.createXMLLabel(PREFIX_GML, LABEL_POINT), NAMESPACE_GML);
         
         Attribute idAttribute = XMLUtil.createXMLAttribute(NAMESPACE_GML, PREFIX_GML, ATT_ID, id);
         Attribute srsNameAttribute = new Attribute(ATT_SRS_NAME, NAMESPACE_GML);
@@ -95,7 +88,7 @@ public class Point implements ISerializeToXMElement {
         pointElement.addAttribute(idAttribute);
         pointElement.addAttribute(srsNameAttribute);
         
-        Element posElement = new Element(XMLUtil.createXMLLabel(prefixLabelXML, LABEL_POS), XMLUtil.getNameSpaceByPrefix(prefixLabelXML));
+        Element posElement = new Element(XMLUtil.createXMLLabel(PREFIX_GML, LABEL_POS), NAMESPACE_GML);
         posElement.appendChild(this.coordinates);
         
         pointElement.appendChild(posElement);

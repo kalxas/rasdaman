@@ -63,6 +63,7 @@ class Session:
             self.tmp_directory = ConfigManager.tmp_directory
         self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None
+
         # NOTE: only old recipes before general recipe using the default_crs inside the ingredient files
         if self.default_crs:
             self.default_crs = self.__replace_secore_prefix(self.default_crs.strip())

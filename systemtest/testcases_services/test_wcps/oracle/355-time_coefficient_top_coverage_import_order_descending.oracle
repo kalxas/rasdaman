@@ -22,12 +22,12 @@
                     <high/>
                 </GridEnvelope>
             </limits>
-            <gmlrgrid:axisLabels/>
+            <axisLabels/>
             <gmlrgrid:origin>
-                <gmlrgrid:Point
+                <Point
                     id="test_append_prepend_irregular_coverage_slice-point" srsName="">
-                    <gmlrgrid:pos/>
-                </gmlrgrid:Point>
+                    <pos/>
+                </Point>
             </gmlrgrid:origin>
         </gmlrgrid:ReferenceableGridByVectors>
     </domainSet>

@@ -248,15 +248,17 @@ class Recipe(BaseRecipe):
         :param str crs: the crs of the coverage
         :rtype: list[UserAxis]
         """
-        axes = self.options['coverage']['slicer']['axes']
+        axes_configurations = self.options['coverage']['slicer']['axes']
         user_axes = []
-        crs_axes = CRSUtil(crs).get_axes()
+
+        crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id, axes_configurations)
+
         default_order = 0
         for crs_axis in crs_axes:
-            if crs_axis.label not in axes:
+            if crs_axis.label not in axes_configurations:
                 raise RecipeValidationException(
-                    "Could not find a definition for axis " + crs_axis.label + " in the axes parameter.")
-            axis = axes[crs_axis.label]
+                    "Could not find a definition for axis '" + crs_axis.label + "' in the axes parameter.")
+            axis = axes_configurations[crs_axis.label]
             max = axis["max"] if "max" in axis else None
             if "type" in axis:
                 type = axis["type"]

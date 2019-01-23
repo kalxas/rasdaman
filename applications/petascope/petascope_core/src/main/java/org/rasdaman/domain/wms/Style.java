@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.wms;
 
+import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -87,7 +88,7 @@ import petascope.util.XMLUtil;
  */
 @Entity
 @Table(name = Style.TABLE_NAME)
-public class Style {
+public class Style implements Serializable {
 
     public static final String TABLE_NAME = TABLE_PREFIX + "_style";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

@@ -9,7 +9,7 @@
      >
     <wcs:CoverageDescription id="test_wcs_local_metadata_tiff">
         <boundedBy>
-            <Envelope axisLabels="Lat Long ansi" srsDimension="3"
+            <Envelope axisLabels="Lat Lon ansi" srsDimension="3"
                 srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
                 <lowerCorner>-44.975 111.975 "2003-01-01T00:00:00.000Z"</lowerCorner>
                 <upperCorner>-8.975 155.975 "2003-10-01T00:00:00.000Z"</upperCorner>
@@ -29,26 +29,24 @@
                         <slice>
                             <boundedBy>
                                 <Envelope>
-                                    <axisLabels>Lat Long ansi</axisLabels>
+                                    <axisLabels>Lat Lon ansi</axisLabels>
                                     <srsDimension>3</srsDimension>
                                     <lowerCorner>-44.975 111.975 "2003-01-01T00:00:00+00:00"</lowerCorner>
                                     <upperCorner>-8.975 155.975 "2003-01-01T00:00:00+00:00"</upperCorner>
                                 </Envelope>
                             </boundedBy>
                             <local_metadata_key>value_1</local_metadata_key>
-                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20030101-20030110-H01V06-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
                         </slice>
                         <slice>
                             <boundedBy>
                                 <Envelope>
-                                    <axisLabels>Lat Long ansi</axisLabels>
+                                    <axisLabels>Lat Lon ansi</axisLabels>
                                     <srsDimension>3</srsDimension>
                                     <lowerCorner>-44.975 111.975 "2003-10-01T00:00:00+00:00"</lowerCorner>
                                     <upperCorner>-8.975 155.975 "2003-10-01T00:00:00+00:00"</upperCorner>
                                 </Envelope>
                             </boundedBy>
                             <local_metadata_key>value_2</local_metadata_key>
-                            <fileReferenceHistory>/opt/rasdaman/source/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_no_specify_bands/GlobLAI-20031001-20031010-H00V10-1.0_MERIS-FR-LAI-HA.tiff</fileReferenceHistory>
                         </slice>
                     </slices>
                     <Title>Drought code</Title>
@@ -63,12 +61,12 @@
                         <high>35 43 1</high>
                     </GridEnvelope>
                 </limits>
-                <gmlrgrid:axisLabels>Lat Long ansi</gmlrgrid:axisLabels>
+                <axisLabels>Lat Lon ansi</axisLabels>
                 <gmlrgrid:origin>
-                    <gmlrgrid:Point
+                    <Point
                         id="test_wcs_local_metadata_tiff-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                        <gmlrgrid:pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</gmlrgrid:pos>
-                    </gmlrgrid:Point>
+                        <pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</pos>
+                    </Point>
                 </gmlrgrid:origin>
                 <gmlrgrid:generalGridAxis>
                     <gmlrgrid:GeneralGridAxis>
@@ -82,7 +80,7 @@
                     <gmlrgrid:GeneralGridAxis>
                         <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 1 0</gmlrgrid:offsetVector>
                         <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Long</gmlrgrid:gridAxesSpanned>
+                        <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
                         <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
                     </gmlrgrid:GeneralGridAxis>
                 </gmlrgrid:generalGridAxis>

@@ -21,6 +21,7 @@
  */
 package org.rasdaman.domain.cis;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +40,7 @@ import petascope.util.BigDecimalUtil;
  */
 @Entity
 @Table(name = RasdamanDownscaledCollection.TABLE_NAME)
-public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscaledCollection> {
+public class RasdamanDownscaledCollection implements Comparable<RasdamanDownscaledCollection>, Serializable {
 
     public static final String TABLE_NAME = "rasdaman_down_scaled_collection";
     public static final String COLUMN_ID = TABLE_NAME + "_id";

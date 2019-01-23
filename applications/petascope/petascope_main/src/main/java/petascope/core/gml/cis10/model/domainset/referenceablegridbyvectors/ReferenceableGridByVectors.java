@@ -28,7 +28,9 @@ import static petascope.core.XMLSymbols.ATT_AXIS_LABELS;
 import static petascope.core.XMLSymbols.ATT_DIMENSION;
 import static petascope.core.XMLSymbols.ATT_ID;
 import static petascope.core.XMLSymbols.LABEL_REFERENCEABLE_GRID_BY_VECTORS;
+import static petascope.core.XMLSymbols.NAMESPACE_GML;
 import static petascope.core.XMLSymbols.NAMESPACE_GMLRGRID;
+import static petascope.core.XMLSymbols.PREFIX_GML;
 import static petascope.core.XMLSymbols.PREFIX_GMLRGRID;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.util.XMLUtil;
@@ -90,7 +92,7 @@ public class ReferenceableGridByVectors extends RectifiedGrid implements ISerial
         referenceableGridByVectorsElement.addAttribute(idAttribute);
         
         Element limitsElement = this.limits.serializeToXMLElement();
-        Element axisLabelsElement = new Element(XMLUtil.createXMLLabel(PREFIX_GMLRGRID, ATT_AXIS_LABELS), NAMESPACE_GMLRGRID);
+        Element axisLabelsElement = new Element(XMLUtil.createXMLLabel(PREFIX_GML, ATT_AXIS_LABELS), NAMESPACE_GML);
         axisLabelsElement.appendChild(this.axisLabels);
         
         referenceableGridByVectorsElement.appendChild(limitsElement);

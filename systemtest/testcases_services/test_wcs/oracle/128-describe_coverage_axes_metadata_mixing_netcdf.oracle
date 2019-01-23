@@ -8,7 +8,7 @@
      >
     <wcs:CoverageDescription id="test_nullvalues_no_update_map_mosaic">
         <boundedBy>
-            <Envelope axisLabels="Lat Long" srsDimension="2"
+            <Envelope axisLabels="Lat Lon" srsDimension="2"
                 srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
                 <lowerCorner>-40 -90</lowerCorner>
                 <upperCorner>90 90</upperCorner>
@@ -30,7 +30,7 @@
                         <high>39 89</high>
                     </GridEnvelope>
                 </limits>
-                <axisLabels>Lat Long</axisLabels>
+                <axisLabels>Lat Lon</axisLabels>
                 <origin>
                     <Point
                         id="test_nullvalues_no_update_map_mosaic-point" srsName="/crs/EPSG/0/4326">
@@ -49,7 +49,7 @@
                         <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">1</swe:nilValue>
+                                <swe:nilValue reason="">1.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
@@ -62,7 +62,7 @@
                         <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">1</swe:nilValue>
+                                <swe:nilValue reason="">1.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
@@ -75,7 +75,7 @@
                         <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">1</swe:nilValue>
+                                <swe:nilValue reason="">1.0</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>

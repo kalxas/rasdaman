@@ -142,7 +142,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
             String versionNumber = obj.fst;
             String url = obj.snd;
 
-            gml = resolveId(url, versionNumber, req.getExpandDepth(), new ArrayList<Parameter>() {});
+            gml = resolveId(url, versionNumber, versionNumber, req.getExpandDepth(), new ArrayList<Parameter>() {});
         }
         log.trace(gml.getData());
 
@@ -261,7 +261,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         }
         
         // set expand depth from the original request URL
-        ResolveResponse ret = resolveId(url, versionNumber, request.getExpandDepth(), params);
+        ResolveResponse ret = resolveId(url, versionNumber, versionNumber, request.getExpandDepth(), params);
 
         // update identifier to include parameters
         String xml = StringUtil.replaceElementValue(

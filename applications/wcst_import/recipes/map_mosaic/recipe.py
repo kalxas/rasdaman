@@ -30,6 +30,7 @@ from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from master.recipe.base_recipe import BaseRecipe
 from session import Session
+from util.coverage_util import CoverageUtil
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
@@ -103,7 +104,8 @@ class Recipe(BaseRecipe):
         """
         files = self.session.get_files()
         crs = gdal_dataset.get_crs()
-        crs_axes = CRSUtil(crs).get_axes()
+        crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id)
+
         slices = []
         count = 1;
         for file in files:
