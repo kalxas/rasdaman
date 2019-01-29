@@ -78,9 +78,10 @@ public class SecoreController {
         if (qs != null && !qs.equals(EMPTY)) {
             uri += QUERY_SEPARATOR + qs;
         }
+        log.info("Received request: " + uri);
+        long start = System.currentTimeMillis();
+        
         try {
-            ResolveRequest request = new ResolveRequest(uri);
-
             // Check if last query modified the baseX (insert/update/delete definitions) then it have to clear cache both in BaseX and on Servlet
             if (DbManager.getNeedToClearCache()) {
                 cache = new HashMap<>();
@@ -94,11 +95,17 @@ public class SecoreController {
                 log.debug("Query data from *cache* for URI request: {}", uri);
                 result = cache.get(uri);
             } else {
+                ResolveRequest request = new ResolveRequest(uri);
                 ResolveResponse res = Resolver.resolve(request);
                 result = res.getData();
                 log.debug("Query data from *collections* for URI request: {}", uri);                
                 cache.put(uri, result);
             }
+
+            long end = System.currentTimeMillis();
+            long totalTime = end - start;
+            log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
+            
             writeResult(resp, result);
         } catch (SecoreException ex) {
             writeError(resp, ex);

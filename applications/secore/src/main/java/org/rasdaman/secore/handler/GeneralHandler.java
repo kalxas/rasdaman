@@ -81,7 +81,9 @@ public class GeneralHandler extends AbstractHandler {
     }
 
     @Override
-    public ResolveResponse handle(ResolveRequest request) throws SecoreException {
+    // NOTE: Processing multiple CRS requests in parallel are extremely slow. Hence, it should only process 1 request
+    // at once which is much faster.
+    public synchronized ResolveResponse handle(ResolveRequest request) throws SecoreException {
         log.debug("Handling resolve request...");
         return resolveRequest(request);
     }
