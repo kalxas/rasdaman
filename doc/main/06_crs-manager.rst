@@ -41,6 +41,21 @@ There are two types of definition collections:
 - ``gml`` collection which is fixed and cannot be modified; this is based on the
   EPSG dictionary.
 
+.. note::
+
+  SECORE (``def.war``) is bundled with several EPSG dataset version, however
+  they may get outdated. For this reason it is possible to manually download
+  the latest EPSG dataset and add it to SECORE as follows:
+
+  1. Create a new directory in the ``secoredb`` directory (usually in the same
+  directory as ``def.war``, e.g. ``/var/lib/tomcat/webapps/secoredb``)
+  named ``gml_number.number(.number)?)``.
+  2. Extract the EPSG GML dictionary in this folder.
+  3. Restart Tomcat to allow SECORE to load the new EPSG version.
+
+  For example, for EPSG version 9.5.2 it's necessary to create directory
+  ``secoredb/gml_9.5.2`` and put the extracted ``GmlDictionary.xml`` file into it.
+
 - ``user`` collection where users can add/update/delete definitions.
 
 Each definition has an **identifier** which is checked when updating/deleting
@@ -52,6 +67,15 @@ exist in SECORE already.
     <gml:identifier codeSpace="EPSG">
       http://www.opengis.net/def/crs/EPSG/0/4326
     </gml:identifier>
+
+.. note::
+
+  Until v9.7, version 0 in CRS identifiers referred to EPSG dataset version 8.5.
+  From v9.7, version 0 in CRS identifiers refers to the **latest** EPSG dataset version.
+  This means that the CRS definition corresponding to a URL such as
+  ``http://localhost:8080/def/crs/EPSG/0/4326`` is dynamic and may change with
+  new releases of the EPSG dataset. For this reason it is now recommended to
+  specify an exact version, e.g. 9.4.2 instead of 0.
 
 
 User interface

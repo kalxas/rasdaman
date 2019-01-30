@@ -28,6 +28,7 @@ import org.rasdaman.secore.util.SecoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,13 +215,17 @@ public abstract class AbstractHandler implements Handler {
         // NOTE: it will depend on the version of $id (e.g: http://localhost:8080/def/crs/EPSG/0/4326 (get version at "/" number 7)
         // or crs/EPSG/8.5/4326 (get version at "/" number 4)) to send request to correct collection
         // Don't use fix collection here as 1 CRS definition could contain different internal CRS URIs with different version number.
-        List<String> list = DbManager.getInstance().getSupportedGMLCollectionVersions();
+        TreeSet<String> versions = DbManager.getInstance().getSupportedGMLCollectionVersions();
         String supportedGMLCollectionVersions = "";
-        for (int i = 0; i < list.size(); i++) {
-            supportedGMLCollectionVersions += " " + "'" + list.get(i) + "'";
-            if (i < list.size() - 1) {
+        
+        int i = 0;
+        for (String version : versions) {
+            if (i > 0) {
                 supportedGMLCollectionVersions += ",";
             }
+            
+            supportedGMLCollectionVersions += " " + "'" + version + "'";            
+            i++;
         }
         supportedGMLCollectionVersions = "(" + supportedGMLCollectionVersions.trim() + ")";
         
@@ -273,7 +278,7 @@ public abstract class AbstractHandler implements Handler {
                         //             it will try to query with version 1.3 in GML collections which will throw exception as only versions (0, 8.5, 8.92) exist.
                         + "                        let $retGML := \n"
                         + "                            if (index-of((" + supportedGMLCollectionVersions + "), $version)) then \n "
-                        + "                                let $collectionName := replace( concat('gml_', $version ), '\\.', '' ) \n"
+                        + "                                let $collectionName := concat('gml_', $version ) \n"
                         + "                                return collection($collectionName)//gml:identifier[ends-with(text(), $tmpId)]/.. \n"
                         + "                            else \n"
                         + "                                element empty {\"\"} \n"

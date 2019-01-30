@@ -640,4 +640,11 @@ public class StringUtil {
         String newGML = stringBuffer.toString();
         return newGML;        
     }
+    
+    /**
+     * Replace "." by ""
+     */
+    public static String removeDot(String str) {
+        return str.replace(".", "");
+    }
 }
