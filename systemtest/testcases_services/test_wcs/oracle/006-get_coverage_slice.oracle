@@ -74,6 +74,18 @@
                     </tg>
                 </bands>
                 <Creator>This is a test creator file</Creator>
+                <axes>
+                    <Lat>
+                        <units>degrees_N</units>
+                        <long_name>Latitude values</long_name>
+                        <standard_name>latitude</standard_name>
+                    </Lat>
+                    <Lon>
+                        <units>degrees_E</units>
+                        <long_name>Lonitude values</long_name>
+                        <standard_name>longitude</standard_name>
+                    </Lon>
+                </axes>
                 <Title>This is a test file</Title>
             </rasdaman:covMetadata>
         </gmlcov:Extension>

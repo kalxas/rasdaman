@@ -1,0 +1,66 @@
+{
+  "config": {
+    	"service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+    "automated": true,
+    "mock": false,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_deeprain_auto_bands_axes_metadata",
+    "paths": [
+      "*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@OGC/0/Index1D@EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": "auto"
+	},
+	"slicer": {
+          "type": "netcdf",
+	  "pixelIsPoint": true,
+          "bands": [
+            {
+              "name": "var11",
+              "identifier": "var11"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime(${netcdf:variable:time:min} * 24 * 3600)",
+              "max": "datetime(${netcdf:variable:time:max} * 24 * 3600)",
+              "resolution": 1,
+              "gridOrder": 0,
+              "type": "ansidate"
+            },
+            "Long": {
+              "min": "${netcdf:variable:rlon:min}",
+              "max": "${netcdf:variable:rlon:max}",
+              "gridOrder": 3,
+              "resolution": "${netcdf:variable:rlon:resolution}"
+            },
+            "Lat": {
+              "min": "${netcdf:variable:rlat:min}",
+              "max": "${netcdf:variable:rlat:max}",
+              "gridOrder": 2,
+              "resolution": "${netcdf:variable:rlat:resolution}"
+            },
+            "i": {
+              "min": "${netcdf:variable:height:min}",
+              "max": "${netcdf:variable:height:max}",
+              "gridOrder": 1,
+              "resolution": 1
+            }
+          }
+	}
+      }
+    }
+  }
+}
+

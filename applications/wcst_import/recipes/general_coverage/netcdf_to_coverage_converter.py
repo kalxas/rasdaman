@@ -22,6 +22,7 @@
  *
 """
 import decimal
+import re
 from lib import arrow
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.error.runtime_exception import RuntimeException
@@ -39,8 +40,8 @@ from master.provider.metadata.regular_axis import RegularAxis
 from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCoverageConverter
 from util.crs_util import CRSAxis
 from util.file_obj import File
-from util.gdal_util import GDALGmlUtil
 from util.import_util import import_netcdf4
+from util.log import log
 
 
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
@@ -182,4 +183,93 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, user_axis.dataBound),
                           Interval(user_axis.interval.low, user_axis.interval.high))
 
+    @staticmethod
+    def parse_netcdf_global_metadata(file_path):
+        """
+        Parse the first file of importing netCDF files to extract the global metadata for the coverage
+        str file_path: path to first netCDF input file
+        :return: dict: global_metadata
+        """
+        # NOTE: all files should have same global metadata for each file
+        netCDF4 = import_netcdf4()
+        dataset = netCDF4.Dataset(file_path, 'r')
+        global_metadata = {}
+        for attr in dataset.ncattrs():
+            try:
+                global_metadata[attr] = str(getattr(dataset, attr))
+            except:
+                log.warn("Attribute '" + attr + "' of global metadata cannot be parsed as string, ignored.")
+
+        return global_metadata
+
+    @staticmethod
+    def parse_netcdf_bands_metadata(file_path, user_bands):
+        """
+        Parse the netCDF file to extract the bands' metadata for the coverage's global metadata
+        str file_path: path to the first input netCDF file
+        list[UserBand] user_bands: list of configured bands in ingredient file
+
+        :return: dict:
+        """
+
+        # NOTE: all files should have same bands's metadata for each file
+        netCDF4 = import_netcdf4()
+        dataset = netCDF4.Dataset(file_path, 'r')
+        bands_metadata = {}
+
+        for user_band in user_bands:
+            band_id = user_band.identifier
+            attrs_list = dataset.variables[band_id].ncattrs()
+            bands_metadata[band_id] = {}
+
+            for attr in attrs_list:
+                try:
+                    bands_metadata[band_id][attr] = str(getattr(dataset.variables[band_id], attr))
+                except:
+                    log.warn("Attribute '" + attr + "' of band '" + band_id + "' cannot be parsed as string, ignored.")
+
+        return bands_metadata
+
+    @staticmethod
+    def parse_netcdf_axes_metadata(file_path, crs_axes_configured_dict):
+        """
+        Parse the netCDF file to extract the axes metadata for the coverage's global metadata
+        str file_path: path to the first input netCDF file
+        dict crs_axes_configured_dict: dictionary of crs axis labels and themselves configuration in ingredient file
+        under "slicer"/"axes" section.
+        :return: dict:
+        """
+        # NOTE: all files should have same axes's metadata for each file
+        netCDF4 = import_netcdf4()
+        dataset = netCDF4.Dataset(file_path, 'r')
+        axes_metadata = {}
+
+        # Iterate all slicer/axes configured in ingredient file
+        for crs_axis_label, axis_configured_dict in crs_axes_configured_dict.items():
+            min = axis_configured_dict["min"]
+            # Get the axis variable name in netCDF file from the min configuration
+            # e.g: "Long": { "min": "${netcdf:variable:lon:min}" } -> axis variable name is "lon"
+
+            variable_axis_label = None
+
+            # Find the variable axis label from netCDF expression for this axis
+            for key, value in axis_configured_dict.items():
+                tmp = re.search("variable:(.*):.*}", str(value))
+                if tmp is not None:
+                    variable_axis_label = tmp.group(1)
+                    break
+
+            if variable_axis_label is not None:
+                axes_metadata[crs_axis_label] = {}
+
+                attrs_list = dataset.variables[variable_axis_label].ncattrs()
+                for attr in attrs_list:
+                    try:
+                        # crs axis (e.g: Long) -> variable axis (e.g: lon)
+                        axes_metadata[crs_axis_label][attr] = str(getattr(dataset.variables[variable_axis_label], attr))
+                    except:
+                        log.warn(
+                            "Attribute '" + attr + "' of axis '" + variable_axis_label + "' cannot be parsed as string, ignored.")
+
+        return axes_metadata
 

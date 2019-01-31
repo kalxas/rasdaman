@@ -2371,29 +2371,34 @@ netCDF files.
     in the ingredient file, all user-specified bands will have metadata which is 
     fetched directly from the netCDF file.
 
-  * Otherwise, if ``"bands"`` is not set to ``"auto"``, the user could specify 
-    metadata explicitly as the usual list of key / values.
+  * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
+    Metadata for 1 band is **collected automatically** if: 1) band is not added.
+    2) band is set to ``"auto"``.
 
 * **axis** metadata:
 
-  * Can be fetched automatically, with syntax as follows:
+  * If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
+    in the ingredient file, all user-specified axes will have metadata which is 
+    fetched directly from the netCDF file. The axis label for variable is detected
+    from the ``min`` or ``max`` value of CRS axis configuration under
+    ``"slicer/axes"`` section. For example:
 
     .. code-block:: json
 
-        "CRS_Axis_Name": "${netcdf:variable:DimensionName:metadata}"
+        "slicer": {
+           ...
+           "axes": {
+              "Long": {
+                 # 'lon' is variable name in netCDF file for CRS axis 'Long'.
+                 "min": "${netcdf:variable:lon:min}"
+                  ...
+               }
+            }
+         }
 
-
-    For example if the dimension name in netCDF file is *lon* but the CRS axis
-    name (for EPSG:4326) is *Long*, in the ingredient we would have:
-
-    .. code-block:: json
-
-        "Long": "${netcdf:variable:lon:metadata}"
-
-  * Otherwise, if axis is not specified its metadata will be empty. As usual,
-    the user can explicitly specify axis metadata as a dictionary of keys and 
-    values as well.
-
+  * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
+    Metadata for 1 axis is **collected automatically** if: 1) axis is not added. 2) axis
+    is set to ``"auto"``. 3) axis is set with ``${netcdf:variable:DimensionName:metadata}``.
 
 .. _data-import-recipe-wcs_extract:
 

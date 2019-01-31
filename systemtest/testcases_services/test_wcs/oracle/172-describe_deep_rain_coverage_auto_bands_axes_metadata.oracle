@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="test_deeprain_auto_bands_axes_metadata">
+        <boundedBy>
+            <Envelope axisLabels="ansi i Lat Lon" srsDimension="4"
+                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326" uomLabels="d GridSpacing degree degree">
+                <lowerCorner>"1970-01-07T12:00:00.000Z" 1.5 -5.01249999999999995 -5.01249999999999995</lowerCorner>
+                <upperCorner>"1970-01-08T12:00:00.000Z" 2.5 -4.93750000000000025 -4.88750000000000045</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>test_deeprain_auto_bands_axes_metadata</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+4 +3 +2 +1">Linear</sequenceRule>
+                <startPoint>0 0 0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <gmlcov:metadata>
+            <gmlcov:Extension>
+                <rasdaman:covMetadata >
+                    <history>Thu Jan 31 11:39:32 2019: ncks -d rlat,-5.0,-4.95 -d rlon,-5.0,-4.90 cosmo_test1.nc input.nc
+Wed Jan 30 11:08:32 2019: cdo -f nc copy download cosmo_test1.nc</history>
+                    <axes>
+                        <Lat>
+                            <units>degrees</units>
+                            <long_name>latitude in rotated pole grid</long_name>
+                            <standard_name>grid_latitude</standard_name>
+                            <axis>Y</axis>
+                        </Lat>
+                        <ansi>
+                            <units>hours since 2011-10-1 00:00:00</units>
+                            <standard_name>time</standard_name>
+                            <calendar>proleptic_gregorian</calendar>
+                            <axis>T</axis>
+                        </ansi>
+                        <i>
+                            <units>m</units>
+                            <long_name>height</long_name>
+                            <standard_name>height</standard_name>
+                            <positive>up</positive>
+                            <axis>Z</axis>
+                        </i>
+                        <Lon>
+                            <units>degrees</units>
+                            <long_name>longitude in rotated pole grid</long_name>
+                            <standard_name>grid_longitude</standard_name>
+                            <axis>X</axis>
+                        </Lon>
+                    </axes>
+                    <institution>Deutscher Wetterdienst</institution>
+                    <NCO>4.4.4</NCO>
+                    <bands>
+                        <var11>
+                            <realization>2</realization>
+                            <table>2</table>
+                            <grid_mapping>rotated_pole</grid_mapping>
+                            <ensemble_members>20</ensemble_members>
+                            <forecast_init_type>1</forecast_init_type>
+                        </var11>
+                    </bands>
+                    <CDO>Climate Data Operators version 1.9.5 (http://mpimet.mpg.de/cdo)</CDO>
+                    <CDI>Climate Data Interface version 1.9.5 (http://mpimet.mpg.de/cdi)</CDI>
+                    <Conventions>CF-1.6</Conventions>
+                </rasdaman:covMetadata>
+            </gmlcov:Extension>
+        </gmlcov:metadata>
+        <domainSet>
+            <RectifiedGrid dimension="4" id="test_deeprain_auto_bands_axes_metadata-grid">
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0 0 0</low>
+                        <high>0 0 2 4</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>ansi i Lat Lon</axisLabels>
+                <origin>
+                    <Point
+                        id="test_deeprain_auto_bands_axes_metadata-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326">
+                        <pos>"1970-01-08T00:00:00.000Z" 2 -5 -5</pos>
+                    </Point>
+                </origin>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326">1 0 0 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326">0 1 0 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326">0 0 0.0249999999999999 0</offsetVector>
+                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D&amp;3=/crs/EPSG/0/4326">0 0 0 0.0249999999999999</offsetVector>
+            </RectifiedGrid>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="var11">
+                    <swe:Quantity>
+                        <swe:label>var11</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

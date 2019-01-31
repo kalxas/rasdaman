@@ -87,6 +87,9 @@
                         <description>primitive</description>
                     </value>
                 </bands>
+                <axes>
+                    <k/>
+                </axes>
                 <description>This is a test coverage</description>
             </rasdaman:covMetadata>
         </gmlcov:Extension>

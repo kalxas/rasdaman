@@ -7,7 +7,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="Lat Long" srsDimension="2"
+        <Envelope axisLabels="Lat Lon" srsDimension="2"
             srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
             <lowerCorner>30 40</lowerCorner>
             <upperCorner>31 45</upperCorner>
@@ -21,7 +21,7 @@
                     <high>19 9</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>Lat Long</axisLabels>
+            <axisLabels>Lat Lon</axisLabels>
             <origin>
                 <Point id="test_eobstest-point" srsName="/crs/EPSG/0/4326">
                     <pos>30.75 40.25</pos>
@@ -74,6 +74,18 @@
                     </tg>
                 </bands>
                 <Creator>This is a test creator file</Creator>
+                <axes>
+                    <Lat>
+                        <units>degrees_N</units>
+                        <long_name>Latitude values</long_name>
+                        <standard_name>latitude</standard_name>
+                    </Lat>
+                    <Lon>
+                        <units>degrees_E</units>
+                        <long_name>Lonitude values</long_name>
+                        <standard_name>longitude</standard_name>
+                    </Lon>
+                </axes>
                 <Title>This is a test file</Title>
             </rasdaman:covMetadata>
         </gmlcov:Extension>

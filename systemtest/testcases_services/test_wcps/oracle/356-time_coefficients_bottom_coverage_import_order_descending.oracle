@@ -75,6 +75,16 @@
                         <missing_value>-1.0</missing_value>
                     </LAI>
                 </bands>
+                <axes>
+                    <Lat>
+                        <units>degrees_north</units>
+                        <long_name>latitude</long_name>
+                    </Lat>
+                    <Lon>
+                        <units>degrees_east</units>
+                        <long_name>longitude</long_name>
+                    </Lon>
+                </axes>
                 <Title>This is a test coverage</Title>
             </rasdaman:covMetadata>
         </gmlcov:Extension>

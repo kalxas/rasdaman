@@ -7,7 +7,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="i Long t" srsDimension="3"
+        <Envelope axisLabels="i Lon t" srsDimension="3"
             srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326&amp;3=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;" uomLabels="GridSpacing degree d">
             <lowerCorner>0 40 "1950-01-01T00:00:00.000Z"</lowerCorner>
             <upperCorner>4 45 "1950-01-03T00:00:00.000Z"</upperCorner>
@@ -21,7 +21,7 @@
                     <high>4 2 9</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>i Long t</axisLabels>
+            <axisLabels>i Lon t</axisLabels>
             <origin>
                 <Point id="test_eobstest-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/4326&amp;3=/crs/OGC/0/AnsiDate?axis-label=&quot;t&quot;">
                     <pos>0.5 40.25 "1950-01-01T12:00:00.000Z"</pos>
@@ -75,6 +75,18 @@
                     </tg>
                 </bands>
                 <Creator>This is a test creator file</Creator>
+                <axes>
+                    <Lat>
+                        <units>degrees_N</units>
+                        <long_name>Latitude values</long_name>
+                        <standard_name>latitude</standard_name>
+                    </Lat>
+                    <Lon>
+                        <units>degrees_E</units>
+                        <long_name>Lonitude values</long_name>
+                        <standard_name>longitude</standard_name>
+                    </Lon>
+                </axes>
                 <Title>This is a test file</Title>
             </rasdaman:covMetadata>
         </gmlcov:Extension>
