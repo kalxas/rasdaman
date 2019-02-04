@@ -23,14 +23,13 @@ package org.rasdaman.secore.db;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.ConfigManager;
@@ -71,7 +70,13 @@ public class DbManager {
     public static final String FIX_GML_COLLECTION_NAME = createGMLCollectionName(FIX_GML_VERSION_NUMBER);
     
     // e.g: in secoredb/gml_8.9.2
-    private static final String EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN = EPSG_DB + "_" + "\\d+(\\.\\d+)+";
+    private static final String EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN = createGMLCollectionName("\\d+(\\.\\d+)+");
+    
+    // e.g: in secoredb/gml_892
+    private static final String DEPRECATED_EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN = createGMLCollectionName("\\d+");
+    
+    // secoredb/gml_0
+    private static final String EPSG_GML_VERSION_ZERO = createGMLCollectionName(FIX_GML_VERSION_ALIAS);
     
     private Database db;
     private static DbManager instance;
@@ -194,8 +199,9 @@ public class DbManager {
         Set<File> existingVersionFolders = new LinkedHashSet<>(Arrays.asList(folder.listFiles()));
         
         for (File existingVersionFolder : existingVersionFolders) {
+            String versionFolderName = existingVersionFolder.getName();
             // Only add resolved BaseX EPSG version folders (gml_*.*)
-            if (existingVersionFolder.getName().matches(EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN)) {
+            if (versionFolderName.matches(EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN)) {
                 boolean folderExist = false;
                 String folderName = existingVersionFolder.getName().replace(EPSG_DB + "_", "");
 
@@ -211,6 +217,16 @@ public class DbManager {
                 // This EPSG version folder does not exist in def.war
                 if (!folderExist) {
                     versionFolders.add(existingVersionFolder);
+                }
+            }
+            
+            // Clean old format existing gml folders (e.g: gml_942)
+            if (!versionFolderName.equals(EPSG_GML_VERSION_ZERO) && versionFolderName.matches(DEPRECATED_EPSG_GML_VERSION_NUMBER_FOLDER_PATTERN)) {
+                try {
+                    FileUtils.deleteDirectory(existingVersionFolder);
+                } catch (IOException ex) {
+                   log.warn("Cannot delete deprecated format EPSG gml version folder '" + secoreDbDir + "/" + existingVersionFolder.getName()  + "'."
+                           + " Reason: " + ex.getMessage(), ex);
                 }
             }
         }
@@ -258,7 +274,7 @@ public class DbManager {
 
     /**
      * Check if collectionName does exist on the versions list.
-     * // e.g: userdb, gml_85
+     * // e.g: userdb, gml_8.5
      * @param collectionName
      * @return
      */
