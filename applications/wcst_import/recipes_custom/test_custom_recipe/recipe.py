@@ -115,7 +115,7 @@ class Recipe(BaseRecipe):
             # Now we must fill the time axis as well and indicate the position in time
             for subset in subsets:
                 # Find the time axis
-                if subset.coverage_axis.axis.crs_axis.is_future():
+                if subset.coverage_axis.axis.crs_axis.is_time_axis():
                     # Set the time position for it. Our recipe extracts it from a GDAL tag provided by the user
                     # datetime format needs enquoted (e.g: "2015-01")
                     subset.interval.low = '"' + GDALGmlUtil(infile).get_datetime(self.options["time_tag"]) + '"'

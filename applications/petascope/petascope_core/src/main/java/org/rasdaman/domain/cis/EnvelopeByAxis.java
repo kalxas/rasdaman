@@ -129,6 +129,14 @@ public class EnvelopeByAxis implements Serializable {
 
         return null;
     }
+    
+    /**
+     * Return the axisExtent (geoDomains) from the list of axis extents by index of element
+     */
+    public AxisExtent getAxisExtentByIndex(int index) {
+        AxisExtent axisExtent = this.axisExtents.get(index);
+        return axisExtent;
+    }
 
     /**
      * Return the concatenation of axis labels (e.g: "lat lon")

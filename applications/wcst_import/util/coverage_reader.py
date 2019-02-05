@@ -230,7 +230,7 @@ class CoverageReader():
                 geo_axis = RegularAxis(crs_axis.label, crs_axis.uom,
                                        geo_coords[axis_index].low, geo_coords[axis_index].high,
                                        origin[axis_index], crs_axis)
-            data_bound = crs_axis.is_easting() or crs_axis.is_northing()
+            data_bound = crs_axis.is_x_axis() or crs_axis.is_y_axis()
             coverage_axis = CoverageAxis(geo_axis, grid_axis, data_bound)
             coverage_axes.append(coverage_axis)
             axis_index += 1
@@ -279,7 +279,7 @@ class CoverageReader():
                     axis_intervals.append(Interval(value))
             else:
                 # Regular axis, compute it by stepping through the spatial domain
-                if coverage_axes[index].axis.crs_axis.is_easting() or coverage_axes[index].axis.crs_axis.is_northing():
+                if coverage_axes[index].axis.crs_axis.is_x_axis() or coverage_axes[index].axis.crs_axis.is_y_axis():
                     # For x and y axes we can split them according to the user's partitioning
                     resolution = float(coverage_axes[index].grid_axis.resolution)
                     error_correction = (resolution / 2) if ConfigManager.subset_correction else 0

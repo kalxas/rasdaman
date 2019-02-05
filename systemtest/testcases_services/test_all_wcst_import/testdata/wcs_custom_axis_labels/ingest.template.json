@@ -9,9 +9,9 @@
         "mock": false
     },
     "input": {
-        "coverage_id": "meris_lai_resolution_automatic",
+        "coverage_id": "test_custom_axis_labels",
         "paths": [
-            "*.nc"
+            "../meris_lai_netcdf_resolution_automatic/*.nc"
         ]
     },
     "recipe": {

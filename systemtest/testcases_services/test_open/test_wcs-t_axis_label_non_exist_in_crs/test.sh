@@ -49,7 +49,10 @@ curl -s "$WCST_REQUEST" 2>&1 > "$OUTPUT_FILE"
 cmp "$ORACLE_FILE" "$OUTPUT_FILE" >> /dev/null
 
 # check result
-check_result 0 $? "throw exception if axis label in GML does not exist in coverage CRS"
+check_result 0 $? "no exception if axis label in GML does not exist in coverage CRS"
+
+# Delete this test coverage
+delete_coverage wcst_axis_label_not_exist_in_crs
 
 rm -rf "$OUTPUT_FILE" "$GML_FILE"
 

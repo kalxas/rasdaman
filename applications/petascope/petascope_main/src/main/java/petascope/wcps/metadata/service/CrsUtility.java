@@ -37,24 +37,6 @@ import static petascope.util.CrsUtil.CrsUri;
  */
 public class CrsUtility {
 
-    /**
-     * Return the axisType (x, y, t) from an axis
-     *
-     * @param axis
-     * @return
-     */
-    public static String getAxisType(Axis axis) {
-        String axisName = axis.getLabel();
-        String crsUri = axis.getNativeCrsUri();
-
-        String axisType = "";
-
-        // e.g: return x for axis "Long", type y for axis "Lat", type t for "t/ansi/" based on crs (not by axisName)
-        CrsDefinition crsDefinition = getCrsDefinitionByCrsUri(crsUri);
-        axisType = CrsUtil.getAxisType(crsDefinition, axisName);
-
-        return axisType;
-    }
 
     /**
      * Return a CrsDefinition from CrsUri

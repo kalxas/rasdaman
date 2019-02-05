@@ -693,49 +693,29 @@ public class CrsUtil {
     }
     
     /**
-     * From the axis name and axis crs, return the axis type (X, Y, Time,...)
-     * @param axisName
-     * @param crsUri
-     * @return 
-     * @throws petascope.exceptions.PetascopeException 
-     * @throws petascope.exceptions.SecoreException 
+     * From coverage's CRS and axis's index in coverage, return axis type.
+     * e.g: CRS is AnsiDate&EPSG:4326 (3 Axes: time, Lat, Long)
+     * and index is 2 (axis Long) then axis type will be X (from EPSG:4326 CRS definition).
      */
-    public static String getAxisType(String crsUri, String axisName) throws PetascopeException, SecoreException {
-        CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);
-        String axisType = getAxisType(crsDefinition, axisName);
+    public static String getAxisTypeByIndex(String coverageCRS, int axisIndex) throws PetascopeException, SecoreException {
+        List<String> crss = CrsUri.decomposeUri(coverageCRS);
+        
+        String axisType = AxisTypes.UNKNOWN;
+        
+        int i = 0;
+        
+        for (String crs : crss) {
+            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crs);
+            
+            if (axisIndex < i + crsDefinition.getAxes().size()) {
+                int normalizedIndex = axisIndex - i;
+                axisType = crsDefinition.getAxes().get(normalizedIndex).getType();
+                break;
+            }
+            i = i + crsDefinition.getAxes().size();
+        }
         
         return axisType;
-    }
-
-    /**
-     * Discover which is the type of the specified (CRS) axis.
-     *
-     * @param crs An ordered list of single CRS URIs
-     * @param axisName The order of the axis (//CoordinateSystemAxis) in the
-     * (C)CRS [0 is first]
-     * @return The type of the specified axis
-     */
-    public static String getAxisType(CrsDefinition crs, String axisName) {
-
-        String type;
-
-        // init
-        if (X_ALIASES.contains(axisName)) {
-            type = AxisTypes.X_AXIS;
-        } else if (Y_ALIASES.contains(axisName)) {
-            type = AxisTypes.Y_AXIS;
-        } else if (ELEVATION_UP_ALIASES.contains(axisName)) {
-            type = AxisTypes.HEIGHT_AXIS;
-        } else if (ELEVATION_DOWN_ALIASES.contains(axisName)) {
-            type = AxisTypes.DEPTH_AXIS;
-        } else if (crs.getType().equals(XMLSymbols.LABEL_TEMPORALCRS)) {
-             // A TemporalCRS has just one axis:
-            type = AxisTypes.T_AXIS;
-        } else {
-            type = AxisTypes.OTHER;
-        }
-
-        return type;
     }
 
     /**
@@ -997,6 +977,27 @@ public class CrsUtil {
         
         // XY order
         return true;
+    }
+    
+    /**
+     * Check if axis is type X
+     */
+    public static boolean isXAxis(String axisType) {
+        return axisType.equals(AxisTypes.X_AXIS);
+    }
+    
+    /**
+     * Check if axis is type Y
+     */
+    public static boolean isYAxis(String axisType) {
+        return axisType.equals(AxisTypes.Y_AXIS);
+    }
+    
+    /**
+     * Check if axis is type X or Y
+     */
+    public static boolean isXYAxis(String axisType) {
+        return isXAxis(axisType) || isYAxis(axisType);
     }
 
     /**

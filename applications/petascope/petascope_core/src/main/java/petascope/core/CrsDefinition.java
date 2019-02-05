@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.AxisTypes.AxisDirection;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
@@ -46,24 +45,20 @@ public class CrsDefinition {
     // List of case-sensitive EPSG aliases of axis abbreviation of the same type (grouped in petascope.util.AxisTypes interface)
     // src: http://www.epsg-registry.org/
     public static final List<String> X_ALIASES = Arrays.asList(
-                "X",    // eg CS EPSG:6507 \
-                "E",    // eg CS EPSG:4400  |
-                "M",    // eg CS EPSG:1024  |- CARTESIAN CS
-                "E(X)", // eg CS EPSG:4496  |
-                "x",    // eg CS EPSG:4531  |
-                "e",    // eg CS EPSG:6504 /
-                "Long", // eg CS EPSG:6422 ELLISPOIDAL CS
-                "Lon",  // eg PS:1 (gdalsrsinfo)
+                "x",    // eg CS EPSG:6507 \
+                "e",    // eg CS EPSG:4400  |
+                "m",    // eg CS EPSG:1024  |- CARTESIAN CS
+                "e(x)", // eg CS EPSG:4496  |
+                "long", // eg CS EPSG:6422 ELLISPOIDAL CS
+                "lon",  // eg PS:1 (gdalsrsinfo)
                 "i"     // eg ImageCRS
             );
     public static final List<String> Y_ALIASES = Arrays.asList(
-                "Y",    // eg CS EPSG:6507 \
-                "N",    // eg CS EPSG:4400  |
-                "P",    // eg CS EPSG:1024  |- CARTESIAN CS
-                "E(Y)", // eg CS EPSG:4496  |
-                "y",    // eg CS EPSG:4531  |
-                "n",    // eg CS EPSG:6504 /
-                "Lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
+                "y",    // eg CS EPSG:6507 \
+                "n",    // eg CS EPSG:4400  |
+                "p",    // eg CS EPSG:1024  |- CARTESIAN CS
+                "e(y)", // eg CS EPSG:4496  |
+                "lat",  // eg CS EPSG:6422 ELLISPOIDAL CS
                 "j"     // eg ImageCRS
             );
     
@@ -71,9 +66,9 @@ public class CrsDefinition {
     public static final String LONGITUDE_AXIS_LABEL_EPGS_VERSION_0 = "Lon";
     
     // eg CS EPSG:6423 ELLIPSOIDAL-3D / ImageCRS, CS EPSG:1030
-    public static final List<String> ELEVATION_UP_ALIASES = Arrays.asList("h", "H");
+    public static final List<String> ELEVATION_UP_ALIASES = Arrays.asList("h");
     // eg CS EPSG:6495 |-VERTICAL
-    public static final List<String> ELEVATION_DOWN_ALIASES = Arrays.asList("D");
+    public static final List<String> ELEVATION_DOWN_ALIASES = Arrays.asList("d");
 
     /* Constants */
     // GML values
@@ -169,6 +164,9 @@ public class CrsDefinition {
      * @return
      */
     public static String getAxisTypeByName(String axisName) {
+        // e.g: Lat -> lat
+        axisName = axisName.toLowerCase();
+        
         for (String str : X_ALIASES) {
             if (str.equals(axisName)) {
                 return AxisTypes.X_AXIS;
@@ -183,25 +181,6 @@ public class CrsDefinition {
         return AxisTypes.UNKNOWN;
     }
 
-    /**
-     * Based on axisName to set correct axisDirection (mostly for geo-referenced axis), now.
-     * @param axisName
-     * @return
-     */
-    public static AxisDirection getAxisDirection(String axisName) {
-        AxisDirection direction;
-        String axisType = getAxisTypeByName(axisName);
-        // If axisType == "x" -> East, axisType == "y" -> North
-        if (axisType.equals(AxisTypes.X_AXIS)) {
-            direction = AxisDirection.EASTING;
-        } else if (axisType.equals(AxisTypes.Y_AXIS)) {
-            direction = AxisDirection.NORTHING;
-        } else {
-            direction = AxisDirection.UNKNOWN;
-        }
-        return direction;
-    }
-    
     // Inner class
     public class Axis implements Cloneable {
         private final String direction;
@@ -217,7 +196,7 @@ public class CrsDefinition {
             this.uom     = uom;
 
             // Projected/Geographic CRS can have multiple axes
-            type = CrsUtil.getAxisType(this.getCrsDefinition(), abbr);
+            type = getAxisTypeByLabel(this.getCrsDefinition(), abbr);
         }
 
         // Access
@@ -242,5 +221,38 @@ public class CrsDefinition {
         public CrsDefinition.Axis clone() {
             return new CrsDefinition.Axis(direction, abbreviation, uom);
         }
+        
+        /**
+        * Discover which is the type of the specified (CRS) axis.
+        *
+        * @param crs An ordered list of single CRS URIs
+        * @param axisName The order of the axis (//CoordinateSystemAxis) in the
+        * (C)CRS [0 is first]
+        * @return The type of the specified axis
+        */
+       private String getAxisTypeByLabel(CrsDefinition crs, String axisName) {
+
+           String type;
+           // e.g: Lat -> lat
+           axisName = axisName.toLowerCase();
+
+           // init
+           if (X_ALIASES.contains(axisName)) {
+               type = AxisTypes.X_AXIS;
+           } else if (Y_ALIASES.contains(axisName)) {
+               type = AxisTypes.Y_AXIS;
+           } else if (ELEVATION_UP_ALIASES.contains(axisName)) {
+               type = AxisTypes.HEIGHT_AXIS;
+           } else if (ELEVATION_DOWN_ALIASES.contains(axisName)) {
+               type = AxisTypes.DEPTH_AXIS;
+           } else if (crs.getType().equals(XMLSymbols.LABEL_TEMPORALCRS)) {
+                // A TemporalCRS has just one axis:
+               type = AxisTypes.T_AXIS;
+           } else {
+               type = AxisTypes.OTHER;
+           }
+
+           return type;
+       }
     }
 }

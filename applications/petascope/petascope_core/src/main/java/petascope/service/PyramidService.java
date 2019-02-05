@@ -40,6 +40,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.BigDecimalUtil;
+import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.ras.RasUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
@@ -203,20 +204,25 @@ public class PyramidService {
         BigDecimal lowestDownscaledLevelX = result;
         BigDecimal lowestDownscaledLevelY = result;
         
+        int i = 0;
+        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+        
         for (GeoAxis geoAxis : geoAxes) {
             for (int j = numberOfDownscaledCollections - 1; j >= 0; j--) {
                 BigDecimal level = rasdamanDownscaledCollections.get(j).getLevel();
                 BigDecimal numberOfGridPixels = BigDecimal.ONE;
                 BigDecimal axisResolutionTmp = geoAxis.getResolution().multiply(level);
                 
-                if (geoAxis.isXAxis()) {
+                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                
+                if (CrsUtil.isXAxis(axisType)) {
                     numberOfGridPixels = BigDecimalUtil.divide(geoSubsetX.snd.subtract(geoSubsetX.fst), axisResolutionTmp).abs();
                     if (numberOfGridPixels.compareTo(new BigDecimal(width)) <= 0) {
                         lowestDownscaledLevelX = level;                        
                     } else {
                         break;
                     }
-                } else if (geoAxis.isXYAxis()) {
+                } else if (CrsUtil.isYAxis(axisType)) {
                     numberOfGridPixels = BigDecimalUtil.divide(geoSubsetY.snd.subtract(geoSubsetY.fst), axisResolutionTmp).abs();
                     if (numberOfGridPixels.compareTo(new BigDecimal(height)) <= 0) {
                         lowestDownscaledLevelY = level;                         
@@ -225,6 +231,8 @@ public class PyramidService {
                     }
                 }
             }
+            
+            i++;
         }       
         
         // Which downscaled level be chosen as X and Y can return different levels from geoXY subsets

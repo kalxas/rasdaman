@@ -730,7 +730,11 @@ public class UpdateCoverageHandler {
             // Only supports GeneralGridCoverage now
             // NOTE: the order of CRS could be different from the order of grid CRS (e.g: Lat, Long but in rasdaman it is stored as Long, Lat as row-major order)
             int correspondingAxisOrder = ((GeneralGridCoverage) currentCoverage).getIndexAxisByName(inputAxisLabel).getAxisOrder();
-            boolean isXYAxis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(inputAxisLabel).isXYAxis();
+            String coverageCRS = currentCoverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+            int index = ((GeneralGridCoverage) currentCoverage).getGeoAxisOrderByName(inputAxisLabel);
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, index);
+            
+            boolean isXYAxis = CrsUtil.isXYAxis(axisType);
             result.put(correspondingAxisOrder, new Pair<>(isXYAxis, resultingDomain));
         }
 

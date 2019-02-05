@@ -140,7 +140,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         else:
             # Irregular axis (coefficients must be number, not datetime string)
             if user_axis.type == UserAxisType.DATE:
-                if crs_axis.is_uom_day():
+                if crs_axis.is_time_day_axis():
                     coefficients = self._translate_day_date_direct_position_to_coefficients(user_axis.interval.low,
                                                                                             user_axis.directPositions)
                 else:
@@ -152,7 +152,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, user_axis.interval.low, coefficients,
                                      crs_axis)
 
-        if not crs_axis.is_easting() and not crs_axis.is_northing():
+        if not crs_axis.is_x_axis() and not crs_axis.is_y_axis():
             # GDAL model is 2D so on any axis except x/y we expect to have only one value
             grid_low = 0
             grid_high = None
@@ -184,7 +184,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
             self._translate_decimal_to_datetime(user_axis, geo_axis)
         # NOTE: current, gdal recipe supports only has 2 axes which are "bounded" (i.e: they exist as 2D axes in file)
         # and 1 or more another axes gotten (i.e: from fileName) which are not "bounded" to create 3D+ coverage.
-        data_bound = crs_axis.is_northing() or crs_axis.is_easting()
+        data_bound = crs_axis.is_y_axis() or crs_axis.is_x_axis()
 
         return AxisSubset(CoverageAxis(geo_axis, grid_axis, data_bound),
                           Interval(user_axis.interval.low, user_axis.interval.high))

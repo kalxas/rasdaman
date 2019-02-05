@@ -36,7 +36,6 @@ import petascope.wcps.exception.processing.CoverageAxisNotFoundExeption;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -46,7 +45,6 @@ import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.core.AxisTypes;
-import petascope.core.AxisTypes.AxisDirection;
 import petascope.core.Pair;
 import petascope.core.gml.metadata.model.Envelope;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
@@ -466,12 +464,11 @@ public class WcpsCoverageMetadataGeneralService {
     public Axis createAxisByGridBounds(Integer index, NumericSubset gridBounds) {
         String axisLabel = Axis.createAxisLabelByIndex(index);
         BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
-        AxisDirection axisDirection = AxisTypes.AxisDirection.UNKNOWN;
         String axisType = AxisTypes.X_AXIS;
         String axisUoM = CrsUtil.INDEX_UOM;
         String crsURI = CrsUtil.OPENGIS_INDEX_ND_PATTERN.replace(CrsUtil.INDEX_CRS_PATTERN_NUMBER, String.valueOf(index + 1));
         CrsDefinition crsDefinition = null;
-        Axis axis = new RegularAxis(axisLabel, gridBounds, gridBounds, gridBounds, axisDirection, crsURI, 
+        Axis axis = new RegularAxis(axisLabel, gridBounds, gridBounds, gridBounds, crsURI, 
                                     crsDefinition, axisType, axisUoM, index, gridBounds.getLowerLimit(), scalarResolution);
         return axis;
     }
@@ -556,10 +553,6 @@ public class WcpsCoverageMetadataGeneralService {
             // the crs of axis
             String crsUri = numericSubset.getCrs();
 
-            //the axis direction should be deduced from the crs, when we'll support geo referencing in the coverage constructor
-            //probably with a service. crsService.getAxisDirection(crs, axisLabel)
-            AxisDirection axisDirection = CrsDefinition.getAxisDirection(label);
-
             // the created coverage now is only RectifiedGrid then it will use GridSpacing UoM
             String axisUoM = CrsUtil.INDEX_UOM;
 
@@ -575,7 +568,7 @@ public class WcpsCoverageMetadataGeneralService {
             // Scalar resolution is set to 1
             BigDecimal scalarResolution = CrsUtil.INDEX_SCALAR_RESOLUTION;
 
-            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, axisDirection, crsUri,
+            Axis axis = new RegularAxis(label, geoBounds, originalGridBounds, gridBounds, crsUri,
                     crsDefinition, axisType, axisUoM, axesCounter, origin, scalarResolution);
             axesCounter++;
             axes.add(axis);

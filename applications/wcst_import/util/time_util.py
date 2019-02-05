@@ -28,7 +28,6 @@ from __builtin__ import staticmethod
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
 from master.error.runtime_exception import RuntimeException
-from util.crs_util import CRSUtil
 from util.string_util import stringify
 
 
@@ -88,6 +87,8 @@ class DateTimeUtil:
         :param str dt_format: the datetime format, if none is given we'll try to guess
         """
         self.init_cache()
+        from util.crs_util import CRSUtil
+
         try:
             if dt_format is None:
                 self.datetime = arrow.get(datetime)

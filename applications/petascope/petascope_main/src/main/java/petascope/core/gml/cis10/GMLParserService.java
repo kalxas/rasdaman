@@ -290,23 +290,26 @@ public class GMLParserService {
      * @throws WCSException
      * @throws petascope.exceptions.SecoreException
      */
-    public static Pair<String, String> parseCrsUom(String axisLabel, Element envelopeElement)
+    public static Pair<String, String> parseCrsUom(int crsAxisIndex, String axisLabel, Element envelopeElement)
             throws WCSTMissingBoundedBy, WCSTMissingEnvelope, PetascopeException, SecoreException {
 
         String srsNames = envelopeElement.getAttributeValue(XMLSymbols.ATT_SRS_NAME);
         //the srs uri may be compund, so split it
         List<String> srsUris = CrsUtil.CrsUri.decomposeUri(srsNames);
+        
+        int i = 0;
+        
         for (String srsUri : srsUris) {
             CrsDefinition crsDef = CrsUtil.getCrsDefinition(srsUri);
             for (CrsDefinition.Axis crsDefinitionAxis : crsDef.getAxes()) {
-
                 // A CRS can contains multiple axes (e.g: EPSG:4326 has Lat, Long axes)
-                if (CrsUtil.axisLabelsMatch(axisLabel, crsDefinitionAxis.getAbbreviation())) {
+                if (crsAxisIndex == i) {
                     // e.g: EPSG:4326 -> metre
                     Pair<String, String> crsUom = new Pair<>(srsUri, crsDefinitionAxis.getUoM());
 
                     return crsUom;
                 }
+                i++;
             }
         }
 
@@ -408,6 +411,8 @@ public class GMLParserService {
         Map<Integer, List<BigDecimal>> coefficientMap = parseAxesCoefficients(gridTypeElement);
 
         // Iterate the map of geoAxes and their lower, upper bounds
+        int i = 0;
+        
         for (Map.Entry<String, Pair<String, String>> entry : lowerUpperBoundsMap.entrySet()) {
             String axisLabel = entry.getKey();
             int axisOrder = -1;
@@ -424,7 +429,7 @@ public class GMLParserService {
 
             BigDecimal offsetVector = offsetVectors.get(axisOrder);
             // Each axis should contain a CRS URI and its uom
-            Pair<String, String> crsUom = parseCrsUom(axisLabel, envelopElement);
+            Pair<String, String> crsUom = parseCrsUom(i, axisLabel, envelopElement);
             List<BigDecimal> coefficients = coefficientMap.get(axisOrder);
             if (coefficients == null) {
                 // No coefficients in GML string -> Regular Axis
@@ -451,6 +456,8 @@ public class GMLParserService {
 
                 geoAxes.add(irregularAxis);
             }
+            
+            i++;
         }
 
         return geoAxes;

@@ -62,18 +62,26 @@ class CoverageUtil:
                                    "Check that the WCS service is up and running on url: {}. "
                                    "Detail error: {}".format(self.wcs_service, str(ex)))
 
+    def __describe_coverage(self):
+        """
+        Send a DescribeCoverage request to petascope
+        """
+        try:
+            service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
+                       Session.get_WCS_VERSION_SUPPORTED() + "&coverageId=" + self.coverage_id
+            response = validate_and_read_url(service_call)
+
+            return response
+        except Exception as ex:
+            raise RuntimeException("Could not retrieve the axis labels. "
+                                   "Check that the WCS service is up and running on url: {}. "
+                                   "Detail error: {}".format(self.wcs_service, str(ex)))
+
     def get_axis_labels(self):
         """
         Returns the axis labels as a list
         :rtype list[str]
         """
-        try:
-            service_call = self.wcs_service + "?service=WCS&request=DescribeCoverage&version=" + \
-                           Session.get_WCS_VERSION_SUPPORTED() + "&coverageId=" + self.coverage_id
-            response = validate_and_read_url(service_call)
+        response = self.__describe_coverage()
+        return response.split("axisLabels=\"")[1].split('"')[0].split(" ")
 
-            return response.split("axisLabels=\"")[1].split('"')[0].split(" ")
-        except Exception as ex:
-            raise RuntimeException("Could not retrieve the axis labels. "
-                                   "Check that the WCS service is up and running on url: {}. "
-                                   "Detail error: {}".format(self.wcs_service, str(ex)))

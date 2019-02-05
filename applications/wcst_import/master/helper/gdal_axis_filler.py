@@ -65,14 +65,14 @@ class GdalAxisFiller:
 
     def _fill_domain_axes(self):
         for axis in self.axes:
-            if axis.is_easting():
+            if axis.is_x_axis():
                 east_axis = RegularAxis(axis.label, axis.uom, self.gdal_dataset.get_extents_x()[0],
                                         self.gdal_dataset.get_extents_x()[1],
                                         self.gdal_dataset.get_origin_x(), axis)
                 self.subsets.append(
                     AxisSubset(CoverageAxis(east_axis, None, True), Interval(self.gdal_dataset.get_extents_x()[0],
                                                                              self.gdal_dataset.get_extents_x()[1])))
-            elif axis.is_northing():
+            elif axis.is_y_axis():
                 north_axis = RegularAxis(axis.label, axis.uom, self.gdal_dataset.get_extents_y()[0],
                                          self.gdal_dataset.get_extents_y()[1],
                                          self.gdal_dataset.get_origin_y(), axis)
@@ -97,10 +97,10 @@ class GdalAxisFiller:
         grid_axis_y = GridAxis(y_order, "", self.gdal_dataset.get_resolution_y(), 0,
                                self.gdal_dataset.get_raster_y_size() - 1)
         for i in range(0, len(self.subsets)):
-            if self.subsets[i].coverage_axis.axis.crs_axis.is_easting():
+            if self.subsets[i].coverage_axis.axis.crs_axis.is_x_axis():
                 grid_axis_x.label = self.subsets[i].coverage_axis.axis.label
                 self.subsets[i].coverage_axis.grid_axis = grid_axis_x
-            elif self.subsets[i].coverage_axis.axis.crs_axis.is_northing():
+            elif self.subsets[i].coverage_axis.axis.crs_axis.is_y_axis():
                 grid_axis_y.label = self.subsets[i].coverage_axis.axis.label
                 self.subsets[i].coverage_axis.grid_axis = grid_axis_y
             else:

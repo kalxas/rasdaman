@@ -254,15 +254,27 @@ class Recipe(BaseRecipe):
         crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id, axes_configurations)
 
         default_order = 0
-        for crs_axis in crs_axes:
-            if crs_axis.label not in axes_configurations:
+        for index, crs_axis in enumerate(crs_axes):
+            exist = False
+
+            for axis_label, axis_configuration_dicts in axes_configurations.items():
+                # If axis label configured in ingredient file does not exist in CRS definition,
+                # then "crsOrder" configuration must match with the crs axis order.
+                if crs_axis.label == axis_label \
+                        or ("crsOrder" in axis_configuration_dicts
+                            and int(axis_configuration_dicts["crsOrder"]) == index):
+                    crs_axes[index].label = axis_label
+                    exist = True
+                    break
+
+            if not exist:
                 raise RecipeValidationException(
                     "Could not find a definition for axis '" + crs_axis.label + "' in the axes parameter.")
             axis = axes_configurations[crs_axis.label]
             max = axis["max"] if "max" in axis else None
             if "type" in axis:
                 type = axis["type"]
-            elif crs_axis.is_date():
+            elif crs_axis.is_date_axis():
                 type = UserAxisType.DATE
             else:
                 type = UserAxisType.NUMBER
@@ -535,7 +547,8 @@ class Recipe(BaseRecipe):
             crs_parts = crs.split("@")
             for i in range(0, len(crs_parts)):
                 crs_parts[i] = crs_resolver + crs_parts[i]
-            return CRSUtil.get_compound_crs(crs_parts)
+            crs = CRSUtil.get_compound_crs(crs_parts)
+
         return crs
 
     def _get_coverage(self):

@@ -301,12 +301,15 @@ public class CoverageRepostioryService {
         boolean foundX = false, foundY = false;
         String xMin = null, yMin = null, xMax = null, yMax = null;
         String xyAxesCRS = null;
+        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+        
+        int i = 0;
         for (AxisExtent axisExtent : axisExtents) {
             String axisExtentCrs = axisExtent.getSrsName();
             // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
             axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
             // x, y, t,...
-            String axisType = CrsUtil.getAxisType(axisExtentCrs, axisExtent.getAxisLabel());
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
             if (axisType.equals(AxisTypes.X_AXIS)) {
                 foundX = true;
                 xMin = axisExtent.getLowerBound();
@@ -320,6 +323,8 @@ public class CoverageRepostioryService {
             if (foundX && foundY) {
                 break;
             }
+            
+            i++;
         }
 
         log.debug("Coverage Id '" + coverageId + "' to transform extents.");

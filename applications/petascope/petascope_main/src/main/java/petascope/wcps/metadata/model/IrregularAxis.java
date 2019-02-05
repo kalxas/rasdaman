@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
-import petascope.core.AxisTypes.AxisDirection;
 import static petascope.core.AxisTypes.T_AXIS;
 import petascope.util.ListUtil;
 import petascope.core.Pair;
@@ -44,10 +43,10 @@ public class IrregularAxis extends Axis {
     private List<BigDecimal> directPositions;
 
     public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
-            AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
+            String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM,
             int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions) {
-        super(label, geoBounds, originalGridBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
 
         this.directPositions = directPositions;
 
@@ -244,7 +243,7 @@ public class IrregularAxis extends Axis {
 
     @Override
     public IrregularAxis clone() {
-        return new IrregularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(), getDirection(),
+        return new IrregularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
                 getRasdamanOrder(), getOriginalOrigin(), getResolution(), getDirectPositions());
     }

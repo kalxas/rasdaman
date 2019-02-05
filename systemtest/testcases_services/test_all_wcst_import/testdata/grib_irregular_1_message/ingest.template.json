@@ -35,27 +35,31 @@
             }
           ],
           "axes": {           
-            "Lat": {
+            "Laaaaaaaaaaaat": {
               "min": "${grib:latitudeOfLastGridPointInDegrees} - 0.625",
               "max": "${grib:latitudeOfFirstGridPointInDegrees} + 0.625",
               "resolution": "-1.25",
+              "crsOrder": 2,
               "gridOrder": 3
             },
-            "Long": {
+            "Looooooooooong": {
               "min": "${grib:longitudeOfFirstGridPointInDegrees} - 0.625",
               "max": "${grib:longitudeOfLastGridPointInDegrees} + 0.625",
               "resolution": "1.25",
+              "crsOrder": 3,
               "gridOrder": 2
             }, "ansi": {
 	      "min": "datetime(regex_extract('${file:name}', 'output_(.*)_(.*)', 2), 'YYYYMMDD')",
 	      "max": "datetime(regex_extract('${file:name}', 'output_(.*)_(.*)', 2), 'YYYYMMDD')",
               "resolution": 1,
+              "crsOrder": 1,
               "gridOrder": 1,
               "irregular": true
             }, "isobaric": {
               "min": "${grib:level} - 0.5",
               "max": "${grib:level} + 0.5",
               "resolution": "1",
+              "crsOrder": 0,
               "gridOrder": 0
             }
           }

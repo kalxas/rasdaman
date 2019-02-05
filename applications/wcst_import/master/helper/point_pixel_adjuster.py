@@ -81,7 +81,7 @@ class PointPixelAdjuster:
         # max = max + 0.5 * resolution
         if isinstance(user_axis, RegularUserAxis):
             # if axis is time axis
-            if crs_axis.is_uom_day():
+            if crs_axis.is_time_day_axis():
                 user_axis.interval.low = decimal.Decimal(str(user_axis.interval.low)) \
                                        - decimal.Decimal(0.5) * decimal.Decimal(str(abs(user_axis.resolution))) * DateTimeUtil.DAY_IN_SECONDS
                 if user_axis.interval.high:
@@ -133,7 +133,7 @@ class PointPixelAdjuster:
 
         if isinstance(user_axis, RegularUserAxis):
             # ansidate, need to calculate with day in seconds
-            if crs_axis.is_uom_day:
+            if crs_axis.is_time_day_axis:
                 if user_axis.resolution > 0 or user_axis.interval.high is None:
                     # axis goes from low to high, so origin is lowest, with half a pixel shift
                     return decimal.Decimal(str(user_axis.interval.low))\
@@ -191,7 +191,7 @@ class PointPixelAdjuster:
             else:
                 time_difference = user_axis.interval.high - user_axis.interval.low
                 # AS time always point to future (min --> max)
-                if crs_axis.is_uom_day():
+                if crs_axis.is_time_day_axis():
                     # days ((seconds / 86400) / resolution)
                     grid_points = abs((decimal.Decimal(str(time_difference)) / decimal.Decimal(DateTimeUtil.DAY_IN_SECONDS))
                                      / decimal.Decimal(str(user_axis.resolution)))

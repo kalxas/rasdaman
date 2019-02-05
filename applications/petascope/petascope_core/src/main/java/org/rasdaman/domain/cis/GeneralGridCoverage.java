@@ -156,24 +156,28 @@ public class GeneralGridCoverage extends Coverage implements Serializable {
     public Pair<GeoAxis, GeoAxis> getXYGeoAxes() throws PetascopeException, SecoreException {
         GeoAxis geoAxisX = null, geoAxisY = null;
         
+        String coverageCRS = this.getEnvelope().getEnvelopeByAxis().getSrsName();
         List<GeoAxis> geoAxes = ((GeneralGridDomainSet) this.getDomainSet()).getGeneralGrid().getGeoAxes();
+        
+        int i = 0;
         for (GeoAxis geoAxis : geoAxes) {
-            String srs = geoAxis.getSrsName();
-            CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(srs);
             // x, y, t,...
-            String axisType = CrsUtil.getAxisType(crsDefinition, geoAxis.getAxisLabel());
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
 
             if (axisType.equals(AxisTypes.X_AXIS)) {
                 geoAxisX = geoAxis;
             } else if (axisType.equals(AxisTypes.Y_AXIS)) {
                 geoAxisY = geoAxis;
             }
+            
+            i++;
         }
         
         // Coverage has XY geo axes
         if (geoAxisX != null && geoAxisY != null) {
             return new Pair<>(geoAxisX, geoAxisY);
         }
+        
         return null;        
     }
 }

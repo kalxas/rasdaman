@@ -200,7 +200,7 @@ class Recipe(BaseRecipe):
         """
         for i in range(0, len(subsets)):
             if subsets[i].coverage_axis.axis.crs_axis is not None and subsets[
-                i].coverage_axis.axis.crs_axis.is_future():
+                i].coverage_axis.axis.crs_axis.is_time_axis():
                 subsets[i].coverage_axis.axis = IrregularAxis(subsets[i].coverage_axis.axis.label,
                                                               subsets[i].coverage_axis.axis.uomLabel,
                                                               tpair.time.to_string(),

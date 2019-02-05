@@ -33,8 +33,6 @@ import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.core.AxisTypes;
-import petascope.core.AxisTypes.AxisDirection;
 import petascope.core.Pair;
 import petascope.service.PyramidService;
 import petascope.util.BigDecimalUtil;
@@ -85,8 +83,9 @@ public class WcpsCoverageMetadataTranslator {
         List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
 
         // wcpsCoverageMetadata axis
-        List<Axis> axes = buildAxes(geoAxes, indexAxes);
-        List<Axis> originalAxes = buildAxes(geoAxes, indexAxes);
+        String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+        List<Axis> axes = buildAxes(coverageCRS, geoAxes, indexAxes);
+        List<Axis> originalAxes = buildAxes(coverageCRS, geoAxes, indexAxes);
         List<RangeField> rangeFields = buildRangeFields(coverage.getRangeType().getDataRecord().getFields());
         // parse extra metadata of coverage to map
         String extraMetadata = coverage.getMetadata();
@@ -121,7 +120,7 @@ public class WcpsCoverageMetadataTranslator {
     public WcpsCoverageMetadata translate(String coverageId) throws PetascopeException, SecoreException {
         // NOTE: cannot cache a translated WCPS coverage metadata as a WCPS request can slice, trim to the coverage metadata which is stored in cache
         // and the next request will not have the full metadata as the previous one which is big error.
-        WcpsCoverageMetadata  wcpsCoverageMetadata = this.create(coverageId);
+        WcpsCoverageMetadata wcpsCoverageMetadata = this.create(coverageId);
 
         return wcpsCoverageMetadata;
     }
@@ -180,7 +179,7 @@ public class WcpsCoverageMetadataTranslator {
                     this.updateAxisBounds(axis, geoSubsetY, downscaledLevel);
                 }
                     
-                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), axis.getOriginalGridBounds(), axis.getGridBounds(), axis.getDirection(), 
+                axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), axis.getOriginalGridBounds(), axis.getGridBounds(),
                                        axis.getNativeCrsUri(), axis.getCrsDefinition(), axis.getAxisType(), axis.getAxisUoM(), 
                                        axis.getRasdamanOrder(), axis.getOrigin(), axis.getResolution());
                 
@@ -229,8 +228,9 @@ public class WcpsCoverageMetadataTranslator {
      * @param gridDomains
      * @return
      */
-    private List<Axis> buildAxes(List<GeoAxis> geoAxes, List<IndexAxis> indexAxes) throws PetascopeException, SecoreException {
+    private List<Axis> buildAxes(String coverageCRS, List<GeoAxis> geoAxes, List<IndexAxis> indexAxes) throws PetascopeException, SecoreException {
         List<Axis> result = new ArrayList();
+        
         for (int i = 0; i < geoAxes.size(); i++) {
             GeoAxis geoAxis = geoAxes.get(i);
             String axisLabel = geoAxis.getAxisLabel();
@@ -255,22 +255,7 @@ public class WcpsCoverageMetadataTranslator {
 
             CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(crsUri);
             // x, y, t,...
-            String axisType = CrsUtil.getAxisType(crsDefinition, axisLabel);
-
-            AxisDirection axisDirection = null;
-            if (axisType.equals(AxisTypes.X_AXIS)) {
-                axisDirection = AxisDirection.EASTING;
-            } else if (axisType.equals(AxisTypes.Y_AXIS)) {
-                axisDirection = AxisDirection.NORTHING;
-            } else if (axisType.equals(AxisTypes.HEIGHT_AXIS)) {
-                axisDirection = AxisDirection.UP;
-            } else if (axisType.equals(AxisTypes.DEPTH_AXIS)) {
-                axisDirection = AxisDirection.DOWN;
-            } else if (axisType.equals(AxisTypes.T_AXIS)) {
-                axisDirection = AxisDirection.FUTURE;
-            } else {
-                axisDirection = AxisDirection.UNKNOWN;
-            }
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
 
             // Get the metadata of CRS (needed when using TimeCrs)
             String axisUoM = geoAxis.getUomLabel();
@@ -285,15 +270,15 @@ public class WcpsCoverageMetadataTranslator {
             if (geoAxis.isIrregular()) {
                 // All stored coefficients for irregular axis in coverage
                 List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsAsNumbers();
-                result.add(new IrregularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds, axisDirection,
+                result.add(new IrregularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
                         originNumber, scalarResolution, directPositions));
             } else {
 
-                result.add(new RegularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds, axisDirection,
+                result.add(new RegularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
                         originNumber, scalarResolution));
-            }
+            }            
         }
         return result;
     }

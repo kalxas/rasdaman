@@ -252,7 +252,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
 
             # axis is datetime
             if user_axis.type == UserAxisType.DATE:
-                if crs_axis.is_uom_day():
+                if crs_axis.is_time_day_axis():
                     coefficients = self._translate_day_date_direct_position_to_coefficients(user_axis.interval.low,
                                                                                             user_axis.directPositions)
                 else:

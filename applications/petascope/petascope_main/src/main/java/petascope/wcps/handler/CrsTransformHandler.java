@@ -125,7 +125,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         
         BigDecimal geoResolutionX = new BigDecimal(projectedGeoTransform.getGeoXResolution());
         
-        Axis axisX = new RegularAxis(inputAxisX.getLabel(), geoBoundsX, gridBoundsX, gridBoundsX, inputAxisX.getDirection(), 
+        Axis axisX = new RegularAxis(inputAxisX.getLabel(), geoBoundsX, gridBoundsX, gridBoundsX,
                                     inputAxisX.getNativeCrsUri(), inputAxisX.getCrsDefinition(), inputAxisX.getAxisType(),
                                     inputAxisX.getAxisUoM(), inputAxisX.getRasdamanOrder(), geoLowerBoundX, geoResolutionX);
         
@@ -143,7 +143,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         
         BigDecimal geoResolutionY = new BigDecimal(projectedGeoTransform.getGeoYResolution());
         
-        Axis axisY = new RegularAxis(inputAxisY.getLabel(), geoBoundsY, gridBoundsY, gridBoundsY, inputAxisY.getDirection(), 
+        Axis axisY = new RegularAxis(inputAxisY.getLabel(), geoBoundsY, gridBoundsY, gridBoundsY, 
                                     inputAxisY.getNativeCrsUri(), inputAxisY.getCrsDefinition(), inputAxisY.getAxisType(),
                                     inputAxisY.getAxisUoM(), inputAxisY.getRasdamanOrder(), geoLowerBoundY, geoResolutionY);
         
@@ -212,7 +212,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         NumericSubset gridBoundX = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridWidth() - 1));
         
         Axis axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
-                AxisTypes.AxisDirection.EASTING, outputCRS, crsDefinition, 
+                outputCRS, crsDefinition, 
                 firstCRSAxis.getType(), firstCRSAxis.getUoM(), xyAxes.get(0).getRasdamanOrder(), 
                 geoLowerBoundX, new BigDecimal(targetGeoTransform.getGeoXResolution()));
         
@@ -224,7 +224,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         NumericSubset gridBoundY = new NumericTrimming(BigDecimal.ZERO, new BigDecimal(targetGeoTransform.getGridHeight() - 1));
 
         Axis axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
-                AxisTypes.AxisDirection.NORTHING, outputCRS, crsDefinition, 
+                outputCRS, crsDefinition, 
                 secondCRSAxis.getType(), secondCRSAxis.getUoM(), xyAxes.get(1).getRasdamanOrder(), 
                 geoLowerBoundY, new BigDecimal(targetGeoTransform.getGeoYResolution()));
         
@@ -261,9 +261,12 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         // 3. it can only subset 2D and input coverage with geo-referenced axis (native CRS)
         // i.e: don't support to project between a geo-referenced axis (e.g: Lat:"4326")
         // and time/pressure axis (e.g:t:"ansidate")
-        if (CrsDefinition.X_ALIASES.indexOf(axisNameArray[0]) == -1 && CrsDefinition.Y_ALIASES.indexOf(axisNameArray[0]) == -1) {
+        String axisType1 = CrsDefinition.getAxisTypeByName(axisNameArray[0]);
+        String axisType2 = CrsDefinition.getAxisTypeByName(axisNameArray[1]);
+        
+        if (!(axisType1.equals(AxisTypes.X_AXIS) || axisType1.equals(AxisTypes.Y_AXIS))) {
             throw new NotGeoReferenceAxisNameInCrsTransformException(axisNameArray[0]);
-        } else if (CrsDefinition.Y_ALIASES.indexOf(axisNameArray[1]) == -1 && CrsDefinition.X_ALIASES.indexOf(axisNameArray[1]) == -1) {
+        } else if (!(axisType2.equals(AxisTypes.X_AXIS) || axisType2.equals(AxisTypes.Y_AXIS))) {
             throw new NotGeoReferenceAxisNameInCrsTransformException(axisNameArray[1]);
         }
 

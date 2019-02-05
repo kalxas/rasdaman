@@ -251,7 +251,7 @@ class Importer:
                 # Time axis with type = str (e.g: "1970-01-01T02:03:06Z")
                 time_seconds = 1
                 # AnsiDate (need to change from date to seconds)
-                if axis_subset.coverage_axis.axis.crs_axis.is_uom_day():
+                if axis_subset.coverage_axis.axis.crs_axis.is_time_day_axis():
                     time_seconds = DateTimeUtil.DAY_IN_SECONDS
                 low = decimal.Decimal(str(arrow.get(low).float_timestamp)) + decimal.Decimal(str(axis_subset.coverage_axis.grid_axis.resolution * time_seconds)) / 2
                 low = DateTimeUtil.get_datetime_iso(low)

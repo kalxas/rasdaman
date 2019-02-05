@@ -37,6 +37,7 @@ import petascope.core.response.Response;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.service.PyramidService;
+import petascope.util.CrsUtil;
 import petascope.wcst.parsers.InsertScaleLevelRequest;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
@@ -80,16 +81,22 @@ public class InsertScaleLevelHandler {
             TreeMap<Integer, Pair<Boolean, String>> gridDomainsPairsMap = new TreeMap<>();
             
             List<GeoAxis> geoAxes = ((GeneralGridCoverage) coverage).getGeoAxes();
+            String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
+            
+            int i = 0;
             for (GeoAxis geoAxis : geoAxes) {
                 IndexAxis indexAxis = ((GeneralGridCoverage) coverage).getIndexAxisByName(geoAxis.getAxisLabel());
                 String gridDomain = indexAxis.getLowerBound() + RASQL_BOUND_SEPARATION + indexAxis.getUpperBound();
                 int gridAxisOrder = indexAxis.getAxisOrder();
                 
-                if (geoAxis.isXYAxis()) {
+                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                if (CrsUtil.isXYAxis(axisType)) {
                     gridDomainsPairsMap.put(gridAxisOrder, new Pair(true, gridDomain));
                 } else {
                     gridDomainsPairsMap.put(gridAxisOrder, new Pair(false, gridDomain));
                 }
+                
+                i++;
             }
             
             this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);

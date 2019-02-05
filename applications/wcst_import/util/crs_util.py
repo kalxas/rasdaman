@@ -21,6 +21,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import re
+from collections import OrderedDict
 
 from lxml import etree
 import urlparse
@@ -30,61 +32,104 @@ from master.error.runtime_exception import RuntimeException
 from url_util import validate_and_read_url
 from util.coverage_util import CoverageUtil
 from util.log import log
+from time_util import DateTimeUtil
 
 
 class CRSAxis:
-    def __init__(self, uri, label, axisDirection, uom):
+
+    AXIS_TYPE_X = "X"
+    AXIS_TYPE_Y = "Y"
+
+    AXIS_TYPE_ELEVATION_UP = "H"
+    AXIS_TYPE_ELEVATION_DOWN = "D"
+
+    AXIS_TYPE_TIME_DAY = "d"
+    AXIS_TYPE_TIME_SECOND = "s"
+
+    AXIS_TYPE_UNKNOWN = "UNKNOWN"
+
+    # These axis abbreviations are collected from EPSG database, http://localhost:8080/def/cs/EPSG
+    X_AXES = ["X", "E", "M", "E(X)", "x", "e", "Long", "Lon", "i"]
+    Y_AXES = ["Y", "N", "P", "E(Y)", "y", "n", "Lat", "j"]
+
+    ELEVATION_UP_AXES = ["h", "H"]
+    ELEVATION_DOWN_AXES = ["D"]
+
+    def __init__(self, uri, label, axis_type, axis_uom):
         """
         Class to represent a crs axis with a set of utility methods to better determine its type
         :param str uri: the uri of the axis
         :param str label: the label of the axis
-        :param str axisDirection: the direction of the axis
-        :param str uom: the unit of measure
+        :param str axis_type: the type of the axis (x, y, time, elevation,...)
+        :param str axis_uom: the uom of axis
         """
         self.uri = uri
         self.label = label
-        self.axisDirection = axisDirection
-        self.uom = uom
-        pass
+        self.type = axis_type
+        self.uom = axis_uom
 
-    def is_easting(self):
-        if "east" in self.axisDirection.lower() or "west" in self.axisDirection.lower():
-            return True
-        return False
+    def is_x_axis(self):
+        return self.type == self.AXIS_TYPE_X
 
-    def is_northing(self):
-        if "north" in self.axisDirection.lower() or "south" in self.axisDirection.lower():
-            return True
-        return False
+    def is_y_axis(self):
+        return self.type == self.AXIS_TYPE_Y
 
-    def is_future(self):
-        if "future" in self.axisDirection.lower() or "past" in self.axisDirection.lower():
-            return True
-        return False
+    def is_time_axis(self):
+        return self.type == self.AXIS_TYPE_TIME_DAY \
+               or self.type == self.AXIS_TYPE_TIME_SECOND
 
-    def is_height(self):
-        if "up" in self.axisDirection.lower() or "down" in self.axisDirection.lower():
-            return True
-        return False
+    def is_elevation_up_axis(self):
+        return self.type == self.AXIS_TYPE_ELEVATION_UP
 
-    def is_uom_day(self):
-        if 'uom/UCUM/0/d' in self.uom:
-            return True
-        return False
+    def is_elevation_down_axis(self):
+        return self.type == self.AXIS_TYPE_ELEVATION_DOWN
 
-    def is_uom_second(self):
-        if 'uom/UCUM/0/s' in self.uom:
-            return True
-        return False
+    def is_time_day_axis(self):
+        return self.type == self.AXIS_TYPE_TIME_DAY
 
-    def is_date(self):
-        if self.is_uom_day() or self.is_uom_second():
-            return True
-        return False
+    def is_time_second_axis(self):
+        return self.type == self.AXIS_TYPE_TIME_SECOND
+
+    def is_date_axis(self):
+        return self.is_time_day_axis() or self.is_time_second_axis()
+
+    @staticmethod
+    def get_axis_type_by_name(axis_label):
+        """
+        Return the type of axis by name
+        :param str axis_label: name of axis
+        :return: str type of axis
+        """
+        if axis_label in CRSAxis.X_AXES:
+            return CRSAxis.AXIS_TYPE_X
+        elif axis_label in CRSAxis.Y_AXES:
+            return CRSAxis.AXIS_TYPE_Y
+
+        elif axis_label in CRSAxis.ELEVATION_UP_AXES:
+            return CRSAxis.AXIS_TYPE_ELEVATION_UP
+        elif axis_label in CRSAxis.ELEVATION_DOWN_AXES:
+            return CRSAxis.AXIS_TYPE_ELEVATION_DOWN
+
+        else:
+            return CRSAxis.AXIS_TYPE_UNKNOWN
+
+    @staticmethod
+    def get_axis_type_by_uom(axis_uom):
+        """
+        Return the type of axis by uom
+        :param str axis_uom: uom of axis
+        :return: str type of axis
+        """
+        # Used for Time axis (uom day/second)
+        if axis_uom == "d":
+            return CRSAxis.AXIS_TYPE_TIME_DAY
+        elif axis_uom == "s":
+            return CRSAxis.AXIS_TYPE_TIME_SECOND
+        else:
+            return CRSAxis.AXIS_TYPE_UNKNOWN
 
 
 class CRSUtil:
-
 
     LAT_AXIS_LABEL = "Lat"
 
@@ -109,6 +154,7 @@ class CRSUtil:
 
     # NOTE: Only fetch coverage axis labels once only for 1 coverage Id
     coverage_axis_labels = []
+    coverage_crs = None
 
     def __init__(self, crs_url):
         """
@@ -117,7 +163,7 @@ class CRSUtil:
         """
         self.crs_url = crs_url
         self.axes = []
-        self.individual_crs_axes = {}
+        self.individual_crs_axes = OrderedDict()
         self._parse()
         pass
 
@@ -146,10 +192,13 @@ class CRSUtil:
         :return: url of the resulting crs
         """
         found_crses = []
+
         for axis in axis_list:
             for crs in self.individual_crs_axes:
-                if axis.label in self.individual_crs_axes[crs] and crs not in found_crses:
-                    found_crses.append(crs)
+                axis_uri = axis.uri
+                if axis_uri == crs and axis_uri not in found_crses:
+                    found_crses.append(axis.uri)
+                    break
         if len(found_crses) > 1:
             return self.get_compound_crs(found_crses)
         elif len(found_crses) == 1:
@@ -194,8 +243,6 @@ class CRSUtil:
         :param dict{ axis1(dict), axis2(dict),... }: dictionary of configurations from ingredient file
         """
 
-        is_update = False
-
         cov = CoverageUtil(coverage_id)
 
         # Case 1: Coverage exists with "Lat Long" axes
@@ -203,52 +250,40 @@ class CRSUtil:
             if cov.exists():
                 CRSUtil.coverage_axis_labels = cov.get_axis_labels()
 
-                if CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85 in CRSUtil.coverage_axis_labels:
-                    is_update = True
+                for index, axis_label in enumerate(CRSUtil.coverage_axis_labels):
+                    if axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
+                        CRSUtil.log_crs_replacement_epsg_version_0_by_version_85()
+                        crs_axes[index].label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
+                        break
 
         # Case 2: Coverage not exist, but in ingredient file for general recipes, it contains configuration for "Lat Long" axes
         if axes_configurations is not None:
             for key, value in axes_configurations.iteritems():
-                if key == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
-                    is_update = True
-
                 CRSUtil.coverage_axis_labels.append(key)
 
-        # If it needs to update "Lon" -> "Long" axis
-        if is_update:
-            lat_axis = None
-            long_axis = None
+                for crs_axis in crs_axes:
+                    # "Long" axis exists in configuration for ingredient file
+                    if key == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
+                        if crs_axis.label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0:
+                            crs_axis.label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
+                            break
 
-            for crs_axis in crs_axes:
-                if crs_axis.label == CRSUtil.LAT_AXIS_LABEL:
-                    lat_axis = crs_axis
-                elif crs_axis.label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_0:
-                    long_axis = crs_axis
-
-                if lat_axis != None and long_axis != None:                   
-                    
-                    log.warn("EPSG/0/NNNN points to the latest EPSG dictionary version, "
-                             "so CRS definitions may change with new releases of the EPSG dataset. \n"
-                             "In particular, coverage '" + coverage_id + "' was created when latest EPSG "
-                             "version was 8.5, which for longitude axis is now incompatible with the current "
-                             "EPSG version (Long axis label changed to Lon). \n Therefore wcst_import will change "
-                             "the CRS URL from EPSG/0/NNNN to EPSG/8.5/NNNN.")
-
-                    long_axis.label = CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85
-
-                    if CRSUtil.EPSG_VERSION_0_KVP in long_axis.uri:
-                        # CRS in KVP format
-                        long_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_KVP, CRSUtil.EPSG_VERSION_85_KVP)
-                        lat_axis.uri = lat_axis.uri.replace(CRSUtil.EPSG_VERSION_0_KVP, CRSUtil.EPSG_VERSION_85_KVP)
-                    else:
-                        # CRS in REST format
-                        long_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_REST, CRSUtil.EPSG_VERSION_85_REST)
-                        lat_axis.uri = long_axis.uri.replace(CRSUtil.EPSG_VERSION_0_REST, CRSUtil.EPSG_VERSION_85_REST)
-                    break
+    @staticmethod
+    def log_crs_replacement_epsg_version_0_by_version_85():
+        """
+        Just log a warning when it needs to replace version 0 to version 8.5 for EPSG
+        """
+        log.warn("EPSG/0/NNNN points to the latest EPSG dictionary version, "
+                 "so CRS definitions may change with new releases of the EPSG dataset. \n"
+                 "In particular, coverage was created when latest EPSG "
+                 "version was 8.5, which for longitude axis is now incompatible with the current "
+                 "EPSG version ('Long' axis label changed to 'Lon').\n Therefore wcst_import will change "
+                 "longitude axis label to 'Long' for EPSG/0/NNNN.")
 
     def _parse(self):
-        self.axes = self.get_from_cache(self.crs_url)["axes"]
-        self.individual_crs_axes = self.get_from_cache(self.crs_url)["individual_crs_axes"]
+        tmp_dict = self.get_from_cache(self.crs_url)
+        self.axes = tmp_dict["axes"]
+        self.individual_crs_axes = tmp_dict["individual_crs_axes"]
         if len(self.axes) == 0:
             if self.crs_url.find("crs-compound") != -1:
                 self._parse_compound_crs()
@@ -263,7 +298,8 @@ class CRSUtil:
             get_params = urlparse.parse_qs(url_parts.query)
             index = 1
             while str(index) in get_params:
-                self._parse_single_crs(get_params[str(index)][0])
+                crs = get_params[str(index)][0]
+                self._parse_single_crs(crs)
                 index += 1
         except Exception as ex:
             raise RuntimeException("Failed parsing the compound crs at: {}. "
@@ -272,56 +308,58 @@ class CRSUtil:
     def _parse_single_crs(self, crs):
         """
         Parses the axes out of the CRS definition
+        str crs: a complete CRS request (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
         """
         try:
-            contents = validate_and_read_url(crs)
-            root = etree.fromstring(contents)
+            gml = validate_and_read_url(crs)
+            root = etree.fromstring(gml)
             cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
-            axesLabels = []
+            axis_labels = []
+
             for xml_axis in xml_axes:
-                label = xml_axis.xpath(".//*[contains(local-name(), 'axisAbbrev')]")[0].text
-                direction = xml_axis.xpath(".//*[contains(local-name(), 'axisDirection')]")[0].text
+                axis_label = xml_axis.xpath(".//*[contains(local-name(), 'axisAbbrev')]")[0].text
+                axis_type = CRSAxis.get_axis_type_by_name(axis_label)
 
-                # IndexND crses do not define the direction properly so try to detect them here based
-                # on their labels and direction
-                if direction.find("indexedAxisPositive") != - 1 and label == "i":
-                    direction = "east"
-                if direction.find("indexedAxisPositive") != - 1 and label == "j":
-                    direction = "north"
-                if "future" in direction:
-                    uom = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
-                else:
-                    uom = ""
+                # e.g: http://localhost:8080/def/uom/EPSG/0/9122
+                uom_url = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
+                try:
+                    uom_gml = validate_and_read_url(uom_url)
+                    uom_root_element = etree.fromstring(uom_gml)
 
-                # in some crs definitions the axis direction is not properly set, override
-                if label in self.X_AXES:
-                    direction = "east"
-                elif label in self.Y_AXES:
-                    direction = "north"
+                    # e.g: degree (supplier to define representation)
+                    uom_name = uom_root_element.xpath(".//*[contains(local-name(), 'name')]")[0].text
+                    axis_uom = uom_name.split(" ")[0]
+                except Exception:
+                    # e.g: def/uom/OGC/1.0/GridSpacing does not exist -> GridSpacing
+                    axis_uom = uom_url.split("/")[-1]
 
-                crsAxis = CRSAxis(crs, label, direction, uom)
-                axesLabels.append(label)
-                self.axes.append(crsAxis)
+                # With OGC Time axes, check axis type in different way
+                if re.search(DateTimeUtil.CRS_CODE_ANSI_DATE, crs) is not None \
+                   or re.search(DateTimeUtil.CRS_CODE_UNIX_TIME, crs) is not None:
+                    axis_type = CRSAxis.get_axis_type_by_uom(axis_uom)
+
+                crs_axis = CRSAxis(crs, axis_label, axis_type, axis_uom)
+                axis_labels.append(axis_label)
+
+                self.axes.append(crs_axis)
+
             # add to the list of individual crs to axes
-            self.individual_crs_axes[crs] = axesLabels
+            self.individual_crs_axes[crs] = axis_labels
         except Exception as ex:
             raise RuntimeException("Failed parsing the crs at: {}. "
                                    "Detail error: {}".format(crs, str(ex)))
 
     def save_to_cache(self, crs, axes, individual_crs_axes):
-        self.__CACHE__[crs] = {}
+        self.__CACHE__[crs] = OrderedDict()
         self.__CACHE__[crs]["axes"] = axes
         self.__CACHE__[crs]["individual_crs_axes"] = individual_crs_axes
 
     def get_from_cache(self, crs):
         if crs in self.__CACHE__:
             return self.__CACHE__[crs]
-        return {"axes": [], "individual_crs_axes": {}}
+        return {"axes": [], "individual_crs_axes": OrderedDict()}
 
     __CACHE__ = {}
-
-    X_AXES = ["X", "E", "M", "E(X)", "x", "e", "Long", "Lon", "i"]
-    Y_AXES = ["Y", "N", "P", "E(Y)", "y", "n", "Lat", "j"]
 
 

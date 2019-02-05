@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.core.AxisTypes;
-import petascope.core.AxisTypes.AxisDirection;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
@@ -43,7 +42,6 @@ public abstract class Axis<T> {
     // This is the persisted grid domain for axis in database
     private NumericSubset originalGridBounds;
     private BigDecimal origin;
-    private final AxisDirection direction;
     // this is the CRS of axis in coverage
     private String nativeCrsUri;
     private final CrsDefinition crsDefinition;
@@ -54,13 +52,12 @@ public abstract class Axis<T> {
     private BigDecimal resolution;
 
     public Axis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
-            AxisDirection direction, String crsUri, CrsDefinition crsDefinition,
+            String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
         this.label = label;
         this.geoBounds = geoBounds;
         this.originalGridBounds = originalGridBounds;
         this.gridBounds = gridBounds;
-        this.direction = direction;
         this.nativeCrsUri = crsUri;
         this.crsDefinition = crsDefinition;
         this.axisType = axisType;
@@ -96,10 +93,6 @@ public abstract class Axis<T> {
 
     public void setGeoBounds(NumericSubset geoBounds) {
         this.geoBounds = geoBounds;
-    }
-
-    public AxisDirection getDirection() {
-        return direction;
     }
 
     public String getLabel() {

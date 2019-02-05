@@ -23,22 +23,21 @@ package petascope.wcps.metadata.model;
 
 import java.math.BigDecimal;
 import petascope.core.CrsDefinition;
-import petascope.core.AxisTypes.AxisDirection;
 
 /**
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class RegularAxis extends Axis {
 
-    public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds, AxisDirection direction,
+    public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
                        String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
                        int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
-        super(label, geoBounds, originalGridBounds, gridBounds, direction, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
     }
     
     @Override
     public RegularAxis clone() {
-        return new RegularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(), getDirection(),
+        return new RegularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
                 getRasdamanOrder(), getOriginalOrigin(), getResolution());
     }

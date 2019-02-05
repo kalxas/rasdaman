@@ -2029,7 +2029,7 @@ Here's an example ingredient file for *grib* data:
             "axes": {
               // For each axis specify how to extract the spatio-temporal position
               // of each file that we ingest
-              "Lat": {
+              "Latitude": {
                 // E.g. to determine at which Latitude the nth file will be positioned,
                 // we will evaluate the given expression on the file
                 "min": "${grib:latitudeOfLastGridPointInDegrees} +
@@ -2040,6 +2040,12 @@ Here's an example ingredient file for *grib* data:
                 "resolution": "${grib:jDirectionIncrementInDegrees}
                                if bool(${grib:jScansPositively})
                                else -${grib:jDirectionIncrementInDegrees}",
+
+                // This optional configuration is added since version 9.8.
+                // The crs order specifies the order of the CRS axis in coverage
+                // that will be created and allows to change standard abbreviation for axis label
+                // from EPSG database to a different name (e.g: "Lat" -> "Latitude").
+                "crsOrder": 0
                 // The grid order specifies the order of the axis in the raster
                 // that will be created
                 "gridOrder": 3
@@ -2053,12 +2059,14 @@ Here's an example ingredient file for *grib* data:
                 "resolution": "-${grib:iDirectionIncrementInDegrees}
                                if bool(${grib:iScansNegatively})
                                else ${grib:iDirectionIncrementInDegrees}",
+                "crsOrder": 1
                 "gridOrder": 2
               },
               "ansi": {
                 "min": "grib_datetime(${grib:dataDate}, ${grib:dataTime})",
                 "resolution": "1.0 / 4.0",
                 "type": "ansidate",
+                "crsOrder": 2,
                 "gridOrder": 1,
                 // In case and axis does not natively belong to a file (e.g. as time),
                 // then this property must set to false; by default it is true otherwise.
@@ -2067,6 +2075,7 @@ Here's an example ingredient file for *grib* data:
               "ensemble": {
                 "min": "${grib:localDefinitionNumber}",
                 "resolution": 1,
+                "crsOrder": 3,
                 "gridOrder": 0
               }
             }
@@ -2323,6 +2332,39 @@ netCDF file 1:
       <!--- End Local Metadata from netCDF file 1 -->
 
    <slices>
+
+**Customized axis labels in coverage**
+
+This feature is available since rasdaman version 9.8 for general recipe.
+Before, axis labels for a coverage must match axis abbreviations in CRS's GML
+definition when they are configured in the ingredient file under section ``"slicer"/"axes"``.
+With this new feature, one can set **an arbitrary name** for each axis label by 
+adding optional configuration ``"crsOrder"`` for each axis accordingly the 
+position index which **starts from 0** of axis in coverage's CRS.
+
+For example with below configuration, coverage will be created with
+3 customized axes ``MyDateTimeAxis, MyLatAxis and MyLongAxis`` based on 
+coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)):
+
+.. code-block:: json
+
+     "axes": {
+          "MyDateTimeAxis": {
+              // Match DateTime axis in AnsiDate CRS
+              "crsOrder": 0,
+               ...
+            },
+          "MyLongAxis": {
+              // Match Long axis in EPSG:4326
+              "crsOder": 2,
+               ...
+           },
+           "MyLatAxis": {
+              // Match Lat axis in EPSG:4326
+              "crsOder": 1,
+              ...
+           }
+      }
 
 **Band and dimension metadata in netCDF**
 
