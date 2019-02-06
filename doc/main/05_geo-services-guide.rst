@@ -357,6 +357,7 @@ Since rasdaman version 9.7+, petascope supports CIS version 1.1 with these
 conformance classes:
 
 * Class **coverage**.
+
 * Class **grid-regular** (in *CIS 1.0*: **GridCoverage** and **RectifiedGridCoverage** 
   coverage types).
 
@@ -391,6 +392,7 @@ conformance classes:
               "{\"outputType\":\"GeneralGridCoverage\"}")
 
 * Class **other-format-coverage**.
+
 * Class **multipart-coverage**.
 
 .. _subsets-in-petascope:
@@ -1951,7 +1953,7 @@ options of the ingredients file. Each coverage model contains a
    .. code-block:: json
 
         "local": {
-		  "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
+		      "LocalMetadataKey": "${netcdf:metadata:LOCAL_METADATA}"
         }
 
 
@@ -2294,8 +2296,8 @@ from input files (via WC(P)S requests), if the geo domains of subsetted
 coverage intersect with some input files' envelopes, only local metadata of
 these files will be added to the output coverage metadata. 
 
-For example: a ``GetCoverage`` request which get a trim
-(crs axis subsets are within netCDF file 1): ::
+For example: a ``GetCoverage`` request with a trim such that 
+crs axis subsets are within netCDF file 1: ::
 
    http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
           &request=GetCoverage

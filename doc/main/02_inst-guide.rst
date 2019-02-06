@@ -45,15 +45,6 @@ the rasdaman system, such as programming and query access to databases,
 guidance to utilities such as *raswct*, release notes, and additional
 information on the rasdaman wiki.
 
-The rasdaman Documentation Set consists of the following docu­ments:
-
-*  Installation and Administration Guide
-*  Query Language Guide
-*  C++ Developer's Guide
-*  Java Developer's Guide
-*  raswct Developer's Guide
-*  the rasdaman wiki, accessible at `www.rasdaman.org <http://www.rasdaman.org>`__
-
 
 .. _sec-download-and-install:
 
@@ -127,11 +118,11 @@ This page describes installation of rasdaman RPM or Debian packages.
 
 During generation of these packages, some configuration decisions have been made
 (which can be chosen freely when :ref:`compiling from source
-<sec-system-install>`. Most importantly, the rasdaman
-engine in the RPMs uses embedded SQLite for managing its array metadata.
-(Notice, though, that the geo service component, petascope, currently still
+<sec-system-install>`). Most importantly, the rasdaman
+engine in the packages uses embedded SQLite for managing its array metadata.
+Notice, though, that the geo service component, petascope, currently still
 relies on a PostgreSQL database; this is planned to be changed in the near
-future.)
+future.
 
 .. _sec-system-install-pkgs-deb:
 
@@ -183,7 +174,7 @@ Installation
     # to make rasql available on the PATH
     $ source /etc/profile.d/rasdaman.sh
 
-4. **NOTE**: if during an update you get a prompt like the below, type **N**
+5. **NOTE**: if during the install you get a prompt like the below, type **N**
    (default option) to keep your old ``petascope.properties`` in ``/opt/rasdaman/etc``; the
    installer will automatically invoke ``/opt/rasdaman/bin/update_properties.sh``
    script to merge with the new ``petascope.properties`` version from the package. ::
@@ -1113,12 +1104,9 @@ To set up PostgreSQL for use by petascope:
    needs to be added before the ident lines to ``/etc/postgresql/9.4/main/pg_hba.conf``
    on Debian 8, or ``/var/lib/pgsql/data/pg_hba.conf`` on CentOS 7: ::
 
-    # "local" is for Unix domain socket connections only
-    local   all         all                               trust
-    # IPv4 local connections:
-    host    all         all         127.0.0.1/32          trust
-    # IPv6 local connections:
-    host    all         all         ::1/128               trust
+    host    all   petauser   localhost       md5
+    host    all   petauser   127.0.0.1/32    md5
+    host    all   petauser   ::1/128         md5
 
 3. Reload PostgreSQL so that the new configuration will take effect: ::
 
@@ -1624,7 +1612,8 @@ machine the relational database server runs on is referred to as
     :align: center
     :width: 450px
 
-    Overall server hierarchy, introducing the terminology for rasdaman hardware and software environment
+    Overall server hierarchy, introducing the terminology for rasdaman hardware
+    and software environment
 
 Server Structure in General
 ---------------------------
@@ -1699,9 +1688,10 @@ server configuration can be done directly through ``rascontrol`` (see
 System Start-up
 ---------------
 
-Invocation of the ``rasmgr`` executable must be done under the operating
-system login under which the rasdaman installation has been done,
-usually (and recommended) ``rasdaman``.
+Invocation of the ``rasmgr`` executable must be done under the operating system
+login under which the rasdaman installation has been done, usually (and
+recommended) ``rasdaman``. The service script ``/etc/init.d/rasdaman`` (when
+rasdaman is installed from the packages) automatically takes care of this.
 
 Server Federation
 -----------------
@@ -1766,7 +1756,7 @@ choosing another schema - just keep an overview\...):
 Storage backend
 ===============
 
-rasdaman community can store array data in two different ways:
+rasdaman can store array data in two different ways:
 
 1. Arrays in a file system directory, array metadata in SQLite; this is default.
 2. Everything in PostgreSQL: arrays in BLOBs, array metadata in tables.
@@ -1775,11 +1765,10 @@ rasdaman community can store array data in two different ways:
     rasdaman enterprise additionally supports access to pre-existing
     archives of any structure.
 
-The array storage variant can be chosen during the
-cmake configuration step (cf. :numref:`table-cmake`) by setting
-``-DDEFAULT_BASEDB=sqlite|postgresql`` when installing from source;
-it is fixed in the packages and VMs distributed to ``sqlite``, i.e. the default
-recommended option.
+The array storage variant can be chosen during the cmake configuration step (cf.
+:numref:`table-cmake`) by setting ``-DDEFAULT_BASEDB=sqlite|postgresql`` when
+installing from source; it is fixed in the packages to ``sqlite``, i.e. the
+default recommended option.
 
 
 Storing arrays in a file system directory
@@ -1789,16 +1778,11 @@ In this storage variant, a particular directory gets designated to hold
 rasdaman arrays (maintained by rasdaman) and their metadata (maintained
 by an SQLite instance embedded in rasdaman).
 
-The recommended directory location is ``$RMANHOME/data/``; administrators
-may configure this to be a symbolic link to some other
-location, possibly another filesystem than where ``$RMANHOME`` resides
-(so as to keep programs and data separate). Further (not recommended)
-ways of changing the default directory are:
-
--  By a cmake parameter ``-DFILE_DATA_DIR=<path>`` where ``<path>`` is an
-   absolute path to which rasdaman has read/write access;
--  By setting a variable ``$RASDATA`` which must be set in the environment
-   of the rasdaman executables.
+The recommended directory location is ``$RMANHOME/data/``; administrators may
+configure this to be a symbolic link to some other location, possibly another
+filesystem than where ``$RMANHOME`` resides (so as to keep programs and data
+separate). Alternatively, the path can be changed in the ``-connect`` option in
+``rasmgr.conf``.
 
 The data directory will contain the named database. Currently only one
 database is supported, but this may change in future. Default database
@@ -1905,16 +1889,16 @@ tools can communicate with local and remote rasdaman servers (current exception:
 Web Services
 ============
 
-Several Web services are available with rasdaman. They are implemented
-as servlets, hence independent from the array en­gine and only available
-if started in a servlet container such as Tom­cat or jetty. They can be
-accessed under the common context path ``/rasdaman`` as follows:
+Several Web services are available with rasdaman. They are implemented as
+servlets, hence independent from the array en­gine and only available if started
+in a servlet container such as Tom­cat or jetty. They can be accessed under the
+common context path ``/rasdaman``.
 
-The corresponding war files by default are located in installation
-directory ``share/rasdaman/war/``. During the configuration step and before
-compilation (cf. :ref:`sec-download-install`) this directory can be set with
-``configure`` option ``--with-wardir``. For example, this allows indicating the
-directory where war files are installed (such as Tomcat's ``webapps``/ directory).
+The corresponding war files by default are located in installation directory
+``share/rasdaman/war/``. During the configuration step and before compilation
+(cf. :ref:`sec-download-install`) this directory can be set with ``cmake``
+option ``-DWAR_DIR``. For example, this allows indicating the directory where
+war files are installed (such as Tomcat's ``webapps``/ directory).
 
 .. note::
     The effective user invoking "make install" (as available in
@@ -1973,7 +1957,8 @@ A series of geo Web services is available at the following endpoints:
 *  A Coordinate Reference System (CRS) Resolver service, SECORE, which
    is identical to the one deployed by OGC) is available under path
    ``/def``. This path is reflecting the OGC resolver architecture where
-   `www.opengis.net/def/crs <http://www.opengis.net/def/crs>`_ is the branch for CRSs served by SECORE.
+   `www.opengis.net/def/crs <http://www.opengis.net/def/crs>`_ is the branch for 
+   CRSs served by SECORE.
 
    This requires deployment of war file ``def.war``.
 
@@ -2589,7 +2574,7 @@ List relational database(s) defined.
 Server Start-up and Shutdown
 ============================
 
-Server Start
+**Server Start**
 
 ``up srv [ s | -host h | -all ]``
 
@@ -2611,8 +2596,7 @@ para­meters.
 
 At least one of the options *s*, -host *s*, and -all must be present.
 
-Server Shutdown
----------------
+**Server Shutdown**
 
 ``down srv [ s | -host h | -all ] [-force] [-kill]``
 
@@ -3060,22 +3044,20 @@ Example Database and Programs
 Example Database
 ================
 
-A demonstration database is provided as part of the delivery package
-which contains the collections and images described in the *Query
-Language Guide*. To populate this database, first install the system as
-described here in the *Installation Guide* and the base DBMS specific
-*External Products Integration Guide*, and then invoke
-``rasdaman_insertdemo.sh`` in the ``bin`` directory. This script makes use of
-the example images sitting in the ``examples`` directory, as well as the
-``insertppm`` executable described below.
+A demonstration database is provided as part of the delivery package which
+contains the collections and images described in the *Query Language Guide*. To
+populate this database, first install the system as described here in the
+*Installation Guide*, and then invoke ``rasdaman_insertdemo.sh`` in the ``bin``
+directory. This script makes use of the example images sitting in the
+``examples`` directory.
 
-It is recommended to populate this demo database - it occupies only
-marginal disk space - first: Successful generation of this database
-shows overall successful rasdaman installation.
+It is recommended to populate this demo database - it occupies only marginal
+disk space - first: Successful generation of this database shows overall
+successful rasdaman installation.
 
-Before the test programs can be used, the demo database has to be
-created and schema information has to be imported. The following command
-line creates the database *RASBASE* (see also :ref:`sec-system-install`):
+Before the test programs can be used, the demo database has to be created and
+schema information has to be imported. The following command line creates the
+database *RASBASE*:
 
 ::
 
@@ -3088,17 +3070,14 @@ The following imports schema information:
     $ rasdl --basename RASBASE
             --read examples/rasdl/basictypes.dl --insert
 
-Finally, the following line establishes the demo database (using a
-script from the ``bin`` directory which itself relies on the ``insertppm``
-executable): ::
+Finally, the following line establishes the demo database (using a script from
+the ``bin`` directory: ::
 
     $ rasdaman_insertdemo.sh base
 
 It is not important whether the rasdaman server is running during ``rasdl``
-execution, however, the server is required for the
-``rasdaman_insert­demo.sh`` script, as this is a client application.
-
-For further information on ``rasdl`` see the *C++ Programming Guide*.
+execution, however, the server is required for the ``rasdaman_insert­demo.sh``
+script, as this is a client application.
 
 Example Programs
 ================
@@ -3110,51 +3089,47 @@ plus several ``.cc`` and ``.java`` sources, resp.
 Makefile
 --------
 
-The ``Makefile`` serves to compile and link the sample C++ sources files
-delivered. It is a good source for hints on the how-tos of compiler and
-linker flags etc.
-
-``insertppm.cc``
-----------------
-
-The ``insertppm`` program inserts a PPM / PGM / PBM image into a ras­da­man
-database. This program serves a dual purpose: On the one hand, it shows
-how a custom application can be created which inserts single images into
-a database from a file in some data exchange format. On the other hand,
-it is the utility to establish the sample database used in the *Query
-Language Guide.*
-
-A compiled version of this program can also be found in the ``bin``
-directory to avoid that this important utility is overwritten by
-exploring the sample code.
-
-``lookup.cc`` and ``lookup.java``
----------------------------------
-
-The ``lookup`` program reads a specified collection and prints the MDDs and
-their content. Any collection from the demo database can be inspected,
-but be warned of the data volume generated by ASCII printouts.
-
-``avg-cell.cc`` and ``avg-cell.java``
--------------------------------------
-
-This program computes the average cell value from all images of a given
-collection.
-
-Note that it requires grayscale images! A good candidate collection is
-``mr`` from the demo database.
-
-``avg-cell-red.cc`` and ``avg-cell-red.java``
----------------------------------------------
-
-Same as ``avg-cell``, but takes the red component of an RGB image for
-averaging.
-
-A good candidate collection is ``rgb`` from the demo database.
+The ``Makefile`` serves to compile and link the sample C++ / Java sources files
+delivered. It is a good source for hints on the how-tos of compiler and linker
+flags etc.
 
 .. note::
     All programs, once compiled and linked, print a usage synopsis when
     invoked without parameter.
+
+``query.cc``
+------------
+
+Sends a hardwired query to a running rasdaman system:
+
+.. code-block: rasql
+
+    select a[0:4,0:4]
+    from mr as a
+    where some_cells( a[8:9,8:9] >= 0 )
+
+In addition, it demonstrates how to work with the result set returned from
+rasdaman. The query can easily be changed, or even made a parameter to the
+program.
+
+``Query.java``
+--------------
+
+Sends the following hardwired query if one is not provided as a parameter:
+
+.. code-block: rasql
+
+    select avg_cells( a )
+    from mr
+
+``AvgCell.java``
+----------------
+
+This program computes the average cell value from all images of a given
+collection on client side. Note that it requires grayscale images. A good
+candidate collection is ``mr`` from the demo database.
+
+
 
 ***************
 Troubleshooting

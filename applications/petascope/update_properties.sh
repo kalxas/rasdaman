@@ -153,7 +153,7 @@ trim_whitespace() {
 # if some old settings are removed, the backup file needs to be kept
 keep_backup=0 
 
-while read line;do
+while read line; do
     line=$(trim_whitespace "$line")
     first_char=${line:0:1} # get first character of the line
 

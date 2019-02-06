@@ -510,7 +510,8 @@ MDDColl::getMDDCollection(const char* collName)
             if (typePtr->getSubtype() == MDDType::MDDBASETYPE ||
                 typePtr->getSubtype() == MDDType::MDDONLYTYPE)
             {
-                LDEBUG << "Internal MDD type cannot be serialized: " << tmpTypeStructure;
+                LDEBUG << "Internal MDD type cannot be serialized: " << typeStructure;
+                mddIter.advance();
                 continue;
             }
 
