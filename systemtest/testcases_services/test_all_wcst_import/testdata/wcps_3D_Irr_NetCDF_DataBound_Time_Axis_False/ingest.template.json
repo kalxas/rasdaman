@@ -5,6 +5,7 @@
     "automated": true,
     "track_files": false,
     "subset_correction": false,
+    "blocking": false,
     "insitu" : false,
     "mock": false
   },

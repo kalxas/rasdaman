@@ -28,6 +28,9 @@
                 "mock": {
                     "type": "boolean"
                 },
+                "blocking": {
+                    "type": "boolean"
+                },
                 "default_null_values": {
                     "type": "array"
                 },

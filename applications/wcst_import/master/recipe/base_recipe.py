@@ -72,6 +72,12 @@ class BaseRecipe:
         log.info("\033[1mOperation:\x1b[0m " + operation_type)
         log.info("\033[1mSubset Correction:\x1b[0m " + str(ConfigManager.subset_correction))
         log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
+
+        import_mode = "Blocking"
+        if not self.session.blocking:
+            import_mode = "Non-blocking"
+        log.info("\033[1mImport mode:\x1b[0m " + import_mode)
+
         if ConfigManager.track_files:
             log.info("\033[1mTrack files:\x1b[0m " + str(ConfigManager.track_files))
         if ConfigManager.skip:

@@ -1594,7 +1594,7 @@ Common options
 
 Some options are commonly applicable to all recipes.
 
-**"config" section**
+**config section**
 
 * ``service_url`` - The endpoint of the WCS service with the WCS-T extension enabled
 
@@ -1609,6 +1609,22 @@ Some options are commonly applicable to all recipes.
   process. Useful in production environments for automated deployment for example.
   By default it is ``false``, i.e. user confirmation is needed to execute the
   ingestion.
+* ``blocking`` (since v9.8) - Set to ``false`` to analyze and import each file
+  separately (**non-blocking mode**). By default blocking is set to ``true``,
+  i.e. WCST_Import will analyze all input files first to create corresponding
+  coverage descriptions, and only then import them. The advantage of non-blocking
+  mode is that the analyzing and importing happens incrementally
+  (in blocking mode the analyzing step can take a long time, e.g. days,
+  before the import can even begin). 
+
+  .. note::
+
+        When importing in **non-blocking** import mode for coverages with irregular axes,
+        it will *only rely on sorted files by filenames* and it can fail if these axes' coefficients
+        are collected from input files' metadata (e.g: DateTime value in TIFF's tag or GRIB metadata)
+        as they might not be consecutive. WCST_Import will not analyze all files
+        to collect metadata to be sorted by DateTime as in default **blocking** import mode.
+  
 
 * ``default_null_values`` - This parameter adds default null values for bands that
   do *not* have a null value provided by the file itself. The value for this

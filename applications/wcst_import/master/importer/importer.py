@@ -53,6 +53,10 @@ from lxml import etree
 
 
 class Importer:
+
+    # Check if coverage exist in Petascope
+    coverage_exists = None
+
     def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
         """
         Imports a coverage into wcst
@@ -384,6 +388,9 @@ class Importer:
         Returns true if the coverage should be inserted, false if only updates are needed
         :rtype: bool
         """
-        cov = CoverageUtil(self.coverage.coverage_id)
-        return not cov.exists()
+        if Importer.coverage_exists is None:
+            cov = CoverageUtil(self.coverage.coverage_id)
+            Importer.coverage_exists = cov.exists()
+
+        return not Importer.coverage_exists
 

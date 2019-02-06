@@ -73,6 +73,8 @@ class Session:
         self.insitu = config['insitu'] if "insitu" in config else None
         self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
         self.mock = False if "mock" not in config else bool(self.config["mock"])
+        # By default, analyze all files then import (blocking import mode). With non_blocking_import mode, analyze and import each file separately.
+        self.blocking = True if "blocking" not in config else bool(self.config["blocking"])
 
         self.subset_correction = bool(self.config['subset_correction']) if "subset_correction" in self.config else False
         self.skip = bool(self.config['skip']) if "skip" in self.config else False

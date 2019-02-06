@@ -71,6 +71,32 @@ class RecipeRegistry:
         for recipe in all_recipes:
             self.registry[recipe.get_name()] = recipe
 
+    def __run_recipe(self, session, recipe):
+        """
+        Run recipe
+        :param Session session:
+        :param BaseRecipe recipe:
+        """
+        recipe.describe()
+
+        if not session.blocking and not session.is_automated():
+            raw_input("Press Enter to Continue...: ")
+
+        log.title("\nRunning")
+
+        if session.blocking:
+            # It needs to display progress bar (how many files imported)
+            t = Thread(target=run_status, args=(recipe,))
+            t.daemon = True
+            t.start()
+            recipe.run()
+            t.join()
+        else:
+            # Non-blocking mode, only 1 file is importing, no need to show progress bar (it takes longer time to join threads)
+            recipe.run()
+
+        recipe.importer = None
+
     def run_recipe(self, session):
         """
         Recipe session
@@ -88,16 +114,20 @@ class RecipeRegistry:
 
             log.title("\nValidation")
             recipe.validate()
-            recipe.describe()
 
-            if not session.is_automated():
-                raw_input("Press Enter to Continue...: ")
-            t = Thread(target=run_status, args=(recipe,))
-            t.daemon = True
-            log.title("\nRunning")
-            t.start()
-            recipe.run()
-            t.join()
+            # Show what recipe and coverage are imported only once
+            super(recipe.__class__, recipe).describe()
+
+            if session.blocking is True:
+                # Default blocking import mode (analyze all files -> import)
+                self.__run_recipe(session, recipe)
+            else:
+                # Non blocking import mode (analyze 1 file -> import then next file)
+                files = list(session.get_files())
+
+                for file in files:
+                    session.files = [file]
+                    self.__run_recipe(session, recipe)
 
             log.success("Recipe executed successfully")
 

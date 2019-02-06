@@ -97,7 +97,6 @@ class Recipe(BaseRecipe):
         """
         Implementation of the base recipe describe method
         """
-        super(Recipe, self).describe()
         importer = self._get_importer()
 
         slices = importer.get_slices_for_description()

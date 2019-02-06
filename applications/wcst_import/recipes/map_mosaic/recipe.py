@@ -72,7 +72,6 @@ class Recipe(BaseRecipe):
         """
         Implementation of the base recipe describe method
         """
-        super(Recipe, self).describe()
         log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
         importer = self._get_importer()
 
