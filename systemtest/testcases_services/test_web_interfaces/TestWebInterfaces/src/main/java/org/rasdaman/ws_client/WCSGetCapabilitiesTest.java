@@ -24,6 +24,7 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Class to test wcs_client, tab WCS/GetCapabilities
@@ -47,13 +48,15 @@ public class WCSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         String testCaseName;
 
         // Switch to iframe to parse the web element
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         webDriver.switchTo().frame(0);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         
         // Click on get capabilities button
         testCaseName = this.getSectionTestCaseName("click_on_GetCapabilities_button");
         log.info("Testing change current tab to GetCapabilities...");
         this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[1]/a");
-        Thread.sleep(1000);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         /* 
         As the returned coverages from Petascope are produced from a Map, so they can show different coverageIds in second page.
         // Click on paging button        

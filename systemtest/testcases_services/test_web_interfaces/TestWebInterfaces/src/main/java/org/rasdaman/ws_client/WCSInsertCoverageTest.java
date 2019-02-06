@@ -24,6 +24,7 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Class to test wcs_client, tab WCS/DescribeCoverage
@@ -47,7 +48,9 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
         // Switch to iframe to parse the web element
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         webDriver.switchTo().frame(0);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
 
         String testCaseName;
 
@@ -65,6 +68,6 @@ public class WCSInsertCoverageTest extends WSAbstractSectionWebPageTest {
         this.addTextToTextBox(webDriver, urlToGMLFile, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/input");
         // Then click on the Insert Coverage button
         this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[6]/div/div/div/div[1]/span[2]/button");
-        Thread.sleep(2000);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
     }
 }

@@ -374,11 +374,11 @@ First-Time Installation
 Download the installer and execute it: ::
 
     $ wget http://download.rasdaman.org/installer/install.sh
-    $ bash install.sh -j profiles/installer/default.toml
+    $ bash install.sh
 
 This creates a vanilla installation in ``/opt/rasdaman`` using
-reasonable defaults (see the :ref:`installer
-configuration page <sec-system-install-installer-config>` for more details).
+reasonable default configurations from ``/tmp/rasdaman-installer/profiles/installer/default.toml``
+(see the :ref:`installer configuration page <sec-system-install-installer-config>` for more details).
 
 Note that the script needs sudo rights for installing rasdaman into its
 proper system directory (``/opt/rasdaman``) and for installing package

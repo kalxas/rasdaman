@@ -24,6 +24,10 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.rasdaman.Config;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
+import static org.rasdaman.Config.TIME_TO_WAIT_BEFORE_CLICK;
 
 /**
  * Class to test wcs_client, tab WMS/DescribeLayer
@@ -49,15 +53,15 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
     private void fetchNewLayerMetadata(WebDriver webDriver) throws InterruptedException {
         // Click on WMS tab GetCapabilities
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[1]/a");
-        Thread.sleep(500);
+        Thread.sleep(TIME_TO_WAIT_BEFORE_CLICK);
         // Click on button Get Capabilities
         this.clickOnElement(webDriver, "//*[@id=\"wmsGetServerCapabilitiesBtn\"]");
-        Thread.sleep(1000);
+        Thread.sleep(TIME_TO_WAIT_BEFORE_CLICK);
         // Change to DescribeLayer tab
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[2]/a");
         // Then click on DescribeLayer button
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[1]/div/span[2]/button");
-        Thread.sleep(500);
+        Thread.sleep(TIME_TO_WAIT_BEFORE_CLICK);
     }
 
     @Override
@@ -66,7 +70,9 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
         // Switch to iframe to parse the web element
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         webDriver.switchTo().frame(0);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
 
         // Focus on the second parent tab (WMS)
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[2]/a");

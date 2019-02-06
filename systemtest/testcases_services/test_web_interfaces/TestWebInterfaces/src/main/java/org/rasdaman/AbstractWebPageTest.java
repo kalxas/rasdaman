@@ -152,7 +152,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @throws java.lang.InterruptedException
      */
     protected void clickOnElement(WebDriver webDriver, String xPathToElement) throws InterruptedException {
-        Thread.sleep(Config.TIME_TO_WAIT_AFTER_CLICK);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
         WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
         webElement.click();
         Thread.sleep(Config.TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE);
@@ -223,10 +223,10 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @throws IOException
      */
     protected void runTestByClickingOnElementAndCaptureTheOpenedWindow(WebDriver webDriver, String testCaseName, String xPathToElement) throws InterruptedException, IOException {
-        Thread.sleep(Config.TIME_TO_WAIT_AFTER_CLICK);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
         WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
         webElement.click();
-        Thread.sleep(Config.TIME_TO_WAIT_AFTER_CLICK);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
         ArrayList<String> windows = new ArrayList<>(webDriver.getWindowHandles());
         // Then, switch to next tab and capture the result of this tab/window
         webDriver.switchTo().window(windows.get(1));
@@ -264,7 +264,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
         // select all the text in the text box then override it with the new text
         webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"), text);
-        Thread.sleep(Config.TIME_TO_WAIT_AFTER_CLICK);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
     }
 
     /**
@@ -279,7 +279,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      */
     protected void runTestByAddingTextToTextBox(WebDriver webDriver, String testCaseName, String text, String xPathToElement) throws IOException, InterruptedException {
         this.addTextToTextBox(webDriver, text, xPathToElement);
-        Thread.sleep(Config.TIME_TO_WAIT_AFTER_CLICK);
+        Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
         this.compareOutputAndOracleFile(webDriver, testCaseName);
     }
 

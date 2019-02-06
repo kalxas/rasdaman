@@ -24,6 +24,7 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 import static org.rasdaman.ws_client.WCSInsertCoverageTest.coverageId;
 
 /**
@@ -46,8 +47,9 @@ public class WCSDeleteCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
         // Switch to iframe to parse the web element
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         webDriver.switchTo().frame(0);
-        Thread.sleep(1000);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
 
         String testCaseName;
 
@@ -58,7 +60,7 @@ public class WCSDeleteCoverageTest extends WSAbstractSectionWebPageTest {
         
         testCaseName = this.getSectionTestCaseName("delete_coverage_empty_grid_domain_by_gml");
         log.info("Testing delete a coverage named '" + coverageId + "'...");
-        Thread.sleep(1000);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         // First add the new inserted coverage from kahlua GML file                
         this.addTextToTextBox(webDriver, coverageId, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[5]/div/div/div/div/input");
 

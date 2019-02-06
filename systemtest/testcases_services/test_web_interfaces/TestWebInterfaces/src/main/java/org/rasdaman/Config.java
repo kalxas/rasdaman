@@ -85,12 +85,17 @@ public class Config {
     /**
      * Wait milliseconds after clicking button to get result
      */
-    public static final int TIME_TO_WAIT_AFTER_CLICK = 1000;
+    public static final int TIME_TO_WAIT_BEFORE_CLICK = 1500;
 
     /**
      * Wait milliseconds before taking the image of web page as test result
      */
-    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 1500;
+    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 3000;
+    
+    /**
+     * Wait milliseconds after switching to another iframe
+     */
+    public static final int TIME_TO_WAIT_AFTER_SWITCHING_IFRAME = 2500;
 
     private void loadPropertiesFile(Properties properties, String filePath) throws IOException {
         InputStream input = null;

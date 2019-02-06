@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Class to test wcs_client, tab WCS/GetCapabilities
@@ -50,7 +51,10 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
     private void focusOnTheIFrameTab(WebDriver webDriver) throws InterruptedException {
         // NOTE: As the first window lost focus, so it has to refous to iframe and GetCoverage tab, before it can select elements in this tab.
         // Switch to iframe to parse the web element
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
         webDriver.switchTo().frame(0);
+        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        
         // First, change to tab GetCoverage
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");
     }

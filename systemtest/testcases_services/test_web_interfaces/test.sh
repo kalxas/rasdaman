@@ -73,7 +73,7 @@ chmod +x "/tmp/phantomjs"
 
 # then, build the Java application
 cd "$SCRIPT_DIR/TestWebInterfaces"
-mvn package > /dev/null
+mvn clean && mvn package > /dev/null
 
 # NOTE: run jar file at source folder not target folder
 mv "$SCRIPT_DIR/TestWebInterfaces/target/test_web_interfaces-spring-boot.jar" "$SCRIPT_DIR/TestWebInterfaces/"
