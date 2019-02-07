@@ -97,6 +97,29 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <rasdaman:covMetadata >{
+  "bands" : {
+    "dc" : {
+      "units" : "%",
+      "_FillValue" : "-9999.0",
+      "missing_value" : "-9999.0",
+      "grid_type" : "gaussian",
+      "title" : "Drought Code"
+    }
+  },
+  "axes" : {
+    "Lat" : {
+      "units" : "degrees_north",
+      "long_name" : "latitude",
+      "standard_name" : "latitude",
+      "axis" : "Y"
+    },
+    "Lon" : {
+      "units" : "degrees_east",
+      "long_name" : "longitude",
+      "standard_name" : "longitude",
+      "axis" : "X"
+    }
+  },
   "slices" : {
     "slice" : [ {
       "boundedBy" : {

@@ -21,6 +21,7 @@
  */
 package petascope.wcps.encodeparameters.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class BandsMetadata {
         this.bandsAttributesMap = new LinkedHashMap<>();
     }
 
+    @JsonAnyGetter
+    // Unwrap this map
     public Map<String, Map<String, String>> getBandsAttributesMap() {
         return bandsAttributesMap;
     }

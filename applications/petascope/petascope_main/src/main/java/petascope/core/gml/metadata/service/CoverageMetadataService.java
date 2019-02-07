@@ -21,6 +21,7 @@
  */
 package petascope.core.gml.metadata.service;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -128,12 +129,12 @@ public class CoverageMetadataService {
         try {
             //find out the type
             if (XMLUtil.containsXMLContent(metadata)) {
-                //xml
-                //the contents that the xmlMapper can read into a map must currently come from inside an outer tag, which is ignored
-                //so we are just adding them
+                //xml (allow to deserialize "\n" in metadata)
+                xmlMapper.configure(Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
                 localMetadata = xmlMapper.readValue(METADATA_OPEN_TAG + metadata + METADATA_CLOSE_TAG, LocalMetadataChild.class);
             } else {
-                //json
+                //json (allow to deserialize "\n" in metadata)
+                objectMapper.configure(Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
                 localMetadata = objectMapper.readValue(metadata, LocalMetadataChild.class);
             }
         } catch (IOException ex) {

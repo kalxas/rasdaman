@@ -22,6 +22,8 @@
 package org.rasdaman.repository.service;
 
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.owsmetadata.Address;
 import org.rasdaman.domain.owsmetadata.ContactInfo;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
@@ -56,6 +58,9 @@ public class OWSMetadataRepostioryService {
 
     // cache the Ows Service metadata
     private static OwsServiceMetadata owsServiceMetadataCache;
+    
+    @PersistenceContext
+    EntityManager entityManager;
 
     /**
      *
@@ -82,6 +87,7 @@ public class OWSMetadataRepostioryService {
             } else {
                 log.debug("Read OWS Service Metadata from database.");
                 owsServiceMetadata = metadatas.get(0);
+                entityManager.clear();
             }
             
             owsServiceMetadata.setServiceTypeVersions();

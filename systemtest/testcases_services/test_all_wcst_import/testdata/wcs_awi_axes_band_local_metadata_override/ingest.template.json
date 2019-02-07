@@ -1,0 +1,61 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false,
+    "automated": true
+  },
+  "input": {
+    "coverage_id": "test_awi_axes_band_local_metadata_override",
+    "paths": [
+      "*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326@OGC/0/AnsiDate",
+        "metadata": {
+	  "type": "json",       
+          "global": "auto",
+          "local": {"history": "${netcdf:metadata:history}"}  
+        },
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": "true",
+          "bands": [
+            {
+              "name": "Chlorophyll-a",
+              "variable": "Chlorophyll",
+              "description": "Chlorophyll-a concentration in mg/m3",
+              "identifier": "CHL1_mean"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime(regex_extract('${file:name}', 'L3m_(.*)__(.*)_(.*)_(.*)_(.*)_(.*)_(.*).nc',1), 'YYYYMMDD')",                                  
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+              "dataBound": false
+            },
+            "Long": {
+              "min": "${netcdf:variable:lon:min}",
+              "max": "${netcdf:variable:lon:max}",
+              "gridOrder": 2,
+              "resolution": "${netcdf:variable:lon:resolution}"
+            },
+            "Lat": {
+              "min": "${netcdf:variable:lat:min}",
+              "max": "${netcdf:variable:lat:max}",
+              "gridOrder": 1,
+              "resolution": -0.04166666666666666666666666666666666666
+            }
+          }
+        }
+      }
+    }
+  }
+}

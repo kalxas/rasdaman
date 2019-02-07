@@ -26,6 +26,29 @@
         <gmlcov:metadata>
             <gmlcov:Extension>
                 <rasdaman:covMetadata >
+                    <bands>
+                        <dc>
+                            <units>%</units>
+                            <_FillValue>-9999.0</_FillValue>
+                            <missing_value>-9999.0</missing_value>
+                            <grid_type>gaussian</grid_type>
+                            <title>Drought Code</title>
+                        </dc>
+                    </bands>
+                    <axes>
+                        <Lat>
+                            <units>degrees_north</units>
+                            <long_name>latitude</long_name>
+                            <standard_name>latitude</standard_name>
+                            <axis>Y</axis>
+                        </Lat>
+                        <Lon>
+                            <units>degrees_east</units>
+                            <long_name>longitude</long_name>
+                            <standard_name>longitude</standard_name>
+                            <axis>X</axis>
+                        </Lon>
+                    </axes>
                     <slices>
                         <slice>
                             <boundedBy>

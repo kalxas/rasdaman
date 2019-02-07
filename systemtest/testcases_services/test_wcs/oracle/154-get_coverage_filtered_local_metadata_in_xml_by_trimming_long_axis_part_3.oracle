@@ -8,7 +8,7 @@
     
      >
     <boundedBy>
-        <Envelope axisLabels="Lat Long" srsDimension="2"
+        <Envelope axisLabels="Lat Lon" srsDimension="2"
             srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
             <lowerCorner>-44.975 135.975</lowerCorner>
             <upperCorner>-8.975 142.975</upperCorner>
@@ -22,7 +22,7 @@
                     <high>35 30</high>
                 </GridEnvelope>
             </limits>
-            <axisLabels>Lat Long</axisLabels>
+            <axisLabels>Lat Lon</axisLabels>
             <origin>
                 <Point
                     id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
@@ -60,18 +60,19 @@
     <gmlcov:metadata>
         <gmlcov:Extension>
             <rasdaman:covMetadata >
+                <bands/>
+                <axes/>
                 <slices>
                     <slice>
                         <boundedBy>
                             <Envelope>
-                                <axisLabels>Lat Long</axisLabels>
+                                <axisLabels>Lat Lon</axisLabels>
                                 <srsDimension>2</srsDimension>
                                 <lowerCorner>-44.975 134.975</lowerCorner>
                                 <upperCorner>-8.975 145.975</upperCorner>
                             </Envelope>
                         </boundedBy>
                         <local_metadata_key>value_3</local_metadata_key>
-                        <fileReferenceHistory>/home/rasdaman/rasdaman_community/rasdaman/systemtest/testcases_services/test_all_wcst_import/testdata/wcs_local_metadata_tiff_map_mosaic/part_3.tiff</fileReferenceHistory>
                     </slice>
                 </slices>
                 <Title>Drought code</Title>

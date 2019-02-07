@@ -25,6 +25,8 @@
         <gmlcov:metadata>
             <gmlcov:Extension>
                 <rasdaman:covMetadata >
+                    <bands/>
+                    <axes/>
                     <slices>
                         <slice>
                             <boundedBy>

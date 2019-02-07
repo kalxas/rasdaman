@@ -27,6 +27,7 @@ from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.extra_metadata.extra_metadata import GlobalExtraMetadata
 from master.extra_metadata.extra_metadata import LocalExtraMetadata
 from master.extra_metadata.extra_metadata_ingredient_information import ExtraGlobalMetadataIngredientInformation
+from util.string_util import escape_metadata_nested_dicts
 
 
 class ExtraMetadataEntry:
@@ -59,46 +60,52 @@ class ExtraGlobalMetadataCollector:
         Collects the metadata supplied in the constructor
         :rtype: GlobalExtraMetadata
         """
-        global_meta = {}
+        global_metadata = {}
         for key, value in self.extra_metadata_info.global_attributes.items():
             # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
             # output of extra metadata should be string in any cases
             if str(value) != "":
-                global_meta[key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                global_metadata[key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
             else:
-                global_meta[key] = str(value)
+                global_metadata[key] = str(value)
+
+        global_metadata = escape_metadata_nested_dicts(global_metadata)
 
         # NOTE: this bands's metadata is added to gmlcov:metadata not swe:field
-        bands_meta = {}
+        bands_metadata = {}
         # band_attributes is a dict of keys, values
         for band, band_attributes in self.extra_metadata_info.bands_attributes.items():
-            bands_meta[band] = {}
+            bands_metadata[band] = {}
             for key, value in band_attributes.items():
                 # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
                 # output of extra metadata should be string in any cases
                 if str(value) != "":
-                    bands_meta[band][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                    bands_metadata[band][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
                 else:
-                    bands_meta[band][key] = str(value)
+                    bands_metadata[band][key] = str(value)
+
+        bands_metadata = escape_metadata_nested_dicts(bands_metadata)
 
         # Axes metadata (dimension's metadata)
-        axes_meta = {}
+        axes_metadata = {}
         # axes_attributes is a dict of keys, values
         for axis, axis_attributes in self.extra_metadata_info.axes_attributes.items():
-            axes_meta[axis] = {}
+            axes_metadata[axis] = {}
             if type(axis_attributes) is dict:
                 for key, value in axis_attributes.items():
                     # if value is empty (e.g: metadata "time_of_coverage": "") then should not evaluate this value
                     # output of extra metadata should be string in any cases
                     if str(value) != "":
-                        axes_meta[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
+                        axes_metadata[axis][key] = str(self.evaluator.evaluate(value, self.metadata_entry.evalutor_slice))
                     else:
-                        axes_meta[axis][key] = str(value)
+                        axes_metadata[axis][key] = str(value)
             else:
                 # It should be a string (e.g: ${netcdf:variable:lat:metadata}) and need to be evaluated
-                axes_meta[axis] = self.evaluator.evaluate(axis_attributes, self.metadata_entry.evalutor_slice)
+                axes_metadata[axis] = self.evaluator.evaluate(axis_attributes, self.metadata_entry.evalutor_slice)
 
-        return GlobalExtraMetadata(global_meta, bands_meta, axes_meta)
+        axes_metadata = escape_metadata_nested_dicts(axes_metadata)
+
+        return GlobalExtraMetadata(global_metadata, bands_metadata, axes_metadata)
 
 
 class ExtraLocalMetadataCollector:
@@ -128,5 +135,7 @@ class ExtraLocalMetadataCollector:
             for meta_key, sentence in self.extra_metadata_info.local_attributes.items():
                 # output of extra metadata should be string in any cases
                 local_metadata[meta_key] = str(self.evaluator.evaluate(sentence, self.metadata_entry.evalutor_slice))
+
+        local_metadata = escape_metadata_nested_dicts(local_metadata)
 
         return LocalExtraMetadata(local_metadata, self.metadata_entry.slice_subsets)

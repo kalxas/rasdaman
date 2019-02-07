@@ -79,6 +79,7 @@ class Importer:
         if len(self.coverage.slices) > 0:
             if self._is_insert():
                 self._initialize_coverage()
+                Importer.coverage_exists = True
 
             # Insert the remaining slices
             self._insert_slices()

@@ -43,12 +43,10 @@ public class CoverageMetadata {
     public static final String XML_ROOT_OPEN_TAG = "<CoverageMetadata>";
     public static final String XML_ROOT_CLOSE_TAG = "</CoverageMetadata>";
     
-    @JsonProperty(value = BandsMetadata.BANDS_METADATA_ROOT_TAG, access = Access.WRITE_ONLY)
-    // Deserialize the JSON bands object but not serialize it as coverage's metadata (i.e: it belongs to band's metadata only).
+    @JsonProperty(value = BandsMetadata.BANDS_METADATA_ROOT_TAG)
     private BandsMetadata bandsMetadata;
     
-    @JsonProperty(value = AxesMetadata.AXES_METADATA_ROOT_TAG, access = Access.WRITE_ONLY)
-    // Deserialize the JSON axes object but not serialize it as coverage's metadata (i.e: it belongs to axes' metadata only).
+    @JsonProperty(value = AxesMetadata.AXES_METADATA_ROOT_TAG)
     private AxesMetadata axesMetadata;
     
     // <slices> <slice> ... </slice> <slice> ... </slice> </slices>

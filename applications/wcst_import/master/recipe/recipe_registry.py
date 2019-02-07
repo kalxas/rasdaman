@@ -79,7 +79,7 @@ class RecipeRegistry:
         """
         recipe.describe()
 
-        if not session.blocking and not session.is_automated():
+        if session.blocking and not session.is_automated():
             raw_input("Press Enter to Continue...: ")
 
         log.title("\nRunning")

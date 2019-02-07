@@ -1053,7 +1053,6 @@ public class CrsUtil {
 
             if (isCompound(decUri)) {
                 String[] splitted = decUri.split(COMPOUND_SPLIT);
-                log.debug(Arrays.toString(splitted));
                 if (splitted.length <= 1) {
                     log.warn(decUri + " seems invalid: check consitency first.");
                 }
@@ -1064,7 +1063,6 @@ public class CrsUtil {
                 for (int i = 0; i < splitted.length; i++) {
                     if (i > 0) {
                         crss.add(splitted[i]);
-                        log.debug("Found atomic CRS from compound:" + splitted[i]);
                     }
                 }
             } else if (!uri.isEmpty()) {
