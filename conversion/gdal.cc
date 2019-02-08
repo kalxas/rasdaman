@@ -63,13 +63,16 @@ using namespace FormatParamKeys::Encode::GDAL;
 #define NODATA_DEFAULT_VALUE 0.0
 #endif
 
-const string r_Conv_GDAL::GDAL_KEY_METADATA
-{"METADATA"
-};
+const string r_Conv_GDAL::GDAL_KEY_METADATA{"METADATA"};
 const string r_Conv_GDAL::GDAL_KEY_NODATA_VALUES{"NODATA_VALUES"};
 const string r_Conv_GDAL::GDAL_KEY_IMAGE_STRUCTURE{"IMAGE_STRUCTURE"};
 const string r_Conv_GDAL::GDAL_KEY_PIXELTYPE{"PIXELTYPE"};
 const string r_Conv_GDAL::GDAL_VAL_SIGNEDBYTE{"SIGNEDBYTE"};
+
+
+const string r_Conv_GDAL::PNG_COMPRESSION_PARAM{"ZLEVEL"};
+const string r_Conv_GDAL::PNG_DEFAULT_ZLEVEL{"2"};
+const string r_Conv_GDAL::PNG_FORMAT{"png"};
 
 /// constructor using an r_Type object. Exception if the type isn't atomic.
 
@@ -157,7 +160,7 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     encodeImage(gdalBandType, rasBandType, width, height, numBands);
     setEncodeParams();
     CPLStringList formatParameters;
-    getFormatParameters(formatParameters);
+    getFormatParameters(formatParameters, rasBandType);
 
     string tmpFilePath = tmpFile.getFileName();
     GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
@@ -342,7 +345,7 @@ r_Conv_Desc& r_Conv_GDAL::convertFrom(r_Format_Params options)
     bandIds = getBandIds();
     desc.destType = ConvUtil::gdalTypeToRasType(poDataset, bandIds);
     setTargetDomain();
-    desc.dest = decodeImage();  
+    desc.dest = decodeImage();
 
     return desc;
 
@@ -1060,11 +1063,33 @@ r_Conv_GDAL::setConfigOptions()
 }
 
 void
-r_Conv_GDAL::getFormatParameters(CPLStringList& stringList)
+r_Conv_GDAL::getFormatParameters(CPLStringList& stringList, r_Primitive_Type* rasBandType)
 {
     for (const pair<string, string>& formatParameter : formatParams.getFormatParameters())
     {
         stringList.AddNameValue(formatParameter.first.c_str(), formatParameter.second.c_str());
+    }
+
+    auto formatLower = format;
+    boost::algorithm::to_lower(formatLower);
+    if (formatLower == PNG_FORMAT && rasBandType->type_id() != r_Type::BOOL)
+    {
+        // The default compression level for PNG (ZLEVEL) is 6. This level takes too
+        // long while not reducing the size too much for typical imagery (except for boolean images).
+        // So here the ZLEVEL is set to 2 if the user doesn't explicitly specify it.
+        bool pngCompressionSet = false;
+        for (const pair<string, string>& formatParameter : formatParams.getFormatParameters())
+        {
+            if (formatParameter.first == PNG_COMPRESSION_PARAM)
+            {
+                pngCompressionSet = true;
+                break;
+            }
+        }
+        if (!pngCompressionSet)
+        {
+            stringList.AddNameValue(PNG_COMPRESSION_PARAM.c_str(), PNG_DEFAULT_ZLEVEL.c_str());
+        }
     }
 }
 

@@ -3825,6 +3825,26 @@ encode
       }
     }
 
+
+GDAL Format Parameters
+^^^^^^^^^^^^^^^^^^^^^^
+
+The key/values under ``"formatParameters"`` are passed onto GDAL as given. Each
+format supports specific parameters as documented on the `GDAL formats page
+<https://www.gdal.org/formats_list.html>`.
+
+Rasdaman itself does not change the default values for these parameters, with
+the following *exceptions*:
+
+- ``PNG`` - the compression level when encoding to PNG (option ``ZLEVEL``) will
+  be set to ``2`` if the user does not specify it explicitly and the result
+  array is not of type ``boolean``. The default compression level of ``6`` does
+  not offer considerable space savings on typical image results (e.g. around
+  10\% lower file size for satellite image), while significantly increasing the
+  time to encode, taking up to 3-5x longer.
+
+
+
 Examples
 --------
 
@@ -4123,6 +4143,8 @@ Here the list of operators in descending strength of binding:
 -  ":" (interval constructor), ``condense``, ``marray``
 -  ``overlay``, ``concat``
 -  In all remaining cases evaluation is done left to right.
+
+
 
 .. _sec-nullvalues:
 

@@ -33,8 +33,10 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../../util/common.sh
 
-ORACLE_FILE="$SCRIPT_DIR/oracle.png"
-OUTPUT_FILE="$SCRIPT_DIR/output.png"
+mkdir -p "$SCRIPT_DIR/output/"
+
+ORACLE_FILE="$SCRIPT_DIR/oracle.tiff"
+OUTPUT_FILE="$SCRIPT_DIR/output/output.tiff"
 
 COVERAGE_ID="C0001"
 
@@ -51,7 +53,7 @@ import_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=Insert
 curl -s -S "$import_coverage_request" 2>&1 >> "$LOG_FILE"
 
 # then, check the imported coverage encoded in PNG
-get_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=$COVERAGE_ID&format=image/png"
+get_coverage_request="$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCoverage&coverageId=$COVERAGE_ID&format=tiff"
 curl -s "$get_coverage_request" > "$OUTPUT_FILE"
 
 cmp "$ORACLE_FILE" "$OUTPUT_FILE" 2>&1 > /dev/null
@@ -62,7 +64,7 @@ check
 # delete imported test coverage
 delete_coverage "$COVERAGE_ID"
 
-rm -rf "$OUTPUT_FILE" "$GML_FILE"
+rm -rf "$GML_FILE"
 
 # print summary from util/common.sh
 print_summary

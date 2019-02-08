@@ -211,7 +211,7 @@ private:
      * @param stringList this parameter is populated with a list of key/value
      * format parameters.
      */
-    void getFormatParameters(CPLStringList& stringList);
+    void getFormatParameters(CPLStringList& stringList, r_Primitive_Type* rasBandType);
 
     /**
      * Convert the value of a given parameter to double.
@@ -243,6 +243,10 @@ private:
     static const std::string GDAL_KEY_IMAGE_STRUCTURE;
     static const std::string GDAL_KEY_PIXELTYPE;
     static const std::string GDAL_VAL_SIGNEDBYTE;
+
+    static const std::string PNG_COMPRESSION_PARAM;
+    static const std::string PNG_DEFAULT_ZLEVEL;
+    static const std::string PNG_FORMAT;
 
     GDALDataset* poDataset;
     vector<int> bandIds;

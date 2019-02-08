@@ -112,8 +112,10 @@ function run_transpose_test()
     log ----- png and png GreySet transpose conversion ------
 
     create_coll test_tmp GreySet
-    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' -f $TESTDATA_PATH/mr_1.png --quiet > /dev/null 2>&1
-    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' --out file --outfile mr_1 --quiet > /dev/null
+    $RASQL -q 'insert into test_tmp values decode($1, "png", "{\"transpose\": [0,1]}")' \
+           -f $TESTDATA_PATH/mr_1.png --quiet > /dev/null 2>&1
+    $RASQL -q 'select encode(m, "png", "{\"transpose\": [0,1] }" ) from test_tmp as m' \
+           --out file --outfile mr_1 --quiet > /dev/null
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
