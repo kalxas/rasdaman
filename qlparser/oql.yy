@@ -3987,6 +3987,15 @@ nullvaluesList: LEPAR nullvalueIntervalList REPAR
         parseQueryTree->addDynamicObject( $$ );
         FREESTACK($1)
         FREESTACK($3)
+    }
+    |
+    LEPAR REPAR
+    {
+        $$ = new QtNullvaluesOp( new QtNullvaluesOp::QtNullvaluesList() );
+        $$->setParseInfo( *($1.info) );
+        parseQueryTree->addDynamicObject( $$ );
+        FREESTACK($1)
+        FREESTACK($2)
     };
 
 nullvalueIntervalList: nullvalueIntervalList COMMA nullvalueIntervalExp
