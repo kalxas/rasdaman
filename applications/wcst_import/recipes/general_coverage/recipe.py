@@ -44,13 +44,16 @@ from util.gdal_validator import GDALValidator
 from util.log import log
 from util.string_util import escape_metadata_dict
 from util.string_util import escape_metadata_nested_dicts
-from util.import_util import import_netcdf4
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from master.importer.resumer import Resumer
 
 
 class Recipe(BaseRecipe):
+
+
+    RECIPE_TYPE = "general_coverage"
+
     def __init__(self, session):
         """
         :param Session session: the session for this import
@@ -158,12 +161,10 @@ class Recipe(BaseRecipe):
                         color_palette_table = file_reader.read()
                         self.options['coverage']['metadata']['global']['colorPaletteTable'] = color_palette_table
 
-
     def describe(self):
         """
         Implementation of the base recipe describe method
         """
-        log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
         importer = self._get_importer()
 
         slices = importer.get_slices_for_description()

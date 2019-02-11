@@ -160,7 +160,8 @@ def main():
     validate()
     try:
         ingredients = decode_ingredients(read_ingredients())
-        session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'],
+        hooks = ingredients["hooks"] if "hooks" in ingredients else None
+        session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'], hooks,
                           os.path.basename(sys.argv[1]),
                           FileUtil.get_directory_path(sys.argv[1]))
         reg.run_recipe(session)

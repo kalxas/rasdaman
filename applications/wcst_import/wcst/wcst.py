@@ -24,7 +24,7 @@
 from abc import abstractmethod
 import xml.etree.ElementTree as XMLProcessor
 
-from util.log import log
+from util.log import log, make_bold
 from util.url_util import validate_and_read_url
 
 import urllib
@@ -345,7 +345,7 @@ class WCSTExecutor(WCSTBaseExecutor):
         if output:
             log.info(service_call)
         if mock:
-            log.info("\n\033[1mThis is just a mocked request, no data will be changed.\x1b[0m ");
+            log.info(make_bold("This is just a mocked request, no data will be changed."))
             log.info(service_call)
             return
         try:
@@ -392,5 +392,5 @@ class WCSTMockExecutor(WCSTBaseExecutor):
         """
         request = self.prepare_request(request)
         service_call = self.base_url + "?" + request.get_query_string()
-        log.info("\n\033[1mThis is just a mocked request, no data will be changed.\x1b[0m ");
+        log.info(make_bold("This is just a mocked request, no data will be changed."))
         log.info(service_call)

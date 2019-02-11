@@ -24,20 +24,13 @@ package org.rasdaman.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
-import static org.rasdaman.config.VersionManager.CIS_VERSION;
 import static org.rasdaman.config.VersionManager.SECORE_VERSION;
-import static org.rasdaman.config.VersionManager.WCPS_VERSION;
-import static org.rasdaman.config.VersionManager.WCST_VERSION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static petascope.core.KVPSymbols.CIS_SERVICE;
@@ -51,7 +44,6 @@ import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.IOUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
-import static org.rasdaman.config.VersionManager.WCS_VERSION_20;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.

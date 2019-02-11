@@ -23,14 +23,21 @@
 """
 
 import sys
+import subprocess
 from threading import Thread
 from time import sleep
 
+from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
+from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
+from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
 from session import Session
-from util.log import log
+from util.file_obj import File
+from util.log import log, make_bold
 from util.reflection_util import ReflectionUtil
+from recipes.general_coverage.recipe import Recipe as GeneralRecipe
+from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
 
 
 class RecipeRegistry:
@@ -71,12 +78,75 @@ class RecipeRegistry:
         for recipe in all_recipes:
             self.registry[recipe.get_name()] = recipe
 
+    def __run_shell_command(self, command, abort_on_error=False):
+        """
+        Run a shell command and exit wcst_import if needed
+        :param str command: shell command to run
+        """
+        try:
+            log.info("Executing shell command '{}'...".format(command))
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            log.info("Output result '{}'".format(output))
+        except subprocess.CalledProcessError as exc:
+            log.warn("Failed, status code '{}', error message '{}'.".format(exc.returncode, str(exc.output).strip()))
+            if abort_on_error:
+                log.error("wcst_import terminated on running hook command.")
+                exit(1)
+
+    def __run_hooks(self, recipe, session, hooks):
+        """
+        Run some hooks before/after analyzing input files
+        :param Session session:
+        :param BaseRecipe recipe:
+        :param dict[str:str] hooks: dictionary of before and after ingestion hooks
+        """
+        # gdal (default), netcdf or grib
+        recipe_type = GdalToCoverageConverter.RECIPE_TYPE
+        if session.recipe["name"] == GeneralRecipe.RECIPE_TYPE:
+            recipe_type = session.recipe["options"]["coverage"]["slicer"]["type"]
+
+        sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
+
+        for hook in hooks:
+            abort_on_error = False if "abort_on_error" not in hook else bool(hook["abort_on_error"])
+
+            if "description" in hook:
+                log.info("Executing hook '{}'...".format(make_bold(hook["description"])))
+
+            replace_paths = []
+            replace_path_template = None
+            if "replace_path" in hook:
+                # All replaced input files share same template format (e.g: file:path -> file:path.projected)
+                replace_path_template = hook["replace_path"][0]
+
+            for file in session.files:
+                evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(recipe_type, file)
+
+                # Evaluate shell command expression to get a runnable shell command
+                cmd_template = hook["cmd"]
+                cmd = sentence_evaluator.evaluate(cmd_template, evaluator_slice)
+                self.__run_shell_command(cmd, abort_on_error)
+
+                if replace_path_template is not None:
+                    # Evaluate replace path expression to get a valid file input path
+                    replace_path = sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
+                    replace_paths.append(File(replace_path))
+
+            if len(replace_paths) > 0:
+                # Use replaced file paths instead of original input file paths to analyze and create coverage slices
+                session.files = replace_paths
+
     def __run_recipe(self, session, recipe):
         """
         Run recipe
         :param Session session:
         :param BaseRecipe recipe:
         """
+
+        if session.before_hooks:
+            log.info(make_bold("Executing before ingestion hook(s)..."))
+            self.__run_hooks(recipe, session, session.before_hooks)
+
         recipe.describe()
 
         if session.blocking and not session.is_automated():
@@ -96,6 +166,10 @@ class RecipeRegistry:
             recipe.run()
 
         recipe.importer = None
+
+        if session.after_hooks:
+            log.info(make_bold("Executing after ingestion hook(s)..."))
+        self.__run_hooks(recipe, session, session.after_hooks)
 
     def run_recipe(self, session):
         """

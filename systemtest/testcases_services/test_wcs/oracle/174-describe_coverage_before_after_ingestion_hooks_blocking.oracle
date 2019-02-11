@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+    
+    
+    
+    
+    
+     >
+    <wcs:CoverageDescription id="test_before_after_hooks_projection_blocking">
+        <boundedBy>
+            <Envelope axisLabels="E N" srsDimension="2"
+                srsName="/crs/EPSG/0/32615" uomLabels="metre metre">
+                <lowerCorner>618885 3230195</lowerCorner>
+                <upperCorner>688885 3300195</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>test_before_after_hooks_projection_blocking</wcs:CoverageId>
+        <coverageFunction>
+            <GridFunction>
+                <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+                <startPoint>0 0</startPoint>
+            </GridFunction>
+        </coverageFunction>
+        <gmlcov:metadata/>
+        <domainSet>
+            <RectifiedGrid dimension="2" id="test_before_after_hooks_projection_blocking-grid">
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0</low>
+                        <high>13 13</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>E N</axisLabels>
+                <origin>
+                    <Point
+                        id="test_before_after_hooks_projection_blocking-point" srsName="/crs/EPSG/0/32615">
+                        <pos>621385 3297695</pos>
+                    </Point>
+                </origin>
+                <offsetVector srsName="/crs/EPSG/0/32615">5000 0</offsetVector>
+                <offsetVector srsName="/crs/EPSG/0/32615">0 -5000</offsetVector>
+            </RectifiedGrid>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="Red">
+                    <swe:Quantity>
+                        <swe:label>Red</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Green">
+                    <swe:Quantity>
+                        <swe:label>Green</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+                <swe:field name="Blue">
+                    <swe:Quantity>
+                        <swe:label>Blue</swe:label>
+                        <swe:description/>
+                        <swe:uom code="10^0"/>
+                        <swe:constraint/>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

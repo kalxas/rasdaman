@@ -30,7 +30,6 @@ from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from master.recipe.base_recipe import BaseRecipe
 from session import Session
-from util.coverage_util import CoverageUtil
 from util.crs_util import CRSUtil
 from util.gdal_util import GDALGmlUtil
 from util.log import log
@@ -38,7 +37,6 @@ from util.gdal_validator import GDALValidator
 from config_manager import ConfigManager
 from util.file_util import FileUtil
 from master.importer.resumer import Resumer
-import time
 
 from util.timer_util import Timer
 
@@ -72,7 +70,6 @@ class Recipe(BaseRecipe):
         """
         Implementation of the base recipe describe method
         """
-        log.info("\033[1mWMS Import:\x1b[0m " + str(self.options['wms_import']))
         importer = self._get_importer()
 
         slices = importer.get_slices_for_description()

@@ -100,3 +100,13 @@ handler2 = logging.StreamHandler(sys.stderr)
 filter2 = SingleLevelFilter(logging.INFO, True)
 handler2.addFilter(filter2)
 log.addHandler(handler2)
+
+
+def make_bold(input_text):
+    """
+    Create a bold text from a normal text.
+    :param str input_text: normal text.
+    """
+    start = "\033[1m"
+    end = "\033[0;0m"
+    return start + input_text + end

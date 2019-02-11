@@ -34,12 +34,13 @@ from util.file_util import FileUtil
 
 
 class Session:
-    def __init__(self, config, inp, recipe, ingredient_file_name, ingredients_dir_path):
+    def __init__(self, config, inp, recipe, hooks, ingredient_file_name, ingredients_dir_path):
         """
         This class is used to hold the configuration for this importing session
         :param dict[str,str] config: the config part of the json input
         :param dict[str,str] inp: the input part of the json input
         :param dict[str,dict|str] recipe: the recipe configuration
+        :param list[dict{}] hooks: list of command shoud be run before/after importing data
         :param str ingredient_file_name: the input file name of wcst_import.sh
         :param str ingredients_dir_path: the filepath to the directory containing the ingredients to be used
         for relative paths
@@ -86,6 +87,23 @@ class Session:
         self.description_max_no_slices = int(
             self.config['description_max_no_slices']) if "description_max_no_slices" in self.config else 5
         self.track_files = bool(self.config['track_files']) if "track_files" in self.config else True
+
+        self.wms_import = False
+        if "options" in self.recipe:
+            self.wms_import = True if "wms" not in self.recipe["options"] else bool(self.recipe["options"])
+
+        # Pre/Post hooks to run before analyzing files/after import replaced files
+        # (original files are not used but processed files (e.g: by gdalwarp))
+        self.before_hooks = []
+        self.after_hooks = []
+
+        if hooks is not None:
+            for hook in hooks:
+                if hook["when"] == "before_ingestion":
+                    self.before_hooks.append(hook)
+                elif hook["when"] == "after_ingestion":
+                    self.after_hooks.append(hook)
+
         self.setup_config_manager()
 
     def setup_config_manager(self):
@@ -145,7 +163,7 @@ class Session:
             for line in f:
                 if "secore_urls=" in line:
                     crs_resolver = line.split("=")[1].strip()
-                    # WCST_Import needs the SECORE prefix with "/" as last character
+                    # wcst_import needs the SECORE prefix with "/" as last character
                     if crs_resolver[-1] != "/":
                         crs_resolver += "/"
                     return crs_resolver

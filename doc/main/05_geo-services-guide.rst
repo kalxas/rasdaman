@@ -1611,7 +1611,7 @@ Some options are commonly applicable to all recipes.
   ingestion.
 * ``blocking`` (since v9.8) - Set to ``false`` to analyze and import each file
   separately (**non-blocking mode**). By default blocking is set to ``true``,
-  i.e. WCST_Import will analyze all input files first to create corresponding
+  i.e. wcst_import will analyze all input files first to create corresponding
   coverage descriptions, and only then import them. The advantage of non-blocking
   mode is that the analyzing and importing happens incrementally
   (in blocking mode the analyzing step can take a long time, e.g. days,
@@ -1622,7 +1622,7 @@ Some options are commonly applicable to all recipes.
         When importing in **non-blocking** import mode for coverages with irregular axes,
         it will *only rely on sorted files by filenames* and it can fail if these axes' coefficients
         are collected from input files' metadata (e.g: DateTime value in TIFF's tag or GRIB metadata)
-        as they might not be consecutive. WCST_Import will not analyze all files
+        as they might not be consecutive. wcst_import will not analyze all files
         to collect metadata to be sorted by DateTime as in default **blocking** import mode.
   
 
@@ -1693,7 +1693,7 @@ Some options are commonly applicable to all recipes.
   them in rasdaman. Note: only applicable to rasdaman enterprise.
 
 
-**"recipes" / "options" section**
+**recipes/options section**
 
 * ``import_order`` - Allow to sort the input files (``ascending`` (default)
   or ``descending``).Currently, it sorts by *datetime* which allows
@@ -1729,7 +1729,63 @@ Some options are commonly applicable to all recipes.
 
       "scale_levels": [ level1, level2, ... ]
 
+**hooks section**
 
+Since v9.8, wcst_import allows to run bash commands *before/after ingestion*
+by adding optional ``hooks`` configuration in an ingredient file. 
+There are 2 types of ingestion hooks: 
+
+* ``before_ingestion``: run bash commands before analyzing input file(s)
+  (e.g: using **gdalwarp** to reproject input file(s) from EPSG:3857 CRS to 
+  EPSG:4326 CRS and import *projected EPSG:4326* input file(s)) to a coverage.
+
+* ``after_ingestion``: run bash commands after importing input file(s)
+  to coverage (e.g: clean all projected file(s) from **gdalwarp** command above).
+
+When importing mode is set to non-blocking (``"blocking": false``),
+wcst_import will run before/after hook(s) for the file which
+is being used to update coverage, while the default blocking importing mode
+will run before/after hook(s) for *all input files* before/after 
+they are updated to a coverage. Parameters are explained below.
+
+.. code-block:: json
+
+  "hooks": [
+      {
+        // Describe what this ingestion hook does
+        "description": "reproject input files.",
+
+        // Run bash command before importing file(s) to coverage
+        "when": "before_ingestion",
+
+        // Bash command which should be run for each input file
+        "cmd": "gdalwarp -t_srs EPSG:4326 -tr 0.02 0.02 -overwrite \"${file:path}\" \"${file:path}.projected\"",
+
+        // If set to *true*, when a bash command line returns any error, wcst_import terminates immediately.
+        // **NOTE:** only valid for ``before`` hook.
+        "abort_on_error": true,
+
+        // wcst_import will consider the specified path(s) as the actual file(s)
+        // to be ingested after running the hook, rather than the original file.
+        // This is an array of paths where globbing is allowed (same as the "input":"paths" option).
+        // **NOTE:** only valid for ``before`` hook.
+        "replace_path": ["${file:path}.projected"]
+      },
+
+      {
+        // Describe what this ingestion hook does
+        "description": "Remove projected files.",
+
+        // Run bash command after importing file(s) to coverage
+        "when": "after_ingestion",
+
+        // Bash command which should be run for each imported file(s)
+        "cmd": "rm -rf \"${file:path}.projected\""
+      },
+
+      // more ``before`` and ``after`` hooks if needed
+      ...
+  ]
 
 .. _data-import-recipe-mosaic-map:
 

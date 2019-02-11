@@ -35,7 +35,7 @@ from util.crs_util import CRSUtil
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from util.file_obj import File
-from util.log import log
+from util.log import log, make_bold
 from master.importer.resumer import Resumer
 
 
@@ -120,24 +120,24 @@ class Recipe(GeneralCoverageRecipe):
 
     def describe(self):
         log.info("The recipe has been validated and is ready to run.")
-        log.info("\033[1mRecipe:\x1b[0m " + self.session.get_recipe()['name'])
-        log.info("\033[1mWCS Service:\x1b[0m " + ConfigManager.wcs_service)
-        log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
+        log.info(make_bold("Recipe: ") + self.session.get_recipe()['name'])
+        log.info(make_bold("WCS Service: ") + ConfigManager.wcs_service)
+        log.info(make_bold("Mocked: ") + str(ConfigManager.mock))
         if ConfigManager.track_files:
-            log.info("\033[1mTrack files:\x1b[0m " + str(ConfigManager.track_files))
+            log.info(make_bold("Track files: ") + str(ConfigManager.track_files))
         if ConfigManager.skip:
-            log.info("\033[1mSkip:\x1b[0m " + str(ConfigManager.skip))
+            log.info(make_bold("Skip: ") + str(ConfigManager.skip))
         if ConfigManager.retry:
-            log.info("\033[1mRetries:\x1b[0m " + str(ConfigManager.retries))
+            log.info(make_bold("Retries: ") + str(ConfigManager.retries))
         if ConfigManager.slice_restriction is not None:
-            log.info("\033[1mSlice Restriction:\x1b[0m " + str(ConfigManager.slice_restriction))
+            log.info(make_bold("Slice Restriction: ") + str(ConfigManager.slice_restriction))
 
         multiimporter = self._get_importer()
         cov_num = len(multiimporter.importers)
         i = 1
         for importer in multiimporter.importers:
-            log.info("Coverage {}/{} - \033[1m{}\x1b[0m: {} files.".format(
-                i, cov_num, importer.coverage.coverage_id, len(importer.coverage.slices)))
+            log.info("Coverage {}/{} - {}: {} files.".format(
+                i, cov_num, make_bold(importer.coverage.coverage_id), len(importer.coverage.slices)))
             i += 1
 
     def ingest(self):

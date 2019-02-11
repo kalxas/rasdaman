@@ -38,7 +38,7 @@ from master.importer.resumer import Resumer
 class Recipe(BaseRecipe):
     def __init__(self, session):
         """
-        The recipe class for my_custom_recipe (check WCST_Import guide from rasdaman web page for more details).
+        The recipe class for my_custom_recipe (check wcst_import guide from rasdaman web page for more details).
         :param Session session: the session for the import tun
         """
         super(Recipe, self).__init__(session)

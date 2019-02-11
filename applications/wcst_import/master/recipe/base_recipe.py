@@ -31,7 +31,7 @@ from recipes.general_coverage.abstract_to_coverage_converter import AbstractToCo
 
 from session import Session
 from util.coverage_util import CoverageUtil
-from util.log import log
+from util.log import log, make_bold
 from util.file_util import FileUtil
 
 
@@ -66,26 +66,29 @@ class BaseRecipe:
         cov = CoverageUtil(self.session.get_coverage_id())
         operation_type = "UPDATE" if cov.exists() else "INSERT"
         log.info("The recipe has been validated and is ready to run.")
-        log.info("\033[1mRecipe:\x1b[0m " + self.session.get_recipe()['name'])
-        log.info("\033[1mCoverage:\x1b[0m " + self.session.get_coverage_id())
-        log.info("\033[1mWCS Service:\x1b[0m " + ConfigManager.wcs_service)
-        log.info("\033[1mOperation:\x1b[0m " + operation_type)
-        log.info("\033[1mSubset Correction:\x1b[0m " + str(ConfigManager.subset_correction))
-        log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
+        log.info(make_bold("Recipe: ") + self.session.get_recipe()['name'])
+        log.info(make_bold("Coverage: ") + self.session.get_coverage_id())
+        log.info(make_bold("WCS Service: ") + ConfigManager.wcs_service)
+        log.info(make_bold("Operation: ") + operation_type)
+        log.info(make_bold("Subset Correction: ") + str(ConfigManager.subset_correction))
+        log.info(make_bold("Mocked: ") + str(ConfigManager.mock))
+        log.info(make_bold("WMS Import: ") + str(self.session.wms_import))
 
+        # Blocking means analyzing all input files before importing all coverage slices
+        # Non-blocking means analazying 1 file then import 1 file then continue with next file.
         import_mode = "Blocking"
         if not self.session.blocking:
             import_mode = "Non-blocking"
-        log.info("\033[1mImport mode:\x1b[0m " + import_mode)
+        log.info(make_bold("Import mode: ") + import_mode)
 
         if ConfigManager.track_files:
-            log.info("\033[1mTrack files:\x1b[0m " + str(ConfigManager.track_files))
+            log.info(make_bold("Track files: ") + str(ConfigManager.track_files))
         if ConfigManager.skip:
-            log.info("\033[1mSkip:\x1b[0m " + str(ConfigManager.skip))
+            log.info(make_bold("Skip: ") + str(ConfigManager.skip))
         if ConfigManager.retry:
-            log.info("\033[1mRetries:\x1b[0m " + str(ConfigManager.retries))
+            log.info(make_bold("Retries: ") + str(ConfigManager.retries))
         if ConfigManager.slice_restriction is not None:
-            log.info("\033[1mSlice Restriction:\x1b[0m " + str(ConfigManager.slice_restriction))
+            log.info(make_bold("Slice Restriction: ") + str(ConfigManager.slice_restriction))
         pass
 
     @abstractmethod

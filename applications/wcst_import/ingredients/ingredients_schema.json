@@ -109,7 +109,7 @@
                                     "slicer": {},
                                     "__comment__": {
                                         "type": "string"
-                                    }                                 
+                                    }
                                 },
                                 "additionalProperties": false
                             },
@@ -131,6 +131,38 @@
                     "additionalProperties": false
                 }
             }
-        }            
+        },
+
+        "hooks": {
+            "type": "array",
+             "items": {
+                 "type": "object",
+                 "required": [
+                    "when",
+                    "cmd"
+                 ],
+                 "properties": {
+                     "description": {
+                         "type": "string"
+                     },
+                     "when": {
+                         "type": "string"
+                     },
+                     "cmd": {
+                         "type": "string"
+                     },
+                     "abort_on_error": {
+                         "type": "boolean"
+                     },
+                     "replace_path": {
+                         "type": "array",
+                         "items": {
+                             "type": "string"
+                         }
+                     }
+                 }
+            },
+            "additionalProperties": false
+        }
     }
 }
