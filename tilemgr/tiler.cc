@@ -395,14 +395,14 @@ r_Tiler::generateTiles(const std::vector<Tile*>& sourceTiles) const
     {
         dummy = *splitedDomIt;
         p = new Tile(dummy, basetype, dataformat);
-        //std::cout << "new tile " << dummy << " " << basetype->getName() << " " << dataformat << " size " << p->getSize() << " other size " << p->getDBTile()->getSize() << std::endl;
+//        LDEBUG << "new tile " << dummy << " " << basetype->getName() << " " << dataformat << " size " << p->getSize() << " other size " << p->getDBTile()->getSize();
         for (sourceTileIt = sourceTiles.begin(); sourceTileIt != sourceTiles.end(); sourceTileIt++)
         {
-            //std::cout << " the other tile domain " << (*sourceTileIt)->getDomain() << " type " << (*sourceTileIt)->getType()->getName() << std::endl;
+//            LDEBUG << " the other tile domain " << (*sourceTileIt)->getDomain() << " type " << (*sourceTileIt)->getType()->getName();
             if (dummy.intersects_with((*sourceTileIt)->getDomain()))
             {
                 const r_Minterval& updateDomain = dummy.create_intersection((*sourceTileIt)->getDomain());
-                //std::cout << "  they intersect.  on " << updateDomain << std::endl;
+//                LDEBUG << "  they intersect.  on " << updateDomain;
                 //UnaryOp* tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, p->getType(), (*sourceTileIt)->getType(), 0, 0);
                 //causes fmr/abr/umr
                 p->copyTile(updateDomain, *sourceTileIt, updateDomain);

@@ -88,7 +88,6 @@ logn "test initialization..."
 drop_colls $TEST_COLL
 feedback
 
-
 #
 # ------------------------------------------------------------------------------
 # Tests for updating with tiff-encoded data. Repeat all tests with filePaths
@@ -556,6 +555,41 @@ check_result $exp_result $result
 #drop data so test can be rerun safely
 drop_colls $TEST_TARGET $TEST_SOURCE
 # end of tests for performing an UPDATE with the FROM clause
+
+
+# ------------------------------------------------------------------------------
+# Updates should properly initialize new tiles with null values
+# http://rasdaman.org/ticket/1981
+
+drop_test_update_nullvalues() {
+    # clean up
+    $RASQL --quiet -q "drop collection test_update_nullvalues" > /dev/null 2>&1
+    for t in test_update_nullvalues_Set test_update_nullvalues_Array test_update_nullvalues_Cell; do
+      $RASQL --quiet -q "drop type $t" > /dev/null 2>&1
+    done
+}
+
+logn "testing null value initialization on update... "
+
+drop_test_update_nullvalues
+
+$RASQL --quiet -q 'CREATE TYPE test_update_nullvalues_Cell AS ( band0 long ,band1 long ,band2 long ,band3 long ,band4 long ,band5 long ,band6 long ,band7 long ,band8 long  )'
+$RASQL --quiet -q 'CREATE TYPE test_update_nullvalues_Array AS test_update_nullvalues_Cell MDARRAY [D0,D1,D2]'
+$RASQL --quiet -q 'CREATE TYPE test_update_nullvalues_Set AS SET (test_update_nullvalues_Array NULL VALUES [-9999])'
+$RASQL --quiet -q 'CREATE COLLECTION test_update_nullvalues test_update_nullvalues_Set'
+
+$RASQL --quiet -q 'INSERT INTO test_update_nullvalues VALUES <[0:0,0:0,0:0] {0l,0l,0l,0l,0l,0l,0l,0l,0l}> TILING ALIGNED [0:47, 0:19, 0:19] TILE SIZE 19200'
+
+currdir="$(pwd)"
+$RASQL --quiet -q 'UPDATE test_update_nullvalues SET test_update_nullvalues[0,0:0,0:0] ASSIGN <[0:0,0:0] { 1483228800l, 0l, 0l, 0l, 0l, 0l, 0l, 0l, 0l }>'
+$RASQL --quiet -q 'UPDATE test_update_nullvalues SET test_update_nullvalues[1,0:0,0:0] ASSIGN <[0:0,0:0] { 1483230600l, 0l, 0l, 1900l, 965800l, -63400l, 1007099l, -600l, -9999l }>'
+
+result=$(select_scalar "select c[1,0,0] from test_update_nullvalues as c")
+exp_result="{ 1483230600, 0, 0, 1900, 965800, -63400, 1007099, -600, -9999 }"
+check_result "$exp_result" "$result"
+
+drop_test_update_nullvalues
+# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------

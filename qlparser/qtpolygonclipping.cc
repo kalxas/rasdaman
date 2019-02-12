@@ -138,8 +138,8 @@ QtPositiveGenusClipping::generateMask(bool toFill)
 
     //make the data contiguous
     r_Minterval thisDomain = getDomain();
-    char* resultMask = new char[thisDomain.cell_count()];
-    char* resPtr = resultMask;
+    std::unique_ptr<char[]> resultMask(new char[thisDomain.cell_count()]);
+    char* resPtr = resultMask.get();
     const char* resultMaskPtr = &resultMask[0];
     
     for(size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)

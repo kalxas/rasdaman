@@ -378,35 +378,22 @@ template <typename TilePtr>
 Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
     :   domain(resDom)
 {
-    // iterators for tiles
-    typename std::vector<TilePtr>::iterator tileIt;
-    // domain of the current tile
-    r_Minterval currDom;
-
     // get first Tile
-    tileIt = tilesVec->begin();
+    auto tileIt = tilesVec->begin();
     // initialize type with type of first tile
     type = (*tileIt)->getType();
 
     // init contents
     if (RMInit::useTileContainer)
-    {
         blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
     else
-    {
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
-    }
 
     // insert all tiles in the result tile
-    tileIt = tilesVec->begin();
     while (tileIt != tilesVec->end())
     {
-        currDom = (*tileIt)->getDomain();
-        currDom.intersection_with(resDom);
-
+        auto currDom = (*tileIt)->getDomain().create_intersection(resDom);
         copyTile(currDom, (&** tileIt), currDom);
-
         tileIt++;
     }
 }

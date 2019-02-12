@@ -499,6 +499,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
             // get minterval data
             vector<bool>*  trimFlags = new vector<bool>(*((static_cast<QtMintervalData*>(indexData))->getTrimFlags()));
             r_Minterval    domain    = (static_cast<QtMintervalData*>(indexData))->getMintervalData();
+            LDEBUG << "Evaluate subset " << domain;
 
             //
             // In case of dynamic index expressions, load optimization has to
@@ -624,7 +625,7 @@ QtDomainOperation::evaluate(QtDataList* inputList)
                             // domain of the relevant area of the actual tile
                             r_Minterval intersectDom = tileDom.create_intersection(domain);
 
-                            LTRACE << "  trimming/projecting tile with domain " << tileDom << " to domain " << intersectDom;
+                            LDEBUG << "  trimming/projecting tile with domain " << tileDom << " to domain " << intersectDom;
 
                             // create projected tile
                             Tile* resTile = new Tile(tileIt->get(), intersectDom, &projSet);
@@ -649,11 +650,12 @@ QtDomainOperation::evaluate(QtDataList* inputList)
                         const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
 
                         // create a transient MDD object for the query result
-                        MDDObj* resultMDD = new MDDObj(mddType, projectedDom);
+                        MDDObj* resultMDD = new MDDObj(mddType, projectedDom, nullValues);
 
                         // create transient tile
                         Tile* resTile = new Tile(projectedDom, mddType->getBaseType());
                         resTile->setPersistent(false);
+                        resultMDD->fillTileWithNullvalues(resTile->getContents(), resTile->getDomain().cell_count());
 
                         // insert Tile in result mddObj
                         resultMDD->insertTile(resTile);

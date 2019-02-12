@@ -321,9 +321,8 @@ QtClipping::extractSubspace(const MDDObj* op,
     size_t typeSize = (*(allTiles->begin()))->getType()->getSize();
     
     
-    // initialize the data in the resTile to 0
-    char* resInitializer = resTile->getContents();
-    op->fillTileWithNullvalues(resInitializer, projectedDomain.cell_count());
+    // initialize the data in the resTile to null
+    op->fillTileWithNullvalues(resTile->getContents(), projectedDomain.cell_count());
     
     //object for computing the point coordinates of the preimage of the projection in the subspace.
     FindSection resFinder(mshape->computeHyperplaneEquation(), keptDimensions);
@@ -628,10 +627,10 @@ QtClipping::extractMultipolygon(const MDDObj* op,
             r_Minterval intersectDom = resultDom->create_intersection(srcTileDom);
             resTile.reset( new Tile(intersectDom, op->getCellType()) );
             
-            const char* resDataPtr = resTile->getContents();
+            char* resDataPtr = resTile->getContents();
             
             //initialize the tile to be filled with nullValues.
-            op->fillTileWithNullvalues(const_cast<char*>(resDataPtr), intersectDom.cell_count());
+            op->fillTileWithNullvalues(resDataPtr, intersectDom.cell_count());
             
             //construct iterators for filling data in result tile
             r_Miter resTileMaskIterator(&intersectDom, resultMaskDom.get(), sizeof(char), resultMask.get());
@@ -1471,8 +1470,6 @@ QtClipping::buildResultMask(
     {
         if(iter->getDomain().intersects_with(*resultDom))
         {
-            const r_Minterval* currentDomain = new r_Minterval(iter->getDomain());
-            
             vector< vector<char> > polygonMask;
             
             if(geomType == QtGeometryData::QtGeometryType::GEOM_POLYGON
@@ -1488,8 +1485,9 @@ QtClipping::buildResultMask(
             {
                 polygonMask = iter->generateMask(false);
             }
-            
-            r_Miter resultMaskIter(currentDomain, resultDom.get(), sizeof(char), resultMaskPtr);
+
+            auto iterDomain = iter->getDomain();
+            r_Miter resultMaskIter(&iterDomain, resultDom.get(), sizeof(char), resultMaskPtr);
             
             //this is the approach we take when combining positive genus polygonal masks
             for(size_t m = 0; m < polygonMask.size(); m++)

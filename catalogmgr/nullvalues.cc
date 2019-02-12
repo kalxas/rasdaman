@@ -52,10 +52,10 @@ NullValuesHandler::~NullValuesHandler() noexcept(false)
 r_Nullvalues*
 NullValuesHandler::getNullValues() const
 {
-    if (nullValues != NULL)
-    {
-        LDEBUG << "returning null values " << nullValues->toString();
-    }
+//    if (nullValues != NULL)
+//    {
+//        LDEBUG << "returning null values " << nullValues->toString();
+//    }
     return nullValues;
 }
 
@@ -74,10 +74,10 @@ NullValuesHandler::getNullValue() const
 void
 NullValuesHandler::setNullValues(r_Nullvalues* newNullValues)
 {
-    if (newNullValues != NULL)
-    {
-        LDEBUG << "setting to " << newNullValues->toString();
-    }
+//    if (newNullValues != NULL)
+//    {
+//        LDEBUG << "setting to " << newNullValues->toString();
+//    }
     nullValues = newNullValues;
 }
 

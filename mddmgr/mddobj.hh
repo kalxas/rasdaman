@@ -257,11 +257,23 @@ public:
     void setUpdateNullValues(r_Nullvalues* newNullValues);
 
     /// write nullValues to a given tile...
-    /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
-    /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.   
+    /// given a tile from (op) with the result of getContents() being resDataPtr,
+    /// and total # cells in that tile = cellCount, this method initializes
+    /// the entire tile with nullValues derived from (op).
+    /// A templated helper function addresses the stored data type.
     void fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const;
 
 protected:
+
+    /// write nullValues to a given tile...
+    /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
+    /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.
+    void fillSinglebandTileWithNullvalues( char* resDataPtr, size_t cellCount, TypeEnum cellType ) const;
+
+    /// write nullValues to a given tile...
+    /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
+    /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.
+    void fillMultibandTileWithNullvalues( char* resDataPtr, size_t cellCount ) const;
 
     /// does some consistency checks for regular tiling with rc index
     const r_Minterval& checkStorage(const r_Minterval& domain);

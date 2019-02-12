@@ -241,6 +241,11 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     if (!sourceNullValues)
         sourceNullValues = targetObj->getNullValues();
 
+    // this is necessary so that later on when generated tiles are filled with null values,
+    // the source null values will be considered if the target object has no null values itself
+    if (!targetObj->getNullValues() && sourceNullValues)
+        targetObj->setNullValues(sourceNullValues);
+
     // test, if target is a persistent object
     if (!targetObj->isPersistent())
     {
@@ -338,6 +343,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     tmpTilePtrs.reset(targetObj->intersect(sourceMDDDomain));
     for (auto it = tmpTilePtrs->begin(); it != tmpTilePtrs->end(); ++it)
     {
+        LDEBUG << "existing target tile with domain: " << (*it)->getDomain();
         targetTiles.push_back(it->get());
         targetDomains.push_back((*it)->getDomain());
     }
@@ -352,6 +358,10 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     vector<Tile*> retval = t.generateTiles(sourceTiles);
     for (auto retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
     {
+        const auto &retval = *retvalIt;
+        LDEBUG << "generated target tile with domain: " << retval->getDomain();
+        if (targetObj->getNullValues())
+            targetObj->fillTileWithNullvalues(retval->getContents(), retval->getDomain().cell_count());
         targetTiles.push_back(*retvalIt);
     }
 

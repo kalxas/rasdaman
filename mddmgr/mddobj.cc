@@ -34,8 +34,6 @@ rasdaman GmbH.
 #include "config.h"
 #include "mymalloc/mymalloc.h"
 
-static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2005/07/06 22:43:20 rasdev Exp $";
-
 #include <iostream>
 #include <stdlib.h>
 #include <cstring>
@@ -49,6 +47,7 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 #include "relcatalogif/mdddomaintype.hh"
 #include "raslib/mddtypes.hh"
 #include "indexmgr/mddobjix.hh"
+#include "relcatalogif/structtype.hh"
 #include <logging.hh>
 
 using boost::shared_ptr;
@@ -473,93 +472,128 @@ MDDObj::setUpdateNullValues(r_Nullvalues* newNullValues)
     }
 }
 
+//
+// Generate a switch for all base TypeEnums, and put the given code
+// block in each case.
+//
+#define CODE(...) __VA_ARGS__
+#define MAKE_SWITCH_TYPEENUM(cellType, T, code, codeDefault) \
+  switch (cellType) { \
+    case ULONG:    { using T = r_ULong;   code break; } \
+    case USHORT:   { using T = r_UShort;  code break; } \
+    case CHAR:     { using T = r_Char;    code break; } \
+    case BOOLTYPE: { using T = r_Boolean; code break; } \
+    case LONG:     { using T = r_Long;    code break; } \
+    case SHORT:    { using T = r_Short;   code break; } \
+    case OCTET:    { using T = r_Octet;   code break; } \
+    case DOUBLE:   { using T = r_Double;  code break; } \
+    case FLOAT:    { using T = r_Float;   code break; } \
+    default:       { codeDefault break; } \
+  }
+
+
 template <class T>
 void fillTile(r_Range fillValArg, size_t cellCount, char* startPointArg)
 {
-    T fillValue = static_cast<T>(fillValArg);
     T* startPoint = reinterpret_cast<T*>(startPointArg);
-    std::fill(startPoint, startPoint+ cellCount, fillValue);
+    std::fill(startPoint, startPoint + cellCount, static_cast<T>(fillValArg));
 }
 
 void
 MDDObj::fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const
 {
-    if(this->getNullValues())
+    if (this->getNullValues())
     {
-        // the vector of potential nullValues
-        auto nullValue = this->getNullValue();
-
-        // convert the null value to the correct base type, and fill resDataPtr 
-        // with these values. break into a switch/case for converting the 
-        // r_Point to the correct type of null value     
-        switch(this->getCellType()->getType())
+        if (this->getCellType()->getType() == STRUCT)
         {
-            // for now, we restrict ourselves to atomic types, and throw 
-            // struct types into a default case.
-    //        case STRUCT:
-    //        {
-    //            LTRACE << "Structural base type: " << this->getCellType()->getName();
-    //            size_t typeSize = this->getCellType()->getSize();
-    //            fillTile<r_Char>(0, cellCount * typeSize, resDataPtr);
-    //            break;
-    //        }
-            case ULONG:
-            {
-                fillTile<r_ULong>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case USHORT:
-            {
-                fillTile<r_UShort>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case CHAR:
-            {
-                fillTile<r_Char>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case BOOLTYPE:
-            {
-                fillTile<r_Boolean>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case LONG:
-            {
-                fillTile<r_Long>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case SHORT:
-            {
-                fillTile<r_Short>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case OCTET:
-            {
-                fillTile<r_Octet>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case DOUBLE:
-            {
-                fillTile<r_Double>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            case FLOAT:
-            {
-                fillTile<r_Float>(nullValue, cellCount, resDataPtr);
-                break;
-            }
-            default:
-            {
-                LTRACE << "Unknown base type: " << this->getCellType()->getName();
-                size_t typeSize = this->getCellType()->getSize();
-                fillTile<r_Char>(0, cellCount * typeSize, resDataPtr);            
-                break; 
-            }
+            fillMultibandTileWithNullvalues(resDataPtr, cellCount);
+        }
+        else
+        {
+            fillSinglebandTileWithNullvalues(resDataPtr, cellCount, this->getCellType()->getType());
         }
     }
     else
     {
-        size_t typeSize = this->getCellType()->getSize();
-        fillTile<r_Char>(0, cellCount * typeSize, resDataPtr);         
+        fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
+    }
+}
+
+void
+MDDObj::fillSinglebandTileWithNullvalues( char* resDataPtr, size_t cellCount, TypeEnum cellType) const
+{
+    auto nullValue = this->getNullValue();
+    LDEBUG << "Initializing single-band tile with null value " << nullValue;
+
+    MAKE_SWITCH_TYPEENUM(cellType, T,
+    CODE( // case T:
+        fillTile<T>(nullValue, cellCount, resDataPtr);
+    ),
+    CODE( // default:
+        LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+        fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
+    ));
+}
+
+template <typename T>
+void fillBand(r_Double nullValue, size_t cellCount, char *dst, unsigned int cellTypeSize)
+{
+    const auto nullValueT = static_cast<T>(nullValue);
+    for (size_t i = 0; i < cellCount; ++i, dst += cellTypeSize)
+    {
+        *reinterpret_cast<T*>(dst) = nullValueT;
+    }
+}
+
+void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount) const
+{
+    const auto *structType = dynamic_cast<const StructType*>(this->getCellType());
+    const auto numElems = structType->getNumElems();
+    assert(numElems > 0);
+    LDEBUG << "Initializing multi-band tile with " << numElems << " bands with null value";
+
+    bool allBandsSameType = true;
+    auto firstBandType = structType->getElemType(0u)->getType();
+    for (unsigned int i = 0; i < numElems; ++i)
+    {
+        const auto bandType = structType->getElemType(i)->getType();
+        if (bandType == STRUCT)
+        {
+            // cannot handle nested structs, fill with zeros
+            LWARNING << "MDD type is a struct that contains struct bands; "
+                     << "cannot initialize to null value, will be initialized to 0.";
+            fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
+            return;
+        }
+        allBandsSameType &= (firstBandType == bandType);
+    }
+
+    if (allBandsSameType)
+    {
+        // optimization: all bands are of the same type
+        fillSinglebandTileWithNullvalues(resDataPtr, cellCount * numElems, firstBandType);
+    }
+    else
+    {
+        auto nullValue = this->getNullValue();
+        // bands of varying types, this is quite inefficient
+        const auto cellTypeSize = getCellType()->getSize();
+        size_t bandOffset = 0;
+        for (unsigned int i = 0; i < numElems; ++i)
+        {
+            LDEBUG << "  initializing band " << i << " with null value " << nullValue;
+            char *dst = resDataPtr + bandOffset;
+
+            MAKE_SWITCH_TYPEENUM(structType->getElemType(i)->getType(), T,
+            CODE( // case T:
+                fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
+            ),
+            CODE( // default:
+                LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+                fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
+            ));
+
+            bandOffset += structType->getElemType(i)->getSize();
+        }
     }
 }

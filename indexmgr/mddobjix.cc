@@ -324,7 +324,7 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
         intersectTimer->start();
     }
 #endif
-
+    LDEBUG << "getting all tiles from index intersecting domain " << searchInter;
     vector<shared_ptr<Tile>>* result = lastAccessIntersect(searchInter);
     if (!result)
     {
@@ -360,10 +360,9 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
 #endif
                 for (i = 0; i < resSize; i++)
                 {
-                    LTRACE << "received entry " << resultKeys[i];
+                    LDEBUG << "found persistent entry in index with domain " << resultKeys[i].getDomain();
                     result->push_back(shared_ptr<Tile>(
-                                          new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                                   DBTileId(resultKeys[i].getObject()))));
+                        new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject()))));
                 }
             }
             else
@@ -371,11 +370,14 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                 for (i = 0; i < resSize; i++)
                 {
                     if (resultKeys[i].getTransObject() == NULL)
+                    {
+                        LDEBUG << "found non-persistent non trans object entry in index with domain " << resultKeys[i].getDomain();
                         result->push_back(shared_ptr<Tile>(
-                                              new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                                       DBTileId(resultKeys[i].getObject()))));
+                            new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject()))));
+                    }
                     else
                     {
+                        LDEBUG << "found non-persistent trans object entry in index with domain " << resultKeys[i].getDomain();
                         result->push_back(resultKeys[i].getTransObject());
                     }
                 }
