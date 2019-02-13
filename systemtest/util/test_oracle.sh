@@ -219,9 +219,8 @@ for f in *; do
 
   stop_timer
 
-  c_on=$(get_status_color "$status")
-  msg=$(printf "%3d/$total_test_no ${c_on}%5s${c_off} %5ss   $f\n" $curr_test_no $status $(get_time_s))
-  log_colored "$msg"
+  # print result of this test case
+  print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"  
 
 done
 

@@ -204,7 +204,7 @@ error() {
 
 # write the detail error in failed_cases.log
 log_failed() {
-  echo "$PROG: $@" | tee -a "$FAILED_LOG_FILE"
+  echo "$PROG: $@" >> "$FAILED_LOG_FILE"
 }
 
 feedback() {
@@ -220,6 +220,16 @@ check_exit() {
     exit $RC_ERROR
   else
     loge ok.
+  fi
+}
+
+# From test status -> return code (e.g: OK -> 0)
+get_return_code() {
+  # $1 test status
+  if [ "$1" == "$ST_PASS" ]; then
+    return "$RC_OK"
+  else
+    return "$RC_ERROR"
   fi
 }
 
@@ -261,6 +271,25 @@ get_time_s()
 #
 start_timer
 total_timer_start="$timer_start"
+
+
+#
+# Print the test result of a test with elapsed time format
+# e.g: test.sh:   1/103    OK   .81s   3D_Timeseries_Regular
+#
+# $1 test case name
+# $2 result of test case (OK/FAIL)
+# $3 total number of test cases
+# $4 index of test case in list of test cases
+print_testcase_result() {
+  local test_case_name=$1
+  local status=$2
+  local total_test_no=$3
+  local curr_test_no=$4
+  local c_on=$(get_status_color "$status")
+  local msg=$(printf "%3d/$total_test_no ${c_on}%5s${c_off} %5ss   $test_case_name\n" $curr_test_no $status $(get_time_s))
+  log_colored "$msg"
+}
 
 
 # ------------------------------------------------------------------------------

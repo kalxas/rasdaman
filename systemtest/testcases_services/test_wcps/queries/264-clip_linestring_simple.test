@@ -1,1 +1,1 @@
-for $c in (test_rgb) return encode( clip($c, LineString(0 0, 390 0)), "csv")
+for $c in (test_rgb) return encode( clip($c, LineString(100 100, 230 230)), "csv")

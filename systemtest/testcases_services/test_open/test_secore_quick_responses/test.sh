@@ -39,12 +39,11 @@ echo $SCRIPT_DIR
 pids=""
 
 OUTPUT_FOLDER="output"
-mkdir "$OUTPUT_FOLDER"
+mkdir -p "$OUTPUT_FOLDER"
 
-N=50
 log "Test SECORE response time with $N concurrent queries..."
-for i in {1..$N}; do
-   #echo "test $i time..."
+for i in {1..20}; do
+   # echo "test $i time..."
    wget -q "$SECORE_URL" -O "$OUTPUT_FOLDER/secore$i.txt" &
    # add current process pid to an array, then later it can finish the script when all processes are stopped.
    pids="$pids $!"
@@ -54,9 +53,9 @@ wait $pids
 
 result=true
 log "All queries finished, checking results."
-for f in "output/*"; do
+for f in "$OUTPUT_FOLDER"/*; do
    grep ellipsoid "$f" -q
-   [ $? -eq 0 ] && { result=false; break; }
+   [ $? -ne 0 ] && { result=false; break; }
 done
 
 # clean the output file

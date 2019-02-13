@@ -41,14 +41,30 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 cd "$SCRIPT_DIR"
 
 # list all the subdirectories of test_open
+total_test_no=$(ls -ld */ | wc -l)
+curr_test_no=0
+
 for d in */ ; do
+    test_case_name="$d"
+    curr_test_no=$(($curr_test_no + 1))
+    status="$ST_PASS"
+
 	testscript="$d/test.sh"
 	if [ ! -f "$testscript" ]; then
 		log "$testscript not found, skipping."
 	else
-		log_colored "running test case ${c_underline}$d${c_off}"
-		"./$testscript"
-        check quiet
+        start_timer
+
+        # Running test case
+		"./$testscript" >> /dev/null
+        status=$?
+
+        update_result
+
+        stop_timer
+      
+        # print result of this test case
+        print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"
 	fi
 done
 

@@ -74,8 +74,6 @@ write_to_failed_log() {
     # $2 is the reason
     log_failed "Test case: $1...failed."
     log_failed "Reason: $2"
-    log_failed "----------------------------------------------------------------------"
-    log_failed ""
 }
 
 run_wcst_import() {
@@ -96,8 +94,16 @@ check_petascope || exit $RC_ERROR
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
+total_test_no=$(ls -ld "$TEST_DATA"/* | wc -l)
+curr_test_no=0
+
 # 1. Iterate folders in test data
 for test_case in $TEST_DATA/*; do
+
+    curr_test_no=$(($curr_test_no + 1))
+    status="$ST_PASS"
+
+    start_timer
 
     # each folder is a coverage with image files and recipe
     # 1.1 get the recipe in $test_case directory (NOTE: -L to find in symbolic directory)
@@ -113,11 +119,9 @@ for test_case in $TEST_DATA/*; do
     cp "$recipe_file_template" "$recipe_file"
 
     test_case_name=$(basename "$test_case")
-    log_colored "Checking test case name ${c_underline}$test_case_name${c_off}"
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-	    log "Ingesting a sample collection: $COLLECTION_NAME."
         rasql -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
     fi
 
@@ -131,127 +135,75 @@ for test_case in $TEST_DATA/*; do
         outputError=`wcst_import.sh $recipe_file -q`
         oracleError=`cat $test_case/test.oracle`
 
-        # echo $outputError
-        # echo $oracleError
-        # exit 1
-
-        logn "Checking error output is identical with oracle output..."
-
         # 1.5 check if output contains the error message from test.oracle
         if [[ "$outputError" == *"$oracleError"* ]]; then
-            check_passed
+            status="$ST_PASS"
         else            
-            check_failed
+            status="$ST_FAIL"
             write_to_failed_log "$test_case" "Error output is different from oracle output."            
         fi
 
-        clear_resume_file "$test_case"
-        # Got the test result for this test case, check next test case        
-        log "----------------------------------------------------------------------"
-
-        continue
-    else
-        logn "Test coverage import... "
+    else        
         # This test will succeed, check coverage exists later
         run_wcst_import "$test_case_name" "$recipe_file"
-    fi
 
-    if [[ $? != 0 ]]; then
-        sleep 2
-        # In Debian, it can fail without reason in some test cases, try it again can make it work
-        echo ""
-        logn "Failed, trying one more time... "
-        run_wcst_import "$test_case_name" "$recipe_file"    
-    fi
-    
-    if [[ $? != 0 ]]; then
-        sleep 2
-        # In Debian, it can fail without reason in some test cases, try it again can make it work
-        echo ""
-        logn "Failed, trying one more time... "
-        run_wcst_import "$test_case_name" "$recipe_file"
-    fi    
-
-    # 2 Check if wcst_import runs successfully
-    if [[ $? != 0 ]]; then
-        # 2.1 error when ingesting data
-        check_failed        
-        write_to_failed_log "$test_case" "Failed importing coverage."                
-        log "----------------------------------------------------------------------"
-
-        continue
-    else
-        # 2.2 run correctly
-        check_passed
-
-        grep -q '"mock": true' "$recipe_file"
-        if [[ $? == 0 ]]; then
-            # It is a mock import, nothing has been ingested
-            log "----------------------------------------------------------------------"
-            continue
+        # Some errors occurred, need to retry
+        if [[ $? != 0 ]]; then
+            write_to_failed_log "$test_case" "Failed importing coverage, retrying."
+            sleep 1
+            run_wcst_import "$test_case_name" "$recipe_file"    
         fi
-        
-        # 2.3 remove file resume.json to clean
-        clear_resume_file "$test_case"        
 
-        # 2.4 Get coverage id from ingest.json
-        COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $recipe_file | awk -F'"' '{print $4}')
+        # 2 Check if wcst_import runs successfully
+        if [[ $? != 0 ]]; then
+            # 2.1 error when ingesting data
+            status="$ST_FAIL"        
+            write_to_failed_log "$test_case" "Failed importing coverage."
+        else
+            # 2.2 run correctly
 
-        # 2.4.1 using WCS to check coverage does exist in petascope
-        DESCRIBE_COVERAGE_URL="$PETASCOPE_URL?service=WCS&request=DescribeCoverage&version=2.0.1&coverageId=$COVERAGE_ID"
-        logn "Check if coverage exists in petascope WCS..."
-        RETURN=$(get_http_return_code "$DESCRIBE_COVERAGE_URL")
-        if [[ $RETURN != 200 ]]; then            
-            check_failed
-            write_to_failed_log "$test_case" "CoverageID does not exist in petascope WCS."  
-            log "----------------------------------------------------------------------"
-            continue
-        else # 2.5 coverage does exist (return HTTP 200)
-            check_passed
-
-            # 2.6 NOTE: if in recipe has ""wms_import" ingredient then need to check WMS service also
-            grep -q "wms_import" "$recipe_file"
-            # Return 0 means wms_import does exist in recipe file
+            grep -q '"mock": true' "$recipe_file"
             if [[ $? == 0 ]]; then
-                # Get page content
-                logn "Check if coverage exists in petascope WMS... "
-                content=$(wget "$PETASCOPE_URL?service=WMS&version=1.3.0&request=GetCapabilities" -q -O -)
-                if [[ $content != *$COVERAGE_ID* ]]; then                    
-                    check_failed
-                    write_to_failed_log "$test_case" "CoverageID does not exist in petascope WMS."                    
-                    log "----------------------------------------------------------------------"
-                    continue
-                else
-                    check_passed
-                fi
+                # It is a mock import, nothing has been ingested
+                continue
             fi
+            
+            # 2.4 Get coverage id from ingest.json
+            COVERAGE_ID=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $recipe_file | awk -F'"' '{print $4}')
 
             # Check if the folder name is in unwanted delete coverage IDs list
             keep_coverage_by_folder_name "$test_case_name"
             IS_REMOVE=$?
 
+            status="$ST_PASS"
+
             if [[ "$IS_REMOVE" == 1 ]]; then
                 # 2.7 it is good when coverage does exist then now delete coverage
-                logn "Test delete coverage from petascope WCS... "
                 delete_coverage "$COVERAGE_ID"
                 if [[ $? != 0 ]]; then                    
-                    check_failed         
-                    write_to_failed_log "$test_case" "Cannot delete CoverageID in petascope WCS."
-                else # 2.8 coverage is deleted (return HTTP 200)
-                    check_passed
+                    status="$ST_FAIL"         
+                    write_to_failed_log "$test_case" "Cannot delete coverage."
                 fi
-            fi
+            fi            
         fi
+
+        # remove file resume.json
+        clear_resume_file "$test_case"        
     fi
 
     # 2.7.1 remove created collection in rasdaman
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
-        logn "Removing collection $COLLECTION_NAME... "
         rasql -q "DROP COLLECTION $COLLECTION_NAME" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
-        check
     fi
 
-    log "----------------------------------------------------------------------"
+    stop_timer
+
+    get_return_code $status
+    update_result
+
+    # print result of this test case
+    print_testcase_result "$test_case_name" "$status" "$total_test_no" "$curr_test_no"  
+
 done
 
 

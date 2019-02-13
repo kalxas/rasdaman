@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cis11:GeneralGridCoverage id="test_irr_cube_2"
-    
-    
-    
-    
-    
-     >
-    <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="/crs/EPSG/0/32633">
+<cis11:GeneralGridCoverage gml:id="test_irr_cube_2"
+    xmlns:cis11="http://www.opengis.net/cis/1.1/gml"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cis/1.1/gml http://schemas.opengis.net/cis/1.1/gml/cisAll.xsd">
+    <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
         <cis11:axisExtent axisLabel="E" lowerBound="75042.7273594"
             uomLabel="metre" upperBound="75042.7273594"/>
         <cis11:axisExtent axisLabel="N" lowerBound="5094865.55794"
             uomLabel="metre" upperBound="5094865.55794"/>
     </cis11:Envelope>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-            <startPoint>-1 35</startPoint>
-        </GridFunction>
-    </coverageFunction>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="+2 +1">Linear</gml:sequenceRule>
+            <gml:startPoint>-1 35</gml:startPoint>
+        </gml:GridFunction>
+    </gml:coverageFunction>
     <cis11:domainSet>
-        <cis11:generalGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
+        <cis11:generalGrid axisLabels="E N" srsName="http://localhost:8080/def/crs/EPSG/0/32633">
             <cis11:regularAxis axisLabel="E" lowerBound="75042.7273594"
                 resolution="10000" uomLabel="metre" upperBound="75042.7273594"/>
             <cis11:regularAxis axisLabel="N" lowerBound="5094865.55794"
                 resolution="-10000" uomLabel="metre" upperBound="5094865.55794"/>
-            <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+            <cis11:gridLimits axisLabels="i j" srsName="http://www.opengis.net/def/crs/OGC/0/Index2D">
                 <cis11:indexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
                 <cis11:indexAxis axisLabel="j" lowerBound="35" upperBound="35"/>
             </cis11:gridLimits>
@@ -38,7 +38,7 @@
                     <swe:description/>
                     <swe:nilValues>
                         <swe:NilValues>
-                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
@@ -51,7 +51,7 @@
                     <swe:description/>
                     <swe:nilValues>
                         <swe:NilValues>
-                            <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
                         </swe:NilValues>
                     </swe:nilValues>
                     <swe:uom code="10^0"/>
@@ -60,10 +60,10 @@
             </swe:field>
         </swe:DataRecord>
     </cis11:rangeType>
-    <rangeSet>
-        <rangeSet>
+    <gml:rangeSet>
+        <gml:rangeSet>
             <cis11:V>9.697354 4.181835</cis11:V>
-        </rangeSet>
-    </rangeSet>
+        </gml:rangeSet>
+    </gml:rangeSet>
     <cis11:metadata/>
 </cis11:GeneralGridCoverage>

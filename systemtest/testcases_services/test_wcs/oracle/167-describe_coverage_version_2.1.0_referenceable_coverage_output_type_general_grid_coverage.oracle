@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions
-    
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_irr_cube_2">
-        <cis11:Envelope axisLabels="ansi E N" srsDimension="3" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+    xmlns:cis11="http://www.opengis.net/cis/1.1/gml"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:wcs="http://www.opengis.net/wcs/2.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wcs/2.1/gml http://schemas.opengis.net/wcs/2.1/gml/wcsAll.xsd">
+    <wcs:CoverageDescription gml:id="test_irr_cube_2">
+        <cis11:Envelope axisLabels="ansi E N" srsDimension="3" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">
             <cis11:axisExtent axisLabel="ansi"
                 lowerBound="2008-01-01T02:01:20.000Z" uomLabel="d" upperBound="2008-01-08T00:02:58.000Z"/>
             <cis11:axisExtent axisLabel="E" lowerBound="75042.7273594"
@@ -17,14 +17,14 @@
                 uomLabel="metre" upperBound="5454865.55794"/>
         </cis11:Envelope>
         <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
+        <gml:coverageFunction>
+            <gml:GridFunction>
+                <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
+                <gml:startPoint>0 0 0</gml:startPoint>
+            </gml:GridFunction>
+        </gml:coverageFunction>
         <cis11:domainSet>
-            <cis11:generalGrid axisLabels="ansi E N" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+            <cis11:generalGrid axisLabels="ansi E N" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/AnsiDate&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">
                 <cis11:regularAxis axisLabel="E"
                     lowerBound="75042.7273594" resolution="10000"
                     uomLabel="metre" upperBound="705042.727359"/>
@@ -37,7 +37,7 @@
                     <cis11:C>"2008-01-05T01:58:30.000Z"</cis11:C>
                     <cis11:C>"2008-01-08T00:02:58.000Z"</cis11:C>
                 </cis11:indexAxis>
-                <cis11:gridLimits axisLabels="i j k" srsName="/crs/OGC/0/Index3D">
+                <cis11:gridLimits axisLabels="i j k" srsName="http://www.opengis.net/def/crs/OGC/0/Index3D">
                     <cis11:indexAxis axisLabel="i" lowerBound="0" upperBound="3"/>
                     <cis11:indexAxis axisLabel="j" lowerBound="0" upperBound="62"/>
                     <cis11:indexAxis axisLabel="k" lowerBound="0" upperBound="35"/>
@@ -52,7 +52,7 @@
                         <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                                <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
@@ -65,7 +65,7 @@
                         <swe:description/>
                         <swe:nilValues>
                             <swe:NilValues>
-                                <swe:nilValue reason="">-3.4e+38</swe:nilValue>
+                                <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
                             </swe:NilValues>
                         </swe:nilValues>
                         <swe:uom code="10^0"/>
