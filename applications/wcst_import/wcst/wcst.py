@@ -187,7 +187,7 @@ class WCSTInsertScaleLevelsRequest(WCSTRequest):
         :rtype dict
         """
         request_kvp = OrderedDict()
-        request_kvp[self.__COVERAGE_ID_PARAMETER] = self.coverage_id,
+        request_kvp[self.__COVERAGE_ID_PARAMETER] = self.coverage_id
         request_kvp[self.__LEVEL_PARAMETER] = self.level
 
         return request_kvp
