@@ -6,7 +6,7 @@
     
     
      >
-    <wcs:CoverageDescription id="test_before_after_hooks_projection_blocking">
+    <wcs:CoverageDescription id="test_before_after_hooks_blocking">
         <boundedBy>
             <Envelope axisLabels="E N" srsDimension="2"
                 srsName="/crs/EPSG/0/32615" uomLabels="metre metre">
@@ -14,7 +14,7 @@
                 <upperCorner>688885 3300195</upperCorner>
             </Envelope>
         </boundedBy>
-        <wcs:CoverageId>test_before_after_hooks_projection_blocking</wcs:CoverageId>
+        <wcs:CoverageId>test_before_after_hooks_blocking</wcs:CoverageId>
         <coverageFunction>
             <GridFunction>
                 <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
@@ -23,7 +23,7 @@
         </coverageFunction>
         <gmlcov:metadata/>
         <domainSet>
-            <RectifiedGrid dimension="2" id="test_before_after_hooks_projection_blocking-grid">
+            <RectifiedGrid dimension="2" id="test_before_after_hooks_blocking-grid">
                 <limits>
                     <GridEnvelope>
                         <low>0 0</low>
@@ -33,7 +33,7 @@
                 <axisLabels>E N</axisLabels>
                 <origin>
                     <Point
-                        id="test_before_after_hooks_projection_blocking-point" srsName="/crs/EPSG/0/32615">
+                        id="test_before_after_hooks_blocking-point" srsName="/crs/EPSG/0/32615">
                         <pos>621385 3297695</pos>
                     </Point>
                 </origin>

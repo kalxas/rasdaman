@@ -127,6 +127,6 @@ log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 # where the system user running Tomcat has write access.
 # Otherwise, secore logs can only be found in catalina.out
 #log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/secore.log  
-#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/secore-.%d{yyyyMMdd}.log.gz
+#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/secore.%d{yyyyMMdd}.log.gz
 #log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
 #log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  

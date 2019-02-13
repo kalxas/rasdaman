@@ -75,3 +75,11 @@ def escape_metadata_nested_dicts(metadata_dict):
             metadata_dict[key_parent] = escape(str(value_parent))
 
     return metadata_dict
+
+
+def strip_trailing_zeros(number_str):
+    """
+    Strip any zeros from number in string (e.g: 111.0 -> 111)
+    :param str number_str
+    """
+    return number_str.rstrip('0').rstrip('.')

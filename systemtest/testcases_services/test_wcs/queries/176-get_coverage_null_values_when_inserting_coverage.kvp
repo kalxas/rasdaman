@@ -1,0 +1,8 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=GetCoverage&
+COVERAGEID=test_wcs_multiple_null_values_9_bands&
+SUBSET=ansi("2016-12-31T23:45:00.000Z")&
+SUBSET=Lat(100500)&
+SUBSET=Lon(459450)&
+FORMAT=text/csv

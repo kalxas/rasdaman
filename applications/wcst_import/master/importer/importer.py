@@ -44,6 +44,7 @@ from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
 from util.file_obj import File
 from util.log import log
+from util.string_util import strip_trailing_zeros
 from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest
 from wcst.wmst import WMSTGetCapabilities
@@ -56,6 +57,8 @@ class Importer:
 
     # Check if coverage exist in Petascope
     coverage_exists = None
+
+    DEFAULT_INSERT_VALUE = "0"
 
     def __init__(self, resumer, coverage, insert_into_wms=False, scale_levels=None, grid_coverage=False):
         """
@@ -339,8 +342,21 @@ class Importer:
         metadata_provider = MetadataProvider(self.coverage.coverage_id, axes_map,
                                              self.coverage.range_fields, self.coverage.crs, self.coverage.metadata,
                                              self.grid_coverage)
-        tuple_list = ",".join(['0'] * len(self.coverage.range_fields))
-        data_provider = TupleListDataProvider(tuple_list)
+
+        tuple_list = []
+
+        # Tuple list for InsertCoverage request should be created from null values if they exist
+        for range_field in self.coverage.range_fields:
+            # If band doesn't have null value, default insert value is 0
+            insert_value = self.DEFAULT_INSERT_VALUE
+            if range_field.nilValues is not None:
+                insert_value = strip_trailing_zeros(range_field.nilValues[0].value.split(":")[0])
+                if insert_value == "":
+                    insert_value = self.DEFAULT_INSERT_VALUE
+
+            tuple_list.append(insert_value)
+
+        data_provider = TupleListDataProvider(",".join(tuple_list))
         file = Mediator(metadata_provider, data_provider).get_gml_file()
         return file
 

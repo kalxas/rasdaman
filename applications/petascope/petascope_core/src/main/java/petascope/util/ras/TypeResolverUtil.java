@@ -264,39 +264,39 @@ public class TypeResolverUtil {
     }
 
     //rasdaman base types
-    private static final String R_Char = "char";
-    private static final String R_Octet = "octet";
-    private static final String R_UnsignedShort = "unsigned short";
-    private static final String R_UShort = "ushort";
-    private static final String R_Short = "short";    
-    private static final String R_UnsignedLong = "unsigned long";
-    private static final String R_ULong = "ulong";
-    private static final String R_Long = "long";
-    private static final String R_Float = "float";
-    private static final String R_Double = "double";
-    private static final String R_Complex = "complex";
-    private static final String R_Complexd = "complexd";
-    private static final String R_Boolean = "boolean";
+    public static final String R_Char = "char";
+    public static final String R_Octet = "octet";
+    public static final String R_UnsignedShort = "unsigned short";
+    public static final String R_UShort = "ushort";
+    public static final String R_Short = "short";    
+    public static final String R_UnsignedLong = "unsigned long";
+    public static final String R_ULong = "ulong";
+    public static final String R_Long = "long";
+    public static final String R_Float = "float";
+    public static final String R_Double = "double";
+    public static final String R_Complex = "complex";
+    public static final String R_Complexd = "complexd";
+    public static final String R_Boolean = "boolean";
 
     //rasdaman abbreviations
-    private static final String R_Abb_Char = "c";
-    private static final String R_Abb_Octet = "o";
-    private static final String R_Abb_UShort = "us";
-    private static final String R_Abb_Short = "s";
-    private static final String R_Abb_ULong = "ul";
-    private static final String R_Abb_Long = "l";
-    private static final String R_Abb_Float = "f";
-    private static final String R_Abb_Double = "d";
+    public static final String R_Abb_Char = "c";
+    public static final String R_Abb_Octet = "o";
+    public static final String R_Abb_UShort = "us";
+    public static final String R_Abb_Short = "s";
+    public static final String R_Abb_ULong = "ul";
+    public static final String R_Abb_Long = "l";
+    public static final String R_Abb_Float = "f";
+    public static final String R_Abb_Double = "d";
     
 
     //gdal base types
-    private static final String GDT_Byte = "Byte";
-    private static final String GDT_UInt16 = "UInt16";
-    private static final String GDT_Int16 = "Int16";
-    private static final String GDT_UInt32 = "UInt32";
-    private static final String GDT_Int32 = "Int32";
-    private static final String GDT_Float32 = "Float32";
-    private static final String GDT_Float64 = "Float64";
+    public static final String GDT_Byte = "Byte";
+    public static final String GDT_UInt16 = "UInt16";
+    public static final String GDT_Int16 = "Int16";
+    public static final String GDT_UInt32 = "UInt32";
+    public static final String GDT_Int32 = "Int32";
+    public static final String GDT_Float32 = "Float32";
+    public static final String GDT_Float64 = "Float64";
 
     private static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
     private static final HashMap<String, String> RAS_TYPES_TO_ABBREVIATION = new HashMap<String, String>();

@@ -242,7 +242,7 @@ log4j.logger.io.netty=WARN
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender
 log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 # Log level INFO only to user's console
-log4j.appender.stdout.layout.ConversionPattern=%m%n
+log4j.appender.stdout.layout.ConversionPattern=[%d{yyyy-MM-dd HH:mm:ss}] %m%n
 log4j.appender.stdout.Threshold=INFO
 
 
@@ -269,6 +269,6 @@ log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 # where the system user running Tomcat has write access.
 # Otherwise, petascope logs can only be found in catalina.out
 #log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log  
-#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope-.%d{yyyyMMdd}.log.gz
+#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
 #log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
 #log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  

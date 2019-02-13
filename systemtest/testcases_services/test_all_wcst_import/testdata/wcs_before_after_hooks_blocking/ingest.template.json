@@ -8,7 +8,7 @@
     "automated": true
   },
   "input": {
-    "coverage_id": "test_before_after_hooks_projection_blocking",
+    "coverage_id": "test_before_after_hooks_blocking",
     "paths": [
       "*.tif"
     ]
@@ -22,7 +22,7 @@
       {
         "description": "resized input files.",
         "when": "before_ingestion",
-        "cmd": "gdalwarp -tr 5000 5000 -overwrite \"${file:path}\" \"${file:path}.resized\"",
+        "cmd": "gdalwarp  -of GTiff -tr 5000 5000 -overwrite \"${file:path}\" \"${file:path}.resized\"",
         "abort_on_error": true,
         "replace_path": ["${file:path}.resized"]
       },

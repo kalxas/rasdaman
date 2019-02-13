@@ -21,6 +21,7 @@
 */
 package petascope.wcps.encodeparameters.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -67,7 +68,8 @@ public class NoData {
     }
 
     // this list is used to build rasql query
-    private List<BigDecimal> nodataValues = new ArrayList<BigDecimal>();
+    private List<BigDecimal> nodataValues = new ArrayList<>();
     // this list is used to store the nilValues of metadata
-    private List<NilValue> nilValues = new ArrayList<NilValue>();
+    @JsonIgnore
+    private List<NilValue> nilValues = new ArrayList<>();
 }

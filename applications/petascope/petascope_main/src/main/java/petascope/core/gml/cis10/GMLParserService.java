@@ -26,6 +26,7 @@ import java.util.*;
 
 import nu.xom.Element;
 import nu.xom.Elements;
+import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.AllowedValue;
 import org.rasdaman.domain.cis.Field;
 import org.rasdaman.domain.cis.GeoAxis;
@@ -71,6 +72,8 @@ import petascope.util.CrsUtil;
 import petascope.core.Pair;
 import petascope.util.StringUtil;
 import petascope.core.XMLSymbols;
+import petascope.util.ras.TypeResolverUtil;
+import static petascope.util.ras.TypeResolverUtil.R_Abb_Double;
 
 /**
  * Utilities for parsing parts of a coverage, from GML format.
@@ -870,9 +873,24 @@ public class GMLParserService {
                 }
             }
         }
-
-        return TEMPLATE_RASDAMAN_CONSTANT.replace(TOKEN_INTERVAL, interval)
+        
+        String result = TEMPLATE_RASDAMAN_CONSTANT.replace(TOKEN_INTERVAL, interval)
                 .replace(TOKEN_VALUES, rasdamanValues);
+        
+        // e.g: (double) <[0:0] NaN> for 1 band (double type) coverage with NaN is null value
+        if (typeSuffix.equals(R_Abb_Double) && containNaN(result)) {
+            result = "(" + TypeResolverUtil.R_Double + ") "  + result;
+        }
+
+        return result;
+    }
+    
+    /**
+     * Add data type suffix  (e.g: "0l" with "l" is suffix) if input value is not "NaN".
+     */
+    private static String addSuffix(String val, String suffix) {
+        String result = !containNaN(val) ? val + suffix : val;
+        return result;
     }
 
     /**
@@ -889,14 +907,23 @@ public class GMLParserService {
             String[] points = point.split(separator);
             String pointValues = "";
             for (String val : points) {
-                pointValues += val + suffix + RASDAMAN_VALUES_CELL_SEP;
+                // e.g: {0c,0c,0c}
+                pointValues += addSuffix(val, suffix) + ",";
             }
             //remove the last separator
             pointValues = pointValues.substring(0, pointValues.length() - 1);
             return TEMPLATE_RASDAMAN_STRUCTURE.replace(TOKEN_STRUCTURE_CELL_VAL, pointValues);
         }
         //single band
-        return point + suffix;
+        point = addSuffix(point, suffix);
+        return point;
+    }
+    
+    /**
+     * Check if input string contains NaN as null value
+     */
+    private static boolean containNaN(String point) {
+        return StringUtils.containsIgnoreCase(point, NAN_NULL_VALUE);
     }
 
     /**
@@ -936,7 +963,9 @@ public class GMLParserService {
         return srsName;
     }
 
+   
     private static final String DEFAULT_NO_OFFSET_VECTOR = "0";
+    private static final String NAN_NULL_VALUE = "NaN";
     private static final String DEFAULT_TS = " ";
     private static final String DEFAULT_CS = ",";
     private static final String TOKEN_INTERVAL = "%tokenInterval%";

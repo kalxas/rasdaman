@@ -5,9 +5,7 @@
     "default_crs": "http://abc.secore.net/def/crs/EPSG/0/4326",
     "mock": false,
     "automated": true,
-    "track_files": false,
-    "retry" : true,
-    "retries" : 5
+    "track_files": false
   },
   "input": {
     "coverage_id": "test_AverageTemperature",
