@@ -23,6 +23,7 @@
 """
 from abc import abstractmethod
 import xml.etree.ElementTree as XMLProcessor
+from collections import OrderedDict
 
 from util.log import log, make_bold
 from util.url_util import validate_and_read_url
@@ -139,17 +140,17 @@ class WCSTInsertRequest(WCSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        ret = {
-            self.__GENERATE_ID_PARAMETER: self.__GENERATE_ID_TRUE_VALUE if self.generate_id else self.__GENERATE_ID_FALSE_VALUE,
-        }
+        request_kvp = OrderedDict()
+        request_kvp[self.__GENERATE_ID_PARAMETER] = self.__GENERATE_ID_TRUE_VALUE if self.generate_id else self.__GENERATE_ID_FALSE_VALUE
+
         if self.pixel_data_type is not None:
-            ret[self.__PIXEL_DATA_TYPE_PARAMETER] = self.pixel_data_type
+            request_kvp[self.__PIXEL_DATA_TYPE_PARAMETER] = self.pixel_data_type
         if self.tiling is not None:
-            ret[self.__TILING_PARAMETER] = self.tiling
+            request_kvp[self.__TILING_PARAMETER] = self.tiling
 
-        ret[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
+        request_kvp[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
 
-        return ret
+        return request_kvp
 
     __GENERATE_ID_TRUE_VALUE = "new"
     __GENERATE_ID_FALSE_VALUE = "existing"
@@ -185,10 +186,9 @@ class WCSTInsertScaleLevelsRequest(WCSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        request_kvp = {
-            self.__COVERAGE_ID_PARAMETER : self.coverage_id,
-            self.__LEVEL_PARAMETER : self.level
-        }
+        request_kvp = OrderedDict()
+        request_kvp[self.__COVERAGE_ID_PARAMETER] = self.coverage_id,
+        request_kvp[self.__LEVEL_PARAMETER] = self.level
 
         return request_kvp
 
@@ -224,15 +224,17 @@ class WCSTUpdateRequest(WCSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        request_kvp = {
-            self.__COVERAGE_ID_PARAMETER: self.coverage_id,
-            self.__COVERAGE_INPUT_PARAMETER: self.input_coverage_ref
-        }
-        # we will send subsets as subset1=Lat(...)&subset2=Long(...)
+        request_kvp = OrderedDict()
+        request_kvp[self.__COVERAGE_ID_PARAMETER] = self.coverage_id
+
+        # we will send subsets as subset=Lat(...)&subset=Long(...)
         subset_index = 1
         for subset in self.subsets:
             request_kvp["subset" + str(subset_index)] = subset.to_request_kvp()
             subset_index += 1
+
+        request_kvp[self.__COVERAGE_INPUT_PARAMETER] = self.input_coverage_ref
+
         return request_kvp
 
     __SUBSET_PARAM_NAME = "subset"
@@ -246,7 +248,7 @@ class WCSTDeleteRequest(WCSTRequest):
         """
         Class to perform WCST delete requests
 
-        :param str coverage_ref: the name of the coverage in string format
+        :param str coverage_ref: the id of the coverage in string format
         """
         WCSTRequest.__init__(self)
         self.coverage_ref = coverage_ref
@@ -260,9 +262,10 @@ class WCSTDeleteRequest(WCSTRequest):
         Returns the request specific parameters
         :rtype dict
         """
-        return {
-            self.__COVERAGE_REF_PARAMETER: self.coverage_ref
-        }
+        request_kvp = OrderedDict()
+        request_kvp[self.__COVERAGE_REF_PARAMETER] = self.coverage_ref
+
+        return request_kvp
 
     __COVERAGE_REF_PARAMETER = "coverageId"
     __REQUEST_TYPE = "DeleteCoverage"

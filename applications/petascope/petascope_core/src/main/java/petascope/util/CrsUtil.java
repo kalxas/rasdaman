@@ -51,16 +51,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.config.ConfigManager;
 import petascope.core.CrsDefinition;
-import static petascope.core.CrsDefinition.X_ALIASES;
-import static petascope.core.CrsDefinition.Y_ALIASES;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.core.AxisTypes;
-import static petascope.core.CrsDefinition.ELEVATION_DOWN_ALIASES;
 import petascope.core.XMLSymbols;
 import static petascope.util.StringUtil.ENCODING_UTF8;
-import static petascope.core.CrsDefinition.ELEVATION_UP_ALIASES;
 import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_0;
 import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_85;
 
@@ -1049,7 +1045,7 @@ public class CrsUtil {
          */
         public static List<String> decomposeUri(String uri) {
             String decUri = StringUtil.urldecode(uri, null);
-            List<String> crss = new ArrayList<String>();
+            List<String> crss = new ArrayList<>();
 
             if (isCompound(decUri)) {
                 String[] splitted = decUri.split(COMPOUND_SPLIT);

@@ -55,6 +55,8 @@ class CRSAxis:
     ELEVATION_UP_AXES = ["h", "H"]
     ELEVATION_DOWN_AXES = ["D"]
 
+    UOM_UCUM = "uom/UCUM"
+
     def __init__(self, uri, label, axis_type, axis_uom):
         """
         Class to represent a crs axis with a set of utility methods to better determine its type
@@ -226,10 +228,17 @@ class CRSUtil:
         """
         index = 1
         crs_list = []
-        for crs in crses:
-            crs_list.append(str(index) + "=" + crs)
-            index += 1
-        compound = ConfigManager.crs_resolver + "crs-compound?" + "&".join(crs_list)
+
+        if len(crses) > 1:
+            # at least 2 CRSs
+            for crs in crses:
+                crs_list.append(str(index) + "=" + crs)
+                index += 1
+            compound = ConfigManager.crs_resolver + "crs-compound?" + "&".join(crs_list)
+        else:
+            # Single CRS
+            compound = crses[0]
+
         return compound
 
     @staticmethod
@@ -305,6 +314,14 @@ class CRSUtil:
             raise RuntimeException("Failed parsing the compound crs at: {}. "
                                    "Detailed error: {}".format(self.crs_url, str(ex)))
 
+    def __get_axis_uom_from_uom_crs(self, uom_crs):
+        """
+        Return axis UoM from an UoM CRS by last part of URL
+        :param str uom_crs: URL to an UoM (e.g: http://www.opengis.net/def/uom/UCUM/0/d)
+        """
+        result = uom_crs.split("/")[-1]
+        return result
+
     def _parse_single_crs(self, crs):
         """
         Parses the axes out of the CRS definition
@@ -324,15 +341,19 @@ class CRSUtil:
                 # e.g: http://localhost:8080/def/uom/EPSG/0/9122
                 uom_url = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
                 try:
-                    uom_gml = validate_and_read_url(uom_url)
-                    uom_root_element = etree.fromstring(uom_gml)
+                    # NOTE: as opengis.net will redirect to another web page for UoM description, so don't follow it
+                    if CRSAxis.UOM_UCUM in uom_url:
+                        axis_uom = self.__get_axis_uom_from_uom_crs(uom_url)
+                    else:
+                        uom_gml = validate_and_read_url(uom_url)
+                        uom_root_element = etree.fromstring(uom_gml)
 
-                    # e.g: degree (supplier to define representation)
-                    uom_name = uom_root_element.xpath(".//*[contains(local-name(), 'name')]")[0].text
-                    axis_uom = uom_name.split(" ")[0]
+                        # e.g: degree (supplier to define representation)
+                        uom_name = uom_root_element.xpath(".//*[contains(local-name(), 'name')]")[0].text
+                        axis_uom = uom_name.split(" ")[0]
                 except Exception:
                     # e.g: def/uom/OGC/1.0/GridSpacing does not exist -> GridSpacing
-                    axis_uom = uom_url.split("/")[-1]
+                    axis_uom = self.__get_axis_uom_from_uom_crs(uom_url)
 
                 # With OGC Time axes, check axis type in different way
                 if re.search(DateTimeUtil.CRS_CODE_ANSI_DATE, crs) is not None \
