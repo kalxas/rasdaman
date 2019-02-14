@@ -318,7 +318,7 @@ function import_nullvalues_data()
   $RASQL -q "insert into $TEST_NULL3D values marray x in [0:3,0:3,0:3] values (char)(x[0] + x[1] + 1)" > /dev/null | tee -a $LOG
 
   create_coll $TEST_NULL_FLOAT $set_flt_type
-  $RASQL -q "insert into $TEST_NULL_FLOAT values (float) <[0:2,0:2] nan, 0.0f, 3.13f; 3.14f, 3.15f, 3.33f; 3.33334f, 3.34f, nan>" > /dev/null | tee -a $LOG
+  $RASQL -q "insert into $TEST_NULL_FLOAT values (float) <[0:2,0:2] nanf, 0.0f, 3.13f; 3.14f, 3.15f, 3.33f; 3.33334f, 3.34f, nanf>" > /dev/null | tee -a $LOG
 }
 
 #		

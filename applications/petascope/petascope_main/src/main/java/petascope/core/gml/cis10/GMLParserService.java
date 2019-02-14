@@ -73,7 +73,7 @@ import petascope.core.Pair;
 import petascope.util.StringUtil;
 import petascope.core.XMLSymbols;
 import petascope.util.ras.TypeResolverUtil;
-import static petascope.util.ras.TypeResolverUtil.R_Abb_Double;
+import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
 
 /**
  * Utilities for parsing parts of a coverage, from GML format.
@@ -512,9 +512,6 @@ public class GMLParserService {
     /**
      * Return list of offset vectors (resolutions) from GridCoverage,
      * RectifiedGridCoverage or ReferenceableGridCoverage
-     *
-     * @param gridTypeElement
-     * @return
      */
     public static List<BigDecimal> parseOffsetVectors(Element gridTypeElement) {
         List<BigDecimal> offsetVectors = new ArrayList<>();
@@ -579,10 +576,6 @@ public class GMLParserService {
      * <DataRecord>
      * ...
      * </RangeType>
-     *
-     * @param rootElement
-     * @return
-     * @throws PetascopeException
      */
     public static List<Field> parseFields(Element rootElement) throws PetascopeException {
         //get the rangeType Element
@@ -635,8 +628,6 @@ public class GMLParserService {
      * @param quantityElement the Quantity element from the coverage in GML
      * format
      * @return a Quantity object
-     * @throws petascope.wcst.exceptions.WCSTWrongInervalFormat
-     * @throws WCSException
      */
     public static Quantity parseSweQuantity(Element quantityElement) throws WCSTWrongInervalFormat, WCSException {
         String description = null;
@@ -713,10 +704,6 @@ public class GMLParserService {
     /**
      * Parses the rangeSet element of a coverage in GML format and returns the
      * first child.
-     *
-     * @param root
-     * @return the rangeSet element
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfRangeSetElements
      */
     public static Element parseRangeSet(Element root) throws WCSTWrongNumberOfRangeSetElements {
         Elements rangeSet = root.getChildElements(XMLSymbols.LABEL_RANGESET, XMLSymbols.NAMESPACE_GML);
@@ -730,11 +717,6 @@ public class GMLParserService {
     /**
      * Parses the dataBlock element of a coverage in GML format and returns the
      * first child.
-     *
-     * @param rangeSet
-     * @return the dataBlock element
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfDataBlockElements
-     * @throws WCSException
      */
     public static Element parseDataBlock(Element rangeSet) throws WCSTWrongNumberOfDataBlockElements, WCSException {
         Elements dataBlock = rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK, XMLSymbols.NAMESPACE_GML);
@@ -749,7 +731,6 @@ public class GMLParserService {
      *
      * @param rangeSet the range set xml block
      * @return the mime type of the file to be inserted
-     * @throws WCSException
      */
     public static String parseMimeType(Element rangeSet) throws WCSException {
         //get the File element
@@ -768,9 +749,6 @@ public class GMLParserService {
     /**
      * Returns the rangeParameters content as String if the elent exist, null
      * otherwise.
-     *
-     * @param rangeSet
-     * @return
      */
     public static String parseRangeParameters(Element rangeSet) {
         Elements rangeParameters = rangeSet.getChildElements(XMLSymbols.LABEL_RANGE_PARAMETERS, XMLSymbols.NAMESPACE_GML);
@@ -784,12 +762,6 @@ public class GMLParserService {
 
     /**
      * Parses the file reference form a GML coverage.
-     *
-     * @param rangeSet
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfFileElements
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfFileReferenceElements
-     * @throws WCSException
      */
     public static String parseFilePath(Element rangeSet)
             throws WCSTWrongNumberOfFileElements, WCSTWrongNumberOfFileReferenceElements, WCSException {
@@ -815,9 +787,6 @@ public class GMLParserService {
      * @param typeSuffix the suffix to be added to each point to indicate its
      * rasdaman type (i.e. rasdaman Char 1 world be 1c, so the suffix is c)
      * @return String representation of a rasdaman constant
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfPixels
-     * @throws petascope.wcst.exceptions.WCSTWrongNumberOfTupleLists
-     * @throws WCSException
      */
     public static String parseGMLTupleList(Element dataBlock, List<IndexAxis> indexAxes, String typeSuffix)
             throws WCSTWrongNumberOfPixels, WCSTWrongNumberOfTupleLists, WCSException {
@@ -876,11 +845,6 @@ public class GMLParserService {
         
         String result = TEMPLATE_RASDAMAN_CONSTANT.replace(TOKEN_INTERVAL, interval)
                 .replace(TOKEN_VALUES, rasdamanValues);
-        
-        // e.g: (double) <[0:0] NaN> for 1 band (double type) coverage with NaN is null value
-        if (typeSuffix.equals(R_Abb_Double) && containNaN(result)) {
-            result = "(" + TypeResolverUtil.R_Double + ") "  + result;
-        }
 
         return result;
     }
@@ -889,17 +853,15 @@ public class GMLParserService {
      * Add data type suffix  (e.g: "0l" with "l" is suffix) if input value is not "NaN".
      */
     private static String addSuffix(String val, String suffix) {
-        String result = !containNaN(val) ? val + suffix : val;
-        return result;
+        if (containsNaNf(val) ||
+            (containsNaN(val) && !suffix.equals(R_Abb_Float)))
+            return val;
+        else
+            return val + suffix;
     }
 
     /**
      * Helper for parsing a point value.
-     *
-     * @param point
-     * @param separator
-     * @param suffix
-     * @return
      */
     private static String parsePointValue(String point, String separator, String suffix) {
         //multiband image
@@ -922,15 +884,19 @@ public class GMLParserService {
     /**
      * Check if input string contains NaN as null value
      */
-    private static boolean containNaN(String point) {
+    private static boolean containsNaN(String point) {
         return StringUtils.containsIgnoreCase(point, NAN_NULL_VALUE);
     }
 
     /**
+     * Check if input string contains NaNf as null value
+     */
+    private static boolean containsNaNf(String point) {
+        return StringUtils.containsIgnoreCase(point, NANF_NULL_VALUE);
+    }
+
+    /**
      * Parses gml:metadata elements.
-     *
-     * @param root
-     * @return
      */
     public static String parseExtraMetadata(Element root) {
         String ret = "";
@@ -949,11 +915,6 @@ public class GMLParserService {
 
     /**
      * Parses the compound crs from list of geo axes CRSs
-     *
-     * @param rootElement
-     * @return
-     * @throws petascope.wcst.exceptions.WCSTMissingBoundedBy
-     * @throws petascope.wcst.exceptions.WCSTMissingEnvelope
      */
     public static String parseSrsName(Element rootElement) throws WCSTMissingBoundedBy, WCSTMissingEnvelope {
         Element boundedByElement = GMLParserService.parseBoundedBy(rootElement);
@@ -966,6 +927,7 @@ public class GMLParserService {
    
     private static final String DEFAULT_NO_OFFSET_VECTOR = "0";
     private static final String NAN_NULL_VALUE = "NaN";
+    private static final String NANF_NULL_VALUE = "NaNf";
     private static final String DEFAULT_TS = " ";
     private static final String DEFAULT_CS = ",";
     private static final String TOKEN_INTERVAL = "%tokenInterval%";

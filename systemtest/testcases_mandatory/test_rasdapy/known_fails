@@ -15,7 +15,6 @@ induction_all_operations_power_const.rasql
 induction_all_operations_tanh.rasql
 general_array_condenser_mult.rasql
 induction_all_operations_arctan.rasql
-nan.rasql
 log_big_arg.rasql
 pow_neg_frac_arg.rasql
 regular_division.rasql

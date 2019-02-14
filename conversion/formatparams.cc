@@ -55,15 +55,21 @@ bool r_Format_Params::parse(const string& options)
             // in json, so we unescape them below
             boost::algorithm::replace_all(json, "\\\"", "\"");
 
-            Json::Reader reader;
-            ret = reader.parse(json, params);
+            Json::CharReaderBuilder rbuilder;
+            rbuilder["strictRoot"] = false;
+            rbuilder["collectComments"] = false;
+            rbuilder["allowComments"] = true;
+            rbuilder["allowSpecialFloats"] = true;
+            std::istringstream iss{json};
+            std::string errs;
+            ret = Json::parseFromStream(rbuilder, iss, &params, &errs);
             if (ret)
             {
                 parseJson();
             }
             else
             {
-                LERROR << "failed parsing the JSON format options: " << reader.getFormattedErrorMessages();
+                LERROR << "failed parsing the JSON format options: " << errs;
                 LERROR << "original options string: '" << options << "'.";
                 throw r_Error(INVALIDFORMATPARAMETER);
             }

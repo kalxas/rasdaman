@@ -333,8 +333,10 @@ int string_yyinput( char* buf, int max_size )
 "float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
 
-"nan"					{ SETFLTTOKEN( NAN, 4 ) }
-"inf"					{ SETFLTTOKEN( INFINITY, 4 ) }
+"nan"					{ SETFLTTOKEN( NAN, 8 ) }
+"nanf"					{ SETFLTTOKEN( NAN, 4 ) }
+"inf"					{ SETFLTTOKEN( INFINITY, 8 ) }
+"inff"					{ SETFLTTOKEN( INFINITY, 4 ) }
 
 "max"                                    { SETTOKEN( MAX_BINARY, commandToken, MAX_BINARY ) }
 "min"                                    { SETTOKEN( MIN_BINARY, commandToken, MIN_BINARY ) }

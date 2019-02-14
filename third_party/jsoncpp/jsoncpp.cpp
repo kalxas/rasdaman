@@ -1141,6 +1141,7 @@ private:
     tokenFalse,
     tokenNull,
     tokenNaN,
+    tokenNaNf,
     tokenPosInf,
     tokenNegInf,
     tokenArraySeparator,
@@ -1337,6 +1338,14 @@ bool OurReader::readValue() {
     currentValue().setOffsetLimit(token.end_ - begin_);
     }
     break;
+  case tokenNaNf:
+    {
+    Value v(std::numeric_limits<float>::quiet_NaN());
+    currentValue().swapPayload(v);
+    currentValue().setOffsetStart(token.start_ - begin_);
+    currentValue().setOffsetLimit(token.end_ - begin_);
+    }
+    break;
   case tokenPosInf:
     {
     Value v(std::numeric_limits<double>::infinity());
@@ -1460,6 +1469,10 @@ bool OurReader::readToken(Token& token) {
     if (features_.allowSpecialFloats_) {
       token.type_ = tokenNaN;
       ok = match("aN", 2);
+      if (!ok) {
+        token.type_ = tokenNaNf;
+        ok = match("f", 1);
+      }
     } else {
       ok = false;
     }

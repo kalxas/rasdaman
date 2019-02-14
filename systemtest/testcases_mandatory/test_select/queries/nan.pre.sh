@@ -9,4 +9,4 @@
 c=test_nan
 
 $RASQL -q "create collection $c FloatSet1" > /dev/null
-$RASQL -q "insert into $c values marray i in [0:20] values NAN" > /dev/null
+$RASQL -q "insert into $c values marray i in [0:20] values NANf" > /dev/null
