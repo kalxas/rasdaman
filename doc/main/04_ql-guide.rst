@@ -956,8 +956,8 @@ The optional *nullValues* clause in a set type definition (which is
 identical to the specification given in :ref:`sec-nullvalues`) adheres to the
 following syntax: ::
 
-    null values [ ( int | [ int : int ] )
-              ( , ( int | [ int : int ] ) )* ]
+    null values [ ( double | [ double : double ] )
+              ( , ( double | [ double : double ] ) )* ]
 
 
 **Example**
@@ -974,6 +974,8 @@ can be specified as follows: ::
     create type RGBSet
     as set ( RGBImage null values [ 0, 253 : 255 ] )
 
+Note that these null values will apply equally to every band. It is not possible
+to separate null values per band.
 
 .. _sec-drop-types:
 
@@ -1478,6 +1480,27 @@ Specifiers are case insensitive.
     +--------------+----------------+
     | d            | double         |
     +--------------+----------------+
+
+
+Additionally, the following special floating-point constants are supported as 
+well:
+
+.. _table2:
+
+.. table:: Special floating-point constants corresponding to IEEE 754 NaN and Inf.
+
+    +--------------+-----------+
+    | **Constant** | **Type**  |
+    +==============+===========+
+    | NaN          | double    |
+    +--------------+-----------+
+    | NaNf         | float     |
+    +--------------+-----------+
+    | Inf          | double    |
+    +--------------+-----------+
+    | Inff         | float     |
+    +--------------+-----------+
+
 
 .. _sec-composite-constants:
 
@@ -2029,9 +2052,9 @@ Extending a Spatial Domain
 
 Function extend() enlarges a given MDD with the domain specified. The
 domain for extending must, for every boundary element, be at least as
-large as the MDD's domain boundary. The new MDD contains null values in
-the extended part of its domain and the MDD's original cell values
-within the MDD's domain.
+large as the MDD's domain boundary. The new MDD contains 0 values in
+the extended part of its domain and the MDD's original cell values within 
+the MDD's domain.
 
 **Syntax**
 
@@ -2041,8 +2064,7 @@ within the MDD's domain.
 
 The function accepts an *mddExp* and a *mintervalExp* and returns an
 array whose spatial domain is extended to the new domain specified by
-*mintervalExp*, with *mddExp*\ 's values in its domain and null values
-elsewhere. The result MDD has the same cell type as the input MDD.
+*mintervalExp*. The result MDD has the same cell type as the input MDD.
 
 Precondition: ::
 
@@ -2052,7 +2074,7 @@ Precondition: ::
 
 Assuming that MDD ``a`` has a spatial domain of ``[0:50, 0:25]``, the following
 expression evaluates to an array with spatial domain ``[-100:100, -50:50]``,
-``a``\ 's values in the subdomain ``[0:50, 0:25]``, and null values at the
+``a``\ 's values in the subdomain ``[0:50, 0:25]``, and 0 values at the
 remaining cell positions. ::
 
     extend( a, [-100:100, -50:50] )
@@ -2209,11 +2231,12 @@ Return type
 The output of a polygon query is a new array with dimensions corresponding to
 the bounding box of the polygon vertices, and further restricted to the
 collection's spatial domain. The data in the array consists of null values where
-cells lie outside the polygon and otherwise consists of the data in the
+cells lie outside the polygon (or 0 values if no null values are associated with
+the array) and otherwise consists of the data in the
 collection where the corresponding cells lie inside the polygon. This could
-change the nullvalues stored outside the polygon from one nullvalue to another
-nullvalue, in case a range of nullvalues is used. By default, the smallest
-available nullvalue will be utilized for the complement of the polygon.
+change the null values stored outside the polygon from one null value to another
+null value, in case a range of null values is used. By default, the first
+available null value will be utilized for the complement of the polygon.
 
 An illustrative example of a polygon clipping is the right triangle with
 vertices located at ``(0,0,0)``, ``(0,10,0)`` and ``(0,10,10)``, which can be
@@ -2264,8 +2287,8 @@ The output consists of a 1-D MDD object consisting of the points selected along
 the path drawn out by the linestring. The points are selected using a Bresenham
 Line Drawing algorithm which passes through the spatial domain in the MDD
 expression ``c``, and selects values from the stored object. In case the
-linestring spends some time outside the spatial domain of ``c``, the smallest
-nullvalue will be used to fill the result of the linestring, just as in polygon
+linestring spends some time outside the spatial domain of ``c``, the first
+null value will be used to fill the result of the linestring, just as in polygon
 clipping.
 
 When ``with coordinates`` is specified, in addition to the original cell values
@@ -3790,7 +3813,10 @@ encode
 
       // single value or an array of values if different for multiple bands
       // ( if nodata= 1 single value, it will be applied to all bands, and if nodata =
-      // array of values then each value is applied to each band separately )
+      // array of values then each value is applied to each band separately ).
+      // 
+      // special floating-point constants supported (case-sensitive):
+      // NaN, NaNf, Infinity, -Infinity
       "nodata": 0,
 
       // for more details see "Color Table" at http://www.gdal.org/gdal_datamodel.html
@@ -4181,7 +4207,7 @@ known values. Additionally, computations can yield values inadvertently
 no danger from this side). For example, if 5 is defined to mean null
 then addition of two non-null values, such as 2+3, yields a null.
 
-every bit pattern in the range of a numeric type can appear in the
+Every bit pattern in the range of a numeric type can appear in the
 database, so no bit pattern is left to represent "null". If such a thing
 is desired, then the database designer must provide, e.g., a separate
 bit map indicating the status for each cell.
@@ -4236,8 +4262,6 @@ element holding any number of values or intervals.
 Additionally, rasql type definition allows null value definition, see
 :ref:`sec-typedefrasdl`.
 
-Appendix A lists the extension to the type definition syntax.
-
 **Limitation**
 
 Currently, only atomic null values can be indicated. They apply to all
@@ -4246,17 +4270,36 @@ possible to indicate null values individually per struct component.
 
 **Example**
 
-The following definition establishes a null value set holding the ten
-members {0, 1, 2, 100, 250, 251, 252, 253, 254, 255}, each of which acts
-as a null value when encountered in a query: ::
+The following definition establishes a null value set holding all values between
+0 and 2, equal to 100, and between 250 and 255 (intervals are inclusive): ::
 
-    typedef set <ScalarSet>
-    null values [0:2,100,250:255]
-    ScalarSetWithNulls;
+    typedef set <GreyImage> null values [0:2,100,250:255]
+    GreySetWithNulls;
+
+For floating-point data it is recommended to always specify small intervals
+instead of single numbers like 100.
+
+**Example**
+
+Set NaN values, as well as any values in the interval [-2.1e+10:-2.0e+10], as
+null values in the ``DoubleSetWithNulls`` set type:
+
+    typedef set <DoubleImage> null values [nan, -2.1e+10:-2.0e+10]
+    DoubleSetWithNulls;
 
 
 Nulls in MDD-Valued Expressions
 ===============================
+
+**Dynamically Set/Replace the Null Set**
+
+The null set of an MDD value resulting from a sub-expression can be dynamically
+changed on-the-fly with a postfix ``null values`` operator as follows: ::
+
+    mddExp null values nullSet
+
+As a result *mddExp* will have the null values specified by *nullSet*; if
+*mddExp* already had a null set, it will be replaced.
 
 **Null Set Propagation**
 
@@ -4275,8 +4318,8 @@ as follows:
 -  The null value set of an operation with two input MDD objects is the
    union of the null sets of the input MDDs.
 
-Currently it is not possible to dynamically reassign a null value set
-to an array.
+-  The null value set of an MDD expression with a postfix ``null values``
+   operator is equal to the null set specified by it.
 
 **Null Values in Operations**
 
@@ -4313,11 +4356,11 @@ null*.
    values; however, during any eventual further processing of the target
    MDD as part of an **update** or **insert** statement, cell values
    listed in the null value set of the pertaining MDD definition will be
-   interpreted as null.
+   interpreted as null and will not overwrite persistent non-null values.
 
 **Choice of Null Value**
 
-If an operation computes a null value for some cell, then thenull value
+If an operation computes a null value for some cell, then the null value
 effectively assigned is determined from the MDD's type definition.
 
 If the overall MDD whose cell is to be set has exactly one null value,
@@ -4354,26 +4397,23 @@ All cell components of an MDD share the same same set of nulls, it is
 currently not possible to assign individual nulls to cell type
 components.
 
-The ``marray`` operator does not yet allow assigning null values to the new
-MDD.
-
 
 NaN Values
 ==========
 
-NaN ("not a number") is the representation of a numeric value
-representing an undefined or unrepresentable value, especially in
-floating-point calculations. Systematic use of NaNs was introduced by
-the IEEE 754 floating-point standard
+NaN ("not a number") is the representation of a numeric value representing an
+undefined or unrepresentable value, especially in floating-point calculations.
+Systematic use of NaNs was introduced by the IEEE 754 floating-point standard
 (`Wikipedia <http://en.wikipedia.org/wiki/NaN>`__).
 
-In rasql, ``nan`` is a symbolic floating point constant that can be used in
-any place where a floating point value is allowed. Arithmetic operations
-involving ``nan``\ s always result in ``nan``. Equality and inequality involving
-nans work as expected, all other comparison operators return false.
+In rasql, ``nan`` (double) and ``nanf`` (float) are symbolic floating point
+constants that can be used in any place where a floating point value is allowed.
+Arithmetic operations involving ``nan``\ s always result in ``nan``. Equality
+and inequality involving nans work as expected, all other comparison operators
+return false.
 
-If the encoding format used supports NaN then rasdaman will
-encode/decode NaN values properly.
+If the encoding format used supports NaN then rasdaman will encode/decode NaN
+values properly.
 
 **Example**
 
@@ -4777,9 +4817,9 @@ function (see :ref:`sec-shift`) can be necessary.
 As a rule, the spatial domain of the righthand side expression must be
 equal to or a subset of the database array's spatial domain.
 
-See the programming interfaces described in the
-*rasdaman Developer's Guides* on how to ship external array data to the
-server using ``insert`` and ``update`` statements.
+Cell values contained in the update null set will *not* overwrite existing
+cell values which are not null. The update null set is taken from the source
+MDD if it is not empty, otherwise it will be taken from the target MDD.
 
 **Syntax**
 

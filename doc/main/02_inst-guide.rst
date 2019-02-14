@@ -322,12 +322,9 @@ The packages are updated whenever a new version of rasdaman is released. To down
 an update perform these steps: ::
 
     $ sudo service rasdaman stop
+    $ sudo service tomcat stop
     $ sudo yum clean all
     $ sudo yum update rasdaman
-    $ sudo service rasdaman start
-
-    # Optional if using petascope
-    $ sudo service tomcat restart
     $ sudo migrate_petascopedb.sh
 
 
