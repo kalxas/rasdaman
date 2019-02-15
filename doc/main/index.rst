@@ -3,7 +3,7 @@
     :target: http://rasdaman.org
 
 ###########################
-rasdaman v9.7 documentation
+rasdaman v9.8 documentation
 ###########################
 
 Rasdaman Community is free software: you can redistribute it and/or

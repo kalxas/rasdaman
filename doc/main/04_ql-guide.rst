@@ -1485,7 +1485,7 @@ Specifiers are case insensitive.
 Additionally, the following special floating-point constants are supported as 
 well:
 
-.. _table2:
+.. _table-special-constants:
 
 .. table:: Special floating-point constants corresponding to IEEE 754 NaN and Inf.
 

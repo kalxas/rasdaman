@@ -2407,6 +2407,8 @@ netCDF file 1:
 
    <slices>
 
+.. _customized-axis-labels:
+
 **Customized axis labels in coverage**
 
 This feature is available since rasdaman version 9.8 for general recipe.
@@ -2439,6 +2441,8 @@ coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)
               ...
            }
       }
+
+.. _band-and-dim-metadata:
 
 **Band and dimension metadata in netCDF**
 
