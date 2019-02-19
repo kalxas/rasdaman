@@ -258,17 +258,17 @@ log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}
 # Please make sure the path specified by log4j.appender.rollingFile.File is a
 # location where the system user running Tomcat has write access.
 # Otherwise, petascope logs can only be found in catalina.out
-log4j.appender.rollingFile.File=@LOG_DIR@/petascope.log
-log4j.appender.rollingFile.MaxFileSize=10MB
-log4j.appender.rollingFile.MaxBackupIndex=10
-log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+#log4j.appender.rollingFile.File=@LOG_DIR@/petascope.log
+#log4j.appender.rollingFile.MaxFileSize=10MB
+#log4j.appender.rollingFile.MaxBackupIndex=10
+#log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
 
 # 2. Rolling files by time interval (e.g. once a day, or once a month)
 # Please make sure the paths specified by log4j.appender.rollingFile.rollingPolicy.ActiveFileName
 # and log4j.appender.rollingFile.rollingPolicy.FileNamePattern are locations
 # where the system user running Tomcat has write access.
 # Otherwise, petascope logs can only be found in catalina.out
-#log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log  
-#log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
-#log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
-#log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  
+log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log  
+log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
+log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
+log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  

@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+import datetime
 import functools
 import decimal
 from __builtin__ import staticmethod
@@ -225,6 +226,17 @@ class DateTimeUtil:
         :return: str
         """
         return stringify(arrow.get(datetime))
+
+    @staticmethod
+    def get_now_datetime_stamp():
+        """
+        Return the current date time for now with pattern as string.
+        """
+        now = datetime.datetime.now()
+        result = now.strftime("%Y-%m-%d %H:%M:%S")
+
+        return result
+
 
     __UOM_TIME_MAP_CACHE__ = {}
     __TIME_CRS_MAP_CACHE__ = {}

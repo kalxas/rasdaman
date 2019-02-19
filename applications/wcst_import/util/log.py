@@ -26,6 +26,8 @@ import sys
 import os
 from logging import Filter
 
+from util.time_util import DateTimeUtil
+
 """
 Configuration of the python logger
 Colouring is added to display the error and status messages and a new
@@ -110,3 +112,16 @@ def make_bold(input_text):
     start = "\033[1m"
     end = "\033[0;0m"
     return start + input_text + end
+
+
+def prepend_time(input_text):
+    """
+    Make input text with also newline character and datetime stamp as prefix.
+    :param str input_text: input text to be logged
+    """
+    now = DateTimeUtil.get_now_datetime_stamp()
+    result = "\n[{}] {}".format(now, input_text)
+
+    return result
+
+

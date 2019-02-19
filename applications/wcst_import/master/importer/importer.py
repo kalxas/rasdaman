@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
+import datetime
 import decimal
 import os
 import time
@@ -43,7 +43,7 @@ from master.provider.metadata.irregular_axis import IrregularAxis
 from master.provider.metadata.metadata_provider import MetadataProvider
 from util.coverage_util import CoverageUtil
 from util.file_obj import File
-from util.log import log
+from util.log import log, prepend_time
 from util.string_util import strip_trailing_zeros
 from wcst.wcst import WCSTInsertRequest, WCSTInsertScaleLevelsRequest, WCSTUpdateRequest, WCSTSubset
 from wcst.wmst import WMSTFromWCSInsertRequest, WMSTFromWCSUpdateRequest
@@ -151,10 +151,11 @@ class Importer:
         is_loggable = True
         is_ingest_file = True
         file_name = ""
+
         try:
             log_file = open(ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log", "a+")
             log_file.write("\n-------------------------------------------------------------------------------------")
-            log_file.write("\nIngesting coverage '" + self.coverage.coverage_id + "'...")
+            log_file.write(prepend_time("Ingesting coverage '{}'...".format(self.coverage.coverage_id)))
         except Exception as e:
             is_loggable = False
             log.warn("\nCannot create log file for this ingestion process, only log to console.")
@@ -182,7 +183,7 @@ class Importer:
                     self._insert_slice(self.coverage.slices[i])
                     end_time = time.time()
                     time_to_ingest = round(end_time - start_time, 2)
-                    log.info("\nTotal time to ingest: " + str(time_to_ingest) + " s.")
+                    log.info(prepend_time("Total time to ingest: {} s.".format(time_to_ingest)))
             except Exception as e:
                 if ConfigManager.skip:
                     log.warn("Skipped slice " + str(self.coverage.slices[i]))
@@ -207,20 +208,21 @@ class Importer:
         time_to_ingest = round(end_time - start_time, 2)
         if time_to_ingest < 0.0000001:
             time_to_ingest = 0.0000001
-        log_text = ""
+
         if file_size_in_mb != 0:
             size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-            log_text = "\nFile {} of size {} MB; Total time to ingest {} s @ {} MB/s.".format(
-                file_name, file_size_in_mb, time_to_ingest, size_per_second)
+            log_text = "File '{}' of size '{}' MB; Total time to ingest file {} s @ {} MB/s.".format(file_name,
+                                                                file_size_in_mb, time_to_ingest, size_per_second)
         else:
-            log_text = "\nTotal time to ingest file {}: {} s.".format(file_name, time_to_ingest);
+            log_text = "Total time to ingest file '{}': {} s.".format(file_name, time_to_ingest)
+
+        log_text = prepend_time(log_text)
         # write to console
         log.info(log_text)
         if is_loggable:
             # write to log file
             log_file.write(log_text)
         
-
     def _initialize_coverage(self):
         """
         Initializes the coverage

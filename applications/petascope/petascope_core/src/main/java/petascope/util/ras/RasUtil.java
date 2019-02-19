@@ -103,7 +103,7 @@ public class RasUtil {
      */
     public static Object executeRasqlQuery(String query, String username, String password, boolean rw) throws PetascopeException {
         final long start = System.currentTimeMillis();
-        log.debug("Executing rasql query: " + query);
+        log.info("Executing rasql query: " + query);
 
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
@@ -169,7 +169,7 @@ public class RasUtil {
 
         final long end = System.currentTimeMillis();
         final long totalTime = end - start;
-        log.debug("Rasql query executed in " + String.valueOf(totalTime) + " ms.");
+        log.info("Rasql query executed in " + String.valueOf(totalTime) + " ms.");
 
         return ret;
     }
@@ -205,8 +205,6 @@ public class RasUtil {
      * Deletes an array from rasdaman.
      */
     public static void deleteFromRasdaman(Long oid, String collectionName) throws RasdamanException, PetascopeException {
-        long start = System.currentTimeMillis();
-
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //check if there are other objects left in the collection
@@ -218,10 +216,6 @@ public class RasUtil {
             log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
             executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
-
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
     }
 
     /**
@@ -294,8 +288,6 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static Long executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
-        long start = System.currentTimeMillis();
-
         Long oid = null;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
@@ -315,10 +307,6 @@ public class RasUtil {
             oid = tmp.longValue();
         }
 
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
-
         return oid;
     }
 
@@ -327,8 +315,6 @@ public class RasUtil {
      */
     public static Long executeInsertFileStatement(String collectionName, String filePath, String mime,
             String tiling) throws RasdamanException, IOException, PetascopeException {
-        long start = System.currentTimeMillis();
-                
         Long oid = new Long("0");
         String query;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
@@ -361,10 +347,6 @@ public class RasUtil {
         if (resultInstance != null) {
             oid = new Long(resultInstance.toString());
         }
-        
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.debug("rasql query executed in " + String.valueOf(totalTime) + " ms.");
         
         return oid;
     }
@@ -409,13 +391,8 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static void executeUpdateFileStatement(String query) throws PetascopeException {
-
-        long start = System.currentTimeMillis();
         // This needs to run with open transaction and rasadmin permission
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
-        long end = System.currentTimeMillis();
-
-        log.debug("Time for rasql to update collection: " + String.valueOf(end - start));
     }
 
     /**
