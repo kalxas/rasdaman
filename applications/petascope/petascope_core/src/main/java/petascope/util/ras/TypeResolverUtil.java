@@ -100,6 +100,7 @@ public class TypeResolverUtil {
      */
     private static String getDefaultValueForCellDataType(String cellDataType) throws PetascopeException {
         String initValue = "0";
+        cellDataType = cellDataType.trim();
         
         if (cellDataType.equals(R_Complexd)) {
             // complexd -> double
@@ -140,15 +141,21 @@ public class TypeResolverUtil {
             String result = getDefaultValueForCellDataType(cellType);
             results.add(result);
         } else {
-            // cell type is a struct, e.g: struct {red char blue float red short}
-            String structContent = cellType.substring(cellType.indexOf("{") + 1, cellType.length() - 1);
-            String[] tempArray = structContent.split(" ");
+            // cell type is a struct, e.g: struct { band0 unsigned short ,band1 unsigned short ,band2 unsigned short ,band3 unsigned short  }
+            String structContent = cellType.substring(cellType.indexOf("{") + 1, cellType.length() - 1).trim();
+            // e.g: band0 unsigned short
+            String[] tempArray = structContent.split(",");
             for (int i = 0; i < tempArray.length; i++) {
-                if (i % 2 == 1) {
-                    // e.g: char -> 0c
-                    String result = getDefaultValueForCellDataType(tempArray[i]);
-                    results.add(result);
-                }
+                String text = tempArray[i];
+                // e.g: band0
+                String cellName = text.substring(0, text.indexOf(" "));
+
+                // e.g: unsigned short
+                String cellDataType = text.substring(text.indexOf(" ") + 1, text.length());
+                
+                // e.g: char -> 0c, unsigned short -> 0us
+                String result = getDefaultValueForCellDataType(cellDataType);
+                results.add(result);
             }
         }
         

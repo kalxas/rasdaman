@@ -340,8 +340,8 @@ value by setting the parameter in the URL query:
 
 .. _coverage-implementation-schema-in-petascope:
 
-Coverage Implementation Schema (CIS) in petascope
--------------------------------------------------
+Coverage Implementation Schema (CIS 1.0 and CIS 1.1) in petascope
+-----------------------------------------------------------------
 
 `CIS <http://docs.opengeospatial.org/is/09-146r6/09-146r6.html>`_ specifies the OGC
 coverage model by establishing a concrete, interoperable,
@@ -351,10 +351,10 @@ format encoding down to the level of single "pixels" or "voxels".
 Coverages can be encoded in any suitable format (such as GML, JSON, GeoTIFF,
 or netCDF). Coverages are independent from service definitions and,
 therefore, can be accessed through a variety of OGC services types,
-such as the Web Coverage Service (WCS) Standard
+such as the Web Coverage Service (WCS) Standard.
 
-Since rasdaman version 9.7+, petascope supports CIS version 1.1 with these
-conformance classes:
+Since rasdaman version 9.7+, *besides CIS 1.0 for WCS version 2.0.1*, 
+petascope supports *CIS 1.1 for WCS version 2.1.0* with these conformance classes:
 
 * Class **coverage**.
 
@@ -364,32 +364,11 @@ conformance classes:
 * Class **grid-irregular** (*only* supports **CIS::IrregularAxis**,
   in *CIS 1.0*: **ReferenceableGridCoverage** coverage type).
 
-* Class **gml-coverage**: For *WCS version 2.1.0*, petascope allows
-  to transform *CIS 1.0* coverage types to *CIS 1.1* in GML format:
+* Class **gml-coverage**: For *WCS version 2.1.0* only, petascope allows
+  to transform *CIS 1.0* coverage types to *CIS 1.1* in GML format by
+  new non-standard extra parameter in the request ``outputType=GeneralGridCoverage``, 
+  see :ref:`here for more information <petascope-outputType>`.
 
-  * For WCS requests (**DescribeCoverage/GetCoverage**) with non-standard
-    parameter **outputType=GeneralGridCoverage**. Example: 
-   
-    ::
-  
-       http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
-         &request=DescribeCoverage
-         &coverageId=test_mean_summer_airtemp
-         &outputType=GeneralGridCoverage
-
-       http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
-         &request=GetCoverage
-         &coverageId=test_mean_summer_airtemp
-         &outputType=GeneralGridCoverage
-
-  * For WCPS requests, the same can be achieved using the extra parameter
-    **outputType=GeneralGridCoverage** in **encode()**, when the GML format is used. Example: 
-    
-    ::
-
-      for c in (test_irr_cube_2) return encode(c, 
-              "gml",
-              "{\"outputType\":\"GeneralGridCoverage\"}")
 
 * Class **other-format-coverage**.
 
@@ -1255,6 +1234,54 @@ are used for WMS pyramids feature.
 
 Non-standard functionality
 ==========================
+
+.. _petascope-outputType:
+
+Transform CIS 1.0 coverages to CIS 1.1 coverages in petascope
+-------------------------------------------------------------
+
+Since rasdaman v9.7, WCS and WCPS services in Petascope allows
+to transform a coverage imported in CIS 1.0 to CIS 1.1 with output
+in ``application/gml+xml`` format and a new non-standard parameter
+``outputType=GeneralGridCoverage``.
+
+.. note::
+   This feature only valids for WCS version 2.1.0 and WCPS.
+
+WCS
+^^^
+
+When requesting with *WCS version 2.1.0* with ``DescribeCoverage/GetCoverage``
+requests, one can transform coverage imported in CIS 1.0 to CIS 1.1
+by adding  extra request parameter ``outputType=GeneralGridCoverage`` 
+as example below:
+
+  ::
+
+     http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+         &request=DescribeCoverage
+         &coverageId=test_mean_summer_airtemp
+         &outputType=GeneralGridCoverage
+
+     http://localhost:8080/rasdaman/ows?service=WCS&version=2.1.0
+         &request=GetCoverage
+         &coverageId=test_mean_summer_airtemp
+         &output=application/gml+xml
+         &outputType=GeneralGridCoverage
+
+WCPS
+^^^^
+
+For WCPS requests, the same can be achieved using the extra parameter
+``outputType=GeneralGridCoverage`` in ``encode()`` with 
+``application/gml+xml``. Example: 
+    
+    ::
+
+      for c in (test_irr_cube_2) return encode(c, 
+              "application/gml+xml",
+              "{\"outputType\":\"GeneralGridCoverage\"}")
+          
 
 .. _petascope-clipping:
 

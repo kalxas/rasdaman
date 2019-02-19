@@ -419,10 +419,12 @@ public class TypeRegistry {
     private TypeRegistryEntry createTypeRegistryEntry(Pair<String, String> setTypePair) {
         String domainType = marrayTypeDefinitions.get(setTypePair.snd);
         if (domainType != null) {
-            String[] domainTypeParts = domainType.split(",");
+            // e.g: struct {band0 char, band1 char, band2 char},2
+            String[] domainTypeParts = domainType.split(","); 
             if (domainTypeParts.length >= 2) {
                 String[] baseTypeParts = ArrayUtils.remove(domainTypeParts, domainTypeParts.length - 1);
-                String baseType = StringUtils.join(baseTypeParts, "");
+                // e.g: struct {band0 char, band1 char, band2 char}
+                String baseType = StringUtils.join(baseTypeParts, ",");
                 String[] nullParts = setTypeNullValues.get(setTypePair.fst).split(",");
                 List<NilValue> nullValues = new ArrayList<>();
                 for (String val : nullParts) {
