@@ -246,6 +246,9 @@ class GDALGmlUtil:
         if spatial_ref.GetAuthorityName(None) is not None:
             crs = CRSUtil.get_crs_url(spatial_ref.GetAuthorityName(None),
                                       spatial_ref.GetAuthorityCode(None))
+        if crs is None:
+            raise RuntimeException("Cannot implicitly detect EPSG code from WKT of input file. "
+                                   "Please explicitly specify the CRS in the ingredient (option \"default_crs\").")
         return crs
 
     def get_crs_code(self):

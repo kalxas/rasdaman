@@ -119,6 +119,7 @@ for test_case in $TEST_DATA/*; do
     cp "$recipe_file_template" "$recipe_file"
 
     test_case_name=$(basename "$test_case")
+    mkdir -p "$OUTPUT_DIR/$test_case_name/"
 
     # 1.2.1 If test case name is "collection_exists" then need to import a test collection in rasdaman before
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
@@ -133,6 +134,7 @@ for test_case in $TEST_DATA/*; do
     if [[ "$test_case" == *"error_"* ]]; then
         # This test returns error, then check with test.oracle
         outputError=`wcst_import.sh $recipe_file -q`
+	    echo "$outputError" > "$OUTPUT_DIR/$test_case_name/test.output"
         oracleError=`cat $test_case/test.oracle`
 
         # 1.5 check if output contains the error message from test.oracle
