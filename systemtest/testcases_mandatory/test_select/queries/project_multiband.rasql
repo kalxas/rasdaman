@@ -1,1 +1,1 @@
-select avg_cells(project( c, "EPSG:4326", "EPSG:3857")) from test_rgb2 as c
+select avg_cells(project( c, "0.0, 0.0, 399.0, 343.0", "EPSG:4326", "EPSG:3857")) from test_rgb2 as c

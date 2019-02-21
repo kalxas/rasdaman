@@ -40,4 +40,4 @@ class RuntimeException : public Exception {
 };
 } // namespace common
 
-#endif /* COMMON_SRC_EXCEPTIONS_RUNTIMEEXCEPTION_HH_ */
+#endif

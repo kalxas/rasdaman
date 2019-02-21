@@ -31,8 +31,6 @@ rasdaman GmbH.
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
 
-static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/oql.y,v 1.95 2006/01/03 00:21:40 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtcollection.hh"
 #include "qlparser/qtconversion.hh"
@@ -201,6 +199,7 @@ struct QtUpdateSpecElement
 
   Ops::OpType                       operationValue;
   int                               dummyValue;
+  int                               resampleAlgValue;
   
   struct {
       QtScalarData* low;
@@ -259,6 +258,8 @@ struct QtUpdateSpecElement
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM INV_GRIB ENCODE DECODE CONCAT ALONG DBINFO
                          CASE WHEN THEN ELSE END COMMIT RAS_VERSION P_REGROUP P_REGROUP_AND_SUBTILING P_NO_LIMIT
+/* resampling algorithms */
+                         RA_NEAR RA_BILINEAR RA_CUBIC RA_CUBIC_SPLINE RA_LANCZOS RA_AVERAGE RA_MODE RA_MED RA_QFIRST RA_QTHIRD
 
 %left LINESTRING POLYGON PROJECTION CURTAIN CORRIDOR MULTIPOLYGON MULTILINESTRING DISCRETE
 %left COLON VALUES USING WHERE
@@ -288,6 +289,7 @@ struct QtUpdateSpecElement
                               integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp namedMintervalExp intervalExp namedIntervalExp 
                               condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
                               caseExp typeAttribute projectExp
+%type <resampleAlgValue>      resampleAlg
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType>             indexingAttributes indexTypes
@@ -872,45 +874,6 @@ updateExp:
           FREESTACK($5)
           FREESTACK($7)
           FREESTACK($9)
-        }        
-        | UPDATE iteratedCollection SET updateSpec ASSIGN NULLKEY VALUES nullvaluesExp
-        {
-          try {
-            accessControl.wantToWrite();
-          }
-          catch(...) {
-            // save the parse error info and stop the parser
-            if ( parseError )
-                delete parseError;
-            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
-                                        $1.info->getLineNo(), $1.info->getColumnNo() );
-            FREESTACK($1)
-            FREESTACK($3)
-            FREESTACK($5)
-            FREESTACK($6)
-            FREESTACK($7)
-            QueryTree::symtab.wipe();
-            YYABORT;
-          }
-
-          // create an update node
-          QtUpdate* update = new QtUpdate( $4.iterator, $4.domain, NULL );
-          update->setStreamInput( $2 );
-          update->setParseInfo( *($1.info) );
-          update->setNullValues( $8 );
-          parseQueryTree->removeDynamicObject( $2 );
-          parseQueryTree->removeDynamicObject( $4.iterator );
-          parseQueryTree->removeDynamicObject( $4.domain );
-          parseQueryTree->removeDynamicObject( $8 );
-
-          // set the update node  as root of the Query Tree
-          parseQueryTree->setRoot( update );
-
-          FREESTACK($1)
-          FREESTACK($3)
-          FREESTACK($5)
-          FREESTACK($6)
-          FREESTACK($7)
         };
 
 alterExp: ALTER COLLECTION namedCollection SET TYPE typeName
@@ -1757,7 +1720,7 @@ vertex:
             parseQueryTree->removeDynamicObject( $1 );
         }
         | LRPAR generalExp RRPAR
-        {
+        { 
             $$ = new QtNode::QtOperationList();
             $$->push_back( $2 );
             parseQueryTree->removeDynamicObject( $2 );
@@ -2035,7 +1998,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($2)
         FREESTACK($4)
         FREESTACK($5)
-        FREESTACK($7)     
+        FREESTACK($7)
     }
     | CLIP LRPAR generalExp COMMA LINESTRING parentheticalLinestring RRPAR
     {
@@ -2055,10 +2018,10 @@ functionExp: OID LRPAR collectionIterator RRPAR
         //cleanup mdd arg
         parseQueryTree->removeDynamicObject( $3 );
 
-	QtNode::QtOperationList::iterator iter;
-	for( iter=$6->begin(); iter!=$6->end(); ++iter )
+        QtNode::QtOperationList::iterator iter;
+        for( iter=$6->begin(); iter!=$6->end(); ++iter )
         {
-	    parseQueryTree->removeDynamicObject( *iter );
+            parseQueryTree->removeDynamicObject( *iter );
         }
 
         //add this object to the query tree
@@ -2217,7 +2180,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($13)
         FREESTACK($14)
         FREESTACK($15)
-    }
+    }    
     | CLIP LRPAR generalExp COMMA CURTAIN LRPAR PROJECTION parentheticalLinestring COMMA LINESTRING parentheticalLinestring RRPAR RRPAR
     {
         QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
@@ -2264,7 +2227,7 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($13)
     }
     | CLIP LRPAR generalExp COMMA CORRIDOR LRPAR PROJECTION parentheticalLinestring COMMA LINESTRING parentheticalLinestring COMMA POLYGON LRPAR positiveGenusPolygon RRPAR RRPAR RRPAR
-    {
+        {
         QtNode::QtOperationList* concatOpList = new QtNode::QtOperationList();
         concatOpList->reserve(3);
 
@@ -2975,13 +2938,13 @@ structSelection: DOT attributeIdent
 	{
 	  if( $2.negative )
 	    if( $2.svalue < 0 )
-	    {
-	      yyerror(mflag, "non negative integer expected");
-	      FREESTACK($1)
-	  	  FREESTACK($2)
-	  	  QueryTree::symtab.wipe();
-	      YYABORT;
-	    }
+        {
+           yyerror(mflag, "non negative integer expected");
+           FREESTACK($1)
+           FREESTACK($2)
+           QueryTree::symtab.wipe();
+           YYABORT;
+        }
 	    else
 	      $$ = new QtDot( (unsigned int)$2.svalue );
 	  else
@@ -4039,21 +4002,8 @@ nullvalueIntervalExp: scalarLit COLON scalarLit
     };
 
 
-projectExp: PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
-	{
-	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value );
-	  parseQueryTree->addDynamicObject($$);
-
-	  FREESTACK($1);
-	  FREESTACK($2);
-	  parseQueryTree->removeDynamicObject($3);
-  	  FREESTACK($4)
-	  FREESTACK($5)
-	  FREESTACK($6)
-	  FREESTACK($7)
- 	  FREESTACK($8)
-	}
-	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
+projectExp:
+	  PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
 	{		
 	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
 	  parseQueryTree->addDynamicObject($$);
@@ -4068,7 +4018,78 @@ projectExp: PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
  	  FREESTACK($8)
 	  FREESTACK($9)
 	  FREESTACK($10)
-	};
+	}
+/*
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  FREESTACK($1);
+	  FREESTACK($2);
+	  parseQueryTree->removeDynamicObject($3);
+  	  FREESTACK($4)
+	  FREESTACK($5)
+	  FREESTACK($6)
+	  FREESTACK($7)
+ 	  FREESTACK($8)
+	  FREESTACK($9)
+	  FREESTACK($10)
+	}
+*/
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
+	                           COMMA IntegerLit COMMA IntegerLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.svalue, $15.svalue );
+	  parseQueryTree->addDynamicObject($$);
+
+	  parseQueryTree->removeDynamicObject($3);
+	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
+	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
+	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
+	}
+/*
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
+	                           COMMA IntegerLit COMMA IntegerLit COMMA resampleAlg RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.svalue, $15.svalue, $17 );
+	  parseQueryTree->addDynamicObject($$);
+
+	  parseQueryTree->removeDynamicObject($3);
+	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
+	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
+	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
+	  FREESTACK($18)
+	}
+*/
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
+	                           COMMA IntegerLit COMMA IntegerLit COMMA resampleAlg COMMA FloatLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.svalue, $15.svalue, $17, $19.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  parseQueryTree->removeDynamicObject($3);
+	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
+	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
+	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
+	  FREESTACK($18) FREESTACK($19) FREESTACK($20)
+	}
+	;
+
+resampleAlg:
+  RA_NEAR           { $$ = common::RA_NearestNeighbour; }
+| RA_BILINEAR       { $$ = common::RA_Bilinear;         }
+| RA_CUBIC          { $$ = common::RA_Cubic;            }
+| RA_CUBIC_SPLINE   { $$ = common::RA_CubicSpline;      }
+| RA_LANCZOS        { $$ = common::RA_Lanczos;          }
+| RA_AVERAGE        { $$ = common::RA_Average;          }
+| RA_MODE           { $$ = common::RA_Mode;             }
+| MAX_BINARY        { $$ = common::RA_Max;              }
+| MIN_BINARY        { $$ = common::RA_Min;              }
+| RA_MED            { $$ = common::RA_Med;              }
+| RA_QFIRST         { $$ = common::RA_Q1;               }
+| RA_QTHIRD         { $$ = common::RA_Q3;               };
+
 
 trimExp: generalExp mintervalExp           
 	{

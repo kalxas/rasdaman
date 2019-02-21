@@ -30,6 +30,7 @@ add_subdirectory(time)
 add_subdirectory(file)
 add_subdirectory(pragmas)
 add_subdirectory(stl)
+add_subdirectory(geo)
 
 if (RMANRASNET)
     add_subdirectory(grpc)

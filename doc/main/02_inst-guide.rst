@@ -94,11 +94,11 @@ flexible alternative; however, it requires some experience in manual compilation
 
 **Alternative 3: Virtual Machine**
 
-By `downloading a Virtual Machine <http://rasdaman.org/wiki/DownloadVm>`_ you get a fully
-configured system with rasdaman installed and ready to run. This
-alternative does not require any system administration skills other than
-starting the VM and working with the rasdaman services, e.g., via the
-OGC standards based geo service interface.
+By `downloading a Virtual Machine <sec-download-vm>`_ you get a fully configured
+system with rasdaman installed and ready to run. This alternative does not
+require any system administration skills other than starting the VM and working
+with the rasdaman services, e.g., via the OGC standards based geo service
+interface.
 
 **Support**
 

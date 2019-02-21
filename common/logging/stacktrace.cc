@@ -70,9 +70,9 @@ std::string StackTrace::StackTraceEntry::getFileLoc() const {
   return m_fileloc;
 }
 
-string StackTrace::getCaller() const {
-  if (m_stack.size() > 1) {
-    return m_stack[1].toSingleLineString();
+string StackTrace::getCaller(size_t index) const {
+  if (m_stack.size() > index) {
+    return m_stack[index].toSingleLineString();
   }
   return "no caller function found in the stack trace.";
 }
@@ -94,7 +94,7 @@ void StackTrace::generateNew(void) {
   void* addresses[kMaxStack];
   auto size = backtrace(addresses, kMaxStack);
   char** messages = backtrace_symbols(addresses, size);
-
+  
   // Skip StackTrace c'tor and generateNew
   if (size > static_cast<int>(kStackStart)) {
     for (decltype(size) i = kStackStart, j = 1; i < size; ++i, ++j) {
@@ -109,9 +109,9 @@ void StackTrace::generateNew(void) {
         m_stack.emplace_back(j, line);
         continue;
       }
-
+      
       auto location = getSourceLocation(address);
-
+      
       // Perform demangling if parsed properly
       int status = 0;
       char* demangName = abi::__cxa_demangle(mangName.c_str(), 0, 0, &status);

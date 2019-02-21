@@ -26,23 +26,16 @@
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtunaryoperation.hh"
 #include "tilemgr/tile.hh"
-#include "raslib/type.hh"
+#include "raslib/primitivetype.hh"
+#include "common/geo/geobbox.hh"
+#include <common/geo/resamplingalg.hh>
 
 #ifdef HAVE_GDAL
 class GDALDataset;
-
 using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset*)>;
-
 /// Closes and frees the dataset
 void deleteGDALDataset(GDALDataset* dataset);
 #endif
-
-/**************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -51,18 +44,16 @@ void deleteGDALDataset(GDALDataset* dataset);
   The class represents a (coordinate system) projection operation.
 
 */
-
-
 class QtProject : public QtUnaryOperation
 {
 public:
-    /// constructor getting the mdd operand and the other projection parameters
-    QtProject(QtOperation* mddOp, const char* bounds, const char* crsIn, const char* crsOut);
+    QtProject(QtOperation* mddOp, const char* boundsIn, const char* crsIn, const char* crsOut);
 
-    QtProject(QtOperation* mddOp, const char* crsIn, const char* crsOut);
+    QtProject(QtOperation* mddOp, const char* boundsIn, const char* crsIn, const char* boundsOut, const char* crsOut,
+            int widthOut = invalidExtent, int heightOut = invalidExtent,
+            int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);
 
-
-    ~QtProject();
+    ~QtProject() = default;
 
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);
@@ -78,13 +69,6 @@ public:
     /// method for evaluating the reprojection with a given operand
     QtData* evaluateMDD(QtMDD* mdd);
 
-    /// getters for the geo bounding box
-    float getMinX() const;
-    float getMinY() const;
-    float getMaxX() const;
-    float getMaxY() const;
-    char* getTargetCrs() const;
-
     /// optimizing load access
     void optimizeLoad(QtTrimList* trimList);
 
@@ -96,36 +80,19 @@ private:
 #ifdef HAVE_GDAL
 
     // Conversion methods between rasdaman and GDAL
-    GDALDatasetPtr convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
-    std::unique_ptr<Tile> convertDatasetToTile(
-        const GDALDatasetPtr &gdalResult, int nBands, Tile* sourceTile, r_Type* bandType);
+    std::unique_ptr<Tile> reprojectTile(Tile* srcTile, int ni, r_Primitive_Type* rBandType);
 
-    // Perform reprojection with the help of GDAL library
-    GDALDatasetPtr performGdalReprojection(const GDALDatasetPtr &gdalSource);
-
-    // For checking the "bounds" input string
-    void parseNumbers(const char* str);
-    float parseOneNumber(char* str);
-
-    // Expands a CRS definition (e.g. "EPSG:4326" etc) into its Well-Known-Text representation
-    bool setCrsWKT(const char* srsin, char*& wkt);
-
-    void setBounds(const GDALDatasetPtr &dataset);
-
-    void testCrsTransformation(const char* in, const char* out);
 #endif
 
+    static constexpr int invalidExtent{-1};
 
-    /// attributes for identification of nodes
     QtOperation* mddOp;
-    float xmin, ymin, xmax, ymax;
-    char* wktCrsIn, *wktCrsOut;
-    
-    std::string initialBounds;
-    std::string initialCrsIn;
-    std::string initialCrsOut;
 
-    /// attribute for identification of nodes
+    common::GeoBbox in;
+    common::GeoBbox out;
+    common::ResampleAlg resampleAlg{common::defaultResampleAlg};
+    double errThreshold{common::defaultErrorThreshold};
+
     static const QtNodeType nodeType;
 
 };

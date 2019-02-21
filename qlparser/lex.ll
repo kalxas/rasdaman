@@ -30,7 +30,6 @@ rasdaman GmbH.
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Wsign-compare"
-static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 22:48:34 rasdev Exp $";
 
 #include "config.h"
 #include <math.h>
@@ -86,71 +85,67 @@ int string_yyinput( char* buf, int max_size )
 #undef YY_INPUT
 #define YY_INPUT( buff, buffLen, maxSize ) ( buffLen = string_yyinput( buff, maxSize ) )
 
-#define SETTOKEN( TOKEN, TYPE, VALUE )	                           		\
-  yylval.TYPE.value = VALUE;                                       		\
-  if(!infoList.empty()) {												\
-   	  currInfo = new ParseInfo(infoList.front());						\
-	  infoList.pop_front();												\
-  }																		\
-  else {																\
-	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
-  }																		\
-  yylval.TYPE.info = currInfo; 											\
-  columnNo += static_cast<unsigned int>(yyleng);                                             		\
-  parseQueryTree->addDynamicObject( yylval.TYPE.info );           		\
+#define SETTOKEN( TOKEN, TYPE, VALUE )                                   \
+  yylval.TYPE.value = VALUE;                                             \
+  if(!infoList.empty()) {                                                \
+      currInfo = new ParseInfo(infoList.front());                        \
+      infoList.pop_front();                                              \
+  }    else {                                                            \
+      currInfo = new ParseInfo( yytext, lineNo, columnNo );              \
+  }                                                                      \
+  yylval.TYPE.info = currInfo;                                           \
+  columnNo += static_cast<unsigned int>(yyleng);                         \
+  parseQueryTree->addDynamicObject( yylval.TYPE.info );                  \
   return TOKEN;
 
 
-#define SETSTRTOKEN( TOKEN, TYPE, VALUE )	                  			\
-  char* temp = strdup(VALUE);					  						\
-  parseQueryTree->addCString( temp );                             		\
-  yylval.TYPE.value = temp;                                       		\
-  if(!infoList.empty()) {												\
-   	  currInfo = new ParseInfo(infoList.front());						\
-	  infoList.pop_front();												\
-  }																		\
-  else {																\
-	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
-  }																		\
-  yylval.TYPE.info = currInfo; 											\
-  columnNo += static_cast<unsigned int>(yyleng);                                             		\
-  parseQueryTree->addDynamicObject( yylval.TYPE.info );           		\
+#define SETSTRTOKEN( TOKEN, TYPE, VALUE )                                \
+  char* temp = strdup(VALUE);                                            \
+  parseQueryTree->addCString( temp );                                    \
+  yylval.TYPE.value = temp;                                              \
+  if(!infoList.empty()) {                                                \
+      currInfo = new ParseInfo(infoList.front());                        \
+      infoList.pop_front();                                              \
+  } else {                                                               \
+      currInfo = new ParseInfo( yytext, lineNo, columnNo );              \
+  }                                                                      \
+  yylval.TYPE.info = currInfo;                                           \
+  columnNo += static_cast<unsigned int>(yyleng);                         \
+  parseQueryTree->addDynamicObject( yylval.TYPE.info );                  \
   return TOKEN;
   
 
-#define SETINTTOKEN( VALUE, NEGATIVE, BYTES )	                        \
-  yylval.integerToken.negative = NEGATIVE;                              \
-  yylval.integerToken.bytes    = BYTES;                                 \
-  if( NEGATIVE )                                                        \
-    	yylval.integerToken.svalue = VALUE;                            	\
-  else                                                                  \
-    	yylval.integerToken.uvalue = (unsigned long)VALUE;              \
-  if(!infoList.empty()) {												\
-   	  currInfo = new ParseInfo(infoList.front());						\
-	  infoList.pop_front();												\
-  }																		\
-  else {																\
-	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
-  }																		\
-  yylval.integerToken.info = currInfo; 									\
-  columnNo += static_cast<unsigned int>(yyleng);                                                   \
-  parseQueryTree->addDynamicObject( yylval.integerToken.info );         \
+#define SETINTTOKEN( VALUE, NEGATIVE, BYTES )                            \
+  yylval.integerToken.negative = NEGATIVE;                               \
+  yylval.integerToken.bytes    = BYTES;                                  \
+  if( NEGATIVE )                                                         \
+        yylval.integerToken.svalue = VALUE;                              \
+  else                                                                   \
+        yylval.integerToken.uvalue = (unsigned long)VALUE;               \
+  if(!infoList.empty()) {                                                \
+      currInfo = new ParseInfo(infoList.front());                        \
+      infoList.pop_front();                                              \
+  }    else {                                                            \
+      currInfo = new ParseInfo( yytext, lineNo, columnNo );              \
+  }                                                                      \
+  yylval.integerToken.info = currInfo;                                   \
+  columnNo += static_cast<unsigned int>(yyleng);                         \
+  parseQueryTree->addDynamicObject( yylval.integerToken.info );          \
   return IntegerLit;
 
 
-#define SETFLTTOKEN( VALUE, BYTES )	                                	\
-  yylval.floatToken.value  = VALUE;                                     \
-  yylval.floatToken.bytes  = BYTES;                                     \
-  if(!infoList.empty()) {												\
-   	  currInfo = new ParseInfo(infoList.front());						\
-	  infoList.pop_front();												\
-  }																		\
-  else {																\
-   	  currInfo = new ParseInfo(yytext, lineNo, columnNo);				\
-  }																		\
-  yylval.floatToken.info = currInfo; 									\
-  columnNo += static_cast<unsigned int>(yyleng);                                                   \
-  parseQueryTree->addDynamicObject( yylval.floatToken.info );           \
+#define SETFLTTOKEN( VALUE, BYTES )                                      \
+  yylval.floatToken.value  = VALUE;                                      \
+  yylval.floatToken.bytes  = BYTES;                                      \
+  if(!infoList.empty()) {                                                \
+      currInfo = new ParseInfo(infoList.front());                        \
+      infoList.pop_front();                                              \
+  }    else {                                                            \
+      currInfo = new ParseInfo(yytext, lineNo, columnNo);                \
+  }                                                                      \
+  yylval.floatToken.info = currInfo;                                     \
+  columnNo += static_cast<unsigned int>(yyleng);                         \
+  parseQueryTree->addDynamicObject( yylval.floatToken.info );            \
   return FloatLit;
 
 %}
@@ -166,7 +161,7 @@ int string_yyinput( char* buf, int max_size )
 "re"                                     { SETTOKEN( RE, commandToken, RE ) }
 "im"                                     { SETTOKEN( IM, commandToken, IM ) }
 
-"struct"				 { SETTOKEN( STRCT, commandToken, STRCT ) }
+"struct"                                 { SETTOKEN( STRCT, commandToken, STRCT ) }
 "fastscale"                              { SETTOKEN( FASTSCALE, commandToken, FASTSCALE ) }
 "members"                                { SETTOKEN( MEMBERS, commandToken, MEMBERS ) }
 "add"                                    { SETTOKEN( ADD, commandToken, ADD ) }
@@ -180,7 +175,19 @@ int string_yyinput( char* buf, int max_size )
 "to"                                     { SETTOKEN( TO, commandToken, TO ) }
 "extend"                                 { SETTOKEN( EXTEND, commandToken, EXTEND ) }
 "by"                                     { SETTOKEN( BY, commandToken, BY ) }
+
 "project"                                { SETTOKEN( PROJECT, commandToken, PROJECT ) }
+"near"                                   { SETTOKEN( RA_NEAR, commandToken, RA_NEAR ) }
+"bilinear"                               { SETTOKEN( RA_BILINEAR, commandToken, RA_BILINEAR ) }
+"cubic"                                  { SETTOKEN( RA_CUBIC, commandToken, RA_CUBIC ) }
+"cubicspline"                            { SETTOKEN( RA_CUBIC_SPLINE, commandToken, RA_CUBIC_SPLINE ) }
+"lanczos"                                { SETTOKEN( RA_LANCZOS, commandToken, RA_LANCZOS ) }
+"average"                                { SETTOKEN( RA_AVERAGE, commandToken, RA_AVERAGE ) }
+"mode"                                   { SETTOKEN( RA_MODE, commandToken, RA_MODE ) }
+"med"                                    { SETTOKEN( RA_MED, commandToken, RA_MED ) }
+"q1"                                     { SETTOKEN( RA_QFIRST, commandToken, RA_QFIRST ) }
+"q3"                                     { SETTOKEN( RA_QTHIRD, commandToken, RA_QTHIRD ) }
+
 "at"                                     { SETTOKEN( AT, commandToken, AT ) }
 "dimension"                              { SETTOKEN( DIMENSION, commandToken, DIMENSION ) }
 "all_cell"|"all_cells"                   { SETTOKEN( ALL, commandToken, ALL ) }
@@ -264,17 +271,17 @@ int string_yyinput( char* buf, int max_size )
 "encode"                                 { SETTOKEN( ENCODE, commandToken, ENCODE ) }
 "decode"                                 { SETTOKEN( DECODE, commandToken, DECODE ) }
 
-"inv_tiff"                                   { SETTOKEN( INV_TIFF, commandToken, INV_TIFF ) }
-"inv_bmp"                                    { SETTOKEN( INV_BMP, commandToken, INV_BMP ) }
-"inv_hdf"                                    { SETTOKEN( INV_HDF, commandToken, INV_HDF ) }
-"inv_netcdf"                                 { SETTOKEN( INV_NETCDF, commandToken, INV_NETCDF ) }
-"inv_jpeg"                                   { SETTOKEN( INV_JPEG, commandToken, INV_JPEG ) }
-"inv_csv"                                    { SETTOKEN( INV_CSV, commandToken, INV_CSV ) }
-"inv_png"                                    { SETTOKEN( INV_PNG, commandToken, INV_PNG ) }
-"inv_vff"                                    { SETTOKEN( INV_VFF, commandToken, INV_VFF ) }
-"inv_tor"                                    { SETTOKEN( INV_TOR, commandToken, INV_TOR ) }
-"inv_dem"                                    { SETTOKEN( INV_DEM, commandToken, INV_DEM ) }
-"inv_grib"                                   { SETTOKEN( INV_GRIB, commandToken, INV_GRIB ) }
+"inv_tiff"                               { SETTOKEN( INV_TIFF, commandToken, INV_TIFF ) }
+"inv_bmp"                                { SETTOKEN( INV_BMP, commandToken, INV_BMP ) }
+"inv_hdf"                                { SETTOKEN( INV_HDF, commandToken, INV_HDF ) }
+"inv_netcdf"                             { SETTOKEN( INV_NETCDF, commandToken, INV_NETCDF ) }
+"inv_jpeg"                               { SETTOKEN( INV_JPEG, commandToken, INV_JPEG ) }
+"inv_csv"                                { SETTOKEN( INV_CSV, commandToken, INV_CSV ) }
+"inv_png"                                { SETTOKEN( INV_PNG, commandToken, INV_PNG ) }
+"inv_vff"                                { SETTOKEN( INV_VFF, commandToken, INV_VFF ) }
+"inv_tor"                                { SETTOKEN( INV_TOR, commandToken, INV_TOR ) }
+"inv_dem"                                { SETTOKEN( INV_DEM, commandToken, INV_DEM ) }
+"inv_grib"                               { SETTOKEN( INV_GRIB, commandToken, INV_GRIB ) }
 
 "abs"                                    { SETTOKEN( ABS, commandToken, ABS ) }
 "exp"                                    { SETTOKEN( EXP, commandToken, EXP ) }
@@ -295,33 +302,33 @@ int string_yyinput( char* buf, int max_size )
 "arctan"                                 { SETTOKEN( ARCTAN, commandToken, ARCTAN ) }
 "atan"                                   { SETTOKEN( ATAN, commandToken, ATAN ) }
 
-"index"					{ SETTOKEN( INDEX, commandToken, INDEX ) }
-"rc_index"				{ SETTOKEN( RC_INDEX, commandToken, RC_INDEX ) }
-"tc_index"				{ SETTOKEN( TC_INDEX, commandToken, TC_INDEX ) }
-"a_index"				{ SETTOKEN( A_INDEX, commandToken, A_INDEX ) }
-"d_index"				{ SETTOKEN( D_INDEX, commandToken, D_INDEX ) }
-"rd_index"				{ SETTOKEN( RD_INDEX, commandToken, RD_INDEX ) }
-"rpt_index"				{ SETTOKEN( RPT_INDEX, commandToken, RPT_INDEX ) }
-"rrpt_index"			{ SETTOKEN( RRPT_INDEX, commandToken, RRPT_INDEX ) }
-"it_index"				{ SETTOKEN( IT_INDEX, commandToken, IT_INDEX ) }
-"auto"					{ SETTOKEN( AUTO, commandToken, AUTO ) }
-"tiling"				{ SETTOKEN( TILING, commandToken, TILING ) }
-"aligned"				{ SETTOKEN( ALIGNED, commandToken, ALIGNED ) }
-"regular"				{ SETTOKEN( REGULAR, commandToken, REGULAR ) }
-"directional"			{ SETTOKEN( DIRECTIONAL, commandToken, DIRECTIONAL ) }
-"with"					{ SETTOKEN( WITH, commandToken, WITH ) }
-"subtiling"				{ SETTOKEN( SUBTILING, commandToken, SUBTILING ) }
-"no_limit"				{ SETTOKEN( P_NO_LIMIT, commandToken, P_NO_LIMIT ) }
-"regroup"				{ SETTOKEN( P_REGROUP, commandToken, P_REGROUP ) }
-"regroup_and_subtiling"	{ SETTOKEN( P_REGROUP_AND_SUBTILING, commandToken, P_REGROUP_AND_SUBTILING ) }
-"area"					{ SETTOKEN( AREA, commandToken, AREA ) }
-"of"					{ SETTOKEN( OF, commandToken, OF ) }
-"interest"				{ SETTOKEN( INTEREST, commandToken, INTEREST ) }
-"statistic"				{ SETTOKEN( STATISTIC, commandToken, STATISTIC ) }
-"tile"					{ SETTOKEN( TILE, commandToken, TILE ) }
-"size"					{ SETTOKEN( SIZE, commandToken, SIZE ) }
-"border"				{ SETTOKEN( BORDER, commandToken, BORDER ) }
-"threshold"				{ SETTOKEN( THRESHOLD, commandToken, THRESHOLD ) }
+"index"                 { SETTOKEN( INDEX, commandToken, INDEX ) }
+"rc_index"              { SETTOKEN( RC_INDEX, commandToken, RC_INDEX ) }
+"tc_index"              { SETTOKEN( TC_INDEX, commandToken, TC_INDEX ) }
+"a_index"               { SETTOKEN( A_INDEX, commandToken, A_INDEX ) }
+"d_index"               { SETTOKEN( D_INDEX, commandToken, D_INDEX ) }
+"rd_index"              { SETTOKEN( RD_INDEX, commandToken, RD_INDEX ) }
+"rpt_index"             { SETTOKEN( RPT_INDEX, commandToken, RPT_INDEX ) }
+"rrpt_index"            { SETTOKEN( RRPT_INDEX, commandToken, RRPT_INDEX ) }
+"it_index"              { SETTOKEN( IT_INDEX, commandToken, IT_INDEX ) }
+"auto"                  { SETTOKEN( AUTO, commandToken, AUTO ) }
+"tiling"                { SETTOKEN( TILING, commandToken, TILING ) }
+"aligned"               { SETTOKEN( ALIGNED, commandToken, ALIGNED ) }
+"regular"               { SETTOKEN( REGULAR, commandToken, REGULAR ) }
+"directional"           { SETTOKEN( DIRECTIONAL, commandToken, DIRECTIONAL ) }
+"with"                  { SETTOKEN( WITH, commandToken, WITH ) }
+"subtiling"             { SETTOKEN( SUBTILING, commandToken, SUBTILING ) }
+"no_limit"              { SETTOKEN( P_NO_LIMIT, commandToken, P_NO_LIMIT ) }
+"regroup"               { SETTOKEN( P_REGROUP, commandToken, P_REGROUP ) }
+"regroup_and_subtiling" { SETTOKEN( P_REGROUP_AND_SUBTILING, commandToken, P_REGROUP_AND_SUBTILING ) }
+"area"                  { SETTOKEN( AREA, commandToken, AREA ) }
+"of"                    { SETTOKEN( OF, commandToken, OF ) }
+"interest"              { SETTOKEN( INTEREST, commandToken, INTEREST ) }
+"statistic"             { SETTOKEN( STATISTIC, commandToken, STATISTIC ) }
+"tile"                  { SETTOKEN( TILE, commandToken, TILE ) }
+"size"                  { SETTOKEN( SIZE, commandToken, SIZE ) }
+"border"                { SETTOKEN( BORDER, commandToken, BORDER ) }
+"threshold"             { SETTOKEN( THRESHOLD, commandToken, THRESHOLD ) }
 "unsigned"				 { SETTOKEN( TUNSIG, typeToken, TUNSIG) }
 "bool"					 { SETTOKEN( TBOOL, typeToken, TBOOL) }
 "char"					 { SETTOKEN( TCHAR, typeToken, TCHAR) }
@@ -333,14 +340,15 @@ int string_yyinput( char* buf, int max_size )
 "float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
 
-"nan"					{ SETFLTTOKEN( NAN, 8 ) }
-"nanf"					{ SETFLTTOKEN( NAN, 4 ) }
-"inf"					{ SETFLTTOKEN( INFINITY, 8 ) }
-"inff"					{ SETFLTTOKEN( INFINITY, 4 ) }
+
+"nan"                     { SETFLTTOKEN( NAN, 8 ) }
+"nanf"                    { SETFLTTOKEN( NAN, 4 ) }
+"inf"                     { SETFLTTOKEN( INFINITY, 8 ) }
+"inff"                    { SETFLTTOKEN( INFINITY, 4 ) }
 
 "max"                                    { SETTOKEN( MAX_BINARY, commandToken, MAX_BINARY ) }
 "min"                                    { SETTOKEN( MIN_BINARY, commandToken, MIN_BINARY ) }
-"bit"					 { SETTOKEN( BIT, commandToken, BIT ) }
+"bit"                                    { SETTOKEN( BIT, commandToken, BIT ) }
 "and"                                    { SETTOKEN( AND, commandToken, AND ) }
 "or"                                     { SETTOKEN( OR, commandToken, OR ) }
 "xor"                                    { SETTOKEN( XOR, commandToken, XOR ) }
@@ -382,28 +390,28 @@ $[0-9]+                                  { llerror("unresolved query parameter")
                                            SETSTRTOKEN( StringLit, stringToken, &(yytext[1]) )
 					 }
 
-0x[0-9A-Fa-f]+[cC]                             { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 1 ) }
-0x[0-9A-Fa-f]+"us"|"US"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 2 ) }
-0x[0-9A-Fa-f]+"ul"|"UL"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 4 ) }
-0x[0-9A-Fa-f]+[oO]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 1 ) }
-0x[0-9A-Fa-f]+[sS]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 2 ) }
-0x[0-9A-Fa-f]+[lL]?                          { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 4 ) }
+0x[0-9A-Fa-f]+[cC]                       { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 1 ) }
+0x[0-9A-Fa-f]+"us"|"US"                  { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 2 ) }
+0x[0-9A-Fa-f]+"ul"|"UL"                  { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 4 ) }
+0x[0-9A-Fa-f]+[oO]                       { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 1 ) }
+0x[0-9A-Fa-f]+[sS]                       { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 2 ) }
+0x[0-9A-Fa-f]+[lL]?                      { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 4 ) }
 
-[0-9]+[cC]	                         { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 1 ) }
-[0-9]+"us"|"US"	                         { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 2 ) }
-[0-9]+"ul"|"UL"	                         { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 4 ) }
-[0-9]+[oO]	                         { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 1 ) }
-[0-9]+[sS]	                         { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 2 ) }
-[0-9]+[lL]?	                         { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 4 ) }
+[0-9]+[cC]                               { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 1 ) }
+[0-9]+"us"|"US"                          { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 2 ) }
+[0-9]+"ul"|"UL"                          { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 4 ) }
+[0-9]+[oO]                               { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 1 ) }
+[0-9]+[sS]                               { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 2 ) }
+[0-9]+[lL]?                              { SETINTTOKEN( strtol ( yytext, (char**)NULL, 10 ), 1, 4 ) }
 
 ([0-9]+|([0-9]+(\.[0-9]+)?)([eE][-+]?[0-9]+)?)[dD]? { SETFLTTOKEN( strtod( yytext, (char**)NULL ), 8 ) }
 ([0-9]+|([0-9]+(\.[0-9]+)?)([eE][-+]?[0-9]+)?)[fF]  { SETFLTTOKEN( strtod( yytext, (char**)NULL ), 4 ) }
 
-[ ]+		                         { columnNo += static_cast<unsigned int>(yyleng);                       }
+[ ]+                                     { columnNo += static_cast<unsigned int>(yyleng);              }
 \t                                       { columnNo += 3;                            }
-\r                                       { 	                                     }
+\r                                       {                                           }
 \n                                       { columnNo  = 1; lineNo++;                  }
-.				         					{ SETTOKEN(UNKNOWN, commandToken, UNKNOWN ) }
+.                                        { SETTOKEN(UNKNOWN, commandToken, UNKNOWN ) }
 
 
 %%

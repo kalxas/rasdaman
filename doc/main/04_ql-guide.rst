@@ -1485,7 +1485,7 @@ Specifiers are case insensitive.
 Additionally, the following special floating-point constants are supported as 
 well:
 
-.. _table-special-constants:
+.. _table-float-constants:
 
 .. table:: Special floating-point constants corresponding to IEEE 754 NaN and Inf.
 
@@ -2109,48 +2109,126 @@ example, EPSG:4326 references the well-known WGS84 CRS.
 The ``project()`` function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``project()`` function signature is ::
-
-    project: mddExpr, crsExpr, crsExpr -> mddExpr
-
-Assume an MDD object ``M`` and two CRS identifiers ``C1`` and ``C2`` which are
-strings representing valid EPSG CRS identifiers, such as "EPSG:4326".
-The ``project()`` function establishes an output MDD, with same
+Assume an MDD object ``M`` and two CRS identifiers ``C1`` and ``C2`` such as
+"EPSG:4326". The ``project()`` function establishes an output MDD, with same
 dimension as ``M``, whose contents is given by projecting ``M`` from CRS ``C1``
 into CRS ``C2``.
 
-**GDAL syntax**
+The ``project()`` function comes in several variants based on the provided 
+input arguments ::
 
-Internally, the ``project()`` function is mapped to GDAL; hence, it accepts the
-same format for the CRS parameters as GDAL:
+    (1) project( mddExpr, boundsIn, crsIn, crsOut )
 
--  Well Known Text (as per GDAL)
+    (2) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+                          widthOut, heightOut )
 
--  "EPSG:n"
+    (3) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+                          widthOut, heightOut, resampleAlg, errThreshold )
 
--  "EPSGA:n"
+where
 
--  "AUTO:proj_id,unit_id,lon0,lat0" indicating OGC WMS auto projections
+- ``mddExpr`` - MDD object to be reprojected.
 
--  "``urn:ogc:def:crs:EPSG::n``" indicating OGC URNs (deprecated by OGC)
+- ``boundsIn`` - geographic bounding box given as a string of comma-separated
+  floating-point values of the format: ``"xmin, ymin, xmax, ymax"``.
 
--  PROJ.4 definitions
+- ``crsIn`` - geographic CRS as a string. Internally, the ``project()`` function 
+  is mapped to GDAL; hence, it accepts the same CRS formats as GDAL:
 
--  well known names, such as NAD27, NAD83, WGS84 or WGS72.
+    -  Well Known Text (as per GDAL)
 
--  WKT in ESRI format, prefixed with "ESRI::"
+    -  "EPSG:n"
 
--  "IGNF:xxx" and "+init=IGNF:xxx", etc.
+    -  "EPSGA:n"
 
-Since recently (v1.10), GDAL also supports OGC CRS URLs, OGC's preferred
-way of identifying CRSs.
+    -  "AUTO:proj_id,unit_id,lon0,lat0" indicating OGC WMS auto projections
+
+    -  "``urn:ogc:def:crs:EPSG::n``" indicating OGC URNs (deprecated by OGC)
+
+    -  PROJ.4 definitions
+
+    -  well known names, such as NAD27, NAD83, WGS84 or WGS72.
+
+    -  WKT in ESRI format, prefixed with "ESRI::"
+
+    -  "IGNF:xxx" and "+init=IGNF:xxx", etc.
+
+    - Since recently (v1.10), GDAL also supports OGC CRS URLs, OGC's preferred
+      way of identifying CRSs.
+
+- ``boundsOut`` - geographic bounding box of the projected output, given in the 
+  same format as ``boundsIn``. This can be "smaller" than the input bounding box,
+  in which case the input will be cropped.
+
+- ``crsOut`` - geographic CRS of the result, in same format as ``crsIn``.
+
+- ``widthOut``, ``heightOut`` - integer grid extents of the result; the result
+  will be accordingly scaled to fit in these extents.
+
+- ``resampleAlg`` - resampling algorithm to use, equivalent to the ones in GDAL:
+
+   near
+       Nearest neighbour (default, fastest algorithm, worst interpolation quality).
+
+   bilinear
+       Bilinear resampling (2x2 kernel).
+
+   cubic
+       Cubic convolution approximation (4x4 kernel).
+
+   cubicspline
+       Cubic B-spline approximation (4x4 kernel).
+
+   lanczos
+       Lanczos windowed sinc (6x6 kernel).
+
+   average
+       Average of all non-NODATA contributing pixels. (GDAL >= 1.10.0)
+
+   mode
+       Selects the value which appears most often of all the sampled points. 
+       (GDAL >= 1.10.0)
+
+   max
+       Selects the maximum value from all non-NODATA contributing pixels. 
+       (GDAL >= 2.0.0)
+
+   min
+       Selects the minimum value from all non-NODATA contributing pixels. 
+       (GDAL >= 2.0.0)
+
+   med
+       Selects the median value of all non-NODATA contributing pixels. 
+       (GDAL >= 2.0.0)
+
+   q1
+       Selects the first quartile value of all non-NODATA contributing pixels. 
+       (GDAL >= 2.0.0)
+
+   q3
+       Selects the third quartile value of all non-NODATA contributing pixels. 
+       (GDAL >= 2.0.0)
+
+- ``errThreshold`` - error threshold for transformation approximation 
+  (in pixel units - defaults to 0.125).
 
 **Example**
 
-The following expression projects the indicated area of MDD ``worldMap``
-from CRS EPSG 4326 into EPSG 54030: ::
+The following expression projects the MDD ``worldMap`` with bounding box 
+"-180, -90, 180, 90" in CRS EPSG 4326, into EPSG 54030: ::
 
-    project( worldMap, "EPSG:4326", "EPSG:54030" )
+    project( worldMap, "-180, -90, 180, 90", "EPSG:4326", "EPSG:54030" )
+
+The next example reprojects a subset of MDD ``Formosat`` with geographic 
+bbox "265725, 2544015, 341595, 2617695" in EPSG 32651, to bbox
+"120.630936455 23.5842129067 120.77553782 23.721772322" in EPSG 4326 fit into
+a 256 x 256 pixels area. The resampling algorithm is set to bicubic, and the
+pixel error threshold is 0.1. ::
+
+    project( Formosat[ 0:2528, 0:2456 ],
+      "265725, 2544015, 341595, 2617695", "EPSG:32651",
+      "120.630936455 23.5842129067 120.77553782 23.721772322", "EPSG:4326",
+      256, 256, bicubic, 0.1 )
 
 **Limitations**
 
@@ -2164,7 +2242,7 @@ Notes
 Reprojection implies resampling of the cell values into a new grid, hence
 usually they will change.
 
-As for the resampling process typically a larger are is required than the
+As for the resampling process typically a larger area is required than the
 reprojected data area itself, it is advisable to project an area smaller than
 the total domain of the MDD.
 
