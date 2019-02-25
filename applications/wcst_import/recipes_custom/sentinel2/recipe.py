@@ -26,6 +26,7 @@ from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
 from master.importer.importer import Importer
 from master.importer.multi_importer import MultiImporter
 from master.error.runtime_exception import RuntimeException
+from master.error.validate_exception import RecipeValidationException
 from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
 from master.helper.user_band import UserBand
@@ -48,13 +49,20 @@ class Recipe(GeneralCoverageRecipe):
     # supported product levels
     LVL_L1C = 'L1C'
     LVL_L2A = 'L2A'
+    LEVELS = [LVL_L1C, LVL_L2A]
+
     # resolutions in a single Sentinel 2 dataset; TCI (True Color Image) is 10m
     RES_10m = '10m'
     RES_20m = '20m'
     RES_60m = '60m'
     RES_TCI = 'TCI'
-
-    RES_DICT = {RES_10m: [1, 10, -10], RES_20m: [1, 20, -20], RES_60m: [1, 60, -60], RES_TCI: [1, 10, -10]}
+    # resolution (subdataset name) -> actual resolution numbers
+    RES_DICT = {RES_10m: [1, 10, -10], 
+                RES_20m: [1, 20, -20],
+                RES_60m: [1, 60, -60],
+                RES_TCI: [1, 10, -10]}
+    # list of subdatasets to import
+    SUBDATASETS = [RES_10m, RES_20m, RES_60m, RES_TCI]
 
     # variables that can be used to template the coverage id
     VAR_CRS_CODE = '${crsCode}'
@@ -98,8 +106,6 @@ class Recipe(GeneralCoverageRecipe):
         RES_TCI: BANDS_L1C[RES_TCI],
     }
     BANDS = { LVL_L1C: BANDS_L1C, LVL_L2A: BANDS_L2A }
-    # number of subdatasets in a Sentinel 2 dataset
-    SUBDATASETS = 4
     DEFAULT_CRS = "OGC/0/AnsiDate@EPSG/0/${crsCode}"
     DEFAULT_IMPORT_ORDER = GdalToCoverageConverter.IMPORT_ORDER_ASCENDING
     
@@ -110,13 +116,19 @@ class Recipe(GeneralCoverageRecipe):
     def __init__(self, session):
         super(Recipe, self).__init__(session)
         self._init_options()
-        # subdatasets have a specific path scheme and prepending "file://" interferes with it
-        # TODO: however uncommenting the below causes another error:
-        #       The URL provided in the coverageRef parameter is malformed.
-        # ConfigManager.root_url = ""
 
     def validate(self):
         super(Recipe, self).validate()
+        if len(self.resolutions) == 0:
+            raise RecipeValidationException("No resolutions to import provided.")
+        for res in self.resolutions:
+            if res not in self.SUBDATASETS:
+                raise RecipeValidationException("Invalid resolution '" + str(res) + 
+                    "' provided, expected a subset of " + str(self.SUBDATASETS))
+        for lvl in self.levels:
+            if lvl not in self.LEVELS:
+                raise RecipeValidationException("Invalid level '" + str(lvl) + 
+                    "' provided, expected a subset of " + str(self.LEVELS))
 
     def describe(self):
         log.info("The recipe has been validated and is ready to run.")
@@ -152,6 +164,7 @@ class Recipe(GeneralCoverageRecipe):
     
     def _init_options(self):
         self._init_coverage_options()
+        self._init_input_options()
         self.coverage_id = self.session.get_coverage_id()
         self.import_order = self._set_option(self.options, 'import_order', self.DEFAULT_IMPORT_ORDER)
         self.wms_import = self._set_option(self.options, 'wms_import', False)
@@ -163,16 +176,35 @@ class Recipe(GeneralCoverageRecipe):
         self.crs = self._set_option(covopts, 'crs', self.DEFAULT_CRS)
         self._set_option(covopts, 'slicer', {})
         self._init_slicer_options(covopts)
+
+    def _init_input_options(self):
+        # specify a subset of resolutions to ingest
+        inputopts = self.session.get_input()
+        self.resolutions = self._set_option(inputopts, 'resolutions', None)
+        if self.resolutions is None:
+            self.resolutions = self._set_option(inputopts, 'subdatasets', None)
+        if self.resolutions is None:
+            self.resolutions = self.SUBDATASETS
+        # allow to ingest data with only particular crss
+        self.crss = self._set_option(inputopts, 'crss', [])
+        # ingest data if it's the specified levels
+        self.levels = self._set_option(inputopts, 'levels', [])
     
     def _init_slicer_options(self, covopts):
         sliceropts = covopts['slicer']
         self._set_option(sliceropts, 'type', 'gdal')
         self._set_option(sliceropts, 'pixelIsPoint', False)
-        if 'axes' not in sliceropts:
-            self._init_axes_options(sliceropts)
+        axesopts = self._init_axes_options()
+        if 'axes' in sliceropts:
+            for axis in sliceropts['axes']:
+                if axis not in axesopts:
+                    raise RecipeValidationException("Invalid axis '" + axis + "', expected one of ansi/E/N.")
+                for k in sliceropts['axes'][axis]:
+                    axesopts[axis][k] = sliceropts['axes'][axis][k]
+        sliceropts['axes'] = axesopts
     
-    def _init_axes_options(self, sliceropts):
-        sliceropts['axes'] = {
+    def _init_axes_options(self):
+        return {
             'ansi': {
                 "min": "datetime(regex_extract('${file:path}', '.*?/S2[^_]+_MSI[^_]+_([\\d]+)T[\\d]+_', 1), 'YYYYMMDD')",
                 "gridOrder": 0,
@@ -230,13 +262,21 @@ class Recipe(GeneralCoverageRecipe):
             gdal_ds.close()
 
             level = self._get_level(f.get_filepath())
+            if len(self.levels) > 0 and level not in self.levels:
+                # skip file, as it's not in the list of levels provided in the ingredients file
+                log.debug("Skipping " + level + " data")
+                continue
             crs_code = ""
 
             evaluator_slice = None
 
-            for res in [self.RES_10m, self.RES_20m, self.RES_60m, self.RES_TCI]:
+            for res in self.resolutions:
                 subds_file = self._get_subdataset_file(subdatasets, res)
                 crs_code = self._get_crs_code(subds_file.get_filepath(), crs_code)
+                if len(self.crss) > 0 and crs_code not in self.crss:
+                    # skip CRS, it's not in the list of CRSs provided in the ingredients file
+                    log.debug("Skipping data with CRS " + crs_code)
+                    continue 
                 cov_id = self._get_coverage_id(self.coverage_id, crs_code, level, res)
                 conv = self._get_convertor(convertors, cov_id, crs_code, level, res)
 
@@ -263,10 +303,10 @@ class Recipe(GeneralCoverageRecipe):
     
     def _get_subdatasets(self, gdal_ds, f):
         subdatasets = gdal_ds.get_subdatasets()
-        if len(subdatasets) != self.SUBDATASETS:
+        if len(subdatasets) != len(self.SUBDATASETS):
             raise RuntimeException("Cannot handle Sentinel 2 file " + f.get_filepath() + 
                                    ": GDAL reported " + str(len(subdatasets)) + 
-                                   " subdatasets, expected " + str(self.SUBDATASETS) + ".")
+                                   " subdatasets, expected " + str(len(self.SUBDATASETS)) + ".")
         return [name for (name, _) in subdatasets]
 
     def _get_subdataset_file(self, subdatasets, res):

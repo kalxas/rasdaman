@@ -1604,6 +1604,9 @@ As of now, these recipes are provided:
 * :ref:`Irregular timeseries <data-import-recipe-irregular-timeseries>`
 * :ref:`General coverage <data-import-recipe-general-coverage>`
 * :ref:`Import from external WCS <data-import-recipe-wcs_extract>`
+* Specialized recipes
+
+    - :ref:`Sentinel 2 <data-import-recipe-sentinel2>`
 
 For each one of these there is an ingredients example under the
 `ingredients/ <http://rasdaman.org/browser/applications/wcst_import/ingredients>`_
@@ -2560,11 +2563,8 @@ petascope. Parameters are explained below.
     {
       "config": {
         "service_url": "http://localhost:8080/rasdaman/ows",
-        "tmp_directory": "/tmp/",
         "default_crs": "http://localhost:8080/def/crs/EPSG/0/4326",
-        "mock": false,
-        "automated": true,
-        "track_files": false
+        "automated": true
       },
       "input": {
         "coverage_id": "test_wcs_extract"
@@ -2586,6 +2586,100 @@ petascope. Parameters are explained below.
         }
       }
     }
+
+
+.. _data-import-recipe-sentinel2:
+
+Import Sentinel 2 data
+^^^^^^^^^^^^^^^^^^^^^^
+
+This is a convenience recipe for importing Sentinel 2 data in particular. It
+relies on support for Sentinel 2 in `more recent GDAL versions
+<https://gdal.org/frmt_sentinel2.html>`__. Importing zipped Sentinel 2 is also
+possible and automatically handled.
+
+Below is an example:
+
+.. code-block:: json
+
+    {
+      "config": {
+        "service_url": "http://localhost:8080/rasdaman/ows",
+        "automated": true
+      },
+      "input": {
+        "coverage_id": "S2_${crsCode}_${resolution}_${level}",
+        "paths": [ "S2*.zip" ],
+        // Optional filtering settings
+        "resolutions": ["10m", "20m", "60m", "TCI"],
+        "levels": ["L1C", "L2A"],
+        "crss": ["32757"] // remove or leave empty to ingest any CRS
+      },
+      "recipe": {
+        "name": "sentinel2",
+        "options": {
+          "coverage": {
+            "metadata": {
+              "type": "xml",
+              "global": {
+                "Title": "'Sentinel-2 data served by rasdaman'"
+              }
+            }
+          },
+          "tiling": "ALIGNED [0:0, 0:1999, 0:1999] TILE SIZE 32000000",
+          "wms_import": true
+        }
+      }
+    }
+
+The recipe extends `general_coverage <data-import-recipe-wcs_extract>`_ so
+the ``"recipe"`` section has the same structure. However, a lot of information
+is automatically filled in by the recipe now, so the ingredients file is much
+simpler as the example above shows.
+
+The other obvious difference is that the ``"coverage_id"`` is templated with
+several variables enclosed in ``${`` and ``}`` which are automatically replaced
+to generate the actual coverage name during import:
+
+- ``crsCode`` - the CRS EPSG code of the imported files, e.g. ``32757`` for 
+  WGS 84 / UTM zone 57S.
+
+- ``resolution`` - Sentinel 2 products bundle several subdatasets of different
+  resolutions:
+
+  - ``10m`` - bands B4, B3, B2, and B8 (base type unsigned short)
+
+  - ``20m`` - bands B5, B6, B7, B8A, B11, and B12 (base type unsigned short)
+
+  - ``60m`` - bands B1, B8, and B10 (base type unsigned short)
+
+  - ``TCI`` - True Color Image (red, green, blue char bands); also 10m as it is 
+    derived from the B2, B3, and B4 10m bands.
+
+- ``level`` - ``L1C`` or ``L2A``
+
+If the files collected by ``"paths"`` are varying in any of these parameters,
+the corresponding variables must appear somewhere in the ``"coverage_id"`` (as
+for each combination a separate coverage will be constructed). Otherwise, the
+ingestion will either fail or result in invalid coverages. E.g. if all data is
+level ``L1C`` with CRS ``32757``, but still different resolutions, the
+``"coverage_id"`` could be ``"MyCoverage_${resolution}"``; the other variables
+can still be specified though, so  ``"MyCoverage_${resolution}_${crsCode}"`` is
+valid as well.
+
+In addition, the data to be ingested can be optionall filtered with the
+following options in the ``"input"`` section:
+
+- ``resolutions`` - specify a subset of resolutions to ingest from the data,
+  e.g. only the "10m" subdataset; if not specified, data of all supported
+  resolutions will be ingested.
+
+- ``levels`` - specify a subset of levels to ingest, so that files of other 
+  levels will be fully skipped; if not specified, data of all supported levels
+  will be ingested.
+
+- ``crss`` - specify a list of CRSs (EPSG codes as strings) to ingest; if not 
+  specified or empty, data of any CRS will be ingested.
 
 
 .. _wms-image-pyramids:

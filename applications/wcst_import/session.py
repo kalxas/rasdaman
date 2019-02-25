@@ -53,6 +53,7 @@ class Session:
         self.files = self.parse_input(inp['paths'] if 'paths' in inp else [])
         self.coverage_id = inp['coverage_id'] if 'coverage_id' in inp else None
         self.recipe = recipe
+        self.input = inp
         self.wcs_service = config['service_url'] if "service_url" in config else None
         if "tmp_directory" in config:
             self.tmp_directory = config['tmp_directory']
@@ -257,6 +258,13 @@ class Session:
         :rtype dict[str,str]
         """
         return self.recipe
+
+    def get_input(self):
+        """
+        Returns the input section of the ingredients
+        :rtype dict[str,str]
+        """
+        return self.input
 
     def get_coverage_id(self):
         """

@@ -56,7 +56,7 @@ from lxml import etree
 class Importer:
 
     # Check if coverage exist in Petascope
-    coverage_exists = None
+    coverage_exists_dict = {}
 
     DEFAULT_INSERT_VALUE = "0"
 
@@ -82,7 +82,7 @@ class Importer:
         if len(self.coverage.slices) > 0:
             if self._is_insert():
                 self._initialize_coverage()
-                Importer.coverage_exists = True
+                Importer.coverage_exists_dict[self.coverage.coverage_id] = True
 
             # Insert the remaining slices
             self._insert_slices()
@@ -146,6 +146,10 @@ class Importer:
         else:
             # for other recipes
             coverages = [self.coverage]
+        
+        if len(coverages) == 0:
+            # no data collected to be imported
+            return slices
 
         # If number of files < 5 print all files, or only print first 5 files
         max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(
@@ -417,9 +421,9 @@ class Importer:
         Returns true if the coverage should be inserted, false if only updates are needed
         :rtype: bool
         """
-        if Importer.coverage_exists is None:
+        if self.coverage.coverage_id not in Importer.coverage_exists_dict:
             cov = CoverageUtil(self.coverage.coverage_id)
-            Importer.coverage_exists = cov.exists()
+            Importer.coverage_exists_dict[self.coverage.coverage_id] = cov.exists()
 
-        return not Importer.coverage_exists
-
+        result = Importer.coverage_exists_dict[self.coverage.coverage_id]
+        return not result
