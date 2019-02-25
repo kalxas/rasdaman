@@ -118,7 +118,7 @@ class BaseRecipe:
         """
         Validates the configuration and the input files
         :param bool ignore_no_files: if the extending recipe does not work with files, set this to true to skip
-        the validation check for no files
+        the validation check for no files (used in wcs_extract recipe).
         """
         if self.session.get_wcs_service() is None or self.session.get_wcs_service() == "":
             raise RecipeValidationException("No valid wcs endpoint provided")
@@ -128,15 +128,16 @@ class BaseRecipe:
             raise RecipeValidationException("No valid coverage id provided")
         if ConfigManager.tmp_directory is None or (not os.access(ConfigManager.tmp_directory, os.W_OK)):
             raise RecipeValidationException("No valid tmp directory provided")
-        if len(self.session.get_files()) == 0 and not ignore_no_files:
-            log.warn("No files provided. Check that the paths you provided are correct. Done.")
-            exit(0)
 
         checked_files = []
 
         for file in self.session.get_files():
             if FileUtil.validate_file_path(file.get_filepath()):
                 checked_files.append(file)
+
+        if not ignore_no_files:
+            # If no input file is available, exit wcst_import.
+            FileUtil.validate_input_file_paths(checked_files)
 
         self.session.files = checked_files
 

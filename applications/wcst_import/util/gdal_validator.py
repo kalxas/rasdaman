@@ -21,6 +21,8 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
+from util.file_util import FileUtil
+
 """
 Utility class for checking the slices are valid or invalid
 """
@@ -39,16 +41,18 @@ class GDALValidator:
             files is list of files need to valid
         """
         # Validate input files by GDAL. If GDAL could not decode file then will have an warning.
-	# GDAL needs file name encode in 'utf8' or file name with spaces could not open.
+        # GDAL needs file name encode in 'utf8' or file name with spaces could not open.
         file_paths = []
 
         for file in self.files:
             fileName = str(file).encode('utf8')
-            check = gdal.Open(fileName)
-
-            if check is not None:
+            try:
+                check = gdal.Open(fileName)
                 file_paths = file_paths + [file]
-            else:
-                log.warn("WARNING: File " + fileName + " is not is not a valid GDAL decodable file. The import process will ignore this file.\n")
+            except Exception as e:
+                log.warn("WARNING: File " + fileName + " is not is not a valid GDAL decodable file. Reason: " + str(e)
+                         + ". The import process will ignore this file.\n")
+
+        FileUtil.validate_input_file_paths(file_paths)
 
         return file_paths

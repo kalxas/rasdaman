@@ -120,3 +120,13 @@ class FileUtil:
             return False
 
         return True
+
+    @staticmethod
+    def validate_input_file_paths(file_paths):
+        """
+        If all input file paths are not available to analyze. Exit wcst_import process and log an warning.
+        :param list[str] file_paths: list of input file paths
+        """
+        if len(file_paths) == 0:
+            log.warn("No files provided. Check that the paths you provided are correct. Done.")
+            exit(0)

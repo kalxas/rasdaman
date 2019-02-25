@@ -41,6 +41,11 @@ from util.file_util import FileUtil
 from util.log import log
 from util.import_util import import_jsonschema
 from wcst.wcst import WCSTException
+from osgeo import gdal
+
+# Enable GDAL/OGR exceptions
+gdal.UseExceptions()
+
 
 
 def print_usage():
