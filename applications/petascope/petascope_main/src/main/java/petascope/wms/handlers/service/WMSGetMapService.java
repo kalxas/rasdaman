@@ -142,7 +142,7 @@ public class WMSGetMapService {
     private static final String WCPS_COVERAGE_ALIAS = "$c";
     private static final String RASQL_FRAGMENT_ITERATOR = "$Iterator";
     
-        private static final String NATIVE_CRS = "$nativeCRS";
+    private static final String NATIVE_CRS = "$nativeCRS";
     
     private static final String XMIN_NATIVCE_CRS = "$xMinNativeCRS";
     private static final String YMIN_NATIVCE_CRS = "$yMinNativeCRS";
@@ -913,7 +913,7 @@ public class WMSGetMapService {
             extendX = extendY;
             extendY = temp;                
         }
-        
+    
         subsetCollectionExpression = "Scale( " + subsetCollectionExpression + ", [" + scaleX + ", " + scaleY + "] )";
         String finalCollectionExpressionLayer = subsetCollectionExpression;
         

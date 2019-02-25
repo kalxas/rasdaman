@@ -1037,7 +1037,7 @@ run_test()
                     mv "$out_scalar" "$out"
                 fi
               fi
-              ;;  
+              ;;
 
       *)      error "unknown service: $SVC_NAME"
     esac

@@ -137,11 +137,21 @@ class Importer:
         :rtype: list[Slice]
         """
         slices = []
+        coverages = []
+
+        if hasattr(self, "importers"):
+            # for MultiImporter (e.g: used by Sentinel 2 recipe) contains 4 separate importers
+            for importer in self.importers:
+                coverages.append(importer.coverage)
+        else:
+            # for other recipes
+            coverages = [self.coverage]
+
         # If number of files < 5 print all files, or only print first 5 files
         max = ConfigManager.description_max_no_slices if ConfigManager.description_max_no_slices < len(
-            self.coverage.slices) else len(self.coverage.slices)
+            coverages[0].slices) else len(coverages[0].slices)
         for i in range(0, max):
-            slices.append(self.coverage.slices[i])
+            slices.append(coverages[0].slices[i])
         return slices
 
     def _insert_slices(self):
