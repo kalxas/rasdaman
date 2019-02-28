@@ -23,12 +23,9 @@
 """
 
 import decimal
-import math
 from lib import arrow
-from master.extra_metadata.extra_metadata import GlobalExtraMetadata
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
 
-from util.gdal_util import GDALGmlUtil
 from util.list_util import sort_slices_by_datetime
 
 from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
@@ -47,15 +44,12 @@ from master.generator.model.range_type_nill_value import RangeTypeNilValue
 from master.generator.model.range_type_field import RangeTypeField
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.sentence_evaluator import SentenceEvaluator
-from util.log import log
 from util.crs_util import CRSUtil
 from master.importer.coverage import Coverage
 from master.importer.slice import Slice
 from master.provider.data.file_data_provider import FileDataProvider
 from util.string_util import is_number
 from util.file_util import FileUtil
-import time
-
 from util.timer_util import Timer
 
 
@@ -360,21 +354,30 @@ class AbstractToCoverageConverter:
                 if not FileUtil.validate_file_path(file.filepath):
                     continue
 
+                valid_coverage_slice = True
+
                 evaluator_slice = None
 
-                if calculated_evaluator_slice is None:
-                    # get the evaluator for the current recipe_type (each recipe has different evaluator)
-                    evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
-                else:
-                    evaluator_slice = calculated_evaluator_slice
+                try:
+                    if calculated_evaluator_slice is None:
+                        # get the evaluator for the current recipe_type (each recipe has different evaluator)
+                        evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(self.recipe_type, file)
+                    else:
+                        evaluator_slice = calculated_evaluator_slice
 
-                if self.data_type is None:
-                    self.data_type = evaluator_slice.get_data_type(self)
-                coverage_slice = self._create_coverage_slice(file, crs_axes, evaluator_slice, axis_resolutions)
+                    if self.data_type is None:
+                        self.data_type = evaluator_slice.get_data_type(self)
+
+                    coverage_slice = self._create_coverage_slice(file, crs_axes, evaluator_slice, axis_resolutions)
+                except Exception as ex:
+                    # If skip: true then just ignore this file from importing, else raise exception
+                    FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                    valid_coverage_slice = False
+
+                if valid_coverage_slice:
+                    slices.append(coverage_slice)
 
                 timer.print_elapsed_time()
-
-                slices.append(coverage_slice)
                 count += 1
 
         # Currently, only sort by datetime to import coverage slices (default is ascending)

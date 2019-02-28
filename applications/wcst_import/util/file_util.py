@@ -28,7 +28,6 @@ from config_manager import ConfigManager
 from util.log import log
 import re
 
-
 class FileUtil:
 
     def __init__(self):
@@ -130,3 +129,20 @@ class FileUtil:
         if len(file_paths) == 0:
             log.warn("No files provided. Check that the paths you provided are correct. Done.")
             exit(0)
+
+
+    @staticmethod
+    def ignore_coverage_slice_from_file_if_possible(file_path, exception):
+        """
+        In case, wcst_import cannot process 1 file due to some problem on it and "skip" is set to True,
+        wcst_import should not throw exception but log an warning to user.
+
+        :param str file_path: path to the problem file.
+        :param Exception exception: exception was thrown from previous statements.
+        """
+
+        if ConfigManager.skip:
+            log.warn("WARNING: input file '" + file_path + "' cannot be processed,\n"
+                     "wcst_import will ignore this file as \"skip\" is set to true in the ingredient file. Reason: " + str(exception))
+        else:
+            raise exception

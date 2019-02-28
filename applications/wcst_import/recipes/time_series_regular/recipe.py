@@ -177,22 +177,32 @@ class Recipe(BaseRecipe):
         timeseries = self._generate_timeseries_tuples()
         count = 1
         for tpair in timeseries:
+            file_path = tpair.file.get_filepath()
+
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
-            if not self.resumer.check_file_imported(tpair.file.filepath):
+            if not self.resumer.check_file_imported(file_path):
                 timer = Timer()
 
                 # print which file is analyzing
-                FileUtil.print_feedback(count, len(timeseries), tpair.file.filepath)
-                if not FileUtil.validate_file_path(tpair.file.filepath):
+                FileUtil.print_feedback(count, len(timeseries), file_path)
+                if not FileUtil.validate_file_path(file_path):
                     continue
 
-                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill(True)
-                subsets = self._fill_time_axis(tpair, subsets)
-                slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+                valid_coverage_slice = True
 
-                timer.print_elapsed_time()
+                try:
+                    subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file_path)).fill(True)
+                    subsets = self._fill_time_axis(tpair, subsets)
+                except Exception as ex:
+                    # If skip: true then just ignore this file from importing, else raise exception
+                    FileUtil.ignore_coverage_slice_from_file_if_possible(file_path, ex)
+                    valid_coverage_slice = False
 
-                count += 1
+                if valid_coverage_slice:
+                    slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+
+            timer.print_elapsed_time()
+            count += 1
 
         return slices
 

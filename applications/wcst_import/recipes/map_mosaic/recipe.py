@@ -114,12 +114,20 @@ class Recipe(BaseRecipe):
                 if not FileUtil.validate_file_path(file.filepath):
                     continue
 
-                subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
-                slices.append(Slice(subsets, FileDataProvider(file)))
+                valid_coverage_slice = True
+                try:
+                    subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
+                except Exception as ex:
+                    # If skip: true then just ignore this file from importing, else raise exception
+                    FileUtil.ignore_coverage_slice_from_file_if_possible(file.get_filepath(), ex)
+                    valid_coverage_slice = False
+
+                if valid_coverage_slice:
+                    slices.append(Slice(subsets, FileDataProvider(file)))
 
                 timer.print_elapsed_time()
-
                 count += 1
+
         return slices
 
     def _get_coverage(self):
