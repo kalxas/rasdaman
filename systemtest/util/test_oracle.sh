@@ -143,6 +143,11 @@ trap cleanup SIGINT
 #
 # checks
 #
+if [ "$SVC_NAME" == "rasdapy" -a "$OS_VERSION" == "$OS_XENIAL" ]; then
+  # rasdapy runs with 10s per query on Ubuntu 16.04 for an unknown reason
+  exit $RC_SKIP
+fi
+
 check_curl
 check_gdal
 #check_postgres
@@ -220,7 +225,7 @@ for f in *; do
   stop_timer
 
   # print result of this test case
-  print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"  
+  print_testcase_result "$f" "$status" "$total_test_no" "$curr_test_no"
 
 done
 
