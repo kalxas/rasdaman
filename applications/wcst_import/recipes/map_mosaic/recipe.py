@@ -94,19 +94,18 @@ class Recipe(BaseRecipe):
         """
         return self._get_importer().get_progress()
 
-    def _get_slices(self, gdal_dataset):
+    def _get_slices(self, crs):
         """
         Returns the slices for the collection of files given
         """
         files = self.session.get_files()
-        crs = gdal_dataset.get_crs()
         crs_axes = CRSUtil(crs).get_axes(self.session.coverage_id)
 
         slices = []
-        count = 1;
+        count = 1
         for file in files:
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
-            if not self.resumer.check_file_imported(file.filepath):
+            if not self.resumer.is_file_imported(file.filepath):
                 timer = Timer()
 
                 # print which file is analyzing
@@ -134,8 +133,9 @@ class Recipe(BaseRecipe):
         """
         Returns the coverage to be used for the importer
         """
-        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
-        slices = self._get_slices(gdal_dataset)
+        gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.session.get_files())
+        crs = gdal_dataset.get_crs()
+        slices = self._get_slices(crs)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()
         coverage = Coverage(self.session.get_coverage_id(), slices, fields, gdal_dataset.get_crs(),
             gdal_dataset.get_band_gdal_type(), self.options['tiling'])

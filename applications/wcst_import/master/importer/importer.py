@@ -166,6 +166,8 @@ class Importer:
         is_ingest_file = True
         file_name = ""
 
+        log_file = None
+
         try:
             log_file = open(ConfigManager.resumer_dir_path + "/" + ConfigManager.ingredient_file_name + ".log", "a+")
             log_file.write("\n-------------------------------------------------------------------------------------")

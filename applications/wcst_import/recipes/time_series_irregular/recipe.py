@@ -140,9 +140,18 @@ class Recipe(BaseRecipe):
             for tfile in self.session.get_files():
                 if len(ret) == limit:
                     break
-                gdal_file = GDALGmlUtil(tfile.get_filepath())
-                dtutil = DateTimeUtil(gdal_file.get_datetime(mtag), time_format, self.options['time_crs'])
-                ret.append(TimeFileTuple(dtutil, tfile))
+
+                valid_file = True
+
+                try:
+                    gdal_file = GDALGmlUtil(tfile.get_filepath())
+                except Exception as ex:
+                    FileUtil.ignore_coverage_slice_from_file_if_possible(tfile.get_filepath(), ex)
+                    valid_file = False
+
+                if valid_file:
+                    dtutil = DateTimeUtil(gdal_file.get_datetime(mtag), time_format, self.options['time_crs'])
+                    ret.append(TimeFileTuple(dtutil, tfile))
         elif 'filename' in self.options['time_parameter'] and len(ret) < limit:
             regex = self.options['time_parameter']['filename']['regex']
             group = int(self.options['time_parameter']['filename']['group'])
@@ -175,7 +184,7 @@ class Recipe(BaseRecipe):
             file_path = tpair.file.get_filepath()
 
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
-            if not self.resumer.check_file_imported(file_path):
+            if not self.resumer.is_file_imported(file_path):
                 timer = Timer()
 
                 # print which file is analyzing
@@ -224,7 +233,7 @@ class Recipe(BaseRecipe):
         """
         Returns the coverage to be used for the importer
         """
-        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
+        gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.session.get_files())
         crs = CRSUtil.get_compound_crs([self.options['time_crs'], gdal_dataset.get_crs()])
         slices = self._get_slices(crs)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()

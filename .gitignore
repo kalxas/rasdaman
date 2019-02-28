@@ -212,6 +212,7 @@ phantomjs
 phantomjsdriver.log
 test_web_interfaces-spring-boot.jar
 systemtest/conf/test.cfg
+*.resume.json
 
 #core
 systemtest/testcases_manual/test_crash_rasserver/queries_metrics

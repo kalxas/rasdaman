@@ -25,7 +25,7 @@ from config_manager import ConfigManager
 from util.file_util import FileUtil
 
 
-class File:
+class File(object):
     def __init__(self, filepath):
         self.filepath = filepath
 
@@ -42,3 +42,16 @@ class File:
 
     def __str__(self):
         return self.get_filepath()
+
+
+class FilePair(File):
+    """
+    A pair of input file paths when there is pre hook changed original input file paths
+    """
+
+    def __init__(self, changed_file_path, original_file_path):
+        super(FilePair, self).__init__(changed_file_path)
+        self.original_file_path = original_file_path
+
+    def get_original_url(self):
+        return ConfigManager.root_url + self.original_file_path

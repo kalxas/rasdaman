@@ -180,7 +180,7 @@ class Recipe(BaseRecipe):
             file_path = tpair.file.get_filepath()
 
             # NOTE: don't process any imported file from *.resume.json as it is just waisted time
-            if not self.resumer.check_file_imported(file_path):
+            if not self.resumer.is_file_imported(file_path):
                 timer = Timer()
 
                 # print which file is analyzing
@@ -229,7 +229,7 @@ class Recipe(BaseRecipe):
         """
         Returns the coverage to be used for the importer
         """
-        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
+        gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.session.get_files())
         crs = CRSUtil.get_compound_crs([self.options['time_crs'], gdal_dataset.get_crs()])
         slices = self._get_slices(crs)
         fields = GdalRangeFieldsGenerator(gdal_dataset, self.options['band_names']).get_range_fields()

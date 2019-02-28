@@ -35,7 +35,7 @@ from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageCo
 from util.crs_util import CRSUtil
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
-from util.file_obj import File
+from util.file_obj import File, FilePair
 from util.log import log, make_bold
 from master.importer.resumer import Resumer
 
@@ -45,6 +45,8 @@ class Recipe(GeneralCoverageRecipe):
     #
     # constants
     #
+
+    RECIPE_NAME = "sentinel2"
 
     # supported product levels
     LVL_L1C = 'L1C'
@@ -278,9 +280,17 @@ class Recipe(GeneralCoverageRecipe):
                     log.debug("Skipping data with CRS " + crs_code)
                     continue 
                 cov_id = self._get_coverage_id(self.coverage_id, crs_code, level, res)
+
+                # This file already imported in coverage_id.resume.json
+                self.resumer = Resumer(cov_id)
+                if self.resumer.is_file_imported(f.filepath):
+                    continue
+
                 conv = self._get_convertor(convertors, cov_id, crs_code, level, res)
 
-                conv.files = [subds_file]
+                file_pair = FilePair(subds_file.filepath, f.filepath)
+
+                conv.files = [file_pair]
                 crs_axes = CRSUtil(conv.crs).get_axes(self.coverage_id)
 
                 if evaluator_slice is None:
@@ -352,7 +362,6 @@ class Recipe(GeneralCoverageRecipe):
         return convertors[cov_id]
     
     def _create_convertor(self, convertors, cov_id, crs_code, level, res):
-        self.resumer = Resumer(cov_id)
         recipe_type = GdalToCoverageConverter.RECIPE_TYPE
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
         files = []
@@ -383,4 +392,4 @@ class Recipe(GeneralCoverageRecipe):
 
     @staticmethod
     def get_name():
-        return "sentinel2"
+        return Recipe.RECIPE_NAME

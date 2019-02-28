@@ -235,7 +235,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         # Then, we calculate the geo, grid bounds, origin, resolution of this axis for the slice
         self._set_low_high(evaluated_messages, user_axis)
 
-        high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+        high = user_axis.interval.high if user_axis.interval.high is not None else user_axis.interval.low
         origin = PointPixelAdjuster.get_origin(user_axis, crs_axis)
 
         if isinstance(user_axis, RegularUserAxis):

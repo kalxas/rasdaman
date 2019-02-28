@@ -22,9 +22,6 @@
  *
 """
 
-from util.crs_util import CRSAxis
-
-
 class Axis:
     def __init__(self, label, uomLabel, low, high, origin, crs_axis):
         """

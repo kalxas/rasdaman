@@ -24,6 +24,7 @@
 from config_manager import ConfigManager
 from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
+from util.file_util import FileUtil
 from util.gdal_field import GDALField
 from util.log import log
 from functools import wraps # for caching in _get_spatial_ref
@@ -175,10 +176,18 @@ class GDALGmlUtil:
         """
         geo_transform = self.gdal_dataset.GetGeoTransform()
         return geo_transform[5]
+    
+    def get_raster_band(self, index):
+        """
+        Return 1 raster band by index of its in GDAL file
+        :param int index:        
+        """
+        raster_band = self.gdal_dataset.GetRasterBand(index)
+        return raster_band
 
     def get_fields_range_type(self):
         """
-        Returns the range type fields from a gdal dataset
+        Returns the range type fields from a dataset
         :rtype: list[GDALField]
         """
         import osgeo.gdal as gdal
@@ -315,7 +324,7 @@ class GDALGmlUtil:
 
     def get_subdatasets(self):
         """
-        Returns the subdatasets in the GDAL dataset as a list of (name, description) pairs.
+        Returns the datasets in the GDAL dataset as a list of (name, description) pairs.
         :return: list[(str, str)]
         """
         return self.gdal_dataset.GetSubDatasets()
@@ -341,3 +350,29 @@ class GDALGmlUtil:
         }
         import gdal
         return gdal.GetDataTypeName(numpy_to_gdal_dict[data_type])
+
+
+    @staticmethod
+    def open_gdal_dataset_from_any_file(files):
+        """
+        This method is used to open 1 dataset to get the common metadata shared from all input files.
+        :param list files: input files
+        """
+        gdal_dataset = None
+
+        for file in files:
+            try:
+                gdal_dataset = GDALGmlUtil(file.get_filepath())
+                return gdal_dataset
+            except Exception as ex:
+                # Cannot open file by gdal, try with next file
+                if ConfigManager.skip:
+                    continue
+                else:
+                    raise
+
+        if gdal_dataset is None:
+            # Cannot open any dataset from input files, just exit wcst_import process
+            FileUtil.validate_input_file_paths([])
+
+

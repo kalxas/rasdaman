@@ -146,3 +146,12 @@ class FileUtil:
                      "wcst_import will ignore this file as \"skip\" is set to true in the ingredient file. Reason: " + str(exception))
         else:
             raise exception
+
+
+    @staticmethod
+    def strip_root_url(input_file):
+        """
+        Strip file root (e.g: file://)
+        :param str input_file: input file path
+        """
+        return input_file.replace(ConfigManager.root_url, "")

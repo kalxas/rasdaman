@@ -25,6 +25,7 @@ import os
 import glob2 as glob
 import time
 from config_manager import ConfigManager
+from master.importer.resumer import Resumer
 from util.file_obj import File
 
 from util.log import log
@@ -106,6 +107,16 @@ class Session:
                     self.after_hooks.append(hook)
 
         self.setup_config_manager()
+
+        self.filter_imported_files()
+
+    def filter_imported_files(self):
+        """
+        Filer all imported files from coverage_id.resume.json
+        """
+        resumer = Resumer(self.coverage_id)
+        not_imported_files = resumer.get_not_imported_files(self.files)
+        self.files = not_imported_files
 
     def setup_config_manager(self):
         """

@@ -345,7 +345,7 @@ class AbstractToCoverageConverter:
         count = 1
         for file in self.files:
             # NOTE: don't process any previously imported file (recorded in *.resume.json)
-            if not self.resumer.check_file_imported(file.filepath):
+            if not self.resumer.is_file_imported(file.filepath):
                 timer = Timer()
 
                 FileUtil.print_feedback(count, len(self.files), file.filepath)

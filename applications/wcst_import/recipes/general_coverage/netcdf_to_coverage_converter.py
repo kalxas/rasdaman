@@ -151,7 +151,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
             if user_axis.interval.high is not None and user_axis.interval.low > user_axis.interval.high:
                 user_axis.interval.low, user_axis.interval.high = user_axis.interval.high, user_axis.interval.low
 
-        high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+        high = user_axis.interval.high if user_axis.interval.high is not None else user_axis.interval.low
         origin = PointPixelAdjuster.get_origin(user_axis, crs_axis)
 
         if isinstance(user_axis, RegularUserAxis):

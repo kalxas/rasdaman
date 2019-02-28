@@ -25,7 +25,7 @@
 import mimetypes
 
 from master.provider.data.data_provider import DataProvider
-from util.file_obj import File
+from util.file_obj import File, FilePair
 
 
 class FileDataProvider(DataProvider):
@@ -81,3 +81,12 @@ class FileDataProvider(DataProvider):
         :rtype: str
         """
         return self.get_file_url()
+
+    def to_eq_hash_original_file(self):
+        """
+        Return a hash of file that can be used to compare with other.
+        """
+        if isinstance(self.file, FilePair):
+            return self.file.get_original_url()
+
+        return self.file.filepath

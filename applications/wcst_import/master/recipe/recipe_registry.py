@@ -33,7 +33,7 @@ from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
 from session import Session
-from util.file_obj import File
+from util.file_obj import File, FilePair
 from util.log import log, make_bold
 from util.reflection_util import ReflectionUtil
 from recipes.general_coverage.recipe import Recipe as GeneralRecipe
@@ -130,7 +130,12 @@ class RecipeRegistry:
                 if replace_path_template is not None:
                     # Evaluate replace path expression to get a valid file input path
                     replace_path = sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
-                    replace_paths.append(File(replace_path))
+                    if not isinstance(file, FilePair):
+                        # The first replacement (must keep original input file path)
+                        replace_paths.append(FilePair(replace_path, file.filepath))
+                    else:
+                        # From the second replacement
+                        replace_paths.append(FilePair(replace_path, file.original_file_path))
 
             if len(replace_paths) > 0:
                 # Use replaced file paths instead of original input file paths to analyze and create coverage slices

@@ -42,6 +42,7 @@ from util.crs_util import CRSAxis
 from util.file_obj import File
 from master.helper.high_pixel_adjuster import HighPixelAjuster
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
+from util.gdal_util import GDALGmlUtil
 
 
 class GdalToCoverageConverter(AbstractToCoverageConverter):
@@ -100,11 +101,10 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         if len(self.files) < 1:
             raise RuntimeException("No gdal files given for import!")
 
-        import osgeo.gdal as gdal
-        # NOTE: all files should have same bands's metadata, so first file is ok
-        gdal_dataset = gdal.Open(self.files[0].filepath)
+        # NOTE: all files should have same bands's metadata, so 1 file is ok
+        gdal_dataset = GDALGmlUtil.open_gdal_dataset_from_any_file(self.files)
         # band in gdal starts with 1
-        gdal_band = gdal_dataset.GetRasterBand(index + 1)
+        gdal_band = gdal_dataset.get_raster_band(index + 1)
         nil_value = gdal_band.GetNoDataValue()
 
         if nil_value is None:
@@ -125,7 +125,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         if resolution is not None:
             user_axis.resolution = resolution
 
-        high = user_axis.interval.high if user_axis.interval.high else user_axis.interval.low
+        high = user_axis.interval.high if user_axis.interval.high is not None else user_axis.interval.low
 
         if user_axis.type == UserAxisType.DATE:
             # it must translate datetime string to float by arrow for calculating later
