@@ -73,7 +73,7 @@ while [ "$1" != "" ]; do
         watch_flag=true
         shift
         watch_interval=$1;;      
-      *) ingredients_file="$1";;
+      *) ingredients_file=$(readlink -f "$1");;
     esac
     shift
 done
@@ -105,8 +105,9 @@ export GDAL_PAM_ENABLED=NO
 script=@WCST_IMPORT_DAEMON_PY_SCRIPT@
 if [[ "$daemon_flag" == false ]]; then
   if [[ "$daemon_is_active" == true ]]; then
-    echo "A daemon instance for this ingredients file is already running; please stop it first."
-    usage
+    echo "A working or daemon instance for this ingredients file is already running; please stop it first."
+    echo "In case of daemon, usage: -d|--daemon stop"
+    exit $RC_OK
   fi
   script=@WCST_IMPORT_PY_SCRIPT@
 fi
