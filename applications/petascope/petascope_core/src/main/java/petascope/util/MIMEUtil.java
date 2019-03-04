@@ -64,6 +64,8 @@ public class MIMEUtil {
     public static final String MIME_VRT = "application/x-ogc-vrt";
     public static final String MIME_XPM = "image/xpm";
     public static final String MIME_ZMAP = "application/x-ogc-zmap";
+    
+    public static final String MIME_HTML = "text/html";
 
     // rasdaman types
     public static final String ENCODE_JPEG = "jpeg";
@@ -172,6 +174,8 @@ public class MIMEUtil {
         mimeTypesMap.put(MIME_VRT, ENCODE_VRT);
         mimeTypesMap.put(MIME_XPM, ENCODE_XPM);
         mimeTypesMap.put(MIME_ZMAP, ENCODE_ZMAP);
+        
+        mimeTypesMap.put(MIME_HTML, MIME_HTML);
     }
 
     /**

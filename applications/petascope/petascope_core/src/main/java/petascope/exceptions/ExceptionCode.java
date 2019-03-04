@@ -183,6 +183,7 @@ public class ExceptionCode {
             "Operation request contains an invalid parameter value", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidPropertyValue = new ExceptionCode("InvalidPropertyValue");
     public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", SC_BAD_REQUEST);
+    public static final ExceptionCode AccessDenied = new ExceptionCode("AccessDenied", "Access denied, please login first.", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration");
     public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
             "Operation request contains an invalid subsetting value; either a trim or slice parameter value "

@@ -55,7 +55,7 @@ import petascope.wms.handlers.service.WMSGetMapCachingService;
  */
 @Service
 public class DeleteCoverageHandler {
-
+    
     @Autowired
     private CoverageRepostioryService coverageRepostioryService;
     @Autowired
@@ -137,6 +137,10 @@ public class DeleteCoverageHandler {
             }
 
         }
+        
+        Response response = new Response();
+        response.setCoverageID(coverageIds.get(0));
+        
         return new Response();
     }
 

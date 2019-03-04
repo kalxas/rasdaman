@@ -28,8 +28,10 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.PETASCOPE_ENDPOINT_URL;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,8 @@ public class PetascopeController extends AbstractController {
     }
     
     @RequestMapping(value = OWS, method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
+    protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                              @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
         String postBody = this.getPOSTRequestBody(httpServletRequest);        
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
@@ -79,25 +82,20 @@ public class PetascopeController extends AbstractController {
             uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
             kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
         }
-        this.requestDispatcher(kvpParameters);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
     }
 
     @RequestMapping(value = OWS + "/", method = RequestMethod.POST)
     private void handlePostFallBack(HttpServletRequest httpServletRequest, @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
-        this.handlePost(httpServletRequest, uploadedFile);
+        this.handlePost(httpServletRequest, injectedHttpServletResponse, uploadedFile);
     }
 
-//    @RequestMapping(value = OWS, method = RequestMethod.POST)
-//    protected void handlePost(@RequestBody String postBody) throws Exception {        
-//        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
-//        this.requestDispatcher(kvpParameters);
-//    }
     @RequestMapping(value = OWS, method = RequestMethod.GET)
     @Override
     protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(kvpParameters);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
     }
     
     @RequestMapping(value = OWS + "/", method = RequestMethod.GET)
@@ -108,31 +106,29 @@ public class PetascopeController extends AbstractController {
     /**
      * Depend on the request parameter to handle the request (WCS, WCPS,...)
      *
-     * @param kvpParameters
-     * @throws WCSException
-     * @throws IOException
-     * @throws PetascopeException
-     * @throws petascope.exceptions.SecoreException
-     * @throws petascope.exceptions.WMSException
      */
     @Override
-    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException {
-        // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)         
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException {
+        // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)     
+        
+        if (startException != null) {
+           throwStartException();
+        }
+        
+        log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
+        long start = System.currentTimeMillis();
+        
+        String service = null;
+        Response response = null;
+        boolean requestSuccess = true;
+        
         try {            
-            log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
-            long start = System.currentTimeMillis();
-            
             // no url for petascope is defined in petascope.properties, only now can have the HTTP request object to set this value
             if (StringUtils.isEmpty(PETASCOPE_ENDPOINT_URL)) {
                 // use the requesting URL to Petascope (not always: http://localhost:8080/rasdaman/ows)
                 PETASCOPE_ENDPOINT_URL = this.httpServletRequest.getRequestURL().toString();
             }
                 
-            if (startException != null) {
-                throwStartException();
-            }
-
-            Response response = null;
             if (kvpParameters.isEmpty()) {
                 // a WCS request without any params, so returns WCS-Client            
                 byte[] bytes = IOUtils.toString(this.getClass().getResourceAsStream("/" + "public/interface-servlet.html")).getBytes();
@@ -140,7 +136,7 @@ public class PetascopeController extends AbstractController {
             } else {
 
                 // e.g: WCS, WMS
-                String service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
+                service = kvpParameters.get(KVPSymbols.KEY_SERVICE)[0];
                 // e.g: 2.0.1, 2.1.0 (WCS)
                 String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
                 // e.g: GetCapabilities, DescribeCoverage
@@ -150,6 +146,7 @@ public class PetascopeController extends AbstractController {
                 for (AbstractHandler handler : handlers) {
                     if (handler.canHandle(service, versions, requestService)) {                    
                         response = handler.handle(kvpParameters);
+                        service = handler.getService();
                         break;
                     }
                 }
@@ -160,17 +157,15 @@ public class PetascopeController extends AbstractController {
 
             // Dump the response result to client
             this.writeResponseResult(response);
-            long end = System.currentTimeMillis();
-            long totalTime = end - start;
-            log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
         } catch(Exception ex) {
+            requestSuccess = false;
             String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
             String version = null;
             if (versions != null) {
                 version = versions[0];
             }
 
-            ExceptionUtil.handle(version, ex, httpServletResponse);            
+            ExceptionUtil.handle(version, ex, injectedHttpServletResponse);
         } finally {
              // Here, the uploaded file (if exists) should be removed
             if (kvpParameters.get(KEY_UPLOADED_FILE_VALUE) != null) {
@@ -179,7 +174,12 @@ public class PetascopeController extends AbstractController {
                 if (file.exists()) {
                     file.delete();
                 }
-            }            
+            }  
+            
+            long end = System.currentTimeMillis();
+            long totalTime = end - start;
+            log.info("Request processed in " + String.valueOf(totalTime) + " ms.");
+
         }
     }
 }

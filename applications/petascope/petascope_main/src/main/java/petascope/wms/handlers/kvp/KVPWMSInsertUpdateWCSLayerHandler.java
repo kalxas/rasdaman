@@ -114,7 +114,8 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         Layer layer = null;
         // InsertWCSLayer
         if (request.equals(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER)) {
-            // Check if layer does not exist            
+            // Check if layer does not exist
+
             layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
             // Cannot add same layer name
             if (layer != null) {
@@ -204,7 +205,7 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         }
 
         // Returns the layer name as a success
-        return new Response(Arrays.asList(layerName.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(layerName.getBytes()), MIMEUtil.MIME_GML, layerName);
     }
 
     /**

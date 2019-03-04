@@ -221,7 +221,7 @@ rasdaman_retry_timeout=10
 # need to adapt: no
 rasdaman_bin_path=@GENERATED_rasdaman_bin_path@
 
-#------------------- log4j configuration -------------------
+#------------------- log4j configuration ------------------------------------
 
 # Configuration to write Petascope's logs to petascope.log file.
 # need to adapt: no

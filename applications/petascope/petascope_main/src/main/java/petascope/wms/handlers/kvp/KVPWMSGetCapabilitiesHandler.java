@@ -65,6 +65,8 @@ import petascope.wms.exception.WMSLayerNotExistException;
 public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWMSGetCapabilitiesHandler.class);
+    
+    private static String DEFAULT_COVERAGE_ID = "GetCapabilities";
 
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
@@ -115,7 +117,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         getCapabilitiesTemplate = XMLUtil.formatXML(getCapabilitiesTemplate);
 
         // GetCapabilities only returns 1 XML string                
-        return new Response(Arrays.asList(getCapabilitiesTemplate.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(getCapabilitiesTemplate.getBytes()), MIMEUtil.MIME_GML, DEFAULT_COVERAGE_ID);
     }
 
     /**

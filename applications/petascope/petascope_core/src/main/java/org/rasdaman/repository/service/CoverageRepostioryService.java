@@ -193,7 +193,8 @@ public class CoverageRepostioryService {
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
         
-        // put to cache        
+        // put to cache
+
         coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
 
         return coverage;

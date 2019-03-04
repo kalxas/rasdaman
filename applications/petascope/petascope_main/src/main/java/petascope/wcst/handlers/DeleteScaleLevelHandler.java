@@ -42,7 +42,7 @@ import petascope.wms.handlers.service.WMSGetMapCachingService;
  */
 @Service
 public class DeleteScaleLevelHandler {
-
+    
     @Autowired
     private PyramidService pyramidService;
     
@@ -67,7 +67,8 @@ public class DeleteScaleLevelHandler {
         wmsGetMapCachingService.removeLayerGetMapInCache(coverageId);
         
         Response response = new Response();
+        response.setCoverageID(coverageId);
         
-        return response;
+        return new Response();
     }
 }

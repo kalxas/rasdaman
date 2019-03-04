@@ -147,10 +147,18 @@ public class DatabaseUtil {
         try {
             connection = dataSource.getConnection();
             
-            statement = connection.createStatement();
-            // just delete the lock before Liquibase starts
-            String selectQuery = "delete from " + LIQUIBASE_LOCK_TABLE;
-            statement.executeUpdate(selectQuery);
+            DatabaseMetaData databaseMetadata = connection.getMetaData();
+            
+            // check if liquibase lock table exists
+            ResultSet tables = databaseMetadata.getTables(null, null, LIQUIBASE_LOCK_TABLE, null);
+            
+            if (tables.next()) {
+                // Only clean the lock if this table exists
+                statement = connection.createStatement();
+                // just delete the lock before Liquibase starts
+                String selectQuery = "delete from " + LIQUIBASE_LOCK_TABLE;
+                statement.executeUpdate(selectQuery);
+            }
         } catch (SQLException ex) {
             throw new PetascopeException(ExceptionCode.InternalSqlError, 
                     "Cannot delete lock of liquibase for petascope database "

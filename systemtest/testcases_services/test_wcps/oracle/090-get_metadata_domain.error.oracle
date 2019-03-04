@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport version="2.0.1"
+<ows:ExceptionReport version="2.1.0"
     
       >
     <ows:Exception exceptionCode="WcpsError">
-        <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Long'.</ows:ExceptionText>
+        <ows:ExceptionText>CRS: '/crs/EPSG/0/32633' does not belong to axis 'Lon'.</ows:ExceptionText>
     </ows:Exception>
 </ows:ExceptionReport>

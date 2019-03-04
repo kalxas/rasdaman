@@ -75,6 +75,7 @@ import petascope.wcst.parsers.InsertCoverageRequest;
 public class InsertCoverageHandler {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(InsertCoverageHandler.class);
+    private String coverageId;
 
     @Autowired
     private GeneralGridCoverageGMLService generalGridCoverageGmlService;
@@ -116,7 +117,7 @@ public class InsertCoverageHandler {
         String gmlCoverage = RemoteCoverageUtil.getRemoteGMLCoverage(request.getCoverageURL());
         String result = insertGMLCoverage(gmlCoverage, request);
         //finally process it
-        return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, this.coverageId);
     }
 
     /**
@@ -162,6 +163,9 @@ public class InsertCoverageHandler {
             if (generateId) {
                 coverage.setCoverageId(generateCoverageName());
             }
+            
+            this.coverageId = coverage.getCoverageId();
+            
             // use the same collection name as the coverage name 
             // (NOTE: rasdaman does not support "-" in collection name)
             String collectionName = coverage.getCoverageId();

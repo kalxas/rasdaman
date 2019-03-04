@@ -154,4 +154,20 @@ public class BigDecimalUtil {
     public static boolean integer(BigDecimal number) {
         return number.signum() == 0 || number.scale() <= 0 || number.stripTrailingZeros().scale() <= 0;
     }
+    
+    /**
+     * From a BigDecimal, return a rounded up to 3 decimal places.
+     */
+    public static String roundUp3DecimalPlaces(BigDecimal number) {
+
+        // e.g: 3.0 -> 3
+        if (number.stripTrailingZeros().scale() <= 0) {
+            return stripDecimalZeros(number).toPlainString();
+        }
+        
+        // e.g: 3.23456 -> 3.234
+        String result = stripDecimalZeros(number.setScale(3, BigDecimal.ROUND_HALF_EVEN)).toPlainString();
+        
+        return result;
+    }
 }

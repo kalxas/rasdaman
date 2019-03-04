@@ -53,7 +53,7 @@ import petascope.wms.handlers.service.WMSGetMapCachingService;
 public class KVPWMSDeleteStyleHandler extends KVPWMSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWMSDeleteStyleHandler.class);
-
+    
     @Autowired
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
@@ -112,6 +112,6 @@ public class KVPWMSDeleteStyleHandler extends KVPWMSAbstractHandler {
         this.wmsGetMapCachingService.removeStyleGetMapInCache(layerName, styleName);
 
         // DeleteStyle returns empty string as a success
-        return new Response(Arrays.asList("".getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList("".getBytes()), MIMEUtil.MIME_GML, layerName);
     }    
 }

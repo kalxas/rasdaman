@@ -24,7 +24,10 @@ package petascope.controller;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.RASQL;
+import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +43,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
+import petascope.util.ExceptionUtil;
 
 /**
  * Controller for Rasql query as RasqlServlet before
@@ -55,7 +59,9 @@ public class RasqlController extends AbstractController {
     KVPRasqlServiceHandler kvpRasqlServiceHandler;
 
     @RequestMapping(value = RASQL, method = RequestMethod.POST)
-    protected void handlePost(HttpServletRequest httpServletRequest, @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) throws Exception {
+    protected void handlePost(HttpServletRequest httpServletRequest, 
+                              HttpServletResponse httpServletResponse,
+            @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) throws Exception {
         String requestBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(requestBody);
 
@@ -65,25 +71,40 @@ public class RasqlController extends AbstractController {
             uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
             kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
         }
-        this.requestDispatcher(kvpParameters);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
     }
 
     @RequestMapping(value = RASQL, method = RequestMethod.GET)
     @Override
     protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(kvpParameters);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
     }
 
     @Override
-    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+  
+        if (startException != null) {
+            throwStartException();
+        }
+                
         log.info("Received request: " + this.getRequestRepresentation(kvpParameters));
         long start = System.currentTimeMillis();
-        Response response = kvpRasqlServiceHandler.handle(kvpParameters);
-        this.writeResponseResult(response);
+
+        Response response = null;
+        boolean requestSuccess = true;
         
-        long end = System.currentTimeMillis();
-        long totalTime = end - start;
-        log.info("Request processed in '" + String.valueOf(totalTime) + "' ms.");
+        try {
+            response = kvpRasqlServiceHandler.handle(kvpParameters);
+            this.writeResponseResult(response);
+        } catch(Exception ex) {
+            requestSuccess = false;
+            ExceptionUtil.handle(VersionManager.getLatestVersion(KVPSymbols.RASQL_SERVICE), ex, injectedHttpServletResponse);
+        } finally {
+            long end = System.currentTimeMillis();
+            long totalTime = end - start;
+            log.info("Request processed in " + String.valueOf(totalTime) + " ms.");
+
+        }
     }
 }

@@ -22,7 +22,6 @@
 package petascope.controller;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +38,6 @@ import petascope.exceptions.WCSException;
 import petascope.exceptions.WMSException;
 import petascope.util.ListUtil;
 import static org.rasdaman.config.ConfigManager.OWS_ADMIN;
-import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.RestController;
 import petascope.exceptions.ExceptionCode;
 
@@ -140,7 +138,7 @@ public class OWSAdminController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, SecoreException, WMSException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, SecoreException, WMSException {
         // Do nothing
     }
 }

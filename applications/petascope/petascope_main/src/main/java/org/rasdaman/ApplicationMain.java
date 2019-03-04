@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -50,6 +51,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import petascope.controller.AbstractController;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -65,7 +67,14 @@ import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
  */
 @SpringBootApplication
 @EnableCaching
-@ComponentScan({"com.rasdaman", "org.rasdaman", "petascope"})
+
+// NOTE: When the repository/entity/compontent package 
+// is different to @SpringBootApplication (org.rasdaman for this main file),
+// basePackages is required to be defined explicitly.
+@EnableJpaRepositories(basePackages = {"com.rasdaman", "org.rasdaman"})
+// Scan packages which contains Entities to create tables in database
+@EntityScan(basePackages = {"com.rasdaman", "org.rasdaman", "petascope"}) 
+@ComponentScan(basePackages = {"com.rasdaman", "org.rasdaman", "petascope"})
 // NOTE: classpath is important when running as war package or it will have error: resource not found
 @PropertySource({"classpath:application.properties"})
 public class ApplicationMain extends SpringBootServletInitializer {

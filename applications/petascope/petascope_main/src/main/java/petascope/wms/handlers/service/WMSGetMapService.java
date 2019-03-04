@@ -557,7 +557,7 @@ public class WMSGetMapService {
             throw new WMSInternalException(ex.getMessage(), ex);
         }
 
-        return new Response(Arrays.asList(bytes), this.format);
+        return new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
     }
     
     /**

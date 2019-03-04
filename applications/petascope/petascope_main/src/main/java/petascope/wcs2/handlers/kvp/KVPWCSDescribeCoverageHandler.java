@@ -86,7 +86,7 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
         
         result = XMLUtil.formatXML(result);
 
-        return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(result.getBytes()), MIMEUtil.MIME_GML, coverageIds[0]);
     }
 
 }

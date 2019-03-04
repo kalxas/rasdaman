@@ -35,7 +35,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.UPLOADED_FILE_DIR_TMP;
 import static org.rasdaman.config.ConfigManager.UPLOAD_FILE_PREFIX;
 import org.rasdaman.config.VersionManager;
@@ -52,9 +51,6 @@ import petascope.core.response.MultipartResponse;
 import petascope.core.response.Response;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCSException;
-import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
@@ -75,16 +71,14 @@ public abstract class AbstractController {
     public static Exception startException;
 
     @Autowired
-    protected HttpServletResponse httpServletResponse;
+    protected HttpServletResponse injectedHttpServletResponse;
   
     @Resource
     // Spring finds all the subclass of AbstractHandler and injects to the list
     List<AbstractHandler> handlers;
     
     // **************** Configuration for controllers which needs to be logged in before processing request ****************
-    // This is the name of the jsp page (WEB-INF/jsp/login.jsp) to be used for admin controllers
-    protected static final String LOGIN_PAGE = "login";
-        // store the loggin information to session
+    // store the loggin information to session
     protected static final String USERNAME_SESSION = "username_session";
     protected static final String IS_SUCCESS_ATTRIBUTE = "isSuccess";
 
@@ -114,7 +108,13 @@ public abstract class AbstractController {
     /**
      * Handler for GET requests.
      */
-    abstract protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception;
+    abstract protected void handleGet(HttpServletRequest httpServletRequest) throws Exception;
+    
+    /**
+     * Depend on the requested service then pass the map of keys, values
+     * parameters to the corresponding handler
+     */
+    abstract protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws Exception;
 
     /**
      * From the GET request query string to map of key / values which is encoded
@@ -167,6 +167,9 @@ public abstract class AbstractController {
         
         List<String> wcsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCS_SERVICE);
         String[] supportedWCSVersions = wcsVersions.toArray(new String[wcsVersions.size()]);
+        
+        List<String> wcpsVersions = VersionManager.getAllSupportedVersions(KVPSymbols.WCPS_SERVICE);
+        String[] supportedWCPSVersions = wcpsVersions.toArray(new String[wcpsVersions.size()]);
 
         if (!XMLUtil.isXmlString(queryString.replace(QUERY, ""))) {
             // The request is in KVP GET/POST requests
@@ -208,8 +211,8 @@ public abstract class AbstractController {
 
         // backwards compatibility for WCPS ows?query="" is ok to handle
         if (kvpParameters.containsKey(KVPSymbols.KEY_QUERY)) {
-            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCS_SERVICE});
-            kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCSVersions);
+            kvpParameters.put(KVPSymbols.KEY_SERVICE, new String[] {KVPSymbols.WCPS_SERVICE});
+            kvpParameters.put(KVPSymbols.KEY_VERSION, supportedWCPSVersions);
             kvpParameters.put(KVPSymbols.KEY_REQUEST, new String[] {KVPSymbols.VALUE_PROCESS_COVERAGES});
         }
 
@@ -300,12 +303,6 @@ public abstract class AbstractController {
     }
 
     /**
-     * Depend on the requested service then pass the map of keys, values
-     * parameters to the corresponding handler
-     */
-    abstract protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, SecoreException, WMSException;
-
-    /**
      * Parse the POST request body from the input HTTP request
      */
     protected String getPOSTRequestBody(HttpServletRequest httpServletRequest) throws IOException {
@@ -327,9 +324,9 @@ public abstract class AbstractController {
     protected void writeResponseResult(Response response) throws IOException, PetascopeException {
         // This one is needed as normally it write the result with HTTP:200, 
         // but for SOAP case when error message is enclosed in envelope, it can return HTTP:400, 404
-        httpServletResponse.setStatus(response.getHTTPCode());
+        injectedHttpServletResponse.setStatus(response.getHTTPCode());
         addFileNameToHeader(response);
-        OutputStream os = httpServletResponse.getOutputStream();
+        OutputStream os = injectedHttpServletResponse.getOutputStream();
         try {
             String mimeType = getMimeType(response);
             if (!response.hasDatas())
@@ -361,16 +358,16 @@ public abstract class AbstractController {
         
         String mimeType = response.getFormatType();
         String fileName = response.getCoverageID() + "." + MIMEUtil.getFileNameExtension(mimeType);
-        httpServletResponse.setHeader("File-name", fileName);
+        injectedHttpServletResponse.setHeader("File-name", fileName);
         // If multipart then must download file from Browser
         if (response.hasDatas()) {
             if (response.isMultipart()) {
-                httpServletResponse.setHeader("Content-disposition", "attachment; filename=" + fileName);
+                injectedHttpServletResponse.setHeader("Content-disposition", "attachment; filename=" + fileName);
             } else {
                 // If a GetCoverage request or a processCoverage request with coverageId result, then download the result with file name
                 // e.g: query=for c in (test_mr) return encode(c, "tiff"), then download file: test_mr.tiff
                 // NOTE: Content-Disposition: attachment; will download file in WebBrowser instead of trying to display (GML/PNG/JPEG) type.
-                httpServletResponse.setHeader("Content-disposition", "inline; filename=" + fileName);                
+                injectedHttpServletResponse.setHeader("Content-disposition", "inline; filename=" + fileName);                
             }
         }
     }
@@ -380,7 +377,7 @@ public abstract class AbstractController {
      * that response contains at least one result.
      */
     protected void writeSinglepartResponse(Response response, String mimeType, OutputStream os) throws IOException {
-        httpServletResponse.setContentType(mimeType);
+        injectedHttpServletResponse.setContentType(mimeType);
         IOUtils.write(response.getDatas().get(0), os);
     }
     
@@ -390,7 +387,7 @@ public abstract class AbstractController {
      */
     protected void writeMultipartResponse(Response response, String mimeType, OutputStream os) throws IOException {
         MultipartResponse multi;
-        multi = new MultipartResponse(httpServletResponse);
+        multi = new MultipartResponse(injectedHttpServletResponse);
         for (byte[] data : response.getDatas()) {
             multi.startPart(mimeType);
             IOUtils.write(data, os);
@@ -489,7 +486,7 @@ public abstract class AbstractController {
     /**
      * Return the single value of a key in KVP parameters
      */
-    private String[] getValuesByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
+    public static String[] getValuesByKey(Map<String, String[]> kvpParameters, String key) throws PetascopeException {
         String[] values = kvpParameters.get(key);
         if (values == null) {
             throw new PetascopeException(ExceptionCode.InvalidRequest, 

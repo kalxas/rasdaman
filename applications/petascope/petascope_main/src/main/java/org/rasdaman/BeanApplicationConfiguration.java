@@ -59,7 +59,6 @@ public class BeanApplicationConfiguration implements Condition {
     public static final String LIQUIBASE_CHANGELOG_PATH = "classpath:database_versions/db.changelog-master.xml";
 
     // ************************ For general beans ************************
-    
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurerAdapter() {
@@ -87,9 +86,8 @@ public class BeanApplicationConfiguration implements Condition {
         registration.setEnabled(false);
         return registration;
     }
-    
-    // ************************ For non-migrating beans ************************
 
+    // ************************ For non-migrating beans ************************
     /**
      * Build a DataSource (JDBC driver) to connect to underneath DBMS for
      * Liquibase. Configuration values are fetched from petascope.properties.
@@ -119,10 +117,11 @@ public class BeanApplicationConfiguration implements Condition {
 
         return dataSource;
     }
-    
+
     /**
-     * NOTE: without migration, this one is used to create datasource (populate database schema by Liquibase)
-     * for spring configuration in petascope.properties.
+     * NOTE: without migration, this one is used to create datasource (populate
+     * database schema by Liquibase) for spring configuration in
+     * petascope.properties.
      */
     @Bean
     @Conditional(BeanApplicationConfiguration.class)
@@ -135,46 +134,55 @@ public class BeanApplicationConfiguration implements Condition {
                 // NOTE: Only create a new petascopedb for Postgresql if it doesn't exist
                 // and Liquibase will populate schema on this empty database.
                 DatabaseUtil.createPostgresqlDatabaseIfNotExist(null);
-            }            
+            }
         } catch (Exception ex) {
             // e.g: postgresql is not running, fatal error for Spring Framework to continue
             PetascopeException petascopeException = new PetascopeException(ExceptionCode.InternalSqlError,
                     "Cannot create new empty petascopedb for Postgresql, error '" + ex.getMessage() + "'.", ex);
             throw petascopeException;
         }
+
+        // Default run Liquibase
         
+        // NOTE: In case of changing petascopedb for a new feature (Liquibase should be set to *false* or they will have conflict), then,
+        // in petascope.properties set spring.jpa.hibernate.ddl-auto=create
+        // to allow Hibernate to create a newly petascopedb with all changes.
+        boolean runLiquibase = true;
+        liquibase.setShouldRun(runLiquibase);
+
         // NOTE: Do not initialize/update petascopedb if petascope failed to start properly.
         if (AbstractController.startException != null) {
-            liquibase.setShouldRun(false);
+            runLiquibase = false;
+            liquibase.setShouldRun(runLiquibase);
             return liquibase;
         }
 
         // Create dataSource for Liquibase
-        dataSource = this.dynamicDataSource();       
+        dataSource = this.dynamicDataSource();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog(LIQUIBASE_CHANGELOG_PATH);
 
-        if (DatabaseUtil.targetLegacyPetascopeDatabaseExists()) {            
+        if (DatabaseUtil.targetLegacyPetascopeDatabaseExists()) {
             if (!ApplicationMain.MIGRATE) {
                 // Run rasdaman.war with petascopedb version 9.4 which is not valid
                 String errorMessage = "petascopedb 9.4 or older already exists, "
-                    + "please run the migrate_petascopedb.sh script to migrate to the new petascope schema first, then restart petascope.";
+                        + "please run the migrate_petascopedb.sh script to migrate to the new petascope schema first, then restart petascope.";
                 PetascopeException exception = new PetascopeException(ExceptionCode.InternalSqlError, errorMessage);
                 AbstractController.startException = exception;
                 log.error(errorMessage, exception);
-                liquibase.setShouldRun(false); 
-            }            
+                runLiquibase = false;
+                liquibase.setShouldRun(runLiquibase);
+            }
         }
-        
+
         // NOTE: delete any existing lock to allow Liquibase populate data if last process couldn't finish properly.
-        if (!DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
+        if (runLiquibase && !DatabaseUtil.petascopeDatabaseEmpty(dataSource)) {
             DatabaseUtil.deletelLiquibaseLock(dataSource);
         }
 
         return liquibase;
     }
-    
-    
+
     @Override
     // NOTE: only when NOT running java -jar rasdaman.war --migrate, it will need to create
     // the beans which have annotaion @Conditional which match this condition.

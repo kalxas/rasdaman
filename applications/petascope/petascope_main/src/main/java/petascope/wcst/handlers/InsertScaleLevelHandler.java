@@ -51,7 +51,7 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
  */
 @Service
 public class InsertScaleLevelHandler {
-
+    
     @Autowired
     private PyramidService pyramidService;
     
@@ -107,6 +107,7 @@ public class InsertScaleLevelHandler {
         }
         
         Response response = new Response();
+        response.setCoverageID(coverageId);
         
         return response;
     }

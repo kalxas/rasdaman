@@ -117,6 +117,7 @@
         %formatSupported%
         %formatSupported%
         %formatSupported%
+        %formatSupported%
         <wcs:Extension>
             <int:InterpolationMetadata>
                 <int:InterpolationSupported>/interpolation/OGC/1.0/nearest-neighbor</int:InterpolationSupported>

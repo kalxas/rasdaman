@@ -99,4 +99,12 @@ public abstract class AbstractHandler {
 
     public abstract Response handle(Map<String, String[]> kvpParameters)
                     throws WCSException, WMSException, IOException, PetascopeException, SecoreException;
+    
+    
+    /**
+     * Return the service (e.g: WCS, WCPS or WMS) of handler.
+     */
+    public String getService() {
+        return this.service;
+    }
 }

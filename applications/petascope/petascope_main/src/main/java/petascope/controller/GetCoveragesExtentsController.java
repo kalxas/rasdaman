@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import static org.rasdaman.config.ConfigManager.GET_COVERAGE_EXTENTS;
 import static org.rasdaman.config.ConfigManager.OWS;
 import org.rasdaman.repository.service.CoverageRepostioryService;
@@ -70,11 +71,11 @@ public class GetCoveragesExtentsController extends AbstractController {
     @Override
     protected void handleGet(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
-        this.requestDispatcher(kvpParameters);
+        this.requestDispatcher(httpServletRequest, kvpParameters);
     }
 
     @Override
-    protected void requestDispatcher(Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
         if (startException != null) {
             throwStartException();
         }

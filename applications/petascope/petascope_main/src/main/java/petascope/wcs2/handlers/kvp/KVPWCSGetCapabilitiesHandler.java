@@ -25,7 +25,6 @@ import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.Map;
 import nu.xom.Element;
-import org.rasdaman.config.ConfigManager;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +51,8 @@ import petascope.exceptions.WMSException;
 public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWCSGetCapabilitiesHandler.class);
+    
+    private static final String DEFAULT_COVERAGE_ID = "GetCapabilities";
 
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
@@ -105,6 +106,6 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
         }
 
         // GetCapabilities only returns 1 XML string                
-        return new Response(Arrays.asList(gml.getBytes()), MIMEUtil.MIME_GML, null);
+        return new Response(Arrays.asList(gml.getBytes()), MIMEUtil.MIME_GML, DEFAULT_COVERAGE_ID);
     }
 }

@@ -95,7 +95,7 @@ import static petascope.util.ras.RasConstants.RASQL_CLOSE_SUBSETS;
 public class UpdateCoverageHandler {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
-
+    
     @Autowired
     private CoverageRepostioryService persistedCoverageService;
     @Autowired
@@ -129,6 +129,8 @@ public class UpdateCoverageHandler {
         log.debug("Handling coverage update...");
         // persisted coverage
         Coverage currentCoverage = persistedCoverageService.readCoverageByIdFromDatabase(request.getCoverageId());
+        String coverageId = request.getCoverageId();
+
         String affectedCollectionOid = currentCoverage.getRasdamanRangeSet().getOid().toString();
         String affectedCollectionName = currentCoverage.getRasdamanRangeSet().getCollectionName();
 
@@ -201,8 +203,8 @@ public class UpdateCoverageHandler {
 
                 updater = rasdamanUpdaterFactory.getUpdater(affectedCollectionName, affectedCollectionOid,
                         affectedDomain, fileUrl, mimetype, shiftDomain, decodeParameters);                
-                updater.update();                
-                //delete the file
+                updater.update();
+                // delete the file
                 if (!isLocal) {
                     new File(fileUrl).delete();
                 }
@@ -215,7 +217,6 @@ public class UpdateCoverageHandler {
             
             // If coverage has downscaled collections, then update these collections from current input data by subsets
             for (RasdamanDownscaledCollection rasdamanDownscaledCollection : currentCoverage.getRasdamanRangeSet().getRasdamanDownscaledCollections()) {
-                String coverageId = currentCoverage.getCoverageId();
                 BigDecimal level = rasdamanDownscaledCollection.getLevel();
                 
                 this.pyramidService.updateScaleLevel(coverageId, level, gridDomainsPairsMap);
@@ -236,7 +237,10 @@ public class UpdateCoverageHandler {
             throw e;
         }
 
-        return new Response();
+        Response response = new Response();
+        response.setCoverageID(coverageId);
+        
+        return response;
     }
     
     /**

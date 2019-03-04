@@ -23,7 +23,6 @@ package petascope.controller.handler.service;
 
 import java.io.IOException;
 import java.util.Map;
-import org.rasdaman.config.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
@@ -46,8 +45,7 @@ public class KVPWCPSServiceHandler extends AbstractHandler {
     private KVPWCSProcessCoverageHandler processCoverageHandler;
 
     public KVPWCPSServiceHandler() {
-        // WCPS is a part of WCS2
-        service = KVPSymbols.WCS_SERVICE;
+        service = KVPSymbols.WCPS_SERVICE;
 
         this.requestServices.add(KVPSymbols.KEY_PROCESS_COVERAGES);
     }
