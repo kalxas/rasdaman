@@ -178,6 +178,7 @@
     </dependencies>
     <build>
         <finalName>rasdaman-geo-core</finalName>
+        <sourceDirectory>@SRC_DIR@/petascope_core</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
         <directory>@PETASCOPE_TARGET_DIR@/petascope_core</directory>
     </build>

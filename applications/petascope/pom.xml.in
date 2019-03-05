@@ -23,7 +23,6 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
-    	<src.dir>@SRC_DIR@</src.dir>
     </properties>
     <dependencies>
         <dependency>
@@ -45,7 +44,7 @@
     </dependencies>
     <build>
         <finalName>rasdaman</finalName>
-	    <sourceDirectory>${src.dir}</sourceDirectory>
+	    <sourceDirectory>@SRC_DIR@</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
         <directory>@BUILD_DIR@/target</directory>
         <plugins>
