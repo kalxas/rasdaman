@@ -146,7 +146,7 @@ public class TypeResolverUtil {
             // e.g: band0 unsigned short
             String[] tempArray = structContent.split(",");
             for (int i = 0; i < tempArray.length; i++) {
-                String text = tempArray[i];
+                String text = tempArray[i].trim();
                 // e.g: band0
                 String cellName = text.substring(0, text.indexOf(" "));
 
