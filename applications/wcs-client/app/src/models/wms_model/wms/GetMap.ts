@@ -29,18 +29,20 @@ module wms {
         public layers:string;
         public bbox:string;
         public width:number;
-        public height:number;      
+        public height:number;
+        public styles:string;
         
-        public constructor(layers:string, bbox:string, width:number, height:number) {            
+        public constructor(layers:string, bbox:string, width:number, height:number, styles:string) {            
             this.layers = layers;
             this.bbox = bbox;
             this.width = width;
             this.height = height;
+            this.styles = styles;
         }
 
         public toKVP():string {
             return "request=" + "GetMap&layers=" + this.layers + "&bbox=" + this.bbox + 
-                   "&width=" + this.width + "&height=" + this.height + "&crs=EPSG:4326&format=image/png&transparent=true&styles=";
+                   "&width=" + this.width + "&height=" + this.height + "&crs=EPSG:4326&format=image/png&transparent=true&styles=" + this.styles;
         }
     }
 }
