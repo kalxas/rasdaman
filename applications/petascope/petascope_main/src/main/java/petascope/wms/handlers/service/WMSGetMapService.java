@@ -67,12 +67,14 @@ import petascope.wms.exception.WMSInternalException;
 import petascope.wms.handlers.model.TranslatedGridDimensionSubset;
 import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
 import petascope.core.Pair;
+import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.JSONUtil;
 import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
+import petascope.wcps.encodeparameters.service.SerializationEncodingService;
 import petascope.wcps.handler.CrsTransformHandler;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -543,7 +545,7 @@ public class WMSGetMapService {
 
             String formatType = MIMEUtil.getFormatType(this.format);
             String collections = ListUtil.join(collectionAlias, ", ");
-            String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata.getXYAxes());
+            String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata);
             
             // Create the final Rasql query for all layers's styles of this GetMap request.
             String finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
@@ -577,7 +579,9 @@ public class WMSGetMapService {
      * NOTE: if layer was imported with lat, long grid axes order (e.g: via netCDF) then it must need tranpose to make the output correctly.
      * 
      */
-    private String createEncodeFormatParameters(List<BigDecimal> nodataValues, List<Axis> xyAxes) throws PetascopeException {
+    private String createEncodeFormatParameters(List<BigDecimal> nodataValues, WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+        
+        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
         
         ObjectMapper objectMapper = new ObjectMapper();        
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -604,6 +608,10 @@ public class WMSGetMapService {
             transposeList.add(1);
             jsonExtraParams.setTranspose(transposeList);
         }
+        
+        CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
+        SerializationEncodingService.addColorPalleteToJSONExtraParamIfPossible(this.format, coverageMetadata, jsonExtraParams);
+        
         
         String encodeFormatParameters = "";
         encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);

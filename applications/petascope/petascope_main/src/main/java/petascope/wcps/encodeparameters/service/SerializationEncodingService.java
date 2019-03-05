@@ -37,12 +37,16 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.wcps.encodeparameters.model.ColorPalette;
+import static petascope.wcps.encodeparameters.model.ColorPalette.COLOR_PALETTE_TABLE_COVERAGE_METADATA;
+import static petascope.wcps.encodeparameters.model.ColorPalette.COLOR_PALETTE_TABLE_SIZE;
 import petascope.wcps.encodeparameters.model.Dimensions;
 import petascope.wcps.encodeparameters.model.GeoReference;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.model.Variables;
 import petascope.wcps.exception.processing.DeserializationExtraParamsInJsonExcception;
+import petascope.wcps.exception.processing.InvalidCoverageMetadataToDeserializeException;
 import petascope.wcps.handler.EncodeCoverageHandler;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
@@ -62,9 +66,44 @@ public class SerializationEncodingService {
     private EncodeCoverageHandler encodeCoverageHandler;
     @Autowired
     private CoverageRepostioryService coverageRepostioryService;
+    
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public SerializationEncodingService() {
         
+    }
+    
+    /**
+     * Depends on encoding (with PNG or TIFF) then colorPallete should be added as JSON extra params.
+     */
+    public static void addColorPalleteToJSONExtraParamIfPossible(String rasqlFormat, CoverageMetadata coverageMetadata, JsonExtraParams jsonExtraParams) {
+        ColorPalette colorPalette = null;
+        
+        // Add colorPaleteTable for colorPalette if it exists in coverage's global metadata implicitly
+        String colorPaleteTableValue = coverageMetadata.getGlobalAttributesMap().get(COLOR_PALETTE_TABLE_COVERAGE_METADATA);
+        // Only try to deserialize if it is a JSON string
+        if ( colorPaleteTableValue != null && colorPaleteTableValue.trim().startsWith("{")) {
+            try {
+                // e.g:  "colorPaletteTable": "{'colorTable': [[0, 0, 0, 255], [216, 31, 30, 255], ...}"
+                colorPalette = objectMapper.readValue(colorPaleteTableValue.replace("'", "\""), ColorPalette.class);
+                if (colorPalette.getColorTable().size() != COLOR_PALETTE_TABLE_SIZE) {
+                    // Coverage metadata does not contains 256 RGB values for color table, just ignore it
+                    log.warn("ColorTable does not contain exactly " + COLOR_PALETTE_TABLE_SIZE + " values, will be ignored." );
+                    colorPalette = null;                    
+                }
+            } catch (IOException ex) {
+                throw new InvalidCoverageMetadataToDeserializeException(ex.getMessage(), ex);
+            }
+        }
+        
+        if (colorPalette != null) {
+            if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_PNG) ||
+                rasqlFormat.equalsIgnoreCase(MIMEUtil.MIME_PNG) ||
+                rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_TIFF) ||
+                rasqlFormat.equalsIgnoreCase(MIMEUtil.MIME_TIFF)) {
+                jsonExtraParams.setColorPalette(colorPalette);
+            }
+        }
     }
 
     /**
@@ -100,7 +139,9 @@ public class SerializationEncodingService {
             // Automatically swap coverage imported YX grid axes order to XY grid axes order when the result is 2D XY
             this.addTransposeToExtraParams(wcpsCoverageMetadata, jsonExtraParams);
         }
-
+        
+        this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
+        
         String jsonOutput = JSONUtil.serializeObjectToJSONStringNoIndentation(jsonExtraParams);
         return jsonOutput;
     }
@@ -174,6 +215,8 @@ public class SerializationEncodingService {
             // Automatically swap coverage imported YX grid axes order to XY grid axes order when the result is 2D XY
             this.addTransposeToExtraParams(wcpsCoverageMetadata, jsonExtraParams);
         }
+        
+        this.addColorPalleteToJSONExtraParamIfPossible(rasqlFormat, coverageMetadata, jsonExtraParams);
 
         String jsonOutput = JSONUtil.serializeObjectToJSONStringNoIndentation(jsonExtraParams);
         return jsonOutput;

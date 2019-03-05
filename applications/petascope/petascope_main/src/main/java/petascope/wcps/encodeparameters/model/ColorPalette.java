@@ -28,6 +28,11 @@ import java.util.List;
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class ColorPalette {
+    
+    public static final String COLOR_PALETTE_TABLE_COVERAGE_METADATA = "colorPaletteTable";
+    // It always needs 256 RGB values otherwise it will not work
+    public static final int COLOR_PALETTE_TABLE_SIZE = 256;
+    
     public ColorPalette() {
         
     }

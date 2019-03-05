@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+    
+      >
+    <ows:Exception exceptionCode="UnknownError">
+        <ows:ExceptionText>Coverage 'test_color_pallette_rasql_ready_encoded_png' cannot be read. 
+ Reason: Coverage: test_color_pallette_rasql_ready_encoded_png does not exist in persistent database..</ows:ExceptionText>
+    </ows:Exception>
+</ows:ExceptionReport>
