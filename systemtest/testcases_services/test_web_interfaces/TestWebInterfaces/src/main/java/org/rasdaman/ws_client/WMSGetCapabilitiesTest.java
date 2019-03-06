@@ -24,8 +24,6 @@ package org.rasdaman.ws_client;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 import static org.rasdaman.Config.TIME_TO_WAIT_BEFORE_CLICK;
 
 /**
@@ -50,9 +48,7 @@ public class WMSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         String testCaseName;
 
         // Switch to iframe to parse the web element
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
         
         // Focus on the second parent tab (WMS)
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[2]/a");

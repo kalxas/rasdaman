@@ -25,8 +25,6 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.rasdaman.Config;
-import static org.rasdaman.Config.FIRST_TIME_TO_VISIT_WS_CLIENT;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Open Administration tab in WSClient to login and update OWS metadata to petascopedb.
@@ -51,9 +49,7 @@ public class AdminOWSMetadataManagementTest extends AdminAbstractSectionWebPageT
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
         
         // Switch to iframe to parse the web element
-        Thread.sleep(FIRST_TIME_TO_VISIT_WS_CLIENT);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
 
         String testCaseName;
 

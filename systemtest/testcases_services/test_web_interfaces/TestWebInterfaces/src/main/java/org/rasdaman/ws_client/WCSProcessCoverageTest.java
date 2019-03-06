@@ -26,8 +26,6 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
-import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Class to test wcs_client, tab WCS/ProcessCoverage
@@ -49,9 +47,7 @@ public class WCSProcessCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
         
         // Switch to iframe to parse the web element
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
         
         String testCaseName;
         Select dropdown;

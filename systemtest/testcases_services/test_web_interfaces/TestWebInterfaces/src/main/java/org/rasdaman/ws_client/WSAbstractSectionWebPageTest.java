@@ -30,21 +30,8 @@ import org.rasdaman.Config;
  */
 public abstract class WSAbstractSectionWebPageTest extends AbstractWebPageTest {
     
-    // e.g: test wcs_client, section GetCapabilities, DescribeCoverage, ProcessCoverages
-    // each section is a tab (wcs_client) and can contain multiple test cases.
-    protected String sectionName;
-    
     public WSAbstractSectionWebPageTest() {
         super(Config.WS_CLIENT_CONTEXT_PATH);
         this.testFolder = "ws_client";
     } 
-    
-    /**
-     * Return the string representing the test case with section name
-     * @param testCaseName
-     * @return 
-     */
-    protected String getSectionTestCaseName(String testCaseName) {
-        return this.sectionName + "/" + testCaseName;
-    }
 }

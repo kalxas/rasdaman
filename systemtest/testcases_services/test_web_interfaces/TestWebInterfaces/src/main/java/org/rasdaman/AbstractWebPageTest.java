@@ -25,12 +25,9 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -41,7 +38,9 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import static org.rasdaman.Config.FIRST_TIME_TO_VISIT_WS_CLIENT;
 import static org.rasdaman.Config.ORACLE_FOLDER_PATH;
+import static org.rasdaman.Config.TIME_TO_WAIT_AFTER_SWITCHING_IFRAME;
 
 /**
  * Abstract class for all the classes which are used to test Web Page from
@@ -52,6 +51,8 @@ import static org.rasdaman.Config.ORACLE_FOLDER_PATH;
 public abstract class AbstractWebPageTest implements IWebPageTestable {
 
     private static final Logger log = Logger.getLogger(AbstractWebPageTest.class);
+    // each section belongs to a URL and can contain multiple cases
+    protected String sectionName;
 
     /**
      * Override the test folder in each subclass
@@ -70,6 +71,16 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
 
     public AbstractWebPageTest(String testURL) {
         this.testURL = testURL;
+    }
+
+    /**
+     * Return the string representing the test case with section name
+     *
+     * @param testCaseName
+     * @return
+     */
+    protected String getSectionTestCaseName(String testCaseName) {
+        return this.sectionName + "/" + testCaseName;
     }
 
     /**
@@ -118,13 +129,13 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @throws java.io.IOException
      */
     private void compareOutputAndOracleFile(WebDriver webDriver, String testCaseName) throws IOException {
-        String oracleFilePath = ORACLE_FOLDER_PATH + this.testFolder + "/" + testCaseName;                
-        
+        String oracleFilePath = ORACLE_FOLDER_PATH + this.testFolder + "/" + testCaseName;
+
         // Always capture the web page as image file
         String outputFilePath = this.captureOutputFile(webDriver, testCaseName);
-        
+
         // NOTE: check if oracle file exists, if it does not, just copy output as a oracle file
-        if (Files.exists(Paths.get(oracleFilePath))) {        
+        if (Files.exists(Paths.get(oracleFilePath))) {
             // Check the similarity of 2 image files
             boolean testResult = Utility.compare2Images(new File(oracleFilePath), new File(outputFilePath));
 
@@ -139,7 +150,7 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         } else {
             // Oracle does not exist, copy output as oracle file
             log.info("NO ORACLE FOUND.");
-            log.info("copying from '" + outputFilePath + "' to '" + oracleFilePath + "'.");            
+            log.info("copying from '" + outputFilePath + "' to '" + oracleFilePath + "'.");
             FileUtils.copyFile(new File(outputFilePath), new File(oracleFilePath));
         }
     }
@@ -151,10 +162,16 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @param xPathToElement
      * @throws java.lang.InterruptedException
      */
-    protected void clickOnElement(WebDriver webDriver, String xPathToElement) throws InterruptedException {
+    protected void clickOnElement(WebDriver webDriver, String xPathToElement) throws InterruptedException, IOException {
         Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
-        WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
-        webElement.click();
+        try {
+            WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
+            webElement.click();
+        } catch (Exception ex) {
+            log.error("Cannot click on HTML element '" + xPathToElement + ". Reason: " + ex.getMessage());
+            this.captureOutputFile(webDriver, getSectionTestCaseName("error_click_on_element"));
+            this.errorTest = true;
+        }
         Thread.sleep(Config.TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE);
     }
 
@@ -173,6 +190,21 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
     }
 
     /**
+     * Switch to the first iframe inside the web page.
+     */
+    protected void switchToIFirstIframe(WebDriver webDriver) throws InterruptedException, IOException {
+        try {
+            Thread.sleep(FIRST_TIME_TO_VISIT_WS_CLIENT); 
+            webDriver.switchTo().frame(0);
+            Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        } catch (Exception ex) {
+            log.error("Cannot switch to the first iframe. Reason: " + ex.getMessage(), ex);
+            this.captureOutputFile(webDriver, getSectionTestCaseName("switch_to_first_iframe"));
+            this.errorTest = true;
+        }
+    }
+
+    /**
      * Run the test on the web page when it is needed to click on the link
      * element <a> ... </a> or element <button> ... </button>
      * which will not open another page but send query to server and plot the
@@ -188,14 +220,13 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
         this.clickOnElement(webDriver, xPathToElement);
         this.compareOutputAndOracleFile(webDriver, testCaseName);
     }
-    
-    
+
     /**
      * Run the test on the web page when it is needed to click on the link
      * element <a> ... </a> or element <button> ... </button>
      * which will not open another page but send query to server and plot the
      * result.
-     * 
+     *
      * NOTE: it will not compare the output with oracle file.
      *
      * @param webDriver
@@ -260,10 +291,16 @@ public abstract class AbstractWebPageTest implements IWebPageTestable {
      * @param xPathToElement
      * @throws java.lang.InterruptedException
      */
-    protected void addTextToTextBox(WebDriver webDriver, String text, String xPathToElement) throws InterruptedException {
-        WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
-        // select all the text in the text box then override it with the new text
-        webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"), text);
+    protected void addTextToTextBox(WebDriver webDriver, String text, String xPathToElement) throws InterruptedException, IOException {
+        try {
+            WebElement webElement = webDriver.findElement(By.xpath(xPathToElement));
+            // select all the text in the text box then override it with the new text
+            webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"), text);
+        } catch (Exception ex) {
+            log.error("Cannot find text box '" + xPathToElement + "'. Reason: " + ex.getMessage(), ex);
+            this.errorTest = true;
+            this.captureOutputFile(webDriver, getSectionTestCaseName("text_box_not_found_to_add_text"));
+        }
         Thread.sleep(Config.TIME_TO_WAIT_BEFORE_CLICK);
     }
 

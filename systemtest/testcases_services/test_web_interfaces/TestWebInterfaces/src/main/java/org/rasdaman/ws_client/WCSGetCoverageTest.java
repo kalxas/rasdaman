@@ -48,12 +48,10 @@ public class WCSGetCoverageTest extends WSAbstractSectionWebPageTest {
      * @param webDriver
      * @throws InterruptedException
      */
-    private void focusOnTheIFrameTab(WebDriver webDriver) throws InterruptedException {
+    private void focusOnTheIFrameTab(WebDriver webDriver) throws InterruptedException, IOException {
         // NOTE: As the first window lost focus, so it has to refous to iframe and GetCoverage tab, before it can select elements in this tab.
         // Switch to iframe to parse the web element
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
         
         // First, change to tab GetCoverage
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/ul/li[3]/a");

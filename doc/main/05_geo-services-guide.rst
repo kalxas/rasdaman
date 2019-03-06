@@ -1136,9 +1136,9 @@ the ``InsertCoverage`` request.
 |Request      |Value                                            |Description                                               |Required|
 |Parameter    |                                                 |                                                          |        |
 +=============+=================================================+==========================================================+========+
-|pixelDataType|any GDAL supported data type                     |In cases where cell values are given in the GML body, the |No      |
-|             |                                                 |datatype can be indicated through this parameter.         |        |
-|             |                                                 |If omitted, it defaults to Byte.                          |        |
+|pixelDataType|any GDAL supported data type (e.g: Float32) or   |In cases where cell values are given in the GML body, the |No      |
+|             |concatenated data types by commas, (e.g:         |datatype can be indicated through this parameter.         |        |
+|             |Float32,Int32,Float32).                          |If omitted, it defaults to Byte.                          |        |
 +-------------+-------------------------------------------------+----------------------------------------------------------+--------+
 |tiling       |same as rasdaman tiling clause                   |Indicates the tiling of the array holding the cell values.|No      |
 |             |`wiki:Tiling <http://rasdaman.org/wiki/Tiling>`_ |                                                          |        |

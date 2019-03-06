@@ -47,9 +47,7 @@ public class WCSDeleteCoverageTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
         // Switch to iframe to parse the web element
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
 
         String testCaseName;
 

@@ -50,7 +50,7 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
      *
      * @param webDriver
      */
-    private void fetchNewLayerMetadata(WebDriver webDriver) throws InterruptedException {
+    private void fetchNewLayerMetadata(WebDriver webDriver) throws InterruptedException, IOException {
         // Click on WMS tab GetCapabilities
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/ul/li[1]/a");
         Thread.sleep(TIME_TO_WAIT_BEFORE_CLICK);
@@ -70,9 +70,7 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
         log.info("*** Testing test cases on Web URL '" + testURL + "', section '" + this.sectionName + "'. ***");
 
         // Switch to iframe to parse the web element
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
-        webDriver.switchTo().frame(0);
-        Thread.sleep(TIME_TO_WAIT_AFTER_SWITCHING_IFRAME);
+        this.switchToIFirstIframe(webDriver);
 
         // Focus on the second parent tab (WMS)
         this.clickOnElement(webDriver, "/html/body/div/div/div/div/ul/li[2]/a");
