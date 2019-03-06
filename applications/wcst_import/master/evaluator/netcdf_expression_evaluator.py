@@ -79,12 +79,13 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
         return resolution
 
-    def _apply_operation(self, variable, operation):
+    def _apply_operation(self, nc_dataset, nc_obj_name, operation):
         """
         Applies operation on a given variable which contains a list of values (e.g: lat = [0, 1, 2, 3,...]),
         (e.g: find the min of time variable ${netcdf:variable:time:min})
-        :param netCDF4.Variable variable: the netcdf variable
-        :param str operation: the operation to apply
+        :param netCDF4 nc_dataset: the netcdf dataset
+        :param str nc_obj_name: name of netCDF variable or netCDF dimension
+        :param str operation: the operation to apply:
         :return: str value: The value from the applied operation with precession
         """
         """ NOTE: min or max of list(variable) with values like [148654.08425925925,...]
@@ -105,36 +106,45 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
         # List of support operation on a netCDF variable
         supported_operations = [MAX, MIN, LAST, FIRST, RESOLUTION, METADATA]
 
-        if operation not in supported_operations:
-            # it must be an attribute of variable
-            return variable.__getattribute__(operation)
+        if nc_obj_name in nc_dataset.variables:
+            nc_obj = nc_dataset.variables[nc_obj_name]
 
-        # It must be an operation that could be applied on a netCDF variable
-        # convert list of string values to list of decimal values
-        decimal_values = list_util.numpy_array_to_list_decimal(variable[:])
+            if operation not in supported_operations:
+                # it must be an attribute of variable
+                return nc_obj.__getattribute__(operation)
+
+            # It must be an operation that could be applied on a netCDF variable
+            # convert list of string values to list of decimal values
+            values = list_util.numpy_array_to_list_decimal(nc_obj[:])
+        elif nc_obj_name in nc_dataset.dimensions:
+            nc_obj = nc_dataset.dimensions[nc_obj_name]
+            # Cannot determine list of values from variable but only dimension (e.g: station = 758)
+            values = range(0, nc_obj.size)
+        else:
+            raise Exception("Cannot find '" + nc_obj_name + "' from list of netCDF variables and dimensions.")
 
         if operation == MAX:
-            return max(decimal_values)
+            return max(values)
         elif operation == MIN:
-            return min(decimal_values)
+            return min(values)
         elif operation == LAST:
-            last_index = len(variable) - 1
-            return decimal_values[last_index]
+            last_index = len(nc_obj) - 1
+            return values[last_index]
         elif operation == FIRST:
-            return decimal_values[0]
+            return values[0]
         elif operation == RESOLUTION:
             # NOTE: only netCDF needs this expression to calculate resolution automatically
             # for GDAL: it uses: ${gdal:resolutionX} and GRIB: ${grib:jDirectionIncrementInDegrees} respectively
-            resolution = self.__calculate_netcdf_resolution(decimal_values)
+            resolution = self.__calculate_netcdf_resolution(values)
             return resolution
         elif operation == METADATA:
             # return a dict of variable (axis) metadata with keys, values as string
             tmp_dict = {}
-            for attr in variable.ncattrs():
+            for attr in nc_obj.ncattrs():
                 try:
-                    tmp_dict[attr] = escape(getattr(variable, attr))
+                    tmp_dict[attr] = escape(getattr(nc_obj, attr))
                 except:
-                    log.warn("Attribute '" + attr + "' of variable '" + variable._getname() + "' cannot be parsed as string, ignored.")
+                    log.warn("Attribute '" + attr + "' of variable '" + nc_obj._getname() + "' cannot be parsed as string, ignored.")
             return tmp_dict
 
         # Not supported operation and not valid attribute of netCDF variable
@@ -159,18 +169,19 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
             if len(parts) < 2:
                 # e.g: variable is invalid
                 raise RuntimeException("Invalid netcdf expression given: " + expression)
-            variable_name = parts[1]
+            nc_obj_name = parts[1]
 
             if len(parts) == 2:
                 # return the entire variable translated to the string representation of a python list that can be
                 # further passed to eval() which should only use list of strings to evaluate (not Decimal as eval has error)
                 # e.g: variable:E
-                array_str = list_util.numpy_array_to_string(nc_dataset.variables[variable_name][:])
+                array_str = list_util.numpy_array_to_string(nc_dataset.variables[nc_obj_name][:])
                 return array_str
             else:
                 # e.g: variable:E:min and operation is min
                 operation = parts[2]
-                return self._apply_operation(nc_dataset.variables[variable_name], operation)
+
+                return self._apply_operation(nc_dataset, nc_obj_name, operation)
         elif expression.startswith("metadata:"):
             meta_key = expression.replace("metadata:", "")
             try:

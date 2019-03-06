@@ -260,16 +260,18 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                     break
 
             if variable_axis_label is not None:
-                axes_metadata[crs_axis_label] = {}
 
-                attrs_list = dataset.variables[variable_axis_label].ncattrs()
-                for attr in attrs_list:
-                    try:
-                        # crs axis (e.g: Long) -> variable axis (e.g: lon)
-                        axes_metadata[crs_axis_label][attr] = str(getattr(dataset.variables[variable_axis_label], attr))
-                    except:
-                        log.warn(
-                            "Attribute '" + attr + "' of axis '" + variable_axis_label + "' cannot be parsed as string, ignored.")
+                if variable_axis_label in dataset.variables:
+                    axes_metadata[crs_axis_label] = {}
+                    
+                    attrs_list = dataset.variables[variable_axis_label].ncattrs()
+                    for attr in attrs_list:
+                        try:
+                            # crs axis (e.g: Long) -> variable axis (e.g: lon)
+                            axes_metadata[crs_axis_label][attr] = str(getattr(dataset.variables[variable_axis_label], attr))
+                        except:
+                            log.warn(
+                                "Attribute '" + attr + "' of axis '" + variable_axis_label + "' cannot be parsed as string, ignored.")
 
         return axes_metadata
 
