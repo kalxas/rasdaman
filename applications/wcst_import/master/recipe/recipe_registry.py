@@ -22,6 +22,7 @@
  *
 """
 
+import os
 import sys
 import subprocess
 from threading import Thread
@@ -215,19 +216,20 @@ def update_progress(processed_items, total):
     """
     Updates the progress using a progressbar
     """
-    progress = float(processed_items) / float(total)
-    bar_length = 30
-    status = ""
-    if isinstance(progress, int):
-        progress = float(progress)
-    if progress >= 1:
-        progress = 1
-        status = "Done.\r\n"
-    block = int(round(bar_length * progress))
-    text = "\rProgress: [{0}] {3}/{4} {1:.2f}% {2}".format("#" * block + "-" * (bar_length - block), progress * 100,
-                                                           status, processed_items, total)
-    sys.stdout.write(text)
-    sys.stdout.flush()
+    if os.isatty(1):
+        progress = float(processed_items) / float(total)
+        bar_length = 30
+        status = ""
+        if isinstance(progress, int):
+            progress = float(progress)
+        if progress >= 1:
+            progress = 1
+            status = "Done.\r\n"
+        block = int(round(bar_length * progress))
+        text = "\rProgress: [{0}] {3}/{4} {1:.2f}% {2}".format("#" * block + "-" * (bar_length - block), progress * 100,
+                                                            status, processed_items, total)
+        sys.stdout.write(text)
+        sys.stdout.flush()
 
 
 def run_status(recipe):

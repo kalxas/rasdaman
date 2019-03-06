@@ -109,9 +109,10 @@ def make_bold(input_text):
     Create a bold text from a normal text.
     :param str input_text: normal text.
     """
-    start = "\033[1m"
-    end = "\033[0;0m"
-    return start + input_text + end
+    if os.isatty(1):
+        return "\033[1m" + input_text + "\033[0;0m"
+    else:
+        return input_text
 
 
 def prepend_time(input_text):
