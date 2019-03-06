@@ -36,6 +36,7 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.rasdaman.exceptions.RasdamanException;
+import petascope.util.ListUtil;
 import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 
 /**
@@ -86,17 +87,21 @@ public class TypeRegistry {
         return typeRegistry;
     }
 
+    /**
+     * Create a struct type content, e.g: band0 float, band1 float, band2 short.
+     */
     private String generateStructStructure(List<String> bandBaseTypes) {
-        String output = "";
-        int count = 0;
+        List<String> bands = new ArrayList<>();
+        int i = 0;
         for (String bandBaseType : bandBaseTypes) {
-            output += ("band" + count) + " " + bandBaseType + " ";
-            if (count < bandBaseTypes.size() - 1) {
-                output += ",";
-            }
-            count++;
+            String band = ("band" + i) + " " + bandBaseType;
+            bands.add(band);
+            
+            i++;
         }
-        return output;
+        
+        String result = ListUtil.join(bands, ", ");
+        return result;
     }
 
     private String generateNullValuesRepresentation(List<NilValue> nullValues) {

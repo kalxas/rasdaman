@@ -190,18 +190,18 @@ public class InsertCoverageHandler {
                 Element dataBlock = GMLParserService.parseDataBlock(rangeSet);
 
                 long start = System.currentTimeMillis();
-                Pair<String, String> collectionType
+                Pair<String, List<String>> collectionTypePair
                         = TypeResolverUtil.guessCollectionType(collectionName, numberOfBands, numberOfDimensions, nullValues, pixelDataType);
-                rasCollectionType = collectionType.fst;
+                rasCollectionType = collectionTypePair.fst;
                 long end = System.currentTimeMillis();
-                log.debug("Time for guessing collection type: " + String.valueOf(end - start));
+                log.debug("Time for guessing collection type: " + String.valueOf(end - start) + " ms.");
 
                 // Right now, only support GeneralGridCoverage
                 List<IndexAxis> indexAxes = ((GeneralGridCoverage) coverage).getIndexAxes();
 
                 // e.g: us, d, f,...
-                String typeSuffix = collectionType.snd;
-                String rasdamanValues = GMLParserService.parseGMLTupleList(dataBlock, indexAxes, typeSuffix);
+                List<String> typeSuffixes = collectionTypePair.snd;
+                String rasdamanValues = GMLParserService.parseGMLTupleList(dataBlock, indexAxes, typeSuffixes);
                 start = System.currentTimeMillis();
                 rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
 

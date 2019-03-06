@@ -64,22 +64,45 @@ public class TypeResolverUtil {
      * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
      * @param nullValues
-     * @param pixelDataType      the pixel data type, if not given assumed Float32
-     * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
+     * @param inputPixelDataType      the pixel data type, if not given assumed Float32
+     * @return pair containing the collection type and a list of cell types suffixes (e.g. <"GreySet", ["c"]>)
      */
-    public static Pair<String, String> guessCollectionType(String collectionName, Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String pixelDataType) throws PetascopeException {
-        if (pixelDataType == null) {
-            pixelDataType = GDT_Float32;
+    public static Pair<String, List<String>> guessCollectionType(String collectionName, Integer numberOfBands, Integer numberOfDimensions, List<NilValue> nullValues, String inputPixelDataType) throws PetascopeException {
+        if (inputPixelDataType == null) {
+            inputPixelDataType = GDT_Float32;
         }
-        if (!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)) {
-            throw new WCSException("Unknown pixel data type: " + pixelDataType);
+        
+        // Normally, pixelDataType is 1 type (e.g: Float32). However, netCDF can contain different types for bands (e.g: Float32,Int16,Float32).
+        String[] pixelDataTypes = inputPixelDataType.split(",");
+        int numberOfBandTypes = pixelDataTypes.length;
+        
+        if (numberOfBandTypes > 1 && numberOfBandTypes != numberOfBands) {
+            // e.g: 3 bands but only 2 band types 
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Number of bands is different from number of data types."
+                                  + " Given: " + numberOfBandTypes + " and " + numberOfBandTypes + " respectively.");
         }
-        //assume band type char on every band
-        ArrayList<String> bandTypes = new ArrayList<>();
+        
+        // Validate each pixel data type
+        for (String pixelDataType : pixelDataTypes) {
+            if (!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest, "Unknown pixel data type: " + pixelDataType);
+            }
+        }
+        
+        List<String> bandTypes = new ArrayList<>();
+        List<String> typeSuffixes = new ArrayList<>();
         for (Integer i = 0; i < numberOfBands; i++) {
-            bandTypes.add(pixelDataType);
+            String dataType = (numberOfBandTypes > 1 ? pixelDataTypes[i] : pixelDataTypes[0]);
+            bandTypes.add(dataType);
+            
+            // e.g: char -> c
+            String typeSuffix = RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(dataType));
+            typeSuffixes.add(typeSuffix);
         }
-        return Pair.of(guessCollectionType(collectionName, numberOfDimensions, bandTypes, nullValues), RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType)));
+        
+        String result = guessCollectionType(collectionName, numberOfDimensions, bandTypes, nullValues);
+        
+        return Pair.of(result, typeSuffixes);
     }
     
     /**
@@ -165,7 +188,8 @@ public class TypeResolverUtil {
     /**
      * Guesses the collection type. If no type is found, a new one is created.
      */
-    private static String guessCollectionType(String collectionName, Integer numberOfDimensions, ArrayList<String> gdalBandTypes, List<NilValue> nilValues) throws PetascopeException {
+    private static String guessCollectionType(String collectionName, Integer numberOfDimensions, 
+                                              List<String> gdalBandTypes, List<NilValue> nilValues) throws PetascopeException {
         String result = "";
 
         //get the type registry
@@ -262,8 +286,8 @@ public class TypeResolverUtil {
      * @param gdalTypes
      * @return
      */
-    private static ArrayList<String> translateTypes(ArrayList<String> gdalTypes) {
-        ArrayList<String> rasTypes = new ArrayList<String>();
+    private static List<String> translateTypes(List<String> gdalTypes) {
+        List<String> rasTypes = new ArrayList<>();
         for (String i : gdalTypes) {
             rasTypes.add(GDAL_TYPES_TO_RAS_TYPES.get(i));
         }

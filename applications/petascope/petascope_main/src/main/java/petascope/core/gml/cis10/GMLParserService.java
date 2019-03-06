@@ -72,6 +72,7 @@ import petascope.util.CrsUtil;
 import petascope.core.Pair;
 import petascope.util.StringUtil;
 import petascope.core.XMLSymbols;
+import petascope.util.ListUtil;
 import petascope.util.ras.TypeResolverUtil;
 import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
 
@@ -784,11 +785,11 @@ public class GMLParserService {
      *
      * @param dataBlock the dataBlock element
      * @param indexAxes
-     * @param typeSuffix the suffix to be added to each point to indicate its
+     * @param typeSuffixes the suffix to be added to each point to indicate its
      * rasdaman type (i.e. rasdaman Char 1 world be 1c, so the suffix is c)
      * @return String representation of a rasdaman constant
      */
-    public static String parseGMLTupleList(Element dataBlock, List<IndexAxis> indexAxes, String typeSuffix)
+    public static String parseGMLTupleList(Element dataBlock, List<IndexAxis> indexAxes, List<String> typeSuffixes)
             throws WCSTWrongNumberOfPixels, WCSTWrongNumberOfTupleLists, WCSException {
         //get the tuple list
         Elements tupleLists = dataBlock.getChildElements(XMLSymbols.LABEL_TUPLELIST, XMLSymbols.NAMESPACE_GML);
@@ -806,7 +807,7 @@ public class GMLParserService {
         }
         //get the values
         String values = StringUtil.trim(tupleLists.get(0).getValue().trim());
-        //get the points
+        //get the points (inside <gml:tupleList> element of incoming GML)
         String[] points = values.split(ts);
         String interval = "";
         String rasdamanValues = "";
@@ -830,7 +831,7 @@ public class GMLParserService {
         }
         //iterate through all points
         for (int i = 0; i < totalNumberOfPoints; i++) {
-            rasdamanValues += parsePointValue(points[i], cs, typeSuffix);
+            rasdamanValues += parsePointValue(points[i], cs, typeSuffixes);
             if (i != totalNumberOfPoints - 1) {
                 //add separator
                 if ((i + 1) % innerMostDimensionSize == 0) {
@@ -862,22 +863,29 @@ public class GMLParserService {
 
     /**
      * Helper for parsing a point value.
+     * e.g: -999,-999,0 with data types (float,float,short) 
+     * return -999f,-999f,0s
      */
-    private static String parsePointValue(String point, String separator, String suffix) {
+    private static String parsePointValue(String point, String separator, List<String> typeSuffixes) {
         //multiband image
         if (point.contains(separator)) {
-            String[] points = point.split(separator);
-            String pointValues = "";
-            for (String val : points) {
+            String[] pointValues = point.split(separator);
+            List<String> addedSuffixValues = new ArrayList<>();
+            int i = 0;
+            for (String val : pointValues) {
+                String typeSuffix = typeSuffixes.get(i);
                 // e.g: {0c,0c,0c}
-                pointValues += addSuffix(val, suffix) + ",";
+                String addedValue = addSuffix(val, typeSuffix);
+                addedSuffixValues.add(addedValue);
+                
+                i++;
             }
-            //remove the last separator
-            pointValues = pointValues.substring(0, pointValues.length() - 1);
-            return TEMPLATE_RASDAMAN_STRUCTURE.replace(TOKEN_STRUCTURE_CELL_VAL, pointValues);
+            
+            String result = TEMPLATE_RASDAMAN_STRUCTURE.replace(TOKEN_STRUCTURE_CELL_VAL, ListUtil.join(addedSuffixValues, ","));
+            return result;
         }
-        //single band
-        point = addSuffix(point, suffix);
+        // single band (e.g: 0c)
+        point = addSuffix(point, typeSuffixes.get(0));
         return point;
     }
     

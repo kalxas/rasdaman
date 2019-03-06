@@ -153,8 +153,13 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         :param: AbstractToCoverageConverter netcdf_recipe: Converter for netCDF recipe
         :return: str data_type
         """
-        band_id = netcdf_recipe_converter.bands[0].identifier
-        netcdf_data_type = self.get_dataset().variables[band_id].dtype.name
-        data_type = GDALGmlUtil.data_type_to_gdal_type(netcdf_data_type)
+        collected_data_type = []
+        for band in netcdf_recipe_converter.bands:
+            band_id = band.identifier
+            netcdf_data_type = self.get_dataset().variables[band_id].dtype.name
+            band_data_type = GDALGmlUtil.data_type_to_gdal_type(netcdf_data_type)
+            collected_data_type.append(band_data_type)
+
+        data_type = ",".join(collected_data_type)
 
         return data_type
