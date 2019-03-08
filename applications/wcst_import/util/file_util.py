@@ -23,6 +23,7 @@
 """
 import shutil
 import os
+import sys
 import uuid
 from config_manager import ConfigManager
 from util.log import log
@@ -145,7 +146,9 @@ class FileUtil:
             log.warn("WARNING: input file '" + file_path + "' cannot be processed,\n"
                      "wcst_import will ignore this file as \"skip\" is set to true in the ingredient file. Reason: " + str(exception))
         else:
-            raise exception
+            # Throws the original source of exception(!)
+            type, val, tb = sys.exc_info()
+            raise type, val, tb
 
 
     @staticmethod
