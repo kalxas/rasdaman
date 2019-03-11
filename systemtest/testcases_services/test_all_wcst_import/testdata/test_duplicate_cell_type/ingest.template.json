@@ -1,0 +1,46 @@
+{
+    "config": {
+        "service_url": "PETASCOPE_URL",
+        "tmp_directory": "/tmp/",
+        "mock": false,
+        "automated": true,
+	 "track_files": false
+    },
+    "input": {
+        "coverage_id": "test_irr_cube_2", 
+        "paths": [
+            "*.tif"
+        ]
+    },
+    "recipe": {
+        "name": "time_series_irregular", 
+        "options": {
+            "time_parameter": { 
+                "filename": {
+        	  "regex": "(.*)_(.+?)\\.(.*)", 
+        	  "group": "2" 
+	        },
+		"datetime_format": "YYYY-MM-DDTHH:mm:ss" 
+            },
+	   "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
+	   "band_names": [
+	       "b1",
+               "b2"
+	    ]
+        },
+     
+        "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+    },
+  "hooks": [
+      {
+        "description": "create a struct type manually and petascope needs to create a different cell type to avoid duplicate.",
+        "when": "before_ingestion",
+        "cmd": "rasql -q \"CREATE TYPE test_irr_cube_2_Cell AS ( band0 float, band1 float )\" --user rasadmin --passwd rasadmin"
+      },
+      {
+        "description": "remove created struct type.",
+        "when": "after_ingestion",
+        "cmd": "rasql -q \"DROP TYPE test_irr_cube_2_Cell\" --user rasadmin --passwd rasadmin"
+      }
+  ]
+}

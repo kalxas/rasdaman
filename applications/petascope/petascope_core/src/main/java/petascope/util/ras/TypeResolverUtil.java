@@ -28,10 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.rasdaman.domain.cis.NilValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
@@ -39,6 +40,8 @@ import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
  * Utilities for determining the rasdaman collection type required for creating collections.
  */
 public class TypeResolverUtil {
+    
+    private static final Logger log = LoggerFactory.getLogger(TypeResolverUtil.class);
 
     /**
      * Guesses the rasdaman collection type from a file.
@@ -254,7 +257,19 @@ public class TypeResolverUtil {
             }
         }
         // no existing set type can be used for the coverage, so create the new one
-        result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);
+        try {
+            result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);
+        } catch (PetascopeException ex) {
+            // In case, one creates rasql types manually, then petascope cannot see them and it should create new ones to avoid duplicate names.
+            if (ex.getMessage().contains("Type already exists")) {
+                log.warn("Type names for '" + collectionName + "' already exists. Creating new ones...");
+                collectionName = StringUtil.addDateTimeSuffix(collectionName);
+                result = typeRegistry.createNewType(collectionName, numberOfDimensions, translateTypes(gdalBandTypes), nilValues);
+            } else {
+                throw ex;
+            }
+        }
+        
         return result;
     }
     
