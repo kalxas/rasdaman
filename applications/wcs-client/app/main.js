@@ -2229,11 +2229,8 @@ var rasdaman;
             var surfaceImageLayer = new WorldWind.RenderableLayer();
             var wmsLayer = null;
             var layers = [
-                { layer: new WorldWind.BMNGLayer(), enabled: true },
-                { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
-                { layer: new WorldWind.BingAerialLayer(null), enabled: false },
+                { layer: new WorldWind.BMNGOneImageLayer(), enabled: true },
                 { layer: new WorldWind.BingAerialWithLabelsLayer(null), enabled: true },
-                { layer: new WorldWind.BingRoadsLayer(null), enabled: false },
                 { layer: new WorldWind.CompassLayer(), enabled: true },
                 { layer: new WorldWind.CoordinatesDisplayLayer(wwd), enabled: true },
                 { layer: new WorldWind.ViewControlsLayer(wwd), enabled: true }
@@ -2531,12 +2528,8 @@ var rasdaman;
                 WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
                 var wwd = new WorldWind.WorldWindow(canvas.id);
                 var layers = [
-                    { layer: new WorldWind.BMNGLayer(), enabled: true },
-                    { layer: new WorldWind.BMNGLandsatLayer(), enabled: false },
-                    { layer: new WorldWind.BingAerialLayer(null), enabled: false },
+                    { layer: new WorldWind.BMNGOneImageLayer(), enabled: true },
                     { layer: new WorldWind.BingAerialWithLabelsLayer(null), enabled: true },
-                    { layer: new WorldWind.BingRoadsLayer(null), enabled: false },
-                    { layer: new WorldWind.OpenStreetMapImageLayer(null), enabled: false },
                     { layer: new WorldWind.CompassLayer(), enabled: true },
                     { layer: new WorldWind.CoordinatesDisplayLayer(wwd), enabled: true },
                     { layer: new WorldWind.ViewControlsLayer(wwd), enabled: true }

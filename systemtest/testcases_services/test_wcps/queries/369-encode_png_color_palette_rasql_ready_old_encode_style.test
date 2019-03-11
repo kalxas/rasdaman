@@ -1,1 +1,0 @@
-for c in (test_color_pallette_rasql_ready_encoded_png) return encode(c, "PNG")

@@ -3,17 +3,13 @@ Instructions for maintainers:
 The WCS-Client was implemented using Typescript which compiles to raw Javascript. Typescript was chosen to improve maintainability and the speed of development.
 In order to continue the development you must install:
 1. NodeJS and NPM - Used for installing Bower, Typescript and TSD
-2. Bower - Used for managing dependencies
-3. Typescript - Used for compiling *.ts files to *.js
-4. TSD - Used for retrieving typings. https://github.com/DefinitelyTyped/tsd
+2. Typescript - Used for compiling *.ts files to *.js
 
 
 In order to build the code :
 1. Install NodeJS and NPM
-2. Run npm install in the root directory of the project. (You might have to add ./node_modules/.bin to the path for the following commands to work.)
-3. Run tsd install in the root directory of the project.
-4. Run bower install in the root directory of the project.
-5. Run tsc in the root directory of the project to compile the *.ts files. This will create main.js and main.js.map.
+2. Install TypeScript from npm: sudo npm install -g tsc.
+3. Run tsc in the root directory of the project to compile the *.ts files. This will create main.js and main.js.map.
 
 Commit to the repository any updated assets. Please do not forget to update the .gitignore.
 

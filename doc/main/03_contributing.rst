@@ -2000,33 +2000,11 @@ WSClient, developers need to install some dependencies:
    
    sudo yum install npm
 
-* *bower* - Used for managing dependencies. Example:
-
-::
-
-   sudo npm install -g bower   
-
 * *Typescript* - Used for compiling .ts files to .js. Example:
 
 ::
 
    sudo npm install -g tsc
-
-* *TSD* - Used for retrieving typings.  Example:
-
-::
-
-   sudo npm install -g tsd
-
-
-Once all dependencies are installed, in the source folder of WSClient
-(``application/wcs-client``) run these commands *once*:
-
-::
-  
-   npm install
-   tsd install
-   bower install
 
 Then, everytime a new feature/fix is added, one needs to compile
 from TypeScript to Javascript files to work in Web Browsers  with the following
