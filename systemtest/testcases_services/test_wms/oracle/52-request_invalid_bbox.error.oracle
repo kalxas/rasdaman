@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<ServiceExceptionReport version="1.3.0"   >
+    <ServiceException code="InvalidBoundingBox">
+	Invalid value for 'bbox' parameter, pattern: 'xMin,yMin,xMax,yMax'. Reason: yMin is not a number. Given: '111.976                   '.
+</ServiceException>
+</ServiceExceptionReport>

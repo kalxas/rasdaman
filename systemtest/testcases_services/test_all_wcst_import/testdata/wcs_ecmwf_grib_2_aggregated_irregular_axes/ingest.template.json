@@ -9,7 +9,7 @@
     "insitu": false
   },
   "input": {
-    "coverage_id": "ecmwf_grib_temperature_isobaric",
+    "coverage_id": "test_ecmwf_grib_temperature_isobaric",
     "paths": [
       "*.grib"
     ]

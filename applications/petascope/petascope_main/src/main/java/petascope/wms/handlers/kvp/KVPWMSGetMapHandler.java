@@ -44,6 +44,7 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
 import petascope.util.StringUtil;
+import petascope.wms.exception.WMSInvalidBoundingBoxExcpetion;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSInvalidHeight;
 import petascope.wms.exception.WMSInvalidWidth;
@@ -147,6 +148,18 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         String[] bboxParam = kvpParameters.get(KVPSymbols.KEY_WMS_BBOX);
         if (bboxParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_BBOX);
+        } else {
+            // BBOX must follow this pattern: minX,minY,maxX,maxY
+            int countCommas = 0;
+            for (int i = 0; i < bboxParam[0].length(); i++) {
+                if (bboxParam[0].charAt(i) == ',') {
+                    countCommas++;
+                }
+            }    
+            
+            if (countCommas != 3) {
+                throw new WMSInvalidBoundingBoxExcpetion(bboxParam[0]);
+            }
         }
 
         // WIDTH (mandatory)
@@ -268,7 +281,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
         return response;
     }
-
+    
     /**
      * Create a BoundingBox object from the bbox string (e.g: -180,-90,180,90)
      * NOTE: WMS 1.3.0, bbox xy depends on the crs order.
@@ -276,14 +289,34 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
      * @param input
      * @return
      */
-    private BoundingBox createBoundingBox(String input) {
+    private BoundingBox createBoundingBox(String input) throws WMSInvalidBoundingBoxExcpetion {
 
         BoundingBox bbox = new BoundingBox();
         String[] values = input.split(",");
-        bbox.setXMin(new BigDecimal(values[0]));
-        bbox.setYMin(new BigDecimal(values[1]));
-        bbox.setXMax(new BigDecimal(values[2]));
-        bbox.setYMax(new BigDecimal(values[3]));
+        
+        try {
+            bbox.setXMin(new BigDecimal(values[0]));
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidBoundingBoxExcpetion(input, "xMin is not a number. Given: '" + values[0] + "'");
+        }
+        
+        try {
+            bbox.setYMin(new BigDecimal(values[1]));
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidBoundingBoxExcpetion(input, "yMin is not a number. Given: '" + values[1] + "'");
+        }
+        
+        try {
+            bbox.setXMax(new BigDecimal(values[2]));
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidBoundingBoxExcpetion(input, "xMax is not a number. Given: '" + values[2] + "'");
+        }
+        
+        try {
+            bbox.setYMax(new BigDecimal(values[3]));
+        } catch (NumberFormatException ex) {
+            throw new WMSInvalidBoundingBoxExcpetion(input, "yMax is not a number. Given: '" + values[3] + "'");
+        }
 
         return bbox;
     }

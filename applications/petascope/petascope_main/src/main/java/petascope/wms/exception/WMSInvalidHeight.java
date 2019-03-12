@@ -45,7 +45,7 @@ public class WMSInvalidHeight extends WMSException {
      * @param height the invalid height
      */
     public WMSInvalidHeight(@NotNull String height) {
-        super(ERROR_MESSAGE.replace("$Height", height));
+        super(ERROR_MESSAGE.replace("$height", height));
     }
 
     @NotNull
@@ -55,5 +55,5 @@ public class WMSInvalidHeight extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidHeight";
-    private static final String ERROR_MESSAGE = "The requested height '$Height' is invalid.";
+    private static final String ERROR_MESSAGE = "Invalid value for 'height' parameter. Given '$height'.";
 }

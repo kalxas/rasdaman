@@ -45,7 +45,7 @@ public class WMSInvalidWidth extends WMSException {
      * @param width the invalid width
      */
     public WMSInvalidWidth(@NotNull String width) {
-        super(ERROR_MESSAGE.replace("$Width", width));
+        super(ERROR_MESSAGE.replace("$width", width));
     }
 
     @NotNull
@@ -55,5 +55,5 @@ public class WMSInvalidWidth extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidWidth";
-    private static final String ERROR_MESSAGE = "The requested '$Width' is invalid.";
+    private static final String ERROR_MESSAGE = "Invalid value for 'width' parameter. Given '$width'.";
 }

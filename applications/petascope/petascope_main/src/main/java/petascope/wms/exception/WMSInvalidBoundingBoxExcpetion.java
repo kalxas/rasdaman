@@ -1,4 +1,3 @@
-
 /*
  * This file is part of rasdaman community.
  *
@@ -27,19 +26,20 @@ import petascope.exceptions.WMSException;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Class description
+ * Exception class for invalid XY bounding box.
  *
- * @author <a href="mailto:dumitru@rasdaman.com">Alex Dumitru</a>
+ * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WMSUnsupportedFormatException extends WMSException {
-
+public class WMSInvalidBoundingBoxExcpetion extends WMSException {
     /**
-     * Constructor for the class
-     *
-     * @param format the format supplied by the user
+     * Constructor for the class.
      */
-    public WMSUnsupportedFormatException(@NotNull String format) {
-        super(ERROR_MESSAGE.replace("$format", format));
+    public WMSInvalidBoundingBoxExcpetion(String bbox) {
+        super(ERROR_MESSAGE.replace("$bbox", bbox));
+    }
+    
+    public WMSInvalidBoundingBoxExcpetion(String bbox, String reason) {
+        super(ERROR_MESSAGE_WITH_REASON.replace("$bbox", bbox).replace("$reason", reason));
     }
 
     @NotNull
@@ -48,6 +48,9 @@ public class WMSUnsupportedFormatException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private static final String EXCEPTION_CODE = "UnsupportedFormat";
-    private static final String ERROR_MESSAGE = "Invalid value for 'format' parameter. Given '$format'.";
+    private static final String EXCEPTION_CODE = "InvalidBoundingBox";
+    private static final String ERROR = "Invalid value for 'bbox' parameter, pattern: 'xMin,yMin,xMax,yMax'";
+    private static final String ERROR_MESSAGE = ERROR + ". Given '$bbox'.";
+    private static final String ERROR_MESSAGE_WITH_REASON = ERROR + ". Reason: $reason.";
 }
+
