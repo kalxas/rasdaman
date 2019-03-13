@@ -221,8 +221,29 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             String outputCRS = kvpParameters.get(KVPSymbols.KEY_WMS_CRS)[0];
             String bboxParam = kvpParameters.get(KVPSymbols.KEY_WMS_BBOX)[0];
             BoundingBox bbox = this.createBoundingBox(bboxParam);
-            width = Integer.parseInt(kvpParameters.get(KVPSymbols.KEY_WMS_WIDTH)[0]);
-            height = Integer.parseInt(kvpParameters.get(KVPSymbols.KEY_WMS_HEIGHT)[0]);
+            
+            String widthValue = kvpParameters.get(KVPSymbols.KEY_WMS_WIDTH)[0];
+            try {
+                width = Integer.parseInt(widthValue);
+            } catch (NumberFormatException ex) {
+                throw new WMSInvalidWidth(widthValue);
+            }
+            
+            if (width <= 0) {
+                throw new WMSInvalidWidth(widthValue);
+            }
+            
+            String heightValue = kvpParameters.get(KVPSymbols.KEY_WMS_HEIGHT)[0];
+            try {
+                height = Integer.parseInt(heightValue);
+            } catch (NumberFormatException ex) {
+                throw new WMSInvalidHeight(heightValue);
+            }
+            
+            if (height <= 0) {
+                throw new WMSInvalidHeight(heightValue);
+            }
+            
             format = kvpParameters.get(KVPSymbols.KEY_WMS_FORMAT)[0];
 
             // Optional values

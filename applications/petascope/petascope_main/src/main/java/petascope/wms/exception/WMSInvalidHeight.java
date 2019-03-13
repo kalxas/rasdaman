@@ -55,5 +55,5 @@ public class WMSInvalidHeight extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidHeight";
-    private static final String ERROR_MESSAGE = "Invalid value for 'height' parameter. Given '$height'.";
+    private static final String ERROR_MESSAGE = "Invalid value for 'height' parameter, must be positive integer. Given '$height'.";
 }

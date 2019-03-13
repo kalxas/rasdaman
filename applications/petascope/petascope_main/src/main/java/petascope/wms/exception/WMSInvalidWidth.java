@@ -55,5 +55,5 @@ public class WMSInvalidWidth extends WMSException {
     }
 
     private static final String EXCEPTION_CODE = "InvalidWidth";
-    private static final String ERROR_MESSAGE = "Invalid value for 'width' parameter. Given '$width'.";
+    private static final String ERROR_MESSAGE = "Invalid value for 'width' parameter, must be positive integer. Given '$width'.";
 }

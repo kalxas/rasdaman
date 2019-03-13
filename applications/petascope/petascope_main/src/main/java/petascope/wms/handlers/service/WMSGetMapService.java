@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.wms.BoundingBox;
@@ -188,7 +189,7 @@ public class WMSGetMapService {
     // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
     // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
     private BoundingBox fittedBBbox;
-
+    
     // Used when requesting a BBox which is not layer's nativeCRS
     // because of projection() the result does not fill the bounding box and shows gaps (null values) in the result
     // then, it needs to select a bigger subsets (e.g: [lower_width -10% : upper_width + 10%, lower_height - 10% : upper_height + 10%]
@@ -201,6 +202,8 @@ public class WMSGetMapService {
     private boolean isProjection = false;
     
     private Map<String, String> dimSubsetsMap = new HashMap<>();
+    
+    private static final Map<String, Response> blankTileMap = new ConcurrentHashMap<>();
 
     public WMSGetMapService() {
 
@@ -226,23 +229,15 @@ public class WMSGetMapService {
         
         WcpsCoverageMetadata wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(this.layerNames.get(0));
         List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
+
         String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
         this.isProjection = !this.outputCRS.equalsIgnoreCase(nativeCRS);
         if (isProjection) {
             // e.g: coverage's nativeCRS is EPSG:4326 and request BBox which contains coordinates in EPSG:3857
             this.fittedBBbox = this.transformBoundingBox(this.fittedBBbox, this.outputCRS, nativeCRS);
         }
-        
-        // NOTE: to avoid error in rasql when server is killed from WMS client which sends request out of coverage's grid domains, 
-        // adjust the bounding box to fit with coverage's grid XY axes' domains
-        this.fitBBoxToCoverageGeoXYBounds(this.fittedBBbox);
-        
-        if (isProjection) {
-            this.createExtendedBBox(this.layerNames.get(0));
-            this.fitBBoxToCoverageGeoXYBounds(this.extendedFittedGeoBBbox);
-        }
     }
-
+    
     public void setWidth(int width) {
         this.width = width;
     }
@@ -477,6 +472,23 @@ public class WMSGetMapService {
     }
     
     /**
+     * Check if request BBox in native CRS intersects with first layer's BBox.
+     */
+    private boolean intersectLayerXYBBox() throws PetascopeException, SecoreException {
+        WcpsCoverageMetadata wcpsCoverageMetadata = wcpsCoverageMetadataTranslator.translate(this.layerNames.get(0));
+        List<Axis> xyAxes = wcpsCoverageMetadata.getXYAxes();
+        
+        if ((this.fittedBBbox.getXMax().compareTo(xyAxes.get(0).getGeoBounds().getLowerLimit()) < 0)
+          || (this.fittedBBbox.getXMin().compareTo(xyAxes.get(0).getGeoBounds().getUpperLimit()) > 0)
+          || (this.fittedBBbox.getYMax().compareTo(xyAxes.get(1).getGeoBounds().getLowerLimit()) < 0)
+          || (this.fittedBBbox.getYMin().compareTo(xyAxes.get(1).getGeoBounds().getUpperLimit()) > 0)) {
+            return false;
+        }
+        
+        return true;
+    }
+     
+    /**
      * Create the response for the GetMap request. NOTE: As WMS layer is a WCS
      * coverage so reuse the functionalities from WCS coverage metadata
      *
@@ -485,7 +497,22 @@ public class WMSGetMapService {
      */
     public Response createGetMapResponse() throws WMSException, PetascopeException {
         byte[] bytes = null;
+        
         try {
+            if (!this.intersectLayerXYBBox()) {
+                Response response = this.createBlankImage();
+                return response;
+            }
+
+            // NOTE: to avoid error in rasql when server is killed from WMS client which sends request out of coverage's grid domains, 
+            // adjust the bounding box to fit with coverage's grid XY axes' domains
+            this.fitBBoxToCoverageGeoXYBounds(this.fittedBBbox);
+
+            if (isProjection) {
+                this.createExtendedBBox(this.layerNames.get(0));
+                this.fitBBoxToCoverageGeoXYBounds(this.extendedFittedGeoBBbox);
+            }
+            
             List<String> collectionAlias = new ArrayList<>();
             int i = 0;
             
@@ -1000,5 +1027,25 @@ public class WMSGetMapService {
         String coverageExpression = rasqlTmp.substring(rasqlTmp.indexOf("encode(") + 7, rasqlTmp.indexOf(", \"png\""));
 
         return coverageExpression;
+    }
+    
+    /**
+     * According to WMS standard, if a request with BBox does not intersect with layer's BBox,
+     * instead of throwing exception (which will show error requests in WebBrowser's consoles),
+     * petascope returns an blank result instead.
+     */
+    private Response createBlankImage() throws PetascopeException {
+        String key = this.width + "_" + this.height;
+        Response response = this.blankTileMap.get(key);
+        
+        if (response == null) {
+            // Create a transparent image by input width and height parameters
+            String query = " select encode( extend(<[0:0,0:0] 0c>, [0:" + (this.width - 1) + ",0:" + (this.height - 1) + "]) , \"" + this.format + "\", \"nodata=0\") ";
+            byte[] bytes = RasUtil.getRasqlResultAsBytes(query);
+            response = new Response(Arrays.asList(bytes), this.format, this.layerNames.get(0));
+            this.blankTileMap.put(key, response);
+        }
+        
+        return response;       
     }
 }

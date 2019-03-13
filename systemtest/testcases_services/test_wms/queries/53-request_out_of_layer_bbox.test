@@ -1,0 +1,9 @@
+service=WMS&
+version=1.3.0&
+request=GetMap&
+layers=test_wms_4326&
+bbox=-44.525,11.976,-8.978,56.274&
+crs=EPSG:4326&width=120&
+height=120&
+Styles=&
+format=image/png
