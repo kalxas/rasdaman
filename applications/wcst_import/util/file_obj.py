@@ -55,3 +55,6 @@ class FilePair(File):
 
     def get_original_url(self):
         return ConfigManager.root_url + self.original_file_path
+
+    def get_original_file_path(self):
+        return self.original_file_path

@@ -25,11 +25,13 @@
 import os
 import sys
 import subprocess
+import glob2
 from threading import Thread
 from time import sleep
 
 from master.evaluator.evaluator_slice_factory import EvaluatorSliceFactory
 from master.evaluator.expression_evaluator_factory import ExpressionEvaluatorFactory
+from master.evaluator.file_expression_evaluator import FileExpressionEvaluator
 from master.evaluator.sentence_evaluator import SentenceEvaluator
 from master.recipe.base_recipe import BaseRecipe
 from master.error.validate_exception import RecipeValidationException
@@ -49,6 +51,7 @@ class RecipeRegistry:
         """
         self.registry = {}
         self._init_registry()
+        self.sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
 
     def _init_registry(self):
         """
@@ -94,19 +97,16 @@ class RecipeRegistry:
                 log.error("wcst_import terminated on running hook command.")
                 exit(1)
 
-    def __run_hooks(self, recipe, session, hooks):
+    def __run_hooks(self, session, hooks):
         """
         Run some hooks before/after analyzing input files
         :param Session session:
-        :param BaseRecipe recipe:
         :param dict[str:str] hooks: dictionary of before and after ingestion hooks
         """
         # gdal (default), netcdf or grib
         recipe_type = GdalToCoverageConverter.RECIPE_TYPE
         if session.recipe["name"] == GeneralRecipe.RECIPE_TYPE:
             recipe_type = session.recipe["options"]["coverage"]["slicer"]["type"]
-
-        sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
 
         for hook in hooks:
             abort_on_error = False if "abort_on_error" not in hook else bool(hook["abort_on_error"])
@@ -120,23 +120,30 @@ class RecipeRegistry:
                 # All replaced input files share same template format (e.g: file:path -> file:path.projected)
                 replace_path_template = hook["replace_path"][0]
 
+            # Evaluate shell command expression to get a runnable shell command
+            cmd_template = hook["cmd"]
+
             for file in session.files:
                 evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(recipe_type, file)
-
-                # Evaluate shell command expression to get a runnable shell command
-                cmd_template = hook["cmd"]
-                cmd = sentence_evaluator.evaluate(cmd_template, evaluator_slice)
+                cmd = self.sentence_evaluator.evaluate(cmd_template, evaluator_slice)
                 self.__run_shell_command(cmd, abort_on_error)
+
+                if FileExpressionEvaluator.FILE_PATH_EXPRESSION not in cmd_template:
+                    # Only need to run hook once if ${file:path} does not exist in cmd command,
+                    # otherwise it runs duplicate commands for nothing (!)
+                    break
 
                 if replace_path_template is not None:
                     # Evaluate replace path expression to get a valid file input path
-                    replace_path = sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
-                    if not isinstance(file, FilePair):
-                        # The first replacement (must keep original input file path)
-                        replace_paths.append(FilePair(replace_path, file.filepath))
-                    else:
-                        # From the second replacement
-                        replace_paths.append(FilePair(replace_path, file.original_file_path))
+                    replace_path = self.sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
+                    tmp_files = glob2.glob(replace_path)
+                    for tmp_file in tmp_files:
+                        if not isinstance(file, FilePair):
+                            # The first replacement (must keep original input file path)
+                            replace_paths.append(FilePair(tmp_file, file.filepath))
+                        else:
+                            # From the second replacement
+                            replace_paths.append(FilePair(tmp_file, file.original_file_path))
 
             if len(replace_paths) > 0:
                 # Use replaced file paths instead of original input file paths to analyze and create coverage slices
@@ -151,7 +158,7 @@ class RecipeRegistry:
 
         if session.before_hooks:
             log.info(make_bold("Executing before ingestion hook(s)..."))
-            self.__run_hooks(recipe, session, session.before_hooks)
+            self.__run_hooks(session, session.before_hooks)
 
         recipe.describe()
 
@@ -175,7 +182,7 @@ class RecipeRegistry:
 
         if session.after_hooks:
             log.info(make_bold("Executing after ingestion hook(s)..."))
-        self.__run_hooks(recipe, session, session.after_hooks)
+            self.__run_hooks(session, session.after_hooks)
 
     def run_recipe(self, session):
         """

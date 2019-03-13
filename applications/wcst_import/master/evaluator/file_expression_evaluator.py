@@ -26,11 +26,14 @@ import os
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator import ExpressionEvaluator
 from master.evaluator.evaluator_slice import FileEvaluatorSlice
+from util.file_obj import FilePair
 
 
 class FileExpressionEvaluator(ExpressionEvaluator):
     PREFIX = "${"
     POSTFIX = "}"
+
+    FILE_PATH_EXPRESSION = PREFIX + "file:path" + POSTFIX
 
     def __init__(self):
         pass
@@ -68,8 +71,18 @@ class FileExpressionEvaluator(ExpressionEvaluator):
         """
         file_dictionary = {
             "path": file.get_filepath(),
-            "name": os.path.basename(file.get_filepath())
+            "name": os.path.basename(file.get_filepath()),
+            "dir_path": os.path.dirname(file.get_filepath())
         }
+
+        if isinstance(file, FilePair):
+            # # In case input file path replaced by pre hook's replace_path
+            file_dictionary["original_path"] = file.get_original_file_path()
+            file_dictionary["original_dir_path"] = os.path.dirname(file.get_original_file_path())
+        else:
+            file_dictionary["original_path"] = file.get_filepath()
+            file_dictionary["original_dir_path"] = os.path.dirname(file.get_filepath())
+
         if expression in file_dictionary:
             value = file_dictionary[expression]
         else:
