@@ -436,11 +436,6 @@ void ServerManager::evaluateServerGroups()
             }
         }
     }
-
-    for (const auto &group: removeGroups)
-    {
-        this->removeServerGroup(group);
-    }
 }
 
 
