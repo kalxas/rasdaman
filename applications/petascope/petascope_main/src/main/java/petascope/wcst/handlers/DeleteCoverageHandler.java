@@ -42,8 +42,6 @@ import petascope.util.ras.TypeRegistry;
 import static petascope.util.ras.TypeRegistry.ARRAY_TYPE_SUFFIX;
 import static petascope.util.ras.TypeRegistry.CELL_TYPE_SUFFIX;
 import static petascope.util.ras.TypeRegistry.SET_TYPE_SUFFIX;
-import petascope.util.ras.TypeResolverUtil;
-import static petascope.util.ras.TypeResolverUtil.getMddTypeForCollectionType;
 import petascope.wcst.exceptions.WCSTCoverageIdNotFound;
 import petascope.wcst.parsers.DeleteCoverageRequest;
 import petascope.wms.handlers.service.WMSGetMapCachingService;

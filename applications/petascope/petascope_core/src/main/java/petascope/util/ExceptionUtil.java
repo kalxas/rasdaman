@@ -42,6 +42,7 @@ public class ExceptionUtil {
         OutputStream outputStream = httpServletResponse.getOutputStream();
 
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
+        httpServletResponse.setHeader("Content-disposition", "inline; filename=error.xml");  
 
         ExceptionReport exceptionReport = ExceptionUtil.exceptionToReportString(ex, version);
         httpServletResponse.setStatus(exceptionReport.getHttpCode());

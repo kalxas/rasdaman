@@ -34,7 +34,6 @@ import petascope.util.CrsUtil;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.PetascopeException;
-import petascope.rasdaman.exceptions.RasdamanException;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;

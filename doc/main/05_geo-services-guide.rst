@@ -949,6 +949,31 @@ consider all the pixels with 0 value as transparent. E.g: ::
         &crs=EPSG:32615&width=600&height=600&format=image/png
         &TRANSPARENT=TRUE
 
+.. _wms-interpolation:
+
+Interpolation value
+^^^^^^^^^^^^^^^^^^^
+
+Since v9.8, when output CRS is different from the native CRS in a ``GetMap`` request, the WMS
+service will reproject the result to the requested output CRS. The interpolation / resampling
+algorithm used during the reprojection can be controlled with a **non-standard** parameter
+``interpolation=<method>`` added to the ``GetMap`` request. Valid values for ``<method>``
+are documented in the rasql ``project()`` function, cf. :ref:`sec-geo-projection`; by
+default, nearest-neighbour is used (``near``).
+
+Example request that changes the default interpolation method: ::
+
+    http://localhost:8080/rasdaman/ows?service=WMS
+        &version=1.3.0
+        &request=GetMap
+        &layers=test_wms_3857
+        &bbox=-44.525,111.976,-8.978,156.274
+        &crs=EPSG:4326
+        &width=60
+        &height=60
+        &Styles=
+        &format=image/png
+        &interpolation=bilinear
 
 Style creation
 ^^^^^^^^^^^^^^
@@ -1528,6 +1553,11 @@ where
            "http://localhost:8080/def/crs/EPSG/0/3857" )
     , "gml")
 
+Resample a projected output in WMS request
+------------------------------------------
+
+By adding optional ``interpolation`` parameter in ``GetMap`` request,
+see :ref:`details <wms-interpolation>`.
 
 .. _data-import:
 

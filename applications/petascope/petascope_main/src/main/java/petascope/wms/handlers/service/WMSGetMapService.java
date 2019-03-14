@@ -27,8 +27,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.NilValue;
@@ -162,12 +164,15 @@ public class WMSGetMapService {
     private static final String WIDTH = "$width";
     private static final String HEIGHT = "$height";
     
+    private static final String RESAMPLE_ALG = "$resampleAlg";
+    private static final String ERR_THRESHOLD = "$errThreshold";
+    
     private static final String PROJECT_TEMPLATE = "project( " + COLLECTION_EXPRESSION_TEMPLATE                                                                      
                                                     + ", \"" + XMIN_NATIVCE_CRS + "," + YMIN_NATIVCE_CRS + ", " + XMAX_NATIVCE_CRS + "," + YMAX_NATIVCE_CRS + "\" "
                                                     + ", \"" + NATIVE_CRS +"\" "
                                                     + ", \"" + XMIN_OUTPUT_CRS + "," + YMIN_OUTPUT_CRS + ", " + XMAX_OUTPUT_CRS + "," + YMAX_OUTPUT_CRS + "\" "
                                                     + ", \"" + OUTPUT_CRS + "\" "
-                                                    + ", " + WIDTH + ", " + HEIGHT + " )";
+                                                    + ", " + WIDTH + ", " + HEIGHT + ", " + RESAMPLE_ALG + ", " + ERR_THRESHOLD +  " )";
     
     // Increase width / height size of original bounding box by 15% percent when projection() needed to avoid gaps in tile's corners
     private static final BigDecimal EXTEND_RATIO = new BigDecimal("0.15");
@@ -181,6 +186,11 @@ public class WMSGetMapService {
     private Integer height;
     // MIME type (e.g: image/png)
     private String format;
+    // Optional parameter, used only incase with project()
+    private String interpolation;
+    public static final String DEFAULT_INTERPOLATION = "near";
+    // Default value for project()
+    private static final String DEFAULT_ERR_THRESHOLD = "0.125";
     private boolean transparent;
     // BBox already translated from requesting CRS to native CRS of XY geo-referenced axes
     // NOTE: it needs to keep the original BBox for Extend() to display result correctly in WMS client
@@ -189,7 +199,7 @@ public class WMSGetMapService {
     // NOTE: this fittedBBox is used to fit input BBox to coverage's geo XY axes' domains 
     // to avoid server killed by subsetting collection (e.g: c[-20:30] instead of c[0:30])
     private BoundingBox fittedBBbox;
-    
+
     // Used when requesting a BBox which is not layer's nativeCRS
     // because of projection() the result does not fill the bounding box and shows gaps (null values) in the result
     // then, it needs to select a bigger subsets (e.g: [lower_width -10% : upper_width + 10%, lower_height - 10% : upper_height + 10%]
@@ -204,6 +214,25 @@ public class WMSGetMapService {
     private Map<String, String> dimSubsetsMap = new HashMap<>();
     
     private static final Map<String, Response> blankTileMap = new ConcurrentHashMap<>();
+    
+    public static final Set<String> validInterpolations = new LinkedHashSet<>();
+    
+    static {
+        // check valid values at http://doc.rasdaman.org/04_ql-guide.html#the-project-function
+        // default is nearest neighbor
+        validInterpolations.add(DEFAULT_INTERPOLATION);
+        validInterpolations.add("bilinear");
+        validInterpolations.add("cubic");
+        validInterpolations.add("cubicspline");
+        validInterpolations.add("lanczos");
+        validInterpolations.add("average");
+        validInterpolations.add("mode");
+        validInterpolations.add("max");
+        validInterpolations.add("min");
+        validInterpolations.add("med");
+        validInterpolations.add("q1");
+        validInterpolations.add("q3");
+    }
 
     public WMSGetMapService() {
 
@@ -237,7 +266,7 @@ public class WMSGetMapService {
             this.fittedBBbox = this.transformBoundingBox(this.fittedBBbox, this.outputCRS, nativeCRS);
         }
     }
-    
+
     public void setWidth(int width) {
         this.width = width;
     }
@@ -260,6 +289,10 @@ public class WMSGetMapService {
 
     public void setDimSubsetsMap(Map<String, String> dimSubsetsMap) {
         this.dimSubsetsMap = dimSubsetsMap;
+    }
+
+    public void setInterpolation(String interpolation) {
+        this.interpolation = interpolation;
     }
     
     /**
@@ -982,7 +1015,10 @@ public class WMSGetMapService {
                                                                 .replace(OUTPUT_CRS, outputCRS)
 
                                                                 .replace(WIDTH, width.toString())
-                                                                .replace(HEIGHT, height.toString());
+                                                                .replace(HEIGHT, height.toString())
+                
+                                                                .replace(RESAMPLE_ALG, interpolation)
+                                                                .replace(ERR_THRESHOLD, DEFAULT_ERR_THRESHOLD);
         
         return finalCollectionExpressionLayer;
     }

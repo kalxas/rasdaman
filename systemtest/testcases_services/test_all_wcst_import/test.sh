@@ -33,6 +33,14 @@ PROG=$( basename $0 )
 RC_OK=0
 RC_ERROR=1
 
+# By default, it creates ingest.json from ingest.template.json before importing data
+# But, input argument can tell it to just import data instead.
+CREATE_INGEST_FILES=$2
+
+if [ -z "$CREATE_INGEST_FILES" ]; then
+    CREATE_INGEST_FILES=0
+fi
+
 # Test case which needs to create a collection in rasdaman to test
 COLLECTION_EXISTS="collection_exists"
 COLLECTION_NAME="test_wcst_import_collection_exists"
@@ -116,8 +124,14 @@ for test_case in $TEST_DATA/*; do
 
     # 1.2 copy the template file to ingest.json (this file will be used to ingest data)
     recipe_file="$test_case/ingest.json"
-    cp "$recipe_file_template" "$recipe_file"
 
+    if [ "$CREATE_INGEST_FILES" -eq 0 ]; then
+        cp "$recipe_file_template" "$recipe_file"
+        # 1.3 replace all the default with the current system configuration from systemtest/util/common.sh
+        sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$recipe_file"
+        sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
+    fi
+    
     test_case_name=$(basename "$test_case")
     mkdir -p "$OUTPUT_DIR/$test_case_name/"
 
@@ -125,10 +139,6 @@ for test_case in $TEST_DATA/*; do
     if [[ "$test_case_name" == "$COLLECTION_EXISTS" ]]; then
         rasql -q "CREATE COLLECTION $COLLECTION_NAME RGBSet" --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD > /dev/null 2>&1
     fi
-
-    # 1.3 replace all the default with the current system configuration from systemtest/util/common.sh
-    sed -i "s@PETASCOPE_URL@$PETASCOPE_URL@g" "$recipe_file"
-    sed -i "s@SECORE_URL@$SECORE_URL@g" "$recipe_file"
 
     # 1.4 execute wcst_import with $recipe_file
     if [[ "$test_case" == *"error_"* ]]; then

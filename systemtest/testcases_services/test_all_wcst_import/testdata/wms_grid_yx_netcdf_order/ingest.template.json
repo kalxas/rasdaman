@@ -5,8 +5,7 @@
      "crs_resolver": "SECORE_URL",
      "automated": true,
      "track_files": false,
-     "subset_correction": false,
-     "insitu" : true
+     "subset_correction": false
    },
    "input": {
      "coverage_id": "test_wms_grid_yx_netcdf_order",

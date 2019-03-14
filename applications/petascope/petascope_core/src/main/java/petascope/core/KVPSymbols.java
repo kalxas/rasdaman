@@ -144,6 +144,7 @@ public interface KVPSymbols {
     String VALUE_WMS_EXCEPTIONS_BLANK = "blank";
     String KEY_WMS_TIME = "time";
     String KEY_WMS_ELEVATION = "elevation";
+    String KEY_WMS_INTERPOLATION = "interpolation";
     // separate between min/max values for dimension subsets (e.g: time=min/max)
     String VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER = "/";
     // e.g: elevation=20,30,50

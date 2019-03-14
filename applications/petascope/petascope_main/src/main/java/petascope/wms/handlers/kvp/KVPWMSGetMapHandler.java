@@ -47,6 +47,7 @@ import petascope.util.StringUtil;
 import petascope.wms.exception.WMSInvalidBoundingBoxExcpetion;
 import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSInvalidHeight;
+import petascope.wms.exception.WMSInvalidInterpolation;
 import petascope.wms.exception.WMSInvalidWidth;
 import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
@@ -272,6 +273,18 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
                     dimSubsetsMap.put(axisName, dimSubset.trim());
                 }
             }
+            
+            String interpolation = "";
+            
+            // Optional value (used only when requesting different CRS from layer's native CRS)
+            if (kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION) != null) {
+                interpolation = kvpParameters.get(KVPSymbols.KEY_WMS_INTERPOLATION)[0].trim();
+                if (!WMSGetMapService.validInterpolations.contains(interpolation)) {
+                    throw new WMSInvalidInterpolation(interpolation);
+                }
+            } else {
+                interpolation = WMSGetMapService.DEFAULT_INTERPOLATION;
+            }
 
             wmsGetMapService.setLayerNames(layerNames);
             wmsGetMapService.setStyleNames(styleNames);
@@ -282,6 +295,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
             wmsGetMapService.setFormat(format);
             wmsGetMapService.setTransparent(transparent);
             wmsGetMapService.setDimSubsetsMap(dimSubsetsMap);
+            wmsGetMapService.setInterpolation(interpolation);
 
             response = wmsGetMapService.createGetMapResponse();
             // Add the successful result to the cache
@@ -302,7 +316,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
         return response;
     }
-    
+
     /**
      * Create a BoundingBox object from the bbox string (e.g: -180,-90,180,90)
      * NOTE: WMS 1.3.0, bbox xy depends on the crs order.
