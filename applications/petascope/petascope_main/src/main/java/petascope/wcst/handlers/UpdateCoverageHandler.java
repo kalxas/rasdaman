@@ -208,7 +208,7 @@ public class UpdateCoverageHandler {
                     new File(fileUrl).delete();
                 }
             }
-
+            
             // After updating rasdaman collection, we need to update current coverage with new geo, grid domains
             updateGeoDomains(currentCoverage, inputCoverage, dimensionSubsets);
             updateAxisExtents(currentCoverage);

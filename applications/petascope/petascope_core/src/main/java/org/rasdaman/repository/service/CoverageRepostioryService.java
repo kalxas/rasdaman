@@ -105,7 +105,6 @@ public class CoverageRepostioryService {
      * @param coverageId
      * @return
      * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
      */
     public Coverage readCoverageFullMetadataByIdFromCache(String coverageId) throws PetascopeException {
         Pair<Coverage, Boolean> coveragePair = coveragesCacheMap.get(coverageId);
@@ -114,9 +113,11 @@ public class CoverageRepostioryService {
         if (coveragePair == null) {
             // If coverage is not cached then read it from database
             coverage = this.readCoverageByIdFromDatabase(coverageId);
+            coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
         } else if (coveragePair.snd == false) {
             // If coverage just contains basic metadata, then read it from database
             coverage = this.readCoverageByIdFromDatabase(coverageId);
+            coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
         } else {
             // Coverage already exists in the cache.
             coverage = coveragePair.fst;
@@ -193,10 +194,6 @@ public class CoverageRepostioryService {
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
         
-        // put to cache
-
-        coveragesCacheMap.put(coverageId, new Pair<>(coverage, true));
-
         return coverage;
     }
 
