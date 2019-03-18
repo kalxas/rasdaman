@@ -346,6 +346,13 @@ public class WcpsCoverageMetadata {
         
         return false;
     }
+    
+    /**
+     * Check if this coverage object contains only 2 axes and they are XY axes, e.g: Long Lat.
+     */
+    public boolean containsOnlyXYAxes() {
+        return this.axes.size() == 2 && this.getXYAxes().size() == 2;
+    }
 
     /**
      * Return the XY axes from coverage (e.g: 3D x,y,t then axes are x,y) by

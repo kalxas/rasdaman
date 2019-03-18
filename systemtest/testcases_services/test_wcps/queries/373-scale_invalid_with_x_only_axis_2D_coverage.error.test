@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(scale( c, { Long:"CRS:1"(10:0)} ), "png")

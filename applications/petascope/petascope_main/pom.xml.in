@@ -48,6 +48,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>1.5.2.RELEASE</version>
         </dependency>
+
+        <!-- For loading JSP files with embedded Tomcat -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>rasdaman</finalName>

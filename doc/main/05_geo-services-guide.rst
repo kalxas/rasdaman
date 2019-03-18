@@ -1553,11 +1553,26 @@ where
            "http://localhost:8080/def/crs/EPSG/0/3857" )
     , "gml")
 
+Auto-ratio for scaling X or Y axis in WCPS
+------------------------------------------
+
+Since v9.8, the scale function in WCPS allows to specify the target extent
+of only one of the spatial X/Y axes (e.g. only Long). In this case, the 
+extent of the other axis will be automatically determined to preserve 
+the original ratio between the two spatial axes.
+
+For example in the request below, petascope will automatically set 
+the extent  of *Lat* to a value that preserves the ratio in the output result: ::
+
+   for c in (test_mean_summer_airtemp)
+   return encode(scale( c, { Long:"CRS:1"(0:160) } ), "png" )
+
 Resample a projected output in WMS request
 ------------------------------------------
 
 By adding optional ``interpolation`` parameter in ``GetMap`` request,
 see :ref:`details <wms-interpolation>`.
+
 
 .. _data-import:
 

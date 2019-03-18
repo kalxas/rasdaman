@@ -21,12 +21,14 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Axis;
@@ -59,6 +61,41 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
     private RasqlTranslationService rasqlTranslationService;
     
     public static final String OPERATOR = "scale";
+    
+    /**
+     * Special case, only 1 X or Y axis specified, find the grid domain for another axis implicitly from the specified axis
+     */
+    private void handleScaleWithOnlyXorYAxis(WcpsResult coverageExpression, List<Subset> subsets) {
+        // e.g: for c in (test_mean_summer_airtemp) return encode(scale( c, { Long:"CRS:1"(0:10)} ), "png")
+        Subset subset1 = subsets.get(0);
+        BigDecimal lowerLimit1 = subset1.getNumericSubset().getLowerLimit();
+        BigDecimal upperLimit1 = subset1.getNumericSubset().getUpperLimit();            
+
+        // e.g: Long axis has grid bounds: 30:50
+        Axis axis1 = coverageExpression.getMetadata().getAxisByName(subset1.getAxisName());
+        BigDecimal gridDistance1 = axis1.getGridBounds().getUpperLimit().subtract(axis1.getGridBounds().getLowerLimit());
+        // scale ratio is: (10 - 0) / (50 - 30) = 10 / 20 = 0.5 (downscale)
+        BigDecimal scaleRatio = BigDecimalUtil.divide(upperLimit1.subtract(lowerLimit1), gridDistance1);
+
+        List<Axis> xyAxes = coverageExpression.getMetadata().getXYAxes();
+        Axis axis2 = null;
+        for (Axis axis : xyAxes) {
+            if (!CrsUtil.axisLabelsMatch(axis.getLabel(), subset1.getAxisName())) {
+                axis2 = axis;
+                break;
+            }
+        }
+
+        // Lat axis has grid bounds: 60:70
+        // -> scale on Lat axis: 0:(70 - 60) * 0.5 = 0:5
+        BigDecimal gridDistance2 = axis2.getGridBounds().getUpperLimit().subtract(axis2.getGridBounds().getLowerLimit());
+        BigDecimal lowerLimit2 = BigDecimal.ZERO;
+        BigDecimal upperLimit2 = gridDistance2.multiply(scaleRatio);
+        NumericTrimming numericTrimming = new NumericTrimming(lowerLimit2, upperLimit2);
+
+        Subset subset2 = new Subset(numericTrimming, subset1.getCrs(), axis2.getLabel());
+        subsets.add(subset2);
+    }
 
     public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
         
@@ -69,8 +106,10 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
         List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata.getAxes());
         
-        if (metadata.getAxes().size() != subsets.size()) {
+        if (!metadata.containsOnlyXYAxes() && (metadata.getAxes().size() != subsets.size())) {
             throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());
+        } else if (subsets.size() == 1) {
+            this.handleScaleWithOnlyXorYAxis(coverageExpression, subsets);
         }
 
         List<Pair> geoBoundAxes = new ArrayList();

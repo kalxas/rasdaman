@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+
+>
+<ows:Exception exceptionCode="WcpsError">
+<ows:ExceptionText>Coverage 'test_eobstest' ('3' axes) does not have the same number of axes as input scale/extend dimensions intervals ('1' axes).</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>
