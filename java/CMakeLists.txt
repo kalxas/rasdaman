@@ -49,8 +49,6 @@ if (ENABLE_JAVA)
 
     endif (RMANRASNET)
 
-    # Configure the pom file
-    configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
     # Create error messages from bin/errtxts via bash script to a java file
     set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
@@ -61,12 +59,22 @@ if (ENABLE_JAVA)
 
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} -q -B package -P${NETWORK_PROTOCOL}
-            COMMAND ${MAVEN_EXECUTABLE} -q install:install-file 
+                                        -DgroupId=org.rasdaman
+                                        -DartifactId=rasj
+                                        -DprojectVersion=${PROJECT_VERSION}
+                                        -Dversion=${PROJECT_VERSION}
+                                        -Dpackaging=jar
+                                        -DbuildDirectory=${RASJ_TARGET_DIR}
+
+            COMMAND ${MAVEN_EXECUTABLE} -q install:install-file
                                         -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
                                         -DgroupId=org.rasdaman
                                         -DartifactId=rasj
+                                        -DprojectVersion=${PROJECT_VERSION}
                                         -Dversion=${PROJECT_VERSION}
                                         -Dpackaging=jar
+                                        -DbuildDirectory=${RASJ_TARGET_DIR}
+                                        
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES} ${GENERATED_ERRTXTS_MESSAGE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "building rasj"

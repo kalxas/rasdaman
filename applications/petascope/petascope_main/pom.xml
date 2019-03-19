@@ -3,6 +3,7 @@
     <groupId>org.rasdaman</groupId>
     <artifactId>petascope-main</artifactId>
     <packaging>${packaging.type}</packaging>
+    <version>${version}</version>
     <name>petascope-main</name>
     <description>Petascope main application</description>
     <properties>
@@ -10,11 +11,12 @@
         <java.version>1.7</java.version>
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
+        <sourceDir>${project.basedir}</sourceDir>
     </properties>
     <parent>
         <groupId>org.rasdaman</groupId>
         <artifactId>petascope-parent</artifactId>
-        <version>@PROJECT_VERSION@</version>
+        <version>${version}</version>
     </parent>
     <profiles>
         <profile>
@@ -26,19 +28,17 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
-                <!--A jar web application should not need to include this dependency-->
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-
-               <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-devtools</artifactId>
-                    <optional>true</optional>
-               </dependency>
-
+            <!--A jar web application should not need to include this dependency-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-devtools</artifactId>
+                <optional>true</optional>
+            </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -59,17 +59,17 @@
         <resources>
             <!-- first copy wcs-client to target directory -->
             <resource>
-                <directory>@SRC_DIR@/../wcs-client/app/</directory>
+                <directory>${sourceDir}/../wcs-client/app/</directory>
                 <targetPath>${project.build.directory}/classes/public/wcs-client</targetPath>
             </resource>
             <resource>
                 <!-- then copy all the other resources to target directory -->
-                <directory>${project.basedir}/src/main/resources/</directory>
+                <directory>${buildDir}/../petascope_main/src/main/resources/</directory>
             </resource>
         </resources>
         <finalName>rasdaman</finalName>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>@PETASCOPE_TARGET_DIR@/petascope_main</directory>
+        <directory>${buildDir}/petascope_main</directory>
         <plugins>
 	        <!-- Database schema versions migration -->
 	        <plugin>
@@ -77,7 +77,7 @@
 		    <artifactId>liquibase-maven-plugin</artifactId>
 		    <version>3.5.3</version>
 		    <configuration>                  
-		        <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+		        <propertyFile>${buildDir}/../petascope_main/src/main/resources/liquibase.properties</propertyFile>
 		    </configuration>                
 	        </plugin>
         </plugins>

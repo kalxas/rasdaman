@@ -85,12 +85,6 @@ endif ()
 # Do the same for the Application.in 
 configure_file("${APPLICATION_FILE_TEMPLATE}" "${APPLICATION_FILE}" @ONLY)
 
-# Do the same for the petascope_parent pom.xml 
-configure_file("${SRC_DIR}/pom.xml.in" "${BUILD_DIR}/pom.xml" @ONLY)
-# Do the same for the petascope_core pom.xml 
-configure_file("${SRC_DIR}/petascope_core/pom.xml.in" "${BUILD_DIR}/petascope_core/pom.xml" @ONLY)
-# Do the same for the petascope_main pom.xml 
-configure_file("${SRC_DIR}/petascope_main/pom.xml.in" "${BUILD_DIR}/petascope_main/pom.xml" @ONLY)
 
 # Do the same for log4j.properties.in
 configure_file("${LOG4J_SPRING_FILE_TEMPLATE}" "${LOG4J_SPRING_FILE}" @ONLY)
@@ -109,7 +103,13 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
-    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml"
+    COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "pom.xml"
+                                -DgroupId=org.rasdaman
+                                -Dversion=${PROJECT_VERSION}
+                                -DsourceDir=${SRC_DIR}
+                                -DbuildDir=${BUILD_DIR}/target
+                                -DgdalJavaVersion=${GDAL_JAVA_VERSION}
+
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
     COMMENT "building petascope"

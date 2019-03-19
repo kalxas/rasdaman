@@ -28,8 +28,6 @@ if (ENABLE_JAVA)
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-    configure_file(pom.xml.in "${BUILD_DIR}/pom.xml" @ONLY)    
-
     # Generate files from *.in by replacing any variables that can be configured at compile time
     # configuration file for secore.properties.in
     configure_file("src/main/resources/secore.properties.in" "${BUILD_DIR}/src/main/resources/secore.properties" @ONLY)     
@@ -54,7 +52,10 @@ if (ENABLE_JAVA)
     endif(GENERATE_DOCS)
 
     add_custom_target(secore ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "${BUILD_DIR}/pom.xml" > /dev/null
+            COMMAND ${MAVEN_EXECUTABLE} -q -B package
+                                        -DbuildDir=${BUILD_DIR}
+                                        -DsrcDir=${SRC_DIR}
+                                        -DsecoreTargetDir=${SECORE_TARGET_DIR}
             WORKING_DIRECTORY ${SRC_DIR}
             COMMENT "building secore"
             VERBATIM)

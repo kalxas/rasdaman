@@ -3,7 +3,7 @@
     <groupId>org.rasdaman</groupId>
     <artifactId>petascope-core</artifactId>
     <packaging>jar</packaging>
-    <version>@PROJECT_VERSION@</version>
+    <version>${version}</version>
     <name>petascope-core</name>
     <description>Petascope core dependency for Petascope main and Petascope migration applications</description>
     <properties>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>org.gdal</groupId>
             <artifactId>gdal</artifactId>
-            <version>@GDAL_JAVA_VERSION@</version>
+            <version>${gdalJavaVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.eaio.uuid</groupId>
@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.rasdaman</groupId>
             <artifactId>rasj</artifactId>
-            <version>@PROJECT_VERSION@</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -178,8 +178,8 @@
     </dependencies>
     <build>
         <finalName>rasdaman-geo-core</finalName>
-        <sourceDirectory>@SRC_DIR@/petascope_core</sourceDirectory>
+        <sourceDirectory>${sourceDir}/petascope_core</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>@PETASCOPE_TARGET_DIR@/petascope_core</directory>
+        <directory>${buildDir}/petascope_core</directory>
     </build>
 </project>

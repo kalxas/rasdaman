@@ -13,10 +13,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <buildDir>${project.basedir}/java_target</buildDir>
+        <projectVersion>1.0</projectVersion>
+        <rasjTargetDir>${project.basedir}/java/target</rasjTargetDir>
     </properties>
 
     <build>
-        <directory>@RRASDAMAN_JAVA_TARGET_DIR@</directory>
+        <directory>${buildDir}</directory>
         <plugins>
             <!-- plugin used to specify the java version-->
             <plugin>
@@ -44,9 +47,9 @@
         <dependency>
             <groupId>org.rasdaman</groupId>
             <artifactId>rasj</artifactId>
-            <version> @PROJECT_VERSION@ </version>
+            <version>${projectVersion}</version>
             <scope>system</scope>
-            <systemPath>@RASJ_TARGET_DIR@/rasj-jar-with-dependencies.jar</systemPath>
+            <systemPath>${rasjTargetDir}/rasj-jar-with-dependencies.jar</systemPath>
         </dependency>
     </dependencies>
 

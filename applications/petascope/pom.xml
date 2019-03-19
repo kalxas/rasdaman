@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.rasdaman</groupId>
     <artifactId>petascope-parent</artifactId>
-    <version>@PROJECT_VERSION@</version>
+    <version>${version}</version>
     <!-- The children Petascope's applications -->
     <modules>
        <module>petascope_core</module>
@@ -23,12 +23,14 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>${project.basedir}/target</buildDir>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.rasdaman</groupId>
             <artifactId>petascope-core</artifactId>
-            <version>@PROJECT_VERSION@</version>
+            <version>${version}</version>
         </dependency>
         <!-- No use default logback of Spring boot, use log4j -->
         <dependency>
@@ -44,9 +46,9 @@
     </dependencies>
     <build>
         <finalName>rasdaman</finalName>
-	    <sourceDirectory>@SRC_DIR@</sourceDirectory>
+	    <sourceDirectory>${sourceDir}</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>@BUILD_DIR@/target</directory>
+        <directory>${buildDir}</directory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

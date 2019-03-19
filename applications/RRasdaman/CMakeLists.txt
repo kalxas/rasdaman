@@ -34,9 +34,6 @@ set(RRASDAMAN_R_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/r_target")
 # We create this file because CMake does not create it automatically
 file(MAKE_DIRECTORY ${RRASDAMAN_R_TARGET_DIR})
 
-# Generate the pom.xml file with the current configuration
-configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
-
 set(R_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/R/array.R"
 	  "${CMAKE_CURRENT_SOURCE_DIR}/R/connection.R"
 	  "${CMAKE_CURRENT_SOURCE_DIR}/R/driver.R"   
@@ -79,7 +76,10 @@ set(TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/tests/test-all.R"
 find_package(Maven REQUIRED)
 
 add_custom_target(RRasdaman_java ALL
-            COMMAND ${MAVEN_EXECUTABLE} package
+            COMMAND ${MAVEN_EXECUTABLE} package -f "pom.xml"
+            		-DbuildDir=${RRASDAMAN_JAVA_TARGET_DIR}
+            		-DprojectVersion=${PROJECT_VERSION}
+            		-DrasjTargetDir=${RASJ_TARGET_DIR}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
 

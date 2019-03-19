@@ -12,7 +12,9 @@
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
         <java.version>1.7</java.version>
-        <src.dir>@SRC_DIR@</src.dir>
+        <srcDir>${project.basedir}</srcDir>
+        <secoreTargetDir>${project.basedir}/java_target</secoreTargetDir>
+        <buildDir>${project.basedir}</buildDir>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -103,8 +105,8 @@
     <build>
         <finalName>def</finalName>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>@SECORE_TARGET_DIR@</directory>
-        <sourceDirectory>${src.dir}</sourceDirectory>
+        <directory>${secoreTargetDir}</directory>
+        <sourceDirectory>${srcDir}</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -115,20 +117,19 @@
                         <id>prepare</id>
                         <phase>validate</phase>
                         <configuration>
-                            <!-- NOTE: as pom.xml is in built directory, it must need to copy all files in src/main/resources and jsp files manually
-                                 as maven doesn't do it as before when pom.xml is created inside source directory. -->
                             <tasks>
                                 <!-- Use this bash script to untar gml.tar.gz file if necessary -->
                                 <exec executable="/bin/bash">
-                                    <arg value="@SRC_DIR@/untar_gml_file.sh" />
-                                    <arg value="@SRC_DIR@/src/main/resources/gml.tar.gz" />
-                                    <arg value="@BUILD_DIR@/src/main/resources/gml.tar.gz" />
-                                </exec>                               
-                                <copy todir="@SECORE_TARGET_DIR@/def/WEB-INF/jsp/">
-                                    <fileset dir="@SRC_DIR@/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
+                                    <arg value="${srcDir}/untar_gml_file.sh" />
+                                    <arg value="${srcDir}/src/main/resources/gml.tar.gz" />
+                                    <arg value="${buildDir}/src/main/resources/gml.tar.gz" />
+                                </exec>
+                                <!-- Copy all files in src/main/resources and jsp files manually -->
+                                <copy todir="${secoreTargetDir}/def/WEB-INF/jsp/">
+                                    <fileset dir="${srcDir}/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
                                 </copy>
-                                <copy todir="@SECORE_TARGET_DIR@/def/WEB-INF/classes/">
-                                    <fileset dir="@SRC_DIR@/src/main/resources/" includes="**/*" />
+                                <copy todir="${secoreTargetDir}/def/WEB-INF/classes/">
+                                    <fileset dir="${buildDir}/src/main/resources/" includes="**/*" />
                                 </copy>
                             </tasks>
                         </configuration>
