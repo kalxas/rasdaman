@@ -112,7 +112,7 @@ class AbstractToCoverageConverter:
         if direct_positions == self.DIRECT_POSITIONS_SLICING:
             return self.COEFFICIENT_SLICING
         else:
-            return map(lambda x: decimal.Decimal(str(x)) - decimal.Decimal(str(origin)), direct_positions)
+            return map(lambda x: decimal.Decimal(str(x)) - decimal.Decimal(str(direct_positions[0])), direct_positions)
 
     def _translate_seconds_date_direct_position_to_coefficients(self, origin, direct_positions):
         # just translate 1 -> 1 as origin is 0 (e.g: irregular UnixTime)

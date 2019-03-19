@@ -115,7 +115,7 @@ class NetcdfExpressionEvaluator(ExpressionEvaluator):
 
             # It must be an operation that could be applied on a netCDF variable
             # convert list of string values to list of decimal values
-            values = list_util.numpy_array_to_list_decimal(nc_obj[:])
+            values = list_util.numpy_array_to_list_decimal(nc_obj[:].flatten())
         elif nc_obj_name in nc_dataset.dimensions:
             nc_obj = nc_dataset.dimensions[nc_obj_name]
             # Cannot determine list of values from variable but only dimension (e.g: station = 758)

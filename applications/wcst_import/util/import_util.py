@@ -29,6 +29,17 @@ from util.log import log
 """
 
 
+def import_numpy():
+    """
+    Import numpy library
+    """
+    try:
+        import numpy
+    except ImportError as e:
+        raise RuntimeException("Numpy package is not installed, please install it first (sudo pip install numpy)."
+                               "Reason: {}.".format(e))
+
+
 def import_pygrib():
     """
     Import pygrib which is used for importing GRIB file.
@@ -54,6 +65,7 @@ def import_netcdf4():
                                "Reason: {}.".format(e))
 
     return netCDF4
+
 
 def import_jsonschema():
     """
