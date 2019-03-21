@@ -158,3 +158,19 @@ class FileUtil:
         :param str input_file: input file path
         """
         return input_file.replace(ConfigManager.root_url, "")
+
+
+    @staticmethod
+    def check_dir_writable(input_dir):
+        """
+        Check if wcst_import can write to 1 specific dir path
+        :param str input_dir: path to a directory
+        """
+        import tempfile
+        try:
+            testfile = tempfile.TemporaryFile(dir=input_dir)
+            testfile.close()
+        except OSError as e:
+            return False
+
+        return True

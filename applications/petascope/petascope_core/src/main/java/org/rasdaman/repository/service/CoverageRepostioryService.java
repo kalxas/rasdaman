@@ -260,7 +260,7 @@ public class CoverageRepostioryService {
         }
 
         long end = System.currentTimeMillis();
-        log.debug("Time to read all coverages is: " + String.valueOf(end - start));
+        log.debug("Time to read all coverages is: " + String.valueOf(end - start) + " ms.");
 
         return coverages;
     }

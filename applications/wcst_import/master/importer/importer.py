@@ -216,8 +216,9 @@ class Importer:
                     raise e
             self.processed += 1
 
-        log_file.write("\nResult: success.")
-        log_file.close()
+        if is_loggable:
+            log_file.write("\nResult: success.")
+            log_file.close()
     
     def _log_file_ingestion(self, file_name, start_time, file_size_in_mb, is_loggable, log_file):
         end_time = time.time()

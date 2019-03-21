@@ -287,24 +287,11 @@ public class RasUtil {
      * @throws RasdamanException
      */
     public static Long executeInsertStatement(String collectionName, String values, String tiling) throws RasdamanException, PetascopeException {
-        Long oid = null;
         String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
                 .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
-        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
-        //get the collection oid
-        String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
-        RasBag result = (RasBag) executeRasqlQuery(oidQuery);
-        Iterator resultIterator = result.iterator();
-        Object resultInstance = null;
-        //get the last available oid
-        while (resultIterator.hasNext()) {
-            resultInstance = resultIterator.next();
-        }
-        if (resultInstance != null) {
-            BigDecimal tmp = BigDecimalUtil.stripDecimalZeros(new BigDecimal(resultInstance.toString()));
-            oid = tmp.longValue();
-        }
+        Object rasjResult = executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        Long oid = Long.parseLong(new RasQueryResult(rasjResult).getScalars().get(0));
 
         return oid;
     }

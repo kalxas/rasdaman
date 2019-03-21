@@ -59,10 +59,11 @@ class Session:
         if "tmp_directory" in config:
             self.tmp_directory = config['tmp_directory']
         else:
+            log.info("No tmp directory specified, will use '{}'.".format(ConfigManager.tmp_directory))
             # No "tmp_directory" is configured in ingredient file, then use this default folder to store temp files.
             if not os.path.exists(ConfigManager.tmp_directory):
                 os.makedirs(ConfigManager.tmp_directory)
-                os.chmod(ConfigManager.tmp_directory, 755)
+                os.chmod(ConfigManager.tmp_directory, 0777)
             self.tmp_directory = ConfigManager.tmp_directory
         self.crs_resolver = self.__get_crs_resolver_configuration()
         self.default_crs = config['default_crs'] if "default_crs" in config else None

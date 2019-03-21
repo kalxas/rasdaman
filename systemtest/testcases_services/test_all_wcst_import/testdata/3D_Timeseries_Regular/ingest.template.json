@@ -1,9 +1,7 @@
 {
   "config": {
     "service_url": "PETASCOPE_URL",
-    "tmp_directory": "/tmp/",
     "default_crs": "http://abc.secore.net/def/crs/EPSG/0/4326",
-    "mock": false,
     "automated": true,
     "track_files": false
   },

@@ -194,6 +194,7 @@ public class ExceptionCode {
             + "is greater than current value of service metadata updateSequence number", SC_BAD_REQUEST);
     public static final ExceptionCode IOConnectionError = new ExceptionCode("IOConnectionError");
     public static final ExceptionCode MaliciousQuery = new ExceptionCode("MaliciousQuery");
+    public static final ExceptionCode MissingPropertyKey = new ExceptionCode("MissingPropertyKey");
     public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check", SC_BAD_REQUEST);
     public static final ExceptionCode MissingParameterValue = new ExceptionCode("MissingParameterValue",
             "Operation request does not include a parameter value, and this server did "

@@ -125,7 +125,7 @@ public class ConfigManager {
     // Any uploaded file to server to process will have this prefix (e.g on server: rasdaman.uploadedfile.datetime)
     public static String UPLOAD_FILE_PREFIX = "rasdaman.";
     
-    public static String WCST_TMP_DIR = "/tmp/rasdaman_wcst_import/";
+    public static String WCST_TMP_DIR = DEFAULT_PETASCOPE_DIR_TMP + "/wcst";
 
     /* ***** rasdaman configuration ***** */
     public static String RASDAMAN_SERVER = "localhost";
@@ -245,7 +245,7 @@ public class ConfigManager {
         String petaPropsPath = confDir + PETASCOPE_PROPERTIES_FILE;
 
         initLogger(petaPropsPath);
-        initSettings(confDir, petaPropsPath);
+        initSettings(petaPropsPath);
     }
 
     private void initLogger(String petaPropsPath) {
@@ -261,10 +261,8 @@ public class ConfigManager {
     /**
      * Overwrite defaults settings with user-defined values in
      * petascope.properties
-     *
-     * @throws RasdamanException
      */
-    private void initSettings(String confDir, String petaPropsPath) throws RasdamanException, PetascopeException {
+    private void initSettings(String petaPropsPath) throws RasdamanException, PetascopeException {
         try {
             props = new Properties();
             props.load(new FileInputStream(petaPropsPath));
@@ -288,15 +286,19 @@ public class ConfigManager {
      * @param key Key of the setting
      * @return String value, or the empty string in case the key does not exist
      */
-    private String get(String key) {
-        String result = "";
+    private String get(String key) throws PetascopeException {
+        String result = null;
+        
         if (props.containsKey(key)) {
             result = props.getProperty(key);
+        } else {
+            throw new PetascopeException(ExceptionCode.MissingPropertyKey, "Property key '" + key + " is not found in petascope.properties file.");
         }
+         
         return result;
     }
     
-    private void initPetascopeSettings() {
+    private void initPetascopeSettings() throws PetascopeException {
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
 
@@ -315,7 +317,20 @@ public class ConfigManager {
         PETASCOPE_ADMIN_USERNAME = get(KEY_PETASCOPE_ADMIN_USERNAME);
         PETASCOPE_ADMIN_PASSWORD = get(KEY_PETASCOPE_ADMIN_PASSWORD);
         
-        MAX_WMS_CACHE_SIZE = new Long(get(KEY_MAX_WMS_CACHE_SIZE));
+        String valueMaxWMSCacheSize = "";
+        try {
+            valueMaxWMSCacheSize = get(KEY_MAX_WMS_CACHE_SIZE);
+            MAX_WMS_CACHE_SIZE = new Long(valueMaxWMSCacheSize);
+            if (MAX_WMS_CACHE_SIZE <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch (PetascopeException ex) {
+            log.warn("Property key '" + KEY_MAX_WMS_CACHE_SIZE + "' does not exist in petascope.properties,"
+                    + " use default value '" + MAX_WMS_CACHE_SIZE + "' for this key.");
+        } catch (NumberFormatException ex) {
+            throw new PetascopeException(ExceptionCode.InvalidPropertyValue, 
+                    "Value for key '" + KEY_MAX_WMS_CACHE_SIZE + "' must be positive integer. Given '" + valueMaxWMSCacheSize + "'.");
+        }
         
         /* ***** WCS configuration ***** */
         // XML-encoded request schema validation for input request in XML POST
@@ -326,7 +341,7 @@ public class ConfigManager {
         DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
     }
     
-    private void initRasdamanSettings() {
+    private void initRasdamanSettings() throws PetascopeException {
         RASDAMAN_DATABASE = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL = get(KEY_RASDAMAN_URL);
         RASDAMAN_USER = get(KEY_RASDAMAN_USER);
@@ -346,7 +361,7 @@ public class ConfigManager {
         }   
     }
     
-    private void initSecoreSettings() {
+    private void initSecoreSettings() throws PetascopeException {
         SECORE_URLS = StringUtil.csv2list(get(KEY_SECORE_URLS));
         if (SECORE_URLS.isEmpty()) {
             log.error("Failed loading secore urls from petascope.properties");
@@ -354,7 +369,7 @@ public class ConfigManager {
         }
     }
     
-    private void initTempUploadDirs() {
+    private void initTempUploadDirs() throws PetascopeException {
         UPLOADED_FILE_DIR_TMP = get(KEY_UPLOADED_FILE_DIR_TMP);
         if (!StringUtils.isEmpty(UPLOADED_FILE_DIR_TMP)) {
             // try to create this folder (e.g: /tmp/rasdaman/petascope/upload)
@@ -378,6 +393,7 @@ public class ConfigManager {
             File wcstTmpDir = new File(ConfigManager.WCST_TMP_DIR);
             FileUtils.forceMkdir(wcstTmpDir);
             wcstTmpDir.setReadable(true, false);
+            wcstTmpDir.setWritable(true, false);
         } catch (IOException ex) {
             log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
                     "', reason: " + ex.getMessage());

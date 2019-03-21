@@ -126,8 +126,8 @@ class BaseRecipe:
             raise RecipeValidationException("No valid crs resolver provided")
         if self.session.get_coverage_id() is None or self.session.get_coverage_id() == "":
             raise RecipeValidationException("No valid coverage id provided")
-        if ConfigManager.tmp_directory is None or (not os.access(ConfigManager.tmp_directory, os.W_OK)):
-            raise RecipeValidationException("No valid tmp directory provided")
+        if not FileUtil.check_dir_writable(ConfigManager.tmp_directory):
+            raise RecipeValidationException("Cannot write to tmp directory '{}'".format(ConfigManager.tmp_directory))
 
         checked_files = []
 
