@@ -1959,6 +1959,29 @@ A series of geo Web services is available at the following endpoints:
 
    This requires deployment of war file ``def.war``.
 
+The diagram below illustrates the OGC service architecture of rasdaman:
+
+.. code-bloc:: text
+
+    clients              read:                       read:
+    +-----------------+
+    |                 |  GetCapabilities              select ...
+    |  +-----------+  |  DescribeCoverage
+    |  |3rd party  |  |
+    |  +-----------+  |  GetCoverage
+    |                 |  ProcessCoverage
+    |  +-----------+  |  GetMap
+    |  |ws client  |  |                 +---------+            +---------+
+    |  +-----------+  | +-------------> |petascope| +--------> |rasserver|
+    |                 |                 +---------+            +---------+
+    |  +-----------+  |  write:                      write:
+    |  |wcst_import|  |
+    |  +-----------+  |  InsertCoverage               create type/coll
+    |                 |  UpdateCoverage               insert,update,delete
+    +-----------------+  DeleteCoverage               drop type/coll
+
+
+
 APIs
 ====
 

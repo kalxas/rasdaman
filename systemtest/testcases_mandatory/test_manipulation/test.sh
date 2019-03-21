@@ -456,6 +456,13 @@ create_coll $TEST_SOURCE GreySet
 $RASQL --quiet -q "insert into $TEST_TARGET values marray x in [0:299, 0:299] values 0c"
 $RASQL --quiet -q "insert into $TEST_SOURCE values marray x in [0:299, 0:299] values 1c"
 
+# check update with incompatible base type
+exp_result="rasdaman error 434: Execution error: Cell base types of binary induce operation are incompatible."
+result=$($RASQL --quiet -q "update $TEST_TARGET as c set c assign decode(\$1)" -f $SCRIPT_DIR/testdata/rgb.png 2>&1)
+check_result "$exp_result" "$result"
+result=$($RASQL --quiet -q "update $TEST_TARGET as c set c assign decode(\$1)" -f $SCRIPT_DIR/testdata/double_8.tif 2>&1)
+check_result "$exp_result" "$result"
+
 logn "testing UPDATE ... FROM at a single point on two distinct collections... "
 $RASQL --quiet -q "UPDATE $TEST_TARGET AS t SET t[0:0,0:0] ASSIGN s[0:0,0:0] FROM $TEST_SOURCE as s"
 result=$(select_scalar "select c[0,0] from $TEST_TARGET as c")

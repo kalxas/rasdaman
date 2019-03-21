@@ -253,6 +253,18 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
         throwError(nextTuple, target, source, 954);
     }
 
+    // check that source base type matches the target base type
+    const BaseType* srcBaseType = sourceObj->getCellType();
+    const BaseType* dstBaseType = targetObj->getCellType();
+    if (!dstBaseType->compatibleWith(srcBaseType))
+    {
+        const char* srcTypeStructure = srcBaseType->getTypeStructure();
+        const char* dstTypeStructure = dstBaseType->getTypeStructure();
+        LERROR << "Base type of source object (" << srcTypeStructure 
+               << ") does not match the base type of the target object (" << dstTypeStructure << ")";
+        throwError(nextTuple, target, source, 434);
+    }
+
     // get optional domain
     QtData* targetDomainData = NULL;
     r_Minterval targetDomain;
