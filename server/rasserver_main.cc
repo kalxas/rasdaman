@@ -139,18 +139,18 @@ void shutdownHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* uc
         alreadyExecuting = true;
         LINFO << "Interrupted by signal " << common::SignalHandler::toString(info);
         NNLINFO << "Shutting down... ";
-        {
-            TileCache::clear();
-            BLINFO << "aborting any open transactions... ";
-            auto &rasserverEntry = RasServerEntry::getInstance();
-            if (rasserverEntry.compat_isOpenTA())
-                rasserverEntry.compat_abortTA();
-            if (server)
-            {
-                server->abortEveryThingNow();
-                delete server;
-            }
-        }
+        // {
+        //     TileCache::clear();
+        //     BLINFO << "aborting any open transactions... ";
+        //     auto &rasserverEntry = RasServerEntry::getInstance();
+        //     if (rasserverEntry.compat_isOpenTA())
+        //         rasserverEntry.compat_abortTA();
+        //     if (server)
+        //     {
+        //         server->abortEveryThingNow();
+        //         delete server;
+        //     }
+        // }
         BLINFO << "rasserver terminated.";
         exit(EXIT_SUCCESS);
     }
@@ -166,24 +166,24 @@ void crashHandler(__attribute__ ((unused)) int sig, siginfo_t* info, void* ucont
         BLERROR << "... stacktrace:\n" << common::SignalHandler::getStackTrace() << "\n";
         BLFLUSH;
         NNLERROR << "Shutting down... ";
-        {
-            TileCache::clear();
-            BLERROR << "aborting any open transactions... ";
-            auto &rasserverEntry = RasServerEntry::getInstance();
-            if (rasserverEntry.compat_isOpenTA())
-                rasserverEntry.compat_abortTA();
-            if (server)
-            {
-                server->abortEveryThingNow();
-                delete server;
-            }
-        }
+        // {
+        //     TileCache::clear();
+        //     BLERROR << "aborting any open transactions... ";
+        //     auto &rasserverEntry = RasServerEntry::getInstance();
+        //     if (rasserverEntry.compat_isOpenTA())
+        //         rasserverEntry.compat_abortTA();
+        //     if (server)
+        //     {
+        //         server->abortEveryThingNow();
+        //         delete server;
+        //     }
+        // }
         BLERROR << "rasserver terminated." << endl;
     } else {
         // if a signal comes while the handler has already been invoked,
-        // wait here for max 10 seconds, so that the handler above has some time
+        // wait here for max 3 seconds, so that the handler above has some time
         // (hopefully) finish
-        sleep(10);
+        sleep(3);
     }
     exit(sig);
 }

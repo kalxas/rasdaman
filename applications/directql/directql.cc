@@ -1218,18 +1218,18 @@ crashHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_t*
     {
         alreadyExecuting = true;
         cerr << "\nInterrupted by signal " << common::SignalHandler::toString(info)
-                 << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
-                 << "\nClosing server connection... ";
-        closeTransaction(false);
-        closeDatabase();
+             << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
+             << "\nClosing server connection... ";
+        // closeTransaction(false);
+        // closeDatabase();
         cerr << "done, exiting." << endl;
     }
     else
     {
         // if a signal comes while the handler has already been invoked,
-        // wait here for max 10 seconds, so that the handler above has some time
+        // wait here for max 3 seconds, so that the handler above has some time
         // (hopefully) finish
-        sleep(10);
+        sleep(3);
     }
     exit(sig);
 }
@@ -1243,8 +1243,8 @@ cleanupHandler(__attribute__((unused)) int sig, __attribute__((unused)) siginfo_
         alreadyExecuting = true;
         NNLINFO << "\ndirectql: Interrupted by signal " << common::SignalHandler::signalName(sig)
                 << "\nClosing server connection... ";
-        closeTransaction(false);
-        closeDatabase();
+        // closeTransaction(false);
+        // closeDatabase();
         BLINFO << "done, exiting.";
         exit(sig);
     }

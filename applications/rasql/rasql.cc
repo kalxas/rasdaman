@@ -1246,7 +1246,7 @@ shutdownHandler(int sig, siginfo_t* info, void* ucontext)
         alreadyExecuting = true;
         NNLINFO << "\nrasql: Interrupted by signal " << common::SignalHandler::signalName(sig)
                 << "\nClosing server connection... ";
-        cleanConnection();
+        // cleanConnection();
         BLINFO << "done, exiting.";
         exit(sig);
     }
@@ -1262,15 +1262,15 @@ crashHandler(int sig, siginfo_t* info, void* ucontext)
         NNLERROR << "\nInterrupted by signal " << common::SignalHandler::toString(info)
                  << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
                  << "\nClosing server connection... ";
-        cleanConnection();
+        // cleanConnection();
         BLERROR << "done, exiting.";
     }
     else
     {
         // if a signal comes while the handler has already been invoked,
-        // wait here for max 10 seconds, so that the handler above has some time
+        // wait here for max 3 seconds, so that the handler above has some time
         // (hopefully) finish
-        sleep(10);
+        sleep(3);
     }
     exit(sig);
 }

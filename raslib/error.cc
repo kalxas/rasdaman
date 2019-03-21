@@ -28,7 +28,7 @@ rasdaman GmbH.
 #include <string>
 #include <sstream>    // istringstream
 #include <unordered_map>
-#include <memory>
+#include <mutex>
 #include <cassert>
 
 #include <logging.hh>
@@ -40,8 +40,7 @@ struct ErrorInfo
     char kind;
 };
 
-// map of (errorNo -> errorText + kind)
-std::unique_ptr<std::unordered_map<unsigned int, ErrorInfo>> errorTexts{nullptr};
+std::unordered_map<unsigned int, ErrorInfo> loadErrorTexts();
 
 r_Error::r_Error()
 {
@@ -98,87 +97,6 @@ r_Error::serialiseError() const
 
 void r_Error::initTextTable()
 {
-    static const std::string ERRTXTFILE{"errtxts"};
-    static const char ERRTXTFILE_COMMENT{'#'};
-    static const char ERRTXTFILE_FIELDSEP{'^'};
-    static const char ERRTXTFILE_DEFAULTKIND{'E'};
-
-    if (errorTexts != nullptr)
-    {
-        std::cerr << "Error texts table has already been initialized, will not reinitialize." << std::endl;
-        return;
-    }
-
-    errorTexts.reset(new std::unordered_map<unsigned int, ErrorInfo>());
-
-    auto errorFilePath = std::string{SHARE_DATA_DIR} + ERRTXTFILE;
-
-    struct stat buffer;
-    if (stat(errorFilePath.c_str(), &buffer) != 0)
-    {
-        std::cerr << "No error texts file found at: " << errorFilePath << std::endl;
-        return;
-    }
-
-    std::ifstream errorsFile(errorFilePath, std::ios::in);
-    if (!errorsFile.good())
-    {
-        std::cerr << "Failed opening error texts file at: " << errorFilePath << std::endl;
-        return;
-    }
-
-    // general line format:
-    //   empty line
-    //   # comment
-    //   errNo^error text... (errKind = E)
-    //   errNo^errKind^error text...
-    std::string line;
-    bool firstLine{true};
-    while (std::getline(errorsFile, line))
-    {
-        if (line.empty() || line[0] == ERRTXTFILE_COMMENT)
-        {
-            continue; // skip empty lines and comments
-        }
-        if (firstLine)
-        {
-            firstLine = false;
-            continue;
-        }
-        auto separators = std::count(line.begin(), line.end(), ERRTXTFILE_FIELDSEP);
-        if (separators != 2 && separators != 1)
-        {
-            std::cerr << "Invalid line found in " << errorFilePath << ": '" << line
-                      << "'; skipping." << std::endl;
-            continue;
-        }
-
-        // get the tokens
-        std::istringstream tokens(line);
-        std::string token;
-        std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
-        int errNo = std::stoi(token);
-        std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
-        char errKind = ERRTXTFILE_DEFAULTKIND;
-        if (separators == 2)
-        {
-            if (token.size() != 1)
-            {
-                std::cerr << "Invalid line found in " << errorFilePath << ": '" << line
-                          << "'; skipping." << std::endl;
-                continue;
-            }
-            errKind = token[0];
-            std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
-        }
-        else
-        {
-            // one separator: default errKind = E, last token = errorText
-        }
-
-        // and insert
-        errorTexts->emplace(errNo, ErrorInfo{std::move(token), errKind});
-    }
 }
 
 void
@@ -235,18 +153,106 @@ r_Error::setErrorTextOnKind()
     errorText = "Exception: " + errorText;
 }
 
+std::unordered_map<unsigned int, ErrorInfo> loadErrorTexts()
+{
+    static const std::string ERRTXTFILE{"errtxts"};
+    static const char ERRTXTFILE_COMMENT{'#'};
+    static const char ERRTXTFILE_FIELDSEP{'^'};
+    static const char ERRTXTFILE_DEFAULTKIND{'E'};
+
+    std::unordered_map<unsigned int, ErrorInfo> errorTexts;
+
+    auto errorFilePath = std::string{SHARE_DATA_DIR} + ERRTXTFILE;
+
+    struct stat buffer;
+    if (stat(errorFilePath.c_str(), &buffer) != 0)
+    {
+        std::cerr << "No error texts file found at: " << errorFilePath << std::endl;
+        return errorTexts;
+    }
+
+    std::ifstream errorsFile(errorFilePath, std::ios::in);
+    if (!errorsFile.good())
+    {
+        std::cerr << "Failed opening error texts file at: " << errorFilePath << std::endl;
+        return errorTexts;
+    }
+
+    // general line format:
+    //   empty line
+    //   # comment
+    //   errNo^error text... (errKind = E)
+    //   errNo^errKind^error text...
+    std::string line;
+    bool firstLine{true};
+    while (std::getline(errorsFile, line))
+    {
+        if (line.empty() || line[0] == ERRTXTFILE_COMMENT)
+        {
+            continue; // skip empty lines and comments
+        }
+        if (firstLine)
+        {
+            firstLine = false;
+            continue;
+        }
+        auto separators = std::count(line.begin(), line.end(), ERRTXTFILE_FIELDSEP);
+        if (separators != 2 && separators != 1)
+        {
+            std::cerr << "Invalid line found in " << errorFilePath << ": '" << line
+                      << "'; skipping." << std::endl;
+            continue;
+        }
+
+        // get the tokens
+        std::istringstream tokens(line);
+        std::string token;
+        std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
+        int errNo = std::stoi(token);
+        std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
+        char errKind = ERRTXTFILE_DEFAULTKIND;
+        if (separators == 2)
+        {
+            if (token.size() != 1)
+            {
+                std::cerr << "Invalid line found in " << errorFilePath << ": '" << line
+                          << "'; skipping." << std::endl;
+                continue;
+            }
+            errKind = token[0];
+            std::getline(tokens, token, ERRTXTFILE_FIELDSEP);
+        }
+        else
+        {
+            // one separator: default errKind = E, last token = errorText
+        }
+
+        // and insert
+        errorTexts.emplace(errNo, ErrorInfo{std::move(token), errKind});
+    }
+    return errorTexts;
+}
+
 void
 r_Error::setErrorTextOnNumber()
 {
-    assert(errorTexts != nullptr);
+    static std::unordered_map<unsigned int, ErrorInfo> errorTexts;
+    static std::mutex mutex;
+    {
+        std::lock_guard<std::mutex> guard(mutex);
+        if (errorTexts.empty())
+        {
+            errorTexts = loadErrorTexts();
+        }
+    }   
 
-    if (errorTexts->empty())
+    if (errorTexts.empty())
     {
         errorText = "no explanation text available - cannot find/load file with standard error messages.";
         return;
     }
-    auto it = errorTexts->find(errorNo);
-    if (it != errorTexts->end())
+    auto it = errorTexts.find(errorNo);
+    if (it != errorTexts.end())
     {
         errorText = it->second.text;
     }
