@@ -22,25 +22,40 @@
                 </p>
 
                 <!-- coverage's axes -->
-                <ul ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
-                    <li>
-                        <span class="important-text">
-                        {{axisLabel}}
-                    </span>
-                        <span ng-show="coverageDescription.boundedBy.envelope.axisLabels.length == coverageDescription.boundedBy.envelope.uomLabels.length">
-                        (measured in <span class="important-text"> {{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</span> )
-                        </span>
-                        with domain extent from <span class="important-text"> {{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}</span> to <span class="important-text">{{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}</span>.
-                    </li>
-                </ul>
+                <table class="table table-bordered">
+                        <thead>
+                            <th>Axis name</th>
+                            <th>Type</th>
+                            <th>Extent</th>
+                            <th>Resolution</th>
+                            <th>UoM</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
+                                <td>{{axisLabel}}</td>
+                                <td>{{axes[$index].type}}</td>
+                                <td>[{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}, {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]</td>
+                                <td>{{axes[$index].resolution}}</td>
+                                <td>{{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</td>
+                            </tr>
+                        </tbody>
+                </table> 
 
                 <!-- coverages's ranges (bands) -->
                 <p>with range type:</p>
-                <ul ng-repeat="field in coverageDescription.rangeType.dataRecord.field">
-                    <li>
-                        <span class="important-text">{{field.name}}</span> measured in <span class="important-text">{{field.quantity.uom.code}}</span>
-                    </li>
-                </ul>
+                <table class="table table-bordered">
+                        <thead>
+                            <th>Field name</th>                            
+                            <th>UoM code</th>                            
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="field in coverageDescription.rangeType.dataRecord.field">
+                                <td>{{field.name}}</td>                                
+                                <td>{{field.quantity.uom.code}}</td>
+                            </tr>
+                        </tbody>
+                </table> 
+
                 <p>with native format: <span class="important-text">{{coverageDescription.serviceParameters.nativeFormat}}</span>
                 </p>                
                 <p>with Coordinate Reference System: <span class="important-text">{{coverageDescription.boundedBy.envelope.srsName}}</span>

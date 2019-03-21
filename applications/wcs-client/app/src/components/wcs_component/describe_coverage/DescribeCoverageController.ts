@@ -53,6 +53,10 @@ module rasdaman {
                            webWorldWindService:rasdaman.WebWorldWindService) {            
 
             $scope.selectedCoverageId = null;
+            $scope.REGULAR_AXIS = "regular";
+            $scope.IRREGULAR_AXIS = "irregular";
+            $scope.NOT_AVALIABLE = "N/A";
+
             $scope.isCoverageDescriptionsDocumentOpen = false;
             // default hide the div containing the Globe
             $scope.isCoverageDescriptionsHideGlobe = true;
@@ -93,6 +97,24 @@ module rasdaman {
                 }
             });
 
+            // return a non-zero value from offset vector string (e.g: 0 1 0 -> return 1)
+            $scope.getAxisResolution = function(index:number, offsetVectorElement:any) {
+                if (offsetVectorElement != null) {
+                    var tmp = offsetVectorElement.textContent.split(" ");
+                    return tmp[index];
+                }   
+                return "";
+            }
+
+            // from GML result of DescribeCoverage, find the types for all available axes
+            $scope.getAxisType = function(index:number, coefficientsElement:any) {
+                // Coverage contains irregular axis and this axis has coefficients
+                if (coefficientsElement != null && coefficientsElement.textContent !== "") {
+                    return $scope.IRREGULAR_AXIS;
+                }
+                return $scope.REGULAR_AXIS;
+            }
+
             $scope.describeCoverage = function () {                
                 if (!$scope.isCoverageIdValid()) {
                     alertService.error("The entered coverage ID is invalid.");
@@ -105,7 +127,7 @@ module rasdaman {
 
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
-                
+                $scope.axes = [];                
                             
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
@@ -122,6 +144,46 @@ module rasdaman {
                             var parser = new DOMParser();
                             var xmlDoc = parser.parseFromString(rawCoverageDescription,"text/xml"); 
                             var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+
+                            var offsetVectorElements = xmlDoc.evaluate("//*[local-name() = 'offsetVector']", xmlDoc, null, XPathResult.ANY_TYPE, null);
+                            var coefficientsElements = xmlDoc.evaluate("//*[local-name() = 'coefficients']", xmlDoc, null, XPathResult.ANY_TYPE, null);
+                                                        
+                            var offsetVectorElement = offsetVectorElements.iterateNext();
+                            var coeffcientsElement = coefficientsElements.iterateNext();
+
+                            var i = 0;
+                            var axisResolution = $scope.getAxisResolution(i, offsetVectorElement);
+                            var axisType = $scope.getAxisType(i, coeffcientsElement);
+
+                            if (axisType == $scope.IRREGULAR_AXIS) {
+                                // Don't show resolution for irregular axis as it is always 1
+                                axisResolution = $scope.NOT_AVALIABLE;
+                            }
+
+                            $scope.axes[i] = {"resolution": axisResolution, "type": axisType};
+                            
+                            while (offsetVectorElement) {         
+                                i++;
+
+                                offsetVectorElement = offsetVectorElements.iterateNext();                      
+                                if (offsetVectorElement != null) {                                    
+                                    axisResolution = $scope.getAxisResolution(i, offsetVectorElement);                                                                
+                                }
+
+                                if (coeffcientsElement != null) {
+                                    coeffcientsElement = coefficientsElements.iterateNext();
+                                    if (coeffcientsElement != null) {                                    
+                                        axisType = $scope.getAxisType(i, coeffcientsElement);
+                                    }   
+                                }
+
+                                if (axisType == $scope.IRREGULAR_AXIS) {
+                                    // Don't show resolution for irregular axis as it is always 1
+                                    axisResolution = $scope.NOT_AVALIABLE;
+                                }
+
+                                $scope.axes[i] = {"resolution": axisResolution, "type": axisType};
+                            }
 
                             var metadataContent = "";
                             if (elements.length > 0) {
@@ -183,6 +245,12 @@ module rasdaman {
 
         availableCoverageIds:string[];
         selectedCoverageId:string;
+
+        getAxisResolution(number, any):string;
+        getAxisType(number, any):string;
+
+        // Array of objects
+        axes:any[];
 
         requestUrl:string;
 
