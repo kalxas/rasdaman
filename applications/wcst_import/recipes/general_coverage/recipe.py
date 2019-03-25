@@ -303,6 +303,11 @@ class Recipe(BaseRecipe):
                     RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound,
                                     statements=statements))
             else:
+                # NOTE: irregular axis cannot set any resolution != 1
+                if int(resolution) != IrregularUserAxis.DEFAULT_RESOLUTION:
+                    raise RuntimeException("Cannot set 'resolution' value for irregular axis '{}' in ingredient file."
+                                           " Given '{}'.".format(crs_axis.label, resolution))
+
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
                                       type, data_bound, statements=statements))

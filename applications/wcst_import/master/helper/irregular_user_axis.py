@@ -25,6 +25,10 @@ from master.helper.user_axis import UserAxis, UserAxisType
 
 
 class IrregularUserAxis(UserAxis):
+
+    # Irregular axis only has this resolution and cannot be changed from ingredient file
+    DEFAULT_RESOLUTION = 1
+
     def __init__(self, name, resolution, order, min, directPositions, max=None, type=UserAxisType.NUMBER,
                  dataBound=True, crs_origin=None, statements=[]):
         """
