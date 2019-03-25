@@ -1,0 +1,64 @@
+{
+    "config": {
+	    "service_url": "PETASCOPE_URL",
+	    "tmp_directory": "/tmp/",
+        "automated": true,
+        "track_files": false,
+        "subset_correction": false,
+        "blocking": true,
+        "mock": false
+    },
+    "input": {
+        "coverage_id": "test_tiff_regular_time_extent_resolution_7_days",
+        "paths": [
+	    "*.tif"
+        ]
+    },
+    "recipe": {
+        "name": "general_coverage",
+        "options": {
+	    "import_order": "descending",
+            "coverage": {
+                "crs": "OGC/0/AnsiDate@EPSG/0/4326",
+                "metadata": {
+                    "type": "xml",
+                    "global": {
+                        "Title": "'This is a test coverage'"
+                    }
+                },
+                "slicer": {
+                    "type": "gdal",
+                    "bands": [{
+                        "name": "Gray",
+                        "identifier": "Gray"
+                    }],
+                    "axes": {
+                        "timeeeeeeeeeeeeeee": {
+                            "min": "datetime(regex_extract('${file:name}', '(.*)-(.*)\\.(.*)',2), 'YYYYMMDD')",
+			                "crsOrder": 0,
+                            "gridOrder": 0,
+                            "type": "ansidate",
+                            "resolution": 7,
+                            "dataBound": false
+                        },
+                        "longgggggggggggggg": {
+                            "min": "${gdal:minX}",
+                            "max": "${gdal:maxX}",
+			                "crsOrder": 2,
+                            "gridOrder": 1,
+                            "resolution": "${gdal:resolutionX}"
+                        },
+                        "laaaaaaaaaaaaaaat": {
+                            "min": "${gdal:minY}",
+                            "max": "${gdal:maxY}",
+			                "crsOrder": 1,
+                            "gridOrder": 2,
+                            "resolution": "${gdal:resolutionY}"
+                        }
+                    }
+                }
+            },
+            "tiling": "ALIGNED [0:0, 0:1023, 0:1023]"
+        }
+    }
+}

@@ -24,6 +24,7 @@
 import decimal
 import re
 from lib import arrow
+from master.helper.irregular_user_axis import IrregularUserAxis
 from master.helper.point_pixel_adjuster import PointPixelAdjuster
 from master.error.runtime_exception import RuntimeException
 from master.evaluator.evaluator_slice import NetcdfEvaluatorSlice
@@ -139,7 +140,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         # "min": "${netcdf:variable:E:min} - 10000 / 2",
         # "max": "${netcdf:variable:E:max} + 10000 / 2",
         # with pixelIsPoint: true, no need to add these values as the service will do it automatically
-        if self.pixel_is_point:
+        if self.pixel_is_point and (user_axis.dataBound is not False or isinstance(user_axis, IrregularUserAxis)):
             PointPixelAdjuster.adjust_axis_bounds_to_continuous_space(user_axis, crs_axis)
         else:
             # No adjustment for all regular axes but still need to translate time in datetime to decimal to calculate

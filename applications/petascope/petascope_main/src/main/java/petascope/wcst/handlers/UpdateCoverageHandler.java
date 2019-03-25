@@ -306,6 +306,11 @@ public class UpdateCoverageHandler {
     private void shiftRegularAxesByOffsets(Coverage currentCoverage, List<AbstractSubsetDimension> dimensionSubsets, Coverage inputCoverage) throws PetascopeException, SecoreException {
         
         for (AbstractSubsetDimension dimensionSubset : dimensionSubsets) {
+            
+            if (dimensionSubset instanceof SlicingSubsetDimension) {
+                continue;
+            }
+            
             String axisLabel = dimensionSubset.getDimensionName();
             GeoAxis axis = ((GeneralGridCoverage) currentCoverage).getGeoAxisByName(axisLabel);
             
