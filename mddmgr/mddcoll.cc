@@ -457,7 +457,18 @@ MDDColl::getMDDCollection(const char* collName)
 
         while (structIter.not_done())
         {
-            StructType* typePtr       = structIter.get_element();
+            StructType* typePtr = NULL;
+            try
+            {
+                typePtr = structIter.get_element();
+            }
+            catch (const r_Ebase_dbms &e)
+            {
+                LWARNING << "Failed reading struct type: " << e.what();
+                structIter.advance();
+                continue;
+            }
+
             char*       typeStructure = typePtr->getNewTypeStructure();
 
             if (!boost::starts_with(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
@@ -501,7 +512,17 @@ MDDColl::getMDDCollection(const char* collName)
 
         while (mddIter.not_done())
         {
-            MDDType* typePtr = mddIter.get_element();
+            MDDType* typePtr = NULL;
+            try
+            {
+                typePtr = mddIter.get_element();
+            }
+            catch (const r_Ebase_dbms &e)
+            {
+                LWARNING << "Failed reading marray type: " << e.what();
+                mddIter.advance();
+                continue;
+            }
 
             char* tmpTypeStructure = typePtr->getNewTypeStructure();
             std::string typeStructure{tmpTypeStructure};
@@ -550,7 +571,17 @@ MDDColl::getMDDCollection(const char* collName)
         TypeIterator<SetType> setIter = TypeFactory::createSetIter();
         while (setIter.not_done())
         {
-            SetType* typePtr       = setIter.get_element();
+            SetType* typePtr = NULL;
+            try
+            {
+                typePtr = setIter.get_element();
+            }
+            catch (const r_Ebase_dbms &e)
+            {
+                LWARNING << "Failed reading set type: " << e.what();
+                setIter.advance();
+                continue;
+            }
 
             std::string result = "";
             result.append("CREATE TYPE ");
