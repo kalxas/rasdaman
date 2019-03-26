@@ -62,6 +62,7 @@ rasdaman GmbH.
 #include <exception>
 
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 #include "qlparser/qtmintervaldata.hh"
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
@@ -69,7 +70,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 
-extern ServerComm::ClientTblElt* currentClientTblElt;
+extern ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 

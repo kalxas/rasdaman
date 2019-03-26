@@ -196,7 +196,6 @@ public:
     // obsolete, but kept because of virtual functions in base class
     void triggerAliveSignal();
     void sendAliveSignal();
-    const char* getExtendedErrorInfo();
 
     void setTimeoutInterval(int seconds);
     int  getTimeoutInterval();

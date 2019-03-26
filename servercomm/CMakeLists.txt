@@ -79,10 +79,10 @@ add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.cc"
     )
 
 
-set(SRC_FILES callbackmgr.hh callbackmgr.cc
-    httpserver.hh httpserver.cc httpserver.icc
-    manager.cc
-    servercomm.hh servercomm.cc servercomm2.cc servercomm.icc
+set(SRC_FILES cliententry.cc cliententry.hh
+    accesscontrol.cc accesscontrol.hh
+    httpserver.hh httpserver.cc
+    servercomm.hh servercomm.cc
     "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.cc"
     "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.cc"
     "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.cc"

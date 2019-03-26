@@ -3491,58 +3491,6 @@ RpcClientComm::checkRPCActive()
     return rpcActive;
 }
 
-const char*
-RpcClientComm::getExtendedErrorInfo()
-
-{
-    if (binding_h == NULL)
-    {
-        LERROR << "RpcClientComm::getMDDCollection(mddColl, isQuery) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
-        throw r_Error(CONNECTIONCLOSED);
-    }
-
-    static char* errorInfo = NULL;
-
-    GetExtendedErrorInfo* result = NULL;
-
-    int dummy;
-
-    if (errorInfo)
-    {
-        delete[] errorInfo;
-    }
-
-    setRPCActive();
-
-    rpcRetryCounter = 0;
-    do
-    {
-
-        result = rpcgeterrorinfo_1(&dummy, binding_h);
-        if (!result)
-        {
-            LWARNING << "WARNING: RPC NULL POINTER (rpcalive_1)";
-            sleep(RMInit::clientcommSleep);
-        }
-        if (rpcRetryCounter > RMInit::clientcommMaxRetry)
-        {
-            LERROR << "RPC call 'rpcgeterrorinfo' failed";
-            throw r_Error(CLIENTCOMMUICATIONFAILURE);
-        }
-        rpcRetryCounter++;
-
-    }
-    while (!result);
-
-    setRPCInactive();
-
-    errorInfo = new char[strlen(result->errorText) + 1];
-    strcpy(errorInfo, result->errorText);
-
-    return errorInfo;
-}
-
-
 #define MAXMSG 512
 
 int RpcClientComm::readWholeMessage(int socket, char* destBuffer, int buffSize)

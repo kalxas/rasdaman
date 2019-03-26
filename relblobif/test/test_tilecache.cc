@@ -40,6 +40,7 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"
 #include "reladminif/transactionif.hh"
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 #include "commline/cmlparser.hh"
 #include "testing.h"
 
@@ -84,7 +85,7 @@ INITIALIZE_EASYLOGGINGPP
 TransactionIf ta;
 DatabaseIf db;
 ServerComm* server;
-ServerComm::ClientTblElt* r;
+ClientTblElt* r;
 ExecuteUpdateRes result;
 
 void prepareRun()
@@ -92,7 +93,7 @@ void prepareRun()
     server = new ServerComm(RASSERVER_TIMEOUT, RASSERVER_MGMT_INTERVAL, RASSERVER_PORT, RASMGR_HOST, RASMGR_PORT, RASSERVER_NAME);
     db.open(globalConnectId);
 
-    r = new ServerComm::ClientTblElt(RASADMIN_USER, CLIENT_ID);
+    r = new ClientTblElt(RASADMIN_USER, CLIENT_ID);
     server->addClientTblEntry(r);
     accessControl.setServerName(RASSERVER_NAME);
     server->openDB(CLIENT_ID, globalConnectId, RASADMIN_USER);

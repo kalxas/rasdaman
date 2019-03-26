@@ -272,14 +272,6 @@ int main(int argc, char** argv)
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
-
-        // in case of HTTP or RPC server: launch previously generated object
-        if (server)
-        {
-            LDEBUG << "server->startRpcServer()...";
-            server->startRpcServer();
-            LDEBUG << "server->startRpcServer() done.";
-        }
     }
     catch (r_Error& errorObj)
     {

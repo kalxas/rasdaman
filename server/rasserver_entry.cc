@@ -36,6 +36,7 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 
 #include "rasserver_entry.hh"
+#include "servercomm/cliententry.hh"
 
 #include "debug-srv.hh"
 
@@ -60,24 +61,10 @@ struct HTTPRequest
     char* Capability;
 };
 
-
-RasServerEntry* RasServerEntry::myself = 0;
-
 RasServerEntry& RasServerEntry::getInstance()
 {
-    if (myself == 0)
-    {
-        myself = new RasServerEntry;
-    }
-    return *myself;
-}
-
-RasServerEntry::RasServerEntry()
-{
-}
-
-RasServerEntry::~RasServerEntry()
-{
+    static RasServerEntry instance;
+    return instance;
 }
 
 void RasServerEntry::compat_connectToDBMS()
@@ -175,7 +162,7 @@ void RasServerEntry::compat_disconnectClient()
 }
 
 // we want the ServerComm version, we'll drop this client management anyway
-ServerComm::ClientTblElt* RasServerEntry::getClientContext(unsigned long ClientId)
+ClientTblElt* RasServerEntry::getClientContext(unsigned long ClientId)
 {
 #if 0 // see above -- we just have 1 single context -- PB 2005-sep-01
     ClientId = SINGLETON_CLIENTID;
@@ -407,11 +394,6 @@ int RasServerEntry::compat_SetStorageFormat(int format, const char* params)
 {
     return ServerComm::setStorageMode(currentClientIdx, format, params);
 }
-
-//### stupid inherited stuff, we'll lose them later #####
-void RasServerEntry::startRpcServer() {}
-void RasServerEntry::stopRpcServer() {}
-//#######################################################
 
 bool isValidCommand(char* req)
 {

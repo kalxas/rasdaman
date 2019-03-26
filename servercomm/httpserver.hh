@@ -34,6 +34,7 @@ rasdaman GmbH.
 #define _HTTPSERVER_
 
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 
 //@ManMemo: Module: {\bf servercomm}
 
@@ -87,14 +88,8 @@ public:
     /// destructor
     virtual ~HttpServer();
 
-    /// forces the server to listen for client calls
-    virtual void startRpcServer();
-
-    /// stops the server
-    virtual void stopRpcServer();
-
     /// print server status to {\tt s}
-    virtual void printServerStatus(ostream& s = cout);
+    void printServerStatus() override;
 
     /// Executes a retrieval query and prepare the result for HTTP transer.
     virtual long processRequest(unsigned long callingClientId, char* baseName,
@@ -178,20 +173,11 @@ private:
 
     // processRequest returns this value in case of an unknown error
     static const long unknownError;
-
-    int   doIt_httpserver(int argc, char* argv[]);
-
-
-    bool flagInformRasMgr; // used to trigger informRasMGR(SERVERAVAILABLE)
-
 };
 
 //function prototypes:
 void getMDDs(int binDataSize, char* binData, int endianess, vector<HttpServer::MDDEncoding*>& resultVector);
 int encodeAckn(char*& result, int ackCode);
 void cleanExecuteQueryRes(ExecuteQueryRes& res);
-
-
-#include "httpserver.icc"
 
 #endif

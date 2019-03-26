@@ -82,13 +82,14 @@ rasdaman GmbH.
 #include "qlparser/qtmshapeop.hh"
 #include "qlparser/qtgeometryop.hh"
 #include "qlparser/qtgeometrydata.hh"
+#include "servercomm/cliententry.hh"
 
 #include <vector>
 
 #undef EQUAL
 #undef ABS
 
-extern ServerComm::ClientTblElt* currentClientTblElt;
+extern ClientTblElt* currentClientTblElt;
 extern ParseInfo *currInfo;
 
 void   yyerror(void* mflag, const char* s );

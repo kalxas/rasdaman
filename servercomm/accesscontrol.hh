@@ -20,12 +20,43 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INLINE SOURCE: httpserver.icc
- *
- * MODULE:  servercomm
- * CLASS:   ServerComm
- *
- * COMMENTS:
- *			No Comments
-*/
+
+#ifndef _ACCESSCONTROL_HH_
+#define _ACCESSCONTROL_HH_
+
+class AccessControl
+{
+public:
+    AccessControl();
+
+    ~AccessControl();
+
+    void initSyncro(const char *);
+
+    void setServerName(const char *serverName);
+
+    void resetForNewClient();
+
+    int crunchCapability(const char *);
+
+    /*   0 - ok
+       804 - capability refused
+    */
+
+    void wantToRead(); // both throw
+    void wantToWrite();
+
+    bool isClient();
+
+private:
+    int messageDigest(const char *input, char *output, const char *mdName);
+
+    double initDeltaT;
+    char serverName[100];
+
+    bool okToRead;
+    bool okToWrite;
+    bool weHaveClient;
+};
+
+#endif

@@ -88,7 +88,6 @@ public:
     long unsigned int getClientID() const;
     void triggerAliveSignal();
     void sendAliveSignal();
-    const char* getExtendedErrorInfo();
     void setUserIdentification(const char* userName, const char* plainTextPassword);
     void setMaxRetry(unsigned int newMaxRetry);
     unsigned int  getMaxRetry();

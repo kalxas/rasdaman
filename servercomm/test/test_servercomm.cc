@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "qlparser/qtscalardata.hh"
 
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 
 
 extern char* myExecArgv0 = "";
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
     database.open("RASSERVICE");
     ta.begin(&database);
 
-    ServerComm::ClientTblElt* r = new ServerComm::ClientTblElt("testclient", 2);
+    ClientTblElt* r = new ClientTblElt("testclient", 2);
 
     server.addClientTblEntry(r);
 

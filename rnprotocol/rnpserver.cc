@@ -28,7 +28,7 @@ rasdaman GmbH.
  *
  * COMMENTS:
  * - called from rasserver_main.cc
- * - startRnpServer() is twin to startRpcServer and startHttpServer()
+ * - startRnpServer() is twin to startHttpServer()
  *
  ************************************************************/
 

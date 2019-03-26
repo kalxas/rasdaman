@@ -1155,15 +1155,6 @@ int RnpClientComm::setTransferFormat(r_Data_Format format, const char* formatPar
     return result;
 }
 
-const char* RnpClientComm::getExtendedErrorInfo()
-{
-    // This function shouldn't be called for RNP protocol
-    static char* errorInfo = new char[30];
-    strcpy(errorInfo, "No info");
-
-    return errorInfo;
-}
-
 const char* RnpClientComm::getServerName()
 {
     return serverHost;

@@ -96,7 +96,7 @@ extern unsigned long maxTransferBufferSize;
 extern char globalHTTPSetTypeStructure[];
 
 // This currently represents the one and only client active at one time.
-static HttpServer::ClientTblElt globalClientContext(ServerComm::HTTPCLIENT, 1);
+static ClientTblElt globalClientContext(ServerComm::HTTPCLIENT, 1);
 
 // At the beginning, no servercomm object exists.
 HttpServer* HttpServer::actual_httpserver  = 0;
@@ -286,7 +286,6 @@ HttpServer::HttpServer()
         exit(1);
     }
     actual_httpserver = this;
-    flagInformRasMgr = false;
     // So that it should be never freed
     globalClientContext.currentUsers++;
 }
@@ -301,7 +300,6 @@ HttpServer::HttpServer(unsigned long timeOut, unsigned long managementInterval, 
         exit(1);
     }
     actual_httpserver = this;
-    flagInformRasMgr = false;
     // So that it should be never freed
     globalClientContext.currentUsers++;
 }
@@ -316,67 +314,7 @@ HttpServer::~HttpServer()
     actual_httpserver = 0;
 }
 
-
-/*************************************************************************
- * Method name...: startHttpServer()
- ************************************************************************/
-void termSignalHandler(int sig);
-
-void
-HttpServer::startRpcServer()
-{
-    // create administraion object (O2 session is initialized)
-    admin = AdminIf::instance();
-    if (!admin)
-    {
-        throw r_Error(r_Error::r_Error_BaseDBMSFailed);
-    }
-
-    // simulating command line arguments
-    const char* dummy[] = { "rasserver", "-c", "httpserver.conf" };
-
-    struct sigaction termSignal;
-    memset(&termSignal,0,sizeof(termSignal));
-    termSignal.sa_handler = termSignalHandler;
-    sigaction(SIGALRM, &termSignal, NULL);
-    LINFO << "rasdaman server " << serverName << " is up.";
-
-    doIt_httpserver(3, const_cast<char**>(dummy));
-}
-
-void termSignalHandler(__attribute__((unused)) int sig)
-{
-    static int in_progress = 0;
-
-    if (in_progress)
-    {
-        return;
-    }
-
-    in_progress = 1;
-
-    if (HttpServer::actual_httpserver)
-    {
-        HttpServer::actual_httpserver->stopRpcServer();
-    }
-
-}
-
-void clearLastClient(); // is down at end of file
-
-
-void
-HttpServer::stopRpcServer()
-{
-    LINFO << "Shutdown request received. Clearing clients...";
-    clearLastClient();
-    LINFO << "informing rasmgr...";
-    informRasMGR(SERVER_DOWN);
-    cout   << "rasdaman server " << serverName << " is down." << endl;
-    exit(0);
-}
-
-HttpServer::ClientTblElt*
+ClientTblElt*
 HttpServer::getClientContext(__attribute__((unused)) unsigned long clientId)
 {
     // this is a simplification and only works for one client
@@ -385,12 +323,11 @@ HttpServer::getClientContext(__attribute__((unused)) unsigned long clientId)
 }
 
 void
-HttpServer::printServerStatus(ostream& s)
+HttpServer::printServerStatus()
 {
-    s << "\nHTTP Server state information\n";
-    s << "  Transaction active.............: " << (transactionActive ? "yes" : "no") << "\n";
-    s << "  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes\n";
-    s << endl;
+    LDEBUG << "HTTP Server state information\n"
+           << "  Transaction active.............: " << (transactionActive ? "yes" : "no") << "\n"
+           << "  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes\n";
 }
 
 int encodeAckn(char*& result, int ackCode = ackCodeOK)
@@ -435,7 +372,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             auto rc = static_cast<unsigned int>(accessControl.crunchCapability(capability));
             if (rc)
             {
-                flagInformRasMgr = true; // Used in doIt_http...
                 return encodeError(result, rc, 0, 0, "");
             }
         }
@@ -451,7 +387,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
         case commCloseDB:
         {
             LTRACE << "close db (client id " << callingClientId << ")";
-            flagInformRasMgr = true; // Used in doIt_http...
             closeDB(callingClientId);
             return encodeAckn(result);
         }
@@ -1100,155 +1035,5 @@ long HttpServer::encodeInsertError(char*& result, unsigned short execResult, vec
     }
 
     return returnValue;
-}
-
-
-//**********************************************************************
-
-#include "raslib/error.hh"
-
-#include "httpserver/defs.h"
-#include "httpserver/protos.h"
-#include "httpserver/types.h"
-#include "httpserver/server.h"
-
-
-extern struct ServerBase  Server;
-
-extern struct Logging*  LogBase;
-
-void Select(int socket); // wrap around to put timeout in it
-
-int HttpServer::doIt_httpserver(int argc, char* argv[])
-{
-    pid_t ChildPId;          /* -> Server.ChildInfo   */
-
-    LINFO << "Initialising parameters for HTTP server... ";
-    Initialize(argc, argv, &Server);
-
-    LINFO << "Initialising server socket for HTTP server... ";
-    listen(Server.SockFD, 5);
-    LINFO << "Waiting for client calls... ";
-
-    informRasMGR(SERVER_AVAILABLE);
-
-    for (;;)
-    {
-        Select(Server.SockFD);
-        Accept(Server.SockFD, &Server.Client);
-        strcpy(Server.Client.Host.IPAddrString, inet_ntoa(Server.Client.Socket.sin_addr));
-
-        if (Server.Client.Host.IPAddrString == NULL)
-        {
-            strcpy(Server.Client.Host.IPAddrString, "0.0.0.0");
-        }
-
-        Server.Client.Host.IPAddress = inet_addr(Server.Client.Host.IPAddrString);
-        Server.Client.Comm.ConnStatus      = CONN_UNDEFINED;
-        InitHTTPMsg(&Server.Client.Response);
-        InitReqInfo(&Server.Client.Request);
-        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== Connection from %s accepted...",
-               Server.Client.Host.IPAddrString);
-
-        HandleRequest(&Server.Client);
-        LogMsg(LG_SERVER, LVL_INFO, "INFO:  ====== EOT. Disconnecting.");
-
-        close(Server.Client.SockFD);
-
-        if (flagInformRasMgr == true)
-        {
-            informRasMGR(SERVER_AVAILABLE);
-            flagInformRasMgr = false;
-        }
-
-#ifdef PURIFY
-        purify_printf("Request finished.");
-        purify_new_leaks();
-#endif
-
-    }
-    // otherwise Exit(OK) should have been called
-    return -1;
-}
-
-extern int  noTimeOut;
-void Select(int socket)
-{
-    static time_t lastEntry = 0; // last time we entered here
-
-    fd_set read_fd_set, http_fd_set;
-
-    FD_ZERO(&http_fd_set);
-    FD_SET(socket, &http_fd_set);
-
-    const int checkTimeOutInterval = 30;
-
-    struct timeval timeout;
-    timeout.tv_sec = checkTimeOutInterval;
-    timeout.tv_usec = 0 ;
-
-    lastEntry = time(NULL);
-    while (1)
-    {
-        read_fd_set = http_fd_set;
-        //cout<<"HTTP Server is waiting..."<<endl;
-        timeout.tv_sec = checkTimeOutInterval;
-        timeout.tv_usec = 0;
-
-        int rasp = select(FD_SETSIZE, &read_fd_set, NULL, NULL, &timeout);
-        //cout<<"rasp="<<rasp<<endl;
-        if (rasp > 0)
-        {
-            break; // means client call
-        }
-
-        if (rasp <= 0)
-        {
-            if (accessControl.isClient() == false)
-            {
-                // regularly tell the rasmgr that we are available. There is a scenario for DoS-attack (or bug, or firewall-problem)
-                // when a client allocates itself a server and never calls, so the server is not usable any more.
-                // but we have to find a smarter way of doing this, we need rasmgr-rasserver communication!
-                ServerComm::actual_servercomm->informRasMGR(SERVER_REGULARSIG);
-            }
-
-            //cout<<"Timeout...noTimeout="<<noTimeOut<<endl; // or a signal
-            //unsigned long clientTimeout=(ServerComm::actual_servercomm)->clientTimeout;
-            //cout<<"clientTimeout="<<clientTimeout<<"  have Client="<<accessControl.isClient()<<endl;
-
-            if (!noTimeOut && lastCallingClientId != -1)
-            {
-                time_t now = time(NULL);
-                unsigned long clientTimeOut = (ServerComm::actual_servercomm)->clientTimeout;
-                if ((now - lastEntry) > static_cast<int>(clientTimeOut) && accessControl.isClient())
-                {
-                    LINFO << "Timeout: after " << clientTimeOut << ", freeing client " << lastCallingClientId << "...";
-                    ServerComm* sc = ServerComm::actual_servercomm;
-                    ServerComm::ClientTblElt* clnt = sc-> getClientContext(static_cast<unsigned long>(lastCallingClientId));
-                    clnt->transaction.abort();
-                    clnt->database.close();
-                    sc->informRasMGR(SERVER_AVAILABLE);
-                    // cout<<"Http server, client timeout, available again..."<<endl;
-
-                    LINFO << MSG_OK;
-                }
-            }
-
-        }
-    }
-}
-
-// used at exit, but put here for some compiling reason
-void clearLastClient()
-{
-    if (accessControl.isClient())
-    {
-        LINFO <<  "Freeing client " << lastCallingClientId << "...";
-        ServerComm* sc = ServerComm::actual_servercomm;
-        ServerComm::ClientTblElt* clnt = sc->getClientContext(static_cast<unsigned long>(lastCallingClientId));
-        clnt->transaction.abort();
-        clnt->database.close();
-        LINFO << MSG_OK;
-    }
 }
 

@@ -52,10 +52,11 @@ using namespace std;
 #include <logging.hh>
 
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 
 #include "lockmgr/lockmanager.hh"
 
-extern ServerComm::ClientTblElt* currentClientTblElt;
+extern ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 

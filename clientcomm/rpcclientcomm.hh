@@ -256,9 +256,6 @@ public:
     /// checks if an RPC is active
     int checkRPCActive();
 
-    /// get extended error information
-    const char* getExtendedErrorInfo();
-
     /// get real server name (the dinamic one, assigned by the RasMGR)
     const char* getServerName();
 

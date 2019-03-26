@@ -40,6 +40,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 #include "qlparser/querytree.hh"
 #include "qlparser/qtinsert.hh"
 #include "relblobif/tilecache.hh"
@@ -49,7 +50,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 
 using namespace std;
 
-extern ServerComm::ClientTblElt* currentClientTblElt;
+extern ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtCommand::nodeType = QtNode::QT_COMMAND;
 const size_t QtCommand::MAX_COLLECTION_NAME_LENGTH;

@@ -1964,11 +1964,6 @@ void RasnetClientComm::sendAliveSignal()
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-const char* RasnetClientComm::getExtendedErrorInfo()
-{
-    throw r_Error(r_Error::r_Error_FeatureNotSupported);
-}
-
 void RasnetClientComm::setUserIdentification(const char* userName, const char* plainTextPassword)
 {
 
@@ -2079,7 +2074,7 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner()
 
                 if (!keepAliveStatus.ok())
                 {
-                    LERROR << "Failed to send keep alive message to rasmgr:" << keepAliveStatus.error_message();
+                    LERROR << "Failed to send keep alive message to rasmgr: " << keepAliveStatus.error_message();
                     LDEBUG << "Stopping client-rasmgr keep alive thread.";
                     this->isRasmgrKeepAliveRunning = false;
                 }
@@ -2183,7 +2178,7 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
 
                 if (!keepAliveStatus.ok())
                 {
-                    LERROR << "Failed to send keep alive message to rasserver:" << keepAliveStatus.error_message();
+                    LERROR << "Failed to send keep alive message to rasserver: " << keepAliveStatus.error_message();
                     LDEBUG << "Stopping client-rasserver keep alive thread.";
                     this->isRasserverKeepAliveRunning = false;
                 }

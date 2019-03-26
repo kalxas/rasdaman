@@ -40,26 +40,23 @@ rasdaman GmbH.
 class RasServerEntry : public HttpServer
 {
 private:
-    RasServerEntry();
-    static RasServerEntry* myself;
+    RasServerEntry() = default;
+
 public:
+
+    unsigned long currentClientIdx;
+    ClientTblElt* currentClientContext;
+
     static RasServerEntry& getInstance();
 
-    ~RasServerEntry();
-
-    //### inherited stuff - we have to keep them for now
-    void startRpcServer();
-    void stopRpcServer();
-    //###
+    ~RasServerEntry() = default;
 
     void compat_connectToDBMS();
 
     // All "compat_" functions use old ServerComm and HttpServer stuff to do their job
     // Later, the new functions will do the job proper and this old functions will be dropped!
     void compat_connectNewClient(const char* capability);
-    unsigned long currentClientIdx;
     ClientTblElt* getClientContext(unsigned long ClientId);   // inherited...
-    ClientTblElt* currentClientContext;
 
     void compat_disconnectClient();
 

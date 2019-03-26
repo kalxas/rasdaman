@@ -97,6 +97,7 @@ using namespace std;
 
 #include "relcatalogif/complextype.hh"
 #include "servercomm/servercomm.hh"
+#include "servercomm/cliententry.hh"
 #include "relblobif/tilecache.hh"
 #include "lockmgr/lockmanager.hh"
 #include "mymalloc/mymalloc.h"
@@ -313,7 +314,7 @@ bool displayType = false;
 OUTPUT_TYPE outputType = DEFAULT_OUT;
 
 const char* outFileMask = DEFAULT_OUTFILE;
-ServerComm::ClientTblElt* r;
+ClientTblElt* r;
 
 r_Minterval mddDomain;
 bool mddDomainDef = false;
@@ -567,7 +568,7 @@ openDatabase()
         INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
         server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT,
                 const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
-        r = new ServerComm::ClientTblElt(user, DQ_CLIENT_ID);
+        r = new ClientTblElt(user, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
         accessControl.setServerName(DQ_SERVER_NAME);
         accessControl.crunchCapability(DQ_CAPABILITY);
