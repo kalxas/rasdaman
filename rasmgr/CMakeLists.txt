@@ -43,7 +43,7 @@ if (NOT RMANRASNET)
 
     target_include_directories(rasmgr PUBLIC ${BASEDB_INCLUDE_DIR})
 
-    target_link_libraries(rasmgr raslib network commline mymalloc_cln ${OPENSSL_LIBRARIES})
+    target_link_libraries(rasmgr raslib network commline mymalloc_cln common_logging ${OPENSSL_LIBRARIES})
 
     install(TARGETS rasmgr
             DESTINATION ${BIN_DIR})

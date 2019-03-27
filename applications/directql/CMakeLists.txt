@@ -33,7 +33,7 @@ target_link_libraries(directql rasodmg clientcomm
         reladminif catalogmgr relcatalogif relstorageif storagemgr
         relindexif indexmgr tilemgr relblobif relcatalogif
         servercomm mddmgr relmddif indexmgr qlparser catalogmgr lockmanager
-        tilemgr reladminif conversion raslib ${BASEDB_LIBRARIES} ${ELPP_LIBRARY})
+        tilemgr reladminif conversion raslib common_logging ${BASEDB_LIBRARIES} ${ELPP_LIBRARY})
 
 if (RMANRASNET)
     target_link_libraries(directql rasnet)

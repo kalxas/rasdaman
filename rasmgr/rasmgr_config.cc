@@ -517,7 +517,7 @@ void Configuration::initLogFiles()
         logToStdOut = false;
     }
     // Default logging configuration
-    LogConfiguration defaultConf(string(CONFDIR), RASMGR_LOG_FILE);
+    common::LogConfiguration defaultConf(string(CONFDIR), RASMGR_LOG_CONF);
     defaultConf.configServerLogging(logFileName);
 
     cout << "rasmgr log file is: " << logFileName << endl;

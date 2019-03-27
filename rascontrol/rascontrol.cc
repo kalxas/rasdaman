@@ -89,7 +89,7 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char** argv)
 {
     // Default logging configuration
-    LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
     logConf.configClientLogging(config.beQuiet());
 
     if (config.interpretArguments(argc, argv) == false)

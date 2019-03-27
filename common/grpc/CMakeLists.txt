@@ -21,6 +21,8 @@
 #
 ###################################################################
 
+if (RMANRASNET)
+
 # Generate the C++ classes in the binary folder
 set(PROTO_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/messages")
 
@@ -64,3 +66,5 @@ target_link_libraries(common_grpc common_exceptions common_network
 
 install(TARGETS common_grpc
         DESTINATION ${LIB_DIR})
+
+endif() # RMANRASNET

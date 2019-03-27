@@ -75,7 +75,7 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char** argv)
 {
     // Default logging configuration
-    LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
     logConf.configClientLogging();
 
     cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl;

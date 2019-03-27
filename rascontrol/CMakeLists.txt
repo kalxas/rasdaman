@@ -31,7 +31,7 @@ if (NOT RMANRASNET)
             ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh)
 
     target_include_directories(rascontrol PUBLIC ${OPENSSL_INCLUDE_DIR})
-    target_link_libraries(rascontrol network commline ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})
+    target_link_libraries(rascontrol network commline common_logging ${READLINE_LIBRARIES} ${OPENSSL_LIBRARIES})
 
     install(TARGETS rascontrol
             DESTINATION ${BIN_DIR})

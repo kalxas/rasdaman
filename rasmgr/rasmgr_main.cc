@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "version.h"
+#include "globals.hh"
 #include <iostream>
 
 #include "rasmgr.hh"
@@ -50,8 +51,7 @@ rasdaman GmbH.
 #include "rasmgr_localsrv.hh"
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
-
-#include "common/grpc/grpcutils.hh"
+#include "loggingutils.hh"
 
 #ifndef COMPDATE
 #error "Please specify the COMPDATE variable!"
