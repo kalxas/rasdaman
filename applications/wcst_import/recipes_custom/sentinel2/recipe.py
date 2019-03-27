@@ -73,28 +73,28 @@ class Recipe(GeneralCoverageRecipe):
     # bands for each resolution
     BANDS_L1C = {
         RES_10m: [
-            UserBand("1", "B4", "red, central wavelength 665 nm", "", "", [0], "nm"),
-            UserBand("2", "B3", "green, central wavelength 560 nm", "", "", [0], "nm"),
-            UserBand("3", "B2", "blue, central wavelength 490 nm", "", "", [0], "nm"),
-            UserBand("4", "B8", "nir, central wavelength 842 nm", "", "", [0], "nm")
+            UserBand("1", "B4", "red, central wavelength 665 nm", "", "", [0], ""),
+            UserBand("2", "B3", "green, central wavelength 560 nm", "", "", [0], ""),
+            UserBand("3", "B2", "blue, central wavelength 490 nm", "", "", [0], ""),
+            UserBand("4", "B8", "nir, central wavelength 842 nm", "", "", [0], "")
         ],
         RES_20m: [
-            UserBand("1", "B5", "central wavelength 705 nm", "", "", [0], "nm"),
-            UserBand("2", "B6", "central wavelength 740 nm", "", "", [0], "nm"),
-            UserBand("3", "B7", "central wavelength 783 nm", "", "", [0], "nm"),
-            UserBand("4", "B8A", "central wavelength 865 nm", "", "", [0], "nm"),
-            UserBand("5", "B11", "central wavelength 1610 nm", "", "", [0], "nm"),
-            UserBand("6", "B12", "central wavelength 2190 nm", "", "", [0], "nm")
+            UserBand("1", "B5", "central wavelength 705 nm", "", "", [0], ""),
+            UserBand("2", "B6", "central wavelength 740 nm", "", "", [0], ""),
+            UserBand("3", "B7", "central wavelength 783 nm", "", "", [0], ""),
+            UserBand("4", "B8A", "central wavelength 865 nm", "", "", [0], ""),
+            UserBand("5", "B11", "central wavelength 1610 nm", "", "", [0], ""),
+            UserBand("6", "B12", "central wavelength 2190 nm", "", "", [0], "")
         ],
         RES_60m: [
-            UserBand("1", "B1", "central wavelength 443 nm", "", "", [0], "nm"),
-            UserBand("2", "B9", "central wavelength 945 nm", "", "", [0], "nm"),
-            UserBand("3", "B10", "central wavelength 1375 nm", "", "", [0], "nm")
+            UserBand("1", "B1", "central wavelength 443 nm", "", "", [0], ""),
+            UserBand("2", "B9", "central wavelength 945 nm", "", "", [0], ""),
+            UserBand("3", "B10", "central wavelength 1375 nm", "", "", [0], "")
         ],
         RES_TCI: [
-            UserBand("1", "red", "B4, central wavelength 665 nm", "", "", [0], "nm"),
-            UserBand("2", "green", "B3, central wavelength 560 nm", "", "", [0], "nm"),
-            UserBand("3", "blue", "B2, central wavelength 490 nm", "", "", [0], "nm")
+            UserBand("1", "red", "B4, central wavelength 665 nm", "", "", [0], ""),
+            UserBand("2", "green", "B3, central wavelength 560 nm", "", "", [0], ""),
+            UserBand("3", "blue", "B2, central wavelength 490 nm", "", "", [0], "")
         ],
     }
     # L2A is same as L1C but doesn't have B10 in the 60m subdataset

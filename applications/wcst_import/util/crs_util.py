@@ -322,16 +322,44 @@ class CRSUtil:
         result = uom_crs.split("/")[-1]
         return result
 
-    def _parse_single_crs(self, crs):
+    @staticmethod
+    def __parse_axes_elements_from_single_crs(crs):
         """
-        Parses the axes out of the CRS definition
-        str crs: a complete CRS request (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
+        Parse the axes XML elements out of the CRS definition
+        :param str crs: a complete CRS request  (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
         """
         try:
             gml = validate_and_read_url(crs)
             root = etree.fromstring(gml)
             cselem = root.xpath("./*[contains(local-name(), 'CS')]")[0]
             xml_axes = cselem.xpath(".//*[contains(local-name(), 'SystemAxis')]")
+            return xml_axes
+        except Exception as ex:
+            raise RuntimeException("Failed parsing the crs at: {}. "
+                                   "Detail error: {}".format(crs, str(ex)))
+
+    @staticmethod
+    def get_axis_labels_from_single_crs(crs):
+        """
+        Parse axis labels out of the CRS definition
+        :param str crs: a complete CRS request  (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
+        """
+        xml_axes = CRSUtil.__parse_axes_elements_from_single_crs(crs)
+        axis_labels = []
+
+        for xml_axis in xml_axes:
+            axis_label = xml_axis.xpath(".//*[contains(local-name(), 'axisAbbrev')]")[0].text
+            axis_labels.append(axis_label)
+
+        return axis_labels
+
+    def _parse_single_crs(self, crs):
+        """
+        Parses the axes out of the CRS definition
+        str crs: a complete CRS request (e.g: http://localhost:8080/def/crs/EPSG/0/4326)
+        """
+        try:
+            xml_axes = self.__parse_axes_elements_from_single_crs(crs)
             axis_labels = []
 
             for xml_axis in xml_axes:
@@ -339,7 +367,7 @@ class CRSUtil:
                 axis_type = CRSAxis.get_axis_type_by_name(axis_label)
 
                 # e.g: http://localhost:8080/def/uom/EPSG/0/9122
-                uom_url = root.xpath(".//*[contains(local-name(), 'CoordinateSystemAxis')]")[0].attrib['uom']
+                uom_url = xml_axis.attrib['uom']
                 try:
                     # NOTE: as opengis.net will redirect to another web page for UoM description, so don't follow it
                     if CRSAxis.UOM_UCUM in uom_url:

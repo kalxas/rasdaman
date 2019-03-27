@@ -36,45 +36,17 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 rm -rf "$SCRIPT_DIR/output"
 
-# This script will iterate the test data of test wcst_import and retrieve all imported coverages by folder name prefix (wcs_, wcps_, wms_)
-# then will remove the coverageName with WCS DeleteCoverage service which will remove the imported coverage and correspondent WMS layers if available.
-declare -a SERVICES=('error_ingest' 'wcs' 'wms' 'wcps')
-DATA_FOLDER="$SCRIPT_DIR/../test_all_wcst_import/testdata"
+result=$(wget -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
 
-# change directory to the DATA_FOLDER
-cd "$DATA_FOLDER"
+coverage_ids=($(grep -oP "(?<=<wcs:CoverageId>)[^<]+"  <<< "$result"))
 
-deleted_coverages=()
-
-# list all the subdirectories of data folder
-for d in */ ; do
-	# check if folder name contains the services prefix
-	for service in "${SERVICES[@]}"; do
-		if [[ "$d" =~ "$service" ]]; then
-            # get the template json file
-            templateFile="$d/ingest.template.json"
-
-            # get the coverageID from template file
-            coverage_id=$(grep -Po -m 1 '"coverage_id":.*?[^\\]".*' $templateFile | awk -F'"' '{print $4}')
-
-            # check if coverage was deleted in other folder, if not skip it
-            found=0
-
-            for deleted_coverage in "${deleted_coverages[@]}"; do
-                [[ "$deleted_coverage" = "$coverage_id" ]] && found=1
-            done
-
-            if [[ "$found" -eq 0 ]]; then
-                logn "removing coverage $coverage_id... "
-                # remove the imported coverage
-                delete_coverage "$coverage_id"
-                check
-
-                # add this coverage to list of deleted coverages
-                deleted_coverages+=("$coverage_id")
-            fi
-		fi
-	done
+for coverage_id in "${coverage_ids[@]}"; do
+    # All test coverages import in test wcst_import will be removed
+    if [[ "$coverage_id" == test_* ]]; then
+        logn "removing coverage '$coverage_id'... "
+        delete_coverage "$coverage_id"
+        check
+    fi
 done
 
 # mean_summer_airtemp is a demo coverage imported by petascope_insertdemo.sh and is used in WS client, tab WCS ProcessCoverages

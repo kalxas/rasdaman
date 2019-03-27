@@ -1635,7 +1635,7 @@ As of now, these recipes are provided:
 * :ref:`General coverage <data-import-recipe-general-coverage>`
 * :ref:`Import from external WCS <data-import-recipe-wcs_extract>`
 * Specialized recipes
-
+    - :ref:`Sentinel 1 <data-import-recipe-sentinel1>`
     - :ref:`Sentinel 2 <data-import-recipe-sentinel2>`
 
 For each one of these there is an ingredients example under the
@@ -2621,6 +2621,88 @@ petascope. Parameters are explained below.
       }
     }
 
+
+.. _data-import-recipe-sentinel1:
+
+Import Sentinel 1 data
+^^^^^^^^^^^^^^^^^^^^^^
+
+This is a convenience recipe for importing Sentinel 1 data in particular;
+**currently only GRD product types are supported**, and only geo-referenced
+tiff files. Below is an example:
+
+.. code-block:: json
+
+    {
+      "config": {
+        "service_url": "http://localhost:8080/rasdaman/ows",
+        "automated": true,
+        "track_files": false
+      },
+      "input": {
+        "coverage_id": "S1_GRD_${modebeam}_${polarisation}",
+         
+         // (e.g: a geo-referenced tiff file to CRS: EPSG:4326, mode beam IW,
+         //  singler polarisation VH:
+         // s1a-iw-grd-vh-20190226t171654-20190326t171719-026512-02f856-002.tiff)
+        "paths": [ "*.tiff" ],
+
+        "modebeams": ["EW", "IW"],
+        "polarisations": ["HH", "HV", "VV", "VH"]
+      },
+      "recipe": {
+        "name": "sentinel1",
+        "options": {
+          "coverage": {
+            "metadata": {
+              "type": "xml",
+              "global": {
+                "Title": "'Sentinel-1 GRD data served by rasdaman'"
+              }
+            }
+          },
+          "tiling": "ALIGNED [0:0, 0:1999, 0:1999] TILE SIZE 32000000",
+          "wms_import": true
+        }
+      }
+    }
+
+The recipe extends `general_coverage <data-import-recipe-wcs_extract>`_ so
+the ``"recipe"`` section has the same structure. However, a lot of information
+is automatically filled in by the recipe now, so the ingredients file is much
+simpler as the example above shows.
+
+The other obvious difference is that the ``"coverage_id"`` is templated with
+several variables enclosed in ``${`` and ``}`` which are automatically replaced
+to generate the actual coverage name during import:
+
+- ``modebeam`` - the mode beam of input files, e.g. ``IW/EW``.
+
+- ``polarisation`` - single polarisation of input files, e.g: ``HH/HV/VV/VH``
+
+If the files collected by ``"paths"`` are varying in any of these parameters,
+the corresponding variables must appear somewhere in the ``"coverage_id"`` (as
+for each combination a separate coverage will be constructed). Otherwise, the
+ingestion will either fail or result in invalid coverages. E.g. if all data's mode beam
+is  ``IW``, but still different polarisations, the
+``"coverage_id"`` could be ``"MyCoverage_${polarisation}"``;
+
+In addition, the data to be ingested can be optionall filtered with the
+following options in the ``"input"`` section:
+
+- ``modebeams`` - specify a subset of mode beams to ingest from the data,
+  e.g. only the ``IW`` mode beam; if not specified, data of all supported
+  mode beams will be ingested.
+
+- ``polarisations`` - specify a subset of polarisations to ingest,
+  e.g. only the ``HH`` polarisation; if not specified, data of all supported
+  polarisations will be ingested.
+
+**Limitations:**
+
+- Only GRD products are supported.
+- Data must be geo-referenced.
+- Filenames are assumed to be of the format ``s1[ab]-(.*?)-grd(.?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?).tiff``.
 
 .. _data-import-recipe-sentinel2:
 

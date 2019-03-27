@@ -551,7 +551,8 @@ class Recipe(BaseRecipe):
         if not crs.startswith("http"):
             crs_parts = crs.split("@")
             for i in range(0, len(crs_parts)):
-                crs_parts[i] = crs_resolver + crs_parts[i]
+                if not crs_parts[i].startswith("http"):
+                    crs_parts[i] = crs_resolver + crs_parts[i]
             crs = CRSUtil.get_compound_crs(crs_parts)
 
         return crs

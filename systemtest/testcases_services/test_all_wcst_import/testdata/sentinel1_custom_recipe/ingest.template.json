@@ -1,0 +1,28 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "automated": true,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_S1_GRD_${modebeam}_${polarisation}",
+    "paths": [ "*.tiff" ],
+    "modebeams": ["EW", "IW"],
+    "polarisations": ["HH", "HV", "VV", "VH"]
+  },
+  "recipe": {
+    "name": "sentinel1",
+    "options": {
+      "coverage": {
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'Sentinel-1 data served by rasdaman'"
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:0, 0:1999, 0:1999] TILE SIZE 32000000",
+      "wms_import": true
+    }
+  }
+}

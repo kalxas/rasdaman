@@ -59,7 +59,7 @@ TEST_DATA="$SCRIPT_DIR/testdata"
 OUTPUT_DIR="$SCRIPT_DIR/output"
 
 # Check if coverage ID should be deleted or keep for other test cases (by folder name "contains")
-COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "tmp")
+COVERAGE_FOLDER_LIST=("wcps" "wcs" "wms" "tmp" "custom_recipe")
 keep_coverage_by_folder_name() {
     for FOLDER_NAME in "${COVERAGE_FOLDER_LIST[@]}"
     do
