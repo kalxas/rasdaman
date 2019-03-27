@@ -147,7 +147,6 @@ public class CoverageRepostioryService {
      * @param coverageId
      * @return
      * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
      */
     public Coverage readCoverageByIdFromDatabase(String coverageId) throws PetascopeException {
         
@@ -193,7 +192,7 @@ public class CoverageRepostioryService {
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
         CoverageRepostioryService.addCrsPrefix(coverage);
-        
+
         return coverage;
     }
 

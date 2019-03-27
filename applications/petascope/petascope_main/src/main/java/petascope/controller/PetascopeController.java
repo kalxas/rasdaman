@@ -119,6 +119,7 @@ public class PetascopeController extends AbstractController {
         long start = System.currentTimeMillis();
         
         String service = null;
+        String request = null;
         Response response = null;
         boolean requestSuccess = true;
         
@@ -141,6 +142,7 @@ public class PetascopeController extends AbstractController {
                 String[] versions = kvpParameters.get(KVPSymbols.KEY_VERSION);
                 // e.g: GetCapabilities, DescribeCoverage
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
+                request = requestService;
 
                 // Check if any handlers can handle the request
                 for (AbstractHandler handler : handlers) {

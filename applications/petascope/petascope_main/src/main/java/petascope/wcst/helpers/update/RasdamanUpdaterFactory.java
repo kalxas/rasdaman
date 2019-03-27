@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import petascope.util.IOUtil;
 
-import java.io.File;
 import java.io.IOException;
 import org.springframework.stereotype.Service;
 import static petascope.util.JSONUtil.EMPTY_ROOT_NODE;
@@ -36,6 +35,8 @@ import static petascope.util.JSONUtil.EMPTY_ROOT_NODE;
  */
 @Service
 public class RasdamanUpdaterFactory {
+    
+    public static final int NO_EXPAND_DIMENSION = -1;
 
     public RasdamanUpdaterFactory() {
     }

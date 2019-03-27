@@ -184,7 +184,7 @@ public class DeleteCoverageHandler {
      *
      * @param coverageId the layerID from WMS service to delete
      */
-    private void deleteFromWMS(String coverageId) {
+    private void deleteFromWMS(String coverageId) throws PetascopeException {
         Layer layer = wmsRepositoryService.readLayerByNameFromDatabase(coverageId);
         if (layer != null) {
             // Layer does exist, remove it

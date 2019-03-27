@@ -336,7 +336,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         try {
             result = encodeCoverageHandler.handle(coverageExpression, formatType, extraParams);
             result.setWithCoordinates(coverageExpression.withCoordinates());
-        } catch (PetascopeException | JsonProcessingException ex) {
+        } catch (PetascopeException | SecoreException | JsonProcessingException ex) {
             String errorMessage = "Error processing encode() operator expression. Reason: " + ex.getMessage() + ".";
             throw new WCPSException(errorMessage, ex);
         }

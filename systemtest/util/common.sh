@@ -693,6 +693,9 @@ prepare_xml_file()
              -e '/PostCode/d' \
              -e '/PostalCode/d' \
              -e 's/Long/Lon/g' \
+	     -e 's/Point /Point\n/g' \
+	     -e 's/ReferenceableGridCoverage /ReferenceableGridCoverage\n/g' \
+	     -e 's/^[[:space:]]*//' \
              "$xml_file"
   fi
 }

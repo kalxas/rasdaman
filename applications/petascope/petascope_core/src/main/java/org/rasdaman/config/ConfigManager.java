@@ -245,7 +245,7 @@ public class ConfigManager {
         String petaPropsPath = confDir + PETASCOPE_PROPERTIES_FILE;
 
         initLogger(petaPropsPath);
-        initSettings(petaPropsPath);
+        initSettings(confDir, petaPropsPath);
     }
 
     private void initLogger(String petaPropsPath) {
@@ -262,7 +262,7 @@ public class ConfigManager {
      * Overwrite defaults settings with user-defined values in
      * petascope.properties
      */
-    private void initSettings(String petaPropsPath) throws RasdamanException, PetascopeException {
+    private void initSettings(String confDir, String petaPropsPath) throws RasdamanException, PetascopeException {
         try {
             props = new Properties();
             props.load(new FileInputStream(petaPropsPath));

@@ -183,18 +183,16 @@ public class CrsComputerService {
             // these values are the translated from datetime string with datumOrigin to number            
             BigDecimal minInput = numericSubset.getLowerLimit();
             BigDecimal maxInput = numericSubset.getUpperLimit();
-
-            // then, they must be translated to coefficients as the directPositions is list of coefficient.
-            // Normalize the input with the lowerBound of current geo axis first.
-            // NOTE: need to normalize based on first import coverage slice (coefficient zero) not the coeffcient for lower bound
-            BigDecimal coefficientZeroBoundNumber = ((IrregularAxis)this.geoAxis).getCoefficientZeroBoundNumber();
-            BigDecimal normalizedMinInput = minInput.subtract(coefficientZeroBoundNumber);
-            BigDecimal normalizedMaxInput = maxInput.subtract(coefficientZeroBoundNumber);
+            
+            BigDecimal zeroCoefficientValue = ((IrregularAxis) geoAxis).getCoefficientZeroBoundNumber();
+            BigDecimal normalizedMinInput = minInput.subtract(zeroCoefficientValue);
+            BigDecimal normalizedMaxInput = maxInput.subtract(zeroCoefficientValue);
 
             // Get the grid indices which were mapped to the coefficients in irregular axis
             Pair<Long, Long> gridIndices = ((IrregularAxis) geoAxis).getGridIndices(normalizedMinInput, normalizedMaxInput);
+            Pair<Long, Long> gridBoundsPair = ((IrregularAxis) geoAxis).calculateGridBoundsByZeroCoefficientIndex(this.indexAxis, gridIndices.fst, gridIndices.snd);
 
-            return new ParsedSubset<>(gridIndices.fst, gridIndices.snd);
+            return new ParsedSubset<>(gridBoundsPair.fst, gridBoundsPair.snd);
         } catch (Exception e) {
             throw new IrregularAxisFetchingFailedException(coverage.getCoverageId(), axisName, e);
         }

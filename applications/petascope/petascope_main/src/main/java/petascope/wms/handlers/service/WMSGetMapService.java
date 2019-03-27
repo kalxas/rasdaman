@@ -1032,7 +1032,7 @@ public class WMSGetMapService {
      *
      * @return
      */
-    private String buildCoverageExpressionByRasqlTransformFragment(String coverageAlias, String layerName, String styleName) {
+    private String buildCoverageExpressionByRasqlTransformFragment(String coverageAlias, String layerName, String styleName) throws PetascopeException {
         String coverageExpression = null;
         Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
         coverageExpression = style.getRasqlQueryTransformFragment().replace(RASQL_FRAGMENT_ITERATOR, coverageAlias);

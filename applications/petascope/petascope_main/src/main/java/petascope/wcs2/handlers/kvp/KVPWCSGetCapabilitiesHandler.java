@@ -52,8 +52,6 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWCSGetCapabilitiesHandler.class);
     
-    private static final String DEFAULT_COVERAGE_ID = "GetCapabilities";
-
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
 
@@ -106,6 +104,6 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
         }
 
         // GetCapabilities only returns 1 XML string                
-        return new Response(Arrays.asList(gml.getBytes()), MIMEUtil.MIME_GML, DEFAULT_COVERAGE_ID);
+        return new Response(Arrays.asList(gml.getBytes()), MIMEUtil.MIME_GML);
     }
 }

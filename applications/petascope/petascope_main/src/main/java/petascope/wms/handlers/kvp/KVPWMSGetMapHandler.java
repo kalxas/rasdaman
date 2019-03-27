@@ -88,7 +88,7 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
     }
 
     @Override
-    public void validate(Map<String, String[]> kvpParameters) throws WMSException {
+    public void validate(Map<String, String[]> kvpParameters) throws WMSException, PetascopeException {
         // Table 8 — The Parameters of a GetMap request (WMS 1.3.0 document)        
         // Layers (manadatory)
         String[] layersParam = kvpParameters.get(KVPSymbols.KEY_WMS_LAYERS);

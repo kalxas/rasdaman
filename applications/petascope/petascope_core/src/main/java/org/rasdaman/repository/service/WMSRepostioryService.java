@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import petascope.exceptions.PetascopeException;
 
 /**
  *
@@ -74,7 +75,7 @@ public class WMSRepostioryService {
      * @param layerName
      * @return
      */
-    public Layer readLayerByNameFromCache(String layerName) {
+    public Layer readLayerByNameFromCache(String layerName) throws PetascopeException {
         // Check if layer already cached        
         Layer layer = layersCacheMap.get(layerName);
         if (layer == null) {
@@ -92,7 +93,7 @@ public class WMSRepostioryService {
      * @param layerName
      * @return
      */
-    public Layer readLayerByNameFromDatabase(String layerName) {
+    public Layer readLayerByNameFromDatabase(String layerName) throws PetascopeException {
         
         // This happens when Petascope starts and user sends a WMS GetMap query to a coverage instead of WMS GetCapabilities
         if (layersCacheMap.isEmpty()) {
@@ -118,8 +119,19 @@ public class WMSRepostioryService {
      *
      * @return
      */
-    public List<Layer> readAllLayers() {
-        // Only read from database when starting petascope and cache all the WMS layers
+    public List<Layer> readAllLayers() throws PetascopeException {
+
+        // Read all layers from database
+        List<Layer> layers = this.readAllLocalLayers();
+
+        return layers;
+    }
+
+
+     /**
+     * This one should return only local layer of this node and not contain any remote layers.
+     */
+    public List<Layer> readAllLocalLayers() throws PetascopeException {
         List<Layer> layers = new ArrayList<>();
         if (layersCacheMap.isEmpty()) {
             for (Layer layer : this.layerRepository.findAll()) {

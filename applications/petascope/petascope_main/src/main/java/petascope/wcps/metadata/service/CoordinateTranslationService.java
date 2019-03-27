@@ -186,14 +186,10 @@ public class CoordinateTranslationService {
         upperCoefficient = upperCoefficient.add(irregularAxis.getFirstCoefficient());
         
         // Return the grid indices of the lower and upper coefficients in an irregular axis
-        Pair<Long, Long> indices = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
-        
-        // Nomarlize the grid indices based on zeroCoefficient index (always >= 0 from the list of direct positions)
-        // to get correct Rasql grid indices (can be < 0) (!)
-        int coefficientZeroIndex = irregularAxis.getIndexOfCoefficientZero();
-        indices = new Pair<>(indices.fst - coefficientZeroIndex, indices.snd - coefficientZeroIndex);
+        Pair<Long, Long> gridIndicePair = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);
+        Pair<Long, Long> gridBoundsPair = irregularAxis.calculateGridBoundsByZeroCoefficientIndex(gridIndicePair.fst, gridIndicePair.snd);
 
-        return new ParsedSubset(indices.fst, indices.snd);
+        return new ParsedSubset(gridBoundsPair.fst, gridBoundsPair.snd);
     }
     
     /**

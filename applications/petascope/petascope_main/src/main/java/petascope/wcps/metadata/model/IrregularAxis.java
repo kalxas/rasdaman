@@ -99,6 +99,41 @@ public class IrregularAxis extends Axis {
         
         return coefficientZeroBoundNumber;
     }
+    
+    /**
+     * From the index of grid bound in list of coefficients, find out the correspond
+     * grid bound in rasdaman grid axis. e.g: a list of coefficients: 
+     * -30 -20 -10 0 10 20
+     * grid axis domain is: [-1:4], zero coefficient index is 3 in list of coefficients,
+     * then grid bound of index -3 (normalized by zero coefficient) will return grid value -1.
+     */
+    public Pair<Long, Long> calculateGridBoundsByZeroCoefficientIndex(Long indexOfGridLowerBound, Long indexOfGridUpperBound) {
+        int coefficientZeroIndex = this.getIndexOfCoefficientZero();
+        indexOfGridLowerBound = indexOfGridLowerBound - coefficientZeroIndex;
+                
+        Long normalizedCurrentGridLowerBound = -1L * coefficientZeroIndex;
+        Long currentGridLowerBound = this.getGridBounds().getLowerLimit().longValue();
+
+        Long distance = 0L;
+
+        if (normalizedCurrentGridLowerBound.compareTo(indexOfGridLowerBound) == 0) {
+            if (indexOfGridUpperBound == null) {
+                distance = 1L;
+            }                  
+        } else {
+            distance = normalizedCurrentGridLowerBound - indexOfGridLowerBound;
+        }
+
+        Long gridLowerBound = currentGridLowerBound - distance;
+        Long gridUpperBound = gridLowerBound;
+        if (indexOfGridUpperBound != null) {
+            distance = -(indexOfGridUpperBound - indexOfGridLowerBound);
+            gridUpperBound = gridLowerBound - distance;
+        }
+        
+        return new Pair<>(gridLowerBound, gridUpperBound);
+    }
+    
 
     /**
      *
@@ -157,7 +192,8 @@ public class IrregularAxis extends Axis {
             throw new PetascopeException(ExceptionCode.RuntimeError, errorMessage);
         }
 
-        return new Pair(minIndex, maxIndex);
+        Pair<Long, Long> gridBoundsPair = new Pair<>(minIndex, maxIndex);
+        return gridBoundsPair;
     }
 
     /**

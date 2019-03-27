@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.wcps.parameters.model.netcdf.NetCDFExtraParams;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.result.WcpsResult;
@@ -76,7 +77,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
     private NetCDFParametersService netCDFParametersFactory;
     
 
-    public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException {
+    public WcpsResult handle(WcpsResult coverageExpression, String format, String extraParams) throws PetascopeException, JsonProcessingException, SecoreException {
         // get the mime-type before modifying the rasqlFormat
         String mimeType = MIMEUtil.getMimeType(format);
         
@@ -119,7 +120,7 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
      * @return
      */
     private String getExtraParams(WcpsResult coverageExpression, String rasqlFormat,
-            String extraParams) throws PetascopeException, JsonProcessingException, IOException {
+            String extraParams) throws PetascopeException, JsonProcessingException, IOException, SecoreException {
         String otherParamsString = "";
         NetCDFExtraParams netCDFExtraParams = null;
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();

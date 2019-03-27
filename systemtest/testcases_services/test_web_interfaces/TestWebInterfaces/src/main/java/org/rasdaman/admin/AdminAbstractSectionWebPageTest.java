@@ -30,8 +30,20 @@ import org.rasdaman.Config;
  */
 public abstract class AdminAbstractSectionWebPageTest extends AbstractWebPageTest {
     
+    // each section belongs to a URL and can contain multiple cases
+    protected String sectionName;
+    
     public AdminAbstractSectionWebPageTest() {
         super(Config.WS_CLIENT_CONTEXT_PATH);
         this.testFolder = "admin";
     } 
+    
+    /**
+     * Return the string representing the test case with section name
+     * @param testCaseName
+     * @return 
+     */
+    protected String getSectionTestCaseName(String testCaseName) {
+        return this.sectionName + "/" + testCaseName;
+    }
 }

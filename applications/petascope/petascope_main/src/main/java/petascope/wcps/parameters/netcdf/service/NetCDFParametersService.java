@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
 import petascope.wcps.encodeparameters.model.BandsMetadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.exceptions.SecoreException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.RangeField;
@@ -75,7 +76,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    public NetCDFExtraParams buildParameters(WcpsCoverageMetadata metadata) throws PetascopeException {
+    public NetCDFExtraParams buildParameters(WcpsCoverageMetadata metadata) throws PetascopeException, SecoreException {
         // NOTE: this needs to write with grid axis order
         List<String> dimensions = this.buildDimensions(metadata.getSortedAxesByGridOrder());
         List<Variable> vars = this.buildVariables(metadata);
@@ -116,7 +117,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException {
+    private List<DimensionVariable> buildDimensionVariables(WcpsCoverageMetadata wcpsCoverageMetadata) throws PetascopeException, SecoreException {
         String covName = wcpsCoverageMetadata.getCoverageName();
         List<Axis> axes = wcpsCoverageMetadata.getSortedAxesByGridOrder();        
         List<DimensionVariable> dimensionVariables = new ArrayList<>();
@@ -182,7 +183,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<Variable> buildVariables(WcpsCoverageMetadata metadata) throws PetascopeException {
+    private List<Variable> buildVariables(WcpsCoverageMetadata metadata) throws PetascopeException, SecoreException {
         List<Variable> variables = new ArrayList<>();
         // NOTE: this needs to write with grid axis order
         variables.addAll(this.buildDimensionVariables(metadata));
@@ -199,7 +200,7 @@ public class NetCDFParametersService {
      * @return
      * @throws PetascopeException 
      */
-    private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException {
+    private List<Double> buildPoisitionData(String covName, Axis axis) throws PetascopeException, SecoreException {
 
         // data=[geoLow, geoLow+res, geoLow+2*res, ...., geoHigh]
         List<Double> data = new ArrayList<>();
