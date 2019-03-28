@@ -336,34 +336,26 @@ r_GMarray::insert_obj_into_db(const char* collName)
 
 
 void
-r_GMarray::print_status(std::ostream& s) const
+r_GMarray::print_status(std::ostream& s)
 {
-    const r_Type*       typeSchema     = static_cast<r_Base_Type*>(const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema()));
-    const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
+    const r_Type*       typeSchema     = get_type_schema();
+    const r_Base_Type*  baseTypeSchema = get_base_type_schema();
 
     s << "GMarray" << endl;
     s << "  Oid...................: " << get_oid() << endl;
-    s << "  Type Structure........: " << (get_type_structure() ? get_type_structure() : "<nn>") << endl;
+    s << "  Type Structure........: " << (type_structure ? type_structure : "<nn>") << endl;
     s << "  Type Schema...........: " << std::flush;
     if (typeSchema)
-    {
         typeSchema->print_status(s);
-    }
     else
-    {
         s << "<nn>" << std::flush;
-    }
     s << endl;
     s << "  Domain................: " << domain << endl;
     s << "  Base Type Schema......: " << std::flush;
     if (baseTypeSchema)
-    {
         baseTypeSchema->print_status(s);
-    }
     else
-    {
         s << "<nn>" << std::flush;
-    }
     s << endl;
     s << "  Base Type Length......: " << type_length << endl;
     s << "  Data format.......... : " << current_format << endl;
@@ -373,12 +365,12 @@ r_GMarray::print_status(std::ostream& s) const
 
 
 void
-r_GMarray::print_status(std::ostream& s, int hexoutput) const
+r_GMarray::print_status(std::ostream& s, int hexoutput)
 {
     print_status(s);
 
-    const r_Type*       typeSchema     = static_cast<r_Base_Type*>(const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema()));
-    const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
+    const r_Type*       typeSchema     = get_type_schema();
+    const r_Base_Type*  baseTypeSchema = get_base_type_schema();
 
     if (domain.dimension())
     {

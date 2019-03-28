@@ -124,7 +124,7 @@ void RasServerEntry::compat_connectNewClient(const char* capability)
 void RasServerEntry::compat_disconnectClient()
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    LTRACE << "Request: disconnect...";
+    LDEBUG << "Request: disconnect...";
 
     // reverted the below to execute the #if part instead of the #else
     // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239

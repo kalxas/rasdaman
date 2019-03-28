@@ -46,6 +46,7 @@ rasdaman GmbH.
 #include "indexmgr/keyobject.hh"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+#include <memory>
 
 void
 DBHierIndex::insertInDb()
@@ -67,13 +68,9 @@ DBHierIndex::insertInDb()
     indexsubtype2 = _isNode;
 
     if (parent.getType() == OId::INVALID)
-    {
         parentid2 = 0;
-    }
     else
-    {
         parentid2 = parent;
-    }
 
     // (1) -- set all buffers
     r_Bytes headersize = sizeof(header);
@@ -186,235 +183,166 @@ DBHierIndex::insertInDb()
 void
 DBHierIndex::readFromDb()
 {
-#ifdef RMANBENCHMARK
-    DBObject::readTimer.resume();
-#endif
-    r_Bytes headersize;
-    long long header;
-    int blobformat;
-
-    long long id1;
-    long long parentid1;
-    r_Bytes dimension1;
-    r_Bytes size1;
-    int indexsubtype1;
-    r_Bytes blobsize = 0;
-    char* blobbuffer = NULL;
 
     // (0) --- prepare variables
-    id1 = myOId.getCounter();
+
+    long long oid = myOId.getCounter();
+
+    long long parentOid;
+    r_Bytes dimension;
+    r_Bytes numEntries;
+    int indexSubType;
+    r_Bytes blobSize = 0;
+    std::unique_ptr<char[]> blobBuffer;
 
     // (1) --- fetch tuple from database
-    SQLiteQuery query("SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id1);
+
+    SQLiteQuery query(
+            "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData "
+            "FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", oid);
     if (query.nextRow())
     {
-        size1 = static_cast<r_Bytes>(query.nextColumnInt());
-        dimension1 = static_cast<r_Bytes>(query.nextColumnInt());
-        parentid1 = query.nextColumnLong();
-        indexsubtype1 = query.nextColumnInt();
-
+        numEntries = static_cast<r_Bytes>(query.nextColumnInt());
+        dimension = static_cast<r_Bytes>(query.nextColumnInt());
+        parentOid = query.nextColumnLong();
+        indexSubType = query.nextColumnInt();
+        _isNode = indexSubType;
         // read blob
-        char* tmpblobbuffer = query.nextColumnBlob();
-        blobsize = static_cast<r_Bytes>(query.currColumnBytes());
-        blobbuffer = (char*) mymalloc(blobsize);
-        memcpy(blobbuffer, tmpblobbuffer, blobsize);
+        const auto *tmpblobbuffer = query.nextColumnBlob();
+        blobSize = static_cast<r_Bytes>(query.currColumnBytes());
+        blobBuffer.reset(new char[blobSize]);
+        memcpy(blobBuffer.get(), tmpblobbuffer, blobSize);
     }
     else
     {
-        LERROR << "DBHierIndex::readFromDb() - index entry: " << id1 << " not found in the database.";
+        LERROR << "index entry: " << oid << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 
     // (2) --- fill variables and buffers
 
-    _isNode = indexsubtype1;
+    parent = parentOid ? OId(parentOid) : OId(0, OId::INVALID);
 
-    if (parentid1)
-    {
-        parent = OId(parentid1);
-    }
-    else
-    {
-        parent = OId(0, OId::INVALID);
-    }
+    // old format, contains 13 in first byte
+    static const int BLOB_FORMAT_V1 = 8;
+    static const int BLOB_FORMAT_V1_HEADER_SIZE = 1;
+    static const int BLOB_FORMAT_V1_HEADER_MAGIC = 13;
+    // OIDcounter is now long, but r_Range is still int
+    static const int BLOB_FORMAT_V2 = 9;
+    static const int BLOB_FORMAT_V2_HEADER_SIZE = 8;
+    static const long long BLOB_FORMAT_V2_HEADER_MAGIC = 1009;
+    // blobFormat == 10: r_Range is long as well
+    static const int BLOB_FORMAT_V3 = 10;
 
-    r_Bytes idssize = 0;
-    r_Bytes newidssize = 0;
-    r_Bytes boundssize = 0;
-    r_Bytes newboundssize = 0;
+    const size_t newIdSize = sizeof(OId::OIdCounter);
+    size_t idSize = newIdSize;
+    const size_t newBoundSize = sizeof(r_Range);
+    size_t boundSize = newBoundSize;
 
-    // blobformat == 8: old format, contains 13 in first byte
-    // blobformat == 9: OIDcounter is now long, but r_Range is still int
-    // blobformat == 10: r_Range is long as well
-
-    LDEBUG << "blobbuffer[0]: " << (int)blobbuffer[0];
-    if (blobbuffer[0] == 13)
+    int blobFormat{};
+    r_Bytes headerSize{};
+    if (blobBuffer[0] == BLOB_FORMAT_V1_HEADER_MAGIC)
     {
         // old format
-        blobformat = 8;
-        idssize = sizeof(int) * size1;
-        newidssize = sizeof(OId::OIdCounter) * size1;
-        //number of bytes for types of entries
-        //number of bytes for bounds for "size" entries and mydomain
-        boundssize = sizeof(int) * (size1 + 1) * dimension1;
-        newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
-        headersize = 1;
+        blobFormat = BLOB_FORMAT_V1;
+        idSize = sizeof(int);
+        boundSize = sizeof(int);
+        headerSize = BLOB_FORMAT_V1_HEADER_SIZE;
     }
     else
     {
-        headersize = 8;
-        memcpy(&header, &blobbuffer[0], headersize);
-        if (header == 1009)
-        {
-            blobformat = 9;
-            idssize = sizeof(OId::OIdCounter) * size1;
-            boundssize = sizeof(int) * (size1 + 1) * dimension1;
-            newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
-        }
-        else
-        {
-            blobformat = 10;
-            idssize = sizeof(OId::OIdCounter) * size1;
-            //number of bytes for types of entries
-            boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
-        }
+        // new format (v2 or v3)
+        headerSize = BLOB_FORMAT_V2_HEADER_SIZE;
+        auto header = *reinterpret_cast<long long *>(&blobBuffer[0]);
+        blobFormat = header == BLOB_FORMAT_V2_HEADER_MAGIC ? BLOB_FORMAT_V2
+                                                           : BLOB_FORMAT_V3;
     }
+    r_Bytes idsSize = idSize * numEntries;
+    r_Bytes boundsSize = boundSize * (numEntries + 1) * dimension;
+    r_Bytes newBoundsSize = newBoundSize * (numEntries + 1) * dimension;
 
-    LDEBUG << "blobformat: " << blobformat;
 
-    //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
-    //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size1;
-    //number of bytes for the dynamic data
-    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    // number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixesSize = sizeof(char) * (numEntries + 1) * dimension;
+    // number of bytes for types of entries
+    r_Bytes typesSize = sizeof(char) * numEntries;
+    // number of bytes for the dynamic data
+    r_Bytes completeSize =
+            headerSize +
+            boundsSize * 2 +
+            fixesSize * 2 +
+            idsSize + typesSize;
 
-    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1;
+    LTRACE << "blob format: " << blobFormat;
+    LTRACE << "complete=" << completeSize << " bounds=" << boundsSize
+           << " fixes=" << fixesSize << " ids=" << idsSize
+           << " types=" << typesSize << ", entries=" << numEntries
+           << " dimension=" << dimension;
 
-    char* completebuffer = blobbuffer;
-
-    OId::OIdCounter* entryidsbuf = NULL;
-    r_Range* upperboundsbuf = NULL;
-    r_Range* lowerboundsbuf = NULL;
-    char* upperfixedbuf = NULL;
-    char* lowerfixedbuf = NULL;
-
-    int* oldupperboundsbuf = NULL;
-    int* oldlowerboundsbuf = NULL;
-    unsigned int* oldentryidsbuf = NULL;
-
-    if (blobformat == 8)
+    if (completeSize != blobSize)  // this because I don't trust computations
     {
-        // old entries need to be allocated because the data is not aligned
-        oldentryidsbuf = (unsigned int*) mymalloc(idssize);
-        oldupperboundsbuf = (int*) mymalloc(boundssize);
-        oldlowerboundsbuf = (int*) mymalloc(boundssize);
-
-        // new entries need to be allocated because blobbuffer is smaller
-        entryidsbuf = (long long*) mymalloc(newidssize);
-        upperboundsbuf = (long long*) mymalloc(newboundssize);
-        lowerboundsbuf = (long long*) mymalloc(newboundssize);
-    }
-    else if (blobformat == 9)
-    {
-        // r_Range is still an int
-        oldupperboundsbuf = (int*) mymalloc(boundssize);
-        oldlowerboundsbuf = (int*) mymalloc(boundssize);
-        upperboundsbuf = (long long*) mymalloc(newboundssize);
-        lowerboundsbuf = (long long*) mymalloc(newboundssize);
-    }
-    else
-    {
-        // can be just pointers into blobbuffer
-    }
-
-    if (completesize != blobsize) // this because I don't trust computations
-    {
-        LTRACE << "BLOB (" << id1 << ") read: xcompletesize=" << completesize << ", but blobsize=" << blobsize;
+        LTRACE << "BLOB (" << oid << ") read: completeSize=" << completeSize
+               << ", but blobSize=" << blobSize;
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
 
+    char *completeBuf = blobBuffer.get();
+    completeBuf += headerSize;
+
+    char *lowerBoundsBuf = &completeBuf[0];
+    char *upperBoundsBuf = &completeBuf[boundsSize];
+    char *lowerFixedBuf = &completeBuf[boundsSize * 2];
+    char *upperFixedBuf = &completeBuf[boundsSize * 2 + fixesSize];
+    char *entryIdsBuf = &completeBuf[boundsSize * 2 + fixesSize * 2];
+    char *entryTypesBuf = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
+
     // (4) --- copy data into buffers
-    if (blobformat <= 9)
-    {
-        // for blobformat 8 and 9 were only
-        memcpy(oldlowerboundsbuf, &completebuffer[headersize], boundssize);
-        memcpy(oldupperboundsbuf, &completebuffer[boundssize + headersize], boundssize);
-        // we need to copy all values over
-        for (long i = 0; i < (size1 + 1) * dimension1; i++)
-        {
-            lowerboundsbuf[i] = (r_Range) oldlowerboundsbuf[i];
-            upperboundsbuf[i] = (r_Range) oldupperboundsbuf[i];
-        }
-    }
-    else
-    {
-        lowerboundsbuf = (r_Range*) & completebuffer[headersize];
-        upperboundsbuf = (r_Range*) & completebuffer[boundssize + headersize];
-    }
 
-    lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
-    upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
+#define GET_BOUND(buf) \
+(blobFormat <= BLOB_FORMAT_V2) ? static_cast<r_Range>(*reinterpret_cast<int*>(buf)) \
+                             : *reinterpret_cast<r_Range*>(buf)
 
-    if (blobformat == 8)
-    {
-        memcpy(oldentryidsbuf, &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
-        // we need to copy all values over
-        for (long i = 0; i < size1; i++)
-        {
-            entryidsbuf[i] = (OId::OIdCounter) oldentryidsbuf[i];
-        }
-    }
-    else
-    {
-        lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
-        upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
-        entryidsbuf = (OId::OIdCounter*) & completebuffer[boundssize * 2 + fixessize * 2 + headersize];
-    }
+    auto lowerBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
+    auto upperBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
 
-    char* entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize];
+    char buf[sizeof(r_Range)];
+    for (size_t i = 0; i < (numEntries + 1) * dimension; i++)
+    {
+        memcpy(buf, lowerBoundsBuf, boundSize);
+        lowerBounds[i] = GET_BOUND(buf);
+        lowerBoundsBuf += boundSize;
+
+        memcpy(buf, upperBoundsBuf, boundSize);
+        upperBounds[i] = GET_BOUND(buf);
+        upperBoundsBuf += boundSize;
+    }
 
     // rebuild the attributes from the buffers
-    long i = 0;
-    myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i * dimension1]));
-    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    myDomain = InlineMinterval(dimension,
+                               &lowerBounds[0], &upperBounds[0], lowerFixedBuf, upperFixedBuf);
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
-    for (i = 0; i < size1; i++)
+    for (r_Bytes i = 0; i < numEntries; i++)
     {
-        theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1) * dimension1]), &(upperboundsbuf[(i + 1) * dimension1]), &(lowerfixedbuf[(i + 1) * dimension1]), &(upperfixedbuf[(i + 1) * dimension1])));
-        theKey.setObject(OId(entryidsbuf[i], (OId::OIdType)entrytypesbuf[i]));
+        lowerFixedBuf += dimension;
+        upperFixedBuf += dimension;
+        theKey.setDomain(InlineMinterval(dimension,
+                                         &lowerBounds[(i + 1) * dimension], &upperBounds[(i + 1) * dimension],
+                                         lowerFixedBuf, upperFixedBuf));
+
+        memcpy(buf, entryIdsBuf, idSize);
+        auto entryId = (blobFormat == BLOB_FORMAT_V1)
+                       ? static_cast<OId::OIdCounter>(*reinterpret_cast<unsigned int *>(buf))
+                       : *reinterpret_cast<OId::OIdCounter *>(buf);
+        entryIdsBuf += idSize;
+
+        theKey.setObject(OId(entryId, (OId::OIdType) entryTypesBuf[i]));
         myKeyObjects.push_back(theKey);
-        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i + 1) * dimension1]), &(upperboundsbuf[(i + 1) * dimension1]), &(lowerfixedbuf[(i + 1) * dimension1]), &(upperfixedbuf[(i + 1) * dimension1]));
     }
-
-    // we only needed to allocated bounds for format 8 and 9
-    if (blobformat <= 9)
-    {
-        free(upperboundsbuf);
-        free(lowerboundsbuf);
-        free(oldupperboundsbuf);
-        free(oldlowerboundsbuf);
-    }
-
-    // we only need to allocate entries for format 8
-    if (blobformat == 8)
-    {
-        free(oldentryidsbuf);
-        free(entryidsbuf);
-    }
-
-    // Expand r_Range to long long
-    free(completebuffer);
-    completebuffer = NULL;
-
-#ifdef RMANBENCHMARK
-    DBObject::readTimer.pause();
-#endif
 
     // (5) --- fill dbobject
     DBObject::readFromDb();
 
-} // readFromDb()
+}  // readFromDb()
 
 void
 DBHierIndex::updateInDb()
@@ -433,13 +361,9 @@ DBHierIndex::updateInDb()
     dimension4 = myDomain.dimension();
     size4 = myKeyObjects.size();
     if (parent.getType() == OId::INVALID)
-    {
         parentid4 = 0;
-    }
     else
-    {
         parentid4 = parent;
-    }
 
     // (1) --- prepare buffer
     // number of bytes for header
@@ -463,6 +387,8 @@ DBHierIndex::updateInDb()
     char* lowerfixedbuf = (char*) mymalloc(fixessize);
     OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
     char* entrytypesbuf = (char*) mymalloc(typessize);
+
+    LTRACE << "Updating index in rasbase with oid " << myOId;
 
     // populate the buffers with data
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));

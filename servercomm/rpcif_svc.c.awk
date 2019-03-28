@@ -26,7 +26,6 @@ BEGIN			{
 			print "\tcatch (std::bad_alloc)";
 			print "\t\t{";
 			print "\t\tbMemFailed = true;"
-			print "\t\tServerComm* sc = ServerComm::actual_servercomm;"			
 			print "\t\tr_Ememory_allocation e;"
 			print "\t\tretvalTxt = e.serialiseError();"
 			print "\t\tu_short temp = 42;";

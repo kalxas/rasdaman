@@ -102,8 +102,7 @@ endif()
 # Use clang + lld for compilation
 #
 set(USE_LLD "") # do not use lld
-set(USE_CLANG OFF CACHE BOOL
-    "Use clang + lld for compiling/linking.")
+set(USE_CLANG OFF CACHE BOOL "Use clang + lld for compiling/linking.")
 if (USE_CLANG)
     set(CMAKE_CXX_COMPILER "clang")
     set(CMAKE_C_COMPILER "clang")
@@ -123,11 +122,14 @@ else ()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-set(ASAN_FLAG "")
-set(ENABLE_ASAN OFF CACHE BOOL
-    "Use AddressSanitizer (compile with -fsanitize=address).")
+#
+# Sanitizer
+#
+set(SANITIZER_FLAG "")
+
+set(ENABLE_ASAN OFF CACHE BOOL "Use AddressSanitizer (compile with -fsanitize=address).")
 if (ENABLE_ASAN)
-    set(ASAN_FLAG "-fsanitize=address")
+    set(SANITIZER_FLAG "-fsanitize=address -fsanitize=undefined -lubsan")
     message(STATUS "AddressSanitizer enabled (-DENABLE_ASAN=${ENABLE_ASAN}).")
 endif ()
 
@@ -138,6 +140,7 @@ set(COMPILER_WARNINGS "-pedantic -Wall -Wextra -Wshadow -Wcast-align -Wcast-qual
 set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wctor-dtor-privacy -Wdisabled-optimization -Wsign-conversion -Wstrict-overflow=5")
 set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wformat=2 -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Woverloaded-virtual")
 set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wno-unused -Wno-unused-parameter -Wno-format-nonliteral -Wno-switch-default")
+set(RDYNAMIC_FLAG "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using Clang
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -152,10 +155,10 @@ endif()
 #
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer ${USE_LLD} ${ASAN_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 
 set(PROJECT_RASDAMAN 1)
 add_definitions(-DPROJECT_RASDAMAN)
@@ -170,8 +173,7 @@ add_definitions(-DELPP_NO_CHECK_MACROS)
 add_definitions(-DELPP_THREAD_SAFE)
 
 # For development
-set(ENABLE_DEBUG OFF CACHE BOOL 
-    "Generate (slower) binaries that can be debugged / produce debug logs.")
+set(ENABLE_DEBUG OFF CACHE BOOL "Generate (slower) binaries that can be debugged / produce debug logs.")
 if (ENABLE_DEBUG)
     add_definitions(-DRASDEBUG)
     set(RMANDEBUG ${ENABLE_DEBUG})
@@ -220,14 +222,12 @@ endif()
 #
 # Options for selecting the network protocol
 #
-set(NETWORK_PROTOCOL rasnet CACHE STRING 
-    "Set the network protocol used in rasdaman (rasnet or rnp).")
+set(NETWORK_PROTOCOL rasnet CACHE STRING "Set the network protocol used in rasdaman (rasnet or rnp).")
 set_property(CACHE NETWORK_PROTOCOL PROPERTY STRINGS rasnet rnp)
 message(STATUS "Building rasdaman with the ${NETWORK_PROTOCOL} protocol (-DNETWORK_PROTOCOL=${NETWORK_PROTOCOL}).")
 if (${NETWORK_PROTOCOL} STREQUAL rasnet)
     set(RMANRASNET 1)
-    set(DISABLE_PROTOBUF_WARNINGS_FLAGS " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef ")    
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+    set(DISABLE_PROTOBUF_WARNINGS_FLAGS " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef -Wno-missing-declarations ")
 else ()
     set(RMANRASNET 0)
 endif ()
@@ -342,6 +342,7 @@ if (USE_GDAL)
     find_package(GDAL REQUIRED)
     set(GDAL_LIBRARIES ${GDAL_LIBRARY})
     set(GDAL_INCLUDE_DIRECTORIES ${GDAL_INCLUDE_DIR})
+    include_directories(SYSTEM ${GDAL_INCLUDE_DIR})
 
     message(STATUS "  GDAL enabled (-DUSE_GDAL=${USE_GDAL}).")
 else()
@@ -583,7 +584,6 @@ add_subdirectory(commline)
 add_subdirectory(common)
 add_subdirectory(conversion)
 add_subdirectory(doc)
-add_subdirectory(httpserver)
 add_subdirectory(include)
 add_subdirectory(indexmgr)
 add_subdirectory(java)

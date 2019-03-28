@@ -166,10 +166,10 @@ public:
     //@}
 
     /// writes the state of the object to the specified stream
-    virtual void print_status(std::ostream& s = std::cout) const;
+    virtual void print_status(std::ostream& s = std::cout);
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s, int hexoutput) const;
+    void print_status(std::ostream& s, int hexoutput);
 
 protected:
     /// spatial domain

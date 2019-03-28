@@ -50,12 +50,12 @@ class StgMddConfig
 {
 private:
     std::vector<r_Minterval> bboxes;
-    double interestThreshold;
-    unsigned int borderThreshold;
-    bool subTiling;
-    int cellSize;
+    double interestThreshold{};
+    unsigned int borderThreshold{};
+    bool subTiling{};
+    int cellSize{};
     std::vector<r_Dir_Decompose> dirDecomp;
-    r_Interest_Tiling::Tilesize_Limit tilingSizeStrategy_AOI;  //uadhikari
+    r_Interest_Tiling::Tilesize_Limit tilingSizeStrategy_AOI{r_Interest_Tiling::NO_LIMIT};
 public:
 
     StgMddConfig();
@@ -69,7 +69,7 @@ public:
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
     void setDirDecompose(const std::vector<r_Dir_Decompose>& input);
-    void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input); //uadhikari
+    void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
 
     // Getter functions
     std::vector<r_Minterval>& getBBoxes();
@@ -78,7 +78,7 @@ public:
     unsigned int getBorderThreshold();
     int getCellSize();
     std::vector<r_Dir_Decompose>& getDirDecompose();
-    r_Interest_Tiling::Tilesize_Limit getTilingSizeStrategy_AOI(); //uadhikari
+    r_Interest_Tiling::Tilesize_Limit getTilingSizeStrategy_AOI();
 
 };
 #endif

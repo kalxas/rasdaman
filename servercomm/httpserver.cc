@@ -98,9 +98,6 @@ extern char globalHTTPSetTypeStructure[];
 // This currently represents the one and only client active at one time.
 static ClientTblElt globalClientContext(ServerComm::HTTPCLIENT, 1);
 
-// At the beginning, no servercomm object exists.
-HttpServer* HttpServer::actual_httpserver  = 0;
-
 const int HttpServer::commOpenDB           = 1;
 const int HttpServer::commCloseDB          = 2;
 const int HttpServer::commBeginTAreadOnly  = 3;
@@ -205,9 +202,10 @@ static void encodeBinary(char** dst, const char* src, size_t srcLen, const char*
 // Order of parameters in binData:
 //
 // objectType, objectTypeName, typeStructure, typeLength, domain, tileSize, oid, dataSize, data
-void
-getMDDs(int binDataSize, char* binData, int endianess, vector<HttpServer::MDDEncoding*>& resultVector)
+vector<HttpServer::MDDEncoding*>
+HttpServer::getMDDs(int binDataSize, char* binData, int endianess)
 {
+    vector<HttpServer::MDDEncoding*> resultVector;
     char* currentPos = binData;
     while (currentPos < (binData + binDataSize))
     {
@@ -232,6 +230,7 @@ getMDDs(int binDataSize, char* binData, int endianess, vector<HttpServer::MDDEnc
         // Put object into result vector
         resultVector.insert(resultVector.begin(), currentMDD.release());
     }
+    return resultVector;
 }
 
 
@@ -280,12 +279,6 @@ std::string HttpServer::MDDEncoding::toString() const
 
 HttpServer::HttpServer()
 {
-    if (actual_httpserver)
-    {
-        LFATAL << "Tried to instantiate more than one HTTPServer.";
-        exit(1);
-    }
-    actual_httpserver = this;
     // So that it should be never freed
     globalClientContext.currentUsers++;
 }
@@ -294,24 +287,13 @@ HttpServer::HttpServer(unsigned long timeOut, unsigned long managementInterval, 
                        char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
         : ServerComm(timeOut, managementInterval, newListenPort, newRasmgrHost, newRasmgrPort, newServerName)
 {
-    if (actual_httpserver)
-    {
-        LFATAL << "Tried to instantiate more than one HTTPServer.";
-        exit(1);
-    }
-    actual_httpserver = this;
     // So that it should be never freed
     globalClientContext.currentUsers++;
 }
 
 HttpServer::~HttpServer()
 {
-    // delete communication object
-    if (admin)
-    {
-        delete admin;
-    }
-    actual_httpserver = 0;
+    delete admin;
 }
 
 ClientTblElt*
@@ -330,21 +312,21 @@ HttpServer::printServerStatus()
            << "  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes\n";
 }
 
-int encodeAckn(char*& result, int ackCode = ackCodeOK)
+int HttpServer::encodeAckn(char*& result, int ackCode = ackCodeOK)
 {
     result = static_cast<char*>(mymalloc(1));
     *result = ackCode;
     return 1;
 }
 
-void resetExecuteQueryRes(ExecuteQueryRes& res)
+void HttpServer::resetExecuteQueryRes(ExecuteQueryRes& res)
 {
     res.typeStructure = NULL;
     res.token = NULL;
     res.typeName = NULL;
 }
 
-void cleanExecuteQueryRes(ExecuteQueryRes& res)
+void HttpServer::cleanExecuteQueryRes(ExecuteQueryRes& res)
 {
     if (res.typeStructure)
         free(res.typeStructure);
@@ -888,10 +870,7 @@ long HttpServer::insertIfNeeded(unsigned long callingClientId, char *query, int 
 
         // vector with mdds in transfer encoding
         // it's deleted progressively in the loop below
-        vector<HttpServer::MDDEncoding*> transferredMDDs;
-
-        // Analyze the binData array (the uploaded mdds)
-        getMDDs(binDataSize, binData, Endianess, transferredMDDs);
+        auto transferredMDDs = getMDDs(binDataSize, binData, Endianess);
 
         // Store all MDDs
         //LINFO << "vector has " << transferredMDDs.size() << " entries.";

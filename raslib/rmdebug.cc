@@ -72,7 +72,6 @@ const char* RMDebug::allModuleNames[] =
     "clientcomm",
     "conversion",
     "compression",
-    "httpserver",
     "indexif",
     "indexmgr",
     "insertutils",

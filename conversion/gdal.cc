@@ -836,11 +836,11 @@ r_Conv_GDAL::setGCPs(const Json::Value& gcpsJson)
                 {
                     if (fkey == GCP_ID)
                     {
-                        gdalGcps[i].pszId = const_cast<char*>(gcp[fkey].asCString());
+                        gdalGcps[i].pszId = strdup(gcp[fkey].asCString());
                     }
                     else if (fkey == GCP_INFO)
                     {
-                        gdalGcps[i].pszInfo = const_cast<char*>(gcp[fkey].asCString());
+                        gdalGcps[i].pszInfo = strdup(gcp[fkey].asCString());
                     }
                     else
                     {
@@ -851,35 +851,25 @@ r_Conv_GDAL::setGCPs(const Json::Value& gcpsJson)
                         }
                         double value = gcp[fkey].asDouble();
                         if (fkey == GCP_LINE)
-                        {
                             gdalGcps[i].dfGCPLine = value;
-                        }
                         else if (fkey == GCP_PIXEL)
-                        {
                             gdalGcps[i].dfGCPPixel = value;
-                        }
                         else if (fkey == GCP_X)
-                        {
                             gdalGcps[i].dfGCPX = value;
-                        }
                         else if (fkey == GCP_Y)
-                        {
                             gdalGcps[i].dfGCPY = value;
-                        }
                         else if (fkey == GCP_Z)
-                        {
                             gdalGcps[i].dfGCPZ = value;
-                        }
                     }
                 }
                 if (gdalGcps[i].pszId == NULL)
                 {
-                    gdalGcps[i].pszId = const_cast<char*>(boost::lexical_cast<string>(i).c_str());
+                    gdalGcps[i].pszId = strdup(boost::lexical_cast<string>(i).c_str());
                 }
             }
         }
 
-        const string& wktStr = getCrsWkt();
+        string wktStr = getCrsWkt();
         if (poDataset->SetGCPs((int) gcpCount, gdalGcps, wktStr.c_str()) != CE_None)
         {
             LWARNING << "failed setting GCPs, reason: " << CPLGetLastErrorMsg();

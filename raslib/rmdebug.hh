@@ -195,7 +195,6 @@ public:
         module_clientcomm,
         module_conversion,
         module_compression,
-        module_httpserver,
         module_indexif,
         module_indexmgr,
         module_insertutils,

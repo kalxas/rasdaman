@@ -48,7 +48,7 @@ class r_OId
 {
 public:
     /// default constructor
-    r_OId();
+    r_OId() = default;
 
     /// constructs an OId from the string representation
     r_OId(const char*);
@@ -113,16 +113,16 @@ public:
 
 private:
     /// string representation
-    char* oidString;
+    char* oidString{NULL};
 
     /// system name
-    char* systemName;
+    char* systemName{NULL};
 
     /// base name
-    char* baseName;
+    char* baseName{NULL};
 
     /// local oid
-    double localOId;
+    double localOId{};
 };
 
 

@@ -315,7 +315,7 @@ r_Marray<T>::operator T()
 
 template<class T>
 void
-r_Marray<T>::print_status(std::ostream& s) const
+r_Marray<T>::print_status(std::ostream& s)
 {
     r_GMarray::print_status(s);
 

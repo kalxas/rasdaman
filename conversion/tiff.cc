@@ -313,12 +313,9 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
         r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
         while (iter != st->defines_attribute_end())
         {
-
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type* pt = static_cast<r_Primitive_Type*>(const_cast<r_Base_Type*>(&(*iter).type_of()));
-                structSize += pt->size();
-
+                structSize += (*iter).type_of().size();
                 if (bandType == r_Type::UNKNOWNTYPE)
                 {
                     bandType = (*iter).type_of().type_id();
@@ -536,7 +533,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
             }
         }
 
-        delete [] tbuff;
+        free(tbuff);
         tbuff = NULL;
     }
 

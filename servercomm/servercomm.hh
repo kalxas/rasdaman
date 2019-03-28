@@ -51,7 +51,7 @@ rasdaman GmbH.
 #define _RPCIF_
 #include "servercomm/rpcif.h"
 #endif
-#include <list>
+#include <vector>
 
 
 #define SERVER_DOWN        0
@@ -77,10 +77,10 @@ extern AccessControl accessControl;
 */
 class ServerComm
 {
+private:
+    /// singleton
+    static ServerComm *serverCommInstance;
 public:
-
-    /// stores a pointer to the actual servercomm object, only one can exist at a time
-    static ServerComm *actual_servercomm;
 
     /// default constructor
     ServerComm();
@@ -121,26 +121,14 @@ public:
     */
 
     // quick hack function used when stopping server to abort transaction and close db
-    void abortEveryThingNow();
+    static void abortEveryThingNow();
 
     /// print server status with client table content to {\tt s}
     virtual void printServerStatus();
 
-    //@Man: Communication methods
-    //@{
-    ///
-
-    /// process the client's alive signal
-    virtual unsigned short aliveSignal(unsigned long client);
-    /**
-      The method take the alive signal of a client and updates the last action time.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successfull\\
-      1 && client context not found\\
-      \end{tabular}
-    */
+    // -----------------------------------------------------------------------------------------
+    // DB methods: open, close, create, destroy
+    // -----------------------------------------------------------------------------------------
 
     ///
     /// open database
@@ -172,6 +160,10 @@ public:
     /// destroy a database
     virtual unsigned short destroyDB(char *name);
 
+    // -----------------------------------------------------------------------------------------
+    // Transaction (TA) methods: begin, commit, abort, isTAOpen
+    // -----------------------------------------------------------------------------------------
+
     ///
     /// open transaction
     virtual unsigned short beginTA(unsigned long callingClientId, unsigned short readOnly = 0);
@@ -184,7 +176,6 @@ public:
       \end{tabular}
     */
 
-
     /// commit current transaction
     virtual unsigned short commitTA(unsigned long callingClientId);
     /**
@@ -194,7 +185,6 @@ public:
       1 && client context not found\\
       \end{tabular}
     */
-
 
     /// abort current transaction
     virtual unsigned short abortTA(unsigned long callingClientId);
@@ -207,6 +197,7 @@ public:
     */
 
     /// is transaction open currently?
+    virtual bool isTAOpen(unsigned long callingClientId);
     /**
       The return value has the following meaning:
       \begin{tabular}{lll}
@@ -215,7 +206,9 @@ public:
       \end{tabular}
     */
 
-    virtual bool isTAOpen(unsigned long callingClientId);
+    // -----------------------------------------------------------------------------------------
+    // Execute rasql queries (select, update, insert)
+    // -----------------------------------------------------------------------------------------
 
     ///
     /// executes a retrieval query and prepares the result for transfer with \Ref{getNextMDD}.
@@ -253,147 +246,6 @@ public:
       ->                 && \Ref{getNextElement} \\
                          && :\\
       \Ref{endTransfer} \\
-      \end{tabular}
-    */
-
-    ///
-    /// get the domain of the next MDD of the actual transfer collection
-    virtual unsigned short getNextMDD(unsigned long callingClientId,
-                                      r_Minterval &mddDomain,
-                                      char *&typeName,
-                                      char *&typeStructure,
-                                      r_OId &oid,
-                                      unsigned short &currentFormat);
-    /**
-      The Method gets the domain of the next MDD of the actual transfer collection.
-      The first parameter is the unique client id. The second parameter returns the
-      domain of the MDD to be transfered. {\tt typeName} returns the name of the
-      MDD type and its structure.
-      Transfer of MDD data is tile-based using the method \Ref{getNextTile}.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful, at least one MDD is left in the transfer collection\\
-      1 && nothing left in the transfer collection\\
-      2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
-      \end{tabular}
-    */
-
-    /// get the next scalar element in the actual transfer collection.
-    virtual unsigned short getNextElement(unsigned long callingClientId,
-                                          char *&buffer,
-                                          unsigned int &bufferSize);
-
-    /**
-     * Called by getNextElement to help handling of struct elements. It works
-     * for nested structs as well. Only used in case endianess needs changing.
-     */
-    virtual void getNextStructElement(
-            char *&buffer,
-            BaseType *baseType);
-    /**
-      The Method gets the next non-MDD element in the actual transfer collection.
-      The first parameter is the unique client id. The second parameter returns a
-      pointer to the memory occupied by the next element and the third one delivers
-      the size of the buffer.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful, at least one element is left in the transfer collection\\
-      1 && operation succesful, nothing left in the transfer collection\\
-      2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
-      \end{tabular}
-    */
-
-    /// get an MDD by OId
-    virtual unsigned short getMDDByOId(unsigned long callingClientId,
-                                       r_OId &oid,
-                                       r_Minterval &mddDomain,
-                                       char *&typeName,
-                                       char *&typeStructure,
-                                       unsigned short &currentFormat);
-    /**
-      The Method gets an MDD by OId {\tt oid}. If the MDD is found, it is initialized as transfer
-      object and can be picked up by \Ref{getNextTile} calls (tile-based transfer).
-
-      Additionally, the method returns domain, type name, and type structure of the found MDD
-      object by reference parameters.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful\\
-      1 && client context not found\\
-      2 && object with this oid not found\\
-      3 && object has no tiles
-      \end{tabular}
-
-      Communication protocol
-      \begin{tabular}{lll}
-      \Ref{getMDDByOId} \\
-      ->                && \Ref{getNextTile} \\
-                        && : \\
-      \Ref{endTransfer} \\
-      \end{tabular}
-    */
-
-    /// get next tile of the actual MDD of the actual transfer collection
-    virtual unsigned short getNextTile(unsigned long callingClientId,
-                                       RPCMarray **rpcMarray);
-    /**
-      The Method gets the next tile of the actual MDD of the actual transfer collection.
-      The first parameter is the unique client id. The second parameter is the
-      RPC representation of the Marray representing the tile. If a tile is too large to be
-      transferred in one piece, the data is split. To get the rest of the data, consecutively
-      use this method.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful, no further MDDs are left\\
-      1 && operation was successful, at least one MDD is left in the transfer collection\\
-      2 && operation was successful, at least one tile is left in the actual MDD\\
-      3 && operation was successful, at least one block is left in the actual tile\\
-      4 && client context not found, no tiles in the MDD object, no actual transfer collection \\
-        && or nothing left in the collection\\
-      \end{tabular}
-
-      Examples of valid return value chains:
-      \begin{itemize}
-      \item To be transferred: 1 MDD consisting of 1 tile (which is too large)\\
-      \begin{verbatim}
-      3 ->...-> 3 -> 0
-      \end{verbatim}
-      \item To be transferred: 1 MDD consisting of 2 tiles (the first is too large)\\
-      \begin{verbatim}
-      3 ->...-> 3 -> 2 -> 0
-      |--------------|    |
-          1st tile     2nd tile
-      \end{verbatim}
-      \item To be transferred: 2 MDDs, each consisting of 1 tile (none too large)\\
-      \begin{verbatim}
-      1 -> 0
-      \end{verbatim}
-      \item To be transferred: 3 MDDs, the first (A) consisting of 1 tile (not too large),\\
-      the second (B) consisting of 2 tiles (B1, B2, of which the first is too large),
-      the third (C) consisting of 2 tiles (C1, C2, of which the second is too large),
-      \begin{verbatim}
-      1 -> 3 ->...-> 3 -> 2 -> 1 -> 2 -> 3 ->...-> 3 -> 0
-      |    |--------------|    |    |    |--------------|
-      |           B1          B2    C1          C2
-      |    |-------------------|    |-------------------|
-      A              B                        C
-      \end{verbatim}
-      \end{itemize}
-    */
-
-    /// process the client's alive signal
-    virtual unsigned short endTransfer(unsigned long client);
-    /**
-      The method terminates a transfer session and releases all transfer structures.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successfull\\
-      1 && client context not found\\
       \end{tabular}
     */
 
@@ -478,38 +330,14 @@ public:
       \end{tabular}
     */
 
-
-    ///
-    /// prepares an MDD (transient) for transfer of tiles
-    virtual unsigned short startInsertTransMDD(unsigned long callingClientId,
-                                               r_Minterval &domain,
-                                               unsigned long typeLength,
-                                               const char *typeName);
-    /**
-      Creates an object for tile based transfer with method \Ref{insertTile}.
-
-      The first parameter is the unique client id for which the MDD should be created.
-      The second parameter is the
-      name of the collection to insert the MDD object. The third parameter holds the
-      spatial domain of the following MDD object and {\tt typeLength} specifies the size of
-      the base type in bytes. The last one gives the type structure as string representation.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful\\
-      1 && client context not found\\
-      2 && MDD type name not found\\
-      3 && MDD and its type are incompatible\\
-      \end{tabular}
-    */
+    // -----------------------------------------------------------------------------------------
+    // Insert MDD
+    // -----------------------------------------------------------------------------------------
 
     /// create a new persistent MDD object for tile based transfers
     virtual unsigned short startInsertPersMDD(unsigned long callingClientId,
-                                              const char *collName,
-                                              r_Minterval &domain,
-                                              unsigned long typeLength,
-                                              const char *typeName,
-                                              r_OId &oid);
+                                              const char *collName, r_Minterval &domain,
+                                              unsigned long typeLength, const char *typeName, r_OId &oid);
     /**
       Creates an object for tile based transfer with method \Ref{insertTile} to be
       inserted into the specified MDD collection.
@@ -544,71 +372,33 @@ public:
       \end{tabular}
     */
 
-    /// insert a tile into a persistent MDD object
-    virtual unsigned short insertTile(unsigned long callingClientId,
-                                      bool isPersistent,
-                                      RPCMarray *rpcMarray);
+    ///
+    /// prepares an MDD (transient) for transfer of tiles
+    virtual unsigned short startInsertTransMDD(unsigned long callingClientId,
+                                               r_Minterval &domain,
+                                               unsigned long typeLength, const char *typeName);
     /**
-      Inserts a tile into the current MDD object.
+      Creates an object for tile based transfer with method \Ref{insertTile}.
 
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
-      {\tt rpcMarray}        && RPC representation of the tile\\
-      \end{tabular}
+      The first parameter is the unique client id for which the MDD should be created.
+      The second parameter is the
+      name of the collection to insert the MDD object. The third parameter holds the
+      spatial domain of the following MDD object and {\tt typeLength} specifies the size of
+      the base type in bytes. The last one gives the type structure as string representation.
 
       Return values:
       \begin{tabular}{lll}
       0 && operation was successful\\
       1 && client context not found\\
-      2 && base type name of inserting tile is not supported\\
-      \end{tabular}
-    */
-
-
-
-    // inserts a tile into a persistent MDD object splitting it up according to
-    // parameter tileSize
-    virtual unsigned short insertTileSplitted(unsigned long callingClientId,
-                                              bool isPersistent,
-                                              RPCMarray *rpcMarray,
-                                              r_Minterval *tileSize);
-    /**
-      Splits and inserts a tile into the current MDD object.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
-      {\tt rpcMarray}        && RPC representation of the tile\\
-      {\tt tileSize}         && r_Minterval specifying the tile-size\\
-      \end{tabular}
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful\\
-      1 && client context not found\\
-      2 && base type name of inserting tile is not supported\\
-      \end{tabular}
-    */
-
-    /// finnishes the MDD creation and inserts the MDD into the collection
-    virtual unsigned short endInsertMDD(unsigned long callingClientId,
-                                        int isPersistent);
-    /**
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient MDD\\
+      2 && MDD type name not found\\
+      3 && MDD and its type are incompatible\\
       \end{tabular}
     */
 
     ///
     /// insert object into collection
     virtual unsigned short insertMDD(unsigned long callingClientId,
-                                     const char *collName,
-                                     RPCMarray *rpcMarray,
+                                     const char *collName, RPCMarray *rpcMarray,
                                      const char *typeName, r_OId &oid);
     /**
       Inserts an object into an MDD collection. It is transfered in one piece.
@@ -634,139 +424,182 @@ public:
       \end{tabular}
     */
 
+    /// finishes the MDD creation and inserts the MDD into the collection
+    virtual unsigned short endInsertMDD(unsigned long callingClientId,
+                                        int isPersistent);
+    /**
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt isPersistent}     && determines wheather it is a persistent or a transient MDD\\
+      \end{tabular}
+    */
+
+    // -----------------------------------------------------------------------------------------
+    // Insert tile
+    // -----------------------------------------------------------------------------------------
+
+    /// insert a tile into a persistent MDD object
+    virtual unsigned short insertTile(unsigned long callingClientId,
+                                      bool isPersistent, RPCMarray *rpcMarray);
+    /**
+      Inserts a tile into the current MDD object.
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
+      {\tt rpcMarray}        && RPC representation of the tile\\
+      \end{tabular}
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful\\
+      1 && client context not found\\
+      2 && base type name of inserting tile is not supported\\
+      \end{tabular}
+    */
+
+    // inserts a tile into a persistent MDD object splitting it up according to
+    // parameter tileSize
+    virtual unsigned short insertTileSplitted(unsigned long callingClientId,
+                                              bool isPersistent, RPCMarray *rpcMarray, r_Minterval *tileSize);
+    /**
+      Splits and inserts a tile into the current MDD object.
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
+      {\tt rpcMarray}        && RPC representation of the tile\\
+      {\tt tileSize}         && r_Minterval specifying the tile-size\\
+      \end{tabular}
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful\\
+      1 && client context not found\\
+      2 && base type name of inserting tile is not supported\\
+      3 && base type does not match MDD type\\
+      \end{tabular}
+    */
+
+    // -----------------------------------------------------------------------------------------
+    // Fetch query results: next MDD, scalar, tile
+    // -----------------------------------------------------------------------------------------
+
     ///
-    /// prepare an MDD collection for transfer with getNextMDD()
-    virtual unsigned short getCollByName(unsigned long callingClientId,
-                                         const char *collName,
-                                         char *&typeName,
-                                         char *&typeStructure,
-                                         r_OId &oid);
+    /// get the domain of the next MDD of the actual transfer collection
+    virtual unsigned short getNextMDD(unsigned long callingClientId,
+                                      r_Minterval &mddDomain, char *&typeName, char *&typeStructure,
+                                      r_OId &oid, unsigned short &currentFormat);
     /**
-      ATTENTION: This function is not used at the moment. It hast
-      to be adapted to transferData.
+      The Method gets the domain of the next MDD of the actual transfer collection.
+      The first parameter is the unique client id. The second parameter returns the
+      domain of the MDD to be transfered. {\tt typeName} returns the name of the
+      MDD type and its structure.
+      Transfer of MDD data is tile-based using the method \Ref{getNextTile}.
 
-      Prepares an MDD collection for transfer with getNextMDD().
-
-      Parameters
+      Return values:
       \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oid}              && returns oid of the collection\\
+      0 && operation was successful, at least one MDD is left in the transfer collection\\
+      1 && nothing left in the transfer collection\\
+      2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
       \end{tabular}
+    */
 
+    /**
+     * Called by getNextElement to help handling of struct elements. It works
+     * for nested structs as well. Only used in case endianess needs changing.
+     */
+    virtual void getNextStructElement(char *buffer, const BaseType *baseType);
+
+    /// get the next scalar element in the actual transfer collection.
+    virtual unsigned short getNextElement(unsigned long callingClientId,
+                                          char *&buffer, unsigned int &bufferSize);
+    /**
+      The Method gets the next non-MDD element in the actual transfer collection.
+      The first parameter is the unique client id. The second parameter returns a
+      pointer to the memory occupied by the next element and the third one delivers
+      the size of the buffer.
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful, at least one element is left in the transfer collection\\
+      1 && operation succesful, nothing left in the transfer collection\\
+      2 && client context not found, no tiles in the MDD object, no actual transfer collection \\
+      \end{tabular}
+    */
+
+    /// get next tile of the actual MDD of the actual transfer collection
+    virtual unsigned short getNextTile(unsigned long callingClientId,
+                                       RPCMarray **rpcMarray);
+    /**
+      The Method gets the next tile of the actual MDD of the actual transfer collection.
       The first parameter is the unique client id. The second parameter is the
-      name of the collection to get. {\tt typeName} returns the name of the
-      collection type and {\tt typeStructure} its type structure.
+      RPC representation of the Marray representing the tile. If a tile is too large to be
+      transferred in one piece, the data is split. To get the rest of the data, consecutively
+      use this method.
 
       Return values:
       \begin{tabular}{lll}
-      0 && operation was successful - collection has some elements\\
-      1 && operation was successful - collection has no elements\\
-      2 && collection is not known\\
-      3 && client context not found\\
+      0 && operation was successful, no further MDDs are left\\
+      1 && operation was successful, at least one MDD is left in the transfer collection\\
+      2 && operation was successful, at least one tile is left in the actual MDD\\
+      3 && operation was successful, at least one block is left in the actual tile\\
+      4 && client context not found, no tiles in the MDD object, no actual transfer collection \\
+        && or nothing left in the collection\\
       \end{tabular}
+
+      Examples of valid return value chains:
+      \begin{itemize}
+      \item To be transferred: 1 MDD consisting of 1 tile (which is too large)\\
+      \begin{verbatim}
+      3 ->...-> 3 -> 0
+      \end{verbatim}
+      \item To be transferred: 1 MDD consisting of 2 tiles (the first is too large)\\
+      \begin{verbatim}
+      3 ->...-> 3 -> 2 -> 0
+      |--------------|    |
+          1st tile     2nd tile
+      \end{verbatim}
+      \item To be transferred: 2 MDDs, each consisting of 1 tile (none too large)\\
+      \begin{verbatim}
+      1 -> 0
+      \end{verbatim}
+      \item To be transferred: 3 MDDs, the first (A) consisting of 1 tile (not too large),\\
+      the second (B) consisting of 2 tiles (B1, B2, of which the first is too large),
+      the third (C) consisting of 2 tiles (C1, C2, of which the second is too large),
+      \begin{verbatim}
+      1 -> 3 ->...-> 3 -> 2 -> 1 -> 2 -> 3 ->...-> 3 -> 0
+      |    |--------------|    |    |    |--------------|
+      |           B1          B2    C1          C2
+      |    |-------------------|    |-------------------|
+      A              B                        C
+      \end{verbatim}
+      \end{itemize}
     */
 
-    /// prepare an MDD collection for transfer with getNextMDD()
-    virtual unsigned short getCollByOId(unsigned long callingClientId,
-                                        r_OId &oid,
-                                        char *&typeName,
-                                        char *&typeStructure,
-                                        char *&collName);
+    /// process the client's alive signal
+    virtual unsigned short endTransfer(unsigned long client);
     /**
-      ATTENTION: This function is not used at the moment. It hast
-      to be adapted to transferData.
-
-      Prepares an MDD collection for transfer with \Ref{getNextMDD}.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt oid}              && oid of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt collName}         && returns name of collection\\
-      \end{tabular}
+      The method terminates a transfer session and releases all transfer structures.
 
       Return values:
       \begin{tabular}{lll}
-      0 && operation was successful - collection has some elements\\
-      1 && operation was successful - collection has no elements\\
-      2 && collection is not known\\
-      3 && client context not found\\
+      0 && operation was successfull\\
+      1 && client context not found\\
       \end{tabular}
     */
 
-    /// gets oids of the collection specified by name
-    virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
-                                             const char *collName,
-                                             char *&typeName,
-                                             char *&typeStructure,
-                                             r_OId &oid,
-                                             RPCOIdEntry *&oidTable,
-                                             unsigned int &oidTableSize);
-    /**
-      Gets the collection of oids of the collection with {\tt collName}.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oid}              && returns object identifier\\
-      {\tt oidTable}         && returns an array of pointers to oids\\
-      {\tt oidTableSize}     && returns the no of elements in the table\\
-      \end{tabular}
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful - collection has some elements\\
-      1 && operation was successful - collection has no elements\\
-      2 && collection is not known\\
-      3 && client context not found\\
-      \end{tabular}
-    */
-
-    /// gets oids of the collection specified by name
-    virtual unsigned short getCollOIdsByOId(unsigned long callingClientId,
-                                            r_OId &oid,
-                                            char *&typeName,
-                                            char *&typeStructure,
-                                            RPCOIdEntry *&oidTable,
-                                            unsigned int &oidTableSize,
-                                            char *&collName);
-    /**
-      Gets the collection of oids of the collection with {\tt collName}.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt oid}              && oid of the collection to be got\\
-      {\tt typeName}         && returns name of the collection type\\
-      {\tt typeStructure}    && returns structure of the collection type\\
-      {\tt oidTable}         && returns an array of pointers to oids\\
-      {\tt oidTableSize}     && returns the no of elements in the table\\
-      {\tt collName}         && returns name of collection\\
-      \end{tabular}
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful - collection has some elements\\
-      1 && operation was successful - collection has no elements\\
-      2 && collection is not known\\
-      3 && client context not found\\
-      \end{tabular}
-    */
+    // -----------------------------------------------------------------------------------------
+    // Collection mgmt, used by the rasodmg C++ API
+    // -----------------------------------------------------------------------------------------
 
     ///
     /// create new MDD collection
     virtual unsigned short insertColl(unsigned long callingClientId,
-                                      const char *collName,
-                                      const char *typeName,
-                                      r_OId &oid);
+                                      const char *collName, const char *typeName, r_OId &oid);
     /**
       Creates a new MDD collection.
 
@@ -783,7 +616,8 @@ public:
       0 && operation was successful\\
       1 && client context not found\\
       2 && collection type name not found\\
-      3 && collection name exists already in the db
+      3 && collection name exists already in the db\\
+      4 && failed to create due to some other error
       \end{tabular}
     */
 
@@ -833,6 +667,170 @@ public:
       1 && client context not found\\
       2 && specified collection does not exist\\
       3 && specified object does not exist in the collection\\
+      4 && general error\\
+      \end{tabular}
+    */
+
+    // -----------------------------------------------------------------------------------------
+    // Get collection/MDD by name or oid
+    // -----------------------------------------------------------------------------------------
+
+    ///
+    /// prepare an MDD collection for transfer with getNextMDD()
+    virtual unsigned short getCollByName(unsigned long callingClientId,
+                                         const char *collName,
+                                         char *&typeName, char *&typeStructure, r_OId &oid);
+    /**
+      ATTENTION: This function is not used at the moment. It hast
+      to be adapted to transferData.
+
+      Prepares an MDD collection for transfer with getNextMDD().
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt collName}         && name of the collection to be got\\
+      {\tt typeName}         && returns name of the collection type\\
+      {\tt typeStructure}    && returns structure of the collection type\\
+      {\tt oid}              && returns oid of the collection\\
+      \end{tabular}
+
+      The first parameter is the unique client id. The second parameter is the
+      name of the collection to get. {\tt typeName} returns the name of the
+      collection type and {\tt typeStructure} its type structure.
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful - collection has some elements\\
+      1 && operation was successful - collection has no elements\\
+      2 && collection is not known\\
+      3 && client context not found\\
+      \end{tabular}
+    */
+
+    /// prepare an MDD collection for transfer with getNextMDD()
+    virtual unsigned short getCollByOId(unsigned long callingClientId,
+                                        r_OId &oid, char *&typeName, char *&typeStructure, char *&collName);
+    /**
+      ATTENTION: This function is not used at the moment. It hast
+      to be adapted to transferData.
+
+      Prepares an MDD collection for transfer with \Ref{getNextMDD}.
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt oid}              && oid of the collection to be got\\
+      {\tt typeName}         && returns name of the collection type\\
+      {\tt typeStructure}    && returns structure of the collection type\\
+      {\tt collName}         && returns name of collection\\
+      \end{tabular}
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful - collection has some elements\\
+      1 && operation was successful - collection has no elements\\
+      2 && collection is not known\\
+      3 && client context not found\\
+      \end{tabular}
+    */
+
+    /// gets oids of the collection specified by name
+    virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
+                                             const char *collName,
+                                             char *&typeName, char *&typeStructure, r_OId &oid,
+                                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
+    /**
+      Gets the collection of oids of the collection with {\tt collName}.
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt collName}         && name of the collection to be got\\
+      {\tt typeName}         && returns name of the collection type\\
+      {\tt typeStructure}    && returns structure of the collection type\\
+      {\tt oid}              && returns object identifier\\
+      {\tt oidTable}         && returns an array of pointers to oids\\
+      {\tt oidTableSize}     && returns the no of elements in the table\\
+      \end{tabular}
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful - collection has some elements\\
+      1 && operation was successful - collection has no elements\\
+      2 && collection is not known\\
+      3 && client context not found\\
+      \end{tabular}
+    */
+
+    /// gets oids of the collection specified by name
+    virtual unsigned short getCollOIdsByOId(unsigned long callingClientId,
+                                            r_OId &oid, char *&typeName, char *&typeStructure,
+                                            RPCOIdEntry *&oidTable, unsigned int &oidTableSize, char *&collName);
+    /**
+      Gets the collection of oids of the collection with {\tt collName}.
+
+      Parameters
+      \begin{tabular}{lll}
+      {\tt callingClientId}  && unique client id of the calling client\\
+      {\tt oid}              && oid of the collection to be got\\
+      {\tt typeName}         && returns name of the collection type\\
+      {\tt typeStructure}    && returns structure of the collection type\\
+      {\tt oidTable}         && returns an array of pointers to oids\\
+      {\tt oidTableSize}     && returns the no of elements in the table\\
+      {\tt collName}         && returns name of collection\\
+      \end{tabular}
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful - collection has some elements\\
+      1 && operation was successful - collection has no elements\\
+      2 && collection is not known\\
+      3 && client context not found\\
+      \end{tabular}
+    */
+
+    /// get an MDD by OId
+    virtual unsigned short getMDDByOId(unsigned long callingClientId,
+                                       r_OId &oid, r_Minterval &mddDomain,
+                                       char *&typeName, char *&typeStructure, unsigned short &currentFormat);
+    /**
+      The Method gets an MDD by OId {\tt oid}. If the MDD is found, it is initialized as transfer
+      object and can be picked up by \Ref{getNextTile} calls (tile-based transfer).
+
+      Additionally, the method returns domain, type name, and type structure of the found MDD
+      object by reference parameters.
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successful\\
+      1 && client context not found\\
+      2 && object with this oid not found\\
+      3 && object has no tiles
+      \end{tabular}
+
+      Communication protocol
+      \begin{tabular}{lll}
+      \Ref{getMDDByOId} \\
+      ->                && \Ref{getNextTile} \\
+                        && : \\
+      \Ref{endTransfer} \\
+      \end{tabular}
+    */
+
+    // -----------------------------------------------------------------------------------------
+    // Utility methods
+    // -----------------------------------------------------------------------------------------
+
+    /// process the client's alive signal
+    virtual unsigned short aliveSignal(unsigned long client);
+    /**
+      The method take the alive signal of a client and updates the last action time.
+
+      Return values:
+      \begin{tabular}{lll}
+      0 && operation was successfull\\
+      1 && client context not found\\
       \end{tabular}
     */
 
@@ -870,9 +868,7 @@ public:
 
     /// get type structure of a type name
     virtual unsigned short getTypeStructure(unsigned long callingClientId,
-                                            const char *typeName,
-                                            unsigned short typeType,
-                                            char *&typeStructure);
+                                            const char *typeName, unsigned short typeType, char *&typeStructure);
     /**
       Determines the type structure of the type specified by {\tt typeName}. The type
     either can be a set type (typeType=1), an mdd type (typeType=2), or a base type
@@ -906,9 +902,7 @@ public:
                                           unsigned short format, const char *formatParams);
     /**
     return values exactly like setTransferMode()
-        */
-    ///
-    //@}
+    */
 
     // constant for clientID
     static const char *HTTPCLIENT;
@@ -927,33 +921,34 @@ public:
     static const unsigned short EXEC_RESULT_PARSE_ERROR = 4;
     static const unsigned short EXEC_RESULT_EXEC_ERROR = 5;
 
+    static constexpr unsigned short RC_OK = 0;
+    static constexpr unsigned short RC_CLIENT_NOT_FOUND = 1;
+    static constexpr unsigned short RC_ERROR = 2;
+
     static const int ENDIAN_BIG;
     static const int ENDIAN_LITTLE;
 
 protected:
     /// make sure a tile has the correct data format, converting if necessary
     static int ensureTileFormat(r_Data_Format &hasFmt, r_Data_Format needFmt,
-                                const r_Minterval &dom, const BaseType *type,
-                                char *&data, r_Bytes &size, int repack,
-                                int owner, const char *params = NULL);
+                                const r_Minterval &dom, const BaseType *type, char *&data, r_Bytes &size,
+                                int repack, int owner, const char *params = NULL);
 
     ///returns the following:
     static const int ENSURE_TILE_FORMAT_OK;
     static const int ENSURE_TILE_FORMAT_BAD;
 
     /// the client table which holds information about the calling clients
-    static std::list<ClientTblElt *> clientTbl;
+    static std::vector<ClientTblElt *> clientTbl;
     /// last used client ID (this is increased by one to get the clientId for the next client)
     static unsigned long clientCount;
     /// inactivity timeout in seconds after which pending client data is deleted
     const unsigned long clientTimeout;
     /// do a garbage collection every {\tt garbageCollectionInterval} seconds (ONC RPC only)
     const unsigned long garbageCollectionInterval;
-    /// flag for active o2 transaction (stores the clientID of the owner of the active transaction, or 0 if none open)
+    /// flag for active db transaction (stores the clientID of the owner of the active transaction,
+    /// or 0 if none open)
     unsigned long transactionActive{0};
-    /// memory used by malloc in ordinary blocks (set in dumpClientTable)
-    long memUsed{0};
-
 
     /// pointer to the actual administration interface object
     AdminIf *admin{NULL};

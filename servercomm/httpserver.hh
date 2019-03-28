@@ -71,10 +71,6 @@ public:
         std::string toString() const;
     };
 
-
-    /// stores a pointer to the actual servercomm object, only one can exist at a time
-    static HttpServer* actual_httpserver;
-
     // the class uses the class ClientTblElt from ServerComm because it is used
     // in some other files of the server, e.g., qlparser/qtmddaccess.cc or
     // qlparser/qtcommand.cc or qlparser/qtinsert.cc all include servercomm.hh
@@ -158,6 +154,12 @@ private:
 
     long encodeInsertError(char*& result, unsigned short execResult, vector<HttpServer::MDDEncoding*> &transferredMDDs);
 
+
+    static vector<MDDEncoding*> getMDDs(int binDataSize, char* binData, int endianess);
+    static int encodeAckn(char*& result, int ackCode);
+    static void resetExecuteQueryRes(ExecuteQueryRes& res);
+    static void cleanExecuteQueryRes(ExecuteQueryRes& res);
+
     // client requests allowed; this should be in sync with RasODMGGlobal.java
     static const int commOpenDB;
     static const int commCloseDB;
@@ -174,10 +176,5 @@ private:
     // processRequest returns this value in case of an unknown error
     static const long unknownError;
 };
-
-//function prototypes:
-void getMDDs(int binDataSize, char* binData, int endianess, vector<HttpServer::MDDEncoding*>& resultVector);
-int encodeAckn(char*& result, int ackCode);
-void cleanExecuteQueryRes(ExecuteQueryRes& res);
 
 #endif

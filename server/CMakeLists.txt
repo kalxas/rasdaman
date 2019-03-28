@@ -36,7 +36,7 @@ target_link_libraries(rasserver servercomm qlparser conversion
         catalogmgr relmddif relstorageif
         relcatalogif indexmgr relblobif relindexif relcatalogif
         commline lockmanager servercomm
-        httpserver network mymalloc_svc common_logging
+        network mymalloc_svc common_logging
         ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES})
 
 if (RMANRASNET)

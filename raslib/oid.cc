@@ -40,19 +40,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 
 
-r_OId::r_OId()
-    : oidString(NULL),
-      systemName(NULL),
-      baseName(NULL),
-      localOId(0)
-{
-}
-
 r_OId::r_OId(const char* initOIdString)
-    : oidString(NULL),
-      systemName(NULL),
-      baseName(NULL),
-      localOId(0)
 {
     // set oidString
     if (initOIdString)
@@ -110,10 +98,7 @@ r_OId::r_OId(const char* initOIdString)
 }
 
 r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLocalOId)
-    : oidString(NULL),
-      systemName(NULL),
-      baseName(NULL),
-      localOId(initLocalOId)
+    : localOId(initLocalOId)
 {
     // set members
     if (initSystemName)
@@ -158,10 +143,7 @@ r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLo
 }
 
 r_OId::r_OId(const r_OId& obj)
-    : oidString(NULL),
-      systemName(NULL),
-      baseName(NULL),
-      localOId(0)
+    : localOId(obj.localOId)
 {
     if (obj.oidString)
     {
@@ -180,8 +162,6 @@ r_OId::r_OId(const r_OId& obj)
         baseName = new char[ strlen(obj.baseName) + 1 ];
         strcpy(baseName, obj.baseName);
     }
-
-    localOId = obj.localOId;
 }
 
 r_OId::~r_OId()
@@ -192,23 +172,12 @@ r_OId::~r_OId()
 void
 r_OId::r_deactivate()
 {
-    if (oidString)
-    {
-        delete[] oidString;
-        oidString = NULL;
-    }
-
-    if (systemName)
-    {
-        delete[] systemName;
-        systemName = NULL;
-    }
-
-    if (baseName)
-    {
-        delete[] baseName;
-        baseName = NULL;
-    }
+    delete[] oidString;
+    oidString = NULL;
+    delete[] systemName;
+    systemName = NULL;
+    delete[] baseName;
+    baseName = NULL;
 }
 
 void
@@ -225,45 +194,29 @@ r_OId::operator=(const r_OId& obj)
 {
     if (this != &obj)
     {
-        if (oidString)
-        {
-            delete[] oidString;
-            oidString = NULL;
-        }
-
+        delete[] oidString;
+        oidString = NULL;
         if (obj.oidString)
         {
             oidString = new char[ strlen(obj.oidString) + 1 ];
             strcpy(oidString, obj.oidString);
         }
-
-        if (systemName)
-        {
-            delete[] systemName;
-            systemName = NULL;
-        }
-
+        delete[] systemName;
+        systemName = NULL;
         if (obj.systemName)
         {
             systemName = new char[ strlen(obj.systemName) + 1 ];
             strcpy(systemName, obj.systemName);
         }
-
-        if (baseName)
-        {
-            delete[] baseName;
-            baseName = NULL;
-        }
-
+        delete[] baseName;
+        baseName = NULL;
         if (obj.baseName)
         {
             baseName = new char[ strlen(obj.baseName) + 1 ];
             strcpy(baseName, obj.baseName);
         }
-
         localOId = obj.localOId;
     }
-
     return *this;
 }
 
@@ -271,12 +224,10 @@ bool
 r_OId::operator==(const r_OId& oid) const
 {
     bool equal = false;
-
     if (oidString && oid.oidString)
     {
         equal = !strcmp(oidString, oid.oidString);
     }
-
     return equal;
 }
 
@@ -316,7 +267,6 @@ r_OId::operator> (const r_OId& oid) const
             }
         }
     }
-
     return comparison > 0;
 }
 
@@ -350,7 +300,6 @@ r_OId::operator< (const r_OId& oid) const
             }
         }
     }
-
     return comparison < 0;
 }
 
