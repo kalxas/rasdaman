@@ -22,19 +22,23 @@
 package org.rasdaman;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -84,7 +88,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
     public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
     // path to gdal native files (.so) which are needed for GDAL java to invoke.
     public static final String KEY_GDAL_JAVA_DIR = "gdal-java.libDir";
-    public static final String KEY_PETASCOPE_CONF_DIR = "petascope.confDir";
+    private static final String PREFIX_INPUT_PARAMETER = "--";
+    private static final String KEY_PETASCOPE_CONF_DIR = "petascope.confDir";
+    private static final String KEY_MIGRATE = "migrate";
     
     private static final String TMP_GDAL_JAVA_DIR_NAME = "gdal_java";
     private static final String[] GDAL_LIB_PREFIXES = new String[] {"libgdal", "libogr", "libosr"};
@@ -95,6 +101,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
     
     // Only used when running embedded petascope to set a custom directory containing petascope.properties
     private static String OPT_PETASCOPE_CONFDIR = "";
+    
+    private static Properties applicationProperties = null;
 
     // Spring finds all the subclass of AbstractMigrationService and injects to the list
     @Resource
@@ -122,7 +130,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      */
     private static PropertySourcesPlaceholderConfigurer init() throws Exception {
         // load application.properties
-        Properties applicationProperties = loadApplicationProperties();
+        applicationProperties = loadApplicationProperties();
 
         // load petascope.properties
         PropertySourcesPlaceholderConfigurer ret = loadPetascopeProperties(applicationProperties);
@@ -152,8 +160,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * Initialize all configurations for GDAL libraries, ConfigManager and OGC WCS XML Schema
      */
     private static void initConfigurations(Properties applicationProperties) throws Exception {
-        ConfigManager.init(applicationProperties.getProperty(KEY_PETASCOPE_CONF_DIR));
-        loadGdalLibrary(applicationProperties);
+        if (OPT_PETASCOPE_CONFDIR.isEmpty()) {
+            ConfigManager.init(applicationProperties.getProperty(KEY_PETASCOPE_CONF_DIR));
+        } else {
+            // properties file is configured from input parameters for embedded petascope
+            ConfigManager.init(OPT_PETASCOPE_CONFDIR);
+        }
         
         try {
             // Load all the type registry (set, mdd, base types) of rasdaman
@@ -231,20 +243,23 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static File getParentTmpLibDir(String tmpLibPath) throws PetascopeException {
         File ret = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
         if (ret.exists()) {
-            // Remove this temp directory for the gdal library as it is already loaded in JVM
-            try {
-                FileUtils.cleanDirectory(ret);
-            } catch (IOException ex) {
-                throw new PetascopeException(ExceptionCode.RuntimeError,
-                        "Cannot delete temp directory '" + ret + 
-                        "', please remove manually and restart Tomcat. Reason: " + ex.getMessage());
+            // Remove 1 day before temp directory for the gdal library as it is already loaded in JVM
+            
+            for (File dir : ret.listFiles()) {
+                if (dir.isDirectory()) {
+                    long diff = new Date().getTime() - dir.lastModified();
+                    // Delete any tmp gdal_java/datetime which was created 1 hour ago
+                    if (diff > 60 * 60 * 1000) {
+                        FileUtils.deleteQuietly(dir);
+                    }
+                }
             }
         }
         return ret;
     }
     
     private static File createUniqueTmpLibDir(File tmpLibDir) throws PetascopeException {
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date());
         File ret = new File(tmpLibDir, timeStamp);
         try {
             FileUtils.forceMkdir(ret);
@@ -262,8 +277,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
         File srcDir = new File(srcPath);
         
         IOFileFilter[] fileFilters = new IOFileFilter[fileNamePrefixes.length];
-        for (int i = 0; i < fileNamePrefixes.length; ++i)
+        for (int i = 0; i < fileNamePrefixes.length; i++) {
             fileFilters[i] = FileFilterUtils.prefixFileFilter(fileNamePrefixes[i]);
+        }
         
         try {
             FileUtils.copyDirectory(srcDir, dstDir, FileFilterUtils.or(fileFilters));
@@ -272,6 +288,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
                         "Cannot copy native library folder from '" + srcDir + 
                         "' to '" + dstDir + "'. Reason: " + ex.getMessage());
         }
+        
+        // NOTE: It should set last time update for this tmp folder currently, not from library's last time update which is year ago.
+        dstDir.setLastModified(System.currentTimeMillis());
     }
 
     /**
@@ -338,6 +357,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
      */
     @PostConstruct
     private void handleMigrate() {
+        
+        loadGdalLibrary(applicationProperties);
 
         if (MIGRATE && AbstractController.startException == null) {
             log.info("Migrating petascopedb from JDBC URL '" + ConfigManager.SOURCE_DATASOURCE_URL + 
@@ -394,16 +415,42 @@ public class ApplicationMain extends SpringBootServletInitializer {
             return this.value;
         }
     }
+    
+    /**
+     * Check if input argument is added when running embedded ptascope
+     */
+    private static boolean matchInputArgumentKey(String arg, String key) {
+        if (arg.startsWith(PREFIX_INPUT_PARAMETER + key)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if arg is key=value format.
+     */
+    private static void checkValidKeyEqualsValue(String arg) throws PetascopeException {
+        if (!arg.contains("=")) {
+            throw new PetascopeException(ExceptionCode.InvalidParameterValue, "Input parameter must be key=value, given: "  + arg);
+        }
+    }
 
+    /**
+     * Main method when running embedded petascope with optional input parameters,
+     * e.g: java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc
+     */
     public static void main(String[] args) throws Exception {
-        // user runs Petascope in the command line to migrate petascopedb
         for (String arg : args) {
-            // In case of running java -jar rasdaman.war --petascope.confDir=/opt/rasdaman/new_etc
-            if (arg.startsWith(KEY_PETASCOPE_CONF_DIR)) {
+            if (matchInputArgumentKey(arg, KEY_PETASCOPE_CONF_DIR)) {
+                checkValidKeyEqualsValue(arg);
+                
                 String value = arg.split("=")[1];
                 OPT_PETASCOPE_CONFDIR = value;
-            } else if (arg.startsWith("--migrate")) {
+            } else if (matchInputArgumentKey(arg, KEY_MIGRATE)) {
                 MIGRATE = true;
+            } else {
+                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Input parameter is not supported, given: " + arg);
             }
         }
         

@@ -127,6 +127,7 @@ missing
 log
 *.log
 log.save
+nohup.out
 aclocal.m4
 ylwrap
 java/dist/
