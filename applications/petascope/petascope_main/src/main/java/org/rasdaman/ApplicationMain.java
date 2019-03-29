@@ -22,23 +22,20 @@
 package org.rasdaman;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.gdal.gdal.gdal;
 import org.rasdaman.config.ConfigManager;
 import org.rasdaman.migration.service.AbstractMigrationService;
@@ -57,6 +54,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import petascope.controller.AbstractController;
+import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsProjectionUtil;
@@ -206,12 +204,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
         try {
             gdal.AllRegister(); // should be done once on application startup
             // test projection
-            CrsProjectionUtil.transform("EPSG:3857", "EPSG:4326", new double[] {0, 0});
+            GeoTransform sourceGT = new GeoTransform(4326, 0, 0, 1, 1, 0.5, 0.5);
+            CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGT, "EPSG:3857");
         } catch (Exception ex) {
             String errorMessage = "Transform test failed, probably due to a problem with adding GDAL native library from '" + 
                     systemGdalJavaDir + "' to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
-            return;
         }
     }
     
@@ -240,22 +238,20 @@ public class ApplicationMain extends SpringBootServletInitializer {
         setFullDirPermissions(parentTmpLibDir);
     }
     
+    /**
+     * Return the lib directory which contains tmp_dir_with_datetime_stamp directories
+     */
     private static File getParentTmpLibDir(String tmpLibPath) throws PetascopeException {
-        File ret = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
-        if (ret.exists()) {
-            // Remove 1 day before temp directory for the gdal library as it is already loaded in JVM
-            
-            for (File dir : ret.listFiles()) {
-                if (dir.isDirectory()) {
-                    long diff = new Date().getTime() - dir.lastModified();
-                    // Delete any tmp gdal_java/datetime which was created 1 hour ago
-                    if (diff > 60 * 60 * 1000) {
-                        FileUtils.deleteQuietly(dir);
-                    }
-                }
+        File libTmpDir = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
+        if (libTmpDir.exists()) {
+            try {
+                FileUtils.cleanDirectory(libTmpDir);
+            } catch (IOException ex) {
+                log.warn("Cannot clear directory '" + libTmpDir + "'. Reason: " + ex);
             }
         }
-        return ret;
+        
+        return libTmpDir;
     }
     
     private static File createUniqueTmpLibDir(File tmpLibDir) throws PetascopeException {
@@ -356,7 +352,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
      * or not.
      */
     @PostConstruct
-    private void handleMigrate() {
+    private void postInit() {
         
         loadGdalLibrary(applicationProperties);
 
