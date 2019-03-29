@@ -156,6 +156,7 @@ java/pom.xml
 grpc-java/protoc-gen-grpc-java
 protoc-gen-grpc-java
 third_party/grpc-java/protoc-gen-grpc-java
+pom.xml
 
 #rasnet protocol
 common/grpc/messages/

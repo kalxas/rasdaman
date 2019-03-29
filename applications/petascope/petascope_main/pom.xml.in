@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.rasdaman</groupId>
+    <artifactId>petascope-main</artifactId>
+    <packaging>war</packaging>
+    <version>${version}</version>
+    <name>petascope-main</name>
+    <description>Petascope main application</description>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <!-- to disable error when generating javadoc for java 1.8 -->
+        <additionalparam>-Xdoclint:none</additionalparam>
+
+        <version>@PROJECT_VERSION@</version>
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>@BUILD_DIR@/petascope_main</buildDir>
+    </properties>
+
+   <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.2.RELEASE</version>
+    </parent>
+
+    <dependencies>       
+        <dependency>
+            <groupId>org.rasdaman</groupId>
+            <artifactId>petascope-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <!--A jar web application should not need to include this dependency-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>1.5.2.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <version>1.5.2.RELEASE</version>
+            <optional>true</optional>
+        </dependency> 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>1.5.2.RELEASE</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>rasdaman</finalName>
+        <!-- The built package should be in build directory, not in source directory -->
+        <directory>${buildDir}/target/</directory>
+
+        <resources>
+            <!-- first copy wcs-client to target directory -->
+            <resource>
+                <directory>${sourceDir}/../../wcs-client/app/</directory>
+                <targetPath>${buildDir}/target/classes/public/wcs-client</targetPath>
+            </resource>
+            <resource>
+                <!-- then copy all the other resources to build directory -->
+                <directory>${project.basedir}/src/main/resources/</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- Database schema versions migration -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>3.5.3</version>
+                <configuration>                  
+                    <propertyFile>${sourceDir}/src/main/resources/liquibase.properties</propertyFile>
+                </configuration>                
+            </plugin>
+            
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

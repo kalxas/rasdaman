@@ -28,15 +28,17 @@ if (ENABLE_JAVA)
     # will not rebuild secore when make install
     set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
+    configure_file(pom.xml.in "${SRC_DIR}/pom.xml" @ONLY)    
+
     # Generate files from *.in by replacing any variables that can be configured at compile time
     # configuration file for secore.properties.in
-    configure_file("src/main/resources/secore.properties.in" "${BUILD_DIR}/src/main/resources/secore.properties" @ONLY)     
+    configure_file("src/main/resources/secore.properties.in" "${SRC_DIR}/src/main/resources/secore.properties" @ONLY)     
   
     # configuration file for application.properties.in
-    configure_file("src/main/resources/application.properties.in" "${BUILD_DIR}/src/main/resources/application.properties" @ONLY)
+    configure_file("src/main/resources/application.properties.in" "${SRC_DIR}/src/main/resources/application.properties" @ONLY)
 
     # configuration file for log4j.properties.in which is used only when Spring Boot starts
-    configure_file("src/main/resources/log4j.properties.in" "${BUILD_DIR}/src/main/resources/log4j.properties" @ONLY)
+    configure_file("src/main/resources/log4j.properties.in" "${SRC_DIR}/src/main/resources/log4j.properties" @ONLY)
 
     if (GENERATE_DOCS)
 
@@ -54,14 +56,13 @@ if (ENABLE_JAVA)
     add_custom_target(secore ALL
             COMMAND ${MAVEN_EXECUTABLE} -q -B package
                                         -DbuildDir=${BUILD_DIR}
-                                        -DsrcDir=${SRC_DIR}
-                                        -DsecoreTargetDir=${SECORE_TARGET_DIR}
+
             WORKING_DIRECTORY ${SRC_DIR}
             COMMENT "building secore"
             VERBATIM)
 
     # install secore.properties if does not exist and run update_properties.sh to merge new configuration file with old configuration file
-    install(CODE "execute_process(COMMAND bash  ${SRC_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${BUILD_DIR}/src/main/resources/secore.properties)")
+    install(CODE "execute_process(COMMAND bash  ${SRC_DIR}/update_properties.sh ${CONF_DIR}/secore.properties ${SRC_DIR}/src/main/resources/secore.properties)")
 
     install(DIRECTORY DESTINATION "${WAR_DIR}/secoredb"
 	        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 

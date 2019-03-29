@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.rasdaman</groupId>
     <artifactId>rasj</artifactId>
-    <version>${projectVersion}</version>
+    <version>${version}</version>
     <packaging>jar</packaging>
 
     <name>rasj</name>
@@ -13,8 +13,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <buildDirectory>${project.basedir}/target</buildDirectory>
-        <projectVersion>1.0</projectVersion>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <!-- to disable error when generating javadoc for java 1.8 -->
+        <additionalparam>-Xdoclint:none</additionalparam>
+
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>@BUILD_DIR@/target</buildDir>
+        <version>@PROJECT_VERSION@</version>
     </properties>
 
     <distributionManagement>
@@ -50,7 +56,7 @@
     </developers>
 
     <build>
-        <directory>${buildDirectory}</directory>
+        <directory>${buildDir}</directory>
         <plugins>
             <!-- plugin used to specify the java version-->
             <plugin>

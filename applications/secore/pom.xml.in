@@ -8,18 +8,19 @@
     <version>1.0.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <custom.target.dir>${project.basedir}/target</custom.target.dir>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+
         <!-- to disable error when generating javadoc for java 1.8 -->
         <additionalparam>-Xdoclint:none</additionalparam>
-        <java.version>1.7</java.version>
-        <srcDir>${project.basedir}</srcDir>
-        <secoreTargetDir>${project.basedir}/java_target</secoreTargetDir>
-        <buildDir>${project.basedir}</buildDir>
+ 
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>@BUILD_DIR@</buildDir>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.6.RELEASE</version>
+        <version>1.5.2.RELEASE</version>
     </parent>
     <dependencies>
         <dependency>
@@ -105,8 +106,7 @@
     <build>
         <finalName>def</finalName>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>${secoreTargetDir}</directory>
-        <sourceDirectory>${srcDir}</sourceDirectory>
+        <directory>${buildDir}/target</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -120,15 +120,15 @@
                             <tasks>
                                 <!-- Use this bash script to untar gml.tar.gz file if necessary -->
                                 <exec executable="/bin/bash">
-                                    <arg value="${srcDir}/untar_gml_file.sh" />
-                                    <arg value="${srcDir}/src/main/resources/gml.tar.gz" />
+                                    <arg value="${sourceDir}/untar_gml_file.sh" />
+                                    <arg value="${sourceDir}/src/main/resources/gml.tar.gz" />
                                     <arg value="${buildDir}/src/main/resources/gml.tar.gz" />
                                 </exec>
                                 <!-- Copy all files in src/main/resources and jsp files manually -->
-                                <copy todir="${secoreTargetDir}/def/WEB-INF/jsp/">
-                                    <fileset dir="${srcDir}/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
+                                <copy todir="${buildDir}/target/def/WEB-INF/jsp/">
+                                    <fileset dir="${sourceDir}/src/main/webapp/WEB-INF/jsp/" includes="**/*" />
                                 </copy>
-                                <copy todir="${secoreTargetDir}/def/WEB-INF/classes/">
+                                <copy todir="${buildDir}/target/def/WEB-INF/classes/">
                                     <fileset dir="${buildDir}/src/main/resources/" includes="**/*" />
                                 </copy>
                             </tasks>

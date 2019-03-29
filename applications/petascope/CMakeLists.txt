@@ -47,18 +47,18 @@ file(COPY "${SRC_DIR}/petascope_main/src/main/resources" DESTINATION "${BUILD_DI
 
 # Necessary parameters to start main method in application (petascope_main)
 set(APPLICATION_FILE_TEMPLATE "${SRC_DIR}/petascope_main/src/main/resources/application.properties.in")
-set(APPLICATION_FILE "${BUILD_DIR}/petascope_main/src/main/resources/application.properties")
+set(APPLICATION_FILE "${SRC_DIR}/petascope_main/src/main/resources/application.properties")
 
 # Log4j for Spring framework and used only when it starts (not for petascope applications)
 set(LOG4J_SPRING_FILE_TEMPLATE "${SRC_DIR}/petascope_core/src/main/resources/log4j.properties.in")
-set(LOG4J_SPRING_FILE "${BUILD_DIR}/petascope_core/src/main/resources/log4j.properties")
+set(LOG4J_SPRING_FILE "${SRC_DIR}/petascope_core/src/main/resources/log4j.properties")
 
 # Only has 1 petascope.properties for all databases in application (petascope_main)
 set(SETTINGS_FILE_TEMPLATE "${SRC_DIR}/petascope_main/src/main/resources/petascope.properties.in")
-set(SETTINGS_FILE "${BUILD_DIR}/petascope_main/src/main/resources/petascope.properties")
+set(SETTINGS_FILE "${SRC_DIR}/petascope_main/src/main/resources/petascope.properties")
 
 # Copy liquibase.properties to build directory to be attached inside the war file
-set(LIQUIBASE_PROPERTIES_FILE "${BUILD_DIR}/petascope_main/src/main/resources/liquibase.properties")
+set(LIQUIBASE_PROPERTIES_FILE "${SRC_DIR}/petascope_main/src/main/resources/liquibase.properties")
 
 # Script to migrate old petascopedb to new petascopedb
 set(MIGRATE_PETASCOPEDB_SCRIPT_TEMPLATE "${SRC_DIR}/migrate_petascopedb.sh.in")
@@ -85,6 +85,13 @@ endif ()
 # Do the same for the Application.in 
 configure_file("${APPLICATION_FILE_TEMPLATE}" "${APPLICATION_FILE}" @ONLY)
 
+# Do the same for the petascope_parent pom.xml 
+configure_file("${SRC_DIR}/pom.xml.in" "${SRC_DIR}/pom.xml" @ONLY)
+# Do the same for the petascope_core pom.xml 
+configure_file("${SRC_DIR}/petascope_core/pom.xml.in" "${SRC_DIR}/petascope_core/pom.xml" @ONLY)
+# Do the same for the petascope_main pom.xml 
+configure_file("${SRC_DIR}/petascope_main/pom.xml.in" "${SRC_DIR}/petascope_main/pom.xml" @ONLY)
+
 
 # Do the same for log4j.properties.in
 configure_file("${LOG4J_SPRING_FILE_TEMPLATE}" "${LOG4J_SPRING_FILE}" @ONLY)
@@ -104,11 +111,9 @@ configure_file("${INSERT_DATA_SCRIPT_TEMPLATE}" "${INSERT_DATA_SCRIPT}" @ONLY)
 # Create the package for the war profile (Petascope embedded or external can use only one war package)
 add_custom_target(petascope ALL
     COMMAND ${MAVEN_EXECUTABLE} -q -B package -f "pom.xml"
-                                -DgroupId=org.rasdaman
-                                -Dversion=${PROJECT_VERSION}
-                                -DsourceDir=${SRC_DIR}
-                                -DbuildDir=${BUILD_DIR}/target
+                                -DbuildDir=${BUILD_DIR}
                                 -DgdalJavaVersion=${GDAL_JAVA_VERSION}
+                                -Dversion=${PROJECT_VERSION}
 
     DEPENDS rasj
     WORKING_DIRECTORY ${SRC_DIR}
@@ -127,7 +132,7 @@ install( CODE "execute_process(COMMAND bash ${SRC_DIR}/update_properties.sh ${CO
 
 # Install built package (war) to the web applications folder (e.g: Tomcat /var/lib/tomcat/webapps/)
 # Petascope can be run as embedded or external with war package.
-install( FILES "${PETASCOPE_TARGET_DIR}/petascope_main/rasdaman.war"
+install( FILES "${PETASCOPE_TARGET_DIR}/rasdaman.war"
          DESTINATION "${WAR_DIR}" )
 
 

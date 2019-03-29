@@ -25,6 +25,9 @@
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
 if (ENABLE_JAVA)
+    set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+    set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/")
+
     if (RMANRASNET)
         set(RASNET_SRC_DIR "${CMAKE_SOURCE_DIR}/rasnet")
         set(COMMON_SRC_DIR "${CMAKE_SOURCE_DIR}/common")
@@ -49,6 +52,8 @@ if (ENABLE_JAVA)
 
     endif (RMANRASNET)
 
+    # Configure the pom file
+    configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
 
     # Create error messages from bin/errtxts via bash script to a java file
     set(GENERATED_ERRTXTS_MESSAGE "rasj_generate_errtxts_message")
@@ -59,21 +64,16 @@ if (ENABLE_JAVA)
 
     add_custom_target(rasj ALL
             COMMAND ${MAVEN_EXECUTABLE} -q -B package -P${NETWORK_PROTOCOL}
-                                        -DgroupId=org.rasdaman
-                                        -DartifactId=rasj
-                                        -DprojectVersion=${PROJECT_VERSION}
                                         -Dversion=${PROJECT_VERSION}
+                                        -DbuildDir=${RASJ_TARGET_DIR}
                                         -Dpackaging=jar
-                                        -DbuildDirectory=${RASJ_TARGET_DIR}
 
             COMMAND ${MAVEN_EXECUTABLE} -q install:install-file
                                         -Dfile=${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar
                                         -DgroupId=org.rasdaman
                                         -DartifactId=rasj
-                                        -DprojectVersion=${PROJECT_VERSION}
                                         -Dversion=${PROJECT_VERSION}
                                         -Dpackaging=jar
-                                        -DbuildDirectory=${RASJ_TARGET_DIR}
                                         
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES} ${GENERATED_ERRTXTS_MESSAGE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

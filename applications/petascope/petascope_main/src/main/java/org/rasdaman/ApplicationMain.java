@@ -184,9 +184,12 @@ public class ApplicationMain extends SpringBootServletInitializer {
     private static void loadGdalLibrary(Properties applicationProperties) {
         String systemGdalJavaDir = applicationProperties.getProperty(KEY_GDAL_JAVA_DIR);
         
+        // Create a gdal_java/datetime temp folder to load shared object files to memory
+        File currentTmpLibDir = null;
+        
         // Load the GDAL native libraries (no need to set in IDE with VM options: -Djava.library.path="/usr/lib/java/gdal/")
         try {
-            addGdalLibraryPath(TMP_GDAL_JAVA_DIR_NAME, systemGdalJavaDir);
+            currentTmpLibDir = addGdalLibraryPath(TMP_GDAL_JAVA_DIR_NAME, systemGdalJavaDir);
         } catch (Exception ex) {
             String errorMessage = "Cannot add GDAL native library from '" + systemGdalJavaDir + "' to java library path, "
                     + "please restart Tomcat to fix this problem. Reason: " + ex.getMessage();
@@ -211,6 +214,9 @@ public class ApplicationMain extends SpringBootServletInitializer {
                     systemGdalJavaDir + "' to java library path; please restart Tomcat to fix this problem. Reason: " + ex;
             AbstractController.startException = new PetascopeException(ExceptionCode.InternalComponentError, errorMessage, ex);
         }
+        
+        // Error or not error for loading Gdal, clear created tmp folder
+        FileUtils.deleteQuietly(currentTmpLibDir);
     }
     
     // -----------------------------------------------------------------------------------
@@ -223,7 +229,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
     /**
      * Adds the specified path to the java library path (very important to load gdal-java)
      */
-    private static void addGdalLibraryPath(String tmpLibPath, String systemLibPath) throws Exception {
+    private static File addGdalLibraryPath(String tmpLibPath, String systemLibPath) throws Exception {
         File parentTmpLibDir = getParentTmpLibDir(tmpLibPath);
 
         // Each time application starts, copy the system library to a temp folder to be loaded by Classloader
@@ -236,6 +242,8 @@ public class ApplicationMain extends SpringBootServletInitializer {
         // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
         setFullDirPermissions(parentTmpLibDir);
+        
+        return currentTmpLibDir;
     }
     
     /**
@@ -243,13 +251,6 @@ public class ApplicationMain extends SpringBootServletInitializer {
      */
     private static File getParentTmpLibDir(String tmpLibPath) throws PetascopeException {
         File libTmpDir = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP, tmpLibPath);
-        if (libTmpDir.exists()) {
-            try {
-                FileUtils.cleanDirectory(libTmpDir);
-            } catch (IOException ex) {
-                log.warn("Cannot clear directory '" + libTmpDir + "'. Reason: " + ex);
-            }
-        }
         
         return libTmpDir;
     }

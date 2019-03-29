@@ -8,9 +8,15 @@
     <description>Petascope core dependency for Petascope main and Petascope migration applications</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.7</java.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
         <!-- to disable error when generating javadoc for java 1.8 -->
+
         <additionalparam>-Xdoclint:none</additionalparam>
+        <version>@PROJECT_VERSION@</version>
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>@BUILD_DIR@/petascope_core</buildDir>
+        <gdalJavaVersion>@GDAL_JAVA_VERSION@</gdalJavaVersion>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -28,6 +34,18 @@
     </repositories>
 
     <dependencies>
+        <!-- By default Spring Boot uses logback, disable it as petascope uses log4j -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- There is a conflict XmlMapper with older dependency,
         so use the newest one here and the importing order is important as Maven will use this library as default -->
         <dependency>
@@ -178,8 +196,7 @@
     </dependencies>
     <build>
         <finalName>rasdaman-geo-core</finalName>
-        <sourceDirectory>${sourceDir}/petascope_core</sourceDirectory>
         <!-- The built package should be in build directory, not in source directory -->
-        <directory>${buildDir}/petascope_core</directory>
+        <directory>${buildDir}/target</directory>
     </build>
 </project>

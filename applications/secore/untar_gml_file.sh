@@ -54,6 +54,8 @@ fi
 
 # New build, empty folder
 if [ ! -f "$build_tar_file" ]; then
+    build_tar_folder=$(dirname "${build_tar_file}")
+    mkdir -p "$build_tar_folder"
     cp "$source_tar_file" "$build_tar_file" && untar_file
 else
     # Check if build/gml.tar.gz is as same as source/gml.tar.gz

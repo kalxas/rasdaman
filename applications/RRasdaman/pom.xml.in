@@ -13,9 +13,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <buildDir>${project.basedir}/java_target</buildDir>
+        <sourceDir>${project.basedir}</sourceDir>
+        <buildDir>@RRASDAMAN_JAVA_TARGET_DIR@</buildDir>
         <projectVersion>1.0</projectVersion>
-        <rasjTargetDir>${project.basedir}/java/target</rasjTargetDir>
+        <rasjTargetDir>@RASJ_TARGET_DIR@</rasjTargetDir>
     </properties>
 
     <build>
