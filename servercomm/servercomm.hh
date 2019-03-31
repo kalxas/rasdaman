@@ -331,7 +331,7 @@ public:
     */
 
     // -----------------------------------------------------------------------------------------
-    // Insert MDD
+    // Insert MDD / tile
     // -----------------------------------------------------------------------------------------
 
     /// create a new persistent MDD object for tile based transfers
@@ -395,35 +395,6 @@ public:
       \end{tabular}
     */
 
-    ///
-    /// insert object into collection
-    virtual unsigned short insertMDD(unsigned long callingClientId,
-                                     const char *collName, RPCMarray *rpcMarray,
-                                     const char *typeName, r_OId &oid);
-    /**
-      Inserts an object into an MDD collection. It is transfered in one piece.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt collName}         && name of the collection to insert the MDD object\\
-      {\tt rpcMarray}        && RPC representation of the MDD object\\
-      {\tt typeName}         && type structure as string representation\\
-      {\tt oid}              && object identifier\\
-      \end{tabular}
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful\\
-      1 && client context not found\\
-      2 && MDD type name not found\\
-      3 && types of MDD and collection are incompatible\\
-      4 && MDD and its type are incompatible\\
-      5 && collection does not exist\\
-      6 && creation of persistent object failed\\
-      \end{tabular}
-    */
-
     /// finishes the MDD creation and inserts the MDD into the collection
     virtual unsigned short endInsertMDD(unsigned long callingClientId,
                                         int isPersistent);
@@ -435,37 +406,11 @@ public:
       \end{tabular}
     */
 
-    // -----------------------------------------------------------------------------------------
-    // Insert tile
-    // -----------------------------------------------------------------------------------------
-
     /// insert a tile into a persistent MDD object
     virtual unsigned short insertTile(unsigned long callingClientId,
-                                      bool isPersistent, RPCMarray *rpcMarray);
+                                      bool isPersistent, RPCMarray *rpcMarray, r_Minterval *tileSize = NULL);
     /**
-      Inserts a tile into the current MDD object.
-
-      Parameters
-      \begin{tabular}{lll}
-      {\tt callingClientId}  && unique client id of the calling client\\
-      {\tt isPersistent}     && determines wheather it is a persistent or a transient tile\\
-      {\tt rpcMarray}        && RPC representation of the tile\\
-      \end{tabular}
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successful\\
-      1 && client context not found\\
-      2 && base type name of inserting tile is not supported\\
-      \end{tabular}
-    */
-
-    // inserts a tile into a persistent MDD object splitting it up according to
-    // parameter tileSize
-    virtual unsigned short insertTileSplitted(unsigned long callingClientId,
-                                              bool isPersistent, RPCMarray *rpcMarray, r_Minterval *tileSize);
-    /**
-      Splits and inserts a tile into the current MDD object.
+      Splits (if tileSize != NULL) and inserts a tile into the current MDD object.
 
       Parameters
       \begin{tabular}{lll}
@@ -512,7 +457,7 @@ public:
      * Called by getNextElement to help handling of struct elements. It works
      * for nested structs as well. Only used in case endianess needs changing.
      */
-    virtual void getNextStructElement(char *buffer, const BaseType *baseType);
+    virtual void swapScalarElement(char *buffer, const BaseType *baseType);
 
     /// get the next scalar element in the actual transfer collection.
     virtual unsigned short getNextElement(unsigned long callingClientId,
@@ -929,10 +874,21 @@ public:
     static const int ENDIAN_LITTLE;
 
 protected:
+
     /// make sure a tile has the correct data format, converting if necessary
     static int ensureTileFormat(r_Data_Format &hasFmt, r_Data_Format needFmt,
                                 const r_Minterval &dom, const BaseType *type, char *&data, r_Bytes &size,
                                 int repack, int owner, const char *params = NULL);
+
+    /// init fields of res to 0
+    static void resetExecuteQueryRes(ExecuteQueryRes& res);
+    static void resetExecuteUpdateRes(ExecuteUpdateRes& res);
+    /// free fields of res
+    static void cleanExecuteQueryRes(ExecuteQueryRes& res);
+    /// return total size in bytes of transferred MDD results
+    unsigned long getTotalTransferredSize(ClientTblElt *context) const;
+    /// return type name and type structure of the first transfer element in context
+    std::pair<char*, char*> getTypeNameStructure(ClientTblElt *context) const;
 
     ///returns the following:
     static const int ENSURE_TILE_FORMAT_OK;

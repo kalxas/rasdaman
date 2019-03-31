@@ -1139,7 +1139,6 @@ void doStuff()
             openTransaction(true);
 
             ExecuteUpdateRes result;
-            result.token = NULL;
             unsigned short status;
 
             if (fileContents != NULL)
@@ -1172,11 +1171,6 @@ void doStuff()
             openTransaction(false);
 
             ExecuteQueryRes result;
-            result.errorNo = 0;
-            result.token = NULL;
-            result.typeName = NULL;
-            result.typeStructure = NULL;
-
             unsigned short status =
                 server->executeQuery(DQ_CLIENT_ID, queryString, result);
 
@@ -1195,7 +1189,6 @@ void doStuff()
     }
     catch (r_Error& err)
     {
-        SECURE_FREE_PTR(fileContents);
         if (marray)
         {
             SECURE_FREE_PTR(marray->domain);
@@ -1277,6 +1270,7 @@ int main(int argc, char** argv)
 
     TileCache::cacheLimit = 0;
 
+    retval = EXIT_FAILURE;
     try
     {
         parseParams(argc, argv);
@@ -1296,30 +1290,32 @@ int main(int argc, char** argv)
     catch (RasqlError& e)
     {
         cerr << argv[0] << ": " << e.what() << endl;
-        retval = EXIT_FAILURE;
     }
-
     catch (const r_Error& e)
     {
         cerr << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
-        retval = EXIT_FAILURE;
     }
     catch (std::exception& e)
     {
         LERROR << argv[0] << ": " << e.what();
-        retval = EXIT_FAILURE;
     }
     catch (...)
     {
         LERROR << argv[0] << ": unexpected internal exception.";
-        retval = EXIT_FAILURE;
     }
 
     if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen))
     {
         INFO("aborting transaction..." << flush);
-        closeTransaction(false); // abort transaction and close database, ignore any further exceptions
-        INFO("ok" << endl);
+        try
+        {
+            closeTransaction(false); // abort transaction and close database, ignore any further exceptions
+            INFO("ok" << endl);
+        }
+        catch (...)
+        {
+            INFO("failed" << endl);
+        }
         closeDatabase();
     }
 

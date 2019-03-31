@@ -248,7 +248,7 @@ long RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPar
     free(RequestInfo.Database);
     free(RequestInfo.QueryString);
     free(RequestInfo.Capability);
-    free(RequestInfo.BinData);
+    delete [] RequestInfo.BinData;
     free(RequestInfo.ClientID);
 
     return resultLen;
@@ -266,10 +266,6 @@ r_OId RasServerEntry::compat_getNewOId(unsigned short objType)
 
 int RasServerEntry::compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult)
 {
-    queryResult.token = NULL;
-    queryResult.typeName = NULL;
-    queryResult.typeStructure = NULL;
-
     return ServerComm::executeQuery(currentClientIdx, query, queryResult);
 }
 
@@ -337,7 +333,9 @@ int RasServerEntry::compat_StartInsertPersMDD(const char* collName, r_Minterval&
 
 int RasServerEntry::compat_InsertMDD(const char* collName, RPCMarray* rpcMarray, const char* typeName, r_OId& oid)
 {
-    return ServerComm::insertMDD(currentClientIdx, collName, rpcMarray, typeName, oid);
+    LERROR << "Invoked unsupported server functionality 'insert whole MDD'.";
+    throw r_Error(10000); // Internal error
+    //return ServerComm::insertMDD(currentClientIdx, collName, rpcMarray, typeName, oid);
 }
 
 int RasServerEntry::compat_InsertCollection(const char* collName, const char* typeName, r_OId& oid)

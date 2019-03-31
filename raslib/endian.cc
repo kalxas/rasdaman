@@ -280,17 +280,7 @@ r_ULong r_Endian::swap(r_ULong val)
 {
     return eswap(val);
 }
-/*
-long r_Endian::swap( long val )
-{
-  return eswap(val);
-}
 
-r_ULong r_Endian::swap( r_ULong val )
-{
-  return eswap(val);
-}
-*/
 r_Float r_Endian::swap(r_Float val)
 {
     return eswap(val);

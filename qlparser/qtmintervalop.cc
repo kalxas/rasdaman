@@ -74,6 +74,8 @@ QtMintervalOp::evaluate(QtDataList* inputList)
 
     if (getOperands(inputList, operandList))
     {
+        QtDataListDeleter operandListDeleter{operandList};
+
         vector<QtData*>::iterator dataIter;
         bool              goOn = true;
 
@@ -82,7 +84,7 @@ QtMintervalOp::evaluate(QtDataList* inputList)
         {
             // pass point as minterval projection
             returnValue = (*operandList)[0];
-
+            operandListDeleter.obj = NULL; // avoid deleting items in operandList
             delete operandList;
             operandList = NULL;
         }
@@ -103,20 +105,6 @@ QtMintervalOp::evaluate(QtDataList* inputList)
             {
                 LERROR << "Error: QtMintervalOp::evaluate() - expressions for minterval dimensions must be either of type integer or interval.";
                 parseInfo.setErrorNo(390);
-
-                // delete the old operands
-                if (operandList)
-                {
-                    for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                        if ((*dataIter))
-                        {
-                            (*dataIter)->deleteRef();
-                        }
-
-                    delete operandList;
-                    operandList = NULL;
-                }
-
                 throw parseInfo;
             }
 
@@ -152,19 +140,6 @@ QtMintervalOp::evaluate(QtDataList* inputList)
             }
 
             returnValue = new QtMintervalData(domainData, trimFlags);
-
-            // delete the old operands
-            if (operandList)
-            {
-                for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                    if ((*dataIter))
-                    {
-                        (*dataIter)->deleteRef();
-                    }
-
-                delete operandList;
-                operandList = NULL;
-            }
         }
     }
 

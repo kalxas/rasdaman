@@ -918,10 +918,6 @@ grpc::Status RasnetServerComm::ExecuteQuery(__attribute__ ((unused)) grpc::Serve
         RasServerEntry& rasserver = RasServerEntry::getInstance();
 
         ExecuteQueryRes queryResult;
-        INITPTR(queryResult.token);
-        INITPTR(queryResult.typeName);
-        INITPTR(queryResult.typeStructure);
-
         int statusCode = rasserver.compat_executeQueryRpc(query, queryResult);
 
         SECUREPTR(queryResult.token);
@@ -1138,8 +1134,6 @@ grpc::Status RasnetServerComm::ExecuteUpdateQuery(__attribute__ ((unused)) grpc:
         const char* query = request->query().c_str();
 
         ExecuteUpdateRes returnStructure;
-        returnStructure.token = NULL;
-
         int statusCode = rasserver.compat_ExecuteUpdateQuery(query, returnStructure);
 
         const char* token = returnStructure.token != NULL ? returnStructure.token : "";

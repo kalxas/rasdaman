@@ -44,6 +44,7 @@ using namespace std;
 #endif
 #include <iostream>
 
+// defined in servercomm.cc
 extern MDDColl* mddConstants;
 
 QtMDD::QtMDD(MDDObj* ptr)

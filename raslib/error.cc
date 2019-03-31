@@ -440,7 +440,7 @@ r_Ebase_dbms::r_Ebase_dbms(long newDbmsErrNum, const char* newDbmsErrTxt)
 void
 r_Ebase_dbms::resetErrorText()
 {
-    errorText = "Error in base DBMS, error number: " + std::to_string(dbmsErrNum) + "\n" + dbmsErrTxt;
+    errorText = "Base DBMS error " + std::to_string(dbmsErrNum) + ": " + dbmsErrTxt;
 }
 
 // ----------------------------------------------------------------------------------------------

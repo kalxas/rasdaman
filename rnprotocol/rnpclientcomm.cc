@@ -213,15 +213,11 @@ void RnpClientComm::insertMDD(const char* collName, r_GMarray* mar)
     checkForRwTransaction();
 
     r_Minterval     spatdom;
-    r_Bytes         marBytes;
     RPCMarray*      rpcMarray;
     r_Bytes         tileSize = 0;
 
     // get the spatial domain of the r_GMarray
     spatdom = mar->spatial_domain();
-
-    // determine the amount of data to be transferred
-    marBytes = mar->get_array_size();
 
     const r_Base_Type* baseType = mar->get_base_type_schema();
 
@@ -239,98 +235,63 @@ void RnpClientComm::insertMDD(const char* collName, r_GMarray* mar)
         tileSize = (static_cast<const r_Size_Tiling*>(til))->get_tile_size();
     }
 
-    if (RMInit::tiling && marBytes > tileSize)
+    // initiate composition of MDD at server side
+    int status = executeStartInsertPersMDD(collName, mar);  //rpcStatusPtr = rpcstartinsertpersmdd_1( params, binding_h );
+
+    switch (status)
     {
-        // initiate composition of MDD at server side
-        int status = executeStartInsertPersMDD(collName, mar);  //rpcStatusPtr = rpcstartinsertpersmdd_1( params, binding_h );
-
-        switch (status)
-        {
-        case 0:
-            break; // OK
-        case 2:
-            throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
-            break;
-        case 3:
-            throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
-            break;
-        case 4:
-            throw r_Error(r_Error::r_Error_TypeInvalid);
-            break;
-        default:
-            throw r_Error(r_Error::r_Error_TransferFailed);
-            break;
-        }
-
-        r_Set<r_GMarray*>* bagOfTiles;
-
-        bagOfTiles = mar->get_storage_layout()->decomposeMDD(mar);
-
-        LTRACE << "decomposing into " << bagOfTiles->cardinality() << " tiles";
-
-        r_Iterator<r_GMarray*> iter = bagOfTiles->create_iterator();
-        r_GMarray* origTile;
-
-        for (iter.reset(); iter.not_done(); iter.advance())
-        {
-            origTile = *iter;
-#ifdef DEBUG
-            LTRACE << "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
-#endif
-            getMarRpcRepresentation(origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType);
-
-            status = executeInsertTile(true, rpcMarray);
-
-            // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
-            freeMarRpcRepresentation(origTile, rpcMarray);
-
-            // delete current tile (including data block)
-            delete origTile;
-
-            if (status > 0)
-            {
-                throw r_Error(r_Error::r_Error_TransferFailed);
-            }
-        }
-
-        executeEndInsertMDD(true); //rpcendinsertmdd_1( params3, binding_h );
-
-        // delete transient data
-        bagOfTiles->remove_all();
-        delete bagOfTiles;
+    case 0:
+        break; // OK
+    case 2:
+        throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
+        break;
+    case 3:
+        throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
+        break;
+    case 4:
+        throw r_Error(r_Error::r_Error_TypeInvalid);
+        break;
+    default:
+        throw r_Error(r_Error::r_Error_TransferFailed);
+        break;
     }
-    else // begin: MDD is transferred in one piece
+
+    r_Set<r_GMarray*>* bagOfTiles;
+
+    bagOfTiles = mar->get_storage_layout()->decomposeMDD(mar);
+
+    LTRACE << "decomposing into " << bagOfTiles->cardinality() << " tiles";
+
+    r_Iterator<r_GMarray*> iter = bagOfTiles->create_iterator();
+    r_GMarray* origTile;
+
+    for (iter.reset(); iter.not_done(); iter.advance())
     {
-        LTRACE << ", one tile";
+        origTile = *iter;
+#ifdef DEBUG
+        LTRACE << "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
+#endif
+        getMarRpcRepresentation(origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType);
 
-        getMarRpcRepresentation(mar, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType);
+        status = executeInsertTile(true, rpcMarray);
 
-        int status = executeInsertMDD(collName, mar, rpcMarray); //  rpcStatusPtr = rpcinsertmdd_1( params, binding_h );
+        // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
+        freeMarRpcRepresentation(origTile, rpcMarray);
 
-        freeMarRpcRepresentation(mar, rpcMarray);
+        // delete current tile (including data block)
+        delete origTile;
 
-        LTRACE << "ok";
-
-        switch (status)
+        if (status > 0)
         {
-        case 0:
-            break; // OK
-        case 2:
-            throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
-            break;
-        case 3:
-            throw r_Error(r_Error::r_Error_CollectionElementTypeMismatch);
-            break;
-        case 4:
-            throw r_Error(r_Error::r_Error_TypeInvalid);
-            break;
-        default:
             throw r_Error(r_Error::r_Error_TransferFailed);
-            break;
         }
+    }
 
-    } // end: MDD i transferred in one piece
+    executeEndInsertMDD(true); //rpcendinsertmdd_1( params3, binding_h );
 
+    // delete transient data
+    bagOfTiles->remove_all();
+    delete bagOfTiles;
 }
 
 

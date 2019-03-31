@@ -139,8 +139,9 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     unsigned int height = imageSize.second;
 
     unsigned int numBands = ConvUtil::getNumberOfBands(desc.srcType);
-    r_Primitive_Type* rasBandType = getBandType(desc.srcType);
-    GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(rasBandType);
+    std::unique_ptr<r_Primitive_Type> rasBandType;
+    rasBandType.reset(getBandType(desc.srcType));
+    GDALDataType gdalBandType = ConvUtil::rasTypeToGdalType(rasBandType.get());
 
     GDALDriver* hMemDriver = static_cast<GDALDriver*>(GDALGetDriverByName("MEM"));
     if (hMemDriver == NULL)
@@ -157,10 +158,10 @@ r_Conv_Desc& r_Conv_GDAL::convertTo(const char* options,
     }
 
     r_TmpFile tmpFile;
-    encodeImage(gdalBandType, rasBandType, width, height, numBands);
+    encodeImage(gdalBandType, rasBandType.get(), width, height, numBands);
     setEncodeParams();
     CPLStringList formatParameters;
-    getFormatParameters(formatParameters, rasBandType);
+    getFormatParameters(formatParameters, rasBandType.get());
 
     string tmpFilePath = tmpFile.getFileName();
     GDALDataset* gdalResult = driver->CreateCopy(tmpFilePath.c_str(), poDataset, FALSE, formatParameters.List(), NULL, NULL);
@@ -587,7 +588,7 @@ r_Primitive_Type* r_Conv_GDAL::getBandType(const r_Type* baseType)
     r_Primitive_Type* ret = NULL;
     if (baseType->isPrimitiveType()) // = one band
     {
-        ret = static_cast<r_Primitive_Type*>(const_cast<r_Type*>(baseType));
+        ret = static_cast<r_Primitive_Type*>(baseType->clone());
     }
     else if (baseType->isStructType()) // = multiple bands
     {

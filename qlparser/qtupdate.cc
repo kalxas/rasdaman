@@ -30,12 +30,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtUpdate: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtupdate.cc,v 1.28 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/dlist.hh"
 
-#include "qlparser/qtupdate.hh"
+#include "qtupdate.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
@@ -57,58 +55,27 @@ const QtNode::QtNodeType QtUpdate::nodeType = QtNode::QT_UPDATE;
 
 
 QtUpdate::QtUpdate(QtOperation* initUpdateTarget, QtOperation* initUpdateDomain, QtOperation* initUpdateSource)
-    : QtExecute(), input(NULL), nullValues(NULL),
+    : QtExecute(), input(NULL),
       updateTarget(initUpdateTarget),
       updateDomain(initUpdateDomain),
       updateSource(initUpdateSource)
 {
     if (updateTarget)
-    {
         updateTarget->setParent(this);
-    }
     if (updateDomain)
-    {
         updateDomain->setParent(this);
-    }
     if (updateSource)
-    {
         updateSource->setParent(this);
-    }
 }
 
 
 
 QtUpdate::~QtUpdate()
 {
-    if (updateTarget)
-    {
-        delete updateTarget;
-        updateTarget = NULL;
-    }
-
-    if (updateDomain)
-    {
-        delete updateDomain;
-        updateDomain = NULL;
-    }
-
-    if (updateSource)
-    {
-        delete updateSource;
-        updateSource = NULL;
-    }
-
-    if (input)
-    {
-        delete input;
-        input = NULL;
-    }
-
-    if (nullValues)
-    {
-        delete nullValues;
-        nullValues = NULL;
-    }
+    delete updateTarget;
+    delete updateDomain;
+    delete updateSource;
+    delete input;
 }
 
 
@@ -121,38 +88,21 @@ QtUpdate::evaluate()
     // Test, if all necessary operands are available.
     if (updateTarget && input)
     {
-
-        // open input stream
         try
         {
-            input->open();
-        }
-        catch (...)
-        {
-            input->close();
-            throw;
-        }
+            input->open(); // open input stream
 
-        try
-        {
             QtNode::QtDataList* nextTuple;
             while (nextTuple = input->next())
             {
                 if (updateSource)
-                {
                     evaluateTuple(nextTuple);
-                }
-                else if (nullValues)
-                {
-                    evaluateNullValues(nextTuple);
-                }
 
                 // delete tuple vector received by next()
                 for (auto it = nextTuple->begin(); it != nextTuple->end(); it++)
                     if (*it)
                         (*it)->deleteRef();
-                delete nextTuple;
-                nextTuple = NULL;
+                delete nextTuple, nextTuple = NULL;
             } // while
         }
         catch (...)
@@ -173,62 +123,25 @@ QtUpdate::evaluate()
     return 0;
 }
 
-void
-QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTuple)
-{
-    // mdd object to be updated
-    QtData* target = updateTarget->evaluate(nextTuple);
-
-    // check update target
-    if (target)
-    {
-        if (target->getDataType() != QT_MDD)
-        {
-            LERROR << "update target must be an iterator variable.";
-            throwError(nextTuple, target, NULL, 950);
-        }
-    }
-    else
-    {
-        LERROR << "target is not provided.";
-        throwError(nextTuple, target, NULL, 950);
-    }
-
-    QtMDD* targetMDD = static_cast<QtMDD*>(target);
-    MDDObj* targetObj = targetMDD->getMDDObject();
-
-    // test, if target is a persistent object
-    if (!targetObj->isPersistent())
-    {
-        LERROR << "result of target expression must be an assignable value (l-value).";
-        throwError(nextTuple, target, NULL, 954);
-    }
-
-    QtData* operand = nullValues->evaluate(NULL);
-    if (operand->getDataType() != QT_NULLVALUES)
-    {
-        LERROR << "Can not evaluate null values expression.";
-        throwError(nextTuple, target, NULL, 401);
-    }
-
-    r_Nullvalues nullvalues = (static_cast<QtNullvaluesData*>(operand))->getNullvaluesData();
-    targetObj->setUpdateNullValues(&nullvalues);
-}
 
 void
 QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
 {
+    LDEBUG << "Evaluating MDD update...";
+
     // mdd object to be updated
+    LDEBUG << "  evaluating target object expression...";
     QtData* target = updateTarget->evaluate(nextTuple);
+    QtDataDeleter targetWrapper{target};
 
     // mdd object that is the source of the update
+    LDEBUG << "  evaluating source object expression...";
     QtData* source = updateSource->evaluate(nextTuple);
+    QtDataDeleter sourceWrapper{source};
 
     // check if target and source are valid
     if (!checkOperands(nextTuple, target, source))
-    {
         return;
-    }
 
     QtMDD* targetMDD = static_cast<QtMDD*>(target);
     QtMDD* sourceMDD = static_cast<QtMDD*>(source);
@@ -260,7 +173,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     {
         const char* srcTypeStructure = srcBaseType->getTypeStructure();
         const char* dstTypeStructure = dstBaseType->getTypeStructure();
-        LERROR << "Base type of source object (" << srcTypeStructure 
+        LERROR << "Base type of source object (" << srcTypeStructure
                << ") does not match the base type of the target object (" << dstTypeStructure << ")";
         throwError(nextTuple, target, source, 434);
     }
@@ -283,6 +196,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
             targetDomain = (static_cast<QtMintervalData*>(targetDomainData))->getMintervalData();
         }
     }
+    QtDataDeleter targetDomainDataWrapper{targetDomainData};
 
 #ifdef DEBUG
     if (targetDomainData)
@@ -348,7 +262,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     else
         LDEBUG << "  there are no source tiles";
 #endif
-    
+
     // get all target tiles in the domain of interest
     vector<r_Minterval> targetDomains;
     vector<Tile*> targetTiles;
@@ -359,7 +273,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
         targetTiles.push_back(it->get());
         targetDomains.push_back((*it)->getDomain());
     }
-    
+
     // split target tiles to match the source tiles, and generate result (retval) tiles
     vector<r_Minterval> sourceDomains{sourceMDDDomain};
     r_Tiler t(sourceDomains, targetDomains);
@@ -370,10 +284,10 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     vector<Tile*> retval = t.generateTiles(sourceTiles);
     for (auto retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
     {
-        const auto &retval = *retvalIt;
-        LDEBUG << "generated target tile with domain: " << retval->getDomain();
+        const auto &retvalTmp = *retvalIt;
+        LDEBUG << "generated target tile with domain: " << retvalTmp->getDomain();
         if (targetObj->getNullValues())
-            targetObj->fillTileWithNullvalues(retval->getContents(), retval->getDomain().cell_count());
+            targetObj->fillTileWithNullvalues(retvalTmp->getContents(), retvalTmp->getDomain().cell_count());
         targetTiles.push_back(*retvalIt);
     }
 
@@ -385,7 +299,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
         // not overwrite the target (which OP_UPDATE does), otherwise the faster
         // OP_IDENTITY that copies everything can be used.
         auto op = sourceNullValues ? Ops::OP_UPDATE : Ops::OP_IDENTITY;
-        
+
         updateOp.reset(Ops::getUnaryOp(op, targetObj->getCellType(), (*sourceTiles.begin())->getType()));
         if (!updateOp)
         {
@@ -489,13 +403,6 @@ QtUpdate::evaluateTuple(QtNode::QtDataList* nextTuple)
     {
         targetObj->insertTile(static_cast<Tile*>(*retvalIt));
     }
-
-    // delete optional operand
-    if (targetDomainData) targetDomainData->deleteRef();
-
-    // delete the operands
-    if (target) target->deleteRef();
-    if (source) source->deleteRef();
 }
 
 bool
@@ -535,19 +442,6 @@ QtUpdate::checkOperands(QtNode::QtDataList* nextTuple, QtData* target, QtData* s
 void
 QtUpdate::throwError(QtNode::QtDataList* nextTuple, QtData* target, QtData* source, int errorNumber, QtData* domainData)
 {
-
-    // delete tuple vector received by next()
-    for (auto dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
-        if (*dataIter)
-            (*dataIter)->deleteRef();
-    delete nextTuple;
-    nextTuple = NULL;
-
-    // delete the operands
-    if (target) target->deleteRef();
-    if (source) source->deleteRef();
-    if (domainData) domainData->deleteRef();
-
     parseInfo.setErrorNo(static_cast<unsigned long>(errorNumber));
     throw parseInfo;
 }
@@ -718,44 +612,25 @@ void
 QtUpdate::printAlgebraicExpression(ostream& s)
 {
     s << "update<" << std::flush;
-
     if (updateTarget)
-    {
         updateTarget->printAlgebraicExpression(s);
-    }
     else
-    {
         s << "<no target>";
-    }
 
     if (updateDomain)
-    {
         updateDomain->printAlgebraicExpression(s);
-    }
 
     s << "," << std::flush;
-
     if (updateSource)
-    {
         updateSource->printAlgebraicExpression(s);
-    }
     else
-    {
         s << "<no source>";
-    }
 
     s << ">" << std::flush;
-
     if (input)
-    {
-        s << "( ";
-        input->printAlgebraicExpression(s);
-        s << " )";
-    }
+        s << "( ", input->printAlgebraicExpression(s), s << " )";
     else
-    {
         s << "(<no input>)" << std::flush;
-    }
 }
 
 
@@ -825,49 +700,43 @@ QtUpdate::checkType()
         }
 
         // check source
-        if (!nullValues)
+        const QtTypeElement& sourceType = updateSource->checkType(&inputType);
+        if (sourceType.getDataType() != QT_MDD)
         {
-            const QtTypeElement& sourceType = updateSource->checkType(&inputType);
-            if (sourceType.getDataType() != QT_MDD)
-            {
-                LERROR << "update source must be an expression resulting in an MDD.";
-                parseInfo.setErrorNo(951);
-                throw parseInfo;
-            }
+            LERROR << "update source must be an expression resulting in an MDD.";
+            parseInfo.setErrorNo(951);
+            throw parseInfo;
+        }
 
-            // test for compatible base types
-            bool compatible = false;
-            const BaseType* type1 = (static_cast<MDDBaseType*>(const_cast<Type*>(targetType.getType())))->getBaseType();
-            const BaseType* type2 = (static_cast<MDDBaseType*>(const_cast<Type*>(sourceType.getType())))->getBaseType();
+        // test for compatible base types
+        bool compatible = false;
+        const BaseType* type1 = (static_cast<MDDBaseType*>(const_cast<Type*>(targetType.getType())))->getBaseType();
+        const BaseType* type2 = (static_cast<MDDBaseType*>(const_cast<Type*>(sourceType.getType())))->getBaseType();
 
-            // substituted the string comparison as it fails for composite types:
-            // the update base type is usually "struct { char 0, char 1,...}"
-            // while the target type is "struct { char red, char green, ...}"
-            // Now we rather use the compatibleWith method which handles such cases -- DM 2012-mar-07
+        // substituted the string comparison as it fails for composite types:
+        // the update base type is usually "struct { char 0, char 1,...}"
+        // while the target type is "struct { char red, char green, ...}"
+        // Now we rather use the compatibleWith method which handles such cases -- DM 2012-mar-07
 
-            // If the source MDD comes from an inv_* function we consider it's compatible
-            // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
-            // The same applies to QT_DECODE functions
+        // If the source MDD comes from an inv_* function we consider it's compatible
+        // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
+        // The same applies to QT_DECODE functions
 
-            QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
-            QtNodeList* decodeChildren = updateSource->getChild(QT_DECODE, QT_ALL_NODES);
-            compatible = updateSource->getNodeType() == QT_CONVERSION ||
-                         updateSource->getNodeType() == QT_DECODE ||
-                         (convChildren != NULL && !convChildren->empty()) ||
-                         (decodeChildren != NULL && !decodeChildren->empty()) ||
-                         type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
-            if (convChildren)
-            {
-                delete convChildren;
-                convChildren = NULL;
-            }
+        QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
+        QtNodeList* decodeChildren = updateSource->getChild(QT_DECODE, QT_ALL_NODES);
+        compatible = updateSource->getNodeType() == QT_CONVERSION ||
+                     updateSource->getNodeType() == QT_DECODE ||
+                     (convChildren != NULL && !convChildren->empty()) ||
+                     (decodeChildren != NULL && !decodeChildren->empty()) ||
+                     type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
+        delete convChildren, convChildren = NULL;
+        delete decodeChildren, decodeChildren = NULL;
 
-            if (!compatible)
-            {
-                LERROR << "source MDD base type does not match target MDD base type.";
-                parseInfo.setErrorNo(952);
-                throw parseInfo;
-            }
+        if (!compatible)
+        {
+            LERROR << "source MDD base type does not match target MDD base type.";
+            parseInfo.setErrorNo(952);
+            throw parseInfo;
         }
     }
     else
@@ -875,13 +744,3 @@ QtUpdate::checkType()
         LERROR << "operand branch invalid.";
     }
 }
-
-
-void
-QtUpdate::setNullValues(QtOperation* newNullValues)
-{
-    nullValues = newNullValues;
-}
-
-
-

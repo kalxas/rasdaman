@@ -121,7 +121,7 @@ private:
     long encodeResult(unsigned short execResult, unsigned long callingClientId,
                       char *&result, ExecuteQueryRes &resultError);
 
-    long encodeMDDs(unsigned long callingClientId, char*& result);
+    long encodeMDDs(unsigned long callingClientId, char*& result, const char* typeStructure);
 
     long encodeScalars(unsigned long callingClientId, char*& result, const char* typeStructure);
 
@@ -157,8 +157,6 @@ private:
 
     static vector<MDDEncoding*> getMDDs(int binDataSize, char* binData, int endianess);
     static int encodeAckn(char*& result, int ackCode);
-    static void resetExecuteQueryRes(ExecuteQueryRes& res);
-    static void cleanExecuteQueryRes(ExecuteQueryRes& res);
 
     // client requests allowed; this should be in sync with RasODMGGlobal.java
     static const int commOpenDB;

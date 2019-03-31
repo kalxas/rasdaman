@@ -54,14 +54,6 @@ public:
     /// destructor
     ~ClientTblElt();
 
-    /// release client context
-    void release();
-
-    /**
-      Releasing the client context means to decrease the currentUsers counter
-      and to update lastActionTime.
-    */
-
     /// releases transfer collection/iterator
     void releaseTransferStructures();
     /**
@@ -106,6 +98,8 @@ public:
     /// for establishing the compression ratio
     unsigned long totalRawSize{0};
     unsigned long totalTransferedSize{0};
+    /// if true, feedback will be printed with info level in endTransfer
+    bool reportTransferedSize{false};
 
     /// pointer to an MDD collection
     MDDColl *transferColl{0};

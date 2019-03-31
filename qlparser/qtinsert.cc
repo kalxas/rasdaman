@@ -69,9 +69,6 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-
-extern ClientTblElt* currentClientTblElt;
-
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
 QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource)
@@ -152,6 +149,7 @@ QtInsert::evaluate()
     {
         // empty data list for evaluation of insert expression including constant
         nextTuple = new QtNode::QtDataList(0);
+        std::unique_ptr<QtNode::QtDataList> nextTupleDeleter(nextTuple);
         if (stgLayout)
         {
             configOp = static_cast<QtMddCfgOp*>(stgLayout);
@@ -160,6 +158,7 @@ QtInsert::evaluate()
         // get the operands
         sourceData = source->evaluate(nextTuple);
     }
+    QtDataDeleter sourceDataDeleter{sourceData};
 
     if (sourceData)
     {
@@ -177,24 +176,12 @@ QtInsert::evaluate()
         {
 
             LERROR << "Error: QtInsert::evaluate() - collection name not found";
-
-            // delete the operand
-            if (sourceData)
-            {
-                sourceData->deleteRef();
-            }
-
             parseInfo.setErrorNo(355);
             throw parseInfo;
         }
         if (!almost->isPersistent())
         {
             LERROR << "QtInsert: User tries to insert into system table";
-            if (sourceData)
-            {
-                sourceData->deleteRef();
-            }
-
             parseInfo.setErrorNo(355);
             throw parseInfo;
         }
@@ -245,11 +232,6 @@ QtInsert::evaluate()
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
-            if (sourceData)
-            {
-                sourceData->deleteRef();    // delete the operand
-            }
-
             // return error
             LERROR << "Error: QtInsert::evaluate() - MDD and collection types are incompatible";
             parseInfo.setErrorNo(959);
@@ -263,11 +245,6 @@ QtInsert::evaluate()
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
-            if (sourceData)
-            {
-                sourceData->deleteRef();    // delete the operand
-            }
-
             // return error
             LERROR << "Error: QtInsert::evaluate() - MDD and collection domains are incompatible";
             parseInfo.setErrorNo(959);
@@ -394,24 +371,12 @@ QtInsert::evaluate()
         else
         {
             LERROR << "Error: QtInsert::evaluate() - allocation of oid failed";
-
-            // delete dynamic data
-            if (sourceData)
-            {
-                sourceData->deleteRef();
-            }
-            if (nextTuple)
-            {
-                delete nextTuple;
-                nextTuple = NULL;
-            }
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
             parseInfo.setErrorNo(958);
             throw parseInfo;
         }
-#else
 #endif
         // free transient memory
         persColl->releaseAll();
@@ -421,19 +386,6 @@ QtInsert::evaluate()
     else
     {
         LERROR << "Error: QtInsert::evaluate() - insert data is invalid.";
-    }
-
-    // delete source operand
-    if (sourceData)
-    {
-        sourceData->deleteRef();
-    }
-
-    // delete dummy tuple vector
-    if (nextTuple)
-    {
-        delete nextTuple;
-        nextTuple = NULL;
     }
 
     stopTimer();

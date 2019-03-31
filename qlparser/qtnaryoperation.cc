@@ -201,43 +201,18 @@ bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandLis
     {
         // get the operands
         operandList = new QtDataList(operationList->size());
+        QtDataListDeleter operandListDeleter{operandList}; // cleanup in case of error
 
         unsigned int pos = 0;
-
         for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
         {
             if (*iter)
             {
                 (*operandList)[pos] = (*iter)->evaluate(inputList);
             }
-
             pos++;
         }
-
-        // Test, if all operands are valid.
-        for (pos = 0; pos < operandList->size(); pos++)
-            if ((*operandList)[pos] == NULL)
-            {
-                success = false;
-                break;
-            }
-
-        if (!success)
-        {
-            // if not all operands are valid, delete the old ones
-            QtDataList::iterator dataIter;
-
-            for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                if ((*dataIter))
-                {
-                    (*dataIter)->deleteRef();
-                }
-
-            delete operandList;
-            operandList = NULL;
-
-            LTRACE << "Information: QtNaryOperation::getOperands() - at least one operand is not provided.";
-        }
+        operandListDeleter.obj = NULL; // all fine, nothing to delete
     }
     else
     {

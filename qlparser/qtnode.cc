@@ -235,15 +235,11 @@ QtNode::getChilds(QtChildType flag)
     // In mode QT_LEAF_NODES the method call is passed to the sons
     // and just the leaf nodes insert themselves.
 
-    QtNodeList* resultList = NULL;
-
-    resultList = new QtNodeList();
-
+    QtNodeList* resultList = new QtNodeList();
     if (flag == QT_LEAF_NODES)
     {
         resultList->push_back(this);
     }
-
     return resultList;
 }
 
@@ -295,7 +291,6 @@ QtNode::simplify()
 
     QtNodeList* resultList = NULL;
     QtNodeList::iterator iter;
-
     try
     {
         resultList = getChilds(QT_DIRECT_CHILDS);
@@ -483,7 +478,7 @@ QtTypeElement::QtTypeElement(const Type*            initType,
 
 
 
-QtTypeElement:: QtTypeElement(const QtTypeElement& typeElement)
+QtTypeElement::QtTypeElement(const QtTypeElement& typeElement)
     : dataType(typeElement.dataType),
       type(typeElement.type),
       name(NULL)

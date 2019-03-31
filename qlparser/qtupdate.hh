@@ -78,8 +78,6 @@ public:
     QtOperation* getUpdateSource();
     ///returns input
     QtONCStream* getInput();
-    ///set null values
-    void setNullValues(QtOperation* nullValues);
     //@}
 
     /// method for identification of nodes
@@ -96,9 +94,6 @@ private:
     /// evaluate one tuple of the input stream
     void evaluateTuple(QtNode::QtDataList* nextTuple);
 
-    /// evaluate null values update
-    void evaluateNullValues(QtNode::QtDataList* nextTuple);
-
     /// check validity of operands
     bool checkOperands(QtNode::QtDataList* nextTuple, QtData* target, QtData* source);
 
@@ -113,9 +108,6 @@ private:
 
     /// one input stream
     QtONCStream* input;
-
-    /// null values
-    QtOperation* nullValues;
 
     /// target expression
     QtOperation* updateTarget;

@@ -92,9 +92,6 @@ const int ackCodeNotOK = 98;
 //              maximal size of the transfer buffer in bytes
 extern unsigned long maxTransferBufferSize;
 
-// defined in servercomm2.cc
-extern char globalHTTPSetTypeStructure[];
-
 // This currently represents the one and only client active at one time.
 static ClientTblElt globalClientContext(ServerComm::HTTPCLIENT, 1);
 
@@ -272,23 +269,17 @@ std::string HttpServer::MDDEncoding::toString() const
 
 
 /*************************************************************************
- *
  *                             HttpServer
- *
  ************************************************************************/
 
 HttpServer::HttpServer()
 {
-    // So that it should be never freed
-    globalClientContext.currentUsers++;
 }
 
 HttpServer::HttpServer(unsigned long timeOut, unsigned long managementInterval, unsigned long newListenPort,
                        char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
         : ServerComm(timeOut, managementInterval, newListenPort, newRasmgrHost, newRasmgrPort, newServerName)
 {
-    // So that it should be never freed
-    globalClientContext.currentUsers++;
 }
 
 HttpServer::~HttpServer()
@@ -299,8 +290,6 @@ HttpServer::~HttpServer()
 ClientTblElt*
 HttpServer::getClientContext(__attribute__((unused)) unsigned long clientId)
 {
-    // this is a simplification and only works for one client
-    globalClientContext.currentUsers++;
     return &globalClientContext;
 }
 
@@ -317,24 +306,6 @@ int HttpServer::encodeAckn(char*& result, int ackCode = ackCodeOK)
     result = static_cast<char*>(mymalloc(1));
     *result = ackCode;
     return 1;
-}
-
-void HttpServer::resetExecuteQueryRes(ExecuteQueryRes& res)
-{
-    res.typeStructure = NULL;
-    res.token = NULL;
-    res.typeName = NULL;
-}
-
-void HttpServer::cleanExecuteQueryRes(ExecuteQueryRes& res)
-{
-    if (res.typeStructure)
-        free(res.typeStructure);
-    if (res.token)
-        free(res.token);
-    if (res.typeName)
-        free(res.typeName);
-    resetExecuteQueryRes(res);
 }
 
 long
@@ -407,8 +378,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             LTRACE << "execute query (client id " << callingClientId << "): " << query;
             // call executeQuery (result contains error information)
             ExecuteQueryRes resultError;
-            resetExecuteQueryRes(resultError);
-
             unsigned short execResult = executeQuery(callingClientId, query, resultError);
 
             return encodeResult(execResult, callingClientId, result, resultError);
@@ -428,8 +397,6 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
                 //LINFO << "Executing query: " << query;
                 // until now no error has occurred => execute the query
                 ExecuteUpdateRes returnStructure;
-                returnStructure.token = NULL;
-
                 if (!isPersistent)
                 {
                     execResult = executeUpdate(callingClientId, query, returnStructure);
@@ -547,7 +514,7 @@ long HttpServer::encodeResult(unsigned short execResult, unsigned long callingCl
     switch (execResult)
     {
         case EXEC_RESULT_MDDS:
-            ret = encodeMDDs(callingClientId, result);
+            ret = encodeMDDs(callingClientId, result, resultError.typeStructure);
             break;
         case EXEC_RESULT_SCALARS:
             ret = encodeScalars(callingClientId, result, resultError.typeStructure);
@@ -564,7 +531,6 @@ long HttpServer::encodeResult(unsigned short execResult, unsigned long callingCl
             ret = unknownError;
             break;
     }
-
     cleanExecuteQueryRes(resultError);
     return ret;
 }
@@ -582,7 +548,7 @@ long HttpServer::encodeResult(unsigned short execResult, unsigned long callingCl
      | array sz | array data             |
      +----------+------------------------+
  */
-long HttpServer::encodeMDDs(unsigned long callingClientId, char*& result)
+long HttpServer::encodeMDDs(unsigned long callingClientId, char*& result, const char *resultTypeStructure)
 {
     // contains all TransTiles representing the resulting MDDs
     vector<std::unique_ptr<Tile>> resultTiles;
@@ -630,7 +596,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char*& result)
             typeName = NULL;
         }
     }
-    totalLength += getHeaderSize(globalHTTPSetTypeStructure);
+    totalLength += getHeaderSize(resultTypeStructure);
     if (typeName)
     {
         free(typeName);
@@ -643,7 +609,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char*& result)
     char* currentPos = result;
 
     encodeHeader(&currentPos, RESPONSE_MDDS, systemEndianess, numMDD,
-                 globalHTTPSetTypeStructure, result, totalLength);
+                 resultTypeStructure, result, totalLength);
 
     // encode MDDs
     for (size_t i = 0; i < static_cast<size_t>(numMDD); i++)
@@ -960,7 +926,7 @@ unsigned short HttpServer::insertMDD(unsigned long callingClientId,
         LDEBUG << "Split interval is " << *splitInterval;
     }
     // now insert the tile(s)
-    auto ret = insertTileSplitted(callingClientId, isPersistent, rpcMarray, splitInterval.get());
+    auto ret = insertTile(callingClientId, isPersistent, rpcMarray, splitInterval.get());
 
     // free the stuff
     free(rpcMarray->domain);

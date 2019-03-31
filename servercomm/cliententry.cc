@@ -52,29 +52,20 @@ ClientTblElt::ClientTblElt(const char *clientText, unsigned long client) : clien
 ClientTblElt::~ClientTblElt()
 {
     releaseTransferStructures();
-    delete[] clientIdText;
-    delete[] baseName;
-    delete[] userName;
-    delete[] transferFormatParams;
-    delete[] storageFormatParams;
-    delete clientParams;
-}
-
-
-void
-ClientTblElt::release()
-{
-    if (currentUsers == 0)
-    {
-        LWARNING << "Warning: releasing a non-active client.";
-    }
-    currentUsers--;
-    lastActionTime = static_cast<long unsigned int>(time(NULL));
+    delete[] clientIdText, clientIdText = NULL;
+    delete[] baseName, baseName = NULL;
+    delete[] userName, userName = NULL;
+    delete[] transferFormatParams, transferFormatParams = NULL;
+    delete[] storageFormatParams, storageFormatParams = NULL;
+    delete clientParams, clientParams = NULL;
 }
 
 void
 ClientTblElt::releaseTransferStructures()
 {
+    totalTransferedSize = 0;
+    totalRawSize = 0;
+
     // delete the transfer iterator
     if (transferCollIter)
     {
@@ -90,10 +81,7 @@ ClientTblElt::releaseTransferStructures()
         // delete list elements
         for (auto it = transferData->begin(); it != transferData->end(); it++)
             if (*it)
-            {
-                (*it)->deleteRef();
-                (*it) = 0;
-            }
+                (*it)->deleteRef(), (*it) = 0;
         delete transferData;
         transferData = 0;
     }

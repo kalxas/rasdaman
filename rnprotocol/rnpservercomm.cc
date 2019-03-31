@@ -544,10 +544,6 @@ void RnpRasDaManComm::executeQueryRpc()
     LDEBUG << "query=" << query;
 
     ExecuteQueryRes queryResult;
-    INITPTR(queryResult.token);
-    INITPTR(queryResult.typeName);
-    INITPTR(queryResult.typeStructure);
-
     int status = rasserver.compat_executeQueryRpc(query, queryResult);
     SECUREPTR(queryResult.token);
     SECUREPTR(queryResult.typeName);
@@ -677,8 +673,6 @@ void RnpRasDaManComm::executeUpdateQuery()
     const char* query   = decoder.getDataAsString();
 
     ExecuteUpdateRes returnStructure;
-    returnStructure.token = NULL;
-
     int status = rasserver.compat_ExecuteUpdateQuery(query, returnStructure);
 
     const char* token = returnStructure.token != NULL ? returnStructure.token : "";

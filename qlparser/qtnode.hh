@@ -510,6 +510,41 @@ public:
     void printStatus(std::ostream& s = std::cout) const;
 };
 
+// Utility deleter objects
+
+/// QtData deleter that makes sure on object destruction the QtData ref is deleted
+struct QtDataDeleter
+{
+public:
+    QtDataDeleter() = default;
+    QtDataDeleter(QtData* objArg): obj{objArg} {}
+    ~QtDataDeleter()
+    {
+        if (obj)
+            obj->deleteRef(), obj = NULL;
+    }
+    QtData* obj{NULL};
+};
+
+/// QtDataList deleter that makes sure on object destruction the refs are deleted
+struct QtDataListDeleter
+{
+public:
+    QtDataListDeleter() = default;
+    QtDataListDeleter(QtNode::QtDataList* objArg): obj{objArg} {}
+    ~QtDataListDeleter()
+    {
+        if (obj)
+        {
+            for (auto dataIter = obj->begin(); dataIter != obj->end(); dataIter++)
+                if ((*dataIter))
+                    (*dataIter)->deleteRef(), (*dataIter) = NULL;
+            delete obj, obj = NULL;
+        }
+    }
+    QtNode::QtDataList* obj{NULL};
+};
+
 #include "qlparser/qtnode.icc"
 
 #endif

@@ -50,8 +50,6 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 
 using namespace std;
 
-extern ClientTblElt* currentClientTblElt;
-
 const QtNode::QtNodeType QtCommand::nodeType = QtNode::QT_COMMAND;
 const size_t QtCommand::MAX_COLLECTION_NAME_LENGTH;
 
@@ -108,22 +106,19 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollecti
 
 void QtCommand::dropCollection(const QtCollection& collection2)
 {
-    if (currentClientTblElt)
+    // drop the actual collection
+    if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
     {
-        // drop the actual collection
-        if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
-        {
-            LERROR << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
-            parseInfo.setErrorNo(957);
-            throw parseInfo;
-        }
-
-        // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
-        string setName = tmpSetTypePrefix + collection2.getCollectionName();
-        string mddName = tmpMddTypePrefix + collection2.getCollectionName();
-        TypeFactory::deleteTmpSetType(setName.c_str());
-        TypeFactory::deleteTmpMDDType(mddName.c_str());
+        LERROR << "Error during query evaluation: collection name not found: " << collection.getCollectionName().c_str();
+        parseInfo.setErrorNo(957);
+        throw parseInfo;
     }
+
+    // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
+    string setName = tmpSetTypePrefix + collection2.getCollectionName();
+    string mddName = tmpMddTypePrefix + collection2.getCollectionName();
+    TypeFactory::deleteTmpSetType(setName.c_str());
+    TypeFactory::deleteTmpMDDType(mddName.c_str());
 }
 
 OId QtCommand::createCollection(const QtCollection& collection2, string typeName2)
@@ -138,55 +133,49 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
         throw parseInfo;
     }
 
-    if (currentClientTblElt)
-    {
-        // get collection type
-        CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(typeName2.c_str())));
+    // get collection type
+    CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(typeName2.c_str())));
 
-        if (collType)
+    if (collType)
+    {
+#ifdef BASEDB_O2
+        if (!OId::allocateMDDCollOId(&oid))
         {
-#ifdef BASEDB_O2
-            if (!OId::allocateMDDCollOId(&oid))
-            {
 #else
-            OId::allocateOId(oid, OId::MDDCOLLOID);
+        OId::allocateOId(oid, OId::MDDCOLLOID);
 #endif
-                try
-                {
-                    MDDColl* coll = MDDColl::createMDDCollection(collection2.getCollectionName().c_str(), oid, collType);
-                    delete coll;
-                    coll = NULL;
-                }
-                catch (r_Error& obj)
-                {
-                    parseInfo.setErrorNo(955);
-                    throw parseInfo;
-                }
-#ifdef BASEDB_O2
-            }
-            else
+            try
             {
-                LERROR << "Error: QtCommand::evaluate() - oid allocation failed";
-                parseInfo.setErrorNo(958);
+                MDDColl* coll = MDDColl::createMDDCollection(collection2.getCollectionName().c_str(), oid, collType);
+                delete coll;
+                coll = NULL;
+            }
+            catch (r_Error& obj)
+            {
+                parseInfo.setErrorNo(955);
                 throw parseInfo;
             }
-#endif
+#ifdef BASEDB_O2
         }
         else
         {
-            LERROR << "Error during query evaluation: collection type not found: " << typeName2.c_str();
-            parseInfo.setErrorNo(956);
+            LERROR << "Error: QtCommand::evaluate() - oid allocation failed";
+            parseInfo.setErrorNo(958);
             throw parseInfo;
         }
+#endif
+    }
+    else
+    {
+        LERROR << "Error during query evaluation: collection type not found: " << typeName2.c_str();
+        parseInfo.setErrorNo(956);
+        throw parseInfo;
     }
     return oid;
 }
 
 void QtCommand::alterCollection(const QtCollection& collection2, string typeName2)
 {
-    if (!currentClientTblElt)
-        return;
-
     // get new collection type
     unique_ptr<CollectionType> newCollType;
     newCollType.reset(static_cast<CollectionType*>(const_cast<SetType*>(

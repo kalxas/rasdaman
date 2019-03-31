@@ -146,19 +146,11 @@ QtUnaryOperation::getChilds(QtChildType flag)
     QtNodeList* resultList = NULL;
 
     if (flag == QT_DIRECT_CHILDS)
-    {
         resultList = new QtNodeList();
-    }
-
-    if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
-    {
+    else if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
         resultList = input->getChilds(flag);
-    }
-
     if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
-    {
         resultList->push_back(input);
-    }
 
     return resultList;
 }
