@@ -298,10 +298,30 @@ class Recipe(BaseRecipe):
             else:
                 statements = []
 
+            slice_group_size = None
+            if "sliceGroupSize" in axis:
+                if not irregular:
+                    raise RuntimeException("Cannot set 'sliceGroupSize' for regular axis '{}' in ingredient file.".format(crs_axis.label))
+                else:
+                    # Irregular axis with dataBound:false only can use sliceGroupSize (!)
+                    value_str = axis["sliceGroupSize"]
+
+                    if "dataBound" not in axis or axis["dataBound"] is True:
+                        raise RuntimeException("Option 'sliceGroupSize' can be set only for irregular axis '{}'"
+                                               " with \"dataBound\": false in ingredient file.".format(crs_axis.label))
+
+                    try:
+                        slice_group_size = int(value_str)
+                        if slice_group_size <= 0:
+                            raise ValueError
+                    except ValueError:
+                        raise RuntimeException("Option 'sliceGroupSize' for irregular axis '{}'"
+                                               " in ingredient file must be positive integer. Given '{}'.".format(crs_axis.label, value_str))
+
             if not irregular:
                 user_axes.append(
                     RegularUserAxis(crs_axis.label, resolution, order, axis["min"], max, type, data_bound,
-                                    statements=statements))
+                                    statements))
             else:
                 # NOTE: irregular axis cannot set any resolution != 1
                 if int(resolution) != IrregularUserAxis.DEFAULT_RESOLUTION:
@@ -310,7 +330,7 @@ class Recipe(BaseRecipe):
 
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
-                                      type, data_bound, statements=statements))
+                                      type, data_bound, statements, slice_group_size))
         return user_axes
 
     def _global_metadata_fields(self):

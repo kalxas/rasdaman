@@ -23,8 +23,11 @@
 """
 
 import decimal
+import math
+
 from lib import arrow
 from master.extra_metadata.extra_metadata_slice import ExtraMetadataSliceSubset
+from util.coverage_util import CoverageUtil
 
 from util.list_util import sort_slices_by_datetime
 
@@ -61,6 +64,9 @@ class AbstractToCoverageConverter:
 
     IMPORT_ORDER_ASCENDING = "ascending"
     IMPORT_ORDER_DESCENDING = "descending"
+
+    # A dictionary of irregular axes and their geo lower bounds
+    irregular_axis_geo_lower_bound_dict = {}
 
     def __init__(self, resumer, recipe_type, sentence_evaluator, import_order):
         """
@@ -105,7 +111,7 @@ class AbstractToCoverageConverter:
                 direct_positions = self.sentence_evaluator.evaluate(user_axis.directPositions, evaluator_slice, user_axis.statements)
 
             return IrregularUserAxis(user_axis.name, resolution, user_axis.order, min, direct_positions, max,
-                                     user_axis.type, user_axis.dataBound)
+                                     user_axis.type, user_axis.dataBound, [], user_axis.slice_group_size)
 
     def _translate_number_direct_position_to_coefficients(self, origin, direct_positions):
         # just translate 1 -> 1 as origin is 0 (e.g: irregular Index1D)
@@ -135,6 +141,76 @@ class AbstractToCoverageConverter:
                 coeff_list.append(coeff_seconds)
 
             return coeff_list
+
+    def _adjust_irregular_axis_geo_lower_bound(self, coverage_id, axis_label, axis_type, is_day_unit, axis_geo_lower_bound, slice_group_size):
+        """
+        (!) Use only if irregular axis's dataBound is False, then adjust it's geo lower bound by current coverage's axis lower bound.
+        e.g: coverage's axis lower bound is '2015-01-10' and slice_group_size = 5 then irregular axis's lower bound
+        from '2015-01-08' or '2015-01-13' will be adjusted to '2015-01-10'.
+
+        :param int slice_group_size: a positive integer
+        """
+
+        resolution = IrregularUserAxis.DEFAULT_RESOLUTION
+
+        if axis_label not in self.irregular_axis_geo_lower_bound_dict:
+            # Need to parse it from coverage's DescribeCoverage result
+            cov = CoverageUtil(coverage_id)
+            if cov.exists():
+                axes_labels = cov.get_axes_labels()
+
+                # Get current coverage's axis geo lower bound
+                i = axes_labels.index(axis_label)
+
+                lower_bounds = cov.get_axes_lower_bounds()
+                coverage_geo_lower_bound = lower_bounds[i]
+
+                # Translate datetime format to seconds
+                if axis_type == UserAxisType.DATE:
+                    coverage_geo_lower_bound = arrow.get(coverage_geo_lower_bound).float_timestamp
+                    axis_geo_lower_bound = arrow.get(axis_geo_lower_bound).float_timestamp
+            else:
+                # Coverage does not exist, first InsertCoverage request
+                self.irregular_axis_geo_lower_bound_dict[axis_label] = axis_geo_lower_bound
+
+                return axis_geo_lower_bound
+        else:
+            coverage_geo_lower_bound = self.irregular_axis_geo_lower_bound_dict[axis_label]
+
+        if is_day_unit:
+            # AnsiDate (8600 seconds / day)
+            slice_group_size = slice_group_size * DateTimeUtil.DAY_IN_SECONDS
+
+        # e.g: irregular axis's level with current coverage's lower bound is 5, axis's lower bound is 12
+        # and sliceGroupSize = 5. Result is: (12 - 5) / (1 * 5) = 1
+        distance = math.floor((axis_geo_lower_bound - coverage_geo_lower_bound) / (resolution * slice_group_size))
+
+        # So the adjusted value is 5 + 1 * 1 * 5 = 10
+        adjusted_bound = coverage_geo_lower_bound + (distance * resolution * slice_group_size)
+
+        if adjusted_bound < coverage_geo_lower_bound:
+            # Save this one to cache for further processing
+            self.irregular_axis_geo_lower_bound_dict[axis_label] = adjusted_bound
+
+        return adjusted_bound
+
+    def _update_for_slice_group_size(self, coverage_id, user_axis, crs_axis, coefficients):
+        """
+        In case an irregular axis is used with "sliceGroupSize" then need to update its geo lower bound.
+
+        :param UserAxis user_axis
+        :param CRSAxis crs_axis
+        :param List[Decimal] coefficients
+        """
+        slice_group_size = user_axis.slice_group_size
+        if slice_group_size is not None and coefficients == self.COEFFICIENT_SLICING:
+            # In case dataBound:false (e.g: datetime from filename), GML of coverage to UpdateCoverage request
+            # doesn't contain coefficient. So, update lower bound of irregular axis instead.
+            user_axis.interval.low = self._adjust_irregular_axis_geo_lower_bound(coverage_id, crs_axis.label,
+                                                                                 user_axis.type,
+                                                                                 crs_axis.is_time_day_axis(),
+                                                                                 user_axis.interval.low,
+                                                                                 slice_group_size)
 
     def _translate_decimal_to_datetime(self, user_axis, geo_axis):
         """

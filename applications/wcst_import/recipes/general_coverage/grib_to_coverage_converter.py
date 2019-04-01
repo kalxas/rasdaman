@@ -262,6 +262,9 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
                 # number axis like Index1D
                 coefficients = self._translate_number_direct_position_to_coefficients(user_axis.interval.low,
                                                                                       user_axis.directPositions)
+
+            self._update_for_slice_group_size(self.coverage_id, user_axis, crs_axis, coefficients)
+
             geo_axis = IrregularAxis(crs_axis.label, crs_axis.uom, user_axis.interval.low, high, origin,
                                      coefficients, crs_axis)
         grid_low = 0

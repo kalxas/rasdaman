@@ -77,11 +77,23 @@ class CoverageUtil:
                                    "Check that the WCS service is up and running on url: {}. "
                                    "Detail error: {}".format(self.wcs_service, str(ex)))
 
-    def get_axis_labels(self):
+    def get_axes_labels(self):
         """
-        Returns the axis labels as a list
+        Return axes labels as a list
         :rtype list[str]
         """
         response = self.__describe_coverage()
         return response.split("axisLabels=\"")[1].split('"')[0].split(" ")
+
+    def get_axes_lower_bounds(self):
+        """
+        Return axes lower bounds as a list
+        :return: list[str]
+        """
+        response = self.__describe_coverage()
+        root = etree.fromstring(response)
+        value = root.xpath(".//*[contains(local-name(), 'lowerCorner')]")[0].text
+        lower_bounds = value.split(" ")
+
+        return lower_bounds
 

@@ -1961,7 +1961,7 @@ A series of geo Web services is available at the following endpoints:
 
 The diagram below illustrates the OGC service architecture of rasdaman:
 
-.. code-bloc:: text
+.. code-block:: text
 
     clients              read:                       read:
     +-----------------+

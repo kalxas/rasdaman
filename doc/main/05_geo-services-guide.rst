@@ -2506,6 +2506,39 @@ coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)
            }
       }
 
+
+.. _slice-group-size:
+
+**Group several coverage slices into a group**
+
+Since v9.8+, wcst_import allows to group input files on irregular axes
+(with ``"dataBound": false``) by optional ``sliceGroupSize: value (positive integer)``. 
+E.g: 
+
+.. code-block:: json
+
+    "time": {
+        "min": "datetime(regex_extract('${file:name}', '(.*)\\.(.*)',1), 'YYYYMMDD')",
+        "gridOrder": 0,
+        "type": "ansidate",
+        "irregular": true,
+        "sliceGroupSize": 7,
+        "dataBound": false
+    }
+
+If each input slice corresponds to index *X*, and one wants to have slice
+groups of size *N*, then the index would be translated with this option as follows:
+
+::
+
+    X - (X % N)
+
+Typical use case is importing 3D coverage from 2D satellite imageries where
+time axis is irregular and its values are fetched from input files
+by regex expression. Then, all input files which belong to 1 time window
+(e.g: ``"sliceGroupSize"``: 7 (7 days in AnsiDate CRS) will have the same value
+which is the first date of this week).
+
 .. _band-and-dim-metadata:
 
 **Band and dimension metadata in netCDF**

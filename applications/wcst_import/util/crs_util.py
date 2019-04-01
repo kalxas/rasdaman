@@ -257,7 +257,7 @@ class CRSUtil:
         # Case 1: Coverage exists with "Lat Long" axes
         if len(CRSUtil.coverage_axis_labels) == 0:
             if cov.exists():
-                CRSUtil.coverage_axis_labels = cov.get_axis_labels()
+                CRSUtil.coverage_axis_labels = cov.get_axes_labels()
 
                 for index, axis_label in enumerate(CRSUtil.coverage_axis_labels):
                     if axis_label == CRSUtil.LONG_AXIS_LABEL_EPSG_VERSION_85:
