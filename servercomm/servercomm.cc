@@ -217,12 +217,12 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
 #define DBGWARN(msg)      BLWARNING << "Warning: " << msg << "\n";
 #else
 std::stringstream requestStream;
-#define DBGREQUEST(msg) { requestStream.clear(); requestStream << "Request: " << msg << "... "; }
-#define DBGOK           ; // nothing to log if release mode if all is ok
-#define DBGINFO(msg)    ; // nothing to log if release mode if all is ok
-#define DBGINFONNL(msg) ; // nothing to log if release mode if all is ok
-#define DBGERROR(msg)   { NNLINFO << requestStream.str(); BLERROR << "Error: " << msg << "\n"; requestStream.clear(); }
-#define DBGWARN(msg)    { NNLINFO << requestStream.str(); BLWARNING << "Warning: " << msg << "\n"; requestStream.clear(); }
+#define DBGREQUEST(msg) { requestStream.str(""); requestStream.clear(); requestStream << "Request: " << msg << "... "; }
+#define DBGOK           ; // nothing to log if release mode and all is ok
+#define DBGINFO(msg)    ; // nothing to log if release mode and all is ok
+#define DBGINFONNL(msg) ; // nothing to log if release mode and all is ok
+#define DBGERROR(msg)   { NNLINFO << requestStream.str(); BLERROR << "Error: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
+#define DBGWARN(msg)    { NNLINFO << requestStream.str(); BLWARNING << "Warning: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
 #endif
 
 // -----------------------------------------------------------------------------------------
@@ -464,12 +464,17 @@ ServerComm::closeDB(unsigned long callingClientId)
             // If the current transaction belongs to this client, abort it.
             if (transactionActive == callingClientId)
             {
-                DBGWARN("transaction is open; aborting this transaction...");
+                DBGINFONNL("Warning: transaction is open, aborting... ");
                 context->transaction.abort();
                 transactionActive = 0;
             }
             context->database.close();
             DBGOK
+
+            // reset database name
+            delete[] context->baseName;
+            context->baseName = new char[5];
+            strcpy(context->baseName, "none");
         }
         catch (r_Error &err)
         {
@@ -483,11 +488,6 @@ ServerComm::closeDB(unsigned long callingClientId)
                 DBGERROR(err.what())
             }
         }
-
-        // reset database name
-        delete[] context->baseName;
-        context->baseName = new char[5];
-        strcpy(context->baseName, "none");
     }
     else
     {
@@ -522,7 +522,7 @@ ServerComm::createDB(char *name)
     }
     catch (...)
     {
-        DBGERROR("Unspecified exception.");
+        DBGERROR("unspecific exception.");
         throw;
     }
     return returnValue;
@@ -558,19 +558,14 @@ ServerComm::beginTA(unsigned long callingClientId, unsigned short readOnly)
 {
     unsigned short returnValue = RC_OK;
 
-    DBGREQUEST("'begin TA', mode = " << (readOnly ? "read" : "write"));
+    DBGREQUEST("'begin TA', mode = " << (readOnly ? "read" : "write"))
 
     ClientTblElt *context = getClientContext(callingClientId);
-    if (!context)
-    {
-        DBGERROR("client not registered.");
-        returnValue = RC_CLIENT_NOT_FOUND;
-    }
-    else
+    if (context)
     {
         if (transactionActive)
         {
-            DBGERROR("transaction already active.");
+            DBGERROR("transaction already active.")
             returnValue = RC_ERROR;
         }
         else
@@ -584,10 +579,20 @@ ServerComm::beginTA(unsigned long callingClientId, unsigned short readOnly)
             }
             catch (r_Error &err)
             {
-                DBGERROR(err.what());
+                DBGERROR(err.what())
+                throw;
+            }
+            catch (...)
+            {
+                DBGERROR("unspecific exception.")
                 throw;
             }
         }
+    }
+    else
+    {
+        DBGERROR("client not registered.")
+        returnValue = RC_CLIENT_NOT_FOUND;
     }
     return returnValue;
 }
@@ -603,10 +608,10 @@ ServerComm::commitTA(unsigned long callingClientId)
     if (context)
     {
         context->releaseTransferStructures();
-        if (configuration.isLockMgrOn())
-            LockManager::Instance()->unlockAllTiles();
         try
         {
+            if (configuration.isLockMgrOn())
+                LockManager::Instance()->unlockAllTiles();
             context->transaction.commit();
             transactionActive = 0;
             DBGOK
@@ -618,7 +623,7 @@ ServerComm::commitTA(unsigned long callingClientId)
         }
         catch (...)
         {
-            DBGERROR("unspecific exception.");
+            DBGERROR("unspecific exception.")
             throw;
         }
     }
@@ -641,7 +646,6 @@ ServerComm::abortTA(unsigned long callingClientId)
     if (context)
     {
         context->releaseTransferStructures();
-
         try
         {
             context->transaction.abort();
@@ -711,23 +715,6 @@ ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
     context->releaseTransferStructures(); \
     RELEASE_DATA }
 
-unsigned long ServerComm::getTotalTransferredSize(ClientTblElt *context) const
-{
-    unsigned long ret = 0;
-    for (auto it = context->transferData->begin(); it != context->transferData->end(); it++)
-    {
-        QtData *data = *it;
-        if (data == NULL)
-            continue;
-        if (data->getDataType() == QT_MDD)
-        {
-            QtMDD *mddObj = static_cast<QtMDD *>(data);
-            ret += (mddObj->getLoadDomain().cell_count() * mddObj->getMDDObject()->getCellType()->getSize());
-        }
-    }
-    return ret;
-}
-
 std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context) const
 {
     assert(context && context->transferData && !context->transferData->empty());
@@ -765,8 +752,7 @@ std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context
 
 unsigned short
 ServerComm::executeQuery(unsigned long callingClientId,
-                         const char *query,
-                         ExecuteQueryRes &returnStructure)
+                         const char *query, ExecuteQueryRes &returnStructure)
 {
 #ifdef ENABLE_PROFILING
     startProfiler("/tmp/rasdaman_query_select.XXXXXX.pprof", true);
@@ -1069,8 +1055,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
 
 unsigned short
 ServerComm::executeInsert(unsigned long callingClientId,
-                          const char *query,
-                          ExecuteQueryRes &returnStructure)
+                          const char *query, ExecuteQueryRes &returnStructure)
 {
 
 #ifdef ENABLE_PROFILING
@@ -2088,9 +2073,6 @@ unsigned short
 ServerComm::insertColl(unsigned long callingClientId,
                        const char *collName, const char *typeName, r_OId &oid)
 {
-    static constexpr unsigned short RC_COLL_EXISTS = 3;
-    static constexpr unsigned short RC_GENERAL_ERROR = 4;
-
     unsigned short returnValue = RC_OK;
 
     DBGREQUEST("'insert collection', collection name = '" << collName << "', type = '" << typeName << "'");
@@ -2100,7 +2082,7 @@ ServerComm::insertColl(unsigned long callingClientId,
     {
         context->releaseTransferStructures();
 
-        const CollectionType *collType = static_cast<const CollectionType *>(TypeFactory::mapSetType(typeName));
+        const SetType *collType = TypeFactory::mapSetType(typeName);
         if (collType)
         {
             try
@@ -2111,16 +2093,13 @@ ServerComm::insertColl(unsigned long callingClientId,
             }
             catch (r_Error &obj)
             {
-                if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
-                {
-                    DBGERROR("collection exists already.");
-                    returnValue = RC_COLL_EXISTS;
-                }
-                else
-                {
-                    DBGERROR("cannot create collection, reason: " << obj.what());
-                    returnValue = RC_GENERAL_ERROR;
-                }
+                DBGERROR(obj.what())
+                throw;
+            }
+            catch (...)
+            {
+                DBGERROR("unspecific exception while creating collection.")
+                throw;
             }
         }
         else
@@ -2166,6 +2145,11 @@ ServerComm::deleteCollByName(unsigned long callingClientId,
             DBGERROR(err.what())
             throw;
         }
+        catch (...)
+        {
+            DBGERROR("unspecific exception while dropping collection.")
+            throw;
+        }
     }
     else
     {
@@ -2181,7 +2165,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
 {
     unsigned short returnValue = RC_OK;
 
-    DBGREQUEST("'delete MDD by OID', oid = '" << oid << "'");
+    DBGREQUEST("'delete object by OID', oid = '" << oid << "'");
 
     ClientTblElt *context = getClientContext(callingClientId);
     if (context)
@@ -2194,8 +2178,10 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
         {
             case OId::MDDOID:
             {
-                // FIXME: why not deleted?? -- PB 2005-aug-27
-                DBGINFO("found MDD object; NOT deleted yet... " << MSG_OK);
+                // There's no API in MDDObj to remove the object, it has to be removed
+                // from the collection that contains it. The collection is not known though,
+                // as only the OID is given.
+                DBGINFO("found MDD object; not deleted yet... " << MSG_OK);
                 break;
             }
             case OId::MDDCOLLOID:
@@ -2217,18 +2203,23 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
                     DBGERROR(err.what())
                     throw;
                 }
+                catch (...)
+                {
+                    DBGERROR("unspecific exception while dropping collection.")
+                    throw;
+                }
                 break;
             }
             default:
             {
-                DBGERROR("object has unknown type: " << objType);
+                DBGERROR("object has unknown type '" << objType << "'.")
                 returnValue = RC_ERROR;
             }
         }
     }
     else
     {
-        DBGERROR("client not registered.");
+        DBGERROR("client not registered.")
         returnValue = RC_CLIENT_NOT_FOUND;
     }
     return returnValue;
@@ -2238,8 +2229,6 @@ unsigned short
 ServerComm::removeObjFromColl(unsigned long callingClientId,
                               const char *collName, r_OId &oid)
 {
-    static constexpr unsigned short RC_OBJ_NOT_FOUND = 3;
-    static constexpr unsigned short RC_GENERAL_ERROR = 4;
     unsigned short returnValue = RC_OK;
 
     DBGREQUEST("'remove MDD from collection', collection name = '" << collName << "', oid = '" << oid << "'");
@@ -2249,10 +2238,10 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
     {
         context->releaseTransferStructures();
 
-        MDDColl *coll = NULL;
+        std::unique_ptr<MDDColl> coll;
         try
         {
-            coll = MDDColl::getMDDCollection(collName);
+            coll.reset(MDDColl::getMDDCollection(collName));
         }
         catch (r_Error &obj)
         {
@@ -2264,49 +2253,45 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
             else
             {
                 DBGERROR(obj.what());
-                returnValue = RC_GENERAL_ERROR;
+                throw;
             }
         }
         catch (...)
         {
             DBGERROR("unspecified exception.");
-            returnValue = RC_GENERAL_ERROR;
+            throw;
         }
-        if (coll)
+        if (coll && coll->isPersistent())
         {
-            if (coll->isPersistent())
+            OId mddId(oid.get_local_oid());
+            OId collId; coll->getOId(collId);
+            try
             {
-                OId mddId(oid.get_local_oid());
-                OId collId; coll->getOId(collId);
-                try
+                if (MDDColl::removeMDDObject(collId, mddId))
                 {
-                    if (MDDColl::removeMDDObject(collId, mddId))
-                    {
-                        DBGOK
-                    }
-                    else
-                    {
-                        DBGERROR("object does not exist.")
-                        returnValue = RC_OBJ_NOT_FOUND;
-                    }
+                    DBGOK
                 }
-                catch (r_Error &obj)
+                else
                 {
-                    DBGERROR(obj.what());
-                    returnValue = RC_GENERAL_ERROR;
-                }
-                catch (...)
-                {
-                    DBGERROR("unspecified exception.");
-                    returnValue = RC_GENERAL_ERROR;
+                    DBGERROR("object does not exist.")
+                    returnValue = RC_ERROR;
                 }
             }
-            delete coll;
+            catch (r_Error &obj)
+            {
+                DBGERROR(obj.what());
+                throw;
+            }
+            catch (...)
+            {
+                DBGERROR("unspecified exception.")
+                throw;
+            }
         }
     }
     else
     {
-        DBGERROR("client not registered.");
+        DBGERROR("client not registered.")
         returnValue = RC_CLIENT_NOT_FOUND;
     }
     return returnValue;
@@ -2315,6 +2300,47 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 // -----------------------------------------------------------------------------------------
 // Get collection/MDD by name or oid
 // -----------------------------------------------------------------------------------------
+
+unsigned short ServerComm::getTransferCollInfo(
+        ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const
+{
+    static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
+    static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
+    assert(context && coll);
+
+    // set typeName and typeStructure
+    const CollectionType *collectionType = coll->getCollectionType();
+    if (collectionType)
+    {
+        typeName = strdup(collectionType->getTypeName());
+        typeStructure = collectionType->getTypeStructure();  // no copy !!!
+        if (coll->isPersistent())
+        {
+            EOId eOId;
+            if (coll->getEOId(eOId))
+                oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+        }
+        DBGINFO("ok, " << coll->getCardinality() << " result(s).");
+    }
+    else
+    {
+        DBGINFONNL("Warning: cannot obtain collection type information... ")
+        typeName = strdup("");
+        typeStructure = strdup("");
+    }
+
+    if (coll->getCardinality() > 0)
+    {
+        DBGINFO("ok, collection has " << coll->getCardinality() << " elements.")
+        return RC_OK_SOME_ELEMENTS;
+    }
+    else
+    {
+        DBGINFO("ok, collection empty.");
+        context->releaseTransferStructures();
+        return RC_OK_NO_ELEMENTS;
+    }
+}
 
 unsigned short
 ServerComm::getCollByName(unsigned long callingClientId,
@@ -2337,17 +2363,22 @@ ServerComm::getCollByName(unsigned long callingClientId,
         {
             // create the transfer collection
             context->transferColl = MDDColl::getMDDCollection(collName);
+
+            // create the transfer iterator
+            context->transferCollIter = context->transferColl->createIterator();
+            context->transferCollIter->reset();
+            returnValue = getTransferCollInfo(context, oid, typeName, typeStructure, context->transferColl);
         }
         catch (r_Error &obj)
         {
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-                DBGERROR("collection not found.");
+                DBGERROR("collection not found.")
                 returnValue = RC_COLL_NOT_FOUND;
             }
             else
             {
-                DBGERROR(obj.what());
+                DBGERROR(obj.what())
                 throw;
             }
         }
@@ -2362,43 +2393,6 @@ ServerComm::getCollByName(unsigned long callingClientId,
             throw;
         }
 
-        if (returnValue == RC_OK_SOME_ELEMENTS)
-        {
-            // create the transfer iterator
-            context->transferCollIter = context->transferColl->createIterator();
-            context->transferCollIter->reset();
-
-            // set typeName and typeStructure
-            const CollectionType *collectionType = context->transferColl->getCollectionType();
-            if (collectionType)
-            {
-                typeName = strdup(collectionType->getTypeName());
-                typeStructure = collectionType->getTypeStructure();  // no copy !!!
-                // set oid in case of a persistent collection
-                if (context->transferColl->isPersistent())
-                {
-                    EOId eOId;
-                    if (context->transferColl->getEOId(eOId))
-                    {
-                        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
-                    }
-                }
-                DBGOK
-            }
-            else
-            {
-                DBGWARN("cannot obtain collection type information");
-                typeName = strdup("");
-                typeStructure = strdup("");
-            }
-
-            if (!context->transferCollIter->notDone())
-            {
-                DBGINFO("ok, result empty.");
-                returnValue = RC_OK_NO_ELEMENTS;
-                context->releaseTransferStructures();
-            }
-        }
     }
     else
     {
@@ -2423,6 +2417,7 @@ ServerComm::getCollByOId(unsigned long callingClientId,
 
     unsigned short returnValue = RC_OK_SOME_ELEMENTS;
 
+    collName = NULL;
     ClientTblElt *context = getClientContext(callingClientId);
     if (context)
     {
@@ -2432,77 +2427,43 @@ ServerComm::getCollByOId(unsigned long callingClientId,
         // check type and existence of oid
         OId oidIf(oid.get_local_oid());
         OId::OIdType objType = oidIf.getType();
-        if (objType == OId::MDDCOLLOID)
+        if (objType != OId::MDDCOLLOID)
         {
-            try
+            DBGERROR("not a collection oid: " << oid)
+            return RC_COLL_NOT_FOUND;
+        }
+
+        try
+        {
+            context->transferColl = MDDColl::getMDDCollection(oidIf);
+
+            collName = strdup(context->transferColl->getName());
+            context->transferCollIter = context->transferColl->createIterator();
+            context->transferCollIter->reset();
+            returnValue = getTransferCollInfo(context, oid, typeName, typeStructure, context->transferColl);
+        }
+        catch (r_Error &obj)
+        {
+            if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-                context->transferColl = MDDColl::getMDDCollection(oidIf);
+                DBGERROR("collection not found.");
+                returnValue = RC_COLL_NOT_FOUND;
             }
-            catch (r_Error &obj)
+            else
             {
-                if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
-                {
-                    DBGERROR("collection not found.");
-                    returnValue = RC_COLL_NOT_FOUND;
-                }
-                else
-                {
-                    DBGERROR(obj.what());
-                    throw;
-                }
-            }
-            catch (std::bad_alloc)
-            {
-                DBGERROR("memory allocation failed.");
+                DBGERROR(obj.what());
                 throw;
-            }
-            catch (...)
-            {
-                DBGERROR("unspecific exception while opening collection.");
-                throw;
-            }
-
-            if (returnValue == RC_OK_SOME_ELEMENTS)
-            {
-                collName = strdup(context->transferColl->getName());
-                // create the transfer iterator
-                context->transferCollIter = context->transferColl->createIterator();
-                context->transferCollIter->reset();
-
-                // set typeName and typeStructure
-                const CollectionType *collectionType = context->transferColl->getCollectionType();
-                if (collectionType)
-                {
-                    typeName = strdup(collectionType->getTypeName());
-                    typeStructure = collectionType->getTypeStructure();  // no copy !!!
-                    // set oid in case of a persistent collection
-                    if (context->transferColl->isPersistent())
-                    {
-                        EOId eOId;
-                        if (context->transferColl->getEOId(eOId))
-                            oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
-                    }
-                    DBGINFO("ok, " << context->transferColl->getCardinality() << " result(s).");
-                }
-                else
-                {
-                    DBGWARN("cannot obtain collection type information");
-                    typeName = strdup("");
-                    typeStructure = strdup("");
-                }
-
-                if (!context->transferCollIter->notDone())
-                {
-                    DBGINFO("ok, result empty.");
-                    returnValue = RC_OK_NO_ELEMENTS;
-                    context->releaseTransferStructures();
-                }
             }
         }
-        else
+        catch (std::bad_alloc)
         {
-            DBGERROR("oid does not belong to a collection object.");
-            returnValue = RC_COLL_NOT_FOUND;
+            DBGERROR("memory allocation failed.");
+            throw;
+        }
+        catch (...)
+        {
+            DBGERROR("unspecific exception while opening collection.");
+            throw;
         }
     }
     else
@@ -2529,6 +2490,10 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
 
     unsigned short returnValue = RC_OK_SOME_ELEMENTS;
 
+    // init
+    oidTable = NULL;
+    oidTableSize = 0;
+
     ClientTblElt *context = getClientContext(callingClientId);
     if (context)
     {
@@ -2540,6 +2505,32 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
             {
                 DBGERROR("inserting into system collection is illegal.");
                 throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
+            }
+
+            returnValue = getTransferCollInfo(context, oid, typeName, typeStructure, coll.get());
+
+            if (coll->getCardinality() > 0)
+            {
+                oidTableSize = coll->getCardinality();
+                oidTable = static_cast<RPCOIdEntry *>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
+
+                auto collIter = std::unique_ptr<MDDCollIter>(coll->createIterator());
+                collIter->reset();
+                EOId eOId;
+                for (size_t i = 0; collIter->notDone(); collIter->advance(), i++)
+                {
+                    MDDObj *mddObj = collIter->getElement();
+                    oidTable[i].oid = NULL;
+                    if (mddObj->isPersistent() && mddObj->getEOId(&eOId) == 0)
+                    {
+                        oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(),
+                                                       eOId.getOId()).get_string_representation());
+                    }
+                    if (!oidTable[i].oid)
+                    {
+                        oidTable[i].oid = strdup("");
+                    }
+                }
             }
         }
         catch (r_Error &err)
@@ -2559,58 +2550,6 @@ ServerComm::getCollOIdsByName(unsigned long callingClientId,
         {
             DBGERROR("unspecific exception while opening collection.");
             throw;
-        }
-
-        if (returnValue == RC_OK_SOME_ELEMENTS)
-        {
-            // set typeName and typeStructure
-            const CollectionType *collectionType = coll->getCollectionType();
-            if (collectionType)
-            {
-                typeName = strdup(collectionType->getTypeName());
-                typeStructure = collectionType->getTypeStructure();  // no copy !!!
-                EOId eOId;
-                if (coll->getEOId(eOId) == true)
-                    oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
-            }
-            else
-            {
-                DBGWARN("cannot obtain collection type information");
-                typeName = strdup("");
-                typeStructure = strdup("");
-            }
-
-            if (coll->getCardinality())
-            {
-                oidTableSize = coll->getCardinality();
-                oidTable = static_cast<RPCOIdEntry *>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
-
-                auto collIter = std::unique_ptr<MDDCollIter>(coll->createIterator());
-                int i = 0;
-                for (collIter->reset(); collIter->notDone(); collIter->advance(), i++)
-                {
-                    MDDObj *mddObj = collIter->getElement();
-                    if (mddObj->isPersistent())
-                    {
-                        EOId eOId;
-                        if (mddObj->getEOId(&eOId) == 0)
-                            oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(),
-                                                           eOId.getOId()).get_string_representation());
-                        else
-                            oidTable[i].oid = strdup("");
-                    }
-                    else
-                    {
-                        oidTable[i].oid = strdup("");
-                    }
-                }
-                DBGINFO("ok, " << oidTableSize << " result(s).");
-            }
-            else
-            {
-                DBGINFO("ok, result empty.");
-                returnValue = RC_OK_NO_ELEMENTS;
-            }
         }
     }
     else
@@ -2638,99 +2577,77 @@ ServerComm::getCollOIdsByOId(unsigned long callingClientId,
 
     unsigned short returnValue = RC_OK_SOME_ELEMENTS;
 
+    // init
+    oidTable = NULL;
+    oidTableSize = 0;
+
     ClientTblElt *context = getClientContext(callingClientId);
     if (context)
     {
         // check type and existence of oid
         OId oidIf(oid.get_local_oid());
         OId::OIdType objType = oidIf.getType();
-        if (objType == OId::MDDCOLLOID)
+        if (objType != OId::MDDCOLLOID)
         {
-            std::unique_ptr<MDDColl> coll;
-            try
+            DBGERROR("not a collection oid: " << oid)
+            return RC_COLL_NOT_FOUND;
+        }
+
+        std::unique_ptr<MDDColl> coll;
+        try
+        {
+            coll.reset(MDDColl::getMDDCollection(oidIf));
+
+            // TODO: refactor duplication with getCollOIdsByName
+            if (!coll->isPersistent())
             {
-                coll.reset(MDDColl::getMDDCollection(oidIf));
-                if (!coll->isPersistent())
-                {
-                    DBGERROR("inserting into system collection is illegal.");
-                    throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
-                }
-            }
-            catch (r_Error &err)
-            {
-                if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
-                {
-                    DBGERROR("collection not found.");
-                    returnValue = RC_COLL_NOT_FOUND;
-                }
-                else
-                {
-                    DBGERROR(err.what());
-                    throw;
-                }
-            }
-            catch (...)
-            {
-                DBGERROR("unspecific exception while opening collection.");
-                throw;
+                DBGERROR("inserting into system collection is illegal.");
+                throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
             }
 
-            if (returnValue == RC_OK_SOME_ELEMENTS)
+            returnValue = getTransferCollInfo(context, oid, typeName, typeStructure, coll.get());
+
+            if (coll->getCardinality() > 0)
             {
-                collName = strdup(coll->getName());
-                const CollectionType *collectionType = coll->getCollectionType();
-                if (collectionType)
-                {
-                    typeName = strdup(collectionType->getTypeName());
-                    typeStructure = collectionType->getTypeStructure();  // no copy !!!
-                    EOId eOId;
-                    if (coll->getEOId(eOId) == true)
-                        oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
-                }
-                else
-                {
-                    DBGWARN("cannot obtain collection type information");
-                    typeName = strdup("");
-                    typeStructure = strdup("");
-                }
+                oidTableSize = coll->getCardinality();
+                oidTable = static_cast<RPCOIdEntry *>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
 
-                if (coll->getCardinality())
+                auto collIter = std::unique_ptr<MDDCollIter>(coll->createIterator());
+                collIter->reset();
+                EOId eOId;
+                for (size_t i = 0; collIter->notDone(); collIter->advance(), i++)
                 {
-                    oidTableSize = coll->getCardinality();
-                    oidTable = static_cast<RPCOIdEntry *>(mymalloc(sizeof(RPCOIdEntry) * oidTableSize));
-
-                    auto collIter = std::unique_ptr<MDDCollIter>(coll->createIterator());
-                    int i = 0;
-                    for (collIter->reset(); collIter->notDone(); collIter->advance(), i++)
+                    MDDObj *mddObj = collIter->getElement();
+                    oidTable[i].oid = NULL;
+                    if (mddObj->isPersistent() && mddObj->getEOId(&eOId) == 0)
                     {
-                        MDDObj *mddObj = collIter->getElement();
-                        if (mddObj->isPersistent())
-                        {
-                            EOId eOId;
-                            if ((static_cast<MDDObj *>(mddObj))->getEOId(&eOId) == 0)
-                                oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(),
-                                                               eOId.getOId()).get_string_representation());
-                            else
-                                oidTable[i].oid = strdup("");
-                        }
-                        else
-                        {
-                            oidTable[i].oid = strdup("");
-                        }
+                        oidTable[i].oid = strdup(r_OId(eOId.getSystemName(), eOId.getBaseName(),
+                                                       eOId.getOId()).get_string_representation());
                     }
-                    DBGINFO("ok, " << oidTableSize << " result(s).");
-                }
-                else
-                {
-                    DBGINFO("ok, result empty.");
-                    returnValue = RC_OK_NO_ELEMENTS;
+                    if (!oidTable[i].oid)
+                    {
+                        oidTable[i].oid = strdup("");
+                    }
                 }
             }
         }
-        else
+        catch (r_Error &err)
         {
-            returnValue = RC_COLL_NOT_FOUND; // oid does not belong to a collection object
-            DBGERROR("not a collection oid: " << oid);
+            if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+            {
+                DBGERROR("collection not found.");
+                returnValue = RC_COLL_NOT_FOUND;
+            }
+            else
+            {
+                DBGERROR(err.what());
+                throw;
+            }
+        }
+        catch (...)
+        {
+            DBGERROR("unspecific exception while opening collection.");
+            throw;
         }
     }
     else

@@ -183,43 +183,37 @@ QtNaryOperation::getChilds(QtChildType flag)
 
 bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandList)
 {
-    bool success = (operationList != 0);
-
-    // Test, if all operands are available.
-
-    if (success)
+    if (operationList == 0)
     {
-        for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
-            if ((*iter) == NULL)
-            {
-                success = false;
-                break;
-            }
+        LERROR << "No operation list specified.";
+        return false;
     }
-
-    if (success)
+    if (std::any_of(operationList->begin(), operationList->begin(), 
+                    [](QtOperation* op) { return op == NULL; }))
     {
-        // get the operands
-        operandList = new QtDataList(operationList->size());
-        QtDataListDeleter operandListDeleter{operandList}; // cleanup in case of error
+        LERROR << "At least one operand branch is invalid.";
+        return false;
+    }
+    
+    operandList = NULL; // make sure it's NULL in case of error
 
-        unsigned int pos = 0;
-        for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
+    auto *tmpOperandList = new QtDataList(operationList->size());
+    QtDataListDeleter tmpOperandListDel{tmpOperandList}; // cleanup in case of error
+
+    unsigned int pos = 0;
+    for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
+    {
+        (*tmpOperandList)[pos] = (*iter)->evaluate(inputList);
+        if (!(*tmpOperandList)[pos])
         {
-            if (*iter)
-            {
-                (*operandList)[pos] = (*iter)->evaluate(inputList);
-            }
-            pos++;
+            LTRACE << "Operand " << pos << " is not provided.";
+            return false;
         }
-        operandListDeleter.obj = NULL; // all fine, nothing to delete
+        pos++;
     }
-    else
-    {
-        LERROR << "Error: QtNaryOperation::getOperands() - at least one operand branch is invalid.";
-    }
-
-    return success;
+    operandList = tmpOperandList;
+    tmpOperandListDel.obj = NULL; // reset so that operandList is not deleted
+    return true;
 }
 
 string
@@ -352,3 +346,6 @@ void QtNaryOperation::printAlgebraicExpression(ostream &s)
 
     s << ")";
 }
+
+
+

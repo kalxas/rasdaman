@@ -62,6 +62,7 @@ rasdaman GmbH.
 
 // forward declarations
 class ClientTblElt;
+class MDDColl;
 
 extern AccessControl accessControl;
 
@@ -885,10 +886,10 @@ protected:
     static void resetExecuteUpdateRes(ExecuteUpdateRes& res);
     /// free fields of res
     static void cleanExecuteQueryRes(ExecuteQueryRes& res);
-    /// return total size in bytes of transferred MDD results
-    unsigned long getTotalTransferredSize(ClientTblElt *context) const;
     /// return type name and type structure of the first transfer element in context
     std::pair<char*, char*> getTypeNameStructure(ClientTblElt *context) const;
+    unsigned short getTransferCollInfo(
+            ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
 
     ///returns the following:
     static const int ENSURE_TILE_FORMAT_OK;
