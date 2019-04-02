@@ -1,4 +1,4 @@
-/*
+ /*
 * This file is part of rasdaman community.
 *
 * Rasdaman community is free software: you can redistribute it and/or modify
@@ -25,6 +25,18 @@ rasdaman GmbH.
 
 
 #include "commline/cmlparser.hh"
+#include "raslib/minterval.hh"
+
+
+typedef enum
+{
+    OUT_UNDEF,
+    OUT_FILE,
+    OUT_NONE,
+    OUT_STRING,
+    OUT_HEX,
+    OUT_FORMATTED
+} OUTPUT_TYPE;
 
 /**
   * \ingroup Servers
@@ -32,6 +44,7 @@ rasdaman GmbH.
 class Configuration
 {
 public:
+
     Configuration();
 
     bool parseCommandLine(int argc, char** argv);
@@ -72,6 +85,25 @@ public:
     long        getCacheLimit();
 
     const char* getNewServerId();
+
+    const char* getQueryString();
+    const char* getFileName();
+    const char* getUser();
+    const char* getPasswd();
+    const char* getOutFileMask();
+    const r_Minterval& getMddDomain();
+    const char* getMddTypeName();
+    bool        isMddDomainDef();
+    bool        isMddTypeNameDef();
+    bool        isQuietLogOn();
+    bool        isOutputOn();
+    bool        hasQueryString();
+    OUTPUT_TYPE getOutputType();
+
+    void        setMddTypeName(const char* mddtn);
+
+
+
 
 private:
     void printHelp();
@@ -119,6 +151,24 @@ private:
 
     // Server id parameter required by rasnet
     CommandLineParameter* cmlNewServerId;
+
+    // directql parameters
+    CommandLineParameter* cmlQuery;
+    CommandLineParameter* cmlFile;
+
+    CommandLineParameter* cmlContent;
+    CommandLineParameter* cmlOut;
+    CommandLineParameter* cmlOutfile;
+    CommandLineParameter* cmlMddDomain;
+    CommandLineParameter* cmlMddType;
+    CommandLineParameter* cmlType;
+
+    CommandLineParameter* cmlDatabase;
+    CommandLineParameter* cmlUser;
+    CommandLineParameter* cmlPasswd;
+    CommandLineParameter* cmlQuiet;
+
+
 #ifdef RMANDEBUG
     CommandLineParameter* cmlDbg;
     CommandLineParameter* cmlDbgLevel;
@@ -158,6 +208,26 @@ private:
 
     // server id, required by rasnet
     const char* newServerId;
+
+    // directql
+    const char* queryString;
+    const char* fileName;
+    const char* baseName;
+    const char* user;
+    const char* passwd;
+    bool        output;
+    bool        displayType;
+
+    OUTPUT_TYPE outputType;
+    const char* outFileMask;
+    r_Minterval mddDomain;
+    const char* mddTypeName;
+    bool        quietLog;
+    bool        mddDomainDef;
+    bool        mddTypeNameDef;
+    bool        queryStringOn;
+
+
 #ifdef RMANDEBUG
     int         dbgLevel;
 #endif

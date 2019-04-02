@@ -28,8 +28,8 @@ rasdaman GmbH.
  *      No Comments
 */
 
-#ifndef _RASQL_ERROR_HH_
-#define _RASQL_ERROR_HH_
+#ifndef _RASQL_RASSERVER_ERROR_HH_
+#define _RASQL__RASSERVER_ERROR_HH_
 
 #ifdef __VISUALC__
 #pragma warning( disable : 4290 )
@@ -56,6 +56,9 @@ rasdaman GmbH.
 #define FILESIZEMISMATCH                8
 #define NOFILEWRITEPERMISSION           9
 #define UNABLETOWRITETOFILE             10
+#define FILEEMPTY                       11
+#define FILEREADERROR                   12
+#define FILEWRITEERROR                  13
 
 class RasqlError // : public std::exception
 {

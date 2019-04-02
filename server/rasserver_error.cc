@@ -42,7 +42,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 // for sprintf():
 #include <stdio.h>
 
-#include "directql_error.hh"
+#include "rasserver_error.hh"
 
 // debug facility; relies on -DDEBUG at compile time
 #include "debug-clt.hh"

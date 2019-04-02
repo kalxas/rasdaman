@@ -40,6 +40,80 @@ using namespace std;
 #include "debug/debug.hh"
 #include "debug.hh"
 #include "loggingutils.hh"
+#include "rasserver_error.hh"
+
+
+
+#define PARAM_HELP_FLAG 'h'
+#define PARAM_HELP  "help"
+#define HELP_HELP   "show command line switches"
+
+#define PARAM_SERV_FLAG 's'
+#define PARAM_SERV  "server"
+#define HELP_SERV   "<host-name> rasdaman server"
+#define DEFAULT_SERV    "localhost"
+
+#define PARAM_PORT_FLAG 'p'
+#define PARAM_PORT  "port"
+#define HELP_PORT   "<p> rasmgr port number"
+#define DEFAULT_PORT    7001
+#define DEFAULT_PORT_STR "7001"
+
+#define PARAM_DB_FLAG   'd'
+#define PARAM_DB    "database"
+#define HELP_DB     "<db-name> name of database"
+#define DEFAULT_DB  "RASBASE"
+
+#define PARAM_USER  "user"
+#define HELP_USER   "<user-name> name of user"
+#define DEFAULT_USER    "rasguest"
+
+#define PARAM_PASSWD    "passwd"
+#define HELP_PASSWD "<user-passwd> password of user"
+#define DEFAULT_PASSWD  "rasguest"
+
+#define PARAM_FILE_FLAG 'f'
+#define PARAM_FILE  "file"
+#define HELP_FILE   "<f> file name for upload through $i parameters within queries; each $i needs its own file parameter, in proper sequence. Requires --mdddomain and --mddtype"
+
+#define PARAM_DOMAIN    "mdddomain"
+#define HELP_DOMAIN "<mdd-domain> domain of marray, format: \'[x0:x1,y0:y1]\' (required only if --file specified and file is in data format r_Array)"
+
+#define PARAM_MDDTYPE   "mddtype"
+// this is for display only; internally MDD_STRINGTYPE is used
+#define DEFAULT_MDDTYPE "byte string"
+#define HELP_MDDTYPE    "<mdd-type> type of marray (required only if --file specified and file is in data format r_Array)"
+
+#define PARAM_QUERY_FLAG 'q'
+#define PARAM_QUERY "query"
+#define HELP_QUERY  "<q> query string to be sent to the rasdaman server for execution"
+
+#define PARAM_OUT   "out"
+#define HELP_OUT    "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
+#define DEFAULT_OUT OUT_NONE
+#define PARAM_OUT_FILE  "file"
+#define PARAM_OUT_STRING "string"
+#define PARAM_OUT_HEX   "hex"
+#define PARAM_OUT_FORMATTED "formatted"
+#define PARAM_OUT_NONE  "none"
+#define DEFAULT_OUT_STR PARAM_OUT_NONE
+
+#define PARAM_CONTENT   "content"
+#define HELP_CONTENT    "display result, if any (see also --out and --type for output formatting)"
+
+#define PARAM_TYPE  "type"
+#define HELP_TYPE   "display type information for results"
+
+#define PARAM_OUTFILE_FLAG 'o'
+#define PARAM_OUTFILE   "outfile"
+#define HELP_OUTFILE    "<of> file name template for storing result images (ignored for scalar results). Use '%d' to indicate auto numbering position, like with printf(1). For well-known file types, a proper suffix is appended to the resulting file name. Implies --out file."
+#define DEFAULT_OUTFILE "rasql_%d"
+
+#define PARAM_QUIET "quiet"
+#define HELP_QUIET  "print no ornament messages, only results and errors"
+
+#define PARAM_DEBUG "debug"
+#define HELP_DEBUG  "generate diagnostic output"
 
 Configuration configuration;
 
@@ -47,6 +121,8 @@ Configuration::Configuration()
 {
     logToStdOut = true;
     logFileName = 0;
+    queryStringOn = false;
+    outputType = DEFAULT_OUT;
 }
 
 
@@ -138,10 +214,32 @@ void Configuration::initParameters()
     cmlIndexSize = &cmlInter.addLongParameter(NSN, "indexsize", indexsizeDesc.c_str(), 0L);
 
     cmlCacheLimit = &cmlInter.addLongParameter(NSN, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
+
+    // directql 
+    cmlQuery = &cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    cmlFile = &cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
+
+    cmlContent = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
+    cmlOut = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    cmlOutfile = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    cmlMddDomain = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
+    cmlMddType = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    cmlType = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
+
+    cmlDatabase = &cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName);
+    cmlUser = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
+    cmlPasswd = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    cmlQuiet = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
+
 #ifdef RMANDEBUG
     cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
     cmlDbgLevel  = &cmlInter.addLongParameter(NSN, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
 #endif // RMANDEBUG
+
+    if (cmlInter.isPresent(PARAM_QUERY))
+    {
+        queryStringOn = true;
+    }
 
 }
 #undef NSN
@@ -151,8 +249,6 @@ void Configuration::checkParameters()
     serverName = cmlRsn->getValueAsString();
 
     initLogFiles();
-
-    listenPort = cmlPort->getValueAsLong();
 
     rasmgrHost = cmlMgr->getValueAsString();
     rasmgrPort = cmlMgrPort->getValueAsLong();
@@ -195,6 +291,122 @@ void Configuration::checkParameters()
     dbgLevel   = 4;
 #endif
 
+// directql 
+
+    queryString = cmlQuery->getValueAsString();
+
+    if (queryString != NULL)
+    {
+        queryStringOn = true;
+        if (cmlPort->isPresent())
+        {
+            listenPort = cmlPort->getValueAsLong();
+        }
+        else
+        {
+            listenPort = DEFAULT_PORT;
+        }
+    }
+    else
+    {
+       listenPort = cmlPort->getValueAsLong();
+    }
+   
+
+    // check optional parameters ====================================================
+
+    // evaluate optional parameter file --------------------------------------
+    if (cmlFile->isPresent())
+    {
+        fileName = cmlFile->getValueAsString();
+    }
+
+    // evaluate optional parameter database --------------------------------------
+    
+    baseName = cmlDatabase->getValueAsString();
+    
+
+    // evaluate optional parameter user --------------------------------------
+    
+    user = cmlUser->getValueAsString();
+    
+
+    // evaluate optional parameter passwd --------------------------------------
+    
+    passwd = cmlPasswd->getValueAsString();
+    
+
+    // evaluate optional parameter content --------------------------------------
+    
+    output = cmlOut->isPresent();
+    
+
+    // evaluate optional parameter type --------------------------------------
+   
+    displayType = cmlType->isPresent();
+    
+    // evaluate optional parameter outfile --------------------------------------
+        
+        
+    outputType = OUT_FILE;
+        
+    // evaluate optional parameter hex --------------------------------------
+    if (output)
+    {
+        const char* val = cmlOut->getValueAsString();
+        if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
+        {
+            outputType = OUT_STRING;
+        }
+        else if (val != 0 && strcmp(val, PARAM_OUT_FILE) == 0)
+        {
+            outputType = OUT_FILE;
+        }
+        else if (val != 0 && strcmp(val, PARAM_OUT_FORMATTED) == 0)
+        {
+            outputType = OUT_FORMATTED;
+        }
+        else if (val != 0 && strcmp(val, PARAM_OUT_HEX) == 0)
+        {
+            outputType = OUT_HEX;
+        }
+        else if (val != 0 && strcmp(val, PARAM_OUT_NONE) == 0)
+       {
+            outputType = OUT_NONE;
+        }
+        else
+        {
+            throw RasqlError(ILLEGALOUTPUTTYPE);
+        }
+    } 
+
+
+    // evaluate optional parameter domain --------------------------------------
+    if (cmlMddDomain->isPresent())
+    {
+        try
+        {
+            mddDomain = r_Minterval(cmlMddDomain->getValueAsString());
+            mddDomainDef = true;
+        }
+        catch (r_Error& e) // Minterval constructor had syntax problems
+        {
+            throw RasqlError(NOVALIDDOMAIN);
+        }
+    }
+
+    // evaluate optional parameter MDD type name --------------------------------------
+    if (cmlMddType->isPresent())
+    {
+        mddTypeName = cmlMddType->getValueAsString();
+        mddTypeNameDef = true;
+    }
+    
+
+    // evaluate optional parameter 'quiet' --------------------------------------------
+    
+    quietLog = cmlQuiet->isPresent();
+    
 }
 
 void Configuration::printHelp()
@@ -320,7 +532,7 @@ const char* Configuration::getDbPasswd()
     return dbPasswd;
 }
 
-bool Configuration::isLockMgrOn()
+bool        Configuration::isLockMgrOn()
 {
     return lockmgrOn;
 }
@@ -376,3 +588,72 @@ const char* Configuration::getNewServerId()
     return newServerId;
 }
 
+const char* Configuration::getQueryString()
+{
+    return queryString;
+}
+
+const char* Configuration::getUser()
+{
+    return user;
+}
+
+const char* Configuration::getPasswd()
+{
+    return passwd;
+}
+
+const char* Configuration::getOutFileMask()
+{
+    return outFileMask;
+}
+
+const r_Minterval& Configuration::getMddDomain()
+{
+    return mddDomain;
+}
+
+const char* Configuration::getMddTypeName()
+{
+    return mddTypeName;
+}
+
+const char* Configuration::getFileName()
+{
+    return fileName;
+}
+
+bool        Configuration::isMddDomainDef()
+{
+    return mddDomainDef;
+}
+
+bool        Configuration::isMddTypeNameDef()
+{
+    return mddTypeNameDef;
+}
+
+bool        Configuration::isQuietLogOn()
+{
+    return quietLog;
+}
+
+bool        Configuration::hasQueryString()
+{
+    return queryStringOn;
+}
+
+OUTPUT_TYPE Configuration::getOutputType()
+{
+    return outputType;
+}
+
+bool        Configuration::isOutputOn()
+{
+    return output;
+}
+
+void        Configuration::setMddTypeName(const char* mddtn)
+{
+    this->mddTypeName = mddtn;
+}

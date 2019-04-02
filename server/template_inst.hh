@@ -20,6 +20,13 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+
+/* *
+*   COMENTS
+*
+*       No comments
+*/
+
 //for rb_tree, select1st
 #include <ext/functional>
 #include <ext/rb_tree>
@@ -37,6 +44,7 @@ using __gnu_cxx::select1st;
 
 using std::vector;
 using std::pair;
+using std::less;
 
 // commented by Constantin Jucovschi (gcc 3.4+ no longer supports __default_alloc_template)
 //using std::__default_alloc_template;
@@ -51,6 +59,8 @@ using std::fill_n;
 #include "tilemgr/tile.hh"
 
 #include "indexmgr/keyobject.hh"
+
+#include "rasodmg/ref.hh"
 
 #include "reladminif/dbref.hh"
 #include "reladminif/dbobjectiditerator.hh"
@@ -76,9 +86,13 @@ using std::fill_n;
 
 #include "relstorageif/dbstoragelayout.hh"
 
+
 template class SymbolTable<int>;
 
-template class r_IterType<r_Attribute>;
+//template class r_IterType<r_Attribute>;
+
+template class r_Ref<r_Scalar>;
+template class r_Ref<r_OId>;
 
 template class DBRef<DBHierIndex>;
 template class DBRef<DBRCIndexDS>;
@@ -90,7 +104,8 @@ template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
 template class DBRef<DBNullvalues>;
 template class DBRef<DBStorageLayout>;
-template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
+//template class DBRef<DBMDDObj>;
+// template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
 //template TypeIterator<StructType>;
 //template TypeIterator<SetType>;
@@ -109,8 +124,6 @@ template class DBRef<MDDType>;
 
 template std::ostream& operator<< (const vector<KeyObject>&, std::ostream&);
 template std::ostream& operator<< (std::ostream&, const vector<KeyObject>&);
-template  std::ostream& operator << (std::ostream& os, const std::vector<double>& list);
-template  std::ostream& operator << (std::ostream& os, const std::vector<r_Minterval>& list);
 
 namespace __gnu_cxx 
 {
@@ -125,7 +138,7 @@ template class rb_tree<OId, pair<OId const, StructType*>, select1st<pair<OId con
 template class rb_tree<long, pair<long const, BLOBTile*>, select1st<pair<long const, BLOBTile*>>, less<long>>;
 template class rb_tree<long, pair<long const, InlineTile*>, select1st<pair<long const, InlineTile*>>, less<long>>;
 }
-namespace std
+namespace std 
 {
 template class vector<BaseType const*>;
 template class vector<OId>;

@@ -21,7 +21,6 @@
 #
 ###################################################################
 
-add_subdirectory(directql)
 add_subdirectory(rasql)
 add_subdirectory(rasdapy)
 

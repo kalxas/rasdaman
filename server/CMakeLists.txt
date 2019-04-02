@@ -26,6 +26,7 @@ add_executable(rasserver createinitmdd.hh createinitmdd.cc
         rasserver_config.hh rasserver_config.cc
         rasserver_entry.hh rasserver_entry.cc
         rasserver_main.cc template_inst.hh
+        rasserver_error.hh rasserver_error.cc
         ../mymalloc/mymalloc.h ../mymalloc/mymalloc_svc.cc
 )
 
@@ -34,10 +35,10 @@ target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSS
 target_link_libraries(rasserver servercomm qlparser conversion
         rasodmg raslib storagemgr reladminif tilemgr mddmgr
         catalogmgr relmddif relstorageif
-        relcatalogif indexmgr relblobif relindexif relcatalogif
-        commline lockmanager servercomm
-        network mymalloc_svc common_logging
-        ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES})
+        relcatalogif indexmgr relblobif relindexif
+        commline relcatalogif lockmanager servercomm
+        network mymalloc_svc common_logging clientcomm relcatalogif
+        ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES} ${ELPP_LIBRARY})
 
 if (RMANRASNET)
     target_link_libraries(rasserver rasnetserver rasnet)
@@ -45,3 +46,6 @@ endif (RMANRASNET)
 
 install(TARGETS rasserver
         DESTINATION ${BIN_DIR})
+        
+install( CODE "execute_process(COMMAND ln -sf 
+    ${BIN_DIR}/rasserver ${BIN_DIR}/directql)")
