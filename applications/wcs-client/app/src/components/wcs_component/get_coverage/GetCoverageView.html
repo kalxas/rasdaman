@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div style="height: 680px; overflow: hidden; margin-left: -20px;">
+        <div ng-show="coverageDescriptionsDocument.value" style="height: 680px; margin-left: -20px;">
             <div class="row" style=" height: 100%; margin-left: 5px; margin-right: -50px;  padding-right: 50px; overflow-y: scroll;">
 
                 <!-- WebWorldWind -->
@@ -46,7 +46,7 @@
                     </uib-accordion>
                 </div>
                 
-                <div ng-show="coverageDescriptionsDocument.value">
+                <div>
                     <uib-accordion class="col-sm-12" close-others="false" style="margin-top: 20px;">
                         <uib-accordion-group class="row" is-open="getCoverageTabStates.isCoreOpen">
                             <uib-accordion-heading>
