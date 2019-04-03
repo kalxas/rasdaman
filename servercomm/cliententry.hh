@@ -77,11 +77,10 @@ public:
     /// Name of the actual database (if one is open)
     char *baseName{NULL};
 
-    /// time when the database was opened (for curiosity purposes)
+#ifdef RASDEBUG
+    /// time when the database was opened (for debugging purposes)
     unsigned long creationTime{0};
-
-    /// time of the client's last action (for garbage collection purposes)
-    unsigned long lastActionTime{0};
+#endif
 
     /// convert raw array data to this data format before transfer
     r_Data_Format transferFormat{r_Array};

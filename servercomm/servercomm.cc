@@ -148,7 +148,7 @@ const char *ServerComm::HTTPCLIENT = "HTTPClient";
 
 // static variables
 ServerComm *ServerComm::serverCommInstance = 0;
-std::vector<ClientTblElt *> ServerComm::clientTbl;
+ClientTblElt *ServerComm::clientTbl = 0;
 unsigned long ServerComm::clientCount = 0;
 
 // --------------------------------------------------------------------------------
@@ -198,8 +198,7 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
         }
         else
         {
-            LERROR << "failed creating a temporary profiler file: " << tmpFileName;
-            LERROR << "reason: " << strerror(errno);
+            LERROR << "failed creating a temporary profiler file '" << tmpFileName << "':" << strerror(errno);
         }
     }
 }
@@ -236,13 +235,11 @@ ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval, 
 {
     assert(!serverCommInstance);
     serverCommInstance = this;
-    clientTbl.reserve(2); // usually there's only one client
 }
 
 ServerComm::~ServerComm()
 {
-    delete admin;
-    admin = NULL;
+    delete admin, admin = NULL;
     serverCommInstance = NULL;
 }
 
@@ -250,108 +247,101 @@ ServerComm::~ServerComm()
 void
 ServerComm::abortEveryThingNow()
 {
-    if (serverCommInstance)
+    if (serverCommInstance && serverCommInstance->clientTbl)
     {
-        for (auto *clnt: serverCommInstance->clientTbl)
-        {
-            clnt->transaction.abort();
-            clnt->database.close();
-        }
+        serverCommInstance->clientTbl->transaction.abort();
+        serverCommInstance->clientTbl->database.close();
     }
 }
 
 ClientTblElt *
 ServerComm::getClientContext(unsigned long clientId)
 {
-    for (auto *clientEntry: clientTbl)
-    {
-        if (clientEntry && clientId == clientEntry->clientId)
-        {
-            // reset the client's lastActionTime to now.
-            // TODO: time() is not a cheap call, should be removed if not necessary
-            clientEntry->lastActionTime = static_cast<long unsigned int>(time(NULL));
-            return clientEntry;
-        }
-    }
-    return NULL;
+    if (clientTbl && clientId == clientTbl->clientId)
+        return clientTbl;
+    else
+        return NULL;
 }
 
 void
 ServerComm::addClientTblEntry(ClientTblElt *context)
 {
-    if (context == NULL)
-    {
-        LERROR << "Cannot register client in the client table: client context is NULL.";
-        throw r_Error(r_Error::r_Error_RefNull);
-    }
-    clientTbl.push_back(context);
-#ifdef RASDEBUG
+    assert(context && "Cannot register client: client context is NULL.");
+    DBGREQUEST("'register client' " << context->clientId)
+    clientTbl = context;
+    DBGOK
     ServerComm::printServerStatus();   // quite verbose
-#endif
 }
 
 unsigned short
 ServerComm::deleteClientTblEntry(unsigned long clientId)
 {
-    static constexpr unsigned short RC_CLIENT_MULTIPLE_USERS = 2;
+    DBGREQUEST("unregister client " << clientId)
 
-    ClientTblElt *context = getClientContext(clientId);
-    if (!context)
+    unsigned short returnValue = RC_OK;
+
+    if (clientTbl && clientId == clientTbl->clientId)
     {
-        LDEBUG << "Warning: null context, client " << clientId << " not found.";
-        return RC_CLIENT_NOT_FOUND;  // desired client id was not found in the client table
-    }
-
-    // The transaction contained in the client table element is aborted here.
-    // This is reasonable because at this point, the transaction is either
-    // already committed (This is the case if an rpcCloseDB call arrives.
-    // In this case, abort doesn't do anything harmful.) or the communication
-    // has broken down before a rpcCommitTA or a rpcAbortTA (In this case this
-    // function is called by the garbage collection and aborting the transaction
-    // is advisable.).
-
-    context->releaseTransferStructures();
-
-    // If the current transaction belongs to this client, abort it.
-    if (transactionActive == clientId)
-    {
-        LDEBUG << "aborting transaction...";
-        context->transaction.abort();
-        transactionActive = 0;
-    }
-
-    // close the database if it isn't already closed
-    // (e.g. after connection breakdowns)
-    if (strcmp(context->baseName, "none") != 0)
-    {
-        LDEBUG << "closing database...";
-#ifndef BASEDB_SQLITE
-        context->database.close();
-#endif
-        // reset database name
-        delete[] context->baseName;
-        context->baseName = new char[5];
-        strcpy(context->baseName, "none");
-    }
-#ifdef RASDEBUG
-    ServerComm::printServerStatus();      // can be pretty verbose
-#endif
-
-    // remove the entry from the client table
-    for (auto it = clientTbl.begin(); it != clientTbl.end(); ++it)
-    {
-        if (*it == context)
+        // The transaction contained in the client table element is aborted here.
+        // This is reasonable because at this point, the transaction is either
+        // already committed (This is the case if an rpcCloseDB call arrives.
+        // In this case, abort doesn't do anything harmful.) or the communication
+        // has broken down before a rpcCommitTA or a rpcAbortTA (In this case this
+        // function is called by the garbage collection and aborting the transaction
+        // is advisable.).
+        clientTbl->releaseTransferStructures();
+        if (transactionActive == clientId)
         {
-            clientTbl.erase(it);
-            break;
+            DBGINFONNL("abort transaction... ")
+            try
+            {
+                clientTbl->transaction.abort();
+            }
+            catch (r_Error &err)
+            {
+                DBGERROR(err.what())
+            }
+            catch (...)
+            {
+                DBGERROR("unspecific exception.")
+            }
+            transactionActive = 0;
         }
-    }
-    // delete the client table entry data itself
-    delete context;
-    context = NULL;
 
-    LDEBUG << "client table now has " << clientTbl.size() << " entries.";
-    return RC_OK;
+        // close the database if it isn't already closed (e.g. after connection breakdowns)
+        if (strcmp(clientTbl->baseName, "none") != 0)
+        {
+            DBGINFONNL("close database... ")
+#ifndef BASEDB_SQLITE
+            try
+            {
+                clientTbl->database.close();
+            }
+            catch (r_Error &err)
+            {
+                DBGERROR(err.what())
+            }
+            catch (...)
+            {
+                DBGERROR("unspecific exception.")
+            }
+#endif
+            // reset database name
+            delete[] clientTbl->baseName;
+            clientTbl->baseName = new char[5];
+            strcpy(clientTbl->baseName, "none");
+        }
+
+        delete clientTbl, clientTbl = NULL;
+        DBGOK
+    }
+    else
+    {
+        DBGERROR("client not found.")
+        returnValue = RC_CLIENT_NOT_FOUND;
+    }
+    ServerComm::printServerStatus();
+    return returnValue;
 }
 
 void
@@ -359,30 +349,21 @@ ServerComm::printServerStatus()
 {
 #ifdef RASDEBUG
     stringstream ct;
-    if (!clientTbl.empty())
+    if (clientTbl)
     {
-        ct << "\n  Client table dump";
-        for (auto iter = clientTbl.begin(); iter != clientTbl.end(); iter++)
-        {
-            if (*iter == NULL)
-            {
-                LERROR << "null context found.";
-                continue;
-            }
-            ct << "\n  Client ID        : " << (*iter)->clientId
-               << "\n    Client location: " << (*iter)->clientIdText
-               << "\n    User name      : " << (*iter)->userName
-               << "\n    Database in use: " << (*iter)->baseName
-               << "\n    Creation time  : " << ctime((time_t*)&(*iter)->creationTime)
-               <<   "    Last action at : " << ctime((time_t*)&(*iter)->lastActionTime)
-               <<   "    MDD collection : " << (*iter)->transferColl
-               << "\n    MDD iterator   : " << (*iter)->transferCollIter
-               << "\n    Current PersMDD: " << (*iter)->assembleMDD
-               << "\n    Current MDD    : " << (*iter)->transferMDD
-               << "\n    Tile vector    : " << (*iter)->transTiles
-               << "\n    Tile iterator  : " << (*iter)->tileIter
-               << "\n    Block byte cntr: " << (*iter)->bytesToTransfer;
-        }
+        ct << "\n  Client table dump:"
+           << "\n    Client ID      : " << clientTbl->clientId
+           << "\n    Client location: " << clientTbl->clientIdText
+           << "\n    User name      : " << clientTbl->userName
+           << "\n    Database in use: " << clientTbl->baseName
+           << "\n    Creation time  : " << ctime((time_t*)&clientTbl->creationTime)
+           <<   "    MDD collection : " << clientTbl->transferColl
+           << "\n    MDD iterator   : " << clientTbl->transferCollIter
+           << "\n    Current PersMDD: " << clientTbl->assembleMDD
+           << "\n    Current MDD    : " << clientTbl->transferMDD
+           << "\n    Tile vector    : " << clientTbl->transTiles
+           << "\n    Tile iterator  : " << clientTbl->tileIter
+           << "\n    Block byte cntr: " << clientTbl->bytesToTransfer;
     }
     auto currentTime = time(NULL);
 
@@ -393,7 +374,6 @@ ServerComm::printServerStatus()
            << "\n  Transaction active.............: " << (transactionActive ? "yes" : "no")
            << "\n  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes"
            << "\n  Next available client id.......: " << clientCount + 1
-           << "\n  No. of client table entries....: " << clientTbl.size()
            << ct.str()
            << "\n-----------------------------------------------------------------------------";
 #else
@@ -695,7 +675,7 @@ ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
     returnStructure.errorNo = (info).getErrorNo(); \
     returnStructure.lineNo = (info).getLineNo(); \
     returnStructure.columnNo = (info).getColumnNo(); \
-    returnStructure.token = strdup((info).getToken().c_str()); \
+    returnStructure.token = strdup((info).getToken().c_str());
 
 #define HANDLE_PARSING_ERROR { \
     if (!parseError) { \
@@ -710,7 +690,6 @@ ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
 #define RELEASE_DATA { \
     mddConstants = NULL; \
     parseQueryTree = 0; currentClientTblElt = 0; delete qtree; qtree = NULL; }
-
 
 #define RELEASE_ALL_DATA { \
     context->releaseTransferStructures(); \
@@ -751,6 +730,17 @@ std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context
     return ret;
 }
 
+bool ServerComm::parseQuery(const char *query)
+{
+    beginParseString = const_cast<char *>(query);
+    iterParseString = const_cast<char *>(query);
+
+    BLINFO << "parsing... ";
+    yyreset();
+    int parserRet = yyparse(0);
+    return parserRet == 0;
+}
+
 unsigned short
 ServerComm::executeQuery(unsigned long callingClientId,
                          const char *query, ExecuteQueryRes &returnStructure)
@@ -786,13 +776,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
         QueryTree *qtree = new QueryTree();   // create a query tree object...
         parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
 
-        beginParseString = const_cast<char *>(query);
-        iterParseString = const_cast<char *>(query);
-
-        BLINFO << "parsing... ";
-        yyreset();
-        int parserRet = yyparse(0);
-        if (parserRet == 0)
+        if (parseQuery(query))
         {
             // parsing was successful
             try
@@ -983,13 +967,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         QueryTree *qtree = new QueryTree();   // create a query tree object...
         parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
 
-        beginParseString = const_cast<char *>(query);
-        iterParseString = const_cast<char *>(query);
-
-        BLINFO << "parsing... ";
-        yyreset();
-        int parserRet = yyparse(0);
-        if (parserRet == 0)
+        if (parseQuery(query))
         {
             try
             {
@@ -1086,13 +1064,7 @@ ServerComm::executeInsert(unsigned long callingClientId,
         QueryTree *qtree = new QueryTree();   // create a query tree object...
         parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
 
-        beginParseString = const_cast<char *>(query);
-        iterParseString = const_cast<char *>(query);
-
-        BLINFO << "parsing... ";
-        yyreset();
-        int parserRet = yyparse(0);
-        if (parserRet == 0)
+        if (parseQuery(query))
         {
             try
             {
@@ -2783,29 +2755,6 @@ ServerComm::getMDDByOId(unsigned long callingClientId,
 // -----------------------------------------------------------------------------------------
 // Utility methods
 // -----------------------------------------------------------------------------------------
-
-unsigned short
-ServerComm::aliveSignal(unsigned long client)
-{
-    static constexpr unsigned short RC_UPDATED = 1;
-    unsigned short returnValue = RC_OK;
-
-    DBGREQUEST("'aliveSignal'");
-
-    ClientTblElt *context = getClientContext(client);
-    if (context)
-    {
-        // set the time of the client's last action to now
-        context->lastActionTime = static_cast<unsigned long>(time(NULL));
-        returnValue = RC_UPDATED;
-        DBGOK
-    }
-    else
-    {
-        DBGERROR("client not registered.");
-    }
-    return returnValue;
-}
 
 unsigned short
 ServerComm::getNewOId(unsigned long callingClientId,

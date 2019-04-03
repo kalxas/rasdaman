@@ -46,12 +46,10 @@ rasdaman GmbH.
 #include "relcatalogif/basetype.hh"
 
 #include "server/rasserver_config.hh"
-
 #ifndef _RPCIF_
 #define _RPCIF_
 #include "servercomm/rpcif.h"
 #endif
-#include <vector>
 
 
 #define SERVER_DOWN        0
@@ -768,18 +766,6 @@ public:
     // Utility methods
     // -----------------------------------------------------------------------------------------
 
-    /// process the client's alive signal
-    virtual unsigned short aliveSignal(unsigned long client);
-    /**
-      The method take the alive signal of a client and updates the last action time.
-
-      Return values:
-      \begin{tabular}{lll}
-      0 && operation was successfull\\
-      1 && client context not found\\
-      \end{tabular}
-    */
-
     ///
     /// get new object identifier
     virtual unsigned short getNewOId(unsigned long callingClientId,
@@ -875,11 +861,13 @@ public:
     static const int ENDIAN_LITTLE;
 
 protected:
-
     /// make sure a tile has the correct data format, converting if necessary
     static int ensureTileFormat(r_Data_Format &hasFmt, r_Data_Format needFmt,
                                 const r_Minterval &dom, const BaseType *type, char *&data, r_Bytes &size,
                                 int repack, int owner, const char *params = NULL);
+
+    // parse the query, return true if all fine
+    bool parseQuery(const char *query);
 
     /// init fields of res to 0
     static void resetExecuteQueryRes(ExecuteQueryRes& res);
@@ -896,7 +884,7 @@ protected:
     static const int ENSURE_TILE_FORMAT_BAD;
 
     /// the client table which holds information about the calling clients
-    static std::vector<ClientTblElt *> clientTbl;
+    static ClientTblElt *clientTbl;
     /// last used client ID (this is increased by one to get the clientId for the next client)
     static unsigned long clientCount;
     /// inactivity timeout in seconds after which pending client data is deleted

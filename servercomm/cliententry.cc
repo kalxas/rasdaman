@@ -33,7 +33,9 @@ rasdaman GmbH.
 
 ClientTblElt::ClientTblElt(const char *clientText, unsigned long client) : clientId(client)
 {
+#ifdef RASDEBUG
     creationTime = static_cast<long unsigned int>(time(NULL));
+#endif
 
     clientIdText = new char[strlen(clientText) + 1];
     strcpy(clientIdText, clientText);
