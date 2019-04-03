@@ -48,7 +48,6 @@ char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 unsigned long maxTransferBufferSize = 4000000;
-char* dbSchema = 0;
 int noTimeOut = 0;
 
 INITIALIZE_EASYLOGGINGPP

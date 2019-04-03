@@ -37,39 +37,32 @@ class Tile;
 class RMTimer;
 class r_Parse_Params;
 
+enum class ClientType {
+    Invalid, // invalid client
+    Http,    // requests routed via HttpServer
+    Regular  // requests go directly to ServerComm
+};
+
 /// the class defines an entry of the client table
 class ClientTblElt
 {
 public:
-    /// default constructor
-    ClientTblElt(const char *clientIdText, unsigned long clientId);
-    /**
-      Default constructor that takes the information to be placed in the
-    clientIdText field of the client table entry and the unique ID to
-    be placed in the clientId field.
-    */
+
+    ClientTblElt(ClientType clientTypeArg, unsigned long clientId);
 
     ClientTblElt(const ClientTblElt &) = delete;
 
-    /// destructor
     ~ClientTblElt();
 
-    /// releases transfer collection/iterator
+    /// releases transfer collection/iterator; as the collections are persistent,
+    /// creation and deletion must be done within the same transaction.
     void releaseTransferStructures();
-    /**
-      The method releases transfer collection and iterator. As the collection is a
-      persistent one, care has to be taken that creation and deletion is done
-      within the same transaction.
-    */
 
     /// unique client identification assigned by the server
     unsigned long clientId;
 
-    /// counter indicating the number of current users
-    unsigned int currentUsers{0};
-
-    /// binding information about the client (IP address and TCP port number)
-    char *clientIdText{NULL};
+    /// client type
+    ClientType clientType{ClientType::Invalid};
 
     /// Name of the client user name (if available)
     char *userName{NULL};
@@ -100,48 +93,37 @@ public:
     /// if true, feedback will be printed with info level in endTransfer
     bool reportTransferedSize{false};
 
-    /// pointer to an MDD collection
+    /// pointer to a collection of MDD constants with an update query
     MDDColl *transferColl{0};
-    /**
-       For collection of MDD constants with an update query.
-    */
-
     /// pointer to an iterator for collection transferColl
     MDDCollIter *transferCollIter{0};
 
-    /// pointer to the query result which is currently in transfer
+    /// pointer to the query result which is currently in transfer;
+    /// it is NULL if the result is completely delivered to the client.
+    /// used in executeQuery, getNext* methods, and executeInsert (to hold the oid of inserted MDD)
     std::vector<QtData *> *transferData{0};
-    /**
-       For the result of the last query (NULL if the result is completely delivered to the client).
-    */
-
     /// point to an iterator for transfer data
     std::vector<QtData *>::iterator *transferDataIter{0};
 
-    /// pointer to a persistent MDD object for tile based transfers
+    /// pointer to a persistent MDD object to be inserted, e.g. in startInsertPersMDD / insertTile
     MDDObj *assembleMDD{0};
-
-    /// pointer to an MDD object for tile base transfer
+    /// pointer to an MDD object to be transferred, e.g. with getMDDByOId(..), startInsertTransMDD / insertTile
     MDDObj *transferMDD{0};
 
     /// std::vector storing tiles of actual MDD for transfer
     std::vector<Tile *> *transTiles{0};
-
     /// iterator for the std::vector above
     std::vector<Tile *>::iterator *tileIter{0};
 
-    /// std::vector storing pointers to transient tiles
+    /// the tiles referenced by these pointers are border tiles dynamically created in getNextMDD().
+    /// They do not belong to any MDD object, and, therefore, they have to be deleted explicitly.
     std::vector<Tile *> *deletableTiles{0};
-    /**
-      The tiles referenced by these pointers are border tiles dynamically created in getNextMDD().
-      They do not belong to any MDD object, and, therefore, they have to be deleted explicitly.
-    */
 
-    /// bytes to transfer in actual tile (valid only if tile is larger than {\tt MAXTRANSBYTES})
+    /// bytes remaining to transfer from tile if it is larger than {\tt maxTransferBufferSize}). used in getNextTile
     unsigned long bytesToTransfer{0};
 
-    /// std::vector of persistent MDD collections in use
-    std::vector<MDDColl *> *persMDDCollections{0};
+    /// std::vector of persistent collections in use during query evaluation, in particular in QtMDDAccess
+    std::vector<MDDColl *> *persColls{0};
 
     /// object representing the actual database
     DatabaseIf database;

@@ -40,7 +40,6 @@ rasdaman GmbH.
 #define RASARCHITECTURE X86
 
 extern unsigned long maxTransferBufferSize = 4000000;
-extern char* dbSchema = 0;
 extern int   noTimeOut = 0;
 
 #include <iostream>      // cout

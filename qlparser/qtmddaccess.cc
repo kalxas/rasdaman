@@ -238,26 +238,17 @@ QtMDDAccess::checkType()
 		throw parseInfo; 
 	}
 
-
     try
     {
         mddColl = MDDColl::getMDDCollection(collection.getCollectionName().c_str());
 
         if (currentClientTblElt)
         {
-            if (mddColl->isPersistent())
+            if (!currentClientTblElt->persColls)
             {
-                if (!(currentClientTblElt->persMDDCollections))
-                {
-                    currentClientTblElt->persMDDCollections = new vector<MDDColl*>();
-                }
-
-                currentClientTblElt->persMDDCollections->push_back(static_cast<MDDColl*>(mddColl));
+                currentClientTblElt->persColls = new vector<MDDColl*>();
             }
-            else
-            {
-                currentClientTblElt->transferColl = mddColl;
-            }
+            currentClientTblElt->persColls->push_back(mddColl);
         }
         else
         {
@@ -266,16 +257,15 @@ QtMDDAccess::checkType()
     }
     catch (...)
     {
-        LERROR << "Collection: " << collection.getCollectionName() << " is unknown";
+        LERROR << "Collection " << collection.getCollectionName() << " is unknown";
         parseInfo.setErrorNo(355);
         throw parseInfo;
     }
 
-    CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
-
+    const auto* collType = mddColl->getCollectionType();
     if (!collType)
     {
-        LERROR << "Internal error in QtMDDAccess::checkType() - no collection type available";
+        LERROR << "No collection type available";
     }
 
     dataStreamType = QtTypeTuple(1);

@@ -31,14 +31,12 @@ rasdaman GmbH.
 #include <logging.hh>
 #include <cstring>
 
-ClientTblElt::ClientTblElt(const char *clientText, unsigned long client) : clientId(client)
+ClientTblElt::ClientTblElt(ClientType clientTypeArg, unsigned long client)
+    : clientId(client), clientType{clientTypeArg}
 {
 #ifdef RASDEBUG
     creationTime = static_cast<long unsigned int>(time(NULL));
 #endif
-
-    clientIdText = new char[strlen(clientText) + 1];
-    strcpy(clientIdText, clientText);
 
     baseName = new char[5];
     strcpy(baseName, "none");
@@ -50,11 +48,9 @@ ClientTblElt::ClientTblElt(const char *clientText, unsigned long client) : clien
     clientParams->add("exactformat", &exactFormat, r_Parse_Params::param_type_int);
 }
 
-
 ClientTblElt::~ClientTblElt()
 {
     releaseTransferStructures();
-    delete[] clientIdText, clientIdText = NULL;
     delete[] baseName, baseName = NULL;
     delete[] userName, userName = NULL;
     delete[] transferFormatParams, transferFormatParams = NULL;
@@ -80,46 +76,39 @@ ClientTblElt::releaseTransferStructures()
     if (transferData)
     {
         LTRACE << "release transferData";
-        // delete list elements
         for (auto it = transferData->begin(); it != transferData->end(); it++)
             if (*it)
                 (*it)->deleteRef(), (*it) = 0;
-        delete transferData;
-        transferData = 0;
+        delete transferData, transferData = 0;
     }
 
     // delete the transfer collection
-    // the transferData will check objects because of the bugfix.  therefore the objects may deleted only after the check.
     if (transferColl)
     {
         LTRACE << "release transferColl";
         transferColl->releaseAll();
-        delete transferColl;
-        transferColl = 0;
+        delete transferColl, transferColl = 0;
     }
 
     // delete transfer data iterator
     if (transferDataIter)
     {
         LTRACE << "release transferDataIter";
-        delete transferDataIter;
-        transferDataIter = 0;
+        delete transferDataIter, transferDataIter = 0;
     }
 
     // delete the temporary PersMDDObj
     if (assembleMDD)
     {
         LTRACE << "release assembleMDD";
-        delete assembleMDD;
-        assembleMDD = 0;
+        delete assembleMDD, assembleMDD = 0;
     }
 
     // delete the transfer MDDobj
     if (transferMDD)
     {
         LTRACE << "release transferMDD";
-        delete transferMDD;
-        transferMDD = 0;
+        delete transferMDD, transferMDD = 0;
     }
 
     // vector< Tile* >* transTiles;
@@ -128,50 +117,39 @@ ClientTblElt::releaseTransferStructures()
         LTRACE << "release transTiles";
         // Tiles are deleted by the MDDObject owing them.
         // release( transTiles->begin(), transTiles->end() );
-        delete transTiles;
-        transTiles = 0;
+        delete transTiles, transTiles = 0;
     }
 
     // vector< Tile* >::iterator* tileIter;
     if (tileIter)
     {
         LTRACE << "release tileIter";
-        delete tileIter;
-        tileIter = 0;
+        delete tileIter, tileIter = 0;
     }
 
     // delete deletable tiles
     if (deletableTiles)
     {
         LTRACE << "release deletableTiles";
-
         for (auto it = deletableTiles->begin(); it != deletableTiles->end(); it++)
-            delete *it;
-        delete deletableTiles;
-        deletableTiles = 0;
+            delete *it, *it = NULL;
+        delete deletableTiles, deletableTiles = 0;
     }
 
     // delete persistent MDD collections
-    if (persMDDCollections)
+    if (persColls)
     {
-        LTRACE << "release persMDDCollections";
-        for (auto it = persMDDCollections->begin(); it != persMDDCollections->end(); it++)
+        LTRACE << "release persColls";
+        for (auto it = persColls->begin(); it != persColls->end(); it++)
             if (*it)
-            {
-                (*it)->releaseAll();
-                delete *it;
-            }
-
-        delete persMDDCollections;
-        persMDDCollections = 0;
+                (*it)->releaseAll(), delete *it, *it = NULL;
+        delete persColls, persColls = 0;
     }
 
     // transfer compression
     if (encodedData != NULL)
     {
-        free(encodedData);
-        encodedData = NULL;
-        encodedSize = 0;
+        free(encodedData), encodedData = NULL, encodedSize = 0;
     }
 
 #ifdef RMANBENCHMARK

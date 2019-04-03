@@ -86,7 +86,6 @@ RMINITGLOBALS('C');
 bool initialization();
 
 unsigned long maxTransferBufferSize = 4000000;
-char*         dbSchema = NULL;
 int           noTimeOut = 0;
 
 // here the id string for connecting to the RDBMS is stored (used by rel* modules).
@@ -250,7 +249,7 @@ int main(int argc, char** argv)
         else if (configuration.isHttpServer())
         {
             LDEBUG << "initializing HttpServer()...";
-            server = new HttpServer(clientTimeOut, managementInterval,
+            server = new HttpServer(
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
             LDEBUG << "HttpServer initialized.";
@@ -268,7 +267,7 @@ int main(int argc, char** argv)
         else
         {
             LDEBUG << "initializing ServerComm() (ie: RPC)...";
-            server = new ServerComm(clientTimeOut, managementInterval,
+            server = new ServerComm(
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
@@ -293,12 +292,6 @@ int main(int argc, char** argv)
     {
         delete server;
         server = NULL;
-    }
-
-    if (dbSchema)
-    {
-        free(dbSchema);
-        dbSchema = NULL;
     }
 
     LINFO << "rasserver terminated.";

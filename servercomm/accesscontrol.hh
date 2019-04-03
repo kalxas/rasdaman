@@ -24,39 +24,45 @@ rasdaman GmbH.
 #ifndef _ACCESSCONTROL_HH_
 #define _ACCESSCONTROL_HH_
 
+#include <string>
+
 class AccessControl
 {
 public:
     AccessControl();
-
     ~AccessControl();
-
-    void initSyncro(const char *);
 
     void setServerName(const char *serverName);
 
     void resetForNewClient();
 
+    /// parse the capability string; return 0 - ok, or 804 - capability refused
     int crunchCapability(const char *);
 
-    /*   0 - ok
-       804 - capability refused
-    */
-
-    void wantToRead(); // both throw
-    void wantToWrite();
+    void wantToRead();  // could throw r_Eno_permission
+    void wantToWrite(); // could throw r_Eno_permission
 
     bool isClient();
 
 private:
+    /// create a digest from input into output, return the length of the result digest
     int messageDigest(const char *input, char *output, const char *mdName);
 
-    double initDeltaT;
-    char serverName[100];
+    void checkParam(char *&param, const char *paramName);
 
-    bool okToRead;
-    bool okToWrite;
-    bool weHaveClient;
+    static const unsigned long maxServerNameSize;
+    static const unsigned long maxDigestBufferSize;
+    static const unsigned long capabilityDigestSize;
+    static const unsigned long maxCapabilityBufferSize;
+    static const char *digestMethod;
+
+    static const int capabilityOk;
+
+    std::string serverName;
+
+    bool okToRead{false};
+    bool okToWrite{false};
+    bool weHaveClient{false};
 };
 
 #endif

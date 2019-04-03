@@ -57,7 +57,6 @@ char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 
 extern unsigned long maxTransferBufferSize = 4000000;
-extern char* dbSchema = 0;
 extern int noTimeOut = 0;
 
 #define CLIENT_ID 2

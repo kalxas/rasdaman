@@ -43,9 +43,6 @@ rasdaman GmbH.
 #include "raslib/rmdebug.hh"
 #include <logging.hh>
 
-#define MSG_OK          "ok"
-#define MSG_FAILED      "failed"
-
 /**
  * This is the C++-part implementation of the lock manager.
  */
@@ -661,11 +658,10 @@ void LockManager::clearLockTable()
         generateServerId(rasServerId);
         clearLockTableInternal(rasServerId);
         endTransaction();
-        LDEBUG << MSG_OK;
+        LDEBUG << "ok";
     }
     catch (...)
     {
-        LERROR << MSG_FAILED;
-        LERROR << "Error: Unspecified exception." ;
+        LERROR << "Unspecified exception." ;
     }
 }

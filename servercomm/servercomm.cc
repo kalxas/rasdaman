@@ -101,7 +101,6 @@ using namespace std;
 // init globals for server initialization
 // RMINITGLOBALS('S')
 
-
 // --------------------------------------------------------------------------------
 //                          constants
 // --------------------------------------------------------------------------------
@@ -117,59 +116,36 @@ const int ServerComm::RESPONSE_OK = 99;
 const int ServerComm::ENDIAN_BIG = 0;
 const int ServerComm::ENDIAN_LITTLE = 1;
 
-/// ensureTileFormat returns the following:
-const int ServerComm::ENSURE_TILE_FORMAT_OK = 0;
-const int ServerComm::ENSURE_TILE_FORMAT_BAD = -1;
-
-const char *ServerComm::HTTPCLIENT = "HTTPClient";
-
-// --- these defs should go into a central constant definition section,
-// as they define externally observable behavior -- PB 2003-nov-15
-
-// waiting period until client is considered dead [secs]
-#define CLIENT_TIMEOUT  3600
-
-// timeout for select() call at server startup [secs]
-#define TIMEOUT_SELECT  30
-
-// period after which the next garbage collection is scheduled [secs]
-#define GARBCOLL_INTERVAL 600
-
-// console output describing successful/unsuccessful actions
-#define MSG_OK      "ok"
-#define MSG_FAILED  "failed"
-
-// rasserver exit codes (selection of value sometimes unclear :-(
-#define EXITCODE_ZERO       0
-#define EXITCODE_ONE        1
-#define EXITCODE_RASMGR_FAILED  10 // Why 10 ?
-
+// --------------------------------------------------------------------------------
+//                          static variables
 // --------------------------------------------------------------------------------
 
-// static variables
 ServerComm *ServerComm::serverCommInstance = 0;
 ClientTblElt *ServerComm::clientTbl = 0;
 unsigned long ServerComm::clientCount = 0;
 
 // --------------------------------------------------------------------------------
+//                          global variables
+// --------------------------------------------------------------------------------
 
-// global variables
+// Defined here
 
 MDDColl *mddConstants = 0;              // used in QtMDD
 ClientTblElt *currentClientTblElt = 0;  // used in QtMDDAccess and oql.yy
 
-// defined elsewhere
+// Defined elsewhere
 
+// defined in server/rasserver_main.cc, configurable as a rasserver parameter:
+//       --transbuffer <nnnn>	(default: 4194304)
+//              maximal size of the transfer buffer in bytes
+extern unsigned long maxTransferBufferSize;
+// defined in oql.yy
 extern int yyparse(void *);
 extern void yyreset();
-
-extern unsigned long maxTransferBufferSize;
 extern QueryTree *parseQueryTree;
 extern ParseInfo *parseError;
 extern char *beginParseString;
 extern char *iterParseString;
-extern unsigned long maxTransferBufferSize;
-extern char *dbSchema;
 
 // -----------------------------------------------------------------------------------------
 /// start the gperftools profilers
@@ -209,7 +185,7 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
 
 #ifdef RASDEBUG
 #define DBGREQUEST(msg)   NNLINFO << "Request: " << msg << "... ";
-#define DBGOK             BLINFO  << MSG_OK << "\n";
+#define DBGOK             BLINFO  << "ok\n";
 #define DBGINFO(msg)      BLINFO  << msg << "\n";
 #define DBGINFONNL(msg)   BLINFO  << msg;
 #define DBGERROR(msg)     BLERROR << "Error: " << msg << "\n";
@@ -226,12 +202,10 @@ std::stringstream requestStream;
 
 // -----------------------------------------------------------------------------------------
 
-ServerComm::ServerComm(): ServerComm(CLIENT_TIMEOUT, GARBCOLL_INTERVAL, 0, NULL, 0, NULL) {}
+ServerComm::ServerComm(): ServerComm(0, NULL, 0, NULL) {}
 
-ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval, unsigned long newListenPort,
-                       char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
-        : clientTimeout(timeOut), garbageCollectionInterval(managementInterval), listenPort{newListenPort},
-          rasmgrHost{newRasmgrHost}, rasmgrPort{newRasmgrPort}, serverName{newServerName}
+ServerComm::ServerComm(unsigned long newListenPort, char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
+        : listenPort{newListenPort}, rasmgrHost{newRasmgrHost}, rasmgrPort{newRasmgrPort}, serverName{newServerName}
 {
     assert(!serverCommInstance);
     serverCommInstance = this;
@@ -270,7 +244,8 @@ void
 ServerComm::addClientTblEntry(ClientTblElt *context)
 {
     assert(context && "Cannot register client: client context is NULL.");
-    DBGREQUEST("'register client' " << context->clientId)
+    DBGREQUEST("'register client' " << context->clientId << ", type = "
+               << (context->clientType == ClientType::Http ? "http" : "non-http"))
     clientTbl = context;
     DBGOK
     ServerComm::printServerStatus();   // quite verbose
@@ -356,7 +331,7 @@ ServerComm::printServerStatus()
     {
         ct << "\n  Client table dump:"
            << "\n    Client ID      : " << clientTbl->clientId
-           << "\n    Client location: " << clientTbl->clientIdText
+           << "\n    Client location: " << (clientTbl->clientType == ClientType::Http ? "http" : "non-http")
            << "\n    User name      : " << clientTbl->userName
            << "\n    Database in use: " << clientTbl->baseName
            << "\n    Creation time  : " << ctime((time_t*)&clientTbl->creationTime)
@@ -372,8 +347,6 @@ ServerComm::printServerStatus()
 
     LDEBUG << "\n-----------------------------------------------------------------------------"
            << "\nServer state information at " << ctime(&currentTime)
-           <<   "  Inactivity time out of clients.: " << clientTimeout << " sec"
-           << "\n  Server management interval.....: " << garbageCollectionInterval << " sec"
            << "\n  Transaction active.............: " << (transactionActive ? "yes" : "no")
            << "\n  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes"
            << "\n  Next available client id.......: " << clientCount + 1
@@ -496,6 +469,7 @@ ServerComm::createDB(char *name)
     auto tempDbIf = std::unique_ptr<DatabaseIf>(new DatabaseIf());
     try
     {
+        const char *dbSchema = NULL;
         tempDbIf->createDB(name, dbSchema);
         DBGOK
     }
@@ -746,7 +720,7 @@ bool ServerComm::parseQuery(const char *query)
 
 unsigned short
 ServerComm::executeQuery(unsigned long callingClientId,
-                         const char *query, ExecuteQueryRes &returnStructure)
+                         const char *query, ExecuteQueryRes &returnStructure, bool insert)
 {
 #ifdef ENABLE_PROFILING
     startProfiler("/tmp/rasdaman_query_select.XXXXXX.pprof", true);
@@ -771,9 +745,9 @@ ServerComm::executeQuery(unsigned long callingClientId,
 
         mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
         context->transferColl = NULL;
+        currentClientTblElt = context;        // assign current client table element (temporary)
 
-        context->releaseTransferStructures();
-        currentClientTblElt = context;       // assign current client table element (temporary)
+            context->releaseTransferStructures();
 
         QueryTree *qtree = new QueryTree();   // create a query tree object...
         parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
@@ -792,7 +766,10 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 BLDEBUG << "query tree after semantic check:\n" << *qtree;
 #endif
                 BLINFO << "evaluating... ";
-                context->transferData = qtree->evaluateRetrieval();
+                if (!insert)
+                    context->transferData = qtree->evaluateRetrieval();
+                else
+                    context->transferData = qtree->evaluateUpdate();
             }
             catch (ParseInfo &info)
             {
@@ -854,6 +831,9 @@ ServerComm::executeQuery(unsigned long callingClientId,
                         // print result feedback; note it's not finalized here, but in endTransfer()
                         BLINFO << "result type '" << returnStructure.typeStructure << "', "
                                << context->transferData->size() << " element(s)... ";
+#ifdef RASDEBUG
+                        BLINFO << "\n"; // more requests will be logged in this case, so add a newline
+#endif
                         // checked in endTransfer() to finalize the print stmt above with transfer size
                         context->reportTransferedSize = true;
                         returnValue = firstElement->getDataType() == QT_MDD
@@ -878,12 +858,13 @@ ServerComm::executeQuery(unsigned long callingClientId,
         {
             HANDLE_PARSING_ERROR
         }
+
+        RELEASE_DATA
         if (returnValue >= RC_OK_NO_ELEMENTS)
         {
             // release transfer structures on error, as the client will not call endTransfer()
             context->releaseTransferStructures();
         }
-        RELEASE_DATA
     }
     else
     {
@@ -1040,147 +1021,7 @@ unsigned short
 ServerComm::executeInsert(unsigned long callingClientId,
                           const char *query, ExecuteQueryRes &returnStructure)
 {
-
-#ifdef ENABLE_PROFILING
-    startProfiler("/tmp/rasdaman_query_insert.XXXXXX.pprof", true);
-    startProfiler("/tmp/rasdaman_query_insert.XXXXXX.pprof", false);
-#endif
-    static constexpr unsigned short RC_OK_MDD_ELEMENTS = 0;
-    static constexpr unsigned short RC_OK_SCALAR_ELEMENTS = 1;
-    static constexpr unsigned short RC_OK_NO_ELEMENTS = 2;
-    static constexpr unsigned short RC_CLIENT_CONTEXT_NOT_FOUND = 3;
-    static constexpr unsigned short RC_PARSING_ERROR = 4;
-    static constexpr unsigned short RC_EXECUTION_ERROR = 5;
-
-    unsigned short returnValue = RC_OK;
-
-    NNLINFO << "Request: '" << query << "'... ";
-
-    ClientTblElt *context = getClientContext(callingClientId);
-    if (context)
-    {
-        context->totalTransferedSize = 0;
-        context->totalRawSize = 0;
-
-        mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
-        currentClientTblElt = context;        // assign current client table element (temporary)
-
-        QueryTree *qtree = new QueryTree();   // create a query tree object...
-        parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
-
-        if (parseQuery(query))
-        {
-            try
-            {
-#ifdef RASDEBUG
-                LDEBUG << "\n" << *qtree;
-#endif
-                BLINFO << "checking semantics... ";
-                qtree->checkSemantics();
-#ifdef RASDEBUG
-                BLDEBUG << "query tree after semantic check:\n" << *qtree;
-#endif
-                BLINFO << "evaluating... ";
-                context->transferData = qtree->evaluateUpdate();
-            }
-            catch (ParseInfo &info)
-            {
-                HANDLE_PARSE_INFO(info)
-                returnValue = RC_EXECUTION_ERROR;
-            }
-            catch (r_Error &err)
-            {
-                BLERROR << err.what() << "\n";
-                RELEASE_ALL_DATA
-                throw;
-            }
-            catch (std::bad_alloc)
-            {
-                BLERROR << "Error: memory allocation failed.\n";
-                RELEASE_ALL_DATA
-                throw;
-            }
-            catch (...)
-            {
-                BLERROR << "Error: unspecific exception.\n";
-                RELEASE_ALL_DATA
-                throw;
-            }
-
-            if (returnValue == RC_OK)
-            {
-                if (context->transferData)
-                {
-                    // create the transfer iterator
-                    context->transferDataIter = new vector<QtData *>::iterator;
-                    *(context->transferDataIter) = context->transferData->begin();
-
-                    // set typeName and typeStructure of returnStructure
-                    if (!context->transferData->empty())
-                    {
-                        // The type of first result object is used to determine the type of the result collection.
-                        QtData *firstElement = **context->transferDataIter;
-                        if (!firstElement)
-                        {
-                            BLERROR << "Internal error: result object is null.\n";
-                            RELEASE_ALL_DATA
-                            throw r_Error(10000); // Unexpected internal server error.
-                        }
-
-                        try
-                        {
-                            auto typeNameStructure = getTypeNameStructure(context);
-                            returnStructure.typeName = typeNameStructure.first;
-                            returnStructure.typeStructure = typeNameStructure.second;
-                        }
-                        catch (...)
-                        {
-                            BLERROR << "Error: failed setting type name and structure of result.\n";
-                            RELEASE_ALL_DATA
-                            throw;
-                        }
-
-                        returnValue = firstElement->getDataType() == QT_MDD
-                                      ? RC_OK_MDD_ELEMENTS : RC_OK_SCALAR_ELEMENTS;
-                        BLINFO << "ok, result type '" << returnStructure.typeStructure << "', "
-                               << context->transferData->size() << " element(s).\n";
-                    }
-                    else // context->transferData.empty()
-                    {
-                        BLINFO << "ok, result is empty.\n";
-                        returnValue = RC_OK_NO_ELEMENTS;
-                        returnStructure.typeName = strdup("");
-                        returnStructure.typeStructure = strdup("");
-                    }
-                }
-                else // context->transferData == NULL
-                {
-                    BLINFO << "ok, result is empty.\n";
-                    returnValue = RC_OK_NO_ELEMENTS;
-                }
-            }
-        }
-        else
-        {
-            HANDLE_PARSING_ERROR
-        }
-
-        RELEASE_DATA
-        if (returnValue > RC_OK_NO_ELEMENTS)
-            context->releaseTransferStructures();
-    }
-    else
-    {
-        BLERROR << "Error: client not registered.\n";
-        returnValue = RC_CLIENT_CONTEXT_NOT_FOUND;
-    }
-
-#ifdef ENABLE_PROFILING
-    ProfilerStop();
-    HeapProfilerStop();
-#endif
-
-    return returnValue;
+    return executeQuery(callingClientId, query, returnStructure, true);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -1445,7 +1286,7 @@ ServerComm::insertTile(unsigned long callingClientId,
             const int repack = 0;
             const int owner = 1;
             if (ensureTileFormat(currFmt, dataFmt, domain, baseType, dataPtr, dataSize, repack, owner,
-                                 context->storageFormatParams) != ENSURE_TILE_FORMAT_OK)
+                                 context->storageFormatParams) != RC_OK)
             {
                 DBGERROR("invalid tile format.");
                 return RC_TILE_FORMAT_ERROR;
@@ -1458,7 +1299,7 @@ ServerComm::insertTile(unsigned long callingClientId,
                 std::unique_ptr<Tile> tile(new Tile(domain, baseType, true, dataPtr, newDataSize, dataFmt));
 
                 // for java clients only: check endianness and swap bytes tile if necessary
-                if (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0 &&
+                if (context->clientType == ClientType::Http &&
                     r_Endian::get_endianness() != r_Endian::r_Endian_Big)
                 {
                     DBGINFONNL("big-endian client so changing result endianness... ");
@@ -1800,8 +1641,8 @@ ServerComm::getNextElement(unsigned long callingClientId,
                             buffer = static_cast<char *>(mymalloc(bufferSize));
                             memcpy(buffer, scalarDataObj->getValueBuffer(), bufferSize);
                             // change endianess if necessary
-                            if ((strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&
-                                (r_Endian::get_endianness() != r_Endian::r_Endian_Big))
+                            if (context->clientType == ClientType::Http &&
+                                r_Endian::get_endianness() != r_Endian::r_Endian_Big)
                             {
                                 swapScalarElement(buffer, scalarDataObj->getValueType());
                             }
@@ -2030,11 +1871,14 @@ ServerComm::endTransfer(unsigned long client)
     ClientTblElt *context = getClientContext(client);
     if (context)
     {
+#ifdef RASDEBUG
         DBGINFO("ok, transferred " << context->totalTransferedSize << " bytes.")
+#else
         if (context->reportTransferedSize)
         {
             BLINFO << "ok, transferred " << context->totalTransferedSize << " bytes.\n";
         }
+#endif
         context->releaseTransferStructures();
     }
     else
@@ -2069,7 +1913,7 @@ ServerComm::insertColl(unsigned long callingClientId,
             {
                 MDDColl *coll = MDDColl::createMDDCollection(collName, OId(oid.get_local_oid()), collType);
                 delete coll;
-                BLINFO << MSG_OK << "\n";
+                BLINFO << "ok\n";
             }
             catch (r_Error &obj)
             {
@@ -2161,7 +2005,7 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
                 // There's no API in MDDObj to remove the object, it has to be removed
                 // from the collection that contains it. The collection is not known though,
                 // as only the OID is given.
-                DBGINFO("found MDD object; not deleted yet... " << MSG_OK);
+                DBGINFO("found MDD object; not deleted yet... ok");
                 break;
             }
             case OId::MDDCOLLOID:

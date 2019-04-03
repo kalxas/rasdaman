@@ -56,9 +56,10 @@ public:
     // All "compat_" functions use old ServerComm and HttpServer stuff to do their job
     // Later, the new functions will do the job proper and this old functions will be dropped!
     void compat_connectNewClient(const char* capability);
-    ClientTblElt* getClientContext(unsigned long ClientId);   // inherited...
 
     void compat_disconnectClient();
+
+    ClientTblElt* getClientContext(unsigned long ClientId) override;
 
     void compat_openDB(const char* databaseName);
 

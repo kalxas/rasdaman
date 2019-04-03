@@ -67,9 +67,6 @@ rasdaman GmbH.
 
 #define UNEXPECTED_INTERNAL_ERROR 10000
 
-// ok message for log output; should go into a central file
-#define MSG_OK            "ok"
-
 // --------------------------------------------------------------------------------
 //                          globals
 // --------------------------------------------------------------------------------
@@ -93,7 +90,7 @@ const int ackCodeNotOK = 98;
 extern unsigned long maxTransferBufferSize;
 
 // This currently represents the one and only client active at one time.
-static ClientTblElt globalClientContext(ServerComm::HTTPCLIENT, 1);
+static ClientTblElt globalClientContext(ClientType::Http, 1);
 
 const int HttpServer::commOpenDB           = 1;
 const int HttpServer::commCloseDB          = 2;
@@ -272,13 +269,8 @@ std::string HttpServer::MDDEncoding::toString() const
  *                             HttpServer
  ************************************************************************/
 
-HttpServer::HttpServer()
-{
-}
-
-HttpServer::HttpServer(unsigned long timeOut, unsigned long managementInterval, unsigned long newListenPort,
-                       char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
-        : ServerComm(timeOut, managementInterval, newListenPort, newRasmgrHost, newRasmgrPort, newServerName)
+HttpServer::HttpServer(unsigned long newListenPort, char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
+        : ServerComm(newListenPort, newRasmgrHost, newRasmgrPort, newServerName)
 {
 }
 
@@ -378,7 +370,7 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
 
             auto context = getClientContext(callingClientId);
             if (context && resultSize > 0)
-                context->totalTransferedSize = resultSize;
+                context->totalTransferedSize = static_cast<unsigned long>(resultSize);
             endTransfer(callingClientId); // finalize the log stmt of executeQuery with the transfered size
 
             return resultSize;
@@ -447,9 +439,8 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             {
                 auto *context = getClientContext(callingClientId);
                 auto oid = roid->get_local_oid();
-                // This currently represents the one and only client active at one time.
-                if (context->clientId == 1 && strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0 &&
-                    systemEndianess != ENDIAN_BIG)
+                // swap oid if http client
+                if (context->clientId == 1 && context->clientType == ClientType::Http && systemEndianess != ENDIAN_BIG)
                     oid = r_Endian::swap(oid);
                 encodeNumber(&currentPos, oid);
             }
@@ -786,7 +777,7 @@ void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Mi
     free(oldCells);
     oldCells = NULL;
     tile->setContents(dest);
-    // LINFO << MSG_OK;
+    // LINFO << "ok";
 }
 
 void HttpServer::releaseContext(ClientTblElt* context) const
@@ -977,7 +968,7 @@ long HttpServer::encodeInsertError(char*& result, unsigned short execResult, vec
         free(transferredMDDs.back()->binData);
         delete(transferredMDDs.back());
         transferredMDDs.pop_back();
-        BLINFO << MSG_OK;
+        BLINFO << "ok";
     }
 
     return returnValue;

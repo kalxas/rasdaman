@@ -39,13 +39,7 @@ using namespace std;
 #include "servercomm/cliententry.hh"
 
 #include "debug-srv.hh"
-
 #include <logging.hh>
-
-// console output describing successful/unsuccessful actions (cf. servercomm/servercomm.cc)
-#define MSG_OK     "ok"
-#define MSG_FAILED "failed"
-
 
 struct HTTPRequest
 {
@@ -69,8 +63,6 @@ RasServerEntry& RasServerEntry::getInstance()
 
 void RasServerEntry::compat_connectToDBMS()
 {
-    // here no log output, this is a server startup function!
-
     admin = AdminIf::instance();
     if (!admin)
     {
@@ -80,101 +72,31 @@ void RasServerEntry::compat_connectToDBMS()
 
 void RasServerEntry::compat_connectNewClient(const char* capability)
 {
-    // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    LTRACE << "Request: connectNewClient...";
+    currentClientContext = new ClientTblElt(ClientType::Regular, ++clientCount);
+    currentClientIdx = clientCount;
 
-    char client[256];
-    strcpy(client, "unknown");
-
-    // reverted the below to execute the #if part instead of the #else
-    // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
-    // DM 2012-nov-10
-#if 1 // client table is a relict from 1-process, multi-user rasdaman;
-    // now it conflicts with rasmgr dispatcher mimics, so we disable -- PB 2005-sep-01
-    currentClientContext = new ClientTblElt(client, ++(clientCount));
-    currentClientIdx    = clientCount;
-#else
-// this id must be !=0 because otherwise in ServerComm::getClientContext() it will not be recognized as valid id, and then the "last action" time will not be updated (timeout!)
-#define SINGLETON_CLIENTID ULONG_MAX
-
-    // disable client list by using only 1 element (fixed id), initialize only once
-    currentClientIdx = SINGLETON_CLIENTID;
-    // if (currentClientContext==NULL)
-    currentClientContext = new ClientTblElt(client, currentClientIdx);
-    LDEBUG << "using constant Client id " << currentClientIdx;
-
-    // make sure any old element is deleted; currently inhibited, crashes :( -- PB 2005-sep-02
-    // LINFO << "client table has " << clientTbl.size() << " elements before cleanup, ";
-    // ServerComm::deleteClientTblEntry( currentClientIdx );
-    // LINFO << " and " << clientTbl.size() << " after.";
-#endif // 0
-
-    // Put the context information in the static control list
     ServerComm::addClientTblEntry(currentClientContext);
-
-    LDEBUG << "assigned Client id " << currentClientIdx;
 
     if (accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
     {
         throw r_Ecapability_refused();
     }
-    LTRACE << MSG_OK;
 }
 
 void RasServerEntry::compat_disconnectClient()
 {
-    // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    LDEBUG << "Request: disconnect...";
-
-    // reverted the below to execute the #if part instead of the #else
-    // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
-    // DM 2012-nov-10
-#if 1 //
     deleteClientTblEntry(currentClientIdx);
     currentClientIdx = static_cast<unsigned long>(-1);
-#else
-    // disable client list, use 1 constant element (see above) -- PB 2005-sep-01
-    currentClientIdx = SINGLETON_CLIENTID;
-    ServerComm::deleteClientTblEntry(currentClientIdx);
-
-    // delete currentClientContext;
-    // currentClientContext = NULL;
-
-    // clientTbl.resize( 0 );
-
-    LINFO << MSG_OK;
-#endif // 0
-
-// in a disconnect following an abortta, the client can't be found any more in the table.
-// the delete op below then doesn't decrease table size -> endless loop.
-// Therefore let us take the original approach: delete only the requested client. -- PB 2003-nov-24
-#if 0
-    // THIS IS PARANOIA, ONCE WE HAD SOME PROBLEMS, SO WE KILL ALL
-    while (!clientTbl.empty())
-    {
-        ClientTblElt* temp = clientTbl.front();
-
-        temp->currentUsers = 0; // forced!
-
-        deleteClientTblEntry(temp->clientId);
-    }
-#endif // 0
 }
 
-// we want the ServerComm version, we'll drop this client management anyway
-ClientTblElt* RasServerEntry::getClientContext(unsigned long ClientId)
+// override in order to get the ServerComm version instead of the HttpServer one
+ClientTblElt* RasServerEntry::getClientContext(unsigned long clientId)
 {
-#if 0 // see above -- we just have 1 single context -- PB 2005-sep-01
-    ClientId = SINGLETON_CLIENTID;
-#endif // 0
-
-    return ServerComm::getClientContext(ClientId);
+    return ServerComm::getClientContext(clientId);
 }
-
 
 void RasServerEntry::compat_openDB(const char* databaseName)
 {
-    // we use "ServercComm::" just to show that it's that function
     ServerComm::openDB(currentClientIdx, databaseName, "");
 }
 
@@ -207,12 +129,9 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
 
 long RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer)
 {
-    delete [] currentClientContext->clientIdText;
-    currentClientContext->clientIdText = new char[strlen(ServerComm::HTTPCLIENT) + 1];
-    strcpy(currentClientContext->clientIdText, ServerComm::HTTPCLIENT);
+    currentClientContext->clientType = ClientType::Http;
 
-    HTTPRequest   RequestInfo;
-    /* Initialize RequestInfo */
+    HTTPRequest RequestInfo;
     RequestInfo.Database = NULL;
     RequestInfo.QueryString = NULL;
     RequestInfo.ClientType = 0;
@@ -225,23 +144,17 @@ long RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPar
     RequestInfo.Capability = NULL;
 
     long resultLen = 0;
+    resultBuffer = NULL;
     if (GetHTTPRequestTemp(const_cast<char*>(httpParams), httpParamsLen, &RequestInfo) == 0)
     {
-        // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-        // logged now in rnprotocol modules -- PB 2005-sep-05
-        // LINFO << "Request: http query '" << RequestInfo.QueryString << "'...";
-        char* queryResult;
-
         resultLen = HttpServer::processRequest(currentClientIdx, RequestInfo.Database, RequestInfo.Command,
                                                RequestInfo.QueryString, RequestInfo.BinDataSize,
                                                RequestInfo.BinData, RequestInfo.Endianess,
-                                               queryResult, RequestInfo.Capability);
-
-        resultBuffer = queryResult;
+                                               resultBuffer, RequestInfo.Capability);
     }
     else
     {
-        LERROR << "Error: Internal HTTP protocol mismatch.";
+        LERROR << "Internal HTTP protocol mismatch.";
     }
 
     // free RequestInfo
@@ -335,7 +248,6 @@ int RasServerEntry::compat_InsertMDD(const char* collName, RPCMarray* rpcMarray,
 {
     LERROR << "Invoked unsupported server functionality 'insert whole MDD'.";
     throw r_Error(10000); // Internal error
-    //return ServerComm::insertMDD(currentClientIdx, collName, rpcMarray, typeName, oid);
 }
 
 int RasServerEntry::compat_InsertCollection(const char* collName, const char* typeName, r_OId& oid)
@@ -475,7 +387,9 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
         {
             // This parameter has to be the last one!
             RequestInfo->BinData = new char[RequestInfo->BinDataSize ];
-            memcpy(RequestInfo->BinData, Source + (SourceLen - RequestInfo->BinDataSize), static_cast<unsigned int>(RequestInfo->BinDataSize));
+            memcpy(RequestInfo->BinData,
+                   Source + (SourceLen - RequestInfo->BinDataSize),
+                   static_cast<unsigned int>(RequestInfo->BinDataSize));
             //set Buffer to NULL => exit this while block
             Buffer = NULL;
         }
@@ -483,17 +397,14 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
         {
             Buffer = strtok(NULL, "&");
             LDEBUG << "Parameter Type is " << Buffer;
-            /* BROWSER? */
             if (strcmp(Buffer, "BROWSER") == 0)
             {
                 RequestInfo->ClientType = 1;
             }
-            /* Rasclient? */
             else if (strcmp(Buffer, "RASCLIENT") == 0)
             {
                 RequestInfo->ClientType = 2;
             }
-            /* Sonstiges */
             else
             {
                 LDEBUG << "Error: Unknown Parameter: " << Buffer;
@@ -515,6 +426,7 @@ int GetHTTPRequestTemp(char* Source, int SourceLen, struct HTTPRequest* RequestI
 }
 
 //#####################################################################################################
+
 #include "server/createinitmdd.hh"
 
 r_OId RasServerEntry::createCollection(const char* collName, const char* collTypeName)
@@ -524,7 +436,8 @@ r_OId RasServerEntry::createCollection(const char* collName, const char* collTyp
     return fcc.createCollection();
 }
 
-r_OId RasServerEntry::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex)
+r_OId RasServerEntry::createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain,
+        const char* tileDomain, bool rcindex)
 {
     FastMDDCreator fc;
 

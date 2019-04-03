@@ -25,35 +25,41 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include <logging.hh>
 
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
+#endif
 #include <time.h>  // for strptime
 #include <cstring>
 #include <openssl/evp.h>
 
+const unsigned long AccessControl::maxServerNameSize = 100;
+const unsigned long AccessControl::maxDigestBufferSize = 50;
+const unsigned long AccessControl::capabilityDigestSize = 32;
+const unsigned long AccessControl::maxCapabilityBufferSize = 200;
+const int AccessControl::capabilityOk = 0;
+const char* AccessControl::digestMethod = "MD5";
 
 AccessControl accessControl;
 
 AccessControl::AccessControl()
 {
-    initDeltaT = 0;
-    resetForNewClient();
+    OpenSSL_add_all_digests();
 }
 
 AccessControl::~AccessControl()
 {
+    EVP_cleanup();
 }
 
 void AccessControl::setServerName(const char *newServerName)
 {
-    strcpy(this->serverName, newServerName);
-}
-
-void AccessControl::initSyncro(const char *syncroString)
-{
-    struct tm brokentime;
-    strptime(syncroString, "%d:%m:%Y:%H:%M:%S", &brokentime);
-    initDeltaT = difftime(time(NULL), mktime(&brokentime));
-    // cout<<"DeltaT="<<initDeltaT<<endl;
+    if (strlen(newServerName) < maxServerNameSize)
+        serverName = newServerName;
+    else
+    {
+        LERROR << "Server name length exceeds the maximum allowed length (" << maxServerNameSize << ").";
+        throw r_Error(10000); // internal error
+    }
 }
 
 void AccessControl::resetForNewClient()
@@ -68,87 +74,85 @@ bool AccessControl::isClient()
     return weHaveClient;
 }
 
+#define CHECK_PARAM(param, searchStart, paramName, paramPrefix) \
+    char *param = strstr(capaQ, paramPrefix); \
+    if (param) { \
+        param += 2; \
+    } else { \
+        LERROR << paramName << " not found in capability string."; \
+        return CAPABILITY_REFUSED; \
+    }
+
 int AccessControl::crunchCapability(const char *capability)
 {
-    // verify capability is original
-    char capaQ[200];
+    LTRACE << "Parsing and verifying capability string...";
+
+    auto capabilitySize = strlen(capability);
+    // 7 - account for "$Canci" which is prepended to the capability below
+    if (capabilitySize + 7 > maxCapabilityBufferSize)
+    {
+        LERROR << "Length of capability string exceeds the maximum buffer size of " << maxCapabilityBufferSize;
+        return CAPABILITY_REFUSED;
+    }
+
+    char capaQ[maxCapabilityBufferSize];
     strcpy(capaQ, "$Canci");
     strcat(capaQ, capability);
 
-    char *digest = strstr(capaQ, "$D");
-    if (digest == NULL)
+    char *end = strstr(capaQ, "$K");
+    if (end == NULL)
         return CAPABILITY_REFUSED;
+    end[0] = '\0';
 
-    *digest = 0;
-    digest += 2;
-    digest[32] = 0;
-    LDEBUG << "Digest=" << digest;
+    // verify capability is original
+    CHECK_PARAM(digest, capaQ, "Digest", "$D")
+    *(digest - 2) = 0;
+    digest[capabilityDigestSize] = 0;
+    LTRACE << "Client digest = " << digest;
 
-    char testdigest[50];
-    messageDigest(capaQ, testdigest, "MD5");
-    LDEBUG << "testdg=" << testdigest;
+    char testdigest[maxDigestBufferSize];
+    messageDigest(capaQ, testdigest, digestMethod);
+    LTRACE << "Server digest = " << testdigest;
     if (strcmp(testdigest, digest) != 0)
+    {
+        LERROR << "Server digest of capability string does not match the client digest.";
         return CAPABILITY_REFUSED;
-
-    char *rights = strstr(capaQ, "$E") + 2;
-    char *timeout = strstr(capaQ, "$T") + 2;
-    char *cServerName = strstr(capaQ, "$N") + 2;
-    // end of cServername is $D, $->0 by digest
-
-    struct tm brokentime;
-    memset(&brokentime, 0, sizeof(struct tm));
-    strptime(timeout, "%d:%m:%Y:%H:%M:%S", &brokentime);
-    double DeltaT = difftime(mktime(&brokentime), time(NULL));
-
-    //for the  moment, DEC makes trouble
-    // if(DeltaT < initDeltaT) return CAPABILITY_REFUSED; //!!! Capability too old
-    //  cout<<"DeltaT="<<DeltaT<<"  initDeltaT="<<initDeltaT<<(DeltaT >= initDeltaT ? " ok":" fail")<<endl;
-
-    if (strcmp(serverName, cServerName) != 0)
-    {
-        return CAPABILITY_REFUSED; //!!! Call is not for me
     }
 
-    okToRead = false;  // looks like a 'true' never gets reset: -- PB 2006-jan-02
-    okToWrite = false;  // -dito-
-    for (int i = 0; *rights != '$' && *rights && i < 2; rights++, i++)
+    CHECK_PARAM(rights, digest, "Rights", "$E")
+    CHECK_PARAM(timeout, rights, "Timeout", "$T")
+    CHECK_PARAM(cServerName, timeout, "Server", "$N")
+    if (strcmp(serverName.c_str(), cServerName) != 0)
     {
-        //We only have 2 rights defined now
+        LERROR << "Wrong server name in capability.";
+        return CAPABILITY_REFUSED;
+    }
+
+    okToRead = false;
+    okToWrite = false;
+    for (size_t i = 0; *rights != '$' && *rights && i < 2; rights++, i++)
+    {
         if (*rights == 'R')
-        {
             okToRead = true;
-        }
-        if (*rights == 'W')
-        {
+        else if (*rights == 'W')
             okToWrite = true;
-        }
     }
-
     weHaveClient = true;
 
-    LDEBUG << "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout
-           << "(remaining time: " << DeltaT << "), cServerName=" << cServerName << ", okToRead=" << okToRead
-           << ", okToWrite=" << okToWrite
-           << "";
+    LTRACE << "capability crunched: digest=" << digest << ", rights=" << rights << ", timeout=" << timeout
+           << ", okToRead=" << okToRead << ", okToWrite=" << okToWrite;
 
-    return 0; // OK for now
+    return capabilityOk;
 }
 
 int AccessControl::messageDigest(const char *input, char *output, const char *mdName)
 {
-    const EVP_MD *md;
-    unsigned int md_len, i;
-    unsigned char md_value[100];
-
-    OpenSSL_add_all_digests();
-
-    md = EVP_get_digestbyname(mdName);
-
+    const EVP_MD *md = EVP_get_digestbyname(mdName);
     if (!md)
-    {
         return 0;
-    }
 
+    unsigned int md_len;
+    unsigned char md_value[maxDigestBufferSize];
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_MD_CTX mdctx;
     EVP_DigestInit(&mdctx, md);
@@ -162,10 +166,8 @@ int AccessControl::messageDigest(const char *input, char *output, const char *md
     EVP_MD_CTX_free(mdctx);
 #endif
 
-    for (i = 0; i < md_len; i++)
-    {
+    for (unsigned int i = 0; i < md_len; i++)
         sprintf(output + i + i, "%02x", md_value[i]);
-    }
 
     return strlen(output);
 }
@@ -186,6 +188,5 @@ void AccessControl::wantToWrite()
         LERROR << "No permission for write operation.";
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
-
 }
 

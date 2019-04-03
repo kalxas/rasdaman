@@ -41,14 +41,11 @@ rasdaman GmbH.
 /*@Doc:
   The class HttpServer describes the one and only server communication object
   that can exist in a RasDaMan server. It manages listening for clients and
-  maps incoming calls to the respective procedures (which reside in the
-  file manager.cc).
+  maps incoming calls to the respective procedures.
 
   This class implements the functions useful for HTTP communication
-  and is based on a copy of servercomm.hh (Version 1.48).
+  and is based on extending servercomm.hh.
 */
-
-
 class HttpServer : public ServerComm
 {
 public:
@@ -76,10 +73,10 @@ public:
     // qlparser/qtcommand.cc or qlparser/qtinsert.cc all include servercomm.hh
 
     /// default constructor
-    HttpServer();
+    HttpServer() = default;
 
     // the acual constructor
-    HttpServer(unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
+    HttpServer(unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
 
     /// destructor
     ~HttpServer() override = default;

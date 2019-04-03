@@ -91,8 +91,8 @@ rasdaman GmbH.
 // default digest used for encoding passwords
 #define DEFAULT_DIGEST    "MD5"
 
-/// max transfer buffer size (import clients)
-#define MAX_BUFFER_SIZE     4194304L
+/// max transfer buffer size for raw arrays - 10MB
+#define MAX_BUFFER_SIZE     10000000L
 
 /// client timeout [secs]
 #define CLIENT_TIMEOUT      300

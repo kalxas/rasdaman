@@ -84,10 +84,8 @@ public:
     /// default constructor
     ServerComm();
 
-    /// constructor getting the client time out and the time interval for management routines,
-    /// together with listen port, rasmgr host and port and the server name
-    ServerComm(unsigned long timeOut, unsigned long managementInterval, unsigned long listenPort,
-               char *rasmgrHost, unsigned int rasmgrPort, char *serverName);
+    /// constructor getting the listen port, rasmgr host and port and the server name
+    ServerComm(unsigned long listenPort, char *rasmgrHost, unsigned int rasmgrPort, char *serverName);
 
     ServerComm(const ServerComm &) = delete;
 
@@ -212,12 +210,14 @@ public:
     ///
     /// executes a retrieval query and prepares the result for transfer with \Ref{getNextMDD}.
     virtual unsigned short
-    executeQuery(unsigned long callingClientId, const char *query, ExecuteQueryRes &returnStructure);
+    executeQuery(unsigned long callingClientId, const char *query, ExecuteQueryRes &returnStructure,
+            bool insert = false);
     /**
       Executes a query and puts the result in the actual transfer collection.
       The first parameter is the unique client id
       for which the query should be executed. The second parameter is the
-      query itself represented as a string.
+      query itself represented as a string. Third parameter indicates if the
+      query is an insert query (if true), otherwise a regular select query.
 
       Return values
       \begin{tabular}{lll}
@@ -836,9 +836,6 @@ public:
     return values exactly like setTransferMode()
     */
 
-    // constant for clientID
-    static const char *HTTPCLIENT;
-
     static const int RESPONSE_ERROR;
     static const int RESPONSE_MDDS;
     static const int RESPONSE_SCALARS;
@@ -879,18 +876,11 @@ protected:
     unsigned short getTransferCollInfo(
             ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
 
-    ///returns the following:
-    static const int ENSURE_TILE_FORMAT_OK;
-    static const int ENSURE_TILE_FORMAT_BAD;
-
     /// the client table which holds information about the calling clients
     static ClientTblElt *clientTbl;
     /// last used client ID (this is increased by one to get the clientId for the next client)
     static unsigned long clientCount;
-    /// inactivity timeout in seconds after which pending client data is deleted
-    const unsigned long clientTimeout;
-    /// do a garbage collection every {\tt garbageCollectionInterval} seconds (ONC RPC only)
-    const unsigned long garbageCollectionInterval;
+
     /// flag for active db transaction (stores the clientID of the owner of the active transaction,
     /// or 0 if none open)
     unsigned long transactionActive{0};

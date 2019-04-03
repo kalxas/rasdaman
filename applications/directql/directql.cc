@@ -50,11 +50,8 @@ rasdaman GmbH.
 #include "raslib/template_inst.hh"
 #endif
 
-const char* myExecArgv0 = "";
 int tiling = 1;
 unsigned long maxTransferBufferSize = 4000000;
-char* dbSchema = 0;
-int noTimeOut = 0;
 
 #include <stdio.h>
 #include <string.h>
@@ -153,8 +150,6 @@ typedef enum
 #define EXIT_FAILURE    -1
 
 #define DQ_CLIENT_ID 1000000
-#define DQ_TIMEOUT 1000000
-#define DQ_MANAGEMENT_INTERVAL 1000000
 #define DQ_LISTEN_PORT 8001
 #define DQ_SERVER_NAME "NT1"
 #define DQ_CAPABILITY "$I1$ERW$BRASBASE$T1:3:2008:23:39:24$NNT1$D3839d047344677ddb1ff1a24dada286e$K"
@@ -566,9 +561,9 @@ openDatabase()
     {
         sprintf(globalConnectId, "%s", baseName.c_str());
         INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
-        server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT,
+        server = new ServerComm(DQ_LISTEN_PORT,
                 const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
-        r = new ClientTblElt(user, DQ_CLIENT_ID);
+        r = new ClientTblElt(ClientType::Regular, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
         accessControl.setServerName(DQ_SERVER_NAME);
         accessControl.crunchCapability(DQ_CAPABILITY);
