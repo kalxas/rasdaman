@@ -239,8 +239,11 @@ ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval, 
 
 ServerComm::~ServerComm()
 {
-    delete admin, admin = NULL;
-    serverCommInstance = NULL;
+    if (serverCommInstance)
+    {
+        serverCommInstance = NULL;
+        delete admin, admin = NULL;
+    }
 }
 
 // quick hack function used when stopping server to abort transaction and close db
@@ -765,7 +768,6 @@ ServerComm::executeQuery(unsigned long callingClientId,
     {
         context->totalTransferedSize = 0;
         context->totalRawSize = 0;
-        context->reportTransferedSize = true;
 
         mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
         context->transferColl = NULL;
@@ -851,7 +853,9 @@ ServerComm::executeQuery(unsigned long callingClientId,
 
                         // print result feedback; note it's not finalized here, but in endTransfer()
                         BLINFO << "result type '" << returnStructure.typeStructure << "', "
-                               << context->transferData->size() << " element(s)";
+                               << context->transferData->size() << " element(s)... ";
+                        // checked in endTransfer() to finalize the print stmt above with transfer size
+                        context->reportTransferedSize = true;
                         returnValue = firstElement->getDataType() == QT_MDD
                                       ? RC_OK_MDD_ELEMENTS : RC_OK_SCALAR_ELEMENTS;
                     }

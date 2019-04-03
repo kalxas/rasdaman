@@ -282,11 +282,6 @@ HttpServer::HttpServer(unsigned long timeOut, unsigned long managementInterval, 
 {
 }
 
-HttpServer::~HttpServer()
-{
-    delete admin;
-}
-
 ClientTblElt*
 HttpServer::getClientContext(__attribute__((unused)) unsigned long clientId)
 {
@@ -379,8 +374,14 @@ HttpServer::processRequest(unsigned long callingClientId, char* baseName, int ra
             // call executeQuery (result contains error information)
             ExecuteQueryRes resultError;
             unsigned short execResult = executeQuery(callingClientId, query, resultError);
+            auto resultSize = encodeResult(execResult, callingClientId, result, resultError);
 
-            return encodeResult(execResult, callingClientId, result, resultError);
+            auto context = getClientContext(callingClientId);
+            if (context && resultSize > 0)
+                context->totalTransferedSize = resultSize;
+            endTransfer(callingClientId); // finalize the log stmt of executeQuery with the transfered size
+
+            return resultSize;
         }
         case commUpdateQueryExec:
         {

@@ -82,7 +82,7 @@ public:
     HttpServer(unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
 
     /// destructor
-    virtual ~HttpServer();
+    ~HttpServer() override = default;
 
     /// print server status to {\tt s}
     void printServerStatus() override;

@@ -49,7 +49,7 @@ public:
 
     static RasServerEntry& getInstance();
 
-    ~RasServerEntry() = default;
+    ~RasServerEntry() override = default;
 
     void compat_connectToDBMS();
 
