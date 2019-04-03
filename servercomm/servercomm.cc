@@ -242,6 +242,7 @@ ServerComm::ServerComm(unsigned long timeOut, unsigned long managementInterval, 
 ServerComm::~ServerComm()
 {
     delete admin;
+    admin = NULL;
     serverCommInstance = NULL;
 }
 
@@ -1914,7 +1915,16 @@ ServerComm::getNextTile(unsigned long callingClientId,
                 }
 
                 Tile *resultTile = **context->tileIter;
+
+                // allocate memory for the output parameter rpcMarray and set fields
+                *rpcMarray = static_cast<RPCMarray *>(mymalloc(sizeof(RPCMarray)));
+                (*rpcMarray)->currentFormat = resultTile->getDataFormat();
+                (*rpcMarray)->cellTypeLength = resultTile->getType()->getSize();
+                (*rpcMarray)->domain = resultTile->getDomain().get_string_representation();
+                (*rpcMarray)->storageFormat = r_Array;
+
                 unsigned long transferOffset = 0;
+                char *useTransData = resultTile->getContents();
                 unsigned long totalSize = resultTile->getSize();
                 auto transferSize = totalSize;
                 if (totalSize > maxTransferBufferSize)
@@ -1948,16 +1958,10 @@ ServerComm::getNextTile(unsigned long callingClientId,
                 }
                 context->totalTransferedSize += transferSize;
 
-                // allocate memory for the output parameter rpcMarray and set fields
-                *rpcMarray = static_cast<RPCMarray *>(mymalloc(sizeof(RPCMarray)));
-                (*rpcMarray)->domain = resultTile->getDomain().get_string_representation();
                 (*rpcMarray)->data.confarray_len = static_cast<unsigned int>(transferSize);
-                (*rpcMarray)->data.confarray_val = resultTile->getContents() + transferOffset;
-                (*rpcMarray)->cellTypeLength = resultTile->getType()->getSize();
-                (*rpcMarray)->currentFormat = resultTile->getDataFormat();
-                (*rpcMarray)->storageFormat = r_Array;
+                (*rpcMarray)->data.confarray_val = useTransData + transferOffset;
 
-                DBGINFONNL(" domain " << resultTile->getDomain() << ", " << transferSize << " bytes... ");
+                DBGINFONNL("domain " << resultTile->getDomain() << ", " << transferSize << " bytes... ");
 
                 // increment iterator only if tile is transferred completely
                 if (statusValue > ST_MORE_BLOCKS)
