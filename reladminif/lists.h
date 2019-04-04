@@ -40,18 +40,18 @@ class Tile;
 #include "raslib/mddtypes.hh"
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-using OIdSet = std::set<OId, std::less<OId> >;
+using OIdSet = std::set<OId, std::less<OId>>;
 
 //used to hold oids for indexes, blobs, and dbmintervals.  no double entries
-using OIdConstSet = std::set<const OId, std::less<OId> >;
+using OIdConstSet = std::set<const OId, std::less<OId>>;
 
-typedef std::vector<HierIndexDS*> HierIndexDSPVector;
-
-//used to hold DBObject*.  e.g. in objectbroker to temporarily store them before deletion
-typedef std::vector<DBObject*> DBObjectPVector;
+typedef std::vector<HierIndexDS *> HierIndexDSPVector;
 
 //used to hold DBObject*.  e.g. in objectbroker to temporarily store them before deletion
-typedef std::vector<const DBObject*> DBObjectPConstVector;
+typedef std::vector<DBObject *> DBObjectPVector;
+
+//used to hold DBObject*.  e.g. in objectbroker to temporarily store them before deletion
+typedef std::vector<const DBObject *> DBObjectPConstVector;
 
 //used to hold oids for indexes, blobs, and dbmintervals
 typedef std::vector<OId> OIdVector;
@@ -62,17 +62,17 @@ typedef std::vector<const OId> OIdConstVector;
 //holds type information on specific blobs which are stored in above oidlists
 typedef std::vector<r_Data_Format> CompTypeVector;
 
-typedef std::vector<const InlineMinterval*> IntervalPConstVector;
+typedef std::vector<const InlineMinterval *> IntervalPConstVector;
 
-typedef std::vector<InlineMinterval*> IntervalPVector;
+typedef std::vector<InlineMinterval *> IntervalPVector;
 
 typedef std::vector<const InlineMinterval> IntervalConstVector;
 
 typedef std::vector<InlineMinterval> IntervalVector;
 
-typedef std::vector<const KeyObject*> KeyObjectPConstVector;
+typedef std::vector<const KeyObject *> KeyObjectPConstVector;
 
-typedef std::vector<KeyObject*> KeyObjectPVector;
+typedef std::vector<KeyObject *> KeyObjectPVector;
 
 typedef std::vector<const KeyObject> KeyObjectConstVector;
 
@@ -80,21 +80,21 @@ typedef std::vector<KeyObject> KeyObjectVector;
 
 typedef std::vector<r_Minterval> DomainVector;
 
-typedef std::vector<r_Minterval*> DomainPVector;
+typedef std::vector<r_Minterval *> DomainPVector;
 
-typedef std::vector<const r_Minterval*> DomainPConstVector;
+typedef std::vector<const r_Minterval *> DomainPConstVector;
 
-typedef std::vector<IndexDS*> IndexPVector;
+typedef std::vector<IndexDS *> IndexPVector;
 
-typedef std::vector<Tile*> TilePVector;
+typedef std::vector<Tile *> TilePVector;
 
-typedef std::map<double, DBObject*, std::less<double>> DBObjectPMap;
-typedef std::pair<double, DBObject*> DBObjectPPair;
-typedef std::pair<const double, DBObject*> ConstDBObjectPPair;
+typedef std::map<double, DBObject *, std::less<double>> DBObjectPMap;
+typedef std::pair<double, DBObject *> DBObjectPPair;
+typedef std::pair<const double, DBObject *> ConstDBObjectPPair;
 
-typedef std::map<double, const DBObject*, std::less<double>> DBObjectPConstMap;
-typedef std::pair<double, const DBObject*> DBObjectPConstPair;
-typedef std::pair<const double, const DBObject*> ConstDBObjectPConstPair;
+typedef std::map<double, const DBObject *, std::less<double>> DBObjectPConstMap;
+typedef std::pair<double, const DBObject *> DBObjectPConstPair;
+typedef std::pair<const double, const DBObject *> ConstDBObjectPConstPair;
 
 typedef std::map<double, OId, std::less<double>> OIdMap;
 typedef std::pair<const double, OId> OIdPair;

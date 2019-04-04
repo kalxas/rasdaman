@@ -39,27 +39,27 @@ static const char rcsid[] = "@(#)catalogif,OctetType: $Header: /home/rasdev/CVS-
 #include <string.h>
 #include <limits.h>
 
-OctetType::OctetType(const OId& id)
-	:	IntegralType(id)
-	{
-	readFromDb();
-	}
+OctetType::OctetType(const OId &id)
+    :   IntegralType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: OctetType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 OctetType.
  ************************************************************/
 
 OctetType::OctetType()
-	:	IntegralType(OctetType::Name, 1)
-	{
-	myType = OCTET;
-	myOId = OId(OCTET, OId::ATOMICTYPEOID);
-	}
+    :   IntegralType(OctetType::Name, 1)
+{
+    myType = OCTET;
+    myOId = OId(OCTET, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: OctetType(const OctetType& old);
@@ -69,10 +69,10 @@ OctetType::OctetType()
  * Description...: copy constructor
  ************************************************************/
 
-OctetType::OctetType(const OctetType& old)
-	:	IntegralType(old)
-	{
-	}
+OctetType::OctetType(const OctetType &old)
+    :   IntegralType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const OctetType&);
@@ -82,14 +82,16 @@ OctetType::OctetType(const OctetType& old)
  * Description...: copy constructor
  ************************************************************/
 
-OctetType& OctetType::operator=(const OctetType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+OctetType &OctetType::operator=(const OctetType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~OctetType();
@@ -104,55 +106,55 @@ OctetType::~OctetType()
 }
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Octet is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-OctetType::printCell( ostream& stream, const char* cell ) const
+void
+OctetType::printCell(ostream &stream, const char *cell) const
 {
-  // !!!! HP specific, assumes 1 Byte char
-  stream << std::setw(4) << static_cast<r_Long>(*const_cast<char*>(cell));
+    // !!!! HP specific, assumes 1 Byte char
+    stream << std::setw(4) << static_cast<r_Long>(*const_cast<char *>(cell));
 }
 
-r_Long*
-OctetType::convertToCLong(const char* cell, r_Long* value) const
+r_Long *
+OctetType::convertToCLong(const char *cell, r_Long *value) const
 {
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  *value = *const_cast<char*>(cell);
-  return value;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    *value = *const_cast<char *>(cell);
+    return value;
 }
 
 
-char* 
-OctetType::makeFromCLong(char* cell, const r_Long* value) const
+char *
+OctetType::makeFromCLong(char *cell, const r_Long *value) const
 {
-  r_Long myLong = *value;
-  // restricting long to value range of short
-  myLong = myLong > SCHAR_MAX ? SCHAR_MAX : myLong;
-  myLong = myLong < SCHAR_MIN ? SCHAR_MIN : myLong;
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  *static_cast<char*>(cell) = static_cast<char>(myLong);
-  return cell;
+    r_Long myLong = *value;
+    // restricting long to value range of short
+    myLong = myLong > SCHAR_MAX ? SCHAR_MAX : myLong;
+    myLong = myLong < SCHAR_MIN ? SCHAR_MIN : myLong;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    *static_cast<char *>(cell) = static_cast<char>(myLong);
+    return cell;
 }
 
 void
 OctetType::readFromDb()
-	{
-	setName(OctetType::Name);
-	size = 1;
-	myType = OCTET;
-	myOId = OId(OCTET, OId::ATOMICTYPEOID);
-	}
+{
+    setName(OctetType::Name);
+    size = 1;
+    myType = OCTET;
+    myOId = OId(OCTET, OId::ATOMICTYPEOID);
+}
 

@@ -60,7 +60,7 @@ template class r_Set<r_Ref<r_Object>>;
 #include <iostream>
 #include<fstream>
 // Initially there is no transaction active.
-r_Transaction* r_Transaction::actual_transaction = 0;
+r_Transaction *r_Transaction::actual_transaction = 0;
 
 
 r_Transaction::r_Transaction(r_Database *db)
@@ -84,7 +84,9 @@ void
 r_Transaction::begin(r_Transaction::r_TAMode mode)
 {
     if (!this->database)
+    {
         this->database = r_Database::actual_database;
+    }
 
     // check if no other transaction is running
     if (ta_state != inactive)
@@ -198,7 +200,7 @@ r_Transaction::commit()
         // Commit list of non-r_Object references.
         //
 
-        r_Iterator<GenRefElement*> iter2 = non_object_list.create_iterator();
+        r_Iterator<GenRefElement *> iter2 = non_object_list.create_iterator();
 
         for (iter2.reset(); iter2.not_done(); iter2++)
         {
@@ -208,27 +210,27 @@ r_Transaction::commit()
             {
             case POINT:
                 LDEBUG << "transient Point DELETED";
-                delete(static_cast<r_Point*>((*iter2)->ref));
+                delete (static_cast<r_Point *>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
                 LDEBUG << "transient Sinterval DELETED";
-                delete(static_cast<r_Sinterval*>((*iter2)->ref));
+                delete (static_cast<r_Sinterval *>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
                 LDEBUG << "transient Minterval DELETED";
-                delete(static_cast<r_Minterval*>((*iter2)->ref));
+                delete (static_cast<r_Minterval *>((*iter2)->ref));
                 break;
 
             case OID:
                 LDEBUG << "transient OId DELETED";
-                delete(static_cast<r_OId*>((*iter2)->ref));
+                delete (static_cast<r_OId *>((*iter2)->ref));
                 break;
 
             default:
                 LDEBUG << "transient Scalar DELETED";
-                delete(static_cast<r_Scalar*>((*iter2)->ref));
+                delete (static_cast<r_Scalar *>((*iter2)->ref));
                 break;
             }
 
@@ -290,7 +292,7 @@ r_Transaction::abort()
         // Abort list of non-r_Object references.
         //
 
-        r_Iterator<GenRefElement*> iter2 = non_object_list.create_iterator();
+        r_Iterator<GenRefElement *> iter2 = non_object_list.create_iterator();
 
         for (iter2.reset(); iter2.not_done(); iter2++)
         {
@@ -298,27 +300,27 @@ r_Transaction::abort()
             {
             case POINT:
                 LDEBUG << "  Transient Point DELETED";
-                delete(static_cast<r_Point*>((*iter2)->ref));
+                delete (static_cast<r_Point *>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
                 LDEBUG << "  Transient Sinterval DELETED";
-                delete(static_cast<r_Sinterval*>((*iter2)->ref));
+                delete (static_cast<r_Sinterval *>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
                 LDEBUG << "  Transient Minterval DELETED";
-                delete(static_cast<r_Minterval*>((*iter2)->ref));
+                delete (static_cast<r_Minterval *>((*iter2)->ref));
                 break;
 
             case OID:
                 LDEBUG << "  Transient OId DELETED";
-                delete(static_cast<r_OId*>((*iter2)->ref));
+                delete (static_cast<r_OId *>((*iter2)->ref));
                 break;
 
             default:
                 LDEBUG << "  Transient Scalar DELETED";
-                delete(static_cast<r_Scalar*>((*iter2)->ref));
+                delete (static_cast<r_Scalar *>((*iter2)->ref));
                 break;
             }
 
@@ -337,7 +339,7 @@ r_Transaction::abort()
         else
         {
             LDEBUG << "Database was already closed. Please abort every transaction before closing the database. "
-                      "Please also check for any try/catches with a close database but without transaction abort.";
+                   "Please also check for any try/catches with a close database but without transaction abort.";
         }
 
         ta_state = inactive;
@@ -351,7 +353,7 @@ r_Transaction::abort()
 
 
 r_Ref_Any
-r_Transaction::load_object(const r_OId& oid)
+r_Transaction::load_object(const r_OId &oid)
 {
     // check, if object is already loaded
     unsigned int found = 0;
@@ -384,7 +386,7 @@ r_Transaction::load_object(const r_OId& oid)
 
 
 void
-r_Transaction::add_object_list(const r_Ref<r_Object>& obj)
+r_Transaction::add_object_list(const r_Ref<r_Object> &obj)
 {
     object_list.insert_element(obj);
 }
@@ -392,9 +394,9 @@ r_Transaction::add_object_list(const r_Ref<r_Object>& obj)
 
 
 void
-r_Transaction::add_object_list(GenRefType type, void* ref)
+r_Transaction::add_object_list(GenRefType type, void *ref)
 {
-    GenRefElement* element = new GenRefElement;
+    GenRefElement *element = new GenRefElement;
 
     element->type = type;
     element->ref  = ref;
@@ -404,13 +406,13 @@ r_Transaction::add_object_list(GenRefType type, void* ref)
 
 
 void
-r_Transaction::setDatabase(r_Database* database)
+r_Transaction::setDatabase(r_Database *database)
 {
     this->database = database;
 }
 
 
-r_Database*
+r_Database *
 r_Transaction::getDatabase()
 {
     return database != NULL ? database : r_Database::actual_database;

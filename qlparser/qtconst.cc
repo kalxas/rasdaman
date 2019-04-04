@@ -58,7 +58,7 @@ using namespace std;
 const QtNode::QtNodeType QtConst::nodeType = QtNode::QT_CONST;
 
 
-QtConst::QtConst(QtData* newDataObj)
+QtConst::QtConst(QtData *newDataObj)
     :  QtOperation(),
        dataObj(newDataObj)
 {
@@ -79,13 +79,13 @@ QtConst::~QtConst()
 
 
 bool
-QtConst::equalMeaning(QtNode* node)
+QtConst::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
-        QtConst* constObj = static_cast<QtConst*>(node);
+        QtConst *constObj = static_cast<QtConst *>(node);
 
         result = dataObj->equal(constObj->getDataObj());
     }
@@ -121,7 +121,7 @@ QtConst::getAreaType()
 
 
 void
-QtConst::optimizeLoad(QtTrimList* trimList)
+QtConst::optimizeLoad(QtTrimList *trimList)
 {
     if (trimList)
     {
@@ -148,11 +148,11 @@ QtConst::optimizeLoad(QtTrimList* trimList)
                     loadDomain[(*i)->dimension]    = (*i)->interval;
                 }
 
-                (static_cast<QtMDD*>(dataObj))->setLoadDomain(loadDomain);
+                (static_cast<QtMDD *>(dataObj))->setLoadDomain(loadDomain);
             }
 
             // release( trimList->begin(), trimList->end() );
-            vector<QtNode::QtTrimElement*>::iterator iter;
+            vector<QtNode::QtTrimElement *>::iterator iter;
             for (iter = trimList->begin(); iter != trimList->end(); iter++)
             {
                 delete *iter;
@@ -166,12 +166,12 @@ QtConst::optimizeLoad(QtTrimList* trimList)
 }
 
 
-QtData*
-QtConst::evaluate(QtDataList* /*inputList*/)
+QtData *
+QtConst::evaluate(QtDataList * /*inputList*/)
 {
     startTimer("QtConst");
 
-    QtData* returnValue = NULL;
+    QtData *returnValue = NULL;
 
     if (dataObj)
     {
@@ -187,7 +187,7 @@ QtConst::evaluate(QtDataList* /*inputList*/)
 
 
 void
-QtConst::printTree(int tab, ostream& s, QtChildType /*mode*/)
+QtConst::printTree(int tab, ostream &s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConst Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -211,11 +211,11 @@ QtConst::printTree(int tab, ostream& s, QtChildType /*mode*/)
 
 
 void
-QtConst::printAlgebraicExpression(ostream& s)
+QtConst::printAlgebraicExpression(ostream &s)
 {
     if (dataObj->isScalarData())
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(dataObj);
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(dataObj);
 
         if (scalarDataObj->getValueType())
         {
@@ -229,7 +229,7 @@ QtConst::printAlgebraicExpression(ostream& s)
 
             valueStream << ends;
 
-            char* p = valueString;
+            char *p = valueString;
             while (*p == ' ')
             {
                 p++;
@@ -244,7 +244,7 @@ QtConst::printAlgebraicExpression(ostream& s)
     }
     else if (dataObj->getDataType() == QT_STRING)
     {
-        s << (static_cast<QtStringData*>(dataObj))->getStringData().c_str();
+        s << (static_cast<QtStringData *>(dataObj))->getStringData().c_str();
     }
     else
     {
@@ -254,8 +254,8 @@ QtConst::printAlgebraicExpression(ostream& s)
 
 
 
-const QtTypeElement&
-QtConst::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtConst::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -273,13 +273,13 @@ QtConst::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
             dataStreamType.setDataType(dataObj->getDataType());
             break;
         case QT_MDD:
-            if ((static_cast<QtMDD*>(dataObj))->getMDDObject())
+            if ((static_cast<QtMDD *>(dataObj))->getMDDObject())
             {
-                dataStreamType.setType(static_cast<Type*>(const_cast<MDDBaseType*>((static_cast<QtMDD*>(dataObj))->getMDDObject()->getMDDBaseType())));
+                dataStreamType.setType(static_cast<Type *>(const_cast<MDDBaseType *>((static_cast<QtMDD *>(dataObj))->getMDDObject()->getMDDBaseType())));
             }
             break;
         default:
-            dataStreamType.setType((static_cast<QtScalarData*>(dataObj))->getValueType());
+            dataStreamType.setType((static_cast<QtScalarData *>(dataObj))->getValueType());
         }
     }
 

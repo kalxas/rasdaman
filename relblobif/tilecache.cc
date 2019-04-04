@@ -44,10 +44,10 @@ void TileCache::insert(KeyType key, ValueType value)
         return;
     }
 
-    CacheValue* tileToCache = value;
+    CacheValue *tileToCache = value;
     if (contains(key))
     {
-        CacheValue* tile = cache[key];
+        CacheValue *tile = cache[key];
         if (tile == NULL)
         {
             LERROR << "Error: cached NULL value!";
@@ -84,7 +84,7 @@ void TileCache::insert(KeyType key, ValueType value)
 
 ValueType TileCache::get(KeyType key)
 {
-    CacheValue* ret = NULL;
+    CacheValue *ret = NULL;
     if (contains(key))
     {
         ret = cache[key];
@@ -109,7 +109,7 @@ bool TileCache::contains(KeyType key)
 
 ValueType TileCache::remove(KeyType key)
 {
-    CacheValue* ret = NULL;
+    CacheValue *ret = NULL;
     if (contains(key))
     {
         ret = cache[key];
@@ -130,7 +130,7 @@ ValueType TileCache::remove(KeyType key)
 
 void TileCache::removeKey(KeyType key)
 {
-    CacheValue* ret = NULL;
+    CacheValue *ret = NULL;
     if (contains(key))
     {
         ret = cache[key];
@@ -151,13 +151,15 @@ void TileCache::removeKey(KeyType key)
 void TileCache::clear()
 {
     if (cacheLimit <= 0)
+    {
         return;
+    }
 
     typedef CacheType::iterator it_type;
     for (it_type it = cache.begin(); it != cache.end(); it++)
     {
         LDEBUG << "TileCache::clear() - removing key " << it->first;
-        CacheValue* value = it->second;
+        CacheValue *value = it->second;
         BLOBTile::writeCachedToDb(value);
     }
     cache.clear();
@@ -177,7 +179,7 @@ void TileCache::readjustCache()
             CacheLRU::reverse_iterator it;
             for (it = lru.rbegin(); it != lru.rend(); it++)
             {
-                CacheValue* value = *it;
+                CacheValue *value = *it;
                 if (value->getReferencingTiles().empty())
                 {
                     remove(value->getOId().getCounter());
@@ -217,27 +219,27 @@ void TileCache::removeValue(ValueType value)
     }
 }
 
-void TileCache::insert(OId& key, ValueType value)
+void TileCache::insert(OId &key, ValueType value)
 {
     insert(OID_KEY(key), value);
 }
 
-ValueType TileCache::get(OId& key)
+ValueType TileCache::get(OId &key)
 {
     return get(OID_KEY(key));
 }
 
-bool TileCache::contains(OId& key)
+bool TileCache::contains(OId &key)
 {
     return contains(OID_KEY(key));
 }
 
-ValueType TileCache::remove(OId& key)
+ValueType TileCache::remove(OId &key)
 {
     return remove(OID_KEY(key));
 }
 
-void TileCache::removeKey(OId& key)
+void TileCache::removeKey(OId &key)
 {
     removeKey(OID_KEY(key));
 }

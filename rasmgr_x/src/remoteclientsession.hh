@@ -33,7 +33,7 @@ namespace rasmgr
 class RemoteClientSession
 {
 public:
-    RemoteClientSession(const std::string& clientSessionId, const std::string& dbSessionId);
+    RemoteClientSession(const std::string &clientSessionId, const std::string &dbSessionId);
 
     std::string getClientSessionId() const;
 

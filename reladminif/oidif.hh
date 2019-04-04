@@ -111,7 +111,7 @@ public:
     is used to calculate the actual id and type from a given double
     */
 
-    static void allocateOId(OId& id, OIdType type, OIdCounter howMany = 1);
+    static void allocateOId(OId &id, OIdType type, OIdCounter howMany = 1);
     /*@Doc:
     allocates a OId for an object of the specified type or a whole bunch of them.
     */
@@ -132,7 +132,7 @@ public:
     Returns type of the object with this OId.
     */
 
-    OId(const OId& oldOId);
+    OId(const OId &oldOId);
     /*@Doc:
     Copy constructor
     */
@@ -157,7 +157,7 @@ public:
     returns the counter part of the oid.
     */
 
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
     /*@Doc:
     prints a long long
     */
@@ -168,26 +168,26 @@ public:
     oid * OId::ID_MULTIPLIER + oidtype;
     */
 
-    static const char* counterNames[];
+    static const char *counterNames[];
     /*@Doc:
     holds the names of the counters in RAS_ADMIN, to go with counterIds
     */
 
     static unsigned int maxCounter;
 
-    OId& operator=(const OId& old);
+    OId &operator=(const OId &old);
 
-    bool operator== (const OId& one) const;
+    bool operator== (const OId &one) const;
 
-    bool operator!= (const OId& one) const;
+    bool operator!= (const OId &one) const;
 
-    bool operator< (const OId& old) const;
+    bool operator< (const OId &old) const;
 
-    bool operator> (const OId& old) const;
+    bool operator> (const OId &old) const;
 
-    bool operator<= (const OId& old) const;
+    bool operator<= (const OId &old) const;
 
-    bool operator>= (const OId& old) const;
+    bool operator>= (const OId &old) const;
 
 #ifdef RMANBENCHMARK
     static RMTimer oidAlloc;
@@ -308,18 +308,18 @@ protected:
     counter which holds the next oid
     */
 
-    static OIdCounter* counterIds[];
+    static OIdCounter *counterIds[];
     /*@Doc:
     holds all OIdCounters of next* sort, to go with the counterNames.
     */
 };
 
-extern std::ostream& operator<<(std::ostream& in, const OId& d);
+extern std::ostream &operator<<(std::ostream &in, const OId &d);
 
-extern std::ostream& operator<<(std::ostream& in, OId::OIdType d);
+extern std::ostream &operator<<(std::ostream &in, OId::OIdType d);
 
-extern bool operator== (const OId::OIdPrimitive one, const OId& two);
+extern bool operator== (const OId::OIdPrimitive one, const OId &two);
 
-extern bool operator== (const OId& two, const OId::OIdPrimitive one);
+extern bool operator== (const OId &two, const OId::OIdPrimitive one);
 
 #endif

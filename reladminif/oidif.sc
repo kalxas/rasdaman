@@ -53,7 +53,10 @@ OId::initialize()
         while (query.nextRow() && i < OId::maxCounter)
         {
             *counterIds[i] = query.nextColumnLong();
-            if (i != 1) BLDEBUG << ", ";
+            if (i != 1)
+            {
+                BLDEBUG << ", ";
+            }
             BLDEBUG << counterNames[i] << " = " << *counterIds[i];
             ++i;
         }

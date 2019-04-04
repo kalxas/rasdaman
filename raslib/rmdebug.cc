@@ -53,15 +53,15 @@ int RManBenchmark = 0;     // benchmark level (0-4)
 // initialization of static variables for RMDebug
 int    RMDebug::level = 0;
 int    RMDebug::numDebugModules = 0;
-char** RMDebug::debugModules = 0;
-char*  RMDebug::debugModulesText = 0;
-int*   RMDebug::transDebugModules = 0;
+char **RMDebug::debugModules = 0;
+char  *RMDebug::debugModulesText = 0;
+int   *RMDebug::transDebugModules = 0;
 int    RMDebug::numDebugClasses = 0;
-char** RMDebug::debugClasses = 0;
-char*  RMDebug::debugClassesText = 0;
+char **RMDebug::debugClasses = 0;
+char  *RMDebug::debugClassesText = 0;
 
 // all module names
-const char* RMDebug::allModuleNames[] =
+const char *RMDebug::allModuleNames[] =
 {
     "adminif",
     "applications",
@@ -99,8 +99,8 @@ int RMDebug::allModuleLevels[RMDebug::module_number];
 struct timezone RMTimer::dummy;
 #endif
 
-RMDebug::RMDebug(const char* newClass, const char* newFunc, const char* newModule,
-                 const char* newFile, int newLine)
+RMDebug::RMDebug(const char *newClass, const char *newFunc, const char *newModule,
+                 const char *newFile, int newLine)
     : myClass(newClass), myFunc(newFunc), myModule(newModule),
       myFile(newFile), myLine(newLine), myModuleNum(-1), myDebugLevel(2)
 {
@@ -131,8 +131,8 @@ RMDebug::RMDebug(const char* newClass, const char* newFunc, const char* newModul
     }
 }
 
-RMDebug::RMDebug(int newLevel, const char* newClass, const char* newFunc, int newModuleNum,
-                 const char* newFile, int newLine)
+RMDebug::RMDebug(int newLevel, const char *newClass, const char *newFunc, int newModuleNum,
+                 const char *newFile, int newLine)
     : myClass(newClass), myFunc(newFunc), myModule(NULL), myFile(newFile),
       myLine(newLine), myModuleNum(newModuleNum), myDebugLevel(newLevel)
 {
@@ -163,15 +163,15 @@ RMDebug::~RMDebug(void)
     }
 }
 
-char*
-RMDebug::loadTextFile(const char* name)
+char *
+RMDebug::loadTextFile(const char *name)
 {
 
     std::ifstream f;
     f.open(name);
     if (f.is_open())
     {
-        char* result;
+        char *result;
         f.seekg(0, std::ios::end);
         std::streampos end = f.tellg();
         size_t resLen = static_cast<size_t>(end) + 1;
@@ -192,8 +192,8 @@ RMDebug::initRMDebug(void)
     int errmod = 0;
     int errclass = 0;
     int j;
-    const char* enVar;
-    char* myPtr;
+    const char *enVar;
+    char *myPtr;
 
     // init all debug levels to global debug level
     for (j = 0; j < module_number; j++)
@@ -244,7 +244,7 @@ RMDebug::initRMDebug(void)
                 }
             }
         }
-        debugModules = new char* [numDebugModules];
+        debugModules = new char *[numDebugModules];
         transDebugModules = new int[numDebugModules];
         // read text
         j = 0;
@@ -264,7 +264,7 @@ RMDebug::initRMDebug(void)
                 {
                     if (*myPtr == ',')
                     {
-                        char* rest;
+                        char *rest;
                         *myPtr++ = '\0';
                         modLevel = strtol(myPtr, &rest, 10);
                         if (rest == myPtr)
@@ -346,7 +346,7 @@ RMDebug::initRMDebug(void)
                 }
             }
         }
-        debugClasses = new char* [numDebugClasses];
+        debugClasses = new char *[numDebugClasses];
         // read text
         j = 0;
         myPtr = debugClassesText;
@@ -441,7 +441,7 @@ RMDebug::checkDebug(void)
 }
 
 int
-RMDebug::debugOutput(int dbgLevel, int modNum, const char* className)
+RMDebug::debugOutput(int dbgLevel, int modNum, const char *className)
 {
     int retval = 0;
     if ((numDebugModules == 0) && (numDebugClasses == 0))
@@ -484,7 +484,7 @@ RMDebug::debugOutput(int dbgLevel, int modNum, const char* className)
     return retval;
 }
 
-RMCounter::RMCounter(int levell, int module, const char* cls)
+RMCounter::RMCounter(int levell, int module, const char *cls)
     :   doStuff(false)
 {
     if (RMDebug::debugOutput(levell, module, cls))

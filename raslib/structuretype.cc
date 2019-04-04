@@ -44,9 +44,9 @@ r_Structure_Type::r_Structure_Type()
 {
 }
 
-r_Structure_Type::r_Structure_Type(const char* newTypeName,
+r_Structure_Type::r_Structure_Type(const char *newTypeName,
                                    unsigned int newNumAttrs,
-                                   r_Attribute* newAttrs, int offset)
+                                   r_Attribute *newAttrs, int offset)
     : r_Base_Type(newTypeName, 0),
       numAttrs(newNumAttrs),
       myAttributes(new r_Attribute[newNumAttrs])
@@ -60,7 +60,7 @@ r_Structure_Type::r_Structure_Type(const char* newTypeName,
     }
 }
 
-r_Structure_Type::r_Structure_Type(const r_Structure_Type& oldObj)
+r_Structure_Type::r_Structure_Type(const r_Structure_Type &oldObj)
     : r_Base_Type(oldObj), numAttrs(oldObj.numAttrs), myAttributes(NULL)
 {
 
@@ -74,8 +74,8 @@ r_Structure_Type::r_Structure_Type(const r_Structure_Type& oldObj)
     }
 }
 
-const r_Structure_Type&
-r_Structure_Type::operator=(const r_Structure_Type& oldObj)
+const r_Structure_Type &
+r_Structure_Type::operator=(const r_Structure_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -111,7 +111,7 @@ r_Structure_Type::~r_Structure_Type()
     }
 }
 
-r_Type*
+r_Type *
 r_Structure_Type::clone() const
 {
     return new r_Structure_Type(*this);
@@ -131,7 +131,7 @@ r_Structure_Type::isStructType() const
 }
 
 bool
-r_Structure_Type::compatibleWith(const r_Structure_Type* myType) const
+r_Structure_Type::compatibleWith(const r_Structure_Type *myType) const
 {
     if (myType == NULL)
     {
@@ -174,7 +174,7 @@ r_Structure_Type::defines_attribute_end() const
 }
 
 r_Attribute
-r_Structure_Type::resolve_attribute(const char* newName) const
+r_Structure_Type::resolve_attribute(const char *newName) const
 {
     r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
 
@@ -226,7 +226,7 @@ r_Structure_Type::count_elements() const
 }
 
 void
-r_Structure_Type::convertToLittleEndian(char* cells, r_Area noCells) const
+r_Structure_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 {
     r_Area i = 0;
     unsigned int j = 0;
@@ -242,7 +242,7 @@ r_Structure_Type::convertToLittleEndian(char* cells, r_Area noCells) const
 }
 
 void
-r_Structure_Type::convertToBigEndian(char* cells, r_Area noCells) const
+r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
 {
     r_Area i = 0;
     unsigned int j = 0;
@@ -258,7 +258,7 @@ r_Structure_Type::convertToBigEndian(char* cells, r_Area noCells) const
 }
 
 void
-r_Structure_Type::print_status(std::ostream& s) const
+r_Structure_Type::print_status(std::ostream &s) const
 {
     r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
 
@@ -280,7 +280,7 @@ r_Structure_Type::print_status(std::ostream& s) const
 }
 
 void
-r_Structure_Type::print_value(const char* storage,  std::ostream& s) const
+r_Structure_Type::print_value(const char *storage,  std::ostream &s) const
 {
     s << "{ ";
 
@@ -301,7 +301,7 @@ r_Structure_Type::print_value(const char* storage,  std::ostream& s) const
 }
 
 
-std::ostream& operator<<(std::ostream& str, const r_Structure_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Structure_Type &type)
 {
     type.print_status(str);
     return str;

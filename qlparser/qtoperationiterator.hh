@@ -60,48 +60,48 @@ public:
     QtOperationIterator();
 
     /// constructor getting a pointer to the parent
-    QtOperationIterator(QtNode* node);
+    QtOperationIterator(QtNode *node);
 
     /// virtual destructor
     virtual ~QtOperationIterator();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// method for query rewrite
-    inline virtual void setInput(QtOperation* child, QtOperation* input);
+    inline virtual void setInput(QtOperation *child, QtOperation *input);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: Read/Write methods:
     //@{
     ///
     //inline virtual void setParents();
     ///
-    inline void setOperationTree(QtOperation* operation);
+    inline void setOperationTree(QtOperation *operation);
     ///
-    inline QtNode::QtOperationList* getOperationTreeList();
+    inline QtNode::QtOperationList *getOperationTreeList();
     //@}
 
     //@Man: Operations of the ONC protocol:
     //@{
     ///
-    QtDataList* next();
+    QtDataList *next();
     //@}
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking
-    virtual const QtTypeTuple& checkType();
+    virtual const QtTypeTuple &checkType();
 
 private:
     /// operation trees
-    QtOperationList* operationTreeList;
+    QtOperationList *operationTreeList;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

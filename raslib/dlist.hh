@@ -27,10 +27,10 @@ rasdaman GmbH.
 #include <vector>
 
 template <class T>
-std::ostream& operator<< (std::ostream& os, const std::vector<T>& list);
+std::ostream &operator<< (std::ostream &os, const std::vector<T> &list);
 
 template <class T>
-std::ostream& operator<< (const std::vector<T>& list, std::ostream& os);
+std::ostream &operator<< (const std::vector<T> &list, std::ostream &os);
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

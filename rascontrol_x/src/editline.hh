@@ -37,11 +37,11 @@ public:
     EditLine();
     ~EditLine();
 
-    const char* interactiveCommand(const char* prompt);
-    const char* fromStdinCommand(const char* prompt);
+    const char *interactiveCommand(const char *prompt);
+    const char *fromStdinCommand(const char *prompt);
 
 private:
-    char* rl_gets(const char* prompt);
+    char *rl_gets(const char *prompt);
     char line[MAXMSG];
 };
 }

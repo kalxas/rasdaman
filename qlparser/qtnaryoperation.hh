@@ -56,10 +56,10 @@ public:
     QtNaryOperation();
 
     /// constructor getting the node to the parent
-    QtNaryOperation(QtNode* node);
+    QtNaryOperation(QtNode *node);
 
     /// constructor getting a list of operands
-    QtNaryOperation(QtOperationList* opList);
+    QtNaryOperation(QtOperationList *opList);
 
 
     /// virtual destructor
@@ -69,50 +69,50 @@ public:
     virtual void simplify();
 
     /// test if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
     /**
       The meaning of a binary operation is equal, iff all operands have
       the same meaning.
     */
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// creates a unique name for a subexpression
     virtual std::string getSpelling();
 
     /// method for query rewrite
-    virtual void setInput(QtOperation*, QtOperation* inputNew);
+    virtual void setInput(QtOperation *, QtOperation *inputNew);
 
     /// tests if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
     /**
       The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
       message with empty triming lists to its input trees.
     */
 
     /// debugging method
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: read/write methods for the operands
     //@{
     ///
     ///
-    inline void                     setInputs(QtOperationList* opList);
+    inline void                     setInputs(QtOperationList *opList);
     ///
-    inline QtNode::QtOperationList* getInputs();
+    inline QtNode::QtOperationList *getInputs();
     ///
     //@}
 
 protected:
     /// method for testing and evaluating the input branches
-    bool getOperands(QtDataList* inputList, QtDataList*& operandList);
+    bool getOperands(QtDataList *inputList, QtDataList *&operandList);
 
     /**
       The method checks if the input branches are valid. Then it passes the evaluate message to its two
@@ -122,7 +122,7 @@ protected:
     */
 
     /// operation trees
-    QtOperationList* operationList;
+    QtOperationList *operationList;
 
 
 private:

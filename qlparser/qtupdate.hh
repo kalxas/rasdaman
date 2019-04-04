@@ -47,44 +47,44 @@ class QtUpdate : public QtExecute
 {
 public:
     /// constructor getting target, domain, and source expressions of the update
-    QtUpdate(QtOperation* initUpdateTarget, QtOperation* initUpdateDomain, QtOperation* initUpdateSource);
+    QtUpdate(QtOperation *initUpdateTarget, QtOperation *initUpdateDomain, QtOperation *initUpdateSource);
 
     /// virtual destructor
     virtual ~QtUpdate();
 
     /// method for evaluating the node
-    virtual QtData* evaluate();
+    virtual QtData *evaluate();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: Read/Write methods:
     //@{
     ///
     ///
-    void setStreamInput(QtONCStream* newInput);
+    void setStreamInput(QtONCStream *newInput);
     ///
     /// returns updateTarget
-    QtOperation* getUpdateTarget();
+    QtOperation *getUpdateTarget();
     /// returns updateDomain
-    QtOperation* getUpdateDomain();
+    QtOperation *getUpdateDomain();
     ///returns updateSource
-    QtOperation* getUpdateSource();
+    QtOperation *getUpdateSource();
     ///returns input
-    QtONCStream* getInput();
+    QtONCStream *getInput();
     //@}
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// method for query rewrite
-    inline virtual void setInput(QtOperation* child, QtOperation* input);
+    inline virtual void setInput(QtOperation *child, QtOperation *input);
 
 
     /// type checking
@@ -92,31 +92,31 @@ public:
 
 private:
     /// evaluate one tuple of the input stream
-    void evaluateTuple(QtNode::QtDataList* nextTuple);
+    void evaluateTuple(QtNode::QtDataList *nextTuple);
 
     /// check validity of operands
-    bool checkOperands(QtNode::QtDataList* nextTuple, QtData* target, QtData* source);
+    bool checkOperands(QtNode::QtDataList *nextTuple, QtData *target, QtData *source);
 
     /// test for update domain compatibility
-    void checkDomainCompatibility(QtNode::QtDataList* nextTuple, QtData* target,
-                                  QtData* source, QtData* domainData,
-                                  QtMDD* targetMDD, QtMDD* sourceMDD);
+    void checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target,
+                                  QtData *source, QtData *domainData,
+                                  QtMDD *targetMDD, QtMDD *sourceMDD);
 
     /// generic method to handle errors
-    void throwError(QtNode::QtDataList* nextTuple, QtData* target,
-                    QtData* source, int errorNumber, QtData* domainData = NULL);
+    void throwError(QtNode::QtDataList *nextTuple, QtData *target,
+                    QtData *source, int errorNumber, QtData *domainData = NULL);
 
     /// one input stream
-    QtONCStream* input;
+    QtONCStream *input;
 
     /// target expression
-    QtOperation* updateTarget;
+    QtOperation *updateTarget;
 
     /// target domain expression
-    QtOperation* updateDomain;
+    QtOperation *updateDomain;
 
     /// target expression
-    QtOperation* updateSource;
+    QtOperation *updateSource;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

@@ -44,12 +44,12 @@ class OpABSCDouble : public UnaryOp
 {
 public:
     OpABSCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -66,12 +66,12 @@ class OpSQRTCDouble : public UnaryOp
 {
 public:
     OpSQRTCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -88,12 +88,12 @@ class OpPOWCDouble : public UnaryOp
 {
 public:
     OpPOWCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
     void setExponent(double exponent);
 private:
     double exponent;
@@ -113,12 +113,12 @@ class OpEXPCDouble : public UnaryOp
 {
 public:
     OpEXPCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -135,12 +135,12 @@ class OpLOGCDouble : public UnaryOp
 {
 public:
     OpLOGCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -157,12 +157,12 @@ class OpLNCDouble : public UnaryOp
 {
 public:
     OpLNCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -179,12 +179,12 @@ class OpSINCDouble : public UnaryOp
 {
 public:
     OpSINCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -201,12 +201,12 @@ class OpCOSCDouble : public UnaryOp
 {
 public:
     OpCOSCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -223,12 +223,12 @@ class OpTANCDouble : public UnaryOp
 {
 public:
     OpTANCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -245,12 +245,12 @@ class OpSINHCDouble : public UnaryOp
 {
 public:
     OpSINHCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -267,12 +267,12 @@ class OpCOSHCDouble : public UnaryOp
 {
 public:
     OpCOSHCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -289,12 +289,12 @@ class OpTANHCDouble : public UnaryOp
 {
 public:
     OpTANHCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -311,12 +311,12 @@ class OpARCSINCDouble : public UnaryOp
 {
 public:
     OpARCSINCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -333,12 +333,12 @@ class OpARCCOSCDouble : public UnaryOp
 {
 public:
     OpARCCOSCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 
 //@ManMemo: Module: {\bf catalogmgr}
@@ -355,11 +355,11 @@ class OpARCTANCDouble : public UnaryOp
 {
 public:
     OpARCTANCDouble(
-        const BaseType* newResType,
-        const BaseType* newOpType,
+        const BaseType *newResType,
+        const BaseType *newOpType,
         unsigned int newResOff = 0,
         unsigned int newOpOff = 0
     );
-    virtual void operator()(char* result, const char* op);
+    virtual void operator()(char *result, const char *op);
 };
 

@@ -82,40 +82,40 @@ This class has to be changed to reflect this aability.
 */
 
 //function pointer to the static function which inserts objects
-typedef bool (*IxLogic_insertObject)(IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
+typedef bool (*IxLogic_insertObject)(IndexDS *theIx, const KeyObject &theObj, const StorageLayout &sl);
 
 //function pointer to the static function which removes objects
-typedef bool (*IxLogic_removeObject)(IndexDS* theIx, const KeyObject& theObj, const StorageLayout& sl);
+typedef bool (*IxLogic_removeObject)(IndexDS *theIx, const KeyObject &theObj, const StorageLayout &sl);
 
 //function pointer to the static function which gets objects from the index
-typedef void (*IxLogic_intersect)(const IndexDS* theIx, const r_Minterval& searchInterval, KeyObjectVector& objs, const StorageLayout& sl);
+typedef void (*IxLogic_intersect)(const IndexDS *theIx, const r_Minterval &searchInterval, KeyObjectVector &objs, const StorageLayout &sl);
 
 //function pointer to the static function which gets object at point
-typedef void (*IxLogic_containPointQuery)(const IndexDS* theIx, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl);
+typedef void (*IxLogic_containPointQuery)(const IndexDS *theIx, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
 
 //function pointer to the static function which inserts objects
-typedef void (*IxLogic_getObjects)(const IndexDS* theIx, KeyObjectVector& objs, const StorageLayout& sl);
+typedef void (*IxLogic_getObjects)(const IndexDS *theIx, KeyObjectVector &objs, const StorageLayout &sl);
 
 class MDDObjIx
 {
 public:
 
-    MDDObjIx(const StorageLayout& sl, const r_Minterval& dom);
+    MDDObjIx(const StorageLayout &sl, const r_Minterval &dom);
     /*@Doc:
         Initialize a transient index.
     */
 
-    MDDObjIx(const StorageLayout& sl, const r_Minterval& dom, const BaseType* bt, bool persistent = true);
+    MDDObjIx(const StorageLayout &sl, const r_Minterval &dom, const BaseType *bt, bool persistent = true);
     /*@Doc:
         When persistent is false this index will behave as if it were a transient index.
     */
 
-    MDDObjIx(DBObjectId newDBIx, const StorageLayout& sl, const BaseType* bt);
+    MDDObjIx(DBObjectId newDBIx, const StorageLayout &sl, const BaseType *bt);
     /*@Doc:
         When bt is NULL this index will behave as if it were a transient index.
     */
 
-    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
     ~MDDObjIx();
 
@@ -129,15 +129,15 @@ public:
 
     bool removeTile(boost::shared_ptr<Tile> tile);
 
-    std::vector<boost::shared_ptr<Tile>>* intersect(const r_Minterval&) const;
+    std::vector<boost::shared_ptr<Tile>> *intersect(const r_Minterval &) const;
 
-    char* pointQuery(const r_Point& searchPoint);
+    char *pointQuery(const r_Point &searchPoint);
 
-    const char* pointQuery(const r_Point& searchPoint) const;
+    const char *pointQuery(const r_Point &searchPoint) const;
 
-    boost::shared_ptr<Tile> containPointQuery(const r_Point& searchPoint) const;
+    boost::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
 
-    std::vector<boost::shared_ptr<Tile>>* getTiles() const;
+    std::vector<boost::shared_ptr<Tile>> *getTiles() const;
 
     bool isPersistent() const;
 
@@ -150,7 +150,7 @@ public:
 
 protected:
 
-    void setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<boost::shared_ptr<Tile>>* newLastTiles);
+    void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<boost::shared_ptr<Tile>> *newLastTiles);
 
     void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);
     /*@Doc:
@@ -160,9 +160,9 @@ protected:
             release all tiles
     */
 
-    std::vector<boost::shared_ptr<Tile>>* lastAccessIntersect(const r_Minterval& searchInter) const;
+    std::vector<boost::shared_ptr<Tile>> *lastAccessIntersect(const r_Minterval &searchInter) const;
 
-    boost::shared_ptr<Tile> lastAccessPointQuery(const r_Point& searchPoint) const;
+    boost::shared_ptr<Tile> lastAccessPointQuery(const r_Point &searchPoint) const;
 
     bool removeTileFromLastAccesses(boost::shared_ptr<Tile> tileToRemove);
     /*@Doc:
@@ -213,7 +213,7 @@ protected:
         a point.
     */
 
-    const BaseType* cellBaseType;
+    const BaseType *cellBaseType;
     /*@Doc:
         This is needed because the PersTile constructor expects a BaseType.
         It Should be considered to move the creation of PersTiles into the
@@ -221,7 +221,7 @@ protected:
     */
 
 
-    IndexDS* actualIx;
+    IndexDS *actualIx;
     /*@Doc:
         The real index structure
     */
@@ -258,9 +258,9 @@ protected:
         This code was commented out because it crashed
     */
 
-    RMTimer* pointQueryTimer;
-    RMTimer* intersectTimer;
-    RMTimer* getTilesTimer;
+    RMTimer *pointQueryTimer;
+    RMTimer *intersectTimer;
+    RMTimer *getTilesTimer;
 #endif
     void initializeLogicStructure();
     /**
@@ -275,7 +275,7 @@ protected:
         this attribute is used.
     */
 
-    const StorageLayout& myStorageLayout;
+    const StorageLayout &myStorageLayout;
     /*@Doc:
         Nifty object which holds information on how to store data in the database.
         It tells you which index to use, hos large a index might become and so on.

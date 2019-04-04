@@ -71,8 +71,8 @@ public:
     /// destructor
     ~r_Parse_Params(void);
     /// add parameters to the list
-    int add(const char* key, void* store, parse_param_type type);
-    int add(const std::string& key, void* store, parse_param_type type);
+    int add(const char *key, void *store, parse_param_type type);
+    int add(const std::string &key, void *store, parse_param_type type);
     /**
        Add a parameter to the list. key is the keyword, e.g. ``quality'', type
        is one of the available types and describes the data type of the parameter
@@ -84,8 +84,8 @@ public:
        the variable is NULL and if not doing a delete [] <var>.
      */
     /// process parameter string
-    int process(const char* str) const;
-    int process(const char* str, char separator, bool withWhiteSpaces) const;
+    int process(const char *str) const;
+    int process(const char *str, char separator, bool withWhiteSpaces) const;
     /**
        process the parameter string. Returns the number of keywords found
        or -1 for error.
@@ -124,13 +124,13 @@ protected:
     //@{
     typedef struct parse_params_s
     {
-        const char* key;
-        void* store;
+        const char *key;
+        void *store;
         parse_param_type type;
     } parse_params_t;
     //@}
 
-    parse_params_t* params;
+    parse_params_t *params;
     unsigned int maxnum;
     unsigned int number;
 
@@ -141,7 +141,7 @@ protected:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Parse_Params::parse_param_type}.
   */
-extern std::ostream& operator<<(std::ostream& s, const r_Parse_Params::parse_param_type& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Parse_Params::parse_param_type &d);
 
 
 #endif

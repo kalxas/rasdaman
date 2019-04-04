@@ -49,7 +49,7 @@ DBMinterval::DBMinterval()
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const OId& id)
+DBMinterval::DBMinterval(const OId &id)
     :   DBObject(id),
         r_Minterval()
 {
@@ -64,21 +64,21 @@ DBMinterval::DBMinterval(r_Dimension dim)
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const char* dom)
+DBMinterval::DBMinterval(const char *dom)
     :   DBObject(),
-        r_Minterval(const_cast<char*>(dom))
+        r_Minterval(const_cast<char *>(dom))
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const DBMinterval& old)
+DBMinterval::DBMinterval(const DBMinterval &old)
     :   DBObject(old),
         r_Minterval(old)
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
-DBMinterval::DBMinterval(const r_Minterval& old)
+DBMinterval::DBMinterval(const r_Minterval &old)
     :   DBObject(),
         r_Minterval(old)
 {
@@ -90,8 +90,8 @@ DBMinterval::~DBMinterval() noexcept(false)
     validate();
 }
 
-DBMinterval&
-DBMinterval::operator=(const DBMinterval& old)
+DBMinterval &
+DBMinterval::operator=(const DBMinterval &old)
 {
     if (this == &old)
     {
@@ -102,8 +102,8 @@ DBMinterval::operator=(const DBMinterval& old)
     return *this;
 }
 
-DBMinterval&
-DBMinterval::operator=(const r_Minterval& old)
+DBMinterval &
+DBMinterval::operator=(const r_Minterval &old)
 {
     if (this == &old)
     {

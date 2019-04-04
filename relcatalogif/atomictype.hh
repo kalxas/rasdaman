@@ -69,16 +69,16 @@ public:
     constructor.
     */
 
-    AtomicType(const AtomicType& old);
+    AtomicType(const AtomicType &old);
     /*@Doc:
     copy constructor.
     */
 
-    AtomicType(const OId& id);
+    AtomicType(const OId &id);
     /*@Doc:
     */
 
-    AtomicType& operator=(const AtomicType& old);
+    AtomicType &operator=(const AtomicType &old);
     /*@Doc:
     */
 
@@ -92,7 +92,7 @@ protected:
     size of one cell of this base type in number of chars.
     */
 
-    AtomicType(const char* name, unsigned int newSize);
+    AtomicType(const char *name, unsigned int newSize);
     /*@Doc:
     */
 };

@@ -49,7 +49,7 @@ class KeyObject
 public:
     KeyObject();
 
-    KeyObject(const KeyObject& old);
+    KeyObject(const KeyObject &old);
     /*@Doc:
         Copy constructor.  Copies the tile pointer.
     */
@@ -62,12 +62,12 @@ public:
         This will cause a crash because the domain is read from the tile which is NULL : )
     */
 
-    KeyObject(const DBObjectId& obj, const r_Minterval& dom);
+    KeyObject(const DBObjectId &obj, const r_Minterval &dom);
     /*@Doc:
         Constructs a new KeyObject for a persistent object.
     */
 
-    const DBObjectId& getObject() const;
+    const DBObjectId &getObject() const;
     /*@Doc:
         Returns a smartpointer to the persistent object attribute.
         If this is a transient object carrier the returned smart-
@@ -101,7 +101,7 @@ public:
         Returns true if the transobject attribute is NULL.
     */
 
-    void setDomain(const r_Minterval& dom);
+    void setDomain(const r_Minterval &dom);
     /*@Doc:
         Alters the domain the KeyObject carries.
     */
@@ -111,7 +111,7 @@ public:
         makes the KeyObject a transient carrier and copies the pointer.
     */
 
-    void setObject(const DBObjectId& obj);
+    void setObject(const DBObjectId &obj);
     /*@Doc:
         makes the KeyObject a persistent carrier and copies object.
     */
@@ -137,6 +137,6 @@ protected:
 /*@Doc:
     Prints the status of KeyObject object.
 */
-extern std::ostream& operator<<(std::ostream& in,  const KeyObject& d);
+extern std::ostream &operator<<(std::ostream &in,  const KeyObject &d);
 
 #endif

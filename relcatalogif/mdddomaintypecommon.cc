@@ -43,10 +43,10 @@ rasdaman GmbH.
 r_Bytes
 MDDDomainType::getMemorySize() const
 {
-    return MDDBaseType::getMemorySize() + sizeof(DBMinterval*) + myDomain->getMemorySize();
+    return MDDBaseType::getMemorySize() + sizeof(DBMinterval *) + myDomain->getMemorySize();
 }
 
-MDDDomainType::MDDDomainType(const OId& id)
+MDDDomainType::MDDDomainType(const OId &id)
     :   MDDBaseType(id),
         myDomain(0)
 {
@@ -58,7 +58,7 @@ MDDDomainType::MDDDomainType(const OId& id)
     LTRACE << "Domain\t:" << *myDomain;
 }
 
-MDDDomainType::MDDDomainType(const char* newTypeName, const BaseType* newBaseType, const r_Minterval& newDomain)
+MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseType, const r_Minterval &newDomain)
     :   MDDBaseType(newTypeName, newBaseType)
 {
     objecttype = OId::MDDDOMTYPEOID;
@@ -75,14 +75,14 @@ MDDDomainType::MDDDomainType()
     mySubclass = MDDDOMAINTYPE;
 }
 
-MDDDomainType::MDDDomainType(const MDDDomainType& old)
+MDDDomainType::MDDDomainType(const MDDDomainType &old)
     :   MDDBaseType(old)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-MDDDomainType&
-MDDDomainType::operator=(const MDDDomainType& old)
+MDDDomainType &
+MDDDomainType::operator=(const MDDDomainType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -101,12 +101,12 @@ MDDDomainType::operator=(const MDDDomainType& old)
     return *this;
 }
 
-char*
+char *
 MDDDomainType::getTypeStructure() const
 {
-    char* baseType = myBaseType->getTypeStructure();
-    char* mdom = myDomain->get_string_representation();
-    char* result = static_cast<char*>(mymalloc(12 + strlen(baseType) + strlen(mdom)));
+    char *baseType = myBaseType->getTypeStructure();
+    char *mdom = myDomain->get_string_representation();
+    char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + strlen(mdom)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -118,7 +118,7 @@ MDDDomainType::getTypeStructure() const
     return result;
 }
 
-char* MDDDomainType::getNewTypeStructure() const
+char *MDDDomainType::getNewTypeStructure() const
 {
     std::ostringstream ss;
 
@@ -138,14 +138,14 @@ char* MDDDomainType::getNewTypeStructure() const
     return strdup(result.c_str());
 }
 
-const r_Minterval*
+const r_Minterval *
 MDDDomainType::getDomain() const
 {
     return myDomain;
 }
 
 void
-MDDDomainType::print_status(ostream& s) const
+MDDDomainType::print_status(ostream &s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << ", ";
     myDomain->print_status(s);
@@ -163,19 +163,19 @@ MDDDomainType::~MDDDomainType() noexcept(false)
 }
 
 int
-MDDDomainType::compatibleWith(const Type* aType) const
+MDDDomainType::compatibleWith(const Type *aType) const
 {
     bool retval = false;
     if (aType->getType() == MDDTYPE)
     {
-        MDDTypeEnum ttype = (static_cast<const MDDType*>(aType))->getSubtype();
+        MDDTypeEnum ttype = (static_cast<const MDDType *>(aType))->getSubtype();
         if (ttype == MDDDOMAINTYPE)
         {
-            if (myBaseType->compatibleWith((static_cast<const MDDBaseType*>(aType))->getBaseType()))
+            if (myBaseType->compatibleWith((static_cast<const MDDBaseType *>(aType))->getBaseType()))
             {
-                if ((static_cast<const MDDDomainType*>(aType))->getDomain()->dimension() == myDomain->dimension())
+                if ((static_cast<const MDDDomainType *>(aType))->getDomain()->dimension() == myDomain->dimension())
                 {
-                    if (myDomain->covers(*(static_cast<const MDDDomainType*>(aType))->getDomain()))
+                    if (myDomain->covers(*(static_cast<const MDDDomainType *>(aType))->getDomain()))
                     {
                         retval = true;
                     }
@@ -198,9 +198,9 @@ MDDDomainType::compatibleWith(const Type* aType) const
         {
             if (ttype == MDDDIMENSIONTYPE)
             {
-                if (myBaseType->compatibleWith((static_cast<const MDDBaseType*>(aType))->getBaseType()))
+                if (myBaseType->compatibleWith((static_cast<const MDDBaseType *>(aType))->getBaseType()))
                 {
-                    if (myDomain->dimension() == (static_cast<const MDDDimensionType*>(aType))->getDimension())
+                    if (myDomain->dimension() == (static_cast<const MDDDimensionType *>(aType))->getDimension())
                     {
                         retval = true;
                     }

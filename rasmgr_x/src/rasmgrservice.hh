@@ -45,9 +45,9 @@ public:
 
     virtual ~RasmgrService();
 
-    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext* context, const rasnet::service::GetRemoteServerRequest* request, rasnet::service::GetRemoteServerReply* response);
+    virtual grpc::Status TryGetRemoteServer(grpc::ServerContext *context, const rasnet::service::GetRemoteServerRequest *request, rasnet::service::GetRemoteServerReply *response);
 
-    virtual ::grpc::Status ReleaseServer(::grpc::ServerContext* context, const ::rasnet::service::ReleaseServerRequest* request, ::rasnet::service::Void* response);
+    virtual ::grpc::Status ReleaseServer(::grpc::ServerContext *context, const ::rasnet::service::ReleaseServerRequest *request, ::rasnet::service::Void *response);
 
 private:
     boost::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */

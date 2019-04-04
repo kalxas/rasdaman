@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 
 
-inline const r_Minterval&
+inline const r_Minterval &
 r_GMarray::spatial_domain() const
 {
     return domain;
@@ -40,27 +40,27 @@ r_GMarray::spatial_domain() const
 
 
 
-inline char*
+inline char *
 r_GMarray::get_array()
 {
     return data;
 }
 
 
-inline const char*
+inline const char *
 r_GMarray::get_array() const
 {
     return data;
 }
 
-inline r_Set< r_GMarray* >*
+inline r_Set< r_GMarray * > *
 r_GMarray::get_tiled_array()
 {
     return tiled_data;
 }
 
 
-inline const r_Set< r_GMarray* >*
+inline const r_Set< r_GMarray * > *
 r_GMarray::get_tiled_array() const
 {
     return tiled_data;
@@ -68,7 +68,7 @@ r_GMarray::get_tiled_array() const
 
 
 inline void
-r_GMarray::set_array( char* newData )
+r_GMarray::set_array(char *newData)
 {
     // In case the array already has an array allocated, free it first.
 //  if (data != NULL) delete [] data;
@@ -76,7 +76,7 @@ r_GMarray::set_array( char* newData )
 }
 
 inline void
-r_GMarray::set_tiled_array( r_Set< r_GMarray* >* newData )
+r_GMarray::set_tiled_array(r_Set< r_GMarray * > *newData)
 {
     tiled_data = newData;
 }
@@ -84,7 +84,7 @@ r_GMarray::set_tiled_array( r_Set< r_GMarray* >* newData )
 
 
 inline void
-r_GMarray::set_current_format( r_Data_Format newFormat )
+r_GMarray::set_current_format(r_Data_Format newFormat)
 {
     current_format = newFormat;
 }
@@ -116,7 +116,7 @@ r_GMarray::get_current_format() const
 
 
 inline void
-r_GMarray::set_spatial_domain( const r_Minterval& dom )
+r_GMarray::set_spatial_domain(const r_Minterval &dom)
 {
     domain = dom;
 }
@@ -124,7 +124,7 @@ r_GMarray::set_spatial_domain( const r_Minterval& dom )
 
 
 inline void
-r_GMarray::set_type_length( r_Bytes newValue )
+r_GMarray::set_type_length(r_Bytes newValue)
 {
     type_length = newValue;
 }
@@ -132,7 +132,7 @@ r_GMarray::set_type_length( r_Bytes newValue )
 
 
 inline void
-r_GMarray::set_array_size( r_Bytes newValue )
+r_GMarray::set_array_size(r_Bytes newValue)
 {
     data_size = newValue;
 }

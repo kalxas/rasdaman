@@ -42,7 +42,7 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     //Default logging configuration
     el::Configurations defaultConf;
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
         control.start();
 
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         std::cout << ex.what() << std::endl;
         return EXIT_FAILURE;

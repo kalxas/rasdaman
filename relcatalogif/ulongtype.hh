@@ -56,19 +56,19 @@ values. The value of a ULong is stored in four chars.
 class ULongType : public UIntegralType
 {
 public:
-    ULongType(const OId& id);
+    ULongType(const OId &id);
 
     ULongType();
     /*@Doc:
     default constructor, sets type name to "ULong".
     */
 
-    ULongType(const ULongType& old);
+    ULongType(const ULongType &old);
     /*@Doc:
     copy constructor.
     */
 
-    ULongType& operator=(const ULongType& old);
+    ULongType &operator=(const ULongType &old);
     /*@Doc:
     assignment operator.
     */
@@ -78,19 +78,19 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual r_ULong* convertToCULong(const char* cell, r_ULong* value) const;
+    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCULong(char* cell, const r_ULong* value) const;
+    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

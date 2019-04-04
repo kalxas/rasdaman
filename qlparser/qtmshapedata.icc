@@ -27,26 +27,26 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline const std::vector<r_Point>& QtMShapeData::getPolytopePoints() const
+inline const std::vector<r_Point> &QtMShapeData::getPolytopePoints() const
 {
     return polytopePoints;
 }
 
-inline const std::vector<r_PointDouble>&  
+inline const std::vector<r_PointDouble> &
 QtMShapeData::getMShapeData() const
 {
     return polytopePointsDouble;
 }
 
 inline void
-QtMShapeData::setMShapeData( const std::vector<r_PointDouble> &MShape )
+QtMShapeData::setMShapeData(const std::vector<r_PointDouble> &MShape)
 {
     polytopePointsDouble = MShape;
 }
 
 
-inline  std::vector<r_PointDouble>*
-QtMShapeData::getDirectionVectors() 
+inline  std::vector<r_PointDouble> *
+QtMShapeData::getDirectionVectors()
 {
     return &directionVectors;
 }

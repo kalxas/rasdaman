@@ -3,7 +3,7 @@
 
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
-#else 
+#else
 #include <string>
 #endif
 
@@ -51,46 +51,46 @@ collections.
 class QtCollection
 {
 public:
-	/// copy constructor
-	QtCollection(const QtCollection& collection);
+    /// copy constructor
+    QtCollection(const QtCollection &collection);
 
-	/// constructor getting only the collection name
-	QtCollection(const std::string& collectionNameNew);
+    /// constructor getting only the collection name
+    QtCollection(const std::string &collectionNameNew);
 
-	/// constructor getting all the parameters
-	QtCollection(const std::string& hostnameNew, int portNew, 
-		const std::string& collectionNameNew);
-	
-	/// destructor
-	~QtCollection();
-	
-	/// get methods
-	inline std::string getHostname() const;
-	inline int getPort() const;
-	inline const std::string &getCollectionName() const;
+    /// constructor getting all the parameters
+    QtCollection(const std::string &hostnameNew, int portNew,
+                 const std::string &collectionNameNew);
+
+    /// destructor
+    ~QtCollection();
+
+    /// get methods
+    inline std::string getHostname() const;
+    inline int getPort() const;
+    inline const std::string &getCollectionName() const;
 
 private:
-	std::string hostname;
-	int port;
-	std::string collectionName;
+    std::string hostname;
+    int port;
+    std::string collectionName;
 };
 
-inline std::string 
+inline std::string
 QtCollection::getHostname() const
 {
-	return hostname;
+    return hostname;
 }
 
 inline int
 QtCollection::getPort() const
 {
-	return port;
+    return port;
 }
 
 inline const std::string &
 QtCollection::getCollectionName() const
 {
-	return collectionName;
+    return collectionName;
 }
 
 #endif

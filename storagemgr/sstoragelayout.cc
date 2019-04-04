@@ -95,18 +95,18 @@ StorageLayout::StorageLayout()
     LTRACE << "StorageLayout()";
 }
 
-StorageLayout::StorageLayout(const DBStorageLayoutId& id)
+StorageLayout::StorageLayout(const DBStorageLayoutId &id)
     :   myLayout(id)
 {
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout(" << id.getOId() << ")";
 }
 
-StorageLayout::StorageLayout(const StorageLayout& other)
+StorageLayout::StorageLayout(const StorageLayout &other)
     :   extraFeatures(NULL),
         myLayout(other.myLayout)
 {
-    StgMddConfig* o = other.extraFeatures;
+    StgMddConfig *o = other.extraFeatures;
     if (o)
     {
         if (extraFeatures == NULL)
@@ -195,19 +195,19 @@ StorageLayout::setTileSize(r_Bytes newSize)
 }
 
 void
-StorageLayout::setTileConfiguration(const r_Minterval& tc)
+StorageLayout::setTileConfiguration(const r_Minterval &tc)
 {
     myLayout->setTileConfiguration(tc);
 }
 
 r_Data_Format
-StorageLayout::getDataFormat(__attribute__((unused)) const r_Point& where) const
+StorageLayout::getDataFormat(__attribute__((unused)) const r_Point &where) const
 {
     return myLayout->getDataFormat();
 }
 
 void
-StorageLayout::setBBoxes(const vector<r_Minterval>& input)
+StorageLayout::setBBoxes(const vector<r_Minterval> &input)
 {
     extraFeatures->setBBoxes(input);
 }
@@ -244,7 +244,7 @@ StorageLayout::setCellSize(int i)
 
 
 void
-StorageLayout::setDirDecomp(vector<r_Dir_Decompose>* dir)
+StorageLayout::setDirDecomp(vector<r_Dir_Decompose> *dir)
 {
     vector<r_Dir_Decompose> dec;
     for (unsigned int i = 0 ; i < dir->size() ; ++i)
@@ -255,7 +255,7 @@ StorageLayout::setDirDecomp(vector<r_Dir_Decompose>* dir)
 }
 
 void
-StorageLayout::setExtraFeatures(StgMddConfig* newExtraFeatures)
+StorageLayout::setExtraFeatures(StgMddConfig *newExtraFeatures)
 {
     extraFeatures = newExtraFeatures;
 }
@@ -268,7 +268,7 @@ StorageLayout::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input
 }
 
 std::vector<r_Minterval>
-StorageLayout::getLayout(const r_Minterval& tileDomain)
+StorageLayout::getLayout(const r_Minterval &tileDomain)
 {
     std::vector<r_Minterval> retval;
     if (myLayout->supportsTilingScheme())
@@ -345,7 +345,7 @@ StorageLayout::~StorageLayout()
 }
 
 std::vector<r_Minterval>
-StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
+StorageLayout::calcRegLayout(const r_Minterval &tileDomain) const
 {
     std::vector<r_Minterval> retval;
     r_Minterval base = myLayout->getTileConfiguration();
@@ -455,13 +455,13 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
 }
 
 std::vector<r_Minterval>
-StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
+StorageLayout::calcInterestLayout(const r_Minterval &tileDomain)
 {
     //uadhikari
-    r_Interest_Tiling* tiling = new r_Interest_Tiling(tileDomain.dimension(), extraFeatures->getBBoxes(),
+    r_Interest_Tiling *tiling = new r_Interest_Tiling(tileDomain.dimension(), extraFeatures->getBBoxes(),
             myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     std::vector<r_Minterval> ret;
-    std::vector<r_Minterval>* ret1 = tiling->compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
+    std::vector<r_Minterval> *ret1 = tiling->compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     LTRACE << "CalcInterest Layout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
@@ -471,11 +471,11 @@ StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
 }
 
 std::vector<r_Minterval>
-StorageLayout::calcAlignedLayout(const r_Minterval& tileDomain)
+StorageLayout::calcAlignedLayout(const r_Minterval &tileDomain)
 {
-    r_Aligned_Tiling* tiling = new r_Aligned_Tiling(myLayout->getTileConfiguration(), myLayout->getTileSize());
+    r_Aligned_Tiling *tiling = new r_Aligned_Tiling(myLayout->getTileConfiguration(), myLayout->getTileSize());
     std::vector<r_Minterval> ret;
-    std::vector<r_Minterval>* ret1 = tiling->compute_tiles
+    std::vector<r_Minterval> *ret1 = tiling->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     delete tiling;
     tiling = NULL;
@@ -490,9 +490,9 @@ StorageLayout::calcAlignedLayout(const r_Minterval& tileDomain)
 }
 
 std::vector<r_Minterval>
-StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
+StorageLayout::calcDirectionalLayout(const r_Minterval &tileDomain)
 {
-    r_Dir_Tiling* dirTile = NULL;
+    r_Dir_Tiling *dirTile = NULL;
     if (!extraFeatures->getSubTiling())
         dirTile = new r_Dir_Tiling(tileDomain.dimension(),
                                    extraFeatures->getDirDecompose(), myLayout->getTileSize(),
@@ -503,7 +503,7 @@ StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
                                    r_Dir_Tiling::WITH_SUBTILING);
 
     std::vector<r_Minterval> ret;
-    std::vector<r_Minterval>* ret1 = dirTile->compute_tiles
+    std::vector<r_Minterval> *ret1 = dirTile->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     LTRACE << "calcDirectionalLayout: tile number: " << ret1->size();
     for (unsigned int i = 0; i < ret1->size(); i++)
@@ -515,7 +515,7 @@ StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
 }
 
 std::vector<r_Minterval>
-StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
+StorageLayout::calcStatisticLayout(const r_Minterval &tileDomain)
 {
     std::vector<r_Minterval> ret;
     vector<r_Minterval> temp = extraFeatures->getBBoxes();
@@ -539,10 +539,10 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
     }
     LTRACE << "Object is : " << tileDomain.dimension() << " " << accesses.size() << " "
            << myLayout->getTileSize() << " " << borderT << " " << interestT;
-    r_Stat_Tiling* stat = new r_Stat_Tiling(tileDomain.dimension(), accesses,
+    r_Stat_Tiling *stat = new r_Stat_Tiling(tileDomain.dimension(), accesses,
                                             myLayout->getTileSize(), borderT,
                                             interestT);
-    std::vector<r_Minterval>* ret1 = stat->compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
+    std::vector<r_Minterval> *ret1 = stat->compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
@@ -553,7 +553,7 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
 
 
 r_Minterval
-StorageLayout::getDefaultTileCfg(__attribute__ ((unused)) int baseTypeSize, r_Dimension sourceDimension)
+StorageLayout::getDefaultTileCfg(__attribute__((unused)) int baseTypeSize, r_Dimension sourceDimension)
 {
     std::string newDomain = "[";
     for (unsigned int i = 0; i < sourceDimension; i++)

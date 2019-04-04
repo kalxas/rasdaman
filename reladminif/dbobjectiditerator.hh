@@ -46,14 +46,14 @@ template<class T>
 class DBObjectIdIterator
 {
 public:
-    DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBRef<T>>>& oidlist);
+    DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBRef<T>>> &oidlist);
     /*@Doc:
     constructs a new Iterator.  the OIdSet will be deleted by the DBOBjectIdIterator.
     there may be oids of objects with other classes present.  you should be carefull
     when using this feature - as in mddtypes/mddbasetypes/mdddim/domtypes
     */
 
-    DBObjectIdIterator(const DBObjectIdIterator<T>& it);
+    DBObjectIdIterator(const DBObjectIdIterator<T> &it);
     /*@Doc:
     */
 
@@ -88,7 +88,7 @@ private:
     internal pointer where the iterator is
     */
 
-    std::set<DBRef<T>, std::less<DBRef<T>>>* mySet;
+    std::set<DBRef<T>, std::less<DBRef<T>>> *mySet;
     /*@Doc:
     the actual list which is used to lookup objects by the objectbroker
     */

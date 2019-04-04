@@ -46,7 +46,7 @@
 #define MAX_CMD_LENGTH FILENAME_MAX
 #define MAX_ERROR_MSG_LENGTH 20000
 
-void print_stacktrace(void* ucontext)
+void print_stacktrace(void *ucontext)
 {
 #ifndef WITH_DEBUG_SYMBOLS
     return;
@@ -54,25 +54,25 @@ void print_stacktrace(void* ucontext)
 
     // code adapted from
     // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes/2526298#2526298
-    void* fault_address;
-    sig_ucontext_t* uc;
-    uc = static_cast<sig_ucontext_t*>(ucontext);
+    void *fault_address;
+    sig_ucontext_t *uc;
+    uc = static_cast<sig_ucontext_t *>(ucontext);
     fault_address = getFaultAddress(uc);
-    void* addresses[BACKTRACE_TRUNC];
+    void *addresses[BACKTRACE_TRUNC];
     int size = backtrace(addresses, BACKTRACE_TRUNC);
     addresses[1] = fault_address;
 
-    char** messages = backtrace_symbols(addresses, size);
+    char **messages = backtrace_symbols(addresses, size);
 
     // skip first stack frame (points here)
     LINFO << "Segmentation fault caught, stacktrace:";
 
     for (int i = 3, j = 1; i < size && messages != NULL; ++i, ++j)
     {
-        char* mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
 
         // find parantheses and +address offset surrounding mangled name
-        for (char* p = messages[i]; *p; ++p)
+        for (char *p = messages[i]; *p; ++p)
         {
             if (*p == '(')
             {
@@ -110,12 +110,12 @@ void print_stacktrace(void* ucontext)
             }
 
 
-            sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, ((unsigned int*)(addresses))[i]);
-            FILE* fp = popen(cmd, "r");
+            sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, ((unsigned int *)(addresses))[i]);
+            FILE *fp = popen(cmd, "r");
             if (fp != NULL)
             {
                 fgets(sourceFileLine, MAX_MSG_LEN, fp);
-                char* pos = strchr(sourceFileLine, '\n');
+                char *pos = strchr(sourceFileLine, '\n');
                 if (pos != NULL)
                 {
                     *pos = '\0';
@@ -128,7 +128,7 @@ void print_stacktrace(void* ucontext)
             }
 
             int status;
-            char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+            char *real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
 
             // if demangling is successful, output the demangled function name
             if (status == 0)
@@ -156,13 +156,13 @@ void print_stacktrace(void* ucontext)
 }
 
 void
-installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t*, void*))
+installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t *, void *))
 {
     installSigHandler(cleanUpHandler, SIGSEGV);
 }
 
 void
-installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal)
+installSigHandler(void (*cleanUpHandler)(int, siginfo_t *, void *), int signal)
 {
     struct sigaction sigact;
 
@@ -174,7 +174,7 @@ installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal)
     sigemptyset(&sigact.sa_mask);
 
 
-    int retVal = sigaction(signal , &sigact, (struct sigaction*)NULL);
+    int retVal = sigaction(signal, &sigact, (struct sigaction *)NULL);
 
     if (retVal != 0)
     {
@@ -182,17 +182,17 @@ installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal)
     }
 }
 
-void* getFaultAddress(sig_ucontext_t* uc)
+void *getFaultAddress(sig_ucontext_t *uc)
 {
-    void*               caller_address;
+    void               *caller_address;
 
     /* Get the address at the time the signal was raised */
 #if defined(__i386__) // gcc specific
-    caller_address = (void*) uc->uc_mcontext.eip;  // EIP: x86 specific
+    caller_address = (void *) uc->uc_mcontext.eip; // EIP: x86 specific
 #elif defined(__x86_64__) // gcc specific
-    caller_address = (void*) uc->uc_mcontext.rip;  // RIP: x86_64 specific
+    caller_address = (void *) uc->uc_mcontext.rip; // RIP: x86_64 specific
 #elif defined(ARM)
-    caller_address = (void*) uc->uc_mcontext.arm_pc;  // ARM specific
+    caller_address = (void *) uc->uc_mcontext.arm_pc; // ARM specific
 #else
     caller_address = NULL;
 #endif
@@ -201,11 +201,11 @@ void* getFaultAddress(sig_ucontext_t* uc)
 
 }
 
-char* read_file(FILE* fp)
+char *read_file(FILE *fp)
 {
     char buffer[MAX_ERROR_MSG_LENGTH];
     std::string tmp("");
-    char* ret = NULL;
+    char *ret = NULL;
     while (!feof(fp))
     {
         if (fgets(buffer, MAX_ERROR_MSG_LENGTH, fp) != NULL)
@@ -220,12 +220,12 @@ char* read_file(FILE* fp)
     return ret;
 }
 
-char* execute_system_command(char* cmd)
+char *execute_system_command(char *cmd)
 {
-    char* ret = NULL;
+    char *ret = NULL;
     char popenCmd[MAX_CMD_LENGTH];
     snprintf(popenCmd, MAX_CMD_LENGTH, "%s 2>&1", cmd);
-    FILE* fp = popen(popenCmd, "r");
+    FILE *fp = popen(popenCmd, "r");
     if (!fp)
     {
         char buffer[MAX_CMD_LENGTH];
@@ -234,7 +234,7 @@ char* execute_system_command(char* cmd)
     }
     else
     {
-        char* res = read_file(fp);
+        char *res = read_file(fp);
         char buffer[MAX_ERROR_MSG_LENGTH];
         memset(buffer, 0, MAX_ERROR_MSG_LENGTH);
         int rc = pclose(fp);
@@ -262,7 +262,7 @@ char* execute_system_command(char* cmd)
 size_t get_current_rss()
 {
     long rss = 0L;
-    FILE* fp = NULL;
+    FILE *fp = NULL;
     if ((fp = fopen("/proc/self/statm", "r")) == NULL)
     {
         return (size_t)0L;    /* Can't open? */

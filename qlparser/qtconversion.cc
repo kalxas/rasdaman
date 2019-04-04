@@ -55,14 +55,14 @@ class ConvUtil;
 
 const QtNode::QtNodeType QtConversion::nodeType = QtNode::QT_CONVERSION;
 
-QtConversion::QtConversion(QtOperation* newInput, QtConversionType
-                           newConversionType, const char* paramStrArg)
+QtConversion::QtConversion(QtOperation *newInput, QtConversionType
+                           newConversionType, const char *paramStrArg)
     : QtUnaryOperation(newInput), conversionType(newConversionType), paramStr(paramStrArg), gdalConversion(false)
 {
 }
 
-QtConversion::QtConversion(QtOperation* newInput, QtConversionType
-                           newConversionType, const std::string& formatArg, const char* paramStrArg)
+QtConversion::QtConversion(QtOperation *newInput, QtConversionType
+                           newConversionType, const std::string &formatArg, const char *paramStrArg)
     : QtUnaryOperation(newInput), conversionType(newConversionType), format(formatArg), paramStr(paramStrArg), gdalConversion(true)
 {
     if (r_MimeTypes::isMimeType(format))
@@ -172,15 +172,15 @@ QtConversion::setConversionTypeByName(string formatName)
     }
 }
 
-QtData*
-QtConversion::evaluate(QtDataList* inputList)
+QtData *
+QtConversion::evaluate(QtDataList *inputList)
 {
     startTimer("QtConversion");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
-    MDDObj* currentMDDObj = NULL;
-    r_Nullvalues* nullValues = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
+    MDDObj *currentMDDObj = NULL;
+    r_Nullvalues *nullValues = NULL;
 
     if (conversionType == QT_UNKNOWN)
     {
@@ -192,15 +192,18 @@ QtConversion::evaluate(QtDataList* inputList)
     operand = input->evaluate(inputList);
     if (operand)
     {
-        std::unique_ptr<QtData, std::function<void(QtData*)>> deleteOperand(
-                operand, [](QtData* op) { op->deleteRef(); });
+        std::unique_ptr<QtData, std::function<void(QtData *)>> deleteOperand(
+                    operand, [](QtData * op)
+        {
+            op->deleteRef();
+        });
 
-        char* typeStructure = NULL;
+        char *typeStructure = NULL;
         unique_ptr<Tile> sourceTile = NULL;
 
         if ((conversionType == QT_TOCSV || conversionType == QT_TOJSON) && operand->isScalarData())
         {
-            QtScalarData* qtScalar = static_cast<QtScalarData*>(operand);
+            QtScalarData *qtScalar = static_cast<QtScalarData *>(operand);
             r_Minterval domain = r_Minterval((r_Dimension) 0);// << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
             sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), (r_Bytes)0, r_Array));
             typeStructure = qtScalar->getTypeStructure();
@@ -216,10 +219,10 @@ QtConversion::evaluate(QtDataList* inputList)
             }
 #endif
 
-            QtMDD* qtMDD = static_cast<QtMDD*>(operand);
+            QtMDD *qtMDD = static_cast<QtMDD *>(operand);
             currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
-            vector<boost::shared_ptr<Tile>>* tiles = NULL;
+            vector<boost::shared_ptr<Tile>> *tiles = NULL;
             if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
                 // get relevant tiles
@@ -262,16 +265,16 @@ QtConversion::evaluate(QtDataList* inputList)
         try
         {
             convertor.reset(r_Convertor_Factory::create(
-                    convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
+                                convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
             if (gdalConversion)
             {
                 convertor->set_format(format);
             }
             if (conversionType < QT_FROMTIFF)
             {
-                // if no null values are set in the source object, then the 
+                // if no null values are set in the source object, then the
                 // nullValue passed to convertTo is NULL.
-                r_Range* nullValue = NULL;
+                r_Range *nullValue = NULL;
                 r_Range tmpNullValue{};
                 if (nullValues)
                 {
@@ -287,17 +290,23 @@ QtConversion::evaluate(QtDataList* inputList)
                 convDesc = convertor->convertFrom(paramStr);
             }
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             //catch an error based on the error type, if assigned to FeatureNotSupported, or the error number.
             //in case no error number has been set (0 is the initialized value, and does not correspond to any error)
             //we catch a default error (381 -- conversion format not supported)
             if (err.get_kind() == r_Error::r_Error_FeatureNotSupported)
+            {
                 parseInfo.setErrorNo(218);
+            }
             else if (err.get_errorno() != 0)
+            {
                 parseInfo.setErrorNo(err.get_errorno());
+            }
             else
+            {
                 parseInfo.setErrorNo(381);
+            }
             throw parseInfo;
         }
         catch (const std::exception &ex)
@@ -318,7 +327,7 @@ QtConversion::evaluate(QtDataList* inputList)
         // here we have to update the dataStreamType.getType(), as it has changed since checkType
         if (strcasecmp(dataStreamType.getType()->getTypeName(), baseType->getTypeName()))
         {
-            MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType.get());
+            MDDBaseType *mddBaseType = new MDDBaseType("tmp", baseType.get());
             TypeFactory::addTempType(mddBaseType);
             dataStreamType.setType(mddBaseType);
         }
@@ -341,7 +350,7 @@ QtConversion::evaluate(QtDataList* inputList)
         convertor->releaseDest();
 
         // create a transient MDD object for the query result
-        const auto *mddType = static_cast<const MDDBaseType*>(dataStreamType.getType());
+        const auto *mddType = static_cast<const MDDBaseType *>(dataStreamType.getType());
         std::unique_ptr<MDDObj> resultMDD;
         resultMDD.reset(new MDDObj(mddType, convDesc.destInterv, nullValues));
         resultMDD->insertTile(resultTile.get());
@@ -364,9 +373,9 @@ QtConversion::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
+const BaseType *QtConversion::rasTypeToBaseType(r_Type *type)
 {
-    const BaseType* result = NULL;
+    const BaseType *result = NULL;
     if (type->isPrimitiveType())
     {
         result = TypeFactory::mapType(type->name());
@@ -379,18 +388,18 @@ const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
     }
     else if (type->isStructType())
     {
-        r_Structure_Type* structType = static_cast<r_Structure_Type*>(const_cast<r_Type*>(type));
-        StructType* restype = new StructType("tmp_struct_type", structType->count_elements());
+        r_Structure_Type *structType = static_cast<r_Structure_Type *>(const_cast<r_Type *>(type));
+        StructType *restype = new StructType("tmp_struct_type", structType->count_elements());
         r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
         while (iter != structType->defines_attribute_end())
         {
             try
             {
                 r_Attribute attr = (*iter);
-                const r_Base_Type& attr_type = attr.type_of();
-                restype->addElement(attr.name(), rasTypeToBaseType(static_cast<r_Type*>(const_cast<r_Base_Type*>( & attr_type))));
+                const r_Base_Type &attr_type = attr.type_of();
+                restype->addElement(attr.name(), rasTypeToBaseType(static_cast<r_Type *>(const_cast<r_Base_Type *>(& attr_type))));
             }
-            catch (r_Error& e)
+            catch (r_Error &e)
             {
                 LERROR << "failed converting band type: " << e.what();
                 delete restype;
@@ -405,7 +414,7 @@ const BaseType* QtConversion::rasTypeToBaseType(r_Type* type)
 }
 
 void
-QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_Format& convFormat)
+QtConversion::setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_Format &convFormat)
 {
     switch (conversionType)
     {
@@ -477,14 +486,14 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_F
 }
 
 bool
-QtConversion::equalMeaning(QtNode* node)
+QtConversion::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
-        QtConversion* convNode;
-        convNode = static_cast<QtConversion*>(node);  // by force
+        QtConversion *convNode;
+        convNode = static_cast<QtConversion *>(node); // by force
 
         result = input->equalMeaning(convNode->getInput());
 
@@ -495,7 +504,7 @@ QtConversion::equalMeaning(QtNode* node)
 }
 
 void
-QtConversion::printTree(int tab, ostream& s, QtChildType mode)
+QtConversion::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConversion Object: ";
 
@@ -558,7 +567,7 @@ QtConversion::printTree(int tab, ostream& s, QtChildType mode)
 }
 
 void
-QtConversion::printAlgebraicExpression(ostream& s)
+QtConversion::printAlgebraicExpression(ostream &s)
 {
     s << conversionType << "(";
 
@@ -574,8 +583,8 @@ QtConversion::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement&
-QtConversion::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtConversion::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -584,9 +593,9 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
-        if ( conversionType != QT_TOCSV && conversionType != QT_TOJSON && inputType.getDataType() != QT_MDD )
+        if (conversionType != QT_TOCSV && conversionType != QT_TOJSON && inputType.getDataType() != QT_MDD)
         {
             LERROR << "expected MDD operand in conversion operation.";
             parseInfo.setErrorNo(380);
@@ -595,7 +604,7 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
 
         //FIXME we set for every kind of conversion the result type char
         //for conversion from_DEF we don't know the result type until we parse the data
-        MDDBaseType* mddBaseType = new MDDBaseType("Char", TypeFactory::mapType("Char"));
+        MDDBaseType *mddBaseType = new MDDBaseType("Char", TypeFactory::mapType("Char"));
         TypeFactory::addTempType(mddBaseType);
 
         dataStreamType.setType(mddBaseType);
@@ -608,8 +617,8 @@ QtConversion::checkType(QtTypeTuple* typeTuple)
     return dataStreamType;
 }
 
-std::ostream&
-operator<<(std::ostream& os, QtConversion::QtConversionType type)
+std::ostream &
+operator<<(std::ostream &os, QtConversion::QtConversionType type)
 {
     switch (type)
     {

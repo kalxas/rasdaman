@@ -50,26 +50,26 @@ public:
                boost::shared_ptr<DatabaseManager> dbManager,
                boost::shared_ptr<ServerManager> serverManager,
                boost::shared_ptr<PeerManager> peerManager,
-               RasManager* rasmanager);
+               RasManager *rasmanager);
 
     std::string deprecatedCommand();
 
-    std::string defineDbHost(const DefineDbHost& dbHostData);
-    std::string changeDbHost(const ChangeDbHost& dbHostData);
-    std::string removeDbHost(const RemoveDbHost& dbHostData);
+    std::string defineDbHost(const DefineDbHost &dbHostData);
+    std::string changeDbHost(const ChangeDbHost &dbHostData);
+    std::string removeDbHost(const RemoveDbHost &dbHostData);
     std::string listDbHost();
     std::string helpDbHost();
 
-    std::string defineDb(const DefineDb& dbData);
-    std::string changeDb(const ChangeDb& dbData);
-    std::string removeDb(const RemoveDb& dbData);
-    std::string listDb(const ListDb& listDbData);
+    std::string defineDb(const DefineDb &dbData);
+    std::string changeDb(const ChangeDb &dbData);
+    std::string removeDb(const RemoveDb &dbData);
+    std::string listDb(const ListDb &listDbData);
     std::string helpDb();
 
-    std::string defineUser(const DefineUser& userData);
-    std::string removeUser(const RemoveUser& userData);
-    std::string changeUser(const ChangeUser& userData);
-    std::string listUser(const ListUser& userData);
+    std::string defineUser(const DefineUser &userData);
+    std::string removeUser(const RemoveUser &userData);
+    std::string changeUser(const ChangeUser &userData);
+    std::string listUser(const ListUser &userData);
     std::string helpUser();
 
     std::string defineInpeer(std::string hostName);
@@ -77,19 +77,19 @@ public:
     std::string listInpeer();
     std::string helpInpeer();
 
-    std::string defineOutpeer(const DefineOutpeer& outpeerData);
+    std::string defineOutpeer(const DefineOutpeer &outpeerData);
     std::string removeOutpeer(std::string hostName);
     std::string listOutpeer();
     std::string helpOutpeer();
 
-    std::string defineServerGroup(const DefineServerGroup& groupData);
-    std::string changeServerGroup(const ChangeServerGroup& groupData);
+    std::string defineServerGroup(const DefineServerGroup &groupData);
+    std::string changeServerGroup(const ChangeServerGroup &groupData);
     std::string removeServerGroup(std::string groupName);
-    std::string listServerGroup(const ListServerGroup& listData);
+    std::string listServerGroup(const ListServerGroup &listData);
     std::string helpServerGroup();
 
-    std::string startServerGroup(const StartServerGroup& upSrv);
-    std::string stopServerGroup(const StopServerGroup& downSrv);
+    std::string startServerGroup(const StartServerGroup &upSrv);
+    std::string stopServerGroup(const StopServerGroup &downSrv);
 
     std::string stopRasMgr();
 
@@ -118,11 +118,11 @@ private:
     boost::shared_ptr<DatabaseManager> dbManager_;
     boost::shared_ptr<ServerManager> serverManager_;
     boost::shared_ptr<PeerManager> peerManager_;
-    RasManager* rasmanager_;
+    RasManager *rasmanager_;
 
-    std::string convertAdminRights(const UserAdminRightsProto& adminRights);
-    std::string convertDbRights(const UserDatabaseRightsProto& dbRights);
-    std::string formatErrorMessage(const std::string& message);
+    std::string convertAdminRights(const UserAdminRightsProto &adminRights);
+    std::string convertDbRights(const UserDatabaseRightsProto &dbRights);
+    std::string formatErrorMessage(const std::string &message);
     std::string getNotImplementedMes();
     std::string showHelp();
 

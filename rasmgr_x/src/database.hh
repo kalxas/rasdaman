@@ -44,7 +44,7 @@ public:
      * This object is not thread safe.
      * @param dbName Name of the database that will uniquely identify it.
      */
-    Database(const std::string& dbName);
+    Database(const std::string &dbName);
 
     virtual ~Database();
 
@@ -54,7 +54,7 @@ public:
      * This allows for preventing the removal of the database while it still has running
      * transactions.
      */
-    void addClientSession(const std::string& clientId, const std::string& sessionId);
+    void addClientSession(const std::string &clientId, const std::string &sessionId);
 
     /**
      * @brief removeClientSession Remove the session with the given client ID and session ID
@@ -62,7 +62,7 @@ public:
      * @param sessionId
      * @return The number of sessions removed.
      */
-    int removeClientSession(const std::string& clientId, const std::string& sessionId);
+    int removeClientSession(const std::string &clientId, const std::string &sessionId);
 
     /**
      * Check if there are running transactions on this database
@@ -78,11 +78,11 @@ public:
      * @param db
      * @return
      */
-    static DatabaseProto serializeToProto(const Database& db);
+    static DatabaseProto serializeToProto(const Database &db);
 
-    const std::string& getDbName() const;
+    const std::string &getDbName() const;
 
-    void setDbName(const std::string& value);
+    void setDbName(const std::string &value);
 
 private:
     std::string dbName; /*!< Name of this database */

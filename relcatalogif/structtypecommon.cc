@@ -57,7 +57,7 @@ rasdaman GmbH.
 r_Bytes
 StructType::getMemorySize() const
 {
-    r_Bytes retval = DBNamedObject::getMemorySize() + sizeof(int) + sizeof(int) + sizeof(std::vector<BaseType*>) + sizeof(std::vector<unsigned int>) + sizeof(std::vector<char*>) + sizeof(int) * numElems + sizeof(BaseType*) * numElems;
+    r_Bytes retval = DBNamedObject::getMemorySize() + sizeof(int) + sizeof(int) + sizeof(std::vector<BaseType *>) + sizeof(std::vector<unsigned int>) + sizeof(std::vector<char *>) + sizeof(int) * numElems + sizeof(BaseType *) * numElems;
     for (unsigned int i = 0; i < numElems; i++)
     {
         retval = retval + 1 + strlen(elementNames[i]);
@@ -77,7 +77,7 @@ StructType::StructType()
     objecttype = OId::STRUCTTYPEOID;
 }
 
-StructType::StructType(const char* newTypeName, unsigned int numElem)
+StructType::StructType(const char *newTypeName, unsigned int numElem)
     :   CompositeType(newTypeName, 0),
         elements(numElem),
         elementNames(numElem),
@@ -97,7 +97,7 @@ StructType::StructType(const char* newTypeName, unsigned int numElem)
  * Description...: copy constructor
  ************************************************************/
 
-StructType::StructType(const StructType& old)
+StructType::StructType(const StructType &old)
     :   CompositeType(old)
 {
     elements = old.elements;
@@ -107,7 +107,7 @@ StructType::StructType(const StructType& old)
     align = old.align;
 }
 
-StructType::StructType(const OId& structtypeid)
+StructType::StructType(const OId &structtypeid)
     :   CompositeType(structtypeid),
         elements(0),
         elementNames(0),
@@ -128,8 +128,8 @@ StructType::StructType(const OId& structtypeid)
  * Description...: copy constructor
  ************************************************************/
 
-StructType&
-StructType::operator=(const StructType& old)
+StructType &
+StructType::operator=(const StructType &old)
 {
     // Gracefully handle self assignment
     //FIXME memory leak with char* in elementNames and elements
@@ -152,7 +152,7 @@ StructType::~StructType() noexcept(false)
     validate();
     for (unsigned int i = 0; i < getNumElems(); i++)
     {
-        free(static_cast<void*>(elementNames[i]));    //is ok because noone is using it
+        free(static_cast<void *>(elementNames[i]));   //is ok because noone is using it
     }
 }
 
@@ -171,7 +171,7 @@ StructType::~StructType() noexcept(false)
  ************************************************************/
 
 void
-StructType::printCell(ostream& stream, const char* cell) const
+StructType::printCell(ostream &stream, const char *cell) const
 {
     unsigned int i;
 
@@ -185,19 +185,19 @@ StructType::printCell(ostream& stream, const char* cell) const
     stream << "\t| ";
 }
 
-char*
+char *
 StructType::getTypeStructure() const
 {
     // this implementation is not very clever, perhaps should use
     // an intelligent string class
-    char* result = static_cast<char*>(mymalloc(10));
-    char* newResult;
+    char *result = static_cast<char *>(mymalloc(10));
+    char *newResult;
     unsigned int i;
 
     strcpy(result, "struct { ");
     if (numElems == 0)
     {
-        newResult = static_cast<char*>(mymalloc(strlen(result) + 1 + 2));
+        newResult = static_cast<char *>(mymalloc(strlen(result) + 1 + 2));
         strcpy(newResult, result);
         strcat(newResult, " }");
         free(result);
@@ -205,10 +205,10 @@ StructType::getTypeStructure() const
     }
     for (i = 0; i < numElems; i++)
     {
-        char* dummy = elements[i]->getTypeStructure();
-        newResult = static_cast<char*>(mymalloc(strlen(result) +
-                                                strlen(elementNames[i]) +
-                                                strlen(dummy) + 1 + 3));
+        char *dummy = elements[i]->getTypeStructure();
+        newResult = static_cast<char *>(mymalloc(strlen(result) +
+                                        strlen(elementNames[i]) +
+                                        strlen(dummy) + 1 + 3));
         strcpy(newResult, result);
 
         strcat(newResult, dummy);
@@ -220,7 +220,7 @@ StructType::getTypeStructure() const
         free(dummy);
         result = newResult;
     }
-    newResult = static_cast<char*>(mymalloc(strlen(result) + 1));
+    newResult = static_cast<char *>(mymalloc(strlen(result) + 1));
     strcpy(newResult, result);
     newResult[strlen(newResult) - 2] = ' ';
     newResult[strlen(newResult) - 1] = '}';
@@ -229,7 +229,7 @@ StructType::getTypeStructure() const
     return result;
 }
 
-char*
+char *
 StructType::getNewTypeStructure() const
 {
     std::ostringstream ss;
@@ -244,7 +244,7 @@ StructType::getNewTypeStructure() const
             ss << ", ";
         }
 
-        char* dummy = elements[i]->getTypeStructure();
+        char *dummy = elements[i]->getTypeStructure();
 
         ss << elementNames[i]
            << " "
@@ -261,19 +261,19 @@ StructType::getNewTypeStructure() const
 }
 
 unsigned int
-StructType::addElement(const char* elemName, const char* elemType)
+StructType::addElement(const char *elemName, const char *elemType)
 {
-    BaseType* typeByName = 0;
-    typeByName = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
+    BaseType *typeByName = 0;
+    typeByName = static_cast<BaseType *>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
     if (typeByName == 0)
     {
-        typeByName = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
+        typeByName = static_cast<BaseType *>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
     }
     return addElement(elemName, typeByName);
 }
 
 unsigned int
-StructType::addElement(const char* elemName, const BaseType* newType)
+StructType::addElement(const char *elemName, const BaseType *newType)
 {
     if (newType)
     {
@@ -286,19 +286,19 @@ StructType::addElement(const char* elemName, const BaseType* newType)
 }
 
 unsigned int
-StructType::addElementPriv(const char* elemName, const BaseType* newType)
+StructType::addElementPriv(const char *elemName, const BaseType *newType)
 {
     unsigned int currPos = 0;
     int i, j;
-    char* myElemName = 0;
+    char *myElemName = 0;
 
-    myElemName = static_cast<char*>(mymalloc(strlen(elemName) + 1));
+    myElemName = static_cast<char *>(mymalloc(strlen(elemName) + 1));
     strcpy(myElemName, elemName);
 
     if (numElems + 1 > elements.size())
     {
-        BaseType* dummyB = 0;
-        char* dummyN = 0;
+        BaseType *dummyB = 0;
+        char *dummyN = 0;
         unsigned int dummyO = 0;
         elements.push_back(dummyB);
         elementNames.push_back(dummyN);
@@ -317,7 +317,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
         if (newType->getType() == STRUCT)
         {
             //kept for potential future use
-            unsigned int myAlign = (static_cast<StructType*>(const_cast<BaseType*>(newType)))->getAlignment();
+            unsigned int myAlign = (static_cast<StructType *>(const_cast<BaseType *>(newType)))->getAlignment();
             if (align < myAlign)
             {
                 align = myAlign;
@@ -326,7 +326,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
             currPos = numElems;
             ++numElems;
             elementOffsets[currPos] = elementOffsets[currPos - 1] +
-                                        elements[currPos - 1]->getSize();
+                                      elements[currPos - 1]->getSize();
         }
         else
         {
@@ -340,7 +340,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
                 currPos = numElems;
                 ++numElems;
                 elementOffsets[currPos] = elementOffsets[currPos - 1] +
-                                            elements[currPos - 1]->getSize();
+                                          elements[currPos - 1]->getSize();
             }
             else
             {
@@ -353,7 +353,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
                     currPos = numElems;
                     numElems++;
                     elementOffsets[currPos] = elementOffsets[currPos - 1] +
-                                                elements[currPos - 1]->getSize();
+                                              elements[currPos - 1]->getSize();
                 }
                 else
                 {
@@ -382,7 +382,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
 }
 
 unsigned int
-StructType::getOffset(const char* elemName) const
+StructType::getOffset(const char *elemName) const
 {
     unsigned int i;
     unsigned int retval = 0;
@@ -422,10 +422,10 @@ StructType::getOffset(unsigned int num) const
     return elementOffsets[num];
 }
 
-const BaseType*
-StructType::getElemType(const char* elemName) const
+const BaseType *
+StructType::getElemType(const char *elemName) const
 {
-    const BaseType* retval = 0;
+    const BaseType *retval = 0;
     unsigned int i;
 
     for (i = 0; i < numElems; i++)
@@ -446,7 +446,7 @@ StructType::getElemType(const char* elemName) const
     return retval;
 }
 
-const BaseType*
+const BaseType *
 StructType::getElemType(unsigned int num) const
 {
     if (!(num < numElems))
@@ -460,7 +460,7 @@ StructType::getElemType(unsigned int num) const
     return elements[num];
 }
 
-const char*
+const char *
 StructType::getElemName(unsigned int num) const
 {
     if (!(num < numElems))
@@ -487,7 +487,7 @@ StructType::getAlignment() const
 }
 
 int
-StructType::contains(const StructType* aStruct) const
+StructType::contains(const StructType *aStruct) const
 {
     unsigned int i;
 
@@ -498,7 +498,7 @@ StructType::contains(const StructType* aStruct) const
             return 1;
         }
         else if (elements[i]->getType() == STRUCT)
-            if ((static_cast<StructType*>(const_cast<BaseType*>(elements[i])))->contains(aStruct))
+            if ((static_cast<StructType *>(const_cast<BaseType *>(elements[i])))->contains(aStruct))
             {
                 return 1;
             }
@@ -507,7 +507,7 @@ StructType::contains(const StructType* aStruct) const
 }
 
 int
-StructType::compatibleWith(const Type* aType) const
+StructType::compatibleWith(const Type *aType) const
 {
     int retval;
     if (aType->getType() != STRUCT)
@@ -517,15 +517,15 @@ StructType::compatibleWith(const Type* aType) const
     }
     else
     {
-        if (elements.size() != (static_cast<StructType*>(const_cast<Type*>(aType)))->elements.size())
+        if (elements.size() != (static_cast<StructType *>(const_cast<Type *>(aType)))->elements.size())
         {
             LTRACE << "not the same size";
             retval = 0;
         }
         else
         {
-            const BaseType* myBaseType;
-            const BaseType* otherBaseType;
+            const BaseType *myBaseType;
+            const BaseType *otherBaseType;
 
             unsigned int i;
 
@@ -533,7 +533,7 @@ StructType::compatibleWith(const Type* aType) const
             for (i = 0; i < elements.size(); i++)
             {
                 myBaseType = elements[i];
-                otherBaseType = (static_cast<StructType*>(const_cast<Type*>(aType)))->elements[i];
+                otherBaseType = (static_cast<StructType *>(const_cast<Type *>(aType)))->elements[i];
                 if (!myBaseType->compatibleWith(otherBaseType))
                 {
                     LTRACE << i << ". element " << otherBaseType->getName() << " does not match " << myBaseType;
@@ -550,11 +550,12 @@ void
 StructType::calcSize()
 {
     unsigned int tempSize = 0;
-    
-    for (unsigned int i = 0; i < numElems; i++){
-        tempSize += elements[i]->getSize();        
+
+    for (unsigned int i = 0; i < numElems; i++)
+    {
+        tempSize += elements[i]->getSize();
     }
-    
+
     size = tempSize;
 }
 

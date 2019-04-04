@@ -58,25 +58,25 @@ public:
     explicit
 
     /// constructs a scalar type value
-    r_Primitive(const char* newBuffer, const r_Primitive_Type* newType);
+    r_Primitive(const char *newBuffer, const r_Primitive_Type *newType);
 
     /// copy constructor
-    r_Primitive(const r_Primitive& obj);
+    r_Primitive(const r_Primitive &obj);
 
     /// destructor
     ~r_Primitive();
 
     /// clone operator
-    virtual r_Scalar* clone() const;
+    virtual r_Scalar *clone() const;
 
     /// operator for assigning a primitive
-    const r_Primitive& operator= (const r_Primitive&);
+    const r_Primitive &operator= (const r_Primitive &);
 
     /// gets the pointer to the buffer
-    const char* get_buffer() const;
+    const char *get_buffer() const;
 
     /// debug output
-    virtual void print_status(std::ostream& s) const;
+    virtual void print_status(std::ostream &s) const;
 
     virtual bool isPrimitive() const;
 
@@ -128,7 +128,7 @@ public:
 
 private:
     /// buffer
-    char* valueBuffer;
+    char *valueBuffer;
 };
 
 
@@ -137,7 +137,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Primitive}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Primitive& obj);
+extern std::ostream &operator<<(std::ostream &s, const r_Primitive &obj);
 
 #endif
 

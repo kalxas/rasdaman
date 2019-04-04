@@ -52,7 +52,7 @@ class HierIndexDS   :   public IndexDS
 public:
     HierIndexDS(): IndexDS() {}
 
-    HierIndexDS(const OId& id): IndexDS(id) {}
+    HierIndexDS(const OId &id): IndexDS(id) {}
 
     ~HierIndexDS() override = default;
 
@@ -63,13 +63,13 @@ public:
         Not implemented.
     */
 
-    virtual HierIndexDS* getParent() const = 0;
+    virtual HierIndexDS *getParent() const = 0;
     /*@Doc:
         Returns a newly constructed HierIndexDS pointer to this
         object`s parent.
     */
 
-    virtual void setParent(const HierIndexDS* newPa) = 0;
+    virtual void setParent(const HierIndexDS *newPa) = 0;
     /*@Doc:
         Sets the parent node of this object to newPa.
     */

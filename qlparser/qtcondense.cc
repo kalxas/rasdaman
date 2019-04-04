@@ -67,7 +67,7 @@ QtCondense::QtCondense(Ops::OpType newOpType)
 
 
 
-QtCondense::QtCondense(Ops::OpType newOpType, QtOperation* initInput)
+QtCondense::QtCondense(Ops::OpType newOpType, QtOperation *initInput)
     : QtUnaryOperation(initInput), opType(newOpType)
 {
 }
@@ -82,13 +82,13 @@ QtCondense::getAreaType()
 
 
 void
-QtCondense::optimizeLoad(QtTrimList* trimList)
+QtCondense::optimizeLoad(QtTrimList *trimList)
 {
     // reset trimList because optimization enters a new MDD area
 
     // delete list
     // release( trimList->begin(), trimList->end() );
-    vector<QtNode::QtTrimElement*>::iterator iter;
+    vector<QtNode::QtTrimElement *>::iterator iter;
     for (iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;
@@ -106,13 +106,13 @@ QtCondense::optimizeLoad(QtTrimList* trimList)
 
 
 
-QtData*
-QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
+QtData *
+QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
 {
-    QtScalarData* returnValue = NULL;
+    QtScalarData *returnValue = NULL;
 
     // get the operand
-    QtData* operand = input->evaluate(inputList);
+    QtData *operand = input->evaluate(inputList);
 
     if (operand)
     {
@@ -133,7 +133,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
         }
 #endif
 
-        QtMDD* mdd = static_cast<QtMDD*>(operand);
+        QtMDD *mdd = static_cast<QtMDD *>(operand);
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (opType == Ops::OP_SOME || opType == Ops::OP_ALL || opType == Ops::OP_COUNT)
@@ -155,22 +155,22 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
 #endif
 
         // get result type
-        const BaseType* resultType = Ops::getResultType(opType, mdd->getCellType());
+        const BaseType *resultType = Ops::getResultType(opType, mdd->getCellType());
 
         // get the MDD object
-        MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
-        auto* nullValues = op->getNullValues();
+        MDDObj *op = (static_cast<QtMDD *>(operand))->getMDDObject();
+        auto *nullValues = op->getNullValues();
 
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
 
         LDEBUG << "computeFullCondense-last-good\n";
         // get all tiles in relevant area
-        vector<boost::shared_ptr<Tile>>* allTiles = op->intersect(areaOp);
+        vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
 
         LDEBUG << "computeFullCondense-8\n";
         // get new operation object
-        CondenseOp* condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
+        CondenseOp *condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
         condOp->setNullValues(nullValues);
         unsigned long totalValuesCount{0};
 
@@ -208,7 +208,7 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
 
         LDEBUG << "computeFullCondense-b\n";
         // allocate buffer for the result
-        char* resultBuffer = new char[resultType->getSize()];
+        char *resultBuffer = new char[resultType->getSize()];
         memcpy(resultBuffer, condOp->getAccuVal(), resultType->getSize());
 
         LDEBUG << "computeFullCondense-c\n";
@@ -236,8 +236,8 @@ QtCondense::computeFullCondense(QtDataList* inputList, r_Minterval& areaOp)
 
 
 
-const QtTypeElement&
-QtCondense::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtCondense::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -246,7 +246,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Class..: " << getClassName();
         LTRACE << "Operand: ";
@@ -261,7 +261,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
             throw parseInfo;
         }
 
-        const BaseType* baseType = (static_cast<const MDDBaseType*>(inputType.getType()))->getBaseType();
+        const BaseType *baseType = (static_cast<const MDDBaseType *>(inputType.getType()))->getBaseType();
 
         if (opType == Ops::OP_SOME || opType == Ops::OP_ALL)
         {
@@ -283,24 +283,24 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
             }
         }
 
-        const BaseType* resultType = Ops::getResultType(opType, baseType);
+        const BaseType *resultType = Ops::getResultType(opType, baseType);
 
         if (getNodeType() == QT_AVGCELLS)
         {
             // consider division by the number of cells
 
-            const BaseType* DoubleType = TypeFactory::mapType("Double");
-            const BaseType* finalResultType = Ops::getResultType(Ops::OP_DIV, resultType, DoubleType);
+            const BaseType *DoubleType = TypeFactory::mapType("Double");
+            const BaseType *finalResultType = Ops::getResultType(Ops::OP_DIV, resultType, DoubleType);
 
             resultType = finalResultType;
         }
 
         if (getNodeType() >= QT_VARPOP && getNodeType() <= QT_STDDEVSAMP)
         {
-            const BaseType* finalResultType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultType);
+            const BaseType *finalResultType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultType);
 
             resultType = finalResultType;
- 
+
         }
 
         dataStreamType.setType(resultType);
@@ -315,7 +315,7 @@ QtCondense::checkType(QtTypeTuple* typeTuple)
 
 
 void
-QtCondense::printTree(int tab, ostream& s, QtChildType mode)
+QtCondense::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << getClassName() << " object" << getEvaluationTime() << endl;
 
@@ -325,7 +325,7 @@ QtCondense::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtCondense::printAlgebraicExpression(ostream& s)
+QtCondense::printAlgebraicExpression(ostream &s)
 {
     s << getAlgebraicName() << "(";
 
@@ -352,22 +352,22 @@ QtSome::QtSome()
 }
 
 
-QtSome::QtSome(QtOperation* inputNew)
+QtSome::QtSome(QtOperation *inputNew)
     : QtCondense(Ops::OP_SOME, inputNew)
 {
 }
 
 
-QtData*
-QtSome::evaluate(QtDataList* inputList)
+QtData *
+QtSome::evaluate(QtDataList *inputList)
 {
     startTimer("Qt");
 
-    QtData* returnValue = NULL;
+    QtData *returnValue = NULL;
     r_ULong dummy = 0; // needed for conversion to and from CULong
 
     // get the operand
-    QtData* operand = input->evaluate(inputList);
+    QtData *operand = input->evaluate(inputList);
 
     if (operand)
     {
@@ -387,10 +387,10 @@ QtSome::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtMDD* mdd = static_cast<QtMDD*>(operand);
+        QtMDD *mdd = static_cast<QtMDD *>(operand);
 
         // get result type
-        BaseType* resultType = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
+        BaseType *resultType = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (mdd->getCellType()->getType() != BOOLTYPE)
@@ -408,22 +408,22 @@ QtSome::evaluate(QtDataList* inputList)
 #endif
 
     // get the MDD object
-    MDDObj* op = mdd->getMDDObject();
+    MDDObj *op = mdd->getMDDObject();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
 
     // get all tiles in relevant area
-    vector<boost::shared_ptr<Tile>>* allTiles = op->intersect(areaOp);
+    vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
 
     // allocate buffer for the result
     unsigned int typeSize = resultType->getSize();
-    char* resultBuffer = new char[typeSize];
+    char *resultBuffer = new char[typeSize];
 
     // initialize result buffer with false
     dummy = 0;
     resultType->makeFromCULong(resultBuffer, &dummy);
-    CondenseOp* condOp = Ops::getCondenseOp(Ops::OP_SOME, resultType, resultBuffer, resultType, 0, 0);
+    CondenseOp *condOp = Ops::getCondenseOp(Ops::OP_SOME, resultType, resultBuffer, resultType, 0, 0);
 
     // and iterate over them
     for (vector<boost::shared_ptr<Tile>>::iterator tileIt = allTiles->begin(); tileIt !=  allTiles->end() && !dummy ; tileIt++)
@@ -476,22 +476,22 @@ QtAll::QtAll()
 }
 
 
-QtAll::QtAll(QtOperation* inputNew)
+QtAll::QtAll(QtOperation *inputNew)
     : QtCondense(Ops::OP_ALL, inputNew)
 {
 }
 
 
-QtData*
-QtAll::evaluate(QtDataList* inputList)
+QtData *
+QtAll::evaluate(QtDataList *inputList)
 {
     startTimer("QtAll");
 
-    QtData* returnValue = NULL;
+    QtData *returnValue = NULL;
     r_ULong dummy = 0; // needed for conversion to and from CULong
 
     // get the operand
-    QtData* operand = input->evaluate(inputList);
+    QtData *operand = input->evaluate(inputList);
 
     if (operand)
     {
@@ -512,10 +512,10 @@ QtAll::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtMDD* mdd = static_cast<QtMDD*>(operand);
+        QtMDD *mdd = static_cast<QtMDD *>(operand);
 
         // get result type
-        const BaseType* resultType = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
+        const BaseType *resultType = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (mdd->getCellType()->getType() != BOOLTYPE)
@@ -533,22 +533,22 @@ QtAll::evaluate(QtDataList* inputList)
 #endif
 
     // get the MDD object
-    MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
+    MDDObj *op = (static_cast<QtMDD *>(operand))->getMDDObject();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
 
     // get all tiles in relevant area
-    vector<boost::shared_ptr<Tile>>* allTiles = op->intersect(areaOp);
+    vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
 
     // allocate buffer for the result
     unsigned int tempTypeSize = resultType->getSize();
-    char* resultBuffer = new char[tempTypeSize];
+    char *resultBuffer = new char[tempTypeSize];
 
     // initialize result buffer with true
     dummy = 1;
     resultType->makeFromCULong(resultBuffer, &dummy);
-    CondenseOp* condOp = Ops::getCondenseOp(Ops::OP_ALL, resultType, resultBuffer, resultType, 0, 0);
+    CondenseOp *condOp = Ops::getCondenseOp(Ops::OP_ALL, resultType, resultBuffer, resultType, 0, 0);
 
     for (std::vector<boost::shared_ptr<Tile>>::iterator tileIt = allTiles->begin(); tileIt != allTiles->end() && dummy; tileIt++)
     {
@@ -597,18 +597,18 @@ QtCountCells::QtCountCells()
 }
 
 
-QtCountCells::QtCountCells(QtOperation* inputNew)
+QtCountCells::QtCountCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_COUNT, inputNew)
 {
 }
 
 
-QtData*
-QtCountCells::evaluate(QtDataList* inputList)
+QtData *
+QtCountCells::evaluate(QtDataList *inputList)
 {
     startTimer("QtCountCells");
     r_Minterval dummyint;
-    QtData* returnValue = QtCondense::computeFullCondense(inputList, dummyint);
+    QtData *returnValue = QtCondense::computeFullCondense(inputList, dummyint);
     stopTimer();
 
     return returnValue;
@@ -625,19 +625,19 @@ QtAddCells::QtAddCells()
 }
 
 
-QtAddCells::QtAddCells(QtOperation* inputNew)
+QtAddCells::QtAddCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_SUM, inputNew)
 {
 }
 
 
-QtData*
-QtAddCells::evaluate(QtDataList* inputList)
+QtData *
+QtAddCells::evaluate(QtDataList *inputList)
 {
     startTimer("QtAddCells");
     r_Minterval dummyint;
 
-    QtData* returnValue = QtCondense::computeFullCondense(inputList, dummyint);
+    QtData *returnValue = QtCondense::computeFullCondense(inputList, dummyint);
     stopTimer();
 
     return returnValue;
@@ -654,33 +654,33 @@ QtAvgCells::QtAvgCells()
 }
 
 
-QtAvgCells::QtAvgCells(QtOperation* inputNew)
+QtAvgCells::QtAvgCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_SUM, inputNew)
 {
 }
 
 
-QtData*
-QtAvgCells::evaluate(QtDataList* inputList)
+QtData *
+QtAvgCells::evaluate(QtDataList *inputList)
 {
     startTimer("QtAvgCells");
 
     // domain for condensing operation
     r_Minterval areaOp;
 
-    QtData* dataCond = QtCondense::computeFullCondense(inputList, areaOp);
+    QtData *dataCond = QtCondense::computeFullCondense(inputList, areaOp);
 
     //
     // divide by the number of cells
     //
 
-    QtScalarData* scalarDataResult = NULL;
-    QtScalarData* scalarDataCond   = static_cast<QtScalarData*>(dataCond);
-    BaseType*     resultType       = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
+    QtScalarData *scalarDataResult = NULL;
+    QtScalarData *scalarDataCond   = static_cast<QtScalarData *>(dataCond);
+    BaseType     *resultType       = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
 
 
     // allocate memory for the result
-    char* resultBuffer = new char[ resultType->getSize() ];
+    char *resultBuffer = new char[ resultType->getSize() ];
 
     // allocate ulong constant with number of cells
     r_ULong constValue = scalarDataCond->getTotalValuesCount() - dataCond->getNullValuesCount();
@@ -688,8 +688,8 @@ QtAvgCells::evaluate(QtDataList* inputList)
     {
         constValue = 1;
     }
-    const BaseType*     constType   = TypeFactory::mapType("ULong");
-    char*         constBuffer = new char[ constType->getSize() ];
+    const BaseType     *constType   = TypeFactory::mapType("ULong");
+    char         *constBuffer = new char[ constType->getSize() ];
 
     constType->makeFromCULong(constBuffer, &constValue);
 
@@ -741,19 +741,19 @@ QtMinCells::QtMinCells()
 }
 
 
-QtMinCells::QtMinCells(QtOperation* inputNew)
+QtMinCells::QtMinCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_MIN, inputNew)
 {
 }
 
 
-QtData*
-QtMinCells::evaluate(QtDataList* inputList)
+QtData *
+QtMinCells::evaluate(QtDataList *inputList)
 {
     startTimer("QtMinCells");
     r_Minterval dummyint;
 
-    QtData* returnValue = QtCondense::computeFullCondense(inputList, dummyint);
+    QtData *returnValue = QtCondense::computeFullCondense(inputList, dummyint);
 
     stopTimer();
 
@@ -771,19 +771,19 @@ QtMaxCells::QtMaxCells()
 }
 
 
-QtMaxCells::QtMaxCells(QtOperation* inputNew)
+QtMaxCells::QtMaxCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_MAX, inputNew)
 {
 }
 
 
-QtData*
-QtMaxCells::evaluate(QtDataList* inputList)
+QtData *
+QtMaxCells::evaluate(QtDataList *inputList)
 {
     startTimer("QtMaxCells");
     r_Minterval dummyint;
 
-    QtData* returnValue = QtCondense::computeFullCondense(inputList, dummyint);
+    QtData *returnValue = QtCondense::computeFullCondense(inputList, dummyint);
 
     stopTimer();
 
@@ -797,52 +797,52 @@ QtStdDevVar::QtStdDevVar(QtNodeType newNodeType)
 }
 
 
-QtStdDevVar::QtStdDevVar(QtOperation* inputNew, QtNodeType newNodeType)
+QtStdDevVar::QtStdDevVar(QtOperation *inputNew, QtNodeType newNodeType)
     : QtCondense(Ops::OP_SQSUM, inputNew), nodeType(newNodeType)
 {
 }
 
 
-QtData*
-QtStdDevVar::evaluate(QtDataList* inputList)
+QtData *
+QtStdDevVar::evaluate(QtDataList *inputList)
 {
     startTimer("QtStdDevVar");
     r_Minterval dummyint1;
     r_Minterval dummyint2;
 
-    QtScalarData* res = new QtAtomicData();
+    QtScalarData *res = new QtAtomicData();
 
     // Computing \sum_i x_i^2 - (\sum_i x_i)^2 / n
 
     // sum of squares
-    QtData* sqSum = QtCondense::computeFullCondense(inputList, dummyint1);
-  
+    QtData *sqSum = QtCondense::computeFullCondense(inputList, dummyint1);
+
     // sum of elements
-    QtCondense* tmp = new QtCondense(Ops::OP_SUM, input);
-    QtData* sum = tmp->computeFullCondense(inputList, dummyint2);
+    QtCondense *tmp = new QtCondense(Ops::OP_SUM, input);
+    QtData *sum = tmp->computeFullCondense(inputList, dummyint2);
 
 
-    QtScalarData* scalarSum    = static_cast<QtScalarData*>(sum);
-    BaseType*     resultType   = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
-    char* resultBuffer = new char[ resultType->getSize() ];
+    QtScalarData *scalarSum    = static_cast<QtScalarData *>(sum);
+    BaseType     *resultType   = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
+    char *resultBuffer = new char[ resultType->getSize() ];
 
     Ops::execUnaryConstOp(Ops::OP_CAST_DOUBLE, resultType, scalarSum->getValueType(),
-                          resultBuffer, scalarSum->getValueBuffer()); 
+                          resultBuffer, scalarSum->getValueBuffer());
 
     Ops::execBinaryConstOp(Ops::OP_MULT, resultType,
                            resultType,   resultType,
                            resultBuffer,
                            resultBuffer, resultBuffer);
 
-  
+
     // allocate ulong constant with number of cells
     r_ULong constValue  = scalarSum->getTotalValuesCount() - sum->getNullValuesCount();
     if (constValue == 0)
     {
         constValue = 1;
     }
-    const BaseType*     constType   = TypeFactory::mapType("ULong");
-    char*               constBuffer = new char[ constType->getSize() ];
+    const BaseType     *constType   = TypeFactory::mapType("ULong");
+    char               *constBuffer = new char[ constType->getSize() ];
 
     constType->makeFromCULong(constBuffer, &constValue);
 
@@ -852,7 +852,7 @@ QtStdDevVar::evaluate(QtDataList* inputList)
                            resultBuffer, constBuffer);
 
 
-    QtScalarData* scalarSqSum = static_cast<QtScalarData*>(sqSum);
+    QtScalarData *scalarSqSum = static_cast<QtScalarData *>(sqSum);
 
     Ops::execBinaryConstOp(Ops::OP_MINUS, resultType,
                            scalarSqSum->getValueType(),   resultType,
@@ -863,11 +863,11 @@ QtStdDevVar::evaluate(QtDataList* inputList)
 
     if (nodeType == QT_VARSAMP || nodeType == QT_STDDEVSAMP)
     {
-      if (constValue>1)
-      {
-        constValue --;
-      }
-      constType->makeFromCULong(constBuffer, &constValue);
+        if (constValue > 1)
+        {
+            constValue --;
+        }
+        constType->makeFromCULong(constBuffer, &constValue);
     }
 
     Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
@@ -877,8 +877,8 @@ QtStdDevVar::evaluate(QtDataList* inputList)
 
     if (nodeType == QT_STDDEVPOP || nodeType == QT_STDDEVSAMP)
     {
-      Ops::execUnaryConstOp(Ops::OP_SQRT, resultType, resultType, 
-                            resultBuffer, resultBuffer);
+        Ops::execUnaryConstOp(Ops::OP_SQRT, resultType, resultType,
+                              resultBuffer, resultBuffer);
     }
 
     res->setValueType(resultType);
@@ -894,7 +894,7 @@ QtStdDevVar::evaluate(QtDataList* inputList)
     {
         scalarSqSum->deleteRef();
     }
-    
+
     stopTimer();
 
     return res;

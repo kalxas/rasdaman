@@ -53,16 +53,16 @@ StructType::insertInDb()
     char elementname[VARCHAR_MAXLEN];
     unsigned int count;
 
-    (void) strncpy(structtypename, const_cast<char*>(getTypeName()), (size_t) sizeof(structtypename));
+    (void) strncpy(structtypename, const_cast<char *>(getTypeName()), (size_t) sizeof(structtypename));
     structtypeid = myOId.getCounter();
 
     SQLiteQuery::executeWithParams("INSERT INTO RAS_BASETYPENAMES (BaseTypeId, BaseTypeName) VALUES (%lld, '%s')",
                                    structtypeid, structtypename);
     for (count = 0; count < getNumElems(); count++)
     {
-        (void) strncpy(elementname, const_cast<char*>(getElemName(count)), (size_t) sizeof(elementname));
+        (void) strncpy(elementname, const_cast<char *>(getElemName(count)), (size_t) sizeof(elementname));
         //should not be necessary because of TypeFactory::addType()
-        DBObject* obj = (DBObject*)const_cast<BaseType*>(getElemType(count));
+        DBObject *obj = (DBObject *)const_cast<BaseType *>(getElemType(count));
 
         elementtype = obj->getOId();
         LTRACE << "element " << count << ". id\t:" << elementtype;
@@ -80,8 +80,8 @@ StructType::readFromDb()
 
     long long basetypeid;
     long long elementtypeid;
-    char* basetypename;
-    char* elementname;
+    char *basetypename;
+    char *elementname;
     int count1; // added PB 2005­jan-09
 
     basetypeid = myOId.getCounter();
@@ -109,7 +109,7 @@ StructType::readFromDb()
         count1 = query2.nextColumnInt();
 
         LTRACE << count << ". contenttypeid is " << elementtypeid << " elementname is " << elementname;
-        addElementPriv((char*) elementname, (BaseType*) ObjectBroker::getObjectByOId(OId(elementtypeid)));
+        addElementPriv((char *) elementname, (BaseType *) ObjectBroker::getObjectByOId(OId(elementtypeid)));
         count++;
     }
     DBObject::readFromDb();

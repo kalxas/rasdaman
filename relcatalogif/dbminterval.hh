@@ -49,27 +49,27 @@ class DBMinterval : public DBObject, public r_Minterval
 public:
     DBMinterval();
 
-    DBMinterval(const OId& id);
+    DBMinterval(const OId &id);
 
     DBMinterval(r_Dimension dim);
 
-    DBMinterval(const char* dom);
+    DBMinterval(const char *dom);
 
-    DBMinterval(const r_Minterval& old);
+    DBMinterval(const r_Minterval &old);
 
-    DBMinterval(const DBMinterval& old);
+    DBMinterval(const DBMinterval &old);
 
     ~DBMinterval() noexcept(false);
     /*@Doc:
     validates the object in the database.
     */
 
-    virtual DBMinterval& operator=(const DBMinterval& old);
+    virtual DBMinterval &operator=(const DBMinterval &old);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */
 
-    virtual DBMinterval& operator=(const r_Minterval& old);
+    virtual DBMinterval &operator=(const r_Minterval &old);
     /*@Doc:
     replaces only the r_Minterval part of the object
     */

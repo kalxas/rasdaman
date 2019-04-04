@@ -29,38 +29,38 @@ rasdaman GmbH.
 #include <logging.hh>
 
 inline void
-QtData::setIteratorName( const std::string &iteratorNameNew )
+QtData::setIteratorName(const std::string &iteratorNameNew)
 {
-  iteratorName = iteratorNameNew;
+    iteratorName = iteratorNameNew;
 }
 
 
 inline const std::string
 QtData::getIteratorName() const
 {
-  return iteratorName;
+    return iteratorName;
 }
 
 
 inline QtData::QtLifetime
 QtData::getLifetime() const
 {
-  return persistent;
+    return persistent;
 }
 
 
 inline void
-QtData::setLifetime( QtLifetime flag)
+QtData::setLifetime(QtLifetime flag)
 {
-  persistent = flag;
+    persistent = flag;
 }
 
 
 
-inline unsigned int 
+inline unsigned int
 QtData::getRefNo() const
 {
-  return referenceCounter;
+    return referenceCounter;
 }
 
 
@@ -68,45 +68,53 @@ QtData::getRefNo() const
 inline ParseInfo
 QtData::getParseInfo()
 {
-  if( parseInfo )
-    return *parseInfo;
-  else
-    return ParseInfo();
+    if (parseInfo)
+    {
+        return *parseInfo;
+    }
+    else
+    {
+        return ParseInfo();
+    }
 }
 
 
 inline void
-QtData::setParseInfo( const ParseInfo &info )
+QtData::setParseInfo(const ParseInfo &info)
 {
-  if( parseInfo )
-    *parseInfo = info;
-  else
-    parseInfo = new ParseInfo( info ); 
+    if (parseInfo)
+    {
+        *parseInfo = info;
+    }
+    else
+    {
+        parseInfo = new ParseInfo(info);
+    }
 }
 
 
 
 inline
-int 
+int
 QtData::deleteRef()
 {
-  int objDeleted = 0;
+    int objDeleted = 0;
 
 #if 0
-  if (parseInfo==NULL)
-  {
-    // LERROR << "QtData::deleteRef() - error: null parseinfo, resetting before doing delete.";
-    parseInfo = new ParseInfo();
-  }
+    if (parseInfo == NULL)
+    {
+        // LERROR << "QtData::deleteRef() - error: null parseinfo, resetting before doing delete.";
+        parseInfo = new ParseInfo();
+    }
 #endif
 
-  if( !decRef() )
-  {
-    objDeleted = 1;
-    delete this;
-  }
-  
-  return objDeleted;
+    if (!decRef())
+    {
+        objDeleted = 1;
+        delete this;
+    }
+
+    return objDeleted;
 }
 
 
@@ -115,12 +123,16 @@ inline
 unsigned int
 QtData::decRef()
 {
-  if( referenceCounter > 0 )
-    referenceCounter--;
-  else
-    LERROR << "Internal Error: QtData::decRef() - decrease of a zero reference counter";
+    if (referenceCounter > 0)
+    {
+        referenceCounter--;
+    }
+    else
+    {
+        LERROR << "Internal Error: QtData::decRef() - decrease of a zero reference counter";
+    }
 
-  return referenceCounter;
+    return referenceCounter;
 }
 
 
@@ -129,7 +141,7 @@ inline
 void
 QtData::incRef()
 {
-  referenceCounter++;
+    referenceCounter++;
 }
 
 

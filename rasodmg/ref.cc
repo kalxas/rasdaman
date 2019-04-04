@@ -63,7 +63,7 @@ r_Ref_Any::r_Ref_Any()
 
 
 
-r_Ref_Any::r_Ref_Any(const r_Ref_Any& obj)
+r_Ref_Any::r_Ref_Any(const r_Ref_Any &obj)
 {
     LTRACE << "r_Ref_Any( const r_Ref_Any& )";
     memptr       = obj.memptr;
@@ -73,7 +73,7 @@ r_Ref_Any::r_Ref_Any(const r_Ref_Any& obj)
 
 
 
-r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Transaction *taArg)
+r_Ref_Any::r_Ref_Any(const r_OId &initOId, r_Transaction *taArg)
     : ta{taArg}, memptr(0), oid{initOId}
 {
     LTRACE << "r_Ref_Any( const r_OId& )";
@@ -81,7 +81,7 @@ r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Transaction *taArg)
 
 
 
-r_Ref_Any::r_Ref_Any(r_Object* ptr)
+r_Ref_Any::r_Ref_Any(r_Object *ptr)
     : ta{ptr->get_transaction()}, memptr(ptr), oid()
 {
     LTRACE << "r_Ref_Any( r_Object* )";
@@ -89,14 +89,14 @@ r_Ref_Any::r_Ref_Any(r_Object* ptr)
 
 
 
-r_Ref_Any::r_Ref_Any(void* ptr)
+r_Ref_Any::r_Ref_Any(void *ptr)
     : memptr(ptr), oid()
 {
     LTRACE << "r_Ref_Any( void* )";
 }
 
 
-r_Ref_Any::r_Ref_Any(const r_OId& initOId, r_Object* ptr, r_Transaction *taArg)
+r_Ref_Any::r_Ref_Any(const r_OId &initOId, r_Object *ptr, r_Transaction *taArg)
     : ta{taArg}, memptr(ptr), oid(initOId)
 {
     LTRACE << "r_Ref_Any( const r_OId &oid, const r_Object* )";
@@ -117,8 +117,8 @@ r_Ref_Any::~r_Ref_Any()
 
 
 
-r_Ref_Any&
-r_Ref_Any::operator=(const r_Ref_Any& objptr)
+r_Ref_Any &
+r_Ref_Any::operator=(const r_Ref_Any &objptr)
 {
     ta        = objptr.ta;
     memptr    = objptr.memptr;
@@ -129,8 +129,8 @@ r_Ref_Any::operator=(const r_Ref_Any& objptr)
 
 
 
-r_Ref_Any&
-r_Ref_Any::operator=(r_Object* ptr)
+r_Ref_Any &
+r_Ref_Any::operator=(r_Object *ptr)
 {
     ta        = ptr->get_transaction();
     memptr    = ptr;
@@ -148,7 +148,7 @@ r_Ref_Any::destroy()
 
     if (memptr && !oid.is_valid())
     {
-        delete static_cast<r_Object*>(memptr);
+        delete static_cast<r_Object *>(memptr);
         memptr = 0;
     }
 }
@@ -161,72 +161,72 @@ r_Ref_Any::delete_object()
 
     if (memptr)
     {
-        delete static_cast<r_Object*>(memptr);
+        delete static_cast<r_Object *>(memptr);
         memptr = 0;
     }
 }
 
 
 
-r_Ref_Any::operator const void* () const
+r_Ref_Any::operator const void *() const
 {
     return memptr;
 }
 
 
 
-r_Ref_Any::operator void* ()
+r_Ref_Any::operator void *()
 {
     return memptr;
 }
 
 
 
-r_Ref_Any::operator r_Point* ()
+r_Ref_Any::operator r_Point *()
 {
-    return static_cast<r_Point*>(memptr);
+    return static_cast<r_Point *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_Sinterval* ()
+r_Ref_Any::operator r_Sinterval *()
 {
-    return static_cast<r_Sinterval*>(memptr);
+    return static_cast<r_Sinterval *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_Minterval* ()
+r_Ref_Any::operator r_Minterval *()
 {
-    return static_cast<r_Minterval*>(memptr);
+    return static_cast<r_Minterval *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_OId* ()
+r_Ref_Any::operator r_OId *()
 {
-    return static_cast<r_OId*>(memptr);
+    return static_cast<r_OId *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_Scalar* ()
+r_Ref_Any::operator r_Scalar *()
 {
-    return static_cast<r_Scalar*>(memptr);
+    return static_cast<r_Scalar *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_Primitive* ()
+r_Ref_Any::operator r_Primitive *()
 {
-    return static_cast<r_Primitive*>(memptr);
+    return static_cast<r_Primitive *>(memptr);
 }
 
 
 
-r_Ref_Any::operator r_Structure* ()
+r_Ref_Any::operator r_Structure *()
 {
-    return static_cast<r_Structure*>(memptr);
+    return static_cast<r_Structure *>(memptr);
 }
 
 
@@ -248,7 +248,7 @@ r_Ref_Any::is_null() const
 
 
 int
-r_Ref_Any::operator==(const r_Ref_Any& ref) const
+r_Ref_Any::operator==(const r_Ref_Any &ref) const
 {
     LTRACE << "operator==( const r_Ref_Any& )";
     return // both refs are not valid or ...
@@ -262,7 +262,7 @@ r_Ref_Any::operator==(const r_Ref_Any& ref) const
 
 
 int
-r_Ref_Any::operator!=(const r_Ref_Any& ref) const
+r_Ref_Any::operator!=(const r_Ref_Any &ref) const
 {
     LTRACE << "operator!=( const r_Ref_Any& )";
     return !operator==(ref);
@@ -271,16 +271,16 @@ r_Ref_Any::operator!=(const r_Ref_Any& ref) const
 
 
 int
-r_Ref_Any::operator==(const r_Object* ptr) const
+r_Ref_Any::operator==(const r_Object *ptr) const
 {
     LTRACE << "operator==( const r_Object* )";
-    return memptr == static_cast<void*>(const_cast<r_Object*>(ptr));
+    return memptr == static_cast<void *>(const_cast<r_Object *>(ptr));
 }
 
 
 
 int
-r_Ref_Any::operator!=(const r_Object* ptr) const
+r_Ref_Any::operator!=(const r_Object *ptr) const
 {
     LTRACE << "operator!=( const r_Object* )";
     return !operator==(ptr);
@@ -289,7 +289,7 @@ r_Ref_Any::operator!=(const r_Object* ptr) const
 
 
 
-void*
+void *
 r_Ref_Any::get_memory_ptr() const
 {
     return memptr;
@@ -313,7 +313,7 @@ r_Ref<T>::r_Ref()
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_Ref<T>& obj)
+r_Ref<T>::r_Ref(const r_Ref<T> &obj)
 {
     LTRACE << "r_Ref( const r_Ref<T>& )";
     ta           = obj.ta;
@@ -324,7 +324,7 @@ r_Ref<T>::r_Ref(const r_Ref<T>& obj)
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_OId& initOId, r_Transaction *taArg)
+r_Ref<T>::r_Ref(const r_OId &initOId, r_Transaction *taArg)
     : ta{taArg}, memptr(0), oid{initOId}
 {
     LTRACE << "r_Ref( const r_OId& )";
@@ -333,19 +333,19 @@ r_Ref<T>::r_Ref(const r_OId& initOId, r_Transaction *taArg)
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_Ref_Any& obj)
+r_Ref<T>::r_Ref(const r_Ref_Any &obj)
 {
     LTRACE << "r_Ref( const r_Ref_Any& )";
 
     ta        = obj.get_transaction();
-    memptr    = static_cast<T*>(obj.get_memory_ptr());
+    memptr    = static_cast<T *>(obj.get_memory_ptr());
     oid       = obj.get_oid();
 }
 
 
 
 template<class T>
-r_Ref<T>::r_Ref(T* newPtr, r_Transaction *taArg)
+r_Ref<T>::r_Ref(T *newPtr, r_Transaction *taArg)
     : ta{taArg}, memptr(newPtr), oid()
 {
     LTRACE << "r_Ref( const T* )";
@@ -354,7 +354,7 @@ r_Ref<T>::r_Ref(T* newPtr, r_Transaction *taArg)
 
 
 template<class T>
-r_Ref<T>::r_Ref(const r_OId& initOId, T* newPtr, r_Transaction *taArg)
+r_Ref<T>::r_Ref(const r_OId &initOId, T *newPtr, r_Transaction *taArg)
     : ta{taArg}, memptr(newPtr), oid(initOId)
 {
     LTRACE << "r_Ref( const r_OId &oid, const T* )";
@@ -380,7 +380,7 @@ template<class T>
 r_Ref<T>::operator r_Ref_Any() const
 {
     LTRACE << "operator r_Ref_Any()";
-    return r_Ref_Any(oid, (r_Object*)memptr, ta);
+    return r_Ref_Any(oid, (r_Object *)memptr, ta);
 }
 
 
@@ -394,11 +394,11 @@ r_Ref<T>::operator const r_Ref_Any() const
 */
 
 template<class T>
-r_Ref<T>&
-r_Ref<T>::operator=(const r_Ref_Any& newPtr)
+r_Ref<T> &
+r_Ref<T>::operator=(const r_Ref_Any &newPtr)
 {
     ta        = newPtr.get_transaction();
-    memptr    = static_cast<T*>(newPtr.get_memory_ptr());
+    memptr    = static_cast<T *>(newPtr.get_memory_ptr());
     oid       = newPtr.get_oid();
 
     return *this;
@@ -407,8 +407,8 @@ r_Ref<T>::operator=(const r_Ref_Any& newPtr)
 
 
 template<class T>
-r_Ref<T>&
-r_Ref<T>::operator=(T* newPtr)
+r_Ref<T> &
+r_Ref<T>::operator=(T *newPtr)
 {
     memptr    = newPtr;
     oid       = r_OId();
@@ -432,8 +432,8 @@ r_Ref<T>::operator=( r_Ref<T>& objptr )
 
 
 template<class T>
-r_Ref<T>&
-r_Ref<T>::operator=(const r_Ref<T>& objptr)
+r_Ref<T> &
+r_Ref<T>::operator=(const r_Ref<T> &objptr)
 {
     ta        = objptr.ta;
     memptr    = objptr.memptr;
@@ -445,30 +445,38 @@ r_Ref<T>::operator=(const r_Ref<T>& objptr)
 
 
 template<class T>
-const T&
+const T &
 r_Ref<T>::operator*() const
 {
     LTRACE << "operator*()";
     if (!memptr)
+    {
         load_object();
+    }
 
     if (!memptr)
+    {
         throw r_Error(r_Error::r_Error_RefNull);
+    }
 
     return *memptr;
 }
 
 
 template<class T>
-T&
+T &
 r_Ref<T>::operator*()
 {
     LTRACE << "operator*()";
     if (!memptr)
+    {
         load_object();
+    }
 
     if (!memptr)
+    {
         throw r_Error(r_Error::r_Error_RefNull);
+    }
 
     return *memptr;
 }
@@ -476,29 +484,37 @@ r_Ref<T>::operator*()
 
 
 template<class T>
-const T*
+const T *
 r_Ref<T>::operator->() const
 {
     LTRACE << "operator->()";
     if (!memptr)
+    {
         load_object();
+    }
 
     if (!memptr)
+    {
         throw r_Error(r_Error::r_Error_RefNull);
+    }
 
     return memptr;
 }
 
 template<class T>
-T*
+T *
 r_Ref<T>::operator->()
 {
     LTRACE << "operator->()";
     if (!memptr)
+    {
         load_object();
+    }
 
     if (!memptr)
+    {
         throw r_Error(r_Error::r_Error_RefNull);
+    }
 
     return memptr;
 }
@@ -506,24 +522,28 @@ r_Ref<T>::operator->()
 
 
 template<class T>
-const T*
+const T *
 r_Ref<T>::ptr() const
 {
     LTRACE << "ptr()";
     if (!memptr)
+    {
         load_object();
+    }
 
     return memptr;
 }
 
 
 template<class T>
-T*
+T *
 r_Ref<T>::ptr()
 {
     LTRACE << "ptr()";
     if (!memptr)
+    {
         load_object();
+    }
 
     return memptr;
 }
@@ -550,7 +570,7 @@ r_Ref<T>::is_null() const
 
 template<class T>
 int
-r_Ref<T>::operator==(const r_Ref<T>& refR) const
+r_Ref<T>::operator==(const r_Ref<T> &refR) const
 {
     LTRACE << "operator==( const r_Ref<T>& )";
     return // both refs are not valid or ...
@@ -565,7 +585,7 @@ r_Ref<T>::operator==(const r_Ref<T>& refR) const
 
 template<class T>
 int
-r_Ref<T>::operator!=(const r_Ref<T>& refR) const
+r_Ref<T>::operator!=(const r_Ref<T> &refR) const
 {
     LTRACE << "operator!=( const r_Ref<T>& )";
     return !operator==(refR);
@@ -575,7 +595,7 @@ r_Ref<T>::operator!=(const r_Ref<T>& refR) const
 
 template<class T>
 int
-r_Ref<T>::operator==(const T* newPtr) const
+r_Ref<T>::operator==(const T *newPtr) const
 {
     LTRACE << "operator==( const T* )";
     return memptr == newPtr;
@@ -585,7 +605,7 @@ r_Ref<T>::operator==(const T* newPtr) const
 
 template<class T>
 int
-r_Ref<T>::operator!=(const T* newPtr) const
+r_Ref<T>::operator!=(const T *newPtr) const
 {
     LTRACE << "operator!=( const T* )";
     return !operator==(newPtr);
@@ -623,7 +643,7 @@ r_Ref<T>::delete_object()
 
 
 template<class T>
-T*
+T *
 r_Ref<T>::get_memory_ptr() const
 {
     return memptr;
@@ -639,11 +659,15 @@ r_Ref<T>::load_object() const
     {
         auto *tmpTa = ta == NULL ? r_Transaction::actual_transaction : ta;
         if (tmpTa == 0 || tmpTa->get_status() != r_Transaction::active)
+        {
             throw r_Error(r_Error::r_Error_TransactionNotOpen);
+        }
 
         auto *db = ta->getDatabase();
         if (db == 0 || db->get_status() == r_Database::not_open)
+        {
             throw r_Error(r_Error::r_Error_DatabaseClosed);
+        }
 
         // load object and take its memory pointer
         r_Ref<T> ref = ta->load_object(oid);

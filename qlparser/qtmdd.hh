@@ -62,13 +62,13 @@ public:
     // typedef list< list<QtScalarData*>* > QtDimensionList;
 
     /// constructor getting the pointer to the MDDObj object
-    QtMDD(MDDObj* ptr);
+    QtMDD(MDDObj *ptr);
 
     /// constructor getting the pointer to the MDDObj object and an iterator name
-    QtMDD(MDDObj* ptr, std::string name);
+    QtMDD(MDDObj *ptr, std::string name);
 
     /// constructor getting a domain expression and a literal list for initializing a transient constant object
-    QtMDD(QtOperation* mintervalOp, std::list<QtScalarData*>* literalList);
+    QtMDD(QtOperation *mintervalOp, std::list<QtScalarData *> *literalList);
     /**
       The list of literal objects is not deleted.
     */
@@ -77,7 +77,7 @@ public:
     QtMDD(int constantNo);
 
     /// copy constructor
-    QtMDD(const QtMDD& obj);
+    QtMDD(const QtMDD &obj);
 
     /// destructor
     virtual ~QtMDD();
@@ -86,20 +86,20 @@ public:
     //@{
     ///
     /// gets the pointer to the MDDObj object
-    inline MDDObj* getMDDObject() const;
+    inline MDDObj *getMDDObject() const;
     /// sets the pointer to the MDDObj object and it does not care about the old pointer
-    inline void setMDDObject(MDDObj* ptr);
+    inline void setMDDObject(MDDObj *ptr);
     /// read method for loadDomain
-    inline const r_Minterval& getLoadDomain() const;
+    inline const r_Minterval &getLoadDomain() const;
     /// write method for loadDomain
-    inline void setLoadDomain(r_Minterval& newLoadDomain);
+    inline void setLoadDomain(r_Minterval &newLoadDomain);
     /// is the MDD data result from a conversion function
     inline bool isFromConversion() const;
     /// set whether the MDD data is result from a conversion function
     inline void setFromConversion(bool newFromConversion);
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -108,7 +108,7 @@ public:
     //@}
 
     /// returns a pointer to the cell type
-    BaseType* getCellType() const;
+    BaseType *getCellType() const;
 
     /// returns size of one cell in bytes
     unsigned long getCellSize() const;
@@ -117,20 +117,20 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 private:
     /// prevents from using the default constructor
     QtMDD() {};
 
     /// pointer to the MDDObj object
-    MDDObj* mddObject;
+    MDDObj *mddObject;
 
     /// is it the result of a conversion function
     bool fromConversion;

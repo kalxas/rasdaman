@@ -41,7 +41,7 @@ QtVariable::getIteratorName() const
 }
 
 inline void
-QtVariable::setIteratorName( std::string& str )
+QtVariable::setIteratorName(std::string &str)
 {
     iteratorName = str;
 }
@@ -55,10 +55,12 @@ QtVariable::getLoadDomain() const
 
 
 inline void
-QtVariable::setLoadDomain( r_Minterval& loadDomainNew )
+QtVariable::setLoadDomain(r_Minterval &loadDomainNew)
 {
-    if( oldLoadDomain.dimension() == 0 )
+    if (oldLoadDomain.dimension() == 0)
+    {
         oldLoadDomain = loadDomain;
+    }
     loadDomain = loadDomainNew;
 }
 
@@ -77,7 +79,7 @@ QtVariable::getOldLoadDomain()
 }
 
 
-inline std::vector<bool>*
+inline std::vector<bool> *
 QtVariable::getLoadDomainFlag()
 {
     return domainFlag;

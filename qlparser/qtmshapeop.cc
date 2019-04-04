@@ -60,17 +60,17 @@ const QtNode::QtNodeType QtMShapeOp::nodeType = QT_MSHAPEOP;
 QtMShapeOp::QtMShapeOp(QtOperationList *parsedOpList)
     : QtNaryOperation(parsedOpList)
 {
-    
+
 }
 
-QtData*
+QtData *
 QtMShapeOp::evaluate(QtDataList *inputList)
 {
-    
+
     startTimer("QtMShapeOp");
-    
-    QtData* returnValue = NULL;
-    QtDataList* operandList = NULL;
+
+    QtData *returnValue = NULL;
+    QtDataList *operandList = NULL;
 
     if (!getOperands(inputList, operandList) || !operandList)
     {
@@ -82,21 +82,25 @@ QtMShapeOp::evaluate(QtDataList *inputList)
 
     // TODO: should be in checkType?
     // first check operand types
-    bool pointAndMshapeOnly = std::all_of(operandList->begin(), operandList->end(), [](const QtData *val) {
+    bool pointAndMshapeOnly = std::all_of(operandList->begin(), operandList->end(), [](const QtData * val)
+    {
         return val->getDataType() == QT_POINT || val->getDataType() == QT_MSHAPE;
     });
     if (!pointAndMshapeOnly)
     {
         LERROR << "Operands of mshape expression must be points or mshapes.";
         for (auto *dataIter : *operandList)
-            if (dataIter) dataIter->deleteRef();
+            if (dataIter)
+            {
+                dataIter->deleteRef();
+            }
         parseInfo.setErrorNo(GRIDPOINTSONLY);
         throw parseInfo;
     }
 
     std::vector<r_Point> resultPoints;
     resultPoints.reserve(operandList->size());
-    for (auto *data: *operandList)
+    for (auto *data : *operandList)
     {
         if (data->getDataType() == QT_POINT)
         {
@@ -117,7 +121,7 @@ QtMShapeOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-void 
+void
 QtMShapeOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMShapeOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
@@ -125,7 +129,7 @@ QtMShapeOp::printTree(int tab, std::ostream &s, QtChildType mode)
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-void 
+void
 QtMShapeOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "[";
@@ -135,9 +139,9 @@ QtMShapeOp::printAlgebraicExpression(std::ostream &s)
     s << "]";
 }
 
-const 
+const
 QtTypeElement &
-QtMShapeOp::checkType(QtTypeTuple* typeTuple)
+QtMShapeOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -168,8 +172,8 @@ QtMShapeOp::checkType(QtTypeTuple* typeTuple)
     return dataStreamType;
 }
 
-int 
-QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
+int
+QtMShapeOp::isLeftTurn(const std::deque<r_Point *> &vertices)
 {
     // This method checks if any vertices of the user-defined polygon end up
     // being co-linear or if the points form a non convex polygon
@@ -205,12 +209,12 @@ QtMShapeOp::isLeftTurn(const std::deque<r_Point *>& vertices)
     return 0;
 }
 
-bool 
-QtMShapeOp::isValidSetOfPoints(const vector<r_Point>& polygon)
+bool
+QtMShapeOp::isValidSetOfPoints(const vector<r_Point> &polygon)
 {
     // This method checks if the vertices of the user-defined polygon end up
     // forming a concave polygon.
-    std::deque<r_Point*> vertices;
+    std::deque<r_Point *> vertices;
 
     // In case our mShape is a simple line in n-dim
     if (polygon.size() == 2)
@@ -218,11 +222,11 @@ QtMShapeOp::isValidSetOfPoints(const vector<r_Point>& polygon)
         return true;
     }
     // put the first two vertices in the deque
-    vertices.push_back(const_cast<r_Point*>(&polygon[0]));
-    vertices.push_back(const_cast<r_Point*>(&polygon[1]));
+    vertices.push_back(const_cast<r_Point *>(&polygon[0]));
+    vertices.push_back(const_cast<r_Point *>(&polygon[1]));
     for (size_t i = 2; i < polygon.size(); i++)
     {
-        vertices.push_back(const_cast<r_Point*>(&polygon[i]));
+        vertices.push_back(const_cast<r_Point *>(&polygon[i]));
 
         if (isLeftTurn(vertices) != 1)
         {

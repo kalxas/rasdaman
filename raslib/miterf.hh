@@ -40,21 +40,21 @@ class r_FixedPointNumber
 {
 public:
     inline r_FixedPointNumber();
-    inline r_FixedPointNumber(const double&);
+    inline r_FixedPointNumber(const double &);
 
-    inline r_FixedPointNumber& operator=(const r_FixedPointNumber&);
-    inline r_FixedPointNumber& operator=(const double&);
+    inline r_FixedPointNumber &operator=(const r_FixedPointNumber &);
+    inline r_FixedPointNumber &operator=(const double &);
 
     // returns intPart_new - intPart_old -- used for tests
-    inline r_Range stepForward(const r_FixedPointNumber&);
+    inline r_Range stepForward(const r_FixedPointNumber &);
 
     // returns carry of fracPart
-    inline bool    stepForwardFlag(const r_FixedPointNumber&);
+    inline bool    stepForwardFlag(const r_FixedPointNumber &);
 
     inline r_Range getIntPart();
 
 private:
-    inline void init(const double&);
+    inline void init(const double &);
 
     r_Range intPart;
     r_Range fracPart;
@@ -64,7 +64,7 @@ private:
     static const r_Range fracMask;
     static const double fixOne;
 
-    friend std::ostream& operator<<(std::ostream&, r_FixedPointNumber&);
+    friend std::ostream &operator<<(std::ostream &, r_FixedPointNumber &);
 };
 
 
@@ -84,7 +84,7 @@ class r_MiterFloat
 {
 public:
     /// Constructor getting the source tile, the source domain and the destination domain
-    inline r_MiterFloat(Tile* sourceTile, r_Minterval& sourceDomain, r_Minterval& destDomain);
+    inline r_MiterFloat(Tile *sourceTile, r_Minterval &sourceDomain, r_Minterval &destDomain);
 
     /// destructor
     inline ~r_MiterFloat();
@@ -93,7 +93,7 @@ public:
     inline void reset();
 
     /// get the next cell
-    inline char* nextCell();
+    inline char *nextCell();
 
     /// true if done
     inline bool isDone();
@@ -110,14 +110,14 @@ protected:
 
         r_Range dimStep;
         r_Range scaleStep;
-        char*    cell;
+        char    *cell;
     };
 
     r_Dimension dim;
-    char*        currentCell;
-    const char*  firstCell;
+    char        *currentCell;
+    const char  *firstCell;
 
-    iter_desc*   iterDesc;
+    iter_desc   *iterDesc;
 
     bool done;
 };

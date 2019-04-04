@@ -84,9 +84,9 @@ DatabaseIf::isConsistent()
 }
 
 void
-DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
-                     __attribute__((unused)) const char* schemaName,
-                     __attribute__((unused)) const char* volumeName)
+DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
+                     __attribute__((unused)) const char *schemaName,
+                     __attribute__((unused)) const char *volumeName)
 {
     try
     {
@@ -324,7 +324,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
                      "NullValueOId INTEGER PRIMARY KEY AUTOINCREMENT)");
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUES_IX "
                      "ON RAS_NULLVALUES (SetTypeOId)");
-        
+
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUEPAIRS ("
                      "NullValueOId INTEGER NOT NULL REFERENCES RAS_NULLVALUES,"
                      "Count INTEGER NOT NULL,"
@@ -341,7 +341,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
 
         disconnect();
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         LTRACE << "create(" << dbName <<
                ", " << schemaName << ", " << volumeName <<
@@ -352,7 +352,7 @@ DatabaseIf::createDB(__attribute__((unused)) const char* dbName,
 }
 
 void
-DatabaseIf::destroyDB(const char* dbName)
+DatabaseIf::destroyDB(const char *dbName)
 {
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {

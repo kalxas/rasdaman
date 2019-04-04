@@ -89,7 +89,7 @@ public:
     QtAtomicData(double valRe, double valIm, unsigned short size);
 
     /// copy constructor
-    QtAtomicData(const QtAtomicData& obj);
+    QtAtomicData(const QtAtomicData &obj);
 
     /// destructor
     virtual ~QtAtomicData();
@@ -104,7 +104,7 @@ public:
     double getDoubleValue() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 };
 
 #include "qlparser/qtatomicdata.icc"

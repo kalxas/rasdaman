@@ -56,7 +56,7 @@ RasControl::RasControl(boost::shared_ptr<UserManager> userManager,
                        boost::shared_ptr<DatabaseManager> dbManager,
                        boost::shared_ptr<ServerManager> serverManager,
                        boost::shared_ptr<PeerManager> peerManager,
-                       RasManager* rasmanager)
+                       RasManager *rasmanager)
 {
     this->userManager_ = userManager;
     this->dbHostManager_ = dbHostManager;
@@ -73,7 +73,7 @@ std::string RasControl::deprecatedCommand()
     return message;
 }
 
-std::string RasControl::defineDbHost(const DefineDbHost& dbHostData)
+std::string RasControl::defineDbHost(const DefineDbHost &dbHostData)
 {
     std::string message = "";
 
@@ -103,7 +103,7 @@ std::string RasControl::defineDbHost(const DefineDbHost& dbHostData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -115,7 +115,7 @@ std::string RasControl::defineDbHost(const DefineDbHost& dbHostData)
     return message;
 }
 
-std::string RasControl::changeDbHost(const ChangeDbHost& dbHostData)
+std::string RasControl::changeDbHost(const ChangeDbHost &dbHostData)
 {
     std::string message = "";
 
@@ -149,7 +149,7 @@ std::string RasControl::changeDbHost(const ChangeDbHost& dbHostData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -162,7 +162,7 @@ std::string RasControl::changeDbHost(const ChangeDbHost& dbHostData)
 
 }
 
-std::string RasControl::removeDbHost(const RemoveDbHost& dbHostData)
+std::string RasControl::removeDbHost(const RemoveDbHost &dbHostData)
 {
     std::string message = "";
 
@@ -174,7 +174,7 @@ std::string RasControl::removeDbHost(const RemoveDbHost& dbHostData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -213,7 +213,7 @@ std::string RasControl::helpDbHost()
     return this->showHelp();
 }
 
-std::string RasControl::defineDb(const DefineDb& dbData)
+std::string RasControl::defineDb(const DefineDb &dbData)
 {
     std::string message = "";
 
@@ -223,7 +223,7 @@ std::string RasControl::defineDb(const DefineDb& dbData)
     {
         this->dbManager_->defineDatabase(dbData.dbhost_name(), dbData.db_name());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -235,7 +235,7 @@ std::string RasControl::defineDb(const DefineDb& dbData)
     return message;
 }
 
-std::string RasControl::changeDb(const ChangeDb& dbData)
+std::string RasControl::changeDb(const ChangeDb &dbData)
 {
     std::string message = "";
 
@@ -250,7 +250,7 @@ std::string RasControl::changeDb(const ChangeDb& dbData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -262,7 +262,7 @@ std::string RasControl::changeDb(const ChangeDb& dbData)
     return message;
 }
 
-std::string RasControl::removeDb(const RemoveDb& dbData)
+std::string RasControl::removeDb(const RemoveDb &dbData)
 {
     std::string message = "";
 
@@ -270,11 +270,11 @@ std::string RasControl::removeDb(const RemoveDb& dbData)
 
     try
     {
-        this->dbManager_->removeDatabase(dbData.dbhost_name() , dbData.db_name());
+        this->dbManager_->removeDatabase(dbData.dbhost_name(), dbData.db_name());
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -286,7 +286,7 @@ std::string RasControl::removeDb(const RemoveDb& dbData)
     return message;
 }
 
-std::string RasControl::listDb(const ListDb& listDbData)
+std::string RasControl::listDb(const ListDb &listDbData)
 {
     std::stringstream ss;
 
@@ -368,12 +368,12 @@ std::string RasControl::helpDb()
     return this->showHelp();
 }
 
-std::string RasControl::defineUser(const DefineUser& userData)
+std::string RasControl::defineUser(const DefineUser &userData)
 {
     std::string result;
 
-    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
-    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
+    UserDatabaseRightsProto *dbRights = new UserDatabaseRightsProto();
     UserProto userProp;
 
     if (userData.has_access_rights())
@@ -440,7 +440,7 @@ std::string RasControl::defineUser(const DefineUser& userData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         result = this->formatErrorMessage(ex.what());
     }
@@ -452,7 +452,7 @@ std::string RasControl::defineUser(const DefineUser& userData)
     return result;
 }
 
-std::string RasControl::removeUser(const RemoveUser& userData)
+std::string RasControl::removeUser(const RemoveUser &userData)
 {
     std::string message = "";
 
@@ -462,7 +462,7 @@ std::string RasControl::removeUser(const RemoveUser& userData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -474,11 +474,11 @@ std::string RasControl::removeUser(const RemoveUser& userData)
     return message;
 }
 
-std::string RasControl::changeUser(const ChangeUser& userData)
+std::string RasControl::changeUser(const ChangeUser &userData)
 {
-    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
     bool hasAdminRights = false;
-    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *dbRights = new UserDatabaseRightsProto();
     bool hasDbRights =  false;
     UserProto userProp;
 
@@ -554,7 +554,7 @@ std::string RasControl::changeUser(const ChangeUser& userData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -566,7 +566,7 @@ std::string RasControl::changeUser(const ChangeUser& userData)
     return message;
 }
 
-std::string RasControl::listUser(const ListUser& userData)
+std::string RasControl::listUser(const ListUser &userData)
 {
     std::stringstream ss;
     UserMgrProto userMgrData = this->userManager_->serializeToProto();
@@ -605,7 +605,7 @@ std::string RasControl::defineInpeer(std::string hostName)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -627,7 +627,7 @@ std::string RasControl::removeInpeer(std::string hostName)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -658,7 +658,7 @@ std::string RasControl::helpInpeer()
     return this->showHelp();
 }
 
-std::string RasControl::defineOutpeer(const DefineOutpeer& outpeerData)
+std::string RasControl::defineOutpeer(const DefineOutpeer &outpeerData)
 {
     std::string message;
 
@@ -671,7 +671,7 @@ std::string RasControl::defineOutpeer(const DefineOutpeer& outpeerData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -693,7 +693,7 @@ std::string RasControl::removeOutpeer(std::string hostName)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -724,7 +724,7 @@ std::string RasControl::helpOutpeer()
     return this->showHelp();
 }
 
-std::string RasControl::defineServerGroup(const DefineServerGroup& groupData)
+std::string RasControl::defineServerGroup(const DefineServerGroup &groupData)
 {
     std::string message;
 
@@ -788,7 +788,7 @@ std::string RasControl::defineServerGroup(const DefineServerGroup& groupData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -800,7 +800,7 @@ std::string RasControl::defineServerGroup(const DefineServerGroup& groupData)
     return message;
 }
 
-std::string RasControl::changeServerGroup(const ChangeServerGroup& groupData)
+std::string RasControl::changeServerGroup(const ChangeServerGroup &groupData)
 {
     std::string message;
 
@@ -867,7 +867,7 @@ std::string RasControl::changeServerGroup(const ChangeServerGroup& groupData)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -891,7 +891,7 @@ std::string RasControl::removeServerGroup(std::string groupName)
 
         this->rasmanager_->setIsConfigurationDirty(true);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -903,7 +903,7 @@ std::string RasControl::removeServerGroup(std::string groupName)
     return message;
 }
 
-std::string RasControl::listServerGroup(const ListServerGroup& listData)
+std::string RasControl::listServerGroup(const ListServerGroup &listData)
 {
     std::stringstream ss;
 
@@ -1031,7 +1031,7 @@ std::string RasControl::helpServerGroup()
     return this->showHelp();
 }
 
-std::string RasControl::startServerGroup(const StartServerGroup& upSrv)
+std::string RasControl::startServerGroup(const StartServerGroup &upSrv)
 {
     std::string message = "";
 
@@ -1041,7 +1041,7 @@ std::string RasControl::startServerGroup(const StartServerGroup& upSrv)
     {
         this->serverManager_->startServerGroup(upSrv);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -1053,7 +1053,7 @@ std::string RasControl::startServerGroup(const StartServerGroup& upSrv)
     return message;
 }
 
-std::string RasControl::stopServerGroup(const StopServerGroup& downSrv)
+std::string RasControl::stopServerGroup(const StopServerGroup &downSrv)
 {
     std::string message = "";
 
@@ -1063,7 +1063,7 @@ std::string RasControl::stopServerGroup(const StopServerGroup& downSrv)
     {
         this->serverManager_->stopServerGroup(downSrv);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -1094,7 +1094,7 @@ std::string RasControl::stopRasMgr()
             message = "terminating rasmanager. Good Bye!";
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = ex.what();
     }
@@ -1125,7 +1125,7 @@ std::string RasControl::save()
         this->rasmanager_->saveConfiguration();
         message = "Saving configuration file...ok. Saving authorization file...ok.";
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         message = this->formatErrorMessage(ex.what());
     }
@@ -1142,7 +1142,7 @@ std::string RasControl::exit()
     return "Exiting rascontrol session.";
 }
 
-std::string RasControl::convertAdminRights(const UserAdminRightsProto& adminRights)
+std::string RasControl::convertAdminRights(const UserAdminRightsProto &adminRights)
 {
     std::stringstream ss;
     if (adminRights.has_access_control_rights() && adminRights.access_control_rights())
@@ -1184,7 +1184,7 @@ std::string RasControl::convertAdminRights(const UserAdminRightsProto& adminRigh
     return ss.str();
 
 }
-std::string RasControl::convertDbRights(const UserDatabaseRightsProto& dbRights)
+std::string RasControl::convertDbRights(const UserDatabaseRightsProto &dbRights)
 {
     std::stringstream ss;
 
@@ -1209,7 +1209,7 @@ std::string RasControl::convertDbRights(const UserDatabaseRightsProto& dbRights)
     return ss.str();
 }
 
-std::string RasControl::formatErrorMessage(const std::string& message)
+std::string RasControl::formatErrorMessage(const std::string &message)
 {
     return std::string("Error:") + message;
 }

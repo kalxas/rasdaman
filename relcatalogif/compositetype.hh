@@ -64,12 +64,12 @@ public:
     constructor.
     */
 
-    CompositeType(const OId& id);
+    CompositeType(const OId &id);
     /*@Doc:
     constructor.
     */
 
-    CompositeType(const CompositeType& old);
+    CompositeType(const CompositeType &old);
     /*@Doc:
     constructor.
     */
@@ -84,7 +84,7 @@ public:
     virtual destructor needed because of subclasses
     */
 
-    CompositeType& operator=(const CompositeType& old);
+    CompositeType &operator=(const CompositeType &old);
     /*@Doc:
     */
 
@@ -94,7 +94,7 @@ protected:
     size of one cell of this base type in number of chars.
     */
 
-    CompositeType(const char* name, unsigned int newSize);
+    CompositeType(const char *name, unsigned int newSize);
     /*@Doc:
     */
 };

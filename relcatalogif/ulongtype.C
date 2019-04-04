@@ -39,27 +39,27 @@ static const char rcsid[] = "@(#)catalogif,ULongType: $Header: /home/rasdev/CVS-
 #include <string.h>
 #include "reladminif/externs.h"
 
-ULongType::ULongType(const OId& id)
-	:	UIntegralType(id)
-	{
-	readFromDb();
-	}
+ULongType::ULongType(const OId &id)
+    :   UIntegralType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: ULongType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 ULongType.
  ************************************************************/
 
 ULongType::ULongType()
-	:	UIntegralType(ULongType::Name, 4)
-	{
-	myOId = OId(ULONG, OId::ATOMICTYPEOID);
-	myType = ULONG;
-	}
+    :   UIntegralType(ULongType::Name, 4)
+{
+    myOId = OId(ULONG, OId::ATOMICTYPEOID);
+    myType = ULONG;
+}
 
 /*************************************************************
  * Method name...: ULongType(const ULongType& old);
@@ -69,10 +69,10 @@ ULongType::ULongType()
  * Description...: copy constructor
  ************************************************************/
 
-ULongType::ULongType(const ULongType& old)
-	:	UIntegralType(old)
-	{
-	}
+ULongType::ULongType(const ULongType &old)
+    :   UIntegralType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const ULongType&);
@@ -82,14 +82,16 @@ ULongType::ULongType(const ULongType& old)
  * Description...: copy constructor
  ************************************************************/
 
-ULongType& ULongType::operator=(const ULongType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+ULongType &ULongType::operator=(const ULongType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~ULongType();
@@ -104,46 +106,46 @@ ULongType::~ULongType()
 }
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that ULong is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-ULongType::printCell( ostream& stream, const char* cell ) const
+void
+ULongType::printCell(ostream &stream, const char *cell) const
 {
-  stream << std::setw(8) << *(r_ULong*)(const_cast<char*>(cell));
+    stream << std::setw(8) << *(r_ULong *)(const_cast<char *>(cell));
 }
 
-r_ULong*
-ULongType::convertToCULong(const char* cell, r_ULong* value) const
+r_ULong *
+ULongType::convertToCULong(const char *cell, r_ULong *value) const
 {
-  *value = *(r_ULong*)(const_cast<char*>(cell));
-  return value;
+    *value = *(r_ULong *)(const_cast<char *>(cell));
+    return value;
 }
 
 
-char* 
-ULongType::makeFromCULong(char* cell, const r_ULong* value) const
+char *
+ULongType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-  *(r_ULong*)(cell) = *value;
-  return cell;
+    *(r_ULong *)(cell) = *value;
+    return cell;
 }
 
 void
 ULongType::readFromDb()
-	{
-	setName(ULongType::Name);
-	size = 4;
-	myOId = OId(ULONG, OId::ATOMICTYPEOID);
-	myType = ULONG;
-	}
+{
+    setName(ULongType::Name);
+    size = 4;
+    myOId = OId(ULONG, OId::ATOMICTYPEOID);
+    myType = ULONG;
+}
 

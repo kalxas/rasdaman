@@ -45,20 +45,20 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalLoOp, QtIntervalHiOp, QtSDo
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
 
 
-QtIntervalLoOp::QtIntervalLoOp(QtOperation* newInput)
+QtIntervalLoOp::QtIntervalLoOp(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
 
 
 
-QtData*
-QtIntervalLoOp::evaluate(QtDataList* inputList)
+QtData *
+QtIntervalLoOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtIntervalLoOp");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     operand = input->evaluate(inputList);
 
@@ -79,7 +79,7 @@ QtIntervalLoOp::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtIntervalData* intervalData = static_cast<QtIntervalData*>(operand);
+        QtIntervalData *intervalData = static_cast<QtIntervalData *>(operand);
 
         r_Sinterval sinterval = intervalData->getIntervalData();
 
@@ -121,7 +121,7 @@ QtIntervalLoOp::evaluate(QtDataList* inputList)
 
 
 void
-QtIntervalLoOp::printTree(int tab, std::ostream& s, QtChildType mode)
+QtIntervalLoOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalLoOp Object: " << getEvaluationTime() << std::endl;
 
@@ -131,7 +131,7 @@ QtIntervalLoOp::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtIntervalLoOp::printAlgebraicExpression(std::ostream& s)
+QtIntervalLoOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "(" << std::flush;
 
@@ -149,8 +149,8 @@ QtIntervalLoOp::printAlgebraicExpression(std::ostream& s)
 
 
 
-const QtTypeElement&
-QtIntervalLoOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtIntervalLoOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -159,7 +159,7 @@ QtIntervalLoOp::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
         if (inputType.getDataType() != QT_INTERVAL)
         {
@@ -183,20 +183,20 @@ QtIntervalLoOp::checkType(QtTypeTuple* typeTuple)
 const QtNode::QtNodeType QtIntervalHiOp::nodeType = QtNode::QT_HI;
 
 
-QtIntervalHiOp::QtIntervalHiOp(QtOperation* newInput)
+QtIntervalHiOp::QtIntervalHiOp(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
 
 
 
-QtData*
-QtIntervalHiOp::evaluate(QtDataList* inputList)
+QtData *
+QtIntervalHiOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtIntervalHiOp");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     operand = input->evaluate(inputList);
 
@@ -217,7 +217,7 @@ QtIntervalHiOp::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtIntervalData* intervalData = static_cast<QtIntervalData*>(operand);
+        QtIntervalData *intervalData = static_cast<QtIntervalData *>(operand);
 
         r_Sinterval sinterval = intervalData->getIntervalData();
 
@@ -258,7 +258,7 @@ QtIntervalHiOp::evaluate(QtDataList* inputList)
 
 
 void
-QtIntervalHiOp::printTree(int tab, std::ostream& s, QtChildType mode)
+QtIntervalHiOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalHiOp Object: " << getEvaluationTime() << std::endl;
 
@@ -268,7 +268,7 @@ QtIntervalHiOp::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtIntervalHiOp::printAlgebraicExpression(std::ostream& s)
+QtIntervalHiOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "(" << std::flush;
 
@@ -286,8 +286,8 @@ QtIntervalHiOp::printAlgebraicExpression(std::ostream& s)
 
 
 
-const QtTypeElement&
-QtIntervalHiOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtIntervalHiOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -296,7 +296,7 @@ QtIntervalHiOp::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
         if (inputType.getDataType() != QT_INTERVAL)
         {
@@ -320,20 +320,20 @@ QtIntervalHiOp::checkType(QtTypeTuple* typeTuple)
 const QtNode::QtNodeType QtSDom::nodeType = QtNode::QT_SDOM;
 
 
-QtSDom::QtSDom(QtOperation* newInput)
+QtSDom::QtSDom(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
 
 
 
-QtData*
-QtSDom::evaluate(QtDataList* inputList)
+QtData *
+QtSDom::evaluate(QtDataList *inputList)
 {
     startTimer("QtSDom");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     operand = input->evaluate(inputList);
 
@@ -354,9 +354,9 @@ QtSDom::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
-        MDDObj* currentMDDObj = qtMDD->getMDDObject();
-        auto* nullValues = currentMDDObj->getNullValues();
+        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        MDDObj *currentMDDObj = qtMDD->getMDDObject();
+        auto *nullValues = currentMDDObj->getNullValues();
 
         returnValue = new QtMintervalData(qtMDD->getLoadDomain());
         returnValue->setNullValues(nullValues);
@@ -380,12 +380,12 @@ QtSDom::evaluate(QtDataList* inputList)
 
 
 void
-QtSDom::optimizeLoad(QtTrimList* trimList)
+QtSDom::optimizeLoad(QtTrimList *trimList)
 {
     // reset trimList because optimization enters a new MDD area
 
     // delete list
-    vector<QtNode::QtTrimElement*>::iterator iter;
+    vector<QtNode::QtTrimElement *>::iterator iter;
     for (iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;
@@ -403,7 +403,7 @@ QtSDom::optimizeLoad(QtTrimList* trimList)
 
 
 void
-QtSDom::printTree(int tab, std::ostream& s, QtChildType mode)
+QtSDom::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSDom Object: " << getEvaluationTime() << std::endl;
 
@@ -413,7 +413,7 @@ QtSDom::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtSDom::printAlgebraicExpression(std::ostream& s)
+QtSDom::printAlgebraicExpression(std::ostream &s)
 {
     s << "sdom(" << std::flush;
 
@@ -431,8 +431,8 @@ QtSDom::printAlgebraicExpression(std::ostream& s)
 
 
 
-const QtTypeElement&
-QtSDom::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtSDom::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -441,7 +441,7 @@ QtSDom::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
         if (inputType.getDataType() != QT_MDD)
         {

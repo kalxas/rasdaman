@@ -62,7 +62,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 
-r_GMarray::r_GMarray(r_Transaction* ta)
+r_GMarray::r_GMarray(r_Transaction *ta)
     : r_Object(1, ta),
       data(0),
       tiled_data(0),
@@ -76,8 +76,8 @@ r_GMarray::r_GMarray(r_Transaction* ta)
 
 
 
-r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl,
-        r_Transaction* ta, bool initialize)
+r_GMarray::r_GMarray(const r_Minterval &initDomain, r_Bytes initLength, r_Storage_Layout *stl,
+                     r_Transaction *ta, bool initialize)
     : r_Object(1, ta),
       domain(initDomain),
       data(0),
@@ -135,7 +135,7 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
 
 
 
-r_GMarray::r_GMarray(const r_GMarray& obj)
+r_GMarray::r_GMarray(const r_GMarray &obj)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(0),
@@ -166,7 +166,7 @@ r_GMarray::r_GMarray(const r_GMarray& obj)
 
 
 
-r_GMarray::r_GMarray(r_GMarray& obj)
+r_GMarray::r_GMarray(r_GMarray &obj)
     : r_Object(obj, 1),
       domain(obj.spatial_domain()),
       data(obj.data),
@@ -229,15 +229,15 @@ r_GMarray::r_deactivate()
 
 
 
-const char*
-r_GMarray::operator[](const r_Point& point) const
+const char *
+r_GMarray::operator[](const r_Point &point) const
 {
     return &(data[ domain.cell_offset(point) * type_length ]);
 }
 
 
 
-const r_Storage_Layout*
+const r_Storage_Layout *
 r_GMarray::get_storage_layout() const
 {
     return storage_layout;
@@ -245,7 +245,7 @@ r_GMarray::get_storage_layout() const
 
 
 void
-r_GMarray::set_storage_layout(r_Storage_Layout* stl)
+r_GMarray::set_storage_layout(r_Storage_Layout *stl)
 {
     if (!stl->is_compatible(domain, type_length))
     {
@@ -265,8 +265,8 @@ r_GMarray::set_storage_layout(r_Storage_Layout* stl)
 
 
 
-r_GMarray&
-r_GMarray::operator=(const r_GMarray& marray)
+r_GMarray &
+r_GMarray::operator=(const r_GMarray &marray)
 {
     if (this != &marray)
     {
@@ -320,14 +320,16 @@ r_GMarray::insert_obj_into_db()
 
 
 void
-r_GMarray::insert_obj_into_db(const char* collName)
+r_GMarray::insert_obj_into_db(const char *collName)
 {
     update_transaction();
 
     // Insert myself in database only if I have a type name, otherwise
     // an exception is thrown.
     if (!type_name || !transaction || !transaction->getDatabase())
+    {
         throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
+    }
 
     transaction->getDatabase()->getComm()->insertMDD(collName, this);
 }
@@ -336,26 +338,34 @@ r_GMarray::insert_obj_into_db(const char* collName)
 
 
 void
-r_GMarray::print_status(std::ostream& s)
+r_GMarray::print_status(std::ostream &s)
 {
-    const r_Type*       typeSchema     = get_type_schema();
-    const r_Base_Type*  baseTypeSchema = get_base_type_schema();
+    const r_Type       *typeSchema     = get_type_schema();
+    const r_Base_Type  *baseTypeSchema = get_base_type_schema();
 
     s << "GMarray" << endl;
     s << "  Oid...................: " << get_oid() << endl;
     s << "  Type Structure........: " << (type_structure ? type_structure : "<nn>") << endl;
     s << "  Type Schema...........: " << std::flush;
     if (typeSchema)
+    {
         typeSchema->print_status(s);
+    }
     else
+    {
         s << "<nn>" << std::flush;
+    }
     s << endl;
     s << "  Domain................: " << domain << endl;
     s << "  Base Type Schema......: " << std::flush;
     if (baseTypeSchema)
+    {
         baseTypeSchema->print_status(s);
+    }
     else
+    {
         s << "<nn>" << std::flush;
+    }
     s << endl;
     s << "  Base Type Length......: " << type_length << endl;
     s << "  Data format.......... : " << current_format << endl;
@@ -365,12 +375,12 @@ r_GMarray::print_status(std::ostream& s)
 
 
 void
-r_GMarray::print_status(std::ostream& s, int hexoutput)
+r_GMarray::print_status(std::ostream &s, int hexoutput)
 {
     print_status(s);
 
-    const r_Type*       typeSchema     = get_type_schema();
-    const r_Base_Type*  baseTypeSchema = get_base_type_schema();
+    const r_Type       *typeSchema     = get_type_schema();
+    const r_Base_Type  *baseTypeSchema = get_base_type_schema();
 
     if (domain.dimension())
     {
@@ -392,7 +402,7 @@ r_GMarray::print_status(std::ostream& s, int hexoutput)
             //
 
             // get cell address
-            char* cell = data + domain.cell_offset(p) * type_length;
+            char *cell = data + domain.cell_offset(p) * type_length;
 
             if (hexoutput)
             {
@@ -467,15 +477,15 @@ r_GMarray::print_status(std::ostream& s, int hexoutput)
 
 
 
-r_GMarray* r_GMarray::intersect(r_Minterval where) const
+r_GMarray *r_GMarray::intersect(r_Minterval where) const
 {
-    r_GMarray* tile = new r_GMarray(get_transaction());
+    r_GMarray *tile = new r_GMarray(get_transaction());
 
     r_Minterval obj_domain = spatial_domain();
     r_Dimension num_dims = obj_domain.dimension();
     r_Bytes tlength = get_type_length();
 
-    char* obj_data = new char[where.cell_count() * tlength];
+    char *obj_data = new char[where.cell_count() * tlength];
     tile->set_spatial_domain(where);
     tile->set_type_length(tlength);
     tile->set_array(obj_data);
@@ -488,11 +498,11 @@ r_GMarray* r_GMarray::intersect(r_Minterval where) const
     {
         r_Point p = where.cell_point(cell * block_length);
 
-        char* dest_off = obj_data;
-        const char* source_off = get_array();
+        char *dest_off = obj_data;
+        const char *source_off = get_array();
 
-        memcpy(static_cast<void*>(dest_off + where.cell_offset(p)*tlength),
-               static_cast<void*>(const_cast<char*>(source_off) + obj_domain.cell_offset(p)*tlength),
+        memcpy(static_cast<void *>(dest_off + where.cell_offset(p)*tlength),
+               static_cast<void *>(const_cast<char *>(source_off) + obj_domain.cell_offset(p)*tlength),
                static_cast<size_t>(block_length * tlength));
     }
 
@@ -501,17 +511,17 @@ r_GMarray* r_GMarray::intersect(r_Minterval where) const
 
 
 
-const r_Base_Type*
+const r_Base_Type *
 r_GMarray::get_base_type_schema()
 {
-    const r_Type*      typePtr     = r_Object::get_type_schema();
-    const r_Base_Type* baseTypePtr = 0;
+    const r_Type      *typePtr     = r_Object::get_type_schema();
+    const r_Base_Type *baseTypePtr = 0;
 
     if (typePtr)
     {
         if (typePtr->type_id() == r_Type::MARRAYTYPE)
         {
-            const r_Marray_Type* marrayTypePtr = static_cast<const r_Marray_Type*>(typePtr);
+            const r_Marray_Type *marrayTypePtr = static_cast<const r_Marray_Type *>(typePtr);
             baseTypePtr = &(marrayTypePtr->base_type());
         }
         else

@@ -75,7 +75,7 @@ public:
     r_Database();
 
     /// constructor getting the rasmgr name
-    r_Database(const char* name);
+    r_Database(const char *name);
     /**
       One error situations can occur which raise an exception of type \Ref{r_Error} with
       one of the following kinds:
@@ -86,7 +86,7 @@ public:
     ~r_Database();
 
     /// open a database
-    void open(const char* database_name, access_status status = read_write);
+    void open(const char *database_name, access_status status = read_write);
     /**
       The method opens the database specified with {\tt database_name}. Several error
       situations can occur which raise an exception of type \Ref{r_Error} with
@@ -107,7 +107,7 @@ public:
     void close();
 
     /// create a database with fixed schema RasDaSchema
-    void create(const char* name);
+    void create(const char *name);
     /**
       This method works only if a server host name has been specified with
       {\tt set_servername()}.
@@ -117,7 +117,7 @@ public:
     */
 
     /// destroy a database
-    void destroy(const char* name);
+    void destroy(const char *name);
     /**
      This method works only if a server host name has been specified with
      {\tt set_servername()}.
@@ -127,14 +127,14 @@ public:
     */
 
     /// set the server name
-    void set_servername(const char* name, int port = RASMGRPORT);
+    void set_servername(const char *name, int port = RASMGRPORT);
     /**
       One of error situations can occur will raise an exception of type \Ref{r_Error} with
       one of the following kinds:
       r_Error_NameInvalid     && Name is NULL.\\
     */
     /// set the user name and password
-    void set_useridentification(const char* name, const char* plain_pass);
+    void set_useridentification(const char *name, const char *plain_pass);
     /**
       One of error situations can occur will raise an exception of type \Ref{r_Error} with
       one of the following kinds:
@@ -145,7 +145,7 @@ public:
     inline access_status get_status() const;
 
     /// give a name to an object (signature is not ODMG conformant because of compiler bug)
-    void set_object_name(r_Object& obj, const char* name);
+    void set_object_name(r_Object &obj, const char *name);
     /**
       The method gives the {\tt name} to the object {\tt obj}. The name is used for
       further retrieval of the object. Right now, names can just be given to sets
@@ -156,8 +156,8 @@ public:
     */
 
     /// lookup named objects in a database (must be called within open database and running transaction)
-    r_Ref_Any lookup_object(const char* name) const
-;
+    r_Ref_Any lookup_object(const char *name) const
+    ;
     /**
       The method looks up an object with {\tt name}. Right now, just objects of type \Ref{r_Set} are
       allowed. Error kinds:
@@ -173,8 +173,8 @@ public:
     */
 
     /// lookup objects by oids in a database (must be called within open database and running transaction)
-    r_Ref_Any lookup_object(const r_OId& oid) const
-;
+    r_Ref_Any lookup_object(const r_OId &oid) const
+    ;
     /**
       The method looks up an object with {\tt oid}. Right now, just objects of type \Ref{r_Set} and
       \Ref{r_GMarray} are allowed.
@@ -189,7 +189,7 @@ public:
       \end{tabular}
     */
 
-    r_Type* get_type_schema(const char* typeName, type_schema typetype);
+    r_Type *get_type_schema(const char *typeName, type_schema typetype);
     /**
       The method looks up the type structure with {\tt typeName} as its name.  typetype is 1 for marray and 2 for collection.
 
@@ -208,7 +208,7 @@ public:
 
     /// set the transfer compression format, both for data sent from the server
     /// to the client and the other way around.
-    void set_transfer_format(r_Data_Format format, const char* formatParams = NULL);
+    void set_transfer_format(r_Data_Format format, const char *formatParams = NULL);
     /**
       The method sets the transfer compression used for the communications of
       this client with the server.
@@ -222,14 +222,14 @@ public:
     */
 
     /// set the storage format for newly created MDD for this client
-    void set_storage_format(r_Data_Format format, const char* formatParams = NULL);
+    void set_storage_format(r_Data_Format format, const char *formatParams = NULL);
     /**
       This method sets the storage format to use for MDD created by this client
       in the RasDaMan database. The return values are identical to set_transfer_format()
     */
 
     /// stores a pointer to the actually opened database
-    static r_Database* actual_database;
+    static r_Database *actual_database;
 
 
     //@Man: Methods for internal use only:
@@ -241,30 +241,30 @@ public:
 
 
     // creates an empty MDD collection on the server
-    void insertColl(const char* collName, const char* typeName, const r_OId& oid);
+    void insertColl(const char *collName, const char *typeName, const r_OId &oid);
 
     /// removes an object from a collection
-    void removeObjFromColl(const char* name, const r_OId& oid);
+    void removeObjFromColl(const char *name, const r_OId &oid);
 
-    ClientComm* getComm();
+    ClientComm *getComm();
 private:
     /// stores a pointer to a communication object, which is valid while a database is opened
-    ClientComm* communication;
+    ClientComm *communication;
 
     /// database status
     access_status db_status;
 
     /// stores the RasMGR name
-    char* rasmgrName;
+    char *rasmgrName;
 
     /// stores the RasMGR port
     int   rasmgrPort;
 
     /// stores the user name
-    char* userName;
+    char *userName;
 
     /// stores the user password (this will change!)
-    char* plainPass;
+    char *plainPass;
 };
 
 #include "rasodmg/database.icc"

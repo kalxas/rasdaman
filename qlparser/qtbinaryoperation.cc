@@ -56,7 +56,7 @@ QtBinaryOperation::QtBinaryOperation() :
 }
 
 
-QtBinaryOperation::QtBinaryOperation(QtNode* node) :
+QtBinaryOperation::QtBinaryOperation(QtNode *node) :
     QtOperation(node),
     input1(NULL),
     input2(NULL)
@@ -64,7 +64,7 @@ QtBinaryOperation::QtBinaryOperation(QtNode* node) :
 }
 
 
-QtBinaryOperation::QtBinaryOperation(QtOperation* initInput1, QtOperation* initInput2) :
+QtBinaryOperation::QtBinaryOperation(QtOperation *initInput1, QtOperation *initInput2) :
     QtOperation(),
     input1(initInput1),
     input2(initInput2)
@@ -112,12 +112,12 @@ QtBinaryOperation::simplify()
         if (input1->getNodeType() ==  QT_CONST && input2->getNodeType() == QT_CONST)
         {
             // evaluate the self node with no input list
-            QtData* newConst = this->evaluate(NULL);
+            QtData *newConst = this->evaluate(NULL);
 
             if (newConst)
             {
                 // create a new constant node and fill it with newConst
-                QtConst* newNode = new QtConst(newConst);
+                QtConst *newNode = new QtConst(newConst);
 
                 // set its data stream type
                 newNode->checkType(NULL);
@@ -137,14 +137,14 @@ QtBinaryOperation::simplify()
 // compare this to another node
 
 bool
-QtBinaryOperation::equalMeaning(QtNode* node)
+QtBinaryOperation::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     // are the nodes of the same type?
     if (getNodeType() == node->getNodeType())
     {
-        QtBinaryOperation* binNode = static_cast<QtBinaryOperation*>(node);  // by force
+        QtBinaryOperation *binNode = static_cast<QtBinaryOperation *>(node); // by force
 
         if (input1 && input2)
         {
@@ -167,14 +167,14 @@ QtBinaryOperation::equalMeaning(QtNode* node)
 
 // get childs
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtBinaryOperation::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = new QtNodeList();
+    QtNodeList *resultList = new QtNodeList();
 
     if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
     {
-        QtNodeList* subList = NULL;
+        QtNodeList *subList = NULL;
 
         if (input1)
         {
@@ -212,7 +212,7 @@ QtBinaryOperation::getChilds(QtChildType flag)
 // get the two operands
 
 bool
-QtBinaryOperation::getOperands(QtDataList* inputList, QtData*& operand1, QtData*& operand2)
+QtBinaryOperation::getOperands(QtDataList *inputList, QtData *&operand1, QtData *&operand2)
 {
     bool success = false;
 
@@ -275,7 +275,7 @@ QtBinaryOperation::getOperands(QtDataList* inputList, QtData*& operand1, QtData*
 // get the first or the second operand
 
 bool
-QtBinaryOperation::getOperand(QtDataList* inputList, QtData*& operand, int number)
+QtBinaryOperation::getOperand(QtDataList *inputList, QtData *&operand, int number)
 {
     bool success = false;
 
@@ -372,10 +372,10 @@ QtBinaryOperation::getAreaType()
 // optimize load
 
 void
-QtBinaryOperation::optimizeLoad(QtTrimList* trimList)
+QtBinaryOperation::optimizeLoad(QtTrimList *trimList)
 {
-    QtNode::QtTrimList* list1 = NULL;
-    QtNode::QtTrimList* list2 = NULL;
+    QtNode::QtTrimList *list1 = NULL;
+    QtNode::QtTrimList *list2 = NULL;
 
     if (input1 && input2)
     {
@@ -386,7 +386,7 @@ QtBinaryOperation::optimizeLoad(QtTrimList* trimList)
 
         for (QtNode::QtTrimList::iterator iter = trimList->begin(); iter != trimList->end(); iter++)
         {
-            QtTrimElement* elem = new QtTrimElement;
+            QtTrimElement *elem = new QtTrimElement;
             *elem = **iter;
             list2->push_back(elem);
         }
@@ -417,7 +417,7 @@ QtBinaryOperation::optimizeLoad(QtTrimList* trimList)
 
 
 void
-QtBinaryOperation::printTree(int tab, ostream& s, QtChildType mode)
+QtBinaryOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QT_DIRECT_CHILDS)
     {

@@ -55,17 +55,17 @@ using namespace std;
 const QtNode::QtNodeType QtInfo::nodeType = QtNode::QT_INFO;
 
 
-QtInfo::QtInfo(QtVariable* newInput)
+QtInfo::QtInfo(QtVariable *newInput)
     : QtUnaryOperation(newInput),
       printTiles(0)
 {
 }
 
-QtInfo::QtInfo(QtVariable* newInput, const char* paramsStr)
+QtInfo::QtInfo(QtVariable *newInput, const char *paramsStr)
     : QtUnaryOperation(newInput),
       printTiles(0)
 {
-    r_Parse_Params* params = new r_Parse_Params();
+    r_Parse_Params *params = new r_Parse_Params();
     params->add("printtiles", &printTiles, r_Parse_Params::param_type_int);
 
     // process params
@@ -78,13 +78,13 @@ QtInfo::QtInfo(QtVariable* newInput, const char* paramsStr)
 
 
 
-QtData*
-QtInfo::evaluate(QtDataList* inputList)
+QtData *
+QtInfo::evaluate(QtDataList *inputList)
 {
     startTimer("QtInfo");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     operand = input->evaluate(inputList);
 
@@ -106,12 +106,12 @@ QtInfo::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
-        MDDObj* mddObj = qtMDD->getMDDObject();
+        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        MDDObj *mddObj = qtMDD->getMDDObject();
 
         if (mddObj->isPersistent())
         {
-            MDDObj* persMDD = static_cast<MDDObj*>(mddObj);
+            MDDObj *persMDD = static_cast<MDDObj *>(mddObj);
 
             // get local oid and pass it as double
             OId localOId;
@@ -129,17 +129,17 @@ QtInfo::evaluate(QtDataList* inputList)
                 throw parseInfo;
             }
 
-            DBMDDObj* dbObj = persMDD->getDBMDDObjId().ptr();
+            DBMDDObj *dbObj = persMDD->getDBMDDObjId().ptr();
 
             if (dbObj)
             {
-                DBStorageLayout* storageLayout = dbObj->getDBStorageLayout().ptr();
+                DBStorageLayout *storageLayout = dbObj->getDBStorageLayout().ptr();
                 if (storageLayout)
                 {
                     ostringstream info("");
                     info << "{\n \"oid\": \"" << static_cast<double>(localOId);
                     info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
-                    vector<boost::shared_ptr<Tile>>* tiles = persMDD->getTiles();
+                    vector<boost::shared_ptr<Tile>> *tiles = persMDD->getTiles();
                     info << "\",\n \"tileNo\": \"" << tiles->size();
 
                     long totalSize = 0;
@@ -234,23 +234,23 @@ QtInfo::evaluate(QtDataList* inputList)
                     info << "\"\n }\n}";
 
                     // result domain: it is now format encoded so we just consider it as a char array
-                    r_Type* type = r_Type::get_any_type("char");
-                    const BaseType* baseType = TypeFactory::mapType(type->name());
+                    r_Type *type = r_Type::get_any_type("char");
+                    const BaseType *baseType = TypeFactory::mapType(type->name());
 
                     string infoString = info.str();
                     r_Bytes contentLength = static_cast<r_Bytes>(infoString.length());
 
                     r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(contentLength) - 1);
-                    Tile* resultTile = new Tile(mddDomain, baseType, infoString.c_str(), contentLength, r_Array);
+                    Tile *resultTile = new Tile(mddDomain, baseType, infoString.c_str(), contentLength, r_Array);
 
                     // create a transient MDD object for the query result
-                    MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
+                    MDDBaseType *mddBaseType = new MDDBaseType("tmp", baseType);
                     TypeFactory::addTempType(mddBaseType);
-                    MDDObj* resultMDD = new MDDObj(mddBaseType, resultTile->getDomain());
+                    MDDObj *resultMDD = new MDDObj(mddBaseType, resultTile->getDomain());
                     resultMDD->insertTile(resultTile);
 
                     // create a new QtMDD object as carrier object for the transient MDD object
-                    returnValue = new QtMDD(static_cast<MDDObj*>(resultMDD));
+                    returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
                 }
                 else
                 {
@@ -312,7 +312,7 @@ QtInfo::evaluate(QtDataList* inputList)
 
 
 void
-QtInfo::printTree(int tab, std::ostream& s, QtChildType mode)
+QtInfo::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInfo Object: " << getEvaluationTime() << std::endl;
 
@@ -322,7 +322,7 @@ QtInfo::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtInfo::printAlgebraicExpression(std::ostream& s)
+QtInfo::printAlgebraicExpression(std::ostream &s)
 {
     s << "info(" << std::flush;
 
@@ -340,8 +340,8 @@ QtInfo::printAlgebraicExpression(std::ostream& s)
 
 
 
-const QtTypeElement&
-QtInfo::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtInfo::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -350,7 +350,7 @@ QtInfo::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
         if (inputType.getDataType() != QT_MDD)
         {

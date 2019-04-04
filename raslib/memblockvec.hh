@@ -67,9 +67,9 @@ public:
         return granularity;
     }
     /// get a block
-    void* operator[](unsigned int idx) const;
+    void *operator[](unsigned int idx) const;
     /// add a new block and return a pointer to it
-    void* add(void);
+    void *add(void);
     /// free all blocks (but not the vector, call the destructor for that)
     void free_data(void);
     /// get number of bytes stored. lastFill is the number of bytes used
@@ -77,11 +77,11 @@ public:
     r_Bytes get_size(r_Bytes lastFill) const;
     /// Copy the data stored in blocks into linear memory. lastFill is the
     /// number of bytes in the last block
-    void copy_data(void* dest, r_Bytes lastFill) const;
+    void copy_data(void *dest, r_Bytes lastFill) const;
 
 protected:
     /// the array of memory block pointers
-    void** blocks;
+    void **blocks;
     unsigned int numBlocks;
     unsigned int maxBlocks;
     /// the size of the blocks

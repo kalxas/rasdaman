@@ -29,12 +29,12 @@ rasdaman GmbH.
 
 #include "config.h"
 
-r_Complex::r_Complex(const char* newBuffer, const r_Complex_Type* newType)
+r_Complex::r_Complex(const char *newBuffer, const r_Complex_Type *newType)
     :   r_Primitive(newBuffer, newType)
 {
 }
 
-r_Complex::r_Complex(const r_Complex& obj)
+r_Complex::r_Complex(const r_Complex &obj)
     :   r_Primitive(obj)
 {
 }
@@ -43,14 +43,14 @@ r_Complex::~r_Complex()
 {
 }
 
-r_Scalar*
+r_Scalar *
 r_Complex::clone() const
 {
     return new r_Complex(*this);
 }
 
-const r_Complex&
-r_Complex::operator=(const r_Complex& obj)
+const r_Complex &
+r_Complex::operator=(const r_Complex &obj)
 {
     r_Primitive::operator=(obj);
     return *this;
@@ -65,7 +65,7 @@ r_Complex::get_re() const
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
-    return (static_cast<r_Complex_Type*>(valueType))->get_re(get_buffer());
+    return (static_cast<r_Complex_Type *>(valueType))->get_re(get_buffer());
 }
 
 r_Double
@@ -77,7 +77,7 @@ r_Complex::get_im() const
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
-    return (static_cast<r_Complex_Type*>(valueType))->get_im(get_buffer());
+    return (static_cast<r_Complex_Type *>(valueType))->get_im(get_buffer());
 }
 
 void
@@ -89,7 +89,7 @@ r_Complex::set_re(r_Double re)
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
-    (static_cast<r_Complex_Type*>(valueType))->set_re(const_cast<char*>(get_buffer()), re);
+    (static_cast<r_Complex_Type *>(valueType))->set_re(const_cast<char *>(get_buffer()), re);
 }
 
 void
@@ -101,7 +101,7 @@ r_Complex::set_im(r_Double im)
         r_Error err(r_Error::r_Error_TypeInvalid);
         throw err;
     }
-    (static_cast<r_Complex_Type*>(valueType))->set_im(const_cast<char*>(get_buffer()), im);
+    (static_cast<r_Complex_Type *>(valueType))->set_im(const_cast<char *>(get_buffer()), im);
 }
 
 

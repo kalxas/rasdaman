@@ -44,7 +44,9 @@ void RasControlGrammar::parse(const std::string &reqMessage)
     while (token)
     {
         if (token[0] == '#')
-            break; // done, disregard comment til end of line
+        {
+            break;    // done, disregard comment til end of line
+        }
         this->tokens.emplace_back(token);
         token = strtok(NULL, " \r\n\t\0");
     }
@@ -60,29 +62,53 @@ std::string RasControlGrammar::processRequest()
         LDEBUG << "Processing rascontrol command: '" << command << "'...";
 
         if (isCommand(helloLit))
+        {
             return helloCommand();
+        }
         else if (isCommand(loginLit))
+        {
             return loginCommand();
+        }
         else if (isCommand(helpLit))
+        {
             return helpCommand();
+        }
         else if (isCommand(listLit))
+        {
             return listCommand();
+        }
         else if (isCommand(defineLit))
+        {
             return defineCommand();
+        }
         else if (isCommand(removeLit))
+        {
             return removeCommand();
+        }
         else if (isCommand(upLit))
+        {
             return upCommand();
+        }
         else if (isCommand(downLit))
+        {
             return downCommand();
+        }
         else if (isCommand(changeLit))
+        {
             return changeCommand();
+        }
         else if (isCommand(saveLit))
+        {
             return saveCommand();
+        }
         else if (isCommand(exitLit))
+        {
             return exitCommand();
+        }
         else if (isCommand(commentPrefix))
+        {
             return empty;
+        }
         else
         {
             LERROR << "Invalid command '" << command << "'; try HELP.";
@@ -108,13 +134,13 @@ bool RasControlGrammar::isServerAdminCommand()
 bool RasControlGrammar::isUserAdminCommand()
 {
     bool userChangeCommand = isCommand(defineLit) || isCommand(changeLit) ||
-        isCommand(removeLit) || isCommand(listLit);
+                             isCommand(removeLit) || isCommand(listLit);
     return userChangeCommand && tokens.size() > 1 && strieq(tokens[1], userLit);
 }
 bool RasControlGrammar::isSystemConfigCommand()
 {
     return isCommand(defineLit) || isCommand(changeLit) ||
-        isCommand(removeLit) || isCommand(saveLit);
+           isCommand(removeLit) || isCommand(saveLit);
 }
 
 bool RasControlGrammar::isInfoCommand()
@@ -149,25 +175,45 @@ std::string RasControlGrammar::listCommand()
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
+    {
         return listRasServers();
+    }
     else if (strieq(what, versionLit))
+    {
         return listVersion();
+    }
     else if (strieq(what, inpeerLit))
+    {
         return listInPeers();
+    }
     else if (strieq(what, outpeerLit))
+    {
         return listOutPeers();
+    }
     else if (strieq(what, userLit))
+    {
         return listUsers();
+    }
     else if (strieq(what, hostLit))
+    {
         return listRasHosts();
+    }
     else if (strieq(what, dbhLit))
+    {
         return listDBHosts();
+    }
     else if (strieq(what, dbLit))
+    {
         return listDatabases();
+    }
     else if (strieq(what, helpLit))
+    {
         return listHelp();
+    }
     else
+    {
         return error("Invalid LIST command '" + what + "'.");
+    }
 }
 
 //list <<version>>
@@ -181,7 +227,9 @@ std::string RasControlGrammar::listUsers()
 {
     listUser.Clear();
     if (isFlag(_rightsLit))
+    {
         listUser.set_diplay_rights(isFlag(_rightsLit));
+    }
     return rascontrol->listUser(listUser);
 }
 
@@ -224,11 +272,15 @@ std::string RasControlGrammar::listRasServers()
     {
         auto hostName = getValueOptionalFlag(_hostLit);
         if (!hostName.empty())
+        {
             listServerGroup.set_host(hostName);
+        }
     }
 
     if (isFlag(_pLit))
+    {
         listServerGroup.set_extra_info(true);
+    }
 
     return rascontrol->listServerGroup(listServerGroup);
 }
@@ -247,7 +299,9 @@ std::string RasControlGrammar::listDatabases()
     {
         auto dbh = getValueOptionalFlag(_dbhLit);
         if (!dbh.empty())
+        {
             listDb.set_dbh_name(dbh);
+        }
     }
 
     return rascontrol->listDb(listDb);
@@ -262,23 +316,41 @@ std::string RasControlGrammar::defineCommand()
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
+    {
         return defineRasServers();
+    }
     else if (strieq(what, hostLit))
+    {
         return defineRasHosts();
+    }
     else if (strieq(what, dbhLit))
+    {
         return defineDBHosts();
+    }
     else if (strieq(what, dbLit))
+    {
         return defineDatabases();
+    }
     else if (strieq(what, userLit))
+    {
         return defineUsers();
+    }
     else if (strieq(what, helpLit))
+    {
         return defineHelp();
+    }
     else if (strieq(what, inpeerLit))
+    {
         return defineInPeers();
+    }
     else if (strieq(what, outpeerLit))
+    {
         return defineOutPeers();
+    }
     else
+    {
         return error("Invalid DEFINE command '" + what + "'.");
+    }
 }
 
 //define <<user u [-passwd p] [-rights r]>>
@@ -297,7 +369,9 @@ std::string RasControlGrammar::defineUsers()
 
     const auto &plainPass = getValueOptionalFlag(_passwdLit);
     if (!plainPass.empty())
+    {
         defUser.set_passwd(plainPass);
+    }
 
     const auto &rights = getValueOptionalFlag(_rightsLit, true);
     if (rights == "-")
@@ -316,27 +390,27 @@ std::string RasControlGrammar::defineUsers()
         {
             switch (rights[i])
             {
-                case 'C':
-                    defUser.set_config_rights(true);
-                    break;
-                case 'A':
-                    defUser.set_access_rights(true);
-                    break;
-                case 'S':
-                    defUser.set_server_admin_rights(true);
-                    break;
-                case 'I':
-                    defUser.set_info_rights(true);
-                    break;
-                case 'R':
-                    defUser.set_dbread_rights(true);
-                    break;
-                case 'W':
-                    defUser.set_dbwrite_rights(true);
-                    break;
-                default:
-                    return error("Invalid character '" + string{rights[i]} +
-                        "' in -rights parameter.");
+            case 'C':
+                defUser.set_config_rights(true);
+                break;
+            case 'A':
+                defUser.set_access_rights(true);
+                break;
+            case 'S':
+                defUser.set_server_admin_rights(true);
+                break;
+            case 'I':
+                defUser.set_info_rights(true);
+                break;
+            case 'R':
+                defUser.set_dbread_rights(true);
+                break;
+            case 'W':
+                defUser.set_dbwrite_rights(true);
+                break;
+            default:
+                return error("Invalid character '" + string{rights[i]} +
+                             "' in -rights parameter.");
             }
         }
     }
@@ -356,10 +430,14 @@ std::string RasControlGrammar::defineDBHosts()
 
     const auto &userStr = getValueOf(_userLit, true);
     if (!userStr.empty())
+    {
         defDbHost.set_user(userStr);
+    }
     const auto &passwdStr = getValueOf(_passwdLit, true);
     if (!passwdStr.empty())
+    {
         defDbHost.set_passwd(passwdStr);
+    }
 
     return rascontrol->defineDbHost(defDbHost);
 }
@@ -413,12 +491,16 @@ std::string RasControlGrammar::defineRasServers()
     if (!autoRestart.empty())
     {
         if (strieq(autoRestart, onLit))
+        {
             changeServerGroup.set_n_autorestart(true);
+        }
         else if (strieq(autoRestart, offLit))
+        {
             changeServerGroup.set_n_autorestart(false);
+        }
         else
             return error("Invalid autorestart option '" +
-                autoRestart + "', use one of [on|off].");
+                         autoRestart + "', use one of [on|off].");
     }
     else
     {
@@ -427,22 +509,34 @@ std::string RasControlGrammar::defineRasServers()
 
     const auto &count = getValueOptionalFlag(_countdownLit);
     if (!count.empty())
+    {
         defServerGroup.set_countdown(convertToULong(count, "countdown"));
+    }
     const auto &size = getValueOptionalFlag(_sizeLit);
     if (!size.empty())
+    {
         defServerGroup.set_group_size(convertToULong(size, "size"));
+    }
     const auto &alive = getValueOptionalFlag(_aliveLit);
     if (!alive.empty())
+    {
         defServerGroup.set_min_alive_servers(convertToULong(alive, "alive"));
+    }
     const auto &available = getValueOptionalFlag(_availableLit);
     if (!available.empty())
+    {
         defServerGroup.set_min_available_servers(convertToULong(available, "alive"));
+    }
     const auto &idle = getValueOptionalFlag(_idleLit);
     if (!idle.empty())
+    {
         defServerGroup.set_max_idle_servers(convertToULong(idle, "idle"));
+    }
     const auto &xp = getExtraParams(_xpLit);
     if (!xp.empty())
+    {
         defServerGroup.set_options(xp);
+    }
 
     return rascontrol->defineServerGroup(defServerGroup);
 }
@@ -464,7 +558,9 @@ std::string RasControlGrammar::defineOutPeers()
     const auto &portStr = getValueOptionalFlag(_portLit);
     unsigned long listenPort = DEFAULT_PORT;
     if (!portStr.empty())
+    {
         listenPort = convertToULong(portStr, "port");
+    }
     defOutpeer.set_port(listenPort);
 
     return rascontrol->defineOutpeer(defOutpeer);
@@ -477,23 +573,41 @@ std::string RasControlGrammar::removeCommand()
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, srvLit))
+    {
         return removeRasServers();
+    }
     else if (strieq(what, hostLit))
+    {
         return removeRasHosts();
+    }
     else if (strieq(what, dbhLit))
+    {
         return removeDBHosts();
+    }
     else if (strieq(what, dbLit))
+    {
         return removeDatabases();
+    }
     else if (strieq(what, inpeerLit))
+    {
         return removeInPeers();
+    }
     else if (strieq(what, outpeerLit))
+    {
         return removeOutPeers();
+    }
     else if (strieq(what, userLit))
+    {
         return removeUsers();
+    }
     else if (strieq(what, helpLit))
+    {
         return removeHelp();
+    }
     else
+    {
         return error("Invalid REMOVE command '" + what + "'.");
+    }
 }
 
 // remove user 'username'
@@ -551,19 +665,33 @@ std::string RasControlGrammar::changeCommand()
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
 
     if (strieq(what, userLit))
+    {
         return changeUserCmd();
+    }
     else if (strieq(what, srvLit))
+    {
         return changeRasServer();
+    }
     else if (strieq(what, dbhLit))
+    {
         return changeDBHost();
+    }
     else if (strieq(what, dbLit))
+    {
         return changeDB();
+    }
     else if (strieq(what, hostLit))
+    {
         return changeHost();
+    }
     else if (strieq(what, helpLit))
+    {
         return changeHelp();
+    }
     else
+    {
         return error("Invalid CHANGE command '" + what + "'.");
+    }
 }
 
 //change <<host h [-name n] [-net x] [-port p] [-uselocalhost [on|off] ] >>
@@ -582,16 +710,24 @@ std::string RasControlGrammar::changeDBHost()
     changeDbHost.set_host_name(getValueMandatoryFlag(dbhLit));
     const auto &newName = getValueOptionalFlag(_nameLit);
     if (!newName.empty())
+    {
         changeDbHost.set_n_name(newName);
+    }
     if (!connString.empty())
+    {
         changeDbHost.set_n_name(connString);
+    }
 
     const auto &userString = getValueOptionalFlag(_userLit);
     if (!userString.empty())
+    {
         changeDbHost.set_n_user(userString);
+    }
     const auto &passwdString = getValueOptionalFlag(_passwdLit);
     if (!passwdString.empty())
+    {
         changeDbHost.set_n_passwd(passwdString);
+    }
 
     return rascontrol->changeDbHost(changeDbHost);
 }
@@ -604,7 +740,9 @@ std::string RasControlGrammar::changeDB()
     changeDb.set_db_name(getValueMandatoryFlag(dbLit));
     const auto &dbNewName = getValueOptionalFlag(_nameLit);
     if (!dbNewName.empty())
+    {
         changeDb.set_n_db_name(dbNewName);
+    }
 
     return rascontrol->changeDb(changeDb);
 }
@@ -621,28 +759,38 @@ std::string RasControlGrammar::changeRasServer()
     changeServerGroup.set_group_name(getValueMandatoryFlag(srvLit));
     const auto &newServerName = getValueOptionalFlag(_nameLit);
     if (!newServerName.empty())
+    {
         changeServerGroup.set_n_group_name(newServerName);
+    }
 
     // TODO: handle port ranges
     const auto &portString = getValueOptionalFlag(_portLit);
     if (!portString.empty())
+    {
         changeServerGroup.add_n_ports(convertToULong(portString, "port"));
+    }
 
     const auto &hostName = getValueOf(_hostLit);
     if (!hostName.empty())
+    {
         changeServerGroup.set_n_host(hostName);
+    }
 
     const auto &autoRestart = getValueOptionalFlag(_autorestartLit);
     if (!autoRestart.empty())
     {
         if (strieq(autoRestart, onLit))
+        {
             changeServerGroup.set_n_autorestart(true);
+        }
         else if (strieq(autoRestart, offLit))
+        {
             changeServerGroup.set_n_autorestart(false);
+        }
         else
         {
             return error("Invalid autorestart option '" +
-                autoRestart + "', use one of [on|off].");
+                         autoRestart + "', use one of [on|off].");
         }
     }
     else
@@ -652,25 +800,39 @@ std::string RasControlGrammar::changeRasServer()
 
     const auto &dbhName = getValueOptionalFlag(_dbhLit);
     if (!dbhName.empty())
+    {
         changeServerGroup.set_n_db_host(dbhName);
+    }
     const auto &count = getValueOptionalFlag(_countdownLit);
     if (!count.empty())
+    {
         changeServerGroup.set_n_countdown(convertToULong(count, "countdown"));
+    }
     const auto &size = getValueOptionalFlag(_sizeLit);
     if (!size.empty())
+    {
         changeServerGroup.set_n_group_size(convertToULong(size, "size"));
+    }
     const auto &alive = getValueOptionalFlag(_aliveLit);
     if (!alive.empty())
+    {
         changeServerGroup.set_n_min_alive_servers(convertToULong(alive, "alive"));
+    }
     const auto &available = getValueOptionalFlag(_availableLit);
     if (!available.empty())
+    {
         changeServerGroup.set_n_min_alive_servers(convertToULong(available, "alive"));
+    }
     const auto &idle = getValueOptionalFlag(_idleLit);
     if (!idle.empty())
+    {
         changeServerGroup.set_n_max_idle_servers(convertToULong(idle, "idle"));
+    }
     const auto &xp = getExtraParams(_xpLit);
     if (!xp.empty())
+    {
         changeServerGroup.set_n_options(xp);
+    }
 
     return rascontrol->changeServerGroup(changeServerGroup);
 }
@@ -683,10 +845,14 @@ std::string RasControlGrammar::changeUserCmd()
     changeUser.set_user_name(getValueMandatoryFlag(userLit));
     const auto &newName = getValueOptionalFlag(_nameLit);
     if (!newName.empty())
+    {
         changeUser.set_n_name(newName);
+    }
     const auto &newPasswd = getValueOptionalFlag(_passwdLit);
     if (!newPasswd.empty())
+    {
         changeUser.set_n_passwd(newPasswd);
+    }
 
     const auto &rights = getValueOptionalFlag(_rightsLit);
     if (rights == "-")
@@ -704,27 +870,27 @@ std::string RasControlGrammar::changeUserCmd()
         {
             switch (rights[i])
             {
-                case 'C':
-                    changeUser.set_n_config_rights(true);
-                    break;
-                case 'A':
-                    changeUser.set_n_access_rights(true);
-                    break;
-                case 'S':
-                    changeUser.set_n_server_admin_rights(true);
-                    break;
-                case 'I':
-                    changeUser.set_n_info_rights(true);
-                    break;
-                case 'R':
-                    changeUser.set_n_dbread_rights(true);
-                    break;
-                case 'W':
-                    changeUser.set_n_dbwrite_rights(true);
-                    break;
-                default:
-                    return error("Invalid character '" + string{rights[i]} +
-                        "' in -rights parameter.");
+            case 'C':
+                changeUser.set_n_config_rights(true);
+                break;
+            case 'A':
+                changeUser.set_n_access_rights(true);
+                break;
+            case 'S':
+                changeUser.set_n_server_admin_rights(true);
+                break;
+            case 'I':
+                changeUser.set_n_info_rights(true);
+                break;
+            case 'R':
+                changeUser.set_n_dbread_rights(true);
+                break;
+            case 'W':
+                changeUser.set_n_dbwrite_rights(true);
+                break;
+            default:
+                return error("Invalid character '" + string{rights[i]} +
+                             "' in -rights parameter.");
             }
         }
     }
@@ -738,11 +904,17 @@ std::string RasControlGrammar::upCommand()
 {
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
     if (strieq(what, srvLit))
+    {
         return upRasServers();
+    }
     else if (strieq(what, helpLit))
+    {
         return upHelp();
+    }
     else
+    {
         return error("Invalid UP command '" + what + "'.");
+    }
 }
 
 // up srv [ s | -host h | -all]
@@ -759,11 +931,17 @@ std::string RasControlGrammar::upRasServers()
     {
         const auto &hostName = getValueOptionalFlag(_hostLit);
         if (!hostName.empty())
+        {
             upSrv.set_host_name(hostName);
+        }
         else if (isFlag(_allLit))
+        {
             upSrv.set_all(true);
+        }
         else
+        {
             return error("Invalid UP SRV command; try HELP UP.");
+        }
     }
 
     return rascontrol->startServerGroup(upSrv);
@@ -775,13 +953,21 @@ std::string RasControlGrammar::downCommand()
 {
     const auto &what = tokens.size() == 1 ? empty : tokens[1];
     if (strieq(what, hostLit))
+    {
         return downRasHosts();
+    }
     else if (strieq(what, srvLit))
+    {
         return downRasServers();
+    }
     else if (strieq(what, helpLit))
+    {
         return downHelp();
+    }
     else
+    {
         return error("Invalid DOWN command '" + what + "'.");
+    }
 }
 
 // down srv [ s | -host h | -all] [ -force] [-kill]
@@ -800,17 +986,27 @@ std::string RasControlGrammar::downRasServers()
     {
         const auto &hostName = getValueOptionalFlag(_hostLit);
         if (!hostName.empty())
+        {
             downSrv.set_host_name(hostName);
+        }
         else if (isFlag(_allLit))
+        {
             downSrv.set_all(true);
+        }
         else
+        {
             return error("Invalid DOWN SRV command; try HELP DOWN.");
+        }
     }
 
     if (isFlag(_forceLit))
+    {
         downSrv.set_kill_level(FORCE);
+    }
     if (isFlag(_killLit))
+    {
         downSrv.set_kill_level(KILL);
+    }
 
     return rascontrol->stopServerGroup(downSrv);
 }
@@ -836,170 +1032,188 @@ std::string RasControlGrammar::helpCommand()
     const auto &what = tokens.size() == 1 ? helpLit : tokens[1];
 
     if (strieq(what, listLit))
+    {
         return listHelp();
+    }
     else if (strieq(what, defineLit))
+    {
         return defineHelp();
+    }
     else if (strieq(what, removeLit))
+    {
         return removeHelp();
+    }
     else if (strieq(what, changeLit))
+    {
         return changeHelp();
+    }
     else if (strieq(what, upLit))
+    {
         return upHelp();
+    }
     else if (strieq(what, downLit))
+    {
         return downHelp();
+    }
     else if (strieq(what, saveLit))
+    {
         return saveHelp();
+    }
     else if (strieq(what, exitLit) or strieq(what, quitLit) or strieq(what, byeLit))
+    {
         return exitHelp();
+    }
     else
+    {
         return helpHelp();
+    }
 }
 
 std::string RasControlGrammar::helpHelp()
 {
     return "Help for rascontrol command language\r\n"
-        "rasdaman uses the following terms:\r\n"
-        "  host (server host)    - a computer running a RasManager (rasmgr), with or without currently active servers\r\n"
-        "  srv  (server)         - the rasdaman server (rasserver)\r\n"
-        "  dbh  (data base host) - a computer running the database software\r\n"
-        "  db   (database)       - the rasdaman database, hosted by the underlying database instance\r\n"
-        "  user                  - a person registered by rasdaman through user name and password\r\n"
-        "  inpeer                - a peer which can forward client requests to the current RasManager\r\n"
-        "  outpeer               - a peer to which the current RasManager can forward client requests\r\n"
-        "\r\nThe rascontrol utility allows to configure and do run-time administration work for the rasdaman system\r\n"
-        "Commands:\r\n"
-        "   >help       ...this help\r\n"
-        "   >exit       ...exit rascontrol\r\n"
-        "   >list       ...list information about the current status of the system\r\n"
-        "   >up         ...start servers\r\n"
-        "   >down       ...stop servers and rasmanagers\r\n"
-        "   >define     ...define a new object\r\n"
-        "   >remove     ...remove an object\r\n"
-        "   >change     ...change parameters of objects\r\n"
-        "   >save       ...make changes permanent\r\n"
-        "Type 'help command' to get specific information about command\r\n";
+           "rasdaman uses the following terms:\r\n"
+           "  host (server host)    - a computer running a RasManager (rasmgr), with or without currently active servers\r\n"
+           "  srv  (server)         - the rasdaman server (rasserver)\r\n"
+           "  dbh  (data base host) - a computer running the database software\r\n"
+           "  db   (database)       - the rasdaman database, hosted by the underlying database instance\r\n"
+           "  user                  - a person registered by rasdaman through user name and password\r\n"
+           "  inpeer                - a peer which can forward client requests to the current RasManager\r\n"
+           "  outpeer               - a peer to which the current RasManager can forward client requests\r\n"
+           "\r\nThe rascontrol utility allows to configure and do run-time administration work for the rasdaman system\r\n"
+           "Commands:\r\n"
+           "   >help       ...this help\r\n"
+           "   >exit       ...exit rascontrol\r\n"
+           "   >list       ...list information about the current status of the system\r\n"
+           "   >up         ...start servers\r\n"
+           "   >down       ...stop servers and rasmanagers\r\n"
+           "   >define     ...define a new object\r\n"
+           "   >remove     ...remove an object\r\n"
+           "   >change     ...change parameters of objects\r\n"
+           "   >save       ...make changes permanent\r\n"
+           "Type 'help command' to get specific information about command\r\n";
 }
 
 std::string RasControlGrammar::listHelp()
 {
     return "   The list command:\r\n"
-        "list srv [ s | -host h | -all ] [-p] \r\n"
-        "       - list information about 'server s' or 'all servers on host h' or 'all defined servers' (default)\r\n"
-        "         '-p' prints configuration information; default: runtime status information\r\n"
-        "list host\r\n"
-        "       - list information about server hosts\r\n"
-        "list dbh\r\n"
-        "       - list information about database hosts\r\n"
-        "list db [ d | -dbh h | -all ] \r\n"
-        "       - list information about 'database s' or all 'databases on database host h' or 'all defined databases'\r\n"
-        "list user [ -rights]\r\n"
-        "       - list the defined users\r\n"
-        "         '-rights' additionally lists each user's rights\r\n"
-        "list version\r\n"
-        "       - list version information"
-        "list inpeer\r\n"
-        "       - list information about inpeers\r\n"
-        "list outpeer\r\n"
-        "       - list information about outpeers\r\n";
+           "list srv [ s | -host h | -all ] [-p] \r\n"
+           "       - list information about 'server s' or 'all servers on host h' or 'all defined servers' (default)\r\n"
+           "         '-p' prints configuration information; default: runtime status information\r\n"
+           "list host\r\n"
+           "       - list information about server hosts\r\n"
+           "list dbh\r\n"
+           "       - list information about database hosts\r\n"
+           "list db [ d | -dbh h | -all ] \r\n"
+           "       - list information about 'database s' or all 'databases on database host h' or 'all defined databases'\r\n"
+           "list user [ -rights]\r\n"
+           "       - list the defined users\r\n"
+           "         '-rights' additionally lists each user's rights\r\n"
+           "list version\r\n"
+           "       - list version information"
+           "list inpeer\r\n"
+           "       - list information about inpeers\r\n"
+           "list outpeer\r\n"
+           "       - list information about outpeers\r\n";
 }
 
 std::string RasControlGrammar::defineHelp()
 {
     return "  The define command:\r\n"
-        "define dbh 'dbhname' -connect 'connectstring'\r\n"
-        "       - define database host with symbolic name 'dbhname'\r\n"
-        "         'connectstring' is the string used to connect a client to the underlying database instance\r\n"
-        "         (example: user/passwd@hostaddress)\r\n"
-        "define db 'dbname' -dbh 'dbhname'\r\n"
-        "       - define database 'dbname' on database host 'dbhname'\r\n"
-        "         ('dbname' is not a symbolic name, it is the real name of the rasdaman database)\r\n"
-        "define host 'hostname' -net 'netaddress' [-port 'portnumber']\r\n"
-        "       - define server host with symbolic name 'hostname', located at address 'netaddress:portnumber'\r\n"
-        "         ('portnumber' defaults to 7001)\r\n"
-        "define srv 'srvname' -host 'hostname' -dbh 'dbhname' -type 'servertype' -port 'portnumber' \r\n"
-        "                                [-autorestart on|off] [-countdown 'number'] [-xp 'options']\r\n"
-        "       - define server with symbolic name 'srvname' on server host 'hostname' connected to database host 'dbhname'\r\n"
-        "         'servertype' can be 'r' (RPC) or 'h' (HTTP) or 'n' (RNP)\r\n"
-        "         'portnumber' is the IP port number for HTTP servers / the 'prognum' for RPC/RNP servers\r\n"
-        "         -autorestart (default: on): the server will autorestart after an unexpected termination\r\n"
-        "         -countdown 'number' (default: 1000): the server will be restarted after 'number' transactions\r\n"
-        "         -xp 'options': extra parameter string 'options' that will be passed to the server at startup \r\n"
-        "          (default: \"\", see documentation for valid 'options')\r\n"
-        "          this option has to be the last, because anything after it and until end of line is considered to be 'options'\r\n"
-        "define user 'username' [-passwd 'password'] [-rights 'rightsstring']\r\n"
-        "       - define user account with symbolic name 'username'\r\n"
-        "         'password' defaults to 'username' (use the raspasswd utility to change)\r\n"
-        "         -rights 'rightsstring': the rights granted to the user (default: none; see documentation for valid rights)\r\n"
-        "define inpeer 'hostname'\r\n"
-        "       - define inpeer with the host name 'hostname'\r\n"
-        "define outpeer 'hostname' [-port 'portnumber']\r\n"
-        "       - define outpeer with the host name 'hostname'\r\n"
-        "         ('portnumber' defaults to 7001)\r\n";
+           "define dbh 'dbhname' -connect 'connectstring'\r\n"
+           "       - define database host with symbolic name 'dbhname'\r\n"
+           "         'connectstring' is the string used to connect a client to the underlying database instance\r\n"
+           "         (example: user/passwd@hostaddress)\r\n"
+           "define db 'dbname' -dbh 'dbhname'\r\n"
+           "       - define database 'dbname' on database host 'dbhname'\r\n"
+           "         ('dbname' is not a symbolic name, it is the real name of the rasdaman database)\r\n"
+           "define host 'hostname' -net 'netaddress' [-port 'portnumber']\r\n"
+           "       - define server host with symbolic name 'hostname', located at address 'netaddress:portnumber'\r\n"
+           "         ('portnumber' defaults to 7001)\r\n"
+           "define srv 'srvname' -host 'hostname' -dbh 'dbhname' -type 'servertype' -port 'portnumber' \r\n"
+           "                                [-autorestart on|off] [-countdown 'number'] [-xp 'options']\r\n"
+           "       - define server with symbolic name 'srvname' on server host 'hostname' connected to database host 'dbhname'\r\n"
+           "         'servertype' can be 'r' (RPC) or 'h' (HTTP) or 'n' (RNP)\r\n"
+           "         'portnumber' is the IP port number for HTTP servers / the 'prognum' for RPC/RNP servers\r\n"
+           "         -autorestart (default: on): the server will autorestart after an unexpected termination\r\n"
+           "         -countdown 'number' (default: 1000): the server will be restarted after 'number' transactions\r\n"
+           "         -xp 'options': extra parameter string 'options' that will be passed to the server at startup \r\n"
+           "          (default: \"\", see documentation for valid 'options')\r\n"
+           "          this option has to be the last, because anything after it and until end of line is considered to be 'options'\r\n"
+           "define user 'username' [-passwd 'password'] [-rights 'rightsstring']\r\n"
+           "       - define user account with symbolic name 'username'\r\n"
+           "         'password' defaults to 'username' (use the raspasswd utility to change)\r\n"
+           "         -rights 'rightsstring': the rights granted to the user (default: none; see documentation for valid rights)\r\n"
+           "define inpeer 'hostname'\r\n"
+           "       - define inpeer with the host name 'hostname'\r\n"
+           "define outpeer 'hostname' [-port 'portnumber']\r\n"
+           "       - define outpeer with the host name 'hostname'\r\n"
+           "         ('portnumber' defaults to 7001)\r\n";
 }
 
 std::string RasControlGrammar::removeHelp()
 {
     return "   The remove command:\r\n"
-        "remove dbh 'dbhname'\r\n"
-        "       - remove database host 'dbhname'\r\n"
-        "remove db 'dbname' -dbh 'dbhname'\r\n"
-        "       - remove database 'dbname' from database host 'dbhname'\r\n"
-        "         (the database itself is not deleted, only the name is removed from the config tables)\r\n"
-        "remove host 'hostname' \r\n"
-        "       - remove server host 'hostname'\r\n"
-        "remove srv 'srvname'\r\n"
-        "       - remove server 'srvname'\r\n"
-        "remove user 'username'\r\n"
-        "       - remove the user 'username'\r\n"
-        "remove inpeer 'hostname'\r\n"
-        "       - remove inpeer with host name 'hostname'\r\n"
-        "remove outpeer 'hostname'\r\n"
-        "       - remove outpeer with host name 'hostname'\r\n";
+           "remove dbh 'dbhname'\r\n"
+           "       - remove database host 'dbhname'\r\n"
+           "remove db 'dbname' -dbh 'dbhname'\r\n"
+           "       - remove database 'dbname' from database host 'dbhname'\r\n"
+           "         (the database itself is not deleted, only the name is removed from the config tables)\r\n"
+           "remove host 'hostname' \r\n"
+           "       - remove server host 'hostname'\r\n"
+           "remove srv 'srvname'\r\n"
+           "       - remove server 'srvname'\r\n"
+           "remove user 'username'\r\n"
+           "       - remove the user 'username'\r\n"
+           "remove inpeer 'hostname'\r\n"
+           "       - remove inpeer with host name 'hostname'\r\n"
+           "remove outpeer 'hostname'\r\n"
+           "       - remove outpeer with host name 'hostname'\r\n";
 }
 
 std::string RasControlGrammar::changeHelp()
 {
     return "   The change command:\r\n"
-        "change dbh 'dbhname' [-name 'newname'] [-connect 'newconnectstring']\r\n"
-        "change db 'dbname' [-name 'newname']\r\n"
-        "change host 'hostname' [-name 'newname'] [-net 'newnetaddress'] [-port 'newportnumber']\r\n"
-        "change srv 'servername' [-name 'newname'][-dbh 'newdbhname'] [-type 'newservertype'] [-port 'newportnumber'] [-autorestart on|off] [-countdown 'newnumber'] [-xp 'newoptions']\r\n"
-        "change user 'username' [-name 'newname'] [-passwd 'newpasswd] [-rights 'rightsstring']\r\n"
-        "       - see the help for the define command for option description\r\n";
+           "change dbh 'dbhname' [-name 'newname'] [-connect 'newconnectstring']\r\n"
+           "change db 'dbname' [-name 'newname']\r\n"
+           "change host 'hostname' [-name 'newname'] [-net 'newnetaddress'] [-port 'newportnumber']\r\n"
+           "change srv 'servername' [-name 'newname'][-dbh 'newdbhname'] [-type 'newservertype'] [-port 'newportnumber'] [-autorestart on|off] [-countdown 'newnumber'] [-xp 'newoptions']\r\n"
+           "change user 'username' [-name 'newname'] [-passwd 'newpasswd] [-rights 'rightsstring']\r\n"
+           "       - see the help for the define command for option description\r\n";
 }
 
 std::string RasControlGrammar::upHelp()
 {
     return "   The up command:\r\n"
-        "up srv [ s | -host h | -all]\r\n"
-        "       - start 'server s' or 'all servers on host h' or 'all defined servers'\r\n";
+           "up srv [ s | -host h | -all]\r\n"
+           "       - start 'server s' or 'all servers on host h' or 'all defined servers'\r\n";
 }
 
 std::string RasControlGrammar::downHelp()
 {
     return "   The down command:\r\n"
-        "down srv [ s | -host h | -all] [ -force] [-kill]\r\n"
-        "       - stops 'server s' or 'all started servers on host h' or 'all started servers'\r\n"
-        "         -force: stops the 'server s' without waiting to complete the current transaction (using SIGTERM)\r\n"
-        "         -kill:  instantly stops the 'server s' (using SIGKILL)\r\n"
-        "          (without -force or -kill the server completes the current transaction and exits)\r\n"
-        "down host [ h | -all]\r\n"
-        "       - stops the rasmgr on 'host h' or all started rasmgr\r\n";
+           "down srv [ s | -host h | -all] [ -force] [-kill]\r\n"
+           "       - stops 'server s' or 'all started servers on host h' or 'all started servers'\r\n"
+           "         -force: stops the 'server s' without waiting to complete the current transaction (using SIGTERM)\r\n"
+           "         -kill:  instantly stops the 'server s' (using SIGKILL)\r\n"
+           "          (without -force or -kill the server completes the current transaction and exits)\r\n"
+           "down host [ h | -all]\r\n"
+           "       - stops the rasmgr on 'host h' or all started rasmgr\r\n";
 }
 
 std::string RasControlGrammar::saveHelp()
 {
     return "   The save command\r\n"
-        "save\r\n"
-        "    - saves the current configuration information\r\n"
-        "      (upon changes the files will be saved automatically to rescue files next to the config files when exiting rasmgr)\r\n";
+           "save\r\n"
+           "    - saves the current configuration information\r\n"
+           "      (upon changes the files will be saved automatically to rescue files next to the config files when exiting rasmgr)\r\n";
 }
 
 std::string RasControlGrammar::exitHelp()
 {
     return "   The exit command\r\n"
-        "exit | quit | bye\r\n"
-        "    - finish this rascontrol session\r\n";
+           "exit | quit | bye\r\n"
+           "    - finish this rascontrol session\r\n";
 }
 
 // ----------------------------------------------------------------------------
@@ -1015,12 +1229,16 @@ bool RasControlGrammar::isFlag(const std::string &flag, int pos)
     {
         for (size_t i = 1; i < tokens.size(); ++i) // flags are from 1->, 0 is the command itself
             if (strieq(flag, tokens[i]))
+            {
                 return true;
+            }
     }
     if (pos > 1 && pos < static_cast<int>(tokens.size()))
     {
         if (strieq(flag, tokens[static_cast<size_t>(pos)]))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -1050,32 +1268,40 @@ std::string RasControlGrammar::getValueOf(const std::string &flag, bool acceptMi
 }
 
 std::string RasControlGrammar::getValueOptionalFlag(const std::string &flag,
-                                                    bool acceptMinus)
+        bool acceptMinus)
 {
     if (!isFlag(flag))
+    {
         return empty;
+    }
     auto value = getValueOf(flag, acceptMinus);
     if (value == empty)
+    {
         throw RCErrorMissingParam(flag);
+    }
     return value;
 }
 
 std::string RasControlGrammar::getValueMandatoryFlag(const std::string &flag,
-                                                    bool acceptMinus)
+        bool acceptMinus)
 {
     auto ret = getValueOptionalFlag(flag, acceptMinus);
     if (ret == empty)
+    {
         throw RCErrorMissingParam(flag);
+    }
     return ret;
 }
 
 unsigned long RasControlGrammar::convertToULong(const std::string &stringValue,
-                                                const std::string &errMsg)
+        const std::string &errMsg)
 {
     char *end;
     unsigned long ret = strtoul(stringValue.c_str(), &end, 0);
     if (strlen(end) != 0)
+    {
         throw RCErrorIncorNumberValue(errMsg);
+    }
     return ret;
 }
 
@@ -1088,7 +1314,9 @@ std::string RasControlGrammar::getExtraParams(const std::string &key)
         if (found)
         {
             if (!ret.empty())
+            {
                 ret += " ";
+            }
             ret += tokens[i];
         }
         if (strieq(key, tokens[i]))

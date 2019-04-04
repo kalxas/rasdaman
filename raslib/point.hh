@@ -64,10 +64,10 @@ public:
     r_Point(r_Dimension);
 
     /// stream-input operator for stream initializing
-    r_Point& operator<<(r_Range);
+    r_Point &operator<<(r_Range);
 
     /// constructor taking string representation (e.g. [ 1, 2, 3])
-    r_Point(char*);
+    r_Point(char *);
 
     //@Man: 'easy-to-use' constructors
     //@{
@@ -80,14 +80,14 @@ public:
     ///
     r_Point(r_Range, r_Range, r_Range, r_Range, r_Range);
     ///
-    r_Point(const std::vector<r_Range>& pointArg);
+    r_Point(const std::vector<r_Range> &pointArg);
     //@}
 
     /// default constructor
     r_Point();
 
     /// copy constructor
-    r_Point(const r_Point&);
+    r_Point(const r_Point &);
 
     /// destructor: cleanup dynamic memory
     ~r_Point();
@@ -95,20 +95,20 @@ public:
     /// subscriptor for read access
     r_Range  operator[](r_Dimension) const;
     /// subscriptor for write access
-    r_Range& operator[](r_Dimension);
-    
+    r_Range &operator[](r_Dimension);
+
     /// assignment: cleanup + copy
-    const r_Point& operator= (const r_Point&);
+    const r_Point &operator= (const r_Point &);
 
     /// compares this point with the given point.
-    inline int compare_with(const  r_Point& p) const;
+    inline int compare_with(const  r_Point &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in decreasing order of magnitude).
     */
 
     /// equal operator
-    bool operator==(const r_Point&) const;
+    bool operator==(const r_Point &) const;
 
     /**
       Two points are equal if they have the same number of dimensions and
@@ -116,62 +116,62 @@ public:
     */
 
     /// non equal operator - negation of equal operator
-    bool operator!=(const r_Point&) const;
+    bool operator!=(const r_Point &) const;
 
-    bool operator < (const r_Point&) const;
+    bool operator < (const r_Point &) const;
 
-    bool operator > (const r_Point&) const;
+    bool operator > (const r_Point &) const;
 
 
-    bool operator <= (const r_Point&) const;
+    bool operator <= (const r_Point &) const;
 
-    bool operator >= (const r_Point&) const;
+    bool operator >= (const r_Point &) const;
 
     /// vector addition
-    r_Point operator+(const r_Point&) const;
+    r_Point operator+(const r_Point &) const;
 
     /// vector subtraction
-    r_Point operator-(const r_Point&) const;
+    r_Point operator-(const r_Point &) const;
 
     /// vector multiplication
-    r_Point operator*(const r_Point&) const;
-    
+    r_Point operator*(const r_Point &) const;
+
     /// vector multiplication with a scalar
     r_Point operator*(const r_Range newElement) const;
-    
+
     /// create a new r_Point r from the vector argument vecArg where r(i) = this->at(vecArg(i))
-    r_Point indexedMap(const std::vector<r_Dimension>& vecArg) const;
+    r_Point indexedMap(const std::vector<r_Dimension> &vecArg) const;
 
     /// vector dotProduct
     r_Range dotProduct(const r_Point &r) const;
 
     /// get dimensionality
     inline r_Dimension dimension() const;
-    
+
     /// get vectorized version of the stored point
     std::vector<r_Range> getVector() const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
 
     /// gives back the string representation
-    char* get_string_representation() const;
+    char *get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using {\tt malloc()} and
       has to be free using {\tt free()} in the end. It can be used to construct a {\tt r_Point}
       again with a special constructor provided. The string representation is build using
       {\tt print_status()}.
     */
-    
+
     /**
-     * If you want the output of {\tt get_string_representation()}, 
+     * If you want the output of {\tt get_string_representation()},
      * but you do not want to worry about memory allocation/deallocation.
      */
     std::string to_string() const;
 
 private:
     /// array holding the point coordinates
-    r_Range* points;
+    r_Range *points;
     /// dimensionality of the point
     r_Dimension dimensionality;
     /// number of components initialized already
@@ -184,7 +184,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Point}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Point& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Point &d);
 
 #include "raslib/point.icc"
 

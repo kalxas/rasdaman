@@ -48,7 +48,7 @@ InlineMinterval::InlineMinterval(r_Dimension dim)
     LTRACE << "InlineMinterval(" << dim << ")";
 }
 
-InlineMinterval::InlineMinterval(r_Dimension dim, r_Range* lowerbound, r_Range* upperbound, char* lowerfixed, char* upperfixed)
+InlineMinterval::InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *upperbound, char *lowerfixed, char *upperfixed)
     :   r_Minterval(dim)
 {
     char undefined = '*';
@@ -76,20 +76,20 @@ InlineMinterval::InlineMinterval(r_Dimension dim, r_Range* lowerbound, r_Range* 
     }
 }
 
-InlineMinterval::InlineMinterval(const InlineMinterval& old)
+InlineMinterval::InlineMinterval(const InlineMinterval &old)
     :   r_Minterval(old)
 {
     LTRACE << "InlineMinterval(InlineMinterval)";
 }
 
-InlineMinterval::InlineMinterval(const r_Minterval& old)
+InlineMinterval::InlineMinterval(const r_Minterval &old)
     :   r_Minterval(old)
 {
     LTRACE << "InlineMinterval(r_Minterval)";
 }
 
-InlineMinterval&
-InlineMinterval::operator=(const InlineMinterval& old)
+InlineMinterval &
+InlineMinterval::operator=(const InlineMinterval &old)
 {
     if (this == &old)
     {
@@ -99,8 +99,8 @@ InlineMinterval::operator=(const InlineMinterval& old)
     return *this;
 }
 
-InlineMinterval&
-InlineMinterval::operator=(const r_Minterval& old)
+InlineMinterval &
+InlineMinterval::operator=(const r_Minterval &old)
 {
     if (this == &old)
     {
@@ -111,7 +111,7 @@ InlineMinterval::operator=(const r_Minterval& old)
 }
 
 void
-InlineMinterval::insertInDb(r_Range* lowerbound, r_Range* upperbound, char* lowerfixed, char* upperfixed) const
+InlineMinterval::insertInDb(r_Range *lowerbound, r_Range *upperbound, char *lowerfixed, char *upperfixed) const
 {
     char undefined = '*';
     for (unsigned int count = 0; count < dimensionality; count++)

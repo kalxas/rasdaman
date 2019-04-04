@@ -220,27 +220,27 @@ bool quietLog = false;
 
 int  optionValueIndex = 0;
 
-const char* serverName = DEFAULT_SERV;
+const char *serverName = DEFAULT_SERV;
 r_ULong serverPort = DEFAULT_PORT;
-const char* baseName = DEFAULT_DB;
+const char *baseName = DEFAULT_DB;
 
-const char* user = DEFAULT_USER;
-const char* passwd = DEFAULT_PASSWD;
+const char *user = DEFAULT_USER;
+const char *passwd = DEFAULT_PASSWD;
 
-const char* fileName = NULL;
-const char* queryString = NULL;
+const char *fileName = NULL;
+const char *queryString = NULL;
 
 bool output = false;
 bool displayType = false;
 
 OUTPUT_TYPE outputType = DEFAULT_OUT;
 
-const char* outFileMask = DEFAULT_OUTFILE;
+const char *outFileMask = DEFAULT_OUTFILE;
 
 r_Minterval mddDomain;
 bool mddDomainDef = false;
 
-const char* mddTypeName = NULL;
+const char *mddTypeName = NULL;
 bool mddTypeNameDef = false;
 
 // query result set.
@@ -252,7 +252,7 @@ r_Set<r_Ref_Any> result_set;
 //function prototypes:
 
 void
-parseParams(int argc, char** argv);
+parseParams(int argc, char **argv);
 
 bool
 openDatabase();
@@ -270,16 +270,16 @@ void
 cleanConnection();
 
 void
-printScalar(const r_Scalar& scalar);
+printScalar(const r_Scalar &scalar);
 
 void
-writeScalarToFile(const r_Scalar& scalar, unsigned int fileNum);
+writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum);
 
 void
-writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file);
+writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file);
 
 void
-writeStructToFileStream(const r_Structure* const structValue, std::ofstream& file);
+writeStructToFileStream(const r_Structure *const structValue, std::ofstream &file);
 
 void
 printResult();
@@ -287,44 +287,44 @@ printResult();
 void
 writeStringToFile(const std::string &str, unsigned int fileNum);
 
-r_Marray_Type*
-getTypeFromDatabase(const char* mddTypeName2);
+r_Marray_Type *
+getTypeFromDatabase(const char *mddTypeName2);
 
 void
-doStuff(int argc, char** argv);
+doStuff(int argc, char **argv);
 
 void
-shutdownHandler(int sig, siginfo_t* info, void* ucontext);
+shutdownHandler(int sig, siginfo_t *info, void *ucontext);
 
 void
-crashHandler(int sig, siginfo_t* info, void* ucontext);
+crashHandler(int sig, siginfo_t *info, void *ucontext);
 
 void
-parseParams(int argc, char** argv)
+parseParams(int argc, char **argv)
 {
-    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
+    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
 
-    CommandLineParameter& clp_help      = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
+    CommandLineParameter &clp_help      = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
 
-    CommandLineParameter& clp_query         = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
-    CommandLineParameter& clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
+    CommandLineParameter &clp_query         = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    CommandLineParameter &clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
-    CommandLineParameter& clp_content   = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
-    CommandLineParameter& clp_out       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
-    CommandLineParameter& clp_outfile   = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
-    CommandLineParameter& clp_mddDomain     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
-    CommandLineParameter& clp_mddType       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
-    CommandLineParameter& clp_type      = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
+    CommandLineParameter &clp_content   = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
+    CommandLineParameter &clp_out       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    CommandLineParameter &clp_outfile   = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    CommandLineParameter &clp_mddDomain     = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
+    CommandLineParameter &clp_mddType       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    CommandLineParameter &clp_type      = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
 
-    CommandLineParameter& clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
-    CommandLineParameter& clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
-    CommandLineParameter& clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB);
-    CommandLineParameter& clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
-    CommandLineParameter& clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
-    CommandLineParameter& clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
+    CommandLineParameter &clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
+    CommandLineParameter &clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
+    CommandLineParameter &clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB);
+    CommandLineParameter &clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
+    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
 
 #ifdef DEBUG
-    CommandLineParameter& clp_debug     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG);
+    CommandLineParameter &clp_debug     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DEBUG, HELP_DEBUG);
 #endif
 
     try
@@ -405,7 +405,7 @@ parseParams(int argc, char** argv)
         if (cmlInter.isPresent(PARAM_OUT))
         {
             output = true;
-            const char* val = cmlInter.getValueAsString(PARAM_OUT);
+            const char *val = cmlInter.getValueAsString(PARAM_OUT);
             if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
             {
                 outputType = OUT_STRING;
@@ -447,7 +447,7 @@ parseParams(int argc, char** argv)
                 mddDomain = r_Minterval(cmlInter.getValueAsString(PARAM_DOMAIN));
                 mddDomainDef = true;
             }
-            catch (r_Error& e)              // Minterval constructor had syntax problems
+            catch (r_Error &e)              // Minterval constructor had syntax problems
             {
                 throw RasqlError(NOVALIDDOMAIN);
             }
@@ -472,7 +472,7 @@ parseParams(int argc, char** argv)
 #endif
 
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         cerr << err.what() << endl;
         throw RasqlError(ERRORPARSINGCOMMANDLINE);
@@ -515,9 +515,13 @@ openTransaction(bool readwrite)
     {
         LDEBUG << "Opening " << (readwrite ? "rw" : "ro") << " transaction... ";
         if (readwrite)
+        {
             ta.begin(r_Transaction::read_write);
+        }
         else
+        {
             ta.begin(r_Transaction::read_only);
+        }
 
         LDEBUG << "Successfully opened transaction.";
         taIsOpen = true;
@@ -532,9 +536,13 @@ closeTransaction(bool doCommit)
     {
         LDEBUG << (doCommit ? "Committing" : "Aborting") << " transaction... ";
         if (doCommit)
+        {
             ta.commit();
+        }
         else
+        {
             ta.abort();
+        }
 
         LDEBUG << "Successfully closed transaction.";
         taIsOpen = false;
@@ -563,54 +571,54 @@ cleanConnection()
     }
 }
 
-void printScalar(const r_Scalar& scalar)
+void printScalar(const r_Scalar &scalar)
 {
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        NNLINFO << ((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f");
+        NNLINFO << ((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_boolean() ? "t" : "f");
         break;
 
     case r_Type::CHAR:
-        NNLINFO << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char());
+        NNLINFO << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_char());
         break;
 
     case r_Type::OCTET:
-        NNLINFO << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet());
+        NNLINFO << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_octet());
         break;
 
     case r_Type::SHORT:
-        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short();
+        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_short();
         break;
 
     case r_Type::USHORT:
-        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort();
+        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ushort();
         break;
 
     case r_Type::LONG:
-        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long();
+        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_long();
         break;
 
     case r_Type::ULONG:
-        NNLINFO << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong();
+        NNLINFO << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ulong();
         break;
 
     case r_Type::FLOAT:
-        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float();
+        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_float();
         break;
 
     case r_Type::DOUBLE:
-        NNLINFO << std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double();
+        NNLINFO << std::setprecision(std::numeric_limits<double>::digits10 + 1) << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_double();
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        NNLINFO << "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")";
+        NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im() << ")";
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = static_cast<r_Structure*>(&const_cast<r_Scalar&>(scalar));
+        r_Structure *structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
         NNLINFO << "{ ";
         for (unsigned int i = 0; i < structValue->count_elements(); i++)
         {
@@ -649,95 +657,21 @@ void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
 
         switch (scalar.get_type()->type_id())
         {
-            case r_Type::BOOL:
-            case r_Type::CHAR:
-            case r_Type::OCTET:
-            case r_Type::SHORT:
-            case r_Type::USHORT:
-            case r_Type::ULONG:
-            case r_Type::LONG:
-            case r_Type::DOUBLE:
-            case r_Type::FLOAT:
-            case r_Type::COMPLEXTYPE1:
-            case r_Type::COMPLEXTYPE2:
-                writeScalarToFileStream(scalar, file);
-                break;
-
-            // structure type oracles do not expect spaces - but string representation has spaces
-            case r_Type::STRUCTURETYPE:
-            {
-                const r_Structure* const structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
-                writeStructToFileStream(structValue, file);
-                break;
-            }
-
-            default:
-                LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
-                break;
-        }
-
-        file << std::endl;
-        file.close();
-    }
-    else {
-        throw RasqlError(UNABLETOWRITETOFILE);
-    }
-}
-
-/*
- * Write the scalar value to file.
- * This function is needed because default string implementations print out spaces and test oracles do not accept spaces
- */
-void writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file)
-{
-    const r_Base_Type* scalarType = scalar.get_type();
-    switch (scalarType->type_id())
-    {
         case r_Type::BOOL:
-            file << ((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f");
-            break;
-
         case r_Type::CHAR:
-            file << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char());
-            break;
-
         case r_Type::OCTET:
-            file << static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet());
-            break;
-
         case r_Type::SHORT:
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short();
-            break;
-
         case r_Type::USHORT:
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort();
-            break;
-
-        case r_Type::LONG:
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long();
-            break;
-
         case r_Type::ULONG:
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong();
-            break;
-
+        case r_Type::LONG:
         case r_Type::DOUBLE:
-            file << std::setprecision(std::numeric_limits<double>::digits10 + 1);
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double();
-            break;
-
         case r_Type::FLOAT:
-            file << std::setprecision(std::numeric_limits<float>::digits10 + 1);
-            file << (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float();
-            break;
-
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            // default string representation of complex type has space - rejected by system test oracles.
-            // eg: complex string representation: (34, 45) - oracle expected: (34,45)
-            file << "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")";
+            writeScalarToFileStream(scalar, file);
             break;
 
+        // structure type oracles do not expect spaces - but string representation has spaces
         case r_Type::STRUCTURETYPE:
         {
             const r_Structure *const structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
@@ -748,6 +682,81 @@ void writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file)
         default:
             LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
             break;
+        }
+
+        file << std::endl;
+        file.close();
+    }
+    else
+    {
+        throw RasqlError(UNABLETOWRITETOFILE);
+    }
+}
+
+/*
+ * Write the scalar value to file.
+ * This function is needed because default string implementations print out spaces and test oracles do not accept spaces
+ */
+void writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file)
+{
+    const r_Base_Type *scalarType = scalar.get_type();
+    switch (scalarType->type_id())
+    {
+    case r_Type::BOOL:
+        file << ((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_boolean() ? "t" : "f");
+        break;
+
+    case r_Type::CHAR:
+        file << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_char());
+        break;
+
+    case r_Type::OCTET:
+        file << static_cast<int>((static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_octet());
+        break;
+
+    case r_Type::SHORT:
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_short();
+        break;
+
+    case r_Type::USHORT:
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ushort();
+        break;
+
+    case r_Type::LONG:
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_long();
+        break;
+
+    case r_Type::ULONG:
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_ulong();
+        break;
+
+    case r_Type::DOUBLE:
+        file << std::setprecision(std::numeric_limits<double>::digits10 + 1);
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_double();
+        break;
+
+    case r_Type::FLOAT:
+        file << std::setprecision(std::numeric_limits<float>::digits10 + 1);
+        file << (static_cast<r_Primitive *>(&const_cast<r_Scalar &>(scalar)))->get_float();
+        break;
+
+    case r_Type::COMPLEXTYPE1:
+    case r_Type::COMPLEXTYPE2:
+        // default string representation of complex type has space - rejected by system test oracles.
+        // eg: complex string representation: (34, 45) - oracle expected: (34,45)
+        file << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im() << ")";
+        break;
+
+    case r_Type::STRUCTURETYPE:
+    {
+        const r_Structure *const structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
+        writeStructToFileStream(structValue, file);
+        break;
+    }
+
+    default:
+        LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+        break;
     }
 }
 
@@ -755,12 +764,14 @@ void writeScalarToFileStream(const r_Scalar& scalar, std::ofstream& file)
  * Write the struct to the file stream.
  * Needed because of all test oracles with no spaces - but default string implementation has spaces
  */
-void writeStructToFileStream(const r_Structure* const structValue, std::ofstream& file)
+void writeStructToFileStream(const r_Structure *const structValue, std::ofstream &file)
 {
     file << "{ ";
-    for (unsigned int i = 0; i < structValue->count_elements(); i++) {
+    for (unsigned int i = 0; i < structValue->count_elements(); i++)
+    {
         writeScalarToFileStream((*structValue)[i], file);
-        if (i < structValue->count_elements() - 1) {
+        if (i < structValue->count_elements() - 1)
+        {
             file << ", ";
         }
     }
@@ -776,7 +787,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
     {
         LINFO << "  Oid...................: " << result_set.get_oid();
         LINFO << "  Type Structure........: "
-             << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>");
+              << (result_set.get_type_structure() ? result_set.get_type_structure() : "<nn>");
         NNLINFO << "  Type Schema...........: ";
         if (result_set.get_type_schema())
         {
@@ -822,7 +833,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             case OUT_STRING:
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 NNLINFO << "  Result object " << i << ": ";
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
                 {
@@ -834,7 +845,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             case OUT_HEX:
             {
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 NNLINFO << "  Result object " << i << ": ";
                 cout << hex;
                 for (unsigned int cnt = 0; cnt < numCells; cnt++)
@@ -848,7 +859,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             {
                 NNLINFO << "  Result object " << i << ": ";
                 size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 cout << endl;
             }
             break;
@@ -898,13 +909,13 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
                 }
 
                 NNLINFO << "  Result object " << i << ": going into file " << defFileName << "... ";
-                FILE* tfile = fopen(defFileName, "wb");
+                FILE *tfile = fopen(defFileName, "wb");
                 if (tfile == NULL)
                 {
                     throw RasqlError(NOFILEWRITEPERMISSION);
                 }
                 size_t count = r_Ref<r_GMarray>(*iter)->get_array_size();
-                if (fwrite(static_cast<void*>(r_Ref<r_GMarray>(*iter)->get_array()), 1, count, tfile) != count)
+                if (fwrite(static_cast<void *>(r_Ref<r_GMarray>(*iter)->get_array()), 1, count, tfile) != count)
                 {
                     fclose(tfile);
                     throw RasqlError(UNABLETOWRITETOFILE);
@@ -922,14 +933,16 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
         case r_Type::POINTTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Point>(*iter)) << "\n";
-            if (outputType == OUT_FILE) {
+            if (outputType == OUT_FILE)
+            {
                 writeStringToFile(r_Ref<r_Point>(*iter)->to_string(), i);
             }
             break;
         case r_Type::SINTERVALTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Sinterval>(*iter)) << "\n";
-            if (outputType == OUT_FILE) {
+            if (outputType == OUT_FILE)
+            {
                 std::string strRep(r_Ref<r_Sinterval>(*iter)->get_string_representation());
                 writeStringToFile(strRep, i);
             }
@@ -938,7 +951,8 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
         case r_Type::MINTERVALTYPE:
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_Minterval>(*iter)) << "\n";
-            if (outputType == OUT_FILE) {
+            if (outputType == OUT_FILE)
+            {
                 writeStringToFile(r_Ref<r_Minterval>(*iter)->to_string(), i);
             }
             break;
@@ -952,7 +966,8 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             NNLINFO << "  Result element " << i << ": ";
             r_Ref<r_Scalar> scalar(*iter);
             printScalar(*scalar);
-            if (outputType == OUT_FILE) {
+            if (outputType == OUT_FILE)
+            {
                 writeScalarToFile(*scalar, i);
             }
             BLINFO << "\n";
@@ -973,12 +988,14 @@ void writeStringToFile(const std::string &str, unsigned int fileNum)
     strcat(defFileName, ".txt");
 
     std::ofstream file(defFileName, std::ios::out);
-    if (file.is_open()) {
+    if (file.is_open())
+    {
         NNLINFO << "  Result object " << fileNum << ": going into file " << defFileName << "... ";
         file << "  Result element " << fileNum << ": " << str << std::endl;
         file.close();
     }
-    else {
+    else
+    {
         throw RasqlError(UNABLETOWRITETOFILE);
     }
 }
@@ -989,9 +1006,9 @@ void writeStringToFile(const std::string &str, unsigned int fileNum)
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
+r_Marray_Type *getTypeFromDatabase(const char *mddTypeName2)
 {
-    r_Marray_Type* retval = NULL;
+    r_Marray_Type *retval = NULL;
     std::unique_ptr<char[]> typeStructure;
 
     // first, try to get type structure from database using a separate r/o transaction
@@ -1000,7 +1017,7 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
         typeStructure.reset(db.getComm()->getTypeStructure(mddTypeName2, ClientComm::r_MDDType_Type));
         LDEBUG << "type structure is " << typeStructure.get();
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
@@ -1020,27 +1037,27 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
         std::unique_ptr<r_Type> tempType(r_Type::get_any_type(typeStructure.get()));
         if (tempType->isMarrayType())
         {
-            retval = static_cast<r_Marray_Type*>(tempType.release());
+            retval = static_cast<r_Marray_Type *>(tempType.release());
         }
         else
         {
             throw RasqlError(MDDTYPEINVALID);
         }
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
-        LDEBUG << "Error during retrieval of MDD type structure (" 
-                << typeStructure.get() << "): " << err.get_errorno() << " " << err.what();
+        LDEBUG << "Error during retrieval of MDD type structure ("
+               << typeStructure.get() << "): " << err.get_errorno() << " " << err.what();
         throw;
     }
 
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** argv)
+void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **argv)
 {
     std::unique_ptr<char[]> fileContents;                       // contents of file satisfying "$1" parameter in query
-    std::unique_ptr<r_Set<r_GMarray*>> fileContentsChunked; // file contents partitioned into smaller chunks
+    std::unique_ptr<r_Set<r_GMarray *>> fileContentsChunked; // file contents partitioned into smaller chunks
     r_Ref<r_GMarray> fileMDD;    // MDD to satisfy a "$1" parameter
     std::unique_ptr<r_Marray_Type> mddType;      // this MDD's type
 
@@ -1071,7 +1088,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
         NNLINFO << "reading file " << fileName << "... ";
         errno = 0;
-        FILE* fileD = fopen(fileName, "r");
+        FILE *fileD = fopen(fileName, "r");
         if (fileD == NULL)
         {
             BLERROR << "failed: " << strerror(errno) << "\n";
@@ -1101,12 +1118,12 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 
             // read data in each tile chunk
             long offset = 0;
-            fileContentsChunked.reset(new r_Set<r_GMarray*>());
+            fileContentsChunked.reset(new r_Set<r_GMarray *>());
             for (auto chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
             {
                 r_Minterval chunkDom = *chunkIt;
                 r_Area chunkSize = chunkDom.cell_count();
-                char* chunkData = NULL;
+                char *chunkData = NULL;
                 try
                 {
                     chunkData = new char[chunkSize];
@@ -1122,14 +1139,14 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
                     BLERROR << "failed, read only " << rsize << " bytes of " << chunkSize << " bytes at offset " << offset << ".\n";
                     throw RasqlError(FILEREADERROR);
                 }
-                r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, &ta, false);
+                r_GMarray *chunkMDD = new r_GMarray(chunkDom, 1, NULL, &ta, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
                 offset += static_cast<long>(chunkSize);
             }
         }
-        else if (size != static_cast<long>(mddDomain.cell_count()) * 
-                         static_cast<long>(mddType->base_type().size()))
+        else if (size != static_cast<long>(mddDomain.cell_count()) *
+                 static_cast<long>(mddType->base_type().size()))
         {
             throw RasqlError(FILESIZEMISMATCH);
         }
@@ -1157,7 +1174,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         BLINFO << "ok.\n";
 
         LDEBUG << "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName;
-        fileMDD = new(mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, &ta, false);
+        fileMDD = new (mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, &ta, false);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
         fileMDD->set_type_schema(mddType.get());
 //        mddType.release();
@@ -1177,8 +1194,8 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
         {
             LINFO << "constants are:";
         }
-        r_Set<r_GMarray*>* myConstSet = const_cast<r_Set<r_GMarray*> *>(query.get_constants());
-        r_Iterator<r_GMarray*> iter = myConstSet->create_iterator();
+        r_Set<r_GMarray *> *myConstSet = const_cast<r_Set<r_GMarray *> *>(query.get_constants());
+        r_Iterator<r_GMarray *> iter = myConstSet->create_iterator();
         int i;
         for (i = 1, iter.reset(); iter.not_done(); iter++, i++)
         {
@@ -1190,7 +1207,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 // the following can be used for sporadic debugging of input files, but beware: is very verbose!
 #if 0
                 cout << "  Contents: " << hex;
-                const char* a = myConstant->get_array();
+                const char *a = myConstant->get_array();
                 for (int m = 0; m < myConstant->get_array_size(); m++)
                 {
                     cout << (unsigned short)(a[m] & 0xFF) << " ";
@@ -1209,9 +1226,13 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
             NNLINFO << "Executing " << (isInsert ? "insert" : "update") << " query... ";
             // third param is just to differentiate from retrieval
             if (isInsert)
+            {
                 r_oql_execute(query, result_set, 1, &ta);
+            }
             else
+            {
                 r_oql_execute(query, &ta);
+            }
 
             BLINFO << "ok.\n";
             if (output)
@@ -1238,7 +1259,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char** ar
 }
 
 void
-shutdownHandler(int sig, siginfo_t* info, void* ucontext)
+shutdownHandler(int sig, siginfo_t *info, void *ucontext)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -1253,7 +1274,7 @@ shutdownHandler(int sig, siginfo_t* info, void* ucontext)
 }
 
 void
-crashHandler(int sig, siginfo_t* info, void* ucontext)
+crashHandler(int sig, siginfo_t *info, void *ucontext)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -1280,7 +1301,7 @@ INITIALIZE_EASYLOGGINGPP
 /*
  * returns 0 on success, -1 on error
  */
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // handle abort signals and ignore irrelevant signals
     common::SignalHandler::handleAbortSignals(crashHandler);
@@ -1301,9 +1322,11 @@ int main(int argc, char** argv)
     try
     {
         parseParams(argc, argv);
-        
+
         if (quietLog)
+        {
             logConf.configClientLogging(true);
+        }
 
         // put INFO after parsing parameters to respect a '--quiet'
         LINFO << argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << ".";
@@ -1318,17 +1341,17 @@ int main(int argc, char** argv)
             retval = EXIT_FAILURE;
         }
     }
-    catch (RasqlError& e)
+    catch (RasqlError &e)
     {
         LERROR << argv[0] << ": " << e.what();
         retval = EXIT_FAILURE;
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
         retval = EXIT_FAILURE;
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         LERROR << argv[0] << ": " << e.what();
         retval = EXIT_FAILURE;

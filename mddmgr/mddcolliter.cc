@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "reladminif/dbobjectiditerator.hh"
 #include <logging.hh>
 
-MDDCollIter::MDDCollIter(MDDColl* targetColl)
+MDDCollIter::MDDCollIter(MDDColl *targetColl)
     :   dbIter(0),
         persColl(targetColl)
 {
@@ -52,18 +52,18 @@ MDDCollIter::MDDCollIter(MDDColl* targetColl)
 }
 
 void
-MDDCollIter::printStatus(__attribute__((unused)) unsigned int level, ostream& stream) const
+MDDCollIter::printStatus(__attribute__((unused)) unsigned int level, ostream &stream) const
 {
     stream << "   MDDCollIter printStatus:  " ;
 }
 
-MDDObj*
+MDDObj *
 MDDCollIter::getElement() const
 {
     // Initialization to null: make sure null pointer is returned if the
     // collection is empty or if the iterator has come to the end already
 
-    MDDObj* persEl = NULL;
+    MDDObj *persEl = NULL;
 
     if (dbIter->not_done())
     {
@@ -71,7 +71,7 @@ MDDCollIter::getElement() const
 
         if (!el.is_null())
         {
-            persEl = persColl->getMDDObj(static_cast<DBMDDObj*>(el));
+            persEl = persColl->getMDDObj(static_cast<DBMDDObj *>(el));
         }
     }
 

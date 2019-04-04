@@ -59,22 +59,22 @@ class r_Partial_Insert
 {
 public:
     /// constructor receiving all necessary parameters. The storage layout is copied
-    r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype,
-                     const char* settype, const r_Storage_Layout& stl);
+    r_Partial_Insert(r_Database &usedb, const char *collname, const char *mddtype,
+                     const char *settype, const r_Storage_Layout &stl);
     /// alternative constructor for regular tiling
-    r_Partial_Insert(r_Database& usedb, const char* collname, const char* mddtype,
-                     const char* settype, const r_Minterval& dom, unsigned int tsize);
+    r_Partial_Insert(r_Database &usedb, const char *collname, const char *mddtype,
+                     const char *settype, const r_Minterval &dom, unsigned int tsize);
     /// copy constructor
-    r_Partial_Insert(const r_Partial_Insert& src);
+    r_Partial_Insert(const r_Partial_Insert &src);
     /// destructor
     ~r_Partial_Insert(void);
 
     /// update the marray; no transaction should be activated, this is done internally.
-    int update(r_GMarray* mddPtr,
+    int update(r_GMarray *mddPtr,
                r_Data_Format transferFormat = r_Array,
-               const char* transferFormatParams = NULL,
+               const char *transferFormatParams = NULL,
                r_Data_Format storageFormat = r_Array,
-               const char* storageFormatParams = NULL
+               const char *storageFormatParams = NULL
               );
     /*
       The marray may be modified in small aspects such as base type name and storage layout.
@@ -86,20 +86,20 @@ public:
 
 protected:
     /// shared init code
-    void init_share(const char* collname, const char* mddtype, const char* settype);
+    void init_share(const char *collname, const char *mddtype, const char *settype);
 
     /// the marray's OId
     r_OId myOId;
     /// the collection name
-    char* collName;
+    char *collName;
     /// the MDD type name
-    char* mddType;
+    char *mddType;
     /// the set type name
-    char* setType;
+    char *setType;
     /// the database
-    r_Database& mydb;
+    r_Database &mydb;
     /// the storage layout
-    r_Storage_Layout* mystl;
+    r_Storage_Layout *mystl;
     /// the transaction object
     r_Transaction myta;
     /// do we have to do an insert or an update?

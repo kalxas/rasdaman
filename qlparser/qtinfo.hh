@@ -47,25 +47,25 @@ class QtInfo : public QtUnaryOperation
 {
 public:
     /// constructor getting operand
-    QtInfo(QtVariable* newInput);
+    QtInfo(QtVariable *newInput);
 
     /// constructor getting operand and function params
-    QtInfo(QtVariable* newInput, const char* params);
+    QtInfo(QtVariable *newInput, const char *params);
 
     /// evaluates the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes

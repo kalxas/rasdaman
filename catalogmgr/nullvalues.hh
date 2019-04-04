@@ -48,21 +48,21 @@ class NullValuesHandler
 public:
     NullValuesHandler();
 
-    NullValuesHandler(r_Nullvalues* nullValues);
+    NullValuesHandler(r_Nullvalues *nullValues);
 
     virtual ~NullValuesHandler() noexcept(false);
 
     /// clone data from obj to this object
-    void cloneNullValues(const NullValuesHandler* obj);
+    void cloneNullValues(const NullValuesHandler *obj);
 
     /// get null values
-    r_Nullvalues* getNullValues() const;
-    
+    r_Nullvalues *getNullValues() const;
+
     /// get the first valid null value (fixed lower/upper bound)
     r_Double getNullValue() const;
 
     /// set null values
-    virtual void setNullValues(r_Nullvalues* newNullValues);
+    virtual void setNullValues(r_Nullvalues *newNullValues);
 
     /// get the number of null values
     unsigned long getNullValuesCount() const;
@@ -242,7 +242,7 @@ protected:
     }
 
     /// null values
-    r_Nullvalues* nullValues;
+    r_Nullvalues *nullValues;
 
     /// count of null values
     unsigned long nullValuesCount;

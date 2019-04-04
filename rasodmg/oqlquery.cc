@@ -68,7 +68,7 @@ r_OQL_Query::r_OQL_Query()
 }
 
 
-r_OQL_Query::r_OQL_Query(const char* s)
+r_OQL_Query::r_OQL_Query(const char *s)
     : queryString(0),
       mddConstants(0)
 {
@@ -79,7 +79,7 @@ r_OQL_Query::r_OQL_Query(const char* s)
 }
 
 
-r_OQL_Query::r_OQL_Query(const r_OQL_Query& q)
+r_OQL_Query::r_OQL_Query(const r_OQL_Query &q)
     : queryString(0),
       parameterizedQueryString(0),
       mddConstants(0)
@@ -100,7 +100,7 @@ r_OQL_Query::r_OQL_Query(const r_OQL_Query& q)
 
     if (q.mddConstants)
     {
-        mddConstants = new r_Set<r_GMarray*>(*(q.mddConstants));
+        mddConstants = new r_Set<r_GMarray *>(*(q.mddConstants));
     }
 }
 
@@ -127,8 +127,8 @@ r_OQL_Query::~r_OQL_Query()
 }
 
 
-const r_OQL_Query&
-r_OQL_Query::operator=(const r_OQL_Query& q)
+const r_OQL_Query &
+r_OQL_Query::operator=(const r_OQL_Query &q)
 {
     if (this != &q)
     {
@@ -154,7 +154,7 @@ r_OQL_Query::operator=(const r_OQL_Query& q)
 
         if (q.mddConstants)
         {
-            mddConstants = new r_Set<r_GMarray*>(*(q.mddConstants));
+            mddConstants = new r_Set<r_GMarray *>(*(q.mddConstants));
         }
 
         // clean up and copy the parameterized query string
@@ -175,8 +175,8 @@ r_OQL_Query::operator=(const r_OQL_Query& q)
 }
 
 
-r_OQL_Query&
-r_OQL_Query::operator<<(const char* s)
+r_OQL_Query &
+r_OQL_Query::operator<<(const char *s)
 {
     try
     {
@@ -191,7 +191,7 @@ r_OQL_Query::operator<<(const char* s)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Char c)
 {
     char valueString[2];
@@ -212,14 +212,14 @@ r_OQL_Query::operator<<(r_Char c)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Short s)
 {
 
     std::ostringstream valueStream;
 
     valueStream << s;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -234,14 +234,14 @@ r_OQL_Query::operator<<(r_Short s)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_UShort us)
 {
 
     std::ostringstream valueStream;
 
     valueStream << us;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -256,13 +256,13 @@ r_OQL_Query::operator<<(r_UShort us)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Long l)
 {
     std::ostringstream valueStream;
 
     valueStream << l;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -277,13 +277,13 @@ r_OQL_Query::operator<<(r_Long l)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_ULong ul)
 {
     std::ostringstream valueStream;
 
     valueStream << ul;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
     try
     {
         replaceNextArgument(valueString);
@@ -297,13 +297,13 @@ r_OQL_Query::operator<<(r_ULong ul)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Point pt)
 {
     std::ostringstream valueStream;
 
     valueStream << pt;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -318,13 +318,13 @@ r_OQL_Query::operator<<(r_Point pt)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Sinterval in)
 {
     std::ostringstream valueStream;
 
     valueStream << in;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -339,13 +339,13 @@ r_OQL_Query::operator<<(r_Sinterval in)
 }
 
 
-r_OQL_Query&
+r_OQL_Query &
 r_OQL_Query::operator<<(r_Minterval in)
 {
     std::ostringstream valueStream;
 
     valueStream << in;
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -360,8 +360,8 @@ r_OQL_Query::operator<<(r_Minterval in)
 }
 
 
-r_OQL_Query&
-r_OQL_Query::operator<<(r_GMarray& in)
+r_OQL_Query &
+r_OQL_Query::operator<<(r_GMarray &in)
 {
     // determine number of next mdd (starting with 0)
     unsigned long mddNo = 0;
@@ -372,7 +372,7 @@ r_OQL_Query::operator<<(r_GMarray& in)
 
     std::ostringstream valueStream;
     valueStream << "#MDD" << mddNo << "#";
-    char* valueString = strdup(valueStream.str().c_str());
+    char *valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -388,7 +388,7 @@ r_OQL_Query::operator<<(r_GMarray& in)
     // save reference to in
     if (!mddConstants)
     {
-        mddConstants = new r_Set<r_GMarray*>();
+        mddConstants = new r_Set<r_GMarray *>();
     }
 
     mddConstants->insert_element(&in);
@@ -401,7 +401,9 @@ bool
 r_OQL_Query::startsWith(const char *s, const char *prefix) const
 {
     if (!s)
+    {
         return false;
+    }
 
     assert(prefix);
 
@@ -416,9 +418,13 @@ r_OQL_Query::startsWith(const char *s, const char *prefix) const
             assert(islower(prefix[0]));
 
             if (tolower(s[0]) != prefix[0])
+            {
                 return false;
+            }
             else
+            {
                 ++s, ++prefix;
+            }
         }
     }
     return true;
@@ -478,11 +484,11 @@ r_OQL_Query::reset_query()
 
 
 void
-r_OQL_Query::replaceNextArgument(const char* valueString)
+r_OQL_Query::replaceNextArgument(const char *valueString)
 {
-    char* argumentBegin = NULL;
-    char* argumentEnd = NULL;
-    char* argumentVal = NULL;
+    char *argumentBegin = NULL;
+    char *argumentEnd = NULL;
+    char *argumentVal = NULL;
     int   argumentLength = 0;
     int   length = 0;
 
@@ -533,7 +539,9 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
         //update the reference
         auto offset = length + strlen(valueString);
         if (offset > strlen(queryString))
+        {
             break;
+        }
 
         argumentEnd = queryString + offset;
 
@@ -542,7 +550,9 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
 
         //end string?
         if (argumentBegin == NULL)
+        {
             break;
+        }
 
         //skip $
         argumentEnd++;
@@ -564,17 +574,23 @@ r_OQL_Query::replaceNextArgument(const char* valueString)
     delete[] argumentVal;
 }
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* transaction)
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *transaction)
 {
     if (transaction == NULL)
+    {
         transaction = r_Transaction::actual_transaction;
+    }
 
     if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+    {
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
+    }
 
     auto *database = transaction->getDatabase();
     if (database == NULL || database->get_status() == r_Database::not_open)
+    {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
+    }
 
     transaction->setDatabase(database);
 
@@ -586,17 +602,23 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* 
 
 
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transaction* transaction)
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transaction *transaction)
 {
     if (transaction == NULL)
+    {
         transaction = r_Transaction::actual_transaction;
+    }
 
     if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+    {
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
+    }
 
     auto *database = transaction->getDatabase();
     if (database == NULL || database->get_status() == r_Database::not_open)
+    {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
+    }
 
     r_Set<r_Ref_Any> genericSet;
 
@@ -606,7 +628,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transa
 
     if (!genericSet.is_empty())
     {
-        const r_Type* typeSchema = genericSet.get_element_type_schema();
+        const r_Type *typeSchema = genericSet.get_element_type_schema();
 
         if (!typeSchema || typeSchema->type_id() != r_Type::MARRAYTYPE)
         {
@@ -632,17 +654,23 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transa
 }
 
 // insert query returning OID
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Transaction* transaction)
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Transaction *transaction)
 {
     if (transaction == NULL)
+    {
         transaction = r_Transaction::actual_transaction;
+    }
 
     if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+    {
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
+    }
 
     auto *database = transaction->getDatabase();
     if (database == NULL || database->get_status() == r_Database::not_open)
+    {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
+    }
 
     transaction->setDatabase(database);
 
@@ -654,17 +682,23 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Tr
 
 
 // update and delete and insert (< v9.1)
-void r_oql_execute(r_OQL_Query& query, r_Transaction* transaction)
+void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction)
 {
     if (transaction == NULL)
+    {
         transaction = r_Transaction::actual_transaction;
+    }
 
     if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+    {
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
+    }
 
     auto *database = transaction->getDatabase();
     if (database == NULL || database->get_status() == r_Database::not_open)
+    {
         throw r_Error(r_Error::r_Error_DatabaseClosed);
+    }
 
     transaction->setDatabase(database);
 

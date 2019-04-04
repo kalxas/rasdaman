@@ -38,7 +38,7 @@
  * Print stack trace.
  * @param fault_address address where the segfault happened.
  */
-void print_stacktrace(void* ucontext);
+void print_stacktrace(void *ucontext);
 
 
 
@@ -49,10 +49,10 @@ void print_stacktrace(void* ucontext);
  */
 
 void
-installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t*, void*));
+installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t *, void *));
 
 void
-installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal);
+installSigHandler(void (*cleanUpHandler)(int, siginfo_t *, void *), int signal);
 
 
 /* This structure mirrors the one found in /usr/include/asm/ucontext.h
@@ -60,7 +60,7 @@ installSigHandler(void (*cleanUpHandler)(int, siginfo_t*, void*), int signal);
 typedef struct _sig_ucontext
 {
     unsigned long     uc_flags;
-    struct ucontext*   uc_link;
+    struct ucontext   *uc_link;
     stack_t           uc_stack;
     struct sigcontext uc_mcontext;
     sigset_t          uc_sigmask;
@@ -72,13 +72,13 @@ typedef struct _sig_ucontext
  * TODO: add support for other architectures
  */
 
-void* getFaultAddress(sig_ucontext_t* uc);
+void *getFaultAddress(sig_ucontext_t *uc);
 
 /**
  * Read the contents of fp, and return it as a string. The returned result
  * must be freed.
  */
-char* read_file(FILE* fp);
+char *read_file(FILE *fp);
 
 /**
  * Execute a system command, e.g. 'ls -l'.
@@ -86,7 +86,7 @@ char* read_file(FILE* fp);
  * @return NULL if successful (the command returned 0), otherwise its output
  * (including stderr), in which case the returned string must be freed.
  */
-char* execute_system_command(char* cmd);
+char *execute_system_command(char *cmd);
 
 /**
  * Returns the current resident set size (physical memory use) measured
@@ -116,7 +116,7 @@ public:
     {
     public:
 
-        StackTraceEntry(int index, const char* loc, const char* demang, const char* hex, const char* addr)
+        StackTraceEntry(int index, const char *loc, const char *demang, const char *hex, const char *addr)
         {
             m_index = index;
             m_location = std::string(loc);
@@ -125,7 +125,7 @@ public:
             m_addr = std::string(addr);
         }
 
-        StackTraceEntry(int index, char* loc)
+        StackTraceEntry(int index, char *loc)
         {
             m_index = index;
             m_location = std::string(loc);
@@ -136,7 +136,7 @@ public:
         std::string m_hex;
         std::string m_addr;
 
-        friend std::ostream& operator<<(std::ostream& ss, const StackTraceEntry& si)
+        friend std::ostream &operator<<(std::ostream &ss, const StackTraceEntry &si)
         {
             ss << "[" << si.m_index << "] " << si.m_location << (si.m_demangled.empty() ? "" : ":") << si.m_demangled
                << (si.m_hex.empty() ? "" : "+") << si.m_hex << si.m_addr;
@@ -156,13 +156,13 @@ public:
     {
     }
 
-    inline std::vector<StackTraceEntry>&
+    inline std::vector<StackTraceEntry> &
     getLatestStack(void)
     {
         return m_stack;
     }
 
-    friend inline std::ostream& operator<<(std::ostream& os, const StackTrace& st)
+    friend inline std::ostream &operator<<(std::ostream &os, const StackTrace &st)
     {
         std::vector<StackTraceEntry>::const_iterator it = st.m_stack.begin();
         while (it != st.m_stack.end())
@@ -178,18 +178,18 @@ private:
     generateNew(void)
     {
         m_stack.clear();
-        void* stack[kMaxStack];
+        void *stack[kMaxStack];
         int size = backtrace(stack, kMaxStack);
-        char** strings = backtrace_symbols(stack, size);
+        char **strings = backtrace_symbols(stack, size);
         if (size > kStackStart)
         {
             // Skip StackTrace c'tor and generateNew
             for (int i = kStackStart; i < size; ++i)
             {
-                char* mangName = NULL;
-                char* hex = NULL;
-                char* addr = NULL;
-                for (char* c = strings[i]; *c; ++c)
+                char *mangName = NULL;
+                char *hex = NULL;
+                char *addr = NULL;
+                for (char *c = strings[i]; *c; ++c)
                 {
                     switch (*c)
                     {
@@ -213,7 +213,7 @@ private:
                     *hex++ = '\0';
                     *addr++ = '\0';
                     int status = 0;
-                    char* demangName = abi::__cxa_demangle(mangName, 0, 0, &status);
+                    char *demangName = abi::__cxa_demangle(mangName, 0, 0, &status);
                     // if demangling is successful, output the demangled function name
                     if (status == 0)
                     {

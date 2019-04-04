@@ -42,7 +42,7 @@ using namespace std;
 #include <iostream>
 #include <cstring>
 
-QtMintervalData::QtMintervalData(const r_Minterval& minterval, vector<bool>* initTrimFlags)
+QtMintervalData::QtMintervalData(const r_Minterval &minterval, vector<bool> *initTrimFlags)
     : QtData(), mintervalData(minterval), trimFlags(initTrimFlags)
 {
     if (!trimFlags)
@@ -78,13 +78,13 @@ QtMintervalData::getDataType() const
 
 
 bool
-QtMintervalData::equal(const QtData* obj) const
+QtMintervalData::equal(const QtData *obj) const
 {
     bool returnValue = false;  // not equal by initialization
 
     if (obj->getDataType() == QT_MINTERVAL)
     {
-        QtMintervalData* mint = static_cast<QtMintervalData*>(const_cast<QtData*>(obj));
+        QtMintervalData *mint = static_cast<QtMintervalData *>(const_cast<QtData *>(obj));
 
         // 1. check domains
         returnValue = (mintervalData == mint->getMintervalData());
@@ -111,7 +111,7 @@ QtMintervalData::getSpelling() const
 
     // buffer
     r_Dimension bufferLen = mintervalData.dimension() * 50; // on the safe side for two integers per dimension plus colon and brackets
-    char*       buffer    = new char[ bufferLen ];
+    char       *buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream(buffer);
@@ -152,7 +152,7 @@ QtMintervalData::getSpelling() const
 
 
 
-char* QtMintervalData::getTypeStructure() const
+char *QtMintervalData::getTypeStructure() const
 {
     return strdup("minterval");
 }
@@ -160,7 +160,7 @@ char* QtMintervalData::getTypeStructure() const
 
 
 void
-QtMintervalData::printStatus(std::ostream& stream) const
+QtMintervalData::printStatus(std::ostream &stream) const
 {
     stream << "minterval, value: " << std::flush;
 

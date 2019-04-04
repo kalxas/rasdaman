@@ -30,11 +30,11 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtMShapeOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 inline vector<r_Point>
 QtMShapeOp::getPoints()
 {
-  return points;
+    return points;
 }

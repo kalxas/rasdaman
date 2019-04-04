@@ -37,46 +37,46 @@ using namespace std;
 #include <cstring>
 #include <cmath>
 
-QtMShapeData::QtMShapeData(const vector<r_Point>& mShape)
+QtMShapeData::QtMShapeData(const vector<r_Point> &mShape)
     : QtData(), polytopePoints(mShape), midPoint(NULL)
 {
     // save the coordinate points with double precision to reduce rounding errors
-    for(r_Dimension dim = 0; dim < polytopePoints.size(); dim++)
+    for (r_Dimension dim = 0; dim < polytopePoints.size(); dim++)
     {
         r_PointDouble pt(polytopePoints[dim]);
         polytopePointsDouble.push_back(pt);
     }
 
-    if(!mShape.size() > 1)
+    if (!mShape.size() > 1)
     {
         throw r_Error(NEEDTWOORMOREVERTICES);
     }
 
     r_Dimension lastDim = mShape[0].dimension();
-    
-    for(auto it = mShape.begin(); it != mShape.end(); ++it)
+
+    for (auto it = mShape.begin(); it != mShape.end(); ++it)
     {
-        if(it->dimension() != lastDim)
+        if (it->dimension() != lastDim)
         {
             throw r_Error(VERTEXDIMENSIONMISMATCH);
         }
         lastDim = it->dimension();
-    }    
+    }
 
     computeDimensionality();
 }
 
-QtMShapeData::QtMShapeData(vector<QtMShapeData*> &mShapeEdges )
-    :QtData(), midPoint(NULL), polytopeEdges(mShapeEdges)
+QtMShapeData::QtMShapeData(vector<QtMShapeData *> &mShapeEdges)
+    : QtData(), midPoint(NULL), polytopeEdges(mShapeEdges)
 {
-    for(size_t i = 0; i < mShapeEdges.size(); i++)
+    for (size_t i = 0; i < mShapeEdges.size(); i++)
     {
         // does not take into consideration multiplicities, so the same vertices can be repeated several times for polytopes
         polytopePointsDouble.insert(polytopePointsDouble.end(), mShapeEdges[i]->getMShapeData().begin(), mShapeEdges[i]->getMShapeData().end());
     }
 
     //polytopePoints now contains all vertices provided from the user.
-    
+
     // dimensionality is computed in the same way as in the constructor when only
     // polytope vertices are provided.
     computeDimensionality();
@@ -132,21 +132,21 @@ QtMShapeData::getSpelling() const
 
     // buffer
     r_Dimension bufferLen = polytopePoints.size() * 50; // on the safe side for one integer per dimension, plus colon and brackets
-    char* buffer = new char[bufferLen];
+    char *buffer = new char[bufferLen];
     ostringstream bufferStream(buffer);
 
-    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
+    for (auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
     {
-        if( it + 1 != polytopePoints.end() )
+        if (it + 1 != polytopePoints.end())
         {
-            bufferStream << "(" + it->to_string() +"), "; 
+            bufferStream << "(" + it->to_string() + "), ";
         }
         else
         {
-            bufferStream << "(" + it->to_string() +")"<< std::ends;                            
+            bufferStream << "(" + it->to_string() + ")" << std::ends;
         }
     }
-    
+
     result.append(std::string(buffer));
 
     delete[] buffer;
@@ -164,19 +164,23 @@ void QtMShapeData::printStatus(std::ostream &stream) const
     stream << "MShape, value: " << std::flush;
 
     bool comma = false;
-    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
+    for (auto it = polytopePoints.begin(); it != polytopePoints.end(); ++it)
     {
         if (comma)
+        {
             stream << ", ";
+        }
         else
+        {
             comma = true;
+        }
         stream << it->to_string() << std::flush;
     }
 
     QtData::printStatus(stream);
 }
 
-r_PointDouble* QtMShapeData::computeMidPoint()
+r_PointDouble *QtMShapeData::computeMidPoint()
 {
     /* Computes the midpoint of the given set of points as vertices
        in the multidimensional shape
@@ -185,10 +189,10 @@ r_PointDouble* QtMShapeData::computeMidPoint()
     {
         return this->midPoint;
     }
-    
+
     midPoint = new r_PointDouble(polytopePointsDouble[0].dimension());
 
-    for(size_t i =0; i< polytopePointsDouble.size(); i++)
+    for (size_t i = 0; i < polytopePointsDouble.size(); i++)
     {
         *midPoint = *midPoint + polytopePointsDouble[i];
     }
@@ -206,13 +210,13 @@ void QtMShapeData::computeDimensionality()
     // space is not of codimension k, k such expressions must be simultaneously
     // satisfied, as the intersection of k-many affine hyperplanes gives a codim-
     // k affine space.
-    
+
     // We use the Gram-schmidt orthogonalization procedure for determining the
     // orthogonal complement of the space in question, and use the same basepoint
     // p to guarantee the intersection of our affine spaces via the normal vectors
     // which are the orthogonal complement's basis vectors. We store these as the
     // last vectors in directionVectors.
-    
+
     // detect dimension and assign the direction vectors
     // considering the position of the points. It could be that
     // the user is trying to construct a polygon in 3-dim with 4 points, but the polygon
@@ -226,8 +230,8 @@ void QtMShapeData::computeDimensionality()
 
     // ALGORITHM: Gram-Schmidt
 
-    // ERROR PREDICTION: due to computations of sqrt of longs, we are prone to 
-    // precision errors. To avoid getting the incorrect result vectors, we 
+    // ERROR PREDICTION: due to computations of sqrt of longs, we are prone to
+    // precision errors. To avoid getting the incorrect result vectors, we
     // require an error margin, given below by epsilon
 
     //vector of error margins
@@ -241,7 +245,7 @@ void QtMShapeData::computeDimensionality()
     //but we do know the final total number of vectors spanning the ambient space
     size_t numOfSubspaceVectors = 0;
     directionVectors.reserve(polytopePointsDouble[0].dimension());
-    
+
     for (size_t i = 1; i < polytopePointsDouble.size(); i++)
     {
         r_PointDouble u_i = polytopePointsDouble[i] - translationPoint;
@@ -264,7 +268,7 @@ void QtMShapeData::computeDimensionality()
     //continue to find the rest of the n-m vectors
     //they form a basis of the orthogonal complement and are used for
     //determining the affine hyperplane equations defining the subspace
-    
+
     //from here on, numOfSubspaceVectors will track the orthogonal complement.
     for (size_t i = 0; i < polytopePointsDouble[0].dimension(); i++)
     {
@@ -291,85 +295,85 @@ void QtMShapeData::computeDimensionality()
 vector<r_Minterval> QtMShapeData::localConvexHulls() const
 {
     // one bounding box for each line segment, treated as a linestring (so the pair (first, last) is not considered)
-    
+
     vector<r_Minterval> result;
     //here we do not benefit fully from std::vector::reserve(), as sizeof(r_Minterval) is variable; however, we would otherwise be resizing at every step anyways, so this cannot hurt.
     result.reserve(polytopePoints.size());
-    
-    for(size_t i = 0; i < polytopePoints.size() - 1; i++)
+
+    for (size_t i = 0; i < polytopePoints.size() - 1; i++)
     {
         r_Minterval nextConvexHull(polytopePoints[i].dimension());
-        
-        for(size_t j = 0; j < polytopePoints[i].dimension(); j++)
+
+        for (size_t j = 0; j < polytopePoints[i].dimension(); j++)
         {
-            nextConvexHull[j] = r_Sinterval( polytopePoints[i][j], polytopePoints[i][j] );
-            
-            if ( polytopePoints[i][j] < polytopePoints[i+1][j] )
+            nextConvexHull[j] = r_Sinterval(polytopePoints[i][j], polytopePoints[i][j]);
+
+            if (polytopePoints[i][j] < polytopePoints[i + 1][j])
             {
-                nextConvexHull[j].set_high( polytopePoints[i+1][j] );
+                nextConvexHull[j].set_high(polytopePoints[i + 1][j]);
             }
-            
-            if ( polytopePoints[i][j] > polytopePoints[i+1][j] )
+
+            if (polytopePoints[i][j] > polytopePoints[i + 1][j])
             {
-                nextConvexHull[j].set_low( polytopePoints[i+1][j] );
+                nextConvexHull[j].set_low(polytopePoints[i + 1][j]);
             }
         }
-        
+
         result.emplace_back(nextConvexHull);
     }
-    
+
     return result;
 }
 
 r_Minterval QtMShapeData::convexHull() const
 {
     r_Minterval result(polytopePoints[0].dimension());
-    for(size_t i = 0; i < polytopePoints[0].dimension(); i++ )
+    for (size_t i = 0; i < polytopePoints[0].dimension(); i++)
     {
         result[i] = r_Sinterval(polytopePoints[0][i], polytopePoints[0][i]);
     }
-    
-    for(size_t i = 0; i < polytopePoints.size() - 1; i++)
+
+    for (size_t i = 0; i < polytopePoints.size() - 1; i++)
     {
         r_Minterval nextConvexHull(polytopePoints[i].dimension());
-        
-        for(size_t j = 0; j < polytopePoints[i].dimension(); j++)
+
+        for (size_t j = 0; j < polytopePoints[i].dimension(); j++)
         {
-            nextConvexHull[j] = r_Sinterval( polytopePoints[i][j], polytopePoints[i][j] );
-            
-            if ( polytopePoints[i][j] < polytopePoints[i+1][j] )
+            nextConvexHull[j] = r_Sinterval(polytopePoints[i][j], polytopePoints[i][j]);
+
+            if (polytopePoints[i][j] < polytopePoints[i + 1][j])
             {
-                nextConvexHull[j].set_high( polytopePoints[i+1][j] );
+                nextConvexHull[j].set_high(polytopePoints[i + 1][j]);
             }
-            
-            if ( polytopePoints[i][j] > polytopePoints[i+1][j] )
+
+            if (polytopePoints[i][j] > polytopePoints[i + 1][j])
             {
-                nextConvexHull[j].set_low( polytopePoints[i+1][j] );
+                nextConvexHull[j].set_low(polytopePoints[i + 1][j]);
             }
         }
 
         result = result.closure_with(nextConvexHull);
     }
-    
+
     return result;
 }
 
-std::vector<std::pair< r_PointDouble, double> >
-QtMShapeData::computeHyperplaneEquation()
+std::vector<std::pair< r_PointDouble, double>>
+        QtMShapeData::computeHyperplaneEquation()
 {
-    if(!hyperplaneEquations.empty())
+    if (!hyperplaneEquations.empty())
     {
         return hyperplaneEquations;
     }
-    
-    // the number of equations defining the affine subspace in which the mShape 
+
+    // the number of equations defining the affine subspace in which the mShape
     // lies is equal to the codimension of the affine subspace $S$.
     // These equations represent $Ax = b$ for some matrix $A$ and vector $b$.
-    
+
     // $A$ is found by the completing the basis via gram schmidt to the full space.
-    // Picking an arbitrary point in the subspace $S$ allows us to compute the 
+    // Picking an arbitrary point in the subspace $S$ allows us to compute the
     // RHS of $Ax = b$, such that $x \in S$ iff $Ax = b$.
-    
+
     // $x \in S$ if $p \in S$ and $(x - p) \cdot n = 0$ $\forall n \in S^{\perp}$
     // where $S^{\perp}$ is the orthogonal complement of $S$
     // so if A's rows form a basis of $S^{\perp}$ then $A (x - p) = 0$ is a
@@ -377,7 +381,7 @@ QtMShapeData::computeHyperplaneEquation()
     // $p \in S$. We can guarantee polytopePointsDouble[0]$\in S$, which is enough.
 
     hyperplaneEquations.clear();
-    for(r_Dimension d = this->dimensionality; d < directionVectors[0].dimension(); d++)
+    for (r_Dimension d = this->dimensionality; d < directionVectors[0].dimension(); d++)
     {
         hyperplaneEquations.push_back(make_pair(directionVectors[d], directionVectors[d].dotProduct(polytopePointsDouble[0])));
     }
@@ -390,11 +394,11 @@ QtMShapeData::computeFirstProjection()
 {
     vector<r_Dimension> retVal;
     retVal.reserve(polytopePoints.size());
-    for(auto it = polytopePoints.begin(); it != polytopePoints.end(); it++)
+    for (auto it = polytopePoints.begin(); it != polytopePoints.end(); it++)
     {
-        if(it->dimension() != 1) //ensures nonempty and meaningful
+        if (it->dimension() != 1) //ensures nonempty and meaningful
         {
-            LERROR << "Error: QtMShapeData::computeFirstProjection() - The coordinate projections must be singular values separated by commas.";            
+            LERROR << "Error: QtMShapeData::computeFirstProjection() - The coordinate projections must be singular values separated by commas.";
             throw r_Error(SINGLETONPROJECTIONCOORDS);
         }
         else
@@ -407,7 +411,7 @@ QtMShapeData::computeFirstProjection()
 
 r_Dimension
 QtMShapeData::getDimension()
-{   
+{
     // todo (bbell): update to reflect linestring behaviour; e.g. enum a geometry type here, and compute this differently based on the geom type.
     return dimensionality;
 }

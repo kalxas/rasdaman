@@ -57,11 +57,11 @@ class OId;
 class MDDDimensionType : public MDDBaseType
 {
 public:
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /*@Doc:
     */
 
-    virtual char* getNewTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
     virtual r_Bytes getMemorySize() const;
     /*@Doc:
@@ -69,11 +69,11 @@ public:
     MDDBaseType::getMemorySize() + sizeof(r_Dimension);
     */
 
-    MDDDimensionType(const OId& id);
+    MDDDimensionType(const OId &id);
     /*@Doc:
     */
 
-    MDDDimensionType(const char* newTypeName, const BaseType* newBaseType, r_Dimension newDimension);
+    MDDDimensionType(const char *newTypeName, const BaseType *newBaseType, r_Dimension newDimension);
     /*@Doc:
     constructor.
     */
@@ -83,17 +83,17 @@ public:
     default constructor, cannot be used.
     */
 
-    MDDDimensionType(const MDDDimensionType& old);
+    MDDDimensionType(const MDDDimensionType &old);
     /*@Doc:
     copy constructor.
     */
 
-    MDDDimensionType& operator=(const MDDDimensionType& old);
+    MDDDimensionType &operator=(const MDDDimensionType &old);
     /*@Doc:
     assignment operator.
     */
 
-    virtual void print_status(ostream& s) const;
+    virtual void print_status(ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream
     */
@@ -108,7 +108,7 @@ public:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     is compatible if:
         aType is MDDDimType or MDDDomType and

@@ -29,15 +29,15 @@ rasdaman GmbH.
 
 
 inline void
-QtOperation::setDataStreamType( const QtTypeElement &type )
+QtOperation::setDataStreamType(const QtTypeElement &type)
 {
-  dataStreamType = type;
+    dataStreamType = type;
 }
 
 
 
-inline const QtTypeElement&
+inline const QtTypeElement &
 QtOperation::getDataStreamType() const
 {
-  return dataStreamType;
+    return dataStreamType;
 }

@@ -65,7 +65,7 @@ public:
      * servers for clients
      * of each client
      */
-    ClientManager(const ClientManagerConfig& config,
+    ClientManager(const ClientManagerConfig &config,
                   boost::shared_ptr<UserManager> userManager,
                   boost::shared_ptr<ServerManager> serverManager,
                   boost::shared_ptr<PeerManager> peerManager);
@@ -83,13 +83,13 @@ public:
      * @param out_clientUUID If the method is successful, it will contain the UUID assigned to the client.
      * @throws std::runtime_error
      */
-    virtual void connectClient(const ClientCredentials& clientCredentials, std::string& out_clientUUID);
+    virtual void connectClient(const ClientCredentials &clientCredentials, std::string &out_clientUUID);
 
     /**
      * Disconnect the client from RasMgr and remove its information from RasMgr database.
      * @param clientId UUID of the client that will be removed.
      */
-    virtual void disconnectClient(const std::string& clientId);
+    virtual void disconnectClient(const std::string &clientId);
 
     /**
      * @brief openClientDbSession Open a database session for the client with the given id and provide a unique session id.
@@ -97,27 +97,27 @@ public:
      * @param dbName  Database the client wants to open
      * @param out_serverSession Information identifying the client and the assigned server.
      */
-    virtual void openClientDbSession(std::string clientId, const std::string& dbName, ClientServerSession& out_serverSession);
+    virtual void openClientDbSession(std::string clientId, const std::string &dbName, ClientServerSession &out_serverSession);
 
     /**
      * @brief closeClientDbSession Remove a client session from the client manager and the servers
      * @param clientId ID that uniquely identifies a client
      * @param sessionId ID that uniquely identifies a session with respect to a client
      */
-    virtual void closeClientDbSession(const std::string& clientId, const std::string& sessionId);
+    virtual void closeClientDbSession(const std::string &clientId, const std::string &sessionId);
 
     /**
      * Extend the liveliness of the client and prevent it from being removed
      * from RasMgr database from the list of active clients.
      * @param clientId UUID of the client
      */
-    virtual void keepClientAlive(const std::string& clientId);
+    virtual void keepClientAlive(const std::string &clientId);
 
     /**
      * @brief getConfig Get a copy of the configuration object used by the client manager.
      * @return
      */
-    const ClientManagerConfig& getConfig();
+    const ClientManagerConfig &getConfig();
 
 private:
     ClientManagerConfig config;
@@ -145,9 +145,9 @@ private:
      * @param server
      * @return
      */
-    bool tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string& dbName, ClientServerSession& out_serverSession);
+    bool tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string &dbName, ClientServerSession &out_serverSession);
 
-    bool tryGetFreeRemoteServer(const ClientServerRequest& request, ClientServerSession& out_serverSession);
+    bool tryGetFreeRemoteServer(const ClientServerRequest &request, ClientServerSession &out_serverSession);
 };
 
 } /* namespace rasmgr */

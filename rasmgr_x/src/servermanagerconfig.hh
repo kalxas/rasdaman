@@ -12,7 +12,7 @@ public:
     virtual ~ServerManagerConfig();
 
     boost::int32_t getCleanupInterval() const;
-    void setCleanupInterval(const boost::int32_t& value);
+    void setCleanupInterval(const boost::int32_t &value);
 
 private:
     boost::int32_t cleanupInterval;

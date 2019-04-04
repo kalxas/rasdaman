@@ -26,28 +26,32 @@ rasdaman GmbH.
 * COMMENTS:
 *
 ************************************************************/
-                   
-                   
 
-inline r_ULong* 
-IntegralType::convertToCULong(const char* cell, r_ULong* value) const {
-	return (r_ULong*)(this->convertToCLong(cell, (r_Long *)value));
+
+
+inline r_ULong *
+IntegralType::convertToCULong(const char *cell, r_ULong *value) const
+{
+    return (r_ULong *)(this->convertToCLong(cell, (r_Long *)value));
 }
-    
-inline double* 
-IntegralType::convertToCDouble(const char* cell, double* value) const {
-	r_Long tmp;
+
+inline double *
+IntegralType::convertToCDouble(const char *cell, double *value) const
+{
+    r_Long tmp;
     *value = *this->convertToCLong(cell, &tmp);
     return value;
 }
 
-inline char* 
-IntegralType::makeFromCULong(char* cell, const r_ULong* value) const {
-	return this->makeFromCLong(cell, (r_Long *)const_cast<r_ULong*>(value));
+inline char *
+IntegralType::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    return this->makeFromCLong(cell, (r_Long *)const_cast<r_ULong *>(value));
 }
-        
-inline char* 
-IntegralType::makeFromCDouble(char* cell, const double* value) const {
+
+inline char *
+IntegralType::makeFromCDouble(char *cell, const double *value) const
+{
     r_Long tmp = *value;
-	return this->makeFromCLong(cell, &tmp);
-}                
+    return this->makeFromCLong(cell, &tmp);
+}

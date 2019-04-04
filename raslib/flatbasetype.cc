@@ -46,14 +46,14 @@ r_Flat_Base_Type::r_Flat_Base_Type(void)
 }
 
 
-r_Flat_Base_Type::r_Flat_Base_Type(const r_Base_Type* nType)
+r_Flat_Base_Type::r_Flat_Base_Type(const r_Base_Type *nType)
 {
     init_shared();
     process_type(nType);
 }
 
 
-r_Flat_Base_Type::r_Flat_Base_Type(const r_Flat_Base_Type& src)
+r_Flat_Base_Type::r_Flat_Base_Type(const r_Flat_Base_Type &src)
 {
     init_shared();
     copy_flat_type(src);
@@ -72,7 +72,7 @@ unsigned int r_Flat_Base_Type::get_num_types(void) const
 }
 
 
-const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const
+const r_Primitive_Type *r_Flat_Base_Type::type(unsigned int num) const
 {
     if (num < numPrimTypes)
     {
@@ -86,7 +86,7 @@ const r_Primitive_Type* r_Flat_Base_Type::type(unsigned int num) const
 }
 
 
-const r_Primitive_Type* r_Flat_Base_Type::operator[](unsigned int num) const
+const r_Primitive_Type *r_Flat_Base_Type::operator[](unsigned int num) const
 {
     if (num < numPrimTypes)
     {
@@ -120,7 +120,7 @@ r_Bytes r_Flat_Base_Type::size(void) const
 }
 
 
-r_Flat_Base_Type& r_Flat_Base_Type::operator=(const r_Flat_Base_Type& src)
+r_Flat_Base_Type &r_Flat_Base_Type::operator=(const r_Flat_Base_Type &src)
 {
     free_type_data();
     copy_flat_type(src);
@@ -128,7 +128,7 @@ r_Flat_Base_Type& r_Flat_Base_Type::operator=(const r_Flat_Base_Type& src)
 }
 
 
-r_Flat_Base_Type& r_Flat_Base_Type::operator=(const r_Base_Type* nType)
+r_Flat_Base_Type &r_Flat_Base_Type::operator=(const r_Base_Type *nType)
 {
     free_type_data();
     process_type(nType);
@@ -136,7 +136,7 @@ r_Flat_Base_Type& r_Flat_Base_Type::operator=(const r_Base_Type* nType)
 }
 
 
-bool r_Flat_Base_Type::operator==(const r_Flat_Base_Type& src) const
+bool r_Flat_Base_Type::operator==(const r_Flat_Base_Type &src) const
 {
     if (numPrimTypes == src.numPrimTypes)
     {
@@ -187,13 +187,13 @@ void r_Flat_Base_Type::free_type_data(void)
 }
 
 
-void r_Flat_Base_Type::process_type(const r_Base_Type* nType)
+void r_Flat_Base_Type::process_type(const r_Base_Type *nType)
 {
     typeSize = nType->size();
 
     if (nType->isStructType())
     {
-        const r_Structure_Type* stype = static_cast<const r_Structure_Type*>(nType);
+        const r_Structure_Type *stype = static_cast<const r_Structure_Type *>(nType);
         numPrimTypes = parse_structure_type(stype, 0, 0);
         primTypes = new r_Primitive_Type*[numPrimTypes];
         offsets = new unsigned int[numPrimTypes];
@@ -204,12 +204,12 @@ void r_Flat_Base_Type::process_type(const r_Base_Type* nType)
         numPrimTypes = 1;
         primTypes = new r_Primitive_Type*[1];
         offsets = new unsigned int[1];
-        parse_primitive_type(static_cast<r_Primitive_Type*>(nType->clone()), 0, 0);
+        parse_primitive_type(static_cast<r_Primitive_Type *>(nType->clone()), 0, 0);
     }
 }
 
 
-void r_Flat_Base_Type::copy_flat_type(const r_Flat_Base_Type& src)
+void r_Flat_Base_Type::copy_flat_type(const r_Flat_Base_Type &src)
 {
     typeSize = src.typeSize;
 
@@ -226,14 +226,14 @@ void r_Flat_Base_Type::copy_flat_type(const r_Flat_Base_Type& src)
         offsets = new unsigned int[numPrimTypes];
         for (unsigned int i = 0; i < numPrimTypes; i++)
         {
-            primTypes[i] = static_cast<r_Primitive_Type*>(src.primTypes[i]->clone());
+            primTypes[i] = static_cast<r_Primitive_Type *>(src.primTypes[i]->clone());
             offsets[i] = src.offsets[i];
         }
     }
 }
 
 
-void r_Flat_Base_Type::parse_primitive_type(r_Primitive_Type* nType, unsigned int num, unsigned int off)
+void r_Flat_Base_Type::parse_primitive_type(r_Primitive_Type *nType, unsigned int num, unsigned int off)
 {
     if (primTypes == NULL)
     {
@@ -248,22 +248,22 @@ void r_Flat_Base_Type::parse_primitive_type(r_Primitive_Type* nType, unsigned in
 }
 
 
-unsigned int r_Flat_Base_Type::parse_structure_type(const r_Structure_Type* nType, unsigned int num, unsigned int off)
+unsigned int r_Flat_Base_Type::parse_structure_type(const r_Structure_Type *nType, unsigned int num, unsigned int off)
 {
     r_Structure_Type::attribute_iterator iter(nType->defines_attribute_begin());
     unsigned int numPrim = 0;
 
     while (iter != nType->defines_attribute_end())
     {
-        r_Type* newType = (*iter).type_of().clone();
+        r_Type *newType = (*iter).type_of().clone();
         if (newType->isStructType())
         {
-            numPrim += parse_structure_type(static_cast<const r_Structure_Type*>(newType), num + numPrim, off + (*iter).offset());
+            numPrim += parse_structure_type(static_cast<const r_Structure_Type *>(newType), num + numPrim, off + (*iter).offset());
             delete newType;
         }
         else
         {
-            parse_primitive_type(static_cast<r_Primitive_Type*>(newType), num + numPrim, off + (*iter).offset());
+            parse_primitive_type(static_cast<r_Primitive_Type *>(newType), num + numPrim, off + (*iter).offset());
             numPrim++;
         }
         iter++;
@@ -273,7 +273,7 @@ unsigned int r_Flat_Base_Type::parse_structure_type(const r_Structure_Type* nTyp
 }
 
 
-void r_Flat_Base_Type::print_status(std::ostream& str) const
+void r_Flat_Base_Type::print_status(std::ostream &str) const
 {
     if (numPrimTypes == 0)
     {
@@ -305,7 +305,7 @@ void r_Flat_Base_Type::print_status(std::ostream& str) const
 
 
 
-std::ostream& operator<<(std::ostream& str, const r_Flat_Base_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Flat_Base_Type &type)
 {
     type.print_status(str);
     return str;

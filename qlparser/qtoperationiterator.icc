@@ -28,40 +28,42 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtOperationIterator::setOperationTree( QtOperation* operation )
+QtOperationIterator::setOperationTree(QtOperation *operation)
 {
-  if( operation )
-  {
-    operationTreeList->push_back( operation );
-    operation->setParent( this );
-  };
+    if (operation)
+    {
+        operationTreeList->push_back(operation);
+        operation->setParent(this);
+    };
 }
 
 
 
-inline QtNode::QtOperationList*
+inline QtNode::QtOperationList *
 QtOperationIterator::getOperationTreeList()
 {
-  return( operationTreeList );
+    return (operationTreeList);
 }
 
 
 
 inline void
-QtOperationIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtOperationIterator::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  QtOperationList::iterator iter;
+    QtOperationList::iterator iter;
 
-  for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++)
-  {
-    if( *iter == inputOld )
+    for (iter = operationTreeList->begin(); iter != operationTreeList->end(); iter++)
     {
-      (*iter) =  inputNew;
+        if (*iter == inputOld)
+        {
+            (*iter) =  inputNew;
 
-      if( inputNew )
-        inputNew->setParent( this );
+            if (inputNew)
+            {
+                inputNew->setParent(this);
+            }
+        };
     };
-  };
 }
 
 
@@ -69,6 +71,6 @@ QtOperationIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
 inline QtNode::QtNodeType
 QtOperationIterator::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 

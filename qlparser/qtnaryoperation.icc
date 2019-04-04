@@ -28,23 +28,25 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtNaryOperation::setInputs( QtOperationList* opList )
+QtNaryOperation::setInputs(QtOperationList *opList)
 {
-  operationList = opList;
+    operationList = opList;
 
-  if( operationList )
-  {
-    QtOperationList::iterator iter;
+    if (operationList)
+    {
+        QtOperationList::iterator iter;
 
-    for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
-      if( *iter )
-        (*iter)->setParent( this );
-  }
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
+            if (*iter)
+            {
+                (*iter)->setParent(this);
+            }
+    }
 }
 
 
-inline QtNode::QtOperationList*
+inline QtNode::QtOperationList *
 QtNaryOperation::getInputs()
 {
-  return operationList;
+    return operationList;
 }

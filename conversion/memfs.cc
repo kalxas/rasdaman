@@ -56,8 +56,8 @@ extern int RManDebug;
 /* This function for internal use only */
 int memfs_ensure(thandle_t handle, toff_t off)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
-    char** mam2 = NULL;
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
+    char **mam2 = NULL;
     int mamSize2 = 0, i = 0;
 
 #ifdef RMANDEBUG
@@ -85,12 +85,12 @@ int memfs_ensure(thandle_t handle, toff_t off)
             LTRACE << "memfs_ensure: growing mam from " << memFS->mamSize << " to " << mamSize2;
         }
 #endif
-        if ((mam2 = static_cast<char**>(mymalloc(static_cast<size_t>(mamSize2) * sizeof(char*)))) == NULL)
+        if ((mam2 = static_cast<char **>(mymalloc(static_cast<size_t>(mamSize2) * sizeof(char *)))) == NULL)
         {
             return -1;
         }
         /* Copy existing mam entries */
-        memcpy(mam2, memFS->mam, static_cast<size_t>(memFS->mamSize) * sizeof(char*));
+        memcpy(mam2, memFS->mam, static_cast<size_t>(memFS->mamSize) * sizeof(char *));
         /* Init new mam entries */
         for (i = memFS->mamSize; i < mamSize2; i++)
         {
@@ -110,7 +110,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
            ones with lower addresses that aren't defined yet as well */
         for (i = memFS->mamHighest + 1; i <= mamSize2; i++)
         {
-            if (((memFS->mam)[i] = static_cast<char*>(mymalloc((1 << MEMFS_LD_BLOCKSIZE) * sizeof(char)))) == NULL)
+            if (((memFS->mam)[i] = static_cast<char *>(mymalloc((1 << MEMFS_LD_BLOCKSIZE) * sizeof(char)))) == NULL)
             {
                 return -1;
             }
@@ -125,7 +125,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
 /* Initialise the memory filing system */
 int memfs_initfs(thandle_t handle)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
     int i = 0;
 
 #ifdef RMANDEBUG
@@ -137,11 +137,11 @@ int memfs_initfs(thandle_t handle)
     memFS->pos = 0;
     memFS->high = 0;
     memFS->mamSize = MEMFS_MAM_ENTRIES;
-    if ((memFS->mam = static_cast<char**>(mymalloc(MEMFS_MAM_ENTRIES * sizeof(char*)))) == NULL)
+    if ((memFS->mam = static_cast<char **>(mymalloc(MEMFS_MAM_ENTRIES * sizeof(char *)))) == NULL)
     {
         return -1;
     }
-    if (((memFS->mam)[0] = static_cast<char*>(mymalloc((1 << MEMFS_LD_BLOCKSIZE) * sizeof(char)))) == NULL)
+    if (((memFS->mam)[0] = static_cast<char *>(mymalloc((1 << MEMFS_LD_BLOCKSIZE) * sizeof(char)))) == NULL)
     {
         return -1;
     }
@@ -157,7 +157,7 @@ int memfs_initfs(thandle_t handle)
 /* Kill the memory filing system, freeing all its resources */
 void memfs_killfs(thandle_t handle)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
     int i = 0;
 
 #ifdef RMANDEBUG
@@ -181,7 +181,7 @@ void memfs_killfs(thandle_t handle)
 /* Reset file pointers, leave memory setup */
 void memfs_newfile(thandle_t handle)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -198,7 +198,7 @@ tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size)
 {
     tsize_t todo = 0, transfered = 0;
     int block = 0, offset = 0, x = 0;
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
     /* Don't read over the end of the "file" */
     todo = memFS->high - memFS->pos;
@@ -224,7 +224,7 @@ tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size)
         }
         memcpy(mem, (((memFS->mam)[block]) + offset), static_cast<size_t>(x));
         /* tdata_t is some kind of void *, so we have to do this cast */
-        mem = static_cast<tdata_t>((static_cast<char*>(mem)) + x);
+        mem = static_cast<tdata_t>((static_cast<char *>(mem)) + x);
         memFS->pos += x;
         transfered += x;
         todo -= x;
@@ -236,7 +236,7 @@ tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size)
 tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
 {
     tsize_t transfered = 0;
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
     int block = 0, offset = 0, x = 0;
 
     /* Make sure there's enough room for this write */
@@ -261,7 +261,7 @@ tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
             x = size;
         }
         memcpy((((memFS->mam)[block]) + offset), mem, static_cast<size_t>(x));
-        mem = static_cast<tdata_t>((static_cast<char*>(mem)) + x);
+        mem = static_cast<tdata_t>((static_cast<char *>(mem)) + x);
         memFS->pos += x;
         transfered += x;
         size -= x;
@@ -276,7 +276,7 @@ tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
 
 toff_t memfs_seek(thandle_t handle, toff_t offset, int mode)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
     switch (mode)
     {
@@ -332,11 +332,11 @@ toff_t memfs_size(thandle_t handle)
         LTRACE << "memfs_size:";
     }
 #endif
-    return static_cast<toff_t>(((static_cast<memFSContext*>(handle))->high));
+    return static_cast<toff_t>(((static_cast<memFSContext *>(handle))->high));
 }
 
 
-int memfs_map(__attribute__((unused)) thandle_t handle, __attribute__((unused)) tdata_t* memp, __attribute__((unused)) toff_t* top)
+int memfs_map(__attribute__((unused)) thandle_t handle, __attribute__((unused)) tdata_t *memp, __attribute__((unused)) toff_t *top)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -364,9 +364,9 @@ void memfs_unmap(__attribute__((unused)) thandle_t handle, __attribute__((unused
 
 
 /* Read-only from memory (simple chunky model, not block-oriented) */
-void memfs_chunk_initfs(thandle_t handle, char* src, r_Long size)
+void memfs_chunk_initfs(thandle_t handle, char *src, r_Long size)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle)   ;
+    memFSContext *memFS = static_cast<memFSContext *>(handle)   ;
 
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -383,7 +383,7 @@ void memfs_chunk_initfs(thandle_t handle, char* src, r_Long size)
 tsize_t memfs_chunk_read(thandle_t handle, tdata_t mem, tsize_t size)
 {
     tsize_t todo = 0;
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
     todo = memFS->high - memFS->pos;
 #ifdef RMANDEBUG
@@ -407,7 +407,7 @@ tsize_t memfs_chunk_read(thandle_t handle, tdata_t mem, tsize_t size)
 
 toff_t memfs_chunk_seek(thandle_t handle, toff_t offset, int mode)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
     switch (mode)
     {
@@ -462,15 +462,15 @@ toff_t memfs_chunk_size(thandle_t handle)
         LTRACE << "memfs_chunk_size:";
     }
 #endif
-    return static_cast<toff_t>(((static_cast<memFSContext*>(handle))->high));
+    return static_cast<toff_t>(((static_cast<memFSContext *>(handle))->high));
 }
 
 
 /* Map file to memory -- since we already have it in memory in the
    first place this is very simple. */
-int memfs_chunk_map(thandle_t handle, tdata_t* memp, toff_t* top)
+int memfs_chunk_map(thandle_t handle, tdata_t *memp, toff_t *top)
 {
-    memFSContext* memFS = static_cast<memFSContext*>(handle);
+    memFSContext *memFS = static_cast<memFSContext *>(handle);
 
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)

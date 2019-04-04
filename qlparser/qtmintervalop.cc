@@ -57,26 +57,26 @@ using namespace std;
 
 const QtNode::QtNodeType QtMintervalOp::nodeType = QT_MINTERVALOP;
 
-QtMintervalOp::QtMintervalOp(QtOperationList* opList)
+QtMintervalOp::QtMintervalOp(QtOperationList *opList)
     :  QtNaryOperation(opList)
 {
 }
 
 
 
-QtData*
-QtMintervalOp::evaluate(QtDataList* inputList)
+QtData *
+QtMintervalOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtMintervalOp");
 
-    QtData*     returnValue = NULL;
-    QtDataList* operandList = NULL;
+    QtData     *returnValue = NULL;
+    QtDataList *operandList = NULL;
 
     if (getOperands(inputList, operandList))
     {
         QtDataListDeleter operandListDeleter{operandList};
 
-        vector<QtData*>::iterator dataIter;
+        vector<QtData *>::iterator dataIter;
         bool              goOn = true;
 
         // check for point operand
@@ -112,14 +112,14 @@ QtMintervalOp::evaluate(QtDataList* inputList)
             // create a QtMintervalData object and fill it
             //
             r_Minterval   domainData(operandList->size());
-            vector<bool>* trimFlags = new vector<bool>(operandList->size());
+            vector<bool> *trimFlags = new vector<bool>(operandList->size());
             unsigned int pos;
 
             for (dataIter = operandList->begin(), pos = 0; dataIter != operandList->end(); dataIter++, pos++)
             {
                 if ((*dataIter)->getDataType() == QT_INTERVAL)
                 {
-                    domainData << (static_cast<QtIntervalData*>(*dataIter))->getIntervalData();
+                    domainData << (static_cast<QtIntervalData *>(*dataIter))->getIntervalData();
                     (*trimFlags)[pos] = true;
                 }
                 else
@@ -128,11 +128,11 @@ QtMintervalOp::evaluate(QtDataList* inputList)
                             (*dataIter)->getDataType() == QT_LONG  ||
                             (*dataIter)->getDataType() == QT_OCTET)
                     {
-                        domainData << (static_cast<QtAtomicData*>(*dataIter))->getSignedValue();
+                        domainData << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
                     }
                     else
                     {
-                        domainData << (static_cast<QtAtomicData*>(*dataIter))->getUnsignedValue();
+                        domainData << (static_cast<QtAtomicData *>(*dataIter))->getUnsignedValue();
                     }
 
                     (*trimFlags)[pos] = false;
@@ -151,7 +151,7 @@ QtMintervalOp::evaluate(QtDataList* inputList)
 
 
 void
-QtMintervalOp::printTree(int tab, ostream& s, QtChildType mode)
+QtMintervalOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMintervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
@@ -161,7 +161,7 @@ QtMintervalOp::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtMintervalOp::printAlgebraicExpression(ostream& s)
+QtMintervalOp::printAlgebraicExpression(ostream &s)
 {
     s << "[";
 
@@ -172,8 +172,8 @@ QtMintervalOp::printAlgebraicExpression(ostream& s)
 
 
 
-const QtTypeElement&
-QtMintervalOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtMintervalOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -182,7 +182,7 @@ QtMintervalOp::checkType(QtTypeTuple* typeTuple)
 
     for (iter = operationList->begin(); iter != operationList->end() && opTypesValid; iter++)
     {
-        const QtTypeElement& type = (*iter)->checkType(typeTuple);
+        const QtTypeElement &type = (*iter)->checkType(typeTuple);
 
         // valid types: interval, integers
         if (!(type.getDataType() == QT_INTERVAL ||

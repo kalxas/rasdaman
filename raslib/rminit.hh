@@ -115,7 +115,7 @@ public:
     static std::ofstream bmFileOut;
 
     /// name of the user
-    static char* userName;
+    static char *userName;
 
     /// use inlinetiles and inlinetile container index
     static bool useTileContainer;
@@ -139,7 +139,7 @@ public:
 
 private:
     /// check the option string for the occurance of an option and return its value if available
-    int checkOptionString(const char* optString, const char* option, char*& value);
+    int checkOptionString(const char *optString, const char *option, char *&value);
     /**
       The method searches for an option of type {\tt -option value } in the option string specified.
       It returns 1 if the option is in the string, otherwise 0. If a value is given for the option

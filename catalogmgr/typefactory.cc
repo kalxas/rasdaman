@@ -28,7 +28,7 @@ rasdaman GmbH.
  *
  *
  * COMMENTS:
- *   
+ *
  *
  ***********************************************************************/
 
@@ -57,24 +57,24 @@ rasdaman GmbH.
 #include <boost/algorithm/string/predicate.hpp>
 #include "raslib/error.hh"
 
-TypeFactory* TypeFactory::myInstance = 0;
+TypeFactory *TypeFactory::myInstance = 0;
 
 //This variable is not required since any struct
 //type can now be deleted. This resulted as
 //the resolution of ticket #88
 const short TypeFactory::MaxBuiltInId = 11;
 
-const char* OctetType::Name = "Octet";
-const char* UShortType::Name = "UShort";
-const char* ShortType::Name = "Short";
-const char* ULongType::Name = "ULong";
-const char* LongType::Name = "Long";
-const char* BoolType::Name = "Bool";
-const char* CharType::Name = "Char";
-const char* FloatType::Name = "Float";
-const char* DoubleType::Name = "Double";
-const char* ComplexType1::Name = "Complex1";
-const char* ComplexType2::Name = "Complex2";
+const char *OctetType::Name = "Octet";
+const char *UShortType::Name = "UShort";
+const char *ShortType::Name = "Short";
+const char *ULongType::Name = "ULong";
+const char *LongType::Name = "Long";
+const char *BoolType::Name = "Bool";
+const char *CharType::Name = "Char";
+const char *FloatType::Name = "Float";
+const char *DoubleType::Name = "Double";
+const char *ComplexType1::Name = "Complex1";
+const char *ComplexType2::Name = "Complex2";
 
 const std::string TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
 
@@ -115,7 +115,7 @@ map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
     return ret;
 }
 
-string TypeFactory::getInternalTypeFromSyntaxType(const std::string& syntaxTypeName)
+string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeName)
 {
     string result = syntaxTypeName;
     map<string, string>::const_iterator it = syntaxTypeInternalTypeMap.find(syntaxTypeName);
@@ -127,7 +127,7 @@ string TypeFactory::getInternalTypeFromSyntaxType(const std::string& syntaxTypeN
     return result;
 }
 
-string TypeFactory::getSyntaxTypeFromInternalType(const std::string& internalTypeName)
+string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTypeName)
 {
     string result = internalTypeName;
     map<string, string>::const_iterator it = internalTypeSyntaxTypeMap.find(internalTypeName);
@@ -141,9 +141,9 @@ string TypeFactory::getSyntaxTypeFromInternalType(const std::string& internalTyp
 
 // all atomic types given back by mapType()
 // for managing the memory of temporary types
-std::vector<Type*>* TypeFactory::theTempTypes = 0;
+std::vector<Type *> *TypeFactory::theTempTypes = 0;
 
-TypeFactory*
+TypeFactory *
 TypeFactory::instance()
 {
     if (myInstance == 0)
@@ -153,16 +153,16 @@ TypeFactory::instance()
     return myInstance;
 }
 
-const BaseType*
-TypeFactory::mapType(const char* typeName)
+const BaseType *
+TypeFactory::mapType(const char *typeName)
 {
-    BaseType* resultType = 0;
-    resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
+    BaseType *resultType = 0;
+    resultType = static_cast<BaseType *>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
     if (resultType == 0)
     {
         try
         {
-            resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
+            resultType = static_cast<BaseType *>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
         }
         catch (r_Error)
         {
@@ -172,11 +172,11 @@ TypeFactory::mapType(const char* typeName)
     return resultType;
 }
 
-const StructType*
-TypeFactory::addStructType(const StructType* type)
+const StructType *
+TypeFactory::addStructType(const StructType *type)
 {
-    StructType* persistentType = 0;
-    const StructType* retval = 0;
+    StructType *persistentType = 0;
+    const StructType *retval = 0;
     if (type->isPersistent())
     {
         LTRACE << "type is persistent " << type->getName() << " " << type->getOId();
@@ -184,14 +184,14 @@ TypeFactory::addStructType(const StructType* type)
     }
     else
     {
-        persistentType = new StructType(const_cast<char*>(type->getTypeName()), type->getNumElems());
+        persistentType = new StructType(const_cast<char *>(type->getTypeName()), type->getNumElems());
         for (unsigned int i = 0; i < type->getNumElems(); i++)
         {
             switch (type->getElemType(i)->getType())
             {
             case STRUCT:
                 LTRACE << "element is struct type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
-                //persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i)))); 
+                //persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i))));
                 LERROR << "Building a struct using a user-defined struct is currently not supported.";
                 throw r_Error(STRUCTOFSTRUCTSDISABLED);
                 break;
@@ -207,7 +207,7 @@ TypeFactory::addStructType(const StructType* type)
             case COMPLEXTYPE1:
             case COMPLEXTYPE2:
                 LTRACE << "element is atomic type " << type->getElemName(i) << " of type " << type->getElemType(i)->getName();
-                persistentType->addElement(type->getElemName(i), static_cast<BaseType*>(ObjectBroker::getObjectByOId(type->getElemType(i)->getOId())));
+                persistentType->addElement(type->getElemName(i), static_cast<BaseType *>(ObjectBroker::getObjectByOId(type->getElemType(i)->getOId())));
                 break;
             default:
                 persistentType = 0;
@@ -224,14 +224,14 @@ TypeFactory::addStructType(const StructType* type)
     return retval;
 }
 
-const SetType*
-TypeFactory::mapSetType(const char* typeName)
+const SetType *
+TypeFactory::mapSetType(const char *typeName)
 {
     // it is a user defined type
-    SetType* resultType = 0;
+    SetType *resultType = 0;
     try
     {
-        resultType = static_cast<SetType*>(ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
+        resultType = static_cast<SetType *>(ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
     }
     catch (r_Error)
     {
@@ -240,11 +240,11 @@ TypeFactory::mapSetType(const char* typeName)
     return resultType;
 }
 
-const SetType*
-TypeFactory::addSetType(const SetType* type)
+const SetType *
+TypeFactory::addSetType(const SetType *type)
 {
-    SetType* persistentType = 0;
-    const SetType* retval = 0;
+    SetType *persistentType = 0;
+    const SetType *retval = 0;
     if (type->isPersistent())
     {
         LTRACE << "type is persistent " << type->getName() << " " << type->getOId();
@@ -252,12 +252,12 @@ TypeFactory::addSetType(const SetType* type)
     }
     else
     {
-        persistentType = new SetType(const_cast<char*>(type->getTypeName()), const_cast<MDDType*>(addMDDType(type->getMDDType())));
+        persistentType = new SetType(const_cast<char *>(type->getTypeName()), const_cast<MDDType *>(addMDDType(type->getMDDType())));
 
-        DBNullvalues* interval = type->getNullValues();
+        DBNullvalues *interval = type->getNullValues();
         if (interval != NULL)
         {
-            persistentType->setNullValues(*((r_Nullvalues*)interval));
+            persistentType->setNullValues(*((r_Nullvalues *)interval));
         }
 
         persistentType->setPersistent(true);
@@ -269,10 +269,10 @@ TypeFactory::addSetType(const SetType* type)
     return retval;
 }
 
-const MDDType*
-TypeFactory::mapMDDType(const char* typeName)
+const MDDType *
+TypeFactory::mapMDDType(const char *typeName)
 {
-    MDDType* resultType = 0;
+    MDDType *resultType = 0;
     try
     {
         resultType = ObjectBroker::getMDDTypeByName(typeName);
@@ -284,11 +284,11 @@ TypeFactory::mapMDDType(const char* typeName)
     return resultType;
 }
 
-const MDDType*
-TypeFactory::addMDDType(const MDDType* type)
+const MDDType *
+TypeFactory::addMDDType(const MDDType *type)
 {
-    MDDType* persistentType = 0;
-    const MDDType* retval = 0;
+    MDDType *persistentType = 0;
+    const MDDType *retval = 0;
     if (type->isPersistent())
     {
         LTRACE << "type is persistent " << type->getOId();
@@ -303,13 +303,13 @@ TypeFactory::addMDDType(const MDDType* type)
             persistentType = new MDDType(type->getTypeName());
             break;
         case MDDType::MDDBASETYPE:
-            persistentType = new MDDBaseType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))));
+            persistentType = new MDDBaseType(type->getTypeName(), addStructType(static_cast<StructType *>(const_cast<BaseType *>((static_cast<MDDBaseType *>(const_cast<MDDType *>(type)))->getBaseType()))));
             break;
         case MDDType::MDDDOMAINTYPE:
-            persistentType = new MDDDomainType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), *(static_cast<MDDDomainType*>(const_cast<MDDType*>(type)))->getDomain());
+            persistentType = new MDDDomainType(type->getTypeName(), addStructType(static_cast<StructType *>(const_cast<BaseType *>((static_cast<MDDBaseType *>(const_cast<MDDType *>(type)))->getBaseType()))), *(static_cast<MDDDomainType *>(const_cast<MDDType *>(type)))->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
-            persistentType = new MDDDimensionType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), (static_cast<MDDDimensionType*>(const_cast<MDDType*>(type)))->getDimension());
+            persistentType = new MDDDimensionType(type->getTypeName(), addStructType(static_cast<StructType *>(const_cast<BaseType *>((static_cast<MDDBaseType *>(const_cast<MDDType *>(type)))->getBaseType()))), (static_cast<MDDDimensionType *>(const_cast<MDDType *>(type)))->getDimension());
             break;
         default:
             LWARNING << "MDD sub-type '" << type->getName() << "' unknown.";
@@ -331,8 +331,8 @@ TypeFactory::addMDDType(const MDDType* type)
     return retval;
 }
 
-Type*
-TypeFactory::addTempType(Type* type)
+Type *
+TypeFactory::addTempType(Type *type)
 {
     // put in front to avoid deletion of MDDTypes still referenced
     // by an MDDBaseType.
@@ -346,7 +346,7 @@ TypeFactory::initialize()
     // to initailize the typefactory
     if (!theTempTypes)
     {
-        theTempTypes = new std::vector<Type*>;
+        theTempTypes = new std::vector<Type *>;
     }
 }
 
@@ -356,7 +356,7 @@ TypeFactory::freeTempTypes()
     // delete all temporary types
     if (theTempTypes)
     {
-        for (std::vector<Type*>::iterator iter = theTempTypes->begin(); iter != theTempTypes->end(); iter++)
+        for (std::vector<Type *>::iterator iter = theTempTypes->begin(); iter != theTempTypes->end(); iter++)
         {
             delete *iter;
             *iter = 0;
@@ -371,9 +371,9 @@ TypeFactory::TypeFactory()
 }
 
 void
-TypeFactory::deleteStructType(const char* typeName)
+TypeFactory::deleteStructType(const char *typeName)
 {
-    const DBObject* resultType = mapType(typeName);
+    const DBObject *resultType = mapType(typeName);
     if (resultType)
     {
         bool canDelete = true;
@@ -381,7 +381,7 @@ TypeFactory::deleteStructType(const char* typeName)
         {
             if (miter.get_element()->getSubtype() != MDDType::MDDONLYTYPE)
             {
-                if ((static_cast<MDDBaseType*>(miter.get_element().ptr()))->getBaseType() == resultType)
+                if ((static_cast<MDDBaseType *>(miter.get_element().ptr()))->getBaseType() == resultType)
                 {
                     LWARNING << "mdd type " << miter.get_element()->getName() << " contains " << typeName;
                     canDelete = false;
@@ -409,9 +409,9 @@ TypeFactory::deleteStructType(const char* typeName)
 }
 
 void
-TypeFactory::deleteMDDType(const char* typeName)
+TypeFactory::deleteMDDType(const char *typeName)
 {
-    const MDDType* resultType = mapMDDType(typeName);  //is ok because only short for find
+    const MDDType *resultType = mapMDDType(typeName);  //is ok because only short for find
     if (resultType)
     {
         bool canDelete = true;
@@ -429,7 +429,7 @@ TypeFactory::deleteMDDType(const char* typeName)
             if (resultType->getSubtype() != MDDType::MDDONLYTYPE)
             {
                 //mdd only types can not be in mdd objects
-                OIdSet* theList = ObjectBroker::getAllObjects(OId::MDDOID);
+                OIdSet *theList = ObjectBroker::getAllObjects(OId::MDDOID);
                 for (OIdSet::iterator miter = theList->begin(); miter != theList->end(); miter++)
                 {
                     if (DBMDDObjId(*miter)->getMDDBaseType() == resultType)
@@ -448,7 +448,7 @@ TypeFactory::deleteMDDType(const char* typeName)
                 // check if the base type is an annonymous type
                 if (resultType->getSubtype() != MDDType::MDDONLYTYPE)
                 {
-                    const BaseType* baseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(resultType))->getBaseType();
+                    const BaseType *baseType = static_cast<MDDBaseType *>(const_cast<MDDType *>(resultType))->getBaseType();
                     std::string baseTypeName = std::string(baseType->getTypeName());
                     if (boost::starts_with(baseTypeName, TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
                     {
@@ -482,13 +482,13 @@ TypeFactory::deleteMDDType(const char* typeName)
 }
 
 void
-TypeFactory::deleteSetType(const char* typeName)
+TypeFactory::deleteSetType(const char *typeName)
 {
-    const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
+    const DBObject *resultType = const_cast<SetType *>(mapSetType(typeName)); //is ok because only short for find
     if (resultType)
     {
         bool canDelete = true;
-        OIdSet* theList = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
+        OIdSet *theList = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
         for (OIdSet::iterator miter = theList->begin(); miter != theList->end(); miter++)
         {
             if (DBMDDSetId(*miter)->getCollType() == resultType)
@@ -520,9 +520,9 @@ TypeFactory::deleteSetType(const char* typeName)
 }
 
 void
-TypeFactory::deleteTmpMDDType(const char* typeName)
+TypeFactory::deleteTmpMDDType(const char *typeName)
 {
-    const MDDType* resultType = mapMDDType(typeName);  //is ok because only short for find
+    const MDDType *resultType = mapMDDType(typeName);  //is ok because only short for find
     if (resultType)
     {
         DBObjectId toKill(resultType->getOId());
@@ -537,9 +537,9 @@ TypeFactory::deleteTmpMDDType(const char* typeName)
 }
 
 void
-TypeFactory::deleteTmpSetType(const char* typeName)
+TypeFactory::deleteTmpSetType(const char *typeName)
 {
-    const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
+    const DBObject *resultType = const_cast<SetType *>(mapSetType(typeName)); //is ok because only short for find
     if (resultType)
     {
         DBObjectId toKill(resultType->getOId());
@@ -553,12 +553,12 @@ TypeFactory::deleteTmpSetType(const char* typeName)
     }
 }
 
-const Type*
-TypeFactory::ensurePersistence(Type* type)
+const Type *
+TypeFactory::ensurePersistence(Type *type)
 {
-    std::vector<Type*>::iterator iter;
-    const Type* retval = 0;
-    Type* ttype = 0;
+    std::vector<Type *>::iterator iter;
+    const Type *retval = 0;
+    Type *ttype = 0;
 
     // deleting type if it is in the list of tempTypes
     if (theTempTypes)
@@ -589,7 +589,7 @@ TypeFactory::ensurePersistence(Type* type)
         }
         if (!retval)
         {
-            retval = addStructType(static_cast<const StructType*>(type));
+            retval = addStructType(static_cast<const StructType *>(type));
         }
     }
     break;
@@ -608,7 +608,7 @@ TypeFactory::ensurePersistence(Type* type)
         }
         if (!retval)
         {
-            retval = addMDDType(static_cast<const MDDType*>(type));
+            retval = addMDDType(static_cast<const MDDType *>(type));
         }
     }
     break;
@@ -627,42 +627,42 @@ TypeFactory::ensurePersistence(Type* type)
         }
         if (!retval)
         {
-            retval = addSetType(static_cast<const SetType*>(type));
+            retval = addSetType(static_cast<const SetType *>(type));
         }
     }
     break;
     case ULONG:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(ULONG, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(ULONG, OId::ATOMICTYPEOID)));
         break;
     case USHORT:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(USHORT, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(USHORT, OId::ATOMICTYPEOID)));
         break;
     case CHAR:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(CHAR, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(CHAR, OId::ATOMICTYPEOID)));
         break;
     case BOOLTYPE:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(BOOLTYPE, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(BOOLTYPE, OId::ATOMICTYPEOID)));
         break;
     case LONG:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(LONG, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(LONG, OId::ATOMICTYPEOID)));
         break;
     case SHORT:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(SHORT, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(SHORT, OId::ATOMICTYPEOID)));
         break;
     case OCTET:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(OCTET, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(OCTET, OId::ATOMICTYPEOID)));
         break;
     case DOUBLE:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(DOUBLE, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(DOUBLE, OId::ATOMICTYPEOID)));
         break;
     case FLOAT:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(FLOAT, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(FLOAT, OId::ATOMICTYPEOID)));
         break;
     case COMPLEXTYPE1:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE1, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE1, OId::ATOMICTYPEOID)));
         break;
     case COMPLEXTYPE2:
-        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID)));
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID)));
         break;
     default:
         LTRACE << "ensurePersitence() is not a STRUCT/MDDTYPE/SETTYPE/ATOMIC " << type->getName();
@@ -679,7 +679,7 @@ TypeIterator<SetType>
 TypeFactory::createSetIter()
 {
     LTRACE << "createSetIter()";
-    OIdSet* t = ObjectBroker::getAllObjects(OId::SETTYPEOID);
+    OIdSet *t = ObjectBroker::getAllObjects(OId::SETTYPEOID);
     TypeIterator<SetType> ti(*t);
     delete t;
     t = 0;
@@ -690,7 +690,7 @@ TypeIterator<StructType>
 TypeFactory::createStructIter()
 {
     LTRACE << "createStructIter()";
-    OIdSet* t = ObjectBroker::getAllObjects(OId::STRUCTTYPEOID);
+    OIdSet *t = ObjectBroker::getAllObjects(OId::STRUCTTYPEOID);
     TypeIterator<StructType> ti(*t);
     delete t;
     t = 0;
@@ -701,7 +701,7 @@ TypeIterator<MDDType>
 TypeFactory::createMDDIter()
 {
     OIdSet theMDDTypes;
-    OIdSet* tempList = 0;
+    OIdSet *tempList = 0;
     OIdSet::iterator i;
 
     tempList = ObjectBroker::getAllObjects(OId::MDDTYPEOID);

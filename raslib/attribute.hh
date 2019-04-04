@@ -58,13 +58,13 @@ public:
     r_Attribute();
 
     /// constructor getting name and type of attribute.
-    r_Attribute(const char* newTypeName, const r_Base_Type& newType);
+    r_Attribute(const char *newTypeName, const r_Base_Type &newType);
 
     /// copy constructor.
-    r_Attribute(const r_Attribute& oldObj);
+    r_Attribute(const r_Attribute &oldObj);
 
     /// assignment operator.
-    const r_Attribute& operator=(const r_Attribute& oldObj);
+    const r_Attribute &operator=(const r_Attribute &oldObj);
 
     /// destructor.
     virtual ~r_Attribute();
@@ -82,7 +82,7 @@ public:
     void set_global_offset(r_Bytes newOffset);
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream& s = std::cout) const;
+    virtual void print_status(std::ostream &s = std::cout) const;
 
     /// subscript operator to access attributes of a structured attribute
     /// throws error when type is not a struct type
@@ -91,31 +91,31 @@ public:
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{
     ///
-    r_Boolean get_boolean(const char* cell) const;
+    r_Boolean get_boolean(const char *cell) const;
 
     ///
-    r_Char    get_char(const char* cell)    const;
+    r_Char    get_char(const char *cell)    const;
 
     ///
-    r_Octet   get_octet(const char* cell)   const;
+    r_Octet   get_octet(const char *cell)   const;
 
     ///
-    r_Short   get_short(const char* cell)   const;
+    r_Short   get_short(const char *cell)   const;
 
     ///
-    r_UShort  get_ushort(const char* cell)  const;
+    r_UShort  get_ushort(const char *cell)  const;
 
     ///
-    r_Long    get_long(const char* cell)    const;
+    r_Long    get_long(const char *cell)    const;
 
     ///
-    r_ULong   get_ulong(const char* cell)   const;
+    r_ULong   get_ulong(const char *cell)   const;
 
     ///
-    r_Float   get_float(const char* cell)   const;
+    r_Float   get_float(const char *cell)   const;
 
     ///
-    r_Double  get_double(const char* cell)  const;
+    r_Double  get_double(const char *cell)  const;
 
     ///
     //@}
@@ -129,6 +129,6 @@ protected:
 };
 
 //@Doc: write the status of a attribute to a stream
-extern std::ostream& operator<<(std::ostream& str, const r_Attribute& type);
+extern std::ostream &operator<<(std::ostream &str, const r_Attribute &type);
 
 #endif

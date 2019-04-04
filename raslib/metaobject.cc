@@ -40,24 +40,24 @@ r_Meta_Object::r_Meta_Object()
 {
 }
 
-r_Meta_Object::r_Meta_Object(const char* newTypeName)
+r_Meta_Object::r_Meta_Object(const char *newTypeName)
 {
-    typeName = static_cast<char*>(mymalloc(strlen(newTypeName) + 1));
+    typeName = static_cast<char *>(mymalloc(strlen(newTypeName) + 1));
     strcpy(typeName, newTypeName);
 }
 
-r_Meta_Object::r_Meta_Object(const r_Meta_Object& oldObj)
+r_Meta_Object::r_Meta_Object(const r_Meta_Object &oldObj)
     : typeName(NULL)
 {
     if (oldObj.typeName)
     {
-        typeName = static_cast<char*>(mymalloc(strlen(oldObj.typeName) + 1));
+        typeName = static_cast<char *>(mymalloc(strlen(oldObj.typeName) + 1));
         strcpy(typeName, oldObj.typeName);
     }
 }
 
-const r_Meta_Object&
-r_Meta_Object::operator=(const r_Meta_Object& oldObj)
+const r_Meta_Object &
+r_Meta_Object::operator=(const r_Meta_Object &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -69,7 +69,7 @@ r_Meta_Object::operator=(const r_Meta_Object& oldObj)
     typeName = NULL;
     if (oldObj.typeName)
     {
-        typeName = static_cast<char*>(mymalloc(strlen(oldObj.typeName) + 1));
+        typeName = static_cast<char *>(mymalloc(strlen(oldObj.typeName) + 1));
         strcpy(typeName, oldObj.typeName);
     }
 
@@ -84,7 +84,7 @@ r_Meta_Object::~r_Meta_Object()
     }
 }
 
-const char*
+const char *
 r_Meta_Object::name() const
 {
     return typeName;

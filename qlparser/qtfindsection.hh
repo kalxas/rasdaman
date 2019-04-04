@@ -23,7 +23,7 @@ rasdaman GmbH.
 
 
 
-/* 
+/*
  * File:   qtFindSection.hh
  * Author: bbell
  *
@@ -31,7 +31,7 @@ rasdaman GmbH.
  */
 
 #ifndef QTFINDSECTION_HH
-#define	QTFINDSECTION_HH
+#define QTFINDSECTION_HH
 
 #include "raslib/point.hh"
 #include "qlparser/qtpointdata.hh"
@@ -51,7 +51,7 @@ rasdaman GmbH.
     commutes with $s$ with $Im(s) = S$.
 
     We require data defining $S$ to be of the form $Ax = b$ iff $x \in S$, where
-    $A \in \mathrm{Mat}_{k, n}(\mathbb{R})$ and $b \in \mathbb{R}^k$. This is passed as 
+    $A \in \mathrm{Mat}_{k, n}(\mathbb{R})$ and $b \in \mathbb{R}^k$. This is passed as
     a pair, linEqnArg, to the constructor.
 
     We also require data defining which dimensions are kept or which are projected away.
@@ -59,7 +59,7 @@ rasdaman GmbH.
     as a vector of r_Dimension called keptDimsArg.
 */
 
-/* 
+/*
     Using this class:
         construct
         call prepareSection to initialize most data
@@ -68,16 +68,16 @@ rasdaman GmbH.
 
 class FindSection
 {
-public:    
+public:
     //constructor
-    FindSection(const std::vector< std::pair< r_PointDouble, double > >& linEqnArg, const vector<r_Dimension>& keptDimsArg);
-    
+    FindSection(const std::vector< std::pair< r_PointDouble, double >> &linEqnArg, const vector<r_Dimension> &keptDimsArg);
+
     void prepareSection();
-    
+
     //applies the function $(A_I)^{-1}( b - A_J(arg) )$ to get the vector of ints in the image
     //the employed method is to actually solve A_I(x) = b - A_J(arg) for x using an LU factorization of A_I.
     //the LU factorization of A_I is found during construction of this class object.
-    r_PointDouble solveLU(const r_Point& arg);
+    r_PointDouble solveLU(const r_Point &arg);
 
 private:
     //constructs the matrices $A_I$ and $A_J$ from $A$
@@ -88,12 +88,12 @@ private:
 
     //computes the RHS of the equation to $A_I(x) = (b - A_J(arg))$
     //the point of this is to simplify the appearance of applyFxn
-    r_PointDouble findRHS(const r_Point& arg);    
-    
+    r_PointDouble findRHS(const r_Point &arg);
+
     //initialized as args of constructor
-    
+
     //linEqn.first = LHS (A); linEqn.second = RHS (b)
-    std::pair< vector< vector<double> >, vector<double> > linEqn; //Ax = b
+    std::pair< vector< vector<double>>, vector<double>> linEqn; //Ax = b
     //the dimensions projected onto
     vector<r_Dimension> keptDims;
 
@@ -105,15 +105,15 @@ private:
     //the matrices $A_I$ and $A_J$, respectively
     vector<vector<double>> matAI;
     vector<vector<double>> matAJ;
-    
+
     //LU decomposition of A_I
     vector<vector<double>> L;
     vector<vector<double>> U;
 
     //for applying the function quickly
     vector<double> op1;
-    vector< vector<double> > op2;
+    vector< vector<double>> op2;
 };
 
-#endif	/* QTFINDSECTION_HH */
+#endif  /* QTFINDSECTION_HH */
 

@@ -44,16 +44,16 @@ static const char rcsid[] = "@(#)catalogif,CharType: $Header: /home/rasdev/CVS-r
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 CharType.
  ************************************************************/
 
 CharType::CharType()
-	:	UIntegralType(CharType::Name, 1)
-	{
-	myType = CHAR;
-	myOId = OId(CHAR, OId::ATOMICTYPEOID);
-	}
+    :   UIntegralType(CharType::Name, 1)
+{
+    myType = CHAR;
+    myOId = OId(CHAR, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: CharType(const CharType& old);
@@ -63,16 +63,16 @@ CharType::CharType()
  * Description...: copy constructor
  ************************************************************/
 
-CharType::CharType(const CharType& old)
-	:	UIntegralType(CharType::Name, old.size)
-	{
-	}
+CharType::CharType(const CharType &old)
+    :   UIntegralType(CharType::Name, old.size)
+{
+}
 
-CharType::CharType(__attribute__ ((unused)) const OId& id)
-	:	UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
-	{
-	readFromDb();
-	}
+CharType::CharType(__attribute__((unused)) const OId &id)
+    :   UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: operator=(const CharType&);
@@ -82,24 +82,26 @@ CharType::CharType(__attribute__ ((unused)) const OId& id)
  * Description...: copy constructor
  ************************************************************/
 
-CharType&
-CharType::operator=(const CharType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+CharType &
+CharType::operator=(const CharType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 void
 CharType::readFromDb()
-	{
-	setName(CharType::Name);
-	myType = CHAR;
-	myOId = OId(CHAR, OId::ATOMICTYPEOID);
-	size = 1;
-	}
+{
+    setName(CharType::Name);
+    myType = CHAR;
+    myOId = OId(CHAR, OId::ATOMICTYPEOID);
+    size = 1;
+}
 
 /*************************************************************
  * Method name...: ~CharType();
@@ -110,48 +112,48 @@ CharType::readFromDb()
  ************************************************************/
 
 CharType::~CharType()
-	{
-	}
+{
+}
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Char is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-CharType::printCell( ostream& stream, const char* cell ) const
+void
+CharType::printCell(ostream &stream, const char *cell) const
 {
-  // !!!! HP specific, assumes 1 Byte char
-  stream << std::setw(4) << (r_Long)(*(unsigned char*)const_cast<char*>(cell));
+    // !!!! HP specific, assumes 1 Byte char
+    stream << std::setw(4) << (r_Long)(*(unsigned char *)const_cast<char *>(cell));
 }
 
-r_ULong*
-CharType::convertToCULong(const char* cell, r_ULong* value) const
+r_ULong *
+CharType::convertToCULong(const char *cell, r_ULong *value) const
 {
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  *value = *(unsigned char*)const_cast<char*>(cell);
-  return value;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    *value = *(unsigned char *)const_cast<char *>(cell);
+    return value;
 }
 
 
-char* 
-CharType::makeFromCULong(char* cell, const r_ULong* value) const
-	{
-	r_ULong myLong = *value;
-	//restricting long to value range of short
-	myLong = myLong > UCHAR_MAX ? UCHAR_MAX : myLong;
-	// !!!! HP specific, assumes 4 Byte long and MSB..LSB
-	// byte order  
-	*(unsigned char*)(cell)=(unsigned char)myLong;
-	return cell;
-	}
+char *
+CharType::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    r_ULong myLong = *value;
+    //restricting long to value range of short
+    myLong = myLong > UCHAR_MAX ? UCHAR_MAX : myLong;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    *(unsigned char *)(cell) = (unsigned char)myLong;
+    return cell;
+}

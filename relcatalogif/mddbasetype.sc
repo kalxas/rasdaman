@@ -50,8 +50,8 @@ MDDBaseType::insertInDb()
     long long mddbasetypeid;
     char mddtypename[STRING_MAXLEN];
 
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
-    DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
+    (void) strncpy(mddtypename, const_cast<char *>(getName()), (size_t) sizeof(mddtypename));
+    DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
 
@@ -68,7 +68,7 @@ MDDBaseType::readFromDb()
 #endif
     long long mddtypeid;
     long long mddbasetypeid;
-    char* mddtypename;
+    char *mddtypename;
 
     mddtypeid = myOId.getCounter();
     mddbasetypeid = 0;
@@ -88,7 +88,7 @@ MDDBaseType::readFromDb()
     }
 
     setName(mddtypename);
-    myBaseType = (BaseType*) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
+    myBaseType = (BaseType *) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif

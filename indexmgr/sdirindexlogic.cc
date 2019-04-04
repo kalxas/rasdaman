@@ -40,7 +40,7 @@ static const char rcsiddirix[] = "@(#)dirix, SDirIndexLogic: $Id: sdirindexlogic
 
 
 bool
-SDirIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, __attribute__((unused)) const StorageLayout& sl)
+SDirIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, __attribute__((unused)) const StorageLayout &sl)
 {
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
 
@@ -51,8 +51,8 @@ SDirIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, __att
 }
 
 int
-SDirIndexLogic::binarySearch(const IndexDS* ixDS,
-                             const r_Minterval& newDomain,
+SDirIndexLogic::binarySearch(const IndexDS *ixDS,
+                             const r_Minterval &newDomain,
                              OrderPoint o,
                              int first,
                              int last)
@@ -68,7 +68,7 @@ SDirIndexLogic::binarySearch(const IndexDS* ixDS,
     else
     {
         middle = (last + first) / 2;
-        compResult = compare(newDomain, ixDS->getObjectDomain(static_cast<unsigned int>(middle)), o , o);
+        compResult = compare(newDomain, ixDS->getObjectDomain(static_cast<unsigned int>(middle)), o, o);
         if (compResult < 0)
         {
             retval = binarySearch(ixDS, newDomain, o, first, middle - 1);
@@ -87,8 +87,8 @@ SDirIndexLogic::binarySearch(const IndexDS* ixDS,
 
 
 int
-SDirIndexLogic::binaryPointSearch(const IndexDS* ixDS,
-                                  const r_Point& pnt,
+SDirIndexLogic::binaryPointSearch(const IndexDS *ixDS,
+                                  const r_Point &pnt,
                                   SDirIndexLogic::OrderPoint o,
                                   int first,
                                   int last)
@@ -159,10 +159,10 @@ SDirIndexLogic::binaryPointSearch(const IndexDS* ixDS,
 
 
 int
-SDirIndexLogic::binaryRegionSearch(const IndexDS* ixDS,
-                                   const r_Minterval& mint,
-                                   r_Area& area,
-                                   KeyObjectVector& intersectedObjects,
+SDirIndexLogic::binaryRegionSearch(const IndexDS *ixDS,
+                                   const r_Minterval &mint,
+                                   r_Area &area,
+                                   KeyObjectVector &intersectedObjects,
                                    int first,
                                    int last)
 {
@@ -248,8 +248,8 @@ SDirIndexLogic::binaryRegionSearch(const IndexDS* ixDS,
 
 
 int
-SDirIndexLogic::compare(const r_Minterval& mint1,
-                        const r_Minterval& mint2,
+SDirIndexLogic::compare(const r_Minterval &mint1,
+                        const r_Minterval &mint2,
                         OrderPoint o1,
                         OrderPoint o2)
 {
@@ -288,7 +288,7 @@ SDirIndexLogic::compare(const r_Minterval& mint1,
 }
 
 void
-SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, __attribute__((unused)) const StorageLayout& sl)
+SDirIndexLogic::intersect(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &intersectedObjs, __attribute__((unused)) const StorageLayout &sl)
 {
     r_Area area = 0;
     int result = 0;
@@ -311,7 +311,7 @@ SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, K
 }
 
 void
-SDirIndexLogic::intersectUnOpt(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs)
+SDirIndexLogic::intersectUnOpt(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &intersectedObjs)
 {
     for (unsigned int i = 0; i < ixDS->getSize(); i++)
     {
@@ -325,7 +325,7 @@ SDirIndexLogic::intersectUnOpt(const IndexDS* ixDS, const r_Minterval& searchInt
 }
 
 void
-SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, __attribute__((unused)) const StorageLayout& sl)
+SDirIndexLogic::containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, __attribute__((unused)) const StorageLayout &sl)
 {
     int ix = binaryPointSearch(ixDS, searchPoint, Lowest, 0, static_cast<int>(ixDS->getSize()) - 1);
     LTRACE << "result from binaryPointSearch ix " << ix;
@@ -337,14 +337,14 @@ SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoin
 }
 
 void
-SDirIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, __attribute__((unused)) const StorageLayout& sl)
+SDirIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs, __attribute__((unused)) const StorageLayout &sl)
 {
     LTRACE << "getObjects()";
     ixDS->getObjects(objs);
 }
 
 bool
-SDirIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, __attribute__((unused)) const StorageLayout& sl)
+SDirIndexLogic::removeObject(IndexDS *ixDS, const KeyObject &objToRemove, __attribute__((unused)) const StorageLayout &sl)
 {
     LTRACE << "removeObject(" << objToRemove << ")";
     return ixDS->removeObject(objToRemove);

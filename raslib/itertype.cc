@@ -31,19 +31,19 @@ r_IterType<T>::r_IterType() : lastElem(NULL), myElems(NULL), currPos(0)
 }
 
 template<class T>
-r_IterType<T>::r_IterType(T* newLastElem, T* newElems)
+r_IterType<T>::r_IterType(T *newLastElem, T *newElems)
     : lastElem(newLastElem), myElems(newElems), currPos(newElems)
 {
 }
 
 template<class T>
-r_IterType<T>::r_IterType(T* newLastElem, T* newElems, T* newCurrPos)
+r_IterType<T>::r_IterType(T *newLastElem, T *newElems, T *newCurrPos)
     : lastElem(newLastElem), myElems(newElems), currPos(newCurrPos)
 {
 }
 
 template<class T>
-r_IterType<T>::r_IterType(const r_IterType<T>& iter)
+r_IterType<T>::r_IterType(const r_IterType<T> &iter)
     : lastElem(iter.lastElem), myElems(iter.myElems), currPos(iter.currPos)
 {
 }
@@ -54,8 +54,8 @@ r_IterType<T>::~r_IterType()
     // nothing to do, memory management is done by r_Attribute.
 }
 
-template<class T> r_IterType<T>&
-r_IterType<T>::operator=(const r_IterType<T>& iter)
+template<class T> r_IterType<T> &
+r_IterType<T>::operator=(const r_IterType<T> &iter)
 {
     lastElem = iter.lastElem;
     myElems = iter.myElems;
@@ -64,18 +64,18 @@ r_IterType<T>::operator=(const r_IterType<T>& iter)
 }
 
 template<class T> bool
-r_IterType<T>::operator==(const r_IterType<T>& otherIter)
+r_IterType<T>::operator==(const r_IterType<T> &otherIter)
 {
     return currPos == otherIter.currPos;
 }
 
 template<class T> bool
-r_IterType<T>::operator!=(const r_IterType<T>& otherIter)
+r_IterType<T>::operator!=(const r_IterType<T> &otherIter)
 {
     return currPos != otherIter.currPos;
 }
 
-template<class T> r_IterType<T>&
+template<class T> r_IterType<T> &
 r_IterType<T>::operator++()
 {
     currPos++;

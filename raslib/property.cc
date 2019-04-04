@@ -43,18 +43,18 @@ r_Property::r_Property()
 {
 }
 
-r_Property::r_Property(const char* newTypeName, const r_Base_Type& newType)
+r_Property::r_Property(const char *newTypeName, const r_Base_Type &newType)
     :   r_Meta_Object(newTypeName),
-        myType(static_cast<r_Base_Type*>(newType.clone()))
+        myType(static_cast<r_Base_Type *>(newType.clone()))
 {
 }
 
-r_Property::r_Property(const r_Property& oldObj)
+r_Property::r_Property(const r_Property &oldObj)
     :   r_Meta_Object(oldObj)
 {
     if (oldObj.myType)
     {
-        myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
+        myType = static_cast<r_Base_Type *>(oldObj.myType->clone());
     }
     else
     {
@@ -63,8 +63,8 @@ r_Property::r_Property(const r_Property& oldObj)
     }
 }
 
-const r_Property&
-r_Property::operator=(const r_Property& oldObj)
+const r_Property &
+r_Property::operator=(const r_Property &oldObj)
 {
     // Gracefully handle self assignment
     if (this != &oldObj)
@@ -78,7 +78,7 @@ r_Property::operator=(const r_Property& oldObj)
 
         if (oldObj.myType)
         {
-            myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
+            myType = static_cast<r_Base_Type *>(oldObj.myType->clone());
         }
         else
         {
@@ -98,7 +98,7 @@ r_Property::~r_Property()
     }
 }
 
-const r_Base_Type&
+const r_Base_Type &
 r_Property::type_of() const
 {
     if (!myType)

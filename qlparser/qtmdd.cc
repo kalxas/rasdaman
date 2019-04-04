@@ -45,9 +45,9 @@ using namespace std;
 #include <iostream>
 
 // defined in servercomm.cc
-extern MDDColl* mddConstants;
+extern MDDColl *mddConstants;
 
-QtMDD::QtMDD(MDDObj* ptr)
+QtMDD::QtMDD(MDDObj *ptr)
     : QtData(),
       mddObject(ptr),
       fromConversion(false)
@@ -68,7 +68,7 @@ QtMDD::QtMDD(MDDObj* ptr)
 }
 
 
-QtMDD::QtMDD(MDDObj* ptr, string name)
+QtMDD::QtMDD(MDDObj *ptr, string name)
     : QtData(name),
       mddObject(ptr),
       fromConversion(false)
@@ -89,11 +89,11 @@ QtMDD::QtMDD(MDDObj* ptr, string name)
 }
 
 
-QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
+QtMDD::QtMDD(QtOperation *mintervalOp, list<QtScalarData *> *literalList)
     : QtData(), mddObject(0), fromConversion(false)
 {
-    list<QtScalarData*>::iterator         elemIter;
-    QtScalarData*                           scalarElem = NULL;
+    list<QtScalarData *>::iterator         elemIter;
+    QtScalarData                           *scalarElem = NULL;
 
     //
     // evaluate domain
@@ -102,7 +102,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
     if (mintervalOp)
     {
 
-        QtData* operand = mintervalOp->evaluate(NULL);
+        QtData *operand = mintervalOp->evaluate(NULL);
 
         if (operand->getDataType() != QT_MINTERVAL)
         {
@@ -112,7 +112,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
             throw errorInfo;
         }
 
-        r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
+        r_Minterval domain = (static_cast<QtMintervalData *>(operand))->getMintervalData();
 
         // delete old operand
         if (operand)
@@ -127,17 +127,17 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
         if (literalList->size() != 0)
         {
             scalarElem = *(literalList->begin());
-            const BaseType* baseType = scalarElem->getValueType();
+            const BaseType *baseType = scalarElem->getValueType();
             //used to check if the MDDs are of the same type
-            char* baseStructure = baseType->getTypeStructure();
+            char *baseStructure = baseType->getTypeStructure();
 
             //
             // allocate memory and fill it with cell values of the list
             //
             unsigned long cellCount = 0;
             unsigned long cellSize  = baseType->getSize();
-            char* cellBuffer   = static_cast<char*>(mymalloc(domain.cell_count() * cellSize));
-            char* bufferOffset = cellBuffer;
+            char *cellBuffer   = static_cast<char *>(mymalloc(domain.cell_count() * cellSize));
+            char *bufferOffset = cellBuffer;
 
             for (elemIter = literalList->begin(); elemIter != literalList->end(); elemIter++)
             {
@@ -147,7 +147,7 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
                 // do not write beyond array boundary
                 if (cellCount <= domain.cell_count())
                 {
-                    char* scalarElemTypeStructure = scalarElem->getTypeStructure();
+                    char *scalarElemTypeStructure = scalarElem->getTypeStructure();
                     if (strcmp(scalarElemTypeStructure, baseStructure) != 0)
                     {
                         LERROR << "Error: QtMDD() - All cell values of an MDD must be of the same type.";
@@ -181,12 +181,12 @@ QtMDD::QtMDD(QtOperation* mintervalOp, list<QtScalarData*>* literalList)
             //
             // create transient tile
             //
-            Tile* tile = new Tile(domain, baseType, true, cellBuffer, (r_Bytes)0, r_Array);
+            Tile *tile = new Tile(domain, baseType, true, cellBuffer, (r_Bytes)0, r_Array);
 
             //
             // create transiend mddObject and attach created tile
             //
-            MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", baseType, domain.dimension());
+            MDDDimensionType *mddDimensionType = new MDDDimensionType("tmp", baseType, domain.dimension());
             TypeFactory::addTempType(mddDimensionType);
             mddObject = new MDDObj(mddDimensionType, domain);
             mddObject->insertTile(tile);
@@ -219,7 +219,7 @@ QtMDD::QtMDD(__attribute__((unused)) int constantNo)
     if (mddConstants)
     {
 
-        MDDCollIter* mddIter = mddConstants->createIterator();
+        MDDCollIter *mddIter = mddConstants->createIterator();
         //for( mddIter->reset(); mddIter->notDone(); mddIter->advance() )
         mddIter->reset();
 
@@ -249,7 +249,7 @@ QtMDD::QtMDD(__attribute__((unused)) int constantNo)
 
 
 
-QtMDD::QtMDD(const QtMDD& obj)
+QtMDD::QtMDD(const QtMDD &obj)
     : QtData(obj),
       mddObject(obj.mddObject),
       fromConversion(false)
@@ -269,10 +269,10 @@ QtMDD::~QtMDD()
 }
 
 
-BaseType*
+BaseType *
 QtMDD::getCellType() const
 {
-    return const_cast<BaseType*>(mddObject->getCellType());
+    return const_cast<BaseType *>(mddObject->getCellType());
 }
 
 
@@ -294,7 +294,7 @@ QtMDD::getDataType() const
 
 
 bool
-QtMDD::equal(const QtData* /*obj*/) const
+QtMDD::equal(const QtData * /*obj*/) const
 {
     int returnValue = false;  // not equal by initialization
 
@@ -317,7 +317,7 @@ QtMDD::getSpelling() const
 
 
 
-char* QtMDD::getTypeStructure() const
+char *QtMDD::getTypeStructure() const
 {
     if (mddObject)
     {
@@ -332,7 +332,7 @@ char* QtMDD::getTypeStructure() const
 
 
 void
-QtMDD::printStatus(ostream& stream) const
+QtMDD::printStatus(ostream &stream) const
 {
     if (mddObject)
     {
@@ -348,7 +348,7 @@ QtMDD::printStatus(ostream& stream) const
 #ifdef DEBUG
     mddObject->printStatus(0, stream);
 
-    vector<boost::shared_ptr<Tile>>* vec = mddObject->getTiles();
+    vector<boost::shared_ptr<Tile>> *vec = mddObject->getTiles();
     for (unsigned int i = 0; i < vec->size(); i++)
     {
         ((*vec)[i])->printStatus();

@@ -55,59 +55,59 @@ class QtCaseOp : public QtNaryOperation
 {
 public:
     /// constructor getting the operand list
-    QtCaseOp(QtOperationList* opList);
+    QtCaseOp(QtOperationList *opList);
 
     virtual ~QtCaseOp();
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// method for evaluating the induced node
-    QtData* evaluateInducedOp(QtDataList* inputList);
+    QtData *evaluateInducedOp(QtDataList *inputList);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
     /// breaks down the operand list into conditions and results
-    void getCaseOperands(QtDataList* inputList, std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList,
-                         std::vector<std::pair <QtOperation*, QtData*>>* scalarCache,
-                         QtDataList* conditionList, QtOperationList* resultList, QtOperation*& defaultResult);
+    void getCaseOperands(QtDataList *inputList, std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList,
+                         std::vector<std::pair <QtOperation *, QtData *>> *scalarCache,
+                         QtDataList *conditionList, QtOperationList *resultList, QtOperation *&defaultResult);
 
     /// type coercion: given 2 types, computes the resulting type
-    const BaseType* getResultType(const BaseType* op1, const BaseType* op2);
+    const BaseType *getResultType(const BaseType *op1, const BaseType *op2);
 
     /// indicates if a type is signed or not
-    int isSignedType(const BaseType* type);
+    int isSignedType(const BaseType *type);
 
     /// method for cell-by-cell evaluation
-    QtData* evaluateCellByCell(QtDataList* inputList, QtOperation* currentOperation,
-                               std::vector<Tile*>* currentTiles, std::vector<char*>* cachedPoints);
+    QtData *evaluateCellByCell(QtDataList *inputList, QtOperation *currentOperation,
+                               std::vector<Tile *> *currentTiles, std::vector<char *> *cachedPoints);
 
     /// method for retrieving the cached data list corresponding to an operation
-    QtDataList* getCachedData(QtOperation* op,  std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList);
+    QtDataList *getCachedData(QtOperation *op,  std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList);
 
     /// method for retrieving cached scalar values
-    QtData* getCachedScalar(QtOperation* op, std::vector<std::pair<QtOperation*, QtData*>>* scalarCacheList);
+    QtData *getCachedScalar(QtOperation *op, std::vector<std::pair<QtOperation *, QtData *>> *scalarCacheList);
 
     /// method for restoring the tree to the original structure
     void restoreTree();
 
     /// method for retrieving a tile from an unsorted vector
     /// deletes the passed tiles pointer
-    boost::shared_ptr<Tile> getCorrespondingTile(std::vector<boost::shared_ptr<Tile>>* tiles, const r_Minterval& domain);
+    boost::shared_ptr<Tile> getCorrespondingTile(std::vector<boost::shared_ptr<Tile>> *tiles, const r_Minterval &domain);
 
     /// method for adding the list of corresponding mdd objects of an operation to cache
-    void addMddsToCache(QtDataList* inputList, QtOperation*& op,
-                        std::vector<std::pair <QtOperation*, QtDataList*>>* cacheList);
+    void addMddsToCache(QtDataList *inputList, QtOperation *&op,
+                        std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList);
 
 private:
     /// attribute for identification of nodes
@@ -117,14 +117,14 @@ private:
     bool inducedCase;
 
     /// attribute for indicating the base type of the result
-    BaseType* baseType;
+    BaseType *baseType;
 
     /// attribute for storing the nodes removed from the tree
-    std::vector<std::pair<QtNode*, std::pair<QtNode*, QtNode*>>> removedNodes;
+    std::vector<std::pair<QtNode *, std::pair<QtNode *, QtNode *>>> removedNodes;
 
 protected:
     /// attribute storing the condition list
-    QtOperationList* conditionList;
+    QtOperationList *conditionList;
 };
 
 #endif  /* QTCASEOP_HH */

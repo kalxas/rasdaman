@@ -18,7 +18,7 @@ class ServerGroupFactory
 public:
     virtual ~ServerGroupFactory();
 
-    virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto& config) = 0;
+    virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config) = 0;
 };
 }
 

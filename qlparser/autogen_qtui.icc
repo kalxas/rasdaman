@@ -23,23 +23,68 @@ rasdaman GmbH.
 /*************************************************************
  *
  *
- * COMMENTS:	Automaticaly generated
+ * COMMENTS:    Automaticaly generated
  *
  ************************************************************/
 
 
-inline QtNode::QtNodeType QtAbs::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtSqrt::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtPow::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtExp::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtLog::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtLn::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtSin::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtCos::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtTan::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtSinh::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtCosh::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtTanh::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtArcsin::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtArccos::getNodeType() const { return nodeType; }
-inline QtNode::QtNodeType QtArctan::getNodeType() const { return nodeType; }
+inline QtNode::QtNodeType QtAbs::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtSqrt::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtPow::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtExp::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtLog::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtLn::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtSin::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtCos::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtTan::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtSinh::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtCosh::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtTanh::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtArcsin::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtArccos::getNodeType() const
+{
+    return nodeType;
+}
+inline QtNode::QtNodeType QtArctan::getNodeType() const
+{
+    return nodeType;
+}

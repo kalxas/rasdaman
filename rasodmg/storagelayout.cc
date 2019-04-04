@@ -47,7 +47,7 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char* formatParams)
+r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char *formatParams)
     :   til(0),
         storage_format(init_format),
         storage_params(0)
@@ -59,7 +59,7 @@ r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char* format
     }
 }
 
-r_Storage_Layout::r_Storage_Layout(r_Tiling* ts, r_Data_Format init_format, const char* formatParams)
+r_Storage_Layout::r_Storage_Layout(r_Tiling *ts, r_Data_Format init_format, const char *formatParams)
     :   til(ts),
         storage_format(init_format),
         storage_params(0)
@@ -74,7 +74,7 @@ r_Storage_Layout::r_Storage_Layout(r_Tiling* ts, r_Data_Format init_format, cons
     }
 }
 
-r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout& sl)
+r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout &sl)
     :   til(sl.get_tiling()->clone()),
         storage_format(sl.get_storage_format()),
         storage_params(0)
@@ -85,10 +85,10 @@ r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout& sl)
     }
 }
 
-r_Storage_Layout*
+r_Storage_Layout *
 r_Storage_Layout::clone() const
 {
-    r_Storage_Layout* newSL = new r_Storage_Layout(til->clone(), storage_format, storage_params);
+    r_Storage_Layout *newSL = new r_Storage_Layout(til->clone(), storage_format, storage_params);
     return newSL;
 }
 
@@ -106,7 +106,7 @@ r_Storage_Layout::~r_Storage_Layout()
     }
 }
 
-const r_Tiling*
+const r_Tiling *
 r_Storage_Layout::get_tiling() const
 {
     return til;
@@ -118,22 +118,22 @@ r_Storage_Layout::get_storage_format() const
     return storage_format;
 }
 
-const char*
+const char *
 r_Storage_Layout::get_storage_format_params() const
 {
     return storage_params;
 }
 
-r_Set<r_GMarray*>*
-r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const
+r_Set<r_GMarray *> *
+r_Storage_Layout::decomposeMDD(const r_GMarray *mar) const
 {
     r_Bytes cell_size = mar->get_type_length();
-    std::vector<r_Minterval>* tiles = NULL;
-    r_Set<r_GMarray*>* result = NULL;
+    std::vector<r_Minterval> *tiles = NULL;
+    r_Set<r_GMarray *> *result = NULL;
 
     tiles = decomposeMDD(mar->spatial_domain(), cell_size);
 
-    result = new r_Set<r_GMarray*>;
+    result = new r_Set<r_GMarray *>;
 
     for (std::vector<r_Minterval>::iterator it = tiles->begin(); it != tiles->end(); it++)
     {
@@ -144,10 +144,10 @@ r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const
     return result;
 }
 
-std::vector<r_Minterval>*
-r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const
+std::vector<r_Minterval> *
+r_Storage_Layout::decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const
 {
-    std::vector<r_Minterval>* tiles = NULL;
+    std::vector<r_Minterval> *tiles = NULL;
 
     if (!til->is_compatible(domain, cell_size))
     {
@@ -162,7 +162,7 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
     {
         tiles = til->compute_tiles(domain, cell_size);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         throw;
     }
@@ -171,7 +171,7 @@ r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_siz
 }
 
 void
-r_Storage_Layout::print_status(std::ostream& os) const
+r_Storage_Layout::print_status(std::ostream &os) const
 {
     os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format << " storage parameters = ";
     if (storage_params != NULL)
@@ -187,13 +187,13 @@ r_Storage_Layout::print_status(std::ostream& os) const
 }
 
 bool
-r_Storage_Layout::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
+r_Storage_Layout::is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
 {
     return til->is_compatible(obj_domain, cellTypeSize);
 }
 
-std::ostream&
-operator<<(std::ostream& s, const r_Storage_Layout& sl)
+std::ostream &
+operator<<(std::ostream &s, const r_Storage_Layout &sl)
 {
     sl.print_status(s);
     return s;

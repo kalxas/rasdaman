@@ -40,27 +40,27 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-EOId::print_status(std::ostream& s) const
+EOId::print_status(std::ostream &s) const
 {
     s << systemName.c_str() << "|" << databaseName.c_str() << "|";
     OId::print_status(s);
 }
 
-std::ostream&
-operator<<(std::ostream& s, const EOId& d)
+std::ostream &
+operator<<(std::ostream &s, const EOId &d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
 }
 
-std::ostream&
-operator<<(std::ostream& s, EOId& d)
+std::ostream &
+operator<<(std::ostream &s, EOId &d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
 }
 
-EOId::EOId(const char* systemname, const char* dbname, OId::OIdCounter id, OId::OIdType type)
+EOId::EOId(const char *systemname, const char *dbname, OId::OIdCounter id, OId::OIdType type)
     :   OId(id, type),
         databaseName(dbname),
         systemName(systemname)
@@ -68,7 +68,7 @@ EOId::EOId(const char* systemname, const char* dbname, OId::OIdCounter id, OId::
     LTRACE << "EOId(" << systemname << "," << dbname << "," << id << "," << type << ")";
 }
 
-EOId::EOId(const OId& id)
+EOId::EOId(const OId &id)
     :   OId(id)
 {
     if (AdminIf::getCurrentDatabaseIf())
@@ -103,7 +103,7 @@ EOId::~EOId()
     LTRACE <<  "~EOId()";
 }
 
-const char*
+const char *
 EOId::getSystemName() const
 {
     LTRACE << "getSystemName() " << systemName.c_str();
@@ -111,7 +111,7 @@ EOId::getSystemName() const
 }
 
 
-const char*
+const char *
 EOId::getBaseName() const
 {
     LTRACE << "getBaseName() " << databaseName.c_str();
@@ -128,7 +128,7 @@ EOId::getOId() const
 
 
 void
-EOId::allocateEOId(EOId& eoid, OId::OIdType t)
+EOId::allocateEOId(EOId &eoid, OId::OIdType t)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
@@ -144,7 +144,7 @@ EOId::allocateEOId(EOId& eoid, OId::OIdType t)
 }
 
 bool
-EOId::operator==(const EOId& one) const
+EOId::operator==(const EOId &one) const
 {
     LTRACE << "operator==(" << one << ")";
     bool retval = false;
@@ -158,14 +158,14 @@ EOId::operator==(const EOId& one) const
 }
 
 bool
-EOId::operator!=(const EOId& one) const
+EOId::operator!=(const EOId &one) const
 {
     LTRACE << "operator!=(" << one << ")";
     return !EOId::operator==(one);
 }
 
-EOId&
-EOId::operator=(const EOId& old)
+EOId &
+EOId::operator=(const EOId &old)
 {
     LTRACE << "operator=(" << old << ")";
     if (this != &old)
@@ -178,7 +178,7 @@ EOId::operator=(const EOId& old)
 }
 
 bool
-EOId::operator<(const EOId& old) const
+EOId::operator<(const EOId &old) const
 {
     LTRACE << "operator<(" << old << ")";
     bool retval = false;
@@ -198,7 +198,7 @@ EOId::operator<(const EOId& old) const
 }
 
 bool
-EOId::operator>(const EOId& old) const
+EOId::operator>(const EOId &old) const
 {
     LTRACE << "operator>(" << old << ")";
     bool retval = false;
@@ -218,7 +218,7 @@ EOId::operator>(const EOId& old) const
 }
 
 bool
-EOId::operator<=(const EOId& old) const
+EOId::operator<=(const EOId &old) const
 {
     LTRACE << "operator<=(" << old << ")";
     bool retval = false;
@@ -234,7 +234,7 @@ EOId::operator<=(const EOId& old) const
 }
 
 bool
-EOId::operator>=(const EOId& old) const
+EOId::operator>=(const EOId &old) const
 {
     LTRACE << "operator<=(" << old << ")";
     bool retval = false;

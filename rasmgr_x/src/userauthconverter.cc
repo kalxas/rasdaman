@@ -54,7 +54,7 @@ using google::protobuf::io::OstreamOutputStream;
 
 RandomGenerator UserAuthConverter::randomGenerator;
 
-bool UserAuthConverter::tryGetOldFormatAuthData(const std::string& oldFilePath, UserMgrProto& out_userManagerData)
+bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, UserMgrProto &out_userManagerData)
 {
     // Clear the output data.
     out_userManagerData.Clear();
@@ -82,7 +82,7 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string& oldFilePath, 
     if (result == RC_OK)
     {
         AuthFileHeader header;
-        ifs.read((char*)&header, sizeof(header));
+        ifs.read((char *)&header, sizeof(header));
 
         // not necessary, done by verify  if(header.fileID != AUTHFIELID) return ERRAUTHFCORR;
 
@@ -97,7 +97,7 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string& oldFilePath, 
         for (int i = 0; i < header.countUsers; i++)
         {
             AuthUserRec uRec;
-            ifs.read((char*)&uRec, sizeof(uRec));
+            ifs.read((char *)&uRec, sizeof(uRec));
             crypt(&uRec, sizeof(uRec));
 
             UserProto user;
@@ -145,9 +145,9 @@ void UserAuthConverter::initCrypt(int seed)
     randomGenerator.init(static_cast<unsigned int>(seed));
 }
 
-int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
+int UserAuthConverter::verifyAuthFile(std::ifstream &ifs)
 {
-    const EVP_MD* md;
+    const EVP_MD *md;
     unsigned int md_len;
     unsigned char md_value[50];
 
@@ -167,7 +167,7 @@ int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
 #endif
 
     AuthFileHeader header;
-    ifs.read((char*)&header, sizeof(header));
+    ifs.read((char *)&header, sizeof(header));
 
     if (header.fileID != AUTHFILEID)
     {
@@ -196,7 +196,7 @@ int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
             break;
         }
 
-        ifs.read((char*)buff, r);
+        ifs.read((char *)buff, r);
         if (!ifs)
         {
             break;
@@ -233,9 +233,9 @@ int UserAuthConverter::verifyAuthFile(std::ifstream& ifs)
     return 0;
 }
 
-void UserAuthConverter::crypt(void* vbuffer, int length)
+void UserAuthConverter::crypt(void *vbuffer, int length)
 {
-    unsigned char* buff = static_cast<unsigned char*>(vbuffer);
+    unsigned char *buff = static_cast<unsigned char *>(vbuffer);
     for (int i = 0; i < length; i++)
     {
         buff[i] ^= randomGenerator();    //rand();

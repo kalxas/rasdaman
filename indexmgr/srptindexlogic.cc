@@ -38,7 +38,7 @@ const float    ff = 0.5;
 
 //removes all entries from a index and inserts them into a vector
 void
-clear(KeyObjectVector& keyvec, HierIndexDS* node)
+clear(KeyObjectVector &keyvec, HierIndexDS *node)
 {
     unsigned int i = 0;
     unsigned int nodeSize = node->getSize();
@@ -81,14 +81,14 @@ findNearestNode(IndexDS* whereToLook, const r_Minterval& theEntryDomain)
 */
 
 bool
-SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, const StorageLayout& sl)
+SRPTIndexLogic::insertObject2(IndexDS *ixDS, const KeyObject &newKeyObject, const StorageLayout &sl)
 {
     IndexPVector leafNodes2Split;
     r_Minterval newKeyObjectDom;
     r_Minterval cd;
     bool extend = false;
-    bool* facesToExtendLo = NULL;
-    bool* facesToExtendHi = NULL;
+    bool *facesToExtendLo = NULL;
+    bool *facesToExtendHi = NULL;
     r_Dimension i = 0;
     r_Dimension dim = 0;
     int overflowed = 0;
@@ -143,7 +143,7 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
 
         if (extend)
         {
-            SRPTIndexLogic::extendFaces(static_cast<HierIndexDS*>(ixDS), newKeyObjectDom, cd, facesToExtendLo, facesToExtendHi);
+            SRPTIndexLogic::extendFaces(static_cast<HierIndexDS *>(ixDS), newKeyObjectDom, cd, facesToExtendLo, facesToExtendHi);
         }
         else
         {
@@ -156,19 +156,19 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
     }
 
     // call recursive insertObject()
-    overflowed = SRPTIndexLogic::insertObject(newKeyObject, static_cast<HierIndexDS*>(ixDS), leafNodes2Split, sl);
+    overflowed = SRPTIndexLogic::insertObject(newKeyObject, static_cast<HierIndexDS *>(ixDS), leafNodes2Split, sl);
     LTRACE << "number of leaf overflows " << leafNodes2Split.size();
 
     if (!leafNodes2Split.empty())
     {
-        SRPTIndexLogic::splitNodes(static_cast<HierIndexDS*>(ixDS), leafNodes2Split, sl);
+        SRPTIndexLogic::splitNodes(static_cast<HierIndexDS *>(ixDS), leafNodes2Split, sl);
     }
     //there should be a check here : )
     return true;
 }
 
 void
-SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, __attribute__((unused)) const StorageLayout& sl)
+SRPTIndexLogic::intersect2(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &intersectedObjs, __attribute__((unused)) const StorageLayout &sl)
 {
     r_Minterval dom = ixDS->getCoveredDomain();
     r_Area area = 0;
@@ -180,28 +180,28 @@ SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, 
         r_Minterval searchDom = searchInter.create_intersection(dom);
         //needed this parent domain, or else indexes with one level only don't work
         area = searchDom.cell_count();
-        SRPTIndexLogic::intersect(searchDom, dom, intersectedObjs, static_cast<const HierIndexDS*>(ixDS), area);
+        SRPTIndexLogic::intersect(searchDom, dom, intersectedObjs, static_cast<const HierIndexDS *>(ixDS), area);
     }
 }
 
 void
-SRPTIndexLogic::containPointQuery2(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl)
+SRPTIndexLogic::containPointQuery2(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl)
 {
-    SRPTIndexLogic::containPointQuery(searchPoint, static_cast<const HierIndexDS*>(ixDS), result, sl);
+    SRPTIndexLogic::containPointQuery(searchPoint, static_cast<const HierIndexDS *>(ixDS), result, sl);
 }
 
 void
-SRPTIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl)
+SRPTIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl)
 {
     // can be optimized !!!
-    intersect2(static_cast<const HierIndexDS*>(ixDS), ixDS->getCoveredDomain(), objs, sl);
+    intersect2(static_cast<const HierIndexDS *>(ixDS), ixDS->getCoveredDomain(), objs, sl);
 }
 
 int
-SRPTIndexLogic::insertObject(const KeyObject&    newKeyObject,
-                             HierIndexDS*        ix,
-                             IndexPVector&       leafNodes2Split,
-                             const StorageLayout&    sl)
+SRPTIndexLogic::insertObject(const KeyObject    &newKeyObject,
+                             HierIndexDS        *ix,
+                             IndexPVector       &leafNodes2Split,
+                             const StorageLayout    &sl)
 {
     int overflowed = 0;
 
@@ -244,11 +244,11 @@ SRPTIndexLogic::insertObject(const KeyObject&    newKeyObject,
 
 
 void
-SRPTIndexLogic::extendFaces(HierIndexDS*        ix,
-                            const r_Minterval&  newKeyObjectDom,
-                            const r_Minterval&  oldCurrDom,
-                            const bool*     facesToExtendLo,
-                            const bool*         facesToExtendHi)
+SRPTIndexLogic::extendFaces(HierIndexDS        *ix,
+                            const r_Minterval  &newKeyObjectDom,
+                            const r_Minterval  &oldCurrDom,
+                            const bool     *facesToExtendLo,
+                            const bool         *facesToExtendHi)
 {
     bool extendEntries = false;
     unsigned int numberElems = 0;
@@ -317,7 +317,7 @@ SRPTIndexLogic::extendFaces(HierIndexDS*        ix,
                 if (follow)
                 {
                     LTRACE << "Entry #" << i << " must be extended to " << entryDom;
-                    HierIndexDS* child = convert(ix->getObject(i));
+                    HierIndexDS *child = convert(ix->getObject(i));
                     extendFaces(child, newKeyObjectDom, oldCurrDom, facesToExtendLo, facesToExtendHi);
                     ix->setObjectDomain(entryDom, i);
                 }
@@ -335,15 +335,15 @@ SRPTIndexLogic::extendFaces(HierIndexDS*        ix,
 
 
 void
-SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, const StorageLayout& sl)
+SRPTIndexLogic::splitNodes(HierIndexDS *ixDS, IndexPVector &leafNodes2Split, const StorageLayout &sl)
 {
-    HierIndexDS* parentIxDS = NULL;
-    HierIndexDS* leafNodeIxDS = NULL;
-    HierIndexDS* n1 = NULL;
-    HierIndexDS* n2 = NULL;
-    HierIndexDS* nln1 = NULL;  // non leaf nodes
-    HierIndexDS* nln2 = NULL;  // non leaf nodes
-    HierIndexDS* tempPar = NULL;
+    HierIndexDS *parentIxDS = NULL;
+    HierIndexDS *leafNodeIxDS = NULL;
+    HierIndexDS *n1 = NULL;
+    HierIndexDS *n2 = NULL;
+    HierIndexDS *nln1 = NULL;  // non leaf nodes
+    HierIndexDS *nln2 = NULL;  // non leaf nodes
+    HierIndexDS *tempPar = NULL;
     r_Dimension axis = 0;
     r_Range value = 0;
     int parentOverflowed = 0;
@@ -359,7 +359,7 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 
     while (!leafNodes2Split.empty())
     {
-        leafNodeIxDS = static_cast<HierIndexDS*>(leafNodes2Split[0]);
+        leafNodeIxDS = static_cast<HierIndexDS *>(leafNodes2Split[0]);
         leafNodes2Split.erase(leafNodes2Split.begin());
 
         wasroot = leafNodeIxDS->isRoot();
@@ -393,11 +393,11 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 
         calculatePartition(axis, value, leafNodeIxDS);
         clear(keyvec, leafNodeIxDS);
-        n1 = static_cast<HierIndexDS*>(leafNodeIxDS->getNewInstance());
+        n1 = static_cast<HierIndexDS *>(leafNodeIxDS->getNewInstance());
         if (wasroot)
         {
             parentIxDS = leafNodeIxDS;
-            n2 = static_cast<HierIndexDS*>(leafNodeIxDS->getNewInstance());
+            n2 = static_cast<HierIndexDS *>(leafNodeIxDS->getNewInstance());
             leafNodeIxDS->setIsNode(true);
             leafNodeIxDS = NULL;
         }
@@ -429,11 +429,11 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
             domain = parentIxDS->getAssignedDomain();
             calculatePartition(axis, value, parentIxDS);
             clear(keyvec, parentIxDS);
-            nln1 = static_cast<HierIndexDS*>(parentIxDS->getNewInstance());
+            nln1 = static_cast<HierIndexDS *>(parentIxDS->getNewInstance());
 
             if (wasroot)
             {
-                nln2 = static_cast<HierIndexDS*>(parentIxDS->getNewInstance());
+                nln2 = static_cast<HierIndexDS *>(parentIxDS->getNewInstance());
             }
             else
             {
@@ -465,13 +465,13 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 }
 
 void
-SRPTIndexLogic::splitLeaf(HierIndexDS*        pd1,
-                          HierIndexDS*        pd2,
-                          KeyObjectVector&    keyvec,
+SRPTIndexLogic::splitLeaf(HierIndexDS        *pd1,
+                          HierIndexDS        *pd2,
+                          KeyObjectVector    &keyvec,
                           r_Dimension     axis,
                           r_Range         value,
-                          r_Minterval&        domain,
-                          const StorageLayout& sl)
+                          r_Minterval        &domain,
+                          const StorageLayout &sl)
 {
     unsigned int i = 0;
     unsigned int leafSize = keyvec.size();
@@ -514,14 +514,14 @@ SRPTIndexLogic::splitLeaf(HierIndexDS*        pd1,
 }
 
 void
-SRPTIndexLogic::splitNonLeaf(HierIndexDS*        pd1,
-                             HierIndexDS*        pd2,
-                             KeyObjectVector&    keyvec,
-                             IndexPVector&       leafNodes2Split,
+SRPTIndexLogic::splitNonLeaf(HierIndexDS        *pd1,
+                             HierIndexDS        *pd2,
+                             KeyObjectVector    &keyvec,
+                             IndexPVector       &leafNodes2Split,
                              r_Dimension     axis,
                              r_Range         value,
-                             const r_Minterval&  domain,
-                             const StorageLayout& sl)
+                             const r_Minterval  &domain,
+                             const StorageLayout &sl)
 {
     r_Dimension dim = domain.dimension();
     r_Minterval cd(domain);
@@ -533,9 +533,9 @@ SRPTIndexLogic::splitNonLeaf(HierIndexDS*        pd1,
     KeyObjectVector listMinKO2;
     KeyObjectVector keyvec2;
     IndexPVector newLeafsToSplit;
-    HierIndexDS* entry = NULL;
-    HierIndexDS* n11 = NULL;
-    HierIndexDS* parentIxDS = NULL;
+    HierIndexDS *entry = NULL;
+    HierIndexDS *n11 = NULL;
+    HierIndexDS *parentIxDS = NULL;
     KeyObject tempKey;
     KeyObject k11;
     KeyObject k22;
@@ -582,14 +582,14 @@ SRPTIndexLogic::splitNonLeaf(HierIndexDS*        pd1,
                 if (entry->isLeaf())
                 {
                     LTRACE << "entry is leaf ";
-                    n11 = static_cast<HierIndexDS*>(entry->getNewInstance());
+                    n11 = static_cast<HierIndexDS *>(entry->getNewInstance());
                     n11->setIsNode(false);
                     leafDomain = cd;
                     clear(keyvec2, entry);
                     splitLeaf(n11, entry, keyvec2, axis, value, leafDomain, sl);
                     //if this was one of the leaf nodes to split, remove it from the list
                     leafSize = leafNodes2Split.size();
-                    newLeafsToSplit = vector<IndexDS*>();
+                    newLeafsToSplit = vector<IndexDS *>();
                     for (a = 0; a < leafSize; a++)
                     {
                         if (leafNodes2Split[a]->isSameAs(entry))
@@ -608,7 +608,7 @@ SRPTIndexLogic::splitNonLeaf(HierIndexDS*        pd1,
                 else     // nonleaf node to be split
                 {
                     LTRACE << "entry is nonleaf ";
-                    n11 = static_cast<HierIndexDS*>(entry->getNewInstance());
+                    n11 = static_cast<HierIndexDS *>(entry->getNewInstance());
                     n11->setIsNode(true);
                     nodeDomain = cd;
                     parentIxDS = entry->getParent();
@@ -679,7 +679,7 @@ SRPTIndexLogic::splitNonLeaf(HierIndexDS*        pd1,
 }
 
 void
-SRPTIndexLogic::redistributeEntries(IndexDS* node, KeyObjectVector& listMinKO, const StorageLayout& sl)
+SRPTIndexLogic::redistributeEntries(IndexDS *node, KeyObjectVector &listMinKO, const StorageLayout &sl)
 {
     // not implemented. It could redistribute objects in case of too low fill factor
     unsigned int size = listMinKO.size();
@@ -692,12 +692,12 @@ SRPTIndexLogic::redistributeEntries(IndexDS* node, KeyObjectVector& listMinKO, c
 }
 
 bool
-SRPTIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const StorageLayout& sl)
+SRPTIndexLogic::removeObject(IndexDS *ixDS, const KeyObject &objToRemove, const StorageLayout &sl)
 {
     bool found = false;
     if (ixDS->getAssignedDomain().intersects_with(objToRemove.getDomain()))
     {
-        if ((static_cast<HierIndexDS*>(ixDS))->isLeaf())
+        if ((static_cast<HierIndexDS *>(ixDS))->isLeaf())
             if (ixDS->removeObject(objToRemove))
             {
                 found = true;
@@ -712,7 +712,7 @@ SRPTIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const 
             SDirIndexLogic::intersectUnOpt(ixDS, objToRemove.getDomain(), candidates);
             for (KeyObjectVector::iterator it = candidates.begin(); it != candidates.end(); it++)
             {
-                if (SRPTIndexLogic::removeObject(static_cast<HierIndexDS*>(DBHierIndexId((*it).getObject())), objToRemove, sl))
+                if (SRPTIndexLogic::removeObject(static_cast<HierIndexDS *>(DBHierIndexId((*it).getObject())), objToRemove, sl))
                 {
                     found = true;
                 }
@@ -731,7 +731,7 @@ SRPTIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const 
 }
 
 void
-SRPTIndexLogic::calculatePartition(r_Dimension& axis, r_Range& value, const HierIndexDS* node)
+SRPTIndexLogic::calculatePartition(r_Dimension &axis, r_Range &value, const HierIndexDS *node)
 {
     float bestDist1 = 1;
     float bestDist2 = 1;
@@ -777,9 +777,9 @@ SRPTIndexLogic::calculatePartition(r_Dimension& axis, r_Range& value, const Hier
 void
 SRPTIndexLogic::calculateDistribution(r_Dimension     axis,
                                       r_Range         value,
-                                      float&          dist1,
-                                      float&          dist2,
-                                      const HierIndexDS*  node)
+                                      float          &dist1,
+                                      float          &dist2,
+                                      const HierIndexDS  *node)
 {
     dist1 = 0;
     dist2 = 0;
@@ -815,16 +815,16 @@ SRPTIndexLogic::calculateDistribution(r_Dimension     axis,
 
 
 void
-SRPTIndexLogic::intersect(const r_Minterval&  searchInter,
-                          const r_Minterval&  parentEntryDomain,
-                          KeyObjectVector&    intersectedObjs,
-                          const HierIndexDS*  ix,
-                          r_Area&         area)
+SRPTIndexLogic::intersect(const r_Minterval  &searchInter,
+                          const r_Minterval  &parentEntryDomain,
+                          KeyObjectVector    &intersectedObjs,
+                          const HierIndexDS  *ix,
+                          r_Area         &area)
 {
     r_Minterval intersectArea;
     r_Minterval dom = ix->getCoveredDomain();
     KeyObjectVector intersectedNodes;
-    HierIndexDS* tempIx = NULL;
+    HierIndexDS *tempIx = NULL;
     r_Area nodeArea = 0;
     r_Area oldArea = area;
     unsigned int i = 0;
@@ -871,9 +871,9 @@ SRPTIndexLogic::intersect(const r_Minterval&  searchInter,
 }
 
 bool
-SRPTIndexLogic::intersectNoDuplicates(const r_Minterval&  searchInter,
-                                      const r_Minterval&  entryDomain,
-                                      const r_Minterval&  parentEntryDomain)
+SRPTIndexLogic::intersectNoDuplicates(const r_Minterval  &searchInter,
+                                      const r_Minterval  &entryDomain,
+                                      const r_Minterval  &parentEntryDomain)
 {
     bool retval = true;
     int testcase = 0;
@@ -924,11 +924,11 @@ SRPTIndexLogic::intersectNoDuplicates(const r_Minterval&  searchInter,
 }
 
 int
-SRPTIndexLogic::regionSearch(const HierIndexDS*  ixNode,
-                             const r_Minterval&  mint,
-                             r_Area&         area,
-                             KeyObjectVector&    intersectedObjects,
-                             const r_Minterval&  parentEntryDomain)
+SRPTIndexLogic::regionSearch(const HierIndexDS  *ixNode,
+                             const r_Minterval  &mint,
+                             r_Area         &area,
+                             KeyObjectVector    &intersectedObjects,
+                             const r_Minterval  &parentEntryDomain)
 {
     r_Minterval intersectedRegion;
     unsigned int endAt = ixNode->getSize();
@@ -1013,13 +1013,13 @@ SRPTIndexLogic::regionSearch(const HierIndexDS*  ixNode,
 
 
 int
-SRPTIndexLogic::binaryRegionSearch(const HierIndexDS*  ixNode,
-                                   const r_Minterval&  mint,
-                                   r_Area&         area,
-                                   KeyObjectVector&    intersectedObjects,
+SRPTIndexLogic::binaryRegionSearch(const HierIndexDS  *ixNode,
+                                   const r_Minterval  &mint,
+                                   r_Area         &area,
+                                   KeyObjectVector    &intersectedObjects,
                                    int         first,
                                    int         last,
-                                   const r_Minterval&  parentEntryDomain)
+                                   const r_Minterval  &parentEntryDomain)
 {
     // code copied from DirIx::binaryRegionSearch (11.11.98)
     // and further adapted
@@ -1113,12 +1113,12 @@ SRPTIndexLogic::binaryRegionSearch(const HierIndexDS*  ixNode,
 }
 
 void
-SRPTIndexLogic::containPointQuery(const r_Point&  searchPoint,
-                                  const HierIndexDS*  ix,
-                                  KeyObject&      result,
-                                  const StorageLayout& sl)
+SRPTIndexLogic::containPointQuery(const r_Point  &searchPoint,
+                                  const HierIndexDS  *ix,
+                                  KeyObject      &result,
+                                  const StorageLayout &sl)
 {
-    HierIndexDS* intersectedNode = NULL;
+    HierIndexDS *intersectedNode = NULL;
     if (!ix)
     {
         LTRACE << "containPointQuery(" << searchPoint << ", Node, result) node is NULL";
@@ -1148,19 +1148,19 @@ SRPTIndexLogic::containPointQuery(const r_Point&  searchPoint,
     }
 }
 
-HierIndexDS*
-SRPTIndexLogic::convert(const KeyObject& toConvert)
+HierIndexDS *
+SRPTIndexLogic::convert(const KeyObject &toConvert)
 {
-    HierIndexDS* retval = NULL;
+    HierIndexDS *retval = NULL;
     if (toConvert.isInitialised())
     {
-        retval = static_cast<HierIndexDS*>(DBHierIndexId(toConvert.getObject()));
+        retval = static_cast<HierIndexDS *>(DBHierIndexId(toConvert.getObject()));
     }
     return retval;
 }
 
 KeyObject
-SRPTIndexLogic::convert(HierIndexDS* toConvert)
+SRPTIndexLogic::convert(HierIndexDS *toConvert)
 {
     if (toConvert)
     {

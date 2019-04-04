@@ -49,7 +49,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-r_Minterval::r_Minterval(const r_Point& low, const r_Point& high)
+r_Minterval::r_Minterval(const r_Point &low, const r_Point &high)
 {
     dimensionality = low.dimension();
     if (dimensionality != high.dimension())
@@ -83,7 +83,7 @@ r_Minterval::r_Minterval(r_Dimension dim)
 }
 
 void
-r_Minterval::constructorinit(char* mIntStr)
+r_Minterval::constructorinit(char *mIntStr)
 {
 
     if (!mIntStr)
@@ -92,7 +92,7 @@ r_Minterval::constructorinit(char* mIntStr)
         throw r_Eno_interval();
     }
 
-    char* p = NULL; // for counting ','
+    char *p = NULL; // for counting ','
     // for parsing the string
     std::istringstream str(mIntStr);
     char c = 0;
@@ -123,8 +123,8 @@ r_Minterval::constructorinit(char* mIntStr)
         dimensionality = 0;
         delete[] intervals;
         intervals = NULL;
-        LERROR << "cannot create minterval from string (" << mIntStr 
-                << ") that is not of the pattern [a:b,c:d,..].";
+        LERROR << "cannot create minterval from string (" << mIntStr
+               << ") that is not of the pattern [a:b,c:d,..].";
         throw r_Eno_interval();
     }
 
@@ -143,8 +143,8 @@ r_Minterval::constructorinit(char* mIntStr)
             str >> b;       // read type r_Range
             if (! str)          // check for proper int recognition
             {
-                LERROR << "minterval constructor from string (" << mIntStr 
-                        << ") failed on lower bound of dimension " << i;
+                LERROR << "minterval constructor from string (" << mIntStr
+                       << ") failed on lower bound of dimension " << i;
                 throw r_Eno_interval();
             }
             sint.set_low(b);    // store lo bound
@@ -158,8 +158,8 @@ r_Minterval::constructorinit(char* mIntStr)
             dimensionality = 0;
             delete[] intervals;
             intervals = NULL;
-            LERROR << "cannot create minterval from string (" << mIntStr 
-                    << ") that is not of the pattern [a:b,c:d,..].";
+            LERROR << "cannot create minterval from string (" << mIntStr
+                   << ") that is not of the pattern [a:b,c:d,..].";
             throw r_Eno_interval();
         }
 
@@ -175,8 +175,8 @@ r_Minterval::constructorinit(char* mIntStr)
             str >> b;
             if (! str)
             {
-                LERROR << "minterval constructor from string (" << mIntStr 
-                        << ") failed on upper bound of dimension " << i;
+                LERROR << "minterval constructor from string (" << mIntStr
+                       << ") failed on upper bound of dimension " << i;
                 throw r_Eno_interval();
             }
             sint.set_high(b);
@@ -189,8 +189,8 @@ r_Minterval::constructorinit(char* mIntStr)
             dimensionality = 0;
             delete[] intervals;
             intervals = NULL;
-            LERROR << "cannot create minterval from string (" << mIntStr 
-                    << ") that is not of the pattern [a:b,c:d,..].";
+            LERROR << "cannot create minterval from string (" << mIntStr
+                   << ") that is not of the pattern [a:b,c:d,..].";
             throw r_Eno_interval();
         }
 
@@ -200,7 +200,7 @@ r_Minterval::constructorinit(char* mIntStr)
     }
 }
 
-r_Minterval::r_Minterval(char* mIntStr)
+r_Minterval::r_Minterval(char *mIntStr)
     :   intervals(NULL),
         dimensionality(1),
         streamInitCnt(0)
@@ -208,12 +208,12 @@ r_Minterval::r_Minterval(char* mIntStr)
     constructorinit(mIntStr);
 }
 
-r_Minterval::r_Minterval(const char* mIntStr)
+r_Minterval::r_Minterval(const char *mIntStr)
     :   intervals(NULL),
         dimensionality(1),
         streamInitCnt(0)
 {
-    char* temp = static_cast<char*>(mymalloc((1 + strlen(mIntStr)) * sizeof(char)));
+    char *temp = static_cast<char *>(mymalloc((1 + strlen(mIntStr)) * sizeof(char)));
     strcpy(temp, mIntStr);
 
     try
@@ -230,8 +230,8 @@ r_Minterval::r_Minterval(const char* mIntStr)
     temp = 0;
 }
 
-r_Minterval&
-r_Minterval::operator<<(const r_Sinterval& newInterval)
+r_Minterval &
+r_Minterval::operator<<(const r_Sinterval &newInterval)
 {
     if (streamInitCnt >= dimensionality)
     {
@@ -243,7 +243,7 @@ r_Minterval::operator<<(const r_Sinterval& newInterval)
     return *this;
 }
 
-r_Minterval&
+r_Minterval &
 r_Minterval::operator<<(r_Range p)
 {
     if (streamInitCnt >= dimensionality)
@@ -265,7 +265,7 @@ r_Minterval::r_Minterval()
 }
 
 //cannot use the initialise function because it will crash
-r_Minterval::r_Minterval(const r_Minterval& minterval)
+r_Minterval::r_Minterval(const r_Minterval &minterval)
     :   intervals(NULL),
         dimensionality(0),
         streamInitCnt(0)
@@ -299,7 +299,7 @@ r_Minterval::r_deactivate()
 }
 
 bool
-r_Minterval::intersects_with(const r_Minterval& minterval) const
+r_Minterval::intersects_with(const r_Minterval &minterval) const
 {
     if (dimensionality != minterval.dimension())
     {
@@ -313,7 +313,9 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
     // none of the interval pairs are allowed to be disjoint
     for (r_Dimension i = 0; i < dimensionality; ++i)
         if (!intervals[i].intersects_with(minterval[i]))
+        {
             return false;
+        }
 
     return true;
 }
@@ -344,7 +346,7 @@ r_Minterval::operator[](r_Dimension i) const
     }
 }
 
-r_Sinterval&
+r_Sinterval &
 r_Minterval::operator[](r_Dimension i)
 {
     if (i < dimensionality)
@@ -359,8 +361,8 @@ r_Minterval::operator[](r_Dimension i)
 }
 #endif
 
-const r_Minterval&
-r_Minterval::operator=(const r_Minterval& minterval)
+const r_Minterval &
+r_Minterval::operator=(const r_Minterval &minterval)
 {
     if (this != &minterval)
     {
@@ -391,7 +393,7 @@ r_Minterval::operator=(const r_Minterval& minterval)
 }
 
 bool
-r_Minterval::operator==(const r_Minterval& mint) const
+r_Minterval::operator==(const r_Minterval &mint) const
 {
     bool returnValue = false;
 
@@ -419,14 +421,16 @@ r_Minterval::equal_extents(const r_Minterval &other) const
     {
         for (r_Dimension i = 0; i < dimensionality; i++)
             if (intervals[i].get_extent() != other[i].get_extent())
+            {
                 return false;
+            }
         return true;
     }
     return false;
 }
 
 bool
-r_Minterval::operator!=(const r_Minterval& mint) const
+r_Minterval::operator!=(const r_Minterval &mint) const
 {
     return !operator==(mint);
 }
@@ -489,13 +493,13 @@ r_Minterval::get_extent() const
     }
 }
 
-r_Minterval&
-r_Minterval::reverse_translate(const r_Point& t)
+r_Minterval &
+r_Minterval::reverse_translate(const r_Point &t)
 {
     if (dimensionality != t.dimension())
     {
-        LERROR << "cannot reverse_translate minterval " << *this 
-                << " by a point of mismatching dimension " << t;
+        LERROR << "cannot reverse_translate minterval " << *this
+               << " by a point of mismatching dimension " << t;
         throw (r_Edim_mismatch(dimensionality, t.dimension()));
     }
     if (!is_origin_fixed() || !is_high_fixed())
@@ -512,13 +516,13 @@ r_Minterval::reverse_translate(const r_Point& t)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::translate(const r_Point& t)
+r_Minterval &
+r_Minterval::translate(const r_Point &t)
 {
     if (dimensionality != t.dimension())
     {
-        LERROR << "cannot translate minterval " << *this 
-                << " by a point of mismatching dimension " << t;
+        LERROR << "cannot translate minterval " << *this
+               << " by a point of mismatching dimension " << t;
         throw (r_Edim_mismatch(dimensionality, t.dimension()));
     }
 
@@ -537,7 +541,7 @@ r_Minterval::translate(const r_Point& t)
 }
 
 r_Minterval
-r_Minterval::create_reverse_translation(const r_Point& t) const
+r_Minterval::create_reverse_translation(const r_Point &t) const
 {
     r_Minterval result(*this);
 
@@ -547,7 +551,7 @@ r_Minterval::create_reverse_translation(const r_Point& t) const
 }
 
 r_Minterval
-r_Minterval::create_translation(const r_Point& t) const
+r_Minterval::create_translation(const r_Point &t) const
 {
     r_Minterval result(*this);
 
@@ -556,8 +560,8 @@ r_Minterval::create_translation(const r_Point& t) const
     return result;
 }
 
-r_Minterval&
-r_Minterval::scale(const double& d)
+r_Minterval &
+r_Minterval::scale(const double &d)
 {
     vector<double> scaleVec;
 
@@ -572,8 +576,8 @@ r_Minterval::scale(const double& d)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::scale(const vector<double>& scaleVec)
+r_Minterval &
+r_Minterval::scale(const vector<double> &scaleVec)
 {
     double high = 0., low = 0.;
 
@@ -605,7 +609,7 @@ r_Minterval::scale(const vector<double>& scaleVec)
 }
 
 r_Minterval
-r_Minterval::create_scale(const double& d) const
+r_Minterval::create_scale(const double &d) const
 {
     r_Minterval result(*this);
 
@@ -616,7 +620,7 @@ r_Minterval::create_scale(const double& d) const
 
 
 r_Minterval
-r_Minterval::create_scale(const vector<double>& scaleVec) const
+r_Minterval::create_scale(const vector<double> &scaleVec) const
 {
     r_Minterval result(*this);
 
@@ -625,8 +629,8 @@ r_Minterval::create_scale(const vector<double>& scaleVec) const
     return result;
 }
 
-r_Minterval&
-r_Minterval::union_of(const r_Minterval& mint1, const r_Minterval& mint2)
+r_Minterval &
+r_Minterval::union_of(const r_Minterval &mint1, const r_Minterval &mint2)
 {
     if (mint1.dimension() != mint2.dimension())
     {
@@ -653,8 +657,8 @@ r_Minterval::union_of(const r_Minterval& mint1, const r_Minterval& mint2)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::union_with(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::union_with(const r_Minterval &mint)
 {
     if (dimensionality != mint.dimension())
     {
@@ -670,14 +674,14 @@ r_Minterval::union_with(const r_Minterval& mint)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::operator+=(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::operator+=(const r_Minterval &mint)
 {
     return union_with(mint);
 }
 
 r_Minterval
-r_Minterval::create_union(const r_Minterval& mint) const
+r_Minterval::create_union(const r_Minterval &mint) const
 {
     if (dimensionality != mint.dimension())
     {
@@ -696,13 +700,13 @@ r_Minterval::create_union(const r_Minterval& mint) const
 }
 
 r_Minterval
-r_Minterval::operator+(const r_Minterval& mint) const
+r_Minterval::operator+(const r_Minterval &mint) const
 {
     return create_union(mint);
 }
 
-r_Minterval&
-r_Minterval::difference_of(const r_Minterval& mint1, const r_Minterval& mint2)
+r_Minterval &
+r_Minterval::difference_of(const r_Minterval &mint1, const r_Minterval &mint2)
 {
     if (mint1.dimension() != mint2.dimension())
     {
@@ -731,8 +735,8 @@ r_Minterval::difference_of(const r_Minterval& mint1, const r_Minterval& mint2)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::difference_with(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::difference_with(const r_Minterval &mint)
 {
     if (dimensionality != mint.dimension())
     {
@@ -748,14 +752,14 @@ r_Minterval::difference_with(const r_Minterval& mint)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::operator-=(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::operator-=(const r_Minterval &mint)
 {
     return difference_with(mint);
 }
 
 r_Minterval
-r_Minterval::create_difference(const r_Minterval& mint) const
+r_Minterval::create_difference(const r_Minterval &mint) const
 {
     if (dimensionality != mint.dimension())
     {
@@ -774,13 +778,13 @@ r_Minterval::create_difference(const r_Minterval& mint) const
 }
 
 r_Minterval
-r_Minterval::operator-(const r_Minterval& mint) const
+r_Minterval::operator-(const r_Minterval &mint) const
 {
     return create_difference(mint);
 }
 
-r_Minterval&
-r_Minterval::intersection_of(const r_Minterval& mint1, const r_Minterval& mint2)
+r_Minterval &
+r_Minterval::intersection_of(const r_Minterval &mint1, const r_Minterval &mint2)
 {
     if (mint1.dimension() != mint2.dimension())
     {
@@ -807,8 +811,8 @@ r_Minterval::intersection_of(const r_Minterval& mint1, const r_Minterval& mint2)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::intersection_with(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::intersection_with(const r_Minterval &mint)
 {
     if (dimensionality != mint.dimension())
     {
@@ -824,14 +828,14 @@ r_Minterval::intersection_with(const r_Minterval& mint)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::operator*=(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::operator*=(const r_Minterval &mint)
 {
     return intersection_with(mint);
 }
 
 r_Minterval
-r_Minterval::create_intersection(const r_Minterval& mint) const
+r_Minterval::create_intersection(const r_Minterval &mint) const
 {
     if (dimensionality != mint.dimension())
     {
@@ -850,13 +854,13 @@ r_Minterval::create_intersection(const r_Minterval& mint) const
 }
 
 r_Minterval
-r_Minterval::operator*(const r_Minterval& mint) const
+r_Minterval::operator*(const r_Minterval &mint) const
 {
     return create_intersection(mint);
 }
 
-r_Minterval&
-r_Minterval::closure_of(const r_Minterval& mint1, const r_Minterval& mint2)
+r_Minterval &
+r_Minterval::closure_of(const r_Minterval &mint1, const r_Minterval &mint2)
 {
     if (mint1.dimension() != mint2.dimension())
     {
@@ -884,8 +888,8 @@ r_Minterval::closure_of(const r_Minterval& mint1, const r_Minterval& mint2)
     return *this;
 }
 
-r_Minterval&
-r_Minterval::closure_with(const r_Minterval& mint)
+r_Minterval &
+r_Minterval::closure_with(const r_Minterval &mint)
 {
     if (dimensionality != mint.dimension())
     {
@@ -902,7 +906,7 @@ r_Minterval::closure_with(const r_Minterval& mint)
 }
 
 r_Minterval
-r_Minterval::create_closure(const r_Minterval& mint) const
+r_Minterval::create_closure(const r_Minterval &mint) const
 {
     if (dimensionality != mint.dimension())
     {
@@ -921,34 +925,34 @@ r_Minterval::create_closure(const r_Minterval& mint) const
 }
 
 r_Minterval
-r_Minterval::trim_along_slice(const r_Minterval& mint, const std::vector<r_Dimension>& projDims) const
+r_Minterval::trim_along_slice(const r_Minterval &mint, const std::vector<r_Dimension> &projDims) const
 {
-    if(dimensionality < mint.dimension())
+    if (dimensionality < mint.dimension())
     {
         LERROR << "r_Minterval:trim_along_slice(" << mint << ") dimensions (" << dimensionality << ") do not coincide";
         throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
-    else if(projDims.size() >= dimensionality)
+    else if (projDims.size() >= dimensionality)
     {
         LERROR << "r_Minterval:trim_along_slice(" << projDims.size() << ") dimensions (" << dimensionality << ") do not coincide";
-        throw (r_Edim_mismatch(dimensionality, mint.dimension()));        
+        throw (r_Edim_mismatch(dimensionality, mint.dimension()));
     }
-    
-    for(size_t i = 0; i < projDims.size(); i++)
+
+    for (size_t i = 0; i < projDims.size(); i++)
     {
-        if(projDims[i] >= dimensionality)
+        if (projDims[i] >= dimensionality)
         {
             LERROR << "r_Minterval:trim_along_slice(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
-            throw (r_Edim_mismatch(dimensionality, projDims[i]));            
+            throw (r_Edim_mismatch(dimensionality, projDims[i]));
         }
     }
-    
+
     r_Minterval result(dimensionality);
-    
+
     size_t projCtr = 0;
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
-        if(projCtr < projDims.size() && projDims[projCtr] == i)
+        if (projCtr < projDims.size() && projDims[projCtr] == i)
         {
             // trimming along the slice
             result << mint[projCtr].create_intersection(intervals[i]);
@@ -960,34 +964,34 @@ r_Minterval::trim_along_slice(const r_Minterval& mint, const std::vector<r_Dimen
             result << intervals[i];
         }
     }
-    
+
     return result;
 }
 
 r_Minterval
-r_Minterval::project_along_dims(const std::vector<r_Dimension>& projDims) const
+r_Minterval::project_along_dims(const std::vector<r_Dimension> &projDims) const
 {
-    for(size_t i = 0; i < projDims.size(); i++)
+    for (size_t i = 0; i < projDims.size(); i++)
     {
-        if(projDims[i] >= dimensionality)
+        if (projDims[i] >= dimensionality)
         {
             LERROR << "r_Minterval:project_along_dims(" << projDims[i] << ") dimensions (" << dimensionality << ") do not coincide";
-            throw (r_Edim_mismatch(dimensionality, projDims[i]));            
+            throw (r_Edim_mismatch(dimensionality, projDims[i]));
         }
-    }    
-    
+    }
+
     r_Minterval result(projDims.size());
-    
+
     for (auto projDimIter = projDims.begin(); projDimIter != projDims.end(); projDimIter++)
     {
         result << intervals[*projDimIter];
     }
-    
+
     return result;
 }
 
 void
-r_Minterval::print_status(std::ostream& s) const
+r_Minterval::print_status(std::ostream &s) const
 {
     s << "[";
 
@@ -1004,7 +1008,7 @@ r_Minterval::print_status(std::ostream& s) const
     s << "]";
 }
 
-char*
+char *
 r_Minterval::get_string_representation() const
 {
     // initialize string stream
@@ -1013,15 +1017,15 @@ r_Minterval::get_string_representation() const
     domainStream << (*this);
 
     // allocate memory taking the final string
-    char* returnString = strdup(domainStream.str().c_str());
+    char *returnString = strdup(domainStream.str().c_str());
 
     return returnString;
 }
 
-std::string 
+std::string
 r_Minterval::to_string() const
 {
-    char* stringRep = this->get_string_representation();
+    char *stringRep = this->get_string_representation();
     std::string returnValue(stringRep);
     std::free(stringRep);
     return returnValue;
@@ -1061,13 +1065,13 @@ r_Area
 r_Minterval::cell_count() const
 {
     r_Area cellCount = 1;
-    if(dimensionality != 0) 
+    if (dimensionality != 0)
     {
         r_Point ptExt = get_extent();
-        
-        for (r_Dimension i = 0; i < dimensionality; i++) 
+
+        for (r_Dimension i = 0; i < dimensionality; i++)
         {
-            cellCount *= static_cast<r_Area> (ptExt[i]);
+            cellCount *= static_cast<r_Area>(ptExt[i]);
         }
     }
 
@@ -1077,7 +1081,7 @@ r_Minterval::cell_count() const
 // offset in cells for linear access of the data element referred by point in the data memory area
 // Lower dimensions are higher valued which means that the highest dimension is stored in a sequence.
 r_Area
-r_Minterval::cell_offset(const r_Point& point) const
+r_Minterval::cell_offset(const r_Point &point) const
 {
     r_Dimension i = 0;
     r_Area offset = 0;
@@ -1085,8 +1089,8 @@ r_Minterval::cell_offset(const r_Point& point) const
 
     if (dimensionality != point.dimension())
     {
-        LERROR << "cannot calculate cell offset, dimension of minterval (" 
-                << *this << ") does not match dimension of point " << point.dimension() << ".";
+        LERROR << "cannot calculate cell offset, dimension of minterval ("
+               << *this << ") does not match dimension of point " << point.dimension() << ".";
         throw r_Edim_mismatch(point.dimension(), dimensionality);
     }
 
@@ -1116,7 +1120,7 @@ r_Minterval::cell_offset(const r_Point& point) const
 }
 
 r_Area
-r_Minterval::efficient_cell_offset(const r_Point& point) const
+r_Minterval::efficient_cell_offset(const r_Point &point) const
 {
     r_Area offset = 0;
     r_Point ptExt = get_extent();
@@ -1125,8 +1129,8 @@ r_Minterval::efficient_cell_offset(const r_Point& point) const
     // calculate offset
     for (; i < dimensionality - 1; i++)
     {
-        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) * 
-                static_cast<long long unsigned int>(ptExt[i + 1]);
+        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) *
+                 static_cast<long long unsigned int>(ptExt[i + 1]);
     }
 
     offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
@@ -1178,7 +1182,7 @@ r_Minterval::delete_dimension(r_Dimension dim)
 
     dimensionality -= 1;
     streamInitCnt = dimensionality;
-    r_Sinterval* newIntervals = new r_Sinterval[ dimensionality ];
+    r_Sinterval *newIntervals = new r_Sinterval[ dimensionality ];
 
     for (r_Dimension i = 0, j = 0; i < dimensionality; i++, j++)
     {
@@ -1198,13 +1202,19 @@ void
 r_Minterval::delete_non_trims(const std::vector<bool> &trims)
 {
     if (trims.size() != dimension())
+    {
         return;
+    }
     for (r_Dimension i = 0, j = 0; i < dimensionality; ++i)
     {
         if (!trims[i])
+        {
             this->delete_dimension(j);
+        }
         else
+        {
             ++j;
+        }
     }
 }
 
@@ -1231,7 +1241,7 @@ void r_Minterval::transpose(r_Dimension a, r_Dimension b)
 r_Bytes
 r_Minterval::get_storage_size() const
 {
-    r_Bytes sz = sizeof(r_Sinterval*) + 2 * sizeof(r_Dimension);
+    r_Bytes sz = sizeof(r_Sinterval *) + 2 * sizeof(r_Dimension);
 
     if (dimensionality > 0)
     {
@@ -1242,11 +1252,11 @@ r_Minterval::get_storage_size() const
 }
 
 bool
-r_Minterval::is_mergeable(const r_Minterval& b) const
+r_Minterval::is_mergeable(const r_Minterval &b) const
 {
     bool is_merg = true;
     // An alias to this object
-    const r_Minterval& a = *this;
+    const r_Minterval &a = *this;
 
     // The blocks must have the same dimensionality to be mergeable
     if (a.dimensionality != b.dimensionality)
@@ -1301,13 +1311,13 @@ r_Minterval::is_mergeable(const r_Minterval& b) const
     return is_merg;
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Minterval& d)
+std::ostream &operator<<(std::ostream &s, const r_Minterval &d)
 {
     d.print_status(s);
     return s;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<r_Minterval>& vec)
+std::ostream &operator<<(std::ostream &os, const std::vector<r_Minterval> &vec)
 {
     os << " Vector { ";
 
@@ -1321,7 +1331,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Minterval>& vec)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& s, const vector<double>& doubleVec)
+std::ostream &operator<<(std::ostream &s, const vector<double> &doubleVec)
 {
     vector<double>::const_iterator iter, iterEnd;
 

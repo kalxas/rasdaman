@@ -57,7 +57,7 @@ QtJoinIterator::QtJoinIterator()
 }
 
 
-QtJoinIterator::QtJoinIterator(QtNode* node)
+QtJoinIterator::QtJoinIterator(QtNode *node)
     : QtIterator(node),
       outputStreamIsEmpty(false),
       actualTuple(NULL)
@@ -67,7 +67,7 @@ QtJoinIterator::QtJoinIterator(QtNode* node)
 
 QtJoinIterator::~QtJoinIterator()
 {
-    vector<QtData*>::iterator i; //default
+    vector<QtData *>::iterator i; //default
 
     if (actualTuple)
     {
@@ -85,7 +85,7 @@ QtJoinIterator::~QtJoinIterator()
 
 
 void
-QtJoinIterator::printTree(int tab, ostream& s, QtChildType mode)
+QtJoinIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtJoinIterator Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -98,7 +98,7 @@ QtJoinIterator::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtJoinIterator::printAlgebraicExpression(ostream& s)
+QtJoinIterator::printAlgebraicExpression(ostream &s)
 {
     s << "join";
 
@@ -138,7 +138,7 @@ QtJoinIterator::open()
         //the first element is filled in the ::next() method
         for (unsigned int tuplePos = 1; tuplePos < actualTuple->size(); tuplePos++)
         {
-            QtDataList* resultList = (*inputs)[tuplePos]->next();
+            QtDataList *resultList = (*inputs)[tuplePos]->next();
 
             if (resultList)
             {
@@ -166,19 +166,19 @@ QtJoinIterator::open()
 }
 
 
-QtNode::QtDataList*
+QtNode::QtDataList *
 QtJoinIterator::next()
 {
     resumeTimer();
 
-    QtDataList* returnValue = NULL;
+    QtDataList *returnValue = NULL;
 
     if (inputs && actualTuple && !outputStreamIsEmpty)
     {
         bool        nextTupleAvailable = true;
         bool        nextTupleValid = false;
         unsigned int         tuplePos;
-        QtDataList* resultList = NULL;
+        QtDataList *resultList = NULL;
         QtONCStreamList::iterator iter;
 
         while (!nextTupleValid && nextTupleAvailable && !outputStreamIsEmpty)
@@ -322,7 +322,7 @@ QtJoinIterator::reset()
         // fill the tuple with the first elements of the input streams except of the first element
         for (unsigned int tuplePos = 1; tuplePos < actualTuple->size(); tuplePos++)
         {
-            QtDataList* resultList = (*inputs)[tuplePos]->next();
+            QtDataList *resultList = (*inputs)[tuplePos]->next();
 
             if (resultList)
             {
@@ -346,7 +346,7 @@ QtJoinIterator::reset()
 
 
 
-const QtTypeTuple&
+const QtTypeTuple &
 QtJoinIterator::checkType()
 {
     getInputTypeTuple(dataStreamType);

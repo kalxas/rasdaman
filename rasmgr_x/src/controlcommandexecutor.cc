@@ -49,7 +49,7 @@ ControlCommandExecutor::~ControlCommandExecutor()
 {}
 
 
-std::string ControlCommandExecutor::executeCommand(const std::string& command, const std::string& userName, const std::string& userPass)
+std::string ControlCommandExecutor::executeCommand(const std::string &command, const std::string &userName, const std::string &userPass)
 {
     std::string resultMessage;
 
@@ -65,7 +65,7 @@ std::string ControlCommandExecutor::executeCommand(const std::string& command, c
     return resultMessage;
 }
 
-std::string ControlCommandExecutor::sudoExecuteCommand(const std::string& command)
+std::string ControlCommandExecutor::sudoExecuteCommand(const std::string &command)
 {
     std::string resultMessage;
 
@@ -78,7 +78,7 @@ std::string ControlCommandExecutor::sudoExecuteCommand(const std::string& comman
     return resultMessage;
 }
 
-bool ControlCommandExecutor::canRunCommand(const std::string& userName, const std::string& password, const std::string& command)
+bool ControlCommandExecutor::canRunCommand(const std::string &userName, const std::string &password, const std::string &command)
 {
     bool result = false;
 

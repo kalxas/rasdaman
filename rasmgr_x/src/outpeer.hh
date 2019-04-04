@@ -50,7 +50,7 @@ public:
      * @param hostName
      * @param port
      */
-    OutPeer(const std::string& hostName, const boost::uint32_t port);
+    OutPeer(const std::string &hostName, const boost::uint32_t port);
 
     std::string getHostName() const;
 
@@ -69,14 +69,14 @@ public:
      * and for the rasmgr to identify the connection
      * @return TRUE if a server was acquired, FALSE otherwise.
      */
-    bool tryGetRemoteServer(const ClientServerRequest& request,
-                            ClientServerSession& out_reply);
+    bool tryGetRemoteServer(const ClientServerRequest &request,
+                            ClientServerSession &out_reply);
 
     /**
      * @brief releaseServer Release a previously acquired remote server
      * @param clientSession
      */
-    void releaseServer(const RemoteClientSession& clientSession);
+    void releaseServer(const RemoteClientSession &clientSession);
 
 private:
     std::set<std::string> openSessions; /*!< Set of open sessions */
@@ -86,7 +86,7 @@ private:
     boost::shared_ptr<::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
     boost::shared_ptr<::common::HealthService::Stub> healthService;
 
-    std::string createSessionId(const RemoteClientSession& clientSession);
+    std::string createSessionId(const RemoteClientSession &clientSession);
 };
 }
 

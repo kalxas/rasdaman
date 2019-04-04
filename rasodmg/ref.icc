@@ -31,7 +31,7 @@ rasdaman GmbH.
 */
 
 
-inline const r_OId&
+inline const r_OId &
 r_Ref_Any::get_oid() const
 {
     return oid;
@@ -48,7 +48,7 @@ r_Ref_Any::is_oid_valid() const
 
 
 template<class T>
-inline const r_OId&
+inline const r_OId &
 r_Ref<T>::get_oid() const
 {
     return oid;

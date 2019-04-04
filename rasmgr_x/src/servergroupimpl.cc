@@ -59,7 +59,7 @@ using boost::lexical_cast;
 
 using common::Timer;
 
-ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
+ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
     config(config), dbhManager(dbhManager), serverFactory(serverFactory)
 {
     //Validate the configuration and initialize defaults
@@ -83,7 +83,7 @@ ServerGroupImpl::~ServerGroupImpl()
         this->databaseHost->decreaseServerCount();
         this->stopActiveServers(KILL);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "ServerGroup destructor failed: " << ex.what();
     }
@@ -135,7 +135,7 @@ void ServerGroupImpl::stop(KillLevel level)
     }
 }
 
-bool ServerGroupImpl::tryRegisterServer(const std::string& serverId)
+bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
 {
     /**
       * If the server group was not shutdown, add the server to the list of running
@@ -196,7 +196,7 @@ void ServerGroupImpl::evaluateServerGroup()
     this->evaluateGroup();
 }
 
-bool ServerGroupImpl::tryGetAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server)
+bool ServerGroupImpl::tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server)
 {
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
@@ -226,7 +226,7 @@ ServerGroupConfigProto ServerGroupImpl::getConfig() const
     return config;
 }
 
-void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto& value)
+void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 {
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
@@ -361,7 +361,7 @@ bool ServerGroupImpl::hasAvailableServers()
                 break;
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << "Failed to check if running server is available: " << ex.what();
         }
@@ -407,7 +407,7 @@ void ServerGroupImpl::evaluateGroup()
         }
 
         LTRACE << "Total servers in group: " << this->runningServers.size()
-               << ", of which free: " << idleServerNo 
+               << ", of which free: " << idleServerNo
                << " and available: " << availableServerNo;
 
         if (availableServerNo < this->config.min_available_server_no())
@@ -466,9 +466,9 @@ void ServerGroupImpl::evaluateRestartingServers()
             const auto totalSessionNo = (*runningServerToEraseIt)->getTotalSessionNo();
             if (totalSessionNo >= this->config.countdown())
             {
-                LTRACE << "Server " << (*runningServerToEraseIt)->getServerId() 
+                LTRACE << "Server " << (*runningServerToEraseIt)->getServerId()
                        << " has had " << totalSessionNo << " sessions; this is "
-                       << " greater than the configured session countdown of " 
+                       << " greater than the configured session countdown of "
                        << this->config.countdown() << ", so it will be restarted.";
                 this->restartingServers.push_back((*runningServerToEraseIt));
                 this->runningServers.erase(runningServerToEraseIt);
@@ -497,7 +497,7 @@ void ServerGroupImpl::evaluateRestartingServers()
                     this->restartingServers.erase(restartingServerToEraseIt);
                 }
             }
-            catch (std::exception& ex)
+            catch (std::exception &ex)
             {
                 LWARNING << "Failed to stop server with ID "
                          << (*restartingServerToEraseIt)->getServerId()
@@ -539,16 +539,16 @@ void ServerGroupImpl::removeDeadServers()
             {
                 processIsDead = !(*runningToErase)->isAlive();
             }
-            catch (std::exception& ex)
+            catch (std::exception &ex)
             {
                 processIsDead = true;
-                LWARNING << "Server " << (*runningToErase)->getServerId() 
+                LWARNING << "Server " << (*runningToErase)->getServerId()
                          << " is not responding to pings: " << ex.what();
             }
             catch (...)
             {
                 processIsDead = true;
-                LWARNING << "Server " << (*runningToErase)->getServerId() 
+                LWARNING << "Server " << (*runningToErase)->getServerId()
                          << " is not responding to pings.";
             }
             if (processIsDead)
@@ -560,7 +560,7 @@ void ServerGroupImpl::removeDeadServers()
                     this->availablePorts.insert((*runningToErase)->getPort());
                     this->runningServers.erase(runningToErase);
                 }
-                catch (std::exception& ex)
+                catch (std::exception &ex)
                 {
                     LWARNING << "Failed to stop server " << (*runningToErase)->getServerId()
                              << ": " << ex.what();
@@ -589,7 +589,7 @@ void ServerGroupImpl::removeDeadServers()
                     this->startingServers.erase(startingToEraseIt);
                 }
             }
-            catch (std::exception& ex)
+            catch (std::exception &ex)
             {
                 LTRACE << "Server " << serverId << " is not responding to pings: "
                        << ex.what();
@@ -600,7 +600,7 @@ void ServerGroupImpl::removeDeadServers()
             }
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LWARNING << "Failed removing dead servers: " << ex.what();
     }
@@ -659,7 +659,7 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
                 this->availablePorts.insert((*runningServer)->getPort());
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << "Failed to stop running server: " << ex.what();
         }
@@ -685,7 +685,7 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
             startingServerEntry->second.first->stop(KILL);
             this->availablePorts.insert(startingServerEntry->second.first->getPort());
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << "Failed to stop starting server: " << ex.what();
         }
@@ -699,7 +699,7 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
     this->startingServers.clear();
 }
 
-void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto& config)
+void ServerGroupImpl::validateAndInitConfig(ServerGroupConfigProto &config)
 {
     if (!config.has_name())
     {

@@ -29,7 +29,7 @@ using std::pair;
 using std::map;
 using std::string;
 
-User::User(std::string name, std::string password, const UserDatabaseRights& defaultDbRights, const UserAdminRights& adminRights) :
+User::User(std::string name, std::string password, const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights) :
     name(name), password(password), defaultDbRights(defaultDbRights), adminRights(adminRights)
 {}
 
@@ -41,42 +41,42 @@ UserAdminRights User::getAdminRights() const
     return this->adminRights;
 }
 
-void User::setAdminRights(const UserAdminRights& adminRights)
+void User::setAdminRights(const UserAdminRights &adminRights)
 {
     this->adminRights = adminRights;
 }
 
-void User::setPassword(const std::string& password)
+void User::setPassword(const std::string &password)
 {
     this->password = password;
 }
 
-const std::string& User::getName() const
+const std::string &User::getName() const
 {
     return name;
 }
 
-void User::setName(const std::string& name)
+void User::setName(const std::string &name)
 {
     this->name = name;
 }
 
-const std::string& User::getPassword() const
+const std::string &User::getPassword() const
 {
     return password;
 }
 
-const UserDatabaseRights& User::getDefaultDbRights() const
+const UserDatabaseRights &User::getDefaultDbRights() const
 {
     return defaultDbRights;
 }
 
-void User::setDefaultDbRights(const UserDatabaseRights& defaultDbRights)
+void User::setDefaultDbRights(const UserDatabaseRights &defaultDbRights)
 {
     this->defaultDbRights = defaultDbRights;
 }
 
-User User::parseFromProto(const UserProto& user)
+User User::parseFromProto(const UserProto &user)
 {
     UserDatabaseRights defaultDbRights = UserDatabaseRights::parseFromProto(user.default_db_rights());
     UserAdminRights adminRights = UserAdminRights::parseFromProto(user.admin_rights());
@@ -85,7 +85,7 @@ User User::parseFromProto(const UserProto& user)
     return result;
 }
 
-UserProto User::serializeToProto(const User& user)
+UserProto User::serializeToProto(const User &user)
 {
     UserProto result;
 

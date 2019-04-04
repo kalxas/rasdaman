@@ -30,20 +30,22 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtInsert::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 inline void
-QtInsert::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtInsert::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  if( inputOld == source )
-  {
-    source = inputNew;
+    if (inputOld == source)
+    {
+        source = inputNew;
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 }
 
 

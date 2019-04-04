@@ -58,25 +58,25 @@ class r_Storage_Man
 public:
 
     /// types of storage management functions
-    typedef void* (*storage_man_alloc)(size_t);
-    typedef void (*storage_man_free)(void* data);
+    typedef void *(*storage_man_alloc)(size_t);
+    typedef void (*storage_man_free)(void *data);
 
     /// default constructor, switches to c-style allocation
     r_Storage_Man(void);
     /// constructor setting the storage functions
     r_Storage_Man(storage_man_alloc a, storage_man_free f);
     /// copy constructor
-    r_Storage_Man(const r_Storage_Man& src);
+    r_Storage_Man(const r_Storage_Man &src);
     /// destructor
     ~r_Storage_Man(void);
     /// setting the storage functions
     void set_storage_functions(storage_man_alloc a, storage_man_free f);
     /// assignment
-    r_Storage_Man& operator=(const r_Storage_Man& src);
+    r_Storage_Man &operator=(const r_Storage_Man &src);
     /// allocation
-    void* storage_alloc(size_t size) const;
+    void *storage_alloc(size_t size) const;
     /// deallocation
-    void storage_free(void* data) const;
+    void storage_free(void *data) const;
 
 
 protected:

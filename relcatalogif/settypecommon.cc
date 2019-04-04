@@ -36,18 +36,18 @@ rasdaman GmbH.
 #include "mddtype.hh"
 
 
-SetType::SetType(const OId& id)
+SetType::SetType(const OId &id)
     :   CollectionType(id)
 {
     objecttype = OId::SETTYPEOID;
     readFromDb();
 }
 
-char*
+char *
 SetType::getTypeStructure() const
 {
-    char* dummy = myMDDType->getTypeStructure();
-    char* result = static_cast<char*>(mymalloc(5 + strlen(dummy) + 2));
+    char *dummy = myMDDType->getTypeStructure();
+    char *result = static_cast<char *>(mymalloc(5 + strlen(dummy) + 2));
 
     strcpy(result, "set <");
     strcat(result, dummy);
@@ -57,19 +57,19 @@ SetType::getTypeStructure() const
     return result;
 }
 
-SetType::SetType(const char* newTypeName, MDDType* newMDDType)
+SetType::SetType(const char *newTypeName, MDDType *newMDDType)
     :   CollectionType(newTypeName, newMDDType)
 {
     myType = SETTYPE;
     objecttype = OId::SETTYPEOID;
 }
 
-SetType::SetType(const SetType& old)
+SetType::SetType(const SetType &old)
     :   CollectionType(old)
 {
 }
 
-SetType& SetType::operator=(const SetType& old)
+SetType &SetType::operator=(const SetType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)

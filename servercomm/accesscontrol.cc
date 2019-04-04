@@ -37,7 +37,7 @@ const unsigned long AccessControl::maxDigestBufferSize = 50;
 const unsigned long AccessControl::capabilityDigestSize = 32;
 const unsigned long AccessControl::maxCapabilityBufferSize = 200;
 const int AccessControl::capabilityOk = 0;
-const char* AccessControl::digestMethod = "MD5";
+const char *AccessControl::digestMethod = "MD5";
 
 AccessControl accessControl;
 
@@ -54,7 +54,9 @@ AccessControl::~AccessControl()
 void AccessControl::setServerName(const char *newServerName)
 {
     if (strlen(newServerName) < maxServerNameSize)
+    {
         serverName = newServerName;
+    }
     else
     {
         LERROR << "Server name length exceeds the maximum allowed length (" << maxServerNameSize << ").";
@@ -101,7 +103,9 @@ int AccessControl::crunchCapability(const char *capability)
 
     char *end = strstr(capaQ, "$K");
     if (end == NULL)
+    {
         return CAPABILITY_REFUSED;
+    }
     end[0] = '\0';
 
     // verify capability is original
@@ -133,9 +137,13 @@ int AccessControl::crunchCapability(const char *capability)
     for (size_t i = 0; *rights != '$' && *rights && i < 2; rights++, i++)
     {
         if (*rights == 'R')
+        {
             okToRead = true;
+        }
         else if (*rights == 'W')
+        {
             okToWrite = true;
+        }
     }
     weHaveClient = true;
 
@@ -149,7 +157,9 @@ int AccessControl::messageDigest(const char *input, char *output, const char *md
 {
     const EVP_MD *md = EVP_get_digestbyname(mdName);
     if (!md)
+    {
         return 0;
+    }
 
     unsigned int md_len;
     unsigned char md_value[maxDigestBufferSize];
@@ -167,7 +177,9 @@ int AccessControl::messageDigest(const char *input, char *output, const char *md
 #endif
 
     for (unsigned int i = 0; i < md_len; i++)
+    {
         sprintf(output + i + i, "%02x", md_value[i]);
+    }
 
     return strlen(output);
 }

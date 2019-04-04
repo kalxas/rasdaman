@@ -72,21 +72,21 @@ InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
+InlineTile::InlineTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
     :   BLOBTile(newSize, newCells, dataformat)
 {
     LTRACE << "InlineTile(" << size << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
+InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat)
     :   BLOBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
 {
     LTRACE << "InlineTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(const OId& id)
+InlineTile::InlineTile(const OId &id)
     :   BLOBTile(id)
 {
     LTRACE << "InlineTile(" << id << ")";
@@ -94,9 +94,9 @@ InlineTile::InlineTile(const OId& id)
 }
 
 void
-InlineTile::printStatus(unsigned int level, std::ostream& stream) const
+InlineTile::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -171,14 +171,14 @@ InlineTile::setModified()
     }
 }
 
-const OId&
+const OId &
 InlineTile::getIndexOId() const
 {
     return myIndexOId;
 }
 
 void
-InlineTile::setIndexOId(const OId& oid)
+InlineTile::setIndexOId(const OId &oid)
 {
     myIndexOId = oid;
 }
@@ -200,7 +200,7 @@ InlineTile::outlineTile()
 }
 
 void
-InlineTile::inlineTile(const OId& ixId)
+InlineTile::inlineTile(const OId &ixId)
 {
     setIndexOId(ixId);
     DBTCIndexId t(myIndexOId);
@@ -221,8 +221,8 @@ InlineTile::isInlined() const
     return (myIndexOId.getType() == OId::DBTCINDEXOID);
 }
 
-char*
-InlineTile::insertInMemBlock(char* thecontents)
+char *
+InlineTile::insertInMemBlock(char *thecontents)
 {
     //store size of blob
     memcpy(thecontents, &size, sizeof(r_Bytes));

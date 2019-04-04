@@ -43,7 +43,7 @@ r_Format_Params::r_Format_Params() :
 {
 }
 
-bool r_Format_Params::parse(const string& options)
+bool r_Format_Params::parse(const string &options)
 {
     bool ret = false;
     if (!options.empty())
@@ -100,10 +100,10 @@ void r_Format_Params::parseJson()
 
 void r_Format_Params::parseTranspose()
 {
-    const string& key = FormatParamKeys::General::TRANSPOSE;
+    const string &key = FormatParamKeys::General::TRANSPOSE;
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (val.size() != 2 || !val.isArray())
         {
             LERROR << "parameter '" << key << "' has an invalid value, expected an array with two index positions.";
@@ -116,10 +116,10 @@ void r_Format_Params::parseTranspose()
 
 void r_Format_Params::parseVariables()
 {
-    const string& key = FormatParamKeys::General::VARIABLES;
+    const string &key = FormatParamKeys::General::VARIABLES;
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (val.isArray())
         {
             for (Json::ArrayIndex i = 0; i < val.size(); i++)
@@ -136,7 +136,7 @@ void r_Format_Params::parseVariables()
         }
         else if (val.isObject())
         {
-            for (const string& varName : val.getMemberNames())
+            for (const string &varName : val.getMemberNames())
             {
                 variables.push_back(varName);
             }
@@ -151,10 +151,10 @@ void r_Format_Params::parseVariables()
 
 void r_Format_Params::parseFilepaths()
 {
-    const string& key = FormatParamKeys::Decode::FILEPATHS;
+    const string &key = FormatParamKeys::Decode::FILEPATHS;
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (!val.isArray())
         {
             LERROR << "parameter '" << key << "' has an invalid value, expected an array with file paths.";
@@ -167,11 +167,11 @@ void r_Format_Params::parseFilepaths()
     }
 }
 
-void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<std::pair<std::string, std::string>>& targetVector)
+void r_Format_Params::parseStringKeyValuesList(const string &key, std::vector<std::pair<std::string, std::string>> &targetVector)
 {
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (!val.isObject())
         {
             LERROR << "parameter '" << key << "' has an invalid value, expected an object with key/value pairs.";
@@ -179,7 +179,7 @@ void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<st
         }
 
         // todo take care of the xmin/xmax/..
-        for (const string& fkey : val.getMemberNames())
+        for (const string &fkey : val.getMemberNames())
         {
             string fval = val[fkey].asString();
             targetVector.push_back(make_pair(fkey, fval));
@@ -189,15 +189,15 @@ void r_Format_Params::parseStringKeyValuesList(const string& key, std::vector<st
 
 void r_Format_Params::parseSubsetDomain()
 {
-    const string& key = FormatParamKeys::Decode::SUBSET_DOMAIN;
+    const string &key = FormatParamKeys::Decode::SUBSET_DOMAIN;
     if (params.isMember(key))
     {
-        const string& val = params[key].asString();
+        const string &val = params[key].asString();
         try
         {
             subsetDomain = r_Minterval(val.c_str());
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             LERROR << "parameter '" << key << "' has an invalid value, expected a subset minterval.";
             throw r_Error(INVALIDFORMATPARAMETER);
@@ -207,10 +207,10 @@ void r_Format_Params::parseSubsetDomain()
 
 void r_Format_Params::parseNodata()
 {
-    const string& key = FormatParamKeys::Encode::NODATA;
+    const string &key = FormatParamKeys::Encode::NODATA;
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (val.isArray())
         {
             for (Json::ArrayIndex i = 0; i < val.size(); i++)
@@ -237,13 +237,13 @@ void r_Format_Params::parseNodata()
 
 void r_Format_Params::parseMetadata()
 {
-    const string& key = FormatParamKeys::Encode::METADATA;
+    const string &key = FormatParamKeys::Encode::METADATA;
     if (params.isMember(key))
     {
-        const Json::Value& val = params[key];
+        const Json::Value &val = params[key];
         if (val.isObject())
         {
-            for (string& fkey : val.getMemberNames())
+            for (string &fkey : val.getMemberNames())
             {
                 string fval = val[fkey].asString();
                 metadataKeyValues.push_back(make_pair(fkey, fval));
@@ -263,10 +263,10 @@ void r_Format_Params::parseMetadata()
 
 void r_Format_Params::parseGeoReference()
 {
-    const string& key = FormatParamKeys::Encode::GEO_REFERENCE;
+    const string &key = FormatParamKeys::Encode::GEO_REFERENCE;
     if (params.isMember(key))
     {
-        const Json::Value& geoRef = params[key];
+        const Json::Value &geoRef = params[key];
         if (geoRef.isMember(FormatParamKeys::Encode::CRS))
         {
             crs = geoRef[FormatParamKeys::Encode::CRS].asString();
@@ -275,10 +275,10 @@ void r_Format_Params::parseGeoReference()
         {
             LWARNING << "parameter '" << key << "' has an invalid value, it must contain a crs.";
         }
-        const string& keyBbox = FormatParamKeys::Encode::BBOX;
+        const string &keyBbox = FormatParamKeys::Encode::BBOX;
         if (geoRef.isMember(keyBbox))
         {
-            const Json::Value& bbox = geoRef[keyBbox];
+            const Json::Value &bbox = geoRef[keyBbox];
             if (bbox.isMember(FormatParamKeys::Encode::XMIN) &&
                     bbox.isMember(FormatParamKeys::Encode::XMAX) &&
                     bbox.isMember(FormatParamKeys::Encode::YMIN) &&
@@ -313,7 +313,7 @@ vector<string> r_Format_Params::getFilePaths() const
     return filePaths;
 }
 
-void r_Format_Params::setFilePaths(const std::vector<std::string>& filePathsArg)
+void r_Format_Params::setFilePaths(const std::vector<std::string> &filePathsArg)
 {
     this->filePaths = filePathsArg;
 }
@@ -338,7 +338,7 @@ vector<pair<string, string>> r_Format_Params::getFormatParameters() const
     return formatParameters;
 }
 
-void r_Format_Params::addFormatParameter(const std::string& key, const std::string& val)
+void r_Format_Params::addFormatParameter(const std::string &key, const std::string &val)
 {
     formatParameters.push_back(make_pair(key, val));
 }
@@ -353,7 +353,7 @@ const r_Minterval &r_Format_Params::getSubsetDomain() const
     return subsetDomain;
 }
 
-void r_Format_Params::setSubsetDomain(const r_Minterval& domain)
+void r_Format_Params::setSubsetDomain(const r_Minterval &domain)
 {
     this->subsetDomain = domain;
 }
@@ -388,7 +388,7 @@ string r_Format_Params::getMetadata() const
     return metadata;
 }
 
-void r_Format_Params::setMetadata(const std::string& metadataArg)
+void r_Format_Params::setMetadata(const std::string &metadataArg)
 {
     metadata = metadataArg;
 }
@@ -418,7 +418,7 @@ double r_Format_Params::getYmax() const
     return ymax;
 }
 
-void r_Format_Params::setCrs(const std::string& crsArg)
+void r_Format_Params::setCrs(const std::string &crsArg)
 {
     crs = crsArg;
 }

@@ -50,35 +50,35 @@ class QtPointOp : public QtNaryOperation
 {
 public:
     /// constructor getting the two operands
-    QtPointOp(QtOperationList* opList);
-    
+    QtPointOp(QtOperationList *opList);
+
     /// destructor for pointer member
     ~QtPointOp();
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
-    inline r_Point* getPoints() const;
+    inline r_Point *getPoints() const;
 
 private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 
-    r_Point* pt;
+    r_Point *pt;
 };
 
 

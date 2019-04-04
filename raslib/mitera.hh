@@ -55,8 +55,8 @@ class r_MiterArea
 public:
     /// constructor.
     /// An exception is thrown if newIterDom and newImgDom have different dimension
-    r_MiterArea(const r_Minterval* newIterDom,
-                const r_Minterval* newImgDom);
+    r_MiterArea(const r_Minterval *newIterDom,
+                const r_Minterval *newImgDom);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!
@@ -79,11 +79,11 @@ protected:
         int curr;   // current repeat
     } incArrElem;
     /// area to be iterated through
-    const r_Minterval* iterDom;
+    const r_Minterval *iterDom;
     /// area of tile.
-    const r_Minterval* imgDom;
+    const r_Minterval *imgDom;
     /// array with increments
-    incArrElem* incArrIter;
+    incArrElem *incArrIter;
     /// flag set if iteration is finished.
     bool done;
     /// This is used for the return value in nextArea()

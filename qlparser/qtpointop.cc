@@ -69,12 +69,12 @@ QtPointOp::QtPointOp(QtOperationList *opList)
     if (areAllQtConst)
     {
         pt = new r_Point(opList->size());
-        size_t i= 0;
+        size_t i = 0;
         for (auto iter = opList->begin(); iter != opList->end(); iter++, i++)
         {
-            QtData* coordPtr  = (dynamic_cast<QtConst*>(*iter))->getDataObj();
-            
-           (*pt)[i] = (static_cast<QtAtomicData*>(coordPtr))->getSignedValue();
+            QtData *coordPtr  = (dynamic_cast<QtConst *>(*iter))->getDataObj();
+
+            (*pt)[i] = (static_cast<QtAtomicData *>(coordPtr))->getSignedValue();
         }
     }
 }
@@ -104,8 +104,8 @@ QtPointOp::evaluate(QtDataList *inputList)
             // first check operand types
             for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
                 if (!((*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
-                      (*dataIter)->getDataType() == QT_LONG || (*dataIter)->getDataType() == QT_ULONG ||
-                      (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
+                        (*dataIter)->getDataType() == QT_LONG || (*dataIter)->getDataType() == QT_ULONG ||
+                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
                 {
                     goOn = false;
                     break;
@@ -141,8 +141,8 @@ QtPointOp::evaluate(QtDataList *inputList)
 
             for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
                 if ((*dataIter)->getDataType() == QT_SHORT ||
-                    (*dataIter)->getDataType() == QT_LONG ||
-                    (*dataIter)->getDataType() == QT_OCTET)
+                        (*dataIter)->getDataType() == QT_LONG ||
+                        (*dataIter)->getDataType() == QT_OCTET)
                 {
                     ptVar << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
                     nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
@@ -205,11 +205,11 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
 
         // valid types: integers
         if (!(type.getDataType() == QT_SHORT ||
-              type.getDataType() == QT_LONG ||
-              type.getDataType() == QT_OCTET ||
-              type.getDataType() == QT_USHORT ||
-              type.getDataType() == QT_ULONG ||
-              type.getDataType() == QT_CHAR))
+                type.getDataType() == QT_LONG ||
+                type.getDataType() == QT_OCTET ||
+                type.getDataType() == QT_USHORT ||
+                type.getDataType() == QT_ULONG ||
+                type.getDataType() == QT_CHAR))
         {
             opTypesValid = false;
             break;

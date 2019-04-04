@@ -48,12 +48,12 @@ using boost::unique_lock;
 using boost::upgrade_lock;
 using boost::upgrade_to_unique_lock;
 
-Client::Client(const string& clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime)
+Client::Client(const string &clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime)
     : clientId(clientIdArg), user(userArg), timer(lifeTime)
 {
 }
 
-const string& Client::getClientId() const
+const string &Client::getClientId() const
 {
     return this->clientId;
 }
@@ -90,9 +90,9 @@ void Client::resetLiveliness()
     this->timer.reset();
 }
 
-void Client::addDbSession(const std::string& dbName,
+void Client::addDbSession(const std::string &dbName,
                           boost::shared_ptr<Server> assignedServer,
-                          std::string& out_sessionId)
+                          std::string &out_sessionId)
 {
     /**
      * 1. Generate a DbSessionId
@@ -128,7 +128,7 @@ void Client::addDbSession(const std::string& dbName,
     }
 }
 
-void Client::removeDbSession(const string& sessionId)
+void Client::removeDbSession(const string &sessionId)
 {
     map<string, weak_ptr<Server>>::iterator assignedServerIt;
 

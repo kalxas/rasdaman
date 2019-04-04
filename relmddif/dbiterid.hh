@@ -27,7 +27,7 @@ class DBMDDObj;
 #include "dbobjectiterator.hh"
 
 typedef DBObjectIterator<DBMDDObj> DBIter;
-typedef DBIter* DBIterId;
+typedef DBIter *DBIterId;
 
 #endif
 

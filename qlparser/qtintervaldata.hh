@@ -54,18 +54,18 @@ class QtIntervalData : public QtData
 {
 public:
     /// constructor getting the interval
-    QtIntervalData(const r_Sinterval& interval);
+    QtIntervalData(const r_Sinterval &interval);
 
     //@Man: Read/Write methods:
     //@{
     ///
     ///
-    inline const r_Sinterval& getIntervalData() const;
+    inline const r_Sinterval &getIntervalData() const;
     ///
-    inline void               setIntervalData(const r_Sinterval& interval);
+    inline void               setIntervalData(const r_Sinterval &interval);
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -77,13 +77,13 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 private:
     /// prevents from using the default constructor

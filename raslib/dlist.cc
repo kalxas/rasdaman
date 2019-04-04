@@ -29,7 +29,7 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 
 template <class T>
-std::ostream& operator<< (std::ostream& os, const std::vector<T>& list)
+std::ostream &operator<< (std::ostream &os, const std::vector<T> &list)
 {
     os << "[ ";
     for (typename std::vector<T>::const_iterator it = list.begin(); it != list.end(); it++)
@@ -41,7 +41,7 @@ std::ostream& operator<< (std::ostream& os, const std::vector<T>& list)
 }
 
 template <class T>
-std::ostream& operator<< (const std::vector<T>& list, std::ostream& os)
+std::ostream &operator<< (const std::vector<T> &list, std::ostream &os)
 {
     os << "[ ";
     for (typename std::vector<T>::const_iterator it = list.begin(); it != list.end(); it++)
@@ -55,7 +55,7 @@ std::ostream& operator<< (const std::vector<T>& list, std::ostream& os)
 #if defined(SOLARIS) && ! defined(EARLY_TEMPLATE)
 //this is here to get around a template instantiation problem on sun
 template <>
-std::ostream& operator<< (std::ostream& os, const std::vector<r_Minterval>& list)
+std::ostream &operator<< (std::ostream &os, const std::vector<r_Minterval> &list)
 {
     os << "[ ";
     for (typename std::vector<r_Minterval>::const_iterator it = list.begin(); it != list.end(); it++)
@@ -67,7 +67,7 @@ std::ostream& operator<< (std::ostream& os, const std::vector<r_Minterval>& list
 }
 
 template <>
-std::ostream& operator<< (const std::vector<r_Minterval>& list, std::ostream& os)
+std::ostream &operator<< (const std::vector<r_Minterval> &list, std::ostream &os)
 {
     os << "[ ";
     for (typename std::vector<r_Minterval>::const_iterator it = list.begin(); it != list.end(); it++)

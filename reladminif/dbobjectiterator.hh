@@ -42,14 +42,14 @@ template<class T>
 class DBObjectIterator
 {
 public:
-    DBObjectIterator(const OIdSet& oidlist);
+    DBObjectIterator(const OIdSet &oidlist);
     /*@Doc:
     constructs a new Iterator.  the OIdSet will be deleted by the DBOBjectIterator.
     there may be oids of objects with other classes present.  you should be carefull
     when using this feature - as in mddtypes/mddbasetypes/mdddim/domtypes
     */
 
-    DBObjectIterator(const DBObjectIterator<T>& it);
+    DBObjectIterator(const DBObjectIterator<T> &it);
     /*@Doc:
     */
 
@@ -84,7 +84,7 @@ private:
     internal pointer where the iterator is
     */
 
-    OIdSet* mySet;
+    OIdSet *mySet;
     /*@Doc:
     the actual list which is used to lookup objects by the objectbroker
     */

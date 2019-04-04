@@ -28,32 +28,36 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtUnaryOperation::setInput( QtOperation* inputNew )
+QtUnaryOperation::setInput(QtOperation *inputNew)
 {
-  input = inputNew;
+    input = inputNew;
 
-  if( inputNew )
-    inputNew->setParent( this );
+    if (inputNew)
+    {
+        inputNew->setParent(this);
+    }
 }
 
 
 inline void
-QtUnaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtUnaryOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  if( input == inputOld )
-  {
-    input = inputNew;
+    if (input == inputOld)
+    {
+        input = inputNew;
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 }
 
 
-inline QtOperation*
+inline QtOperation *
 QtUnaryOperation::getInput()
 {
-  return input;
+    return input;
 }
 
 

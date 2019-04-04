@@ -55,19 +55,19 @@ values. The value of a UShort is stored in four chars.
 class UShortType : public UIntegralType
 {
 public:
-    UShortType(const OId& id);
+    UShortType(const OId &id);
 
     UShortType();
     /*@Doc:
     default constructor, sets type name to "UShort".
     */
 
-    UShortType(const UShortType& old);
+    UShortType(const UShortType &old);
     /*@Doc:
     copy constructor.
     */
 
-    UShortType& operator=(const UShortType& old);
+    UShortType &operator=(const UShortType &old);
     /*@Doc:
     assignment operator.
     */
@@ -77,19 +77,19 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual r_ULong* convertToCULong(const char* cell, r_ULong* value) const;
+    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCULong(char* cell, const r_ULong* value) const;
+    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

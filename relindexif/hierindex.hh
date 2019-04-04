@@ -77,9 +77,9 @@ public:
 
     virtual double getOccupancy() const;
 
-    HierIndexDS* getParent() const;
+    HierIndexDS *getParent() const;
 
-    void setParent(const HierIndexDS* newPa);
+    void setParent(const HierIndexDS *newPa);
 
     virtual void setIsNode(bool beNode);
 
@@ -122,7 +122,7 @@ public:
 
     virtual r_Dimension getDimension() const;
 
-    virtual void setAssignedDomain(const r_Minterval& domain);
+    virtual void setAssignedDomain(const r_Minterval &domain);
 
     virtual unsigned int getSize() const;
 
@@ -134,21 +134,21 @@ public:
 
     virtual bool isOverFull() const;
 
-    virtual bool isSameAs(const IndexDS* pix) const;
+    virtual bool isSameAs(const IndexDS *pix) const;
 
     virtual bool removeObject(unsigned int pos);
 
-    virtual bool removeObject(const KeyObject& theKey);
+    virtual bool removeObject(const KeyObject &theKey);
 
-    virtual void insertObject(const KeyObject& theKey, unsigned int pos);
+    virtual void insertObject(const KeyObject &theKey, unsigned int pos);
 
-    virtual void setObject(const KeyObject& theKey, unsigned int pos);
+    virtual void setObject(const KeyObject &theKey, unsigned int pos);
 
-    virtual void setObjectDomain(const r_Minterval& dom, unsigned int pos);
+    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
 
-    virtual const KeyObject& getObject(unsigned int pos) const;
+    virtual const KeyObject &getObject(unsigned int pos) const;
 
-    virtual void getObjects(KeyObjectVector& objs) const;
+    virtual void getObjects(KeyObjectVector &objs) const;
 
     virtual unsigned int getOptimalSize() const;
 
@@ -169,17 +169,17 @@ public:
         database.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
     ~DBHierIndex() noexcept(false) override;
 
     virtual void destroy();
 
-    virtual IndexDS* getNewInstance() const;
+    virtual IndexDS *getNewInstance() const;
 
     virtual BinaryRepresentation getBinaryRepresentation() const;
 
-    virtual void setBinaryRepresentation(const BinaryRepresentation&);
+    virtual void setBinaryRepresentation(const BinaryRepresentation &);
 
 protected:
     friend class ObjectBroker;
@@ -187,7 +187,7 @@ protected:
         ObjectBroker needs to access OId constructor
     */
 
-    DBHierIndex(const OId& id);
+    DBHierIndex(const OId &id);
     /*@Doc:
     */
 
@@ -207,7 +207,7 @@ protected:
     /*@Doc:
     */
 
-    void extendCoveredDomain(const r_Minterval& newTilesExtents);
+    void extendCoveredDomain(const r_Minterval &newTilesExtents);
     /*@Doc:
         Recalculates the current domain of this index to
         include newTilesExtents.

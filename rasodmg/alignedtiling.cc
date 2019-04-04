@@ -43,10 +43,10 @@ rasdaman GmbH.
 
 #include <sstream>
 
-const char*
+const char *
 r_Aligned_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";
 
-r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
+r_Aligned_Tiling::r_Aligned_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
 
@@ -57,11 +57,11 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     }
 
     r_Bytes tileS = 0, lenToConvert = 0;
-    r_Minterval* tileConf = NULL;
+    r_Minterval *tileConf = NULL;
     r_Dimension tileD = 0;
     bool state = false; //false for "tileconf;tilesize", true for "tiledim,tilesize"
-    const char* pStart = NULL, *pRes = NULL, *pEnd = NULL;
-    char* pToConvert = NULL;
+    const char *pStart = NULL, *pRes = NULL, *pEnd = NULL;
+    char *pToConvert = NULL;
     pStart = encoded;
     pEnd = pStart + strlen(pStart);
     pRes = strstr(pStart, TCOLON);
@@ -83,7 +83,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
         {
             tileConf = new r_Minterval(pToConvert);
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams.";
             LERROR << "Error " << err.get_errorno() << " : " << err.what();
@@ -93,7 +93,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     }
     else
     {
-        tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
+        tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
         if (!tileD)
         {
             LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams.";
@@ -115,7 +115,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char* encoded)
     }
 
 //deal with second param
-    tileS = strtol(pRes, (char**) NULL, DefaultBase);
+    tileS = strtol(pRes, (char **) NULL, DefaultBase);
     if (!tileS)
     {
         LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
@@ -156,16 +156,16 @@ r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts)
     }
 }
 
-r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts)
+r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts)
     :   r_Dimension_Tiling(tc.dimension(), ts),
         tile_config(tc)
 {
 }
 
-r_Tiling*
+r_Tiling *
 r_Aligned_Tiling::clone() const
 {
-    r_Aligned_Tiling* newAT = new r_Aligned_Tiling(tile_config, tile_size);
+    r_Aligned_Tiling *newAT = new r_Aligned_Tiling(tile_config, tile_size);
     return newAT;
 }
 
@@ -174,14 +174,14 @@ r_Aligned_Tiling::~r_Aligned_Tiling()
     tile_config.r_deactivate();
 }
 
-const r_Minterval&
+const r_Minterval &
 r_Aligned_Tiling::get_tile_config() const
 {
     return tile_config;
 }
 
 r_Minterval
-r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size) const
+r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size) const
 {
     // Minimum optimal tile size. Below this value, the waste will be too big.
     r_Bytes optMinTileSize = get_min_opt_tile_size();
@@ -239,7 +239,7 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
                     h = static_cast<r_Range>(tile_size / size) + l  - 1;
                 }
                 size = size * static_cast<unsigned long>(h - l + 1);
-                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l) , r_Range(h));
+                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l), r_Range(h));
             }
         }
         for (i = static_cast<int>(dimension) - 1; i >= 0 ; i--) // treat fixed limits now
@@ -259,7 +259,7 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
                     h = static_cast<r_Range>(tile_size / size) + l  - 1;
                 }
                 size = size * static_cast<unsigned long>(h - l + 1);
-                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l) , r_Range(h));
+                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l), r_Range(h));
             }
         }
 
@@ -346,10 +346,10 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size)
     }
 }
 
-std::vector<r_Minterval>*
-r_Aligned_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const
+std::vector<r_Minterval> *
+r_Aligned_Tiling::compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const
 {
-    std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
+    std::vector<r_Minterval> *result = new std::vector<r_Minterval>;
 
     r_Dimension dim = tile_config.dimension();
 
@@ -424,14 +424,14 @@ r_Aligned_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size
 }
 
 r_Minterval
-r_Aligned_Tiling::get_opt_size(const r_Minterval& tileDomain, r_Bytes cellSize) const
+r_Aligned_Tiling::get_opt_size(const r_Minterval &tileDomain, r_Bytes cellSize) const
 {
 
     unsigned long tileSize = get_tile_size();
     unsigned long newSize = tileDomain.cell_count() * cellSize;
     r_Minterval result = tileDomain;
     r_Dimension dim = tileDomain.dimension();
-    int* ixArr = new int[dim];
+    int *ixArr = new int[dim];
     r_Minterval tmpResult = result;
     int j;
 
@@ -502,7 +502,7 @@ r_Aligned_Tiling::get_min_opt_tile_size() const
     return (get_tile_size() - get_tile_size() / 10);
 }
 
-char*
+char *
 r_Aligned_Tiling::get_string_representation() const
 {
 
@@ -514,14 +514,14 @@ r_Aligned_Tiling::get_string_representation() const
     print_status(domainStream);
 
     // allocate memory taking the final string
-    char* returnString = strdup(domainStream.str().c_str());
+    char *returnString = strdup(domainStream.str().c_str());
 
 
     return returnString;
 }
 
 void
-r_Aligned_Tiling::print_status(std::ostream& os) const
+r_Aligned_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Aligned_Tiling[ ";
     r_Dimension_Tiling::print_status(os);

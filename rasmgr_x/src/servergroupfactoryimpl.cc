@@ -14,7 +14,7 @@ ServerGroupFactoryImpl::ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostMan
 ServerGroupFactoryImpl::~ServerGroupFactoryImpl()
 {}
 
-boost::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto& config)
+boost::shared_ptr<ServerGroup> ServerGroupFactoryImpl::createServerGroup(const ServerGroupConfigProto &config)
 {
     boost::shared_ptr<ServerGroup> result(new ServerGroupImpl(config, this->dbhManager, this->serverFactory));
 

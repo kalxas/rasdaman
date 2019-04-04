@@ -20,7 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/* 
+/*
  * File:   qtpolytopeclipping.hh
  * Author: bbell
  *
@@ -28,7 +28,7 @@ rasdaman GmbH.
  */
 
 #ifndef QTPOLYTOPECLIPPING_HH
-#define	QTPOLYTOPECLIPPING_HH
+#define QTPOLYTOPECLIPPING_HH
 
 #include "qlparser/qtpolygonclipping.hh"
 
@@ -44,23 +44,23 @@ public:
     //
     // essentially, the goal of the constructor is to do nothing in 2-D
     // and to process the features into halfspace inequalities in higher dimensions
-    QtPolytope(QtOperation* mddOp, QtOperation* pointOp);
+    QtPolytope(QtOperation *mddOp, QtOperation *pointOp);
 
     // a helper function for retrieving the halfspace inequalities for a polytope
     // not used in 2-D
-    std::vector<double> getHalfspace(QtOperation* pointOp);
-    
+    std::vector<double> getHalfspace(QtOperation *pointOp);
+
     // either a 2-D or an n-D clipping method is used based on the underlying MDDObj
-    QtData* computeOp(QtMDD *operand, std::vector< std::vector<double> > halfspacesArg);
+    QtData *computeOp(QtMDD *operand, std::vector< std::vector<double>> halfspacesArg);
 
     // method for evaluating the node
-    QtData* evaluate(QtDataList *inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     // method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     // type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple *typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
 
@@ -77,8 +77,8 @@ private:
     //
     // # rows = dimension of MDDObj
     // # cols = number of features
-    std::vector< std::vector<double> > halfspaces;
+    std::vector< std::vector<double>> halfspaces;
 };
 
-#endif	/* QTPOLYTOPECLIPPING_HH */
+#endif  /* QTPOLYTOPECLIPPING_HH */
 

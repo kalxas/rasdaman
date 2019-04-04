@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "tiler.hh"
 #include "tilemgr/tile.hh"
 
-r_Tiler::r_Tiler(std::vector<r_Minterval>& sourceDomain2s, const std::vector<r_Minterval>& targetDomain2s)
+r_Tiler::r_Tiler(std::vector<r_Minterval> &sourceDomain2s, const std::vector<r_Minterval> &targetDomain2s)
     :   sourceDomains(sourceDomain2s),
         targetDomains(targetDomain2s)
 {
@@ -93,7 +93,7 @@ r_Tiler::split()
 }
 
 std::vector<RangePair>
-r_Tiler::computeSplitDimensions(const r_Minterval& sourceDomain) const
+r_Tiler::computeSplitDimensions(const r_Minterval &sourceDomain) const
 {
     r_Dimension dim = 0;
     r_Range slow = 0;
@@ -192,7 +192,7 @@ r_Tiler::computeSplitDimensions(const r_Minterval& sourceDomain) const
 }
 
 std::vector<r_Minterval>
-r_Tiler::splitMinterval(const r_Minterval& sourceTile, std::vector<RangePair>& points)
+r_Tiler::splitMinterval(const r_Minterval &sourceTile, std::vector<RangePair> &points)
 {
     std::vector<r_Minterval> splits;
     std::vector<r_Minterval> split2s;
@@ -380,15 +380,15 @@ r_Tiler::getTiledDomains() const
     return splitedDomains;
 }
 
-std::vector<Tile*>
-r_Tiler::generateTiles(const std::vector<Tile*>& sourceTiles) const
+std::vector<Tile *>
+r_Tiler::generateTiles(const std::vector<Tile *> &sourceTiles) const
 {
     std::vector<r_Minterval>::const_iterator splitedDomIt;
-    std::vector<Tile*>::const_iterator sourceTileIt;
-    std::vector<Tile*> retval;
+    std::vector<Tile *>::const_iterator sourceTileIt;
+    std::vector<Tile *> retval;
     r_Minterval dummy;
-    Tile* p = 0;
-    const BaseType* basetype = (*sourceTiles.begin())->getType();
+    Tile *p = 0;
+    const BaseType *basetype = (*sourceTiles.begin())->getType();
     r_Data_Format dataformat = (*sourceTiles.begin())->getDataFormat();
 
     for (splitedDomIt = splitedDomains.begin(); splitedDomIt != splitedDomains.end(); splitedDomIt++)
@@ -401,7 +401,7 @@ r_Tiler::generateTiles(const std::vector<Tile*>& sourceTiles) const
 //            LDEBUG << " the other tile domain " << (*sourceTileIt)->getDomain() << " type " << (*sourceTileIt)->getType()->getName();
             if (dummy.intersects_with((*sourceTileIt)->getDomain()))
             {
-                const r_Minterval& updateDomain = dummy.create_intersection((*sourceTileIt)->getDomain());
+                const r_Minterval &updateDomain = dummy.create_intersection((*sourceTileIt)->getDomain());
 //                LDEBUG << "  they intersect.  on " << updateDomain;
                 //UnaryOp* tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, p->getType(), (*sourceTileIt)->getType(), 0, 0);
                 //causes fmr/abr/umr

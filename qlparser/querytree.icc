@@ -37,15 +37,15 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline QtNode*
+inline QtNode *
 QueryTree::getRoot() const
 {
-  return rootNode;
+    return rootNode;
 }
 
 
 inline void
-QueryTree::setRoot( QtNode* root )
+QueryTree::setRoot(QtNode *root)
 {
-  rootNode = root;
+    rootNode = root;
 }

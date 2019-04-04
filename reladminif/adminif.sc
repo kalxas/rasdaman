@@ -55,8 +55,8 @@ const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
  * Check if a counter value matches the actual column value in the respective table.
  */
 void
-checkCounter(const char* counterName, const char* column,
-             const char* table, const char* tableDescr, bool& retval)
+checkCounter(const char *counterName, const char *column,
+             const char *table, const char *tableDescr, bool &retval)
 {
     if (retval)
     {
@@ -83,7 +83,7 @@ checkCounter(const char* counterName, const char* column,
         else
         {
             LERROR << "Value for counter '" << counterName << "' not found in the RAS_COUNTERS table in RASBASE. "
-                << "Most likely you need to run update_db.sh to update the database schema.";
+                   << "Most likely you need to run update_db.sh to update the database schema.";
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
     }
@@ -134,7 +134,7 @@ AdminIf::AdminIf(bool createDb)
             checkCounter(OId::counterNames[OId::BLOBOID], "BlobId", "RAS_TILES", "tiles", consistent);
             checkCounter(OId::counterNames[OId::MDDHIERIXOID], "MDDObjIxOId", "RAS_HIERIX", "hierarchical MDD indexes", consistent);
             checkCounter(OId::counterNames[OId::STORAGEOID], "StorageId", "RAS_STORAGE", "MDD storage structures", consistent);
-            
+
             bool nullvaluePairsTableExists{};
             {
                 SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_NULLVALUEPAIRS'");
@@ -150,7 +150,7 @@ AdminIf::AdminIf(bool createDb)
                 closeDbConnection();
                 throw r_Error(DATABASE_INCOMPATIBLE);
             }
-            
+
             if (!consistent)
             {
                 LERROR << "Database inconsistent.";

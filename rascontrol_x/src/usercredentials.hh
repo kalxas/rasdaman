@@ -42,7 +42,7 @@ public:
     * @param userName User name.
     * @param userPassword User password.
     */
-    UserCredentials(const std::string& userName = DEFAULT_USER, const std::string& userPassword = DEFAULT_PASSWD);
+    UserCredentials(const std::string &userName = DEFAULT_USER, const std::string &userPassword = DEFAULT_PASSWD);
 
     /**
      * @brief interactiveLogin Require the user to enter his credentials.

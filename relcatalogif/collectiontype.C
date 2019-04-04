@@ -28,90 +28,91 @@ rasdaman GmbH.
 
 r_Bytes
 CollectionType::getMemorySize() const
-	{
-	return DBNamedObject::getMemorySize() + myMDDType->getMemorySize() + sizeof(MDDType*);
-	}
+{
+    return DBNamedObject::getMemorySize() + myMDDType->getMemorySize() + sizeof(MDDType *);
+}
 
-CollectionType::CollectionType(const MDDType* newMDDType)
-	:	Type("unnamed collectiontype")
-	{
-	myMDDType = newMDDType;
-	}
+CollectionType::CollectionType(const MDDType *newMDDType)
+    :   Type("unnamed collectiontype")
+{
+    myMDDType = newMDDType;
+}
 
 CollectionType::CollectionType()
-	:	Type("unnamed collectiontype"), nullValues(NULL)
-	{
-	myMDDType = 0;
-	}
+    :   Type("unnamed collectiontype"), nullValues(NULL)
+{
+    myMDDType = 0;
+}
 
-CollectionType::CollectionType(const char* name)
-	:	Type(name), nullValues(NULL)
-	{
-	myMDDType = 0;
-	}
+CollectionType::CollectionType(const char *name)
+    :   Type(name), nullValues(NULL)
+{
+    myMDDType = 0;
+}
 
 
-CollectionType::CollectionType(const char* name, const MDDType* newMDDType)
-	:	Type(name), nullValues(NULL)
-	{
-	myMDDType = newMDDType;
-	}
+CollectionType::CollectionType(const char *name, const MDDType *newMDDType)
+    :   Type(name), nullValues(NULL)
+{
+    myMDDType = newMDDType;
+}
 
-CollectionType::CollectionType(const OId& id)
-	:	Type(id), nullValues(NULL)
-	{
-	}
+CollectionType::CollectionType(const OId &id)
+    :   Type(id), nullValues(NULL)
+{
+}
 
-CollectionType::CollectionType(const CollectionType& old)
-	:	Type(old)
-	{
-	myMDDType = old.myMDDType;
-	nullValues = old.nullValues;
-	}
+CollectionType::CollectionType(const CollectionType &old)
+    :   Type(old)
+{
+    myMDDType = old.myMDDType;
+    nullValues = old.nullValues;
+}
 
-CollectionType&
-CollectionType::operator=(const CollectionType& old)
-	{
-	Type::operator=(old);
-	myMDDType = old.myMDDType;
-	nullValues = old.nullValues;
-	return *this; 
-	}
+CollectionType &
+CollectionType::operator=(const CollectionType &old)
+{
+    Type::operator=(old);
+    myMDDType = old.myMDDType;
+    nullValues = old.nullValues;
+    return *this;
+}
 
 CollectionType::~CollectionType()
-	{
-	}
+{
+}
 
-const MDDType*
+const MDDType *
 CollectionType::getMDDType() const
-	{
-	return myMDDType;
-	}
+{
+    return myMDDType;
+}
 
 void
-CollectionType::print_status( ostream& s ) const
+CollectionType::print_status(ostream &s) const
 {
-  s << "d_" << getName() << "<";
-  myMDDType->print_status(s);
-  s << " >";
+    s << "d_" << getName() << "<";
+    myMDDType->print_status(s);
+    s << " >";
 }
 
 int
-CollectionType::compatibleWith(const Type* aType) const
+CollectionType::compatibleWith(const Type *aType) const
 {
-  return myMDDType->compatibleWith(aType);
+    return myMDDType->compatibleWith(aType);
 }
 
 
-DBNullvalues* CollectionType::getNullValues() const
+DBNullvalues *CollectionType::getNullValues() const
 {
-  if (nullValues != NULL) {
-    LDEBUG << "returning null values: " << nullValues->toString();
-  }
-  return nullValues;
+    if (nullValues != NULL)
+    {
+        LDEBUG << "returning null values: " << nullValues->toString();
+    }
+    return nullValues;
 }
 
 void CollectionType::setNullValues(const r_Nullvalues &newNullValues)
 {
-  nullValues = new DBNullvalues(newNullValues);
+    nullValues = new DBNullvalues(newNullValues);
 }

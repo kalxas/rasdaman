@@ -47,7 +47,7 @@
 
 
 
-r_Structure::r_Structure(const char* newBuffer, const r_Structure_Type* newType)
+r_Structure::r_Structure(const char *newBuffer, const r_Structure_Type *newType)
     : r_Scalar(newType),
       numElements(0),
       elements(NULL),
@@ -59,7 +59,7 @@ r_Structure::r_Structure(const char* newBuffer, const r_Structure_Type* newType)
         numElements = newType->count_elements();
         elements = new r_Scalar*[numElements];
 
-        valueBuffer = static_cast<char*>(mymalloc(newType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(newType->size()));
 
         if (newBuffer)
         {
@@ -76,11 +76,11 @@ r_Structure::r_Structure(const char* newBuffer, const r_Structure_Type* newType)
         {
             if ((*iter).type_of().type_id() == r_Type::STRUCTURETYPE)
             {
-                elements[i] = new r_Structure(valueBuffer + (*iter).offset(), static_cast<r_Structure_Type*>(const_cast<r_Base_Type*>(&((*iter).type_of()))));
+                elements[i] = new r_Structure(valueBuffer + (*iter).offset(), static_cast<r_Structure_Type *>(const_cast<r_Base_Type *>(&((*iter).type_of()))));
             }
             else
             {
-                elements[i] = new r_Primitive(valueBuffer + (*iter).offset(), (r_Primitive_Type*)const_cast<r_Base_Type*>(&((*iter).type_of())));
+                elements[i] = new r_Primitive(valueBuffer + (*iter).offset(), (r_Primitive_Type *)const_cast<r_Base_Type *>(&((*iter).type_of())));
             }
         }
     }
@@ -88,7 +88,7 @@ r_Structure::r_Structure(const char* newBuffer, const r_Structure_Type* newType)
 
 
 
-r_Structure::r_Structure(const r_Structure& obj)
+r_Structure::r_Structure(const r_Structure &obj)
     : r_Scalar(obj),
       numElements(obj.numElements),
       elements(NULL),
@@ -104,7 +104,7 @@ r_Structure::r_Structure(const r_Structure& obj)
         }
     }
 
-    valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+    valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
 
     if (obj.valueBuffer)
     {
@@ -138,7 +138,7 @@ r_Structure::~r_Structure()
 
 
 
-r_Scalar*
+r_Scalar *
 r_Structure::clone() const
 {
     return new r_Structure(*this);
@@ -146,8 +146,8 @@ r_Structure::clone() const
 
 
 
-const r_Structure&
-r_Structure::operator=(const r_Structure& obj)
+const r_Structure &
+r_Structure::operator=(const r_Structure &obj)
 {
     if (this != &obj)
     {
@@ -180,7 +180,7 @@ r_Structure::operator=(const r_Structure& obj)
             free(valueBuffer);
         }
 
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
 
         if (obj.valueBuffer)
         {
@@ -204,21 +204,21 @@ r_Structure::count_elements() const
     return numElements;
 }
 
-const char*
+const char *
 r_Structure::get_buffer() const
 {
     memset(valueBuffer, 0, valueType->size());
 
-    r_Structure_Type::attribute_iterator iter((static_cast<r_Structure_Type*>(valueType))->defines_attribute_begin());
+    r_Structure_Type::attribute_iterator iter((static_cast<r_Structure_Type *>(valueType))->defines_attribute_begin());
 
-    for (int i = 0; iter != (static_cast<r_Structure_Type*>(valueType))->defines_attribute_end(); iter++, i++)
+    for (int i = 0; iter != (static_cast<r_Structure_Type *>(valueType))->defines_attribute_end(); iter++, i++)
         if ((*iter).type_of().type_id() == r_Type::STRUCTURETYPE)
         {
-            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Structure*>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
+            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Structure *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
         }
         else
         {
-            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Primitive*>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
+            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Primitive *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
         }
 
     return valueBuffer;
@@ -233,7 +233,7 @@ r_Structure::isStructure() const
 
 
 
-const r_Scalar&
+const r_Scalar &
 r_Structure::operator[](unsigned int index) const
 {
     if (!valueType)
@@ -253,8 +253,8 @@ r_Structure::operator[](unsigned int index) const
 
 
 
-const r_Scalar&
-r_Structure::operator[](const char* name) const
+const r_Scalar &
+r_Structure::operator[](const char *name) const
 {
     if (!valueType)
     {
@@ -263,7 +263,7 @@ r_Structure::operator[](const char* name) const
         throw (err);
     }
 
-    r_Structure_Type* structType = static_cast<r_Structure_Type*>(valueType);
+    r_Structure_Type *structType = static_cast<r_Structure_Type *>(valueType);
 
     r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
 
@@ -282,7 +282,7 @@ r_Structure::operator[](const char* name) const
 
 
 void
-r_Structure::print_status(std::ostream& s) const
+r_Structure::print_status(std::ostream &s) const
 {
     if (valueType)
     {
@@ -308,7 +308,7 @@ r_Structure::print_status(std::ostream& s) const
 
 
 
-std::ostream& operator<<(std::ostream& s, const r_Structure& obj)
+std::ostream &operator<<(std::ostream &s, const r_Structure &obj)
 {
     obj.print_status(s);
     return s;

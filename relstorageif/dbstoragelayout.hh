@@ -67,7 +67,7 @@ public:
 
     //@}
 
-    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
     //@Man: check operations
     //@{
@@ -125,7 +125,7 @@ public:
 
     void setTileSize(r_Bytes ts);
 
-    void setTileConfiguration(const r_Minterval& tc);
+    void setTileConfiguration(const r_Minterval &tc);
 
     void setDataFormat(r_Data_Format df);
 
@@ -139,7 +139,7 @@ public:
     //@}
 
 protected:
-    DBStorageLayout(const OId& id);
+    DBStorageLayout(const OId &id);
 
     friend class ObjectBroker;
 

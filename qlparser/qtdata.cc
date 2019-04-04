@@ -57,7 +57,7 @@ QtData::QtData(const std::string name)
 
 
 
-QtData::QtData(const QtData& obj)
+QtData::QtData(const QtData &obj)
     : NullValuesHandler(),
       parseInfo(NULL),
       iteratorName(obj.iteratorName),
@@ -96,8 +96,8 @@ QtData::isScalarData() const
 
 
 
-const QtData&
-QtData::operator=(const QtData& obj)
+const QtData &
+QtData::operator=(const QtData &obj)
 {
     LTRACE << "QtData::operator=";
 
@@ -125,7 +125,7 @@ QtData::operator=(const QtData& obj)
 
 
 void
-QtData::printStatus(std::ostream& stream) const
+QtData::printStatus(std::ostream &stream) const
 {
     if (iteratorName.size())
     {

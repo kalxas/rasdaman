@@ -62,22 +62,22 @@ public:
     };
 
     /// constructor getting command, collection and type name (create collection)
-    QtCommand(QtCommandType initCommand, const QtCollection& initCollection, const std::string& initType);
+    QtCommand(QtCommandType initCommand, const QtCollection &initCollection, const std::string &initType);
 
     /// constructor getting command and collection name (drop collection)
-    QtCommand(QtCommandType initCommand, const QtCollection& initCollection);
+    QtCommand(QtCommandType initCommand, const QtCollection &initCollection);
 
     /// constructor getting command, collection name and query tree node (create collection from query result)
-    QtCommand(QtCommandType initCommand, const QtCollection& initCollection, QtOperationIterator* collection);
+    QtCommand(QtCommandType initCommand, const QtCollection &initCollection, QtOperationIterator *collection);
 
     /// method for evaluating the node
-    virtual QtData* evaluate();
+    virtual QtData *evaluate();
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -86,26 +86,26 @@ public:
     virtual void checkType();
 
 private:
-    
+
     static const size_t MAX_COLLECTION_NAME_LENGTH = 200;
 
     /// create a collection
-    OId createCollection(const QtCollection& collection, std::string typeName);
+    OId createCollection(const QtCollection &collection, std::string typeName);
 
     /// alter the type of a collection
-    void alterCollection(const QtCollection& collection, std::string typeName);
+    void alterCollection(const QtCollection &collection, std::string typeName);
 
     /// drop a given collection
-    void dropCollection(const QtCollection& collection);
+    void dropCollection(const QtCollection &collection);
 
     /// Creates a datatype from query results. Returns the type name of the new collection.
-    std::string getSelectedDataType(std::vector<QtData*>* data);
+    std::string getSelectedDataType(std::vector<QtData *> *data);
 
     /// Inserts evaluated "data" into the given collection
-    void insertIntoCollection(std::vector<QtData*>* data, const QtCollection& collection);
+    void insertIntoCollection(std::vector<QtData *> *data, const QtCollection &collection);
 
     /// Returns true if a collection exists with the given name
-    bool collectionExists(const QtCollection& collection);
+    bool collectionExists(const QtCollection &collection);
 
     /// command type
     QtCommandType command;
@@ -120,7 +120,7 @@ private:
     std::string typeName;
 
     /// query tree operation; its results will be inserted into a new collection
-    QtOperationIterator* childNode;
+    QtOperationIterator *childNode;
 
     /// temporary type prefixes
     static const std::string tmpSetTypePrefix;

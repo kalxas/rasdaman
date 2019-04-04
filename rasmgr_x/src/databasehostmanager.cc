@@ -42,7 +42,7 @@ using std::runtime_error;
 DatabaseHostManager::~DatabaseHostManager()
 {}
 
-void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost)
+void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost)
 {
     if (!newDbHost.has_host_name() || newDbHost.host_name().empty())
     {
@@ -79,7 +79,7 @@ void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto& 
     }
 }
 
-void DatabaseHostManager::changeDatabaseHost(const std::string& oldName, const DatabaseHostPropertiesProto& newProperties)
+void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const DatabaseHostPropertiesProto &newProperties)
 {
     list<shared_ptr<DatabaseHost>>::iterator it;
     bool changed = false;
@@ -129,7 +129,7 @@ void DatabaseHostManager::changeDatabaseHost(const std::string& oldName, const D
     }
 }
 
-void DatabaseHostManager::removeDatabaseHost(const std::string& dbHostName)
+void DatabaseHostManager::removeDatabaseHost(const std::string &dbHostName)
 {
     bool erased = false;
     list<shared_ptr<DatabaseHost>>::iterator it;
@@ -160,7 +160,7 @@ void DatabaseHostManager::removeDatabaseHost(const std::string& dbHostName)
     }
 }
 
-boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string& dbHostName)
+boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDatabaseHost(const std::string &dbHostName)
 {
     list<shared_ptr<DatabaseHost>>::iterator it;
 

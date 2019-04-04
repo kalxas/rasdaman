@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "keyobject.hh"
 #include "tilemgr/tile.hh"
 
-ostream& operator<<(ostream& in,  const KeyObject& d)
+ostream &operator<<(ostream &in,  const KeyObject &d)
 {
     if (d.isPersCarrier())
     {
@@ -42,7 +42,7 @@ KeyObject::KeyObject()
 {
 }
 
-KeyObject::KeyObject(const KeyObject& old)
+KeyObject::KeyObject(const KeyObject &old)
     :   persobject(old.persobject),
         domain(old.domain),
         transobject(old.transobject)
@@ -55,7 +55,7 @@ KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
 {
     if (tile->isPersistent())
     {
-        persobject = static_cast<const DBObjectId&>(tile->getDBTile());
+        persobject = static_cast<const DBObjectId &>(tile->getDBTile());
     }
     else
     {
@@ -63,7 +63,7 @@ KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
     }
 }
 
-KeyObject::KeyObject(const DBObjectId& obj, const r_Minterval& dom)
+KeyObject::KeyObject(const DBObjectId &obj, const r_Minterval &dom)
     :   persobject(obj),
         domain(dom)
 {
@@ -75,7 +75,7 @@ KeyObject::~KeyObject() noexcept(false)
 }
 
 void
-KeyObject::setDomain(const r_Minterval& dom)
+KeyObject::setDomain(const r_Minterval &dom)
 {
     domain = dom;
 }
@@ -88,7 +88,7 @@ KeyObject::setTransObject(boost::shared_ptr<Tile> tile)
 }
 
 void
-KeyObject::setObject(const DBObjectId& obj)
+KeyObject::setObject(const DBObjectId &obj)
 {
     persobject = obj;
 }
@@ -119,7 +119,7 @@ KeyObject::getTransObject() const
     return transobject;
 }
 
-const DBObjectId&
+const DBObjectId &
 KeyObject::getObject() const
 {
     return persobject;

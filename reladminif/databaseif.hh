@@ -66,13 +66,13 @@ using std::ostream;
 class DatabaseIf
 {
 public:
-    friend std::ostream& operator<< (std::ostream& stream, DatabaseIf& db);
+    friend std::ostream &operator<< (std::ostream &stream, DatabaseIf &db);
     /*@Doc:
     prints the status of the database (connected, online, offline, name)
     */
 
     /// opens database with name {\tt dbName}.
-    void open(const char* dbName);
+    void open(const char *dbName);
     /*@Doc:
         Precondition: not opened, not connected, db exists
         Postcondition: open, not connected, db exists
@@ -89,7 +89,7 @@ public:
         closes currently opened database.  only frees name and sets connected/opened to false.
     */
 
-    static void createDB(const char* dbName, const char* schemaName, const char* volumeName = 0);
+    static void createDB(const char *dbName, const char *schemaName, const char *volumeName = 0);
     /*@Doc:
         Precondition: not open, not connected, db does not exist
         Postcondition: not open, not connected, db exists
@@ -97,7 +97,7 @@ public:
         only successful if dbName is RASBASE
     */
 
-    static void destroyDB(const char* dbName);
+    static void destroyDB(const char *dbName);
     /*@Doc:
         Precondition: not open, not connected, db exists
         Postcondition: not open, not connected, db does not exist
@@ -108,7 +108,7 @@ public:
     */
 
 
-    const char* getName() const;
+    const char *getName() const;
     /*@Doc:
     returns a pointer to the name of the db.
     */
@@ -133,7 +133,7 @@ public:
     executes a baseDBMSClose() if it is still connected.
     */
 
-    static bool databaseExists(const char* dbname);
+    static bool databaseExists(const char *dbname);
     /*@Doc:
         Precondition: none checked.  db must be open and connected.
         Postcondition: none
@@ -204,7 +204,7 @@ private:
     TRUE only if database is open.
     */
 
-    char* myName;
+    char *myName;
     /*@Doc:
     Valid only if opened.
     */
@@ -214,7 +214,7 @@ private:
     TRUE only if database connection exists ; )
     */
 
-    static const char* DefaultDatabaseName;
+    static const char *DefaultDatabaseName;
     /*@Doc:
     only one database is supported.  any database name given is compared to this string.
     access to the db is only granted if the name of the database is the same as this string.

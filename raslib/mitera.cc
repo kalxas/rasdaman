@@ -33,8 +33,8 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include <logging.hh>
 
-r_MiterArea::r_MiterArea(const r_Minterval* newIterDom,
-                         const r_Minterval* newImgDom)
+r_MiterArea::r_MiterArea(const r_Minterval *newIterDom,
+                         const r_Minterval *newImgDom)
     : iterDom(newIterDom), imgDom(newImgDom), done(false)
 {
     if (imgDom->dimension() != iterDom->dimension())

@@ -42,22 +42,22 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include <logging.hh>
 
-DatabaseIf* TransactionIf::lastBase = NULL;
+DatabaseIf *TransactionIf::lastBase = NULL;
 
-DatabaseIf*
+DatabaseIf *
 TransactionIf::getDatabaseIf()
 {
     return lastBase;
 }
 
 void
-TransactionIf::begin(DatabaseIf* currBase, bool readOnly)
+TransactionIf::begin(DatabaseIf *currBase, bool readOnly)
 {
     try
     {
         currBase->baseDBMSOpen();
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         currBase->baseDBMSClose();
         throw err;

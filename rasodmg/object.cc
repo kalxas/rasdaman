@@ -63,13 +63,13 @@ rasdaman GmbH.
 // At the beginning, next and last object types/status are not specified.
 r_Object::ObjectStatus r_Object::next_object_status    = r_Object::no_status;
 r_Object::ObjectType   r_Object::next_object_type      = r_Object::no_object;
-char*                  r_Object::next_object_type_name = 0;
+char                  *r_Object::next_object_type_name = 0;
 r_OId                  r_Object::next_object_oid       = r_OId();
 r_Object::ObjectType   r_Object::last_object_type      = r_Object::no_object;
 
 
 
-r_Object::r_Object(r_Transaction* transactionArg)
+r_Object::r_Object(r_Transaction *transactionArg)
     : object_name(0),
       type_name(0),
       type_structure(0),
@@ -81,12 +81,18 @@ r_Object::r_Object(r_Transaction* transactionArg)
     update_transaction();
 
     if (next_object_type_name)
+    {
         type_name = strdup(next_object_type_name);
+    }
 
     if (next_object_type == persistent_object)
+    {
         LERROR << "Error: A peristent object is constructed with default constructor.";
+    }
     else
+    {
         object_type = transient_object;
+    }
 
     internal_obj_type = 0;
 
@@ -99,7 +105,7 @@ r_Object::r_Object(r_Transaction* transactionArg)
 
 
 
-r_Object::r_Object(unsigned short objType, r_Transaction* transactionArg)
+r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
     : object_name(0),
       type_name(0),
       type_structure(0),
@@ -111,7 +117,9 @@ r_Object::r_Object(unsigned short objType, r_Transaction* transactionArg)
     update_transaction();
 
     if (next_object_type_name)
+    {
         type_name = strdup(next_object_type_name);
+    }
 
     if (next_object_type == persistent_object)
     {
@@ -141,9 +149,13 @@ r_Object::r_Object(unsigned short objType, r_Transaction* transactionArg)
 
         // Add the object to the list of persistent objects in the current transaction.
         if (oid.is_valid())
+        {
             transaction->add_object_list(r_Ref<r_Object>(oid, this, transaction));
+        }
         else
+        {
             transaction->add_object_list(r_Ref<r_Object>(this));
+        }
 
     }
     else
@@ -161,7 +173,7 @@ r_Object::r_Object(unsigned short objType, r_Transaction* transactionArg)
 }
 
 
-r_Object::r_Object(const r_Object& obj, unsigned short objType, r_Transaction* transactionArg)
+r_Object::r_Object(const r_Object &obj, unsigned short objType, r_Transaction *transactionArg)
     : object_name(0),
       type_name(0),
       type_structure(0),
@@ -173,7 +185,9 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType, r_Transaction* t
     update_transaction();
 
     if (next_object_type_name)
+    {
         type_name = strdup(next_object_type_name);
+    }
 
     if (next_object_type == persistent_object)
     {
@@ -203,9 +217,13 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType, r_Transaction* t
 
         // Add the object to the list of persistent objects in the actual transaction.
         if (oid.is_valid())
+        {
             transaction->add_object_list(r_Ref<r_Object>(oid, this, transaction));
+        }
         else
+        {
             transaction->add_object_list(r_Ref<r_Object>(this));
+        }
     }
     else
     {
@@ -221,10 +239,14 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType, r_Transaction* t
     r_Object::next_object_oid       = r_OId();
 
     if (obj.object_name)
+    {
         object_name = strdup(obj.object_name);
+    }
 
     if (obj.type_name && !type_name)
+    {
         type_name = strdup(obj.type_name);
+    }
 
     if (obj.type_structure)
     {
@@ -234,7 +256,7 @@ r_Object::r_Object(const r_Object& obj, unsigned short objType, r_Transaction* t
 }
 
 void
-r_Object::set_type_schema(const r_Type* tyy)
+r_Object::set_type_schema(const r_Type *tyy)
 {
     if (type_schema)
     {
@@ -325,15 +347,15 @@ r_Object::r_deactivate()
  * Description...: New operator set the next_object_type and
  *                 allocates memory for the object.
  ************************************************************/
-void*
-r_Object::operator new(size_t size)
+void *
+r_Object::operator new (size_t size)
 {
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
     r_Object::next_object_type_name = 0;
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc(size);
+    void *a = mymalloc(size);
     return a;
 }
 
@@ -351,29 +373,29 @@ r_Object::operator new(size_t size)
  * Description...: New operator set the next_object_type and
  *                 allocates memory for the object.
  ************************************************************/
-void*
-r_Object::operator new(size_t size, r_Database* /*database*/, const char* type_name)
+void *
+r_Object::operator new (size_t size, r_Database * /*database*/, const char *type_name)
 {
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = created;
-    r_Object::next_object_type_name = const_cast<char*>(type_name);
+    r_Object::next_object_type_name = const_cast<char *>(type_name);
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc(size);
+    void *a = mymalloc(size);
     return a;
 }
 
 
 
-void*
-r_Object::operator new(size_t size, const char* type_name)
+void *
+r_Object::operator new (size_t size, const char *type_name)
 {
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
-    r_Object::next_object_type_name = const_cast<char*>(type_name);
+    r_Object::next_object_type_name = const_cast<char *>(type_name);
     r_Object::next_object_oid       = r_OId();
 
-    void* a = mymalloc(size);
+    void *a = mymalloc(size);
     return a;
 }
 
@@ -395,7 +417,7 @@ r_Object::operator new(size_t size, const char* type_name)
  *                 commits.
  ************************************************************/
 void
-r_Object::operator delete(void* obj_ptr)
+r_Object::operator delete (void *obj_ptr)
 {
     if (r_Object::last_object_type == transient_object)
     {
@@ -457,21 +479,21 @@ r_Object::test_type(ObjectType type)
  *   persistent object and the next_object_status to the
  *   given status. Memory for the object is allocated.
  ************************************************************/
-void*
-r_Object::operator new(size_t size, r_Database* /*database*/, ObjectStatus status, const r_OId& oid)
+void *
+r_Object::operator new (size_t size, r_Database * /*database*/, ObjectStatus status, const r_OId &oid)
 {
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = status;
     r_Object::next_object_type_name = 0;
     r_Object::next_object_oid       = oid;
 
-    void* a = mymalloc(size);
+    void *a = mymalloc(size);
     return a;
 }
 
 
 
-const r_Type*
+const r_Type *
 r_Object::get_type_schema()
 {
     if (!type_schema)
@@ -484,35 +506,47 @@ r_Object::get_type_schema()
             ClientComm::r_Type_Type typeType = static_cast<ClientComm::r_Type_Type>(0);
 
             if (transaction == NULL || transaction->get_status() != r_Transaction::active)
+            {
                 return NULL;
+            }
 
             // we need an open database and an active transaction
             if (transaction->getDatabase() == NULL || transaction->getDatabase()->get_status() == r_Database::not_open)
+            {
                 return NULL;
+            }
 
             // set the object type and contact the database if the type name is defined.
             if (internal_obj_type == 1)
+            {
                 typeType = ClientComm::r_MDDType_Type;
+            }
             else if (internal_obj_type == 2)
+            {
                 typeType = ClientComm::r_SetType_Type;
+            }
 
             if ((type_name == NULL) || (strlen(type_name) == 0) || (typeType == 0))
+            {
                 return NULL;
+            }
 
             try
             {
                 type_structure = transaction->getDatabase()->getComm()->getTypeStructure(type_name, typeType);
             }
-            catch (r_Error& errObj)
+            catch (r_Error &errObj)
             {
-                LERROR << "Failed retriving type structure, error " 
+                LERROR << "Failed retriving type structure, error "
                        << errObj.get_errorno() << ": " << errObj.what();
                 return NULL;
             }
         }
 
         if (type_structure != NULL)
+        {
             type_schema = r_Type::get_any_type(type_structure);
+        }
     }
     return type_schema;
 }
@@ -551,15 +585,19 @@ r_Object::delete_obj_from_db()
 
         // delete myself from the database
         if (oid.get_local_oid())
+        {
             get_transaction()->getDatabase()->getComm()->deleteObjByOId(oid);
+        }
         else
+        {
             LERROR << " no oid ... FAILED";
+        }
     }
 }
 
 
 void
-r_Object::initialize_oid(const r_OId& initOId)
+r_Object::initialize_oid(const r_OId &initOId)
 {
     oid = initOId;
 }
@@ -567,7 +605,9 @@ r_Object::initialize_oid(const r_OId& initOId)
 void r_Object::update_transaction()
 {
     if (!transaction)
+    {
         transaction = r_Transaction::actual_transaction;
+    }
 }
 
 r_Transaction *r_Object::get_transaction() const

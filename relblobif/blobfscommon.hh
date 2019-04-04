@@ -68,8 +68,8 @@ public:
     std::string transactionsPath;
 
     inline
-    BlobFSConfig(const std::string& rootPathArg, const std::string& tilesPathArg,
-                 const std::string& transactionsPathArg)
+    BlobFSConfig(const std::string &rootPathArg, const std::string &tilesPathArg,
+                 const std::string &transactionsPathArg)
         : rootPath(rootPathArg), tilesPath(tilesPathArg),
           transactionsPath(transactionsPathArg)
     {

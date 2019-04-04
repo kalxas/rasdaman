@@ -44,7 +44,7 @@ rasdaman GmbH.
 
 */
 
-const BaseType* constructBaseType(const r_Type* type);
+const BaseType *constructBaseType(const r_Type *type);
 
 class QtConversion : public QtUnaryOperation
 {
@@ -70,43 +70,43 @@ public:
     };
 
     /// constructor getting operand and format conversion type
-    QtConversion(QtOperation* newInput, QtConversionType newConversionType, const char* = NULL);
+    QtConversion(QtOperation *newInput, QtConversionType newConversionType, const char * = NULL);
 
     /// constructor getting operand and format conversion type, along with a format id/mimetype
-    QtConversion(QtOperation* newInput, QtConversionType newConversionType, const std::string& format, const char* params);
+    QtConversion(QtOperation *newInput, QtConversionType newConversionType, const std::string &format, const char *params);
 
     /// set the format conversion type by name
     void setConversionTypeByName(std::string formatName);
 
     /// test if the two nodes have an equal meaning in a subtree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /// evaluates the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
 
     /// set convType and convFormat based on the conversionType
-    void setConversionTypeAndResultFormat(r_Data_Format& convType, r_Data_Format& convFormat);
+    void setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_Format &convFormat);
 
     /// return true if internally implemented convertors should be used, otherwise
     /// false if GDAL should be used.
     bool isInternalFormat(r_Data_Format dataFormat);
 
     /// convert rasdaman type to base type
-    const BaseType* rasTypeToBaseType(r_Type* rasType);
+    const BaseType *rasTypeToBaseType(r_Type *rasType);
 
     /// attribute storing conversion type
     QtConversionType conversionType;
@@ -115,13 +115,13 @@ private:
     static const QtNodeType nodeType;
 
     std::string format;
-    
-    const char* paramStr;
+
+    const char *paramStr;
 
     bool gdalConversion;
 };
 
-extern std::ostream& operator<<(std::ostream& os, QtConversion::QtConversionType t);
+extern std::ostream &operator<<(std::ostream &os, QtConversion::QtConversionType t);
 
 #include "qlparser/qtconversion.icc"
 

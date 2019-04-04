@@ -41,9 +41,9 @@ rasdaman GmbH.
 class QtCellTypeAttributes : public QtOperation
 {
 public:
-    QtCellTypeAttributes(const std::string& attributeName, const std::string& attributeType);
+    QtCellTypeAttributes(const std::string &attributeName, const std::string &attributeType);
 
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     std::string getAttributeName();
     std::string getAttributeType();

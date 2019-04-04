@@ -28,15 +28,15 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const r_Sinterval&
+inline const r_Sinterval &
 QtIntervalData::getIntervalData() const
 {
-  return intervalData;
+    return intervalData;
 }
 
 
 inline void
-QtIntervalData::setIntervalData( const r_Sinterval& interval )
+QtIntervalData::setIntervalData(const r_Sinterval &interval)
 {
-  intervalData = interval;
+    intervalData = interval;
 }

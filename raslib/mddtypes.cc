@@ -46,54 +46,54 @@ rasdaman GmbH.
 /*
  *  The names of all data formats
  */
-const char* format_name_array = "Array";
-const char* format_name_tiff = "TIFF";
-const char* format_name_jpeg = "JPEG";
-const char* format_name_jp2 = "JP2";
-const char* format_name_hdf = "HDF";
-const char* format_name_netcdf = "NETCDF";
-const char* format_name_csv = "CSV";
-const char* format_name_json = "JSON";
-const char* format_name_png = "PNG";
-const char* format_name_zlib = "ZLib";
-const char* format_name_auto_compression = "AutoCompression";
-const char* format_name_bmp = "BMP";
-const char* format_name_ppm = "PPM";
-const char* format_name_rle = "RLE";
-const char* format_name_wavelet_haar = "HaarWavelet";
-const char* format_name_wavelet_daubechies = "DaubechiesWavelet";
-const char* format_name_sep_zlib = "SepZLib";
-const char* format_name_sep_rle = "SepRLE";
-const char* format_name_wavelet_daub6 = "Daubechies6Wavelet";
-const char* format_name_wavelet_daub8 = "Daubechies8Wavelet";
-const char* format_name_wavelet_daub10 = "Daubechies10Wavelet";
-const char* format_name_wavelet_daub12 = "Daubechies12Wavelet";
-const char* format_name_wavelet_daub14 = "Daubechies14Wavelet";
-const char* format_name_wavelet_daub16 = "Daubechies16Wavelet";
-const char* format_name_wavelet_daub18 = "Daubechies18Wavelet";
-const char* format_name_wavelet_daub20 = "Daubechies20Wavelet";
-const char* format_name_wavelet_least8 = "LeastAsym8Wavelet";
-const char* format_name_wavelet_least10 = "LeastAsym10Wavelet";
-const char* format_name_wavelet_least12 = "LeastAsym12Wavelet";
-const char* format_name_wavelet_least14 = "LeastAsym14Wavelet";
-const char* format_name_wavelet_least16 = "LeastAsym16Wavelet";
-const char* format_name_wavelet_least18 = "LeastAsym18Wavelet";
-const char* format_name_wavelet_least20 = "LeastAsym20Wavelet";
-const char* format_name_wavelet_coiflet6 = "Coiflet6Wavelet";
-const char* format_name_wavelet_coiflet12 = "Coiflet12Wavelet";
-const char* format_name_wavelet_coiflet18 = "Coiflet18Wavelet";
-const char* format_name_wavelet_coiflet24 = "Coiflet24Wavelet";
-const char* format_name_wavelet_coiflet30 = "Coiflet30Wavelet";
-const char* format_name_wavelet_qhaar = "QHaarWavelet";
-const char* format_name_dem = "DEM";
-const char* format_name_pack_bits = "PACKBITS";
-const char* format_name_ecw = "ECW";
-const char* format_name_tmc = "TMC";
-const char* format_name_nitf = "NITF";
-const char* format_name_grib = "GRIB";
-const char* format_name_gdal = "GDAL";
+const char *format_name_array = "Array";
+const char *format_name_tiff = "TIFF";
+const char *format_name_jpeg = "JPEG";
+const char *format_name_jp2 = "JP2";
+const char *format_name_hdf = "HDF";
+const char *format_name_netcdf = "NETCDF";
+const char *format_name_csv = "CSV";
+const char *format_name_json = "JSON";
+const char *format_name_png = "PNG";
+const char *format_name_zlib = "ZLib";
+const char *format_name_auto_compression = "AutoCompression";
+const char *format_name_bmp = "BMP";
+const char *format_name_ppm = "PPM";
+const char *format_name_rle = "RLE";
+const char *format_name_wavelet_haar = "HaarWavelet";
+const char *format_name_wavelet_daubechies = "DaubechiesWavelet";
+const char *format_name_sep_zlib = "SepZLib";
+const char *format_name_sep_rle = "SepRLE";
+const char *format_name_wavelet_daub6 = "Daubechies6Wavelet";
+const char *format_name_wavelet_daub8 = "Daubechies8Wavelet";
+const char *format_name_wavelet_daub10 = "Daubechies10Wavelet";
+const char *format_name_wavelet_daub12 = "Daubechies12Wavelet";
+const char *format_name_wavelet_daub14 = "Daubechies14Wavelet";
+const char *format_name_wavelet_daub16 = "Daubechies16Wavelet";
+const char *format_name_wavelet_daub18 = "Daubechies18Wavelet";
+const char *format_name_wavelet_daub20 = "Daubechies20Wavelet";
+const char *format_name_wavelet_least8 = "LeastAsym8Wavelet";
+const char *format_name_wavelet_least10 = "LeastAsym10Wavelet";
+const char *format_name_wavelet_least12 = "LeastAsym12Wavelet";
+const char *format_name_wavelet_least14 = "LeastAsym14Wavelet";
+const char *format_name_wavelet_least16 = "LeastAsym16Wavelet";
+const char *format_name_wavelet_least18 = "LeastAsym18Wavelet";
+const char *format_name_wavelet_least20 = "LeastAsym20Wavelet";
+const char *format_name_wavelet_coiflet6 = "Coiflet6Wavelet";
+const char *format_name_wavelet_coiflet12 = "Coiflet12Wavelet";
+const char *format_name_wavelet_coiflet18 = "Coiflet18Wavelet";
+const char *format_name_wavelet_coiflet24 = "Coiflet24Wavelet";
+const char *format_name_wavelet_coiflet30 = "Coiflet30Wavelet";
+const char *format_name_wavelet_qhaar = "QHaarWavelet";
+const char *format_name_dem = "DEM";
+const char *format_name_pack_bits = "PACKBITS";
+const char *format_name_ecw = "ECW";
+const char *format_name_tmc = "TMC";
+const char *format_name_nitf = "NITF";
+const char *format_name_grib = "GRIB";
+const char *format_name_gdal = "GDAL";
 
-const char* all_data_format_names[r_Data_Format_NUMBER] =
+const char *all_data_format_names[r_Data_Format_NUMBER] =
 {
     format_name_array,
     format_name_tiff,
@@ -144,7 +144,7 @@ const char* all_data_format_names[r_Data_Format_NUMBER] =
 };
 
 
-const char* get_name_from_data_format(r_Data_Format fmt)
+const char *get_name_from_data_format(r_Data_Format fmt)
 {
     unsigned int idx = static_cast<unsigned int>(fmt);
 
@@ -157,7 +157,7 @@ const char* get_name_from_data_format(r_Data_Format fmt)
 }
 
 
-r_Data_Format get_data_format_from_name(const char* name)
+r_Data_Format get_data_format_from_name(const char *name)
 {
     if (!name)
     {
@@ -178,29 +178,29 @@ r_Data_Format get_data_format_from_name(const char* name)
 
 
 
-std::ostream& operator<<(std::ostream& s, r_Data_Format& d)
+std::ostream &operator<<(std::ostream &s, r_Data_Format &d)
 {
     s << static_cast<const r_Data_Format>(d);
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Data_Format& d)
+std::ostream &operator<<(std::ostream &s, const r_Data_Format &d)
 {
     s << get_name_from_data_format(d);
 
     return s;
 }
 
-const char* scale_function_name_subsampling = "subsampling";
-const char* scale_function_name_bitaggregation = "bitaggregation";
+const char *scale_function_name_subsampling = "subsampling";
+const char *scale_function_name_bitaggregation = "bitaggregation";
 
-const char* all_scale_function_names[r_Scale_Function_NUMBER] =
+const char *all_scale_function_names[r_Scale_Function_NUMBER] =
 {
     scale_function_name_subsampling,
     scale_function_name_bitaggregation
 };
 
-const char* get_name_from_scale_function(r_Scale_Function fmt)
+const char *get_name_from_scale_function(r_Scale_Function fmt)
 {
     unsigned int idx = static_cast<unsigned int>(fmt);
 
@@ -213,7 +213,7 @@ const char* get_name_from_scale_function(r_Scale_Function fmt)
 }
 
 
-r_Scale_Function get_scale_function_from_name(const char* name)
+r_Scale_Function get_scale_function_from_name(const char *name)
 {
     if (!name)
     {
@@ -232,7 +232,7 @@ r_Scale_Function get_scale_function_from_name(const char* name)
     return static_cast<r_Scale_Function>(i);
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Scale_Function& d)
+std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d)
 {
     s << get_name_from_scale_function(d);
 
@@ -243,15 +243,15 @@ std::ostream& operator<<(std::ostream& s, const r_Scale_Function& d)
  * The names of all index type
  */
 
-const char* index_name_auto = "auto";
-const char* index_name_directory = "dir";
-const char* index_name_regdirectory = "rdir";
-const char* index_name_rplustree = "nrp";
-const char* index_name_regrplustree = "rnrp";
-const char* index_name_tilecontainer = "tc";
-const char* index_name_regcomputed = "rc";
+const char *index_name_auto = "auto";
+const char *index_name_directory = "dir";
+const char *index_name_regdirectory = "rdir";
+const char *index_name_rplustree = "nrp";
+const char *index_name_regrplustree = "rnrp";
+const char *index_name_tilecontainer = "tc";
+const char *index_name_regcomputed = "rc";
 
-const char* all_index_type_names[r_Index_Type_NUMBER] =
+const char *all_index_type_names[r_Index_Type_NUMBER] =
 {
     index_name_auto,
     index_name_directory,
@@ -262,7 +262,7 @@ const char* all_index_type_names[r_Index_Type_NUMBER] =
     index_name_regcomputed
 };
 
-const char* get_name_from_index_type(r_Index_Type it)
+const char *get_name_from_index_type(r_Index_Type it)
 {
     unsigned int idx = static_cast<unsigned int>(it);
 
@@ -279,7 +279,7 @@ const char* get_name_from_index_type(r_Index_Type it)
     return all_index_type_names[idx];
 }
 
-r_Index_Type get_index_type_from_name(const char* name)
+r_Index_Type get_index_type_from_name(const char *name)
 {
     if (!name)
     {
@@ -299,7 +299,7 @@ r_Index_Type get_index_type_from_name(const char* name)
 }
 
 
-std::ostream& operator<<(std::ostream& s, r_Index_Type d)
+std::ostream &operator<<(std::ostream &s, r_Index_Type d)
 {
     switch (d)
     {
@@ -339,15 +339,15 @@ std::ostream& operator<<(std::ostream& s, r_Index_Type d)
  *  The names of all tiling schemes
  */
 
-const char* tiling_name_notiling = "NoTiling";
-const char* tiling_name_regulartiling = "RegularTiling";
-const char* tiling_name_statisticaltiling = "StatisticalTiling";
-const char* tiling_name_interesttiling = "InterestTiling";
-const char* tiling_name_alignedtiling = "AlignedTiling";
-const char* tiling_name_directionaltiling = "DirectionalTiling";
-const char* tiling_name_sizetiling = "SizeTiling";
+const char *tiling_name_notiling = "NoTiling";
+const char *tiling_name_regulartiling = "RegularTiling";
+const char *tiling_name_statisticaltiling = "StatisticalTiling";
+const char *tiling_name_interesttiling = "InterestTiling";
+const char *tiling_name_alignedtiling = "AlignedTiling";
+const char *tiling_name_directionaltiling = "DirectionalTiling";
+const char *tiling_name_sizetiling = "SizeTiling";
 
-const char* all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
+const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
 {
     tiling_name_notiling,
     tiling_name_regulartiling,
@@ -358,7 +358,7 @@ const char* all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
     tiling_name_sizetiling
 };
 
-const char* get_name_from_tiling_scheme(r_Tiling_Scheme ts)
+const char *get_name_from_tiling_scheme(r_Tiling_Scheme ts)
 {
     unsigned int idx = static_cast<unsigned int>(ts);
 
@@ -370,7 +370,7 @@ const char* get_name_from_tiling_scheme(r_Tiling_Scheme ts)
     return all_tiling_scheme_names[idx];
 }
 
-r_Tiling_Scheme get_tiling_scheme_from_name(const char* name)
+r_Tiling_Scheme get_tiling_scheme_from_name(const char *name)
 {
     if (!name)
     {
@@ -389,13 +389,13 @@ r_Tiling_Scheme get_tiling_scheme_from_name(const char* name)
     return static_cast<r_Tiling_Scheme>(i);
 }
 
-std::ostream& operator<<(std::ostream& s, r_Tiling_Scheme d)
+std::ostream &operator<<(std::ostream &s, r_Tiling_Scheme d)
 {
     s << get_name_from_tiling_scheme(d);
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Clustering_Scheme d)
+std::ostream &operator<<(std::ostream &s, const r_Clustering_Scheme d)
 {
     switch (d)
     {
@@ -422,9 +422,9 @@ std::ostream& operator<<(std::ostream& s, const r_Clustering_Scheme d)
 
 #ifdef __VISUALC__
 #include <ctype.h>
-int strcasecmp(const char* s1, const char* s2)
+int strcasecmp(const char *s1, const char *s2)
 {
-    const char* b, *d;
+    const char *b, *d;
 
     b = s1;
     d = s2;

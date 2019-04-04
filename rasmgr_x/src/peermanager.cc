@@ -48,7 +48,7 @@ PeerManager::PeerManager()
 PeerManager::~PeerManager()
 {}
 
-void PeerManager::defineInPeer(const std::string& peerHostName)
+void PeerManager::defineInPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
@@ -58,7 +58,7 @@ void PeerManager::defineInPeer(const std::string& peerHostName)
     unique_lock<mutex> lock(this->mut);
 
     // Check for duplicates
-    for (const auto& inPeer : this->inPeers)
+    for (const auto &inPeer : this->inPeers)
     {
         if (inPeer->getHostName() == peerHostName)
         {
@@ -71,7 +71,7 @@ void PeerManager::defineInPeer(const std::string& peerHostName)
     this->inPeers.push_back(peer);
 }
 
-void PeerManager::removeInPeer(const std::string& peerHostName)
+void PeerManager::removeInPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
@@ -98,7 +98,7 @@ void PeerManager::removeInPeer(const std::string& peerHostName)
     }
 }
 
-void PeerManager::defineOutPeer(const std::string& peerHostName, const boost::uint32_t port)
+void PeerManager::defineOutPeer(const std::string &peerHostName, const boost::uint32_t port)
 {
     if (peerHostName.empty())
     {
@@ -108,7 +108,7 @@ void PeerManager::defineOutPeer(const std::string& peerHostName, const boost::ui
     unique_lock<mutex> lock(this->mut);
 
     // Check for duplicates
-    for (const auto& outPeer : this->outPeers)
+    for (const auto &outPeer : this->outPeers)
     {
         if (outPeer->getHostName() == peerHostName)
         {
@@ -121,7 +121,7 @@ void PeerManager::defineOutPeer(const std::string& peerHostName, const boost::ui
     this->outPeers.push_back(peer);
 }
 
-void PeerManager::removeOutPeer(const std::string& peerHostName)
+void PeerManager::removeOutPeer(const std::string &peerHostName)
 {
     if (peerHostName.empty())
     {
@@ -154,11 +154,11 @@ void PeerManager::removeOutPeer(const std::string& peerHostName)
     }
 }
 
-bool PeerManager::tryGetRemoteServer(const ClientServerRequest& request, ClientServerSession& out_reply)
+bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
 {
     unique_lock<mutex> lock(this->mut);
 
-    for (const auto& outpeer : this->outPeers)
+    for (const auto &outpeer : this->outPeers)
     {
         if (outpeer->tryGetRemoteServer(request, out_reply))
         {
@@ -174,7 +174,7 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest& request, ClientS
     return false;
 }
 
-bool PeerManager::isRemoteClientSession(const RemoteClientSession& clientSession)
+bool PeerManager::isRemoteClientSession(const RemoteClientSession &clientSession)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -183,7 +183,7 @@ bool PeerManager::isRemoteClientSession(const RemoteClientSession& clientSession
     return this->remoteSessions.find(sessionKey) != this->remoteSessions.end();
 }
 
-void PeerManager::releaseServer(const RemoteClientSession& clientSession)
+void PeerManager::releaseServer(const RemoteClientSession &clientSession)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -203,7 +203,7 @@ PeerMgrProto PeerManager::serializeToProto()
 
     PeerMgrProto result;
 
-    for (const auto& outPeer : this->outPeers)
+    for (const auto &outPeer : this->outPeers)
     {
         OutPeerProto outPeerProto;
         outPeerProto.set_host_name(outPeer->getHostName());
@@ -212,7 +212,7 @@ PeerMgrProto PeerManager::serializeToProto()
         result.add_outpeers()->CopyFrom(outPeerProto);
     }
 
-    for (const auto& inPeer : this->inPeers)
+    for (const auto &inPeer : this->inPeers)
     {
         InPeerProto inPeerProto;
         inPeerProto.set_host_name(inPeer->getHostName());
@@ -223,7 +223,7 @@ PeerMgrProto PeerManager::serializeToProto()
     return result;
 }
 
-std::string PeerManager::remoteClientSessionToString(const RemoteClientSession& clientSession)
+std::string PeerManager::remoteClientSessionToString(const RemoteClientSession &clientSession)
 {
     return clientSession.getClientSessionId()
            + ":" + clientSession.getDbSessionId();

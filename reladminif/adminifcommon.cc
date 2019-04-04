@@ -57,13 +57,13 @@ rasdaman GmbH.
 extern char globalConnectId[256];
 
 
-AdminIf* AdminIf::myInstance = NULL;
+AdminIf *AdminIf::myInstance = NULL;
 
 bool AdminIf::validConnection = false;
 
 bool AdminIf::readOnlyTA = false;
 
-DatabaseIf* AdminIf::myDatabaseIf = NULL;
+DatabaseIf *AdminIf::myDatabaseIf = NULL;
 
 char AdminIf::systemName[SYSTEMNAME_MAXLEN + 1];
 const char DEFAULT_SYSTEM_NAME[SYSTEMNAME_MAXLEN] = "localhost";
@@ -89,22 +89,22 @@ AdminIf::setAborted(bool newAborted)
     _isAborted = newAborted;
 }
 
-DatabaseIf*
+DatabaseIf *
 AdminIf::getCurrentDatabaseIf()
 {
     return myDatabaseIf;
 }
 
 void
-AdminIf::setCurrentDatabaseIf(DatabaseIf* db)
+AdminIf::setCurrentDatabaseIf(DatabaseIf *db)
 {
     myDatabaseIf = db;
 }
 
-AdminIf*
+AdminIf *
 AdminIf::instance(bool createDb)
 {
-    AdminIf* retval = NULL;
+    AdminIf *retval = NULL;
 
     int hostResult = gethostname(systemName, sizeof(systemName));
     if (hostResult != 0)
@@ -156,7 +156,7 @@ AdminIf::isReadOnlyTA()
     return readOnlyTA;
 }
 
-char*
+char *
 AdminIf::getSystemName()
 {
     return systemName;

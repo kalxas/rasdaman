@@ -31,15 +31,15 @@ inline
 unsigned long
 ParseInfo::getErrorNo() const
 {
-  return errorNo;
+    return errorNo;
 }
 
 
 
-inline const std::string&
+inline const std::string &
 ParseInfo::getToken() const
 {
-  return token;
+    return token;
 }
 
 
@@ -48,7 +48,7 @@ inline
 unsigned int
 ParseInfo::getLineNo() const
 {
-  return lineNo;
+    return lineNo;
 }
 
 
@@ -56,7 +56,7 @@ ParseInfo::getLineNo() const
 inline unsigned int
 ParseInfo::getColumnNo() const
 {
-  return columnNo;
+    return columnNo;
 }
 
 
@@ -65,37 +65,37 @@ ParseInfo::getColumnNo() const
 inline void
 ParseInfo::setErrorNo(int newNo)
 {
-  errorNo = static_cast<unsigned long>(newNo);
+    errorNo = static_cast<unsigned long>(newNo);
 }
 
 
 
 inline void
-ParseInfo::setToken( const std::string& text )
+ParseInfo::setToken(const std::string &text)
 {
-  token = text;
+    token = text;
 }
 
 
 
 inline void
-ParseInfo::setToken( const char* text )
+ParseInfo::setToken(const char *text)
 {
-  token = std::string(text);
+    token = std::string(text);
 }
 
 
 
 inline void
-ParseInfo::setLineNo( unsigned int newNo )
+ParseInfo::setLineNo(unsigned int newNo)
 {
-  lineNo = newNo;
+    lineNo = newNo;
 }
 
 
 
 inline void
-ParseInfo::setColumnNo( unsigned int newNo )
+ParseInfo::setColumnNo(unsigned int newNo)
 {
-  columnNo = newNo;
+    columnNo = newNo;
 }

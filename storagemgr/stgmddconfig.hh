@@ -62,22 +62,22 @@ public:
     ~StgMddConfig();
 
     // Setter functions
-    void setBBoxes(const std::vector<r_Minterval>& input);
+    void setBBoxes(const std::vector<r_Minterval> &input);
     void setSubTiling();
     void resetSubTiling();
     void setInterestThreshold(double i);
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
-    void setDirDecompose(const std::vector<r_Dir_Decompose>& input);
+    void setDirDecompose(const std::vector<r_Dir_Decompose> &input);
     void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
 
     // Getter functions
-    std::vector<r_Minterval>& getBBoxes();
+    std::vector<r_Minterval> &getBBoxes();
     bool getSubTiling();
     double getInterestThreshold();
     unsigned int getBorderThreshold();
     int getCellSize();
-    std::vector<r_Dir_Decompose>& getDirDecompose();
+    std::vector<r_Dir_Decompose> &getDirDecompose();
     r_Interest_Tiling::Tilesize_Limit getTilingSizeStrategy_AOI();
 
 };

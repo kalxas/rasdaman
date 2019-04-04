@@ -45,7 +45,7 @@ public:
      * @param reply message sent back by the server that will be displayed to the user
      * @throw std::exception if the command is invalid or communication with the server fails.
      */
-    void executeCommand(const std::string& command, std::string& reply);
+    void executeCommand(const std::string &command, std::string &reply);
 
     /**
      * @brief isExitCommand Check if the string represents an exit command.
@@ -58,7 +58,7 @@ public:
      * Send a login message and check if the client credentials are valid.
      * @param reply The reply from the rasmgr
      */
-    void executeLogin(std::string& reply);
+    void executeLogin(std::string &reply);
 
 private:
     boost::shared_ptr<ControlRasMgrComm> communication; /*!< Communication object used to forward messages to the server and receive replies */

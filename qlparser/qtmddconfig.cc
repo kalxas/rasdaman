@@ -56,12 +56,12 @@ QtDataType QtMDDConfig::getDataType() const
     return QT_MDD_CONFIG;
 }
 
-char* QtMDDConfig::getTypeStructure() const
+char *QtMDDConfig::getTypeStructure() const
 {
     return NULL;
 }
 
-bool QtMDDConfig::equal(__attribute__((unused)) const QtData* p) const
+bool QtMDDConfig::equal(__attribute__((unused)) const QtData *p) const
 {
     bool eq = false;
     return eq;
@@ -73,7 +73,7 @@ string QtMDDConfig::getSpelling() const
 }
 
 QtMDDConfig::QtMDDConfig(int tilingType2, int tileSize2, int borderThreshold2,
-                         double interestThreshold2, QtOperation* tileCfg2, QtNode::QtOperationList* box2, std::vector<r_Dir_Decompose>* dDecomp2,
+                         double interestThreshold2, QtOperation *tileCfg2, QtNode::QtOperationList *box2, std::vector<r_Dir_Decompose> *dDecomp2,
                          int indexType2)
 {
     this->tilingType = tilingType2;
@@ -87,7 +87,7 @@ QtMDDConfig::QtMDDConfig(int tilingType2, int tileSize2, int borderThreshold2,
 }
 
 QtMDDConfig::QtMDDConfig(int tilingType2, int tileSize2, int borderThreshold2,
-                         double interestThreshold2, QtOperation* tileCfg2, QtNode::QtOperationList* box2, std::vector<r_Dir_Decompose>* dDecomp2)
+                         double interestThreshold2, QtOperation *tileCfg2, QtNode::QtOperationList *box2, std::vector<r_Dir_Decompose> *dDecomp2)
 {
     this->tilingType = tilingType2;
     this->tileSize = tileSize2;
@@ -127,7 +127,7 @@ double QtMDDConfig::getInterestThreshold()
     return interestThreshold;
 }
 
-std::vector<r_Dir_Decompose>* QtMDDConfig::getDirDecomp()
+std::vector<r_Dir_Decompose> *QtMDDConfig::getDirDecomp()
 {
     return dDecomp;
 }
@@ -152,12 +152,12 @@ int QtMDDConfig::getTilingType()
     return tilingType;
 }
 
-QtNode::QtOperationList* QtMDDConfig::getBboxList()
+QtNode::QtOperationList *QtMDDConfig::getBboxList()
 {
     return box;
 }
 
-QtOperation* QtMDDConfig::getTileCfg()
+QtOperation *QtMDDConfig::getTileCfg()
 {
     return tileCfg;
 }

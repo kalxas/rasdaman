@@ -44,35 +44,35 @@ rasdaman GmbH.
 #include <fstream>
 #include <stdlib.h>
 
-r_Primitive::r_Primitive(const char* newBuffer, const r_Primitive_Type* newType)
+r_Primitive::r_Primitive(const char *newBuffer, const r_Primitive_Type *newType)
     : r_Scalar(newType)
 {
     if (valueType)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
         if (newBuffer)
         {
-            memcpy(static_cast<void*>(valueBuffer), static_cast<void*>(const_cast<char*>(newBuffer)), valueType->size());
+            memcpy(static_cast<void *>(valueBuffer), static_cast<void *>(const_cast<char *>(newBuffer)), valueType->size());
         }
         else
         {
-            memset(static_cast<void*>(valueBuffer), 0, valueType->size());
+            memset(static_cast<void *>(valueBuffer), 0, valueType->size());
         }
     }
 }
 
-r_Primitive::r_Primitive(const r_Primitive& obj)
+r_Primitive::r_Primitive(const r_Primitive &obj)
     : r_Scalar(obj),
       valueBuffer(NULL)
 {
-    valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+    valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     if (obj.valueBuffer)
     {
-        memcpy(static_cast<void*>(valueBuffer), static_cast<void*>(obj.valueBuffer), valueType->size());
+        memcpy(static_cast<void *>(valueBuffer), static_cast<void *>(obj.valueBuffer), valueType->size());
     }
     else
     {
-        memset(static_cast<void*>(valueBuffer), 0, valueType->size());
+        memset(static_cast<void *>(valueBuffer), 0, valueType->size());
     }
 }
 
@@ -90,7 +90,7 @@ r_Primitive::isPrimitive() const
     return true;
 }
 
-r_Scalar*
+r_Scalar *
 r_Primitive::clone() const
 {
     return new r_Primitive(*this);
@@ -98,8 +98,8 @@ r_Primitive::clone() const
 
 
 
-const r_Primitive&
-r_Primitive::operator=(const r_Primitive& obj)
+const r_Primitive &
+r_Primitive::operator=(const r_Primitive &obj)
 {
     if (this != &obj)
     {
@@ -114,14 +114,14 @@ r_Primitive::operator=(const r_Primitive& obj)
 
         if (valueType)
         {
-            valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+            valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
             if (obj.valueBuffer)
             {
-                memcpy(static_cast<void*>(valueBuffer), static_cast<void*>(obj.valueBuffer), valueType->size());
+                memcpy(static_cast<void *>(valueBuffer), static_cast<void *>(obj.valueBuffer), valueType->size());
             }
             else
             {
-                memset(static_cast<void*>(valueBuffer), 0, valueType->size());
+                memset(static_cast<void *>(valueBuffer), 0, valueType->size());
             }
         }
     }
@@ -131,7 +131,7 @@ r_Primitive::operator=(const r_Primitive& obj)
 
 
 
-const char*
+const char *
 r_Primitive::get_buffer() const
 {
     return valueBuffer;
@@ -140,7 +140,7 @@ r_Primitive::get_buffer() const
 
 
 void
-r_Primitive::print_status(std::ostream& s) const
+r_Primitive::print_status(std::ostream &s) const
 {
     if (valueType && valueBuffer)
     {
@@ -164,7 +164,7 @@ r_Primitive::get_boolean() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_boolean(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_boolean(valueBuffer);
 }
 
 
@@ -179,7 +179,7 @@ r_Primitive::get_char() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_char(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_char(valueBuffer);
 }
 
 
@@ -194,7 +194,7 @@ r_Primitive::get_octet() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_octet(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_octet(valueBuffer);
 }
 
 
@@ -209,7 +209,7 @@ r_Primitive::get_short() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_short(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_short(valueBuffer);
 }
 
 
@@ -224,7 +224,7 @@ r_Primitive::get_ushort() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_ushort(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_ushort(valueBuffer);
 }
 
 
@@ -239,7 +239,7 @@ r_Primitive::get_long() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_long(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_long(valueBuffer);
 }
 
 
@@ -254,7 +254,7 @@ r_Primitive::get_ulong() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_ulong(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_ulong(valueBuffer);
 }
 
 
@@ -269,7 +269,7 @@ r_Primitive::get_float() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_float(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_float(valueBuffer);
 }
 
 
@@ -284,7 +284,7 @@ r_Primitive::get_double() const
         throw err;
     }
 
-    return (static_cast<r_Primitive_Type*>(valueType))->get_double(valueBuffer);
+    return (static_cast<r_Primitive_Type *>(valueType))->get_double(valueBuffer);
 }
 
 
@@ -300,7 +300,7 @@ r_Primitive::set_boolean(r_Boolean val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -320,7 +320,7 @@ r_Primitive::set_char(r_Char val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -340,7 +340,7 @@ r_Primitive::set_octet(r_Octet val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -360,7 +360,7 @@ r_Primitive::set_short(r_Short val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -380,7 +380,7 @@ r_Primitive::set_ushort(r_UShort val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -400,7 +400,7 @@ r_Primitive::set_long(r_Long val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -420,7 +420,7 @@ r_Primitive::set_ulong(r_ULong val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -440,7 +440,7 @@ r_Primitive::set_float(r_Float val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
 
     memmove(valueBuffer, &val, valueType->size());
@@ -460,13 +460,13 @@ r_Primitive::set_double(r_Double val)
 
     if (!valueBuffer)
     {
-        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
+        valueBuffer = static_cast<char *>(mymalloc(valueType->size()));
     }
     memmove(valueBuffer, &val, valueType->size());
 }
 
 
-std::ostream& operator<<(std::ostream& s, const r_Primitive& obj)
+std::ostream &operator<<(std::ostream &s, const r_Primitive &obj)
 {
     obj.print_status(s);
     return s;

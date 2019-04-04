@@ -42,10 +42,14 @@ template<class T>
 inline int
 r_Collection<T>::is_empty() const
 {
-    if ( coll->elem )
+    if (coll->elem)
+    {
         return false;
+    }
     else
+    {
         return true;
+    }
 }
 
 
@@ -66,8 +70,8 @@ r_Collection<T>::allows_duplicates() const
 
 
 template<class T>
-inline void*
+inline void *
 r_Collection<T>::get_internal_representation() const
 {
-    return static_cast<void*>(coll);
+    return static_cast<void *>(coll);
 }

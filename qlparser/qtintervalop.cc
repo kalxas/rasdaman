@@ -53,7 +53,7 @@ using namespace std;
 
 const QtNode::QtNodeType QtIntervalOp::nodeType = QT_INTERVALOP;
 
-QtIntervalOp::QtIntervalOp(QtOperation* initInput1, QtOperation* initInput2)
+QtIntervalOp::QtIntervalOp(QtOperation *initInput1, QtOperation *initInput2)
     :  QtBinaryOperation(initInput1, initInput2)
 {
 }
@@ -68,13 +68,13 @@ QtIntervalOp::isCommutative() const
 
 
 
-QtData*
-QtIntervalOp::evaluate(QtDataList* inputList)
+QtData *
+QtIntervalOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtIntervalOp");
-    QtData* returnValue = NULL;
-    QtData* operand1 = NULL;
-    QtData* operand2 = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand1 = NULL;
+    QtData *operand2 = NULL;
 
     if (getOperands(inputList, operand1, operand2))
     {
@@ -87,7 +87,7 @@ QtIntervalOp::evaluate(QtDataList* inputList)
         case QT_OCTET:
             try
             {
-                sinterval.set_low(static_cast<r_Range>((static_cast<QtAtomicData*>(operand1))->getSignedValue()));
+                sinterval.set_low(static_cast<r_Range>((static_cast<QtAtomicData *>(operand1))->getSignedValue()));
             }
             catch (...)
             {
@@ -113,7 +113,7 @@ QtIntervalOp::evaluate(QtDataList* inputList)
         case QT_CHAR:
             try
             {
-                sinterval.set_low(static_cast<r_Range>(static_cast<QtAtomicData*>(operand1)->getUnsignedValue()));
+                sinterval.set_low(static_cast<r_Range>(static_cast<QtAtomicData *>(operand1)->getUnsignedValue()));
             }
             catch (...)
             {
@@ -135,8 +135,8 @@ QtIntervalOp::evaluate(QtDataList* inputList)
             break;
 
         case QT_STRING:
-            QtStringData* p;
-            p = dynamic_cast<QtStringData*>(operand1);
+            QtStringData *p;
+            p = dynamic_cast<QtStringData *>(operand1);
 
             if (p && (p->getStringData() == string("*")))
             {
@@ -186,7 +186,7 @@ QtIntervalOp::evaluate(QtDataList* inputList)
         case QT_OCTET:
             try
             {
-                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getSignedValue()));
+                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData *>(operand2))->getSignedValue()));
             }
             catch (...)
             {
@@ -212,7 +212,7 @@ QtIntervalOp::evaluate(QtDataList* inputList)
         case QT_CHAR:
             try
             {
-                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getUnsignedValue()));
+                sinterval.set_high(static_cast<r_Range>((static_cast<QtAtomicData *>(operand2))->getUnsignedValue()));
             }
             catch (...)
             {
@@ -233,8 +233,8 @@ QtIntervalOp::evaluate(QtDataList* inputList)
             break;
 
         case QT_STRING:
-            QtStringData* p;
-            p = dynamic_cast<QtStringData*>(operand2);
+            QtStringData *p;
+            p = dynamic_cast<QtStringData *>(operand2);
 
             if (p && (p->getStringData() == string("*")))
             {
@@ -297,7 +297,7 @@ QtIntervalOp::evaluate(QtDataList* inputList)
 
 
 void
-QtIntervalOp::printTree(int tab, ostream& s, QtChildType mode)
+QtIntervalOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
@@ -307,7 +307,7 @@ QtIntervalOp::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtIntervalOp::printAlgebraicExpression(ostream& s)
+QtIntervalOp::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -336,8 +336,8 @@ QtIntervalOp::printAlgebraicExpression(ostream& s)
 
 
 
-const QtTypeElement&
-QtIntervalOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtIntervalOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -345,8 +345,8 @@ QtIntervalOp::checkType(QtTypeTuple* typeTuple)
     if (input1 && input2)
     {
 
-        const QtTypeElement& input1Type = input1->checkType(typeTuple);
-        const QtTypeElement& input2Type = input2->checkType(typeTuple);
+        const QtTypeElement &input1Type = input1->checkType(typeTuple);
+        const QtTypeElement &input2Type = input2->checkType(typeTuple);
 
         bool opTypesValid = true;
 

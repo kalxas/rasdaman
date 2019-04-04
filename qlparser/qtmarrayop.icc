@@ -30,5 +30,5 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtMarrayOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }

@@ -58,14 +58,14 @@ public:
      * @param databaseName Name of the database that will be created
      * @param dbHostName Name of the database host on which this database will reside
      */
-    void defineDatabase(const std::string& dbHostName, const std::string& databaseName);
+    void defineDatabase(const std::string &dbHostName, const std::string &databaseName);
 
     /**
      * Change the name of a database if there is no database with the same name.
      * @param oldDbName The old name of the database
      * @param newDbName The new name of the database
      */
-    void changeDatabase(const std::string& oldDbName, const DatabasePropertiesProto& newDbProp);
+    void changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp);
 
     /**
      * Remove the database with the given name from the list.
@@ -73,7 +73,7 @@ public:
      * @param databaseHostName name of the database host from which to remove this database
      * @param databaseName
      */
-    void removeDatabase(const std::string& databaseHostName, const std::string& databaseName);
+    void removeDatabase(const std::string &databaseHostName, const std::string &databaseName);
 
     /**
      * @brief serializeToProto Serialize the information this object holds in a snapshot.

@@ -63,7 +63,7 @@ using std::pair;
 using std::runtime_error;
 using std::string;
 
-ClientManager::ClientManager(const ClientManagerConfig& config,
+ClientManager::ClientManager(const ClientManagerConfig &config,
                              boost::shared_ptr<UserManager> userManager,
                              boost::shared_ptr<ServerManager> serverManager,
                              boost::shared_ptr<PeerManager> peerManager):
@@ -90,7 +90,7 @@ ClientManager::~ClientManager()
 
         this->managementThread->join();
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "ClientManager destructor has failed: " << ex.what();
     }
@@ -100,7 +100,7 @@ ClientManager::~ClientManager()
     }
 }
 
-void ClientManager::connectClient(const ClientCredentials& clientCredentials, string& out_clientUUID)
+void ClientManager::connectClient(const ClientCredentials &clientCredentials, string &out_clientUUID)
 {
     /**
      * 1. Check if there is a user with the given credentials
@@ -138,7 +138,7 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
     }
 }
 
-void ClientManager::disconnectClient(const std::string& clientId)
+void ClientManager::disconnectClient(const std::string &clientId)
 {
     /**
      * 1. Find the client with the given id. If the client is not in our list, just log a message.
@@ -167,7 +167,7 @@ void ClientManager::disconnectClient(const std::string& clientId)
     }
 }
 
-void ClientManager::openClientDbSession(std::string clientId, const std::string& dbName, ClientServerSession& out_serverSession)
+void ClientManager::openClientDbSession(std::string clientId, const std::string &dbName, ClientServerSession &out_serverSession)
 {
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
@@ -204,7 +204,7 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
     }
 }
 
-void ClientManager::closeClientDbSession(const std::string& clientId, const std::string& sessionId)
+void ClientManager::closeClientDbSession(const std::string &clientId, const std::string &sessionId)
 {
     shared_lock<shared_mutex> lock(this->clientsMutex);
 
@@ -225,7 +225,7 @@ void ClientManager::closeClientDbSession(const std::string& clientId, const std:
     }
 }
 
-void ClientManager::keepClientAlive(const std::string& clientId)
+void ClientManager::keepClientAlive(const std::string &clientId)
 {
     map<string, shared_ptr<Client>>::iterator it;
 
@@ -242,7 +242,7 @@ void ClientManager::keepClientAlive(const std::string& clientId)
     }
 }
 
-const ClientManagerConfig& ClientManager::getConfig()
+const ClientManagerConfig &ClientManager::getConfig()
 {
     return this->config;
 }
@@ -294,7 +294,7 @@ void ClientManager::evaluateClientsStatus()
                 }
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << "Failed evaluating client status: " << ex.what();
         }
@@ -305,7 +305,7 @@ void ClientManager::evaluateClientsStatus()
     }
 }
 
-bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string& dbName, ClientServerSession& out_serverSession)
+bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, const std::string &dbName, ClientServerSession &out_serverSession)
 {
     boost::uint32_t attemptsLeft = MAX_GET_SERVER_RETRIES;
     boost::posix_time::time_duration intervalBetweenAttempts = boost::posix_time::milliseconds(INTERVAL_BETWEEN_GET_SERVER);
@@ -326,7 +326,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
         if (this->serverManager->tryGetFreeServer(dbName, assignedServer))
         {
             std::string dbSessionId;
-            
+
             // A value will be assigned to dbSessionId by the ID
             client->addDbSession(dbName, assignedServer, dbSessionId);
 
@@ -352,7 +352,7 @@ bool ClientManager::tryGetFreeLocalServer(boost::shared_ptr<Client> client, cons
     return foundServer;
 }
 
-bool ClientManager::tryGetFreeRemoteServer(const ClientServerRequest& request, ClientServerSession& out_reply)
+bool ClientManager::tryGetFreeRemoteServer(const ClientServerRequest &request, ClientServerSession &out_reply)
 {
     return this->peerManager->tryGetRemoteServer(request, out_reply);
 }

@@ -30,33 +30,33 @@ rasdaman GmbH.
  *
 */
 
-inline const char*
+inline const char *
 r_OId::get_string_representation() const
 {
-  return oidString;
+    return oidString;
 }
 
-inline const char* 
+inline const char *
 r_OId::get_system_name() const
 {
-  return systemName;
+    return systemName;
 }
 
-inline const char* 
+inline const char *
 r_OId::get_base_name() const
 {
-  return baseName;
+    return baseName;
 }
 
-inline double 
+inline double
 r_OId::get_local_oid() const
 {
-  return localOId;
+    return localOId;
 }
 
 inline bool
 r_OId::is_valid() const
 {
-  return localOId != 0;
+    return localOId != 0;
 }
 

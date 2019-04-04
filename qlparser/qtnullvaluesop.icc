@@ -30,11 +30,11 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtNullvaluesOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 inline QtNode::QtNodeType
 QtAddNullvalues::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }

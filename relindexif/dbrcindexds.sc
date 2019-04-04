@@ -77,14 +77,14 @@ DBRCIndexDS::insertInDb()
                            + sizeof(OId::OIdCounter) + sizeof(OId::OIdCounter)
                            + boundssize * 2 + fixessize * 2;
 
-    char* completebuffer = (char*) mymalloc(completesize);
+    char *completebuffer = (char *) mymalloc(completesize);
     // At a later stage get rid of all the unnecessary mallocs and memcpys,
     // but first make sure that everything works as expected
 
-    r_Range* upperboundsbuf = (r_Range*) mymalloc(boundssize);
-    r_Range* lowerboundsbuf = (r_Range*) mymalloc(boundssize);
-    char* upperfixedbuf = (char*) mymalloc(fixessize);
-    char* lowerfixedbuf = (char*) mymalloc(fixessize);
+    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
+    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
+    char *upperfixedbuf = (char *) mymalloc(fixessize);
+    char *lowerfixedbuf = (char *) mymalloc(fixessize);
 
     LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
     LDEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
@@ -94,7 +94,7 @@ DBRCIndexDS::insertInDb()
     LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
     LDEBUG << "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
-    char* insertionpointer = completebuffer;
+    char *insertionpointer = completebuffer;
 
     // write the buffers in the complete buffer
     // this indirection is necessary because of memory alignment of longs...
@@ -172,7 +172,7 @@ DBRCIndexDS::readFromDb()
     DBObject::readTimer.resume();
 #endif
 
-    char* completebuffer;
+    char *completebuffer;
     int blobformat;
     unsigned int blobsize = 0;
     unsigned int headersize = 0;
@@ -188,9 +188,9 @@ DBRCIndexDS::readFromDb()
     if (query.nextRow())
     {
         // read blob
-        char* tmpblobbuffer = query.nextColumnBlob();
+        char *tmpblobbuffer = query.nextColumnBlob();
         blobsize = static_cast<unsigned int>(query.currColumnBytes());
-        completebuffer = static_cast<char*>(mymalloc(blobsize));
+        completebuffer = static_cast<char *>(mymalloc(blobsize));
         memcpy(completebuffer, tmpblobbuffer, blobsize);
     }
     else
@@ -295,7 +295,7 @@ DBRCIndexDS::readFromDb()
 
     r_Bytes fixessize = sizeof(char) * dimension;  //number of bytes for fixes in 2 domains
     r_Bytes completesize = boundssize * 2 + fixessize * 2; //number of bytes for the dynamic data
-    char* dynamicBuffer = &completebuffer[bytesdone]; // ptr to start of dynamic part of buffer
+    char *dynamicBuffer = &completebuffer[bytesdone]; // ptr to start of dynamic part of buffer
 
     // TODO: UNCOMMENT BELOW
     // additional plausi check
@@ -308,20 +308,20 @@ DBRCIndexDS::readFromDb()
 
     LTRACE << "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize;
 
-    int* oldupperboundsbuf = NULL;
-    int* oldlowerboundsbuf = NULL;
+    int *oldupperboundsbuf = NULL;
+    int *oldlowerboundsbuf = NULL;
 
-    r_Range* upperboundsbuf;
-    r_Range* lowerboundsbuf;
+    r_Range *upperboundsbuf;
+    r_Range *lowerboundsbuf;
 
     if (blobformat == 8 || blobformat == 9)
     {
-        oldupperboundsbuf = static_cast<int*>(mymalloc(boundssize));
-        oldlowerboundsbuf = static_cast<int*>(mymalloc(boundssize));
+        oldupperboundsbuf = static_cast<int *>(mymalloc(boundssize));
+        oldlowerboundsbuf = static_cast<int *>(mymalloc(boundssize));
         memcpy(oldlowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(oldupperboundsbuf, &dynamicBuffer[boundssize], boundssize);
-        upperboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
-        lowerboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
+        upperboundsbuf = static_cast<r_Range *>(mymalloc(newboundssize));
+        lowerboundsbuf = static_cast<r_Range *>(mymalloc(newboundssize));
         // we need to copy all values to new variables
         for (long i = 0; i < dimension; i++)
         {
@@ -331,14 +331,14 @@ DBRCIndexDS::readFromDb()
     }
     else
     {
-        upperboundsbuf = (r_Range*) mymalloc(boundssize);
-        lowerboundsbuf = (r_Range*) mymalloc(boundssize);
+        upperboundsbuf = (r_Range *) mymalloc(boundssize);
+        lowerboundsbuf = (r_Range *) mymalloc(boundssize);
         memcpy(lowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(upperboundsbuf, &dynamicBuffer[boundssize], boundssize);
     }
 
-    char* upperfixedbuf = (char*) mymalloc(fixessize);
-    char* lowerfixedbuf = (char*) mymalloc(fixessize);
+    char *upperfixedbuf = (char *) mymalloc(fixessize);
+    char *lowerfixedbuf = (char *) mymalloc(fixessize);
 
     // HST at later stage remove unnecessary copying
     // all dynamic data is in dynamicBuffer

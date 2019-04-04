@@ -87,39 +87,39 @@ public:
     r_OQL_Query();
 
     /// constructor getting the query string
-    r_OQL_Query(const char* s);
+    r_OQL_Query(const char *s);
 
     /// copy constructor
-    r_OQL_Query(const r_OQL_Query& q);
+    r_OQL_Query(const r_OQL_Query &q);
 
     /// destructor
     ~r_OQL_Query();
 
     /// assignment operator
-    const r_OQL_Query& operator=(const r_OQL_Query& q);
+    const r_OQL_Query &operator=(const r_OQL_Query &q);
 
     //@Man: Stream input operators for every parameter type:
     //@{
     ///
-    r_OQL_Query& operator<<(const char* s);
+    r_OQL_Query &operator<<(const char *s);
     ///
-    r_OQL_Query& operator<<(r_Char c);
+    r_OQL_Query &operator<<(r_Char c);
     ///
-    r_OQL_Query& operator<<(r_Short s);
+    r_OQL_Query &operator<<(r_Short s);
     ///
-    r_OQL_Query& operator<<(r_UShort us);
+    r_OQL_Query &operator<<(r_UShort us);
     ///
-    r_OQL_Query& operator<<(r_Long l);
+    r_OQL_Query &operator<<(r_Long l);
     ///
-    r_OQL_Query& operator<<(r_ULong ul);
+    r_OQL_Query &operator<<(r_ULong ul);
     ///
-    r_OQL_Query& operator<<(r_Point pt);
+    r_OQL_Query &operator<<(r_Point pt);
     ///
-    r_OQL_Query& operator<<(r_Sinterval in);
+    r_OQL_Query &operator<<(r_Sinterval in);
     ///
-    r_OQL_Query& operator<<(r_Minterval in);
+    r_OQL_Query &operator<<(r_Minterval in);
     ///
-    r_OQL_Query& operator<<(r_GMarray& in);
+    r_OQL_Query &operator<<(r_GMarray &in);
     ///
     //@}
 
@@ -137,11 +137,11 @@ public:
     /// resets the expandation of the query string
     void               reset_query();
     /// gets the expanded query string
-    inline const char* get_query() const;
+    inline const char *get_query() const;
     /// get mdd constants
-    inline const r_Set<r_GMarray*>* get_constants() const;
+    inline const r_Set<r_GMarray *> *get_constants() const;
     /// gets the parameterized query string
-    inline const char* get_parameterized_query() const;
+    inline const char *get_parameterized_query() const;
     ///
     //@}
 
@@ -153,19 +153,19 @@ private:
      *
      * Copied from servercomm.hh, should be refactored into a common place.
      */
-    bool startsWith(const char* s, const char* prefix) const;
+    bool startsWith(const char *s, const char *prefix) const;
 
     /// method replaces the next argument with the delivered valueString
-    void replaceNextArgument(const char* valueString);
+    void replaceNextArgument(const char *valueString);
 
     /// storage for the expanded query string
-    char* queryString;
+    char *queryString;
 
     /// storage for the parameterized query string
-    char* parameterizedQueryString;
+    char *parameterizedQueryString;
 
     /// list for MDD constants
-    r_Set<r_GMarray*>* mddConstants;
+    r_Set<r_GMarray *> *mddConstants;
 };
 
 
@@ -198,7 +198,7 @@ private:
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* transaction = NULL);
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -210,7 +210,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, r_Transaction* 
   \Ref{r_oql_execute} able to maintain query results of any type.
   Important: If the transaction parameter is not provided this function is not thread-safe.
 */
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transaction* transaction = NULL);
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transaction *transaction = NULL);
 
 /*@Doc:
   The free standing function \Ref{r_oql_execute} is called to execute an insert query
@@ -227,7 +227,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref<r_GMarray>>& result, r_Transa
   transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Transaction* transaction = NULL);
+void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Transaction *transaction = NULL);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -256,7 +256,7 @@ void r_oql_execute(r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy, r_Tr
   \end{tabular}
 */
 
-void r_oql_execute(r_OQL_Query& query, r_Transaction* transaction = NULL);
+void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction = NULL);
 
 #include "rasodmg/oqlquery.icc"
 

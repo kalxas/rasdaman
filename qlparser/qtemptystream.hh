@@ -41,16 +41,16 @@ class QtEmptyStream : public QtONCStream
 public:
     QtEmptyStream();
 
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     virtual void open();
-    QtDataList* next();
+    QtDataList *next();
     virtual void close();
     virtual void reset();
 
     inline virtual QtNodeType getNodeType() const;
-    virtual const QtTypeTuple& checkType();
+    virtual const QtTypeTuple &checkType();
 
 private:
     bool emitted;

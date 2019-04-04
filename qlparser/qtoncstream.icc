@@ -30,8 +30,8 @@ rasdaman GmbH.
 
 
 
-inline const QtTypeTuple&
+inline const QtTypeTuple &
 QtONCStream::getDataStreamType() const
 {
-  return dataStreamType;
+    return dataStreamType;
 }

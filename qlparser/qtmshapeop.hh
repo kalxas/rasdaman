@@ -53,34 +53,34 @@ class QtMShapeOp : public QtNaryOperation
 {
 public:
     /// constructor getting the two operands
-    QtMShapeOp(QtOperationList* opList);
+    QtMShapeOp(QtOperationList *opList);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES) override;
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES) override;
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
     /// Before building the multidimensional shape object (QtMShape)
     /// the following checks need to be done:
 
     // 1. checks each group of three vertices if they fail in either the colinear
     //    or convex test.
-    int isLeftTurn( const std::deque< r_Point  *> & );
+    int isLeftTurn(const std::deque< r_Point *> &);
 
     // 2. The mshape/polygon created must be concave and with no colinear vertices
-    bool isValidSetOfPoints( const vector<r_Point>& );
+    bool isValidSetOfPoints(const vector<r_Point> &);
 
     inline vector<r_Point> getPoints();
 

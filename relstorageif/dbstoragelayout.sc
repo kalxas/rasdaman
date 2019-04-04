@@ -64,7 +64,7 @@ DBStorageLayout::DBStorageLayout()
     objecttype = OId::STORAGEOID;
 }
 
-DBStorageLayout::DBStorageLayout(const OId& id)
+DBStorageLayout::DBStorageLayout(const OId &id)
     : DBObject(id),
       indexType(StorageLayout::DefaultIndexType),
       indexSize(StorageLayout::DefaultIndexSize),
@@ -88,9 +88,9 @@ DBStorageLayout::DBStorageLayout(const OId& id)
 }
 
 void
-DBStorageLayout::printStatus(unsigned int level, std::ostream& stream) const
+DBStorageLayout::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2; j++)
     {
         indent[j] = ' ';
@@ -312,7 +312,7 @@ DBStorageLayout::setTileSize(r_Bytes tsize)
 }
 
 void
-DBStorageLayout::setTileConfiguration(const r_Minterval& tc)
+DBStorageLayout::setTileConfiguration(const r_Minterval &tc)
 {
     _supportsTileConfiguration = true;
     *tileConfiguration = tc;

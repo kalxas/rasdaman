@@ -45,7 +45,7 @@ MDDDimensionType::getMemorySize() const
     return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
 }
 
-MDDDimensionType::MDDDimensionType(const OId& id)
+MDDDimensionType::MDDDimensionType(const OId &id)
     :   MDDBaseType(id),
         myDimension(0)
 {
@@ -56,7 +56,7 @@ MDDDimensionType::MDDDimensionType(const OId& id)
     }
 }
 
-MDDDimensionType::MDDDimensionType(const char* newTypeName, const BaseType* newBaseType, r_Dimension newDimension)
+MDDDimensionType::MDDDimensionType(const char *newTypeName, const BaseType *newBaseType, r_Dimension newDimension)
     :   MDDBaseType(newTypeName, newBaseType),
         myDimension(newDimension)
 {
@@ -72,15 +72,15 @@ MDDDimensionType::MDDDimensionType()
     mySubclass = MDDDIMENSIONTYPE;
 }
 
-MDDDimensionType::MDDDimensionType(const MDDDimensionType& old)
+MDDDimensionType::MDDDimensionType(const MDDDimensionType &old)
     :   MDDBaseType(old)
 {
     objecttype = OId::MDDDIMTYPEOID;
     myDimension = old.myDimension;
 }
 
-MDDDimensionType&
-MDDDimensionType::operator=(const MDDDimensionType& old)
+MDDDimensionType &
+MDDDimensionType::operator=(const MDDDimensionType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -92,15 +92,15 @@ MDDDimensionType::operator=(const MDDDimensionType& old)
     return *this;
 }
 
-char*
+char *
 MDDDimensionType::getTypeStructure() const
 {
     char dimBuf[255];
     sprintf(dimBuf, "%d", myDimension);
     LTRACE << "myBaseType at " << myBaseType;
-    char* baseType = myBaseType->getTypeStructure();
+    char *baseType = myBaseType->getTypeStructure();
     LTRACE << "basetype at " << baseType;
-    char* result = static_cast<char*>(mymalloc(12 + strlen(baseType) + strlen(dimBuf)));
+    char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + strlen(dimBuf)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -112,7 +112,7 @@ MDDDimensionType::getTypeStructure() const
     return result;
 }
 
-char* MDDDimensionType::getNewTypeStructure() const
+char *MDDDimensionType::getNewTypeStructure() const
 {
     std::ostringstream ss;
 
@@ -147,7 +147,7 @@ char* MDDDimensionType::getNewTypeStructure() const
 }
 
 void
-MDDDimensionType::print_status(ostream& s) const
+MDDDimensionType::print_status(ostream &s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
 }
@@ -164,11 +164,11 @@ MDDDimensionType::~MDDDimensionType() noexcept(false)
 }
 
 int
-MDDDimensionType::compatibleWith(const Type* aType) const
+MDDDimensionType::compatibleWith(const Type *aType) const
 {
     int retval = 0;
-    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && 
-            (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
+    if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDOMAINTYPE &&
+            (static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not a domain- or dimensiontype";
         retval = 0;
@@ -176,7 +176,7 @@ MDDDimensionType::compatibleWith(const Type* aType) const
     else
     {
         // check BaseType first
-        if (!(myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType())))
+        if (!(myBaseType->compatibleWith((static_cast<MDDBaseType *>(const_cast<Type *>(aType)))->getBaseType())))
         {
             LTRACE << "basetypes are not compatible";
             retval = 0;
@@ -184,17 +184,17 @@ MDDDimensionType::compatibleWith(const Type* aType) const
         else
         {
             // check dimensionality
-            if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDIMENSIONTYPE)
+            if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() == MDDDIMENSIONTYPE)
             {
                 LTRACE << "check for dimension equality";
-                retval = (myDimension == (static_cast<MDDDimensionType*>(const_cast<Type*>(aType)))->getDimension());
+                retval = (myDimension == (static_cast<MDDDimensionType *>(const_cast<Type *>(aType)))->getDimension());
             }
             else
             {
-                if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDOMAINTYPE)
+                if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() == MDDDOMAINTYPE)
                 {
                     LTRACE << "check for dimension equality";
-                    retval = ((const_cast<MDDDimensionType*>(this))->myDimension == (static_cast<MDDDomainType*>(const_cast<Type*>(aType)))->getDomain()->dimension());
+                    retval = ((const_cast<MDDDimensionType *>(this))->myDimension == (static_cast<MDDDomainType *>(const_cast<Type *>(aType)))->getDomain()->dimension());
                 }
             }
         }

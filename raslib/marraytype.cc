@@ -35,18 +35,18 @@ r_Marray_Type::r_Marray_Type()
 {
 }
 
-r_Marray_Type::r_Marray_Type(const r_Base_Type& newBaseType)
+r_Marray_Type::r_Marray_Type(const r_Base_Type &newBaseType)
     :   r_Type(),
-        baseType(static_cast<r_Base_Type*>(newBaseType.clone()))
+        baseType(static_cast<r_Base_Type *>(newBaseType.clone()))
 {
 }
 
-r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj)
+r_Marray_Type::r_Marray_Type(const r_Marray_Type &oldObj)
     :   r_Type(oldObj)
 {
     if (oldObj.baseType)
     {
-        baseType =  static_cast<r_Base_Type*>(oldObj.baseType->clone());
+        baseType =  static_cast<r_Base_Type *>(oldObj.baseType->clone());
     }
     else
     {
@@ -55,8 +55,8 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj)
     }
 }
 
-const r_Marray_Type&
-r_Marray_Type::operator=(const r_Marray_Type& oldObj)
+const r_Marray_Type &
+r_Marray_Type::operator=(const r_Marray_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -73,7 +73,7 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj)
 
     if (oldObj.baseType)
     {
-        baseType = static_cast<r_Base_Type*>(oldObj.baseType->clone());
+        baseType = static_cast<r_Base_Type *>(oldObj.baseType->clone());
     }
     else
     {
@@ -90,13 +90,13 @@ r_Marray_Type::isMarrayType() const
     return true;
 }
 
-const r_Base_Type&
+const r_Base_Type &
 r_Marray_Type::base_type() const
 {
     return *baseType;
 }
 
-r_Type*
+r_Type *
 r_Marray_Type::clone() const
 {
     return new r_Marray_Type(*this);
@@ -109,17 +109,17 @@ r_Marray_Type::type_id() const
 }
 
 void
-r_Marray_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Marray_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Marray_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Marray_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Marray_Type::print_status(std::ostream& s) const
+r_Marray_Type::print_status(std::ostream &s) const
 {
     s << "marray< ";
     baseType->print_status(s);
@@ -134,7 +134,7 @@ r_Marray_Type::~r_Marray_Type()
     }
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Marray_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Marray_Type &type)
 {
     type.print_status(str);
     return str;

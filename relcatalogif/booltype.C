@@ -42,22 +42,22 @@ static const char rcsid[] = "@(#)catalogif,BoolType: $Header: /home/rasdev/CVS-r
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 BoolType.
  ************************************************************/
 
-BoolType::BoolType(const OId& id)
-	:	UIntegralType(id)
-	{
-	readFromDb();
-	}
+BoolType::BoolType(const OId &id)
+    :   UIntegralType(id)
+{
+    readFromDb();
+}
 
 BoolType::BoolType()
-	:	UIntegralType(BoolType::Name, 1)
-	{
-	myType = BOOLTYPE;
-	myOId = OId(BOOLTYPE, OId::ATOMICTYPEOID);
-	}
+    :   UIntegralType(BoolType::Name, 1)
+{
+    myType = BOOLTYPE;
+    myOId = OId(BOOLTYPE, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: BoolType(const BoolType& old);
@@ -67,10 +67,10 @@ BoolType::BoolType()
  * Description...: copy constructor
  ************************************************************/
 
-BoolType::BoolType(const BoolType& old)
-	:	UIntegralType(old)
-	{
-	}
+BoolType::BoolType(const BoolType &old)
+    :   UIntegralType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const BoolType&);
@@ -80,15 +80,17 @@ BoolType::BoolType(const BoolType& old)
  * Description...: copy constructor
  ************************************************************/
 
-BoolType&
-BoolType::operator=(const BoolType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+BoolType &
+BoolType::operator=(const BoolType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~BoolType();
@@ -99,59 +101,63 @@ BoolType::operator=(const BoolType& old)
  ************************************************************/
 
 BoolType::~BoolType()
-	{
-	}
+{
+}
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Bool is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-BoolType::printCell( ostream& stream, const char* cell ) const
+void
+BoolType::printCell(ostream &stream, const char *cell) const
 {
-  if(*cell == 0)
-    stream << "FALSE ";
-  else
-    stream << "TRUE  ";
+    if (*cell == 0)
+    {
+        stream << "FALSE ";
+    }
+    else
+    {
+        stream << "TRUE  ";
+    }
 }
 
-r_ULong*
-BoolType::convertToCULong(const char* cell, r_ULong* value) const
+r_ULong *
+BoolType::convertToCULong(const char *cell, r_ULong *value) const
 {
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  //*value = *(unsigned char*)cell;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    //*value = *(unsigned char*)cell;
 
-  *value = *(unsigned char*)(const_cast<char*>(cell)) ? 1: 0;
-  return value;
+    *value = *(unsigned char *)(const_cast<char *>(cell)) ? 1 : 0;
+    return value;
 }
 
 
-char* 
-BoolType::makeFromCULong(char* cell, const r_ULong* value) const
+char *
+BoolType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  *(unsigned char*)(cell) = (unsigned char)(*value ? 1 : 0);
-  return cell;
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    *(unsigned char *)(cell) = (unsigned char)(*value ? 1 : 0);
+    return cell;
 }
 
 void
 BoolType::readFromDb()
-	{
-	setName(BoolType::Name);
-	size = 1;
-	myType = BOOLTYPE;
-	myOId = OId(BOOLTYPE, OId::ATOMICTYPEOID);
-	}
+{
+    setName(BoolType::Name);
+    size = 1;
+    myType = BOOLTYPE;
+    myOId = OId(BOOLTYPE, OId::ATOMICTYPEOID);
+}
 

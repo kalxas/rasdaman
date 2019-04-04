@@ -45,15 +45,15 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-const char*
+const char *
 r_Tiling::ASTERIX   = "*";
-const char*
+const char *
 r_Tiling::TCOLON     = ";";
-const char*
+const char *
 r_Tiling::TCOMMA     = ",";
-const char*
+const char *
 r_Tiling::LSQRBRA   = "[";
-const char*
+const char *
 r_Tiling::RSQRBRA   = "]";
 const long
 r_Tiling::DefaultBase = 10;
@@ -62,10 +62,10 @@ r_Tiling::~r_Tiling()
 {
 }
 
-const char*
+const char *
 r_No_Tiling::description = "no parameters";
 
-r_No_Tiling::r_No_Tiling(__attribute__((unused)) const char* encoded)
+r_No_Tiling::r_No_Tiling(__attribute__((unused)) const char *encoded)
 {
     //we don't use encoded string, it is present in order to have
     //uniform interface "char* constructor" for every tiling strategy
@@ -80,29 +80,29 @@ r_No_Tiling::~r_No_Tiling()
 }
 
 void
-r_No_Tiling::print_status(std::ostream& os) const
+r_No_Tiling::print_status(std::ostream &os) const
 {
     os << "r_No_Tiling[ ]";
 }
 
 bool
-r_No_Tiling::is_compatible(__attribute__((unused)) const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
+r_No_Tiling::is_compatible(__attribute__((unused)) const r_Minterval &obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
 {
     return true;
 }
 
-std::vector<r_Minterval>*
-r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
+std::vector<r_Minterval> *
+r_No_Tiling::compute_tiles(const r_Minterval &obj_domain, __attribute__((unused)) r_Bytes cellTypeSize) const
 {
-    std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
+    std::vector<r_Minterval> *result = new std::vector<r_Minterval>;
     result->push_back(obj_domain);
     return result;
 }
 
-r_Tiling*
+r_Tiling *
 r_No_Tiling::clone() const
 {
-    r_Tiling* clo = new r_No_Tiling();
+    r_Tiling *clo = new r_No_Tiling();
     return clo;
 }
 
@@ -112,17 +112,17 @@ r_No_Tiling::get_tiling_scheme() const
     return r_NoTiling;
 }
 
-std::ostream&
-operator<<(std::ostream& os, const r_Tiling& t)
+std::ostream &
+operator<<(std::ostream &os, const r_Tiling &t)
 {
     t.print_status(os);
     return os;
 }
 
-const char*
+const char *
 r_Size_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";
 
-r_Size_Tiling::r_Size_Tiling(const char* encoded)
+r_Size_Tiling::r_Size_Tiling(const char *encoded)
     :   tile_size(0)
 {
     if (!encoded)
@@ -131,7 +131,7 @@ r_Size_Tiling::r_Size_Tiling(const char* encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    r_Bytes tileS = strtol(encoded, (char**)NULL, DefaultBase);
+    r_Bytes tileS = strtol(encoded, (char **)NULL, DefaultBase);
     if (tileS <= 0)
     {
         LERROR << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";
@@ -156,26 +156,26 @@ r_Size_Tiling::get_tile_size() const
 }
 
 void
-r_Size_Tiling::print_status(std::ostream& os) const
+r_Size_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Size_Tiling[ tile size = " << tile_size << " ]";
 }
 
 bool
-r_Size_Tiling::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
+r_Size_Tiling::is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
 {
     return ((cellTypeSize <= tile_size) && (obj_domain.dimension() != 0));
 }
 
-std::vector<r_Minterval>*
-r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
+std::vector<r_Minterval> *
+r_Size_Tiling::compute_tiles(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
 {
     if (cellTypeSize > tile_size)
     {
         LERROR << "r_Size_Tiling::compute_tiles(" << obj_domain << ", " << cellTypeSize << ") tile size (" << tile_size << ") is smaller than type length (" << cellTypeSize << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
-    std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
+    std::vector<r_Minterval> *result = new std::vector<r_Minterval>;
     r_Minterval bigDom = obj_domain;
     r_Dimension dim = bigDom.dimension();
     r_Minterval tileDom(dim);
@@ -251,10 +251,10 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
     return result;
 }
 
-r_Tiling*
+r_Tiling *
 r_Size_Tiling::clone() const
 {
-    r_Tiling* clo = new r_Size_Tiling(tile_size);
+    r_Tiling *clo = new r_Size_Tiling(tile_size);
     return clo;
 }
 
@@ -290,7 +290,7 @@ r_Dimension_Tiling::get_dimension() const
 }
 
 void
-r_Dimension_Tiling::print_status(std::ostream& os) const
+r_Dimension_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Dimension_Tiling[ ";
     r_Size_Tiling::print_status(os);
@@ -298,7 +298,7 @@ r_Dimension_Tiling::print_status(std::ostream& os) const
 }
 
 bool
-r_Dimension_Tiling::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
+r_Dimension_Tiling::is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
 {
     return ((obj_domain.dimension() == dimension) && r_Size_Tiling::is_compatible(obj_domain, cellTypeSize));
 }

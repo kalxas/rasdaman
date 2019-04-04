@@ -6,21 +6,21 @@ const size_t QtCreateCellType::MAX_CELL_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateCellType::nodeType = QtNode::QT_CREATE_CELL_TYPE;
 
-QtCreateCellType::QtCreateCellType(const std::string& typeName2, QtNode::QtOperationList* typeAttributes2)
+QtCreateCellType::QtCreateCellType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2)
     : typeName(typeName2), typeAttributes(typeAttributes2)
 {
 }
 
-QtData* QtCreateCellType::evaluate()
+QtData *QtCreateCellType::evaluate()
 {
-    QtData* returnValue = NULL;
-    StructType* structType = new StructType(this->typeName.c_str(), this->typeAttributes->size());
-    for (std::vector<QtOperation*>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
+    QtData *returnValue = NULL;
+    StructType *structType = new StructType(this->typeName.c_str(), this->typeAttributes->size());
+    for (std::vector<QtOperation *>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
     {
         // Here we are sure that all attribute types are valid sice they were checked in checkType()
-        QtCellTypeAttributes* typeAttribute = static_cast<QtCellTypeAttributes*>(*it);
+        QtCellTypeAttributes *typeAttribute = static_cast<QtCellTypeAttributes *>(*it);
         std::string attributeTypeType = TypeFactory::getInternalTypeFromSyntaxType(typeAttribute->getAttributeType());
-        const BaseType* attributeType = TypeFactory::mapType(attributeTypeType.c_str());
+        const BaseType *attributeType = TypeFactory::mapType(attributeTypeType.c_str());
         structType->addElement(typeAttribute->getAttributeName().c_str(), attributeType);
     }
 
@@ -47,13 +47,13 @@ void QtCreateCellType::checkType()
     }
 
     // Check if all the bands have a valid type
-    for (std::vector<QtOperation*>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
+    for (std::vector<QtOperation *>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
     {
-        QtCellTypeAttributes* typeAttribute = static_cast<QtCellTypeAttributes*>(*it);
+        QtCellTypeAttributes *typeAttribute = static_cast<QtCellTypeAttributes *>(*it);
 
         // map the attribute type to internal representation
         std::string attributeTypeType = TypeFactory::getInternalTypeFromSyntaxType(typeAttribute->getAttributeType());
-        const BaseType* attributeType = TypeFactory::mapType(attributeTypeType.c_str());
+        const BaseType *attributeType = TypeFactory::mapType(attributeTypeType.c_str());
 
         // if an attribute type is invalid, throw exception
         if (attributeType == NULL)
@@ -66,14 +66,14 @@ void QtCreateCellType::checkType()
 
 }
 
-void QtCreateCellType::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
+void QtCreateCellType::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCreateCellType Object" << std::endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  CREATE TYPE " << typeName << " UNDER STRUCT { ";
     bool isFirst = true;
-    for (std::vector<QtOperation*>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
+    for (std::vector<QtOperation *>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
     {
-        QtCellTypeAttributes* typeAttribute = static_cast<QtCellTypeAttributes*>(*it);
+        QtCellTypeAttributes *typeAttribute = static_cast<QtCellTypeAttributes *>(*it);
         std::string attributeTypeType = TypeFactory::getInternalTypeFromSyntaxType(typeAttribute->getAttributeType());
         std::string attributeName = typeAttribute->getAttributeName();
 
@@ -87,14 +87,14 @@ void QtCreateCellType::printTree(int tab, std::ostream& s, __attribute__((unused
 }
 
 
-void QtCreateCellType::printAlgebraicExpression(std::ostream& s)
+void QtCreateCellType::printAlgebraicExpression(std::ostream &s)
 {
     s << "command <";
     s << "  CREATE TYPE " << typeName << " UNDER STRUCT { ";
     bool isFirst = true;
-    for (std::vector<QtOperation*>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
+    for (std::vector<QtOperation *>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
     {
-        QtCellTypeAttributes* typeAttribute = static_cast<QtCellTypeAttributes*>(*it);
+        QtCellTypeAttributes *typeAttribute = static_cast<QtCellTypeAttributes *>(*it);
         std::string attributeTypeType = TypeFactory::getInternalTypeFromSyntaxType(typeAttribute->getAttributeType());
         std::string attributeName = typeAttribute->getAttributeName();
 

@@ -45,7 +45,7 @@ rasdaman GmbH.
 #include "storagemgr/sstoragelayout.hh"
 #include <logging.hh>
 
-DBRCIndexDS::DBRCIndexDS(const OId& id)
+DBRCIndexDS::DBRCIndexDS(const OId &id)
     :   IndexDS(id),
         myBaseCounter(0),
         myBaseOIdType(OId::INVALID),
@@ -57,7 +57,7 @@ DBRCIndexDS::DBRCIndexDS(const OId& id)
     readFromDb();
 }
 
-DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OId::OIdType theEntryType)
+DBRCIndexDS::DBRCIndexDS(const r_Minterval &definedDomain, unsigned int size, OId::OIdType theEntryType)
     :   IndexDS(),
         myBaseCounter(0),
         myBaseOIdType(theEntryType),
@@ -74,7 +74,7 @@ DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OI
     setCached(true);
 }
 
-IndexDS*
+IndexDS *
 DBRCIndexDS::getNewInstance() const
 {
     LERROR << "DBRCIndexDS::getNewInstance() not suported";
@@ -88,7 +88,7 @@ DBRCIndexDS::getIdentifier() const
 }
 
 bool
-DBRCIndexDS::removeObject(const KeyObject& entry)
+DBRCIndexDS::removeObject(const KeyObject &entry)
 {
     LERROR << "DBRCIndexDS::removeObject(" << entry << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -103,21 +103,21 @@ DBRCIndexDS::removeObject(unsigned int pos)
 
 
 void
-DBRCIndexDS::insertObject(const KeyObject& theKey, unsigned int pos)
+DBRCIndexDS::insertObject(const KeyObject &theKey, unsigned int pos)
 {
     LERROR << "DBRCIndexDS::insertObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
-DBRCIndexDS::setObjectDomain(const r_Minterval& dom, unsigned int pos)
+DBRCIndexDS::setObjectDomain(const r_Minterval &dom, unsigned int pos)
 {
     LERROR << "DBRCIndexDS::setObjectDomain(" << dom << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 void
-DBRCIndexDS::setObject(const KeyObject& theKey, unsigned int pos)
+DBRCIndexDS::setObject(const KeyObject &theKey, unsigned int pos)
 {
     LERROR << "DBRCIndexDS::setObject(" << theKey << ", " << pos << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -152,9 +152,9 @@ DBRCIndexDS::isValid() const
 }
 
 void
-DBRCIndexDS::printStatus(unsigned int level, std::ostream& stream) const
+DBRCIndexDS::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -215,7 +215,7 @@ DBRCIndexDS::getAssignedDomain() const
 }
 
 void
-DBRCIndexDS::setAssignedDomain(const r_Minterval& newDomain)
+DBRCIndexDS::setAssignedDomain(const r_Minterval &newDomain)
 {
     LERROR << "DBRCIndexDS::setAssignedDomain(" << newDomain << ") not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -228,7 +228,7 @@ DBRCIndexDS::freeDS()
 }
 
 bool
-DBRCIndexDS::isSameAs(const IndexDS* other) const
+DBRCIndexDS::isSameAs(const IndexDS *other) const
 {
     if (other->isPersistent())
         if (myOId == other->getIdentifier())
@@ -238,7 +238,7 @@ DBRCIndexDS::isSameAs(const IndexDS* other) const
     return false;
 }
 
-const KeyObject&
+const KeyObject &
 DBRCIndexDS::getObject(unsigned int pos) const
 {
     LERROR << "DBRCIndexDS::getObject(" << pos << ") not suported";
@@ -246,7 +246,7 @@ DBRCIndexDS::getObject(unsigned int pos) const
 }
 
 void
-DBRCIndexDS::getObjects(__attribute__((unused)) KeyObjectVector& objs) const
+DBRCIndexDS::getObjects(__attribute__((unused)) KeyObjectVector &objs) const
 {
     LERROR << "DBRCIndexDS::getObjects(vec) not suported";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

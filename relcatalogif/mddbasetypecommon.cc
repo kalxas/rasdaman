@@ -50,10 +50,10 @@ rasdaman GmbH.
 r_Bytes
 MDDBaseType::getMemorySize() const
 {
-    return MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType*);
+    return MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType *);
 }
 
-MDDBaseType::MDDBaseType(const OId& id)
+MDDBaseType::MDDBaseType(const OId &id)
     :   MDDType(id)
 {
     if (objecttype == OId::MDDBASETYPEOID)
@@ -63,7 +63,7 @@ MDDBaseType::MDDBaseType(const OId& id)
     }
 }
 
-MDDBaseType::MDDBaseType(const char* newTypeName, const BaseType* newBaseType)
+MDDBaseType::MDDBaseType(const char *newTypeName, const BaseType *newBaseType)
     :   MDDType(newTypeName)
 {
     objecttype = OId::MDDBASETYPEOID;
@@ -79,7 +79,7 @@ MDDBaseType::MDDBaseType()
     mySubclass = MDDBASETYPE;
 }
 
-MDDBaseType::MDDBaseType(const char* tname)
+MDDBaseType::MDDBaseType(const char *tname)
     :   MDDType(tname)
 {
     objecttype = OId::MDDBASETYPEOID;
@@ -87,13 +87,13 @@ MDDBaseType::MDDBaseType(const char* tname)
     mySubclass = MDDBASETYPE;
 }
 
-MDDBaseType::MDDBaseType(const MDDBaseType& old)
+MDDBaseType::MDDBaseType(const MDDBaseType &old)
     :   MDDType(old)
 {
     myBaseType = old.myBaseType;
 }
 
-MDDBaseType& MDDBaseType::operator=(const MDDBaseType& old)
+MDDBaseType &MDDBaseType::operator=(const MDDBaseType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -105,11 +105,11 @@ MDDBaseType& MDDBaseType::operator=(const MDDBaseType& old)
     return *this;
 }
 
-char*
+char *
 MDDBaseType::getTypeStructure() const
 {
-    char* baseType = myBaseType->getTypeStructure();
-    char* result = static_cast<char*>(mymalloc(10 + strlen(baseType)));
+    char *baseType = myBaseType->getTypeStructure();
+    char *result = static_cast<char *>(mymalloc(10 + strlen(baseType)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -119,11 +119,11 @@ MDDBaseType::getTypeStructure() const
     return result;
 }
 
-char*
+char *
 MDDBaseType::getNewTypeStructure() const
 {
-    const char* baseType = TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName())).c_str();
-    char* result = static_cast<char*>(mymalloc(10 + strlen(baseType)));
+    const char *baseType = TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName())).c_str();
+    char *result = static_cast<char *>(mymalloc(10 + strlen(baseType)));
 
     strcpy(result, "marray {");
     strcat(result, baseType);
@@ -133,12 +133,12 @@ MDDBaseType::getNewTypeStructure() const
 }
 
 void
-MDDBaseType::print_status(ostream& s) const
+MDDBaseType::print_status(ostream &s) const
 {
     s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t>";
 }
 
-const BaseType*
+const BaseType *
 MDDBaseType::getBaseType() const
 {
     return myBaseType;
@@ -150,12 +150,12 @@ MDDBaseType::~MDDBaseType() noexcept(false)
 }
 
 int
-MDDBaseType::compatibleWith(const Type* aType) const
+MDDBaseType::compatibleWith(const Type *aType) const
 {
     int retval;
-    if ((static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDBASETYPE
-            && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE
-            && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
+    if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDBASETYPE
+            && (static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDOMAINTYPE
+            && (static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not mddbasetype or subclass";
         retval = 0;
@@ -163,7 +163,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
     else
     {
         // myBaseType has to be specified
-        if (myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType()))
+        if (myBaseType->compatibleWith((static_cast<MDDBaseType *>(const_cast<Type *>(aType)))->getBaseType()))
         {
             retval = 1;
         }
@@ -177,7 +177,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
 }
 
 int
-MDDBaseType::compatibleWithDomain(const r_Minterval* aDomain) const
+MDDBaseType::compatibleWithDomain(const r_Minterval *aDomain) const
 {
     int retval;
 

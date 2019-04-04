@@ -70,31 +70,31 @@ class StructType : public CompositeType
     //  friend ostream& operator << (ostream& stream, StructType& b);
 
 public:
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
 
-    virtual char* getTypeStructure() const;
-    virtual char* getNewTypeStructure() const;
+    virtual char *getTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
     /// add new element to struct
-    unsigned int addElement(const char* elemName, const char* elemType);
+    unsigned int addElement(const char *elemName, const char *elemType);
 
     /// add new element to struct using pointer to BaseType
-    unsigned int addElement(const char* elemName, const BaseType* elemType);
+    unsigned int addElement(const char *elemName, const BaseType *elemType);
 
     /// get offset for an element by name of element.
-    unsigned int getOffset(const char* elemName) const;
+    unsigned int getOffset(const char *elemName) const;
 
     /// get offset for an element by number of element (0 based).
     unsigned int getOffset(unsigned int num) const;
 
     /// get type of an element by name of element.
-    const BaseType* getElemType(const char* elemName) const;
+    const BaseType *getElemType(const char *elemName) const;
 
     /// get name of an element by number of element (0 based).
-    const char* getElemName(unsigned int num) const;
+    const char *getElemName(unsigned int num) const;
 
     /// get type of an element by number of element (0 based).
-    const BaseType* getElemType(unsigned int num) const;
+    const BaseType *getElemType(unsigned int num) const;
 
     /// get number of elements.
     unsigned int getNumElems() const;
@@ -103,38 +103,38 @@ public:
     unsigned int getAlignment() const;
 
     /// checks if a certain StructType is contained in this StructType
-    int contains(const StructType* aStruct) const;
+    int contains(const StructType *aStruct) const;
 
-    StructType(const OId& structtypeid);
+    StructType(const OId &structtypeid);
 
     /// default constructor, sets type name to "".
     StructType();
 
     /// constructor getting type name and number of elements.
-    StructType(const char* newTypeName, unsigned int numElem);
+    StructType(const char *newTypeName, unsigned int numElem);
 
     /// copy constructor.
-    StructType(const StructType& old);
+    StructType(const StructType &old);
 
     /// assignment operator.
-    StructType& operator=(const StructType& old);
+    StructType &operator=(const StructType &old);
 
     /// virtual destructor.
     virtual ~StructType() noexcept(false);
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
 
     virtual r_Bytes getMemorySize() const;
 
 private:
     // those inherited from BaseType aren't useful at all for StructType
     // made them private to prevent calling them
-    virtual r_ULong* convertToCULong(const char* cell, r_ULong* value) const;
-    virtual char* makeFromCULong(char* cell, const r_ULong* value) const;
-    virtual r_Long* convertToCLong(const char* cell, r_Long* value) const;
-    virtual char* makeFromCLong(char* cell, const r_Long* value) const;
-    virtual double* convertToCDouble(const char* cell, double* value) const;
-    virtual char* makeFromCDouble(char* cell, const double* value) const;
+    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
+    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
+    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
+    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
+    virtual double *convertToCDouble(const char *cell, double *value) const;
+    virtual char *makeFromCDouble(char *cell, const double *value) const;
 
 
 protected:
@@ -152,10 +152,10 @@ protected:
     void calcSize();
 
     /// Array containing references to base types of elements.
-    std::vector<const BaseType*> elements;
+    std::vector<const BaseType *> elements;
 
     /// Array containing names of elements.
-    std::vector<char*> elementNames;
+    std::vector<char *> elementNames;
 
     /// Array containing offsets to elements
     std::vector<unsigned int> elementOffsets;
@@ -169,7 +169,7 @@ protected:
     /// add new element to struct using pointer to BaseType
     /// does the actuall adding.  the public method will not let a persitent type
     /// be changed
-    unsigned int addElementPriv(const char* elemName, const BaseType* elemType);
+    unsigned int addElementPriv(const char *elemName, const BaseType *elemType);
 };
 
 #include "structtype.icc"

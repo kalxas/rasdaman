@@ -105,12 +105,12 @@ before creating instances of types with mapType().
 class TypeFactory
 {
 public:
-    static TypeFactory* instance();
+    static TypeFactory *instance();
     /*@Doc:
     used to access instance of TileFactory.
     */
 
-    static const BaseType* mapType(const char* typeName);
+    static const BaseType *mapType(const char *typeName);
     /*@Doc:
     maps a string to a base type
         e.g. #aTypeFactory->mapType("ULong")# returns a pointer to an
@@ -125,7 +125,7 @@ public:
     use the const char* version!!
     */
 
-    static const SetType* mapSetType(const char* typeName);
+    static const SetType *mapSetType(const char *typeName);
     /*@Doc:
     maps a string to a set type
     */
@@ -136,7 +136,7 @@ public:
     use the const char* version!!
     */
 
-    static const MDDType* mapMDDType(const char* typeName);
+    static const MDDType *mapMDDType(const char *typeName);
     /*@Doc:
     maps a string to a mdd type
     */
@@ -147,7 +147,7 @@ public:
     use the const char* version!!
     */
 
-    static const StructType* addStructType(const StructType* type);
+    static const StructType *addStructType(const StructType *type);
     /*@Doc:
     add a new struct type to the current DBMS.
         After calling this function, a user defined type can be
@@ -155,7 +155,7 @@ public:
         persistent after commit.
     */
 
-    static const SetType* addSetType(const SetType* type);
+    static const SetType *addSetType(const SetType *type);
     /*@Doc:
     add a new set type to the current DBMS.
         After calling this function, a user defined set type can be
@@ -163,7 +163,7 @@ public:
         persistent after commit.
     */
 
-    static const MDDType* addMDDType(const MDDType* type);
+    static const MDDType *addMDDType(const MDDType *type);
     /*@Doc:
     add a new set type to the current DBMS.
         After calling this function, a user defined mdd type can be
@@ -171,27 +171,27 @@ public:
         persistent after commit.
     */
 
-    static void deleteStructType(const char* typeName);
+    static void deleteStructType(const char *typeName);
     /*@Doc:
     delete a struct type in the current DBMS.
     */
 
-    static void deleteSetType(const char* typeName);
+    static void deleteSetType(const char *typeName);
     /*@Doc:
     delete a set type in the current DBMS.
     */
 
-    static void deleteMDDType(const char* typeName);
+    static void deleteMDDType(const char *typeName);
     /*@Doc:
     delete a mdd type in the current DBMS.
     */
 
-    static void deleteTmpSetType(const char* typeName);
+    static void deleteTmpSetType(const char *typeName);
     /*@Doc:
     delete a temporary set type in the current DBMS, created by a select into
     */
 
-    static void deleteTmpMDDType(const char* typeName);
+    static void deleteTmpMDDType(const char *typeName);
     /*@Doc:
     delete a temporary mdd type in the current DBMS, created by a select into
     */
@@ -215,7 +215,7 @@ public:
     */
 
 
-    static Type* addTempType(Type* type);
+    static Type *addTempType(Type *type);
     /*@Doc:
         Memory is freed at commit time of transaction in
         TransactionIf::commit(), TransactionIf::validate() and
@@ -240,7 +240,7 @@ public:
     frees temporary types.
      */
 
-    static const Type* ensurePersistence(Type* type);
+    static const Type *ensurePersistence(Type *type);
     /*@Doc:
         This function has to be called on all types registered as
         temporary types but getting persistent during query execution. The
@@ -256,9 +256,9 @@ public:
     static const std::string ANONYMOUS_CELL_TYPE_PREFIX;
 
     // Maps syntax types to internal type names (e.g. char -> Char)
-    static std::string getInternalTypeFromSyntaxType(const std::string& syntaxTypeName);
+    static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
     // Maps internal types to syntax types (e.g. Char -> char)
-    static std::string getSyntaxTypeFromInternalType(const std::string& internalTypeName);
+    static std::string getSyntaxTypeFromInternalType(const std::string &internalTypeName);
 
 protected:
     TypeFactory();
@@ -267,7 +267,7 @@ protected:
     */
 
 private:
-    static TypeFactory* myInstance;
+    static TypeFactory *myInstance;
 
     static const std::map<std::string, std::string> syntaxTypeInternalTypeMap;
     static const std::map<std::string, std::string> internalTypeSyntaxTypeMap;
@@ -277,7 +277,7 @@ private:
     pointer to instance for Singleton pattern.
     */
 
-    static std::vector<Type*>* theTempTypes;
+    static std::vector<Type *> *theTempTypes;
     /*@Doc:
     a vector containing pointers to temporary allocated types.
     */

@@ -73,7 +73,7 @@ public:
     virtual ~RasqlError();
 
     /// get an error description
-    virtual const char* what();
+    virtual const char *what();
 
 private:
     /// error information

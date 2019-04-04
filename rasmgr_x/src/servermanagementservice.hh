@@ -46,7 +46,7 @@ public:
 
     virtual ~ServerManagementService();
 
-    virtual grpc::Status RegisterServer(grpc::ServerContext* context, const rasnet::service::RegisterServerReq* request, rasnet::service::Void* response) override;
+    virtual grpc::Status RegisterServer(grpc::ServerContext *context, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *response) override;
 
 private:
     boost::shared_ptr<ServerManager> serverManager;

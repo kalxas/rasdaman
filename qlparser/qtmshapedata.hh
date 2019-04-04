@@ -54,9 +54,9 @@ class QtMShapeData : public QtData
 public:
 
     // constructor getting the vertices
-    QtMShapeData(const std::vector<r_Point>& pts);
+    QtMShapeData(const std::vector<r_Point> &pts);
     /// constructor getting a QtMShape
-    QtMShapeData(std::vector<QtMShapeData*>& mshapes);
+    QtMShapeData(std::vector<QtMShapeData *> &mshapes);
 
     /// virtual destructor
     virtual ~QtMShapeData();
@@ -66,12 +66,12 @@ public:
     ///
 
     ///
-    inline const std::vector<r_PointDouble>& getMShapeData() const;
+    inline const std::vector<r_PointDouble> &getMShapeData() const;
     ///
-    inline void setMShapeData(const std::vector<r_PointDouble>& pts);
+    inline void setMShapeData(const std::vector<r_PointDouble> &pts);
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string MShapeer has to be free using free() by the caller.
     */
@@ -83,53 +83,53 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
     /// get the list of defining vertices
-    inline const std::vector<r_Point>& getPolytopePoints() const;
-    
+    inline const std::vector<r_Point> &getPolytopePoints() const;
+
     /// get the dimension of the space the object lies into (how many vectors define this space)
     r_Dimension getDimension();
-    
+
     // dimension of the points
     r_Dimension getPointDimension();
 
     /// get the orthonormal vectors defining the space the object lies into.
-    inline std::vector<r_PointDouble>* getDirectionVectors();
+    inline std::vector<r_PointDouble> *getDirectionVectors();
 
     /// compute the barycentre of the vertices that define the object.
-    r_PointDouble* computeMidPoint();
+    r_PointDouble *computeMidPoint();
 
     /// compute the directionVectors and the dimensionality of the space in which this mshape lives.
     void computeDimensionality();
-    
+
     /// compute a vector of local bounding boxes, one for each line segment in the polytope.
     std::vector<r_Minterval> localConvexHulls() const;
 
     /// returns an r_Minterval representing the convex hull of this polytope.
     r_Minterval convexHull() const;
-    
+
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
-    std::vector<std::pair< r_PointDouble, double> > computeHyperplaneEquation();
-    
+    std::vector<std::pair< r_PointDouble, double>> computeHyperplaneEquation();
+
     /// computes the first coordinate projection on the vector of r_Points, and recasts to r_Dimension, returning a vector of r_Dimension.
     std::vector< r_Dimension > computeFirstProjection();
 private:
     /// attribute storing the polytope vertex coordinates
     std::vector<r_Point>  polytopePoints;
-    
+
     /// barycentre of the polytope vertices.
-    r_PointDouble* midPoint;
-    
+    r_PointDouble *midPoint;
+
     /// contains data defining the n-1 dim facets
-    std::vector<QtMShapeData*> polytopeEdges;
-    
+    std::vector<QtMShapeData *> polytopeEdges;
+
     /// polytope Vertex data; converted to double points to maintain precision.
     std::vector<r_PointDouble>   polytopePointsDouble;
 
@@ -143,9 +143,9 @@ private:
     /// of the affine subspace in directionVectors.
     r_Dimension dimensionality;
 
-    /// equations defining either an H-Polytope or a linear subspace given by 
+    /// equations defining either an H-Polytope or a linear subspace given by
     /// the intersection of codim-many hyperplanes
-    std::vector<std::pair<r_PointDouble, double> > hyperplaneEquations; 
+    std::vector<std::pair<r_PointDouble, double>> hyperplaneEquations;
 };
 
 #include "qlparser/qtmshapedata.icc"

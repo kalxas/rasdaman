@@ -47,10 +47,10 @@ static const char rcsid[] = "@(#)qlparser, QLMarrayOp, QLCondenseOp: $Header: /h
 
 #include <logging.hh>
 
-QLMarrayOp::QLMarrayOp(QtOperation*     newCellExpression,
-                       std::vector<QtData*>* newDataList,
-                       std::string&           newIteratorName,
-                       BaseType*        newResType,
+QLMarrayOp::QLMarrayOp(QtOperation     *newCellExpression,
+                       std::vector<QtData *> *newDataList,
+                       std::string           &newIteratorName,
+                       BaseType        *newResType,
                        unsigned int     newResOff) :
     MarrayOp(newResType, newResOff),
     cellExpression(newCellExpression),
@@ -68,25 +68,25 @@ QLMarrayOp::~QLMarrayOp()
 
 
 void
-QLMarrayOp::operator()(char* result, const r_Point& p)
+QLMarrayOp::operator()(char *result, const r_Point &p)
 {
     // update point data of input list
     if (dataList)
     {
-        (static_cast<QtPointData*>(dataList->back()))->setPointData(p);
+        (static_cast<QtPointData *>(dataList->back()))->setPointData(p);
     }
 
     if (cellExpression)
     {
-        QtData* resultData = cellExpression->evaluate(dataList);
+        QtData *resultData = cellExpression->evaluate(dataList);
 
         if (resultData)
         {
             if (resultData->isScalarData())
             {
-                QtScalarData* scalarResultData = static_cast<QtScalarData*>(resultData);
-                memcpy(static_cast<void*>(result),
-                       static_cast<void*>(const_cast<char*>(scalarResultData->getValueBuffer())),
+                QtScalarData *scalarResultData = static_cast<QtScalarData *>(resultData);
+                memcpy(static_cast<void *>(result),
+                       static_cast<void *>(const_cast<char *>(scalarResultData->getValueBuffer())),
                        scalarResultData->getValueType()->getSize());
             }
             else
@@ -101,14 +101,14 @@ QLMarrayOp::operator()(char* result, const r_Point& p)
 
 
 
-QLCondenseOp::QLCondenseOp(QtOperation*     newCellExpression,
-                           QtOperation*     newCondExpression,
-                           std::vector<QtData*>* newDataList,
-                           std::string&           newIteratorName,
-                           const BaseType*        newResType,
+QLCondenseOp::QLCondenseOp(QtOperation     *newCellExpression,
+                           QtOperation     *newCondExpression,
+                           std::vector<QtData *> *newDataList,
+                           std::string           &newIteratorName,
+                           const BaseType        *newResType,
                            unsigned int     newResOff,
-                           BinaryOp*        newAccuOp,
-                           char*            newInitVal)
+                           BinaryOp        *newAccuOp,
+                           char            *newInitVal)
 
     :  GenCondenseOp(newResType, newResOff, newAccuOp, newInitVal),
        cellExpression(newCellExpression),
@@ -121,7 +121,7 @@ QLCondenseOp::QLCondenseOp(QtOperation*     newCellExpression,
     //
 
     // create QtPointData object
-    QtPointData* pointData = new QtPointData(r_Point());
+    QtPointData *pointData = new QtPointData(r_Point());
 
     // set its iterator name
     pointData->setIteratorName(iteratorName);
@@ -142,19 +142,19 @@ QLCondenseOp::~QLCondenseOp()
 
 
 void
-QLCondenseOp::operator()(const r_Point& p)
+QLCondenseOp::operator()(const r_Point &p)
 {
     unsigned int currentCellValid = 1;
 
     // update point data of input list
     if (dataList)
     {
-        (static_cast<QtPointData*>(dataList->back()))->setPointData(p);
+        (static_cast<QtPointData *>(dataList->back()))->setPointData(p);
     }
 
     if (condExpression)
     {
-        QtData* condData = condExpression->evaluate(dataList);
+        QtData *condData = condExpression->evaluate(dataList);
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (condData->getDataType() != QT_BOOL)
         {
@@ -163,13 +163,13 @@ QLCondenseOp::operator()(const r_Point& p)
         }
         else
 #endif
-            currentCellValid = (static_cast<QtAtomicData*>(condData))->getUnsignedValue();
+            currentCellValid = (static_cast<QtAtomicData *>(condData))->getUnsignedValue();
         condData->deleteRef();
     }
 
     if (currentCellValid)
     {
-        QtData* resultData = cellExpression->evaluate(dataList);
+        QtData *resultData = cellExpression->evaluate(dataList);
         if (resultData)
         {
 #ifdef QT_RUNTIME_TYPE_CHECK
@@ -180,7 +180,7 @@ QLCondenseOp::operator()(const r_Point& p)
             else
 #endif
             {
-                QtScalarData* scalarResultData = static_cast<QtScalarData*>(resultData);
+                QtScalarData *scalarResultData = static_cast<QtScalarData *>(resultData);
                 (*accuOp)(initVal, initVal, scalarResultData->getValueBuffer());
             }
 
@@ -189,10 +189,10 @@ QLCondenseOp::operator()(const r_Point& p)
     }
 }
 
-QLInducedCondenseOp::QLInducedCondenseOp(QtOperation* newCellExpression,
-        QtOperation* newCondExpression,
-        std::vector<QtData*>* newDataList,
-        BinaryOp* newMyOp,
+QLInducedCondenseOp::QLInducedCondenseOp(QtOperation *newCellExpression,
+        QtOperation *newCondExpression,
+        std::vector<QtData *> *newDataList,
+        BinaryOp *newMyOp,
         std::string iteratorName)
     : cellExpression(newCellExpression),
       condExpression(newCondExpression),
@@ -205,7 +205,7 @@ QLInducedCondenseOp::QLInducedCondenseOp(QtOperation* newCellExpression,
     //
 
     // create QtPointData object
-    QtPointData* pointData = new QtPointData(r_Point());
+    QtPointData *pointData = new QtPointData(r_Point());
 
     // set its iterator name
     pointData->setIteratorName(iteratorName);
@@ -217,17 +217,17 @@ QLInducedCondenseOp::QLInducedCondenseOp(QtOperation* newCellExpression,
 }
 
 void
-QLInducedCondenseOp::operator()(const r_Point& p)
+QLInducedCondenseOp::operator()(const r_Point &p)
 {
     bool currentCellValid = true;
     // update point data of input list
     if (dataList)
     {
-        (static_cast<QtPointData*>(dataList->back()))->setPointData(p);
+        (static_cast<QtPointData *>(dataList->back()))->setPointData(p);
     }
     if (condExpression)
     {
-        QtData* condData = condExpression->evaluate(dataList);
+        QtData *condData = condExpression->evaluate(dataList);
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (condData->getDataType() != QT_BOOL)
         {
@@ -236,12 +236,12 @@ QLInducedCondenseOp::operator()(const r_Point& p)
         }
         else
 #endif
-            currentCellValid = (static_cast<QtAtomicData*>(condData))->getUnsignedValue();
+            currentCellValid = (static_cast<QtAtomicData *>(condData))->getUnsignedValue();
         condData->deleteRef();
     }
     if (currentCellValid)
     {
-        QtMDD* resultData = static_cast<QtMDD*>(cellExpression->evaluate(dataList));
+        QtMDD *resultData = static_cast<QtMDD *>(cellExpression->evaluate(dataList));
         //execute binary operation on current tile
         //if accumulatedValue has not been initialized, it actually takes the value of the tile
         if (accumulatedValue == NULL)
@@ -251,7 +251,7 @@ QLInducedCondenseOp::operator()(const r_Point& p)
         //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
         else
         {
-            QtMDD* result = static_cast<QtMDD*>(QtBinaryInduce::computeBinaryMDDOp(accumulatedValue, resultData, accumulatedValue->getCellType(), myOp));
+            QtMDD *result = static_cast<QtMDD *>(QtBinaryInduce::computeBinaryMDDOp(accumulatedValue, resultData, accumulatedValue->getCellType(), myOp));
             //delete the mdds as they are not used
             accumulatedValue->deleteRef();
             resultData->deleteRef();
@@ -261,15 +261,15 @@ QLInducedCondenseOp::operator()(const r_Point& p)
     }
 }
 
-QtMDD*
+QtMDD *
 QLInducedCondenseOp::getAccumulatedValue()
 {
     return accumulatedValue;
 }
 
 
-QtMDD*
-QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp* myOp, const r_Minterval& areaOp)
+QtMDD *
+QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r_Minterval &areaOp)
 {
     r_Point pOp(areaOp.dimension());
     int done = 0;

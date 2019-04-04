@@ -43,13 +43,13 @@ QtONCStream::QtONCStream()
 }
 
 
-QtONCStream::QtONCStream(QtNode* node)
+QtONCStream::QtONCStream(QtNode *node)
     :  QtNode(node)
 {
 }
 
 void
-QtONCStream::setDataStreamType(const QtTypeTuple& type)
+QtONCStream::setDataStreamType(const QtTypeTuple &type)
 {
     dataStreamType = type;
 }

@@ -52,8 +52,8 @@ rasdaman GmbH.
 
 using boost::shared_ptr;
 
-const r_Minterval&
-MDDObj::checkStorage(const r_Minterval& domain2)
+const r_Minterval &
+MDDObj::checkStorage(const r_Minterval &domain2)
 {
     r_Minterval domain(domain2.dimension());
     if (myStorageLayout->getIndexType() == r_Reg_Computed_Index)
@@ -86,7 +86,7 @@ MDDObj::checkStorage(const r_Minterval& domain2)
     return domain2;
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain)
     :   NullValuesHandler(),
         myDBMDDObj(),
         myMDDIndex(NULL),
@@ -105,7 +105,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalues* newNullValues)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, r_Nullvalues *newNullValues)
     :   NullValuesHandler(),
         myDBMDDObj(),
         myMDDIndex(NULL),
@@ -125,7 +125,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalu
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId, const StorageLayout &ms)
     :   NullValuesHandler(),
         myDBMDDObj(),
         myMDDIndex(NULL),
@@ -144,7 +144,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), ms.getDBStorageLayout(), newOId);
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId)
     : myDBMDDObj(),
       myMDDIndex(NULL),
       myStorageLayout(NULL)
@@ -162,7 +162,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 
 
 
-MDDObj::MDDObj(const DBMDDObjId& dbmddobj)
+MDDObj::MDDObj(const DBMDDObjId &dbmddobj)
     :   NullValuesHandler(),
         myDBMDDObj(dbmddobj),
         myMDDIndex(NULL),
@@ -174,7 +174,7 @@ MDDObj::MDDObj(const DBMDDObjId& dbmddobj)
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
 }
 
-MDDObj::MDDObj(const OId& givenOId)
+MDDObj::MDDObj(const OId &givenOId)
     :   NullValuesHandler(),
         myDBMDDObj(OId()),
         myMDDIndex(NULL),
@@ -187,7 +187,7 @@ MDDObj::MDDObj(const OId& givenOId)
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
 }
 
-MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const StorageLayout& ms)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const StorageLayout &ms)
     :   NullValuesHandler(),
         myDBMDDObj(OId()),
         myMDDIndex(NULL),
@@ -207,7 +207,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
 }
 
 void
-MDDObj::insertTile(Tile* newTile)
+MDDObj::insertTile(Tile *newTile)
 {
     insertTile(shared_ptr<Tile>(newTile));
 }
@@ -237,8 +237,8 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     r_Area completeArea = 0;
     r_Minterval tempDom;
     r_Minterval tileDom = newTile->getDomain();
-    std::vector<shared_ptr<Tile>>* indexTiles = NULL;
-    char* newContents = NULL;
+    std::vector<shared_ptr<Tile>> *indexTiles = NULL;
+    char *newContents = NULL;
     size_t sizeOfData = 0;
     bool checkEquality = true;
     for (std::vector<r_Minterval>::iterator it = layoutDoms.begin(); it != layoutDoms.end(); it++)
@@ -315,10 +315,10 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     }
 }
 
-std::vector<shared_ptr<Tile>>*
-MDDObj::intersect(const r_Minterval& searchInter) const
+std::vector<shared_ptr<Tile>> *
+                           MDDObj::intersect(const r_Minterval &searchInter) const
 {
-    std::vector<shared_ptr<Tile>>* retval = myMDDIndex->intersect(searchInter);
+    std::vector<shared_ptr<Tile>> *retval = myMDDIndex->intersect(searchInter);
 #ifdef RASDEBUG
     if (retval)
     {
@@ -331,21 +331,21 @@ MDDObj::intersect(const r_Minterval& searchInter) const
     return retval;
 }
 
-std::vector<shared_ptr<Tile>>*
-MDDObj::getTiles() const
+std::vector<shared_ptr<Tile>> *
+                           MDDObj::getTiles() const
 {
     RMTIMER("MDDObj", "getTiles");
     return  myMDDIndex->getTiles();
 }
 
-char*
-MDDObj::pointQuery(const r_Point& searchPoint)
+char *
+MDDObj::pointQuery(const r_Point &searchPoint)
 {
     return  myMDDIndex->pointQuery(searchPoint);
 }
 
-const char*
-MDDObj::pointQuery(const r_Point& searchPoint) const
+const char *
+MDDObj::pointQuery(const r_Point &searchPoint) const
 {
     return  myMDDIndex->pointQuery(searchPoint);
 }
@@ -356,7 +356,7 @@ MDDObj::getDBMDDObjId() const
     return myDBMDDObj;
 }
 
-const MDDBaseType*
+const MDDBaseType *
 MDDObj::getMDDBaseType() const
 {
     return myDBMDDObj->getMDDBaseType();
@@ -374,13 +374,13 @@ MDDObj::getCurrentDomain() const
     return myMDDIndex->getCurrentDomain();
 }
 
-const char*
+const char *
 MDDObj::getCellTypeName() const
 {
     return myDBMDDObj->getCellTypeName();
 }
 
-const BaseType*
+const BaseType *
 MDDObj::getCellType() const
 {
     return myDBMDDObj->getCellType();
@@ -400,28 +400,28 @@ MDDObj::isPersistent() const
 
 
 int
-MDDObj::getOId(OId* pOId) const
+MDDObj::getOId(OId *pOId) const
 {
     *pOId = myDBMDDObj->getOId();
     return (pOId->getCounter() == 0);
 }
 
 int
-MDDObj::getEOId(EOId* pEOId) const
+MDDObj::getEOId(EOId *pEOId) const
 {
     *pEOId = myDBMDDObj->getEOId();
     return (pEOId->getCounter() == 0);
 }
 
 void
-MDDObj::printStatus(unsigned int level, std::ostream& stream) const
+MDDObj::printStatus(unsigned int level, std::ostream &stream) const
 {
     myDBMDDObj->printStatus(level, stream);
     myMDDIndex->printStatus(level, stream);
 }
 
 void
-MDDObj::removeTile(shared_ptr<Tile>& tileToRemove)
+MDDObj::removeTile(shared_ptr<Tile> &tileToRemove)
 {
     int found = myMDDIndex->removeTile(tileToRemove);
     if (found)
@@ -456,14 +456,14 @@ MDDObj::releaseTiles()
     myMDDIndex->releasePersTiles();
 }
 
-StorageLayout*
+StorageLayout *
 MDDObj::getStorageLayout() const
 {
     return myStorageLayout;
 }
 
 void
-MDDObj::setUpdateNullValues(r_Nullvalues* newNullValues)
+MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
 {
     nullValues = newNullValues;
     if (newNullValues)
@@ -478,7 +478,7 @@ MDDObj::setUpdateNullValues(r_Nullvalues* newNullValues)
 //
 #define CODE(...) __VA_ARGS__
 #define MAKE_SWITCH_TYPEENUM(cellType, T, code, codeDefault) \
-  switch (cellType) { \
+    switch (cellType) { \
     case ULONG:    { using T = r_ULong;   code break; } \
     case USHORT:   { using T = r_UShort;  code break; } \
     case CHAR:     { using T = r_Char;    code break; } \
@@ -489,18 +489,18 @@ MDDObj::setUpdateNullValues(r_Nullvalues* newNullValues)
     case DOUBLE:   { using T = r_Double;  code break; } \
     case FLOAT:    { using T = r_Float;   code break; } \
     default:       { codeDefault break; } \
-  }
+    }
 
 
 template <class T>
-void fillTile(r_Range fillValArg, size_t cellCount, char* startPointArg)
+void fillTile(r_Range fillValArg, size_t cellCount, char *startPointArg)
 {
-    T* startPoint = reinterpret_cast<T*>(startPointArg);
+    T *startPoint = reinterpret_cast<T *>(startPointArg);
     std::fill(startPoint, startPoint + cellCount, static_cast<T>(fillValArg));
 }
 
 void
-MDDObj::fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const
+MDDObj::fillTileWithNullvalues(char *resDataPtr, size_t cellCount) const
 {
     if (this->getNullValues())
     {
@@ -520,19 +520,19 @@ MDDObj::fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const
 }
 
 void
-MDDObj::fillSinglebandTileWithNullvalues( char* resDataPtr, size_t cellCount, TypeEnum cellType) const
+MDDObj::fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, TypeEnum cellType) const
 {
     auto nullValue = this->getNullValue();
     LDEBUG << "Initializing single-band tile with null value " << nullValue;
 
     MAKE_SWITCH_TYPEENUM(cellType, T,
-    CODE( // case T:
-        fillTile<T>(nullValue, cellCount, resDataPtr);
-    ),
-    CODE( // default:
-        LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-        fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
-    ));
+                         CODE( // case T:
+                             fillTile<T>(nullValue, cellCount, resDataPtr);
+                         ),
+                         CODE( // default:
+                             LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+                             fillTile<r_Char>(0, cellCount * getCellType()->getSize(), resDataPtr);
+                         ));
 }
 
 template <typename T>
@@ -541,13 +541,13 @@ void fillBand(r_Double nullValue, size_t cellCount, char *dst, unsigned int cell
     const auto nullValueT = static_cast<T>(nullValue);
     for (size_t i = 0; i < cellCount; ++i, dst += cellTypeSize)
     {
-        *reinterpret_cast<T*>(dst) = nullValueT;
+        *reinterpret_cast<T *>(dst) = nullValueT;
     }
 }
 
 void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount) const
 {
-    const auto *structType = dynamic_cast<const StructType*>(this->getCellType());
+    const auto *structType = dynamic_cast<const StructType *>(this->getCellType());
     const auto numElems = structType->getNumElems();
     assert(numElems > 0);
     LDEBUG << "Initializing multi-band tile with " << numElems << " bands with null value";
@@ -585,13 +585,13 @@ void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount)
             char *dst = resDataPtr + bandOffset;
 
             MAKE_SWITCH_TYPEENUM(structType->getElemType(i)->getType(), T,
-            CODE( // case T:
-                fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
-            ),
-            CODE( // default:
-                LDEBUG << "Unknown base type: " << this->getCellType()->getName();
-                fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
-            ));
+                                 CODE( // case T:
+                                     fillBand<T>(nullValue, cellCount, dst, cellTypeSize);
+                                 ),
+                                 CODE( // default:
+                                     LDEBUG << "Unknown base type: " << this->getCellType()->getName();
+                                     fillBand<r_Char>(nullValue, cellCount, dst, cellTypeSize);
+                                 ));
 
             bandOffset += structType->getElemType(i)->getSize();
         }

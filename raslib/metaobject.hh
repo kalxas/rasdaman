@@ -56,22 +56,22 @@ public:
     /// default constructor.
     r_Meta_Object();
     /// constructor getting name of type.
-    r_Meta_Object(const char* newTypeName);
+    r_Meta_Object(const char *newTypeName);
     /// copy constructor
-    r_Meta_Object(const r_Meta_Object& oldObj);
+    r_Meta_Object(const r_Meta_Object &oldObj);
     /// assignment operator.
-    const r_Meta_Object& operator=(const r_Meta_Object& oldObj);
+    const r_Meta_Object &operator=(const r_Meta_Object &oldObj);
     /// destructor.
     virtual ~r_Meta_Object();
 
     /// retrieve name of the type.
-    const char* name() const;
+    const char *name() const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream& s = std::cout) const = 0;
+    virtual void print_status(std::ostream &s = std::cout) const = 0;
 
 protected:
-    char* typeName;
+    char *typeName;
 };
 
 #endif

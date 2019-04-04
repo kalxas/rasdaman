@@ -57,7 +57,7 @@ class r_MiterDirect
 {
 public:
     /// constructor
-    r_MiterDirect(void* data, const r_Minterval& total, const r_Minterval& iter,
+    r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter,
                   r_Bytes tlen, unsigned int step = 1);
     /**
        constructor getting the data, the total domain, the iteration
@@ -69,9 +69,9 @@ public:
     ~r_MiterDirect(void);
 
     /// increment the iterator in the default order, i.e. last dimension first
-    inline r_MiterDirect& operator++(void);
+    inline r_MiterDirect &operator++(void);
     /// increment in user-specified order
-    inline r_MiterDirect& iterateUserOrder(const r_Dimension* order, const unsigned int* step);
+    inline r_MiterDirect &iterateUserOrder(const r_Dimension *order, const unsigned int *step);
     /**
        increment the iterator in a user-specified order. order points to an array
        defining the order of the dimensions during iteration, e.g. for a 3D
@@ -80,7 +80,7 @@ public:
        is the number of steps to do in each dimension.
     */
     /// increment or decrement in user-specified order
-    inline r_MiterDirect& iterateUserOrder(const unsigned int* order, const int* step);
+    inline r_MiterDirect &iterateUserOrder(const unsigned int *order, const int *step);
     /**
        see the other incrementUserOrder method for more details
     */
@@ -88,9 +88,9 @@ public:
     /// returns != 0 if iteration is finished.
     inline bool isDone(void) const;
     /// returns pointer to data during normal iteration.
-    inline void* getData(void);
+    inline void *getData(void);
     /// return pointer to data for non-standard iteration order
-    inline void* getData(unsigned int* order);
+    inline void *getData(unsigned int *order);
     /**
        returns pointer to data during user-defined iteration; order is as
        defined in iterateUserOrder().
@@ -106,11 +106,11 @@ public:
     /// reset the iterator (pos to low and data to baseAddress + offset)
     void reset(void);
     /// print the position
-    void print_pos(std::ostream& str) const;
+    void print_pos(std::ostream &str) const;
 
     bool done;
-    r_miter_direct_data* id;
-    void* baseAddress;
+    r_miter_direct_data *id;
+    void *baseAddress;
 
 private:
 
@@ -139,7 +139,7 @@ public:
 
     /// Data concerning the iteration position and domain. May
     /// be changed by the user.
-    void* data;
+    void *data;
     r_Range pos;
     r_Range low;
     r_Range high;
@@ -156,7 +156,7 @@ private:
 
 
 /// overloaded stream operator
-extern std::ostream& operator<<(std::ostream& str, const r_MiterDirect& iter);
+extern std::ostream &operator<<(std::ostream &str, const r_MiterDirect &iter);
 
 
 

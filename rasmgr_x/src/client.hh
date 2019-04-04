@@ -50,13 +50,13 @@ public:
      * @param accessRights access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      */
-    Client(const std::string& clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime);
+    Client(const std::string &clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime);
 
     /**
      *
      * @return The unique ID associated with this client
      */
-    const std::string& getClientId() const;
+    const std::string &getClientId() const;
 
     /**
      * @brief getUser Get the user information(user name, password, access rights) associated with this client.
@@ -85,13 +85,13 @@ public:
      * @throws An exception is thrown if the user does not have rights on the database with the given name
      * or if the server cannot allocate a client session.
      */
-    void addDbSession(const std::string& dbName, boost::shared_ptr<Server> assignedServer, std::string& out_sessionId);
+    void addDbSession(const std::string &dbName, boost::shared_ptr<Server> assignedServer, std::string &out_sessionId);
 
     /**
      * Remove the session with the given ID from the client's memory.
      * @param sessionId UUID that uniquely identifies the session on this client.
      */
-    void removeDbSession(const std::string& sessionId);
+    void removeDbSession(const std::string &sessionId);
 
     /**
      * Remove the client from all the servers it has been associated with.

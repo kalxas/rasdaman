@@ -61,7 +61,7 @@ RasControlConfig::~RasControlConfig()
 {
 }
 
-bool RasControlConfig::parseCommandLineParameters(int argc, char** argv)
+bool RasControlConfig::parseCommandLineParameters(int argc, char **argv)
 {
     //TODO-AT:FIXME workarround for batch mode commands given to rascontrol
     //in current version it is generated an error if a parameter has many values:
@@ -91,7 +91,7 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char** argv)
             cmlInter.processCommandLine(argc, argv);
         }
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
@@ -108,7 +108,7 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char** argv)
     {
         this->rasMgrPort = cmlPort.getValueAsLong();
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
@@ -187,7 +187,7 @@ bool RasControlConfig::parseCommandLineParameters(int argc, char** argv)
     {
         this->promptMode = cmlPrompt.getValueAsLong();
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         std::cout << "Command Line Parsing Error:" << std::endl << err.what() << std::endl;
         return false;
@@ -236,7 +236,7 @@ std::string RasControlConfig::getHistoryFileName() const
     return this->historyFileName;
 }
 
-std::string RasControlConfig::getPrompt(const std::string& userName)
+std::string RasControlConfig::getPrompt(const std::string &userName)
 {
     if (this->prompt.empty())
     {

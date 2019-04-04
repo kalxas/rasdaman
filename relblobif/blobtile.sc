@@ -66,7 +66,7 @@ BLOBTile::updateInDb()
     SQLiteQuery::executeWithParams("UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %lld", dataFormat, blobOid);
     if (TileCache::cacheLimit > 0)
     {
-        CacheValue* value = new CacheValue(cells, size, true, myOId, blobOid, this);
+        CacheValue *value = new CacheValue(cells, size, true, myOId, blobOid, this);
         value->setFileStorage(true);
         TileCache::insert(myOId, value);
     }
@@ -98,7 +98,7 @@ BLOBTile::insertInDb()
 
     if (TileCache::cacheLimit > 0)
     {
-        CacheValue* value = new CacheValue(cells, size, true, myOId, blobOid, this);
+        CacheValue *value = new CacheValue(cells, size, true, myOId, blobOid, this);
         value->setFileStorage(true);
         TileCache::insert(myOId, value);
     }
@@ -135,11 +135,11 @@ BLOBTile::deleteFromDb()
 // tuples are identified by target and a range
 
 void
-BLOBTile::kill(const OId& target, unsigned int range)
+BLOBTile::kill(const OId &target, unsigned int range)
 {
     if (range == 0) // single tuple
     {
-        DBObject* targetobj = ObjectBroker::isInMemory(target);
+        DBObject *targetobj = ObjectBroker::isInMemory(target);
         if (targetobj)
         {
             targetobj->setPersistent(false);
@@ -166,13 +166,13 @@ BLOBTile::kill(const OId& target, unsigned int range)
     }
     else
     {
-        DBObjectPMap& mapRef = ObjectBroker::getMap(target.getType());
+        DBObjectPMap &mapRef = ObjectBroker::getMap(target.getType());
         DBObjectPMap::iterator it = mapRef.begin();
         DBObjectPMap::iterator theEnd = mapRef.end();
         OId end(target.getCounter() + range, target.getType());
         while (it != theEnd)
         {
-            if (target <= (const OId&)(*it).first && (*it).first <= (const OId&) end)
+            if (target <= (const OId &)(*it).first && (*it).first <= (const OId &) end)
             {
                 (*it).second->setPersistent(false);
             }
@@ -244,7 +244,7 @@ BLOBTile::readFromDb()
 
     if (TileCache::cacheLimit > 0 && TileCache::contains(blobOid))
     {
-        CacheValue* cached = TileCache::get(blobOid);
+        CacheValue *cached = TileCache::get(blobOid);
         if (size == 0)
         {
             size = cached->getSize();
@@ -252,7 +252,7 @@ BLOBTile::readFromDb()
         cells = cached->getData();
         cached->addReferencingTile(this);
 
-        LDEBUG << "data cached, copying cells: " << (void*) cached->getData() << ", to new cells: " << (void*) cells;
+        LDEBUG << "data cached, copying cells: " << (void *) cached->getData() << ", to new cells: " << (void *) cells;
     }
     else
     {
@@ -263,7 +263,7 @@ BLOBTile::readFromDb()
 
         if (TileCache::cacheLimit > 0)
         {
-            CacheValue* value = new CacheValue(cells, size, false, myOId, blobOid, this, dataFormat);
+            CacheValue *value = new CacheValue(cells, size, false, myOId, blobOid, this, dataFormat);
             value->setFileStorage(true);
             TileCache::insert(blobOid, value);
         }
@@ -284,7 +284,7 @@ BLOBTile::readFromDb()
 #endif
 }
 
-void BLOBTile::writeCachedToDb(CacheValue* value)
+void BLOBTile::writeCachedToDb(CacheValue *value)
 {
     if (value && value->isUpdate())
     {

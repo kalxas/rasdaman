@@ -68,9 +68,13 @@ DBHierIndex::insertInDb()
     indexsubtype2 = _isNode;
 
     if (parent.getType() == OId::INVALID)
+    {
         parentid2 = 0;
+    }
     else
+    {
         parentid2 = parent;
+    }
 
     // (1) -- set all buffers
     r_Bytes headersize = sizeof(header);
@@ -88,43 +92,43 @@ DBHierIndex::insertInDb()
 
     // HST After some testing of the new format all these allocations
     // should be removed.
-    char* completebuffer = (char*) mymalloc(completesize);
+    char *completebuffer = (char *) mymalloc(completesize);
     if (completebuffer == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    r_Range* upperboundsbuf = (r_Range*) mymalloc(boundssize);
+    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
     if (upperboundsbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    r_Range* lowerboundsbuf = (r_Range*) mymalloc(boundssize);
+    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
     if (lowerboundsbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char* upperfixedbuf = (char*) mymalloc(fixessize);
+    char *upperfixedbuf = (char *) mymalloc(fixessize);
     if (upperfixedbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char* lowerfixedbuf = (char*) mymalloc(fixessize);
+    char *lowerfixedbuf = (char *) mymalloc(fixessize);
     if (lowerfixedbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
+    OId::OIdCounter *entryidsbuf = (OId::OIdCounter *)mymalloc(idssize);
     if (entryidsbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char* entrytypesbuf = (char*) mymalloc(typessize);
+    char *entrytypesbuf = (char *) mymalloc(typessize);
     if (entrytypesbuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
@@ -198,8 +202,8 @@ DBHierIndex::readFromDb()
     // (1) --- fetch tuple from database
 
     SQLiteQuery query(
-            "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData "
-            "FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", oid);
+        "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData "
+        "FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", oid);
     if (query.nextRow())
     {
         numEntries = static_cast<r_Bytes>(query.nextColumnInt());
@@ -255,7 +259,7 @@ DBHierIndex::readFromDb()
         headerSize = BLOB_FORMAT_V2_HEADER_SIZE;
         auto header = *reinterpret_cast<long long *>(&blobBuffer[0]);
         blobFormat = header == BLOB_FORMAT_V2_HEADER_MAGIC ? BLOB_FORMAT_V2
-                                                           : BLOB_FORMAT_V3;
+                     : BLOB_FORMAT_V3;
     }
     r_Bytes idsSize = idSize * numEntries;
     r_Bytes boundsSize = boundSize * (numEntries + 1) * dimension;
@@ -268,10 +272,10 @@ DBHierIndex::readFromDb()
     r_Bytes typesSize = sizeof(char) * numEntries;
     // number of bytes for the dynamic data
     r_Bytes completeSize =
-            headerSize +
-            boundsSize * 2 +
-            fixesSize * 2 +
-            idsSize + typesSize;
+        headerSize +
+        boundsSize * 2 +
+        fixesSize * 2 +
+        idsSize + typesSize;
 
     LTRACE << "blob format: " << blobFormat;
     LTRACE << "complete=" << completeSize << " bounds=" << boundsSize
@@ -299,8 +303,8 @@ DBHierIndex::readFromDb()
     // (4) --- copy data into buffers
 
 #define GET_BOUND(buf) \
-(blobFormat <= BLOB_FORMAT_V2) ? static_cast<r_Range>(*reinterpret_cast<int*>(buf)) \
-                             : *reinterpret_cast<r_Range*>(buf)
+    (blobFormat <= BLOB_FORMAT_V2) ? static_cast<r_Range>(*reinterpret_cast<int*>(buf)) \
+    : *reinterpret_cast<r_Range*>(buf)
 
     auto lowerBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
     auto upperBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
@@ -361,9 +365,13 @@ DBHierIndex::updateInDb()
     dimension4 = myDomain.dimension();
     size4 = myKeyObjects.size();
     if (parent.getType() == OId::INVALID)
+    {
         parentid4 = 0;
+    }
     else
+    {
         parentid4 = parent;
+    }
 
     // (1) --- prepare buffer
     // number of bytes for header
@@ -380,13 +388,13 @@ DBHierIndex::updateInDb()
     //number of bytes for the dynamic data; 1 starter byte!
     r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
-    char* completebuffer = (char*) mymalloc(completesize);
-    r_Range* upperboundsbuf = (r_Range*) mymalloc(boundssize);
-    r_Range* lowerboundsbuf = (r_Range*) mymalloc(boundssize);
-    char* upperfixedbuf = (char*) mymalloc(fixessize);
-    char* lowerfixedbuf = (char*) mymalloc(fixessize);
-    OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
-    char* entrytypesbuf = (char*) mymalloc(typessize);
+    char *completebuffer = (char *) mymalloc(completesize);
+    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
+    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
+    char *upperfixedbuf = (char *) mymalloc(fixessize);
+    char *lowerfixedbuf = (char *) mymalloc(fixessize);
+    OId::OIdCounter *entryidsbuf = (OId::OIdCounter *)mymalloc(idssize);
+    char *entrytypesbuf = (char *) mymalloc(typessize);
 
     LTRACE << "Updating index in rasbase with oid " << myOId;
 
@@ -453,7 +461,8 @@ DBHierIndex::deleteFromDb()
         }
         else
         {
-            try {
+            try
+            {
                 DBObjectId dbo(oi);
                 if (!dbo.is_null())
                 {
@@ -461,9 +470,13 @@ DBHierIndex::deleteFromDb()
                     dbo->setPersistent(false);
                     dbo = (unsigned int) 0;
                 }
-            } catch (const r_Error &err) {
+            }
+            catch (const r_Error &err)
+            {
                 LWARNING << "Cannot delete invalid object with OId " << oi << ": " << err.what();
-            } catch (...) {
+            }
+            catch (...)
+            {
                 LWARNING << "Cannot delete invalid object with OId " << oi << ": unknown exception occurred.";
             }
         }

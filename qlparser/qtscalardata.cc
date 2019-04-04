@@ -64,7 +64,7 @@ QtScalarData::QtScalarData()
 
 
 
-QtScalarData::QtScalarData(const QtScalarData& obj)
+QtScalarData::QtScalarData(const QtScalarData &obj)
     : QtData(obj),
       ownCells(true)
 {
@@ -89,9 +89,9 @@ QtScalarData::QtScalarData(const QtScalarData& obj)
 QtScalarData::~QtScalarData()
 {
     // valueType is not deleted because it is maintained by the typeFactory
-    if (ownCells) 
+    if (ownCells)
     {
-        if (valueBuffer) 
+        if (valueBuffer)
         {
             delete[] valueBuffer;
             valueBuffer = NULL;
@@ -157,13 +157,13 @@ QtScalarData::isScalarData() const
 
 
 bool
-QtScalarData::equal(const QtData* obj) const
+QtScalarData::equal(const QtData *obj) const
 {
     int returnValue = false;  // not equal by initialization
 
     if (obj->isScalarData())
     {
-        QtScalarData* scalarObj = static_cast<QtScalarData*>(const_cast<QtData*>(obj));
+        QtScalarData *scalarObj = static_cast<QtScalarData *>(const_cast<QtData *>(obj));
 
         if (getDataType() == scalarObj->getDataType())   // Attention: this is not correct for structs
             // compare value buffers
@@ -218,7 +218,7 @@ QtScalarData::getSpelling() const
 }
 
 
-char* QtScalarData::getTypeStructure() const
+char *QtScalarData::getTypeStructure() const
 {
     if (valueType)
     {
@@ -232,11 +232,11 @@ char* QtScalarData::getTypeStructure() const
 
 
 void
-QtScalarData::printStatus(ostream& stream) const
+QtScalarData::printStatus(ostream &stream) const
 {
     if (valueType)
     {
-        char* typeStructure = valueType->getTypeStructure();
+        char *typeStructure = valueType->getTypeStructure();
 
         stream << "type: "        << flush << valueType->getTypeName()
                << ", structure: " << flush << typeStructure

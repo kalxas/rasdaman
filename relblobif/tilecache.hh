@@ -29,7 +29,7 @@ rasdaman GmbH.
 #include <list>
 
 typedef int KeyType;
-typedef CacheValue* ValueType;
+typedef CacheValue *ValueType;
 typedef std::pair<KeyType, ValueType> CachePairType;
 typedef std::list<ValueType> CacheLRU;
 typedef std::map<KeyType, ValueType> CacheType;
@@ -44,23 +44,23 @@ class TileCache
 public:
     /// cache blob with key = oid
     static void insert(KeyType key, ValueType value);
-    static void insert(OId& key, ValueType value);
+    static void insert(OId &key, ValueType value);
 
     /// retrieve cached blob given its oid; returns NULL in case of a miss
     static ValueType get(KeyType key);
-    static ValueType get(OId& key);
+    static ValueType get(OId &key);
 
     /// check if cache contains blob with given oid
     static bool contains(KeyType key);
-    static bool contains(OId& key);
+    static bool contains(OId &key);
 
     /// remove cached blob; this triggers validateReal on the cached blob
     static ValueType remove(KeyType key);
-    static ValueType remove(OId& key);
+    static ValueType remove(OId &key);
 
     /// remove all blobs, effectively emptying the cache
     static void removeKey(KeyType key);
-    static void removeKey(OId& key);
+    static void removeKey(OId &key);
 
     /// remove all blobs, effectively emptying the cache
     static void clear();

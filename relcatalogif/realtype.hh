@@ -59,13 +59,13 @@ public:
     constructor.
     */
 
-    RealType(const RealType& old):
+    RealType(const RealType &old):
         AtomicType(old) {}
     /*@Doc:
     copy constructor.
     */
 
-    RealType(const OId& id):
+    RealType(const OId &id):
         AtomicType(id) {}
     /*@Doc:
     */
@@ -74,14 +74,14 @@ public:
     /*@Doc:
     */
 
-    virtual r_ULong* convertToCULong(const char*, r_ULong*) const;
-    virtual char* makeFromCULong(char*, const r_ULong*) const;
+    virtual r_ULong *convertToCULong(const char *, r_ULong *) const;
+    virtual char *makeFromCULong(char *, const r_ULong *) const;
 
-    virtual r_Long* convertToCLong(const char*, r_Long*) const;
-    virtual char* makeFromCLong(char*, const r_Long*) const;
+    virtual r_Long *convertToCLong(const char *, r_Long *) const;
+    virtual char *makeFromCLong(char *, const r_Long *) const;
 
 protected:
-    RealType(const char* name, unsigned int newSize):
+    RealType(const char *name, unsigned int newSize):
         AtomicType(name, newSize) {}
     /*@Doc:
     */

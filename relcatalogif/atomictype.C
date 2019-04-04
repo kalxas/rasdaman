@@ -42,60 +42,60 @@ static const char rcsid[] = "@(#)catalogif,AtomicType: $Id: atomictype.C,v 1.4 2
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 AtomicType.
  ************************************************************/
 
 AtomicType::AtomicType(unsigned int newSize)
-	:	BaseType("unnamed atomictype"),
-		size(newSize)
-	{
-	objecttype = OId::ATOMICTYPEOID;
-	_isPersistent = 1;
-	_isInDatabase = 1;
-	_isModified = 0;
-	}
+    :   BaseType("unnamed atomictype"),
+        size(newSize)
+{
+    objecttype = OId::ATOMICTYPEOID;
+    _isPersistent = 1;
+    _isInDatabase = 1;
+    _isModified = 0;
+}
 
-AtomicType::AtomicType(const char* name, unsigned int newSize)
-	:	BaseType(name),
-		size(newSize)
-	{
-	objecttype = OId::ATOMICTYPEOID;
-	_isPersistent = 1;
-	_isInDatabase = 1;
-	_isModified = 0;
-	}
+AtomicType::AtomicType(const char *name, unsigned int newSize)
+    :   BaseType(name),
+        size(newSize)
+{
+    objecttype = OId::ATOMICTYPEOID;
+    _isPersistent = 1;
+    _isInDatabase = 1;
+    _isModified = 0;
+}
 
-AtomicType::AtomicType(const AtomicType& old)
-	:	BaseType(old),
-		size(old.size)
-	{
-	objecttype = OId::ATOMICTYPEOID;
-	_isPersistent = 1;
-	_isInDatabase = 1;
-	_isModified = 0;
-	}
+AtomicType::AtomicType(const AtomicType &old)
+    :   BaseType(old),
+        size(old.size)
+{
+    objecttype = OId::ATOMICTYPEOID;
+    _isPersistent = 1;
+    _isInDatabase = 1;
+    _isModified = 0;
+}
 
-AtomicType::AtomicType(const OId& id)
-	:	BaseType(id)
-	{
-	objecttype = OId::ATOMICTYPEOID;
-	_isPersistent = 1;
-	_isInDatabase = 1;
-	_isModified = 0;
-	}
+AtomicType::AtomicType(const OId &id)
+    :   BaseType(id)
+{
+    objecttype = OId::ATOMICTYPEOID;
+    _isPersistent = 1;
+    _isInDatabase = 1;
+    _isModified = 0;
+}
 
 AtomicType::~AtomicType()
-	{
-	}
+{
+}
 
-AtomicType&
-AtomicType::operator=(const AtomicType& old)
-	{
-	BaseType::operator=(old);
-	size = old.size;
-	return *this;
-	}
+AtomicType &
+AtomicType::operator=(const AtomicType &old)
+{
+    BaseType::operator=(old);
+    size = old.size;
+    return *this;
+}
 
 /*************************************************************
  * Method name...: unsigned int getSize() const
@@ -105,9 +105,9 @@ AtomicType::operator=(const AtomicType& old)
  * Description...: returns size of AtomicType in chars
  ************************************************************/
 
-unsigned int 
+unsigned int
 AtomicType::getSize() const
 {
-  return size;
+    return size;
 }
 

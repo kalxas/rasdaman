@@ -58,19 +58,19 @@ values. The value of a Short is stored in four chars.
 class ShortType : public IntegralType
 {
 public:
-    ShortType(const OId& id);
+    ShortType(const OId &id);
 
     ShortType();
     /*@Doc:
     default constructor, sets type name to "Short".
     */
 
-    ShortType(const ShortType& old);
+    ShortType(const ShortType &old);
     /*@Doc:
     copy constructor.
     */
 
-    ShortType& operator=(const ShortType& old);
+    ShortType &operator=(const ShortType &old);
     /*@Doc:
     assignment operator.
     */
@@ -80,19 +80,19 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual r_Long* convertToCLong(const char* cell, r_Long* value) const;
+    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCLong(char* cell, const r_Long* value) const;
+    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

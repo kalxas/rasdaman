@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 
 
-r_OId::r_OId(const char* initOIdString)
+r_OId::r_OId(const char *initOIdString)
 {
     // set oidString
     if (initOIdString)
@@ -51,8 +51,8 @@ r_OId::r_OId(const char* initOIdString)
         //
         // extract oid parts
         //
-        char* startPtr = NULL;
-        char* endPtr = NULL;
+        char *startPtr = NULL;
+        char *endPtr = NULL;
 
         // system name
         startPtr = endPtr = oidString;
@@ -97,7 +97,7 @@ r_OId::r_OId(const char* initOIdString)
     }
 }
 
-r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLocalOId)
+r_OId::r_OId(const char *initSystemName, const char *initBaseName, double initLocalOId)
     : localOId(initLocalOId)
 {
     // set members
@@ -142,7 +142,7 @@ r_OId::r_OId(const char* initSystemName, const char* initBaseName, double initLo
     strcpy(oidString, tmpstr.c_str());
 }
 
-r_OId::r_OId(const r_OId& obj)
+r_OId::r_OId(const r_OId &obj)
     : localOId(obj.localOId)
 {
     if (obj.oidString)
@@ -181,7 +181,7 @@ r_OId::r_deactivate()
 }
 
 void
-r_OId::print_status(std::ostream& s) const
+r_OId::print_status(std::ostream &s) const
 {
     if (oidString)
     {
@@ -189,8 +189,8 @@ r_OId::print_status(std::ostream& s) const
     }
 }
 
-const r_OId&
-r_OId::operator=(const r_OId& obj)
+const r_OId &
+r_OId::operator=(const r_OId &obj)
 {
     if (this != &obj)
     {
@@ -221,7 +221,7 @@ r_OId::operator=(const r_OId& obj)
 }
 
 bool
-r_OId::operator==(const r_OId& oid) const
+r_OId::operator==(const r_OId &oid) const
 {
     bool equal = false;
     if (oidString && oid.oidString)
@@ -232,13 +232,13 @@ r_OId::operator==(const r_OId& oid) const
 }
 
 bool
-r_OId::operator!=(const r_OId& oid) const
+r_OId::operator!=(const r_OId &oid) const
 {
     return !operator==(oid);
 }
 
 bool
-r_OId::operator> (const r_OId& oid) const
+r_OId::operator> (const r_OId &oid) const
 {
     int comparison = 0;
 
@@ -271,7 +271,7 @@ r_OId::operator> (const r_OId& oid) const
 }
 
 bool
-r_OId::operator< (const r_OId& oid) const
+r_OId::operator< (const r_OId &oid) const
 {
     int comparison = 0;
 
@@ -304,18 +304,18 @@ r_OId::operator< (const r_OId& oid) const
 }
 
 bool
-r_OId::operator>=(const r_OId& oid) const
+r_OId::operator>=(const r_OId &oid) const
 {
     return !operator< (oid);
 }
 
 bool
-r_OId::operator<=(const r_OId& oid) const
+r_OId::operator<=(const r_OId &oid) const
 {
     return !operator> (oid);
 }
 
-std::ostream& operator<<(std::ostream& s, const r_OId& oid)
+std::ostream &operator<<(std::ostream &s, const r_OId &oid)
 {
     oid.print_status(s);
     return s;

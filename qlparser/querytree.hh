@@ -95,7 +95,7 @@ public:
     QueryTree();
 
     /// constructor getting the root of the query tree
-    QueryTree(QtNode* root);
+    QueryTree(QtNode *root);
 
     /// destructor (deletes the whole query tree)
     ~QueryTree();
@@ -104,7 +104,7 @@ public:
     void checkSemantics();
 
     /// recognize common subexpressions
-    vector<QtNode::QtNodeList>* seeSubexpression();
+    vector<QtNode::QtNodeList> *seeSubexpression();
 
     /*@Doc:
       The method returns a list of all common subexpressions in the query tree.
@@ -112,14 +112,14 @@ public:
     */
 
     /// build in common subexpressions in the query tree
-    void insertSubexpression(vector<QtNode::QtNodeList>* nodeList);
+    void insertSubexpression(vector<QtNode::QtNodeList> *nodeList);
 
     /*@Doc:
       The method manipulates the query tree to handle common subexpressions.
     */
 
     /// executes a retrieval tree and gives back the result collection
-    vector<QtData*>* evaluateRetrieval();
+    vector<QtData *> *evaluateRetrieval();
 
     /*@Doc:
       The method evaluates a retrieval tree and returns the result collection. For this purpose,
@@ -131,10 +131,10 @@ public:
     */
 
     /// executes an update tree and throws a ParseInfo if query does not begin with INSERT, DELETE, UPDATE, ...
-    vector<QtData*>* evaluateUpdate();
+    vector<QtData *> *evaluateUpdate();
 
     /// debugging method
-    void printTree(int tab, ostream& s = cout);
+    void printTree(int tab, ostream &s = cout);
 
     virtual ostream &operator<<(ostream &os);
 
@@ -145,9 +145,9 @@ public:
     ///
 
     ///
-    inline QtNode* getRoot() const;
+    inline QtNode *getRoot() const;
     ///
-    inline void setRoot(QtNode* root);
+    inline void setRoot(QtNode *root);
 
     void setInfoType(QtInfoType newInfoType);
 
@@ -159,35 +159,35 @@ public:
     ///
 
     ///
-    void addDynamicObject(QtNode*);
+    void addDynamicObject(QtNode *);
     ///
-    void removeDynamicObject(QtNode*);
+    void removeDynamicObject(QtNode *);
     ///
-    void addDynamicObject(QtData*);
+    void addDynamicObject(QtData *);
     ///
-    void removeDynamicObject(QtData*);
+    void removeDynamicObject(QtData *);
     ///
-    void addDynamicObject(ParseInfo*);
+    void addDynamicObject(ParseInfo *);
     ///
-    void removeDynamicObject(ParseInfo*);
+    void removeDynamicObject(ParseInfo *);
     ///
-    void addDynamicObject(vector<QtONCStream*>*);
+    void addDynamicObject(vector<QtONCStream *> *);
     ///
-    void removeDynamicObject(vector<QtONCStream*>*);
+    void removeDynamicObject(vector<QtONCStream *> *);
     ///
     void releaseDynamicObjects();
     ///
-    void addDomainObject(QtDomainOperation*);
+    void addDomainObject(QtDomainOperation *);
     ///
-    void removeDomainObject(QtDomainOperation*);
+    void removeDomainObject(QtDomainOperation *);
     ///
-    void rewriteDomainObjects(r_Minterval* greatDomain, std::string* greatIterator, QtMarrayOp2::mddIntervalListType* greatList);
+    void rewriteDomainObjects(r_Minterval *greatDomain, std::string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList);
     ///
     void printDomainObjects();
     ///
     void releaseDomainObjects();
     ///
-    void addCString(char*);
+    void addCString(char *);
     ///
     //@}
 
@@ -196,19 +196,19 @@ public:
 
 private:
     /// attribute storing the root of the query tree
-    QtNode* rootNode;
+    QtNode *rootNode;
 
     /// used by public seeSubexpression()
-    vector<QtNode::QtNodeList>* seeSubexpression(QtNode::QtNodeList* leafList);
+    vector<QtNode::QtNodeList> *seeSubexpression(QtNode::QtNodeList *leafList);
 
     /// used by public seeSubexpression()
-    QtNode::QtNodeList* seeSubexpression(QtNode::QtNodeList* leafList, vector<QtNode::QtNodeList>* leafListsNew);
+    QtNode::QtNodeList *seeSubexpression(QtNode::QtNodeList *leafList, vector<QtNode::QtNodeList> *leafListsNew);
 
     /// attribute carrying next free number for CSE iterator
     static unsigned int nextCSENo;
 
     /// list of unlinked subtrees
-    std::list<QtNode*> qtNodeList;
+    std::list<QtNode *> qtNodeList;
     /**
       This list is used to store subtrees of type \Ref{QtNode} generated in the parse
       process and not linked to the result tree yet. In case of an error
@@ -216,7 +216,7 @@ private:
     */
 
     /// list of unlinked subtrees
-    std::list<QtData*> qtDataList;
+    std::list<QtData *> qtDataList;
     /**
       This list is used to store subtrees of type \Ref{QtData} generated in the parse
       process and not linked to the result tree yet. In case of an error
@@ -224,7 +224,7 @@ private:
     */
 
     /// list of unlinked subtrees
-    std::list<ParseInfo*> parseInfoList;
+    std::list<ParseInfo *> parseInfoList;
     /**
       This list is used to store elements of type \Ref{ParseInfo} generated in the parse
       process and not linked to the result tree yet. In case of an error
@@ -232,7 +232,7 @@ private:
     */
 
     /// list of unlinked lists
-    std::list<vector<QtONCStream*>*> vectorList;
+    std::list<vector<QtONCStream *>*> vectorList;
     /**
       This list is used to store elements of type \Ref{vector<QtONCStream*>} generated
       in the parse process and not linked to the result tree yet. In case of an error
@@ -240,7 +240,7 @@ private:
     */
 
     /// list of domain operations relevant to variables in an MArray.
-    std::list<QtDomainOperation*> dopList;  // contains basically QtDomainOperation (everything else is evil :-) )
+    std::list<QtDomainOperation *> dopList; // contains basically QtDomainOperation (everything else is evil :-) )
     /**
       This list is used to store elements of type \Ref{QtDomainOperation *} generated
       in the parse process for the purpose of a tree rewrite. In case of an error
@@ -248,7 +248,7 @@ private:
     */
 
     /// list of lexed c-strings
-    std::list<char*> lexedCStringList;
+    std::list<char *> lexedCStringList;
     /**
       This list is used to store elements of type char* generated during the lexing
       process and not freed yet. In case of an error this list is freed.

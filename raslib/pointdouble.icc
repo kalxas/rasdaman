@@ -34,11 +34,11 @@ rasdaman GmbH.
 inline size_t
 r_PointDouble::dimension() const
 {
-  return points.size();
+    return points.size();
 }
 
-inline const std::vector<double>& 
+inline const std::vector<double> &
 r_PointDouble::getVectorContent() const
 {
-  return points;
+    return points;
 }

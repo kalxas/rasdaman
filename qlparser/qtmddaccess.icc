@@ -30,13 +30,13 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtMDDAccess::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 
-inline MDDColl*
+inline MDDColl *
 QtMDDAccess:: getMDDColl()
 {
-  return mddColl;
+    return mddColl;
 }

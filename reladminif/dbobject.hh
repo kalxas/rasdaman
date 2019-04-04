@@ -92,12 +92,12 @@ public:
     initializes all attributes.  the oid is set to 0.  the objecttype is set to OId::INVALID.
     */
 
-    DBObject(const DBObject& old);
+    DBObject(const DBObject &old);
     /*@Doc:
     clones all attributes.
     */
 
-    DBObject(const OId& id);
+    DBObject(const OId &id);
     /*@Doc:
     initializes only referenceCount, myOId, objecttype. _isCached is set to 0.
     Subclasses may contain a call to readFromDb which can throw a r_Error_ObjectUnknown
@@ -153,7 +153,7 @@ public:
     yet persistent also return their object type.
     */
 
-    DBObject& operator=(const DBObject& old);
+    DBObject &operator=(const DBObject &old);
     /*@Doc:
     clones all DBObject attributes except reference count.
     */
@@ -173,7 +173,7 @@ public:
     returns the memory space used by this object.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     /*@Doc:
     prints the indent, OIdType, myOId as long and myOId as double.
     */
@@ -189,12 +189,12 @@ public:
     returns the binary representation fit for storage in the database
     */
 
-    virtual void setBinaryRepresentation(const BinaryRepresentation&);
+    virtual void setBinaryRepresentation(const BinaryRepresentation &);
     /*@Doc:
     set the objects state from the binary represenation
     */
 
-    virtual char* getBinaryName() const;
+    virtual char *getBinaryName() const;
     /*Doc:
     create the name for binary represenation from the oid
     */

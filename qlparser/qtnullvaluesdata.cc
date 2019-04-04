@@ -36,7 +36,7 @@ using namespace std;
 #include "qlparser/qtnullvaluesdata.hh"
 #include <cstring>
 
-QtNullvaluesData::QtNullvaluesData(const r_Nullvalues& nullvaluesArg)
+QtNullvaluesData::QtNullvaluesData(const r_Nullvalues &nullvaluesArg)
     : QtData(), nullvalues(nullvaluesArg)
 {
 }
@@ -51,7 +51,7 @@ QtNullvaluesData::getDataType() const
 
 
 bool
-QtNullvaluesData::equal(const QtData* obj) const
+QtNullvaluesData::equal(const QtData *obj) const
 {
     bool returnValue = false;
     return returnValue;
@@ -68,22 +68,25 @@ QtNullvaluesData::getSpelling() const
 
 
 
-char* QtNullvaluesData::getTypeStructure() const
+char *QtNullvaluesData::getTypeStructure() const
 {
     return strdup("nullvalues");
 }
 
-void QtNullvaluesData::printStatus(std::ostream& stream) const
+void QtNullvaluesData::printStatus(std::ostream &stream) const
 {
-    
+
     stream << "null values: " << std::flush;
     stream << "[" << std::flush;
     bool printComma = false;
-    for (const auto &p: nullvalues.getNullvalues())
+    for (const auto &p : nullvalues.getNullvalues())
     {
-        if (printComma) stream << ",";
+        if (printComma)
+        {
+            stream << ",";
+        }
         printComma = true; // add a comma before the second entry and on
-        
+
         stream << p.first << ":" << p.second;
     }
     stream << "]" << std::flush;

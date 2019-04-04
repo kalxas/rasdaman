@@ -35,7 +35,7 @@ namespace rasmgr
 class ClientServerRequest
 {
 public:
-    ClientServerRequest(const std::string& userName, const std::string& password, const std::string& dbName);
+    ClientServerRequest(const std::string &userName, const std::string &password, const std::string &dbName);
 
     std::string getUserName() const;
 

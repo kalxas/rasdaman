@@ -40,18 +40,18 @@ namespace rascontrol
 class ControlRasMgrRasnet: public ControlRasMgrComm
 {
 public:
-    ControlRasMgrRasnet(const rascontrol::UserCredentials& userCredentials, rascontrol::RasControlConfig& config);
+    ControlRasMgrRasnet(const rascontrol::UserCredentials &userCredentials, rascontrol::RasControlConfig &config);
 
     /**
      * @brief processCommand Process a command and return the response to that command.
      * @param command
      * @return The result from processing the command.
      */
-    virtual std::string processCommand(const std::string& command);
+    virtual std::string processCommand(const std::string &command);
 
 private:
-    const UserCredentials& userCredentials;
-    rascontrol::RasControlConfig& config;
+    const UserCredentials &userCredentials;
+    rascontrol::RasControlConfig &config;
 
     boost::shared_ptr<::rasnet::service::RasMgrRasCtrlService::Stub> rasmgrService;
     boost::shared_ptr<::common::HealthService::Stub> healthService;

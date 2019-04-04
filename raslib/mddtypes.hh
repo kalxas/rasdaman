@@ -227,72 +227,72 @@ enum r_Data_Format
    can be used as index to get the name.
 */
 
-extern const char* format_name_array;
-extern const char* format_name_tiff;
-extern const char* format_name_jpeg;
-extern const char* format_name_jp2;
-extern const char* format_name_hdf;
-extern const char* format_name_netcdf;
-extern const char* format_name_csv;
-extern const char* format_name_json;
-extern const char* format_name_png;
-extern const char* format_name_zlib;
-extern const char* format_name_auto_compression;
-extern const char* format_name_bmp;
-extern const char* format_name_ppm;
-extern const char* format_name_rle;
-extern const char* format_name_wavelet_haar;
-extern const char* format_name_wavelet_daubechies;
-extern const char* format_name_sep_zlib;
-extern const char* format_name_sep_rle;
-extern const char* format_name_wavelet_daub6;
-extern const char* format_name_wavelet_daub8;
-extern const char* format_name_wavelet_daub10;
-extern const char* format_name_wavelet_daub12;
-extern const char* format_name_wavelet_daub14;
-extern const char* format_name_wavelet_daub16;
-extern const char* format_name_wavelet_daub18;
-extern const char* format_name_wavelet_daub20;
-extern const char* format_name_wavelet_least8;
-extern const char* format_name_wavelet_least10;
-extern const char* format_name_wavelet_least12;
-extern const char* format_name_wavelet_least14;
-extern const char* format_name_wavelet_least16;
-extern const char* format_name_wavelet_least18;
-extern const char* format_name_wavelet_least20;
-extern const char* format_name_wavelet_coiflet6;
-extern const char* format_name_wavelet_coiflet12;
-extern const char* format_name_wavelet_coiflet18;
-extern const char* format_name_wavelet_coiflet24;
-extern const char* format_name_wavelet_coiflet30;
-extern const char* format_name_dem;
-extern const char* format_name_pack_bits;
-extern const char* format_name_wavelet_qhaar;
-extern const char* format_name_tmc;
-extern const char* format_name_nitf;
-extern const char* format_name_grib;
-extern const char* format_name_gdal;
+extern const char *format_name_array;
+extern const char *format_name_tiff;
+extern const char *format_name_jpeg;
+extern const char *format_name_jp2;
+extern const char *format_name_hdf;
+extern const char *format_name_netcdf;
+extern const char *format_name_csv;
+extern const char *format_name_json;
+extern const char *format_name_png;
+extern const char *format_name_zlib;
+extern const char *format_name_auto_compression;
+extern const char *format_name_bmp;
+extern const char *format_name_ppm;
+extern const char *format_name_rle;
+extern const char *format_name_wavelet_haar;
+extern const char *format_name_wavelet_daubechies;
+extern const char *format_name_sep_zlib;
+extern const char *format_name_sep_rle;
+extern const char *format_name_wavelet_daub6;
+extern const char *format_name_wavelet_daub8;
+extern const char *format_name_wavelet_daub10;
+extern const char *format_name_wavelet_daub12;
+extern const char *format_name_wavelet_daub14;
+extern const char *format_name_wavelet_daub16;
+extern const char *format_name_wavelet_daub18;
+extern const char *format_name_wavelet_daub20;
+extern const char *format_name_wavelet_least8;
+extern const char *format_name_wavelet_least10;
+extern const char *format_name_wavelet_least12;
+extern const char *format_name_wavelet_least14;
+extern const char *format_name_wavelet_least16;
+extern const char *format_name_wavelet_least18;
+extern const char *format_name_wavelet_least20;
+extern const char *format_name_wavelet_coiflet6;
+extern const char *format_name_wavelet_coiflet12;
+extern const char *format_name_wavelet_coiflet18;
+extern const char *format_name_wavelet_coiflet24;
+extern const char *format_name_wavelet_coiflet30;
+extern const char *format_name_dem;
+extern const char *format_name_pack_bits;
+extern const char *format_name_wavelet_qhaar;
+extern const char *format_name_tmc;
+extern const char *format_name_nitf;
+extern const char *format_name_grib;
+extern const char *format_name_gdal;
 
-extern const char* all_data_format_names[r_Data_Format_NUMBER];
+extern const char *all_data_format_names[r_Data_Format_NUMBER];
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a data format name for a data format
 */
-const char* get_name_from_data_format(r_Data_Format fmt);
+const char *get_name_from_data_format(r_Data_Format fmt);
 
 //@ManMemo: Module: {\bf raslib}
 /**
   Get a data format for a data format name
 */
-r_Data_Format get_data_format_from_name(const char* name);
+r_Data_Format get_data_format_from_name(const char *name);
 
 
 //@ManMemo: Module: {\bf raslib}
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Data_Format}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Data_Format& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Data_Format &d);
 
 
 
@@ -300,7 +300,7 @@ extern std::ostream& operator<<(std::ostream& s, const r_Data_Format& d);
 /**
   Output stream operator for objects of type \Ref{r_Data_Format}.
 */
-extern std::ostream& operator<<(std::ostream& s, r_Data_Format& d);
+extern std::ostream &operator<<(std::ostream &s, r_Data_Format &d);
 
 //@Man: r_Scale_Function
 //@Type: enum
@@ -314,29 +314,29 @@ enum r_Scale_Function
     r_Scale_Function_NUMBER
 };
 
-extern const char* scale_function_name_subsampling;
-extern const char* scale_function_name_bitaggregation;
+extern const char *scale_function_name_subsampling;
+extern const char *scale_function_name_bitaggregation;
 
-extern const char* all_scale_function_names[r_Scale_Function_NUMBER];
+extern const char *all_scale_function_names[r_Scale_Function_NUMBER];
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a scale function name for a scale  function
 */
-const char* get_name_from_scale_function(r_Scale_Function func);
+const char *get_name_from_scale_function(r_Scale_Function func);
 
 //@ManMemo: Module: {\bf raslib}
 /**
   Get a scale function from a scale function name
 */
-r_Scale_Function get_scale_function_from_name(const char* name);
+r_Scale_Function get_scale_function_from_name(const char *name);
 
 
 //@ManMemo: Module: {\bf raslib}
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Scale_Function}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Scale_Function& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d);
 
 
 //@Man: r_Index_Type
@@ -357,7 +357,7 @@ enum r_Index_Type
     r_Index_Type_NUMBER = 7
 };
 
-extern std::ostream& operator<<(std::ostream& in, r_Index_Type type);
+extern std::ostream &operator<<(std::ostream &in, r_Index_Type type);
 
 //@ManMemo: Module: {\bf raslib}
 /**
@@ -369,27 +369,27 @@ extern std::ostream& operator<<(std::ostream& in, r_Index_Type type);
    can be used as index to get the name.
 */
 
-extern const char* index_name_auto;
-extern const char* index_name_directory;
-extern const char* index_name_regdirectory;
-extern const char* index_name_rplustree;
-extern const char* index_name_regrplustree;
-extern const char* index_name_tilecontainer;
-extern const char* index_name_regcomputed;
+extern const char *index_name_auto;
+extern const char *index_name_directory;
+extern const char *index_name_regdirectory;
+extern const char *index_name_rplustree;
+extern const char *index_name_regrplustree;
+extern const char *index_name_tilecontainer;
+extern const char *index_name_regcomputed;
 
-extern const char* all_index_type_names[r_Index_Type_NUMBER];
+extern const char *all_index_type_names[r_Index_Type_NUMBER];
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a index type name for a index type
 */
-const char* get_name_from_index_type(r_Index_Type it);
+const char *get_name_from_index_type(r_Index_Type it);
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a index type  for a index type name
 */
-r_Index_Type get_index_type_from_name(const char* name);
+r_Index_Type get_index_type_from_name(const char *name);
 
 //@Man: r_Tiling_Scheme
 //@Type: enum
@@ -438,33 +438,33 @@ enum r_Tiling_Scheme
    can be used as index to get the name.
 */
 
-extern const char* tiling_name_notiling;
-extern const char* tiling_name_regulartiling;
-extern const char* tiling_name_statisticaltiling;
-extern const char* tiling_name_interesttiling;
-extern const char* tiling_name_alignedtiling;
-extern const char* tiling_name_directionaltiling;
-extern const char* tiling_name_sizetiling;
+extern const char *tiling_name_notiling;
+extern const char *tiling_name_regulartiling;
+extern const char *tiling_name_statisticaltiling;
+extern const char *tiling_name_interesttiling;
+extern const char *tiling_name_alignedtiling;
+extern const char *tiling_name_directionaltiling;
+extern const char *tiling_name_sizetiling;
 
-extern const char* all_tiling_scheme_names[r_Tiling_Scheme_NUMBER];
+extern const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER];
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a tiling scheme name for a tiling scheme
 */
-const char* get_name_from_tiling_scheme(r_Tiling_Scheme ts);
+const char *get_name_from_tiling_scheme(r_Tiling_Scheme ts);
 
 //@ManMemo: Module: {\bf raslib}
 /**
    Get a tiling scheme for a tiling scheme name
 */
-r_Tiling_Scheme get_tiling_scheme_from_name(const char* name);
+r_Tiling_Scheme get_tiling_scheme_from_name(const char *name);
 
 //@ManMemo: Module: {\bf raslib}
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Tiling_Scheme}.
 */
-extern std::ostream& operator<<(std::ostream& in, r_Tiling_Scheme type);
+extern std::ostream &operator<<(std::ostream &in, r_Tiling_Scheme type);
 
 //@Man: r_Clustering_Scheme
 //@Type: enum
@@ -494,10 +494,10 @@ attribute and a non - null value of the {\tt areasInterest}.
 This mode is not an alternative mode in {\tt ClusteringScheme} because
 it is compatible with the other modes.
 */
-extern std::ostream& operator<<(std::ostream& in, r_Clustering_Scheme type);
+extern std::ostream &operator<<(std::ostream &in, r_Clustering_Scheme type);
 
 #ifdef __VISUALC__
-extern int strcasecmp(const char* str1, const char* str2);
+extern int strcasecmp(const char *str1, const char *str2);
 #endif
 
 #endif

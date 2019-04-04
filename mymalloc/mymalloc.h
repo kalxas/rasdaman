@@ -29,6 +29,6 @@ rasdaman GmbH.
 #define RAS_MEMORY_ALIGNMENT 32
 #define RAS_ALIGNED __attribute__((aligned(RAS_MEMORY_ALIGNMENT)))
 
-extern void* mymalloc(size_t); /* throw(std::bad_alloc);    // FIXME: gcc3 doesn't like it, & can't do this unless other places are fixed as well*/
+extern void *mymalloc(size_t); /* throw(std::bad_alloc);    // FIXME: gcc3 doesn't like it, & can't do this unless other places are fixed as well*/
 
 #endif

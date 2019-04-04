@@ -41,7 +41,7 @@ r_Primitive_Type::r_Primitive_Type()
 {
 }
 
-r_Primitive_Type::r_Primitive_Type(const char* newTypeName,
+r_Primitive_Type::r_Primitive_Type(const char *newTypeName,
                                    const r_Type::r_Type_Id newTypeId)
     : r_Base_Type(newTypeName, 0),
       typeId(newTypeId)
@@ -88,14 +88,14 @@ r_Primitive_Type::r_Primitive_Type(const char* newTypeName,
     }
 }
 
-r_Primitive_Type::r_Primitive_Type(const r_Primitive_Type& oldObj)
+r_Primitive_Type::r_Primitive_Type(const r_Primitive_Type &oldObj)
     : r_Base_Type(oldObj),
       typeId(oldObj.typeId)
 {
 }
 
-const r_Primitive_Type&
-r_Primitive_Type::operator=(const r_Primitive_Type& oldObj)
+const r_Primitive_Type &
+r_Primitive_Type::operator=(const r_Primitive_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -113,7 +113,7 @@ r_Primitive_Type::~r_Primitive_Type()
 {
 }
 
-r_Type*
+r_Type *
 r_Primitive_Type::clone() const
 {
     return new r_Primitive_Type(*this);
@@ -133,7 +133,7 @@ r_Primitive_Type::isPrimitiveType() const
 }
 
 void
-r_Primitive_Type::convertToLittleEndian(char* cells, r_Area noCells) const
+r_Primitive_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 {
     char c0 = 0;
     char c1 = 0;
@@ -172,14 +172,14 @@ r_Primitive_Type::convertToLittleEndian(char* cells, r_Area noCells) const
     case FLOAT:
         for (i = 0; i < noCells; ++i)
         {
-            ((r_Float*)cells)[i] = r_Endian::swap(((r_Float*)cells)[i]);
+            ((r_Float *)cells)[i] = r_Endian::swap(((r_Float *)cells)[i]);
         }
         break;
 
     case DOUBLE:
         for (i = 0; i < noCells; ++i)
         {
-            ((r_Double*)cells)[i] = r_Endian::swap(((r_Double*)cells)[i]);
+            ((r_Double *)cells)[i] = r_Endian::swap(((r_Double *)cells)[i]);
         }
         break;
     default:
@@ -189,7 +189,7 @@ r_Primitive_Type::convertToLittleEndian(char* cells, r_Area noCells) const
 }
 
 void
-r_Primitive_Type::convertToBigEndian(char* cells, r_Area noCells) const
+r_Primitive_Type::convertToBigEndian(char *cells, r_Area noCells) const
 {
     char c0 = 0;
     char c1 = 0;
@@ -228,14 +228,14 @@ r_Primitive_Type::convertToBigEndian(char* cells, r_Area noCells) const
     case FLOAT:
         for (i = 0; i < noCells; ++i)
         {
-            ((r_Float*)cells)[i] = r_Endian::swap(((r_Float*)cells)[i]);
+            ((r_Float *)cells)[i] = r_Endian::swap(((r_Float *)cells)[i]);
         }
         break;
 
     case DOUBLE:
         for (i = 0; i < noCells; ++i)
         {
-            ((r_Double*)cells)[i] = r_Endian::swap(((r_Double*)cells)[i]);
+            ((r_Double *)cells)[i] = r_Endian::swap(((r_Double *)cells)[i]);
         }
         break;
     default:
@@ -245,13 +245,13 @@ r_Primitive_Type::convertToBigEndian(char* cells, r_Area noCells) const
 }
 
 void
-r_Primitive_Type::print_status(std::ostream& s) const
+r_Primitive_Type::print_status(std::ostream &s) const
 {
     s << typeId;
 }
 
 void
-r_Primitive_Type::print_value(const char* storage,  std::ostream& s) const
+r_Primitive_Type::print_value(const char *storage,  std::ostream &s) const
 {
     switch (typeId)
     {
@@ -293,7 +293,7 @@ r_Primitive_Type::print_value(const char* storage,  std::ostream& s) const
 // This may change in future
 
 r_Double
-r_Primitive_Type::get_value(const char* storage) const
+r_Primitive_Type::get_value(const char *storage) const
 {
     r_Double retVal = 0.;
 
@@ -342,7 +342,7 @@ r_Primitive_Type::get_value(const char* storage) const
 // This may change in future
 
 void
-r_Primitive_Type::set_value(char* storage, r_Double val)
+r_Primitive_Type::set_value(char *storage, r_Double val)
 {
     switch (typeId)
     {
@@ -388,9 +388,9 @@ r_Primitive_Type::set_value(char* storage, r_Double val)
 // This may change in future
 
 void
-r_Primitive_Type::get_limits(r_Double& min, r_Double& max)
+r_Primitive_Type::get_limits(r_Double &min, r_Double &max)
 {
-    r_Double* type = NULL;
+    r_Double *type = NULL;
     switch (typeId)
     {
     case r_Type::ULONG:  ::get_limits_Ulong(min, max);
@@ -422,7 +422,7 @@ r_Primitive_Type::get_limits(r_Double& min, r_Double& max)
 }
 
 r_Boolean
-r_Primitive_Type::get_boolean(const char* cell) const
+r_Primitive_Type::get_boolean(const char *cell) const
 {
     if (typeId != r_Type::BOOL)
     {
@@ -431,13 +431,13 @@ r_Primitive_Type::get_boolean(const char* cell) const
         throw (err);
     }
 
-    return *((r_Boolean*)const_cast<char*>(cell));
+    return *((r_Boolean *)const_cast<char *>(cell));
 }
 
 
 
 r_Char
-r_Primitive_Type::get_char(const char* cell)    const
+r_Primitive_Type::get_char(const char *cell)    const
 {
     if (typeId != r_Type::CHAR)
     {
@@ -446,13 +446,13 @@ r_Primitive_Type::get_char(const char* cell)    const
         throw (err);
     }
 
-    return *((r_Char*)const_cast<char*>(cell));
+    return *((r_Char *)const_cast<char *>(cell));
 }
 
 
 
 r_Octet
-r_Primitive_Type::get_octet(const char* cell)   const
+r_Primitive_Type::get_octet(const char *cell)   const
 {
     if (typeId != r_Type::OCTET)
     {
@@ -461,13 +461,13 @@ r_Primitive_Type::get_octet(const char* cell)   const
         throw (err);
     }
 
-    return *((r_Octet*)const_cast<char*>(cell));
+    return *((r_Octet *)const_cast<char *>(cell));
 }
 
 
 
 r_Short
-r_Primitive_Type::get_short(const char* cell)   const
+r_Primitive_Type::get_short(const char *cell)   const
 {
     if (typeId != r_Type::SHORT)
     {
@@ -476,13 +476,13 @@ r_Primitive_Type::get_short(const char* cell)   const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_Short*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_Short *>(const_cast<char *>(cell)));
 }
 
 
 
 r_UShort
-r_Primitive_Type::get_ushort(const char* cell)  const
+r_Primitive_Type::get_ushort(const char *cell)  const
 {
     if (typeId != r_Type::USHORT)
     {
@@ -491,13 +491,13 @@ r_Primitive_Type::get_ushort(const char* cell)  const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_UShort*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_UShort *>(const_cast<char *>(cell)));
 }
 
 
 
 r_Long
-r_Primitive_Type::get_long(const char* cell)    const
+r_Primitive_Type::get_long(const char *cell)    const
 {
     if (typeId != r_Type::LONG)
     {
@@ -506,13 +506,13 @@ r_Primitive_Type::get_long(const char* cell)    const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_Long*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_Long *>(const_cast<char *>(cell)));
 }
 
 
 
 r_ULong
-r_Primitive_Type::get_ulong(const char* cell)   const
+r_Primitive_Type::get_ulong(const char *cell)   const
 {
     if (typeId != r_Type::ULONG)
     {
@@ -521,13 +521,13 @@ r_Primitive_Type::get_ulong(const char* cell)   const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_ULong*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_ULong *>(const_cast<char *>(cell)));
 }
 
 
 
 r_Float
-r_Primitive_Type::get_float(const char* cell)   const
+r_Primitive_Type::get_float(const char *cell)   const
 {
     if (typeId != r_Type::FLOAT)
     {
@@ -536,13 +536,13 @@ r_Primitive_Type::get_float(const char* cell)   const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_Float*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_Float *>(const_cast<char *>(cell)));
 }
 
 
 
 r_Double
-r_Primitive_Type::get_double(const char* cell)  const
+r_Primitive_Type::get_double(const char *cell)  const
 {
     if (typeId != r_Type::DOUBLE)
     {
@@ -551,11 +551,11 @@ r_Primitive_Type::get_double(const char* cell)  const
         throw (err);
     }
 
-    return *(reinterpret_cast<r_Double*>(const_cast<char*>(cell)));
+    return *(reinterpret_cast<r_Double *>(const_cast<char *>(cell)));
 }
 
 void
-r_Primitive_Type::set_boolean(char* cell, r_Boolean val)
+r_Primitive_Type::set_boolean(char *cell, r_Boolean val)
 {
     if (typeId != r_Type::BOOL)
     {
@@ -570,7 +570,7 @@ r_Primitive_Type::set_boolean(char* cell, r_Boolean val)
 
 
 void
-r_Primitive_Type::set_char(char* cell, r_Char val)
+r_Primitive_Type::set_char(char *cell, r_Char val)
 {
     if (typeId != r_Type::CHAR)
     {
@@ -585,7 +585,7 @@ r_Primitive_Type::set_char(char* cell, r_Char val)
 
 
 void
-r_Primitive_Type::set_octet(char* cell, r_Octet val)
+r_Primitive_Type::set_octet(char *cell, r_Octet val)
 {
     if (typeId != r_Type::OCTET)
     {
@@ -600,7 +600,7 @@ r_Primitive_Type::set_octet(char* cell, r_Octet val)
 
 
 void
-r_Primitive_Type::set_short(char* cell, r_Short val)
+r_Primitive_Type::set_short(char *cell, r_Short val)
 {
     if (typeId != r_Type::SHORT)
     {
@@ -615,7 +615,7 @@ r_Primitive_Type::set_short(char* cell, r_Short val)
 
 
 void
-r_Primitive_Type::set_ushort(char* cell, r_UShort val)
+r_Primitive_Type::set_ushort(char *cell, r_UShort val)
 {
     if (typeId != r_Type::USHORT)
     {
@@ -630,7 +630,7 @@ r_Primitive_Type::set_ushort(char* cell, r_UShort val)
 
 
 void
-r_Primitive_Type::set_long(char* cell, r_Long val)
+r_Primitive_Type::set_long(char *cell, r_Long val)
 {
     if (typeId != r_Type::LONG)
     {
@@ -645,7 +645,7 @@ r_Primitive_Type::set_long(char* cell, r_Long val)
 
 
 void
-r_Primitive_Type::set_ulong(char* cell, r_ULong val)
+r_Primitive_Type::set_ulong(char *cell, r_ULong val)
 {
     if (typeId != r_Type::ULONG)
     {
@@ -660,7 +660,7 @@ r_Primitive_Type::set_ulong(char* cell, r_ULong val)
 
 
 void
-r_Primitive_Type::set_float(char* cell, r_Float val)
+r_Primitive_Type::set_float(char *cell, r_Float val)
 {
     if (typeId != r_Type::FLOAT)
     {
@@ -675,7 +675,7 @@ r_Primitive_Type::set_float(char* cell, r_Float val)
 
 
 void
-r_Primitive_Type::set_double(char* cell, r_Double val)
+r_Primitive_Type::set_double(char *cell, r_Double val)
 {
     if (typeId != r_Type::DOUBLE)
     {
@@ -687,7 +687,7 @@ r_Primitive_Type::set_double(char* cell, r_Double val)
     memmove(cell, &val, typeSize);
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Primitive_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Primitive_Type &type)
 {
     type.print_status(str);
     return str;

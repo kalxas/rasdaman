@@ -51,7 +51,7 @@ public:
      * @throws An exception is thrown if the userInfo object does not contain a valid name,
      * or if a user with the same name already exists.
      */
-    virtual void defineUser(const UserProto& userInfo);
+    virtual void defineUser(const UserProto &userInfo);
 
     /**
      * @brief changeUser Change the value of any property of the user that is set
@@ -60,21 +60,21 @@ public:
      * @param newUserInfo
      * @throws An exception is thrown if there is no user with the given name in the database.
      */
-    virtual void changeUser(const std::string& userName, const UserProto& newUserInfo);
+    virtual void changeUser(const std::string &userName, const UserProto &newUserInfo);
 
     /**
      * Remove the user with the given name from the list of users.
      * @param userName Name of the user to be removed
      * @throws An exception is thrown if there is no user with the given user name.
      */
-    virtual void removeUser(const std::string& userName);
+    virtual void removeUser(const std::string &userName);
 
     /**
      * Get a copy of the user with the given name
      * @param userName
      * @return TRUE if there was a user with this name, FALSE otherwise
      */
-    virtual bool tryGetUser(const std::string& userName, boost::shared_ptr<User>& out_user);
+    virtual bool tryGetUser(const std::string &userName, boost::shared_ptr<User> &out_user);
 
     /**
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
@@ -102,8 +102,8 @@ private:
     std::list<boost::shared_ptr<User>> userList;
     boost::mutex mut;
 
-    bool tryLoadUserAuthFromOldFile(const std::string& filePath);
-    bool tryLoadUserAuthFromFile(const std::string& filePath);
+    bool tryLoadUserAuthFromOldFile(const std::string &filePath);
+    bool tryLoadUserAuthFromFile(const std::string &filePath);
 
     void loadDefaultUserAuth();
 };

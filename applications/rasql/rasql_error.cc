@@ -62,10 +62,10 @@ RasqlError::~RasqlError()
 
 /// print error message (including error code)
 /// NB: not all messages can occur
-const char*
+const char *
 RasqlError::what()
 {
-    const char* errorMsg;
+    const char *errorMsg;
     switch (error_code)
     {
     case  NOQUERY:

@@ -44,12 +44,12 @@
 
 
 
-r_Scalar::r_Scalar(const r_Base_Type* newType)
+r_Scalar::r_Scalar(const r_Base_Type *newType)
     : valueType(NULL)
 {
     if (newType)
     {
-        valueType = static_cast<r_Base_Type*>(newType->clone());
+        valueType = static_cast<r_Base_Type *>(newType->clone());
     }
     else
     {
@@ -60,7 +60,7 @@ r_Scalar::r_Scalar(const r_Base_Type* newType)
 
 
 
-r_Scalar::r_Scalar(const r_Scalar& obj)
+r_Scalar::r_Scalar(const r_Scalar &obj)
     : valueType(obj.valueType)
 {
 }
@@ -74,13 +74,13 @@ r_Scalar::~r_Scalar()
 
 
 
-const r_Scalar&
-r_Scalar::operator=(const r_Scalar& obj)
+const r_Scalar &
+r_Scalar::operator=(const r_Scalar &obj)
 {
     if (this != &obj)
     {
         delete valueType;
-        valueType = static_cast<r_Base_Type*>(obj.valueType->clone());
+        valueType = static_cast<r_Base_Type *>(obj.valueType->clone());
     }
 
     return *this;
@@ -104,14 +104,14 @@ r_Scalar::isPrimitive() const
     return false;
 }
 
-const r_Base_Type*
+const r_Base_Type *
 r_Scalar::get_type() const
 {
     return valueType;
 }
 
 
-std::ostream& operator<<(std::ostream& s, const r_Scalar& obj)
+std::ostream &operator<<(std::ostream &s, const r_Scalar &obj)
 {
     obj.print_status(s);
     return s;

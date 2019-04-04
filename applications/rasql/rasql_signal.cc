@@ -197,9 +197,9 @@ void
 installSignalHandlers()
 {
     struct sigaction signal;
-    memset(&signal,0,sizeof(signal));
+    memset(&signal, 0, sizeof(signal));
     signal.sa_handler = signalHandler;
-    
+
     sigaction(SIGINT, &signal, NULL);
     sigaction(SIGTERM, &signal, NULL);
     sigaction(SIGHUP, &signal, NULL);

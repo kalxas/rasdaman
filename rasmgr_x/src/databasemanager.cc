@@ -49,8 +49,8 @@ DatabaseManager::DatabaseManager(
 DatabaseManager::~DatabaseManager()
 {}
 
-void DatabaseManager::defineDatabase(const std::string& dbHostName,
-                                     const std::string& databaseName)
+void DatabaseManager::defineDatabase(const std::string &dbHostName,
+                                     const std::string &databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -87,7 +87,7 @@ void DatabaseManager::defineDatabase(const std::string& dbHostName,
     databases.push_back(db);
 }
 
-void DatabaseManager::changeDatabase(const std::string& oldDbName, const DatabasePropertiesProto& newDbProp)
+void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
 {
     unique_lock<mutex> lock(this->mut);
     bool changedDb = false;
@@ -121,7 +121,7 @@ void DatabaseManager::changeDatabase(const std::string& oldDbName, const Databas
     }
 }
 
-void DatabaseManager::removeDatabase(const std::string& databaseHostName, const std::string& databaseName)
+void DatabaseManager::removeDatabase(const std::string &databaseHostName, const std::string &databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -161,9 +161,9 @@ DatabaseMgrProto DatabaseManager::serializeToProto()
 
         for (int i = 0; i < dbhProto.databases_size(); i++)
         {
-            DatabaseMgrProto::DbAndDbHostPair* p =  result.add_databases();
+            DatabaseMgrProto::DbAndDbHostPair *p =  result.add_databases();
 
-            DatabaseProto* dbProto = new DatabaseProto();
+            DatabaseProto *dbProto = new DatabaseProto();
             dbProto->CopyFrom(dbhProto.databases(i));
 
             p->set_database_host(dbhProto.host_name());

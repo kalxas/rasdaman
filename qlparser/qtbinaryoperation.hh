@@ -56,10 +56,10 @@ public:
     QtBinaryOperation();
 
     /// constructor getting the node to the parent
-    QtBinaryOperation(QtNode* node);
+    QtBinaryOperation(QtNode *node);
 
     /// constructor getting pointers to its operands
-    QtBinaryOperation(QtOperation* input1, QtOperation* input2);
+    QtBinaryOperation(QtOperation *input1, QtOperation *input2);
 
     /// virtual destructor
     virtual ~QtBinaryOperation();
@@ -68,7 +68,7 @@ public:
     virtual void simplify();
 
     /// test if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
     /**
       The meaning of a binary operation is equal, iff both operands have
       the same meaning. In case of a commutative operation, the operands
@@ -76,7 +76,7 @@ public:
     */
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// creates a unique name for a subexpression
     virtual std::string getSpelling();
@@ -85,10 +85,10 @@ public:
     virtual QtAreaType getAreaType();
 
     /// method for query rewrite
-    inline virtual void setInput(QtOperation* inputOld, QtOperation* inputNew);
+    inline virtual void setInput(QtOperation *inputOld, QtOperation *inputNew);
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
     /**
       The method deletes the given {\tt trimList} and passes the {\tt optimizeLoad}
       message with empty triming lists to its input trees. The method is rewritten
@@ -96,19 +96,19 @@ public:
     */
 
     /// debugging method
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     //@Man: read/write methods for the operands
     //@{
     ///
     ///
-    inline void setInput1(QtOperation* input);
+    inline void setInput1(QtOperation *input);
     ///
-    inline void setInput2(QtOperation* input);
+    inline void setInput2(QtOperation *input);
     ///
-    inline QtOperation* getInput1();
+    inline QtOperation *getInput1();
     ///
-    inline QtOperation* getInput2();
+    inline QtOperation *getInput2();
     ///
     //@}
 
@@ -117,7 +117,7 @@ public:
 
 protected:
     /// method for testing and evaluating the input branches
-    bool getOperands(QtDataList* inputList, QtData*& operand1, QtData*& operand2);
+    bool getOperands(QtDataList *inputList, QtData *&operand1, QtData *&operand2);
     /**
       The method checks if the input branches are valid. Then it passes the evaluate message to its two
       operands with the {\tt inputList} as argument. The returned results are provided through the arguments
@@ -126,7 +126,7 @@ protected:
     */
 
     /// method for testing and evaluating the input branches
-    bool getOperand(QtDataList* inputList, QtData*& operand1, int number);
+    bool getOperand(QtDataList *inputList, QtData *&operand1, int number);
     /**
       The method checks if the by number specified input branch si valid. Then it passes the evaluate message to the
       operand with the {\tt inputList} as argument. The returned result are provided through the argument
@@ -135,9 +135,9 @@ protected:
     */
 
     /// first operation operand
-    QtOperation* input1;
+    QtOperation *input1;
     /// second operation operand
-    QtOperation* input2;
+    QtOperation *input2;
 };
 
 #include "qlparser/qtbinaryoperation.icc"

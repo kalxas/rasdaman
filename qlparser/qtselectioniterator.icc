@@ -28,34 +28,38 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtSelectionIterator::setConditionTree( QtOperation* operation )
+QtSelectionIterator::setConditionTree(QtOperation *operation)
 {
-  conditionTree = operation;
+    conditionTree = operation;
 
-  if( operation )
-    operation->setParent( this );
+    if (operation)
+    {
+        operation->setParent(this);
+    }
 }
 
 
 
-inline QtOperation*
+inline QtOperation *
 QtSelectionIterator::getConditionTree()
 {
-  return( conditionTree );
+    return (conditionTree);
 }
 
 
 
 inline void
-QtSelectionIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtSelectionIterator::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  if( conditionTree == inputOld )
-  {
-    setConditionTree( inputNew );
+    if (conditionTree == inputOld)
+    {
+        setConditionTree(inputNew);
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 }
 
 
@@ -63,6 +67,6 @@ QtSelectionIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
 inline QtNode::QtNodeType
 QtSelectionIterator::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 

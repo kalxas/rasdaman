@@ -50,13 +50,13 @@ class exception
 public:
     exception() noexcept : errorString(0) {};
 
-    exception(const char* s) noexcept
+    exception(const char *s) noexcept
     {
         errorString = new char[strlen(s) + 1];
         strcpy(errorString, s);
     };
 
-    exception(const exception& ex) noexcept
+    exception(const exception &ex) noexcept
     {
         errorString = new char[strlen(ex.what()) + 1];
         strcpy(errorString, ex.what());
@@ -70,7 +70,7 @@ public:
         }
     };
 
-    exception& operator=(const exception& ex) noexcept
+    exception &operator=(const exception &ex) noexcept
     {
         if (this != &ex)
         {
@@ -85,69 +85,69 @@ public:
         return *this;
     };
 
-    inline virtual const char* what() const noexcept
+    inline virtual const char *what() const noexcept
     {
         return errorString;
     };
 
 private:
-    char* errorString;
+    char *errorString;
 };
 
 
 class logic_error : public exception
 {
 public:
-    logic_error(const char* what_arg) noexcept : exception(what_arg) {};
+    logic_error(const char *what_arg) noexcept : exception(what_arg) {};
 };
 
 
 class domain_error : public logic_error
 {
 public:
-    domain_error(const char* what_arg) noexcept : logic_error(what_arg) {};
+    domain_error(const char *what_arg) noexcept : logic_error(what_arg) {};
 };
 
 
 class invalid_argument : public logic_error
 {
 public:
-    invalid_argument(const char* what_arg) noexcept : logic_error(what_arg) {};
+    invalid_argument(const char *what_arg) noexcept : logic_error(what_arg) {};
 };
 
 
 class length_error : public logic_error
 {
 public:
-    length_error(const char* what_arg) noexcept : logic_error(what_arg) {};
+    length_error(const char *what_arg) noexcept : logic_error(what_arg) {};
 };
 
 
 class out_of_range : public logic_error
 {
 public:
-    out_of_range(const char* what_arg) noexcept : logic_error(what_arg) {};
+    out_of_range(const char *what_arg) noexcept : logic_error(what_arg) {};
 };
 
 
 class runtime_error : public exception
 {
 public:
-    runtime_error(const char* what_arg) noexcept : exception(what_arg) {};
+    runtime_error(const char *what_arg) noexcept : exception(what_arg) {};
 };
 
 
 class range_error : public runtime_error
 {
 public:
-    range_error(const char* what_arg) noexcept : runtime_error(what_arg) {};
+    range_error(const char *what_arg) noexcept : runtime_error(what_arg) {};
 };
 
 
 class overflow_error : public runtime_error
 {
 public:
-    overflow_error(const char* what_arg) noexcept : runtime_error(what_arg) {};
+    overflow_error(const char *what_arg) noexcept : runtime_error(what_arg) {};
 };
 
 #endif

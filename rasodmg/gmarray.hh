@@ -69,11 +69,11 @@ class r_GMarray : public r_Object
 {
 public:
     /// default constructor (no memory is allocated!)
-    r_GMarray(r_Transaction* transaction = NULL);
+    r_GMarray(r_Transaction *transaction = NULL);
 
     /// constructor for uninitialized MDD objects
-    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0,
-            r_Transaction* transaction = NULL, bool initialize = true);
+    r_GMarray(const r_Minterval &init_domain, r_Bytes type_length, r_Storage_Layout *stl = 0,
+              r_Transaction *transaction = NULL, bool initialize = true);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_GMarray} class.
@@ -83,10 +83,10 @@ public:
     */
 
     /// copy constructor
-    r_GMarray(const r_GMarray&);
+    r_GMarray(const r_GMarray &);
 
     /// constructor which doesn't copy the data
-    r_GMarray(r_GMarray&);
+    r_GMarray(r_GMarray &);
 
     /// destructor
     virtual ~r_GMarray();
@@ -95,30 +95,30 @@ public:
     virtual void r_deactivate();
 
     /// assignment: cleanup + copy
-    r_GMarray& operator= (const r_GMarray&);
+    r_GMarray &operator= (const r_GMarray &);
 
     /// subscript operator for read access of a cell
-    const char* operator[](const r_Point&) const;
+    const char *operator[](const r_Point &) const;
 
     /// Returns a r_GMarray that is the intersection of the current domain with the specified interval
-    r_GMarray* intersect(r_Minterval where) const;
+    r_GMarray *intersect(r_Minterval where) const;
 
     //@Man: Read methods
     //@{
     ///
 
     /// gets a pointer to the storage layout object
-    const r_Storage_Layout* get_storage_layout() const;
+    const r_Storage_Layout *get_storage_layout() const;
     /// getting the spatial domain
-    inline const r_Minterval& spatial_domain() const;
+    inline const r_Minterval &spatial_domain() const;
     /// get the internal representation of the array
-    inline char*         get_array();
+    inline char         *get_array();
     /// get the internal representation of the array for reading
-    inline const char*   get_array() const;
+    inline const char   *get_array() const;
     /// get the internal representation of the array
-    inline r_Set<r_GMarray*>*        get_tiled_array();
+    inline r_Set<r_GMarray *>        *get_tiled_array();
     /// get the internal representation of the array for reading
-    inline const r_Set<r_GMarray*>*  get_tiled_array() const;
+    inline const r_Set<r_GMarray *>  *get_tiled_array() const;
     /// get size of internal array representation in byets
     inline r_Bytes get_array_size() const;
     /// get length of cell type in bytes
@@ -127,7 +127,7 @@ public:
     inline r_Data_Format get_current_format() const;
 
     /// get base type schema
-    const r_Base_Type* get_base_type_schema();
+    const r_Base_Type *get_base_type_schema();
 
     ///
     //@}
@@ -136,13 +136,13 @@ public:
     //@{
     ///
     /// sets the storage layout object and checks compatibility with the domain
-    void set_storage_layout(r_Storage_Layout*);
+    void set_storage_layout(r_Storage_Layout *);
     /// set spatial domain
-    inline void  set_spatial_domain(const r_Minterval& domain);
+    inline void  set_spatial_domain(const r_Minterval &domain);
     /// set the internal representation of the array
-    inline void  set_array(char*);
+    inline void  set_array(char *);
     /// set the internal representation of the array
-    inline void  set_tiled_array(r_Set<r_GMarray*>* newData);
+    inline void  set_tiled_array(r_Set<r_GMarray *> *newData);
     /// set size of internal memory representation in bytes
     inline void  set_array_size(r_Bytes);
     /// set length of cell type in bytes
@@ -160,26 +160,26 @@ public:
     /// inserts an object into the database
     virtual void insert_obj_into_db();
     /// insert myself into a specific collection in the database
-    void insert_obj_into_db(const char* collName);
+    void insert_obj_into_db(const char *collName);
 
     ///
     //@}
 
     /// writes the state of the object to the specified stream
-    virtual void print_status(std::ostream& s = std::cout);
+    virtual void print_status(std::ostream &s = std::cout);
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s, int hexoutput);
+    void print_status(std::ostream &s, int hexoutput);
 
 protected:
     /// spatial domain
     r_Minterval domain;
 
     /// pointer to the internal array representation
-    char* data;
+    char *data;
 
     /// array internally sub-tiled
-    r_Set<r_GMarray*>* tiled_data;
+    r_Set<r_GMarray *> *tiled_data;
 
     /// size of internal array representation in bytes
     r_Bytes data_size;
@@ -191,7 +191,7 @@ protected:
     r_Data_Format current_format;
 
     /// pointer to storage layout object
-    r_Storage_Layout* storage_layout;
+    r_Storage_Layout *storage_layout;
 };
 
 #include "rasodmg/gmarray.icc"

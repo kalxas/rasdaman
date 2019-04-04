@@ -71,19 +71,19 @@ public:
     //@Man: Constructors
     //@{
 
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain);
     /**
         Creates a new transient MDD object with definition domain {\tt domain } and type (\tt mddType).
         The newly created object has no tiles.
     */
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Nullvalues* newNullValues);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, r_Nullvalues *newNullValues);
     /**
         Creates a new transient MDD object with definition domain {\tt domain }, type (\tt mddType) and null values newNullValues.
         The newly created object has no tiles.
     */
 
     /// Creates a new persistent MDD object using preallocated OId {\ttnewOId}.
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId, const StorageLayout &ms);
     /**
         Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
         The newly created object has no tiles.
@@ -91,7 +91,7 @@ public:
         Throws an exception if the object already exists or if the OId is not valid.
     */
 
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId);
     /**
         Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
         The newly created object has no tiles.
@@ -101,19 +101,19 @@ public:
     */
 
     /// Opens an existent transient/persistent MDD object
-    MDDObj(const DBMDDObjId& dbmddobj);
+    MDDObj(const DBMDDObjId &dbmddobj);
     /**
         Throws an exception if the object does not exists.
     */
 
     /// Opens an existent persistent MDD object which has the OIdi {\tt givenOId }
-    MDDObj(const OId& givenOId);
+    MDDObj(const OId &givenOId);
     /**
         Throws an exception if the object does not exists.
     */
 
     ///
-    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const StorageLayout& ms);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const StorageLayout &ms);
     /**
         Creates a new persistent MDD object with definition domain {\tt domain}, storage layout {\tt ms} and type {\tt mddType}.
         The newly created object has no tiles.
@@ -123,12 +123,12 @@ public:
 
     //@Man: Object Identification:
     //@{
-    int getOId(OId* pOId) const;
+    int getOId(OId *pOId) const;
     /**
     returns 0 if object has an OId.
     */
 
-    int getEOId(EOId* pEOId) const;
+    int getEOId(EOId *pEOId) const;
     /**
     returns 0 if object has an EOId.
     */
@@ -137,7 +137,7 @@ public:
     //@Man: Printing the status of the object.
     //@{
     /// Prints current status of the object.
-    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     //@}
 
     //@Man: Insertion of new tiles in the MDD object:
@@ -153,7 +153,7 @@ public:
     void insertTile(boost::shared_ptr<Tile> insertTile);
 
     /// Inserts new tile into the object. MDDObj becomes the owner of the pointer.
-    void insertTile(Tile* newTile);
+    void insertTile(Tile *newTile);
 
     //@}
 
@@ -161,7 +161,7 @@ public:
     //@{
     /**
     */
-    void removeTile(boost::shared_ptr<Tile>& tileToRemove);
+    void removeTile(boost::shared_ptr<Tile> &tileToRemove);
     /**
         Removes tile from the object.
         This functon is not implemented yet.
@@ -175,27 +175,27 @@ public:
     */
 
     /// Finds all tiles of the object which intersect searchInter.
-    std::vector<boost::shared_ptr<Tile>>* intersect(const r_Minterval& searchInter) const;
+    std::vector<boost::shared_ptr<Tile>> *intersect(const r_Minterval &searchInter) const;
     /**
         Returns a vector of pointers to the intersected tiles which belong to the MDDObj.
         The returned vector but not the tiles must be freed by the caller.
     */
 
     /// Returns all the tiles belonging to the object.
-    std::vector<boost::shared_ptr<Tile>>* getTiles() const;
+    std::vector<boost::shared_ptr<Tile>> *getTiles() const;
     /**
         Returns a vector with all the tiles which belong to the MDDObj.
         The returned vector but not the tiles must be freed by the caller.
     */
 
     /// Gets the cell with coordinates {\tt searchPoint} in the MDD.
-    const char* pointQuery(const r_Point& searchPoint) const;
+    const char *pointQuery(const r_Point &searchPoint) const;
     /**
         Returns null pointer if cell doesnt exist in the object.
     */
 
     /// Gets the cell with coordinates {\tt searchPoint} in the MDD.
-    char* pointQuery(const r_Point& searchPoint);
+    char *pointQuery(const r_Point &searchPoint);
     /**
         Returns null pointer if cell doesn't exist in the object.
     */
@@ -206,7 +206,7 @@ public:
     //@{
 
     /// Returns the MDDBaseType of the object.
-    const MDDBaseType* getMDDBaseType() const;
+    const MDDBaseType *getMDDBaseType() const;
 
     /// Returns the domain of the object as it was given in the definition.
     r_Minterval getDefinitionDomain() const;
@@ -215,10 +215,10 @@ public:
     r_Minterval getCurrentDomain() const;
 
     /// Get cell type name.
-    const char* getCellTypeName() const;
+    const char *getCellTypeName() const;
 
     /// Get base type.
-    const BaseType* getCellType() const;
+    const BaseType *getCellType() const;
 
     /// Returns the dimensionality of the object.
     r_Dimension getDimension() const;
@@ -250,42 +250,42 @@ public:
     void releaseTiles();
 
     /// Return the storage layout of this object
-    StorageLayout* getStorageLayout() const;
+    StorageLayout *getStorageLayout() const;
 
     /// Override method in NullValuesHandler, in order to set null values to the
     /// underlying database object
-    void setUpdateNullValues(r_Nullvalues* newNullValues);
+    void setUpdateNullValues(r_Nullvalues *newNullValues);
 
     /// write nullValues to a given tile...
     /// given a tile from (op) with the result of getContents() being resDataPtr,
     /// and total # cells in that tile = cellCount, this method initializes
     /// the entire tile with nullValues derived from (op).
     /// A templated helper function addresses the stored data type.
-    void fillTileWithNullvalues( char* resDataPtr, size_t cellCount) const;
+    void fillTileWithNullvalues(char *resDataPtr, size_t cellCount) const;
 
 protected:
 
     /// write nullValues to a given tile...
     /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
     /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.
-    void fillSinglebandTileWithNullvalues( char* resDataPtr, size_t cellCount, TypeEnum cellType ) const;
+    void fillSinglebandTileWithNullvalues(char *resDataPtr, size_t cellCount, TypeEnum cellType) const;
 
     /// write nullValues to a given tile...
     /// given a tile from (op) with the result of getContents() being resDataPtr, and total # cells in that tile = cellCount, this method initializes
     /// the entire tile with nullValues derived from (op). A templated helper function addresses the stored data type.
-    void fillMultibandTileWithNullvalues( char* resDataPtr, size_t cellCount ) const;
+    void fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount) const;
 
     /// does some consistency checks for regular tiling with rc index
-    const r_Minterval& checkStorage(const r_Minterval& domain);
+    const r_Minterval &checkStorage(const r_Minterval &domain);
 
     ///The data class that holds all information
     DBMDDObjId myDBMDDObj;
 
     ///The index class that is used to access tile, before deleting thems
-    MDDObjIx* myMDDIndex;
+    MDDObjIx *myMDDIndex;
 
     ///The storage class which is reponsible for the tiling
-    StorageLayout* myStorageLayout;
+    StorageLayout *myStorageLayout;
 
 //      bool doNotUseThisBugFix;
     /**

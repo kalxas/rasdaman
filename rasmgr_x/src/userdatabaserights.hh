@@ -55,9 +55,9 @@ public:
     bool hasWriteAccess() const;
     void setWriteAccess(bool writeAccess);
 
-    static UserDatabaseRights parseFromProto(const UserDatabaseRightsProto& rights);
+    static UserDatabaseRights parseFromProto(const UserDatabaseRightsProto &rights);
 
-    static UserDatabaseRightsProto serializeToProto(const UserDatabaseRights& userDatabaseRights);
+    static UserDatabaseRightsProto serializeToProto(const UserDatabaseRights &userDatabaseRights);
 private:
     bool readAccess;
     bool writeAccess;

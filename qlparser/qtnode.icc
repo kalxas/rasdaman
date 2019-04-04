@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include <cstring>
 #include <logging.hh>
 
-inline QtNode*
+inline QtNode *
 QtNode::getParent() const
 {
     return parent;
@@ -39,7 +39,7 @@ QtNode::getParent() const
 
 
 inline void
-QtNode::setParent( QtNode* node )
+QtNode::setParent(QtNode *node)
 {
     parent = node;
 }
@@ -54,13 +54,13 @@ QtNode::getNodeType() const
 
 
 inline void
-QtNode::setInput( QtOperation* , QtOperation* )
+QtNode::setInput(QtOperation *, QtOperation *)
 {
     LERROR << "Error: Method setInput(...) is undefined for node type " << static_cast<int>(getNodeType()) << " in the query tree.";
 }
 
 
-inline const ParseInfo&
+inline const ParseInfo &
 QtNode::getParseInfo()
 {
     return parseInfo;
@@ -68,7 +68,7 @@ QtNode::getParseInfo()
 
 
 inline void
-QtNode::setParseInfo( const ParseInfo &info )
+QtNode::setParseInfo(const ParseInfo &info)
 {
     parseInfo = info;
 }
@@ -76,10 +76,13 @@ QtNode::setParseInfo( const ParseInfo &info )
 
 
 inline void
-QtTypeElement::setName( const char* newName )
+QtTypeElement::setName(const char *newName)
 {
-    if( name ) free( name );
-    name = strdup( newName );
+    if (name)
+    {
+        free(name);
+    }
+    name = strdup(newName);
 }
 
 
@@ -93,14 +96,14 @@ QtTypeElement::getDataType() const
 
 
 
-inline const Type*
+inline const Type *
 QtTypeElement::getType() const
 {
     return type;
 }
 
 
-inline const char*
+inline const char *
 QtTypeElement::getName() const
 {
     return name;

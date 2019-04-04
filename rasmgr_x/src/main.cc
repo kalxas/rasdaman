@@ -46,8 +46,8 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-void crashHandler(int sig, siginfo_t* info, void* ucontext);
-void shutdownHandler(int sig, siginfo_t* info, void* ucontext);
+void crashHandler(int sig, siginfo_t *info, void *ucontext);
+void shutdownHandler(int sig, siginfo_t *info, void *ucontext);
 
 using common::Crypto;
 using rasmgr::Configuration;
@@ -56,8 +56,8 @@ using rasmgr::RasManager;
 //RasManager object that orchestrates
 boost::shared_ptr<rasmgr::RasManager> manager;
 
-void shutdownHandler(__attribute__ ((unused)) int sig,
-        __attribute__ ((unused)) siginfo_t* info, __attribute__ ((unused)) void* ucontext)
+void shutdownHandler(__attribute__((unused)) int sig,
+                     __attribute__((unused)) siginfo_t *info, __attribute__((unused)) void *ucontext)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -70,7 +70,7 @@ void shutdownHandler(__attribute__ ((unused)) int sig,
     }
 }
 
-void crashHandler(int sig, siginfo_t* info, __attribute__ ((unused)) void* ucontext)
+void crashHandler(int sig, siginfo_t *info, __attribute__((unused)) void *ucontext)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -86,7 +86,7 @@ void crashHandler(int sig, siginfo_t* info, __attribute__ ((unused)) void* ucont
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // handle abort signals and ignore irrelevant signals
     common::SignalHandler::handleAbortSignals(crashHandler);
@@ -111,7 +111,9 @@ int main(int argc, char** argv)
     {
         outputLogFilePath = std::string(LOGDIR);
         if (outputLogFilePath[outputLogFilePath.length() - 1] != '/')
+        {
             outputLogFilePath += "/";
+        }
         outputLogFilePath += string("rasmgr.") + std::to_string(::getpid()) + ".log";
     }
 
@@ -140,7 +142,7 @@ int main(int argc, char** argv)
     {
         manager->start();
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "rasmanager failed with exception: " << ex.what();
         std::cerr << "rasmanager failed with exception: " << ex.what() << std::endl;

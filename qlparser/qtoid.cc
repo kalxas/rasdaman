@@ -47,20 +47,20 @@ static const char rcsid[] = "@(#)qlparser, QtOId: $Header: /home/rasdev/CVS-repo
 const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 
 
-QtOId::QtOId(QtVariable* newInput)
+QtOId::QtOId(QtVariable *newInput)
     : QtUnaryOperation(newInput)
 {
 }
 
 
 
-QtData*
-QtOId::evaluate(QtDataList* inputList)
+QtData *
+QtOId::evaluate(QtDataList *inputList)
 {
     startTimer("QtOid");
 
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     operand = input->evaluate(inputList);
 
@@ -82,12 +82,12 @@ QtOId::evaluate(QtDataList* inputList)
         }
 #endif
 
-        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
-        MDDObj* mddObj = qtMDD->getMDDObject();
+        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        MDDObj *mddObj = qtMDD->getMDDObject();
 
         if (mddObj->isPersistent())
         {
-            MDDObj* persMDD = static_cast<MDDObj*>(mddObj);
+            MDDObj *persMDD = static_cast<MDDObj *>(mddObj);
 
             // get local oid and pass it as double
             OId localOId;
@@ -143,7 +143,7 @@ QtOId::evaluate(QtDataList* inputList)
 
 
 void
-QtOId::printTree(int tab, std::ostream& s, QtChildType mode)
+QtOId::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
 
@@ -153,7 +153,7 @@ QtOId::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtOId::printAlgebraicExpression(std::ostream& s)
+QtOId::printAlgebraicExpression(std::ostream &s)
 {
     s << "oid(" << std::flush;
 
@@ -171,8 +171,8 @@ QtOId::printAlgebraicExpression(std::ostream& s)
 
 
 
-const QtTypeElement&
-QtOId::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtOId::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -181,7 +181,7 @@ QtOId::checkType(QtTypeTuple* typeTuple)
     {
 
         // get input type
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 
         if (inputType.getDataType() != QT_MDD)
         {

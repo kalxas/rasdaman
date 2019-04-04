@@ -39,7 +39,7 @@
 using namespace std;
 using namespace blobfs;
 
-void DirWrapper::createDirectory(const string& dirPath)
+void DirWrapper::createDirectory(const string &dirPath)
 {
     struct stat status;
     if (stat(dirPath.c_str(), &status) == IO_ERROR_RC)
@@ -53,8 +53,8 @@ void DirWrapper::createDirectory(const string& dirPath)
     }
 }
 
-int removePath(const char* fpath, __attribute__ ((unused)) const struct stat* sb, 
-        __attribute__ ((unused)) int typeflag, __attribute__ ((unused)) struct FTW* ftwbuf)
+int removePath(const char *fpath, __attribute__((unused)) const struct stat *sb,
+               __attribute__((unused)) int typeflag, __attribute__((unused)) struct FTW *ftwbuf)
 {
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)
@@ -66,7 +66,7 @@ int removePath(const char* fpath, __attribute__ ((unused)) const struct stat* sb
     return ret;
 }
 
-void DirWrapper::removeDirectory(const string& dirPath)
+void DirWrapper::removeDirectory(const string &dirPath)
 {
     if (nftw(dirPath.c_str(), removePath, 64, FTW_DEPTH | FTW_PHYS) == IO_ERROR_RC)
     {
@@ -78,7 +78,7 @@ void DirWrapper::removeDirectory(const string& dirPath)
     }
 }
 
-string DirWrapper::convertToCanonicalPath(const string& dirPath)
+string DirWrapper::convertToCanonicalPath(const string &dirPath)
 {
     if (!dirPath.empty() && dirPath[dirPath.size() - 1] != '/')
     {
@@ -90,7 +90,7 @@ string DirWrapper::convertToCanonicalPath(const string& dirPath)
     }
 }
 
-string DirWrapper::convertFromCanonicalPath(const string& dirPath)
+string DirWrapper::convertFromCanonicalPath(const string &dirPath)
 {
     if (!dirPath.empty() && dirPath[dirPath.size() - 1] == '/')
     {
@@ -106,15 +106,18 @@ string DirWrapper::getBasename(const std::string &filePath)
 {
     assert(!filePath.empty());
     auto index = filePath.find_last_of("/");
-    if (index != string::npos) {
+    if (index != string::npos)
+    {
         return filePath.substr(0, index);
-    } else {
+    }
+    else
+    {
         // relative string, i.e. just RASBASE or so
         return "";
     }
 }
 
-DirEntryIterator::DirEntryIterator(const string& dirPathArg, bool filesArg)
+DirEntryIterator::DirEntryIterator(const string &dirPathArg, bool filesArg)
     : dirPath(DirWrapper::convertToCanonicalPath(dirPathArg)), filesOnly(filesArg)
 {
 }
@@ -155,8 +158,8 @@ string DirEntryIterator::next()
                 if (errno == ENOENT)
                 {
                     return next();
-                } 
-                else 
+                }
+                else
                 {
                     LWARNING << "failed reading directory: " << dirEntry->d_name;
                     LWARNING << "errno " << errno << ": " << strerror(errno);

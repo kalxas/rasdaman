@@ -43,16 +43,16 @@ static const char rcsid[] = "@(#)catalogif,UShortType: $Header: /home/rasdev/CVS
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 UShortType.
  ************************************************************/
 
 UShortType::UShortType()
-	:	UIntegralType(UShortType::Name, 2)
-	{
-	myType = USHORT;
-	myOId = OId(USHORT, OId::ATOMICTYPEOID);
-	}
+    :   UIntegralType(UShortType::Name, 2)
+{
+    myType = USHORT;
+    myOId = OId(USHORT, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: UShortType(const UShortType& old);
@@ -62,16 +62,16 @@ UShortType::UShortType()
  * Description...: copy constructor
  ************************************************************/
 
-UShortType::UShortType(const UShortType& old)
-	:	UIntegralType(old)
-	{
-	}
+UShortType::UShortType(const UShortType &old)
+    :   UIntegralType(old)
+{
+}
 
-UShortType::UShortType(const OId& id)
-	:	UIntegralType(id)
-	{
-	readFromDb();
-	}
+UShortType::UShortType(const OId &id)
+    :   UIntegralType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: operator=(const UShortType&);
@@ -81,14 +81,16 @@ UShortType::UShortType(const OId& id)
  * Description...: copy constructor
  ************************************************************/
 
-UShortType& UShortType::operator=(const UShortType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+UShortType &UShortType::operator=(const UShortType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~UShortType();
@@ -103,52 +105,52 @@ UShortType::~UShortType()
 }
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that UShort is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-UShortType::printCell( ostream& stream, const char* cell ) const
+void
+UShortType::printCell(ostream &stream, const char *cell) const
 {
-  // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
-  // byte order
-  stream << std::setw(5) << *(unsigned short*)(const_cast<char*>(cell));
+    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
+    // byte order
+    stream << std::setw(5) << *(unsigned short *)(const_cast<char *>(cell));
 }
 
-r_ULong*
-UShortType::convertToCULong(const char* cell, r_ULong* value) const
+r_ULong *
+UShortType::convertToCULong(const char *cell, r_ULong *value) const
 {
-  // !!!! HP specific, assumes 2 Byte short
-  *value = *(unsigned short*)(const_cast<char*>(cell));
-  return value;
+    // !!!! HP specific, assumes 2 Byte short
+    *value = *(unsigned short *)(const_cast<char *>(cell));
+    return value;
 }
 
 
-char* 
-UShortType::makeFromCULong(char* cell, const r_ULong* value) const
+char *
+UShortType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-  r_ULong myLong = *value;
-  // restricting long to value range of short
-  myLong = myLong > USHRT_MAX ? USHRT_MAX : myLong;
-  // !!!! HP specific, assumes 2 Byte short
-  *(unsigned short*)(cell) = (unsigned short)myLong;
-  return cell;
+    r_ULong myLong = *value;
+    // restricting long to value range of short
+    myLong = myLong > USHRT_MAX ? USHRT_MAX : myLong;
+    // !!!! HP specific, assumes 2 Byte short
+    *(unsigned short *)(cell) = (unsigned short)myLong;
+    return cell;
 }
 
 void
 UShortType::readFromDb()
-	{
-	size = 2;
-	setName(UShortType::Name);
-	myType = USHORT;
-	myOId = OId(USHORT, OId::ATOMICTYPEOID);
-	}
+{
+    size = 2;
+    setName(UShortType::Name);
+    myType = USHORT;
+    myOId = OId(USHORT, OId::ATOMICTYPEOID);
+}

@@ -32,7 +32,7 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtNot::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
@@ -40,7 +40,7 @@ QtNot::getNodeType() const
 inline QtNode::QtNodeType
 QtIsNull::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
@@ -49,46 +49,71 @@ QtIsNull::getNodeType() const
 inline QtNode::QtNodeType
 QtDot::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 //---- QtCast ----
 
-inline QtNode::QtNodeType QtCast::getNodeType() const {
-   	return nodeType;
-}
- 
-inline Ops::OpType QtCast::getOp(QtCast::cast_types t) {
-     Ops::OpType c=Ops::OP_CAST_BOOL;
-     switch(t) {
-	 case QtCast::t_bool: c=Ops::OP_CAST_BOOL; break;
-         case QtCast::t_octet: c=Ops::OP_CAST_OCTET; break;
-         case QtCast::t_char: c=Ops::OP_CAST_CHAR; break;
-         case QtCast::t_short: c=Ops::OP_CAST_SHORT; break;
-         case QtCast::t_ushort: c=Ops::OP_CAST_USHORT; break;
-         case QtCast::t_long: c=Ops::OP_CAST_LONG; break;
-         case QtCast::t_ulong: c=Ops::OP_CAST_ULONG; break;
-         case QtCast::t_float: c=Ops::OP_CAST_FLOAT; break;
-         case QtCast::t_double: c=Ops::OP_CAST_DOUBLE; break;
-         default: LERROR << "Error: QtCast::getOp - undefined cast type."; break;
-     }
-     return c;
+inline QtNode::QtNodeType QtCast::getNodeType() const
+{
+    return nodeType;
 }
 
-                                                                                 
+inline Ops::OpType QtCast::getOp(QtCast::cast_types t)
+{
+    Ops::OpType c = Ops::OP_CAST_BOOL;
+    switch (t)
+    {
+    case QtCast::t_bool:
+        c = Ops::OP_CAST_BOOL;
+        break;
+    case QtCast::t_octet:
+        c = Ops::OP_CAST_OCTET;
+        break;
+    case QtCast::t_char:
+        c = Ops::OP_CAST_CHAR;
+        break;
+    case QtCast::t_short:
+        c = Ops::OP_CAST_SHORT;
+        break;
+    case QtCast::t_ushort:
+        c = Ops::OP_CAST_USHORT;
+        break;
+    case QtCast::t_long:
+        c = Ops::OP_CAST_LONG;
+        break;
+    case QtCast::t_ulong:
+        c = Ops::OP_CAST_ULONG;
+        break;
+    case QtCast::t_float:
+        c = Ops::OP_CAST_FLOAT;
+        break;
+    case QtCast::t_double:
+        c = Ops::OP_CAST_DOUBLE;
+        break;
+    default:
+        LERROR << "Error: QtCast::getOp - undefined cast type.";
+        break;
+    }
+    return c;
+}
+
+
 //---- QtRealPartOp ----
 
-inline QtNode::QtNodeType QtRealPartOp::getNodeType() const {
-	return nodeType; 
+inline QtNode::QtNodeType QtRealPartOp::getNodeType() const
+{
+    return nodeType;
 }
 
 //---- QtImaginarPartOp ----
 
-inline QtNode::QtNodeType QtImaginarPartOp::getNodeType() const {
-	return nodeType; 
+inline QtNode::QtNodeType QtImaginarPartOp::getNodeType() const
+{
+    return nodeType;
 }
 
- 
-//---------------- 
+
+//----------------
 

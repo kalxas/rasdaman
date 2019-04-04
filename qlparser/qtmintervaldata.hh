@@ -49,7 +49,7 @@ class QtMintervalData : public QtData
 {
 public:
     /// constructor getting the minterval
-    QtMintervalData(const r_Minterval& minterval, vector<bool>* initTrimFlags = NULL);
+    QtMintervalData(const r_Minterval &minterval, vector<bool> *initTrimFlags = NULL);
 
     /// virtual destructor
     virtual ~QtMintervalData();
@@ -59,16 +59,16 @@ public:
     ///
 
     ///
-    inline const r_Minterval&  getMintervalData() const;
+    inline const r_Minterval  &getMintervalData() const;
     ///
-    inline void                setMintervalData(const r_Minterval& interval);
+    inline void                setMintervalData(const r_Minterval &interval);
     //
     // inline void                setMintervalData( const r_Point& point );
     ///
-    inline const vector<bool>* getTrimFlags() const;
+    inline const vector<bool> *getTrimFlags() const;
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -80,13 +80,13 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 private:
     /// prevents from using the default constructor
@@ -96,7 +96,7 @@ private:
     r_Minterval mintervalData;
 
     /// bitvector indicating real projections
-    vector<bool>* trimFlags;
+    vector<bool> *trimFlags;
 };
 
 #include "qlparser/qtmintervaldata.icc"

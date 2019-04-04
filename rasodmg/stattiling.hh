@@ -55,17 +55,17 @@ class r_Access
 public:
 
     /// Class constructor
-    r_Access(const r_Minterval& pattern, r_ULong accesses = 1);
+    r_Access(const r_Minterval &pattern, r_ULong accesses = 1);
     /**
       It takes as parameter the interval and the number of times
       that interval was accessed.
      */
 
     /// Gets the current interval (access pattern)
-    const r_Minterval& get_pattern() const;
+    const r_Minterval &get_pattern() const;
 
     /// Sets the current interval (access pattern)
-    void set_pattern(const r_Minterval& pattern);
+    void set_pattern(const r_Minterval &pattern);
 
     /// Gets the number of times the pattern was accessed
     r_ULong get_times() const;
@@ -75,19 +75,19 @@ public:
 
     /// Checks if a certain access pattern is "close enough" of other
     /// throws exception if the domains do not match
-    bool is_near(const r_Access& other, r_ULong border_threshold) const;
+    bool is_near(const r_Access &other, r_ULong border_threshold) const;
 
     /// Merge this access pattern with another
-    void merge_with(const r_Access& other);
+    void merge_with(const r_Access &other);
 
     /// Print object status
-    void print_status(std::ostream& os) const;
+    void print_status(std::ostream &os) const;
 
     /// Operator equal
-    bool operator==(const r_Access& other) const;
+    bool operator==(const r_Access &other) const;
 
     /// Operator different
-    bool operator!=(const r_Access& other) const;
+    bool operator!=(const r_Access &other) const;
 
 private:
 
@@ -105,7 +105,7 @@ private:
 /**
     Prints the status of a Access object to a stream
 */
-extern std::ostream& operator<<(std::ostream& os, const r_Access& access);
+extern std::ostream &operator<<(std::ostream &os, const r_Access &access);
 
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -141,11 +141,11 @@ public: // constants
 
     /// read everything from an encoded string
     /// e.g. "2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100"
-    r_Stat_Tiling(const char* encoded);
+    r_Stat_Tiling(const char *encoded);
 
     /// Class constructor
     r_Stat_Tiling(r_Dimension dim,
-                  const std::vector<r_Access>& stat_info,
+                  const std::vector<r_Access> &stat_info,
                   r_Bytes ts = RMInit::clientTileSize,
                   r_Area border_threshold = DEF_BORDER_THR,
                   r_Double interesting_threshold = DEF_INTERESTING_THR);
@@ -164,7 +164,7 @@ public: // constants
     virtual ~r_Stat_Tiling();
 
     /// Gets the statistical information
-    virtual const std::vector<r_Minterval>& get_interesting_areas() const;
+    virtual const std::vector<r_Minterval> &get_interesting_areas() const;
 
     /// Gets the threshold at which to intervals are considered the same
     r_Area get_border_threshold() const;
@@ -181,24 +181,24 @@ public: // constants
       threshold, will be considered interest areas when performing tiling.
     */
 
-    virtual void print_status(std::ostream& os) const;
+    virtual void print_status(std::ostream &os) const;
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
-    virtual r_Tiling* clone() const;
+    virtual r_Tiling *clone() const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
 
-    static const char* description;
+    static const char *description;
 
 protected:  // methods
 
     /// Filters and access pattern table (list)
     /// throws exception if dimensions of access patterns are not the same
-    void filter(std::vector<r_Access>& patterns) const;
+    void filter(std::vector<r_Access> &patterns) const;
 
     /// Merges a list of access patterns
-    r_Access merge(const std::vector<r_Access>& patterns) const;
+    r_Access merge(const std::vector<r_Access> &patterns) const;
 
     /// The "interesting area" threshold
     r_Double interesting_thr;

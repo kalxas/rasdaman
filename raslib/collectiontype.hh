@@ -54,10 +54,10 @@ public:
     /// copy constructor
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    r_Collection_Type(const r_Collection_Type&);
+    r_Collection_Type(const r_Collection_Type &);
 
     /// constructor getting element type
-    r_Collection_Type(r_Type& newType);
+    r_Collection_Type(r_Type &newType);
 
     /// returns identifier SET of enumeration r_Kind
     r_Kind kind() const;
@@ -65,15 +65,15 @@ public:
     /// assignment operator
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    const r_Collection_Type& operator=(const r_Collection_Type& oldObj);
+    const r_Collection_Type &operator=(const r_Collection_Type &oldObj);
 
     /// get element type
     /// the exception is only raised when the element type of the copied type is NULL.
     /// (this can not happen)
-    const r_Type& element_type() const;
+    const r_Type &element_type() const;
 
     /// clone operation
-    virtual r_Type* clone() const;
+    virtual r_Type *clone() const;
 
     /// retrieve id of the type.
     virtual r_Type::r_Type_Id type_id() const;
@@ -81,13 +81,13 @@ public:
     virtual bool isCollectionType() const;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char* cells, r_Area noCells) const;
+    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char* cells, r_Area noCells) const;
+    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream& s = std::cout) const;
+    virtual void print_status(std::ostream &s = std::cout) const;
 
     /// destructor
     ~r_Collection_Type();
@@ -98,11 +98,11 @@ protected:
     r_Collection_Type();
 
     /// element type
-    r_Type* elementType;
+    r_Type *elementType;
 };
 
 //@Doc: write the status of a collection type to a stream
-extern std::ostream& operator<<(std::ostream& str, const r_Collection_Type& type);
+extern std::ostream &operator<<(std::ostream &str, const r_Collection_Type &type);
 
 #endif
 

@@ -29,10 +29,10 @@ rasdaman GmbH.
 
 /**
  * Getter for the node type
- * @return 
+ * @return
  */
 inline QtNode::QtNodeType
 QtCaseOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }

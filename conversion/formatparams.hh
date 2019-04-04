@@ -51,13 +51,13 @@ public:
      * Parse the input format parameters into a JSON object and get the values for
      * parameters common across multiple converters, if the paramsStr is a
      * JSON string (starts with a '{').
-     * 
+     *
      * @param paramsStr a format parameters string.
      * @return true if paramsStr is a JSON string and it was successfully parsed,
      * false otherwise. It throws an error if it is a JSON string and parsing
      * it failed.
      */
-    bool parse(const std::string& paramsStr);
+    bool parse(const std::string &paramsStr);
 
     /// get the JSON params
     Json::Value getParams() const;
@@ -71,7 +71,7 @@ public:
     std::vector<std::string> getFilePaths() const;
 
     /// set the paths to files to be decoded
-    void setFilePaths(const std::vector<std::string>& filePaths);
+    void setFilePaths(const std::vector<std::string> &filePaths);
 
     /// get the path to a file to be decoded
     const std::string &getFilePath() const;
@@ -86,13 +86,13 @@ public:
     const r_Minterval &getSubsetDomain() const;
 
     /// sets subset region to be decoded from the input file, instead of the whole file
-    void setSubsetDomain(const r_Minterval& domain);
+    void setSubsetDomain(const r_Minterval &domain);
 
     /// extra format parameters, e.g. compression type; convertor-dependent
     std::vector<std::pair<std::string, std::string>> getFormatParameters() const;
 
     /// extra format parameters, e.g. compression type; convertor-dependent
-    void addFormatParameter(const std::string& key, const std::string& val);
+    void addFormatParameter(const std::string &key, const std::string &val);
 
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
     std::vector<std::pair<std::string, std::string>> getConfigOptions() const;
@@ -111,7 +111,7 @@ public:
     /// extra metadata
     std::string getMetadata() const;
     /// extra metadata
-    void setMetadata(const std::string& metadata);
+    void setMetadata(const std::string &metadata);
 
     /// extra metadata represented as a vector of key/value pairs
     std::vector<std::pair<std::string, std::string>> getMetadataKeyValues() const;
@@ -119,7 +119,7 @@ public:
     /// coordinate reference system
     std::string getCrs() const;
     /// coordinate reference system
-    void setCrs(const std::string& crs);
+    void setCrs(const std::string &crs);
 
     /// min X geo bound
     double getXmin() const;
@@ -147,12 +147,12 @@ private:
      * @return true if the string starts with a '{'.
      */
     bool isJson(std::string options) const;
-    
+
     void parseJson();
     void parseTranspose();
     void parseVariables();
     void parseFilepaths();
-    void parseStringKeyValuesList(const std::string& key, std::vector<std::pair<std::string, std::string>>& targetVector);
+    void parseStringKeyValuesList(const std::string &key, std::vector<std::pair<std::string, std::string>> &targetVector);
     void parseSubsetDomain();
     void parseNodata();
     void parseMetadata();

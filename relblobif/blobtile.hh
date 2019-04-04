@@ -82,12 +82,12 @@ public:
     constructs a new empty BLOBTile and gets an id for it.
     */
 
-    BLOBTile(const OId& BlobId);
+    BLOBTile(const OId &BlobId);
     /*@Doc:
     constructs a BlobTile out of the database
     */
 
-    BLOBTile(const OId& BlobId, r_Bytes newSize, r_Data_Format newFmt);
+    BLOBTile(const OId &BlobId, r_Bytes newSize, r_Data_Format newFmt);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with zeros.
     the tile will think it is not modified and also not in the db but persistent.
@@ -104,19 +104,19 @@ public:
     constructs a new BLOBTile of size newSize filled with c.
     */
 
-    BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
+    BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with the contents of newCells.
     The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
     newCells is directly owned by DBTile.
     */
 
-    BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
+    BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with the contents of newCells.
     */
 
-    BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat, const OId& myOId);
+    BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat, const OId &myOId);
     /*@Doc:
     constructs a new BLOBTile of size newSize filled with the contents of newCells.
     the oid will be assigned to this blob.  used by regular computed index.
@@ -129,7 +129,7 @@ public:
     validates the object.  deletes it cells.
     */
 
-    static void kill(const OId& target, unsigned int range = 0);
+    static void kill(const OId &target, unsigned int range = 0);
     /*@Doc:
     delete a blobtile without loading it first into memory.
     used by the indexes.
@@ -166,7 +166,7 @@ protected:
     deletes a blob from TILES, sets size to 0 and flags to -1
     */
 
-    static void writeCachedToDb(CacheValue* value);
+    static void writeCachedToDb(CacheValue *value);
     /*@Doc:
      write cached data to the database
     */

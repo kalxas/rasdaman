@@ -32,7 +32,7 @@ QtEmptyStream::QtEmptyStream()
 }
 
 void
-QtEmptyStream::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
+QtEmptyStream::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtEmptyStream Object: " << std::flush;
     s << getEvaluationTime();
@@ -40,7 +40,7 @@ QtEmptyStream::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChi
 }
 
 void
-QtEmptyStream::printAlgebraicExpression(std::ostream& s)
+QtEmptyStream::printAlgebraicExpression(std::ostream &s)
 {
     s << "<empty set>";
 }
@@ -51,7 +51,7 @@ QtEmptyStream::open()
     emitted = false;
 }
 
-QtNode::QtDataList*
+QtNode::QtDataList *
 QtEmptyStream::next()
 {
     if (emitted)
@@ -61,7 +61,7 @@ QtEmptyStream::next()
     else
     {
         emitted = true;
-        QtNode::QtDataList* result = new QtDataList();
+        QtNode::QtDataList *result = new QtDataList();
         result->push_back(NULL);
         return result;
     }
@@ -79,7 +79,7 @@ QtEmptyStream::reset()
     emitted = false;
 }
 
-const QtTypeTuple&
+const QtTypeTuple &
 QtEmptyStream::checkType()
 {
     return dataStreamType;

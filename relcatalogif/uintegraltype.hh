@@ -60,13 +60,13 @@ public:
     constructor.
     */
 
-    UIntegralType(const UIntegralType& old):
+    UIntegralType(const UIntegralType &old):
         AtomicType(old) {}
     /*@Doc:
     copy constructor.
     */
 
-    UIntegralType(const OId& id):
+    UIntegralType(const OId &id):
         AtomicType(id) {}
     /*@Doc:
     */
@@ -75,14 +75,14 @@ public:
     /*@Doc:
     */
 
-    virtual r_Long* convertToCLong(const char*, r_Long*) const;
-    virtual char* makeFromCLong(char*, const r_Long*) const;
+    virtual r_Long *convertToCLong(const char *, r_Long *) const;
+    virtual char *makeFromCLong(char *, const r_Long *) const;
 
-    virtual double* convertToCDouble(const char*, double*) const;
-    virtual char* makeFromCDouble(char*, const double*) const;
+    virtual double *convertToCDouble(const char *, double *) const;
+    virtual char *makeFromCDouble(char *, const double *) const;
 
 protected:
-    UIntegralType(const char* name, unsigned int newSize):
+    UIntegralType(const char *name, unsigned int newSize):
         AtomicType(name, newSize) {}
     /*@Doc:
     */

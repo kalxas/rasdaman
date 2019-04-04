@@ -54,7 +54,7 @@ r_Dir_Decompose::~r_Dir_Decompose()
     }
 }
 
-r_Dir_Decompose::r_Dir_Decompose(const r_Dir_Decompose& other)
+r_Dir_Decompose::r_Dir_Decompose(const r_Dir_Decompose &other)
     : num_intervals(0), current_interval(0), intervals(NULL)
 {
     num_intervals = other.num_intervals;
@@ -67,7 +67,7 @@ r_Dir_Decompose::r_Dir_Decompose(const r_Dir_Decompose& other)
     }
 }
 
-const r_Dir_Decompose& r_Dir_Decompose::operator=(const r_Dir_Decompose& other)
+const r_Dir_Decompose &r_Dir_Decompose::operator=(const r_Dir_Decompose &other)
 {
     if (this != &other)
     {
@@ -90,11 +90,11 @@ const r_Dir_Decompose& r_Dir_Decompose::operator=(const r_Dir_Decompose& other)
     return *this;
 }
 
-r_Dir_Decompose& r_Dir_Decompose::operator<<(r_Range limit)
+r_Dir_Decompose &r_Dir_Decompose::operator<<(r_Range limit)
 {
     if (current_interval == num_intervals)
     {
-        r_Range* aux = new r_Range[num_intervals * 2];
+        r_Range *aux = new r_Range[num_intervals * 2];
 
         for (unsigned int i = 0; i < num_intervals; i++)
         {
@@ -112,11 +112,11 @@ r_Dir_Decompose& r_Dir_Decompose::operator<<(r_Range limit)
     return *this;
 }
 
-r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
+r_Dir_Decompose &r_Dir_Decompose::prepend(r_Range limit)
 {
     if (current_interval == num_intervals)
     {
-        r_Range* aux = new r_Range[num_intervals * 2];
+        r_Range *aux = new r_Range[num_intervals * 2];
 
         for (unsigned int i = 0; i < num_intervals; i++)
         {
@@ -156,7 +156,7 @@ r_Range r_Dir_Decompose::get_partition(int number) const
     return intervals[number];
 }
 
-void r_Dir_Decompose::print_status(std::ostream& os) const
+void r_Dir_Decompose::print_status(std::ostream &os) const
 {
     os << "r_Dir_Decompose[ num intervals = " << num_intervals << " current interval = " << current_interval << " intervals = {";
 
@@ -168,14 +168,14 @@ void r_Dir_Decompose::print_status(std::ostream& os) const
     os << "} ]";
 }
 
-std::ostream& operator<<(std::ostream& os, const r_Dir_Decompose& d)
+std::ostream &operator<<(std::ostream &os, const r_Dir_Decompose &d)
 {
     d.print_status(os);
 
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<r_Dir_Decompose>& vec)
+std::ostream &operator<<(std::ostream &os, const std::vector<r_Dir_Decompose> &vec)
 {
     os << " Vector { ";
 

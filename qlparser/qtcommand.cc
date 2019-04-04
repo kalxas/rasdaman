@@ -57,54 +57,54 @@ const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
 const string QtCommand::tmpSetTypePrefix = string("autoSet-");
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection, const std::string& initType)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection, const std::string &initType)
     : QtExecute(),
       command(initCommand),
       collection(initCollection),
       typeName(initType),
       childNode(NULL)
 {
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection)
     : QtExecute(),
       command(initCommand),
       collection(initCollection),
       childNode(NULL)
 {
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
 
 
-QtCommand::QtCommand(QtCommandType initCommand, const QtCollection& initCollection, QtOperationIterator* collectionitr)
+QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection, QtOperationIterator *collectionitr)
     : QtExecute(),
       command(initCommand),
       collection(initCollection),
       childNode(collectionitr)
 {
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtCommand::QtCommand(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
-void QtCommand::dropCollection(const QtCollection& collection2)
+void QtCommand::dropCollection(const QtCollection &collection2)
 {
     // drop the actual collection
     if (!MDDColl::dropMDDCollection(collection2.getCollectionName().c_str()))
@@ -121,11 +121,11 @@ void QtCommand::dropCollection(const QtCollection& collection2)
     TypeFactory::deleteTmpMDDType(mddName.c_str());
 }
 
-OId QtCommand::createCollection(const QtCollection& collection2, string typeName2)
+OId QtCommand::createCollection(const QtCollection &collection2, string typeName2)
 {
     // allocate a new oid within the current db
     OId oid = 0;
-    
+
     if (collection2.getCollectionName().length() >= MAX_COLLECTION_NAME_LENGTH)
     {
         LERROR << "The collection name is longer than 200 characters.";
@@ -134,7 +134,7 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
     }
 
     // get collection type
-    CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(typeName2.c_str())));
+    CollectionType *collType = static_cast<CollectionType *>(const_cast<SetType *>(TypeFactory::mapSetType(typeName2.c_str())));
 
     if (collType)
     {
@@ -146,11 +146,11 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
 #endif
             try
             {
-                MDDColl* coll = MDDColl::createMDDCollection(collection2.getCollectionName().c_str(), oid, collType);
+                MDDColl *coll = MDDColl::createMDDCollection(collection2.getCollectionName().c_str(), oid, collType);
                 delete coll;
                 coll = NULL;
             }
-            catch (r_Error& obj)
+            catch (r_Error &obj)
             {
                 parseInfo.setErrorNo(955);
                 throw parseInfo;
@@ -174,12 +174,12 @@ OId QtCommand::createCollection(const QtCollection& collection2, string typeName
     return oid;
 }
 
-void QtCommand::alterCollection(const QtCollection& collection2, string typeName2)
+void QtCommand::alterCollection(const QtCollection &collection2, string typeName2)
 {
     // get new collection type
     unique_ptr<CollectionType> newCollType;
-    newCollType.reset(static_cast<CollectionType*>(const_cast<SetType*>(
-        TypeFactory::mapSetType(typeName2.c_str()))));
+    newCollType.reset(static_cast<CollectionType *>(const_cast<SetType *>(
+                          TypeFactory::mapSetType(typeName2.c_str()))));
 
     if (newCollType)
     {
@@ -194,8 +194,8 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
                 throw parseInfo;
             }
 
-            const CollectionType* existingCollType = coll->getCollectionType();
-            const MDDType* existingMDDType = existingCollType->getMDDType();
+            const CollectionType *existingCollType = coll->getCollectionType();
+            const MDDType *existingMDDType = existingCollType->getMDDType();
             if (!newCollType->compatibleWith(existingMDDType))
             {
                 LERROR << "New collection type is incompatible with the existing collection type.";
@@ -205,7 +205,7 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
 
             coll->setCollectionType(newCollType.get());
         }
-        catch (r_Error& obj)
+        catch (r_Error &obj)
         {
             parseInfo.setErrorNo(955);
             throw parseInfo;
@@ -219,11 +219,11 @@ void QtCommand::alterCollection(const QtCollection& collection2, string typeName
     }
 }
 
-string QtCommand::getSelectedDataType(vector<QtData*>* data)
+string QtCommand::getSelectedDataType(vector<QtData *> *data)
 {
-    char* typestr       = NULL;
-    QtData* firstResult = NULL;
-    vector<QtData*>::iterator dataIter = data->begin();
+    char *typestr       = NULL;
+    QtData *firstResult = NULL;
+    vector<QtData *>::iterator dataIter = data->begin();
 
     if (data->size() > 0)
     {
@@ -240,16 +240,16 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
 
     LTRACE << "getSelectedDataType() - type structure of the SELECT sub-query results: " << typestr;
 
-    MDDType* mddType = NULL;
-    SetType* setType = NULL;
+    MDDType *mddType = NULL;
+    SetType *setType = NULL;
 
     string setTypeName = tmpSetTypePrefix + collection.getCollectionName();
     string mddTypeName = tmpMddTypePrefix + collection.getCollectionName();
 
     if (firstResult->getDataType() == QT_MDD)
     {
-        QtMDD* mddObj = static_cast<QtMDD*>(firstResult);
-        const BaseType* baseType = mddObj->getCellType();
+        QtMDD *mddObj = static_cast<QtMDD *>(firstResult);
+        const BaseType *baseType = mddObj->getCellType();
         const r_Minterval domain = mddObj->getLoadDomain();
 
         // create new domain; use *:* for all dimensions, to be general
@@ -277,16 +277,16 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     return string(setTypeName);
 }
 
-void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& collection2)
+void QtCommand::insertIntoCollection(vector<QtData *> *data, const QtCollection &collection2)
 {
-    vector<QtData*>::iterator it;
+    vector<QtData *>::iterator it;
     for (it = data->begin(); it != data->end(); it++)
     {
-        QtData* elemToInsert = *it;
-        QtInsert* insertNode = new QtInsert(collection2.getCollectionName(), elemToInsert);
+        QtData *elemToInsert = *it;
+        QtInsert *insertNode = new QtInsert(collection2.getCollectionName(), elemToInsert);
 
-        QueryTree* query = new QueryTree(insertNode);
-        vector<QtData*>* updateResult;
+        QueryTree *query = new QueryTree(insertNode);
+        vector<QtData *> *updateResult;
         try
         {
             LINFO << "inserting into new collection...";
@@ -295,9 +295,9 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
             LINFO << "evaluating update...";
             updateResult = query->evaluateUpdate();
             LINFO << "done.";
-            if(updateResult != NULL)
+            if (updateResult != NULL)
             {
-                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                for (vector<QtData *>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
                 {
                     delete *iter;
                     *iter = NULL;
@@ -308,11 +308,11 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
             delete query;
             query = NULL;
         }
-        catch (r_Error& myErr)
+        catch (r_Error &myErr)
         {
-            if(updateResult != NULL)
+            if (updateResult != NULL)
             {
-                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                for (vector<QtData *>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
                 {
                     delete *iter;
                     *iter = NULL;
@@ -327,9 +327,9 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
         }
         catch (...)
         {
-            if(updateResult != NULL)
+            if (updateResult != NULL)
             {
-                for(vector<QtData*>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
+                for (vector<QtData *>::iterator iter = updateResult->begin(); iter != updateResult->end(); iter++)
                 {
                     delete *iter;
                     *iter = NULL;
@@ -345,11 +345,11 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, const QtCollection& 
     }
 }
 
-bool QtCommand::collectionExists(const QtCollection& collection2)
+bool QtCommand::collectionExists(const QtCollection &collection2)
 {
     try
     {
-        MDDColl* coll = MDDColl::getMDDCollection(collection2.getCollectionName().c_str());
+        MDDColl *coll = MDDColl::getMDDCollection(collection2.getCollectionName().c_str());
         if (coll)
         {
             delete coll;
@@ -361,13 +361,13 @@ bool QtCommand::collectionExists(const QtCollection& collection2)
             return false;
         }
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         return false; // collection not found
     }
 }
 
-QtData*
+QtData *
 QtCommand::evaluate()
 {
     startTimer("QtCommand");
@@ -393,9 +393,9 @@ QtCommand::evaluate()
             /*
              * 1/4: Evaluate SELECT sub-query: construct a new query tree and execute it to get the results.
              */
-            QueryTree* selectTree = new QueryTree(childNode);
+            QueryTree *selectTree = new QueryTree(childNode);
 
-            vector<QtData*>* data = NULL;
+            vector<QtData *> *data = NULL;
             try
             {
                 LINFO << "evaluating select sub-query...";
@@ -406,7 +406,7 @@ QtCommand::evaluate()
                 LINFO << "done.";
                 delete selectTree;
             }
-            catch (r_Error& myErr)
+            catch (r_Error &myErr)
             {
                 delete selectTree;
                 LERROR << "Error: bad exception while evaluating insert sub-query: " << myErr.what();
@@ -454,12 +454,12 @@ QtCommand::evaluate()
             insertIntoCollection(data, collection);
             LTRACE << "evaluate() - data successfully inserted into collection " << collection.getCollectionName();
         }
-        catch (r_Ebase_dbms& myErr)
+        catch (r_Ebase_dbms &myErr)
         {
             LERROR << "Error: base DBMS exception: " << myErr.what();
             throw;
         }
-        catch (r_Error& myErr)
+        catch (r_Error &myErr)
         {
             LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
             throw;
@@ -469,7 +469,7 @@ QtCommand::evaluate()
             LERROR << "Error: cannot allocate memory.";
             throw;
         }
-        catch (ParseInfo& e)
+        catch (ParseInfo &e)
         {
             LERROR << "Error: ";
             e.printStatus(RMInit::logOut);
@@ -492,7 +492,7 @@ QtCommand::evaluate()
 
 
 void
-QtCommand::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
+QtCommand::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCommand Object" << std::endl;
 
@@ -519,7 +519,7 @@ QtCommand::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildTy
 
 
 void
-QtCommand::printAlgebraicExpression(std::ostream& s)
+QtCommand::printAlgebraicExpression(std::ostream &s)
 {
     s << "command<";
 

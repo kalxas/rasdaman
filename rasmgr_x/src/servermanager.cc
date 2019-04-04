@@ -74,7 +74,7 @@ using std::list;
 using common::UUID;
 
 
-ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
+ServerManager::ServerManager(const ServerManagerConfig &config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
     : serverGroupFactory(serverGroupFactory), config(config)
 {
     this->isWorkerThreadRunning = true;
@@ -94,7 +94,7 @@ ServerManager::~ServerManager()
 
         this->workerCleanup->join();
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "ServerManager destructor failed: " << ex.what();
     }
@@ -104,7 +104,7 @@ ServerManager::~ServerManager()
     }
 }
 
-bool ServerManager::tryGetFreeServer(const std::string& databaseName, boost::shared_ptr<Server>& out_server)
+bool ServerManager::tryGetFreeServer(const std::string &databaseName, boost::shared_ptr<Server> &out_server)
 {
     bool success = false;
 
@@ -123,7 +123,7 @@ bool ServerManager::tryGetFreeServer(const std::string& databaseName, boost::sha
 }
 
 
-void ServerManager::registerServer(const string& serverId)
+void ServerManager::registerServer(const string &serverId)
 {
     bool registered = false;
 
@@ -144,7 +144,7 @@ void ServerManager::registerServer(const string& serverId)
     }
 }
 
-void ServerManager::defineServerGroup(const ServerGroupConfigProto& serverGroupConfig)
+void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupConfig)
 {
     unique_lock<shared_mutex> lock(this->serverGroupMutex);
 
@@ -159,7 +159,7 @@ void ServerManager::defineServerGroup(const ServerGroupConfigProto& serverGroupC
     this->serverGroupList.push_back(this->serverGroupFactory->createServerGroup(serverGroupConfig));
 }
 
-void ServerManager::changeServerGroup(const std::string& oldServerGroupName, const ServerGroupConfigProto& newServerGroupConfig)
+void ServerManager::changeServerGroup(const std::string &oldServerGroupName, const ServerGroupConfigProto &newServerGroupConfig)
 {
     bool changed = false;
 
@@ -189,7 +189,7 @@ void ServerManager::changeServerGroup(const std::string& oldServerGroupName, con
     }
 }
 
-void ServerManager::removeServerGroup(const std::string& serverGroupName)
+void ServerManager::removeServerGroup(const std::string &serverGroupName)
 {
     bool removed = false;
 
@@ -218,7 +218,7 @@ void ServerManager::removeServerGroup(const std::string& serverGroupName)
     }
 }
 
-void ServerManager::startServerGroup(const StartServerGroup& startGroup)
+void ServerManager::startServerGroup(const StartServerGroup &startGroup)
 {
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
 
@@ -280,7 +280,7 @@ void ServerManager::startServerGroup(const StartServerGroup& startGroup)
     }
 }
 
-void ServerManager::stopServerGroup(const StopServerGroup& stopGroup)
+void ServerManager::stopServerGroup(const StopServerGroup &stopGroup)
 {
     list<shared_ptr<ServerGroup>>::iterator it;
     shared_lock<shared_mutex> lockMutexGroups(this->serverGroupMutex);
@@ -394,7 +394,7 @@ void ServerManager::workerCleanupRunner()
                 this->evaluateServerGroups();
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << ex.what();
         }
@@ -422,7 +422,7 @@ void ServerManager::evaluateServerGroups()
             {
                 (*it)->evaluateServerGroup();
             }
-            catch (std::exception& e)
+            catch (std::exception &e)
             {
                 LERROR << "Could not evaluate server in group: " << e.what();
             }

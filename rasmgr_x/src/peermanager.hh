@@ -53,28 +53,28 @@ public:
      * @param peerHostName The name of the host on which the peer is running
      * @throws An exception is thrown if an InPeer with the same name exists
      */
-    virtual void defineInPeer(const std::string& peerHostName);
+    virtual void defineInPeer(const std::string &peerHostName);
 
     /**
      * Remove the InPeer with the given host name from the list of InPeers.
      * @param peerHostName Name of the host on which the rasmgr is running
      * @throws An exception is thrown if there is no InPeer with the given host.
      */
-    virtual void removeInPeer(const std::string& peerHostName);
+    virtual void removeInPeer(const std::string &peerHostName);
 
     /**
      * @brief defineInPeer Create a new InPeer and insert it into the list of InPeers if a InPeer with the same time doesn't exist.
      * @param peerHostName The name of the host on which the peer is running
      * @throws An exception is thrown if an InPeer with the same name exists
      */
-    virtual void defineOutPeer(const std::string& peerHostName, const boost::uint32_t port);
+    virtual void defineOutPeer(const std::string &peerHostName, const boost::uint32_t port);
 
     /**
      * Remove the OutPeer with the given host name from the list of OutPeers.
      * @param peerHostName Name of the host on which the rasmgr is running
      * @throws An exception is thrown if there is no OutPeer with the given host.
      */
-    virtual void removeOutPeer(const std::string& peerHostName);
+    virtual void removeOutPeer(const std::string &peerHostName);
 
     /**
      * @brief tryGetRemoteServer Try to acquire a remote server for a client.
@@ -82,21 +82,21 @@ public:
      * @param out_reply Struct containing information identifying the connection
      * @return TRUE if a server was found, FALSE otherwise.
      */
-    virtual bool tryGetRemoteServer(const ClientServerRequest& request,
-                                    ClientServerSession& out_reply);
+    virtual bool tryGetRemoteServer(const ClientServerRequest &request,
+                                    ClientServerSession &out_reply);
 
     /**
      * @brief isRemoteClientSession Check if this is a remote client session.
      * @param clientSession
      * @return TRUE if we have a remote client session, FALSE otherwise
      */
-    virtual bool isRemoteClientSession(const RemoteClientSession& clientSession);
+    virtual bool isRemoteClientSession(const RemoteClientSession &clientSession);
 
     /**
      * @brief releaseServer Release the acquired server.
      * @param clientSession
      */
-    virtual void releaseServer(const RemoteClientSession& clientSession);
+    virtual void releaseServer(const RemoteClientSession &clientSession);
 
     /**
      * @brief serializeToProto Serialize the data contained by this object
@@ -120,7 +120,7 @@ private:
      * @param clientSession
      * @return
      */
-    std::string remoteClientSessionToString(const RemoteClientSession& clientSession);
+    std::string remoteClientSessionToString(const RemoteClientSession &clientSession);
 };
 }
 

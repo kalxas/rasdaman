@@ -39,27 +39,27 @@ static const char rcsid[] = "@(#)catalogif,ShortType: $Header: /home/rasdev/CVS-
 #include <limits.h>
 #include <string.h>
 
-ShortType::ShortType(const OId& id)
-	:IntegralType(id)
-	{
-	readFromDb();
-	}
+ShortType::ShortType(const OId &id)
+    : IntegralType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: ShortType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 ShortType.
  ************************************************************/
 
 ShortType::ShortType()
-	:	IntegralType(ShortType::Name, 2)
-	{
-	myType = SHORT;
-	myOId = OId(SHORT, OId::ATOMICTYPEOID);
-	}
+    :   IntegralType(ShortType::Name, 2)
+{
+    myType = SHORT;
+    myOId = OId(SHORT, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: ShortType(const ShortType& old);
@@ -69,10 +69,10 @@ ShortType::ShortType()
  * Description...: copy constructor
  ************************************************************/
 
-ShortType::ShortType(const ShortType& old)
-	:	IntegralType(old)
-	{
-	}
+ShortType::ShortType(const ShortType &old)
+    :   IntegralType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const ShortType&);
@@ -82,14 +82,16 @@ ShortType::ShortType(const ShortType& old)
  * Description...: copy constructor
  ************************************************************/
 
-ShortType& ShortType::operator=(const ShortType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+ShortType &ShortType::operator=(const ShortType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~ShortType();
@@ -104,50 +106,50 @@ ShortType::~ShortType()
 }
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Short is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-ShortType::printCell( ostream& stream, const char* cell ) const
+void
+ShortType::printCell(ostream &stream, const char *cell) const
 {
-  stream << std::setw(5) << *(short*)const_cast<char*>(cell);
+    stream << std::setw(5) << *(short *)const_cast<char *>(cell);
 }
 
-r_Long*
-ShortType::convertToCLong(const char* cell, r_Long* value) const
+r_Long *
+ShortType::convertToCLong(const char *cell, r_Long *value) const
 {
-  *value = *(short*)const_cast<char*>(cell);
-  return value;
+    *value = *(short *)const_cast<char *>(cell);
+    return value;
 }
 
 
-char* 
-ShortType::makeFromCLong(char* cell, const r_Long* value) const
+char *
+ShortType::makeFromCLong(char *cell, const r_Long *value) const
 {
-  r_Long myLong = *value;
-  // restricting long to value range of short
-  myLong = myLong > SHRT_MAX ? SHRT_MAX : myLong;
-  myLong = myLong < SHRT_MIN ? SHRT_MIN : myLong;
-  // !!!! HP specific, assumes 2 Byte short
-  *(short*)(cell) = (short)myLong;
-  return cell;
+    r_Long myLong = *value;
+    // restricting long to value range of short
+    myLong = myLong > SHRT_MAX ? SHRT_MAX : myLong;
+    myLong = myLong < SHRT_MIN ? SHRT_MIN : myLong;
+    // !!!! HP specific, assumes 2 Byte short
+    *(short *)(cell) = (short)myLong;
+    return cell;
 }
 
 void
 ShortType::readFromDb()
-	{
-	setName(ShortType::Name);
-	myType = SHORT;
-	size = 2;
-	myOId = OId(SHORT, OId::ATOMICTYPEOID);
-	}
+{
+    setName(ShortType::Name);
+    myType = SHORT;
+    size = 2;
+    myOId = OId(SHORT, OId::ATOMICTYPEOID);
+}

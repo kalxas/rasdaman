@@ -56,7 +56,7 @@ using namespace blobfs;
 
 extern char globalConnectId[PATH_MAX];
 
-BlobFS& BlobFS::getInstance()
+BlobFS &BlobFS::getInstance()
 {
     static BlobFS instance;
     return instance;
@@ -69,7 +69,7 @@ BlobFS::BlobFS()
     init();
 }
 
-BlobFS::BlobFS(const string& rasdataPathParam)
+BlobFS::BlobFS(const string &rasdataPathParam)
     : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string("")),
       insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
 {
@@ -119,22 +119,22 @@ void BlobFS::validateFileStorageRootPath()
     }
 }
 
-void BlobFS::insert(BlobData& blob)
+void BlobFS::insert(BlobData &blob)
 {
     insertTransaction->add(blob);
 }
 
-void BlobFS::update(BlobData& blob)
+void BlobFS::update(BlobData &blob)
 {
     updateTransaction->add(blob);
 }
 
-void BlobFS::select(BlobData& blob)
+void BlobFS::select(BlobData &blob)
 {
     selectTransaction->add(blob);
 }
 
-void BlobFS::remove(BlobData& blob)
+void BlobFS::remove(BlobData &blob)
 {
     removeTransaction->add(blob);
 }
@@ -160,7 +160,7 @@ const string BlobFS::getFileStorageRootPath()
         throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTABSOLUTE));
     }
 
-    char* deprecatedPath = getenv("RASDATA");
+    char *deprecatedPath = getenv("RASDATA");
     if (deprecatedPath != NULL && strcmp(deprecatedPath, "") != 0 && strcmp(deprecatedPath, rootPath.c_str()) != 0)
     {
         LWARNING << "The filestorage root path was inferred to be '" << rootPath
@@ -174,7 +174,7 @@ const string BlobFS::getFileStorageRootPath()
     return DirWrapper::convertToCanonicalPath(rootPath);
 }
 
-void BlobFS::generateError(const char* message, const string& path, int errorCode)
+void BlobFS::generateError(const char *message, const string &path, int errorCode)
 {
     LERROR << "Error: " << message << " - " << path;
     LERROR << "Reason: " << strerror(errno);
@@ -223,7 +223,7 @@ void BlobFS::finalizeUncompletedTransactions()
                 if (!transactionLock.lockedForTransaction())
                 {
                     transactionLock.clearTransactionLock();
-                    BlobFSTransaction* transaction = BlobFSTransaction::getBlobFSTransaction(subdir, config);
+                    BlobFSTransaction *transaction = BlobFSTransaction::getBlobFSTransaction(subdir, config);
                     if (transaction != NULL)
                     {
                         NNLDEBUG << "transaction in invalid state discovered, recovering...";

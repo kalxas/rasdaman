@@ -47,7 +47,7 @@ class BlobData
 public:
     long long blobId;
     r_Bytes size;
-    char* data;
+    char *data;
 
     inline
     BlobData(long long blobIdArg)
@@ -56,7 +56,7 @@ public:
     }
 
     inline
-    BlobData(long long blobIdArg, r_Bytes sizeArg, char* dataArg)
+    BlobData(long long blobIdArg, r_Bytes sizeArg, char *dataArg)
         : blobId(blobIdArg), size(sizeArg), data(dataArg)
     {
     }
@@ -71,25 +71,25 @@ class BlobFile
 
 public:
 
-    BlobFile(const std::string& filePath);
+    BlobFile(const std::string &filePath);
     ~BlobFile();
 
     /**
      * Insert blob data, handling possible error conditions.
      */
-    void insertData(BlobData& blobData);
+    void insertData(BlobData &blobData);
 
     /**
      * Update blob data, handling possible error conditions.
      */
-    void updateData(BlobData& blobData);
+    void updateData(BlobData &blobData);
 
     /**
      * Read blob data, handling possible error conditions.
      * Data is directly read into blobData; blobData.data is allocated
      * automatically.
      */
-    void readData(BlobData& blobData);
+    void readData(BlobData &blobData);
 
     /**
      * Return the size (bytes) of filePath
@@ -106,11 +106,11 @@ public:
     /**
      * Return true if filePath exists
      */
-    static bool fileExists(const std::string& filePath);
+    static bool fileExists(const std::string &filePath);
 
-    static void moveFile(const std::string& fromFilePath, const std::string& toFilePath);
+    static void moveFile(const std::string &fromFilePath, const std::string &toFilePath);
 
-    static void removeFile(const std::string& filePath);
+    static void removeFile(const std::string &filePath);
 
 private:
 
@@ -127,9 +127,9 @@ private:
     /**
      * Helper for generating an exception.
      */
-    void generateError(const char* message, int errorCode);
+    void generateError(const char *message, int errorCode);
 
-    const std::string& filePath;
+    const std::string &filePath;
     int fd;
 
 };

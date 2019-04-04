@@ -55,7 +55,7 @@ static const char rcsid[] = "@(#)rasodmg, r_PolygonCutOut: $Id: polycutout.cc,v 
 
 #include <math.h>
 
-r_SegmentIterator::r_SegmentIterator(r_Point& s, r_Point& e)
+r_SegmentIterator::r_SegmentIterator(r_Point &s, r_Point &e)
 {
     start = s;
     end   = e;
@@ -165,7 +165,7 @@ int  r_SegmentIterator::cosFunc() // limited use,1000 * cos(alfa)
     return (1000 * ldx) / sqrt(num);
 }
 
-void r_SegmentIterator::swap(r_Range& x, r_Range& y)
+void r_SegmentIterator::swap(r_Range &x, r_Range &y)
 {
     r_Range temp = x;
     x = y;
@@ -228,7 +228,7 @@ r_Line::r_Line(double nA, double nB, double nC)
     c = nC;
 }
 
-r_Line::r_Line(r_Point& s, r_Point& e)
+r_Line::r_Line(r_Point &s, r_Point &e)
 {
     a = e[1] - s[1];
     b = s[0] - e[0];
@@ -248,12 +248,12 @@ double r_Line::getC()
     return c;
 }
 
-float r_Line::ecuatia(r_Point& p)
+float r_Line::ecuatia(r_Point &p)
 {
     return a * p[0] + b * p[1] + c;
 }
 
-ostream& operator<<(ostream& os, r_Line& l)
+ostream &operator<<(ostream &os, r_Line &l)
 {
     return os << "{L" << l.a << ',' << l.b << ',' << l.c << '}';
 }
@@ -279,7 +279,7 @@ r_PolygonCutOut::~r_PolygonCutOut()
     clearTables();
 }
 
-void r_PolygonCutOut::setMArray(r_GMarray& myArray)
+void r_PolygonCutOut::setMArray(r_GMarray &myArray)
 {
     mArray = &myArray;
 
@@ -293,7 +293,7 @@ void r_PolygonCutOut::setMArray(r_GMarray& myArray)
     imgHeight = currDomain[1].get_extent();
 }
 
-void r_PolygonCutOut::addPolygon(const r_Polygon& p)
+void r_PolygonCutOut::addPolygon(const r_Polygon &p)
 {
     polygons.push_back(p);
 }
@@ -314,9 +314,9 @@ bool r_PolygonCutOut::compute()
 
     for (unsigned int i = 0; i < polygons.size(); i++, polyIter++)
     {
-        r_Polygon& currPolygon = *polyIter;
+        r_Polygon &currPolygon = *polyIter;
 
-        const std::vector<r_Edge>& edges    = currPolygon.getEdges();
+        const std::vector<r_Edge> &edges    = currPolygon.getEdges();
         std::vector<r_Edge>::const_iterator edgeIterator = edges.begin();
 
         for (unsigned int j = 0; j < edges.size(); j++, edgeIterator++)
@@ -404,7 +404,7 @@ int r_PolygonCutOut::computeTableWidth()
 
     for (unsigned int i = 0; i < polygons.size(); i++, iter++)
     {
-        r_Polygon& polygon = *iter;
+        r_Polygon &polygon = *iter;
 
         nodes      += polygon.countEdges();
         horizEdges += polygon.countHorizontalEdges();
@@ -415,7 +415,7 @@ int r_PolygonCutOut::computeTableWidth()
 void r_PolygonCutOut::ordonateLine(int line)
 {
     int count = usedCount[line];
-    TablePoint* tLine = &getTP(line, 0);
+    TablePoint *tLine = &getTP(line, 0);
     bool change = false;
     do
     {
@@ -464,7 +464,7 @@ void r_PolygonCutOut::minimizeLine(int line)
     }
 
     int inside = 0;
-    TablePoint* tLine = &getTP(line, 0);
+    TablePoint *tLine = &getTP(line, 0);
 
     int level = 0;
     for (int i = 0; i < count - 1; i++)
@@ -611,9 +611,9 @@ int r_PolygonCutOut::computeInside(r_Point start, r_Point end)
 }
 
 
-r_PolygonCutOut::TablePoint& r_PolygonCutOut::getTP(r_Range line, r_Range column)
+r_PolygonCutOut::TablePoint &r_PolygonCutOut::getTP(r_Range line, r_Range column)
 {
-    TablePoint* tp = table + (line * tableWidth + column);
+    TablePoint *tp = table + (line * tableWidth + column);
     return *tp;
 }
 
@@ -644,7 +644,7 @@ void r_PolygonCutOut::print(r_Range onlyLine)
 void r_PolygonCutOut::printLine(r_Range line)
 {
     r_Range count = usedCount[line];
-    TablePoint* tp = &getTP(line, 0);
+    TablePoint *tp = &getTP(line, 0);
 
     std::cout << "line " << line << '(' << count << ") ";
     for (r_Range i = 0; i < count; i++)
@@ -667,7 +667,7 @@ void r_PolygonCutOut::printLine(r_Range line)
 void r_PolygonCutOut::addPoint(r_Range tableLine, r_Range coordX, int inside, int cosFunc)
 {
     r_Range which = usedCount[tableLine];
-    TablePoint* tp = &getTP(tableLine, which);
+    TablePoint *tp = &getTP(tableLine, which);
 
     tp->x       = coordX;
     tp->inside  = inside;
@@ -678,13 +678,13 @@ void r_PolygonCutOut::addPoint(r_Range tableLine, r_Range coordX, int inside, in
 void r_PolygonCutOut::replacePoint(r_Range tableLine, r_Range coordX, int inside, int cosFunc)
 {
     r_Range which = usedCount[tableLine] - 1;
-    TablePoint* tp = &getTP(tableLine, which);
+    TablePoint *tp = &getTP(tableLine, which);
     tp->x       = coordX;
     tp->inside  = inside;
     tp->cosFunc = cosFunc;
 }
 
-bool r_PolygonCutOut::TablePoint::operator==(r_PolygonCutOut::TablePoint& tp)
+bool r_PolygonCutOut::TablePoint::operator==(r_PolygonCutOut::TablePoint &tp)
 {
     return (x == tp.x && inside == tp.inside) ? true : false;
 }
@@ -692,7 +692,7 @@ bool r_PolygonCutOut::TablePoint::operator==(r_PolygonCutOut::TablePoint& tp)
 
 // debug only int lastline = -1;
 void
-r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr)
+r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string &bgr)
 {
     // can heapen if we are outside the domain of the array
     if (x2 < x1)
@@ -709,8 +709,8 @@ r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr)
     r_Minterval arrayDom = mArray->spatial_domain();
     r_Bytes typeSize = mArray->get_type_length();
     r_Bytes bgrSize = bgr.size();
-    const char* bgrContent = bgr.c_str();
-    char* currCell = NULL;
+    const char *bgrContent = bgr.c_str();
+    char *currCell = NULL;
 
 
     // Grrr. In RasDaMan the y are stored close together. So the whole fillPolygon
@@ -739,7 +739,7 @@ r_PolygonCutOut::eraseLine(r_Range x1, r_Range x2, r_Range y, const string& bgr)
 
 
 bool
-r_PolygonCutOut::fillMArrayOutside(const string& bgr)
+r_PolygonCutOut::fillMArrayOutside(const string &bgr)
 {
     if (compute() == false)
     {
@@ -764,7 +764,7 @@ r_PolygonCutOut::fillMArrayOutside(const string& bgr)
             continue;
         }
 
-        TablePoint* tp = &getTP(lineY, 0);
+        TablePoint *tp = &getTP(lineY, 0);
 
         r_Range xLeft  = imgMinX - 1;
         r_Range xRight = imgMaxX + 1;
@@ -834,7 +834,7 @@ r_PolygonCutOut::fillMArrayOutside(const string& bgr)
 */
 
 bool
-r_PolygonCutOut::fillMArrayInside(const string& bgr)
+r_PolygonCutOut::fillMArrayInside(const string &bgr)
 {
     if (compute() == false)
     {
@@ -858,7 +858,7 @@ r_PolygonCutOut::fillMArrayInside(const string& bgr)
             continue;
         }
 
-        TablePoint* tp = &getTP(lineY, 0);
+        TablePoint *tp = &getTP(lineY, 0);
 
         r_Range xLeft  = imgMinX;
         r_Range xRight = imgMaxX;

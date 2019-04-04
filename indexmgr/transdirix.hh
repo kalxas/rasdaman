@@ -64,9 +64,9 @@ public:
     {\tt dim}.
     */
 
-    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
-    void insertObject(const KeyObject& newKeyObject, unsigned int pos);
+    void insertObject(const KeyObject &newKeyObject, unsigned int pos);
     /*@Doc:
     Inserts a new tile in the index at position {\tt pos}, which must be
     between 0 and {\tt getNumberElems()} (that is, {\tt pos } is
@@ -76,13 +76,13 @@ public:
     must be transient (of type TransKeyObject). The current domain is updated.
     */
 
-    virtual void setObject(const KeyObject& theKey, unsigned int pos);
+    virtual void setObject(const KeyObject &theKey, unsigned int pos);
 
-    virtual void setObjectDomain(const r_Minterval& dom, unsigned int pos);
+    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
 
     bool removeObject(unsigned int pos);
 
-    bool removeObject(const KeyObject& theKey);
+    bool removeObject(const KeyObject &theKey);
 
     virtual bool isValid() const;
 
@@ -90,15 +90,15 @@ public:
 
     virtual bool isOverFull() const;
 
-    virtual bool isSameAs(const IndexDS* pix) const;
+    virtual bool isSameAs(const IndexDS *pix) const;
 
-    const KeyObject& getObject(unsigned int pos) const;
+    const KeyObject &getObject(unsigned int pos) const;
 
     r_Minterval getObjectDomain(unsigned int pos) const;
 
-    DomainPVector* getObjectDomains() const;
+    DomainPVector *getObjectDomains() const;
 
-    void getObjects(KeyObjectVector&) const;
+    void getObjects(KeyObjectVector &) const;
 
     r_Minterval getCoveredDomain() const;
 
@@ -106,7 +106,7 @@ public:
 
     r_Dimension getDimension() const;
 
-    void setAssignedDomain(const r_Minterval& domain);
+    void setAssignedDomain(const r_Minterval &domain);
 
     unsigned int getSize() const;
 
@@ -128,7 +128,7 @@ public:
 
     virtual OId::OIdPrimitive getIdentifier() const;
 
-    virtual IndexDS* getNewInstance() const;
+    virtual IndexDS *getNewInstance() const;
 private:
 
     r_Minterval currDomain;

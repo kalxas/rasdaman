@@ -36,13 +36,13 @@ r_Collection_Type::r_Collection_Type()
 {
 }
 
-r_Collection_Type::r_Collection_Type(r_Type& newElementType)
+r_Collection_Type::r_Collection_Type(r_Type &newElementType)
     :   r_Type(),
         elementType(newElementType.clone())
 {
 }
 
-r_Collection_Type::r_Collection_Type(const r_Collection_Type& oldObj)
+r_Collection_Type::r_Collection_Type(const r_Collection_Type &oldObj)
     :   r_Type(oldObj),
         elementType(NULL)
 {
@@ -63,8 +63,8 @@ r_Collection_Type::isCollectionType() const
     return true;
 }
 
-const r_Collection_Type&
-r_Collection_Type::operator=(const r_Collection_Type& oldObj)
+const r_Collection_Type &
+r_Collection_Type::operator=(const r_Collection_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -87,7 +87,7 @@ r_Collection_Type::operator=(const r_Collection_Type& oldObj)
     return *this;
 }
 
-const r_Type&
+const r_Type &
 r_Collection_Type::element_type() const
 {
     if (elementType == NULL)
@@ -98,7 +98,7 @@ r_Collection_Type::element_type() const
     return *elementType;
 }
 
-r_Type*
+r_Type *
 r_Collection_Type::clone() const
 {
     return new r_Collection_Type(*this);
@@ -117,17 +117,17 @@ r_Collection_Type::type_id() const
 }
 
 void
-r_Collection_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Collection_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Collection_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Collection_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Collection_Type::print_status(std::ostream& s) const
+r_Collection_Type::print_status(std::ostream &s) const
 {
     s << "set< ";
     elementType->print_status(s);
@@ -145,7 +145,7 @@ r_Collection_Type::~r_Collection_Type()
     elementType = NULL;
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Collection_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Collection_Type &type)
 {
     type.print_status(str);
     return str;

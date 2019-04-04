@@ -36,7 +36,7 @@
 #include "raslib/error.hh"
 
 // used by DirWrapper::removeDirectory
-int removePath(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf);
+int removePath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
 
 namespace blobfs
 {
@@ -49,20 +49,20 @@ class DirWrapper
 public:
 
     // Create a directory at dirPath; ignore if directory already exists
-    static void createDirectory(const std::string& dirPath);
+    static void createDirectory(const std::string &dirPath);
 
     // Remove a directory at dirPath recursively, including all content
     // files/subdirs; print warning in case of error
-    static void removeDirectory(const std::string& dirPath);
+    static void removeDirectory(const std::string &dirPath);
 
     // Append final '/' to dirPath if necessary
-    static std::string convertToCanonicalPath(const std::string& dirPath);
+    static std::string convertToCanonicalPath(const std::string &dirPath);
 
     // Remove final '/' from dirPath if necessary
-    static std::string convertFromCanonicalPath(const std::string& dirPath);
+    static std::string convertFromCanonicalPath(const std::string &dirPath);
 
     // /path/to/dir/file -> /path/to/dir
-    static std::string getBasename(const std::string& filePath);
+    static std::string getBasename(const std::string &filePath);
 };
 
 /**
@@ -76,7 +76,7 @@ public:
      * Initialize with root directory path; if filesOnly is true then next()
      * will return only files, otherwise only directories.
      */
-    DirEntryIterator(const std::string& dirPath, bool filesOnly = false);
+    DirEntryIterator(const std::string &dirPath, bool filesOnly = false);
 
     /**
      * Makes sure to close() if necessary
@@ -102,8 +102,8 @@ private:
 
     std::string dirPath;
     bool filesOnly;
-    DIR* dirStream;
-    struct dirent* dirEntry;
+    DIR *dirStream;
+    struct dirent *dirEntry;
 };
 
 }

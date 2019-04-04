@@ -46,12 +46,12 @@ public:
      * @param typeName - name of the new type
      * @param typeAttributes - list of type attributes (where a type attribute has the form <name> <base_type>
      */
-    QtCreateCellType(const std::string& typeName, QtNode::QtOperationList* typeAttributes);
+    QtCreateCellType(const std::string &typeName, QtNode::QtOperationList *typeAttributes);
 
-    virtual QtData* evaluate();
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual QtData *evaluate();
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
     virtual void checkType();
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     virtual QtNodeType getNodeType() const;
 
@@ -60,7 +60,7 @@ private:
     static const QtNodeType nodeType;
 
     std::string typeName;
-    QtNode::QtOperationList* typeAttributes;
+    QtNode::QtOperationList *typeAttributes;
 };
 
 #endif // QTCREATECELLTYPE_HH

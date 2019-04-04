@@ -39,7 +39,7 @@
 namespace rascontrol
 {
 
-UserCredentials::UserCredentials(const std::string& userNameArg, const std::string& userPasswordArg):
+UserCredentials::UserCredentials(const std::string &userNameArg, const std::string &userPasswordArg):
     userName(userNameArg)
 {
     this->userPassword = common::Crypto::messageDigest(userPasswordArg, DEFAULT_DIGEST);
@@ -61,7 +61,7 @@ void UserCredentials::interactiveLogin()
     //TODO:Ticket #997 remove getpass from the code
     //TODO:Ticket #998 make it possible to choose the encryption algorithm
 
-    char* plainPass = getpass("  Password: ");
+    char *plainPass = getpass("  Password: ");
     std::string clearTextPass(plainPass);
     this->userPassword = common::Crypto::messageDigest(clearTextPass, DEFAULT_DIGEST);
 
@@ -79,7 +79,7 @@ void UserCredentials::environmentLogin()
     char auxUserName[rascontrol::MAX_USERNAME_LENGTH];
     unsigned int i;
 
-    char* s = getenv(RASLOGIN.c_str());
+    char *s = getenv(RASLOGIN.c_str());
 
     if (s == NULL)
     {

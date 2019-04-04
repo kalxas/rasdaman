@@ -46,9 +46,9 @@ rasdaman GmbH.
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
 
-DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
+DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     : DBNamedObject(id, name),
-      collType(const_cast<CollectionType*>(type))
+      collType(const_cast<CollectionType *>(type))
 {
     if (name == NULL)
     {
@@ -66,12 +66,12 @@ DBMDDSet::DBMDDSet(const char* name, const OId& id, const CollectionType* type)
         LTRACE << "DBMDDSet(" << name << ", " << type->getName() << " not persistent)";
         throw t;
     }
-    DBMDDSet* set = NULL;
+    DBMDDSet *set = NULL;
     try
     {
-        set = (DBMDDSet*) ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName());
+        set = (DBMDDSet *) ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName());
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
         {
@@ -153,7 +153,7 @@ DBMDDSet::readFromDb()
     long long mddoid2;
     long long mddcolloid2;
     long long colltypeoid2;
-    char* collname2 = NULL;
+    char *collname2 = NULL;
 
     mddcolloid2 = myOId.getCounter();
 
@@ -182,7 +182,7 @@ DBMDDSet::readFromDb()
         free(collname2);
         collname2 = NULL;
     }
-    collType = (CollectionType*) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
+    collType = (CollectionType *) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
 
     SQLiteQuery cquery("SELECT MDDId FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = %lld ORDER BY MDDId", mddcolloid2);
     while (cquery.nextRow())

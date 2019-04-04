@@ -34,11 +34,11 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtAbs::nodeType = QtNode::QT_ABS;
 
-QtAbs::QtAbs(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtAbs::evaluate(QtDataList* inputList)
+QtAbs::QtAbs(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtAbs::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -60,13 +60,13 @@ QtData* QtAbs::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtAbs::printTree(int tab, ostream& s, QtChildType mode)
+void QtAbs::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAbsObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-void QtAbs::printAlgebraicExpression(ostream& s)
+void QtAbs::printAlgebraicExpression(ostream &s)
 {
     s << "abs(";
     if (input)
@@ -80,36 +80,36 @@ void QtAbs::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtAbs::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ABS, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ABS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtAbs::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ABS, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ABS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtAbs::checkType() - operand type is not supported.";
@@ -135,11 +135,11 @@ const QtTypeElement& QtAbs::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtSqrt::nodeType = QtNode::QT_SQRT;
 
-QtSqrt::QtSqrt(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtSqrt::evaluate(QtDataList* inputList)
+QtSqrt::QtSqrt(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtSqrt::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -161,12 +161,12 @@ QtData* QtSqrt::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtSqrt::printTree(int tab, ostream& s, QtChildType mode)
+void QtSqrt::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSqrtObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtSqrt::printAlgebraicExpression(ostream& s)
+void QtSqrt::printAlgebraicExpression(ostream &s)
 {
     s << "sqrt(";
     if (input)
@@ -180,36 +180,36 @@ void QtSqrt::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtSqrt::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SQRT, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SQRT, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSqrt::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SQRT, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SQRT, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSqrt::checkType() - operand type is not supported.";
@@ -235,11 +235,11 @@ const QtTypeElement& QtSqrt::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtExp::nodeType = QtNode::QT_EXP;
 
-QtExp::QtExp(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtExp::evaluate(QtDataList* inputList)
+QtExp::QtExp(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtExp::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -261,12 +261,12 @@ QtData* QtExp::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtExp::printTree(int tab, ostream& s, QtChildType mode)
+void QtExp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtExpObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtExp::printAlgebraicExpression(ostream& s)
+void QtExp::printAlgebraicExpression(ostream &s)
 {
     s << "exp(";
     if (input)
@@ -280,36 +280,36 @@ void QtExp::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtExp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_EXP, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_EXP, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtExp::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_EXP, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_EXP, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtExp::checkType() - operand type is not supported.";
@@ -335,15 +335,15 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtPow::nodeType = QtNode::QT_POW;
 
-QtPow::QtPow(QtOperation* initInput, double newExponent): QtUnaryInduce(initInput),
+QtPow::QtPow(QtOperation *initInput, double newExponent): QtUnaryInduce(initInput),
     exponent(newExponent)
 {
 }
 
-QtData* QtPow::evaluate(QtDataList* inputList)
+QtData *QtPow::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -365,13 +365,13 @@ QtData* QtPow::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtPow::printTree(int tab, ostream& s, QtChildType mode)
+void QtPow::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtPowObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-void QtPow::printAlgebraicExpression(ostream& s)
+void QtPow::printAlgebraicExpression(ostream &s)
 {
     s << "pow(";
     if (input)
@@ -385,36 +385,36 @@ void QtPow::printAlgebraicExpression(ostream& s)
     s << ", " << exponent << ")";
 }
 
-const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtPow::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtPow::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_POW, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_POW, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtPow::checkType() - operand type is not supported.";
@@ -440,11 +440,11 @@ const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtLog::nodeType = QtNode::QT_LOG;
 
-QtLog::QtLog(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtLog::evaluate(QtDataList* inputList)
+QtLog::QtLog(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtLog::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -466,12 +466,12 @@ QtData* QtLog::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtLog::printTree(int tab, ostream& s, QtChildType mode)
+void QtLog::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtLogObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtLog::printAlgebraicExpression(ostream& s)
+void QtLog::printAlgebraicExpression(ostream &s)
 {
     s << "log(";
     if (input)
@@ -485,36 +485,36 @@ void QtLog::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtLog::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LOG, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_LOG, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLog::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LOG, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_LOG, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLog::checkType() - operand type is not supported.";
@@ -540,11 +540,11 @@ const QtTypeElement& QtLog::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtLn::nodeType = QtNode::QT_LN;
 
-QtLn::QtLn(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtLn::evaluate(QtDataList* inputList)
+QtLn::QtLn(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtLn::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -566,12 +566,12 @@ QtData* QtLn::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtLn::printTree(int tab, ostream& s, QtChildType mode)
+void QtLn::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtLnObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtLn::printAlgebraicExpression(ostream& s)
+void QtLn::printAlgebraicExpression(ostream &s)
 {
     s << "ln(";
     if (input)
@@ -585,36 +585,36 @@ void QtLn::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtLn::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LN, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_LN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLn::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_LN, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_LN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtLn::checkType() - operand type is not supported.";
@@ -640,11 +640,11 @@ const QtTypeElement& QtLn::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtSin::nodeType = QtNode::QT_SIN;
 
-QtSin::QtSin(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtSin::evaluate(QtDataList* inputList)
+QtSin::QtSin(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtSin::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -666,12 +666,12 @@ QtData* QtSin::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtSin::printTree(int tab, ostream& s, QtChildType mode)
+void QtSin::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSinObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtSin::printAlgebraicExpression(ostream& s)
+void QtSin::printAlgebraicExpression(ostream &s)
 {
     s << "sin(";
     if (input)
@@ -685,36 +685,36 @@ void QtSin::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtSin::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SIN, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SIN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSin::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SIN, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SIN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSin::checkType() - operand type is not supported.";
@@ -740,11 +740,11 @@ const QtTypeElement& QtSin::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtCos::nodeType = QtNode::QT_COS;
 
-QtCos::QtCos(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtCos::evaluate(QtDataList* inputList)
+QtCos::QtCos(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtCos::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -766,12 +766,12 @@ QtData* QtCos::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtCos::printTree(int tab, ostream& s, QtChildType mode)
+void QtCos::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCosObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtCos::printAlgebraicExpression(ostream& s)
+void QtCos::printAlgebraicExpression(ostream &s)
 {
     s << "cos(";
     if (input)
@@ -785,36 +785,36 @@ void QtCos::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtCos::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COS, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_COS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCos::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COS, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_COS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCos::checkType() - operand type is not supported.";
@@ -840,11 +840,11 @@ const QtTypeElement& QtCos::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtTan::nodeType = QtNode::QT_TAN;
 
-QtTan::QtTan(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtTan::evaluate(QtDataList* inputList)
+QtTan::QtTan(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtTan::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -866,12 +866,12 @@ QtData* QtTan::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtTan::printTree(int tab, ostream& s, QtChildType mode)
+void QtTan::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtTanObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtTan::printAlgebraicExpression(ostream& s)
+void QtTan::printAlgebraicExpression(ostream &s)
 {
     s << "tan(";
     if (input)
@@ -885,36 +885,36 @@ void QtTan::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtTan::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TAN, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_TAN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTan::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TAN, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_TAN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTan::checkType() - operand type is not supported.";
@@ -940,11 +940,11 @@ const QtTypeElement& QtTan::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtSinh::nodeType = QtNode::QT_SINH;
 
-QtSinh::QtSinh(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtSinh::evaluate(QtDataList* inputList)
+QtSinh::QtSinh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtSinh::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -966,12 +966,12 @@ QtData* QtSinh::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtSinh::printTree(int tab, ostream& s, QtChildType mode)
+void QtSinh::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSinhObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtSinh::printAlgebraicExpression(ostream& s)
+void QtSinh::printAlgebraicExpression(ostream &s)
 {
     s << "sinh(";
     if (input)
@@ -985,36 +985,36 @@ void QtSinh::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtSinh::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SINH, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SINH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSinh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_SINH, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_SINH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtSinh::checkType() - operand type is not supported.";
@@ -1040,11 +1040,11 @@ const QtTypeElement& QtSinh::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtCosh::nodeType = QtNode::QT_COSH;
 
-QtCosh::QtCosh(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtCosh::evaluate(QtDataList* inputList)
+QtCosh::QtCosh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtCosh::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -1066,12 +1066,12 @@ QtData* QtCosh::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtCosh::printTree(int tab, ostream& s, QtChildType mode)
+void QtCosh::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCoshObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtCosh::printAlgebraicExpression(ostream& s)
+void QtCosh::printAlgebraicExpression(ostream &s)
 {
     s << "cosh(";
     if (input)
@@ -1085,36 +1085,36 @@ void QtCosh::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtCosh::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COSH, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_COSH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCosh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_COSH, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_COSH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtCosh::checkType() - operand type is not supported.";
@@ -1140,11 +1140,11 @@ const QtTypeElement& QtCosh::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtTanh::nodeType = QtNode::QT_TANH;
 
-QtTanh::QtTanh(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtTanh::evaluate(QtDataList* inputList)
+QtTanh::QtTanh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtTanh::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -1166,12 +1166,12 @@ QtData* QtTanh::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtTanh::printTree(int tab, ostream& s, QtChildType mode)
+void QtTanh::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtTanhObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtTanh::printAlgebraicExpression(ostream& s)
+void QtTanh::printAlgebraicExpression(ostream &s)
 {
     s << "tanh(";
     if (input)
@@ -1185,36 +1185,36 @@ void QtTanh::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtTanh::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TANH, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_TANH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTanh::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_TANH, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_TANH, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtTanh::checkType() - operand type is not supported.";
@@ -1240,11 +1240,11 @@ const QtTypeElement& QtTanh::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtArcsin::nodeType = QtNode::QT_ARCSIN;
 
-QtArcsin::QtArcsin(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtArcsin::evaluate(QtDataList* inputList)
+QtArcsin::QtArcsin(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtArcsin::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -1266,12 +1266,12 @@ QtData* QtArcsin::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtArcsin::printTree(int tab, ostream& s, QtChildType mode)
+void QtArcsin::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtArcsinObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtArcsin::printAlgebraicExpression(ostream& s)
+void QtArcsin::printAlgebraicExpression(ostream &s)
 {
     s << "arcsin(";
     if (input)
@@ -1285,36 +1285,36 @@ void QtArcsin::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtArcsin::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArcsin::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCSIN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArcsin::checkType() - operand type is not supported.";
@@ -1339,11 +1339,11 @@ const QtTypeElement& QtArcsin::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtArccos::nodeType = QtNode::QT_ARCCOS;
 
-QtArccos::QtArccos(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtArccos::evaluate(QtDataList* inputList)
+QtArccos::QtArccos(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtArccos::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -1365,12 +1365,12 @@ QtData* QtArccos::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtArccos::printTree(int tab, ostream& s, QtChildType mode)
+void QtArccos::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtArccosObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtArccos::printAlgebraicExpression(ostream& s)
+void QtArccos::printAlgebraicExpression(ostream &s)
 {
     s << "arccos(";
     if (input)
@@ -1384,36 +1384,36 @@ void QtArccos::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtArccos::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArccos::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCCOS, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArccos::checkType() - operand type is not supported.";
@@ -1438,11 +1438,11 @@ const QtTypeElement& QtArccos::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtArctan::nodeType = QtNode::QT_ARCTAN;
 
-QtArctan::QtArctan(QtOperation* initInput): QtUnaryInduce(initInput) {}
-QtData* QtArctan::evaluate(QtDataList* inputList)
+QtArctan::QtArctan(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtData *QtArctan::evaluate(QtDataList *inputList)
 {
-    QtData* returnValue = NULL;
-    QtData* operand = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand = NULL;
 
     if (getOperand(inputList, operand))
     {
@@ -1464,13 +1464,13 @@ QtData* QtArctan::evaluate(QtDataList* inputList)
     return returnValue;
 }
 
-void QtArctan::printTree(int tab, ostream& s, QtChildType mode)
+void QtArctan::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtArctanObject " << static_cast<int>(getNodeType()) << endl;
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-void QtArctan::printAlgebraicExpression(ostream& s)
+void QtArctan::printAlgebraicExpression(ostream &s)
 {
     s << "arctan(";
     if (input)
@@ -1484,36 +1484,36 @@ void QtArctan::printAlgebraicExpression(ostream& s)
     s << ")";
 }
 
-const QtTypeElement& QtArctan::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &QtArctan::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     // check operand branches
     if (input)
     {
         // get input types
-        const QtTypeElement& inputType = input->checkType(typeTuple);
+        const QtTypeElement &inputType = input->checkType(typeTuple);
 #ifdef DEBUG
         LTRACE << "Operand: ";
         inputType.printStatus(RMInit::dbgOut);
 #endif
         if (inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType();
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
+            const BaseType *baseType = (static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType();
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArctan::checkType() - induce operand type is not support";
                 parseInfo.setErrorNo(366);
                 throw parseInfo;
             }
-            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
             TypeFactory::addTempType(resultMDDType);
             dataStreamType.setType(resultMDDType);
         }
         else if (inputType.isBaseType())
         {
-            BaseType* baseType = static_cast<BaseType*>(const_cast<Type*>(inputType.getType()));
-            BaseType* resultBaseType = const_cast<BaseType*>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
+            BaseType *baseType = static_cast<BaseType *>(const_cast<Type *>(inputType.getType()));
+            BaseType *resultBaseType = const_cast<BaseType *>(Ops::getResultType(Ops::OP_ARCTAN, baseType));
             if (!resultBaseType)
             {
                 LERROR << "Error: QtArctan::checkType() - operand type is not supported.";

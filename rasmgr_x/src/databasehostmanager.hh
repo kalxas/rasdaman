@@ -50,7 +50,7 @@ public:
      * @param newDbHost Configuration information required to define a new database host
      * @throws If the host name is not specified, it throws an exception.
      */
-    virtual void defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost);
+    virtual void defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost);
 
     /**
      * @brief changeDatabaseHost Change the properties of the database host identified by
@@ -58,14 +58,14 @@ public:
      * @param oldName
      * @param newProperties
      */
-    virtual void changeDatabaseHost(const std::string& oldName, const DatabaseHostPropertiesProto& newProperties);
+    virtual void changeDatabaseHost(const std::string &oldName, const DatabaseHostPropertiesProto &newProperties);
 
     /**
      * @brief removeDatabaseHost Remove the database host identified by the dbHostName from
      * the registry.
      * @param dbHostName
      */
-    virtual void removeDatabaseHost(const std::string& dbHostName);
+    virtual void removeDatabaseHost(const std::string &dbHostName);
 
     /**
      * @brief getAndLockDH Get a reference to the database host with the given name
@@ -76,7 +76,7 @@ public:
      * @param dbHostName
      * @return
      */
-    virtual boost::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string& dbHostName);
+    virtual boost::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
 
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts

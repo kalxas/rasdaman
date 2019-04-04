@@ -42,18 +42,18 @@ typedef enum
 typedef struct
 {
     char       shortName;  /* Short option name. */
-    char*       longName;  /* Long option name, no including '--'. */
+    char       *longName;  /* Long option name, no including '--'. */
     optArgType type;       /* Option type. */
-    void*       arg;       /* Pointer to variable to fill with argument,
+    void       *arg;       /* Pointer to variable to fill with argument,
                             * or pointer to function if Type == OPT_FUNC. */
     int        flags;      /* Modifier flags. */
 } optStruct;
 
 
-void optSetFatalFunc(void (*f)(const char*, ...));
-void optParseOptions(int* argc, char* argv[],
+void optSetFatalFunc(void (*f)(const char *, ...));
+void optParseOptions(int *argc, char *argv[],
                      optStruct opt[], int allowNegNum);
 
-void optExecute(optStruct* opt, char* arg, int lng);
+void optExecute(optStruct *opt, char *arg, int lng);
 
 #endif

@@ -28,17 +28,17 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const r_Point&
+inline const r_Point &
 QtPointData::getPointData() const
 {
-  return pointData;
+    return pointData;
 }
 
 
 inline void
-QtPointData::setPointData( const r_Point& point )
+QtPointData::setPointData(const r_Point &point)
 {
-  pointData = point;
+    pointData = point;
 }
 
 

@@ -43,7 +43,7 @@ class QtCaseEquality: public QtEqual
 {
 public:
     /// constructor getting the two operands
-    QtCaseEquality(QtOperation* commonOperand, QtOperation* input2);
+    QtCaseEquality(QtOperation *commonOperand, QtOperation *input2);
 
     /// override destructor
     virtual ~QtCaseEquality();

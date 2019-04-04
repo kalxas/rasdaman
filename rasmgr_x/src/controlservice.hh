@@ -45,7 +45,7 @@ public:
 
     virtual ~ControlService();
 
-    virtual grpc::Status ExecuteCommand(grpc::ServerContext* context, const rasnet::service::RasCtrlRequest* request, rasnet::service::RasCtrlResponse* response) override;
+    virtual grpc::Status ExecuteCommand(grpc::ServerContext *context, const rasnet::service::RasCtrlRequest *request, rasnet::service::RasCtrlResponse *response) override;
 
 private:
     boost::shared_ptr<ControlCommandExecutor> commandExecutor;

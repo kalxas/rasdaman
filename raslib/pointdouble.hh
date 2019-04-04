@@ -66,16 +66,16 @@ public:
 
     r_PointDouble(r_Dimension dim, double value);
 
-    //@Man: 'variading constructors' 
+    //@Man: 'variading constructors'
     ///
     //@}
 
-    r_PointDouble(const r_Point& pt );
+    r_PointDouble(const r_Point &pt);
 
     r_PointDouble(const std::vector<double> &content);
 
     /// copy constructor
-    r_PointDouble(const r_PointDouble& vectorArg);
+    r_PointDouble(const r_PointDouble &vectorArg);
 
     /// destructor: cleanup dynamic memory
     ~r_PointDouble();
@@ -83,52 +83,52 @@ public:
     /// subscriptor for read access
     double  operator[](size_t) const ;
     /// subscriptor for write access
-    double& operator[](size_t) ;
-    
+    double &operator[](size_t) ;
+
     /// assignment: cleanup + copy
-    const r_PointDouble& operator= (const r_PointDouble&);
+    const r_PointDouble &operator= (const r_PointDouble &);
 
     /// compares this point with the given point.
-    inline int compare_with(const  r_PointDouble& p) const;
+    inline int compare_with(const  r_PointDouble &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in lexicographic order).
     */
 
     /// equal operator
-    bool operator==(const r_PointDouble& vectorArg) const;
+    bool operator==(const r_PointDouble &vectorArg) const;
 
-    bool operator!=(const r_PointDouble& vectorArg) const;
+    bool operator!=(const r_PointDouble &vectorArg) const;
 
-    bool operator<(const r_PointDouble& vectorArg) const;
+    bool operator<(const r_PointDouble &vectorArg) const;
     /**
       Two points are equal if they have the same number of dimensions and
       the same values.
     */
 
     /// std::vector addition
-    r_PointDouble operator+(const r_PointDouble& vectorArg) const;
+    r_PointDouble operator+(const r_PointDouble &vectorArg) const;
 
     /// std::vector subtraction
-    r_PointDouble operator-(const r_PointDouble& vectorArg) const;
+    r_PointDouble operator-(const r_PointDouble &vectorArg) const;
 
     /// diagonal extension of multiplication across the cartesian product
-    r_PointDouble operator*(const r_PointDouble& vectorArg) const;
-    
+    r_PointDouble operator*(const r_PointDouble &vectorArg) const;
+
     /// scalar multiplication
     r_PointDouble operator*(const double scalarArg) const;
 
     /// scalar product
-    double dotProduct(const r_PointDouble& r) const;
+    double dotProduct(const r_PointDouble &r) const;
 
     /// same as std::vector::size()
     inline size_t dimension() const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = std::cout) const;
-    
+    void print_status(std::ostream &s = std::cout) const;
+
     /// returns the stored vector
-    inline const std::vector<double>& getVectorContent() const;
+    inline const std::vector<double> &getVectorContent() const;
 
     /// converts the stored vector to an r_Point (integer vertices)
     r_Point toIntPoint() const;

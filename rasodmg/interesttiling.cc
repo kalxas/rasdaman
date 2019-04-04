@@ -74,26 +74,26 @@ public:
     Classified_Block(int count = 0);
 
     // Constructor with the actual block and the counter
-    Classified_Block(const r_Minterval& b, int count = 0);
+    Classified_Block(const r_Minterval &b, int count = 0);
 
     // Same data structure (this operator is needed because of dlist)
-    bool operator==(const Classified_Block& other) const;
+    bool operator==(const Classified_Block &other) const;
 
     // Different data structure (this operator is needed because of dlist)
-    bool operator!=(const Classified_Block& other) const;
+    bool operator!=(const Classified_Block &other) const;
 
     // Friend of std::ostream (this operator is needed because of dlist)
-    friend std::ostream& operator<<(std::ostream& os, const Classified_Block& block);
+    friend std::ostream &operator<<(std::ostream &os, const Classified_Block &block);
 };
 
-const char*
+const char *
 r_Interest_Tiling::description = "dimensions, areas of interest, tile size (in bytes) and tile size limit [NOLIMIT|REGROUP|SUBTILING|REGROUPSUBTILING] (ex: \"2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING\")";
 
-const char* r_Interest_Tiling::tilesizelimit_name_nolimit       = "NOLIMIT";
-const char* r_Interest_Tiling::tilesizelimit_name_regroup       = "REGROUP";
-const char* r_Interest_Tiling::tilesizelimit_name_subtiling     = "SUBTILING";
-const char* r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling   = "REGROUPSUBTILING";
-const char* r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER] =
+const char *r_Interest_Tiling::tilesizelimit_name_nolimit       = "NOLIMIT";
+const char *r_Interest_Tiling::tilesizelimit_name_regroup       = "REGROUP";
+const char *r_Interest_Tiling::tilesizelimit_name_subtiling     = "SUBTILING";
+const char *r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling   = "REGROUPSUBTILING";
+const char *r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER] =
 {
     tilesizelimit_name_nolimit,
     tilesizelimit_name_regroup,
@@ -102,7 +102,7 @@ const char* r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER
 };
 
 r_Interest_Tiling::Tilesize_Limit
-r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
+r_Interest_Tiling::get_tilesize_limit_from_name(const char *name)
 {
 
     if (!name)
@@ -123,10 +123,10 @@ r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
     return static_cast<r_Interest_Tiling::Tilesize_Limit>(i);
 }
 
-const char*
+const char *
 r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
 {
-    static const char* unknown = "UNKNOWN";
+    static const char *unknown = "UNKNOWN";
     unsigned int idx = static_cast<unsigned int>(tsl);
 
     if (idx >= static_cast<unsigned int>(r_Interest_Tiling::NUMBER))
@@ -137,7 +137,7 @@ r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
     return all_tilesizelimit_names[idx];
 }
 
-r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
+r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -150,8 +150,8 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     r_Interest_Tiling::Tilesize_Limit tileSizeLimit;
     r_Dimension tileD = 0;
     r_Bytes tileS = 0, lenToConvert = 0;
-    const char* pStart = NULL, *pRes = NULL, *pTemp = NULL, *pEnd = NULL;
-    char* pToConvert = NULL;
+    const char *pStart = NULL, *pRes = NULL, *pTemp = NULL, *pEnd = NULL;
+    char *pToConvert = NULL;
 
 
     pStart = encoded;
@@ -171,7 +171,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
     if (!tileD)
     {
         LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\".";
@@ -221,7 +221,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
             r_Minterval a(pToConvert);
             vectInterestAreas.push_back(a);
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding interest area from \"" << pToConvert << "\".";
             LERROR << "Error " << err.get_errorno() << " : " << err.what();
@@ -258,7 +258,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileS = strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileS = strtol(pToConvert, (char **)NULL, DefaultBase);
     if (!tileS)
     {
         LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\".";
@@ -293,7 +293,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded)
     tile_size = tileS;
 }
 
-r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval>& interest_areas, r_Bytes ts, Tilesize_Limit strat)
+r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval> &interest_areas, r_Bytes ts, Tilesize_Limit strat)
     :   r_Dimension_Tiling(dim, ts),
         ts_strat(strat),
         iareas(interest_areas)
@@ -310,13 +310,13 @@ r_Interest_Tiling::~r_Interest_Tiling()
 {
 }
 
-r_Tiling* r_Interest_Tiling::clone() const
+r_Tiling *r_Interest_Tiling::clone() const
 {
-    r_Tiling* copy = new r_Interest_Tiling(dimension, iareas, tile_size, ts_strat);
+    r_Tiling *copy = new r_Interest_Tiling(dimension, iareas, tile_size, ts_strat);
     return copy;
 }
 
-void r_Interest_Tiling::print_status(std::ostream& os) const
+void r_Interest_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Interest_Tiling[ ";
     r_Dimension_Tiling::print_status(os);
@@ -329,10 +329,10 @@ r_Interest_Tiling::get_tiling_scheme() const
     return r_InterestTiling;
 }
 
-static int r_Range_comp(const void* elem1, const void* elem2)
+static int r_Range_comp(const void *elem1, const void *elem2)
 {
-    r_Range e1 = *(static_cast<r_Range*>(const_cast<void*>(elem1)));
-    r_Range e2 = *(static_cast<r_Range*>(const_cast<void*>(elem2)));
+    r_Range e1 = *(static_cast<r_Range *>(const_cast<void *>(elem1)));
+    r_Range e2 = *(static_cast<r_Range *>(const_cast<void *>(elem2)));
 
     if (e1 == e2)
     {
@@ -349,17 +349,17 @@ static int r_Range_comp(const void* elem1, const void* elem2)
     }
 }
 
-std::vector<r_Dir_Decompose>*
-r_Interest_Tiling::make_partition(const r_Minterval& domain) const
+std::vector<r_Dir_Decompose> *
+r_Interest_Tiling::make_partition(const r_Minterval &domain) const
 {
     r_Dimension dim = domain.dimension();
     unsigned int total = 2 * iareas.size();
 
     // We need one decomp from each dimension
-    std::vector<r_Dir_Decompose>* part = new std::vector<r_Dir_Decompose>(dim);
+    std::vector<r_Dir_Decompose> *part = new std::vector<r_Dir_Decompose>(dim);
 
     // We have at most (number of interest areas + 2) intervals
-    r_Range* intervals = new r_Range[total + 2];
+    r_Range *intervals = new r_Range[total + 2];
 
     // Create iterator for interest areas
     std::vector<r_Minterval>::const_iterator it = iareas.begin();
@@ -389,7 +389,7 @@ r_Interest_Tiling::make_partition(const r_Minterval& domain) const
         }
 
         // Sort the table
-        qsort(static_cast<void*>(intervals), total + 2, sizeof(r_Range), r_Range_comp);
+        qsort(static_cast<void *>(intervals), total + 2, sizeof(r_Range), r_Range_comp);
 
         // Create partition using the limits table
         for (unsigned int k = 0; k < total + 2; k++)         // all limits must be checked
@@ -413,15 +413,15 @@ r_Interest_Tiling::make_partition(const r_Minterval& domain) const
     return part;
 }
 
-std::vector<r_Minterval>*
-r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Blocks_Type btype) const
+std::vector<r_Minterval> *
+r_Interest_Tiling::group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Blocks_Type btype) const
 {
     r_Bytes tilesize = get_tile_size();
     int joins = 0;
     bool group_blocks = true;
 
     // The list of threated blocks
-    std::vector<r_Minterval>* treated = new std::vector<r_Minterval>;
+    std::vector<r_Minterval> *treated = new std::vector<r_Minterval>;
 
     // An iterator for the blocks list
     std::vector<r_Minterval>::iterator blocks_it = blocks.begin();
@@ -544,7 +544,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
         treated->push_back(current_block);
     }
 
-    std::vector<r_Minterval>* result = 0;
+    std::vector<r_Minterval> *result = 0;
 
     // If there was joins, the algoritm must be repeted
     if (joins != 0)
@@ -561,8 +561,8 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
     return result;
 }
 
-std::vector<r_Minterval>*
-r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
+std::vector<r_Minterval> *
+r_Interest_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)
@@ -580,7 +580,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
     static int count;                                    // Number of decomps
     ++count;                                             // Update num decomps
     // of the 2D decomp.
-    Visual_Tiling_2D* vis;
+    Visual_Tiling_2D *vis;
     if (domain.dimension() == 2)
     {
         // Create an object for visualization
@@ -595,14 +595,14 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
     // *** Main algoritm ***
 
     // The result
-    std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
+    std::vector<r_Minterval> *result = new std::vector<r_Minterval>;
 
     // Create a partition for dir tiling
-    std::vector<r_Dir_Decompose>* part = make_partition(domain);
+    std::vector<r_Dir_Decompose> *part = make_partition(domain);
 
     // Perform dirtiling
-    r_Dir_Tiling* dir_tiling = NULL;
-    std::vector<r_Minterval>* dir_domain = NULL;
+    r_Dir_Tiling *dir_tiling = NULL;
+    std::vector<r_Minterval> *dir_domain = NULL;
 
     try
     {
@@ -613,7 +613,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
         delete dir_tiling;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         delete result;
         delete part;
@@ -670,9 +670,9 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
 
     // Group blocks
-    std::vector<r_Minterval>* Blocks_A = group(In_Common, typelen, BLOCKS_A);
-    std::vector<r_Minterval>* Blocks_B = group(In_Unique, typelen, BLOCKS_B);
-    std::vector<r_Minterval>* Blocks_C = group(Out, typelen, BLOCKS_C);
+    std::vector<r_Minterval> *Blocks_A = group(In_Common, typelen, BLOCKS_A);
+    std::vector<r_Minterval> *Blocks_B = group(In_Unique, typelen, BLOCKS_B);
+    std::vector<r_Minterval> *Blocks_C = group(Out, typelen, BLOCKS_C);
 
 
     std::vector<r_Minterval>::iterator it_A = Blocks_A->begin();
@@ -683,11 +683,11 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
     if ((ts_strat == SUB_TILING) || (ts_strat == REGROUP_AND_SUBTILING))
     {
         // Variable to hold result of sub-tiling
-        std::vector<r_Minterval>* subtiles = 0;
+        std::vector<r_Minterval> *subtiles = 0;
 
         // We need an array to hold the 3 iterators of the resulting blocks
-        std::vector<r_Minterval>::iterator* blocks_it[3];
-        std::vector<r_Minterval>* blocks_vec[3];
+        std::vector<r_Minterval>::iterator *blocks_it[3];
+        std::vector<r_Minterval> *blocks_vec[3];
 
         // Put iterators on the list
         blocks_it[0] = &it_A;
@@ -822,7 +822,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
 
 
 
-std::ostream& operator<<(std::ostream& os, const Classified_Block block);
+std::ostream &operator<<(std::ostream &os, const Classified_Block block);
 
 
 Classified_Block::Classified_Block(int count)
@@ -830,26 +830,26 @@ Classified_Block::Classified_Block(int count)
 {
 }
 
-Classified_Block::Classified_Block(const r_Minterval& b, int count)
+Classified_Block::Classified_Block(const r_Minterval &b, int count)
     :   intersection_count(count),
         block(b)
 {
 }
 
 
-bool Classified_Block::operator==(const Classified_Block& other) const
+bool Classified_Block::operator==(const Classified_Block &other) const
 {
     return (this->block == other.block)
            && (this->intersection_count == other.intersection_count);
 }
 
-bool Classified_Block::operator!=(const Classified_Block& other) const
+bool Classified_Block::operator!=(const Classified_Block &other) const
 {
     return !(*this == other);
 }
 
 
-std::ostream& operator<<(std::ostream& os, const Classified_Block block)
+std::ostream &operator<<(std::ostream &os, const Classified_Block block)
 {
     os << "CBlock(" << block.intersection_count << "x: " << block.block << ")";
 

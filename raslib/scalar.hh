@@ -54,25 +54,25 @@ class r_Scalar
 {
 public:
     /// constructs a scalar value
-    r_Scalar(const r_Base_Type* newType);
+    r_Scalar(const r_Base_Type *newType);
 
     /// copy constructor
-    r_Scalar(const r_Scalar& obj);
+    r_Scalar(const r_Scalar &obj);
 
     /// destructor
     virtual ~r_Scalar();
 
     /// clone operator
-    virtual r_Scalar* clone() const = 0;
+    virtual r_Scalar *clone() const = 0;
 
     /// operator for assigning a scalar
-    const r_Scalar& operator= (const r_Scalar&);
+    const r_Scalar &operator= (const r_Scalar &);
 
     /// debug output
-    virtual void print_status(std::ostream& s) const = 0;
+    virtual void print_status(std::ostream &s) const = 0;
 
     /// get type
-    virtual const r_Base_Type* get_type() const;
+    virtual const r_Base_Type *get_type() const;
 
     ///
     virtual bool isStructure() const;
@@ -85,7 +85,7 @@ public:
 
 protected:
     /// type
-    r_Base_Type* valueType;
+    r_Base_Type *valueType;
 };
 
 
@@ -94,7 +94,7 @@ protected:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Scalar}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Scalar& obj);
+extern std::ostream &operator<<(std::ostream &s, const r_Scalar &obj);
 
 #endif
 

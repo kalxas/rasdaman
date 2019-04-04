@@ -44,27 +44,27 @@ static const char rcsid[] = "@(#)catalogif,FloatType: $Header: /home/rasdev/CVS-
 #include <values.h>
 #endif
 
-FloatType::FloatType(const OId& id)
-	:	RealType(id)
-	{
-	readFromDb();
-	}
+FloatType::FloatType(const OId &id)
+    :   RealType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: FloatType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 FloatType.
  ************************************************************/
 
 FloatType::FloatType()
-	:	RealType(FloatType::Name, 4)
-	{
-	myType = FLOAT;
-	myOId = OId(FLOAT, OId::ATOMICTYPEOID);
-	}
+    :   RealType(FloatType::Name, 4)
+{
+    myType = FLOAT;
+    myOId = OId(FLOAT, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: FloatType(const FloatType& old);
@@ -74,10 +74,10 @@ FloatType::FloatType()
  * Description...: copy constructor
  ************************************************************/
 
-FloatType::FloatType(const FloatType& old)
-	:	RealType(old)
-	{
-	}
+FloatType::FloatType(const FloatType &old)
+    :   RealType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const FloatType&);
@@ -87,14 +87,16 @@ FloatType::FloatType(const FloatType& old)
  * Description...: copy constructor
  ************************************************************/
 
-FloatType& FloatType::operator=(const FloatType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+FloatType &FloatType::operator=(const FloatType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~FloatType();
@@ -110,48 +112,48 @@ FloatType::~FloatType()
 
 void
 FloatType::readFromDb()
-	{
-	setName(FloatType::Name);
-	size = 4;
-	myType = FLOAT;
-	myOId = OId(FLOAT, OId::ATOMICTYPEOID);
-	}
+{
+    setName(FloatType::Name);
+    size = 4;
+    myType = FLOAT;
+    myOId = OId(FLOAT, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Float is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-FloatType::printCell( ostream& stream, const char* cell ) const
+void
+FloatType::printCell(ostream &stream, const char *cell) const
 {
-  // !!!! HP specific, assumes 4 Byte float and MSB..LSB 
-  // byte order
-  stream << std::setw(8) << *(float*)const_cast<char*>(cell);
+    // !!!! HP specific, assumes 4 Byte float and MSB..LSB
+    // byte order
+    stream << std::setw(8) << *(float *)const_cast<char *>(cell);
 }
 
-double*
-FloatType::convertToCDouble(const char* cell, double* value) const
+double *
+FloatType::convertToCDouble(const char *cell, double *value) const
 {
-  *value = static_cast<double>(*(reinterpret_cast<float*>(const_cast<char*>(cell))));
-  return value;
+    *value = static_cast<double>(*(reinterpret_cast<float *>(const_cast<char *>(cell))));
+    return value;
 }
 
 
-char* 
-FloatType::makeFromCDouble(char* cell, const double* value) const
+char *
+FloatType::makeFromCDouble(char *cell, const double *value) const
 {
-  // make sure that a float is not assigned a double (DEC Alpha correctly dumps core)
-  double dummy = *value;
-  *reinterpret_cast<float*>(cell) = static_cast<float>(dummy);
-  return cell;
+    // make sure that a float is not assigned a double (DEC Alpha correctly dumps core)
+    double dummy = *value;
+    *reinterpret_cast<float *>(cell) = static_cast<float>(dummy);
+    return cell;
 }

@@ -61,8 +61,8 @@ RMTimer Tile::relTimer("Tile", "relTimer");
 
 using namespace std;
 
-const Tile&
-Tile::operator=(const Tile& tile)
+const Tile &
+Tile::operator=(const Tile &tile)
 {
     if (this != &tile)
     {
@@ -77,10 +77,10 @@ Tile::operator=(const Tile& tile)
     return *this;
 }
 
-Tile::Tile(const Tile& tile)
+Tile::Tile(const Tile &tile)
     :   domain(tile.domain),
         type(tile.type),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     if (RMInit::useTileContainer)
     {
@@ -88,22 +88,26 @@ Tile::Tile(const Tile& tile)
     }
     else
     {
-            if (tile.blobTile->getCells())
-                blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
-            else
-                blobTile = new BLOBTile(tile.blobTile->getDataFormat());
+        if (tile.blobTile->getCells())
+        {
+            blobTile = new BLOBTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
+        }
+        else
+        {
+            blobTile = new BLOBTile(tile.blobTile->getDataFormat());
+        }
     }
     blobTile->setCurrentFormat(tile.blobTile->getCurrentFormat());
 }
 
-Tile::Tile(std::vector<Tile*>* tilesVec)
+Tile::Tile(std::vector<Tile *> *tilesVec)
     :   domain(),
         type(NULL),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     // iterators for tiles
-    std::vector<Tile*>::iterator tileIt = tilesVec->begin();
-    std::vector<Tile*>::iterator tileEnd = tilesVec->end();
+    std::vector<Tile *>::iterator tileIt = tilesVec->begin();
+    std::vector<Tile *>::iterator tileEnd = tilesVec->end();
     domain = (*(tileIt++))->getDomain();
     while (tileIt !=  tilesVec->end())
     {
@@ -131,22 +135,22 @@ Tile::Tile(std::vector<Tile*>* tilesVec)
     tileIt = tilesVec->begin();
     while (tileIt != tileEnd)
     {
-        const r_Minterval& currDom = (*tileIt)->getDomain();
+        const r_Minterval &currDom = (*tileIt)->getDomain();
         copyTile(currDom, (*tileIt), currDom);
         tileIt++;
     }
 }
 
-Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Dimension, std::less<r_Dimension>>* projDimSet)
+Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Dimension, std::less<r_Dimension>> *projDimSet)
     :   domain(projDom.dimension() - projDimSet->size()),
         type(projTile->type),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     // calculate dimension of new Tile
     r_Dimension dim = 0;
     // pointer to cells in tile to be projected and new tile
-    char* cellTile = NULL;
-    char* cellProj = NULL;
+    char *cellTile = NULL;
+    char *cellProj = NULL;
 
     for (dim = 0; dim < projDom.dimension(); dim++)
     {
@@ -170,11 +174,11 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
     }
     // using r_Miter to iterate through tile to be projected and new tile.
-    r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), static_cast<const char*>(projTile->getContents()));
+    r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), static_cast<const char *>(projTile->getContents()));
     r_Miter newTileIter(&domain, &domain, type->getSize(), blobTile->getCells());
 
     // identity operation for base type, used for copying
-    UnaryOp* op = type->getUnaryOp(Ops::OP_IDENTITY, const_cast<BaseType*>(type));
+    UnaryOp *op = type->getUnaryOp(Ops::OP_IDENTITY, const_cast<BaseType *>(type));
 
     while (!projTileIter.isDone())
     {
@@ -190,7 +194,7 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
     delete op;
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, DBTileId newBLOBTile)
+Tile::Tile(const r_Minterval &newDom, const BaseType *newType, DBTileId newBLOBTile)
     :   domain(newDom),
         type(newType),
         blobTile(newBLOBTile)
@@ -198,10 +202,10 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, DBTileId newBLOBT
     LTRACE << "Tile(" << newDom << ", " << newType->getName() << ", blob)";
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(new), size " << getSize();
     // note that the size is not correct (usually too big) for compressed
@@ -216,11 +220,11 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format new
     }
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, 
-           char* newCells, r_Bytes newSize, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells,
+           char *newCells, r_Bytes newSize, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells;
     r_Data_Format current = r_Array;
@@ -245,10 +249,10 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershi
     blobTile->setCurrentFormat(current);
 }
 
-Tile::Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCells, r_Bytes newSize, r_Data_Format newFormat)
+Tile::Tile(const r_Minterval &newDom, const BaseType *newType, const char *newCells, r_Bytes newSize, r_Data_Format newFormat)
     :   domain(newDom),
         type(newType),
-        blobTile((DBTile*)NULL)
+        blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize;
     r_Data_Format current = r_Array;
@@ -302,11 +306,11 @@ Tile::getDBTile()
     return blobTile;
 }
 
-char*
-Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
+char *
+Tile::execCondenseOp(CondenseOp *myOp, const r_Minterval &areaOp)
 {
-    char* cellOp = NULL;
-    char* dummy = getContents();
+    char *cellOp = NULL;
+    char *dummy = getContents();
     assert(dummy);
     r_Miter opTileIter(&areaOp, &getDomain(), getType()->getSize(), dummy);
 #ifdef RMANBENCHMARK
@@ -329,13 +333,13 @@ Tile::execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp)
 
 
 void
-Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp)
+Tile::execUnaryOp(UnaryOp *myOp, const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp)
 {
-    char* cellRes = NULL;
-    const char* cellOp = NULL;
+    char *cellRes = NULL;
+    const char *cellOp = NULL;
 
-    char* dummy1 = getContents();
-    const char* dummy2 = opTile->getContents();
+    char *dummy1 = getContents();
+    const char *dummy2 = opTile->getContents();
 
     assert(dummy1 && dummy2);
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
@@ -360,20 +364,20 @@ Tile::execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile,
 
 
 void
-Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Tile, const r_Minterval& areaOp1, const Tile* op2Tile, const r_Minterval& areaOp2)
+Tile::execBinaryOp(BinaryOp *myOp, const r_Minterval &areaRes, const Tile *op1Tile, const r_Minterval &areaOp1, const Tile *op2Tile, const r_Minterval &areaOp2)
 
 {
     if (myOp == NULL)
     {
         throw r_Error(OPERANDSRESULTTYPESNOMATCH);
     }
-    char* cellRes = NULL;
-    const char* cellOp1 = NULL;
-    const char* cellOp2 = NULL;
+    char *cellRes = NULL;
+    const char *cellOp1 = NULL;
+    const char *cellOp2 = NULL;
 
-    char* dummy1 = getContents();
-    const char* dummy2 = op1Tile->getContents();
-    const char* dummy3 = op2Tile->getContents();
+    char *dummy1 = getContents();
+    const char *dummy2 = op1Tile->getContents();
+    const char *dummy3 = op2Tile->getContents();
 
     assert(dummy1 && dummy2 && dummy3);
 
@@ -400,12 +404,12 @@ Tile::execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* op1Ti
 }
 
 void
-Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp, const char* cell, int constPos)
+Tile::execConstOp(BinaryOp *myOp, const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp, const char *cell, int constPos)
 {
-    char* cellRes = NULL;
-    const char* cellOp = NULL;
-    char* dummy1 = getContents();
-    const char* dummy2 = opTile->getContents();
+    char *cellRes = NULL;
+    const char *cellOp = NULL;
+    char *dummy1 = getContents();
+    const char *dummy2 = opTile->getContents();
 
     assert(dummy1 && dummy2);
     r_Miter resTileIter(&areaRes, &getDomain(), getType()->getSize(), dummy1);
@@ -441,12 +445,12 @@ Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile
 }
 
 void
-Tile::execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval& areaOp)
+Tile::execMarrayOp(MarrayOp *myOp, const r_Minterval &areaRes, const r_Minterval &areaOp)
 {
     r_Dimension dimRes = areaRes.dimension();
     r_Point pointRes = areaRes.get_origin();
     r_Point pointOp = areaOp.get_origin();
-    char* cellRes = getCell(calcOffset(pointRes));
+    char *cellRes = getCell(calcOffset(pointRes));
     unsigned int resSize = type->getSize();
 
 #ifdef RMANBENCHMARK
@@ -494,8 +498,8 @@ Tile::execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval
 #endif
 }
 
-char*
-Tile::execGenCondenseOp(GenCondenseOp* myOp, const r_Minterval& areaOp)
+char *
+Tile::execGenCondenseOp(GenCondenseOp *myOp, const r_Minterval &areaOp)
 {
     r_Point pointOp = areaOp.get_origin();
     unsigned int dim = areaOp.dimension();
@@ -541,12 +545,12 @@ Tile::execGenCondenseOp(GenCondenseOp* myOp, const r_Minterval& areaOp)
 #endif
 
 template<class T>
-static inline void tile_scale_core(r_Miter& iterDest, r_MiterFloat& iterSrc, __attribute__((unused)) T* dummy)
+static inline void tile_scale_core(r_Miter &iterDest, r_MiterFloat &iterSrc, __attribute__((unused)) T *dummy)
 {
     while (!iterDest.isDone())
     {
-        const T* srcPtr = (const T*)iterSrc.nextCell();
-        T* destPtr = (T*)iterDest.nextCell();
+        const T *srcPtr = (const T *)iterSrc.nextCell();
+        T *destPtr = (T *)iterDest.nextCell();
         *destPtr = *srcPtr;
 
         CHECK_ITER_SYNC(iterSrc, iterDest)
@@ -556,11 +560,11 @@ static inline void tile_scale_core(r_Miter& iterDest, r_MiterFloat& iterSrc, __a
 
 #ifdef BLVAHELP
 
-void fast_scale_resample_array(char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length)
+void fast_scale_resample_array(char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length)
 {
-    r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)src, srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)src, srcIv, iterDom, type_len, length);
+    r_MiterDirect destIter((void *)dest, destIv, destIv, type_len, 1);
+    r_MiterDirect subIter((void *)src, srcIv, iterDom, type_len, 1);
+    r_MiterDirect srcIter((void *)src, srcIv, iterDom, type_len, length);
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
@@ -601,14 +605,14 @@ void fast_scale_resample_array(char* dest, const char* src, const r_Minterval& d
         }
         while (subIter.done == 0)
         {
-            sum += *((const unsigned char*)(subIter.getData()));
+            sum += *((const unsigned char *)(subIter.getData()));
             ++subIter;
             count++;
         }
 
         cout << "Sum=" << sum << " count=" << count << endl;
         // use round to nearest
-        *((char*)(destIter.getData())) = (char)(sum / count + 0.5);
+        *((char *)(destIter.getData())) = (char)(sum / count + 0.5);
         //cout << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) << endl;
         ++srcIter;
         ++destIter;
@@ -622,50 +626,50 @@ void fast_scale_resample_array(char* dest, const char* src, const r_Minterval& d
 #endif
 
 void
-Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain)
+Tile::execScaleOp(const Tile *opTile, const r_Minterval &sourceDomain)
 {
     // origin is not used in this version
 #ifdef BLVAHELP
-    fast_scale_resample_array((char*)getContents(), ((Tile*)opTile)->getContents(), domain, opTile->getDomain(), sourceDomain, 1, 2);
+    fast_scale_resample_array((char *)getContents(), ((Tile *)opTile)->getContents(), domain, opTile->getDomain(), sourceDomain, 1, 2);
 #else
 
     unsigned int typeLength = getType()->getSize();
-    const char* srcPtr = (const_cast<Tile*>(opTile))->getContents();
+    const char *srcPtr = (const_cast<Tile *>(opTile))->getContents();
 
-    r_MiterFloat iterSrc(const_cast<Tile*>(opTile), const_cast<r_Minterval&>(sourceDomain), domain);
+    r_MiterFloat iterSrc(const_cast<Tile *>(opTile), const_cast<r_Minterval &>(sourceDomain), domain);
     r_Miter iterDest(&domain, &domain, typeLength, getContents());
 
     // optimize for common basetypes
     switch (getType()->getType())
     {
     case OCTET:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Octet*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Octet *>(0));
         break;
     case CHAR:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Char*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Char *>(0));
         break;
     case SHORT:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Short*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Short *>(0));
         break;
     case USHORT:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_UShort*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_UShort *>(0));
         break;
     case LONG:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Long*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Long *>(0));
         break;
     case ULONG:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_ULong*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_ULong *>(0));
         break;
     case FLOAT:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Float*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Float *>(0));
         break;
     case DOUBLE:
-        tile_scale_core(iterDest, iterSrc, static_cast<r_Double*>(0));
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Double *>(0));
         break;
     default:
         while (!iterDest.isDone())
         {
-            char* destPtr = iterDest.nextCell();
+            char *destPtr = iterDest.nextCell();
             srcPtr  = iterSrc.nextCell();
             memcpy(destPtr, srcPtr, typeLength);
             CHECK_ITER_SYNC(iterSrc, iterDest)
@@ -679,13 +683,13 @@ Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain)
 
 // the used version
 int
-Tile::scaleGetDomain(const r_Minterval& areaOp, const std::vector<double>& scaleFactors, r_Minterval& areaScaled)
+Tile::scaleGetDomain(const r_Minterval &areaOp, const std::vector<double> &scaleFactors, r_Minterval &areaScaled)
 {
     try
     {
         areaScaled = areaOp.create_scale(scaleFactors);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         //error on scalling
         return 0;
@@ -696,10 +700,10 @@ Tile::scaleGetDomain(const r_Minterval& areaOp, const std::vector<double>& scale
 
 
 void
-Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp)
+Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp)
 {
-    const char* cellOp = NULL;
-    char* cellRes = NULL;
+    const char *cellOp = NULL;
+    char *cellRes = NULL;
 
     // this may trigger decompression
     cellOp = opTile->getContents();
@@ -728,8 +732,8 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
     }
 
     // these iterators iterate last dimension first, i.e. minimal step size
-    r_MiterDirect resTileIter(static_cast<void*>(cellRes), getDomain(), areaRes, tsize);
-    r_MiterDirect opTileIter(static_cast<void*>(const_cast<char*>(cellOp)), opTile->getDomain(), areaOp, tsize);
+    r_MiterDirect resTileIter(static_cast<void *>(cellRes), getDomain(), areaRes, tsize);
+    r_MiterDirect opTileIter(static_cast<void *>(const_cast<char *>(cellOp)), opTile->getDomain(), areaOp, tsize);
 
 #ifdef RMANBENCHMARK
     opTimer.resume();
@@ -753,34 +757,34 @@ Tile::copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval
 #endif
 }
 
-void 
-Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, const r_Minterval& areaOp, 
-                          const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize) 
+void
+Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
+               const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize)
 {
-    if (areaRes == areaOp && opTile->getDomain() == this->getDomain() && this->getDomain() == areaOp) 
+    if (areaRes == areaOp && opTile->getDomain() == this->getDomain() && this->getDomain() == areaOp)
     {
         r_Area numCells = this->getDomain().cell_count();
-        
-        char* targetData = this->getContents() + resOff;
-        const char* sourceData = opTile->getContents() + opOff;
+
+        char *targetData = this->getContents() + resOff;
+        const char *sourceData = opTile->getContents() + opOff;
         assert(targetData && sourceData);
-        
+
         size_t cellSize = this->getType()->getSize();
         size_t opCellSize = opTile->getType()->getSize();
-        
-        for(r_Area i = 0; i < numCells; ++i)
+
+        for (r_Area i = 0; i < numCells; ++i)
         {
             memcpy(targetData, sourceData, bandSize);
             targetData += cellSize;
             sourceData += opCellSize;
         }
-    } 
-    else 
+    }
+    else
     {
 
 
-        const char* cellOp = NULL;
-        char* cellRes = NULL;
+        const char *cellOp = NULL;
+        char *cellRes = NULL;
 
         // this may trigger decompression
         cellOp = opTile->getContents();
@@ -793,15 +797,15 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         r_Dimension dimOp = areaOp.dimension();
 
         r_Range width = areaRes[dimRes - 1].get_extent();
-        if (width > areaOp[dimOp - 1].get_extent()) 
+        if (width > areaOp[dimOp - 1].get_extent())
         {
             width = areaOp[dimOp - 1].get_extent();
             LWARNING << "Had to adjust high dim width to " << width;
         }
 
         // these iterators iterate last dimension first, i.e. minimal step size
-        r_MiterDirect resTileIter(static_cast<void*> (cellRes), getDomain(), areaRes, cellSize);
-        r_MiterDirect opTileIter(static_cast<void*> (const_cast<char*> (cellOp)), opTile->getDomain(), areaOp, bandSize);
+        r_MiterDirect resTileIter(static_cast<void *>(cellRes), getDomain(), areaRes, cellSize);
+        r_MiterDirect opTileIter(static_cast<void *>(const_cast<char *>(cellOp)), opTile->getDomain(), areaOp, bandSize);
 
 #ifdef RMANBENCHMARK
         opTimer.resume();
@@ -812,21 +816,21 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         std::vector<size_t> opJumpsFullWidth;
         srcJumpsFullWidth.reserve(width);
         opJumpsFullWidth.reserve(width);
-        for (unsigned int i = 0; i < width; i++) 
+        for (unsigned int i = 0; i < width; i++)
         {
             srcJumpsFullWidth.push_back(i * cellSize);
             opJumpsFullWidth.push_back(i * (opTile->getType()->getSize()));
         }
         // iterate over the result tile until filled
-        while (!resTileIter.isDone()) 
+        while (!resTileIter.isDone())
         {
             // copy entire line (continuous chunk in last dimension) in one go
 
             auto srcJumpIter = srcJumpsFullWidth.begin();
             auto opJumpIter = opJumpsFullWidth.begin();
-            for (srcJumpIter, opJumpIter; srcJumpIter != srcJumpsFullWidth.end(); ++srcJumpIter, ++opJumpIter) 
+            for (srcJumpIter, opJumpIter; srcJumpIter != srcJumpsFullWidth.end(); ++srcJumpIter, ++opJumpIter)
             {
-                memcpy(static_cast<char*> (resTileIter.getData()) + *srcJumpIter + resOff, static_cast<char*> (opTileIter.getData()) + *opJumpIter + opOff, bandSize);
+                memcpy(static_cast<char *>(resTileIter.getData()) + *srcJumpIter + resOff, static_cast<char *>(opTileIter.getData()) + *opJumpIter + opOff, bandSize);
             }
             // force overflow of last dimension
             resTileIter.id[dimRes - 1].pos += width;
@@ -838,21 +842,21 @@ Tile::copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, cons
         }
     }
 #ifdef RMANBENCHMARK
-        opTimer.pause();
-#endif    
+    opTimer.pause();
+#endif
 }
 
-std::vector<Tile*>*
+std::vector<Tile *> *
 Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
 {
     // domain of current tile
     r_Minterval currDom(resDom.dimension());
     // type of result tiles
-    const BaseType* resType;
+    const BaseType *resType;
     // iterators for tiles
-    std::vector<Tile*>* resultVec = new std::vector<Tile*>;
+    std::vector<Tile *> *resultVec = new std::vector<Tile *>;
     // pointer to generated current tile
-    Tile* smallTile;
+    Tile *smallTile;
     // current factor for translating
     r_Point cursor(resDom.dimension());
     // origin of big tile
@@ -922,13 +926,13 @@ Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
 }
 
 void
-Tile::printStatus(__attribute__((unused)) unsigned int level, std::ostream& stream) const
+Tile::printStatus(__attribute__((unused)) unsigned int level, std::ostream &stream) const
 {
     r_Point p(domain.dimension());
     int done = 0;
     int i = 0;
     unsigned int j = 0;
-    const char* cell;
+    const char *cell;
     unsigned int dim = domain.dimension();
 
     // print the contents only on very high debug level
@@ -966,27 +970,27 @@ Tile::printStatus(__attribute__((unused)) unsigned int level, std::ostream& stre
     }
 }
 
-char*
-Tile::getCell(const r_Point& aPoint)
+char *
+Tile::getCell(const r_Point &aPoint)
 {
     r_Area cellOffset = domain.cell_offset(aPoint);
     return getCell(cellOffset);
 }
 
-const char*
-Tile::getCell(const r_Point& aPoint) const
+const char *
+Tile::getCell(const r_Point &aPoint) const
 {
     r_Area cellOffset = domain.cell_offset(aPoint);
     return getCell(cellOffset);
 }
 
-const r_Minterval&
+const r_Minterval &
 Tile::getDomain() const
 {
     return domain;
 }
 
-const BaseType*
+const BaseType *
 Tile::getType() const
 {
     return type;
@@ -1010,7 +1014,7 @@ Tile::getDataFormat() const
     return blobTile->getDataFormat();
 }
 
-const char*
+const char *
 Tile::getCell(r_Area index) const
 {
     const auto *ret = getContents();
@@ -1020,7 +1024,7 @@ Tile::getCell(r_Area index) const
     return &ret[offset];
 }
 
-char*
+char *
 Tile::getCell(r_Area index)
 {
     auto *ret = getContents();
@@ -1031,40 +1035,40 @@ Tile::getCell(r_Area index)
 }
 
 void
-Tile::setCell(r_Area index, const char* newCell)
+Tile::setCell(r_Area index, const char *newCell)
 {
     assert(newCell);
-    char* cells = getCell(index);
+    char *cells = getCell(index);
     const auto typeSize = type->getSize();
     memcpy(cells, newCell, typeSize);
 }
 
-char*
+char *
 Tile::getContents()
 {
     return blobTile->getCells();
 }
 
-const char*
+const char *
 Tile::getContents() const
 {
     return blobTile->getCells();
 }
 
 void
-Tile::setContents(char* newContents)
+Tile::setContents(char *newContents)
 {
     blobTile->setCells(newContents);
 }
 
 r_Bytes
-Tile::calcOffset(const r_Point& point) const
+Tile::calcOffset(const r_Point &point) const
 {
     r_Bytes offset = 0;
     r_Bytes factor = 1;
 
     // calculate offset
-    for (auto i = domain.dimension(); i-- > 0; )
+    for (auto i = domain.dimension(); i-- > 0;)
     {
         offset += (point[i] - domain[i].low()) * factor;
         factor *= domain[i].high() - domain[i].low() + 1;

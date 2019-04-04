@@ -53,14 +53,14 @@ public:
     struct MDDEncoding
     {
         int      objectType{0};
-        char*    objectTypeName{NULL};
-        char*    typeStructure{NULL};
+        char    *objectTypeName{NULL};
+        char    *typeStructure{NULL};
         unsigned long typeLength{0};
-        char*    domain{NULL};
-        char*    tileSize{NULL};
-        char*    oidString{NULL};
+        char    *domain{NULL};
+        char    *tileSize{NULL};
+        char    *oidString{NULL};
         unsigned long dataSize{0};
-        char*    binData{NULL};
+        char    *binData{NULL};
 
         MDDEncoding() = default;
         ~MDDEncoding();
@@ -76,7 +76,7 @@ public:
     HttpServer() = default;
 
     // the acual constructor
-    HttpServer(unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort, char* serverName);
+    HttpServer(unsigned long listenPort, char *rasmgrHost, unsigned int rasmgrPort, char *serverName);
 
     /// destructor
     ~HttpServer() override = default;
@@ -85,9 +85,9 @@ public:
     void printServerStatus() override;
 
     /// Executes a retrieval query and prepare the result for HTTP transer.
-    virtual long processRequest(unsigned long callingClientId, char* baseName,
-                                int rascommand, char* query, int binDataSize, char* binData,
-                                int Endianess, char*& result, char* capability);
+    virtual long processRequest(unsigned long callingClientId, char *baseName,
+                                int rascommand, char *query, int binDataSize, char *binData,
+                                int Endianess, char *&result, char *capability);
     /**
        Executes a query and prepares the complete result for transfer via
        HTTP. The length of the result is returned. The first parameter is
@@ -108,7 +108,7 @@ public:
     */
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    virtual ClientTblElt* getClientContext(unsigned long ClientId);
+    virtual ClientTblElt *getClientContext(unsigned long ClientId);
     /**
        Returns a pointer to the context of the calling client. Currently always
        the same global context is returned.
@@ -118,42 +118,42 @@ private:
     long encodeResult(unsigned short execResult, unsigned long callingClientId,
                       char *&result, ExecuteQueryRes &resultError);
 
-    long encodeMDDs(unsigned long callingClientId, char*& result, const char* typeStructure);
+    long encodeMDDs(unsigned long callingClientId, char *&result, const char *typeStructure);
 
-    long encodeScalars(unsigned long callingClientId, char*& result, const char* typeStructure);
+    long encodeScalars(unsigned long callingClientId, char *&result, const char *typeStructure);
 
-    long encodeEmpty(char*& result);
+    long encodeEmpty(char *&result);
 
-    long encodeError(char*& result, const r_ULong  errorNo,
-                     const r_ULong lineNo, const r_ULong columnNo, const char* text);
+    long encodeError(char *&result, const r_ULong  errorNo,
+                     const r_ULong lineNo, const r_ULong columnNo, const char *text);
 
-    size_t getHeaderSize(const char* collType) const;
+    size_t getHeaderSize(const char *collType) const;
 
-    void encodeHeader(char** dst, int responseType, int endianess,
-            r_Long numObjects, const char* collType, const char* dstStart, size_t totalLength) const;
+    void encodeHeader(char **dst, int responseType, int endianess,
+                      r_Long numObjects, const char *collType, const char *dstStart, size_t totalLength) const;
 
     void swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Minterval &dom) const;
 
-    void releaseContext(ClientTblElt* context) const;
+    void releaseContext(ClientTblElt *context) const;
 
-    void skipWhitespace(char** s) const;
-    void skipWord(char** s) const;
+    void skipWhitespace(char **s) const;
+    void skipWord(char **s) const;
 
-    long insertIfNeeded(unsigned long callingClientId, char* query,
-                        int binDataSize, char* binData, int Endianess,
-                        char*& result, bool& isPersistent);
+    long insertIfNeeded(unsigned long callingClientId, char *query,
+                        int binDataSize, char *binData, int Endianess,
+                        char *&result, bool &isPersistent);
 
-    unsigned short startInsertMDD(unsigned long callingClientId, char* query,
-                                  const vector<HttpServer::MDDEncoding*> &transferredMDDs, bool &isPersistent);
+    unsigned short startInsertMDD(unsigned long callingClientId, char *query,
+                                  const vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent);
 
     unsigned short insertMDD(unsigned long callingClientId,
-                             vector<HttpServer::MDDEncoding*> &transferredMDDs, bool isPersistent);
+                             vector<HttpServer::MDDEncoding *> &transferredMDDs, bool isPersistent);
 
-    long encodeInsertError(char*& result, unsigned short execResult, vector<HttpServer::MDDEncoding*> &transferredMDDs);
+    long encodeInsertError(char *&result, unsigned short execResult, vector<HttpServer::MDDEncoding *> &transferredMDDs);
 
 
-    static vector<MDDEncoding*> getMDDs(int binDataSize, char* binData, int endianess);
-    static int encodeAckn(char*& result, int ackCode);
+    static vector<MDDEncoding *> getMDDs(int binDataSize, char *binData, int endianess);
+    static int encodeAckn(char *&result, int ackCode);
 
     // client requests allowed; this should be in sync with RasODMGGlobal.java
     static const int commOpenDB;

@@ -35,17 +35,17 @@ rasdaman GmbH.
 #include "raslib/basetype.hh"
 
 //transpose the last two dimensions of data via a temporary 2D object dataTemp
-void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType);
+void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType);
 
 //general transpose function. used to throw errors in case the transpose option,
 //and otherwise to call the transposeLastTwo function. Should also simplify
 //implementation and make it more transparent
 //in the future, one should improve upon the transpose function so that it will
-//ensure the indices are valid dimensions and if they are, transpose those two 
+//ensure the indices are valid dimensions and if they are, transpose those two
 //axes regardless of whether or not they are the last two. This would require
 //either a cumbersome memory computation, a vacancy tracking algorithm, or
 //a bit map to implement effectively. For now, we only need this for pictures,
 //and as such, transposeLastTwo is good enough for the time being.
-void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams);
+void transpose(char *data, r_Minterval &dimData, const r_Type *dataType, const std::pair<int, int> transposeParams);
 
 #endif /* TRANSPOSE_HH */

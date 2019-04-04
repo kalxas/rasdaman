@@ -57,11 +57,11 @@ using namespace std;
 
 const QtNode::QtNodeType QtNullvaluesOp::nodeType = QT_NULLVALUESOP;
 
-QtNullvaluesOp::QtNullvaluesOp(QtNullvaluesList* opList)
+QtNullvaluesOp::QtNullvaluesOp(QtNullvaluesList *opList)
     :  QtNaryOperation(), nullvalueIntervals{opList}
 {
 }
-    
+
 QtNullvaluesOp::~QtNullvaluesOp()
 {
     if (nullvalueIntervals)
@@ -71,39 +71,39 @@ QtNullvaluesOp::~QtNullvaluesOp()
     }
 }
 
-r_Double 
-QtNullvaluesOp::getDoubleValue(const QtScalarData* data)
+r_Double
+QtNullvaluesOp::getDoubleValue(const QtScalarData *data)
 {
     switch (data->getDataType())
     {
-        case QT_OCTET:
-        case QT_SHORT:
-        case QT_LONG:
-            return static_cast<r_Double>((static_cast<const QtAtomicData*>(data))->getSignedValue());
-        case QT_BOOL:
-        case QT_CHAR:
-        case QT_USHORT:
-        case QT_ULONG:
-            return static_cast<r_Double>((static_cast<const QtAtomicData*>(data))->getUnsignedValue());
-        case QT_FLOAT:
-        case QT_DOUBLE:
-            return (static_cast<const QtAtomicData*>(data))->getDoubleValue();
-        default:
-        {
-            LERROR << "Unsupported null value data type '" << data->getDataType() << "'.";
-            parseInfo.setErrorNo(499);
-            throw parseInfo;
-        }
+    case QT_OCTET:
+    case QT_SHORT:
+    case QT_LONG:
+        return static_cast<r_Double>((static_cast<const QtAtomicData *>(data))->getSignedValue());
+    case QT_BOOL:
+    case QT_CHAR:
+    case QT_USHORT:
+    case QT_ULONG:
+        return static_cast<r_Double>((static_cast<const QtAtomicData *>(data))->getUnsignedValue());
+    case QT_FLOAT:
+    case QT_DOUBLE:
+        return (static_cast<const QtAtomicData *>(data))->getDoubleValue();
+    default:
+    {
+        LERROR << "Unsupported null value data type '" << data->getDataType() << "'.";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
     }
 }
 
 
-QtData*
-QtNullvaluesOp::evaluate(QtDataList* inputList)
+QtData *
+QtNullvaluesOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtNullvaluesOp");
 
-    std::vector<std::pair<r_Double, r_Double> > nullvaluePairs;
+    std::vector<std::pair<r_Double, r_Double>> nullvaluePairs;
     for (auto it = nullvalueIntervals->begin(); it != nullvalueIntervals->end(); it++)
     {
         auto nullvalueInterval = *it;
@@ -111,10 +111,10 @@ QtNullvaluesOp::evaluate(QtDataList* inputList)
         auto high = getDoubleValue(nullvalueInterval.second);
         nullvaluePairs.emplace_back(low, high);
     }
-    
+
     r_Nullvalues nullvalues{std::move(nullvaluePairs)};
-    QtData* returnValue = new QtNullvaluesData(nullvalues);
-    
+    QtData *returnValue = new QtNullvaluesData(nullvalues);
+
     stopTimer();
 
     return returnValue;
@@ -122,7 +122,7 @@ QtNullvaluesOp::evaluate(QtDataList* inputList)
 
 
 void
-QtNullvaluesOp::printTree(int tab, ostream& s, QtChildType mode)
+QtNullvaluesOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtNullvaluesOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
@@ -132,7 +132,7 @@ QtNullvaluesOp::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtNullvaluesOp::printAlgebraicExpression(ostream& s)
+QtNullvaluesOp::printAlgebraicExpression(ostream &s)
 {
     s << "NULL VALUES [";
     QtNaryOperation::printAlgebraicExpression(s);
@@ -141,8 +141,8 @@ QtNullvaluesOp::printAlgebraicExpression(ostream& s)
 
 
 
-const QtTypeElement&
-QtNullvaluesOp::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtNullvaluesOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_MINTERVAL);
     return dataStreamType;
@@ -156,25 +156,25 @@ QtNullvaluesOp::checkType(QtTypeTuple* typeTuple)
 
 const QtNode::QtNodeType QtAddNullvalues::nodeType = QT_NULLVALUESOP;
 
-QtAddNullvalues::QtAddNullvalues(QtOperation* input, QtNullvaluesOp* nullvaluesOp)
+QtAddNullvalues::QtAddNullvalues(QtOperation *input, QtNullvaluesOp *nullvaluesOp)
     :  QtBinaryOperation(input, nullvaluesOp)
 {
 }
 
-QtData*
-QtAddNullvalues::evaluate(QtDataList* inputList)
+QtData *
+QtAddNullvalues::evaluate(QtDataList *inputList)
 {
     startTimer("QtAddNullvalues");
-    QtData* returnValue = NULL;
-    QtData* operand1 = NULL;
-    QtData* operand2 = NULL;
+    QtData *returnValue = NULL;
+    QtData *operand1 = NULL;
+    QtData *operand2 = NULL;
 
     if (getOperands(inputList, operand1, operand2))
     {
-        QtNullvaluesData* nullvaluesData = static_cast<QtNullvaluesData*>(operand2);
+        QtNullvaluesData *nullvaluesData = static_cast<QtNullvaluesData *>(operand2);
         auto *newNullvalues = new r_Nullvalues(nullvaluesData->getNullvaluesData());
-        (static_cast<QtMDD*>(operand1))->getMDDObject()->setNullValues(newNullvalues);
-        static_cast<QtMDD*>(operand1)->setNullValues(newNullvalues);
+        (static_cast<QtMDD *>(operand1))->getMDDObject()->setNullValues(newNullvalues);
+        static_cast<QtMDD *>(operand1)->setNullValues(newNullvalues);
         returnValue = operand1;
 
         // delete operand2 (operand1 is returned as is, so not deleted)
@@ -186,10 +186,10 @@ QtAddNullvalues::evaluate(QtDataList* inputList)
 
 
 void
-QtAddNullvalues::printTree(int tab, ostream& s, QtChildType mode)
+QtAddNullvalues::printTree(int tab, ostream &s, QtChildType mode)
 {
-    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAddNullvalues Object " 
-        << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAddNullvalues Object "
+      << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree(tab, s, mode);
 }
@@ -197,30 +197,38 @@ QtAddNullvalues::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtAddNullvalues::printAlgebraicExpression(ostream& s)
+QtAddNullvalues::printAlgebraicExpression(ostream &s)
 {
     s << "(";
     if (input1)
+    {
         input1->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
     s << " ";
     if (input2)
+    {
         input2->printAlgebraicExpression(s);
+    }
     else
+    {
         s << "<nn>";
+    }
     s << ")";
 }
 
 
 
-const QtTypeElement&
-QtAddNullvalues::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtAddNullvalues::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
     if (input1)
     {
-        const QtTypeElement& inputType1 = input1->checkType(typeTuple);
+        const QtTypeElement &inputType1 = input1->checkType(typeTuple);
         if (inputType1.getDataType() != QT_MDD)
         {
             LERROR << "Cannot add null values to a non-MDD value.";

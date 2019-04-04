@@ -107,21 +107,21 @@ BLOBTile::BLOBTile(r_Bytes newSize, r_Data_Format dataformat)
  *                 the char array are copied!
  ************************************************************/
 
-BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
+BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
     :   DBTile(newSize, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
 
-BLOBTile::BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat)
+BLOBTile::BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat)
     :   DBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::BLOBOID;
 }
 
-BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat, const OId& id)
+BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat, const OId &id)
     :   DBTile(newSize, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ", " << id << ")";
@@ -134,14 +134,14 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataform
     ObjectBroker::registerDBObject(this);
 }
 
-BLOBTile::BLOBTile(const OId& id)
+BLOBTile::BLOBTile(const OId &id)
     :   DBTile(id)
 {
     LTRACE << "BLOBTile(oid " << id << ")";
     readFromDb();
 }
 
-BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
+BLOBTile::BLOBTile(const OId &id, r_Bytes newSize, r_Data_Format newFmt)
     :   DBTile(id)
 {
     _isInDatabase = false;
@@ -152,7 +152,7 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
     currentFormat = r_Array;
     size = newSize;
     LTRACE << "BLOBTile(oid " << id << ", " << size << ", format " << newFmt << ")";
-    cells = static_cast<char*>(mymalloc(size * sizeof(char)));
+    cells = static_cast<char *>(mymalloc(size * sizeof(char)));
 
     // memset seems unnecessary here
 //    memset(cells, 0, size);

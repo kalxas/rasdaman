@@ -55,12 +55,12 @@ public:
     /// default constructor
     r_Set();
     /// copy constructor
-    r_Set(const r_Set<T>& set);
+    r_Set(const r_Set<T> &set);
     /// virtual destructor
     virtual ~r_Set();
 
     /// inserts an element at the beginning (no duplicates)
-    virtual void insert_element(const T& element, int no_modification = 0);
+    virtual void insert_element(const T &element, int no_modification = 0);
     /**
       The method inserts an element into the collection. If {\tt no_modification}
       is set, the {\tt mark_modified()} method of r_Object is not invoked and, therefore,

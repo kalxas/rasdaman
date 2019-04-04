@@ -51,7 +51,7 @@ rasdaman GmbH.
 // SQL error message max size
 const int MSG_MAXLEN = BUFFER_SIZE;
 
-char* error_message;
+char *error_message;
 int error_code;
 
 /*
@@ -61,7 +61,7 @@ bool
 is_error_code(int rc)
 {
     return rc != SQLITE_OK && rc != SQLITE_ROW && rc != SQLITE_DONE &&
-        rc != SQLITE_NOTICE && rc != SQLITE_WARNING;
+           rc != SQLITE_NOTICE && rc != SQLITE_WARNING;
 }
 
 /*
@@ -69,20 +69,20 @@ is_error_code(int rc)
  * Set global variables error_code and error_message in case of an error.
  */
 bool
-is_error(sqlite3* sqliteConn)
+is_error(sqlite3 *sqliteConn)
 {
     int sqlite_err_code = sqlite3_errcode(sqliteConn);
     bool error = is_error_code(sqlite_err_code);
     if (error)
     {
         error_code = sqlite_err_code;
-        error_message = const_cast<char*>(sqlite3_errmsg(sqliteConn));
+        error_message = const_cast<char *>(sqlite3_errmsg(sqliteConn));
     }
     return error;
 }
 
 void
-failOnError(const char* stmt, sqlite3* sqliteConn)
+failOnError(const char *stmt, sqlite3 *sqliteConn)
 {
     if (is_error(sqliteConn))
     {
@@ -93,7 +93,7 @@ failOnError(const char* stmt, sqlite3* sqliteConn)
 }
 
 void
-warnOnError(const char* stmt, sqlite3* sqliteConn)
+warnOnError(const char *stmt, sqlite3 *sqliteConn)
 {
     if (is_error(sqliteConn))
     {

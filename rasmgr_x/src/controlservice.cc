@@ -37,9 +37,9 @@ ControlService::~ControlService()
 {}
 
 
-grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::RasCtrlRequest* request, 
-        rasnet::service::RasCtrlResponse* response)
+grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::RasCtrlRequest *request,
+        rasnet::service::RasCtrlResponse *response)
 {
     grpc::Status status = grpc::Status::OK;
 
@@ -57,7 +57,7 @@ grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__ ((unused)) grp
 
         response->set_message(result);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }

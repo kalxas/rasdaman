@@ -109,7 +109,7 @@ private:
     std::string getValueOptionalFlag(const std::string &,
                                      bool acceptMinus = false);
     std::string getValueMandatoryFlag(const std::string &,
-                               bool acceptMinus = false);
+                                      bool acceptMinus = false);
     unsigned long convertToULong(const std::string &stringValue,
                                  const std::string &errMsg);
 

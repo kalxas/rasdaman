@@ -53,7 +53,7 @@ class IndexDS   :   public DBObject
 public:
     IndexDS(): DBObject() {}
 
-    IndexDS(const OId& id): DBObject(id) {}
+    IndexDS(const OId &id): DBObject(id) {}
 
     ~IndexDS() noexcept(false) override = default;
 
@@ -111,7 +111,7 @@ public:
         Same as above but vice versa.
     */
 
-    virtual bool isSameAs(const IndexDS* pix) const = 0;
+    virtual bool isSameAs(const IndexDS *pix) const = 0;
     /*@Doc:
         Compares two index data structures:
             When both are persistent, their oids are compared.
@@ -124,38 +124,38 @@ public:
         Removes an object from this index. It returns true if the object was successfully removed.
     */
 
-    virtual bool removeObject(const KeyObject& theKey) = 0;
+    virtual bool removeObject(const KeyObject &theKey) = 0;
     /*@Doc:
         Removes an object from this index. It returns true if the object was successfully removed.
     */
 
-    virtual void insertObject(const KeyObject& theKey, unsigned int pos) = 0;
+    virtual void insertObject(const KeyObject &theKey, unsigned int pos) = 0;
     /*@Doc:
         Inserts the object in theKey at the sppecified position.
         Position 0 means at the front.
     */
 
-    virtual void setAssignedDomain(const r_Minterval& domain) = 0;
+    virtual void setAssignedDomain(const r_Minterval &domain) = 0;
     /*@Doc:
         Sets the assigned domain.
     */
 
-    virtual void setObject(const KeyObject& theKey, unsigned int pos) = 0;
+    virtual void setObject(const KeyObject &theKey, unsigned int pos) = 0;
     /*@Doc:
         Sets the entry and domain at position pos.
     */
 
-    virtual void setObjectDomain(const r_Minterval& dom, unsigned int pos) = 0;
+    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos) = 0;
     /*@Doc:
         Sets the assigned domain of the object at position pos to dom.
     */
 
-    virtual const KeyObject& getObject(unsigned int pos) const = 0;
+    virtual const KeyObject &getObject(unsigned int pos) const = 0;
     /*@Doc:
         The requested object will be placed in result.
     */
 
-    virtual void getObjects(KeyObjectVector& objs) const = 0;
+    virtual void getObjects(KeyObjectVector &objs) const = 0;
     /*@Doc:
         Push all entries into the vector
     */
@@ -175,7 +175,7 @@ public:
 
     virtual OId::OIdPrimitive getIdentifier() const = 0;
 
-    virtual IndexDS* getNewInstance() const = 0;
+    virtual IndexDS *getNewInstance() const = 0;
 };
 
 #endif

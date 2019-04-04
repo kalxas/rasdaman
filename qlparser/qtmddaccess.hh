@@ -58,10 +58,10 @@ class QtMDDAccess : public QtONCStream
 public:
 
     /// constructor getting the collection name if no iterator name is specified
-	QtMDDAccess(const QtCollection& collection);
+    QtMDDAccess(const QtCollection &collection);
 
     /// constructor getting collection and iterator name
-	QtMDDAccess(const QtCollection& collection, const std::string& iteratorName);
+    QtMDDAccess(const QtCollection &collection, const std::string &iteratorName);
 
     /// destructor
     virtual ~QtMDDAccess();
@@ -71,7 +71,7 @@ public:
     ///
     void        open();
     ///
-    QtDataList* next();
+    QtDataList *next();
     ///
     void        close();
     ///
@@ -79,33 +79,33 @@ public:
     //@}
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// method for retrieving the current MDD collection
-    inline MDDColl* getMDDColl();
+    inline MDDColl *getMDDColl();
 
     /// type checking
-    virtual const QtTypeTuple& checkType();
+    virtual const QtTypeTuple &checkType();
 
 private:
 
-	/// QtCollection class
-	QtCollection collection;
+    /// QtCollection class
+    QtCollection collection;
 
     /// name of the iterator
     std::string iteratorName;
 
     /// pointer to the MDD collection
-    MDDColl* mddColl;
+    MDDColl *mddColl;
 
     /// pointer to the curent iterator
-    MDDCollIter* mddIter;
+    MDDCollIter *mddIter;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

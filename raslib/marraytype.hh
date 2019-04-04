@@ -50,37 +50,37 @@ class r_Marray_Type : public r_Type
 {
 public:
     /// constructor getting basetype
-    r_Marray_Type(const r_Base_Type&);
+    r_Marray_Type(const r_Base_Type &);
 
     /// copy constructor
     /// if base type is NULL an exception will be raised.
     /// this is possible
-    r_Marray_Type(const r_Marray_Type&);
+    r_Marray_Type(const r_Marray_Type &);
 
     /// assignment operator
     /// if base type is NULL an exception will be raised.
     /// this is possible
-    const r_Marray_Type& operator=(const r_Marray_Type&);
+    const r_Marray_Type &operator=(const r_Marray_Type &);
 
     bool isMarrayType() const;
 
     /// get base type
-    const r_Base_Type& base_type() const;
+    const r_Base_Type &base_type() const;
 
     /// clone operation
-    virtual r_Type* clone() const;
+    virtual r_Type *clone() const;
 
     /// retrieve id of the type.
     virtual r_Type::r_Type_Id type_id() const;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char* cells, r_Area noCells) const;
+    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char* cells, r_Area noCells) const;
+    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream& s = std::cout) const;
+    virtual void print_status(std::ostream &s = std::cout) const;
 
     /// destructor
     ~r_Marray_Type();
@@ -91,11 +91,11 @@ protected:
     r_Marray_Type();
 
     /// base type
-    r_Base_Type* baseType;
+    r_Base_Type *baseType;
 };
 
 //@Doc: write the status of a marray type to a stream
-extern std::ostream& operator<<(std::ostream& str, const r_Marray_Type& type);
+extern std::ostream &operator<<(std::ostream &str, const r_Marray_Type &type);
 
 #endif
 

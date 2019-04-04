@@ -39,7 +39,7 @@ rasdaman GmbH.
 
 // Global private static pointer used to ensure a single instance of the class,
 // originally set to NULL
-ECPG_LockManager* ECPG_LockManager::ECPG_LM_Instance = 0;
+ECPG_LockManager *ECPG_LockManager::ECPG_LM_Instance = 0;
 
 /**
  * Private default constructor such that it cannot be called from the outside.
@@ -59,7 +59,7 @@ ECPG_LockManager::ECPG_LockManager()
  *
  * @return a pointer to the created instance of the class
  */
-ECPG_LockManager* ECPG_LockManager::Instance()
+ECPG_LockManager *ECPG_LockManager::Instance()
 {
     // Allow only one instance of class to be generated
     if (!ECPG_LM_Instance)
@@ -82,12 +82,12 @@ ECPG_LockManager* ECPG_LockManager::Instance()
  *     the string corresponding to the password which should be used for the connection
  * @return a bool value corresponding to the success of the connection
  */
-bool ECPG_LockManager::connect(const char* pDatabaseTarget, const char* pConnectionName, const char* pUsername, const char* pPassword)
+bool ECPG_LockManager::connect(const char *pDatabaseTarget, const char *pConnectionName, const char *pUsername, const char *pPassword)
 {
-    const char* target = pDatabaseTarget;
-    const char* connectionName = pConnectionName;
-    const char* user = pUsername;
-    const char* password = pPassword;
+    const char *target = pDatabaseTarget;
+    const char *connectionName = pConnectionName;
+    const char *user = pUsername;
+    const char *password = pPassword;
 //    if (pUsername && pPassword)
 //    {
 //        EXEC SQL CONNECT TO :target AS :connectionName USER :user USING :password;
@@ -119,7 +119,7 @@ bool ECPG_LockManager::connect(const char* pDatabaseTarget, const char* pConnect
  *     the string corresponding to the connection name of the lockmanager
  * @return a bool value corresponding to the success of disconnecting from the database
  */
-bool ECPG_LockManager::disconnect(__attribute__((unused)) const char* pConnectionName)
+bool ECPG_LockManager::disconnect(__attribute__((unused)) const char *pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -135,7 +135,7 @@ bool ECPG_LockManager::disconnect(__attribute__((unused)) const char* pConnectio
  * @param pConnectionName
  *     the string corresponding to the connection name of the lockmanager
  */
-void ECPG_LockManager::beginTransaction(__attribute__((unused)) const char* pConnectionName)
+void ECPG_LockManager::beginTransaction(__attribute__((unused)) const char *pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -149,7 +149,7 @@ void ECPG_LockManager::beginTransaction(__attribute__((unused)) const char* pCon
  * @param pConnectionName
  *     the string corresponding to the connection name of the lockmanager
  */
-void ECPG_LockManager::endTransaction(__attribute__((unused)) const char* pConnectionName)
+void ECPG_LockManager::endTransaction(__attribute__((unused)) const char *pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -167,7 +167,7 @@ void ECPG_LockManager::endTransaction(__attribute__((unused)) const char* pConne
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
-void ECPG_LockManager::lockTileShared(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId, __attribute__((unused)) long long pTileId)
+void ECPG_LockManager::lockTileShared(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId, __attribute__((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -189,7 +189,7 @@ void ECPG_LockManager::lockTileShared(__attribute__((unused)) const char* pConne
  * @param pEndId
  *     the id corresponding to the last tile to be locked (upper bound of interval)
 */
-void ECPG_LockManager::lockTilesShared(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId, __attribute__((unused)) long long pBeginId, __attribute__((unused)) long long pEndId)
+void ECPG_LockManager::lockTilesShared(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId, __attribute__((unused)) long long pBeginId, __attribute__((unused)) long long pEndId)
 {
     /*    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedShared(pConnectionName, pRasServerId, pBeginId, pEndId)))*/
     /*    {*/
@@ -218,7 +218,7 @@ void ECPG_LockManager::lockTilesShared(__attribute__((unused)) const char* pConn
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
-void ECPG_LockManager::lockTileExclusive(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId, __attribute__((unused)) long long pTileId)
+void ECPG_LockManager::lockTileExclusive(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId, __attribute__((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -240,7 +240,7 @@ void ECPG_LockManager::lockTileExclusive(__attribute__((unused)) const char* pCo
  * @param pEndId
  *     the id corresponding to the last tile to be locked (upper bound of interval)
 */
-void ECPG_LockManager::lockTilesExclusive(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId, __attribute__((unused)) long long pBeginId, __attribute__((unused)) long long pEndId)
+void ECPG_LockManager::lockTilesExclusive(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId, __attribute__((unused)) long long pBeginId, __attribute__((unused)) long long pEndId)
 {
 //    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedExclusive(pConnectionName, pRasServerId, pBeginId, pEndId)))
 //    {
@@ -269,7 +269,7 @@ void ECPG_LockManager::lockTilesExclusive(__attribute__((unused)) const char* pC
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
-void ECPG_LockManager::unlockTile(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId, __attribute__((unused)) long long pTileId)
+void ECPG_LockManager::unlockTile(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId, __attribute__((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -288,7 +288,7 @@ void ECPG_LockManager::unlockTile(__attribute__((unused)) const char* pConnectio
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void ECPG_LockManager::unlockAllTiles(__attribute__((unused)) const char* pConnectionName, __attribute__((unused)) const char* pRasServerId)
+void ECPG_LockManager::unlockAllTiles(__attribute__((unused)) const char *pConnectionName, __attribute__((unused)) const char *pRasServerId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -309,12 +309,12 @@ void ECPG_LockManager::unlockAllTiles(__attribute__((unused)) const char* pConne
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile is locked or not
  */
-bool ECPG_LockManager::isTileLocked(const char* pConnectionName, const char* pRasServerId, long long pTileId)
+bool ECPG_LockManager::isTileLocked(const char *pConnectionName, const char *pRasServerId, long long pTileId)
 {
     int result;
     if (!pRasServerId)
     {
-        const char* connectionName = pConnectionName;
+        const char *connectionName = pConnectionName;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query1 INTO :rowCount USING :tileId;
@@ -322,8 +322,8 @@ bool ECPG_LockManager::isTileLocked(const char* pConnectionName, const char* pRa
     }
     else
     {
-        const char* connectionName = pConnectionName;
-        const char* rasServerId = pRasServerId;
+        const char *connectionName = pConnectionName;
+        const char *rasServerId = pRasServerId;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query4 INTO :rowCount USING :tileId, :rasServerId;
@@ -350,12 +350,12 @@ bool ECPG_LockManager::isTileLocked(const char* pConnectionName, const char* pRa
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile has a shared locked or not
  */
-bool ECPG_LockManager::isTileLockedShared(const char* pConnectionName, const char* pRasServerId, long long pTileId)
+bool ECPG_LockManager::isTileLockedShared(const char *pConnectionName, const char *pRasServerId, long long pTileId)
 {
     int result;
     if (!pRasServerId)
     {
-        const char* connectionName = pConnectionName;
+        const char *connectionName = pConnectionName;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query5 INTO :rowCount USING :tileId, 1;
@@ -363,8 +363,8 @@ bool ECPG_LockManager::isTileLockedShared(const char* pConnectionName, const cha
     }
     else
     {
-        const char* connectionName = pConnectionName;
-        const char* rasServerId = pRasServerId;
+        const char *connectionName = pConnectionName;
+        const char *rasServerId = pRasServerId;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query8 INTO :rowCount USING :tileId, :rasServerId, 1;
@@ -391,12 +391,12 @@ bool ECPG_LockManager::isTileLockedShared(const char* pConnectionName, const cha
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile has an exclusive locked or not
  */
-bool ECPG_LockManager::isTileLockedExclusive(const char* pConnectionName, const char* pRasServerId, long long pTileId)
+bool ECPG_LockManager::isTileLockedExclusive(const char *pConnectionName, const char *pRasServerId, long long pTileId)
 {
     int result;
     if (!pRasServerId)
     {
-        const char* connectionName = pConnectionName;
+        const char *connectionName = pConnectionName;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query9 INTO :rowCount USING :tileId, 1;
@@ -404,8 +404,8 @@ bool ECPG_LockManager::isTileLockedExclusive(const char* pConnectionName, const 
     }
     else
     {
-        const char* connectionName = pConnectionName;
-        const char* rasServerId = pRasServerId;
+        const char *connectionName = pConnectionName;
+        const char *rasServerId = pRasServerId;
         long long tileId = pTileId;
         int rowCount = 0;
 //        EXEC SQL AT :connectionName EXECUTE select_query12 INTO :rowCount USING :tileId, :rasServerId, 1;
@@ -429,10 +429,10 @@ bool ECPG_LockManager::isTileLockedExclusive(const char* pConnectionName, const 
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void ECPG_LockManager::clearLockTable(const char* pConnectionName, const char* pRasServerId)
+void ECPG_LockManager::clearLockTable(const char *pConnectionName, const char *pRasServerId)
 {
-    const char* connectionName = pConnectionName;
-    const char* rasServerId = pRasServerId;
+    const char *connectionName = pConnectionName;
+    const char *rasServerId = pRasServerId;
 //    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
 //        WHERE (RasServerID = :rasServerId);
 }
@@ -446,10 +446,10 @@ void ECPG_LockManager::clearLockTable(const char* pConnectionName, const char* p
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void ECPG_LockManager::clearWLikeLockTable(const char* pConnectionName, const char* pRasServerId)
+void ECPG_LockManager::clearWLikeLockTable(const char *pConnectionName, const char *pRasServerId)
 {
-    const char* connectionName = pConnectionName;
-    const char* rasServerId = pRasServerId;
+    const char *connectionName = pConnectionName;
+    const char *rasServerId = pRasServerId;
 //    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
 //        WHERE (RasServerID LIKE '%' || :rasServerId);
 }

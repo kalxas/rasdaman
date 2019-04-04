@@ -57,7 +57,7 @@ values. The value of a Long is stored in four chars.
 class LongType : public IntegralType
 {
 public:
-    LongType(const OId& id);
+    LongType(const OId &id);
     /*@Doc:
     */
 
@@ -66,12 +66,12 @@ public:
     default constructor, sets type name to "Long".
     */
 
-    LongType(const LongType& old);
+    LongType(const LongType &old);
     /*@Doc:
     copy constructor.
     */
 
-    LongType& operator=(const LongType& old);
+    LongType &operator=(const LongType &old);
     /*@Doc:
     assignment operator.
     */
@@ -81,20 +81,20 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     there is concern about the MSB..LSB problem in the source code.
     */
 
-    virtual r_Long* convertToCLong(const char* cell, r_Long* value) const;
+    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCLong(char* cell, const r_Long* value) const;
+    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

@@ -20,7 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/* 
+/*
  * File:   qtpolygonclipping.hh
  * Author: bbell
  *
@@ -38,7 +38,7 @@ rasdaman GmbH.
 //positive genus means the polygon has holes; in other words, drilled-out interior regions which are polygons themselves.
 
 #ifndef QTPOLYGONCLIPPING_HH
-#define	QTPOLYGONCLIPPING_HH
+#define QTPOLYGONCLIPPING_HH
 
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
@@ -48,37 +48,43 @@ class QtPolygonClipping
 {
 public:
     /// constructor getting the mShape (collection of points) and a bounding box.
-    QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices);
-    
+    QtPolygonClipping(const r_Minterval &areaOp, const std::vector<r_Point> &vertices);
+
     QtPolygonClipping();
-  
+
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
-    virtual vector< vector<char> > generateMask(bool toFill);
-    
-    inline void setDomain(const r_Minterval& arg) { domain = arg; };
-    inline void setPolygonVertices(const vector<r_Point>& arg) { polygonVertices = arg; };
-    
+    virtual vector< vector<char>> generateMask(bool toFill);
+
+    inline void setDomain(const r_Minterval &arg)
+    {
+        domain = arg;
+    };
+    inline void setPolygonVertices(const vector<r_Point> &arg)
+    {
+        polygonVertices = arg;
+    };
+
     const r_Minterval getDomain() const;
 
 private:
     /// the area of interest
-    r_Minterval domain;    
-    
+    r_Minterval domain;
+
     /// the vector of vertices
     vector< r_Point> polygonVertices;
 };
-#endif	/* QTPOLYGONCLIPPING_HH */
+#endif  /* QTPOLYGONCLIPPING_HH */
 
 #ifndef QTPOSITIVEGENUSCLIPPING_HH
-#define	QTPOSITIVEGENUSCLIPPING_HH
+#define QTPOSITIVEGENUSCLIPPING_HH
 
 class QtPositiveGenusClipping : public QtPolygonClipping
 {
 public:
-    QtPositiveGenusClipping(const r_Minterval& areaOp, const std::vector<QtMShapeData*>& polygonArgs);
-    
-    virtual vector< vector<char> > generateMask(bool toFill) override;
-    
+    QtPositiveGenusClipping(const r_Minterval &areaOp, const std::vector<QtMShapeData *> &polygonArgs);
+
+    virtual vector< vector<char>> generateMask(bool toFill) override;
+
 private:
     std::vector< QtPolygonClipping > interiorPolygons;
 };

@@ -61,7 +61,7 @@ r_Parse_Params::r_Parse_Params(unsigned int num)
 {
     number = 0;
     maxnum = num;
-    params = static_cast<parse_params_t*>(mymalloc(maxnum * sizeof(parse_params_t)));
+    params = static_cast<parse_params_t *>(mymalloc(maxnum * sizeof(parse_params_t)));
 }
 
 
@@ -74,7 +74,7 @@ r_Parse_Params::~r_Parse_Params(void)
 }
 
 
-int r_Parse_Params::add(const char* key, void* store, parse_param_type type)
+int r_Parse_Params::add(const char *key, void *store, parse_param_type type)
 {
 #ifdef DEBUG
     LTRACE << "add('" << (key ? key : "NULL") << "', " << (store ? store : "NULL") << "," << type << ")";
@@ -85,11 +85,11 @@ int r_Parse_Params::add(const char* key, void* store, parse_param_type type)
         maxnum += granularity;
         if (params == NULL)
         {
-            params = static_cast<parse_params_t*>(mymalloc(maxnum * sizeof(parse_params_t)));
+            params = static_cast<parse_params_t *>(mymalloc(maxnum * sizeof(parse_params_t)));
         }
         else
         {
-            params = static_cast<parse_params_t*>(realloc(params, maxnum * sizeof(parse_params_t)));
+            params = static_cast<parse_params_t *>(realloc(params, maxnum * sizeof(parse_params_t)));
         }
 
         if (params == NULL)
@@ -107,24 +107,24 @@ int r_Parse_Params::add(const char* key, void* store, parse_param_type type)
 }
 
 
-int r_Parse_Params::add(const std::string& key, void* store, parse_param_type type)
+int r_Parse_Params::add(const std::string &key, void *store, parse_param_type type)
 {
     return add(key.c_str(), store, type);
 }
 
 
-int r_Parse_Params::process(const char* str) const
+int r_Parse_Params::process(const char *str) const
 {
     return this->process(str, ',', false);
 }
 
 
-int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpaces) const
+int r_Parse_Params::process(const char *str, char separator, bool withWhiteSpaces) const
 {
     static const int lenBuff = 256;
     static char buff[lenBuff];
     int numkeys = 0;
-    const char* b = str;
+    const char *b = str;
 
     LTRACE << "process('" << (str ? str : "NULL") << ")";
 
@@ -148,7 +148,7 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
         }
         if (isalpha(static_cast<unsigned int>(*b)))
         {
-            const char* key = b;
+            const char *key = b;
             unsigned int klen;
             unsigned int knum;
             int inquotes;
@@ -187,7 +187,7 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
                     }
                     if ((*b != separator) && (*b != '\0'))
                     {
-                        const char* aux = b;
+                        const char *aux = b;
 
                         switch (params[knum].type)
                         {
@@ -196,14 +196,14 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
                             int val = 0;
 
                             errno = 0;
-                            val = strtol(b, const_cast<char**>(&aux), 10);
+                            val = strtol(b, const_cast<char **>(&aux), 10);
                             if ((b == aux) || errno)
                             {
                                 statval = -1;
                             }
                             else
                             {
-                                int* vptr = static_cast<int*>(params[knum].store);
+                                int *vptr = static_cast<int *>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -215,14 +215,14 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
                             double val = 0.;
 
                             errno = 0;
-                            val = strtod(b, const_cast<char**>(&aux));
+                            val = strtod(b, const_cast<char **>(&aux));
                             if ((b == aux) || errno)
                             {
                                 statval = -1;
                             }
                             else
                             {
-                                double* vptr = static_cast<double*>(params[knum].store);
+                                double *vptr = static_cast<double *>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -269,7 +269,7 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
                             }
                             if (vlen > 0)
                             {
-                                char** vptr = static_cast<char**>(params[knum].store);
+                                char **vptr = static_cast<char **>(params[knum].store);
                                 if (*vptr != NULL)
                                 {
                                     delete [] *vptr;
@@ -365,7 +365,7 @@ int r_Parse_Params::process(const char* str, char separator, bool withWhiteSpace
 //    return ret;
 //}
 
-std::ostream& operator<<(std::ostream& s, const r_Parse_Params::parse_param_type& d)
+std::ostream &operator<<(std::ostream &s, const r_Parse_Params::parse_param_type &d)
 {
     switch (d)
     {

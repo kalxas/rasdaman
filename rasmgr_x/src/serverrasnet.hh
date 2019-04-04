@@ -58,7 +58,7 @@ public:
      * @param port The port on which the server will run. The port is int32_t to allow for compatibility with protobuf and java..
      * @param dbHost Reference to the database host to which this server will connect.
      */
-    ServerRasNet(const ServerConfig& config);
+    ServerRasNet(const ServerConfig &config);
 
     virtual ~ServerRasNet();
 
@@ -79,7 +79,7 @@ public:
      * @return true if the client is alive, false otherwise
      * @throws runtime_error if the server cannot be contacted.
      */
-    virtual bool isClientAlive(const std::string& clientId);
+    virtual bool isClientAlive(const std::string &clientId);
 
     /**
      * Allocate the client with the given ID and session ID to the server and respective database.
@@ -88,14 +88,14 @@ public:
      * @param dbName name of the database which will be opened.
      * @param dbRights rights the client has on this database
      */
-    virtual void allocateClientSession(const std::string& clientId, const std::string& sessionId, const std::string& dbName, const UserDatabaseRights& dbRights);
+    virtual void allocateClientSession(const std::string &clientId, const std::string &sessionId, const std::string &dbName, const UserDatabaseRights &dbRights);
 
     /**
      * Remove the client with the given ID and session ID from the server.
      * @param clientId
      * @param sessionId
      */
-    virtual void deallocateClientSession(const std::string& clientId, const std::string& sessionId);
+    virtual void deallocateClientSession(const std::string &clientId, const std::string &sessionId);
 
     /**
      * Register this server and transfer it to the FREE state.
@@ -103,7 +103,7 @@ public:
      * The serverId must be the same as the one used to initialize the object.
      * @param serverId UUID used to identify the server
      */
-    virtual void registerServer(const std::string& serverId);
+    virtual void registerServer(const std::string &serverId);
 
     /**
      * @brief getTransactionNo Get the number of client sessions processed
@@ -210,18 +210,18 @@ private:
      * @brief configureClientContext Configure the client context for calls to the server.
      * @param context
      */
-    void configureClientContext(grpc::ClientContext& context);
+    void configureClientContext(grpc::ClientContext &context);
 
     //TODO-AT: remove this
-    const char* getCapability(const char* serverName, const char* databaseName, const UserDatabaseRights& rights);
-    int messageDigest(const char* input, char* output, const char* mdName);
-    const char* convertDatabRights(const UserDatabaseRights& dbRights);
+    const char *getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights &rights);
+    int messageDigest(const char *input, char *output, const char *mdName);
+    const char *convertDatabRights(const UserDatabaseRights &dbRights);
 
     /**
      * @return true if the server process is still available on the system.
      */
     bool isProcessAlive() const;
-    
+
     /**
      * @return true if the hostName:port is valid
      */

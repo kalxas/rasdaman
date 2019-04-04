@@ -85,17 +85,17 @@ class Tile
 public:
 
     /// assignment operator (needed, as class uses dynamic memory).
-    const Tile& operator=(const Tile& cell);
+    const Tile &operator=(const Tile &cell);
 
-    Tile(const r_Minterval& newDom, const BaseType* newType, DBTileId newBLOBTile);
+    Tile(const r_Minterval &newDom, const BaseType *newType, DBTileId newBLOBTile);
     /*Doc
       Constructs a new Tile with basetype {\tt newType} and spatial
       domain {\tt newDom}. Its contents are stored in \Ref{BLOBTile}
       {\tt newBLOBTile}. The contents are potentially compressed.
     */
-    Tile(const Tile& tile);
+    Tile(const Tile &tile);
     /// constructs a TransTile joined out of the Tiles in {\tt tilesVec}.
-    Tile(std::vector<Tile*>* tilesVec);
+    Tile(std::vector<Tile *> *tilesVec);
     /*@Doc:
       Constructs a new Tile out of the vector {\tt tilesVec}
       containing pointers to tiles. The Tile created has the
@@ -111,7 +111,7 @@ public:
       and the contents joined out of the Tiles in {\tt tilesVec}.
     */
     template <typename TilePtr>
-    Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom);
+    Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom);
     /*@Doc:
       Constructs a new Tile out of the vector {\tt tilesVec}
       containing pointers to tiles. The contents which fall in the area
@@ -124,7 +124,7 @@ public:
       tilesVec} has to overlap with {\tt resDom}.
     */
     /// constructs Tile as projection of {\tt projTile}.
-    Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Dimension, std::less<r_Dimension>>* projDim);
+    Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Dimension, std::less<r_Dimension>> *projDim);
     /*@Doc:
       Constructs a new Tile out of the projection of Tile {\tt
       projTile} with the dimensions given in {\tt projDim} projected
@@ -136,13 +136,13 @@ public:
     */
     /*@ManMemo: constructs a Tile with base type {\tt newType} and
             spatial domain {\tt newDom}. */
-    Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format newFormat = r_Array);
+    Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format newFormat = r_Array);
     /*@Doc
       The contents are undefined! This constructor should usually not
       be used.
     */
     /// constructs a Tile with contents {\tt newCells}.
-    Tile(const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, char* newCells, r_Bytes newSize, r_Data_Format newFormat);
+    Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells, char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
       Constructs a new Tile with basetype {\tt newType} and spatial
       domain {\tt newDom}. The char array {\tt newCells} contains the
@@ -153,7 +153,7 @@ public:
       The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
       newCells is directly owned by DBTile.
     */
-    Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCells, r_Bytes newSize, r_Data_Format newFormat);
+    Tile(const r_Minterval &newDom, const BaseType *newType, const char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
       Constructs a new Tile with basetype {\tt newType} and spatial
       domain {\tt newDom}. The char array {\tt newCells} contains the
@@ -166,9 +166,9 @@ public:
     //@Man: read methods
     //@{
     /// returns the spatial domain of the tile.
-    const r_Minterval& getDomain() const;
+    const r_Minterval &getDomain() const;
     /// returns the BaseType of the tile.
-    const BaseType* getType() const;
+    const BaseType *getType() const;
     /// returns the dimension of the tile.
     r_Dimension getDimension() const;
     /// returns size of the (uncompressed) contents of the tile in chars.
@@ -186,21 +186,21 @@ public:
     //@Man: functions to reading and writing the content.
     //@{
     /// access to cell for reading (index is 1D) one cell length is basetype length.
-    const char* getCell(r_Area index) const;
+    const char *getCell(r_Area index) const;
     /// access to cell for modifying (index is 1D).
-    char* getCell(r_Area index);
+    char *getCell(r_Area index);
     /// set cell (index is 1D).
-    void setCell(r_Area index, const char* newCell);
+    void setCell(r_Area index, const char *newCell);
     /// access to a cell using an r_Point.
-    char* getCell(const r_Point& aPoint);
+    char *getCell(const r_Point &aPoint);
     /// access to a cell using an r_Point.
-    const char* getCell(const r_Point& aPoint) const;
+    const char *getCell(const r_Point &aPoint) const;
     /// returns pointer to (uncompressed) contents of Tile.
-    const char* getContents() const;
+    const char *getContents() const;
     /// returns pointer to (uncompressed) contents of Tile.
-    char* getContents();
+    char *getContents();
     /// sets (uncompressed) contents of Tile.
-    void setContents(char* newContents);
+    void setContents(char *newContents);
     /*@Doc:
       The memory for the cells is managed by the Tile and has to be
       allocated with malloc(). Its size has to be correct according to
@@ -209,7 +209,7 @@ public:
     //@}
 
     /// printed output for testing.
-    void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     /*@Doc:
        Prints the contents of the Tile on stream. Prints every cell in
        the Tile with the {\tt printCell} function of the \Ref{BaseType}.
@@ -220,7 +220,7 @@ public:
     void setPersistent(bool state = true);
 
     /// splits tile in vector of tiles of smaller size.
-    std::vector<Tile*>* splitTile(r_Minterval resDom, int storageDomain = 0);
+    std::vector<Tile *> *splitTile(r_Minterval resDom, int storageDomain = 0);
     /*@Doc:
        The Tile is split into subtiles with the same extent as {\tt
        resDom}. The storage domain (pers. or transient) of the subtiles is
@@ -239,7 +239,7 @@ public:
     //@Man: methods for carrying out operations
     //@{
     /// carries out condense function (const)
-    char* execCondenseOp(CondenseOp* myOp, const r_Minterval& areaOp);
+    char *execCondenseOp(CondenseOp *myOp, const r_Minterval &areaOp);
     /*@Doc:
       The condense function {\tt myOp} is applied to all cells of self in
       the area {\tt areaOp}. The result is stored in myOp which also
@@ -250,7 +250,7 @@ public:
 
 
     /// carries out unary function with self as result.
-    void execUnaryOp(UnaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp);
+    void execUnaryOp(UnaryOp *myOp, const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp);
     /*@Doc:
       The unary function {\tt myOp} is applied to all cells of the tile
       {\tt opTile} in the area {\tt areaOp}. The result of the
@@ -259,9 +259,9 @@ public:
     */
 
     /// carries out binary function with self as result.
-    void execBinaryOp(BinaryOp* myOp, const r_Minterval& areaRes,
-                      const Tile* op1Tile, const r_Minterval& areaOp1,
-                      const Tile* op2Tile, const r_Minterval& areaOp2);
+    void execBinaryOp(BinaryOp *myOp, const r_Minterval &areaRes,
+                      const Tile *op1Tile, const r_Minterval &areaOp1,
+                      const Tile *op2Tile, const r_Minterval &areaOp2);
     /*@Doc:
       The binary function {\tt myOp} is applied to all cells of the tiles
       {\tt op1Tile} and {\tt op2Tile} in the respective areas. The
@@ -271,9 +271,9 @@ public:
     */
 
     /// carries out binary function with self as result.
-    virtual void execConstOp(BinaryOp* myOp, const r_Minterval& areaRes,
-                             const Tile* opTile, const r_Minterval& areaOp,
-                             const char* cell, int constPos = 1);
+    virtual void execConstOp(BinaryOp *myOp, const r_Minterval &areaRes,
+                             const Tile *opTile, const r_Minterval &areaOp,
+                             const char *cell, int constPos = 1);
     /*@Doc:
       The binary function {\tt op} is applied to all cells of the tile
       {\tt op1Tile} and the constant {\tt cell} in the area {\tt
@@ -286,14 +286,14 @@ public:
 
 
     /// fills tile in area {\tt areaRes} using MarrayOp {\tt myOp}.
-    virtual void execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval& areaOp);
+    virtual void execMarrayOp(MarrayOp *myOp, const r_Minterval &areaRes, const r_Minterval &areaOp);
     /*@Doc:
       {\tt myOp} maps a point to a value. It is important that the base
       type specified it the same as the tile has.
     */
 
     /// executes general condense operation {\tt myOp} in area {\tt areaOp} (const)
-    static char* execGenCondenseOp(GenCondenseOp* myOp, const r_Minterval& areaOp);
+    static char *execGenCondenseOp(GenCondenseOp *myOp, const r_Minterval &areaOp);
     /*@Doc:
       {\tt myOp} maps a point to a value. The return values has the resType
       defined in {\tt myOp}. The tile is not accessed (static function),
@@ -301,7 +301,7 @@ public:
       operation execution functions.
     */
     /// executes scaling operation.
-    virtual void execScaleOp(const Tile* opTile, const r_Minterval& areaOp);
+    virtual void execScaleOp(const Tile *opTile, const r_Minterval &areaOp);
     /*@Doc:
       The tile {\tt opTile} is scaled down in each dimension by the
       corresponding element in vector {\tt scaleFactors}. The result
@@ -316,9 +316,9 @@ public:
     /// return spatial domain of result tile for scaling in areaScaled.
     /// return 0 if the result tile will be empty.
     /// (the same function, but with implicit origin (0,0,...0) and working fine!)
-    int scaleGetDomain(const r_Minterval& areaOp,
-                       const std::vector<double>& scaleFactors,
-                       r_Minterval& areaScaled);
+    int scaleGetDomain(const r_Minterval &areaOp,
+                       const std::vector<double> &scaleFactors,
+                       r_Minterval &areaScaled);
 
     /*@Doc:
       Return result domain in areaScaled if scaling using the factors in
@@ -333,15 +333,15 @@ public:
     virtual ~Tile();
 
     /// copy a subcube from one tile to another
-    virtual void copyTile(const r_Minterval& areaRes, const Tile* opTile, const r_Minterval& areaOp);
+    virtual void copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp);
     /*@Doc:
       The part of opTile covered by areaOp is copied to areaRes of this tile. Identical in functionality to execUnaryOp(OP_IDENTITY, ...) but much faster.
       Requires matching base types and matching domains.
     */
-    
+
     /// copy a subcube from one tile to another, with offsets per cell for the result and the operand
     /// and band sizes for the result and operand
-    virtual void copyTile(const r_Minterval& areaRes, boost::shared_ptr<Tile>& opTile, const r_Minterval& areaOp, 
+    virtual void copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
                           const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize);
 
     DBTileId getDBTile();
@@ -362,20 +362,20 @@ protected:
     //@Man: utility functions used internally.
     //@{
     /// calculate offset in cells
-    r_Bytes calcOffset(const r_Point& point) const;
+    r_Bytes calcOffset(const r_Point &point) const;
     // fill cells of size size with pattern newCell of size patSize.
     //@}
 
     /// spatial domain of the tile.
     r_Minterval domain;
     /// pointer to base type for cells of Tile.
-    const BaseType* type;
+    const BaseType *type;
     /// Smart pointer to the persistent BLOBTile.
     DBTileId blobTile;
 };
 
 template <typename TilePtr>
-Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
+Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom)
     :   domain(resDom)
 {
     // get first Tile
@@ -385,15 +385,19 @@ Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
 
     // init contents
     if (RMInit::useTileContainer)
+    {
         blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
+    }
     else
+    {
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
+    }
 
     // insert all tiles in the result tile
     while (tileIt != tilesVec->end())
     {
         auto currDom = (*tileIt)->getDomain().create_intersection(resDom);
-        copyTile(currDom, (&** tileIt), currDom);
+        copyTile(currDom, (& **tileIt), currDom);
         tileIt++;
     }
 }

@@ -148,11 +148,11 @@ class RMDebug : public RM_Class
 {
 public:
     /// constructor, initializes members and prints message.
-    RMDebug(const char* newClass, const char* newFunc, const char* newModule,
-            const char* newFile, int newLine);
+    RMDebug(const char *newClass, const char *newFunc, const char *newModule,
+            const char *newFile, int newLine);
     /// constructor taking an identifier to the module for more efficiency
-    RMDebug(int newLevel, const char* newClass, const char* newFun, int newModuleNum,
-            const char* newFile, int newLine);
+    RMDebug(int newLevel, const char *newClass, const char *newFun, int newModuleNum,
+            const char *newFile, int newLine);
     /// destructor, prints message.
     ~RMDebug(void);
 
@@ -165,7 +165,7 @@ public:
         return allModuleLevels[modNum];
     }
     /// get the name of a module by its number
-    static inline const char* getModuleName(int modNum)
+    static inline const char *getModuleName(int modNum)
     {
         return allModuleNames[modNum];
     }
@@ -180,7 +180,7 @@ public:
 
     /// return whether debug output should happen for the given module, class
     /// and debugging level
-    static int debugOutput(int dbgLevel, int modNum, const char* className);
+    static int debugOutput(int dbgLevel, int modNum, const char *className);
 
     /// all modules for debugging
     enum
@@ -222,20 +222,20 @@ private:
     /// checks, if messages should be printed.
     int checkDebug(void);
     /// loads a file containing text and returns a 0-terminated string
-    static char* loadTextFile(const char* name);
+    static char *loadTextFile(const char *name);
     /*@Doc:
        If {\tt debugModules} or {\tt debugClasses} is set, checks
        if myModule or myClass is in the corresponding array.
     */
 
     /// name of class.
-    const char* myClass;
+    const char *myClass;
     /// name of function (no parameters).
-    const char* myFunc;
+    const char *myFunc;
     /// name of module.
-    const char* myModule;
+    const char *myModule;
     /// name of source file.
-    const char* myFile;
+    const char *myFile;
     /// line of code where destructor call is.
     int myLine;
     /// number of module
@@ -247,19 +247,19 @@ private:
     /// number of strings in {\tt debugModules}.
     static int numDebugModules;
     /// array with pointers into names of modules to be debugged.
-    static char** debugModules;
+    static char **debugModules;
     /// names of modules to be debugged.
-    static char* debugModulesText;
+    static char *debugModulesText;
     /// number of strings in {\tt debugClasses}.
     static int numDebugClasses;
     /// array with pointers into names of classes to be debugged.
-    static char** debugClasses;
+    static char **debugClasses;
     /// names of class es to be debugged.
-    static char* debugClassesText;
+    static char *debugClassesText;
     /// translate index of debug module into index of all modules
-    static int* transDebugModules;
+    static int *transDebugModules;
     /// names of all modules
-    static const char* allModuleNames[];
+    static const char *allModuleNames[];
     /// the debug levels for all modules
     static int allModuleLevels[];
 };
@@ -305,7 +305,7 @@ class RMTimer : public RM_Class
 {
 public:
     /// constructor, initializes members and starts timer.
-    inline RMTimer(const char* newClass, const char* newFunc,
+    inline RMTimer(const char *newClass, const char *newFunc,
                    int newBmLevel = 4);
     /**
       The parameters newClass and newFunc have to be string literals. Just
@@ -340,9 +340,9 @@ public:
 
 private:
     /// name of class.
-    const char* myClass;
+    const char *myClass;
     /// name of function (no parameters).
-    const char* myFunc;
+    const char *myFunc;
     /// flag, if stop() should print timing information
     int output;
     /// stores benchmark level, checked before output.
@@ -380,7 +380,7 @@ class RMCounter : public RM_Class
 {
 public:
     /// constructor, increments indent level if the class should be debugged.
-    RMCounter(int levell, int module, const char* cls);
+    RMCounter(int levell, int module, const char *cls);
     /// destructor, decrements indent level.
     ~RMCounter();
 private:

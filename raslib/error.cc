@@ -48,19 +48,19 @@ r_Error::r_Error()
 }
 
 r_Error::r_Error(kind theKindArg, unsigned int newErrorNo)
-        : errorNo(newErrorNo), theKind(theKindArg)
+    : errorNo(newErrorNo), theKind(theKindArg)
 {
     resetErrorText();
 }
 
 r_Error::r_Error(unsigned int errorno)
-        : errorNo(errorno)
+    : errorNo(errorno)
 {
     resetErrorText();
 }
 
 r_Error::r_Error(const char *what)
-       : errorText{what}, errorNo(0u), theKind(r_EGeneral)
+    : errorText{what}, errorNo(0u), theKind(r_EGeneral)
 {
 }
 
@@ -104,51 +104,141 @@ r_Error::setErrorTextOnKind()
 {
     switch (theKind)
     {
-    case r_Error_General: errorText = "ODMG General"; break;
-    case r_Error_DatabaseClassMismatch: errorText = "Database Class Mismatch"; break;
-    case r_Error_DatabaseClassUndefined: errorText = "Database Class Undefined"; break;
-    case r_Error_DatabaseClosed: errorText = "Database Closed"; break;
-    case r_Error_DatabaseOpen: errorText = "Database Open"; break;
-    case r_Error_DateInvalid: errorText = "Date Invalid"; break;
-    case r_Error_IteratorExhausted: errorText = "Iterator Exhausted"; break;
-    case r_Error_NameNotUnique: errorText = "Name Not Unique"; break;
-    case r_Error_QueryParameterCountInvalid: errorText = "Query Parameter Count Invalid"; break;
-    case r_Error_QueryParameterTypeInvalid: errorText = "Query Parameter Type Invalid"; break;
-    case r_Error_RefInvalid: errorText = "Ref Invalid"; break;
-    case r_Error_RefNull: errorText = "Ref Null"; break;
-    case r_Error_TimeInvalid: errorText = "Time Invalid"; break;
-    case r_Error_TimestampInvalid: errorText = "Timestamp Invalid"; break;
-    case r_Error_TransactionOpen: errorText = "Transaction Open"; break;
-    case r_Error_TransactionNotOpen: errorText = "Transaction Not Open"; break;
-    case r_Error_TypeInvalid: errorText = "Type Invalid"; break;
-    case r_Error_DatabaseUnknown: errorText = "Database Unknown"; break;
-    case r_Error_TransferFailed: errorText = "Transfer Failed"; break;
-    case r_Error_HostInvalid: errorText = "Host Invalid"; break;
-    case r_Error_ServerInvalid: errorText = "Server Invalid"; break;
-    case r_Error_ClientUnknown: errorText = "Client Unknown"; break;
-    case r_Error_FileNotFound: errorText =  "Referenced file not found."; break;
-    case r_Error_ObjectUnknown: errorText = "Object Unknown"; break;
-    case r_Error_ObjectInvalid: errorText = "Object Invalid"; break;
-    case r_Error_QueryExecutionFailed: errorText = "Query Execution Failed"; break;
-    case r_Error_BaseDBMSFailed: errorText = "Base DBMS Failed"; break;
-    case r_Error_CollectionElementTypeMismatch: errorText = "Collection Element Type Mismatch"; break;
-    case r_Error_CreatingOIdFailed: errorText = "Creation of OID failed"; break;
-    case r_Error_TransactionReadOnly: errorText = "Transaction is read only"; break;
-    case r_Error_LimitsMismatch: errorText = "Limits reported to an object mismatch"; break;
-    case r_Error_NameInvalid: errorText = "Name Invalid"; break;
-    case r_Error_FeatureNotSupported: errorText = "Feature is not supported"; break;
-    case r_Error_AccesDenied: errorText = "Access denied"; break;
-    case r_Error_MemoryAllocation: errorText = "Memory allocation failed"; break;
-    case r_Error_InvalidOptimizationLevel: errorText = "Illegal value for optimization level"; break;
-    case r_Error_Conversion: errorText = "Format conversion failed"; break;
-    case r_Error_InvalidBoundsStringContents: errorText = "Illegal contents of the string with projection bounds"; break;
-    case r_Error_RuntimeProjectionError: errorText = "CRS Reprojection failed at runtime. Check that the CRSes are fully supported."; break;
-    case r_Error_InvalidSourceCRS: errorText = "Cannot use source coordinate reference system, as reported by GDAL library"; break;
-    case r_Error_InvalidTargetCRS: errorText = "Cannot use target coordinate reference system, as reported by GDAL library"; break;
-    case r_Error_FileTileStructureInconsistent: errorText = "Structure of file tile is inconsistent with the original read one"; break;
-    case r_Error_RasFedMessageParsingFailed: errorText = "Error while parsing a message from the federation daemon."; break;
-    case r_Error_UDFInstallationDirectoryNotDefined: errorText = "UDF Installation Directory not found or inaccessible."; break;
-    default: errorText = "not specified"; break;
+    case r_Error_General:
+        errorText = "ODMG General";
+        break;
+    case r_Error_DatabaseClassMismatch:
+        errorText = "Database Class Mismatch";
+        break;
+    case r_Error_DatabaseClassUndefined:
+        errorText = "Database Class Undefined";
+        break;
+    case r_Error_DatabaseClosed:
+        errorText = "Database Closed";
+        break;
+    case r_Error_DatabaseOpen:
+        errorText = "Database Open";
+        break;
+    case r_Error_DateInvalid:
+        errorText = "Date Invalid";
+        break;
+    case r_Error_IteratorExhausted:
+        errorText = "Iterator Exhausted";
+        break;
+    case r_Error_NameNotUnique:
+        errorText = "Name Not Unique";
+        break;
+    case r_Error_QueryParameterCountInvalid:
+        errorText = "Query Parameter Count Invalid";
+        break;
+    case r_Error_QueryParameterTypeInvalid:
+        errorText = "Query Parameter Type Invalid";
+        break;
+    case r_Error_RefInvalid:
+        errorText = "Ref Invalid";
+        break;
+    case r_Error_RefNull:
+        errorText = "Ref Null";
+        break;
+    case r_Error_TimeInvalid:
+        errorText = "Time Invalid";
+        break;
+    case r_Error_TimestampInvalid:
+        errorText = "Timestamp Invalid";
+        break;
+    case r_Error_TransactionOpen:
+        errorText = "Transaction Open";
+        break;
+    case r_Error_TransactionNotOpen:
+        errorText = "Transaction Not Open";
+        break;
+    case r_Error_TypeInvalid:
+        errorText = "Type Invalid";
+        break;
+    case r_Error_DatabaseUnknown:
+        errorText = "Database Unknown";
+        break;
+    case r_Error_TransferFailed:
+        errorText = "Transfer Failed";
+        break;
+    case r_Error_HostInvalid:
+        errorText = "Host Invalid";
+        break;
+    case r_Error_ServerInvalid:
+        errorText = "Server Invalid";
+        break;
+    case r_Error_ClientUnknown:
+        errorText = "Client Unknown";
+        break;
+    case r_Error_FileNotFound:
+        errorText =  "Referenced file not found.";
+        break;
+    case r_Error_ObjectUnknown:
+        errorText = "Object Unknown";
+        break;
+    case r_Error_ObjectInvalid:
+        errorText = "Object Invalid";
+        break;
+    case r_Error_QueryExecutionFailed:
+        errorText = "Query Execution Failed";
+        break;
+    case r_Error_BaseDBMSFailed:
+        errorText = "Base DBMS Failed";
+        break;
+    case r_Error_CollectionElementTypeMismatch:
+        errorText = "Collection Element Type Mismatch";
+        break;
+    case r_Error_CreatingOIdFailed:
+        errorText = "Creation of OID failed";
+        break;
+    case r_Error_TransactionReadOnly:
+        errorText = "Transaction is read only";
+        break;
+    case r_Error_LimitsMismatch:
+        errorText = "Limits reported to an object mismatch";
+        break;
+    case r_Error_NameInvalid:
+        errorText = "Name Invalid";
+        break;
+    case r_Error_FeatureNotSupported:
+        errorText = "Feature is not supported";
+        break;
+    case r_Error_AccesDenied:
+        errorText = "Access denied";
+        break;
+    case r_Error_MemoryAllocation:
+        errorText = "Memory allocation failed";
+        break;
+    case r_Error_InvalidOptimizationLevel:
+        errorText = "Illegal value for optimization level";
+        break;
+    case r_Error_Conversion:
+        errorText = "Format conversion failed";
+        break;
+    case r_Error_InvalidBoundsStringContents:
+        errorText = "Illegal contents of the string with projection bounds";
+        break;
+    case r_Error_RuntimeProjectionError:
+        errorText = "CRS Reprojection failed at runtime. Check that the CRSes are fully supported.";
+        break;
+    case r_Error_InvalidSourceCRS:
+        errorText = "Cannot use source coordinate reference system, as reported by GDAL library";
+        break;
+    case r_Error_InvalidTargetCRS:
+        errorText = "Cannot use target coordinate reference system, as reported by GDAL library";
+        break;
+    case r_Error_FileTileStructureInconsistent:
+        errorText = "Structure of file tile is inconsistent with the original read one";
+        break;
+    case r_Error_RasFedMessageParsingFailed:
+        errorText = "Error while parsing a message from the federation daemon.";
+        break;
+    case r_Error_UDFInstallationDirectoryNotDefined:
+        errorText = "UDF Installation Directory not found or inaccessible.";
+        break;
+    default:
+        errorText = "not specified";
+        break;
     }
     errorText = "Exception: " + errorText;
 }
@@ -244,7 +334,7 @@ r_Error::setErrorTextOnNumber()
         {
             errorTexts = loadErrorTexts();
         }
-    }   
+    }
 
     if (errorTexts.empty())
     {
@@ -263,7 +353,7 @@ r_Error::setErrorTextOnNumber()
 }
 
 void
-r_Error::setTextParameter(const char* parameterName, long long value)
+r_Error::setTextParameter(const char *parameterName, long long value)
 {
     // convert long value to string
     std::stringstream valueStream;
@@ -273,7 +363,7 @@ r_Error::setTextParameter(const char* parameterName, long long value)
 }
 
 void
-r_Error::setTextParameter(const char* parameterName, const char* value)
+r_Error::setTextParameter(const char *parameterName, const char *value)
 {
     if (errorText.empty())
     {
@@ -287,7 +377,9 @@ r_Error::setTextParameter(const char* parameterName, const char* value)
     {
         nextIndex = errorText.find(parameterName, nextIndex);
         if (nextIndex == std::string::npos)
+        {
             break;
+        }
         errorText.replace(nextIndex, nameLen, value);
         nextIndex += valueLen;
     }
@@ -297,9 +389,13 @@ void
 r_Error::resetErrorText()
 {
     if (errorNo)
+    {
         setErrorTextOnNumber();
+    }
     else
+    {
         setErrorTextOnKind();
+    }
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -312,7 +408,7 @@ r_Eno_interval::r_Eno_interval()
 
 // ----------------------------------------------------------------------------------------------
 
-r_EGeneral::r_EGeneral(const std::string& errorTextArg)
+r_EGeneral::r_EGeneral(const std::string &errorTextArg)
     : r_Error{errorTextArg.c_str()}
 {
 }
@@ -353,7 +449,7 @@ r_Edim_mismatch::resetErrorText()
 // ----------------------------------------------------------------------------------------------
 
 r_Einit_overflow::r_Einit_overflow()
-: r_Error(DIMOVERFLOW)
+    : r_Error(DIMOVERFLOW)
 {
     resetErrorText();
 }
@@ -369,7 +465,7 @@ r_Eno_cell::r_Eno_cell()
 // ----------------------------------------------------------------------------------------------
 
 r_Equery_execution_failed::r_Equery_execution_failed(
-        unsigned int errorno, unsigned int lineno, unsigned int columnno, const char* initToken)
+    unsigned int errorno, unsigned int lineno, unsigned int columnno, const char *initToken)
     : r_Error(errorno),
       lineNo(lineno),
       columnNo(columnno),
@@ -400,7 +496,7 @@ r_Equery_execution_failed::get_columnno() const
     return columnNo;
 }
 
-const char*
+const char *
 r_Equery_execution_failed::get_token() const
 {
     return token.c_str();
@@ -429,7 +525,7 @@ r_Ebase_dbms::r_Ebase_dbms()
 {
 }
 
-r_Ebase_dbms::r_Ebase_dbms(long newDbmsErrNum, const char* newDbmsErrTxt)
+r_Ebase_dbms::r_Ebase_dbms(long newDbmsErrNum, const char *newDbmsErrTxt)
     : r_Error(r_Error_SerialisableException, BASEDBMSERROR),
       dbmsErrNum(newDbmsErrNum),
       dbmsErrTxt{newDbmsErrTxt}

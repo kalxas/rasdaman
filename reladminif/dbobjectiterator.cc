@@ -27,7 +27,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 template<class T>
-DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T>& oidlist)
+DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T> &oidlist)
     :   mySet(NULL),
         counter(0)
 {
@@ -37,7 +37,7 @@ DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T>& oidlist)
 }
 
 template<class T>
-DBObjectIterator<T>::DBObjectIterator(const OIdSet& oidlist)
+DBObjectIterator<T>::DBObjectIterator(const OIdSet &oidlist)
     :   mySet(NULL),
         counter(0)
 {

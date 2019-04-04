@@ -45,7 +45,7 @@ public:
      * @param config
      * @param userCredentials
      */
-    RasControl(RasControlConfig& config, const UserCredentials& userCredentials);
+    RasControl(RasControlConfig &config, const UserCredentials &userCredentials);
 
     /**
      * @brief start Start the rascontrol execution.
@@ -53,8 +53,8 @@ public:
     void start();
 
 private:
-    RasControlConfig& config; /*!< Reference to the RasControlConfig object used for configuring the behavior of this object*/
-    const UserCredentials& userCredentials; /*!< Reference to the user credentials object */
+    RasControlConfig &config; /*!< Reference to the RasControlConfig object used for configuring the behavior of this object*/
+    const UserCredentials &userCredentials; /*!< Reference to the user credentials object */
     EditLine editLine; /*!< Object used to retrieve input from the user */
 
     boost::scoped_ptr<CommandExecutor> comm; /*!< Executor of user commands */

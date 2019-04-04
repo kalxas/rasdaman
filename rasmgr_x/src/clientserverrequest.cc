@@ -24,7 +24,7 @@
 
 namespace rasmgr
 {
-ClientServerRequest::ClientServerRequest(const std::string& userNameArg, const std::string& passwordArg, const std::string& databaseNameArg)
+ClientServerRequest::ClientServerRequest(const std::string &userNameArg, const std::string &passwordArg, const std::string &databaseNameArg)
     : userName(userNameArg), password(passwordArg), databaseName(databaseNameArg)
 {}
 

@@ -92,7 +92,7 @@ OId::OIdCounter OId::nextDBNULLVALUESOID = 0;
 unsigned int
 OId::maxCounter = 22;
 
-const char*
+const char *
 OId::counterNames[] = { "INVALID",
                         "MDDOID",
                         "MDDCOLLOID",
@@ -117,7 +117,7 @@ OId::counterNames[] = { "INVALID",
                         "DBNULLVALUESOID"
                       };
 
-OId::OIdCounter*
+OId::OIdCounter *
 OId::counterIds[] =
 {
     NULL,
@@ -147,7 +147,7 @@ OId::counterIds[] =
 bool OId::loadedOk = false;
 
 void
-OId::allocateOId(OId& id, OIdType type, OIdCounter howMany)
+OId::allocateOId(OId &id, OIdType type, OIdCounter howMany)
 {
     if (howMany == 0)
     {
@@ -167,7 +167,7 @@ OId::allocateOId(OId& id, OIdType type, OIdCounter howMany)
     id.oidtype = type;
 }
 
-OId::OId(const OId& oldOId)
+OId::OId(const OId &oldOId)
 {
     oid = oldOId.oid;
     oidtype = oldOId.oidtype;
@@ -199,7 +199,7 @@ OId::getType() const
 }
 
 void
-OId::print_status(ostream& s) const
+OId::print_status(ostream &s) const
 {
     s << this;
 }
@@ -218,14 +218,14 @@ OId::operator long long() const
 }
 
 bool
-OId::operator!= (const OId& one) const
+OId::operator!= (const OId &one) const
 {
 //    LTRACE << "operator!=(" << one << ") " << *this;
     return !(OId::operator==(one));
 }
 
 bool
-OId::operator== (const OId& one) const
+OId::operator== (const OId &one) const
 {
     bool retval = false;
     if (oidtype == one.oidtype)
@@ -240,8 +240,8 @@ OId::operator== (const OId& one) const
     return retval;
 }
 
-OId&
-OId::operator=(const OId& old)
+OId &
+OId::operator=(const OId &old)
 {
 //    LTRACE << "operator=(" << old << ") "<< *this;
     if (this != &old)
@@ -253,7 +253,7 @@ OId::operator=(const OId& old)
 }
 
 bool
-OId::operator<(const OId& old) const
+OId::operator<(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -269,7 +269,7 @@ OId::operator<(const OId& old) const
 }
 
 bool
-OId::operator>(const OId& old) const
+OId::operator>(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -285,7 +285,7 @@ OId::operator>(const OId& old) const
 }
 
 bool
-OId::operator<=(const OId& old) const
+OId::operator<=(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -301,7 +301,7 @@ OId::operator<=(const OId& old) const
 }
 
 bool
-OId::operator>=(const OId& old) const
+OId::operator>=(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -317,7 +317,7 @@ OId::operator>=(const OId& old) const
 }
 
 bool
-operator== (const long long one, const OId& two)
+operator== (const long long one, const OId &two)
 {
 //    LTRACE << "operator==(" << one << "," << two << ")";
     bool retval = false;
@@ -330,7 +330,7 @@ operator== (const long long one, const OId& two)
 }
 
 bool
-operator== (const OId& two, const long long one)
+operator== (const OId &two, const long long one)
 {
 //    LTRACE << "operator==(" << two << "," << one << ")";
     bool retval = false;
@@ -342,15 +342,15 @@ operator== (const OId& two, const long long one)
     return retval;
 }
 
-std::ostream&
-operator<<(std::ostream& s, const OId& d)
+std::ostream &
+operator<<(std::ostream &s, const OId &d)
 {
     s << "OId(" << d.getCounter() << ":" << d.getType() << ")";
     return s;
 }
 
-std::ostream&
-operator<<(std::ostream& s, OId::OIdType d)
+std::ostream &
+operator<<(std::ostream &s, OId::OIdType d)
 {
     switch (d)
     {

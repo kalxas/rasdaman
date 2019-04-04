@@ -53,7 +53,7 @@ QtIterator::QtIterator()
 }
 
 
-QtIterator::QtIterator(QtNode* node)
+QtIterator::QtIterator(QtNode *node)
     :  QtONCStream(node),
        inputs(NULL)
 {
@@ -67,7 +67,7 @@ QtIterator::~QtIterator()
         // delete the inputs
         for (unsigned int i = 0; i < inputs->size(); i++)
         {
-            delete(*inputs)[i];
+            delete (*inputs)[i];
             (*inputs)[i] = NULL;
         }
 
@@ -78,11 +78,11 @@ QtIterator::~QtIterator()
 }
 
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtIterator::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
-    list<QtNode*>::iterator it; //default
+    QtNodeList *resultList = NULL;
+    list<QtNode *>::iterator it; //default
     QtNode::QtNodeList::iterator iter;
 
     // allocate resultList
@@ -92,7 +92,7 @@ QtIterator::getChilds(QtChildType flag)
     {
         for (unsigned int i = 0; i < inputs->size(); i++)
         {
-            QtNodeList* subList = NULL;
+            QtNodeList *subList = NULL;
             subList = (*inputs)[i]->getChilds(flag);
             // remove all elements in subList and insert them at the beginning in resultList
             resultList->splice(resultList->begin(), *subList);
@@ -163,7 +163,7 @@ QtIterator::reset()
 
 
 void
-QtIterator::printTree(int tab, ostream& s, QtChildType mode)
+QtIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {
@@ -185,7 +185,7 @@ QtIterator::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtIterator::printAlgebraicExpression(ostream& s)
+QtIterator::printAlgebraicExpression(ostream &s)
 {
     if (inputs)
     {
@@ -212,7 +212,7 @@ QtIterator::printAlgebraicExpression(ostream& s)
 
 
 void
-QtIterator::setStreamInput(QtONCStream* oldInput, QtONCStream* newInput)
+QtIterator::setStreamInput(QtONCStream *oldInput, QtONCStream *newInput)
 {
     QtONCStreamList::iterator iter;
     bool            notDone = true;
@@ -235,7 +235,7 @@ QtIterator::setStreamInput(QtONCStream* oldInput, QtONCStream* newInput)
     }
 }
 
-QtIterator::QtONCStreamList*
+QtIterator::QtONCStreamList *
 QtIterator::getStreamInputs()
 {
     return inputs;
@@ -243,7 +243,7 @@ QtIterator::getStreamInputs()
 
 
 void
-QtIterator::getInputTypeTuple(QtTypeTuple& typeTuple)
+QtIterator::getInputTypeTuple(QtTypeTuple &typeTuple)
 {
     typeTuple = QtTypeTuple(0);
 

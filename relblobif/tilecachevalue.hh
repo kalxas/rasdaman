@@ -38,13 +38,13 @@ class CacheValue
 {
 public:
     /// create new item for caching
-    CacheValue(char* data, r_Bytes size, bool update, OId& newOId, long blobOid = -1, void* tile = NULL, r_Data_Format dataformat = r_Array);
+    CacheValue(char *data, r_Bytes size, bool update, OId &newOId, long blobOid = -1, void *tile = NULL, r_Data_Format dataformat = r_Array);
 
     /// destructor
     ~CacheValue();
 
     /// return cached data
-    char* getData();
+    char *getData();
 
     /// size of cached data
     r_Bytes getSize();
@@ -59,11 +59,11 @@ public:
     r_Data_Format getDataFormat();
 
     /// get a set of the tiles that reference this cached data
-    std::set<void*> getReferencingTiles();
-    void setReferencingTiles(std::set<void*> newTiles);
-    void addReferencingTiles(std::set<void*> newTiles);
-    void addReferencingTile(void* newTile);
-    void removeReferencingTile(void* tile);
+    std::set<void *> getReferencingTiles();
+    void setReferencingTiles(std::set<void *> newTiles);
+    void addReferencingTiles(std::set<void *> newTiles);
+    void addReferencingTile(void *newTile);
+    void removeReferencingTile(void *tile);
 
     /// is cached data supposed to be updated in the database?
     bool isUpdate();
@@ -79,12 +79,12 @@ public:
 
 private:
 
-    char* data;
+    char *data;
     bool update;
     r_Bytes size;
     OId myOId;
     long blobOid;
-    std::set<void*> referencingTiles;
+    std::set<void *> referencingTiles;
     r_Data_Format dataFormat;
     bool fileStorage;
 };

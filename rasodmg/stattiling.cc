@@ -58,7 +58,7 @@ rasdaman GmbH.
 #include "tools/visualtiling2d.hh"
 #endif
 
-const char*
+const char *
 r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";
 
 const
@@ -66,7 +66,7 @@ r_Area r_Stat_Tiling::DEF_BORDER_THR = 50L;
 const r_Double
 r_Stat_Tiling::DEF_INTERESTING_THR  = 0.20;
 
-r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
+r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -77,16 +77,16 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
 
     r_Dimension tileD = 0;
     std::vector<r_Access> vectAccessInfo;
-    r_Access*    accessInfo = NULL;
-    r_Minterval* accessInterv = NULL;
+    r_Access    *accessInfo = NULL;
+    r_Minterval *accessInterv = NULL;
     r_ULong      accessTimes = 0;
     r_Bytes tileS = 0, lenToConvert = 0, lenInToConvert = 0;
     r_Area borderTH = 0;
     r_Double interestTH = 0.;
-    const char* pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL;
-    char* pToConvert = NULL;
-    const char* pInRes = NULL, *pInEnd = NULL;
-    char* pInToConvert = NULL;
+    const char *pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL;
+    char *pToConvert = NULL;
+    const char *pInRes = NULL, *pInEnd = NULL;
+    char *pInToConvert = NULL;
 
     pStart = encoded;
     pEnd = pStart + strlen(pStart);
@@ -105,7 +105,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
     if (!tileD)
     {
         LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is not a number.";
@@ -168,7 +168,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
             accessInterv = new r_Minterval(pInToConvert);
             delete [] pInToConvert;
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access interval \"" << pInToConvert << "\" from \"" << pToConvert << "\".";
             LERROR << "Error " << err.get_errorno() << " : " << err.what();
@@ -197,7 +197,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
-        accessTimes = strtol(pInRes, (char**)NULL, DefaultBase);
+        accessTimes = strtol(pInRes, (char **)NULL, DefaultBase);
         if (!accessTimes)
         {
             LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", not a number.";
@@ -241,7 +241,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    borderTH = static_cast<r_Area>(strtol(pToConvert, (char**)NULL, DefaultBase));
+    borderTH = static_cast<r_Area>(strtol(pToConvert, (char **)NULL, DefaultBase));
     if (!borderTH)
     {
         LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding border threshold \"" << pToConvert << "\".";
@@ -276,7 +276,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    interestTH = strtod(pToConvert, (char**)NULL);
+    interestTH = strtod(pToConvert, (char **)NULL);
     if (!interestTH)
     {
         LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding interesting threshold \"" << pToConvert << "\".";
@@ -311,7 +311,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
 
 //deal with tilesize
     pTemp = pRes;
-    tileS = strtol(pTemp, (char**)NULL, DefaultBase);
+    tileS = strtol(pTemp, (char **)NULL, DefaultBase);
     if (!tileS)
     {
         LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", not a number.";
@@ -331,7 +331,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded)
 }
 
 
-r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold)
+r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access> &stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold)
     :   r_Dimension_Tiling(dim, ts),
         interesting_thr(interesting_threshold),
         border_thr(border_threshold),
@@ -378,20 +378,20 @@ r_Stat_Tiling::~r_Stat_Tiling()
 {
 }
 
-r_Tiling* r_Stat_Tiling::clone() const
+r_Tiling *r_Stat_Tiling::clone() const
 {
-    r_Tiling* copy = new r_Stat_Tiling(dimension, stat_info, tile_size, border_thr, interesting_thr);
+    r_Tiling *copy = new r_Stat_Tiling(dimension, stat_info, tile_size, border_thr, interesting_thr);
     return copy;
 }
 
-void r_Stat_Tiling::print_status(std::ostream& os) const
+void r_Stat_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Stat_Tiling[ ";
     r_Dimension_Tiling::print_status(os);
     os << " border threshold = " << border_thr << ", interesting threshold = " << interesting_thr << " ]";
 }
 
-const std::vector<r_Minterval>&
+const std::vector<r_Minterval> &
 r_Stat_Tiling::get_interesting_areas() const
 {
     return iareas;
@@ -416,7 +416,7 @@ r_Stat_Tiling::get_interesting_threshold() const
 }
 
 r_Access
-r_Stat_Tiling::merge(const std::vector<r_Access>& patterns) const
+r_Stat_Tiling::merge(const std::vector<r_Access> &patterns) const
 {
     // Create an interator for list of patterns
     std::vector<r_Access>::const_iterator it = patterns.begin();
@@ -433,7 +433,7 @@ r_Stat_Tiling::merge(const std::vector<r_Access>& patterns) const
     return result;                                     // Return the result
 }
 
-void r_Stat_Tiling::filter(std::vector<r_Access>& patterns) const
+void r_Stat_Tiling::filter(std::vector<r_Access> &patterns) const
 {
     // List to hold the result
     std::vector<r_Access> result;
@@ -477,8 +477,8 @@ void r_Stat_Tiling::filter(std::vector<r_Access>& patterns) const
     patterns = result;
 }
 
-std::vector<r_Minterval>*
-r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
+std::vector<r_Minterval> *
+r_Stat_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
     r_Dimension num_dims = domain.dimension();                   // Dimensionality of dom
     if (domain.dimension() != dimension)
@@ -495,7 +495,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
     static int count;                                    // Number of decomps
     ++count;                                             // Update num decomps
     // of the 2D decomp.
-    Visual_Tiling_2D* vis;
+    Visual_Tiling_2D *vis;
     if (domain.dimension() == 2)
     {
         // Create an object for visualization
@@ -507,7 +507,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 
     // *** Main algoritm ***
 
-    std::vector<r_Minterval>* result;                          // Holds the result
+    std::vector<r_Minterval> *result;                          // Holds the result
 
     if (iareas.empty())                               // No interest areas
     {
@@ -519,7 +519,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
     {
         // Use interest areas for tiling the domain
 
-        r_Interest_Tiling* tiling = NULL;
+        r_Interest_Tiling *tiling = NULL;
 
         try
         {
@@ -527,7 +527,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
             result = tiling->compute_tiles(domain, typelen);
             delete tiling;
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             if (tiling)
             {
@@ -553,7 +553,7 @@ r_Stat_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 
         vis->set_pen(255, 255, 0);
 
-        std::vector<r_Minterval>& ia = (std::vector<r_Minterval>) iareas; // Cast away constness
+        std::vector<r_Minterval> &ia = (std::vector<r_Minterval>) iareas; // Cast away constness
 
         std::vector<r_Minterval>::iterator it2(ia);
         it2.seek_begin();
@@ -580,17 +580,17 @@ r_Access::r_Access() :
 {
 }
 
-r_Access::r_Access(const r_Minterval& pattern, r_ULong accesses) :
+r_Access::r_Access(const r_Minterval &pattern, r_ULong accesses) :
     interval(pattern), times(accesses)
 {
 }
 
-const r_Minterval& r_Access::get_pattern() const
+const r_Minterval &r_Access::get_pattern() const
 {
     return interval;
 }
 
-void r_Access::set_pattern(const r_Minterval& pattern)
+void r_Access::set_pattern(const r_Minterval &pattern)
 {
     interval = pattern;
 }
@@ -605,10 +605,10 @@ void r_Access::set_times(r_ULong accesses)
     times = accesses;
 }
 
-bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const
+bool r_Access::is_near(const r_Access &other, r_ULong border_threshold) const
 {
-    const r_Minterval& a = this->interval;
-    const r_Minterval& b = other.interval;
+    const r_Minterval &a = this->interval;
+    const r_Minterval &b = other.interval;
 
     r_Dimension num_dims = interval.dimension();
     if (num_dims != b.dimension())
@@ -639,30 +639,30 @@ bool r_Access::is_near(const r_Access& other, r_ULong border_threshold) const
     return the_same;
 }
 
-void r_Access::merge_with(const r_Access& other)
+void r_Access::merge_with(const r_Access &other)
 {
     interval.closure_with(other.interval);
     times += other.times;
 }
 
-void r_Access::print_status(std::ostream& os) const
+void r_Access::print_status(std::ostream &os) const
 {
     os << "{" << times << "x: " << interval << "}";
 }
 
-std::ostream& operator<<(std::ostream& os, const r_Access& access)
+std::ostream &operator<<(std::ostream &os, const r_Access &access)
 {
     access.print_status(os);
 
     return os;
 }
 
-bool r_Access::operator==(const r_Access& other) const
+bool r_Access::operator==(const r_Access &other) const
 {
     return ((this->interval == other.interval) && (this->times == other.times));
 }
 
-bool r_Access::operator!=(const r_Access& other) const
+bool r_Access::operator!=(const r_Access &other) const
 {
     return !(*this == other);
 }

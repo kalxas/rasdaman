@@ -88,7 +88,7 @@ which we do not want on our binary data.
 class DBRCIndexDS   :   public IndexDS
 {
 public:
-    DBRCIndexDS(const r_Minterval& definedDomain, unsigned int numberTiles, OId::OIdType theEntryType = OId::BLOBOID);
+    DBRCIndexDS(const r_Minterval &definedDomain, unsigned int numberTiles, OId::OIdType theEntryType = OId::BLOBOID);
     /*@Doc:
         Create a new index which handles the domain definedDomain, with tiles of domain
         tileConfig.  As soon as you create this index it will check if the tileConfig fits
@@ -107,7 +107,7 @@ public:
 
     virtual r_Dimension getDimension() const;
 
-    virtual void setAssignedDomain(const r_Minterval& domain);
+    virtual void setAssignedDomain(const r_Minterval &domain);
     /// throw r_Error_FeatureNotSupported
 
     virtual unsigned int getSize() const;
@@ -124,27 +124,27 @@ public:
     virtual bool isOverFull() const;
     /// returns false
 
-    virtual bool isSameAs(const IndexDS* pix) const;
+    virtual bool isSameAs(const IndexDS *pix) const;
 
     virtual bool removeObject(unsigned int pos);
     /// throw r_Error_FeatureNotSupported
 
-    virtual bool removeObject(const KeyObject& theKey);
+    virtual bool removeObject(const KeyObject &theKey);
     /// throw r_Error_FeatureNotSupported
 
-    virtual void insertObject(const KeyObject& theKey, unsigned int pos);
+    virtual void insertObject(const KeyObject &theKey, unsigned int pos);
     /// throw r_Error_FeatureNotSupported
 
-    virtual void setObject(const KeyObject& theKey, unsigned int pos);
+    virtual void setObject(const KeyObject &theKey, unsigned int pos);
     /// throw r_Error_FeatureNotSupported
 
-    virtual void setObjectDomain(const r_Minterval& dom, unsigned int pos);
+    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
     /// throw r_Error_FeatureNotSupported
 
-    virtual const KeyObject& getObject(unsigned int pos) const;
+    virtual const KeyObject &getObject(unsigned int pos) const;
     /// throw r_Error_FeatureNotSupported
 
-    virtual void getObjects(KeyObjectVector& objs) const;
+    virtual void getObjects(KeyObjectVector &objs) const;
     /// throw r_Error_FeatureNotSupported
 
     virtual unsigned int getOptimalSize() const;
@@ -161,13 +161,13 @@ public:
         database.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
     virtual ~DBRCIndexDS() noexcept(false);
 
     virtual void destroy();
 
-    virtual IndexDS* getNewInstance() const;
+    virtual IndexDS *getNewInstance() const;
     /// throw r_Error_FeatureNotSupported
 
     virtual OId::OIdType getBaseOIdType() const;
@@ -180,7 +180,7 @@ protected:
         ObjectBroker needs to access OId constructor
     */
 
-    DBRCIndexDS(const OId& id);
+    DBRCIndexDS(const OId &id);
     /*@Doc:
     */
 

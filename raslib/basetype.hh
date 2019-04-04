@@ -51,13 +51,13 @@ public:
     r_Base_Type();
 
     /// constructor getting name of basetype.
-    r_Base_Type(const char* newTypeName, r_Bytes newSize);
+    r_Base_Type(const char *newTypeName, r_Bytes newSize);
 
     /// copy constructor
-    r_Base_Type(const r_Base_Type& oldObj);
+    r_Base_Type(const r_Base_Type &oldObj);
 
     /// assignment operator.
-    const r_Base_Type& operator=(const r_Base_Type& oldObj);
+    const r_Base_Type &operator=(const r_Base_Type &oldObj);
 
     /// destructor.
     virtual ~r_Base_Type();
@@ -69,7 +69,7 @@ public:
     r_Bytes size() const;
 
     /// prints value of a primitive type or values of a structured type
-    virtual void print_value(const char* storage, std::ostream& s = std::cout) const = 0;
+    virtual void print_value(const char *storage, std::ostream &s = std::cout) const = 0;
 
 protected:
     /// storing size of type in bytes

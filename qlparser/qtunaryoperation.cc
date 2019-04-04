@@ -51,7 +51,7 @@ QtUnaryOperation::QtUnaryOperation()
 }
 
 
-QtUnaryOperation::QtUnaryOperation(QtOperation* inputInit)
+QtUnaryOperation::QtUnaryOperation(QtOperation *inputInit)
     :  QtOperation(),
        input(inputInit)
 {
@@ -101,12 +101,12 @@ QtUnaryOperation::simplify()
         if (input->getNodeType() ==  QT_CONST)
         {
             // evaluate the self node with no input list
-            QtData* newConst = this->evaluate(NULL);
+            QtData *newConst = this->evaluate(NULL);
 
             if (newConst)
             {
                 // create a new constant node and fill it with newConst
-                QtConst* newNode = new QtConst(newConst);
+                QtConst *newNode = new QtConst(newConst);
 
                 // set its data stream type
                 newNode->checkType(NULL);
@@ -124,13 +124,13 @@ QtUnaryOperation::simplify()
 
 
 bool
-QtUnaryOperation::equalMeaning(QtNode* node)
+QtUnaryOperation::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (getNodeType() == node->getNodeType())
     {
-        QtUnaryOperation* unaryNode = static_cast<QtUnaryOperation*>(node); // by force
+        QtUnaryOperation *unaryNode = static_cast<QtUnaryOperation *>(node); // by force
 
         result = input->equalMeaning(unaryNode->getInput());
     };
@@ -140,17 +140,23 @@ QtUnaryOperation::equalMeaning(QtNode* node)
 
 
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtUnaryOperation::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
+    QtNodeList *resultList = NULL;
 
     if (flag == QT_DIRECT_CHILDS)
+    {
         resultList = new QtNodeList();
+    }
     else if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
+    {
         resultList = input->getChilds(flag);
+    }
     if (flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES)
+    {
         resultList->push_back(input);
+    }
 
     return resultList;
 }
@@ -164,7 +170,7 @@ QtUnaryOperation::getAreaType()
 
 
 void
-QtUnaryOperation::optimizeLoad(QtTrimList* trimList)
+QtUnaryOperation::optimizeLoad(QtTrimList *trimList)
 {
     // by default, pass load domain to the input
     if (input)
@@ -180,7 +186,7 @@ QtUnaryOperation::optimizeLoad(QtTrimList* trimList)
 
 
 void
-QtUnaryOperation::printTree(int tab, ostream& s, QtChildType mode)
+QtUnaryOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {

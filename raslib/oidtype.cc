@@ -37,12 +37,12 @@ r_Oid_Type::isOidType() const
     return true;
 }
 
-r_Oid_Type::r_Oid_Type(const r_Oid_Type& oldObj)
+r_Oid_Type::r_Oid_Type(const r_Oid_Type &oldObj)
     : r_Type(oldObj)
 {
 }
 
-r_Type*
+r_Type *
 r_Oid_Type::clone() const
 {
     return new r_Oid_Type(*this);
@@ -55,17 +55,17 @@ r_Oid_Type::type_id() const
 }
 
 void
-r_Oid_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Oid_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Oid_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Oid_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Oid_Type::print_status(std::ostream& s) const
+r_Oid_Type::print_status(std::ostream &s) const
 {
     s << "oid";
 }
@@ -74,7 +74,7 @@ r_Oid_Type::~r_Oid_Type()
 {
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Oid_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Oid_Type &type)
 {
     type.print_status(str);
     return str;

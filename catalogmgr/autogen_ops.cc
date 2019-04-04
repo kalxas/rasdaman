@@ -36,18 +36,18 @@ rasdaman GmbH.
 
 
 OpABSCDouble::OpABSCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpABSCDouble::operator()(char* res, const char* op)
+void OpABSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -60,18 +60,18 @@ void OpABSCDouble::operator()(char* res, const char* op)
 }
 
 OpSQRTCDouble::OpSQRTCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpSQRTCDouble::operator()(char* res, const char* op)
+void OpSQRTCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -84,18 +84,18 @@ void OpSQRTCDouble::operator()(char* res, const char* op)
 }
 
 OpPOWCDouble::OpPOWCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpPOWCDouble::operator()(char* res, const char* op)
+void OpPOWCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -113,18 +113,18 @@ void OpPOWCDouble::setExponent(double newExponent)
 }
 
 OpEXPCDouble::OpEXPCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpEXPCDouble::operator()(char* res, const char* op)
+void OpEXPCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -137,18 +137,18 @@ void OpEXPCDouble::operator()(char* res, const char* op)
 }
 
 OpLOGCDouble::OpLOGCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpLOGCDouble::operator()(char* res, const char* op)
+void OpLOGCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -161,18 +161,18 @@ void OpLOGCDouble::operator()(char* res, const char* op)
 }
 
 OpLNCDouble::OpLNCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpLNCDouble::operator()(char* res, const char* op)
+void OpLNCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -185,18 +185,18 @@ void OpLNCDouble::operator()(char* res, const char* op)
 }
 
 OpSINCDouble::OpSINCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpSINCDouble::operator()(char* res, const char* op)
+void OpSINCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -209,18 +209,18 @@ void OpSINCDouble::operator()(char* res, const char* op)
 }
 
 OpCOSCDouble::OpCOSCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpCOSCDouble::operator()(char* res, const char* op)
+void OpCOSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -233,18 +233,18 @@ void OpCOSCDouble::operator()(char* res, const char* op)
 }
 
 OpTANCDouble::OpTANCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpTANCDouble::operator()(char* res, const char* op)
+void OpTANCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -257,18 +257,18 @@ void OpTANCDouble::operator()(char* res, const char* op)
 }
 
 OpSINHCDouble::OpSINHCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpSINHCDouble::operator()(char* res, const char* op)
+void OpSINHCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -281,18 +281,18 @@ void OpSINHCDouble::operator()(char* res, const char* op)
 }
 
 OpCOSHCDouble::OpCOSHCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpCOSHCDouble::operator()(char* res, const char* op)
+void OpCOSHCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -305,18 +305,18 @@ void OpCOSHCDouble::operator()(char* res, const char* op)
 }
 
 OpTANHCDouble::OpTANHCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpTANHCDouble::operator()(char* res, const char* op)
+void OpTANHCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -329,18 +329,18 @@ void OpTANHCDouble::operator()(char* res, const char* op)
 }
 
 OpARCSINCDouble::OpARCSINCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpARCSINCDouble::operator()(char* res, const char* op)
+void OpARCSINCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -353,18 +353,18 @@ void OpARCSINCDouble::operator()(char* res, const char* op)
 }
 
 OpARCCOSCDouble::OpARCCOSCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpARCCOSCDouble::operator()(char* res, const char* op)
+void OpARCCOSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;
@@ -377,18 +377,18 @@ void OpARCCOSCDouble::operator()(char* res, const char* op)
 }
 
 OpARCTANCDouble::OpARCTANCDouble(
-    const BaseType* newResType,
-    const BaseType* newOpType,
+    const BaseType *newResType,
+    const BaseType *newOpType,
     unsigned int newResOff,
     unsigned int newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 
-void OpARCTANCDouble::operator()(char* res, const char* op)
+void OpARCTANCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
-    
+
     if (isNull(convOp))
     {
         convRes = convOp;

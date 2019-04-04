@@ -35,15 +35,15 @@ rasdaman GmbH.
 
 
 const int     r_FixedPointNumber::FIXPREC  = 30;
-const r_Range r_FixedPointNumber::carryPos = 1<<FIXPREC;
-const r_Range r_FixedPointNumber::fracMask = carryPos-1;
-const double  r_FixedPointNumber::fixOne   = pow(2,static_cast<double>(FIXPREC));
+const r_Range r_FixedPointNumber::carryPos = 1 << FIXPREC;
+const r_Range r_FixedPointNumber::fracMask = carryPos - 1;
+const double  r_FixedPointNumber::fixOne   = pow(2, static_cast<double>(FIXPREC));
 
 inline
 r_FixedPointNumber::r_FixedPointNumber()
 {
-    intPart=0;
-    fracPart=0;
+    intPart = 0;
+    fracPart = 0;
 }
 
 inline
@@ -53,7 +53,7 @@ r_FixedPointNumber::r_FixedPointNumber(const double &d)
 }
 
 inline
-r_FixedPointNumber& r_FixedPointNumber::operator=(const r_FixedPointNumber &f)
+r_FixedPointNumber &r_FixedPointNumber::operator=(const r_FixedPointNumber &f)
 {
     intPart  = f.intPart;
     fracPart = f.fracPart;
@@ -61,7 +61,7 @@ r_FixedPointNumber& r_FixedPointNumber::operator=(const r_FixedPointNumber &f)
 }
 
 inline
-r_FixedPointNumber& r_FixedPointNumber::operator=(const double &d)
+r_FixedPointNumber &r_FixedPointNumber::operator=(const double &d)
 {
     init(d);
     return *this;
@@ -72,7 +72,7 @@ void r_FixedPointNumber::init(const double &d)
 {
     intPart = static_cast<r_Range>(d);
 
-    fracPart= static_cast<r_Range>(fmod(fixOne*d,fixOne));
+    fracPart = static_cast<r_Range>(fmod(fixOne * d, fixOne));
 
 }
 
@@ -81,25 +81,25 @@ r_Range r_FixedPointNumber::stepForward(const r_FixedPointNumber &f)
 {
     r_Range oldIntPart = intPart;
 
-    intPart+=f.intPart;
-    fracPart+=f.fracPart;
+    intPart += f.intPart;
+    fracPart += f.fracPart;
 
-    if(fracPart & carryPos)
+    if (fracPart & carryPos)
     {
         intPart++;
         fracPart &= fracMask;
 
     }
-    return intPart-oldIntPart;
+    return intPart - oldIntPart;
 }
 
 inline
 bool r_FixedPointNumber::stepForwardFlag(const r_FixedPointNumber &f)
 {
-    intPart+=f.intPart;
-    fracPart+=f.fracPart;
+    intPart += f.intPart;
+    fracPart += f.fracPart;
 
-    if(fracPart & carryPos)
+    if (fracPart & carryPos)
     {
         intPart++;
         fracPart &= fracMask;
@@ -115,16 +115,16 @@ r_Range r_FixedPointNumber::getIntPart()
 }
 
 inline
-std::ostream& operator<<(std::ostream &os,r_FixedPointNumber &f)
+std::ostream &operator<<(std::ostream &os, r_FixedPointNumber &f)
 {
-    os<<'('<<f.intPart<<':'<<f.fracPart<<')';
+    os << '(' << f.intPart << ':' << f.fracPart << ')';
     return os;
 }
 
 //######################################
 
 inline
-r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minterval& destDomain)
+r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval &sourceDomain, r_Minterval &destDomain)
 {
     dim = sourceDomain.dimension();
     iterDesc = new iter_desc[dim];
@@ -133,21 +133,21 @@ r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minter
     firstCell        = sourceTile->getContents();
 
     iter_desc *id = 0;
-    const r_Minterval& tileDomain = sourceTile->getDomain();
+    const r_Minterval &tileDomain = sourceTile->getDomain();
 
     int i = 0;
     r_Bytes step  = cellSize;
 
-    id = iterDesc + dim-1;
+    id = iterDesc + dim - 1;
 
-    for(i=static_cast<int>(dim)-1; i>=0; i--, id-- )
+    for (i = static_cast<int>(dim) - 1; i >= 0; i--, id--)
     {
         id->min  = static_cast<double>(sourceDomain[static_cast<r_Dimension>(i)].low());
-        id->step = static_cast<double>(sourceDomain[static_cast<r_Dimension>(i)].high()-sourceDomain[static_cast<r_Dimension>(i)].low() +1) / ( destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1);
-        id->maxSteps = destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1;
+        id->step = static_cast<double>(sourceDomain[static_cast<r_Dimension>(i)].high() - sourceDomain[static_cast<r_Dimension>(i)].low() + 1) / (destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low() + 1);
+        id->maxSteps = destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low() + 1;
         id->dimStep   = step;
         id->scaleStep = step * id->step.getIntPart();
-        firstCell += step* (sourceDomain[static_cast<r_Dimension>(i)].low() - tileDomain[static_cast<r_Dimension>(i)].low());
+        firstCell += step * (sourceDomain[static_cast<r_Dimension>(i)].low() - tileDomain[static_cast<r_Dimension>(i)].low());
         step      *= (tileDomain[static_cast<r_Dimension>(i)].high() - tileDomain[static_cast<r_Dimension>(i)].low() + 1);
     }
     reset();
@@ -156,40 +156,48 @@ r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minter
 inline
 r_MiterFloat::~r_MiterFloat()
 {
-    if(iterDesc) delete[] iterDesc;
+    if (iterDesc)
+    {
+        delete[] iterDesc;
+    }
 }
 
 inline
 void r_MiterFloat::reset()
 {
-    for(r_Dimension i=0; i<dim; i++)
+    for (r_Dimension i = 0; i < dim; i++)
     {
         iterDesc[i].pos  = iterDesc[i].min;
-        iterDesc[i].cell = const_cast<char*>(firstCell);
+        iterDesc[i].cell = const_cast<char *>(firstCell);
         iterDesc[i].countSteps = iterDesc[i].maxSteps;
     }
 
-    done=false;
+    done = false;
 }
 
 inline
-char* r_MiterFloat::nextCell()
+char *r_MiterFloat::nextCell()
 {
-    if(done) return currentCell;
+    if (done)
+    {
+        return currentCell;
+    }
 
     r_Dimension i = dim;
-    iter_desc *id = iterDesc + dim -1;
-    currentCell   = iterDesc[dim-1].cell;
+    iter_desc *id = iterDesc + dim - 1;
+    currentCell   = iterDesc[dim - 1].cell;
 
-    while( i>0 )
+    while (i > 0)
     {
         id->countSteps--;
 
-        if(id->countSteps)
+        if (id->countSteps)
         {
             // one more step in this dimension
-            if(id->pos.stepForwardFlag(id->step))
+            if (id->pos.stepForwardFlag(id->step))
+            {
                 id->cell += id->dimStep;
+            }
 
             id->cell += id->scaleStep;
             break;
@@ -204,15 +212,19 @@ char* r_MiterFloat::nextCell()
         }
     }
 
-    if(i<dim)
+    if (i < dim)
     {
-        if(i == 0)
+        if (i == 0)
+        {
             done = true;
+        }
         else
         {
             r_Dimension j;
-            for( j=i; j<dim; j++)
-                iterDesc[j].cell = iterDesc[i-1].cell;
+            for (j = i; j < dim; j++)
+            {
+                iterDesc[j].cell = iterDesc[i - 1].cell;
+            }
         }
     }
     return currentCell;

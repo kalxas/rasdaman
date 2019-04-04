@@ -30,18 +30,18 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtShift::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 inline QtNode::QtNodeType
 QtExtend::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 inline QtNode::QtNodeType
 QtScale::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }

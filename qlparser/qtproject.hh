@@ -32,9 +32,9 @@
 
 #ifdef HAVE_GDAL
 class GDALDataset;
-using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset*)>;
+using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset *)>;
 /// Closes and frees the dataset
-void deleteGDALDataset(GDALDataset* dataset);
+void deleteGDALDataset(GDALDataset *dataset);
 #endif
 
 //@ManMemo: Module: {\bf qlparser}
@@ -47,30 +47,30 @@ void deleteGDALDataset(GDALDataset* dataset);
 class QtProject : public QtUnaryOperation
 {
 public:
-    QtProject(QtOperation* mddOp, const char* boundsIn, const char* crsIn, const char* crsOut);
+    QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *crsOut);
 
-    QtProject(QtOperation* mddOp, const char* boundsIn, const char* crsIn, const char* boundsOut, const char* crsOut,
-            int widthOut = invalidExtent, int heightOut = invalidExtent,
-            int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);
+    QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *boundsOut, const char *crsOut,
+              int widthOut = invalidExtent, int heightOut = invalidExtent,
+              int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);
 
     ~QtProject() = default;
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
 
-    const QtTypeElement& checkType(QtTypeTuple* typeTuple);
+    const QtTypeElement &checkType(QtTypeTuple *typeTuple);
 
     /// debugging method
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// method for evaluating the reprojection with a given operand
-    QtData* evaluateMDD(QtMDD* mdd);
+    QtData *evaluateMDD(QtMDD *mdd);
 
     /// optimizing load access
-    void optimizeLoad(QtTrimList* trimList);
+    void optimizeLoad(QtTrimList *trimList);
 
     /// method for identification of nodes
     virtual QtNodeType getNodeType() const;
@@ -80,13 +80,13 @@ private:
 #ifdef HAVE_GDAL
 
     // Conversion methods between rasdaman and GDAL
-    std::unique_ptr<Tile> reprojectTile(Tile* srcTile, int ni, r_Primitive_Type* rBandType);
+    std::unique_ptr<Tile> reprojectTile(Tile *srcTile, int ni, r_Primitive_Type *rBandType);
 
 #endif
 
     static constexpr int invalidExtent{-1};
 
-    QtOperation* mddOp;
+    QtOperation *mddOp;
 
     common::GeoBbox in;
     common::GeoBbox out;

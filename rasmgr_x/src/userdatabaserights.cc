@@ -62,7 +62,7 @@ void UserDatabaseRights::setWriteAccess(bool writeAccess)
 }
 
 UserDatabaseRights UserDatabaseRights::parseFromProto(
-    const UserDatabaseRightsProto& rights)
+    const UserDatabaseRightsProto &rights)
 {
 
     UserDatabaseRights userDbRights(false);
@@ -74,7 +74,7 @@ UserDatabaseRights UserDatabaseRights::parseFromProto(
 }
 
 UserDatabaseRightsProto UserDatabaseRights::serializeToProto(
-    const UserDatabaseRights& userDatabaseRights)
+    const UserDatabaseRights &userDatabaseRights)
 {
     UserDatabaseRightsProto rights;
 

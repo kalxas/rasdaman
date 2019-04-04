@@ -53,15 +53,15 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-DBObject*
-ObjectBroker::loadInlineTile(const OId& id)
+DBObject *
+ObjectBroker::loadInlineTile(const OId &id)
 {
-    DBObject* retval = 0;
+    DBObject *retval = 0;
     OIdMap::iterator i = theTileIndexMappings.find(id);
     if (i != theTileIndexMappings.end())
     {
         DBTCIndexId dbtc((*i).second);
-        retval = (DBObject*) dbtc->getInlineTile(id);
+        retval = (DBObject *) dbtc->getInlineTile(id);
     }
     else
     {
@@ -70,7 +70,7 @@ ObjectBroker::loadInlineTile(const OId& id)
             retval = new InlineTile(id);
             LTRACE << "found in db";
         }
-        catch (r_Error& error)
+        catch (r_Error &error)
         {
             LTRACE << "not found in db";
             if (retval)
@@ -92,7 +92,7 @@ ObjectBroker::loadInlineTile(const OId& id)
             {
                 indexid = query.nextColumnLong();
                 DBTCIndexId dbtc(OId(indexid, OId::DBTCINDEXOID));
-                retval = (DBObject*) dbtc->getInlineTile(id);
+                retval = (DBObject *) dbtc->getInlineTile(id);
             }
             else
             {
@@ -107,7 +107,7 @@ ObjectBroker::loadInlineTile(const OId& id)
 }
 
 OId
-ObjectBroker::getOIdOfSetType(const char* name)
+ObjectBroker::getOIdOfSetType(const char *name)
 {
     long long setoid;
 
@@ -134,24 +134,24 @@ ObjectBroker::getOIdOfSetType(const char* name)
     return retval;
 }
 
-MDDType*
-ObjectBroker::getMDDTypeByName(const char* name)
+MDDType *
+ObjectBroker::getMDDTypeByName(const char *name)
 {
     long long mddtoidv;
 
-    MDDType* retval = 0;
+    MDDType *retval = 0;
     const int theMapsNo = 4;
-    DBObjectPMap* theMaps[] = {&theMDDTypes, &theMDDBaseTypes, &theMDDDimensionTypes, &theMDDDomainTypes};
+    DBObjectPMap *theMaps[] = {&theMDDTypes, &theMDDBaseTypes, &theMDDDimensionTypes, &theMDDDomainTypes};
 
     for (int i = 0; i < theMapsNo; i++)
     {
-        DBObjectPMap& theMap = *theMaps[i];
+        DBObjectPMap &theMap = *theMaps[i];
         //check if there is an object with that name already in memory
         for (DBObjectPMap::iterator iter = theMap.begin(); iter != theMap.end(); iter++)
         {
-            if (strcmp(((DBNamedObject*)(*iter).second)->getName(), name) == 0)
+            if (strcmp(((DBNamedObject *)(*iter).second)->getName(), name) == 0)
             {
-                retval = (MDDType*)(*iter).second;
+                retval = (MDDType *)(*iter).second;
                 break;
             }
         }
@@ -173,7 +173,7 @@ ObjectBroker::getMDDTypeByName(const char* name)
         if (query.nextRow())
         {
             mddtoidv = query.nextColumnLong();
-            retval = (MDDType*) getObjectByOId(OId(mddtoidv));
+            retval = (MDDType *) getObjectByOId(OId(mddtoidv));
             LTRACE << "is in db with " << retval;
         }
         else
@@ -187,7 +187,7 @@ ObjectBroker::getMDDTypeByName(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfMDDType(const char* name)
+ObjectBroker::getOIdOfMDDType(const char *name)
 {
     char mddtname[STRING_MAXLEN];
     long long mddtoid;
@@ -198,7 +198,7 @@ ObjectBroker::getOIdOfMDDType(const char* name)
     {
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy(mddtname, const_cast<char*>(name), (size_t) sizeof(mddtname));
+    (void) strncpy(mddtname, const_cast<char *>(name), (size_t) sizeof(mddtname));
 
     SQLiteQuery query("SELECT MDDTypeOId FROM RAS_MDDTYPES WHERE MDDTypeName = '%s'", name);
     if (query.nextRow())
@@ -217,7 +217,7 @@ ObjectBroker::getOIdOfMDDType(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfMDDBaseType(const char* name)
+ObjectBroker::getOIdOfMDDBaseType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -243,7 +243,7 @@ ObjectBroker::getOIdOfMDDBaseType(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfMDDDimensionType(const char* name)
+ObjectBroker::getOIdOfMDDDimensionType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -269,7 +269,7 @@ ObjectBroker::getOIdOfMDDDimensionType(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfMDDDomainType(const char* name)
+ObjectBroker::getOIdOfMDDDomainType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -295,7 +295,7 @@ ObjectBroker::getOIdOfMDDDomainType(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfStructType(const char* name)
+ObjectBroker::getOIdOfStructType(const char *name)
 {
 
     OId retval;
@@ -322,7 +322,7 @@ ObjectBroker::getOIdOfStructType(const char* name)
 }
 
 OId
-ObjectBroker::getOIdOfMDDSet(const char* name)
+ObjectBroker::getOIdOfMDDSet(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -347,11 +347,11 @@ ObjectBroker::getOIdOfMDDSet(const char* name)
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllSetTypes()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::SETTYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::SETTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -374,11 +374,11 @@ ObjectBroker::getAllSetTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDTypes()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDTYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -401,11 +401,11 @@ ObjectBroker::getAllMDDTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDBaseTypes()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDBASETYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDBASETYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -428,12 +428,12 @@ ObjectBroker::getAllMDDBaseTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDDimensionTypes()
 {
 
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDDIMTYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDDIMTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -456,11 +456,11 @@ ObjectBroker::getAllMDDDimensionTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDDomainTypes()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDDOMTYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDDOMTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -483,11 +483,11 @@ ObjectBroker::getAllMDDDomainTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllStructTypes()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::STRUCTTYPEOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::STRUCTTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -510,11 +510,11 @@ ObjectBroker::getAllStructTypes()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDObjects()
 {
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
@@ -536,12 +536,12 @@ ObjectBroker::getAllMDDObjects()
     return retval;
 }
 
-OIdSet*
+OIdSet *
 ObjectBroker::getAllMDDSets()
 {
 
-    OIdSet* retval = new OIdSet();
-    DBObjectPMap& theMap = ObjectBroker::getMap(OId::MDDCOLLOID);
+    OIdSet *retval = new OIdSet();
+    DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDCOLLOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;

@@ -47,7 +47,7 @@ static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.c
 #include <logging.hh>
 
 unsigned int
-SRCIndexLogic::computeNumberOfTiles(const StorageLayout& sl, const r_Minterval& mddDomain)
+SRCIndexLogic::computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain)
 {
     /*
         cout << "mddDomain " << mddDomain << endl;
@@ -61,7 +61,7 @@ SRCIndexLogic::computeNumberOfTiles(const StorageLayout& sl, const r_Minterval& 
 }
 
 r_Minterval
-SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_Point& tileConfigExtent)
+SRCIndexLogic::computeNormalizedDomain(const r_Point &mddDomainExtent, const r_Point &tileConfigExtent)
 {
     r_Dimension theDim = mddDomainExtent.dimension();
     r_Minterval normalizedDomain(theDim);
@@ -88,7 +88,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
 }
 
 r_Point
-SRCIndexLogic::computeNormalizedPoint(const r_Point& toNormalize, const r_Point& tileConfigExtent, const r_Point& mddDomainOrigin)
+SRCIndexLogic::computeNormalizedPoint(const r_Point &toNormalize, const r_Point &tileConfigExtent, const r_Point &mddDomainOrigin)
 {
     r_Dimension theDim = mddDomainOrigin.dimension();
     r_Point normalizedPoint(theDim);
@@ -102,7 +102,7 @@ SRCIndexLogic::computeNormalizedPoint(const r_Point& toNormalize, const r_Point&
 }
 
 r_Minterval
-SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfigExtent, const r_Point& mddDomainOrigin)
+SRCIndexLogic::computeDomain(const r_Point &toConvert, const r_Point &tileConfigExtent, const r_Point &mddDomainOrigin)
 {
     r_Dimension theDim = mddDomainOrigin.dimension();
     r_Minterval result(theDim);
@@ -125,7 +125,7 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
 }
 
 OId
-SRCIndexLogic::computeOId(const r_Minterval& mddDomain, const r_Point& tileConfigExtent, OId::OIdCounter baseCounter, OId::OIdType type, const r_Point& tileOrigin)
+SRCIndexLogic::computeOId(const r_Minterval &mddDomain, const r_Point &tileConfigExtent, OId::OIdCounter baseCounter, OId::OIdType type, const r_Point &tileOrigin)
 {
     OId::OIdCounter counter;
     counter = static_cast<OId::OIdCounter>(computeNormalizedDomain(mddDomain.get_extent(), tileConfigExtent).cell_offset(computeNormalizedPoint(tileOrigin, tileConfigExtent, mddDomain.get_origin()))) + baseCounter;
@@ -134,7 +134,7 @@ SRCIndexLogic::computeOId(const r_Minterval& mddDomain, const r_Point& tileConfi
 }
 
 bool
-SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const StorageLayout& sl)
+SRCIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, const StorageLayout &sl)
 {
     //this method should check if the tile is actually in the tiling
 
@@ -144,9 +144,9 @@ SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const 
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
     r_Minterval tileConfig = sl.getTileConfiguration();
     r_Minterval mddDomain = ixDS->getCoveredDomain();
-    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(), (static_cast<DBRCIndexDS*>(ixDS))->getBaseCounter(), (static_cast<DBRCIndexDS*>(ixDS))->getBaseOIdType(), newKeyObjectDomain.get_origin()));
+    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(), (static_cast<DBRCIndexDS *>(ixDS))->getBaseCounter(), (static_cast<DBRCIndexDS *>(ixDS))->getBaseOIdType(), newKeyObjectDomain.get_origin()));
     DBTileId tile = newKeyObject.getObject();
-    BLOBTile* t = new BLOBTile(tile->getSize(), tile->getCells(), tile->getDataFormat(), newBlobOId);
+    BLOBTile *t = new BLOBTile(tile->getSize(), tile->getCells(), tile->getDataFormat(), newBlobOId);
     // is done in the constructor
     //t->setPersistent(true);
     tile->setPersistent(false);
@@ -179,7 +179,7 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
 */
 
 r_Minterval
-SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Point& tileConfigExtent, const r_Minterval& widenMe)
+SRCIndexLogic::computeTiledDomain(const r_Minterval &completeDomain, const r_Point &tileConfigExtent, const r_Minterval &widenMe)
 {
     r_Minterval searchDomain(completeDomain.create_intersection(widenMe));
     r_Dimension theDim = searchDomain.dimension();
@@ -212,15 +212,15 @@ SRCIndexLogic::computeTiledDomain(const r_Minterval& completeDomain, const r_Poi
 }
 
 void
-SRCIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, const StorageLayout& sl)
+SRCIndexLogic::intersect(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &intersectedObjs, const StorageLayout &sl)
 {
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (searchInter.intersects_with(mddDomain))
     {
         r_Minterval tileConfig = sl.getTileConfiguration();
         r_Point tileConfigExtent = tileConfig.get_extent();
-        OId::OIdCounter baseCounter = (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseCounter();
-        OId::OIdType type = (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseOIdType();
+        OId::OIdCounter baseCounter = (static_cast<DBRCIndexDS *>(const_cast<IndexDS *>(ixDS)))->getBaseCounter();
+        OId::OIdType type = (static_cast<DBRCIndexDS *>(const_cast<IndexDS *>(ixDS)))->getBaseOIdType();
         r_Dimension dim = mddDomain.dimension();
         r_Point searchPoint(dim);
         r_Minterval searchDomain = computeTiledDomain(mddDomain, tileConfigExtent, searchInter);
@@ -250,14 +250,14 @@ SRCIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, Ke
 }
 
 void
-SRCIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl)
+SRCIndexLogic::containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl)
 {
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (mddDomain.covers(searchPoint))
     {
         r_Minterval tileConfig = sl.getTileConfiguration();
         r_Point tileConfigExtent = tileConfig.get_extent();
-        OId t = computeOId(mddDomain, tileConfigExtent, (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseCounter(), (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseOIdType(), searchPoint);
+        OId t = computeOId(mddDomain, tileConfigExtent, (static_cast<DBRCIndexDS *>(const_cast<IndexDS *>(ixDS)))->getBaseCounter(), (static_cast<DBRCIndexDS *>(const_cast<IndexDS *>(ixDS)))->getBaseOIdType(), searchPoint);
         DBObjectId theObject(t);
         if (!theObject.is_null())
         {
@@ -273,14 +273,14 @@ SRCIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint
 }
 
 void
-SRCIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl)
+SRCIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl)
 {
     LTRACE << "getObjects()";
     intersect(ixDS, ixDS->getCoveredDomain(), objs, sl);
 }
 
 bool
-SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS* ixDS, __attribute__((unused)) const KeyObject& objToRemove, __attribute__((unused)) const StorageLayout& sl)
+SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS *ixDS, __attribute__((unused)) const KeyObject &objToRemove, __attribute__((unused)) const StorageLayout &sl)
 {
     LTRACE << "removeObject(" << objToRemove << ")";
     return true;

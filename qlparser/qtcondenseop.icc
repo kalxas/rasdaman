@@ -30,15 +30,15 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtCondenseOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 
-inline QtOperation*
+inline QtOperation *
 QtCondenseOp::getCondOp()
 {
-  return condOp;
+    return condOp;
 }
 
 

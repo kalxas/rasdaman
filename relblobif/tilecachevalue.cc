@@ -31,7 +31,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-CacheValue::CacheValue(char* newData, r_Bytes newSize, bool newUpdate, OId& newOId, long newBlobOid, void* tile, r_Data_Format newDataformat) :
+CacheValue::CacheValue(char *newData, r_Bytes newSize, bool newUpdate, OId &newOId, long newBlobOid, void *tile, r_Data_Format newDataformat) :
     data(newData), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
 {
     referencingTiles.insert(tile);
@@ -41,13 +41,13 @@ CacheValue::~CacheValue()
 {
     if (data && referencingTiles.empty())
     {
-        LDEBUG << "freeing data = " << (void*)data;
+        LDEBUG << "freeing data = " << (void *)data;
         free(data);
         data = NULL;
     }
 }
 
-char* CacheValue::getData()
+char *CacheValue::getData()
 {
     return data;
 }
@@ -57,31 +57,31 @@ r_Data_Format CacheValue::getDataFormat()
     return dataFormat;
 }
 
-set<void*> CacheValue::getReferencingTiles()
+set<void *> CacheValue::getReferencingTiles()
 {
     return referencingTiles;
 }
 
-void CacheValue::setReferencingTiles(set<void*> newTiles)
+void CacheValue::setReferencingTiles(set<void *> newTiles)
 {
     referencingTiles = newTiles;
 }
 
-void CacheValue::addReferencingTiles(std::set<void*> newTiles)
+void CacheValue::addReferencingTiles(std::set<void *> newTiles)
 {
-    set<void*>::iterator it;
+    set<void *>::iterator it;
     for (it = newTiles.begin(); it != newTiles.end(); it++)
     {
         referencingTiles.insert(*it);
     }
 }
 
-void CacheValue::addReferencingTile(void* newTile)
+void CacheValue::addReferencingTile(void *newTile)
 {
     referencingTiles.insert(newTile);
 }
 
-void CacheValue::removeReferencingTile(void* tile)
+void CacheValue::removeReferencingTile(void *tile)
 {
     referencingTiles.erase(tile);
 }

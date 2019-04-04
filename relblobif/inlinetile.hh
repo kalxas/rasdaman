@@ -72,7 +72,7 @@ public:
     constructs a new empty InlineTile and gets an id for it.
     */
 
-    InlineTile(const OId& BlobId);
+    InlineTile(const OId &BlobId);
     /*@Doc:
     constructs a InlineTile out of the database
     */
@@ -87,14 +87,14 @@ public:
     constructs a new InlineTile of size newSize filled with c.
     */
 
-    InlineTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
+    InlineTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with the contents of newCells.
     The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
     newCells is directly owned by DBTile.
     */
 
-    InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
+    InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with the contents of newCells.
     */
@@ -105,12 +105,12 @@ public:
     may not destroy the object because it is inlined and therefore depending on its parent index.
     */
 
-    const OId& getIndexOId() const;
+    const OId &getIndexOId() const;
     /*@Doc:
     returns the oid of the index which contains the inlined tile.  if the tile is outlined then this oid is invalid.
     */
 
-    void setIndexOId(const OId& oid);
+    void setIndexOId(const OId &oid);
     /*@Doc:
     make the inlinetile use this index as its parent and storage structure.
     */
@@ -120,7 +120,7 @@ public:
     returns the size this tile will consume in as an inlined array.
     */
 
-    virtual char* insertInMemBlock(char* test);
+    virtual char *insertInMemBlock(char *test);
     /*@Doc:
         inserts the Blob into the char.
         the returned pointer is after the end of this tiles data.
@@ -136,7 +136,7 @@ public:
         returns true if it is inlined.
     */
 
-    virtual void inlineTile(const OId& ixOId);
+    virtual void inlineTile(const OId &ixOId);
     /*@Doc:
         do everything so that this tile is inlined and uses ixOId as its index parent.
         it will not check if this tile is already inlined.
@@ -159,7 +159,7 @@ public:
         if it is not inlined the blobtile functionality will take over.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
 protected:
 

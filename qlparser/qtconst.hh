@@ -54,7 +54,7 @@ class QtConst : public QtOperation
 {
 public:
     /// constructor getting a pointer to the data object
-    QtConst(QtData* newDataObj);
+    QtConst(QtData *newDataObj);
     /**
       Lifetime of {\tt newDataObj} is managed by this class from now on.
     */
@@ -63,7 +63,7 @@ public:
     virtual ~QtConst();
 
     /// test if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /// creates a unique name for a common subexpression
     virtual std::string getSpelling();
@@ -72,16 +72,16 @@ public:
     virtual QtAreaType getAreaType();
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -89,23 +89,23 @@ public:
     //@Man: Operations of the ONC protocol:
     //@{
     ///
-    QtDataList* next();
+    QtDataList *next();
     //@}
 
     //@Man: Read/Write methods:
     //@{
     ///
     /// return the data object
-    inline QtData* getDataObj();
+    inline QtData *getDataObj();
     ///
     //@}
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// pointer to the data object
-    QtData* dataObj;
+    QtData *dataObj;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

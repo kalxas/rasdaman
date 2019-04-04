@@ -35,7 +35,7 @@ CommandExecutor::CommandExecutor(boost::shared_ptr<ControlRasMgrComm> communicat
     this->communication = communicationArg;
 }
 
-void CommandExecutor::executeCommand(const std::string& command, std::string& reply)
+void CommandExecutor::executeCommand(const std::string &command, std::string &reply)
 {
     reply = this->communication->processCommand(command);
 }
@@ -47,7 +47,7 @@ bool CommandExecutor::isExitCommand(std::string command)
     return (command == "quit") || (command == "bye") || (command == "exit");
 }
 
-void CommandExecutor::executeLogin(std::string& reply)
+void CommandExecutor::executeLogin(std::string &reply)
 {
     reply = this->communication->processCommand("login");
 }

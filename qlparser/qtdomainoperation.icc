@@ -29,29 +29,29 @@ rasdaman GmbH.
 
 
 inline void
-QtDomainOperation::setMintervalOp(QtOperation* miop) 
+QtDomainOperation::setMintervalOp(QtOperation *miop)
 {
-  mintervalOp = miop;
+    mintervalOp = miop;
 }
 
-inline QtOperation*
-QtDomainOperation::getMintervalOp() 
+inline QtOperation *
+QtDomainOperation::getMintervalOp()
 {
-  return mintervalOp;
+    return mintervalOp;
 }
 
 
 inline QtNode::QtNodeType
 QtDomainOperation::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 inline void
-QtDomainOperation::setInput( QtOperation* newInput )
+QtDomainOperation::setInput(QtOperation *newInput)
 {
-  QtUnaryOperation::setInput( newInput );
+    QtUnaryOperation::setInput(newInput);
 }
 
 

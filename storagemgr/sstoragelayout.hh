@@ -135,12 +135,12 @@ public:
     this is needed for transdir
     */
 
-    StorageLayout(const DBStorageLayoutId& myStorage);
+    StorageLayout(const DBStorageLayoutId &myStorage);
     /*@Doc:
     Construct object with specific modes.
     */
 
-    StorageLayout(const StorageLayout& other);
+    StorageLayout(const StorageLayout &other);
     /*@Doc:
     Copy constructor.
     */
@@ -203,7 +203,7 @@ public:
     override previous values or default values for this option.
     */
 
-    void setTileConfiguration(const r_Minterval& tc);
+    void setTileConfiguration(const r_Minterval &tc);
     /*@Doc:
     override previous values or default values for this option.
     */
@@ -218,12 +218,12 @@ public:
     //@Man: Operations
     //@{
 
-    std::vector<r_Minterval> getLayout(const r_Minterval& tileDomain);
+    std::vector<r_Minterval> getLayout(const r_Minterval &tileDomain);
     /*@Doc:
     Partition a multidimensional array according to the storage layout.
     */
 
-    r_Data_Format getDataFormat(const r_Point& where) const;
+    r_Data_Format getDataFormat(const r_Point &where) const;
     /*@Doc:
     this is supplied to offer later implementations to specify the dataformat depending on the region of space.
     */
@@ -242,14 +242,14 @@ public:
     */
 
     // Functions added by Andrei Aiordachioaie, to match function definitions. (17-08-2009)
-    void setBBoxes(const vector<r_Minterval>& input);
+    void setBBoxes(const vector<r_Minterval> &input);
     void setSubTiling();
     void resetSubTiling();
     void setInterestThreshold(double i);
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
-    void setDirDecomp(vector<r_Dir_Decompose>*);
-    void setExtraFeatures(StgMddConfig* extraFeatures);
+    void setDirDecomp(vector<r_Dir_Decompose> *);
+    void setExtraFeatures(StgMddConfig *extraFeatures);
 
     //Added by uadhikari
     void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
@@ -262,7 +262,7 @@ public:
 
 
 protected:
-    std::vector<r_Minterval> calcRegLayout(const r_Minterval& layout) const;
+    std::vector<r_Minterval> calcRegLayout(const r_Minterval &layout) const;
     /*@Doc:
     calculate the domains which intersect the layout parameter.  as point of origin the domain specified in myLayout is used.
     */
@@ -270,7 +270,7 @@ protected:
     //@Man: Actual Parameters:
     //@{
 
-    StgMddConfig* extraFeatures;
+    StgMddConfig *extraFeatures;
     /*@Doc: actual features */
 
     DBStorageLayoutId myLayout;
@@ -279,18 +279,18 @@ protected:
     ///All parameters are stored there.
     //@}
     std::vector<r_Minterval>
-    calcInterestLayout(const r_Minterval& tileDomain);
+    calcInterestLayout(const r_Minterval &tileDomain);
 
     //@Man: Actual Parameters:
     //@{
     std::vector<r_Minterval>
-    calcAlignedLayout(const r_Minterval&);
+    calcAlignedLayout(const r_Minterval &);
 
     std::vector<r_Minterval>
-    calcDirectionalLayout(const r_Minterval&);
+    calcDirectionalLayout(const r_Minterval &);
 
     std::vector<r_Minterval>
-    calcStatisticLayout(const r_Minterval&);
+    calcStatisticLayout(const r_Minterval &);
 
     //@}
 

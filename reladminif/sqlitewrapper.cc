@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include <unistd.h>
 #include <logging.hh>
 
-sqlite3* sqliteConn = NULL;
+sqlite3 *sqliteConn = NULL;
 
 SQLiteQuery::SQLiteQuery(char q[]) :
     stmt(NULL), query(q), columnCounter(0)
@@ -50,7 +50,7 @@ SQLiteQuery::SQLiteQuery(char q[]) :
     LDEBUG << "SQL query: " << query;
 }
 
-SQLiteQuery::SQLiteQuery(const char* format, ...) :
+SQLiteQuery::SQLiteQuery(const char *format, ...) :
     stmt(NULL), query(""), columnCounter(0)
 {
     std::unique_ptr<char[]> tmpQuery(new char[QUERY_MAXLEN]);
@@ -69,7 +69,7 @@ SQLiteQuery::~SQLiteQuery()
     finalize();
 }
 
-SQLiteQuery::SQLiteQuery(const SQLiteQuery& o)
+SQLiteQuery::SQLiteQuery(const SQLiteQuery &o)
 {
     stmt = o.stmt;
     query = o.query;
@@ -106,12 +106,12 @@ void SQLiteQuery::bindDouble(double param)
     sqlite3_bind_double(stmt, ++columnCounter, param);
 }
 
-void SQLiteQuery::bindString(const char* param, int size)
+void SQLiteQuery::bindString(const char *param, int size)
 {
     sqlite3_bind_text(stmt, ++columnCounter, param, size, SQLITE_TRANSIENT);
 }
 
-void SQLiteQuery::bindBlob(const char* param, int size)
+void SQLiteQuery::bindBlob(const char *param, int size)
 {
     sqlite3_bind_blob(stmt, ++columnCounter, param, size, SQLITE_TRANSIENT);
 }
@@ -131,7 +131,7 @@ void SQLiteQuery::execute(int fail)
     }
 }
 
-void SQLiteQuery::execute(const char* q)
+void SQLiteQuery::execute(const char *q)
 {
     LDEBUG << "SQL query: " << q;
     sqlite3_busy_timeout(sqliteConn, SQLITE_BUSY_TIMEOUT);
@@ -139,7 +139,7 @@ void SQLiteQuery::execute(const char* q)
     failOnError(q, sqliteConn);
 }
 
-void SQLiteQuery::executeWithParams(const char* format, ...)
+void SQLiteQuery::executeWithParams(const char *format, ...)
 {
     std::unique_ptr<char[]> q(new char[QUERY_MAXLEN]);
     va_list args;
@@ -152,7 +152,7 @@ void SQLiteQuery::executeWithParams(const char* format, ...)
     failOnError(q.get(), sqliteConn);
 }
 
-sqlite3* SQLiteQuery::getConnection()
+sqlite3 *SQLiteQuery::getConnection()
 {
     return sqliteConn;
 }
@@ -193,14 +193,14 @@ double SQLiteQuery::nextColumnDouble()
     return sqlite3_column_double(stmt, columnCounter++);
 }
 
-char* SQLiteQuery::nextColumnString()
+char *SQLiteQuery::nextColumnString()
 {
-    return (char*)(const_cast<unsigned char*>(sqlite3_column_text(stmt, columnCounter++)));
+    return (char *)(const_cast<unsigned char *>(sqlite3_column_text(stmt, columnCounter++)));
 }
 
-char* SQLiteQuery::nextColumnBlob()
+char *SQLiteQuery::nextColumnBlob()
 {
-    return static_cast<char*>(const_cast<void*>(sqlite3_column_blob(stmt, columnCounter++)));
+    return static_cast<char *>(const_cast<void *>(sqlite3_column_blob(stmt, columnCounter++)));
 }
 
 int SQLiteQuery::currColumnBytes()
@@ -230,7 +230,7 @@ void SQLiteQuery::closeConnection()
     }
 }
 
-bool SQLiteQuery::openConnection(const char* globalConnectId)
+bool SQLiteQuery::openConnection(const char *globalConnectId)
 {
     sqlite3_enable_shared_cache(0);
     if (sqlite3_open(globalConnectId, &sqliteConn) != SQLITE_OK)
@@ -241,8 +241,8 @@ bool SQLiteQuery::openConnection(const char* globalConnectId)
     else
     {
         LDEBUG << "Connected successfully to '" << globalConnectId << "'";
-        std::string options = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=" + 
-            std::to_string(SQLITE_BUSY_TIMEOUT);
+        std::string options = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=" +
+                              std::to_string(SQLITE_BUSY_TIMEOUT);
         sqlite3_exec(sqliteConn, options.c_str(), NULL, 0, NULL);
     }
     return true;

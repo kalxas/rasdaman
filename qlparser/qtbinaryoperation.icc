@@ -28,61 +28,69 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtBinaryOperation::setInput1( QtOperation* input )
+QtBinaryOperation::setInput1(QtOperation *input)
 {
-  input1 = input;
+    input1 = input;
 
-  if( input )
-    input->setParent( this );
+    if (input)
+    {
+        input->setParent(this);
+    }
 }
 
 
 
 inline void
-QtBinaryOperation::setInput2( QtOperation* input )
+QtBinaryOperation::setInput2(QtOperation *input)
 {
-  input2 = input;
+    input2 = input;
 
-  if( input )
-    input->setParent( this );
+    if (input)
+    {
+        input->setParent(this);
+    }
 }
 
 
 
-inline QtOperation*
+inline QtOperation *
 QtBinaryOperation::getInput1()
 {
-  return input1;
+    return input1;
 }
 
 
 
-inline QtOperation*
+inline QtOperation *
 QtBinaryOperation::getInput2()
 {
-  return input2;
+    return input2;
 }
 
 
 
 inline void
-QtBinaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtBinaryOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  if( inputOld == input1 )
-  {
-    setInput1( inputNew );
+    if (inputOld == input1)
+    {
+        setInput1(inputNew);
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 
-  if( inputOld == input2 )
-  {
-    setInput2( inputNew );
+    if (inputOld == input2)
+    {
+        setInput2(inputNew);
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 }
 
 

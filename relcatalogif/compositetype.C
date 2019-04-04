@@ -45,60 +45,60 @@ static const char rcsid[] = "@(#)catalogif,CompositeType: $Header: /home/rasdev/
  * Description...: returns size of CompositeType in chars
  ************************************************************/
 
-unsigned int 
+unsigned int
 CompositeType::getSize() const
-	{
-	return size;
-	}
+{
+    return size;
+}
 
 /*************************************************************
  * Method name...: CompositeType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 CompositeType.
  ************************************************************/
 
 CompositeType::CompositeType()
-	:	BaseType("unnamed compositetype"),
-		size(0)
-	{
-	}
+    :   BaseType("unnamed compositetype"),
+        size(0)
+{
+}
 
 CompositeType::CompositeType(unsigned int newSize)
-	:	BaseType("unnamed compositetype"),
-		size(newSize)
-	{
-	}
+    :   BaseType("unnamed compositetype"),
+        size(newSize)
+{
+}
 
-CompositeType::CompositeType(const char* name, unsigned int newSize)
-	:	BaseType(name),
-		size(newSize)
-	{
-	}
+CompositeType::CompositeType(const char *name, unsigned int newSize)
+    :   BaseType(name),
+        size(newSize)
+{
+}
 
-CompositeType::CompositeType(const CompositeType& old)
-	:	BaseType(old),
-		size(old.size)
-	{
-	}
+CompositeType::CompositeType(const CompositeType &old)
+    :   BaseType(old),
+        size(old.size)
+{
+}
 
-CompositeType::CompositeType(const OId& id)
-	:	BaseType(id)
-	{
-	}
+CompositeType::CompositeType(const OId &id)
+    :   BaseType(id)
+{
+}
 
 CompositeType::~CompositeType()
-	{
-	}
+{
+}
 
-CompositeType&
-CompositeType::operator=(const CompositeType& old)
-	{
-	BaseType::operator=(old);
-	size = old.size;
-	return *this;
-	}
+CompositeType &
+CompositeType::operator=(const CompositeType &old)
+{
+    BaseType::operator=(old);
+    size = old.size;
+    return *this;
+}
 
 

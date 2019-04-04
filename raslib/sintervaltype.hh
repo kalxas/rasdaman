@@ -49,22 +49,22 @@ public:
     r_Sinterval_Type();
 
     /// copy constructor
-    r_Sinterval_Type(const r_Sinterval_Type& oldObj);
+    r_Sinterval_Type(const r_Sinterval_Type &oldObj);
 
     /// clone operation
-    virtual r_Type* clone() const;
+    virtual r_Type *clone() const;
 
     /// retrieve id of the type.
     virtual r_Type::r_Type_Id type_id() const;
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char* cells, r_Area noCells) const;
+    virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char* cells, r_Area noCells) const;
+    virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream& s = std::cout) const;
+    virtual void print_status(std::ostream &s = std::cout) const;
 
     virtual bool isSintervalType() const;
 
@@ -73,7 +73,7 @@ public:
 };
 
 //@Doc: write the status of a sinterval type to a stream
-extern std::ostream& operator<<(std::ostream& str, const r_Sinterval_Type& type);
+extern std::ostream &operator<<(std::ostream &str, const r_Sinterval_Type &type);
 
 #endif
 

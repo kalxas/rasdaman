@@ -55,16 +55,16 @@ class QtVariable : public QtOperation
 {
 public:
     /// constructor getting iterator variable name
-    QtVariable(const std::string& iteratorName);
+    QtVariable(const std::string &iteratorName);
 
     /// constructor getting iterator variable name and load domain
-    QtVariable(const std::string& iteratorName, const r_Minterval& loadDomain);
+    QtVariable(const std::string &iteratorName, const r_Minterval &loadDomain);
 
     /// destructor
     virtual ~QtVariable();
 
     /// test if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /// creates a unique name for a common subexpression
     virtual std::string getSpelling();
@@ -73,26 +73,26 @@ public:
     virtual QtAreaType getAreaType();
 
     /// optimizing load access
-    void optimizeLoad(QtTrimList* trimList);
+    void optimizeLoad(QtTrimList *trimList);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// methods for iterator name
     inline const std::string getIteratorName() const;
-    inline void setIteratorName(std::string& str);
+    inline void setIteratorName(std::string &str);
 
     /// method for loadDomain
     inline const r_Minterval getLoadDomain() const;
 
     /// method for loadDomain
-    inline void setLoadDomain(r_Minterval& loadDomain);
+    inline void setLoadDomain(r_Minterval &loadDomain);
 
     /// method for oldLoadDomain
     inline void setOldLoadDomain();
@@ -101,13 +101,13 @@ public:
     inline const r_Minterval getOldLoadDomain();
 
     /// method for LoadDomain
-    inline vector<bool>* getLoadDomainFlag();
+    inline vector<bool> *getLoadDomainFlag();
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
 
@@ -121,7 +121,7 @@ private:
     r_Minterval oldLoadDomain;
 
     /// bitvector for discrimination of trimming and projections
-    vector<bool>* domainFlag;
+    vector<bool> *domainFlag;
 
     /// attribute storing the index of the variable's data element in the data vector
     int dataIndex;

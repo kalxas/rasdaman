@@ -46,21 +46,21 @@ public:
      * @param oldFilePath
      * @return TRUE if the file represents authentication file stored in the old format, FALSE otherwise.
      */
-    static bool tryGetOldFormatAuthData(const std::string& oldFilePath, UserMgrProto& out_userManagerData);
+    static bool tryGetOldFormatAuthData(const std::string &oldFilePath, UserMgrProto &out_userManagerData);
 private:
     static RandomGenerator randomGenerator;
 
     static void initCrypt(int seed);
 
-    static int verifyAuthFile(std::ifstream& ifs);
+    static int verifyAuthFile(std::ifstream &ifs);
 
-    static void crypt(void* vbuffer, int length);
+    static void crypt(void *vbuffer, int length);
 
     static rasmgr::UserDatabaseRightsProto convertDbRightsToProto(int right);
 
     static rasmgr::UserAdminRightsProto convertAdminRightsToProto(int adminRights);
 
-    static void saveUserInformation(const rasmgr::UserMgrProto& userData, const std::string& filePath);
+    static void saveUserInformation(const rasmgr::UserMgrProto &userData, const std::string &filePath);
 };
 
 }

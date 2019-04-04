@@ -44,15 +44,15 @@ public:
     /// return temporary file descriptor
     int getFileDescriptor() const;
     /// write the given data with dataSize (bytes)
-    void writeData(const char* data, size_t dataSize);
+    void writeData(const char *data, size_t dataSize);
     /// write the given data with dataSize (bytes)
-    char* readData(long& dataSize);
+    char *readData(long &dataSize);
 
 private:
 
     void initTmpFile();
     void removeAuxXmlFile() const;
-    
+
     std::string fileName;
     int fd;
     static const int INVALID_FILE_DESCRIPTOR;

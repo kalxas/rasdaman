@@ -39,7 +39,7 @@ rasdaman GmbH.
  *
  * @param opList the arguments of the operation.
  */
-QtSimpleCaseOp::QtSimpleCaseOp(QtOperationList* opList): QtCaseOp(opList) {}
+QtSimpleCaseOp::QtSimpleCaseOp(QtOperationList *opList): QtCaseOp(opList) {}
 
 /**
  * Destructor override.
@@ -54,7 +54,7 @@ QtSimpleCaseOp::~QtSimpleCaseOp()
     {
         if (i > 0 && i % 2 == 0 && i != operationList->size() - 1)
         {
-            ((QtCaseEquality*) operationList->at(i))->setCommonOperandDeleted(true);
+            ((QtCaseEquality *) operationList->at(i))->setCommonOperandDeleted(true);
         }
     }
 }

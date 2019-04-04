@@ -74,7 +74,7 @@ public:
     */
 
     /// returns the name of the type as a C string.
-    virtual const char* getTypeName() const;
+    virtual const char *getTypeName() const;
     /*@Doc:
       The name of the type is the class name without the Type suffix.
       e.g. "Bool" for \Ref{BoolType}, or "ULong" for \Ref{ULongType},
@@ -82,7 +82,7 @@ public:
     */
 
     /// returns the structure of the type as a C string.
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /*@Doc:
       Returns a copy of getTypeName() for non-structured base types. For
       structured types a list of the elements in the form of #struct {
@@ -91,14 +91,14 @@ public:
       if domain is not specified). Sets are printed in the form
       #set<setName>#. The char* has to be freed by the caller!
     */
-    virtual char* getNewTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
     TypeEnum getType() const;
     /*@Doc:
     returns the type as a TypeEnum.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     checks, if two types are compatible (see also \Ref{MDDType}).
     */
@@ -108,15 +108,15 @@ public:
     default constructor, cannot be used.
     */
 
-    Type(const OId& id);
+    Type(const OId &id);
     /*@Doc:
     */
 
-    Type(const Type& old);
+    Type(const Type &old);
     /*@Doc:
     */
 
-    Type& operator=(const Type& old);
+    Type &operator=(const Type &old);
     /*@Doc:
     */
 
@@ -133,7 +133,7 @@ protected:
         FLOAT, STRUCT, CLASSTYPE, SETTYPE, MDDTYPE
     */
 
-    Type(const char* name);
+    Type(const char *name);
     /*@Doc:
     */
 };

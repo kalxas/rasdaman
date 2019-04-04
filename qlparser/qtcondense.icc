@@ -28,17 +28,17 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const char* 
+inline const char *
 QtCondense::getClassName() const
 {
-  return "QtCondense";
+    return "QtCondense";
 }
 
 
-inline const char* 
+inline const char *
 QtCondense::getAlgebraicName() const
 {
-  return "condense_cells";
+    return "condense_cells";
 }
 
 
@@ -46,21 +46,21 @@ QtCondense::getAlgebraicName() const
 inline QtNode::QtNodeType
 QtSome::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtSome::getClassName() const
 {
-  return "QtSome";
+    return "QtSome";
 }
 
 
-inline const char* 
+inline const char *
 QtSome::getAlgebraicName() const
 {
-  return "some_cells";
+    return "some_cells";
 }
 
 
@@ -68,84 +68,84 @@ QtSome::getAlgebraicName() const
 inline QtNode::QtNodeType
 QtAll::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtAll::getClassName() const
 {
-  return "QtAll";
+    return "QtAll";
 }
 
 
-inline const char* 
+inline const char *
 QtAll::getAlgebraicName() const
 {
-  return "all_cells";
+    return "all_cells";
 }
 
 
 inline QtNode::QtNodeType
 QtCountCells::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtCountCells::getClassName() const
 {
-  return "QtCountCells";
+    return "QtCountCells";
 }
 
 
-inline const char* 
+inline const char *
 QtCountCells::getAlgebraicName() const
 {
-  return "count_cells";
+    return "count_cells";
 }
 
 
 inline QtNode::QtNodeType
 QtAddCells::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtAddCells::getClassName() const
 {
-  return "QtAddCells";
+    return "QtAddCells";
 }
 
 
-inline const char* 
+inline const char *
 QtAddCells::getAlgebraicName() const
 {
-  return "add_cells";
+    return "add_cells";
 }
 
 
 inline QtNode::QtNodeType
 QtAvgCells::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtAvgCells::getClassName() const
 {
-  return "QtAvgCells";
+    return "QtAvgCells";
 }
 
 
-inline const char* 
+inline const char *
 QtAvgCells::getAlgebraicName() const
 {
-  return "avg_cells";
+    return "avg_cells";
 }
 
 
@@ -153,21 +153,21 @@ QtAvgCells::getAlgebraicName() const
 inline QtNode::QtNodeType
 QtMinCells::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtMinCells::getClassName() const
 {
-  return "QtMinCells";
+    return "QtMinCells";
 }
 
 
-inline const char* 
+inline const char *
 QtMinCells::getAlgebraicName() const
 {
-  return "min_cells";
+    return "min_cells";
 }
 
 
@@ -175,21 +175,21 @@ QtMinCells::getAlgebraicName() const
 inline QtNode::QtNodeType
 QtMaxCells::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtMaxCells::getClassName() const
 {
-  return "QtMaxCells";
+    return "QtMaxCells";
 }
 
 
-inline const char* 
+inline const char *
 QtMaxCells::getAlgebraicName() const
 {
-  return "max_cells";
+    return "max_cells";
 }
 
 
@@ -197,31 +197,31 @@ QtMaxCells::getAlgebraicName() const
 inline QtNode::QtNodeType
 QtStdDevVar::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
-inline const char* 
+inline const char *
 QtStdDevVar::getClassName() const
 {
-  return "QtStdDevVar";
+    return "QtStdDevVar";
 }
 
 
-inline const char* 
+inline const char *
 QtStdDevVar::getAlgebraicName() const
 {
-  switch (nodeType)
-  {
+    switch (nodeType)
+    {
     case QT_VARPOP:
-      return "var_pop";
+        return "var_pop";
     case QT_VARSAMP:
-      return "var_samp";
+        return "var_samp";
     case QT_STDDEVPOP:
-      return "stddev_pop";
+        return "stddev_pop";
     case QT_STDDEVSAMP:
-      return "stddev_samp";
+        return "stddev_samp";
     default:
-      return "";
-  }
+        return "";
+    }
 }

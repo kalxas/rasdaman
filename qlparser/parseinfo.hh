@@ -53,20 +53,20 @@ public:
     ParseInfo();
 
     /// constructor getting error number, token and location information
-    ParseInfo(unsigned long errorNo, const char* token, unsigned int lineNo, unsigned columnNo);
+    ParseInfo(unsigned long errorNo, const char *token, unsigned int lineNo, unsigned columnNo);
 
     /// copy constructor
-    ParseInfo(const ParseInfo& old);
+    ParseInfo(const ParseInfo &old);
 
     /// constructor getting token and location information
-    ParseInfo(const char* token, unsigned int lineNo, unsigned columnNo);
+    ParseInfo(const char *token, unsigned int lineNo, unsigned columnNo);
 
     //@Man: Read/Write methods
     //@{
     ///
     inline unsigned long getErrorNo() const;
     ///
-    inline const std::string& getToken() const;
+    inline const std::string &getToken() const;
     ///
     inline unsigned int  getLineNo() const;
     ///
@@ -74,9 +74,9 @@ public:
     ///
     inline void          setErrorNo(int errorNo);
     ///
-    inline void          setToken(const std::string& text);
+    inline void          setToken(const std::string &text);
     ///
-    inline void          setToken(const char* text);
+    inline void          setToken(const char *text);
     ///
     inline void          setLineNo(unsigned int lineNo);
     ///
@@ -84,9 +84,9 @@ public:
     ///
     //@}
 
-    void printStatus(std::ostream& s = std::cout) const;
+    void printStatus(std::ostream &s = std::cout) const;
 
-    ParseInfo& operator=(const ParseInfo& old);
+    ParseInfo &operator=(const ParseInfo &old);
 
 private:
     //@Man: Attributes

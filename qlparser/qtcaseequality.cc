@@ -38,7 +38,7 @@ rasdaman GmbH.
  * @param commonOperand the operand which is common to several equality operations.
  * @param input2 the second operand.
  */
-QtCaseEquality::QtCaseEquality(QtOperation* commonOperand, QtOperation* newInput2)
+QtCaseEquality::QtCaseEquality(QtOperation *commonOperand, QtOperation *newInput2)
     : QtEqual(commonOperand, newInput2)
 {
     commonOperandDeleted = false;

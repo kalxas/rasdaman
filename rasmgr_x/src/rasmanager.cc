@@ -63,7 +63,7 @@ namespace rasmgr
 {
 using boost::shared_ptr;
 
-RasManager::RasManager(rasmgr::Configuration& config)
+RasManager::RasManager(rasmgr::Configuration &config)
 {
     this->port = config.getPort();
     RasMgrConfig::getInstance()->setRasMgrPort(static_cast<boost::int32_t>(this->port));
@@ -80,7 +80,7 @@ void RasManager::start()
     if (common::GrpcUtils::isPortBusy(DEFAULT_HOSTNAME, this->port))
     {
         throw common::ResourceBusyException(
-                "Failed to start rasmanager on port " + std::to_string(this->port) + ": address is already in use.");
+            "Failed to start rasmanager on port " + std::to_string(this->port) + ": address is already in use.");
     }
 
     shared_ptr<DatabaseHostManager> dbhManager(new DatabaseHostManager());
@@ -132,7 +132,7 @@ void RasManager::start()
     this->running = true;
     // Finally assemble the server.
     this->server = builder.BuildAndStart();
-    
+
     if (this->server == nullptr)
     {
         throw common::Exception("Failed to start rasmanager on port " + std::to_string(this->port) + ".");

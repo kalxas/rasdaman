@@ -51,7 +51,7 @@ StgMddConfig::~StgMddConfig()
 {}
 
 // Setter functions
-void StgMddConfig::setBBoxes(const vector<r_Minterval>& input)
+void StgMddConfig::setBBoxes(const vector<r_Minterval> &input)
 {
     bboxes = input;
 }
@@ -81,7 +81,7 @@ void StgMddConfig::setCellSize(int size)
     cellSize = size;
 }
 
-void StgMddConfig::setDirDecompose(const vector<r_Dir_Decompose>& input)
+void StgMddConfig::setDirDecompose(const vector<r_Dir_Decompose> &input)
 {
     dirDecomp = input;
 }
@@ -92,7 +92,7 @@ void StgMddConfig::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit i
 }
 
 // Getter functions
-vector<r_Minterval>& StgMddConfig::getBBoxes()
+vector<r_Minterval> &StgMddConfig::getBBoxes()
 {
     return bboxes;
 }
@@ -117,7 +117,7 @@ int StgMddConfig::getCellSize()
     return cellSize;
 }
 
-vector<r_Dir_Decompose>& StgMddConfig::getDirDecompose()
+vector<r_Dir_Decompose> &StgMddConfig::getDirDecompose()
 {
     return dirDecomp;
 }

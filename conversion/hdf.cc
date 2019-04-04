@@ -96,7 +96,7 @@ void r_Conv_HDF::initHDF(void)
 }
 
 
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convertor(src, interv, tp, true)
 {
     initHDF();
@@ -110,7 +110,7 @@ r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type*
 
 
 
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, int tp)
+r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initHDF();
@@ -129,17 +129,17 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 
 
-r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
-                                   const r_Range* nullValue)
+r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
+                                   const r_Range *nullValue)
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
     int32 handle = 0, sds_id = 0, rank = 0;
     comp_coder_t comp_type = COMP_CODE_NONE;
-    int32* dimsizes = NULL, *start = NULL;
+    int32 *dimsizes = NULL, *start = NULL;
     size_t filesize = 0;
     int i = 0, j = 0;
-    FILE* fp = NULL;
+    FILE *fp = NULL;
     comp_info c_info;
     int tempFD;
 
@@ -202,7 +202,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     SDsetcompress(sds_id, comp_type, &c_info);
 
-    SDwritedata(sds_id, start, NULL, dimsizes, const_cast<char*>(desc.src));
+    SDwritedata(sds_id, start, NULL, dimsizes, const_cast<char *>(desc.src));
 
     delete [] dimsizes;
     dimsizes = NULL;
@@ -224,7 +224,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)filesize - 1);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(filesize)) == NULL)
+    if ((desc.dest = (char *)mystore.storage_alloc(filesize)) == NULL)
     {
         LERROR << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
@@ -252,17 +252,17 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
 
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
+r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
 {
 #ifdef HAVE_HDF
 
     char name[] = "HDFtempXXXXXX";
     int32 handle = 0, sds_id = 0, rank = 0, dtype = 0, numattr = 0, array_size = 0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
-    int32* start = NULL;
+    int32 *start = NULL;
     int dsize = 0;
     size_t filesize = 0;
-    FILE* fp = NULL;
+    FILE *fp = NULL;
     int i = 0;
     int tempFD;
 
@@ -332,7 +332,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         desc.destInterv = desc.srcInterv;
     }
 
-    if ((desc.dest = (char*)mystore.storage_alloc(array_size)) == NULL)
+    if ((desc.dest = (char *)mystore.storage_alloc(array_size)) == NULL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);
@@ -340,7 +340,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
-    if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void*>(desc.dest)) == FAIL)
+    if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void *>(desc.dest)) == FAIL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): error reading data";
         SDend(handle);
@@ -367,14 +367,14 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 #endif // HAVE_HDF
 }
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(__attribute__ ((unused)) r_Format_Params options)
+r_Conv_Desc &r_Conv_HDF::convertFrom(__attribute__((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 
 
-const char* r_Conv_HDF::get_name(void) const
+const char *r_Conv_HDF::get_name(void) const
 {
     return format_name_hdf;
 }
@@ -386,7 +386,7 @@ r_Data_Format r_Conv_HDF::get_data_format(void) const
 }
 
 
-r_Convertor* r_Conv_HDF::clone(void) const
+r_Convertor *r_Conv_HDF::clone(void) const
 {
     return new r_Conv_HDF(desc.src, desc.srcInterv, desc.baseType);
 }

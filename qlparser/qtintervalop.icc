@@ -30,5 +30,5 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtIntervalOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }

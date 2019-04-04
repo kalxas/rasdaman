@@ -57,10 +57,10 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
-QtPolygonClipping::QtPolygonClipping(const r_Minterval& areaOp, const std::vector<r_Point>& vertices)
+QtPolygonClipping::QtPolygonClipping(const r_Minterval &areaOp, const std::vector<r_Point> &vertices)
     :  domain(areaOp), polygonVertices(vertices)
 {
-    
+
 }
 
 QtPolygonClipping::QtPolygonClipping()
@@ -68,29 +68,29 @@ QtPolygonClipping::QtPolygonClipping()
     //initialize domain & polygonVertices for use by QtPositiveGenusClipping
 }
 
-vector< vector<char> >
-QtPolygonClipping::generateMask(bool toFill)
+vector< vector<char>>
+                   QtPolygonClipping::generateMask(bool toFill)
 {
     //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
-    vector< vector<char> > mask( static_cast<long unsigned int>(domain[0].get_extent()), 
-                                    vector<char>(static_cast<long unsigned int>(domain[1].get_extent()), 2));
-    
+    vector< vector<char>> mask(static_cast<long unsigned int>(domain[0].get_extent()),
+                               vector<char>(static_cast<long unsigned int>(domain[1].get_extent()), 2));
+
     //translate polygon vertices into mask coordinates
-    for( unsigned int i = 0; i < polygonVertices.size(); i++ )
+    for (unsigned int i = 0; i < polygonVertices.size(); i++)
     {
         polygonVertices[i][0] = polygonVertices[i][0] - domain[0].low();
         polygonVertices[i][1] = polygonVertices[i][1] - domain[1].low();
     }
-    
+
     //fill the polygon edges in the mask
     rasterizePolygon(mask, polygonVertices, toFill);
-    
+
     //fill the connected components of the complement of the polygon
-    if(toFill)
+    if (toFill)
     {
-        polygonInteriorFloodfill(mask, polygonVertices);    
+        polygonInteriorFloodfill(mask, polygonVertices);
     }
-    
+
     return mask;
 }
 
@@ -102,24 +102,24 @@ QtPolygonClipping::getDomain() const
 
 /*
  * Below, we define the mask generation methods for a polygon clipping containing interior regions.
- * 
+ *
  * be mindful not to apply this to an empty vector!
  */
 
-QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval& areaOp, const std::vector<QtMShapeData*>& polygonArgs)
+QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval &areaOp, const std::vector<QtMShapeData *> &polygonArgs)
 {
     setDomain(areaOp);
-    
-    if(!polygonArgs.empty())
+
+    if (!polygonArgs.empty())
     {
         //the convention here is that the first MShape is the outer polygon, while the inner polygons are the subsequent MShapes
         interiorPolygons.reserve(polygonArgs.size() - 1);
-        
-        for(auto iter = polygonArgs.begin(); iter != polygonArgs.end(); iter++)
+
+        for (auto iter = polygonArgs.begin(); iter != polygonArgs.end(); iter++)
         {
-            if(iter != polygonArgs.begin())
+            if (iter != polygonArgs.begin())
             {
-                interiorPolygons.emplace_back( QtPolygonClipping( (*iter)->convexHull(), (*iter)->getPolytopePoints() ) );
+                interiorPolygons.emplace_back(QtPolygonClipping((*iter)->convexHull(), (*iter)->getPolytopePoints()));
             }
             else
             {
@@ -130,77 +130,77 @@ QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval& areaOp, cons
 }
 
 
-vector< vector<char> >
-QtPositiveGenusClipping::generateMask(bool toFill)
+vector< vector<char>>
+                   QtPositiveGenusClipping::generateMask(bool toFill)
 {
     //2-D array of type char "mask", initialized to the mask of the outer polygon
-    vector< vector<char> > mask = QtPolygonClipping::generateMask( toFill );
+    vector< vector<char>> mask = QtPolygonClipping::generateMask(toFill);
 
     //make the data contiguous
     r_Minterval thisDomain = getDomain();
     std::unique_ptr<char[]> resultMask(new char[thisDomain.cell_count()]);
-    char* resPtr = resultMask.get();
-    const char* resultMaskPtr = &resultMask[0];
-    
-    for(size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
+    char *resPtr = resultMask.get();
+    const char *resultMaskPtr = &resultMask[0];
+
+    for (size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
     {
-        for(size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
+        for (size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
         {
             *resPtr = mask[i][j];
             resPtr++;
         }
     }
-    
-    for(auto iter = interiorPolygons.begin(); iter != interiorPolygons.end(); iter++)
+
+    for (auto iter = interiorPolygons.begin(); iter != interiorPolygons.end(); iter++)
     {
         //then, we drill polygonally-shaped holes in the polygon
-        if(thisDomain.covers(iter->getDomain()))
+        if (thisDomain.covers(iter->getDomain()))
         {
-            vector< vector<char> > polygonMask = iter->generateMask( toFill );
+            vector< vector<char>> polygonMask = iter->generateMask(toFill);
             r_Minterval interiorDomain = iter->getDomain();
             r_Miter resultMaskIter(&interiorDomain, &thisDomain, sizeof(char), resultMaskPtr);
-            for(size_t m = 0; m < polygonMask.size(); m++)
+            for (size_t m = 0; m < polygonMask.size(); m++)
             {
-                for(size_t n = 0; n < polygonMask[m].size(); n++)
+                for (size_t n = 0; n < polygonMask[m].size(); n++)
                 {
-                    char* thisCell = resultMaskIter.nextCell();
-                    
+                    char *thisCell = resultMaskIter.nextCell();
+
                     //case 1: we are interior of the outer polygon
-                    if(*thisCell == 0)
+                    if (*thisCell == 0)
                     {
                         //we are also in the interior of the inner polygon, so we remove this point from the mask
-                        if(polygonMask[m][n] == 0)
+                        if (polygonMask[m][n] == 0)
                         {
                             *thisCell = 3;
                         }
                         //otherwise, we do nothing.
                     }
-                    //case 2: we must either be on the boundary of the outer polygon, or in the exterior, 
+                    //case 2: we must either be on the boundary of the outer polygon, or in the exterior,
                     //        at which point we must not encounter any interior points of the interior polygon.
-                    else if(polygonMask[m][n] == 0)
+                    else if (polygonMask[m][n] == 0)
                     {
                         throw r_Error(POLYGONHOLEINEXTERIOR);
                     }
                 }
-            }       
+            }
         }
         else
         {
             //throw an error, since an interior hole cannot leave the mask
             throw r_Error(POLYGONHOLEINEXTERIOR);
         }
-    }       
+    }
 
     //return to the noncontiguous state
     resPtr = &resultMask[0];
-    for(size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
+    for (size_t i = 0; i < static_cast<size_t>(thisDomain[0].get_extent()); i++)
     {
-        for(size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
+        for (size_t j = 0; j < static_cast<size_t>(thisDomain[1].get_extent()); j++)
         {
             mask[i][j] = *resPtr;
             resPtr++;
         }
-    }    
-    
-    return mask;    
+    }
+
+    return mask;
 }

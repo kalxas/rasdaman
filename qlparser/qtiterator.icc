@@ -28,9 +28,11 @@ rasdaman GmbH.
  ************************************************************/
 
 inline void
-QtIterator::setStreamInputs( QtONCStreamList* inputsNew )
+QtIterator::setStreamInputs(QtONCStreamList *inputsNew)
 {
-  inputs = inputsNew;
-  for( unsigned int i=0; i<inputs->size(); i++ )
-    (*inputs)[i]->setParent( this );
+    inputs = inputsNew;
+    for (unsigned int i = 0; i < inputs->size(); i++)
+    {
+        (*inputs)[i]->setParent(this);
+    }
 }

@@ -30,10 +30,10 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtPointOp::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
-inline r_Point*
+inline r_Point *
 QtPointOp::getPoints() const
 {
     return pt;

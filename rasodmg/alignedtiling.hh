@@ -117,7 +117,7 @@ class r_Aligned_Tiling : public r_Dimension_Tiling
 public:
     /// read everything from encoded string
     /// (e.g. "[0:9,0:9];100" or "2;100")
-    r_Aligned_Tiling(const char* encoded);
+    r_Aligned_Tiling(const char *encoded);
 
     /// dimension and tile size.
     r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = RMInit::clientTileSize);
@@ -126,32 +126,32 @@ public:
     //r_Aligned_Tiling(r_Dimension dim);
 
     /// tile configuration and tile size.
-    r_Aligned_Tiling(const r_Minterval& tc, r_Bytes ts = RMInit::clientTileSize);
+    r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts = RMInit::clientTileSize);
 
-    virtual r_Tiling* clone() const;
+    virtual r_Tiling *clone() const;
 
     virtual ~r_Aligned_Tiling();
 
     /// returns the current value for the tile configuration option
-    const r_Minterval& get_tile_config() const;
+    const r_Minterval &get_tile_config() const;
 
-    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
+    std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
-    char* get_string_representation() const;
+    char *get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using
       {\tt malloc()} and has to be freed using {\tt free()} in the end.
     */
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = cout) const;
+    void print_status(std::ostream &s = cout) const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
 
-    static const char* description;
+    static const char *description;
 
     /// determines the individual tiles domains
-    r_Minterval compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size) const;
+    r_Minterval compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size) const;
     /**
        Determines the individual tiles domains for aligned tiling,
        using the options expressed in this object.
@@ -180,7 +180,7 @@ protected:
     r_Bytes get_min_opt_tile_size() const;
 
     ///
-    r_Minterval get_opt_size(const r_Minterval& tile_domain, r_Bytes cell_size) const;
+    r_Minterval get_opt_size(const r_Minterval &tile_domain, r_Bytes cell_size) const;
 };
 
 //@ManMemo: Module: {\bf rasodmg}

@@ -94,7 +94,7 @@ const boost::int32_t ServerRasNet::SERVER_CLEANUP_TIMEOUT = 3000000;
 // 10 milliseconds
 const boost::int32_t ServerRasNet::SERVER_CHECK_INTERVAL = 10000;
 
-ServerRasNet::ServerRasNet(const ServerConfig& config)
+ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
     this->hostName = config.getHostName();
     this->port = config.getPort();
@@ -177,7 +177,7 @@ void ServerRasNet::startProcess()
             commandVec.push_back((*it));
         }
 
-        char** commandArr = new char* [commandVec.size() + 1];
+        char **commandArr = new char *[commandVec.size() + 1];
 
         for (std::size_t i = 0; i < commandVec.size(); ++i)
         {
@@ -188,7 +188,7 @@ void ServerRasNet::startProcess()
             commandArr[i][commandVec[i].size()] = '\0';
         }
 
-        commandArr[commandVec.size()] = (char*)NULL;
+        commandArr[commandVec.size()] = (char *)NULL;
 
         if (execv(RASEXECUTABLE, commandArr) == -1)
         {
@@ -238,17 +238,19 @@ bool ServerRasNet::isAlive()
         //If the communication has not failed, the server is alive
         result = status.ok();
         if (!result)
-            LDEBUG << "Failed getting status from server " << serverId 
+            LDEBUG << "Failed getting status from server " << serverId
                    << ", error: " << status.error_message();
         else
+        {
             LDEBUG << "Server " << this->serverId << " is alive.";
+        }
     }
 
     return result;
 }
 
 
-bool ServerRasNet::isClientAlive(const std::string& clientId)
+bool ServerRasNet::isClientAlive(const std::string &clientId)
 {
     bool result = false;
 
@@ -269,19 +271,21 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
 
         result = (status.ok() && response.status() == ClientStatusRepl::ALIVE);
         if (!result)
-            LDEBUG << "Failed getting status from client " << clientId 
+            LDEBUG << "Failed getting status from client " << clientId
                    << ", error: " << status.error_message();
         else
+        {
             LDEBUG << "Client " << clientId << " is alive.";
+        }
     }
 
     return result;
 }
 
-void ServerRasNet::allocateClientSession(const std::string& clientId,
-        const std::string& sessionId,
-        const std::string& dbName,
-        const UserDatabaseRights& dbRights)
+void ServerRasNet::allocateClientSession(const std::string &clientId,
+        const std::string &sessionId,
+        const std::string &dbName,
+        const UserDatabaseRights &dbRights)
 {
     // Check if the server is responding to requests before trying to assign it a new client.
     if (!this->isAvailable())
@@ -291,12 +295,12 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
 
     AllocateClientReq request;
     Void response;
-    DatabaseRights* rights = new DatabaseRights;
+    DatabaseRights *rights = new DatabaseRights;
 
     rights->set_read(dbRights.hasReadAccess());
     rights->set_write(dbRights.hasWriteAccess());
 
-    const char* capabilities =  this->getCapability(this->serverId.c_str(), dbName.c_str(), dbRights);
+    const char *capabilities =  this->getCapability(this->serverId.c_str(), dbName.c_str(), dbRights);
     request.set_capabilities(capabilities);
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
@@ -333,7 +337,7 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
            << "; session counter: " << this->sessionNo;
 }
 
-void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
+void ServerRasNet::deallocateClientSession(const std::string &clientId, const std::string &sessionId)
 {
     // Remove the client session from rasmgr objects.
     //Decrease the session count
@@ -370,7 +374,7 @@ void ServerRasNet::deallocateClientSession(const std::string& clientId, const st
 }
 
 
-void ServerRasNet::registerServer(const std::string& serverId)
+void ServerRasNet::registerServer(const std::string &serverId)
 {
     unique_lock<shared_mutex> stateLock(this->stateMtx);
     if (this->started && serverId == this->serverId)
@@ -396,8 +400,8 @@ void ServerRasNet::registerServer(const std::string& serverId)
                 }
                 else
                 {
-                    throw common::RuntimeException("Server could not be reached at " + 
-                        hostName + ":" + std::to_string(port) + ", invalid -host  in rasmgr.conf?");
+                    throw common::RuntimeException("Server could not be reached at " +
+                                                   hostName + ":" + std::to_string(port) + ", invalid -host  in rasmgr.conf?");
                 }
             }
         }
@@ -422,7 +426,7 @@ void ServerRasNet::sendSignal(int sig) const
     errno = 0;
     if (kill(this->processId, sig) != 0)
     {
-        LERROR << "Failed to send " << common::SignalHandler::signalName(sig) 
+        LERROR << "Failed to send " << common::SignalHandler::signalName(sig)
                << " to server " << this->serverId << ": " << strerror(errno);
     }
 }
@@ -587,7 +591,7 @@ std::string ServerRasNet::getStartProcessCommand()
     return ss.str();
 }
 
-void ServerRasNet::configureClientContext(grpc::ClientContext& context)
+void ServerRasNet::configureClientContext(grpc::ClientContext &context)
 {
     // The server should be able to reply to any call within this window.
     std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SERVER_CALL_TIMEOUT);
@@ -595,19 +599,19 @@ void ServerRasNet::configureClientContext(grpc::ClientContext& context)
     context.set_deadline(deadline);
 }
 
-const char* ServerRasNet::getCapability(const char* serverName, const char* databaseName, const UserDatabaseRights& rights)
+const char *ServerRasNet::getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights &rights)
 {
     //Format of Capability (no brackets())
     //$I(userID)$E(effectivRights)$B(databaseName)$T(timeout)$N(serverName)$D(messageDigest)$K
 
     time_t tmx = time(NULL) + 180;
-    tm* b = localtime(&tmx);
+    tm *b = localtime(&tmx);
     static char formattedTime[30];
     sprintf(formattedTime, "%d:%d:%d:%d:%d:%d", b->tm_mday,
             b->tm_mon + 1, b->tm_year + 1900, b->tm_hour, b->tm_min, b->tm_sec);
 
 
-    const char* rString = this->convertDatabRights(rights);
+    const char *rString = this->convertDatabRights(rights);
 
     long userID = 0;
 
@@ -626,9 +630,9 @@ const char* ServerRasNet::getCapability(const char* serverName, const char* data
 
 }
 
-int ServerRasNet::messageDigest(const char* input, char* output, const char* mdName)
+int ServerRasNet::messageDigest(const char *input, char *output, const char *mdName)
 {
-    const EVP_MD* md;
+    const EVP_MD *md;
     unsigned int md_len, i;
     unsigned char md_value[100];
 
@@ -662,7 +666,7 @@ int ServerRasNet::messageDigest(const char* input, char* output, const char* mdN
     return strlen(output);
 }
 
-const char* ServerRasNet::convertDatabRights(const UserDatabaseRights& dbRights)
+const char *ServerRasNet::convertDatabRights(const UserDatabaseRights &dbRights)
 {
     static char buffer[20];
     char R = (dbRights.hasReadAccess())  ? 'R' : '.';
@@ -681,14 +685,14 @@ bool ServerRasNet::isProcessAlive() const
 
 bool ServerRasNet::isAddressValid() const
 {
-    struct addrinfo* addr = NULL;
+    struct addrinfo *addr = NULL;
     std::string portStr = std::to_string(port);
     int ret = getaddrinfo(hostName.c_str(), portStr.c_str(), NULL, &addr);
     if (addr)
     {
         freeaddrinfo(addr);
         addr = NULL;
-     }
+    }
     return ret == 0;
 }
 

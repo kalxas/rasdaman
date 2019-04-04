@@ -50,7 +50,7 @@ using namespace std;
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 
 
-QtVariable::QtVariable(const string& initName)
+QtVariable::QtVariable(const string &initName)
     :  iteratorName(initName),
        loadDomain(),
        oldLoadDomain(),
@@ -60,7 +60,7 @@ QtVariable::QtVariable(const string& initName)
 }
 
 
-QtVariable::QtVariable(const string& initName, const r_Minterval& initDomain)
+QtVariable::QtVariable(const string &initName, const r_Minterval &initDomain)
     :  iteratorName(initName),
        loadDomain(initDomain),
        oldLoadDomain(),
@@ -79,15 +79,15 @@ QtVariable::~QtVariable()
 
 
 bool
-QtVariable::equalMeaning(QtNode* node)
+QtVariable::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
-        QtVariable* mddVarNode;
+        QtVariable *mddVarNode;
 
-        mddVarNode = static_cast<QtVariable*>(node); // by force
+        mddVarNode = static_cast<QtVariable *>(node); // by force
 
         if (iteratorName.compare(mddVarNode->getIteratorName()) == 0)
         {
@@ -140,7 +140,7 @@ QtVariable::getAreaType()
 
 
 void
-QtVariable::optimizeLoad(QtTrimList* trimList)
+QtVariable::optimizeLoad(QtTrimList *trimList)
 {
     if (!trimList->empty())
     {
@@ -192,18 +192,18 @@ QtVariable::optimizeLoad(QtTrimList* trimList)
 
 
 
-QtData*
-QtVariable::evaluate(QtDataList* inputList)
+QtData *
+QtVariable::evaluate(QtDataList *inputList)
 {
     startTimer("QtVariable");
 
-    vector<QtData*>::iterator i; //default
+    vector<QtData *>::iterator i; //default
 
-    QtData* returnValue = NULL;
+    QtData *returnValue = NULL;
 
     if (inputList /* && inputList->size() > dataIndex*/)
     {
-        QtData* dataObject = 0;
+        QtData *dataObject = 0;
 
         if (dataIndex == -1)
         {
@@ -254,8 +254,8 @@ QtVariable::evaluate(QtDataList* inputList)
             }
             else
             {
-                QtMDD*  qtMDD         = static_cast<QtMDD*>(dataObject);
-                MDDObj* currentMDDObj = qtMDD->getMDDObject();
+                QtMDD  *qtMDD         = static_cast<QtMDD *>(dataObject);
+                MDDObj *currentMDDObj = qtMDD->getMDDObject();
                 const auto &currDomain = currentMDDObj->getCurrentDomain();
 
                 LTRACE << "  definitionDomain: " << currentMDDObj->getDefinitionDomain();
@@ -269,12 +269,12 @@ QtVariable::evaluate(QtDataList* inputList)
                 {
                     actLoadDomain.intersection_of(loadDomain, currDomain);
                 }
-                catch (r_Edim_mismatch& err)
+                catch (r_Edim_mismatch &err)
                 {
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }
-                catch (r_Eno_interval& err)
+                catch (r_Eno_interval &err)
                 {
                     // ticket:358
                     // Instead of throwing an exception, return an MDD initialized
@@ -282,27 +282,31 @@ QtVariable::evaluate(QtDataList* inputList)
                     // with any existing tiles in the database -- DM 2013-nov-15
                     LWARNING << "specified domain " << loadDomain
                              << " does not intersect with the MDD spatial domain "
-                            << currDomain << ", returning empty result.";
+                             << currDomain << ", returning empty result.";
 
-                    const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
-                    
+                    const MDDBaseType *mddType = currentMDDObj->getMDDBaseType();
+
                     r_Minterval newDomain(currDomain.dimension());
                     for (size_t dim = 0; dim < currDomain.dimension(); ++dim)
                     {
                         const auto &specifiedInterval = loadDomain[dim];
                         r_Sinterval newInterval = currDomain[dim];
                         if (specifiedInterval.is_low_fixed())
+                        {
                             newInterval.set_high(specifiedInterval.low());
+                        }
                         if (specifiedInterval.is_high_fixed())
+                        {
                             newInterval.set_high(specifiedInterval.high());
+                        }
                         newDomain << newInterval;
                     }
 
                     // create a transient MDD object for the query result
-                    MDDObj* resultMDD = new MDDObj(mddType, newDomain);
+                    MDDObj *resultMDD = new MDDObj(mddType, newDomain);
 
                     // create transient tile
-                    Tile* resTile = new Tile(newDomain, mddType->getBaseType());
+                    Tile *resTile = new Tile(newDomain, mddType->getBaseType());
                     resTile->setPersistent(false);
 
                     // insert Tile in result mddObj
@@ -312,7 +316,7 @@ QtVariable::evaluate(QtDataList* inputList)
                     stopTimer();
                     return returnValue;
                 }
-                catch (r_Error& err)
+                catch (r_Error &err)
                 {
                     LERROR << "Error: QtVariable::evaluate() - general error.";
                     parseInfo.setErrorNo(350);
@@ -332,7 +336,7 @@ QtVariable::evaluate(QtDataList* inputList)
                     //       is not possible if the iterator variable occurs with different spatial operations.
                     //
 
-                    QtMDD* result = new QtMDD(currentMDDObj);
+                    QtMDD *result = new QtMDD(currentMDDObj);
                     result->setLoadDomain(actLoadDomain);
 
                     returnValue = result;
@@ -370,7 +374,7 @@ QtVariable::evaluate(QtDataList* inputList)
 
 
 void
-QtVariable::printTree(int tab, ostream& s, QtChildType /*mode*/)
+QtVariable::printTree(int tab, ostream &s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtVariable Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -400,15 +404,15 @@ QtVariable::printTree(int tab, ostream& s, QtChildType /*mode*/)
 
 
 void
-QtVariable::printAlgebraicExpression(ostream& s)
+QtVariable::printAlgebraicExpression(ostream &s)
 {
     s << iteratorName.c_str() << flush;
 }
 
 
 
-const QtTypeElement&
-QtVariable::checkType(QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtVariable::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 

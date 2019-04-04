@@ -28,15 +28,15 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const std::string&
+inline const std::string &
 QtStringData::getStringData() const
 {
-  return stringData;
+    return stringData;
 }
 
 
 inline void
-QtStringData::setStringData( const std::string& str )
+QtStringData::setStringData(const std::string &str)
 {
-  stringData = str;
+    stringData = str;
 }

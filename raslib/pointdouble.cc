@@ -48,7 +48,7 @@ using namespace std;
 r_PointDouble::r_PointDouble(r_Dimension dim)
 {
     points.reserve(dim);
-    
+
     for (r_Dimension i = 0; i < dim; i++)
     {
         points.push_back(0);
@@ -58,23 +58,23 @@ r_PointDouble::r_PointDouble(r_Dimension dim)
 r_PointDouble::r_PointDouble(r_Dimension dim, double value)
 {
     points.reserve(dim);
-    
+
     for (r_Dimension i = 0; i < dim; i++)
     {
         points.push_back(value);
     }
 }
-r_PointDouble::r_PointDouble(const r_Point& pt)
+r_PointDouble::r_PointDouble(const r_Point &pt)
 {
     points.reserve(pt.dimension());
-    
+
     for (r_Dimension i = 0; i < pt.dimension(); i++)
     {
         points.push_back(pt[i]);
     }
 }
 
-r_PointDouble::r_PointDouble(const vector<double>& content)
+r_PointDouble::r_PointDouble(const vector<double> &content)
 {
     points = content;
 }
@@ -102,7 +102,7 @@ r_PointDouble::operator[](size_t i) const
 }
 
 const r_PointDouble &
-r_PointDouble::operator=(const r_PointDouble& pt)
+r_PointDouble::operator=(const r_PointDouble &pt)
 {
     if (this != &pt)
     {
@@ -129,14 +129,14 @@ bool r_PointDouble::operator<(const r_PointDouble &pt) const
     {
         throw r_Edim_mismatch(dimension(), pt.dimension());
     }
-    
+
     for (size_t i = 0; i < points.size(); i++)
     {
-        if( points[i] < pt.getVectorContent()[i] )
+        if (points[i] < pt.getVectorContent()[i])
         {
             return true;
         }
-        else if(points[i] > pt.getVectorContent()[i])
+        else if (points[i] > pt.getVectorContent()[i])
         {
             return false;
         }
@@ -183,7 +183,7 @@ r_PointDouble::operator-(const r_PointDouble &pt) const
 }
 
 r_PointDouble
-    r_PointDouble::operator*(const r_PointDouble &pt) const
+r_PointDouble::operator*(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
@@ -212,7 +212,7 @@ r_PointDouble::operator*(const double scalarArg) const
 }
 
 double
-r_PointDouble::dotProduct(const r_PointDouble& pt) const
+r_PointDouble::dotProduct(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {

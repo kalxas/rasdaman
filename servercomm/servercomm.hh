@@ -211,7 +211,7 @@ public:
     /// executes a retrieval query and prepares the result for transfer with \Ref{getNextMDD}.
     virtual unsigned short
     executeQuery(unsigned long callingClientId, const char *query, ExecuteQueryRes &returnStructure,
-            bool insert = false);
+                 bool insert = false);
     /**
       Executes a query and puts the result in the actual transfer collection.
       The first parameter is the unique client id
@@ -335,8 +335,8 @@ public:
 
     /// create a new persistent MDD object for tile based transfers
     virtual unsigned short startInsertPersMDD(unsigned long callingClientId,
-                                              const char *collName, r_Minterval &domain,
-                                              unsigned long typeLength, const char *typeName, r_OId &oid);
+            const char *collName, r_Minterval &domain,
+            unsigned long typeLength, const char *typeName, r_OId &oid);
     /**
       Creates an object for tile based transfer with method \Ref{insertTile} to be
       inserted into the specified MDD collection.
@@ -374,8 +374,8 @@ public:
     ///
     /// prepares an MDD (transient) for transfer of tiles
     virtual unsigned short startInsertTransMDD(unsigned long callingClientId,
-                                               r_Minterval &domain,
-                                               unsigned long typeLength, const char *typeName);
+            r_Minterval &domain,
+            unsigned long typeLength, const char *typeName);
     /**
       Creates an object for tile based transfer with method \Ref{insertTile}.
 
@@ -600,7 +600,7 @@ public:
     ///
     /// remove object specified by oid from collection specified by name
     virtual unsigned short removeObjFromColl(unsigned long callingClientId,
-                                             const char *collName, r_OId &oid);
+            const char *collName, r_OId &oid);
     /**
       The method removes the object with {\\t oid} from collection with {\tt collName}.
       The first parameter is the unique client id for which the object should be removed.
@@ -681,9 +681,9 @@ public:
 
     /// gets oids of the collection specified by name
     virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
-                                             const char *collName,
-                                             char *&typeName, char *&typeStructure, r_OId &oid,
-                                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
+            const char *collName,
+            char *&typeName, char *&typeStructure, r_OId &oid,
+            RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
     /**
       Gets the collection of oids of the collection with {\tt collName}.
 
@@ -867,14 +867,14 @@ protected:
     bool parseQuery(const char *query);
 
     /// init fields of res to 0
-    static void resetExecuteQueryRes(ExecuteQueryRes& res);
-    static void resetExecuteUpdateRes(ExecuteUpdateRes& res);
+    static void resetExecuteQueryRes(ExecuteQueryRes &res);
+    static void resetExecuteUpdateRes(ExecuteUpdateRes &res);
     /// free fields of res
-    static void cleanExecuteQueryRes(ExecuteQueryRes& res);
+    static void cleanExecuteQueryRes(ExecuteQueryRes &res);
     /// return type name and type structure of the first transfer element in context
-    std::pair<char*, char*> getTypeNameStructure(ClientTblElt *context) const;
+    std::pair<char *, char *> getTypeNameStructure(ClientTblElt *context) const;
     unsigned short getTransferCollInfo(
-            ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
+        ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const;
 
     /// the client table which holds information about the calling clients
     static ClientTblElt *clientTbl;

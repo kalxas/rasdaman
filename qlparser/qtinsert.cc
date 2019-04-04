@@ -71,40 +71,40 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
-QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource)
+QtInsert::QtInsert(const QtCollection &initCollection, QtOperation *initSource)
     : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collection(initCollection)
 {
     source->setParent(this);
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
-QtInsert::QtInsert(const QtCollection& initCollection, QtOperation* initSource, QtOperation* storage)
+QtInsert::QtInsert(const QtCollection &initCollection, QtOperation *initSource, QtOperation *storage)
     : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collection(initCollection)
 {
     source->setParent(this);
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
 /// constructor getting name of collection and data to insert
-QtInsert::QtInsert(const QtCollection& initCollection, QtData* data)
+QtInsert::QtInsert(const QtCollection &initCollection, QtData *data)
     : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collection(initCollection)
 {
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-  	{
-    	LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
-    	parseInfo.setErrorNo(499);
-    	throw parseInfo; 
-  	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Error: QtInsert::QtInsert(): Non-local collection is unsupported";
+        parseInfo.setErrorNo(499);
+        throw parseInfo;
+    }
 }
 
 QtInsert::~QtInsert()
@@ -125,7 +125,7 @@ QtInsert::~QtInsert()
     }
 }
 
-QtData*
+QtData *
 QtInsert::evaluate()
 {
     startTimer("QtInsert");
@@ -133,13 +133,13 @@ QtInsert::evaluate()
     // allocate a new oid within the current db
     OId oid;
     long long myoid = 0;
-    QtMddCfgOp* configOp = NULL;
-    QtMDDConfig* mddConfig = NULL;
-    QtData* sourceData = NULL;
-    QtNode::QtDataList* nextTuple = NULL;
+    QtMddCfgOp *configOp = NULL;
+    QtMDDConfig *mddConfig = NULL;
+    QtData *sourceData = NULL;
+    QtNode::QtDataList *nextTuple = NULL;
 
-    r_Minterval* defaultCfg = NULL;
-    QtData* returnValue = NULL;
+    r_Minterval *defaultCfg = NULL;
+    QtData *returnValue = NULL;
 
     if (dataToInsert)
     {
@@ -152,7 +152,7 @@ QtInsert::evaluate()
         std::unique_ptr<QtNode::QtDataList> nextTupleDeleter(nextTuple);
         if (stgLayout)
         {
-            configOp = static_cast<QtMddCfgOp*>(stgLayout);
+            configOp = static_cast<QtMddCfgOp *>(stgLayout);
             mddConfig = configOp->getMddConfig();
         }
         // get the operands
@@ -162,11 +162,11 @@ QtInsert::evaluate()
 
     if (sourceData)
     {
-        QtMDD* sourceMDD = static_cast<QtMDD*>(sourceData);
-        MDDObj* sourceObj = sourceMDD->getMDDObject();
+        QtMDD *sourceMDD = static_cast<QtMDD *>(sourceData);
+        MDDObj *sourceObj = sourceMDD->getMDDObject();
 
-        MDDColl* persColl = NULL;
-        MDDColl* almost = NULL;
+        MDDColl *persColl = NULL;
+        MDDColl *almost = NULL;
 
         try
         {
@@ -187,19 +187,19 @@ QtInsert::evaluate()
         }
         else
         {
-            persColl = static_cast<MDDColl*>(almost);
+            persColl = static_cast<MDDColl *>(almost);
         }
 
         //
         // check MDD and collection type for compatibility
         //
-        const MDDBaseType* sourceMDDType = sourceObj->getMDDBaseType();
-        const MDDType* targetMDDType = persColl->getCollectionType()->getMDDType();
+        const MDDBaseType *sourceMDDType = sourceObj->getMDDBaseType();
+        const MDDType *targetMDDType = persColl->getCollectionType()->getMDDType();
 
         int cellSize;
 #ifdef DEBUG
-        char* collTypeStructure = persColl->getCollectionType()->getTypeStructure();
-        char* mddTypeStructure = sourceObj->getMDDBaseType()->getTypeStructure();
+        char *collTypeStructure = persColl->getCollectionType()->getTypeStructure();
+        char *mddTypeStructure = sourceObj->getMDDBaseType()->getTypeStructure();
         LTRACE << "Collection type structure.: " << collTypeStructure << "\n"
                << "MDD type structure........: " << mddTypeStructure << "\n"
                << "MDD domain................: " << sourceObj->getDefinitionDomain();
@@ -220,11 +220,11 @@ QtInsert::evaluate()
 
         // check if the types of the MDD to be inserted and the target collection are compatible
         bool compatible = false;
-        
-        const auto *targetBaseType = 
-            (static_cast<const MDDBaseType*>(targetMDDType))->getBaseType();
-        const auto *sourceBaseType = 
-            (static_cast<const MDDBaseType*>(sourceMDDType))->getBaseType();
+
+        const auto *targetBaseType =
+            (static_cast<const MDDBaseType *>(targetMDDType))->getBaseType();
+        const auto *sourceBaseType =
+            (static_cast<const MDDBaseType *>(sourceMDDType))->getBaseType();
         compatible = targetBaseType->compatibleWith(sourceBaseType);
         if (!compatible)
         {
@@ -259,7 +259,7 @@ QtInsert::evaluate()
         if (!OId::allocateMDDOId(&oid))
         {
 #else
-            OId::allocateOId(oid, OId::MDDOID);
+        OId::allocateOId(oid, OId::MDDOID);
 #endif
             // cast to external format
             myoid = static_cast<long long>(oid);
@@ -267,10 +267,10 @@ QtInsert::evaluate()
             LINFO << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter();
 #endif
             // get all tiles
-            vector<boost::shared_ptr<Tile>>* sourceTiles = sourceObj->getTiles();
+            vector<boost::shared_ptr<Tile>> *sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
-            MDDBaseType* persMDDType = static_cast<MDDBaseType*>(const_cast<MDDType*>(targetMDDType));
+            MDDBaseType *persMDDType = static_cast<MDDBaseType *>(const_cast<MDDType *>(targetMDDType));
 
             // create a persistent MDD object
             // need a StorageLayout here
@@ -344,15 +344,15 @@ QtInsert::evaluate()
                 tempStorageLayout.setTileConfiguration(tileCfg);
             }
 
-            MDDObj* persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid, tempStorageLayout);
+            MDDObj *persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid, tempStorageLayout);
             persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
             for (auto sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
-                Tile* sourceTile = sourceIt->get();
-                Tile* newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(),
+                Tile *sourceTile = sourceIt->get();
+                Tile *newPersTile = new Tile(sourceTile->getDomain(), persMDDType->getBaseType(),
                                              true, sourceTile->getContents(), sourceTile->getSize(), sourceTile->getDataFormat());
                 persMDDObj->insertTile(newPersTile);
 
@@ -398,10 +398,10 @@ QtInsert::evaluate()
     return returnValue;
 }
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtInsert::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
+    QtNodeList *resultList = NULL;
 
     if (source)
     {
@@ -430,7 +430,7 @@ QtInsert::getChilds(QtChildType flag)
 }
 
 void
-QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
+QtInsert::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInsert Object" << getEvaluationTime() << std::endl;
 
@@ -455,7 +455,7 @@ QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
 }
 
 void
-QtInsert::printAlgebraicExpression(std::ostream& s)
+QtInsert::printAlgebraicExpression(std::ostream &s)
 {
     s << "insert<";
 
@@ -471,7 +471,7 @@ QtInsert::printAlgebraicExpression(std::ostream& s)
     s << ">";
 }
 
-QtOperation*
+QtOperation *
 QtInsert::getSource()
 {
     return source;
@@ -486,7 +486,7 @@ QtInsert::checkType()
     {
 
         // get input type
-        const QtTypeElement& inputType = source->checkType();
+        const QtTypeElement &inputType = source->checkType();
 
         if (inputType.getDataType() != QT_MDD)
         {
@@ -513,7 +513,7 @@ QtInsert::checkType()
 }
 
 r_Data_Format
-QtInsert::getDataFormat(QtMDDConfig* config)
+QtInsert::getDataFormat(QtMDDConfig *config)
 {
     if (!config)
     {
@@ -658,7 +658,7 @@ QtInsert::getDataFormat(QtMDDConfig* config)
 }
 
 r_Index_Type
-QtInsert::getIndexType(QtMDDConfig* config)
+QtInsert::getIndexType(QtMDDConfig *config)
 {
     if (!config)
     {
@@ -692,7 +692,7 @@ QtInsert::getIndexType(QtMDDConfig* config)
 }
 
 r_Tiling_Scheme
-QtInsert::getTilingScheme(QtMDDConfig* cfg)
+QtInsert::getTilingScheme(QtMDDConfig *cfg)
 {
     if (!cfg)
     {
@@ -730,24 +730,24 @@ QtInsert::getTilingScheme(QtMDDConfig* cfg)
 }
 
 vector<r_Minterval>
-QtInsert::getIntervals(QtMDDConfig* cfg)
+QtInsert::getIntervals(QtMDDConfig *cfg)
 {
     vector<r_Minterval> intervals;
     if (!cfg)
     {
         return intervals;
     }
-    QtNode::QtOperationList* oplist = cfg->getBboxList();
+    QtNode::QtOperationList *oplist = cfg->getBboxList();
     if (!oplist)
     {
         return intervals;
     }
-    QtNode::QtDataList* nextTuple = new QtNode::QtDataList(0);
+    QtNode::QtDataList *nextTuple = new QtNode::QtDataList(0);
     QtOperationList::iterator iter;
     for (iter = oplist->begin(); iter != oplist->end(); iter++)
     {
-        QtData* data = (*iter)->evaluate(nextTuple);
-        QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
+        QtData *data = (*iter)->evaluate(nextTuple);
+        QtMintervalData *intervalData = static_cast<QtMintervalData *>(data);
         r_Minterval interval = intervalData->getMintervalData();
         intervals.push_back(interval);
     }
@@ -755,7 +755,7 @@ QtInsert::getIntervals(QtMDDConfig* cfg)
 }
 
 r_Minterval
-QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDimension)
+QtInsert::getTileConfig(QtMDDConfig *cfg, int baseTypeSize, r_Dimension sourceDimension)
 {
     r_Minterval tileConfig;
 
@@ -765,14 +765,14 @@ QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDi
         return (StorageLayout::getDefaultTileCfg(baseTypeSize, sourceDimension));
     }
 
-    QtOperation* op = cfg->getTileCfg();
+    QtOperation *op = cfg->getTileCfg();
     if (!op)
     {
         return tileConfig;
     }
-    QtNode::QtDataList* nextTuple = new QtNode::QtDataList(0);
-    QtData* data = op->evaluate(nextTuple);
-    QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
+    QtNode::QtDataList *nextTuple = new QtNode::QtDataList(0);
+    QtData *data = op->evaluate(nextTuple);
+    QtMintervalData *intervalData = static_cast<QtMintervalData *>(data);
     tileConfig = intervalData->getMintervalData();
     delete data;
     delete nextTuple;

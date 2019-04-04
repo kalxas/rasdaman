@@ -63,12 +63,12 @@ QtDelete::~QtDelete()
 
 
 
-QtData*
+QtData *
 QtDelete::evaluate()
 {
     startTimer("QtDelete");
 
-    QtNode::QtDataList* nextTuple = NULL;
+    QtNode::QtDataList *nextTuple = NULL;
 
     // open input stream
     try
@@ -85,7 +85,7 @@ QtDelete::evaluate()
     {
         while ((nextTuple = input->next()))
         {
-            QtData* target = (*nextTuple)[0];
+            QtData *target = (*nextTuple)[0];
 
             // check delete target
             if (target->getDataType() != QT_MDD)
@@ -93,7 +93,7 @@ QtDelete::evaluate()
                 LERROR << "Error: QtDelete::evaluate() - delete target must be an expression resulting in an r_Marray<>";
 
                 // delete tuple vector received by next()
-                vector<QtData*>::iterator dataIter;
+                vector<QtData *>::iterator dataIter;
                 for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                     if (*dataIter)
                     {
@@ -106,17 +106,17 @@ QtDelete::evaluate()
                 throw parseInfo;
             }
 
-            QtMDD*  targetMDD = static_cast<QtMDD*>(target);
-            MDDObj* targetObj = targetMDD->getMDDObject();
+            QtMDD  *targetMDD = static_cast<QtMDD *>(target);
+            MDDObj *targetObj = targetMDD->getMDDObject();
 
             // get leaf of ONC input
-            QtNodeList*  leafList = input->getChilds(QtNode::QT_LEAF_NODES);
-            QtMDDAccess* inputLeaf = NULL;
+            QtNodeList  *leafList = input->getChilds(QtNode::QT_LEAF_NODES);
+            QtMDDAccess *inputLeaf = NULL;
             // take the last QtMDDAccess object from the list assuming that it is the right one
-            for (std::list<QtNode*>::iterator iter = leafList->begin(); iter != leafList->end(); iter++)
+            for (std::list<QtNode *>::iterator iter = leafList->begin(); iter != leafList->end(); iter++)
                 if ((*iter)->getNodeType() == QT_MDD_ACCESS)
                 {
-                    inputLeaf = static_cast<QtMDDAccess*>(*iter);
+                    inputLeaf = static_cast<QtMDDAccess *>(*iter);
                 }
             delete leafList;
             leafList = NULL;
@@ -131,7 +131,7 @@ QtDelete::evaluate()
             targetMDD->setLifetime(QtData::QT_TRANSIENT);
 
             // delete tuple vector received by next()
-            vector<QtData*>::iterator dataIter;
+            vector<QtData *>::iterator dataIter;
             for (dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
                 if (*dataIter)
                 {
@@ -157,10 +157,10 @@ QtDelete::evaluate()
 
 
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtDelete::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
+    QtNodeList *resultList = NULL;
 
     if (input)
     {
@@ -190,7 +190,7 @@ QtDelete::getChilds(QtChildType flag)
 
 
 void
-QtDelete::printTree(int tab, std::ostream& s, QtChildType mode)
+QtDelete::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
 
@@ -213,7 +213,7 @@ QtDelete::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtDelete::printAlgebraicExpression(std::ostream& s)
+QtDelete::printAlgebraicExpression(std::ostream &s)
 {
     s << "delete";
 
@@ -232,13 +232,13 @@ QtDelete::printAlgebraicExpression(std::ostream& s)
 
 
 void
-QtDelete::setStreamInput(QtONCStream* newInput)
+QtDelete::setStreamInput(QtONCStream *newInput)
 {
     input = newInput;
     input->setParent(this);
 }
 
-QtONCStream*
+QtONCStream *
 QtDelete::getStreamInput()
 {
     return input;

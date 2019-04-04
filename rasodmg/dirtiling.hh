@@ -68,11 +68,11 @@ public:
     };
     /// read everything from encoded string
     /// e.g. "3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING"
-    r_Dir_Tiling(const char* encoded);
+    r_Dir_Tiling(const char *encoded);
 
     /// Class constructor
     r_Dir_Tiling(r_Dimension dims,
-                 const std::vector<r_Dir_Decompose>& decomp,
+                 const std::vector<r_Dir_Decompose> &decomp,
                  r_Bytes ts = RMInit::clientTileSize,
                  SubTiling sub = WITH_SUBTILING);
     /**
@@ -88,13 +88,13 @@ public:
 
     virtual ~r_Dir_Tiling();
 
-    virtual std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
-    virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes type_len) const;
+    virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes type_len) const;
 
-    virtual void print_status(std::ostream& os) const;
+    virtual void print_status(std::ostream &os) const;
 
-    virtual r_Tiling* clone() const;
+    virtual r_Tiling *clone() const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
 
@@ -102,14 +102,14 @@ public:
     /**
      Get a tilesize limit for a tilisize limit name
     */
-    static r_Dir_Tiling::SubTiling get_subtiling_from_name(const char* name);
+    static r_Dir_Tiling::SubTiling get_subtiling_from_name(const char *name);
     //@ManMemo: Module: {\bf raslib}
     /**
      Get a tilisize limit name for a tilesize limit
     */
-    static const char*      get_name_from_subtiling(SubTiling st);
+    static const char      *get_name_from_subtiling(SubTiling st);
 
-    static const char* description;
+    static const char *description;
 
 protected: // data
 
@@ -127,10 +127,10 @@ protected: // data
      In addition there's an array of names all_subtiling_names  where the subtiling
      can be used as index to get the name.
     */
-    static const char* subtiling_name_withoutsubtiling;
-    static const char* subtiling_name_withsubtiling;
+    static const char *subtiling_name_withoutsubtiling;
+    static const char *subtiling_name_withsubtiling;
 
-    static const char* all_subtiling_names[r_Dir_Tiling::NUMBER];
+    static const char *all_subtiling_names[r_Dir_Tiling::NUMBER];
 };
 
 #endif

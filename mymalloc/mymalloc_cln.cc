@@ -28,10 +28,10 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
-void* mymalloc(size_t size)
+void *mymalloc(size_t size)
 {
     void *ret = malloc(size);
-    if (ret != (void*)NULL)
+    if (ret != (void *)NULL)
     {
         return ret;
     }

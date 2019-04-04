@@ -49,7 +49,7 @@ DBTCIndex::setInlineTileHasChanged()
     inlineTileHasChanged = true;
 }
 
-DBTCIndex::DBTCIndex(const OId& id)
+DBTCIndex::DBTCIndex(const OId &id)
     :   DBHierIndex(id),
         mappingHasChanged(false),
         inlineTileHasChanged(false),
@@ -61,10 +61,10 @@ DBTCIndex::DBTCIndex(const OId& id)
     _isLoaded = !hasBlob;
 }
 
-IndexDS*
+IndexDS *
 DBTCIndex::getNewInstance() const
 {
-    return static_cast<HierIndexDS*>(new DBTCIndex(getDimension(), !isLeaf()));
+    return static_cast<HierIndexDS *>(new DBTCIndex(getDimension(), !isLeaf()));
 }
 
 DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
@@ -81,9 +81,9 @@ DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
 }
 
 void
-DBTCIndex::printStatus(unsigned int level, std::ostream& stream) const
+DBTCIndex::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -172,7 +172,7 @@ DBTCIndex::changeBOIdToIOId()
 }
 
 void
-DBTCIndex::removeInlineTile(InlineTile* it)
+DBTCIndex::removeInlineTile(InlineTile *it)
 {
     DBObjectPMap::iterator itit = inlineTiles.find(it->getOId());
     if (itit != inlineTiles.end())
@@ -189,7 +189,7 @@ DBTCIndex::removeInlineTile(InlineTile* it)
 }
 
 void
-DBTCIndex::addInlineTile(InlineTile* it)
+DBTCIndex::addInlineTile(InlineTile *it)
 {
     if (!_isLoaded)
     {
@@ -262,10 +262,10 @@ DBTCIndex::updateInDb()
     }
 }
 
-InlineTile*
-DBTCIndex::getInlineTile(const OId& itid)
+InlineTile *
+DBTCIndex::getInlineTile(const OId &itid)
 {
-    InlineTile* retval = 0;
+    InlineTile *retval = 0;
     DBObjectPMap::iterator itit;
     if (!_isLoaded)
     {
@@ -274,13 +274,13 @@ DBTCIndex::getInlineTile(const OId& itid)
     itit = inlineTiles.find(itid);
     if (itit != inlineTiles.end())
     {
-        retval = static_cast<InlineTile*>((*itit).second);
+        retval = static_cast<InlineTile *>((*itit).second);
     }
     return retval;
 }
 
 void
-DBTCIndex::readyForRemoval(const OId& id)
+DBTCIndex::readyForRemoval(const OId &id)
 {
     if (id.getType() == OId::INLINETILEOID)
     {
@@ -294,19 +294,19 @@ DBTCIndex::readyForRemoval(const OId& id)
                 readInlineTiles();
                 itit = inlineTiles.find(id);
                 ((*itit).second)->setCached(false);
-                (static_cast<InlineTile*>((*itit).second))->outlineTile();
+                (static_cast<InlineTile *>((*itit).second))->outlineTile();
             }
             else
             {
                 ((*itit).second)->setCached(false);
-                (static_cast<InlineTile*>((*itit).second))->outlineTile();
+                (static_cast<InlineTile *>((*itit).second))->outlineTile();
             }
         }
     }
 }
 
 bool
-DBTCIndex::removeObject(const KeyObject& entry)
+DBTCIndex::removeObject(const KeyObject &entry)
 {
     if (isLeaf())
     {
@@ -333,14 +333,14 @@ DBTCIndex::decideForInlining()
 {
     if (isLeaf())
     {
-        InlineTile* itile = NULL;
+        InlineTile *itile = NULL;
         KeyObjectVector::iterator it;
         for (it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
         {
             LTRACE << " we do oid " << (*it);
             if ((*it).getObject().getOId().getType() == OId::INLINETILEOID)
             {
-                if ((itile = static_cast<InlineTile*>(ObjectBroker::isInMemory((*it).getObject().getOId()))) != 0)
+                if ((itile = static_cast<InlineTile *>(ObjectBroker::isInMemory((*it).getObject().getOId()))) != 0)
                 {
                     LTRACE << "in memory";
                     //decide for inlineing

@@ -49,22 +49,22 @@ class r_Conv_JSON : public r_Conv_CSV
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_JSON(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_JSON(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_JSON(const char* src, const r_Minterval& interv, int tp);
+    r_Conv_JSON(const char *src, const r_Minterval &interv, int tp);
     /// destructor
     ~r_Conv_JSON(void);
 
     /// convert to CSV
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    virtual r_Conv_Desc &convertTo(const char *options = NULL,
+                                   const r_Range *nullValue = NULL);
     /// convert from CSV
     using r_Convertor::convertFrom;
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    virtual r_Convertor *clone(void) const;
     /// identification
-    virtual const char* get_name(void) const;
+    virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 private:

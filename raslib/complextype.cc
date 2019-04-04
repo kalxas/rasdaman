@@ -38,7 +38,7 @@ r_Complex_Type::r_Complex_Type()
 {
 }
 
-r_Complex_Type::r_Complex_Type(const char* newTypeName, const r_Type::r_Type_Id newTypeId)
+r_Complex_Type::r_Complex_Type(const char *newTypeName, const r_Type::r_Type_Id newTypeId)
     :   r_Primitive_Type(newTypeName, newTypeId)
 {
     imOff = 0;
@@ -60,14 +60,14 @@ r_Complex_Type::~r_Complex_Type()
 {
 }
 
-r_Complex_Type::r_Complex_Type(const r_Complex_Type& oldObj)
+r_Complex_Type::r_Complex_Type(const r_Complex_Type &oldObj)
     :   r_Primitive_Type(oldObj),
         imOff(oldObj.imOff)
 {
 }
 
-const r_Complex_Type&
-r_Complex_Type::operator=(const r_Complex_Type& oldObj)
+const r_Complex_Type &
+r_Complex_Type::operator=(const r_Complex_Type &oldObj)
 {
     if (this == &oldObj)
     {
@@ -79,14 +79,14 @@ r_Complex_Type::operator=(const r_Complex_Type& oldObj)
     return *this;
 }
 
-r_Type*
+r_Type *
 r_Complex_Type::clone() const
 {
     return new r_Complex_Type(*this);
 }
 
 r_Double
-r_Complex_Type::get_re(const char* cell) const
+r_Complex_Type::get_re(const char *cell) const
 {
     double res = 0;
 
@@ -102,10 +102,10 @@ r_Complex_Type::get_re(const char* cell) const
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        res = *(r_Float*)const_cast<char*>(cell);
+        res = *(r_Float *)const_cast<char *>(cell);
         break;
     case COMPLEXTYPE2:
-        res = *(r_Double*)const_cast<char*>(cell);
+        res = *(r_Double *)const_cast<char *>(cell);
         break;
     default:
         LTRACE << "get_re(...) bad typeId " << typeId;
@@ -115,7 +115,7 @@ r_Complex_Type::get_re(const char* cell) const
 }
 
 r_Double
-r_Complex_Type::get_im(const char* cell) const
+r_Complex_Type::get_im(const char *cell) const
 {
     double res = 0;
 
@@ -130,10 +130,10 @@ r_Complex_Type::get_im(const char* cell) const
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        res = *(r_Float*)(const_cast<char*>(cell) + imOff);
+        res = *(r_Float *)(const_cast<char *>(cell) + imOff);
         break;
     case COMPLEXTYPE2:
-        res = *(r_Double*)(const_cast<char*>(cell) + imOff);
+        res = *(r_Double *)(const_cast<char *>(cell) + imOff);
         break;
     default:
         LTRACE << "get_im(...) bad typeId " << typeId;
@@ -146,7 +146,7 @@ r_Complex_Type::get_im(const char* cell) const
 
 
 void
-r_Complex_Type::set_re(char* cell, r_Double re)
+r_Complex_Type::set_re(char *cell, r_Double re)
 {
     r_Float ref = 0.;
     if ((typeId != r_Type::COMPLEXTYPE1) &&
@@ -173,7 +173,7 @@ r_Complex_Type::set_re(char* cell, r_Double re)
 }
 
 void
-r_Complex_Type::set_im(char* cell, r_Double im)
+r_Complex_Type::set_im(char *cell, r_Double im)
 {
     r_Float imf = 0.;
 
@@ -202,7 +202,7 @@ r_Complex_Type::set_im(char* cell, r_Double im)
 
 
 void
-r_Complex_Type::print_status(std::ostream& s) const
+r_Complex_Type::print_status(std::ostream &s) const
 {
     switch (typeId)
     {
@@ -219,29 +219,29 @@ r_Complex_Type::print_status(std::ostream& s) const
 }
 
 void
-r_Complex_Type::print_value(const char* storage, std::ostream& s) const
+r_Complex_Type::print_value(const char *storage, std::ostream &s) const
 {
     s << "(" << get_re(storage) << ", " << get_im(storage) << ")";
 }
 
 void
-r_Complex_Type::convertToLittleEndian(char* cells, r_Area noCells) const
+r_Complex_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 {
     switch (typeId)
     {
     case COMPLEXTYPE1:
         for (r_Area i = 0; i < noCells; ++i)
         {
-            *(r_Float*)(cells + i * typeSize) = r_Endian::swap((r_Float)get_re(cells + i * typeSize));
-            *(r_Float*)(cells + i * typeSize + imOff) = r_Endian::swap((r_Float)get_im(cells + i * typeSize));
+            *(r_Float *)(cells + i * typeSize) = r_Endian::swap((r_Float)get_re(cells + i * typeSize));
+            *(r_Float *)(cells + i * typeSize + imOff) = r_Endian::swap((r_Float)get_im(cells + i * typeSize));
         }
         break;
 
     case COMPLEXTYPE2:
         for (r_Area i = 0; i < noCells; ++i)
         {
-            *(r_Double*)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
-            *(r_Double*)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
+            *(r_Double *)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
+            *(r_Double *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
         }
         break;
     default:
@@ -251,22 +251,22 @@ r_Complex_Type::convertToLittleEndian(char* cells, r_Area noCells) const
 }
 
 void
-r_Complex_Type::convertToBigEndian(char* cells, r_Area noCells) const
+r_Complex_Type::convertToBigEndian(char *cells, r_Area noCells) const
 {
     switch (typeId)
     {
     case COMPLEXTYPE1:
         for (r_Area i = 0; i < noCells; ++i)
         {
-            *(r_Float*)(cells + i * typeSize) = r_Endian::swap((r_Float)get_re(cells + i * typeSize));
-            *(r_Float*)(cells + i * typeSize + imOff) = r_Endian::swap((r_Float)get_im(cells + i * typeSize));
+            *(r_Float *)(cells + i * typeSize) = r_Endian::swap((r_Float)get_re(cells + i * typeSize));
+            *(r_Float *)(cells + i * typeSize + imOff) = r_Endian::swap((r_Float)get_im(cells + i * typeSize));
         }
         break;
     case COMPLEXTYPE2:
         for (r_Area i = 0; i < noCells; ++i)
         {
-            *(r_Double*)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
-            *(r_Double*)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
+            *(r_Double *)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
+            *(r_Double *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
         }
         break;
     default:
@@ -281,7 +281,7 @@ r_Complex_Type::isComplexType() const
     return true;
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Complex_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Complex_Type &type)
 {
     type.print_status(str);
     return str;

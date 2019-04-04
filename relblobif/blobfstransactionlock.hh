@@ -57,7 +57,7 @@ public:
      * @param fileStorageTransactionPath the root directory of the transaction.
      * @param check use this object for checking (do not clear locks in destructor)
      */
-    BlobFSTransactionLock(const std::string& fileStorageTransactionPath,
+    BlobFSTransactionLock(const std::string &fileStorageTransactionPath,
                           bool check = false);
 
     /**

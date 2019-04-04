@@ -38,27 +38,27 @@ static const char rcsid[] = "@(#)catalogif,DoubleType: $Header: /home/rasdev/CVS
 #include <iomanip>
 #include <string.h>
 
-DoubleType::DoubleType(const OId& id)
-	:	RealType(id)
-	{
-	readFromDb();
-	}
+DoubleType::DoubleType(const OId &id)
+    :   RealType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: DoubleType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 DoubleType.
  ************************************************************/
 
 DoubleType::DoubleType()
-	:	RealType(DoubleType::Name, 8)
-	{
-	myType = DOUBLE;
-	myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
-	}
+    :   RealType(DoubleType::Name, 8)
+{
+    myType = DOUBLE;
+    myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: DoubleType(const DoubleType& old);
@@ -68,8 +68,8 @@ DoubleType::DoubleType()
  * Description...: copy constructor
  ************************************************************/
 
-DoubleType::DoubleType(const DoubleType& old) :
-  RealType(old)
+DoubleType::DoubleType(const DoubleType &old) :
+    RealType(old)
 {
 }
 
@@ -81,15 +81,17 @@ DoubleType::DoubleType(const DoubleType& old) :
  * Description...: copy constructor
  ************************************************************/
 
-DoubleType&
-DoubleType::operator=(const DoubleType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+DoubleType &
+DoubleType::operator=(const DoubleType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~DoubleType();
@@ -105,50 +107,50 @@ DoubleType::~DoubleType()
 
 void
 DoubleType::readFromDb()
-	{
-	size = 8;
-	setName(DoubleType::Name);
-	myType = DOUBLE;
-	myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
-	}
+{
+    size = 8;
+    setName(DoubleType::Name);
+    myType = DOUBLE;
+    myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Double is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-DoubleType::printCell( ostream& stream, const char* cell ) const
+void
+DoubleType::printCell(ostream &stream, const char *cell) const
 {
-  // !!!! HP specific, assumes 4 Byte double and MSB..LSB 
-  // byte order
-  stream << *(double*)const_cast<char*>(cell) << " ";
+    // !!!! HP specific, assumes 4 Byte double and MSB..LSB
+    // byte order
+    stream << *(double *)const_cast<char *>(cell) << " ";
 }
 
-double*
-DoubleType::convertToCDouble(const char* cell, double* value) const
+double *
+DoubleType::convertToCDouble(const char *cell, double *value) const
 {
-  // !!!! HP specific, assumes 8 Byte double
-  // byte order
-  *value = *(double*)const_cast<char*>(cell);
-  return value;
+    // !!!! HP specific, assumes 8 Byte double
+    // byte order
+    *value = *(double *)const_cast<char *>(cell);
+    return value;
 }
 
 
-char* 
-DoubleType::makeFromCDouble(char* cell, const double* value) const
+char *
+DoubleType::makeFromCDouble(char *cell, const double *value) const
 {
-  // !!!! HP specific, assumes 4 Byte double and MSB..LSB 
-  // byte order
-  *(double*)(cell) = *value;
-  return cell;
+    // !!!! HP specific, assumes 4 Byte double and MSB..LSB
+    // byte order
+    *(double *)(cell) = *value;
+    return cell;
 }

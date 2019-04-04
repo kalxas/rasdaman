@@ -51,14 +51,14 @@ using std::endl;
 #ifdef BASEDB_DB2
 #define generateException() generateExceptionn(sqlca)
 
-void generateExceptionn(struct sqlca&);
+void generateExceptionn(struct sqlca &);
 
 /*@Doc:
 generates a new r_Ebase_dbms exception and throws it.
 */
 
 #define is_error(msg) checkk(msg, sqlca)
-int checkk(const char* msg, struct sqlca& mysql);
+int checkk(const char *msg, struct sqlca &mysql);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
@@ -73,15 +73,15 @@ void generateException();
 generates a new r_Ebase_dbms exception and throws it.
 */
 
-int is_error(const char* msg);
+int is_error(const char *msg);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
 changes are not rolledback, nothing is done to the connection.
 */
 
-void printSQLError(void* err, int status);
-void printSQLError(void* err);
+void printSQLError(void *err, int status);
+void printSQLError(void *err);
 /*@Doc:
 This diplays cli errors.
 */
@@ -93,12 +93,12 @@ void generateException();
 This generates exceptions.
 */
 
-int is_error(const char* msg, bool displayWarning = false);
+int is_error(const char *msg, bool displayWarning = false);
 /*@Doc:
 This diplays esql errors.
 */
 
-void printSQLError(int error, const char*);
+void printSQLError(int error, const char *);
 /*@Doc:
 This diplays cli errors.
 */
@@ -110,7 +110,7 @@ void generateException();
 This generates exceptions.
 */
 
-int check(const char* msg);
+int check(const char *msg);
 /*@Doc:
 Display error message if SQL errors have occurred.
 */
@@ -120,18 +120,18 @@ Display error message if SQL errors have occurred.
 #define UNDEFINED_RETVAL -10000
 #include <sqlite3.h>
 
-bool is_error(sqlite3* db);
+bool is_error(sqlite3 *db);
 /*@Doc:
 Display error message if SQL errors have occurred.
 */
 
-void failOnError(const char* msg, sqlite3* db);
+void failOnError(const char *msg, sqlite3 *db);
 /*@Doc:
  * Throw an exception when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.
 */
 
-void warnOnError(const char* msg, sqlite3* db);
+void warnOnError(const char *msg, sqlite3 *db);
 /*@Doc:
  * Print a warning when an error happens.
  * retval is an optional return value from an sqlite3_* function execution.
@@ -142,10 +142,10 @@ void warnOnError(const char* msg, sqlite3* db);
 
 int sqlstate_err();
 
-void disp_sqlstate_err(char* msgbuf, size_t length);
+void disp_sqlstate_err(char *msgbuf, size_t length);
 
-void disp_error(const char* stmt, char* msgbuf, size_t length);
+void disp_error(const char *stmt, char *msgbuf, size_t length);
 
-char* disp_exception(const char* stmt, int sqlerr_code);
+char *disp_exception(const char *stmt, int sqlerr_code);
 
 bool is_error_code(int return_code);

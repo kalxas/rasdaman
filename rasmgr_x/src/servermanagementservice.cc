@@ -43,9 +43,9 @@ ServerManagementService::ServerManagementService(shared_ptr<ServerManager> serve
 ServerManagementService::~ServerManagementService()
 {}
 
-grpc::Status ServerManagementService::RegisterServer(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::RegisterServerReq* request, 
-        __attribute__ ((unused)) rasnet::service::Void* response)
+grpc::Status ServerManagementService::RegisterServer(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::RegisterServerReq *request,
+        __attribute__((unused)) rasnet::service::Void *response)
 {
     Status status = Status::OK;
 
@@ -54,7 +54,7 @@ grpc::Status ServerManagementService::RegisterServer(__attribute__ ((unused)) gr
         LDEBUG << "Registering server " << request->serverid();
         this->serverManager->registerServer(request->serverid());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         status = common::GrpcUtils::convertExceptionToStatus(ex);
     }

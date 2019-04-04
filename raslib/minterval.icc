@@ -43,16 +43,18 @@ r_Minterval::dimension() const
 inline bool
 r_Minterval::is_origin_fixed() const
 {
-    bool retval=true;
+    bool retval = true;
 
-    if(!dimensionality)
+    if (!dimensionality)
     {
-        retval=false;
+        retval = false;
     }
     else
     {
-        for(r_Dimension i=0; i < dimensionality; i++)
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
             retval &= intervals[i].is_low_fixed();
+        }
     }
 
     return retval;
@@ -61,17 +63,19 @@ r_Minterval::is_origin_fixed() const
 inline bool
 r_Minterval::is_high_fixed() const
 {
-    bool retval=true;
+    bool retval = true;
 
-    if(!dimensionality)
+    if (!dimensionality)
     {
         //we have an uninitialized interval
-        retval=false;
+        retval = false;
     }
     else
     {
-        for(r_Dimension i=0; i < dimensionality; i++)
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
             retval &= intervals[i].is_high_fixed();
+        }
     }
 
     return retval;
@@ -80,7 +84,7 @@ r_Minterval::is_high_fixed() const
 
 
 inline bool
-r_Minterval::covers( const r_Point& pnt ) const
+r_Minterval::covers(const r_Point &pnt) const
 {
     bool retval = true;
     if (dimensionality == pnt.dimension())
@@ -97,7 +101,7 @@ r_Minterval::covers( const r_Point& pnt ) const
     else
     {
         LERROR << "r_Minterval::covers(" << pnt << ") dimensions do not match";
-        retval=false;
+        retval = false;
     }
 
     return retval;
@@ -105,7 +109,7 @@ r_Minterval::covers( const r_Point& pnt ) const
 
 
 inline bool
-r_Minterval::covers( const r_Minterval& inter2  ) const
+r_Minterval::covers(const r_Minterval &inter2) const
 {
     bool retval = true;
     if (dimensionality == inter2.dimension())
@@ -118,7 +122,7 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
             // second check if it is high fixed and the other isn't: false
             // both are high fixed
             // check if it is smaller than the other: false
-            if  (
+            if (
                 (intervals[i].is_low_fixed() && (!(inter2[i].is_low_fixed()) || intervals[i].low() > inter2[i].low()))
                 ||
                 (intervals[i].is_high_fixed() && (!(inter2[i].is_high_fixed()) || intervals[i].high() < inter2[i].high()))
@@ -132,7 +136,7 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
     else
     {
         LERROR << "r_Minterval::covers(" << inter2 << ") dimensions do not match";
-        retval=false;
+        retval = false;
     }
 
     return retval;
@@ -142,7 +146,7 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
 // -- enterprise start
 template <class castType>
 inline bool
-r_Minterval::within_bounds( const castType point )
+r_Minterval::within_bounds(const castType point)
 {
     for (r_Dimension i = 0; i < dimensionality ; i++)
     {

@@ -55,8 +55,8 @@ public:
     bool hasSystemConfigRights() const;
     void setSystemConfigRights(bool hasSystemConfigRights);
 
-    static UserAdminRights parseFromProto(const UserAdminRightsProto& rights);
-    static UserAdminRightsProto serializeToProto(const UserAdminRights& rights);
+    static UserAdminRights parseFromProto(const UserAdminRightsProto &rights);
+    static UserAdminRightsProto serializeToProto(const UserAdminRights &rights);
 
 private:
     bool systemConfigRights;/*!< Rights to configure the system*/

@@ -47,18 +47,18 @@ r_Type::r_Type()
 {
 }
 
-r_Type::r_Type(const char* newTypeName)
+r_Type::r_Type(const char *newTypeName)
     : r_Meta_Object(newTypeName)
 {
 }
 
-r_Type::r_Type(const r_Type& oldObj)
+r_Type::r_Type(const r_Type &oldObj)
     : r_Meta_Object(oldObj)
 {
 }
 
-const r_Type&
-r_Type::operator=(const r_Type& oldObj)
+const r_Type &
+r_Type::operator=(const r_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)
@@ -135,16 +135,16 @@ r_Type::isOidType() const
     return false;
 }
 
-r_Type*
-r_Type::get_any_type(const char* type_string)
+r_Type *
+r_Type::get_any_type(const char *type_string)
 {
-    char*   pos         = const_cast<char*>(type_string);
-    char*   identifier  = NULL;
-    r_Type* returnValue = NULL;
+    char   *pos         = const_cast<char *>(type_string);
+    char   *identifier  = NULL;
+    r_Type *returnValue = NULL;
     DLTOKEN token = DLUNKNOWN;
 
     // one token look ahead
-    char* oldPos = pos;
+    char *oldPos = pos;
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
@@ -164,7 +164,7 @@ r_Type::get_any_type(const char* type_string)
 }
 
 r_Type::DLTOKEN
-r_Type::getNextToken(char*& pos, char*& identifier)
+r_Type::getNextToken(char *&pos, char *&identifier)
 {
     DLTOKEN token = DLUNKNOWN;
 
@@ -304,7 +304,7 @@ r_Type::getNextToken(char*& pos, char*& identifier)
     {
         token = DLIDENTIFIER;  // identifier
 
-        char* beginPos = pos;
+        char *beginPos = pos;
 
         // read identifier
         while (isalnum(*pos) || *pos == '-' || *pos == '_')
@@ -325,12 +325,12 @@ r_Type::getNextToken(char*& pos, char*& identifier)
     return token;
 }
 
-r_Collection_Type*
-r_Type::getCollectionType(char*& pos)
+r_Collection_Type *
+r_Type::getCollectionType(char *&pos)
 {
-    char*   identifier = NULL;
-    r_Collection_Type* returnValue = NULL;
-    r_Type* elementType = NULL;
+    char   *identifier = NULL;
+    r_Collection_Type *returnValue = NULL;
+    r_Type *elementType = NULL;
     DLTOKEN token = DLUNKNOWN;
 
     // get 'set'
@@ -344,7 +344,7 @@ r_Type::getCollectionType(char*& pos)
     }
 
     // one token look ahead
-    char* oldPos = pos;
+    char *oldPos = pos;
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
@@ -363,15 +363,15 @@ r_Type::getCollectionType(char*& pos)
     return returnValue;
 }
 
-r_Type*
-r_Type::getType(char*& pos)
+r_Type *
+r_Type::getType(char *&pos)
 {
     DLTOKEN token = DLUNKNOWN;
-    char*   identifier = 0;
-    r_Type* returnValue = 0;
+    char   *identifier = 0;
+    r_Type *returnValue = 0;
 
     // one token look ahead
-    char* oldPos = pos;
+    char *oldPos = pos;
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
@@ -403,12 +403,12 @@ r_Type::getType(char*& pos)
     return returnValue;
 }
 
-r_Marray_Type*
-r_Type::getMarrayType(char*& pos)
+r_Marray_Type *
+r_Type::getMarrayType(char *&pos)
 {
-    char*   identifier = NULL;
-    r_Marray_Type* returnValue = NULL;
-    r_Base_Type*  basetype = NULL;
+    char   *identifier = NULL;
+    r_Marray_Type *returnValue = NULL;
+    r_Base_Type  *basetype = NULL;
 
     // get 'marray'
     getNextToken(pos, identifier);
@@ -429,15 +429,15 @@ r_Type::getMarrayType(char*& pos)
     return returnValue;
 }
 
-r_Base_Type*
-r_Type::getBaseType(char*& pos, int offset)
+r_Base_Type *
+r_Type::getBaseType(char *&pos, int offset)
 {
     DLTOKEN token = DLUNKNOWN;
-    char*   identifier = NULL;
-    r_Base_Type* returnValue = NULL;
+    char   *identifier = NULL;
+    r_Base_Type *returnValue = NULL;
 
     // one token look ahead
-    char* oldPos = pos;
+    char *oldPos = pos;
     token = getNextToken(pos, identifier);
     pos = oldPos;
 
@@ -453,11 +453,11 @@ r_Type::getBaseType(char*& pos, int offset)
     return returnValue;
 }
 
-r_Primitive_Type*
-r_Type::getPrimitiveType(char*& pos)
+r_Primitive_Type *
+r_Type::getPrimitiveType(char *&pos)
 {
-    char*             dummy = NULL;
-    r_Primitive_Type* returnValue = NULL;
+    char             *dummy = NULL;
+    r_Primitive_Type *returnValue = NULL;
 
     switch (getNextToken(pos, dummy))
     {
@@ -504,13 +504,13 @@ r_Type::getPrimitiveType(char*& pos)
     return returnValue;
 }
 
-r_Structure_Type*
-r_Type::getStructureType(char*& pos, int offset)
+r_Structure_Type *
+r_Type::getStructureType(char *&pos, int offset)
 {
-    r_Structure_Type* returnValue = NULL;
-    char*             identifier = NULL;
+    r_Structure_Type *returnValue = NULL;
+    char             *identifier = NULL;
     DLTOKEN           token = DLUNKNOWN;
-    r_Attribute*      attributes = NULL;
+    r_Attribute      *attributes = NULL;
     int               noAttributes = 0;
 
     // get 'struct'
@@ -528,7 +528,7 @@ r_Type::getStructureType(char*& pos, int offset)
     while (token != DLRCP)
     {
         // get type
-        r_Base_Type* type = getBaseType(pos, localOffset);
+        r_Base_Type *type = getBaseType(pos, localOffset);
 
         // adjust local offset
         localOffset += static_cast<int>(type->size());
@@ -538,7 +538,7 @@ r_Type::getStructureType(char*& pos, int offset)
 
         // allocate another attribute (very inefficient)
         noAttributes++;
-        r_Attribute* oldAttributes = attributes;
+        r_Attribute *oldAttributes = attributes;
         attributes = new r_Attribute[noAttributes];
         for (int i = 0; i < noAttributes - 1; i++)
         {
@@ -590,11 +590,11 @@ r_Type::getStructureType(char*& pos, int offset)
     return returnValue;
 }
 
-r_Sinterval_Type*
-r_Type::getSintervalType(char*& pos)
+r_Sinterval_Type *
+r_Type::getSintervalType(char *&pos)
 {
-    char*             dummy = NULL;
-    r_Sinterval_Type* returnValue = NULL;
+    char             *dummy = NULL;
+    r_Sinterval_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
 
@@ -603,11 +603,11 @@ r_Type::getSintervalType(char*& pos)
     return returnValue;
 }
 
-r_Minterval_Type*
-r_Type::getMintervalType(char*& pos)
+r_Minterval_Type *
+r_Type::getMintervalType(char *&pos)
 {
-    char*             dummy = NULL;
-    r_Minterval_Type* returnValue = NULL;
+    char             *dummy = NULL;
+    r_Minterval_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
 
@@ -616,11 +616,11 @@ r_Type::getMintervalType(char*& pos)
     return returnValue;
 }
 
-r_Point_Type*
-r_Type::getPointType(char*& pos)
+r_Point_Type *
+r_Type::getPointType(char *&pos)
 {
-    char*             dummy = NULL;
-    r_Point_Type* returnValue = NULL;
+    char             *dummy = NULL;
+    r_Point_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
 
@@ -629,11 +629,11 @@ r_Type::getPointType(char*& pos)
     return returnValue;
 }
 
-r_Oid_Type*
-r_Type::getOidType(char*& pos)
+r_Oid_Type *
+r_Type::getOidType(char *&pos)
 {
-    char*             dummy = NULL;
-    r_Oid_Type* returnValue = NULL;
+    char             *dummy = NULL;
+    r_Oid_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
 
@@ -642,7 +642,7 @@ r_Type::getOidType(char*& pos)
     return returnValue;
 }
 
-std::ostream& operator<<(std::ostream& s, r_Type::r_Type_Id t)
+std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t)
 {
     switch (t)
     {

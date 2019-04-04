@@ -124,10 +124,10 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
 
 #ifdef HAVE_GDAL
 
-r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& bandIds)
+r_Type *ConvUtil::gdalTypeToRasType(GDALDataset *poDataset, const vector<int> &bandIds)
 {
     size_t nBands = bandIds.size();
-    r_Type* baseType = NULL;
+    r_Type *baseType = NULL;
     if (nBands == 1 || nBands == 0) // primitive type
     {
         if (poDataset->GetRasterCount())
@@ -179,7 +179,7 @@ r_Type* ConvUtil::gdalTypeToRasType(GDALDataset* poDataset, const vector<int>& b
 
 #ifdef HAVE_GDAL
 
-GDALDataType ConvUtil::rasTypeToGdalType(r_Type* rasType)
+GDALDataType ConvUtil::rasTypeToGdalType(r_Type *rasType)
 {
     GDALDataType ret = GDT_Unknown;
     switch (rasType->type_id())
@@ -287,27 +287,27 @@ ConvUtil::getDataFormat(string formatName)
     return ret;
 }
 
-size_t ConvUtil::getBandBaseTypeSize(r_Type* type, int bandId)
+size_t ConvUtil::getBandBaseTypeSize(r_Type *type, int bandId)
 {
     size_t ret = 0;
     if (type->isStructType())
     {
-        r_Attribute att = ((r_Structure_Type*) type)->resolve_attribute((unsigned int) bandId);
+        r_Attribute att = ((r_Structure_Type *) type)->resolve_attribute((unsigned int) bandId);
         ret = att.type_of().size();
     }
     else
     {
-        ret = ((r_Base_Type*) type)->size();
+        ret = ((r_Base_Type *) type)->size();
     }
     return ret;
 }
 
-unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
+unsigned int ConvUtil::getNumberOfBands(const r_Type *type)
 {
     unsigned int ret = 1;
     if (type->isStructType())
     {
-        ret = static_cast<const r_Structure_Type*>(type)->count_elements();
+        ret = static_cast<const r_Structure_Type *>(type)->count_elements();
     }
     return ret;
 }
@@ -315,7 +315,7 @@ unsigned int ConvUtil::getNumberOfBands(const r_Type* type)
 
 #ifdef HAVE_HDF
 
-int ConvUtil::ctypeToHdfType(int ctype, int& size)
+int ConvUtil::ctypeToHdfType(int ctype, int &size)
 {
     int result = 0;
 
@@ -371,7 +371,7 @@ int ConvUtil::ctypeToHdfType(int ctype, int& size)
     return result;
 }
 
-int ConvUtil::hdfTypeToCtype(int hdfType, int& size)
+int ConvUtil::hdfTypeToCtype(int hdfType, int &size)
 {
     int result = 0;
 

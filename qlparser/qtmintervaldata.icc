@@ -28,32 +28,37 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const r_Minterval&
+inline const r_Minterval &
 QtMintervalData::getMintervalData() const
 {
-  return mintervalData;
+    return mintervalData;
 }
 
 
 inline void
-QtMintervalData::setMintervalData( const r_Minterval& minterval )
+QtMintervalData::setMintervalData(const r_Minterval &minterval)
 {
-  mintervalData = minterval;
+    mintervalData = minterval;
 
-  // reset trim flags
+    // reset trim flags
 
-  if( trimFlags ) delete trimFlags;
-  trimFlags = new vector<bool>( minterval.dimension() );
+    if (trimFlags)
+    {
+        delete trimFlags;
+    }
+    trimFlags = new vector<bool>(minterval.dimension());
 
-  for( unsigned int i=0; i<trimFlags->size(); i++ )
-    (*trimFlags)[i] = true;
+    for (unsigned int i = 0; i < trimFlags->size(); i++)
+    {
+        (*trimFlags)[i] = true;
+    }
 }
 
 
-inline const vector<bool>*
+inline const vector<bool> *
 QtMintervalData::getTrimFlags() const
 {
-  return trimFlags;
+    return trimFlags;
 }
 
 

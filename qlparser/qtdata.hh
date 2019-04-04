@@ -90,13 +90,13 @@ public:
     QtData(const std::string name);
 
     /// copy constructor
-    QtData(const QtData& obj);
+    QtData(const QtData &obj);
 
     /// destructor
     virtual ~QtData();
 
     /// assignement operator
-    const QtData& operator=(const QtData& obj);
+    const QtData &operator=(const QtData &obj);
 
     enum QtLifetime
     {
@@ -126,7 +126,7 @@ public:
     */
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const = 0;
+    virtual char *getTypeStructure() const = 0;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -135,7 +135,7 @@ public:
     virtual bool isScalarData() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const = 0;
+    virtual bool equal(const QtData *obj) const = 0;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const = 0;
@@ -147,7 +147,7 @@ public:
     /// get the iterator name
     inline std::string const getIteratorName() const;
     ///
-    inline void setIteratorName(const std::string& iteratorNameNew);
+    inline void setIteratorName(const std::string &iteratorNameNew);
     ///
     inline QtLifetime getLifetime() const;
     ///
@@ -165,17 +165,17 @@ public:
     ///
     inline ParseInfo getParseInfo();
     ///
-    inline void      setParseInfo(const ParseInfo& info);
+    inline void      setParseInfo(const ParseInfo &info);
 
     ///
     //@}
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 protected:
     /// pointer to an optional parser info
-    ParseInfo* parseInfo;
+    ParseInfo *parseInfo;
 
 private:
     /// decreases the reference counter by one and returns the new value

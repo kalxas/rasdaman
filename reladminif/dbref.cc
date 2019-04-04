@@ -73,7 +73,7 @@ DBRef<T>::DBRef(void)
 
 
 template <class T>
-DBRef<T>::DBRef(const OId& id)
+DBRef<T>::DBRef(const OId &id)
     :   object(0),
         objId(id),
         pointerValid(false)
@@ -93,7 +93,7 @@ DBRef<T>::DBRef(long long id)
 
 
 template <class T>
-DBRef<T>::DBRef(const DBRef<T>& src)
+DBRef<T>::DBRef(const DBRef<T> &src)
     :   object(0),
         objId(src.objId),
         pointerValid(src.pointerValid)
@@ -119,7 +119,7 @@ DBRef<T>::DBRef(const DBRef<T>& src)
 
 
 template <class T>
-DBRef<T>::DBRef(T* newPtr)
+DBRef<T>::DBRef(T *newPtr)
     :   object(newPtr),
         objId(DBOBJID_NONE),
         pointerValid(true)
@@ -150,20 +150,20 @@ DBRef<T>::~DBRef(void) noexcept(false)
 }
 
 template <class T>
-bool DBRef<T>::operator<(const DBRef<T>& other) const
+bool DBRef<T>::operator<(const DBRef<T> &other) const
 {
     int ret = operator==(other);
     return (ret == -1);
 }
 
 template <class T>
-bool operator< (const DBRef<T>& me, const DBRef<T>& him)
+bool operator< (const DBRef<T> &me, const DBRef<T> &him)
 {
     return me.operator < (him);
 }
 
 template <class T>
-int DBRef<T>::operator==(const DBRef<T>& src) const
+int DBRef<T>::operator==(const DBRef<T> &src) const
 {
     int retval = 0;
     if (isInitialised())
@@ -297,7 +297,7 @@ int DBRef<T>::operator==(const DBRef<T>& src) const
 
 
 template <class T>
-DBRef<T>& DBRef<T>::operator=(const DBRef<T>& src)
+DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 {
     if ((object != 0) && pointerCaching)
     {
@@ -327,7 +327,7 @@ DBRef<T>& DBRef<T>::operator=(const DBRef<T>& src)
 
 
 template<class T>
-DBRef<T>& DBRef<T>::operator=(T* newPtr)
+DBRef<T> &DBRef<T>::operator=(T *newPtr)
 {
     if ((object != 0) && pointerCaching)
     {
@@ -351,7 +351,7 @@ DBRef<T>& DBRef<T>::operator=(T* newPtr)
 
 
 template <class T>
-T& DBRef<T>::operator *(void)
+T &DBRef<T>::operator *(void)
 {
     if (is_null())
     {
@@ -366,7 +366,7 @@ T& DBRef<T>::operator *(void)
 
 
 template <class T>
-const T& DBRef<T>::operator *(void) const
+const T &DBRef<T>::operator *(void) const
 {
     if (is_null())
     {
@@ -383,7 +383,7 @@ const T& DBRef<T>::operator *(void) const
 #ifndef __GNUG__
 
 template <class T>
-T& DBRef<T>::operator[](int idx) const
+T &DBRef<T>::operator[](int idx) const
 {
 
     if (is_null())
@@ -400,7 +400,7 @@ T& DBRef<T>::operator[](int idx) const
 #endif
 
 template <class T>
-T* DBRef<T>::operator->(void)
+T *DBRef<T>::operator->(void)
 {
     if (is_null())
     {
@@ -415,7 +415,7 @@ T* DBRef<T>::operator->(void)
 
 
 template <class T>
-const T* DBRef<T>::operator->(void) const
+const T *DBRef<T>::operator->(void) const
 {
     if (is_null())
     {
@@ -430,7 +430,7 @@ const T* DBRef<T>::operator->(void) const
 
 
 template <class T>
-T* DBRef<T>::ptr(void)
+T *DBRef<T>::ptr(void)
 {
     if (is_null())
     {
@@ -445,7 +445,7 @@ T* DBRef<T>::ptr(void)
 
 
 template <class T>
-const T* DBRef<T>::ptr(void) const
+const T *DBRef<T>::ptr(void) const
 {
     if (is_null())
     {
@@ -466,7 +466,7 @@ OId DBRef<T>::getObjId()
 
 
 template <class T>
-DBRef<T>::operator T* ()
+DBRef<T>::operator T *()
 {
     if (is_null())
     {
@@ -481,7 +481,7 @@ DBRef<T>::operator T* ()
 
 
 template <class T>
-DBRef<T>::operator const T* () const
+DBRef<T>::operator const T *() const
 {
     if (is_null())
     {
@@ -592,7 +592,7 @@ DBRef<T>::operator DBRef<InlineTile>() const
     {
         if (object->getObjectType() == OId::INLINETILEOID)
         {
-            return DBRef<InlineTile>((InlineTile*)object);
+            return DBRef<InlineTile>((InlineTile *)object);
         }
     }
     else
@@ -613,7 +613,7 @@ DBRef<T>::operator DBRef<DBTile>() const
     {
         if ((object->getObjectType() == OId::BLOBOID) || (object->getObjectType() == OId::INLINETILEOID))
         {
-            return DBRef<DBTile>((DBTile*)object);
+            return DBRef<DBTile>((DBTile *)object);
         }
     }
     else
@@ -644,7 +644,7 @@ DBRef<T>::operator DBRef<BLOBTile>() const
     {
         if (object->getObjectType() == OId::BLOBOID || (object->getObjectType() == OId::INLINETILEOID))
         {
-            return DBRef<BLOBTile>((BLOBTile*)object);
+            return DBRef<BLOBTile>((BLOBTile *)object);
         }
     }
     else
@@ -665,7 +665,7 @@ DBRef<T>::operator DBRef<DBTCIndex>() const
     {
         if (object->getObjectType() == OId::DBTCINDEXOID)
         {
-            return DBRef<DBTCIndex>((DBTCIndex*)object);
+            return DBRef<DBTCIndex>((DBTCIndex *)object);
         }
     }
     else
@@ -686,7 +686,7 @@ DBRef<T>::operator DBRef<DBHierIndex>() const
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
         {
-            return DBRef<DBHierIndex>((DBHierIndex*)object);
+            return DBRef<DBHierIndex>((DBHierIndex *)object);
         }
     }
     else
@@ -708,7 +708,7 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const
     {
         if (object->getObjectType() == OId::MDDRCIXOID)
         {
-            return DBRef<DBRCIndexDS>((DBRCIndexDS*)object);
+            return DBRef<DBRCIndexDS>((DBRCIndexDS *)object);
         }
     }
     else
@@ -724,13 +724,13 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const
 
 
 template <class T>
-DBRef<T>::operator HierIndexDS* () const
+DBRef<T>::operator HierIndexDS *() const
 {
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
         {
-            return (HierIndexDS*)object;
+            return (HierIndexDS *)object;
         }
     }
     else
@@ -738,14 +738,14 @@ DBRef<T>::operator HierIndexDS* () const
         if (objId.getType() == OId::MDDHIERIXOID)
         {
             DBRef<DBHierIndex> t(objId);
-            return static_cast<HierIndexDS*>(t.ptr());
+            return static_cast<HierIndexDS *>(t.ptr());
         }
         else
         {
             if (objId.getType() == OId::DBTCINDEXOID)
             {
                 DBRef<DBTCIndex> t(objId);
-                return static_cast<HierIndexDS*>(t.ptr());
+                return static_cast<HierIndexDS *>(t.ptr());
             }
         }
     }
@@ -755,32 +755,36 @@ DBRef<T>::operator HierIndexDS* () const
 
 
 template <class T>
-DBRef<T>::operator IndexDS* () const
+DBRef<T>::operator IndexDS *() const
 {
     if (object && pointerCaching)
     {
         if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID) || (object->getObjectType() == OId::MDDRCIXOID))
         {
-            return (IndexDS*)object;
+            return (IndexDS *)object;
         }
     }
     else
     {
         switch (objId.getType())
         {
-            case OId::MDDHIERIXOID: {
-                DBRef<DBHierIndex> t(objId);
-                return static_cast<IndexDS*>(t.ptr());
-            }
-            case OId::DBTCINDEXOID: {
-                DBRef<DBTCIndex> t(objId);
-                return static_cast<IndexDS*>(t.ptr());
-            }
-            case OId::MDDRCIXOID: {
-                DBRef<DBRCIndexDS> t(objId);
-                return static_cast<IndexDS *>(t.ptr());
-            }
-            default: break;
+        case OId::MDDHIERIXOID:
+        {
+            DBRef<DBHierIndex> t(objId);
+            return static_cast<IndexDS *>(t.ptr());
+        }
+        case OId::DBTCINDEXOID:
+        {
+            DBRef<DBTCIndex> t(objId);
+            return static_cast<IndexDS *>(t.ptr());
+        }
+        case OId::MDDRCIXOID:
+        {
+            DBRef<DBRCIndexDS> t(objId);
+            return static_cast<IndexDS *>(t.ptr());
+        }
+        default:
+            break;
         }
     }
     LDEBUG << "DBRef::IndexDS*(): operator mismatch" << objId;
@@ -794,21 +798,27 @@ bool DBRef<T>::is_null(void) const
     if (object == 0 || (!pointerCaching && !pointerValid))
     {
         if (objId.getType() == OId::INVALID)
+        {
             throw r_Error(r_Error::r_Error_OIdInvalid);
+        }
         try
         {
-            T* t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
+            T *t = static_cast<T *>(ObjectBroker::getObjectByOId(objId));
             t->incrementReferenceCount();
             (const_cast<DBRef<T>*>(this))->object = t;
             LTRACE << "found object " << object << " with oid " << objId
                    << " in database and increased ref count";
         }
-        catch (const r_Error& err)
+        catch (const r_Error &err)
         {
             if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
+            {
                 return true;
+            }
             else
+            {
                 throw;
+            }
         }
     }
     return false;

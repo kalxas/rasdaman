@@ -59,19 +59,19 @@ stored in one char. OctetType is a persistence capable class.
 class OctetType : public IntegralType
 {
 public:
-    OctetType(const OId& id);
+    OctetType(const OId &id);
 
     OctetType();
     /*@Doc:
     default constructor, no initialization needed for OctetType.
     */
 
-    OctetType(const OctetType& old);
+    OctetType(const OctetType &old);
     /*@Doc:
     copy constructor.
     */
 
-    OctetType& operator=(const OctetType& old);
+    OctetType &operator=(const OctetType &old);
     /*@Doc:
     assignment operator.
     */
@@ -81,17 +81,17 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual r_Long* convertToCLong(const char* cell, r_Long* value) const;
+    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCLong(char* cell, const r_Long* value) const;
+    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

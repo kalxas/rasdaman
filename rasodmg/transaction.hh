@@ -114,31 +114,31 @@ public:
     ///
 
     /// store a pointer to the actual transaction
-    static r_Transaction* actual_transaction;
+    static r_Transaction *actual_transaction;
 
     /// load an object (internal use only)
-    r_Ref_Any load_object(const r_OId& oid);
+    r_Ref_Any load_object(const r_OId &oid);
 
     /// possible non-r_Object values maintained by the transaction
     enum GenRefType { MINTERVAL, SINTERVAL, POINT, OID, SCALAR };
 
     /// adds a non-r_Object to the list of persistent objects
-    void add_object_list(GenRefType type, void* ref);
+    void add_object_list(GenRefType type, void *ref);
 
     /// sets the database reference that this transaction is using.
     /// if none is provided the default static database is used
     /// NOTE: The setDatabase method should be called before any other operation that uses the database
-    void setDatabase(r_Database* database);
+    void setDatabase(r_Database *database);
 
     /// returns the database used by this transaction
-    r_Database* getDatabase();
+    r_Database *getDatabase();
 
     ///
     //@}
 
 private:
     /// adds an object of type \Ref{r_Object} to the list of persistent objects
-    void add_object_list(const r_Ref<r_Object>&);
+    void add_object_list(const r_Ref<r_Object> &);
 
     /// current transaction state
     r_TAStatus ta_state;
@@ -153,16 +153,16 @@ private:
     typedef struct
     {
         GenRefType type;
-        void* ref;
+        void *ref;
     } GenRefElement;
 
     /// list of non \Ref{r_Object} references which have been created within the transaction
-    r_Set<GenRefElement*> non_object_list;
+    r_Set<GenRefElement *> non_object_list;
 
     friend class r_Object;
 
     /// reference to the database used by this transaction
-    r_Database* database;
+    r_Database *database;
 };
 
 #define DEF_TRANSACTION
@@ -170,7 +170,7 @@ private:
 #include "rasodmg/iterator.hh"
 // For HP cfront compiler each template instantiation used in a library
 // must be defined in an included header.
-typedef r_Iterator<r_Object*> r_Iterator_r_Object_dummy;
+typedef r_Iterator<r_Object *> r_Iterator_r_Object_dummy;
 #include "rasodmg/transaction.icc"
 
 #ifdef EARLY_TEMPLATE

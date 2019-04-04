@@ -56,14 +56,14 @@ class QtUnaryInduce : public QtUnaryOperation
 {
 public:
     /// constructor getting the operand
-    QtUnaryInduce(QtOperation* input);
+    QtUnaryInduce(QtOperation *input);
 
 protected:
     /// computes the unary operation
-    QtData* computeOp(QtData* operand, Ops::OpType operation, double param = 0.0);
+    QtData *computeOp(QtData *operand, Ops::OpType operation, double param = 0.0);
 
     /// method for testing and evaluating the input branch
-    bool getOperand(QtDataList* inputList, QtData*& operand);
+    bool getOperand(QtDataList *inputList, QtData *&operand);
     /**
       The method checks if the input branch is valid. Then it passes the evaluate message to its
       operand with the {\tt inputList} as argument. The returned result is provided through the argument
@@ -72,7 +72,7 @@ protected:
     */
 
     /// computes an unary induce operation with one MDD object
-    QtData* computeUnaryMDDOp(QtMDD* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
+    QtData *computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
     /**
       The method carries out the unary induce operation specified by {\tt operation} on the operand. For
       the result, a new transient MDD object is created and returned. In the end, the MDD object of the operand
@@ -80,7 +80,7 @@ protected:
     */
 
     /// computes an unary induce operation with one MDD object
-    QtData* computeUnaryOp(QtScalarData* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
+    QtData *computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0);
     /**
       The method carries out the unary operation specified by {\tt operation} on the operand.
     */
@@ -102,10 +102,10 @@ class QtNot : public QtUnaryInduce
 {
 public:
     /// constructor getting the operand
-    QtNot(QtOperation* input);
+    QtNot(QtOperation *input);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /**
       The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
@@ -113,16 +113,16 @@ public:
     */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -141,10 +141,10 @@ class QtIsNull : public QtUnaryInduce
 {
 public:
     /// constructor getting the operand
-    QtIsNull(QtOperation* input);
+    QtIsNull(QtOperation *input);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
 
     /**
       The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
@@ -152,16 +152,16 @@ public:
     */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -180,7 +180,7 @@ class QtDot : public QtUnaryInduce
 {
 public:
     /// constructor getting operand and element name
-    QtDot(const std::string& elementName);
+    QtDot(const std::string &elementName);
 
     /// constructor getting operand and element number
     QtDot(unsigned int elementNo);
@@ -189,26 +189,26 @@ public:
     virtual std::string getSpelling();
 
     /// tests if the two nodes have an equal meaning in the query tree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
       The method invokes the evaluate method of its superclass {\tt QtUnaryInduce} with the not
       operation as an additional argument to compute the result of the node.
     */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -245,18 +245,18 @@ public:
         t_long, t_ulong, t_float, t_double
     };
 
-    QtCast(QtOperation*, cast_types);
-    QtCast(QtOperation* input, const char* typeName);
+    QtCast(QtOperation *, cast_types);
+    QtCast(QtOperation *input, const char *typeName);
     /// method for evaluating the node
-    QtData* evaluate(QtDataList*);
+    QtData *evaluate(QtDataList *);
     /// prints the tree
-    virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES);
+    virtual void printTree(int, std::ostream & = std::cout, QtChildType = QT_ALL_NODES);
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& = std::cout);
+    virtual void printAlgebraicExpression(std::ostream & = std::cout);
     /// retrives node type
     inline virtual QtNodeType getNodeType() const;
     /// semantics check
-    virtual const QtTypeElement& checkType(QtTypeTuple* = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple * = NULL);
 
 private:
     Ops::OpType getOp(cast_types);
@@ -274,12 +274,12 @@ private:
 class QtRealPartOp : public QtUnaryInduce
 {
 public:
-    QtRealPartOp(QtOperation*);
-    QtData* evaluate(QtDataList*);
-    virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES);
-    virtual void printAlgebraicExpression(std::ostream& = std::cout);
+    QtRealPartOp(QtOperation *);
+    QtData *evaluate(QtDataList *);
+    virtual void printTree(int, std::ostream & = std::cout, QtChildType = QT_ALL_NODES);
+    virtual void printAlgebraicExpression(std::ostream & = std::cout);
     inline virtual QtNodeType getNodeType() const;
-    virtual const QtTypeElement& checkType(QtTypeTuple* = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple * = NULL);
 
 private:
     static const QtNodeType nodeType;
@@ -292,12 +292,12 @@ private:
 class QtImaginarPartOp : public QtUnaryInduce
 {
 public:
-    QtImaginarPartOp(QtOperation*);
-    QtData* evaluate(QtDataList*);
-    virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES);
-    virtual void printAlgebraicExpression(std::ostream& = std::cout);
+    QtImaginarPartOp(QtOperation *);
+    QtData *evaluate(QtDataList *);
+    virtual void printTree(int, std::ostream & = std::cout, QtChildType = QT_ALL_NODES);
+    virtual void printAlgebraicExpression(std::ostream & = std::cout);
     inline virtual QtNodeType getNodeType() const;
-    virtual const QtTypeElement& checkType(QtTypeTuple* = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple * = NULL);
 
 private:
     static const QtNodeType nodeType;

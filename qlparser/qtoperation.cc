@@ -48,13 +48,13 @@ QtOperation::QtOperation()
 }
 
 
-QtOperation::QtOperation(QtNode* node)
+QtOperation::QtOperation(QtNode *node)
     :  QtNode(node)
 {
 }
 
 
-QtOperation*
+QtOperation *
 QtOperation::getUniqueOrder(const QtNode::QtNodeType)
 {
     // default method;
@@ -63,8 +63,8 @@ QtOperation::getUniqueOrder(const QtNode::QtNodeType)
 }
 
 
-QtData*
-QtOperation::evaluate(QtDataList* /*inputList*/)
+QtData *
+QtOperation::evaluate(QtDataList * /*inputList*/)
 {
     LERROR << "Error: Method evaluate(...) is undefined for a node in the query tree.";
     return NULL;
@@ -72,11 +72,11 @@ QtOperation::evaluate(QtDataList* /*inputList*/)
 
 
 void
-QtOperation::optimizeLoad(QtTrimList* trimList)
+QtOperation::optimizeLoad(QtTrimList *trimList)
 {
     if (trimList)
     {
-        std::vector<QtNode::QtTrimElement*>::iterator iter;
+        std::vector<QtNode::QtTrimElement *>::iterator iter;
         for (iter = trimList->begin(); iter != trimList->end(); iter++)
         {
             delete *iter;
@@ -91,8 +91,8 @@ QtOperation::optimizeLoad(QtTrimList* trimList)
 
 
 
-const QtTypeElement&
-QtOperation::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
+const QtTypeElement &
+QtOperation::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
@@ -101,7 +101,7 @@ QtOperation::checkType(__attribute__((unused)) QtTypeTuple* typeTuple)
 
 
 void
-QtOperation::printTree(int tab, std::ostream& s, QtChildType mode)
+QtOperation::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOperation Object: type " << std::flush;
     dataStreamType.printStatus(s);
@@ -117,7 +117,7 @@ QtOperation::printTree(int tab, std::ostream& s, QtChildType mode)
 
 
 void
-QtOperation::printAlgebraicExpression(std::ostream& s)
+QtOperation::printAlgebraicExpression(std::ostream &s)
 {
     s << "op<";
 

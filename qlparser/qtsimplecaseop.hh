@@ -50,7 +50,7 @@ class QtSimpleCaseOp: public QtCaseOp
 {
 public:
     /// constructor taking the operation list
-    QtSimpleCaseOp(QtOperationList* opList);
+    QtSimpleCaseOp(QtOperationList *opList);
 
     /// destructor override.
     virtual ~QtSimpleCaseOp();

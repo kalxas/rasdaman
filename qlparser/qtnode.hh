@@ -76,10 +76,10 @@ class QtNode
 {
 public:
     /// list of QtData pointers
-    typedef std::vector<QtData*> QtDataList;
-    using QtDataListPtr = std::unique_ptr<QtDataList, std::function<void(QtDataList*)>>;
+    typedef std::vector<QtData *> QtDataList;
+    using QtDataListPtr = std::unique_ptr<QtDataList, std::function<void(QtDataList *)>>;
 
-    typedef std::vector<QtDataList*> QtNestedDataList;
+    typedef std::vector<QtDataList *> QtNestedDataList;
 
     /// struct containing dimension and trimming information
     struct QtTrimElement
@@ -90,10 +90,10 @@ public:
     };
 
     /// list of QtTrimData structures
-    typedef std::vector<QtTrimElement*> QtTrimList;
+    typedef std::vector<QtTrimElement *> QtTrimList;
 
     /// list of QtNode pointers
-    typedef std::list<QtNode*> QtNodeList;
+    typedef std::list<QtNode *> QtNodeList;
 
     enum QtNodeType
     {
@@ -221,14 +221,14 @@ public:
     };
 
     /// list of QtOperation pointers
-    typedef std::vector<QtOperation*> QtOperationList;
-    typedef std::vector<QtOperationList* > QtOperationNestedList;
+    typedef std::vector<QtOperation *> QtOperationList;
+    typedef std::vector<QtOperationList * > QtOperationNestedList;
 
     /// default constructor
     QtNode();
 
     /// constructor getting a pointer to the parent
-    QtNode(QtNode* node);
+    QtNode(QtNode *node);
 
     /// destructor
     virtual ~QtNode();
@@ -237,7 +237,7 @@ public:
     bool subtype(enum QtNodeType a, enum QtNodeType b);
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
     /**
       The method allows different retrieval of the subtree nodes. Dependent on the content of {\tt flag}
       one of the following semantics is used:
@@ -249,14 +249,14 @@ public:
     */
 
     /// return childs of a certain class
-    QtNodeList* getChild(const QtNodeType node, QtChildType flag = QT_DIRECT_CHILDS);
+    QtNodeList *getChild(const QtNodeType node, QtChildType flag = QT_DIRECT_CHILDS);
     /**
       The method allows to specify the class of childs to be considered according to method {\tt getChilds}.
       By default, just direct childs are considered
     */
 
     /// test if the two nodes have an equal meaning in a subtree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /**
       The method checks, if the two nodes have an equal meaning in a subtree.
@@ -286,25 +286,25 @@ public:
     */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES) = 0;
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES) = 0;
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout) = 0;
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout) = 0;
 
     //@Man: Read/Write methods
     //@{
     ///
 
     ///
-    inline virtual void         setInput(QtOperation* inputOld, QtOperation* inputNew);
+    inline virtual void         setInput(QtOperation *inputOld, QtOperation *inputNew);
     ///
-    inline QtNode*              getParent() const;
+    inline QtNode              *getParent() const;
     ///
-    inline void                 setParent(QtNode* node);
+    inline void                 setParent(QtNode *node);
     ///
-    inline const ParseInfo&     getParseInfo();
+    inline const ParseInfo     &getParseInfo();
     ///
-    inline void                 setParseInfo(const ParseInfo& info);
+    inline void                 setParseInfo(const ParseInfo &info);
 
     ///
     //@}
@@ -348,7 +348,7 @@ protected:
     ParseInfo parseInfo;
 
     /// start node timer (called at evaluation time)
-    void startTimer(const char* name);
+    void startTimer(const char *name);
     /// stop timer (at end of evaluation)
     void stopTimer();
     /// pause
@@ -360,12 +360,12 @@ protected:
     std::string getEvaluationTime();
 
 #ifdef RMANBENCHMARK
-    RMTimer* evaluationTimer;
+    RMTimer *evaluationTimer;
 #endif
 
 private:
     /// pointer to its parent
-    QtNode* parent;
+    QtNode *parent;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
@@ -384,7 +384,7 @@ private:
     static int child_range[];
 
     /// sets up the child_range[] array
-    void set_child_range(const QtNodePair* arr);
+    void set_child_range(const QtNodePair *arr);
 
     /// minim and maxim labels to determine subtypes
     static int minim[], maxim[];
@@ -396,7 +396,7 @@ private:
     void SetMinMax();
 
     /// sets min max values once child_range is set up, for subtree with x as root
-    void num_node(const QtNodePair* arr, enum QtNodeType x);
+    void num_node(const QtNodePair *arr, enum QtNodeType x);
 
 #ifdef RMANBENCHMARK
     static long timerCounter;
@@ -429,19 +429,19 @@ public:
     QtTypeElement();
 
     ///
-    QtTypeElement(const QtDataType initDataType, const char* initName = NULL);
+    QtTypeElement(const QtDataType initDataType, const char *initName = NULL);
 
     ///
-    QtTypeElement(const Type* initType, const char* initName = NULL);
+    QtTypeElement(const Type *initType, const char *initName = NULL);
 
     ///
-    QtTypeElement(const QtTypeElement& typeElement);
+    QtTypeElement(const QtTypeElement &typeElement);
 
     ///
     ~QtTypeElement();
 
     /// assignment: cleanup + copy
-    const QtTypeElement& operator= (const QtTypeElement&);
+    const QtTypeElement &operator= (const QtTypeElement &);
 
     //@Man: Read/Write methods
     //@{
@@ -449,15 +449,15 @@ public:
     ///
     void  setDataType(const QtDataType newDataType);
     ///
-    void  setType(const Type* newType);
+    void  setType(const Type *newType);
     ///
-    inline void  setName(const char* newName);
+    inline void  setName(const char *newName);
     ///
     inline  QtDataType getDataType() const;
     ///
-    inline const Type*      getType() const;
+    inline const Type      *getType() const;
     ///
-    inline const char*      getName() const;
+    inline const char      *getName() const;
     ///
     inline       bool        isBaseType() const;
     ///
@@ -467,17 +467,17 @@ public:
     ///
 
     /// print type
-    void printStatus(std::ostream& s = std::cout) const;
+    void printStatus(std::ostream &s = std::cout) const;
 
 private:
     ///
     QtDataType dataType;
 
     ///
-    const Type*      type;
+    const Type      *type;
 
     ///
-    char*      name;
+    char      *name;
 };
 
 
@@ -498,16 +498,16 @@ public:
     QtTypeTuple(unsigned int length = 0);
 
     /// concatenate type tuple
-    void concat(const QtTypeTuple& typeTuple);
+    void concat(const QtTypeTuple &typeTuple);
 
     /// concatenate type element
-    void concat(const QtTypeElement& typeElement);
+    void concat(const QtTypeElement &typeElement);
 
     ///
     std::vector<QtTypeElement> tuple;
 
     /// print type
-    void printStatus(std::ostream& s = std::cout) const;
+    void printStatus(std::ostream &s = std::cout) const;
 };
 
 // Utility deleter objects
@@ -517,13 +517,15 @@ struct QtDataDeleter
 {
 public:
     QtDataDeleter() = default;
-    QtDataDeleter(QtData* objArg): obj{objArg} {}
+    QtDataDeleter(QtData *objArg): obj{objArg} {}
     ~QtDataDeleter()
     {
         if (obj)
+        {
             obj->deleteRef(), obj = NULL;
+        }
     }
-    QtData* obj{NULL};
+    QtData *obj{NULL};
 };
 
 /// QtDataList deleter that makes sure on object destruction the refs are deleted
@@ -531,18 +533,20 @@ struct QtDataListDeleter
 {
 public:
     QtDataListDeleter() = default;
-    QtDataListDeleter(QtNode::QtDataList* objArg): obj{objArg} {}
+    QtDataListDeleter(QtNode::QtDataList *objArg): obj{objArg} {}
     ~QtDataListDeleter()
     {
         if (obj)
         {
             for (auto dataIter = obj->begin(); dataIter != obj->end(); dataIter++)
                 if ((*dataIter))
+                {
                     (*dataIter)->deleteRef(), (*dataIter) = NULL;
+                }
             delete obj, obj = NULL;
         }
     }
-    QtNode::QtDataList* obj{NULL};
+    QtNode::QtDataList *obj{NULL};
 };
 
 #include "qlparser/qtnode.icc"

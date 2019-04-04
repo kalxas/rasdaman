@@ -60,7 +60,7 @@ DBTCIndex::insertBlob()
 }
 
 void
-DBTCIndex::writeInlineTiles(__attribute__((unused)) char* theblob, __attribute__((unused)) r_Bytes blobSize)
+DBTCIndex::writeInlineTiles(__attribute__((unused)) char *theblob, __attribute__((unused)) r_Bytes blobSize)
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }

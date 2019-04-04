@@ -43,7 +43,7 @@ using namespace std;
 #include <cstring>
 
 
-QtIntervalData::QtIntervalData(const r_Sinterval& interval)
+QtIntervalData::QtIntervalData(const r_Sinterval &interval)
     : QtData(), intervalData(interval)
 {
 }
@@ -59,13 +59,13 @@ QtIntervalData::getDataType() const
 
 
 bool
-QtIntervalData::equal(const QtData* obj) const
+QtIntervalData::equal(const QtData *obj) const
 {
     int returnValue = false;  // not equal by initialization
 
     if (obj->getDataType() == QT_INTERVAL)
     {
-        returnValue = (intervalData == (static_cast<QtIntervalData*>(const_cast<QtData*>(obj)))->getIntervalData());
+        returnValue = (intervalData == (static_cast<QtIntervalData *>(const_cast<QtData *>(obj)))->getIntervalData());
     }
 
     return returnValue;
@@ -80,7 +80,7 @@ QtIntervalData::getSpelling() const
 
     // buffer
     int        bufferLen = 256; // on the save side for two integers plus colon
-    char*      buffer    = new char[ bufferLen ];
+    char      *buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream(buffer);
@@ -97,7 +97,7 @@ QtIntervalData::getSpelling() const
 
 
 
-char* QtIntervalData::getTypeStructure() const
+char *QtIntervalData::getTypeStructure() const
 {
     return strdup("interval");
 }
@@ -105,7 +105,7 @@ char* QtIntervalData::getTypeStructure() const
 
 
 void
-QtIntervalData::printStatus(std::ostream& stream) const
+QtIntervalData::printStatus(std::ostream &stream) const
 {
     stream << "interval, value: " << intervalData << std::flush;
     QtData::printStatus(stream);

@@ -51,44 +51,44 @@ public:
     int connectClient(std::string userName, std::string passwordHash);
     int disconnectClient();
 
-    int openDB(const char* database);
+    int openDB(const char *database);
     int closeDB();
-    int createDB(const char* name);
-    int destroyDB(const char* name);
+    int createDB(const char *name);
+    int destroyDB(const char *name);
 
     int openTA(unsigned short readOnly);
     int commitTA();
     int abortTA();
 
-    void insertMDD(const char* collName, r_GMarray* mar);
-    r_Ref_Any getMDDByOId(const r_OId& oid);
+    void insertMDD(const char *collName, r_GMarray *mar);
+    r_Ref_Any getMDDByOId(const r_OId &oid);
 
-    void insertColl(const char* collName, const char* typeName, const r_OId& oid);
-    void deleteCollByName(const char* collName);
-    void deleteObjByOId(const r_OId& oid);
-    void removeObjFromColl(const char* name, const r_OId& oid);
-    r_Ref_Any getCollByName(const char* name);
-    r_Ref_Any getCollByOId(const r_OId& oid);
-    r_Ref_Any getCollOIdsByName(const char* name);
-    r_Ref_Any getCollOIdsByOId(const r_OId& oid);
+    void insertColl(const char *collName, const char *typeName, const r_OId &oid);
+    void deleteCollByName(const char *collName);
+    void deleteObjByOId(const r_OId &oid);
+    void removeObjFromColl(const char *name, const r_OId &oid);
+    r_Ref_Any getCollByName(const char *name);
+    r_Ref_Any getCollByOId(const r_OId &oid);
+    r_Ref_Any getCollOIdsByName(const char *name);
+    r_Ref_Any getCollOIdsByOId(const r_OId &oid);
 
-    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result);
-    void executeQuery(const r_OQL_Query& query);
-    void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy);
+    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result);
+    void executeQuery(const r_OQL_Query &query);
+    void executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy);
 
     r_OId getNewOId(unsigned short objType);
-    unsigned short getObjectType(const r_OId& oid);
+    unsigned short getObjectType(const r_OId &oid);
 
-    char* getTypeStructure(const char* typeName, r_Type_Type typeType);
+    char *getTypeStructure(const char *typeName, r_Type_Type typeType);
 
-    int setTransferFormat(r_Data_Format format, const char* formatParams = NULL);
-    int setStorageFormat(r_Data_Format format, const char* formatParams = NULL);
+    int setTransferFormat(r_Data_Format format, const char *formatParams = NULL);
+    int setStorageFormat(r_Data_Format format, const char *formatParams = NULL);
 
     bool effectivTypeIsRNP();
     long unsigned int getClientID() const;
     void triggerAliveSignal();
     void sendAliveSignal();
-    void setUserIdentification(const char* userName, const char* plainTextPassword);
+    void setUserIdentification(const char *userName, const char *plainTextPassword);
     void setMaxRetry(unsigned int newMaxRetry);
     unsigned int  getMaxRetry();
     void setTimeoutInterval(int seconds);
@@ -156,48 +156,48 @@ private:
     /// storage format for inserting new tiles
     r_Data_Format storageFormat;
     /// transfer format parameters
-    char* transferFormatParams;
+    char *transferFormatParams;
     /// storage format parameters
-    char* storageFormatParams;
+    char *storageFormatParams;
     /// parameter object for configuration
-    r_Parse_Params* clientParams;
+    r_Parse_Params *clientParams;
 
     std::string rasServerHost;
     int rasServerPort;
 
     std::string rasmgrHost;
 
-    static void handleError(const std::string& error);
+    static void handleError(const std::string &error);
     static void handleConnectionFailure();
-    static void handleStatusCode(int status, const std::string& method);
+    static void handleStatusCode(int status, const std::string &method);
 
-    int executeStartInsertPersMDD(const char* collName, r_GMarray* mar);
-    int executeInsertTile(bool persistent, RPCMarray* tile);
+    int executeStartInsertPersMDD(const char *collName, r_GMarray *mar);
+    int executeInsertTile(bool persistent, RPCMarray *tile);
     void executeEndInsertMDD(bool persistent);
     int executeEndTransfer();
-    r_Ref_Any executeGetCollByNameOrOId(const char* collName, const r_OId& oid);
-    r_Ref_Any executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid);
-    int  executeStartInsertTransMDD(r_GMarray* mdd);
+    r_Ref_Any executeGetCollByNameOrOId(const char *collName, const r_OId &oid);
+    r_Ref_Any executeGetCollOIdsByNameOrOId(const char *collName, const r_OId &oid);
+    int  executeStartInsertTransMDD(r_GMarray *mdd);
     int executeInitUpdate();
-    GetMDDRes*  executeGetNextMDD();
-    GetTileRes* executeGetNextTile();
-    int  executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result);
-    GetElementRes* executeGetNextElement();
-    int executeExecuteUpdateQuery(const char* query);
-    int  executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result);
-    int executeSetFormat(bool lTransferFormat, r_Data_Format format, const char* formatParams);
+    GetMDDRes  *executeGetNextMDD();
+    GetTileRes *executeGetNextTile();
+    int  executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &result);
+    GetElementRes *executeGetNextElement();
+    int executeExecuteUpdateQuery(const char *query);
+    int  executeExecuteUpdateQuery(const char *query, r_Set<r_Ref_Any> &result);
+    int executeSetFormat(bool lTransferFormat, r_Data_Format format, const char *formatParams);
 
-    void getMDDCollection(r_Set <r_Ref_Any>& mddColl, unsigned int isQuery);
-    unsigned short getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery);
-    void sendMDDConstants(const r_OQL_Query& query);
-    void getElementCollection(r_Set<r_Ref_Any>& resultColl);
+    void getMDDCollection(r_Set <r_Ref_Any> &mddColl, unsigned int isQuery);
+    unsigned short getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *thisResult, unsigned int isQuery);
+    void sendMDDConstants(const r_OQL_Query &query);
+    void getElementCollection(r_Set<r_Ref_Any> &resultColl);
 
-    int concatArrayData(const char* source, unsigned long srcSize, char*& dest,
-                        unsigned long& destSize, unsigned long& destLevel);
-    void freeGetTileRes(GetTileRes* ptr);
+    int concatArrayData(const char *source, unsigned long srcSize, char *&dest,
+                        unsigned long &destSize, unsigned long &destLevel);
+    void freeGetTileRes(GetTileRes *ptr);
 
-    void freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarray);
-    void getMarRpcRepresentation(const r_GMarray* mar, RPCMarray*& rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type* baseType);
+    void freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray *rpcMarray);
+    void getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *&rpcMarray, r_Data_Format initStorageFormat, const r_Base_Type *baseType);
     void checkForRwTransaction();
 };
 

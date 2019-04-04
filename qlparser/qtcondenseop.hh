@@ -54,28 +54,28 @@ class QtCondenseOp : public QtBinaryOperation
 public:
     /// constructor getting iterator, minterval exp, cell exp, and cell condition exp (optional)
     QtCondenseOp(Ops::OpType   newOperation,
-                 const std::string& initIteratorName,
-                 QtOperation*  mintervalExp,
-                 QtOperation*  cellExp,
-                 QtOperation*  condExp = NULL);
+                 const std::string &initIteratorName,
+                 QtOperation  *mintervalExp,
+                 QtOperation  *cellExp,
+                 QtOperation  *condExp = NULL);
 
     /// virtual destructor
     ~QtCondenseOp();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// test if the two nodes have an equal meaning in a subtree
-    virtual bool equalMeaning(QtNode* node);
+    virtual bool equalMeaning(QtNode *node);
 
     /// creates a unique name for a common subexpression
     virtual std::string getSpelling();
 
     /// method for query rewrite
-    virtual void setInput(QtOperation* inputOld, QtOperation* inputNew);
+    virtual void setInput(QtOperation *inputOld, QtOperation *inputNew);
 
     /// optimizing load access
-    void optimizeLoad(QtTrimList* trimList);
+    void optimizeLoad(QtTrimList *trimList);
 
     /// simplifies the tree
     virtual void simplify();
@@ -84,22 +84,22 @@ public:
     virtual bool isCommutative() const;
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: Read/Write methods:
     //@{
     ///
 
     ///
-    inline QtOperation* getCondOp();
+    inline QtOperation *getCondOp();
 
     ///
     //@}
@@ -108,15 +108,15 @@ public:
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
 
     ///method for evaluating scalar returning condesnsers
-    QtData* evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, BinaryOp* cellBinOp, r_Minterval domain);
+    QtData *evaluateScalarOp(QtDataList *inputList, const BaseType *cellType, BinaryOp *cellBinOp, r_Minterval domain);
 
     ///method for evaluating array returning condensers (induced)
-    QtData* evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain);
+    QtData *evaluateInducedOp(QtDataList *inputList, BinaryOp *cellBinOp, r_Minterval domain);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
@@ -125,7 +125,7 @@ private:
     std::string iteratorName;
 
     /// attribute storing optional cell condition expression
-    QtOperation* condOp;
+    QtOperation *condOp;
 
     /// attribute storing condensing operation
     Ops::OpType operation;

@@ -48,7 +48,7 @@ ParseInfo::ParseInfo()
 {
 }
 
-ParseInfo::ParseInfo(const ParseInfo& old)
+ParseInfo::ParseInfo(const ParseInfo &old)
     : errorNo(0),
       lineNo(0),
       columnNo(0),
@@ -60,7 +60,7 @@ ParseInfo::ParseInfo(const ParseInfo& old)
     token = old.token;
 }
 
-ParseInfo::ParseInfo(const char* initToken, unsigned int initLineNo, unsigned initColumnNo)
+ParseInfo::ParseInfo(const char *initToken, unsigned int initLineNo, unsigned initColumnNo)
     : errorNo(0),
       lineNo(initLineNo),
       columnNo(initColumnNo),
@@ -74,7 +74,7 @@ ParseInfo::ParseInfo(const char* initToken, unsigned int initLineNo, unsigned in
 
 
 
-ParseInfo::ParseInfo(unsigned long initErrorNo, const char* initToken, unsigned int initLineNo, unsigned initColumnNo)
+ParseInfo::ParseInfo(unsigned long initErrorNo, const char *initToken, unsigned int initLineNo, unsigned initColumnNo)
     : errorNo(initErrorNo),
       lineNo(initLineNo),
       columnNo(initColumnNo),
@@ -86,8 +86,8 @@ ParseInfo::ParseInfo(unsigned long initErrorNo, const char* initToken, unsigned 
     }
 }
 
-ParseInfo&
-ParseInfo::operator=(const ParseInfo& old)
+ParseInfo &
+ParseInfo::operator=(const ParseInfo &old)
 {
     if (this != &old)
     {
@@ -100,10 +100,10 @@ ParseInfo::operator=(const ParseInfo& old)
 }
 
 void
-ParseInfo::printStatus(ostream& s) const
+ParseInfo::printStatus(ostream &s) const
 {
-    r_Equery_execution_failed e(errorNo, 
-            lineNo, columnNo, token.c_str());
+    r_Equery_execution_failed e(errorNo,
+                                lineNo, columnNo, token.c_str());
     s << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
 }
 

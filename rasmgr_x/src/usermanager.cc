@@ -66,7 +66,7 @@ UserManager::UserManager():
 UserManager::~UserManager()
 {}
 
-void UserManager::defineUser(const UserProto& userInfo)
+void UserManager::defineUser(const UserProto &userInfo)
 {
     bool duplicate = false;
     list<boost::shared_ptr<User>>::iterator it;
@@ -99,7 +99,7 @@ void UserManager::defineUser(const UserProto& userInfo)
     this->userList.push_back(user);
 }
 
-void UserManager::changeUser(const std::string& userName, const UserProto& newUserInfo)
+void UserManager::changeUser(const std::string &userName, const UserProto &newUserInfo)
 {
     list<boost::shared_ptr<User>>::iterator it;
     bool changed = false;
@@ -141,7 +141,7 @@ void UserManager::changeUser(const std::string& userName, const UserProto& newUs
     }
 }
 
-void UserManager::removeUser(const std::string& userName)
+void UserManager::removeUser(const std::string &userName)
 {
     list<boost::shared_ptr<User>>::iterator it;
     bool removed = false;
@@ -163,7 +163,7 @@ void UserManager::removeUser(const std::string& userName)
     }
 }
 
-bool UserManager::tryGetUser(const std::string& userName, boost::shared_ptr<User>& out_user)
+bool UserManager::tryGetUser(const std::string &userName, boost::shared_ptr<User> &out_user)
 {
     list<boost::shared_ptr<User>>::iterator it;
 
@@ -188,7 +188,7 @@ void UserManager::saveUserInformation(bool backup)
     if (common::FileUtils::fileExists(rasmgrAuthFilePath))
     {
         std::string backupFile = rasmgrAuthFilePath + "." + common::UUID::generateUUID();
-        
+
         common::FileUtils::copyFile(rasmgrAuthFilePath, backupFile);
     }
 
@@ -260,7 +260,7 @@ UserMgrProto UserManager::serializeToProto()
     return result;
 }
 
-bool UserManager::tryLoadUserAuthFromOldFile(const std::string& filePath)
+bool UserManager::tryLoadUserAuthFromOldFile(const std::string &filePath)
 {
     UserMgrProto oldUserData;
     if (UserAuthConverter::tryGetOldFormatAuthData(filePath, oldUserData))
@@ -278,7 +278,7 @@ bool UserManager::tryLoadUserAuthFromOldFile(const std::string& filePath)
     return false;
 }
 
-bool UserManager::tryLoadUserAuthFromFile(const std::string& filePath)
+bool UserManager::tryLoadUserAuthFromFile(const std::string &filePath)
 {
     bool success = false;
 
@@ -326,16 +326,16 @@ bool UserManager::tryLoadUserAuthFromFile(const std::string& filePath)
 
 void UserManager::loadDefaultUserAuth()
 {
-    UserDatabaseRightsProto* fullDbRights = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *fullDbRights = new UserDatabaseRightsProto();
     fullDbRights->set_read(true);
     fullDbRights->set_write(true);
 
-    UserDatabaseRightsProto* guestDbRights  = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *guestDbRights  = new UserDatabaseRightsProto();
     guestDbRights->set_read(true);
     guestDbRights->set_write(false);
 
-    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
-    UserAdminRightsProto* guestAdminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *guestAdminRights = new UserAdminRightsProto();
 
     adminRights->set_access_control_rights(true);
     adminRights->set_info_rights(true);

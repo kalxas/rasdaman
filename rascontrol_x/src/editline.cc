@@ -43,14 +43,14 @@ EditLine::~EditLine()
 {
 }
 
-const char* EditLine::interactiveCommand(const char* prompt)
+const char *EditLine::interactiveCommand(const char *prompt)
 {
 #ifdef READLINELIB
-    char* rasp = rl_gets(prompt);
+    char *rasp = rl_gets(prompt);
 
 #else
     std::cout << prompt << std::flush;
-    char* rasp = fgets(line, MAXMSG - 1, stdin);
+    char *rasp = fgets(line, MAXMSG - 1, stdin);
 
 #endif
 
@@ -63,13 +63,13 @@ const char* EditLine::interactiveCommand(const char* prompt)
 
 }
 
-const char* EditLine::fromStdinCommand(const char* prompt)
+const char *EditLine::fromStdinCommand(const char *prompt)
 {
     if (prompt)
     {
         std::cout << prompt << std::flush;
     }
-    char* rasp = fgets(line, MAXMSG - 1, stdin);
+    char *rasp = fgets(line, MAXMSG - 1, stdin);
 
     if (rasp == 0)
     {
@@ -97,10 +97,10 @@ const char* EditLine::fromStdinCommand(const char* prompt)
     return line + i;
 }
 
-char* EditLine::rl_gets(const char* prompt)
+char *EditLine::rl_gets(const char *prompt)
 {
 #ifdef READLINELIB
-    static char* line_read = (char*)NULL;
+    static char *line_read = (char *)NULL;
 
     /* If the buffer has already been allocated, return the memory
     to the free pool. */
@@ -108,9 +108,9 @@ char* EditLine::rl_gets(const char* prompt)
     if (line_read)
     {
         free(line_read);
-        line_read = (char*)NULL;
+        line_read = (char *)NULL;
     }
-    char* linePtr = strdup(prompt);
+    char *linePtr = strdup(prompt);
 
     /* Get a line from the user. */
     line_read = readline(linePtr);

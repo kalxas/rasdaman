@@ -42,7 +42,7 @@
 using std::cout;
 using std::ios;
 
-char*         RMInit::userName = 0;
+char         *RMInit::userName = 0;
 bool          RMInit::useTileContainer = false;
 bool          RMInit::tiling;
 unsigned long RMInit::timeOut;
@@ -56,11 +56,11 @@ r_Bytes RMInit::clientTileSize = 786432;
 RMInit::RMInit(char initApplicationType)
     : applicationType(initApplicationType)
 {
-    char* optString;
+    char *optString;
 
     if (applicationType == 'C')
     {
-        char* value;
+        char *value;
 
         // read environment options
         optString = getenv("RMANCLIENTOPT");
@@ -122,7 +122,7 @@ RMInit::RMInit(char initApplicationType)
         {
             if (value)
             {
-                RManDebug = static_cast<int>(strtoul(value, (char**)NULL, 10));
+                RManDebug = static_cast<int>(strtoul(value, (char **)NULL, 10));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
@@ -163,7 +163,7 @@ RMInit::RMInit(char initApplicationType)
         {
             if (value)
             {
-                RManBenchmark = static_cast<int>(strtoul(value, (char**)NULL, 10));
+                RManBenchmark = static_cast<int>(strtoul(value, (char **)NULL, 10));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
@@ -188,7 +188,7 @@ RMInit::RMInit(char initApplicationType)
         {
             if (value)
             {
-                RMInit::clientTileSize = strtoul(value, (char**)NULL, 10);
+                RMInit::clientTileSize = strtoul(value, (char **)NULL, 10);
                 delete[] value;
                 value = NULL;
             }
@@ -208,7 +208,7 @@ RMInit::RMInit(char initApplicationType)
         {
             if (value)
             {
-                timeOut = strtoul(value, (char**)NULL, 10);
+                timeOut = strtoul(value, (char **)NULL, 10);
                 delete[] value;
                 value = NULL;
             }
@@ -278,11 +278,11 @@ RMInit::~RMInit()
 
 
 int
-RMInit::checkOptionString(const char* optString, const char* option, char*& value)
+RMInit::checkOptionString(const char *optString, const char *option, char *&value)
 {
-    char* optPos = 0;
-    char* optValueStart;
-    char* optValueEnd;
+    char *optPos = 0;
+    char *optValueStart;
+    char *optValueEnd;
     int   valueLength;
 
     using namespace std;
@@ -293,7 +293,7 @@ RMInit::checkOptionString(const char* optString, const char* option, char*& valu
     {
         unsigned short found = 0;
 
-        optPos = const_cast<char*>(optString);
+        optPos = const_cast<char *>(optString);
 
         do
         {
@@ -304,7 +304,7 @@ RMInit::checkOptionString(const char* optString, const char* option, char*& valu
                 // Check if character after option is either a space or end of string.
                 // If not, continue with search.
 
-                char* continuePos = optPos + strlen(option);
+                char *continuePos = optPos + strlen(option);
 
                 found = (*continuePos == ' ') || (*continuePos == '\0');
 

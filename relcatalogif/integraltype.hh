@@ -59,13 +59,13 @@ public:
     constructor.
     */
 
-    IntegralType(const IntegralType& old):
+    IntegralType(const IntegralType &old):
         AtomicType(old) {}
     /*@Doc:
     copy constructor.
     */
 
-    IntegralType(const OId& id):
+    IntegralType(const OId &id):
         AtomicType(id) {}
     /*@Doc:
     */
@@ -74,14 +74,14 @@ public:
     /*@Doc:
     */
 
-    virtual r_ULong* convertToCULong(const char*, r_ULong*) const;
-    virtual char* makeFromCULong(char*, const r_ULong*) const;
+    virtual r_ULong *convertToCULong(const char *, r_ULong *) const;
+    virtual char *makeFromCULong(char *, const r_ULong *) const;
 
-    virtual double* convertToCDouble(const char*, double*) const;
-    virtual char* makeFromCDouble(char*, const double*) const;
+    virtual double *convertToCDouble(const char *, double *) const;
+    virtual char *makeFromCDouble(char *, const double *) const;
 
 protected:
-    IntegralType(const char* name, unsigned int newSize):
+    IntegralType(const char *name, unsigned int newSize):
         AtomicType(name, newSize) {}
     /*@Doc:
     */

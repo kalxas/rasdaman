@@ -25,7 +25,7 @@
 namespace rasmgr
 {
 
-ServerConfig::ServerConfig(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<DatabaseHost> dbHost):
+ServerConfig::ServerConfig(const std::string &hostName, const boost::int32_t &port, boost::shared_ptr<DatabaseHost> dbHost):
     hostName(hostName), port(port), dbHost(dbHost)
 {}
 
@@ -38,7 +38,7 @@ std::string ServerConfig::getHostName() const
     return hostName;
 }
 
-void ServerConfig::setHostName(const std::string& value)
+void ServerConfig::setHostName(const std::string &value)
 {
     hostName = value;
 }
@@ -47,7 +47,7 @@ boost::int32_t ServerConfig::getPort() const
     return port;
 }
 
-void ServerConfig::setPort(const boost::int32_t& value)
+void ServerConfig::setPort(const boost::int32_t &value)
 {
     port = value;
 }
@@ -57,7 +57,7 @@ boost::shared_ptr<DatabaseHost> ServerConfig::getDbHost() const
     return dbHost;
 }
 
-void ServerConfig::setDbHost(const boost::shared_ptr<DatabaseHost>& value)
+void ServerConfig::setDbHost(const boost::shared_ptr<DatabaseHost> &value)
 {
     dbHost = value;
 }
@@ -67,7 +67,7 @@ std::string ServerConfig::getOptions() const
     return options;
 }
 
-void ServerConfig::setOptions(const std::string& value)
+void ServerConfig::setOptions(const std::string &value)
 {
     options = value;
 }

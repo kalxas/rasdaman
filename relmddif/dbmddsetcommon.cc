@@ -35,9 +35,9 @@ rasdaman GmbH.
 #include <logging.hh>
 
 void
-DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
+DBMDDSet::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -63,7 +63,7 @@ DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
 }
 
 bool
-DBMDDSet::contains_element(const DBMDDObjId& elem) const
+DBMDDSet::contains_element(const DBMDDObjId &elem) const
 {
     bool retval = false;
     DBMDDObjIdSet::const_iterator i = mySet.find(elem);
@@ -75,7 +75,7 @@ DBMDDSet::contains_element(const DBMDDObjId& elem) const
 }
 
 void
-DBMDDSet::remove(DBMDDObjId& elem)
+DBMDDSet::remove(DBMDDObjId &elem)
 {
     DBMDDObjIdSet::iterator i = mySet.find(elem);
     if (i != mySet.end())
@@ -92,7 +92,7 @@ DBMDDSet::removeAll()
     DBMDDObjId t;
     while (!mySet.empty())
     {
-        (const_cast<DBMDDObj*>((*(mySet.begin())).ptr()))->decrementPersRefCount();
+        (const_cast<DBMDDObj *>((*(mySet.begin())).ptr()))->decrementPersRefCount();
         mySet.erase(mySet.begin());
     }
     setModified();
@@ -105,7 +105,7 @@ DBMDDSet::~DBMDDSet() noexcept(false)
     mySet.clear();
 }
 
-const CollectionType*
+const CollectionType *
 DBMDDSet::getCollType() const
 {
     LTRACE << "getCollType() " << myOId << "\t" << collType->getName();
@@ -113,9 +113,9 @@ DBMDDSet::getCollType() const
 }
 
 void
-DBMDDSet::setCollType(const CollectionType* collTypeArg)
+DBMDDSet::setCollType(const CollectionType *collTypeArg)
 {
-    collType = const_cast<CollectionType*>(collTypeArg);
+    collType = const_cast<CollectionType *>(collTypeArg);
     setModified();
 }
 
@@ -137,7 +137,7 @@ DBMDDSet::insert(DBMDDObjId elem)
     }
 }
 
-DBMDDObjIdIter*
+DBMDDObjIdIter *
 DBMDDSet::newIterator() const
 {
     return new DBMDDObjIdIter(mySet);
@@ -163,29 +163,29 @@ DBMDDSet::releaseAll()
 }
 
 DBMDDSetId
-DBMDDSet::getDBMDDSet(const char* name)
+DBMDDSet::getDBMDDSet(const char *name)
 {
-    DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, name)));
+    DBMDDSetId set(static_cast<DBMDDSet *>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, name)));
     return set;
 }
 
 DBMDDSetId
-DBMDDSet::getDBMDDSet(const OId& o)
+DBMDDSet::getDBMDDSet(const OId &o)
 {
-    DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByOId(o)));
+    DBMDDSetId set(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(o)));
     return set;
 }
 
 bool
-DBMDDSet::deleteDBMDDSet(const OId& oid)
+DBMDDSet::deleteDBMDDSet(const OId &oid)
 {
     bool retval = true;
     try
     {
-        DBObject* set = ObjectBroker::getObjectByOId(oid);
+        DBObject *set = ObjectBroker::getObjectByOId(oid);
         set->setPersistent(false);
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         if (e.get_kind() == r_Error::r_Error_ObjectUnknown)
         {
@@ -200,15 +200,15 @@ DBMDDSet::deleteDBMDDSet(const OId& oid)
 }
 
 bool
-DBMDDSet::deleteDBMDDSet(const char* name)
+DBMDDSet::deleteDBMDDSet(const char *name)
 {
     bool retval = true;
     try
     {
-        DBObject* set = ObjectBroker::getObjectByName(OId::MDDCOLLOID, name);
+        DBObject *set = ObjectBroker::getObjectByName(OId::MDDCOLLOID, name);
         set->setPersistent(false);
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         if (e.get_kind() == r_Error::r_Error_ObjectUnknown)
         {
@@ -222,9 +222,9 @@ DBMDDSet::deleteDBMDDSet(const char* name)
     return retval;
 }
 
-DBMDDSet::DBMDDSet(const char* name, const CollectionType* type)
+DBMDDSet::DBMDDSet(const char *name, const CollectionType *type)
     :   DBNamedObject(name),
-        collType(const_cast<CollectionType*>(type))
+        collType(const_cast<CollectionType *>(type))
 {
     if (name == NULL)
     {
@@ -242,7 +242,7 @@ DBMDDSet::DBMDDSet(const char* name, const CollectionType* type)
 void
 DBMDDSet::setPersistent(bool state)
 {
-    DBMDDSet* set = NULL;
+    DBMDDSet *set = NULL;
     if (state)
     {
         if (!collType->isPersistent())
@@ -254,9 +254,9 @@ DBMDDSet::setPersistent(bool state)
         }
         try
         {
-            set = static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName()));
+            set = static_cast<DBMDDSet *>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName()));
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             if (err.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
@@ -281,7 +281,7 @@ DBMDDSet::setPersistent(bool state)
     DBNamedObject::setPersistent(state);
 }
 
-DBMDDSet::DBMDDSet(const OId& id)
+DBMDDSet::DBMDDSet(const OId &id)
     :   DBNamedObject(id),
         collType(0)
 {

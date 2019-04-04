@@ -55,7 +55,7 @@ public:
      * string and a list of parameters to be substituted with vsnprintf.
      * @param query the SQL query to be turned into an SQLite statement.
      */
-    SQLiteQuery(const char* format, ...);
+    SQLiteQuery(const char *format, ...);
 
     /**
      * Destructor
@@ -65,7 +65,7 @@ public:
     /**
      * Copy constructor.
      */
-    SQLiteQuery(const SQLiteQuery& o);
+    SQLiteQuery(const SQLiteQuery &o);
 
     /**
      * Finalize any query objects.
@@ -110,14 +110,14 @@ public:
      * next column.
      * @return the string value of the current column.
      */
-    char* nextColumnString();
+    char *nextColumnString();
 
     /**
      * Returns the current column value, and then advances the counter to the
      * next column.
      * @return the blob value of the current column.
      */
-    char* nextColumnBlob();
+    char *nextColumnBlob();
 
     /**
      * Returns the current column length in bytes, if the column is blob/text.
@@ -160,12 +160,12 @@ public:
     /**
      * @param param the string parameter to bind to the SQL statement.
      */
-    void bindString(const char* param, int size);
+    void bindString(const char *param, int size);
 
     /**
      * @param param the blob parameter to bind to the SQL statement.
      */
-    void bindBlob(const char* param, int size);
+    void bindBlob(const char *param, int size);
 
     /**
      * Execute this SQL statement.
@@ -177,13 +177,13 @@ public:
     /**
      * Execute query in one step.
      */
-    static void execute(const char* query);
+    static void execute(const char *query);
 
     /**
      * Execute query in one step, where the query is provided as a printf
      * formatted string.
      */
-    static void executeWithParams(const char* format, ...);
+    static void executeWithParams(const char *format, ...);
 
     /**
      * @return 1 (true) if a transaction is active, 0 (false) otherwise.
@@ -193,23 +193,23 @@ public:
     /**
      * @return the sqlite connection.
      */
-    static sqlite3* getConnection();
+    static sqlite3 *getConnection();
 
     /**
      * @return the sqlite statement.
      */
-    sqlite3_stmt* getStatement();
-    
+    sqlite3_stmt *getStatement();
+
     static void closeConnection();
-    
-    static bool openConnection(const char* globalConnectId);
+
+    static bool openConnection(const char *globalConnectId);
 private:
 
-    sqlite3_stmt* stmt{NULL};
+    sqlite3_stmt *stmt{NULL};
     // saved for debugging purposes, e.g. in case the query execution fails
     std::string query;
     int columnCounter;
-    
+
     // 10 minutes timeout, in case RASBASE is locked by another rasserver for writing
     static constexpr int SQLITE_BUSY_TIMEOUT{10 * 60 * 1000};
 };

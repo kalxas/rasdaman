@@ -38,7 +38,7 @@ public:
      * @brief InPeer Initialize a new instance of the InPeer class.
      * @param hostName The name of the host on which the peer rasmgr is running.
      */
-    InPeer(const std::string& hostName);
+    InPeer(const std::string &hostName);
 
     std::string getHostName() const;
 

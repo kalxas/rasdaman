@@ -38,36 +38,36 @@ static const char rcsid[] = "@(#)catalogif,LongType: $Header: /home/rasdev/CVS-r
 #include <iomanip>
 #include <string.h>
 
-LongType::LongType(const OId& id)
-	:	IntegralType(id)
-	{
-	readFromDb();
-	}
+LongType::LongType(const OId &id)
+    :   IntegralType(id)
+{
+    readFromDb();
+}
 
 /*************************************************************
  * Method name...: LongType();
  *
  * Arguments.....: none
  * Return value..: none
- * Description...: initializes member variables for an 
+ * Description...: initializes member variables for an
  *                 LongType.
  ************************************************************/
 
 LongType::LongType()
-	:	IntegralType(LongType::Name, 4)
-	{
-	myType = LONG;
-	myOId = OId(LONG, OId::ATOMICTYPEOID);
-	}
+    :   IntegralType(LongType::Name, 4)
+{
+    myType = LONG;
+    myOId = OId(LONG, OId::ATOMICTYPEOID);
+}
 
 void
 LongType::readFromDb()
-	{
-	setName(LongType::Name);
-	size = 4;
-	myType = LONG;
-	myOId = OId(LONG, OId::ATOMICTYPEOID);
-	}
+{
+    setName(LongType::Name);
+    size = 4;
+    myType = LONG;
+    myOId = OId(LONG, OId::ATOMICTYPEOID);
+}
 
 /*************************************************************
  * Method name...: LongType(const LongType& old);
@@ -77,10 +77,10 @@ LongType::readFromDb()
  * Description...: copy constructor
  ************************************************************/
 
-LongType::LongType(const LongType& old)
-	:	IntegralType(old)
-	{
-	}
+LongType::LongType(const LongType &old)
+    :   IntegralType(old)
+{
+}
 
 /*************************************************************
  * Method name...: operator=(const LongType&);
@@ -90,14 +90,16 @@ LongType::LongType(const LongType& old)
  * Description...: copy constructor
  ************************************************************/
 
-LongType& LongType::operator=(const LongType& old)
-	{
-	// Gracefully handle self assignment
-	if (this == &old)
-		return *this;
-	AtomicType::operator=(old);
-	return *this;
-	}
+LongType &LongType::operator=(const LongType &old)
+{
+    // Gracefully handle self assignment
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator=(old);
+    return *this;
+}
 
 /*************************************************************
  * Method name...: ~LongType();
@@ -112,36 +114,36 @@ LongType::~LongType()
 }
 
 /*************************************************************
- * Method name...: void printCell( ostream& stream, 
+ * Method name...: void printCell( ostream& stream,
  *                                 const char* cell )
  *
  * Arguments.....:
  *   stream: stream to print on
  *   cell:   pointer to cell to print
  * Return value..: none
- * Description...: prints a cell cell in hex on stream 
+ * Description...: prints a cell cell in hex on stream
  *                 followed by a space.
  *                 Assumes that Long is stored MSB..LSB
  *                 on HP.
  ************************************************************/
 
-void 
-LongType::printCell( ostream& stream, const char* cell ) const
+void
+LongType::printCell(ostream &stream, const char *cell) const
 {
-  stream << std::setw(8) << *(r_Long*)(const_cast<char*>(cell));
+    stream << std::setw(8) << *(r_Long *)(const_cast<char *>(cell));
 }
 
-r_Long*
-LongType::convertToCLong(const char* cell, r_Long* value) const
+r_Long *
+LongType::convertToCLong(const char *cell, r_Long *value) const
 {
-  *value = *(r_Long*)(const_cast<char*>(cell));
-  return value;
+    *value = *(r_Long *)(const_cast<char *>(cell));
+    return value;
 }
 
 
-char* 
-LongType::makeFromCLong(char* cell, const r_Long* value) const
+char *
+LongType::makeFromCLong(char *cell, const r_Long *value) const
 {
-  *(r_Long*)(cell) = *value;
-  return cell;
+    *(r_Long *)(cell) = *value;
+    return cell;
 }

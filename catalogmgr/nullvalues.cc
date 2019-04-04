@@ -40,7 +40,7 @@ NullValuesHandler::NullValuesHandler()
 {
 }
 
-NullValuesHandler::NullValuesHandler(r_Nullvalues* newNullValues)
+NullValuesHandler::NullValuesHandler(r_Nullvalues *newNullValues)
     : nullValues(newNullValues), nullValuesCount(0)
 {
 }
@@ -49,7 +49,7 @@ NullValuesHandler::~NullValuesHandler() noexcept(false)
 {
 }
 
-r_Nullvalues*
+r_Nullvalues *
 NullValuesHandler::getNullValues() const
 {
 //    if (nullValues != NULL)
@@ -59,20 +59,22 @@ NullValuesHandler::getNullValues() const
     return nullValues;
 }
 
-r_Double 
+r_Double
 NullValuesHandler::getNullValue() const
 {
     if (nullValues != NULL)
     {
-        const auto& nulls = nullValues->getNullvalues();
+        const auto &nulls = nullValues->getNullvalues();
         if (!nulls.empty())
+        {
             return nulls[0].first;
+        }
     }
     return r_Double{};
 }
 
 void
-NullValuesHandler::setNullValues(r_Nullvalues* newNullValues)
+NullValuesHandler::setNullValues(r_Nullvalues *newNullValues)
 {
 //    if (newNullValues != NULL)
 //    {
@@ -94,7 +96,7 @@ NullValuesHandler::setNullValuesCount(unsigned long count)
 }
 
 void
-NullValuesHandler::cloneNullValues(const NullValuesHandler* obj)
+NullValuesHandler::cloneNullValues(const NullValuesHandler *obj)
 {
     if (this != obj)
     {

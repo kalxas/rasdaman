@@ -53,7 +53,7 @@ SetType::insertInDb()
     long long settypeid;
     long long nullvalueoid;
 
-    (void) strncpy(settypename, const_cast<char*>(getTypeName()), (size_t) sizeof(settypename));
+    (void) strncpy(settypename, const_cast<char *>(getTypeName()), (size_t) sizeof(settypename));
     settypeid = myOId.getCounter();
     mddtypeid = getMDDType()->getOId();
 
@@ -94,7 +94,7 @@ SetType::readFromDb()
     DBObject::readTimer.resume();
 #endif
     long long mddtypeid;
-    char* settypename;
+    char *settypename;
     long long settypeid;
     long long nullvalueoid;
 
@@ -116,14 +116,14 @@ SetType::readFromDb()
     }
     setName(settypename);
     myType = SETTYPE;
-    myMDDType = (MDDType*) ObjectBroker::getObjectByOId(OId(mddtypeid));
+    myMDDType = (MDDType *) ObjectBroker::getObjectByOId(OId(mddtypeid));
 
     SQLiteQuery queryNull("SELECT NullValueOId FROM RAS_NULLVALUES WHERE SetTypeOId = %lld",
                           settypeid);
     if (queryNull.nextRow())
     {
         nullvalueoid = queryNull.nextColumnLong();
-        nullValues = (DBNullvalues*) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBNULLVALUESOID));
+        nullValues = (DBNullvalues *) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBNULLVALUESOID));
         nullValues->setCached(true);
         LDEBUG << "Got null values: " << nullValues->toString();
     }

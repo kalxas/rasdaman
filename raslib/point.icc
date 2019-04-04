@@ -33,22 +33,28 @@ rasdaman GmbH.
 inline r_Dimension
 r_Point::dimension() const
 {
-  return dimensionality;
+    return dimensionality;
 }
 
 int
-r_Point::compare_with( const r_Point& p ) const
+r_Point::compare_with(const r_Point &p) const
 {
-  if( dimensionality != p.dimensionality )
-    return -2;
+    if (dimensionality != p.dimensionality)
+    {
+        return -2;
+    }
 
-  for ( r_Dimension i = 0; i < dimensionality; i++ )
-   {
-      if ( points[i] > p[i] )
-        return 1;
-      if ( points[i] < p[i] )
-         return -1 ;
-   }
-   return 0;
+    for (r_Dimension i = 0; i < dimensionality; i++)
+    {
+        if (points[i] > p[i])
+        {
+            return 1;
+        }
+        if (points[i] < p[i])
+        {
+            return -1 ;
+        }
+    }
+    return 0;
 }
 

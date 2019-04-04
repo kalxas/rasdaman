@@ -61,39 +61,39 @@ class OId;
 class MDDDomainType : public MDDBaseType
 {
 public:
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /*@Doc:
     looks like:
         marray <myBaseType->getTypeStructure(), myDomain->get_string_representation()>
     */
 
-    virtual char* getNewTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
-    MDDDomainType(const OId& id);
+    MDDDomainType(const OId &id);
 
-    MDDDomainType(const char* newTypeName, const BaseType* newBaseType, const r_Minterval& newDomain);
+    MDDDomainType(const char *newTypeName, const BaseType *newBaseType, const r_Minterval &newDomain);
 
     MDDDomainType();
     /*@Doc:
     default constructor, cannot be used.
     */
 
-    MDDDomainType(const MDDDomainType& old);
+    MDDDomainType(const MDDDomainType &old);
     /*@Doc:
     copy constructor.
     */
 
-    MDDDomainType& operator=(const MDDDomainType& old);
+    MDDDomainType &operator=(const MDDDomainType &old);
     /*@Doc:
     assignment operator.
     */
 
-    const r_Minterval* getDomain() const;
+    const r_Minterval *getDomain() const;
     /*@Doc:
     returns domain.
     */
 
-    virtual void print_status(ostream& s) const;
+    virtual void print_status(ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream.
     looks like: \tr_Marray<myBaseType->getTypeName(), myDomain->print_status()\t>
@@ -111,7 +111,7 @@ public:
         the dbminterval is also made persistent/deleted from db.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     aType is compatible if:
         aType is a MDDDomainType and
@@ -127,7 +127,7 @@ public:
 
 protected:
 
-    DBMinterval* myDomain;
+    DBMinterval *myDomain;
     /*@Doc:
     persistent domain.
     */

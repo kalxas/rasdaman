@@ -43,14 +43,14 @@ This class is used in tilemgr as an interface to the persistent tiles.  There ar
 class DBTile : public DBObject
 {
 public:
-    friend std::ostream& operator << (std::ostream& stream, DBTile& b);
+    friend std::ostream &operator << (std::ostream &stream, DBTile &b);
     /*@Doc:
     prints info about the dbtile (flags, id, dbdata, size, modified)
     */
     //@Man: read methods
     //@{
     /// get contents as array of chars for read access.
-    virtual char* getCells();
+    virtual char *getCells();
     /*@Doc:
       Returns a pointer to the contents of the DBTile. This pointer
       can be used as a char array with getSize() elements.
@@ -58,7 +58,7 @@ public:
     */
 
     /// get contents as array of chars for read access.
-    virtual const char* getCells() const;
+    virtual const char *getCells() const;
     /*@Doc:
       Returns a pointer to the contents of the DBTile. This pointer
       can be used as a char array with getSize() elements.
@@ -81,13 +81,13 @@ public:
       Returns the Data Format of the tiles contents (r_Tiff, r_Array, ...)
     */
 
-    void setDataFormat(const r_Data_Format& dataformat);
+    void setDataFormat(const r_Data_Format &dataformat);
     /*@Doc:
       Sets the Data Format of this tile (r_Tiff, r_Array, ...)
       This method will mark this object dirty.
     */
 
-    void setCurrentFormat(const r_Data_Format& dataformat) const;
+    void setCurrentFormat(const r_Data_Format &dataformat) const;
     /*@Doc:
       Sets the Data Format of the contents of this tile (r_Array, or the compressed stuff)
       This method will _not_ mark this object dirty.
@@ -110,7 +110,7 @@ public:
       This method will mark this object dirty.
     */
 
-    void setCells(char* newCells);
+    void setCells(char *newCells);
     /*@Doc:
       Completely replaces the character array of this tile.
       The old arry is deleted.
@@ -129,7 +129,7 @@ public:
     constructs a new empty DBTile.  Length is 0.
     */
 
-    DBTile(const OId& BlobId);
+    DBTile(const OId &BlobId);
     /*@Doc:
     Passes to DBObject.
     */
@@ -144,7 +144,7 @@ public:
     constructs a new DBTile of size newSize filled with c.
     */
 
-    DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format dataformat);
+    DBTile(r_Bytes newSize, r_Bytes patSize, const char *pat, r_Data_Format dataformat);
     /*@Doc:
      Constructs a new DB Tile of size newSize filled with the repeated
      char array pat of size patSize. If after filling some chars are
@@ -153,13 +153,13 @@ public:
     /*@ManMemo: constructs a new DB Tile with the char array newCells
             with newSize elements as contents. */
 
-    DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat);
+    DBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with the contents of newCells.
     the newCells are copied.
     */
 
-    DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char* newCells, r_Data_Format dataformat);
+    DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new DBTile of size newSize filled with the contents of newCells.
     The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
@@ -184,12 +184,12 @@ public:
         DBObject::getMemorySize() + sizeof(r_Data_Format) + sizeof(r_Bytes)
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     /*@Doc:
     prints the status of DBObject, the dataformat, the size and the contents as (int)
     */
 
-    void setNoModificationData(char* data) const;
+    void setNoModificationData(char *data) const;
     /*@Doc:
     Completely replaces the array.
     The object will not be marked dirty.
@@ -209,7 +209,7 @@ protected:
     total size of the contents of DBTile in number of chars.
     */
 
-    mutable char* cells;
+    mutable char *cells;
     /*@Doc:
     the data is allocated by malloc
     */

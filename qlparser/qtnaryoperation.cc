@@ -90,7 +90,7 @@ QtNaryOperation::~QtNaryOperation()
         delete operationList;
         operationList = NULL;
     }
-    
+
 }
 
 void QtNaryOperation::simplify()
@@ -100,12 +100,16 @@ void QtNaryOperation::simplify()
 
     // Test, if all operands are available.
     if (!operationList)
+    {
         return;
+    }
 
     // Test, if all operands are of const type.
     for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
         if (!(*iter) || (*iter)->getNodeType() != QT_CONST)
+        {
             return;
+        }
 
     // evaluate the self node with no input list
     QtData *newConst = this->evaluate(NULL);
@@ -140,8 +144,8 @@ bool QtNaryOperation::equalMeaning(QtNode *node)
 
         result = true;
         for (iter = operationList->begin(), iter2 = operationList2->begin();
-             iter != operationList->end() && iter2 != operationList2->end();
-             iter++, iter2++)
+                iter != operationList->end() && iter2 != operationList2->end();
+                iter++, iter2++)
             if (!((*iter)->equalMeaning(*iter2)))
             {
                 result = false;
@@ -188,13 +192,16 @@ bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandLis
         LERROR << "No operation list specified.";
         return false;
     }
-    if (std::any_of(operationList->begin(), operationList->begin(), 
-                    [](QtOperation* op) { return op == NULL; }))
+    if (std::any_of(operationList->begin(), operationList->begin(),
+                    [](QtOperation * op)
+{
+    return op == NULL;
+}))
     {
         LERROR << "At least one operand branch is invalid.";
         return false;
     }
-    
+
     operandList = NULL; // make sure it's NULL in case of error
 
     auto *tmpOperandList = new QtDataList(operationList->size());

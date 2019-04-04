@@ -82,10 +82,10 @@ public:
 
     /// read everything from an encoded string
     /// e.g. "2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING"
-    r_Interest_Tiling(const char* encoded);
+    r_Interest_Tiling(const char *encoded);
 
     r_Interest_Tiling(r_Dimension dim,
-                      const std::vector<r_Minterval>& interest_areas,
+                      const std::vector<r_Minterval> &interest_areas,
                       r_Bytes ts = RMInit::clientTileSize,
                       Tilesize_Limit strat = SUB_TILING);
     /**
@@ -116,11 +116,11 @@ public:
 
     virtual ~r_Interest_Tiling();
 
-    std::vector<r_Minterval>* compute_tiles(const r_Minterval& obj_domain, r_Bytes cell_size) const;
+    std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
-    virtual void print_status(std::ostream& os) const;
+    virtual void print_status(std::ostream &os) const;
 
-    virtual r_Tiling* clone() const;
+    virtual r_Tiling *clone() const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
 
@@ -128,19 +128,19 @@ public:
     /**
        Get a tilesize limit for a tilisize limit name
     */
-    static r_Interest_Tiling::Tilesize_Limit get_tilesize_limit_from_name(const char* name);
+    static r_Interest_Tiling::Tilesize_Limit get_tilesize_limit_from_name(const char *name);
     //@ManMemo: Module: {\bf raslib}
     /**
        Get a tilisize limit name for a tilesize limit
     */
-    static const char*      get_name_from_tilesize_limit(Tilesize_Limit tsl);
+    static const char      *get_name_from_tilesize_limit(Tilesize_Limit tsl);
 
-    static const char* description;
+    static const char *description;
 
 protected: // methods.
 
     /// Given a domain and a set of interest areas (internal) gener. partition
-    std::vector<r_Dir_Decompose>* make_partition(const r_Minterval& domain) const;
+    std::vector<r_Dir_Decompose> *make_partition(const r_Minterval &domain) const;
 
     /// The Block types (A, B or C)
     enum Blocks_Type {BLOCKS_A, BLOCKS_B, BLOCKS_C };
@@ -154,7 +154,7 @@ protected: // methods.
       */
 
     /// Merge as many blocks together in a list as possible
-    std::vector<r_Minterval>* group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Blocks_Type btype) const;
+    std::vector<r_Minterval> *group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Blocks_Type btype) const;
     /**
       Parameters: the block list, the lenght of the base cells and
       the type of the block (A, B or C)
@@ -175,12 +175,12 @@ protected: // methods.
       In addition there's an array of names all_tilesizelimit_names  where the tilesize limit
       can be used as index to get the name.
     */
-    static const char* tilesizelimit_name_nolimit;
-    static const char* tilesizelimit_name_regroup;
-    static const char* tilesizelimit_name_subtiling;
-    static const char* tilesizelimit_name_regroupandsubtiling;
+    static const char *tilesizelimit_name_nolimit;
+    static const char *tilesizelimit_name_regroup;
+    static const char *tilesizelimit_name_subtiling;
+    static const char *tilesizelimit_name_regroupandsubtiling;
 
-    static const char* all_tilesizelimit_names[r_Interest_Tiling::NUMBER];
+    static const char *all_tilesizelimit_names[r_Interest_Tiling::NUMBER];
 };
 
 #endif

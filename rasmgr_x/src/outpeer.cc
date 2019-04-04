@@ -37,7 +37,7 @@ using grpc::Status;
 using rasnet::service::GetRemoteServerRequest;
 using rasnet::service::GetRemoteServerReply;
 
-OutPeer::OutPeer(const std::string& hostName, const uint32_t port)
+OutPeer::OutPeer(const std::string &hostName, const uint32_t port)
     : hostName(hostName), port(port)
 {
     // Initialize the service used for communicating with the remote rasmgr
@@ -65,8 +65,8 @@ bool OutPeer::isBusy() const
     return !this->openSessions.empty();
 }
 
-bool rasmgr::OutPeer::tryGetRemoteServer(const ClientServerRequest& request,
-        ClientServerSession& out_reply)
+bool rasmgr::OutPeer::tryGetRemoteServer(const ClientServerRequest &request,
+        ClientServerSession &out_reply)
 {
     // Before initiating a request check if the rasmgr is alive.
     if (!GrpcUtils::isServerAlive(this->healthService, SERVER_CALL_TIMEOUT))
@@ -108,7 +108,7 @@ bool rasmgr::OutPeer::tryGetRemoteServer(const ClientServerRequest& request,
     return status.ok();
 }
 
-void OutPeer::releaseServer(const RemoteClientSession& clientSession)
+void OutPeer::releaseServer(const RemoteClientSession &clientSession)
 {
     auto sessionKey = this->createSessionId(clientSession);
     if (this->openSessions.find(sessionKey) != this->openSessions.end())
@@ -147,7 +147,7 @@ void OutPeer::releaseServer(const RemoteClientSession& clientSession)
     }
 }
 
-std::string OutPeer::createSessionId(const RemoteClientSession& clientSession)
+std::string OutPeer::createSessionId(const RemoteClientSession &clientSession)
 {
     return clientSession.getClientSessionId()
            + ":" + clientSession.getDbSessionId();

@@ -33,7 +33,7 @@
 
 namespace rascontrol
 {
-RasControl::RasControl(RasControlConfig& config, const UserCredentials& userCredentials): config(config), userCredentials(userCredentials)
+RasControl::RasControl(RasControlConfig &config, const UserCredentials &userCredentials): config(config), userCredentials(userCredentials)
 {
     boost::shared_ptr<ControlRasMgrRasnet> rasnet(new ControlRasMgrRasnet(this->userCredentials, this->config));
 
@@ -100,7 +100,7 @@ void RasControl::startInteractiveMode()
         {
             LINFO << "Entering new request cycle." << prompt;
 
-            const char* commandLine = this->editLine.interactiveCommand(prompt.c_str());
+            const char *commandLine = this->editLine.interactiveCommand(prompt.c_str());
             if (commandLine == NULL || strlen(commandLine) == 0)
             {
                 continue;
@@ -132,7 +132,7 @@ void RasControl::startInteractiveMode()
             LINFO << "Exiting request cycle.";
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
@@ -183,7 +183,7 @@ void RasControl::startBatchMode()
             }
             else
             {
-                const char* commandLine = this->editLine.fromStdinCommand(prompt.c_str());
+                const char *commandLine = this->editLine.fromStdinCommand(prompt.c_str());
                 if (commandLine == NULL)
                 {
                     throw InvalidRasctrlCommandException();
@@ -228,7 +228,7 @@ void RasControl::startBatchMode()
             }
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         std::cerr << "Failed to connect to rasmgr. Reason:" << ex.what();
     }
@@ -252,7 +252,7 @@ void RasControl::startTestLogin()
 
         std::cout << serverReply;
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         std::cerr << ex.what();
     }

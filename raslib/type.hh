@@ -67,16 +67,16 @@ public:
     /// default constructor.
     r_Type();
     /// constructor getting name of type.
-    r_Type(const char* newTypeName);
+    r_Type(const char *newTypeName);
     /// copy constructor
-    r_Type(const r_Type& oldObj);
+    r_Type(const r_Type &oldObj);
     /// assignment operator.
-    const r_Type& operator=(const r_Type& oldObj);
+    const r_Type &operator=(const r_Type &oldObj);
     /// destructor.
     virtual ~r_Type();
 
     /// clone operation
-    virtual r_Type* clone() const = 0;
+    virtual r_Type *clone() const = 0;
 
     /// retrieve id of the type.
     virtual r_Type::r_Type_Id type_id() const = 0;
@@ -112,13 +112,13 @@ public:
     virtual bool isOidType() const;
 
     /// build type schema from string representation
-    static r_Type* get_any_type(const char* type_string);
+    static r_Type *get_any_type(const char *type_string);
 
     /// converts array of cells from NT byte order to Unix byte order.
-    virtual void convertToLittleEndian(char* cells, r_Area noCells) const = 0;
+    virtual void convertToLittleEndian(char *cells, r_Area noCells) const = 0;
 
     /// converts array of cells from Unix byte order to NT byte order.
-    virtual void convertToBigEndian(char* cells, r_Area noCells) const = 0;
+    virtual void convertToBigEndian(char *cells, r_Area noCells) const = 0;
 
     /// token enumeration for parser
     enum DLTOKEN   { DLMARRAY, DLSET, DLSTRUCT, DLCOMMA,
@@ -136,27 +136,27 @@ private:
     ///
 
     ///
-    static DLTOKEN getNextToken(char*& pos, char*& identifier);
+    static DLTOKEN getNextToken(char *&pos, char *&identifier);
     ///
-    static r_Collection_Type* getCollectionType(char*& pos);
+    static r_Collection_Type *getCollectionType(char *&pos);
     ///
-    static r_Type* getType(char*& pos);
+    static r_Type *getType(char *&pos);
     ///
-    static r_Marray_Type* getMarrayType(char*& pos);
+    static r_Marray_Type *getMarrayType(char *&pos);
     ///
-    static r_Base_Type* getBaseType(char*& pos, int offset = 0);
+    static r_Base_Type *getBaseType(char *&pos, int offset = 0);
     ///
-    static r_Primitive_Type* getPrimitiveType(char*& pos);
+    static r_Primitive_Type *getPrimitiveType(char *&pos);
     ///
-    static r_Structure_Type* getStructureType(char*& pos, int offset = 0);
+    static r_Structure_Type *getStructureType(char *&pos, int offset = 0);
     ///
-    static r_Sinterval_Type* getSintervalType(char*& pos);
+    static r_Sinterval_Type *getSintervalType(char *&pos);
     ///
-    static r_Minterval_Type* getMintervalType(char*& pos);
+    static r_Minterval_Type *getMintervalType(char *&pos);
     ///
-    static r_Point_Type* getPointType(char*& pos);
+    static r_Point_Type *getPointType(char *&pos);
     ///
-    static r_Oid_Type* getOidType(char*& pos);
+    static r_Oid_Type *getOidType(char *&pos);
 
     ///
     //@}
@@ -164,6 +164,6 @@ private:
 
 };
 
-extern std::ostream& operator<<(std::ostream& s, r_Type::r_Type_Id t);
+extern std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t);
 
 #endif

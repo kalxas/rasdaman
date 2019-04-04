@@ -63,7 +63,7 @@ Configuration::~Configuration()
 
 }
 
-bool Configuration::parseCommandLineParameters(int argc, char** argv)
+bool Configuration::parseCommandLineParameters(int argc, char **argv)
 {
     bool result = true;
 
@@ -71,7 +71,7 @@ bool Configuration::parseCommandLineParameters(int argc, char** argv)
     {
         this->cmlInter.processCommandLine(argc, argv);
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         std::cerr << "Error parsing command line: " << err.what();
         this->printHelp();
@@ -96,7 +96,7 @@ bool Configuration::parseCommandLineParameters(int argc, char** argv)
         {
             this->port = cmlPort.getValueAsLong();
         }
-        catch (CmlException& err)
+        catch (CmlException &err)
         {
             std::cerr << "Error converting port parameter " << cmlPort.getLongName() << " to integer: " << err.what() << std::endl;
             result = false;
@@ -109,7 +109,7 @@ bool Configuration::parseCommandLineParameters(int argc, char** argv)
         {
             this->logFile = cmlLog.getValueAsString();
         }
-        catch (CmlException& err)
+        catch (CmlException &err)
         {
             std::cerr << "Error converting logconf parameter " << cmlLog.getValueAsString() << " to string: " << err.what() << std::endl;
             result = false;

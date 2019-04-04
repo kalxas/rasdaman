@@ -48,19 +48,19 @@ class QtStringData : public QtData
 {
 public:
     /// constructor getting the string
-    QtStringData(const std::string& str);
+    QtStringData(const std::string &str);
 
     //@Man: Read/Write methods:
     //@{
     ///
 
     ///
-    inline const std::string& getStringData() const;
+    inline const std::string &getStringData() const;
     ///
-    inline void          setStringData(const std::string& str);
+    inline void          setStringData(const std::string &str);
 
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -72,13 +72,13 @@ public:
     virtual QtDataType getDataType() const;
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 private:
     /// prevents from using the default constructor

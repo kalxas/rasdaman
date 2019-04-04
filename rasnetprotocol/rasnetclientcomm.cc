@@ -228,7 +228,7 @@ int RasnetClientComm::disconnectClient()
     return retval;
 }
 
-int RasnetClientComm::openDB(const char* database)
+int RasnetClientComm::openDB(const char *database)
 {
     int retval = 0; // ok
 
@@ -337,12 +337,12 @@ int RasnetClientComm::closeDB()
     return retval;
 }
 
-int RasnetClientComm::createDB(__attribute__ ((unused)) const char* name)
+int RasnetClientComm::createDB(__attribute__((unused)) const char *name)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-int RasnetClientComm::destroyDB(__attribute__ ((unused)) const char* name)
+int RasnetClientComm::destroyDB(__attribute__((unused)) const char *name)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
@@ -357,7 +357,7 @@ int RasnetClientComm::openTA(unsigned short readOnly)
     beginTransactionReq.set_rw(readOnly == 0);
     beginTransactionReq.set_client_id(this->clientId);
 
-    LDEBUG << "Begin rasserver transaction (ro: " << readOnly << "), client with ID: " 
+    LDEBUG << "Begin rasserver transaction (ro: " << readOnly << "), client with ID: "
            << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext context;
     grpc::Status beginTransationStatus = this->getRasServerService()->BeginTransaction(&context, beginTransactionReq, &beginTransactionRepl);
@@ -378,7 +378,7 @@ int RasnetClientComm::commitTA()
 
     commitTransactionReq.set_client_id(this->clientId);
 
-    LDEBUG << "Commit rasserver transaction, client with ID: " 
+    LDEBUG << "Commit rasserver transaction, client with ID: "
            << clientId << ", UUID: " << clientUUID;
     grpc::ClientContext context;
     grpc::Status commitStatus = this->getRasServerService()->CommitTransaction(&context, commitTransactionReq, &commitTransactionRepl);
@@ -402,7 +402,7 @@ int RasnetClientComm::abortTA()
 
         abortTransactionReq.set_client_id(this->clientId);
 
-        LDEBUG << "Abort rasserver transaction, client with ID: " 
+        LDEBUG << "Abort rasserver transaction, client with ID: "
                << clientId << ", UUID: " << clientUUID;
         grpc::ClientContext context;
         grpc::Status abortTransactionStatus = this->getRasServerService()->AbortTransaction(&context, abortTransactionReq, &AbortTransactionRepl);
@@ -421,13 +421,13 @@ int RasnetClientComm::abortTA()
     return retval;
 }
 
-void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
+void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar)
 {
     checkForRwTransaction();
 
     r_Minterval     spatdom;
     r_Bytes         marBytes;
-    RPCMarray*      rpcMarray;
+    RPCMarray      *rpcMarray;
     r_Bytes         tileSize = 0;
 
     // get the spatial domain of the r_GMarray
@@ -436,11 +436,11 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
     // determine the amount of data to be transferred
     marBytes = mar->get_array_size();
 
-    const r_Base_Type* baseType = mar->get_base_type_schema();
+    const r_Base_Type *baseType = mar->get_base_type_schema();
 
     // if the MDD is too large for being transfered as one block, it has to be
     // divided in tiles
-    const r_Tiling* til = mar->get_storage_layout()->get_tiling();
+    const r_Tiling *til = mar->get_storage_layout()->get_tiling();
     r_Tiling_Scheme scheme = til->get_tiling_scheme();
     if (scheme == r_NoTiling)
     {
@@ -449,7 +449,7 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
     else
         //allowed because the only subclass of tiling without size is no tiling
     {
-        tileSize = ((const r_Size_Tiling*)til)->get_tile_size();
+        tileSize = ((const r_Size_Tiling *)til)->get_tile_size();
     }
 
 
@@ -474,20 +474,20 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
         break;
     }
 
-    r_Set<r_GMarray*>* bagOfTiles;
+    r_Set<r_GMarray *> *bagOfTiles;
 
     bagOfTiles = mar->get_storage_layout()->decomposeMDD(mar);
 
     LTRACE << "decomposing into " << bagOfTiles->cardinality() << " tiles";
 
-    r_Iterator<r_GMarray*> iter = bagOfTiles->create_iterator();
-    r_GMarray* origTile;
+    r_Iterator<r_GMarray *> iter = bagOfTiles->create_iterator();
+    r_GMarray *origTile;
 
     for (iter.reset(); iter.not_done(); iter.advance())
     {
         origTile = *iter;
 
-        LTRACE << "inserting Tile with domain " << origTile->spatial_domain() 
+        LTRACE << "inserting Tile with domain " << origTile->spatial_domain()
                << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes";
 
         getMarRpcRepresentation(origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType);
@@ -513,13 +513,13 @@ void RasnetClientComm::insertMDD(const char* collName, r_GMarray* mar)
     delete bagOfTiles;
 }
 
-r_Ref_Any RasnetClientComm::getMDDByOId(__attribute__ ((unused)) const r_OId& oid)
+r_Ref_Any RasnetClientComm::getMDDByOId(__attribute__((unused)) const r_OId &oid)
 {
     LDEBUG << "Internal error: RasnetClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any().";
     return r_Ref_Any();
 }
 
-void RasnetClientComm::insertColl(const char* collName, const char* typeName, const r_OId& oid)
+void RasnetClientComm::insertColl(const char *collName, const char *typeName, const r_OId &oid)
 {
     checkForRwTransaction();
 
@@ -543,7 +543,7 @@ void RasnetClientComm::insertColl(const char* collName, const char* typeName, co
     handleStatusCode(status, "insertColl");
 }
 
-void RasnetClientComm::deleteCollByName(const char* collName)
+void RasnetClientComm::deleteCollByName(const char *collName)
 {
     checkForRwTransaction();
 
@@ -563,7 +563,7 @@ void RasnetClientComm::deleteCollByName(const char* collName)
     handleStatusCode(deleteCollectionByNameRepl.status(), "deleteCollByName");
 }
 
-void RasnetClientComm::deleteObjByOId(const r_OId& oid)
+void RasnetClientComm::deleteObjByOId(const r_OId &oid)
 {
     checkForRwTransaction();
 
@@ -583,7 +583,7 @@ void RasnetClientComm::deleteObjByOId(const r_OId& oid)
     handleStatusCode(deleteCollectionByOidRepl.status(), "deleteCollByName");
 }
 
-void RasnetClientComm::removeObjFromColl(const char* name, const r_OId& oid)
+void RasnetClientComm::removeObjFromColl(const char *name, const r_OId &oid)
 {
     checkForRwTransaction();
 
@@ -605,34 +605,34 @@ void RasnetClientComm::removeObjFromColl(const char* name, const r_OId& oid)
     handleStatusCode(status, "removeObjFromColl");
 }
 
-r_Ref_Any RasnetClientComm::getCollByName(const char* name)
+r_Ref_Any RasnetClientComm::getCollByName(const char *name)
 {
     r_Ref_Any result = executeGetCollByNameOrOId(name, r_OId());
     return result;
 }
 
-r_Ref_Any RasnetClientComm::getCollByOId(const r_OId& oid)
+r_Ref_Any RasnetClientComm::getCollByOId(const r_OId &oid)
 {
     r_Ref_Any result = executeGetCollByNameOrOId(NULL, oid);
 
     return result;
 }
 
-r_Ref_Any RasnetClientComm::getCollOIdsByName(const char* name)
+r_Ref_Any RasnetClientComm::getCollOIdsByName(const char *name)
 {
     r_Ref_Any result = executeGetCollOIdsByNameOrOId(name, r_OId());
 
     return result;
 }
 
-r_Ref_Any RasnetClientComm::getCollOIdsByOId(const r_OId& oid)
+r_Ref_Any RasnetClientComm::getCollOIdsByOId(const r_OId &oid)
 {
     r_Ref_Any result = executeGetCollOIdsByNameOrOId(NULL, oid);
 
     return result;
 }
 
-void RasnetClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result)
+void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result)
 {
     sendMDDConstants(query);
     int status = executeExecuteQuery(query.get_query(), result);
@@ -654,7 +654,7 @@ void RasnetClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& 
 
 }
 
-void RasnetClientComm::executeQuery(const r_OQL_Query& query)
+void RasnetClientComm::executeQuery(const r_OQL_Query &query)
 {
     checkForRwTransaction();
 
@@ -663,7 +663,7 @@ void RasnetClientComm::executeQuery(const r_OQL_Query& query)
     executeExecuteUpdateQuery(query.get_query());
 }
 
-void RasnetClientComm::executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, __attribute__ ((unused)) int dummy)
+void RasnetClientComm::executeQuery(const r_OQL_Query &query, r_Set<r_Ref_Any> &result, __attribute__((unused)) int dummy)
 {
     checkForRwTransaction();
 
@@ -709,7 +709,7 @@ r_OId RasnetClientComm::getNewOId(unsigned short objType)
     return oid;
 }
 
-unsigned short RasnetClientComm::getObjectType(const r_OId& oid)
+unsigned short RasnetClientComm::getObjectType(const r_OId &oid)
 {
     GetObjectTypeReq getObjectTypeReq;
     GetObjectTypeRepl getObjectTypeRepl;
@@ -731,7 +731,7 @@ unsigned short RasnetClientComm::getObjectType(const r_OId& oid)
     return objectType;
 }
 
-char* RasnetClientComm::getTypeStructure(const char* typeName, r_Type_Type typeType)
+char *RasnetClientComm::getTypeStructure(const char *typeName, r_Type_Type typeType)
 {
     GetTypeStructureReq getTypeStructureReq;
     GetTypeStructureRepl getTypeStructureRepl;
@@ -753,12 +753,12 @@ char* RasnetClientComm::getTypeStructure(const char* typeName, r_Type_Type typeT
     handleStatusCode(status, "getTypeStructure");
 
     const auto &src = getTypeStructureRepl.type_structure();
-    char* typeStructure = new char[src.size() + 1];
+    char *typeStructure = new char[src.size() + 1];
     strcpy(typeStructure, src.c_str());
     return typeStructure;
 }
 
-int RasnetClientComm::setTransferFormat(r_Data_Format format, const char* formatParams)
+int RasnetClientComm::setTransferFormat(r_Data_Format format, const char *formatParams)
 {
     storageFormat = format;
 
@@ -769,7 +769,7 @@ int RasnetClientComm::setTransferFormat(r_Data_Format format, const char* format
     }
     if (formatParams != NULL)
     {
-        storageFormatParams = (char*)mymalloc(strlen(formatParams) + 1);
+        storageFormatParams = (char *)mymalloc(strlen(formatParams) + 1);
         strcpy(storageFormatParams, formatParams);
         // extract ``compserver'' if present
         clientParams->process(storageFormatParams);
@@ -780,7 +780,7 @@ int RasnetClientComm::setTransferFormat(r_Data_Format format, const char* format
     return result;
 }
 
-int RasnetClientComm::setStorageFormat(r_Data_Format format, const char* formatParams)
+int RasnetClientComm::setStorageFormat(r_Data_Format format, const char *formatParams)
 {
     transferFormat = format;
 
@@ -791,7 +791,7 @@ int RasnetClientComm::setStorageFormat(r_Data_Format format, const char* formatP
     }
     if (formatParams != NULL)
     {
-        transferFormatParams = (char*)mymalloc(strlen(formatParams) + 1);
+        transferFormatParams = (char *)mymalloc(strlen(formatParams) + 1);
         strcpy(transferFormatParams, formatParams);
         // extract ``exactformat'' if present
         clientParams->process(transferFormatParams);
@@ -816,7 +816,7 @@ void RasnetClientComm::initRasserverService()
             this->rasserverHealthService.reset(new common::HealthService::Stub(channel));
             this->initializedRasServerService = true;
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << ex.what();
             handleError(ex.what());
@@ -876,7 +876,7 @@ void RasnetClientComm::initRasmgrService()
 
             this->initializedRasMgrService = true;
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << ex.what();
             handleError(ex.what());
@@ -896,7 +896,7 @@ void RasnetClientComm::closeRasmgrService()
 }
 
 
-int RasnetClientComm::executeStartInsertPersMDD(const char* collName, r_GMarray* mar)
+int RasnetClientComm::executeStartInsertPersMDD(const char *collName, r_GMarray *mar)
 {
     StartInsertMDDReq startInsertMDDReq;
     StartInsertMDDRepl startInsertMDDRepl;
@@ -918,7 +918,7 @@ int RasnetClientComm::executeStartInsertPersMDD(const char* collName, r_GMarray*
     return startInsertMDDRepl.status();
 }
 
-int RasnetClientComm::executeInsertTile(bool persistent, RPCMarray* tile)
+int RasnetClientComm::executeInsertTile(bool persistent, RPCMarray *tile)
 {
     InsertTileReq insertTileReq;
     InsertTileRepl insertTileRepl;
@@ -960,7 +960,7 @@ void RasnetClientComm::executeEndInsertMDD(bool persistent)
     handleStatusCode(endInsertMDDRepl.status(), "executeEndInsertMDD");
 }
 
-void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int isQuery)
+void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any> &mddColl, unsigned int isQuery)
 {
     unsigned short tileStatus = 0;
     unsigned short mddStatus = 0;
@@ -970,7 +970,7 @@ void RasnetClientComm::getMDDCollection(r_Set<r_Ref_Any>& mddColl, unsigned int 
         r_Ref<r_GMarray> mddResult;
 
         // Get spatial domain of next MDD
-        GetMDDRes* thisResult = executeGetNextMDD();
+        GetMDDRes *thisResult = executeGetNextMDD();
 
         mddStatus = thisResult->status;
 
@@ -1019,7 +1019,7 @@ int RasnetClientComm::executeEndTransfer()
     return endTransferRepl.status();
 }
 
-GetMDDRes* RasnetClientComm::executeGetNextMDD()
+GetMDDRes *RasnetClientComm::executeGetNextMDD()
 {
     GetNextMDDReq getNextMDDReq;
     GetNextMDDRepl getNextMDDRepl;
@@ -1033,7 +1033,7 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
         handleError(getNextMDD.error_message());
     }
 
-    GetMDDRes* result = new GetMDDRes();
+    GetMDDRes *result = new GetMDDRes();
     result->status = getNextMDDRepl.status();
     result->domain = strdup(getNextMDDRepl.domain().c_str());
     result->typeName = strdup(getNextMDDRepl.type_name().c_str());
@@ -1044,22 +1044,22 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
     return result;
 }
 
-unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* thisResult, unsigned int isQuery)
+unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *thisResult, unsigned int isQuery)
 {
     this->updateTransaction();
 
     //  create r_Minterval and oid
     r_Minterval mddDomain(thisResult->domain);
     r_OId       rOId(thisResult->oid);
-    r_GMarray*  marray;
+    r_GMarray  *marray;
 
     if (isQuery)
     {
-        marray = new(database, r_Object::transient, rOId) r_GMarray(transaction);
+        marray = new (database, r_Object::transient, rOId) r_GMarray(transaction);
     }
     else
     {
-        marray = new(database, r_Object::read     , rOId) r_GMarray(transaction);
+        marray = new (database, r_Object::read, rOId) r_GMarray(transaction);
     }
 
     marray->set_spatial_domain(mddDomain);
@@ -1072,15 +1072,15 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
 
     r_Data_Format decompFormat;
 
-    const r_Base_Type* baseType = marray->get_base_type_schema();
+    const r_Base_Type *baseType = marray->get_base_type_schema();
     unsigned long marrayOffset = 0;
 
     // Variables needed for tile transfer
-    GetTileRes* tileRes = 0;
+    GetTileRes *tileRes = 0;
     unsigned short  mddDim = mddDomain.dimension();  // we assume that each tile has the same dimensionality as the MDD
     r_Minterval     tileDomain;
-    r_GMarray*      tile;  // for temporary tile
-    char*           memCopy;
+    r_GMarray      *tile;  // for temporary tile
+    char           *memCopy;
     unsigned long   memCopyLen;
     int             tileCntr = 0;
     unsigned short  tileStatus   = 0;
@@ -1163,7 +1163,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
                 break;
             }
 
-            char* marrayData = NULL;
+            char *marrayData = NULL;
             // Now the tile is transferred completely, insert it into current MDD
             if (tileStatus < 2 && tileCntr == 1 && (tile->spatial_domain() == marray->spatial_domain()))
             {
@@ -1195,8 +1195,8 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
 
 
                 // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
-                char*         mddBlockPtr;
-                char*         tileBlockPtr = tile->get_array();
+                char         *mddBlockPtr;
+                char         *tileBlockPtr = tile->get_array();
                 unsigned long blockCells   = static_cast<unsigned long>(tileDomain[tileDomain.dimension() - 1].high() - tileDomain[tileDomain.dimension() - 1].low() + 1);
                 unsigned long blockSize    = blockCells * marray->get_type_length();
                 unsigned long blockNo      = tileDomain.cell_count() / blockCells;
@@ -1219,7 +1219,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
             //
             // handle encoded data
             //
-            char* marrayData = NULL;
+            char *marrayData = NULL;
             if (tileCntr == 1)
             {
                 // allocate memory for the MDD
@@ -1235,8 +1235,8 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
             }
 
             unsigned long blockSize = tileRes->marray->data.confarray_len;
-            char* mddBlockPtr = marrayData + marrayOffset;
-            char* tileBlockPtr = tileRes->marray->data.confarray_val;
+            char *mddBlockPtr = marrayData + marrayOffset;
+            char *tileBlockPtr = tileRes->marray->data.confarray_val;
             memcpy(mddBlockPtr, tileBlockPtr, blockSize);
             marrayOffset += blockSize;
 
@@ -1255,7 +1255,7 @@ unsigned short RasnetClientComm::getMDDCore(r_Ref<r_GMarray>& mdd, GetMDDRes* th
     return tileStatus;
 }
 
-GetTileRes* RasnetClientComm::executeGetNextTile()
+GetTileRes *RasnetClientComm::executeGetNextTile()
 {
     GetNextTileReq getNextTileReq;
     GetNextTileRepl getNextTileRepl;
@@ -1269,7 +1269,7 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
         handleError(getNextTileStatus.error_message());
     }
 
-    GetTileRes* result = new GetTileRes();
+    GetTileRes *result = new GetTileRes();
     result->marray = new RPCMarray();
 
     result->status = getNextTileRepl.status();
@@ -1280,26 +1280,26 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
 
     int length = getNextTileRepl.data_length();
     result->marray->data.confarray_len = static_cast<u_int>(length);
-    result->marray->data.confarray_val = (char*) mymalloc(static_cast<size_t>(length));
+    result->marray->data.confarray_val = (char *) mymalloc(static_cast<size_t>(length));
     memcpy(result->marray->data.confarray_val, getNextTileRepl.data().c_str(), static_cast<size_t>(length));
 
     return result;
 }
 
-void RasnetClientComm::getMarRpcRepresentation(const r_GMarray* mar, RPCMarray*& rpcMarray, r_Data_Format initStorageFormat, __attribute__ ((unused)) const r_Base_Type* baseType)
+void RasnetClientComm::getMarRpcRepresentation(const r_GMarray *mar, RPCMarray *&rpcMarray, r_Data_Format initStorageFormat, __attribute__((unused)) const r_Base_Type *baseType)
 {
     // allocate memory for the RPCMarray data structure and assign its fields
-    rpcMarray                 = (RPCMarray*)mymalloc(sizeof(RPCMarray));
+    rpcMarray                 = (RPCMarray *)mymalloc(sizeof(RPCMarray));
     rpcMarray->domain         = mar->spatial_domain().get_string_representation();
     rpcMarray->cellTypeLength = mar->get_type_length();
     rpcMarray->currentFormat = initStorageFormat;
     rpcMarray->data.confarray_len = mar->get_array_size();
-    rpcMarray->data.confarray_val = const_cast<char*>(mar->get_array());
+    rpcMarray->data.confarray_val = const_cast<char *>(mar->get_array());
     rpcMarray->storageFormat = initStorageFormat;
 }
 
 
-void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray* rpcMarray)
+void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray *mar, RPCMarray *rpcMarray)
 {
     if (rpcMarray->data.confarray_val != mar->get_array())
     {
@@ -1310,13 +1310,13 @@ void RasnetClientComm::freeMarRpcRepresentation(const r_GMarray* mar, RPCMarray*
     free(rpcMarray);
 }
 
-int RasnetClientComm::concatArrayData(const char* source, unsigned long srcSize, char*& dest, unsigned long& destSize, unsigned long& blockOffset)
+int RasnetClientComm::concatArrayData(const char *source, unsigned long srcSize, char *&dest, unsigned long &destSize, unsigned long &blockOffset)
 {
     if (blockOffset + srcSize > destSize)
     {
         // need to extend dest
         unsigned long newSize = blockOffset + srcSize;
-        char* newArray;
+        char *newArray;
 
         // allocate a little extra if we have to extend
         newSize = newSize + newSize / 16;
@@ -1340,7 +1340,7 @@ int RasnetClientComm::concatArrayData(const char* source, unsigned long srcSize,
     return 0;
 }
 
-void RasnetClientComm::freeGetTileRes(GetTileRes* ptr)
+void RasnetClientComm::freeGetTileRes(GetTileRes *ptr)
 {
     if (ptr->marray->domain)
     {
@@ -1354,7 +1354,7 @@ void RasnetClientComm::freeGetTileRes(GetTileRes* ptr)
     delete ptr;
 }
 
-r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char* collName, const r_OId& oid)
+r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char *collName, const r_OId &oid)
 {
     GetCollectionByNameOrOidReq getCollectionByNameOrOidReq;
     GetCollectionByNameOrOidRepl getCollectionByNameOrOidRepl;
@@ -1386,7 +1386,7 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char* collName, cons
     this->updateTransaction();
 
     r_OId rOId(getCollectionByNameOrOidRepl.oid().c_str());
-    r_Set<r_Ref_Any>* set  = new(database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
+    r_Set<r_Ref_Any> *set  = new (database, r_Object::read, rOId)  r_Set<r_Ref_Any>;
 
     set->set_type_by_name(getCollectionByNameOrOidRepl.type_name().c_str());
     set->set_type_structure(getCollectionByNameOrOidRepl.type_structure().c_str());
@@ -1402,7 +1402,7 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char* collName, cons
     return result;
 }
 
-r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char* collName, const r_OId& oid)
+r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char *collName, const r_OId &oid)
 {
     GetCollOidsByNameOrOidReq getCollOidsByNameOrOidReq;
     GetCollOidsByNameOrOidRepl getCollOidsByNameOrOidRepl;
@@ -1434,15 +1434,15 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char* collName, 
         handleStatusCode(status, "executeGetCollOIdsByNameOrOId");
     }
 
-    const char* typeName = getCollOidsByNameOrOidRepl.type_name().c_str();
-    const char* typeStructure = getCollOidsByNameOrOidRepl.type_structure().c_str();
-    const char* oidString = getCollOidsByNameOrOidRepl.oids_string().c_str();
-    const char* collectionName = getCollOidsByNameOrOidRepl.collection_name().c_str();
+    const char *typeName = getCollOidsByNameOrOidRepl.type_name().c_str();
+    const char *typeStructure = getCollOidsByNameOrOidRepl.type_structure().c_str();
+    const char *oidString = getCollOidsByNameOrOidRepl.oids_string().c_str();
+    const char *collectionName = getCollOidsByNameOrOidRepl.collection_name().c_str();
 
     this->updateTransaction();
 
     r_OId rOId(oidString);
-    r_Set<r_Ref<r_GMarray>>* set = new(database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
+    r_Set<r_Ref<r_GMarray>> *set = new (database, r_Object::read, rOId)  r_Set<r_Ref<r_GMarray>>;
 
     set->set_type_by_name(typeName);
     set->set_type_structure(typeStructure);
@@ -1458,13 +1458,13 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char* collName, 
     return result;
 }
 
-void RasnetClientComm::sendMDDConstants(const r_OQL_Query& query)
+void RasnetClientComm::sendMDDConstants(const r_OQL_Query &query)
 {
     unsigned short status;
 
     if (query.get_constants())
     {
-        r_Set<r_GMarray*>* mddConstants = const_cast<r_Set<r_GMarray*>*>(query.get_constants());
+        r_Set<r_GMarray *> *mddConstants = const_cast<r_Set<r_GMarray *>*>(query.get_constants());
 
         // in fact executeInitUpdate prepares server structures for MDD transfer
         if (executeInitUpdate() != 0)
@@ -1472,13 +1472,13 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query& query)
             throw r_Error(r_Error::r_Error_TransferFailed);
         }
 
-        r_Iterator<r_GMarray*> iter = mddConstants->create_iterator();
+        r_Iterator<r_GMarray *> iter = mddConstants->create_iterator();
 
         for (iter.reset(); iter.not_done(); iter++)
         {
-            r_GMarray* mdd = *iter;
+            r_GMarray *mdd = *iter;
 
-            const r_Base_Type* baseType = mdd->get_base_type_schema();
+            const r_Base_Type *baseType = mdd->get_base_type_schema();
 
             if (mdd)
             {
@@ -1499,7 +1499,7 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query& query)
                 }
 
 
-                r_Set<r_GMarray*>* bagOfTiles = NULL;
+                r_Set<r_GMarray *> *bagOfTiles = NULL;
 
                 if (mdd->get_array())
                 {
@@ -1510,13 +1510,13 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query& query)
                     bagOfTiles = mdd->get_tiled_array();
                 }
 
-                r_Iterator<r_GMarray*> iter2 = bagOfTiles->create_iterator();
+                r_Iterator<r_GMarray *> iter2 = bagOfTiles->create_iterator();
 
                 for (iter2.reset(); iter2.not_done(); iter2.advance())
                 {
-                    RPCMarray* rpcMarray;
+                    RPCMarray *rpcMarray;
 
-                    r_GMarray* origTile = *iter2;
+                    r_GMarray *origTile = *iter2;
 
                     getMarRpcRepresentation(origTile, rpcMarray, mdd->get_storage_layout()->get_storage_format(), baseType);
 
@@ -1545,7 +1545,7 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query& query)
     }
 }
 
-int RasnetClientComm::executeStartInsertTransMDD(r_GMarray* mdd)
+int RasnetClientComm::executeStartInsertTransMDD(r_GMarray *mdd)
 {
     StartInsertTransMDDReq startInsertTransMDDReq;
     StartInsertTransMDDRepl startInsertTransMDDRepl;
@@ -1583,7 +1583,7 @@ int RasnetClientComm::executeInitUpdate()
 }
 
 
-int RasnetClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& result)
+int RasnetClientComm::executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &result)
 {
     ExecuteQueryReq executeQueryReq;
     ExecuteQueryRepl executeQueryRepl;
@@ -1602,9 +1602,9 @@ int RasnetClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& r
     unsigned int errNo = static_cast<unsigned int>(executeQueryRepl.err_no());
     unsigned int lineNo = static_cast<unsigned int>(executeQueryRepl.line_no());
     unsigned int colNo = static_cast<unsigned int>(executeQueryRepl.col_no());
-    const char* token = executeQueryRepl.token().c_str();
-    const char* typeName = executeQueryRepl.type_name().c_str();
-    const char* typeStructure = executeQueryRepl.type_structure().c_str();
+    const char *token = executeQueryRepl.token().c_str();
+    const char *typeName = executeQueryRepl.type_name().c_str();
+    const char *typeStructure = executeQueryRepl.type_structure().c_str();
 
     if (status == 0 || status == 1)
     {
@@ -1621,7 +1621,7 @@ int RasnetClientComm::executeExecuteQuery(const char* query, r_Set<r_Ref_Any>& r
     return status;
 }
 
-GetElementRes* RasnetClientComm::executeGetNextElement()
+GetElementRes *RasnetClientComm::executeGetNextElement()
 {
     GetNextElementReq getNextElementReq;
     GetNextElementRepl getNextElementRepl;
@@ -1635,7 +1635,7 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
         handleError(getNextElementStatus.error_message());
     }
 
-    GetElementRes* result = new GetElementRes();
+    GetElementRes *result = new GetElementRes();
 
     result->data.confarray_len = static_cast<u_int>(getNextElementRepl.data_length());
     result->data.confarray_val = new char[getNextElementRepl.data_length()];
@@ -1645,7 +1645,7 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
     return result;
 }
 
-void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
+void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 {
     unsigned short rpcStatus = 0;
     this->updateTransaction();
@@ -1654,7 +1654,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
 
     while (rpcStatus == 0)   // repeat until all elements are transferred
     {
-        GetElementRes* thisResult = executeGetNextElement();
+        GetElementRes *thisResult = executeGetNextElement();
 
         rpcStatus = thisResult->status;
 
@@ -1664,7 +1664,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         }
         // create new collection element, use type of collection resultColl
         r_Ref_Any     element;
-        const r_Type* elementType = resultColl.get_element_type_schema();
+        const r_Type *elementType = resultColl.get_element_type_schema();
 
         switch (elementType->type_id())
         {
@@ -1677,69 +1677,69 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
         case r_Type::ULONG:
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
-            element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
+            element = new r_Primitive(thisResult->data.confarray_val, static_cast<r_Primitive_Type *>(const_cast<r_Type *>(elementType)));
+            transaction->add_object_list(r_Transaction::SCALAR, (void *) element);
             break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type*>(const_cast<r_Type*>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void*)element);
+            element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type *>(elementType)));
+            transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
             break;
 
         case r_Type::STRUCTURETYPE:
-            element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)));
-            transaction->add_object_list(r_Transaction::SCALAR, (void*) element);
+            element = new r_Structure(thisResult->data.confarray_val, static_cast<r_Structure_Type *>(const_cast<r_Type *>(elementType)));
+            transaction->add_object_list(r_Transaction::SCALAR, (void *) element);
             break;
 
         case r_Type::POINTTYPE:
         {
-            char* stringRep = new char[thisResult->data.confarray_len + 1];
+            char *stringRep = new char[thisResult->data.confarray_len + 1];
             strncpy(stringRep, thisResult->data.confarray_val, thisResult->data.confarray_len);
             stringRep[thisResult->data.confarray_len] = '\0';
 
-            r_Point* typedElement = new r_Point(stringRep);
+            r_Point *typedElement = new r_Point(stringRep);
             element               = typedElement;
-            transaction->add_object_list(r_Transaction::POINT, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::POINT, (void *) typedElement);
             delete [] stringRep;
         }
         break;
 
         case r_Type::SINTERVALTYPE:
         {
-            char* stringRep = new char[thisResult->data.confarray_len + 1];
+            char *stringRep = new char[thisResult->data.confarray_len + 1];
             strncpy(stringRep, thisResult->data.confarray_val, thisResult->data.confarray_len);
             stringRep[thisResult->data.confarray_len] = '\0';
 
-            r_Sinterval* typedElement = new r_Sinterval(stringRep);
+            r_Sinterval *typedElement = new r_Sinterval(stringRep);
             element                   = typedElement;
-            transaction->add_object_list(r_Transaction::SINTERVAL, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::SINTERVAL, (void *) typedElement);
             delete [] stringRep;
         }
         break;
 
         case r_Type::MINTERVALTYPE:
         {
-            char* stringRep = new char[thisResult->data.confarray_len + 1];
+            char *stringRep = new char[thisResult->data.confarray_len + 1];
             strncpy(stringRep, thisResult->data.confarray_val, thisResult->data.confarray_len);
             stringRep[thisResult->data.confarray_len] = '\0';
 
-            r_Minterval* typedElement = new r_Minterval(stringRep);
+            r_Minterval *typedElement = new r_Minterval(stringRep);
             element                   = typedElement;
-            transaction->add_object_list(r_Transaction::MINTERVAL, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::MINTERVAL, (void *) typedElement);
             delete [] stringRep;
         }
         break;
 
         case r_Type::OIDTYPE:
         {
-            char* stringRep = new char[thisResult->data.confarray_len + 1];
+            char *stringRep = new char[thisResult->data.confarray_len + 1];
             strncpy(stringRep, thisResult->data.confarray_val, thisResult->data.confarray_len);
             stringRep[thisResult->data.confarray_len] = '\0';
 
-            r_OId* typedElement = new r_OId(stringRep);
+            r_OId *typedElement = new r_OId(stringRep);
             element             = typedElement;
-            transaction->add_object_list(r_Transaction::OID, (void*) typedElement);
+            transaction->add_object_list(r_Transaction::OID, (void *) typedElement);
             delete [] stringRep;
         }
         break;
@@ -1759,7 +1759,7 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any>& resultColl)
     executeEndTransfer();
 }
 
-int RasnetClientComm::executeExecuteUpdateQuery(const char* query)
+int RasnetClientComm::executeExecuteUpdateQuery(const char *query)
 {
     ExecuteUpdateQueryReq executeUpdateQueryReq;
     ExecuteUpdateQueryRepl executeUpdateQueryRepl;
@@ -1799,7 +1799,7 @@ int RasnetClientComm::executeExecuteUpdateQuery(const char* query)
     return status;
 }
 
-int  RasnetClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_Any>& result)
+int  RasnetClientComm::executeExecuteUpdateQuery(const char *query, r_Set<r_Ref_Any> &result)
 {
     ExecuteInsertQueryReq executeInsertQueryReq;
     ExecuteInsertQueryRepl executeInsertQueryRepl;
@@ -1819,8 +1819,8 @@ int  RasnetClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_
     unsigned int lineNo = static_cast<unsigned int>(executeInsertQueryRepl.lineno());
     unsigned int colNo = static_cast<unsigned int>(executeInsertQueryRepl.colno());
     string token = executeInsertQueryRepl.token();
-    const char* typeName = executeInsertQueryRepl.type_name().c_str();
-    const char* typeStructure = executeInsertQueryRepl.type_structure().c_str();
+    const char *typeName = executeInsertQueryRepl.type_name().c_str();
+    const char *typeStructure = executeInsertQueryRepl.type_structure().c_str();
 
     if (status == 0 || status == 1 || status == 2)
     {
@@ -1838,7 +1838,7 @@ int  RasnetClientComm::executeExecuteUpdateQuery(const char* query, r_Set<r_Ref_
     return status;
 }
 
-int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format format, const char* formatParams)
+int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format format, const char *formatParams)
 {
     SetFormatReq setFormatReq;
     SetFormatRepl setFormatRepl;
@@ -1861,7 +1861,7 @@ int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format forma
 void RasnetClientComm::checkForRwTransaction()
 {
     this->updateTransaction();
-    r_Transaction* trans = transaction;
+    r_Transaction *trans = transaction;
     if (trans == 0 || trans->get_mode() == r_Transaction::read_only)
     {
         LDEBUG << "RasnetClientComm::checkForRwTransaction(): throwing exception from failed TA rw check.";
@@ -1869,7 +1869,7 @@ void RasnetClientComm::checkForRwTransaction()
     }
 }
 
-void RasnetClientComm::handleError(const string& error)
+void RasnetClientComm::handleError(const string &error)
 {
     ErrorMessage message;
 
@@ -1886,9 +1886,13 @@ void RasnetClientComm::handleError(const string& error)
             LDEBUG << "Throwing error received from the server: " << msg;
             const auto &what = message.error_text();
             if (!what.empty() && message.kind() == 1 && message.error_no() == 0)
+            {
                 throw r_Error(what.c_str());
+            }
             else
+            {
                 throw r_Error(static_cast<r_Error::kind>(message.kind()), message.error_no());
+            }
         }
         else if (message.type() == ErrorMessage::STL)
         {
@@ -1919,7 +1923,7 @@ void RasnetClientComm::handleConnectionFailure()
     throw r_EGeneral("The client failed to contact the server.");
 }
 
-void RasnetClientComm::handleStatusCode(int status, const string& method)
+void RasnetClientComm::handleStatusCode(int status, const string &method)
 {
     switch (status)
     {
@@ -1964,13 +1968,13 @@ void RasnetClientComm::sendAliveSignal()
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-void RasnetClientComm::setUserIdentification(const char* userName, const char* plainTextPassword)
+void RasnetClientComm::setUserIdentification(const char *userName, const char *plainTextPassword)
 {
 
     connectClient(string(userName), common::Crypto::messageDigest(string(plainTextPassword), DEFAULT_DIGEST));
 }
 
-void RasnetClientComm::setMaxRetry(__attribute__ ((unused)) unsigned int newMaxRetry)
+void RasnetClientComm::setMaxRetry(__attribute__((unused)) unsigned int newMaxRetry)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
@@ -1980,7 +1984,7 @@ unsigned int RasnetClientComm::getMaxRetry()
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-void RasnetClientComm::setTimeoutInterval(__attribute__ ((unused)) int seconds)
+void RasnetClientComm::setTimeoutInterval(__attribute__((unused)) int seconds)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
@@ -2036,7 +2040,7 @@ void RasnetClientComm::stopRasMgrKeepAlive()
 
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << ex.what();
     }
@@ -2080,7 +2084,7 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner()
                 }
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             this->isRasmgrKeepAliveRunning = false;
 
@@ -2139,7 +2143,7 @@ void RasnetClientComm::stopRasServerKeepAlive()
 
         }
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << ex.what();
     }
@@ -2184,7 +2188,7 @@ void RasnetClientComm::clientRasServerKeepAliveRunner()
                 }
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             this->isRasserverKeepAliveRunning = false;
 

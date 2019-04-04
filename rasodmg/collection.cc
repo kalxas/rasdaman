@@ -60,11 +60,11 @@ r_Collection<T>::r_Collection()
 
 
 template<class T>
-r_Collection<T>::r_Collection(const r_Collection<T>& collection)
+r_Collection<T>::r_Collection(const r_Collection<T> &collection)
     : r_Object(collection, 2)
 {
-    CNode* nptr;
-    CNode* optr;
+    CNode *nptr;
+    CNode *optr;
 
     coll = new CNode;
     nptr = coll;
@@ -91,7 +91,7 @@ r_Collection<T>::r_Collection(const r_Collection<T>& collection)
 }
 
 template<class T>
-r_Collection<T>::r_Collection(const void* node1)
+r_Collection<T>::r_Collection(const void *node1)
 {
     // This constructor is nearly the same as a copy constrctor,
     // except that the argument is not of type r_Collection but
@@ -101,13 +101,13 @@ r_Collection<T>::r_Collection(const void* node1)
     // We assume that node1 is a correct CNode structure as
     // defined in collection.hh
     // copy it and determine cardinality
-    CNode* nptr;
-    CNode* optr;
+    CNode *nptr;
+    CNode *optr;
 
     card = 0;
     coll = new CNode;
     nptr = coll;
-    optr = static_cast<CNode*>(const_cast<void*>(node1));
+    optr = static_cast<CNode *>(const_cast<void *>(node1));
 
     while (optr->next != NULL)
     {
@@ -165,9 +165,9 @@ r_Collection<T>::r_deactivate()
 
 template<class T>
 int
-r_Collection<T>::contains_element(const T& element) const
+r_Collection<T>::contains_element(const T &element) const
 {
-    CNode* ptr = coll;
+    CNode *ptr = coll;
 
     while (*(ptr->elem) != element && ptr->next != NULL)
     {
@@ -186,7 +186,7 @@ r_Collection<T>::contains_element(const T& element) const
 
 template<class T>
 void
-r_Collection<T>::insert_element(const T& element, int no_modification)
+r_Collection<T>::insert_element(const T &element, int no_modification)
 {
     // add node to list...
     add_node(coll, element);
@@ -205,7 +205,7 @@ r_Collection<T>::insert_element(const T& element, int no_modification)
 
 template<class T>
 void
-r_Collection<T>::remove_element(const T& element)
+r_Collection<T>::remove_element(const T &element)
 {
     // remove node from list...
     if (remove_node(coll, element))
@@ -224,8 +224,8 @@ template<class T>
 void
 r_Collection<T>::remove_all()
 {
-    CNode* ptr = coll;
-    CNode* ptrLast = coll;
+    CNode *ptr = coll;
+    CNode *ptrLast = coll;
 
     if (ptr->elem != NULL)
     {
@@ -256,11 +256,11 @@ r_Collection<T>::remove_all()
 
 
 template<class T>
-const r_Collection<T>&
-r_Collection<T>::operator=(const r_Collection<T>& collection)
+const r_Collection<T> &
+r_Collection<T>::operator=(const r_Collection<T> &collection)
 {
-    CNode* nptr;
-    CNode* optr;
+    CNode *nptr;
+    CNode *optr;
 
     if (this != &collection)
     {
@@ -301,13 +301,13 @@ r_Collection<T>::operator=(const r_Collection<T>& collection)
 
 template<class T>
 void
-r_Collection<T>::set_internal_representation(const void* node1)
+r_Collection<T>::set_internal_representation(const void *node1)
 {
     // We assume that node1 is a correct CNode structure as
     // defined in collection.hh
     // copy it and determine cardinality
-    CNode* nptr;
-    CNode* optr;
+    CNode *nptr;
+    CNode *optr;
 
     if (coll)
     {
@@ -320,7 +320,7 @@ r_Collection<T>::set_internal_representation(const void* node1)
 
     card = 0;
     nptr = coll;
-    optr = static_cast<CNode*>(const_cast<void*>(node1));
+    optr = static_cast<CNode *>(const_cast<void *>(node1));
 
     while (optr->next != NULL)
     {
@@ -389,7 +389,7 @@ r_Collection<T>::insert_obj_into_db()
         for (iter.reset(); iter.not_done(); iter++)
             // Search for *1 for an explanation of the following cast.
         {
-            (static_cast<r_Object*>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
+            (static_cast<r_Object *>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
         }
     }
 }
@@ -438,7 +438,7 @@ r_Collection<T>::update_obj_in_db()
                 case r_Object::created:
                     LINFO << "state CREATED,  writing  ... ";
                     // Search for *1 for an explanation of the following cast.
-                    (static_cast<r_Object*>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
+                    (static_cast<r_Object *>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
                     LINFO << "OK";
                     break;
 
@@ -492,7 +492,7 @@ r_Collection<T>::update_obj_in_db()
                 transaction->getDatabase()->removeObjFromColl(object_name, currentOId);
                 LINFO << "OK";
             }
-            catch (r_Error& obj)
+            catch (r_Error &obj)
             {
                 LERROR << "FAILED";
                 LERROR << obj.what();
@@ -505,9 +505,9 @@ r_Collection<T>::update_obj_in_db()
 
 template<class T>
 void
-r_Collection<T>::add_node(r_Collection<T>::CNode*& root, const T& element)
+r_Collection<T>::add_node(r_Collection<T>::CNode *&root, const T &element)
 {
-    CNode* ptr = root;
+    CNode *ptr = root;
 
     if (ptr->elem == NULL)
     {
@@ -531,10 +531,10 @@ r_Collection<T>::add_node(r_Collection<T>::CNode*& root, const T& element)
 
 template<class T>
 int
-r_Collection<T>::remove_node(CNode*& root, const T& element)
+r_Collection<T>::remove_node(CNode *&root, const T &element)
 {
-    CNode* ptr     = root;
-    CNode* ptrLast = root;
+    CNode *ptr     = root;
+    CNode *ptrLast = root;
     int    success = 0;
 
     if (ptr && ptr->elem)
@@ -591,12 +591,12 @@ r_Collection<T>::remove_node(CNode*& root, const T& element)
 
 template<class T>
 void
-r_Collection<T>::remove_all_nodes(CNode*& root)
+r_Collection<T>::remove_all_nodes(CNode *&root)
 {
     if (root)
     {
-        CNode* ptr = root;
-        CNode* ptrLast = root;
+        CNode *ptr = root;
+        CNode *ptrLast = root;
 
         while (ptr->next != NULL)
         {
@@ -615,7 +615,7 @@ r_Collection<T>::remove_all_nodes(CNode*& root)
 
 template<class T>
 void
-r_Collection<T>::init_node_list(CNode*& root)
+r_Collection<T>::init_node_list(CNode *&root)
 {
     root = new CNode;
     root->next = NULL;
@@ -625,17 +625,17 @@ r_Collection<T>::init_node_list(CNode*& root)
 
 
 template<class T>
-const r_Type*
+const r_Type *
 r_Collection<T>::get_element_type_schema()
 {
-    const r_Type*        typePtr = r_Object::get_type_schema();
-    const r_Type* elementTypePtr = 0;
+    const r_Type        *typePtr = r_Object::get_type_schema();
+    const r_Type *elementTypePtr = 0;
 
     if (typePtr)
     {
         if (typePtr->type_id() == r_Type::COLLECTIONTYPE)
         {
-            const r_Collection_Type* collectionTypePtr = static_cast<const r_Collection_Type*>(typePtr);
+            const r_Collection_Type *collectionTypePtr = static_cast<const r_Collection_Type *>(typePtr);
             elementTypePtr = &(collectionTypePtr->element_type());
         }
     }

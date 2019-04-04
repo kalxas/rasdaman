@@ -58,45 +58,45 @@ class QtInsert : public QtExecute
 {
 public:
     /// constructor getting collection and insert expression
-    QtInsert(const QtCollection& initCollection, QtOperation* initSource);
+    QtInsert(const QtCollection &initCollection, QtOperation *initSource);
 
-    QtInsert(const QtCollection& initCollection, QtOperation* initSource, QtOperation* storage);
+    QtInsert(const QtCollection &initCollection, QtOperation *initSource, QtOperation *storage);
 
     /// constructor getting collection and data to insert
-    QtInsert(const QtCollection& initCollection, QtData* data);
+    QtInsert(const QtCollection &initCollection, QtData *data);
 
     /// virtual destructor
     virtual ~QtInsert();
 
     /// method for evaluating the node
-    virtual QtData* evaluate();
+    virtual QtData *evaluate();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// method for query rewrite
-    inline virtual void setInput(QtOperation* child, QtOperation* input);
+    inline virtual void setInput(QtOperation *child, QtOperation *input);
 
     /// returns source
-    QtOperation* getSource();
+    QtOperation *getSource();
 
     /// tiling functions
-    r_Data_Format getDataFormat(QtMDDConfig* config);
-    r_Index_Type getIndexType(QtMDDConfig* config);
-    r_Tiling_Scheme getTilingScheme(QtMDDConfig* cfg);
-    vector<r_Minterval> getIntervals(QtMDDConfig* cfg);
-    r_Minterval getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDimension);
+    r_Data_Format getDataFormat(QtMDDConfig *config);
+    r_Index_Type getIndexType(QtMDDConfig *config);
+    r_Tiling_Scheme getTilingScheme(QtMDDConfig *cfg);
+    vector<r_Minterval> getIntervals(QtMDDConfig *cfg);
+    r_Minterval getTileConfig(QtMDDConfig *cfg, int baseTypeSize, r_Dimension sourceDimension);
 
-    void setStorageLayout(StorageLayout* layout);
+    void setStorageLayout(StorageLayout *layout);
 
     /// type checking
     virtual void checkType();
@@ -104,15 +104,15 @@ public:
 
 private:
     /// insert expression
-    QtOperation* source;
+    QtOperation *source;
 
     /// insert data
-    QtData* dataToInsert;
+    QtData *dataToInsert;
 
     // Storage and Tiling type
-    QtOperation* stgLayout;
+    QtOperation *stgLayout;
 
-    /// collection 
+    /// collection
     QtCollection collection;
 
     /// attribute for identification of nodes

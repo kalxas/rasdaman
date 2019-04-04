@@ -45,22 +45,22 @@ public:
     sets Name to defaultName
     */
 
-    DBNamedObject(const OId& id);
+    DBNamedObject(const OId &id);
     /*@Doc:
     only initializes itself
     */
 
-    DBNamedObject(const DBNamedObject& old);
+    DBNamedObject(const DBNamedObject &old);
     /*@Doc:
     sets myName to the name of the old object
     */
 
-    DBNamedObject(const char* name);
+    DBNamedObject(const char *name);
     /*@Doc:
     sets myName to name
     */
 
-    DBNamedObject(const OId& id, const char* name);
+    DBNamedObject(const OId &id, const char *name);
     /*@Doc:
     sets myName to name and calls DBObject(OId).  this is needed by MDDSet.
     */
@@ -70,7 +70,7 @@ public:
     frees myName
     */
 
-    const char* getName() const;
+    const char *getName() const;
     /*@Doc:
     returns a pointer to myName.
     */
@@ -80,7 +80,7 @@ public:
     the maximum length of a name.
     */
 
-    DBNamedObject& operator=(const DBNamedObject& old);
+    DBNamedObject &operator=(const DBNamedObject &old);
     /*@Doc:
     takes care of the name
     */
@@ -90,24 +90,24 @@ public:
     Should be revised not to include attribute sizes
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     /*@Doc:
     prints the status of DBObject + Name: myName
     */
 
 protected:
 
-    void setName(const char* newname);
+    void setName(const char *newname);
     /*@Doc:
     renames the object
     */
 
-    void setName(const short length, const char* data);
+    void setName(const short length, const char *data);
     /*@Doc:
     sets the name from a VARCHAR structure
     */
 
-    char* myName;
+    char *myName;
     /*@Doc:
     the name of the object
     */
@@ -117,7 +117,7 @@ protected:
     the size of the name
     */
 
-    static const char* defaultName;
+    static const char *defaultName;
 };
 
 #endif

@@ -66,7 +66,7 @@ r_Marray<T>::r_Marray()
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_Storage_Layout* stl)
+r_Marray<T>::r_Marray(const r_Minterval &initDomain, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
 }
@@ -74,10 +74,10 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_Storage_Layout* stl)
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, const T& value, r_Storage_Layout* stl)
+r_Marray<T>::r_Marray(const r_Minterval &initDomain, const T &value, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
-    T* dataPtr = (T*)data;
+    T *dataPtr = (T *)data;
 
     for (unsigned long i = 0; i < domain.cell_count(); i++)
     {
@@ -88,7 +88,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, const T& value, r_Storage_L
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_Storage_Layout* stl)
+r_Marray<T>::r_Marray(const r_Minterval &initDomain, r_InitFunction function, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
     r_Dimension d;
@@ -96,7 +96,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_
     r_Point     pt(domain.dimension());
 
     // memory pointer of type T
-    T* dataPtr = (T*)data;
+    T *dataPtr = (T *)data;
 
     // initialize the iterating point to the lowest values in each dimension
     for (d = 0; d < pt.dimension(); d++)
@@ -129,7 +129,7 @@ r_Marray<T>::r_Marray(const r_Minterval& initDomain, r_InitFunction function, r_
 
 
 template<class T>
-r_Marray<T>::r_Marray(const r_Marray<T>& obj)
+r_Marray<T>::r_Marray(const r_Marray<T> &obj)
     : r_GMarray(obj)
 {
 }
@@ -137,7 +137,7 @@ r_Marray<T>::r_Marray(const r_Marray<T>& obj)
 
 
 template<class T>
-r_Marray<T>::r_Marray(r_GMarray& obj)
+r_Marray<T>::r_Marray(r_GMarray &obj)
     : r_GMarray(obj)
 {
 }
@@ -152,9 +152,9 @@ r_Marray<T>::~r_Marray()
 
 
 template<class T>
-const r_Marray<T>& r_Marray<T>::operator=(const r_Marray<T>& marray)
+const r_Marray<T> &r_Marray<T>::operator=(const r_Marray<T> &marray)
 {
-    return (r_Marray<T>&) r_GMarray::operator=(marray);
+    return (r_Marray<T> &) r_GMarray::operator=(marray);
 }
 
 
@@ -191,7 +191,7 @@ r_Marray<T>::operator[](long cordnt) const
     // and fill it with data
     unsigned long newCellCount = newDomain.cell_count();
     unsigned long byteCount    = (newDomain.dimension() ? newDomain.cell_count() : 1) * type_length;
-    T*            dataPtr      = (T*)data;  // typed pointer to the data
+    T            *dataPtr      = (T *)data; // typed pointer to the data
 
     memcpy(newMDD.data, &(dataPtr[(cordnt - static_cast<long>(domain[0].low()))*static_cast<long>(newCellCount)]), static_cast<unsigned int>(byteCount));
 
@@ -202,7 +202,7 @@ r_Marray<T>::operator[](long cordnt) const
 
 template<class T>
 r_Marray<T>
-r_Marray<T>::operator[](const r_Minterval& mint) const
+r_Marray<T>::operator[](const r_Minterval &mint) const
 
 {
     unsigned long offset;
@@ -217,7 +217,7 @@ r_Marray<T>::operator[](const r_Minterval& mint) const
 
     // build a new Marray with undefined cells
     r_Marray<T> newMDD(mint);
-    T*          typedDataPtr = (T*)newMDD.data;
+    T          *typedDataPtr = (T *)newMDD.data;
 
     // iterate through the domain and fill the values where available
     for (offset = 0; offset < mint.cell_count(); offset++)
@@ -249,8 +249,8 @@ r_Marray<T>::operator[](const r_Minterval& mint) const
 
 
 template<class T>
-const T&
-r_Marray<T>::operator[](const r_Point& point) const
+const T &
+r_Marray<T>::operator[](const r_Point &point) const
 
 {
     // first test dimensionality
@@ -259,7 +259,7 @@ r_Marray<T>::operator[](const r_Point& point) const
         throw (r_Edim_mismatch(point.dimension(), domain.dimension()));
     }
 
-    T* typedDataPtr = (T*)data;
+    T *typedDataPtr = (T *)data;
 
     try
     {
@@ -274,8 +274,8 @@ r_Marray<T>::operator[](const r_Point& point) const
 
 
 template<class T>
-T&
-r_Marray<T>::operator[](const r_Point& point)
+T &
+r_Marray<T>::operator[](const r_Point &point)
 
 {
     // first test dimensionality
@@ -284,7 +284,7 @@ r_Marray<T>::operator[](const r_Point& point)
         throw (r_Edim_mismatch(point.dimension(), domain.dimension()));
     }
 
-    T* typedDataPtr = (T*)data;
+    T *typedDataPtr = (T *)data;
 
     try
     {
@@ -308,14 +308,14 @@ r_Marray<T>::operator T()
         throw r_Eno_cell();
     }
 
-    return *((T*)data);
+    return *((T *)data);
 }
 
 
 
 template<class T>
 void
-r_Marray<T>::print_status(std::ostream& s)
+r_Marray<T>::print_status(std::ostream &s)
 {
     r_GMarray::print_status(s);
 

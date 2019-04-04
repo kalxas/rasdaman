@@ -47,19 +47,19 @@ public:
      * @param typeAttributes
      * @param domainNode
      */
-    QtCreateMarrayType(const std::string& typeName, QtNode::QtOperationList* typeAttributes, QtOperation* domainNode);
+    QtCreateMarrayType(const std::string &typeName, QtNode::QtOperationList *typeAttributes, QtOperation *domainNode);
 
     /**
      * @param typeName - Name of the type
      * @param cellTypeName - Cell type (which can be either a base type or a struct type)
      * @param domainNode - dimensionality ca be specified as minterval (e.g. [0:100,0:100]
      */
-    QtCreateMarrayType(const std::string& typeName, const std::string cellTypeName, QtOperation* domainNode);
+    QtCreateMarrayType(const std::string &typeName, const std::string cellTypeName, QtOperation *domainNode);
 
-    virtual QtData* evaluate();
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual QtData *evaluate();
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
     virtual void checkType();
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     virtual QtNodeType getNodeType() const;
 
@@ -67,8 +67,8 @@ private:
     static const size_t MAX_MARRAY_TYPE_NAME_LENGTH = 200;
     std::string typeName;
     std::string cellTypeName;
-    QtNode::QtOperationList* typeAttributes;
-    QtOperation* domainNode;
+    QtNode::QtOperationList *typeAttributes;
+    QtOperation *domainNode;
 
     static const QtNodeType nodeType;
 

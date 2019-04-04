@@ -41,7 +41,7 @@ public:
      * @param command String representing a command from the user
      * @return The answer to the command from RasMgr
      */
-    virtual std::string processCommand(const std::string& command) = 0;
+    virtual std::string processCommand(const std::string &command) = 0;
 };
 }
 

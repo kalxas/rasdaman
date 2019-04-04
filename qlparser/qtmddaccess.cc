@@ -56,26 +56,26 @@ using namespace std;
 
 #include "lockmgr/lockmanager.hh"
 
-extern ClientTblElt* currentClientTblElt;
+extern ClientTblElt *currentClientTblElt;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 
-QtMDDAccess::QtMDDAccess(const QtCollection& collectionNew)
-	:  QtONCStream(),
-	   collection(collectionNew),
-	   mddColl(NULL),
-	   mddIter(NULL)
+QtMDDAccess::QtMDDAccess(const QtCollection &collectionNew)
+    :  QtONCStream(),
+       collection(collectionNew),
+       mddColl(NULL),
+       mddIter(NULL)
 {
 }
 
-QtMDDAccess::QtMDDAccess(const QtCollection& collectionNew, const string& initName)
-	:  QtONCStream(),
-	   collection(collectionNew),
-	   iteratorName(initName),
-	   mddColl(NULL),
-	   mddIter(NULL)
+QtMDDAccess::QtMDDAccess(const QtCollection &collectionNew, const string &initName)
+    :  QtONCStream(),
+       collection(collectionNew),
+       iteratorName(initName),
+       mddColl(NULL),
+       mddIter(NULL)
 {
-	
+
 }
 
 QtMDDAccess::~QtMDDAccess()
@@ -108,13 +108,13 @@ QtMDDAccess::open()
     pauseTimer();
 }
 
-QtNode::QtDataList*
+QtNode::QtDataList *
 QtMDDAccess::next()
 {
     resumeTimer();
 
-    QtDataList* returnValue = NULL;
-    MDDObj* ptr = NULL;
+    QtDataList *returnValue = NULL;
+    MDDObj *ptr = NULL;
 
     if (mddColl && mddIter && mddIter->notDone())
     {
@@ -128,28 +128,28 @@ QtMDDAccess::next()
         {
             if (ptr)
             {
-                LockManager* lockmanager = LockManager::Instance();
-                std::vector<boost::shared_ptr<Tile>>* tiles = ptr->getTiles();
+                LockManager *lockmanager = LockManager::Instance();
+                std::vector<boost::shared_ptr<Tile>> *tiles = ptr->getTiles();
                 lockmanager->lockTiles(tiles);
                 delete tiles;
             }
         }
 
-        CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
+        CollectionType *collType = const_cast<CollectionType *>(mddColl->getCollectionType());
         if (collType)
         {
-            auto* dbmi = collType->getNullValues();
+            auto *dbmi = collType->getNullValues();
             if (dbmi != NULL)
             {
                 ptr->setNullValues(dbmi);
             }
         }
 
-        QtMDD*  elem = new QtMDD(ptr, iteratorName);
+        QtMDD  *elem = new QtMDD(ptr, iteratorName);
 
 
         // create the list
-        QtNode::QtDataList* dataList = new QtNode::QtDataList(1); // create container to contain one element
+        QtNode::QtDataList *dataList = new QtNode::QtDataList(1); // create container to contain one element
 
         // insert the element into the list
         (*dataList)[0] = elem;
@@ -201,7 +201,7 @@ QtMDDAccess::reset()
 
 
 void
-QtMDDAccess::printTree(int tab, ostream& s, QtChildType /*mode*/)
+QtMDDAccess::printTree(int tab, ostream &s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMDDAccess Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -215,14 +215,14 @@ QtMDDAccess::printTree(int tab, ostream& s, QtChildType /*mode*/)
 
 
 void
-QtMDDAccess::printAlgebraicExpression(ostream& s)
+QtMDDAccess::printAlgebraicExpression(ostream &s)
 {
     s << collection.getCollectionName().c_str() << " as " << iteratorName.c_str() << flush;
 }
 
 
 
-const QtTypeTuple&
+const QtTypeTuple &
 QtMDDAccess::checkType()
 {
     dataStreamType = QtTypeTuple(0);
@@ -231,12 +231,12 @@ QtMDDAccess::checkType()
     // create the collection and add it to the list in the client table entry
     //
 
-	if (collection.getHostname() != "" && collection.getHostname() !="localhost")
-	{
-		LERROR << "Non-local collection is unsupported";
-		parseInfo.setErrorNo(499); //to be changed		
-		throw parseInfo; 
-	}
+    if (collection.getHostname() != "" && collection.getHostname() != "localhost")
+    {
+        LERROR << "Non-local collection is unsupported";
+        parseInfo.setErrorNo(499); //to be changed
+        throw parseInfo;
+    }
 
     try
     {
@@ -246,7 +246,7 @@ QtMDDAccess::checkType()
         {
             if (!currentClientTblElt->persColls)
             {
-                currentClientTblElt->persColls = new vector<MDDColl*>();
+                currentClientTblElt->persColls = new vector<MDDColl *>();
             }
             currentClientTblElt->persColls->push_back(mddColl);
         }
@@ -262,7 +262,7 @@ QtMDDAccess::checkType()
         throw parseInfo;
     }
 
-    const auto* collType = mddColl->getCollectionType();
+    const auto *collType = mddColl->getCollectionType();
     if (!collType)
     {
         LERROR << "No collection type available";

@@ -70,19 +70,19 @@ rasdaman GmbH.
 #include "tools/visualtiling2d.hh"
 #endif
 
-const char*
+const char *
 r_Dir_Tiling::description = "dimensions, decomposision patterns, tile size(in bytes) and subtiling [SUBTILING|NOSUBTILING] (ex: \"3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING\")";
 
-const char* r_Dir_Tiling::subtiling_name_withoutsubtiling = "NOSUBTILING";
-const char* r_Dir_Tiling::subtiling_name_withsubtiling    = "SUBTILING";
-const char* r_Dir_Tiling::all_subtiling_names[r_Dir_Tiling::NUMBER] =
+const char *r_Dir_Tiling::subtiling_name_withoutsubtiling = "NOSUBTILING";
+const char *r_Dir_Tiling::subtiling_name_withsubtiling    = "SUBTILING";
+const char *r_Dir_Tiling::all_subtiling_names[r_Dir_Tiling::NUMBER] =
 {
     subtiling_name_withoutsubtiling,
     subtiling_name_withsubtiling
 };
 
 r_Dir_Tiling::SubTiling
-r_Dir_Tiling::get_subtiling_from_name(const char* name)
+r_Dir_Tiling::get_subtiling_from_name(const char *name)
 {
     if (!name)
     {
@@ -103,10 +103,10 @@ r_Dir_Tiling::get_subtiling_from_name(const char* name)
     return static_cast<r_Dir_Tiling::SubTiling>(i);
 }
 
-const char*
+const char *
 r_Dir_Tiling::get_name_from_subtiling(SubTiling tsl)
 {
-    static const char* unknown = "UNKNOWN";
+    static const char *unknown = "UNKNOWN";
     unsigned int idx = static_cast<unsigned int>(tsl);
 
     if (idx >= static_cast<unsigned int>(r_Dir_Tiling::NUMBER))
@@ -117,7 +117,7 @@ r_Dir_Tiling::get_name_from_subtiling(SubTiling tsl)
     return all_subtiling_names[idx];
 }
 
-r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
+r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
     if (!encoded)
@@ -131,11 +131,11 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
     std::vector<r_Dir_Decompose> vectDirDecomp;
     r_Bytes tileS = 0, lenToConvert = 0, lenDirToConvert = 0, lenDecomp = 0;
     r_Dir_Tiling::SubTiling subTiling;
-    const char* pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL, *pToConvertEnd = NULL;
-    char* pToConvert = NULL;
-    const char* pDirRes = NULL, *pDirEnd = NULL, *pDirTemp = NULL, *pDirStart = NULL;
-    char* pDirToConvert = NULL;
-    char* pDecomp = NULL;
+    const char *pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL, *pToConvertEnd = NULL;
+    char *pToConvert = NULL;
+    const char *pDirRes = NULL, *pDirEnd = NULL, *pDirTemp = NULL, *pDirStart = NULL;
+    char *pDirToConvert = NULL;
+    char *pDecomp = NULL;
 
 //initialisation
     pStart = encoded;
@@ -155,7 +155,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileD = strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
     if (!tileD)
     {
         LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" is not a number.";
@@ -243,7 +243,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
                 memcpy(pDecomp, pDirTemp, lenDecomp);
                 pDecomp[lenDecomp] = '\0';
 
-                decomp = static_cast<r_Range>(strtoul(pDecomp, const_cast<char**>(&pDirTemp), DefaultBase));
+                decomp = static_cast<r_Range>(strtoul(pDecomp, const_cast<char **>(&pDirTemp), DefaultBase));
 
                 if (*pDirTemp != '\0')
                 {
@@ -275,7 +275,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
                 pDirRes = strstr(pDirTemp, TCOMMA);
                 if (!pDirRes)
                 {
-                    decomp = static_cast<r_Range>(strtoul(pDirTemp, const_cast<char**>(&pDirRes), DefaultBase));
+                    decomp = static_cast<r_Range>(strtoul(pDirTemp, const_cast<char **>(&pDirRes), DefaultBase));
                     if (*pDirRes != '\0')
                     {
                         LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding decompose \"" << pDirTemp << "\" from directional decompose \"" << pDirToConvert << "\", is not a number.";
@@ -353,7 +353,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileS = strtol(pToConvert, (char**)NULL, DefaultBase);
+    tileS = strtol(pToConvert, (char **)NULL, DefaultBase);
 
     if (!tileS)
     {
@@ -387,7 +387,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char* encoded)
     tile_size = tileS;
 }
 
-r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose>& decomp, r_Bytes ts, SubTiling sub)
+r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose> &decomp, r_Bytes ts, SubTiling sub)
     :   r_Dimension_Tiling(dims, ts),
         dim_decomp(decomp),
         sub_tile(sub)
@@ -409,13 +409,13 @@ r_Dir_Tiling::get_tiling_scheme() const
     return r_DirectionalTiling;
 }
 
-r_Tiling* r_Dir_Tiling::clone() const
+r_Tiling *r_Dir_Tiling::clone() const
 {
-    r_Tiling* copy = new r_Dir_Tiling(dimension, dim_decomp, tile_size, sub_tile);
+    r_Tiling *copy = new r_Dir_Tiling(dimension, dim_decomp, tile_size, sub_tile);
     return copy;
 }
 
-void r_Dir_Tiling::print_status(std::ostream& os) const
+void r_Dir_Tiling::print_status(std::ostream &os) const
 {
     os << "r_Dir_Tiling[ ";
     r_Dimension_Tiling::print_status(os);
@@ -429,15 +429,15 @@ void r_Dir_Tiling::print_status(std::ostream& os) const
 
 }
 
-std::vector<r_Minterval>*
-r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
+std::vector<r_Minterval> *
+r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
     // Aux variable
     r_Dimension i = 0;
     // The result
-    std::vector<r_Minterval>* decomp_result = new std::vector<r_Minterval>();
+    std::vector<r_Minterval> *decomp_result = new std::vector<r_Minterval>();
     // An alias to result
-    std::vector<r_Minterval>& result = *decomp_result;
+    std::vector<r_Minterval> &result = *decomp_result;
     std::vector<r_Dir_Decompose> temp_dim_decomp = dim_decomp;
 
 
@@ -452,7 +452,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
     }
 
     // Undefined dims
-    bool* undef_dim = new bool[dimension];
+    bool *undef_dim = new bool[dimension];
     // Count of undef dims
     r_Dimension total_undef = 0;
 
@@ -498,7 +498,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
     }
 
     // Create a counter for each dimension
-    r_Dimension* dim_counter = new r_Dimension[dimension];
+    r_Dimension *dim_counter = new r_Dimension[dimension];
     memset(dim_counter, 0, sizeof(r_Dimension) * dimension);
 
 #ifdef _VISUALIZE_2D_DECOMP_
@@ -507,7 +507,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
     static int count;
     ++count;                                             // Update decomp count
 
-    Visual_Tiling_2D* vis;
+    Visual_Tiling_2D *vis;
     if (dimension == 2)
     {
         // Create an object for visualization
@@ -610,7 +610,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
             // Create subtiles and insert them in the result
 
             r_Aligned_Tiling subtiling(partition, get_tile_size());
-            std::vector<r_Minterval>* subtiles = subtiling.compute_tiles(tile, typelen);
+            std::vector<r_Minterval> *subtiles = subtiling.compute_tiles(tile, typelen);
             std::vector<r_Minterval>::iterator it = subtiles->begin();
             for (; it != subtiles->end(); it++)
             {
@@ -684,7 +684,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const
 }
 
 bool
-r_Dir_Tiling::is_compatible(const r_Minterval& domain, r_Bytes type_len) const
+r_Dir_Tiling::is_compatible(const r_Minterval &domain, r_Bytes type_len) const
 {
     bool retval = true;
     if (!r_Dimension_Tiling::is_compatible(domain, type_len))

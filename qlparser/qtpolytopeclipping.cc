@@ -20,23 +20,23 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/* 
+/*
  * File:   qtpolytopeclipping.cc
  * Author: bbell
  *
  * Created on September 11, 2017, 4:13 PM
  */
 
-std::vector<double> 
-QtPolytope::getHalfspace(QtOperation* pointOp)
+std::vector<double>
+QtPolytope::getHalfspace(QtOperation *pointOp)
 {
     //rows of vertices from pointOp
-    std::vector< std::vector<double> > vectorOfVertices;
-    
+    std::vector< std::vector<double>> vectorOfVertices;
+
     //dimension of space in which the vertices live
     r_Dimension numDims = vectorOfVertices[0].size();
-    
-    
+
+
 }
 
 

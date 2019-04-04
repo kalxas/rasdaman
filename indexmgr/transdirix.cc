@@ -43,7 +43,7 @@ static const char rcsid[] = "@(#)transdirix, TransDirIx: $Id: transdirix.cc,v 1.
 #include <logging.hh>
 
 
-IndexDS*
+IndexDS *
 TransDirIx::getNewInstance() const
 {
     return new TransDirIx(getDimension());
@@ -80,7 +80,7 @@ TransDirIx::TransDirIx(r_Dimension dim)
 }
 
 void
-TransDirIx::printStatus(__attribute__((unused)) unsigned int level, std::ostream& stream) const
+TransDirIx::printStatus(__attribute__((unused)) unsigned int level, std::ostream &stream) const
 {
     stream << "TransDirIx " << currDomain << endl;
     KeyObjectVector::const_iterator entryIt = tiles.begin();
@@ -95,7 +95,7 @@ TransDirIx::printStatus(__attribute__((unused)) unsigned int level, std::ostream
 }
 
 void
-TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
+TransDirIx::insertObject(const KeyObject &newKeyObject, unsigned int pos)
 {
     if (pos > getSize())
     {
@@ -117,7 +117,7 @@ TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
 }
 
 bool
-TransDirIx::removeObject(const KeyObject& tileToRemove)
+TransDirIx::removeObject(const KeyObject &tileToRemove)
 {
     bool found = false;
     for (KeyObjectVector::iterator iter = tiles.begin(); iter != tiles.end(); iter++)
@@ -139,13 +139,13 @@ TransDirIx::getIdentifier() const
 }
 
 void
-TransDirIx::setAssignedDomain(const r_Minterval& newDomain)
+TransDirIx::setAssignedDomain(const r_Minterval &newDomain)
 {
     currDomain = newDomain;
 }
 
 
-const KeyObject&
+const KeyObject &
 TransDirIx::getObject(unsigned int pos) const
 {
     return tiles[pos];
@@ -158,7 +158,7 @@ TransDirIx::getObjectDomain(unsigned int pos) const
 }
 
 void
-TransDirIx::getObjects(KeyObjectVector& objs) const
+TransDirIx::getObjects(KeyObjectVector &objs) const
 {
     objs = tiles;
 }
@@ -197,10 +197,10 @@ TransDirIx::~TransDirIx()
     tiles.clear();
 }
 
-std::vector<r_Minterval*>*
+std::vector<r_Minterval *> *
 TransDirIx::getObjectDomains(void) const
 {
-    std::vector<r_Minterval*>* te = new std::vector<r_Minterval*>();
+    std::vector<r_Minterval *> *te = new std::vector<r_Minterval *>();
     te->reserve(tiles.size());
     unsigned int end = tiles.size();
     for (unsigned int i = 0; i < end; i++)
@@ -229,7 +229,7 @@ TransDirIx::isOverFull() const
 }
 
 bool
-TransDirIx::isSameAs(const IndexDS* ix) const
+TransDirIx::isSameAs(const IndexDS *ix) const
 {
     if (ix->isPersistent())
     {
@@ -246,13 +246,13 @@ TransDirIx::isSameAs(const IndexDS* ix) const
 }
 
 void
-TransDirIx::setObject(const KeyObject& theKey, unsigned int i)
+TransDirIx::setObject(const KeyObject &theKey, unsigned int i)
 {
     tiles[i] = theKey;
 }
 
 void
-TransDirIx::setObjectDomain(const r_Minterval& dom, unsigned int i)
+TransDirIx::setObjectDomain(const r_Minterval &dom, unsigned int i)
 {
     tiles[i].setDomain(dom);
 }

@@ -44,7 +44,7 @@ DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
     this->serverCount = 0;
 }
 
-void DatabaseHost::addClientSessionOnDB(const std::string& databaseName, const std::string& clientId, const std::string& sessionId)
+void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, const std::string &clientId, const std::string &sessionId)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -69,7 +69,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string& databaseName, const s
     }
 }
 
-void DatabaseHost::removeClientSessionFromDB(const std::string& clientId, const std::string& sessionId)
+void DatabaseHost::removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -104,7 +104,7 @@ bool DatabaseHost::isBusy() const
     return (this->sessionCount > 0 || this->serverCount > 0);
 }
 
-bool DatabaseHost::ownsDatabase(const std::string& databaseName)
+bool DatabaseHost::ownsDatabase(const std::string &databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
@@ -125,7 +125,7 @@ void DatabaseHost::addDbToHost(boost::shared_ptr<Database> db)
     }
 }
 
-void DatabaseHost::removeDbFromHost(const std::string& dbName)
+void DatabaseHost::removeDbFromHost(const std::string &dbName)
 {
     std::list<boost::shared_ptr<Database>>::iterator it;
     bool removedDb = false;
@@ -156,7 +156,7 @@ void DatabaseHost::removeDbFromHost(const std::string& dbName)
     }
 }
 
-DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost& dbHost)
+DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
 {
     DatabaseHostProto result;
 
@@ -178,12 +178,12 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost& dbHost)
     return result;
 }
 
-const std::string& DatabaseHost::getHostName() const
+const std::string &DatabaseHost::getHostName() const
 {
     return this->hostName;
 }
 
-void DatabaseHost::setHostName(const std::string& hostName)
+void DatabaseHost::setHostName(const std::string &hostName)
 {
     if (hostName.empty())
     {
@@ -193,22 +193,22 @@ void DatabaseHost::setHostName(const std::string& hostName)
     this->hostName = hostName;
 }
 
-const std::string& DatabaseHost::getConnectString() const
+const std::string &DatabaseHost::getConnectString() const
 {
     return this->connectString;
 }
 
-void DatabaseHost::setConnectString(const std::string& connectString)
+void DatabaseHost::setConnectString(const std::string &connectString)
 {
     this->connectString = connectString;
 }
 
-const std::string& DatabaseHost::getUserName() const
+const std::string &DatabaseHost::getUserName() const
 {
     return this->userName;
 }
 
-void DatabaseHost::setUserName(const std::string& userName)
+void DatabaseHost::setUserName(const std::string &userName)
 {
     if (userName.empty())
     {
@@ -218,17 +218,17 @@ void DatabaseHost::setUserName(const std::string& userName)
     this->userName = userName;
 }
 
-const std::string& DatabaseHost::getPasswdString() const
+const std::string &DatabaseHost::getPasswdString() const
 {
     return this->passwdString;
 }
 
-void DatabaseHost::setPasswdString(const std::string& passwdString)
+void DatabaseHost::setPasswdString(const std::string &passwdString)
 {
     this->passwdString = passwdString;
 }
 
-bool DatabaseHost::containsDatabase(const std::string& dbName)
+bool DatabaseHost::containsDatabase(const std::string &dbName)
 {
     std::list<boost::shared_ptr<Database>>::iterator it;
 

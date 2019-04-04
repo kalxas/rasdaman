@@ -62,7 +62,7 @@ public:
     /// default constructor
     r_Collection();
     /// copy constructor
-    r_Collection(const r_Collection<T>& collection);
+    r_Collection(const r_Collection<T> &collection);
     /// virtual destructor
     virtual ~r_Collection();
 
@@ -80,27 +80,27 @@ public:
     inline int           allows_duplicates() const;
 
     /// asks about the containment of a specific element
-    int  contains_element(const T& element) const;
+    int  contains_element(const T &element) const;
     /// inserts an alement at the beginning
-    virtual void insert_element(const T& element, int no_modification = 0);
+    virtual void insert_element(const T &element, int no_modification = 0);
     /**
       The method inserts an element into the collection. If {\tt no_modification}
       is set, the {\tt mark_modified()} method of r_Object is not invoked and, therefore,
       a modification will not be recognized at the commit point.
     */
     /// removes an element
-    virtual void remove_element(const T& element);
+    virtual void remove_element(const T &element);
     /// removes all elements
     void remove_all();
 
     /// assignment operator
-    const r_Collection<T>& operator=(const r_Collection<T>& collection);
+    const r_Collection<T> &operator=(const r_Collection<T> &collection);
 
     /// create an iterator pointing at the first element in the collection
     r_Iterator<T> create_iterator();
 
     /// get base type schema
-    const r_Type* get_element_type_schema();
+    const r_Type *get_element_type_schema();
 
     //@Man: Methods for database communication (internal use only):
     //@{
@@ -110,7 +110,7 @@ public:
     virtual void insert_obj_into_db();
 
     /// inserts an object into a specific collection in the database
-    virtual void insert_obj_into_db(const char*)
+    virtual void insert_obj_into_db(const char *)
     {
         ;
     };
@@ -130,11 +130,11 @@ public:
     ///
 
     /// constructor getting an internal collection representation
-    r_Collection(const void* node1);
+    r_Collection(const void *node1);
     ///
-    inline void* get_internal_representation() const;
+    inline void *get_internal_representation() const;
     ///
-    void set_internal_representation(const void* node1);
+    void set_internal_representation(const void *node1);
 
     ///
     //@}
@@ -143,8 +143,8 @@ protected:
     ///
     struct CNode
     {
-        CNode* next;
-        T* elem;
+        CNode *next;
+        T *elem;
     };
 
     //@Man: Methods/Attributes for maintainance of removed objects
@@ -156,7 +156,7 @@ protected:
 
     ///
     /// pointer to list of removed elements
-    CNode* removed_objects;
+    CNode *removed_objects;
 
     ///
     //@}
@@ -200,19 +200,19 @@ protected:
     ///
 
     ///
-    void add_node(CNode*& root, const T& element);
+    void add_node(CNode *&root, const T &element);
     ///
-    int  remove_node(CNode*& root, const T& element);
+    int  remove_node(CNode *&root, const T &element);
     ///
-    void remove_all_nodes(CNode*& root);
+    void remove_all_nodes(CNode *&root);
     ///
-    void init_node_list(CNode*& root);
+    void init_node_list(CNode *&root);
 
     ///
     //@}
 
     /// pointer to collection elements
-    CNode* coll;
+    CNode *coll;
 };
 
 #include "rasodmg/collection.icc"

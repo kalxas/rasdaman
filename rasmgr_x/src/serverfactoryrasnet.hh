@@ -32,7 +32,7 @@ class ServerFactoryRasNet: public ServerFactory
 public:
     virtual ~ServerFactoryRasNet();
 
-    boost::shared_ptr<Server> createServer(const ServerConfig& configuration);
+    boost::shared_ptr<Server> createServer(const ServerConfig &configuration);
 };
 
 } /* namespace rasmgr */

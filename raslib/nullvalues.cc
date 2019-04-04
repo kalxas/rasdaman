@@ -24,20 +24,30 @@ rasdaman GmbH.
 #include "config.h"
 #include "raslib/nullvalues.hh"
 
-r_Nullvalues::r_Nullvalues(std::vector<std::pair<r_Double, r_Double> >&& nullvaluesArg)
+r_Nullvalues::r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg)
     : nullvalues{nullvaluesArg}
 {
 }
-    
+
 std::string r_Nullvalues::toString() const
 {
     std::string ret = "[";
     bool addComma = false;
-    for (const auto& p: nullvalues)
+    for (const auto &p : nullvalues)
     {
-        if (addComma) ret += ","; else addComma = true;
+        if (addComma)
+        {
+            ret += ",";
+        }
+        else
+        {
+            addComma = true;
+        }
         ret += std::to_string(p.first);
-        if (p.first != p.second) ret += ":" + std::to_string(p.second);
+        if (p.first != p.second)
+        {
+            ret += ":" + std::to_string(p.second);
+        }
     }
     ret += "]";
     return ret;

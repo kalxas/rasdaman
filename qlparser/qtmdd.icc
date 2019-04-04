@@ -28,7 +28,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline MDDObj*
+inline MDDObj *
 QtMDD::getMDDObject() const
 {
     return mddObject;
@@ -36,14 +36,14 @@ QtMDD::getMDDObject() const
 
 
 inline void
-QtMDD::setMDDObject( MDDObj* ptr )
+QtMDD::setMDDObject(MDDObj *ptr)
 {
     mddObject = ptr;
 }
 
 
 
-inline const r_Minterval&
+inline const r_Minterval &
 QtMDD::getLoadDomain() const
 {
     return loadDomain;
@@ -51,7 +51,7 @@ QtMDD::getLoadDomain() const
 
 
 inline void
-QtMDD::setLoadDomain( r_Minterval& newLoadDomain )
+QtMDD::setLoadDomain(r_Minterval &newLoadDomain)
 {
     loadDomain = newLoadDomain;
 }
@@ -64,7 +64,7 @@ QtMDD::isFromConversion() const
 }
 
 inline void
-QtMDD::setFromConversion( bool newFromConversion )
+QtMDD::setFromConversion(bool newFromConversion)
 {
     fromConversion = newFromConversion;
 }

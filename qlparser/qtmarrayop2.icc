@@ -31,24 +31,24 @@ rasdaman GmbH.
  ************************************************************/
 
 inline QtOperation *QtMarrayOp2::getInput() const
-{ 
-  return qtOperation;
+{
+    return qtOperation;
 }
 
-inline const ParseInfo&
+inline const ParseInfo &
 QtMarrayOp2::getParseInfo()
 {
-  return parseInfo;
+    return parseInfo;
 }
 
 inline void
-QtMarrayOp2::setParseInfo( const ParseInfo &info )
+QtMarrayOp2::setParseInfo(const ParseInfo &info)
 {
-  parseInfo = info;
+    parseInfo = info;
 }
 
 inline void
-QtMarrayOp2::setOldMarray( bool value )
+QtMarrayOp2::setOldMarray(bool value)
 {
-  oldMarray = value;
+    oldMarray = value;
 }

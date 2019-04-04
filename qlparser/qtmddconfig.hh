@@ -53,9 +53,9 @@ private:
     int tileSize;
     int borderThreshold;
     double interestThreshold;
-    QtOperation* tileCfg;
-    QtNode::QtOperationList* box;
-    std::vector<r_Dir_Decompose>* dDecomp;
+    QtOperation *tileCfg;
+    QtNode::QtOperationList *box;
+    std::vector<r_Dir_Decompose> *dDecomp;
     int indexType;
     int param;      // wavelet param
 
@@ -63,33 +63,33 @@ public:
     // Constructors
     QtMDDConfig();
     QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
-                double interestThreshold, QtOperation* tileCfg,
-                QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp,
+                double interestThreshold, QtOperation *tileCfg,
+                QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp,
                 int indexType);
     QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
-                double interestThreshold, QtOperation* tileCfg,
-                QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp);
+                double interestThreshold, QtOperation *tileCfg,
+                QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp);
     QtMDDConfig(int index);
 
     // Getters
     int getTileSize();
     int getBorderThreshold();
     double getInterestThreshold();
-    std::vector<r_Dir_Decompose>* getDirDecomp();
+    std::vector<r_Dir_Decompose> *getDirDecomp();
     int getStorageType();
     int getWltValue();      // Check return type !
     int getIndexType();
     int getTilingType();
-    QtNode::QtOperationList* getBboxList();
-    QtOperation* getTileCfg();
+    QtNode::QtOperationList *getBboxList();
+    QtOperation *getTileCfg();
 
     // Setters
     void setBorderThreshold(int threshold);
 
     // Pure virtual methods definition (from class QtData)
     virtual QtDataType getDataType() const;
-    virtual char* getTypeStructure() const;
-    virtual bool equal(const QtData*) const;
+    virtual char *getTypeStructure() const;
+    virtual bool equal(const QtData *) const;
     virtual string getSpelling() const;
 
     enum QtIndexConstants
@@ -127,9 +127,9 @@ public:
         r_ARRAY_STG,
         r_AUTO_STG,
         r_BMP_STG,
-        r_DEM_STG ,
+        r_DEM_STG,
         r_HDF5_STG,
-        r_HDF_STG ,
+        r_HDF_STG,
         r_NETCDF_STG,
         r_GDAL_STG,
         r_JPEG_STG,

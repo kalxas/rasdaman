@@ -137,12 +137,12 @@ public:
     explicit r_Error(unsigned int errorno);
 
     /// constructor getting an error text
-    r_Error(const char* what);
+    r_Error(const char *what);
 
     ~r_Error() noexcept override = default;
 
-    const char*         what() const noexcept override;
-    virtual const std::string&  what_str() const noexcept;
+    const char         *what() const noexcept override;
+    virtual const std::string  &what_str() const noexcept;
     kind                get_kind() const;
     unsigned long       get_errorno() const;
 
@@ -150,10 +150,10 @@ public:
     virtual std::string serialiseError() const;
 
     /// replace the specified parameter by the integer value
-    void setTextParameter(const char* parameterName, long long value);
+    void setTextParameter(const char *parameterName, long long value);
 
     /// replace the specified parameter by the string value
-    void setTextParameter(const char* parameterName, const char* value);
+    void setTextParameter(const char *parameterName, const char *value);
 
     /// read error text file into text table
     static void initTextTable();
@@ -190,7 +190,7 @@ public:
 class r_EGeneral : public r_Error
 {
 public:
-    r_EGeneral(const std::string& errorText);
+    r_EGeneral(const std::string &errorText);
 };
 
 /// The specified index is not within the bounds.
@@ -260,11 +260,11 @@ class r_Equery_execution_failed : public r_Error
 public:
     /// default constructor
     r_Equery_execution_failed(unsigned int errorno, unsigned int lineno,
-            unsigned int columnno, const char* token);
+                              unsigned int columnno, const char *token);
 
     unsigned int get_lineno() const;
     unsigned int get_columnno() const;
-    const char*  get_token() const;
+    const char  *get_token() const;
 protected:
     /// reset error text
     void resetErrorText() override;
@@ -304,7 +304,7 @@ class r_Ebase_dbms : public r_Error
 {
 public:
     r_Ebase_dbms();
-    r_Ebase_dbms(long newDbmsErrNum, const char* newErrTxt);
+    r_Ebase_dbms(long newDbmsErrNum, const char *newErrTxt);
 protected:
     /// reset error text
     void resetErrorText() override;

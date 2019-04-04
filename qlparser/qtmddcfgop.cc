@@ -55,7 +55,7 @@ QtMddCfgOp::QtMddCfgOp()
 }
 
 
-QtMddCfgOp::QtMddCfgOp(QtOperation* inputInit)
+QtMddCfgOp::QtMddCfgOp(QtOperation *inputInit)
     :  QtOperation(),
        mddCfgObj(NULL),
        input(inputInit)
@@ -67,7 +67,7 @@ QtMddCfgOp::QtMddCfgOp(QtOperation* inputInit)
 }
 
 QtMddCfgOp::QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
-                       double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp,
+                       double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp,
                        int indexType)
     :  QtOperation(),
        input(NULL)
@@ -77,7 +77,7 @@ QtMddCfgOp::QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
 }
 
 QtMddCfgOp::QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
-                       double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp)
+                       double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp)
     :  QtOperation(),
        input(NULL)
 {
@@ -109,7 +109,7 @@ QtMddCfgOp::~QtMddCfgOp()
 
 
 void
-QtMddCfgOp::optimizeLoad(QtTrimList* trimList)
+QtMddCfgOp::optimizeLoad(QtTrimList *trimList)
 {
     // by default, pass load domain to the input
     if (input)
@@ -123,18 +123,18 @@ QtMddCfgOp::optimizeLoad(QtTrimList* trimList)
     }
 }
 
-QtMDDConfig*
-QtMddCfgOp::evaluate(QtDataList* inputList)
+QtMDDConfig *
+QtMddCfgOp::evaluate(QtDataList *inputList)
 {
-    QtMDDConfig* retvalue = NULL;
+    QtMDDConfig *retvalue = NULL;
     for (unsigned int i = 0 ; i < inputList->size() ; i++)
     {
-        retvalue = static_cast<QtMDDConfig*>(inputList->at(i));
+        retvalue = static_cast<QtMDDConfig *>(inputList->at(i));
     }
     return retvalue;
 }
 
-QtMDDConfig*
+QtMDDConfig *
 QtMddCfgOp::getMddConfig()
 {
     return mddCfgObj;

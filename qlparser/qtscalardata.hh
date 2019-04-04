@@ -52,7 +52,7 @@ public:
     QtScalarData();
 
     /// copy constructor
-    QtScalarData(const QtScalarData& obj);
+    QtScalarData(const QtScalarData &obj);
 
     /// virtual destructor
     virtual ~QtScalarData();
@@ -68,28 +68,28 @@ public:
     virtual bool isScalarData() const;
 
     /// returns a pointer to the value type
-    inline const BaseType* getValueType() const;
+    inline const BaseType *getValueType() const;
 
     /// sets the value type
-    inline void setValueType(const BaseType* newType);
+    inline void setValueType(const BaseType *newType);
 
     /// returns a pointer to the internal character representation
-    inline const char* getValueBuffer() const;
+    inline const char *getValueBuffer() const;
 
     /// sets the value buffer
-    inline void setValueBuffer(char* buffer);
+    inline void setValueBuffer(char *buffer);
 
     /// sets the total values count
     inline void setTotalValuesCount(unsigned long count);
 
     /// returns the total values count
     inline unsigned long getTotalValuesCount() const;
-    
+
     /// sets ownership of cells to false so destructor will not delete the data
     inline void disownCells();
-    
+
     /// returns a null-terminated string describing the type structure
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /**
       The string pointer has to be free using free() by the caller.
     */
@@ -98,25 +98,25 @@ public:
     //@}
 
     /// compares data content
-    virtual bool equal(const QtData* obj) const;
+    virtual bool equal(const QtData *obj) const;
 
     /// returns content dependent string representation
     virtual std::string getSpelling() const;
 
     /// print status of the object to the specified stream
-    virtual void printStatus(std::ostream& stream = std::cout) const;
+    virtual void printStatus(std::ostream &stream = std::cout) const;
 
 protected:
     /// pointer to the value type
-    const BaseType* valueType;
+    const BaseType *valueType;
 
     /// pointer to the value buffer
-    char* valueBuffer;
-     
+    char *valueBuffer;
+
     /// ownership of cells (for use by destructor)
     bool ownCells = true;
 
-    /// mainly needed by avg_cells, contains the number of cells that were 
+    /// mainly needed by avg_cells, contains the number of cells that were
     /// actually considered in a condense operation; this number can be different
     /// from the subset domain if some parts of this domain are not physically
     /// materialized in tiles.

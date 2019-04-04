@@ -56,23 +56,23 @@ public:
     QtJoinIterator();
 
     /// constructor getting a pointer to the parent
-    QtJoinIterator(QtNode* node);
+    QtJoinIterator(QtNode *node);
 
     /// virtual destructor
     virtual ~QtJoinIterator();
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: Operations of the ONC protocol:
     //@{
     ///
     void open();
     ///
-    QtDataList* next();
+    QtDataList *next();
     /**
       According to the producer/consumer protocol of ONC streams, the {/tt next()}
       method has to store the last tuple of the crossproduct and update it with a new
@@ -96,7 +96,7 @@ public:
     inline virtual QtNodeType getNodeType() const;
 
     /// type checking
-    virtual const QtTypeTuple& checkType();
+    virtual const QtTypeTuple &checkType();
 
 private:
     /// inidicates if the output stream is empty or not
@@ -108,7 +108,7 @@ private:
     */
 
     /// pointer to a copy of the last passed tuple
-    QtDataList* actualTuple;
+    QtDataList *actualTuple;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

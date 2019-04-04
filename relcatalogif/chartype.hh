@@ -63,16 +63,16 @@ public:
     default constructor, no initialization needed for CharType.
     */
 
-    CharType(const OId& id);
+    CharType(const OId &id);
     /*@Doc:
     */
 
-    CharType(const CharType& old);
+    CharType(const CharType &old);
     /*@Doc:
     copy constructor.
     */
 
-    CharType& operator=(const CharType& old);
+    CharType &operator=(const CharType &old);
     /*@Doc:
     assignment operator.
     */
@@ -82,19 +82,19 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual r_ULong* convertToCULong(const char* cell, r_ULong* value) const;
+    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCULong(char* cell, const r_ULong* value) const;
+    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

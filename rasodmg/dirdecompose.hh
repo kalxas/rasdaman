@@ -77,16 +77,16 @@ public:
     virtual ~r_Dir_Decompose();
 
     /// Copy constructor
-    r_Dir_Decompose(const r_Dir_Decompose& other);
+    r_Dir_Decompose(const r_Dir_Decompose &other);
 
     /// Assigment operator
-    const r_Dir_Decompose& operator=(const r_Dir_Decompose& other);
+    const r_Dir_Decompose &operator=(const r_Dir_Decompose &other);
 
     /// Reads a new limit for the current dimension
-    r_Dir_Decompose& operator<<(r_Range limit);
+    r_Dir_Decompose &operator<<(r_Range limit);
 
     /// Reads a new limit for the current dimension and prepends it to the list of limits
-    r_Dir_Decompose& prepend(r_Range limit);
+    r_Dir_Decompose &prepend(r_Range limit);
 
     /// Gets the number of intervals the dimension is to be split into
     int get_num_intervals() const;
@@ -95,7 +95,7 @@ public:
     r_Range get_partition(int number) const;
 
     /// Prints the current status of the object
-    virtual void print_status(std::ostream& os = cout) const;
+    virtual void print_status(std::ostream &os = cout) const;
 
 protected:
     r_Sinterval get_total_interval();
@@ -110,14 +110,14 @@ protected:
     r_Dimension current_interval;
 
     /// The buffer that holds the information
-    r_Range* intervals;
+    r_Range *intervals;
 };
 
 //@ManMemo: Module: {\bf rasodmg}
 /**
     Prints the status of an r_Dir_Decompose object to a stream
 */
-extern std::ostream& operator<<(std::ostream& os, const r_Dir_Decompose& d);
-extern std::ostream& operator<<(std::ostream& os, const std::vector<r_Dir_Decompose>& vec);
+extern std::ostream &operator<<(std::ostream &os, const r_Dir_Decompose &d);
+extern std::ostream &operator<<(std::ostream &os, const std::vector<r_Dir_Decompose> &vec);
 
 #endif

@@ -56,7 +56,7 @@ QtOperationIterator::QtOperationIterator()
 }
 
 
-QtOperationIterator::QtOperationIterator(QtNode* node)
+QtOperationIterator::QtOperationIterator(QtNode *node)
     : QtIterator(node)
 {
     operationTreeList = new QtOperationList();
@@ -77,11 +77,11 @@ QtOperationIterator::~QtOperationIterator()
 }
 
 
-QtNode::QtNodeList*
+QtNode::QtNodeList *
 QtOperationIterator::getChilds(QtChildType flag)
 {
-    QtNodeList* resultList = NULL;
-    QtNodeList* subList = NULL;
+    QtNodeList *resultList = NULL;
+    QtNodeList *subList = NULL;
 
     QtOperationList::iterator iter;
 
@@ -89,7 +89,7 @@ QtOperationIterator::getChilds(QtChildType flag)
 
 #ifdef DEBUG
     LTRACE << "1. childs from stream subtree ";
-    list<QtNode*>::iterator debugIter;
+    list<QtNode *>::iterator debugIter;
     for (debugIter = resultList->begin(); debugIter != resultList->end(); debugIter++)
     {
         (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
@@ -104,7 +104,7 @@ QtOperationIterator::getChilds(QtChildType flag)
 
 #ifdef DEBUG
             LTRACE << "2. childs from operation subtree (without direct childs) ";
-            list<QtNode*>::iterator debugIter;
+            list<QtNode *>::iterator debugIter;
             if (subList) for (debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
                 {
                     (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
@@ -157,7 +157,7 @@ QtOperationIterator::getChilds(QtChildType flag)
 
 
 void
-QtOperationIterator::printTree(int tab, ostream& s, QtChildType mode)
+QtOperationIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     QtOperationList::iterator iter;
 
@@ -186,7 +186,7 @@ QtOperationIterator::printTree(int tab, ostream& s, QtChildType mode)
 
 
 void
-QtOperationIterator::printAlgebraicExpression(ostream& s)
+QtOperationIterator::printAlgebraicExpression(ostream &s)
 {
     s << "op<";
 
@@ -214,31 +214,39 @@ QtOperationIterator::printAlgebraicExpression(ostream& s)
 
 
 
-QtNode::QtDataList*
+QtNode::QtDataList *
 QtOperationIterator::next()
 {
     resumeTimer();
 
-    QtDataList* returnValue = NULL;
+    QtDataList *returnValue = NULL;
 
     if (inputs)
     {
         // create a composed tuple of type QtDataList of the next elements of the input streams
         // right now, just take the QtDataList vector of the first input stream
-        QtNode::QtDataListPtr nextTuple((*inputs)[0]->next(), [](QtDataList *l) {
-            for (auto *d: *l) if (d) d->deleteRef();
+        QtNode::QtDataListPtr nextTuple((*inputs)[0]->next(), [](QtDataList * l)
+        {
+            for (auto *d : *l) if (d)
+                {
+                    d->deleteRef();
+                }
             delete l;
         });
 
         if (nextTuple)
         {
-            QtNode::QtDataListPtr resultList(new QtDataList(operationTreeList->size()), [](QtDataList* l) {
-                for (auto *d: *l) delete d;
+            QtNode::QtDataListPtr resultList(new QtDataList(operationTreeList->size()), [](QtDataList * l)
+            {
+                for (auto *d : *l)
+                {
+                    delete d;
+                }
                 delete l;
             });
 
             size_t pos = 0;
-            for (auto *op: *operationTreeList)
+            for (auto *op : *operationTreeList)
             {
                 // send them through the operand tree
                 if (op)
@@ -258,7 +266,7 @@ QtOperationIterator::next()
 
 
 
-const QtTypeTuple&
+const QtTypeTuple &
 QtOperationIterator::checkType()
 {
     dataStreamType = QtTypeTuple();

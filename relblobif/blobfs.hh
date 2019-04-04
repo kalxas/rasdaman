@@ -51,17 +51,17 @@ class BlobFS
     friend class TestBlobFS;
 public:
 
-    static BlobFS& getInstance();
+    static BlobFS &getInstance();
 
     // Store the content of a new blob.
-    void insert(BlobData& blob);
+    void insert(BlobData &blob);
     // Update the content of a blob. The blob should exist already.
-    void update(BlobData& blob);
+    void update(BlobData &blob);
     // Retrive the content of a previously stored blob; the data buffer to hold is
     // automatically allocated, and size is accordingly set.
-    void select(BlobData& blob);
+    void select(BlobData &blob);
     // Delete a previously stored blob.
-    void remove(BlobData& blob);
+    void remove(BlobData &blob);
 
     // To be called before commit to RASBASE
     void preRasbaseCommit();
@@ -82,7 +82,7 @@ private:
     // option in rasmgr.conf
     BlobFS();
     // Initialize with a given root file storage path
-    BlobFS(const std::string& rasdataPath);
+    BlobFS(const std::string &rasdataPath);
 
     // Initialize
     void init();
@@ -97,14 +97,14 @@ private:
     const std::string getTransactionsRootPath();
 
     // Helper for generating an error
-    void generateError(const char* message, const std::string& path, int errorCode);
+    void generateError(const char *message, const std::string &path, int errorCode);
 
     BlobFSConfig config;
 
-    BlobFSTransaction* insertTransaction;
-    BlobFSTransaction* updateTransaction;
-    BlobFSTransaction* removeTransaction;
-    BlobFSTransaction* selectTransaction;
+    BlobFSTransaction *insertTransaction;
+    BlobFSTransaction *updateTransaction;
+    BlobFSTransaction *removeTransaction;
+    BlobFSTransaction *selectTransaction;
 };
 
 }

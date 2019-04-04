@@ -56,13 +56,13 @@ public:
      * on the given database
      * @throws An exception is thrown if this host does not contain a database
      */
-    void addClientSessionOnDB(const std::string& databaseName, const std::string& clientId, const std::string& sessionId);
+    void addClientSessionOnDB(const std::string &databaseName, const std::string &clientId, const std::string &sessionId);
 
     /**
      * @brief removeClientSessionFromDB Decrease the number of sessions running
      * on the given database
      */
-    void removeClientSessionFromDB(const std::string& clientId, const std::string& sessionId);
+    void removeClientSessionFromDB(const std::string &clientId, const std::string &sessionId);
 
     /**
      * @brief increaseServerCount Increase the number of servers using this host.
@@ -90,7 +90,7 @@ public:
      * @param databaseName
      * @return TRUE if the database with the given name is on this host, FALSE otherwise
      */
-    bool ownsDatabase(const std::string& databaseName);
+    bool ownsDatabase(const std::string &databaseName);
 
     /**
      * Add the database to this host.
@@ -102,26 +102,26 @@ public:
      * Remove the database with the given name from this host.
      * @param dbName
      */
-    void removeDbFromHost(const std::string& dbName);
+    void removeDbFromHost(const std::string &dbName);
 
     /**
      * @brief serializeToProto
      * @param dbHost
      * @return Serialized representation of this DatabaseHost
      */
-    static DatabaseHostProto serializeToProto(const DatabaseHost& dbHost);
+    static DatabaseHostProto serializeToProto(const DatabaseHost &dbHost);
 
-    const std::string& getHostName() const;
-    void setHostName(const std::string& hostName);
+    const std::string &getHostName() const;
+    void setHostName(const std::string &hostName);
 
-    const std::string& getConnectString() const;
-    void setConnectString(const std::string& connectString);
+    const std::string &getConnectString() const;
+    void setConnectString(const std::string &connectString);
 
-    const std::string& getUserName() const;
-    void setUserName(const std::string& userName);
+    const std::string &getUserName() const;
+    void setUserName(const std::string &userName);
 
-    const std::string& getPasswdString() const;
-    void setPasswdString(const std::string& passwdString);
+    const std::string &getPasswdString() const;
+    void setPasswdString(const std::string &passwdString);
 
 private:
     std::string hostName; /*!< Name of this database host */
@@ -139,7 +139,7 @@ private:
      * @param dbName
      * @return
      */
-    bool containsDatabase(const std::string& dbName);
+    bool containsDatabase(const std::string &dbName);
 };
 
 }

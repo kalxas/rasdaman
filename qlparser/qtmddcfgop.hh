@@ -49,30 +49,30 @@ using namespace std;
 class QtMddCfgOp: public QtOperation
 {
 private:
-    QtMDDConfig* mddCfgObj;
-    QtOperation* input;
+    QtMDDConfig *mddCfgObj;
+    QtOperation *input;
 
 public:
 
     QtMddCfgOp();
     ~QtMddCfgOp();
 
-    QtMddCfgOp(QtOperation* inputInit);
+    QtMddCfgOp(QtOperation *inputInit);
 
     QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
-               double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp,
+               double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp,
                int indexType);
 
     QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
-               double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp);
+               double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp);
 
     QtMddCfgOp(int index);
 
-    void optimizeLoad(QtTrimList* trimList);
+    void optimizeLoad(QtTrimList *trimList);
 
-    QtMDDConfig* evaluate(QtDataList* inputList);
+    QtMDDConfig *evaluate(QtDataList *inputList);
 
-    QtMDDConfig* getMddConfig();
+    QtMDDConfig *getMddConfig();
 };
 
 #endif

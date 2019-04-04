@@ -29,7 +29,7 @@ public:
       * @param dbhManager Database Host Manager used to retrieve the database host
       * used by servers of this server group.
       */
-    ServerGroupImpl(const ServerGroupConfigProto& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
+    ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
 
     virtual ~ServerGroupImpl();
 
@@ -59,7 +59,7 @@ public:
      * @return TRUE if there was a server with the given serverId that was
      * starting and was successfully started, FALSE otherwise
      */
-    virtual bool tryRegisterServer(const std::string& serverId);
+    virtual bool tryRegisterServer(const std::string &serverId);
 
     /**
      * @brief evaluateServerGroup Evaluate each server in this server group.
@@ -80,7 +80,7 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    virtual bool tryGetAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server);
+    virtual bool tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server);
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig
@@ -94,7 +94,7 @@ public:
      * this ServerGroup object.
      * @param value
      */
-    virtual void changeGroupConfig(const ServerGroupConfigProto& value) ;
+    virtual void changeGroupConfig(const ServerGroupConfigProto &value) ;
 
     /**
      * @brief getGroupName Get the name of this group.
@@ -157,7 +157,7 @@ private:
 
     void stopActiveServers(KillLevel level);
 
-    void validateAndInitConfig(ServerGroupConfigProto& config);
+    void validateAndInitConfig(ServerGroupConfigProto &config);
 };
 }
 

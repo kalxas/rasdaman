@@ -61,7 +61,7 @@ r_Iterator<T>::r_Iterator()
 }
 
 template<class T>
-r_Iterator<T>::r_Iterator(const r_Iterator<T>& iter)
+r_Iterator<T>::r_Iterator(const r_Iterator<T> &iter)
 {
     collection = iter.collection;
     ptr = iter.ptr;
@@ -69,18 +69,18 @@ r_Iterator<T>::r_Iterator(const r_Iterator<T>& iter)
 }
 
 template<class T>
-r_Iterator<T>::r_Iterator(r_Collection<T>& source, int removed_objects)
+r_Iterator<T>::r_Iterator(r_Collection<T> &source, int removed_objects)
 {
     collection = &source;
     // sorry for this awful cast but there is
     // no standard conversion of r_Collection<T>::CNode* to r_Collection::CNode*
     if (removed_objects)
     {
-        ptr = static_cast<typename r_Collection<T>::CNode*>(source.removed_objects);
+        ptr = static_cast<typename r_Collection<T>::CNode *>(source.removed_objects);
     }
     else
     {
-        ptr = static_cast<typename r_Collection<T>::CNode*>(source.coll);
+        ptr = static_cast<typename r_Collection<T>::CNode *>(source.coll);
     }
 
     ndone = (ptr->elem != 0);
@@ -92,8 +92,8 @@ r_Iterator<T>::~r_Iterator()
 }
 
 template<class T>
-r_Iterator<T>&
-r_Iterator<T>::operator=(const r_Iterator<T>& iter)
+r_Iterator<T> &
+r_Iterator<T>::operator=(const r_Iterator<T> &iter)
 {
     if (this != &iter)
     {
@@ -107,7 +107,7 @@ r_Iterator<T>::operator=(const r_Iterator<T>& iter)
 
 template<class T>
 int
-r_Iterator<T>::is_equal(const r_Iterator<T>& iter) const
+r_Iterator<T>::is_equal(const r_Iterator<T> &iter) const
 {
     if (collection == iter.collection)
         if (ptr == iter.ptr)
@@ -120,20 +120,20 @@ r_Iterator<T>::is_equal(const r_Iterator<T>& iter) const
 
 template<class T>
 int
-operator==(const r_Iterator<T>& iter1, const r_Iterator<T>& iter2)
+operator==(const r_Iterator<T> &iter1, const r_Iterator<T> &iter2)
 {
     return iter1.is_equal(iter2);
 }
 
 template<class T>
 int
-operator!=(const r_Iterator<T>& iter1, const r_Iterator<T>& iter2)
+operator!=(const r_Iterator<T> &iter1, const r_Iterator<T> &iter2)
 {
     return !iter1.is_equal(iter2);
 }
 
 template<class T>
-r_Iterator<T>&
+r_Iterator<T> &
 r_Iterator<T>::operator++()
 {
     // ++prefix operator
@@ -180,7 +180,7 @@ r_Iterator<T>::operator*()
 
     // The following line was return *(ptr->elem) but the HP compiler had problems
     // while instantiating the code. CNode::elem was of a different type than T.
-    return *(static_cast<T*>(ptr->elem));
+    return *(static_cast<T *>(ptr->elem));
 }
 
 template<class T>
@@ -200,7 +200,7 @@ r_Iterator<T>::get_element() const
 
 template<class T>
 int
-r_Iterator<T>::next(T& element)
+r_Iterator<T>::next(T &element)
 {
     if (!ndone || ptr->elem == 0)
     {
@@ -217,11 +217,11 @@ r_Iterator<T>::reset(int removed_objects)
 {
     if (removed_objects)
     {
-        ptr = static_cast<typename r_Collection<T>::CNode*>(collection->removed_objects);
+        ptr = static_cast<typename r_Collection<T>::CNode *>(collection->removed_objects);
     }
     else
     {
-        ptr = static_cast<typename r_Collection<T>::CNode*>(collection->coll);
+        ptr = static_cast<typename r_Collection<T>::CNode *>(collection->coll);
     }
 
     ndone = (ptr->elem != 0);

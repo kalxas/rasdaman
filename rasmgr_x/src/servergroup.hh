@@ -71,7 +71,7 @@ public:
      * @return TRUE if there was a server with the given serverId that was
      * starting and was successfully started, FALSE otherwise
      */
-    virtual bool tryRegisterServer(const std::string& serverId) = 0;
+    virtual bool tryRegisterServer(const std::string &serverId) = 0;
 
     /**
      * @brief evaluateServerGroup Evaluate each server in this server group.
@@ -92,7 +92,7 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    virtual bool tryGetAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server) = 0;
+    virtual bool tryGetAvailableServer(const std::string &dbName, boost::shared_ptr<Server> &out_server) = 0;
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig
@@ -106,7 +106,7 @@ public:
      * this ServerGroup object.
      * @param value
      */
-    virtual void changeGroupConfig(const ServerGroupConfigProto& value) = 0;
+    virtual void changeGroupConfig(const ServerGroupConfigProto &value) = 0;
 
     /**
      * @brief getGroupName Get the name of this group.

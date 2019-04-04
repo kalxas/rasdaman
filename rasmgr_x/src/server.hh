@@ -36,7 +36,7 @@ public:
      * @return true if the client is alive, false otherwise
      * @throws runtime_error if the server cannot be contacted.
      */
-    virtual bool isClientAlive(const std::string& clientId) = 0;
+    virtual bool isClientAlive(const std::string &clientId) = 0;
 
     /**
      * Allocate the client with the given ID and session ID to the server and respective database.
@@ -45,14 +45,14 @@ public:
      * @param dbName name of the database which will be opened.
      * @param dbRights rights the client has on this database
      */
-    virtual void allocateClientSession(const std::string& clientId, const std::string& sessionId, const std::string& dbName, const UserDatabaseRights& dbRights) = 0;
+    virtual void allocateClientSession(const std::string &clientId, const std::string &sessionId, const std::string &dbName, const UserDatabaseRights &dbRights) = 0;
 
     /**
      * Remove the client with the given ID and session ID from the server.
      * @param clientId
      * @param sessionId
      */
-    virtual void deallocateClientSession(const std::string& clientId, const std::string& sessionId) = 0;
+    virtual void deallocateClientSession(const std::string &clientId, const std::string &sessionId) = 0;
 
     /**
      * Register this server and transfer it to the FREE state.
@@ -60,7 +60,7 @@ public:
      * The serverId must be the same as the one used to initialize the object.
      * @param serverId UUID used to identify the server
      */
-    virtual void registerServer(const std::string& serverId) = 0;
+    virtual void registerServer(const std::string &serverId) = 0;
 
     /**
      * @brief getTransactionNo Get the number of client sessions processed

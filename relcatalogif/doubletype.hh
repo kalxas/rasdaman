@@ -61,16 +61,16 @@ public:
     default constructor, sets type name to "Double".
     */
 
-    DoubleType(const OId& id);
+    DoubleType(const OId &id);
     /*@Doc:
     */
 
-    DoubleType(const DoubleType& old);
+    DoubleType(const DoubleType &old);
     /*@Doc:
     copy constructor.
     */
 
-    DoubleType& operator=(const DoubleType& old);
+    DoubleType &operator=(const DoubleType &old);
     /*@Doc:
     assignment operator.
     */
@@ -80,19 +80,19 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
     /*@Doc:
     */
 
-    virtual double* convertToCDouble(const char* cell, double* value) const;
+    virtual double *convertToCDouble(const char *cell, double *value) const;
     /*@Doc:
     */
 
-    virtual char* makeFromCDouble(char* cell, const double* value) const;
+    virtual char *makeFromCDouble(char *cell, const double *value) const;
     /*@Doc:
     */
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

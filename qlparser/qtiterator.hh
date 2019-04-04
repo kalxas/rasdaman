@@ -51,25 +51,25 @@ class QtIterator : public QtONCStream
 {
 public:
     /// list of QtONCStream objects
-    typedef std::vector<QtONCStream*> QtONCStreamList;
+    typedef std::vector<QtONCStream *> QtONCStreamList;
 
     /// default constructor
     QtIterator();
 
     /// constructor getting a pointer to the parent
-    QtIterator(QtNode* node);
+    QtIterator(QtNode *node);
 
     /// destructor
     virtual ~QtIterator();
 
     /// return childs of the node
-    virtual QtNodeList* getChilds(QtChildType flag);
+    virtual QtNodeList *getChilds(QtChildType flag);
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     //@Man: Operations of the ONC protocol
     //@{
@@ -84,22 +84,22 @@ public:
     //@Man: Read/Write methods:
     //@{
     ///
-    inline void setStreamInputs(QtONCStreamList* inputs);
+    inline void setStreamInputs(QtONCStreamList *inputs);
 
     /// Returns inputs
-    QtONCStreamList* getStreamInputs();
+    QtONCStreamList *getStreamInputs();
     /// exchange the stream input {\tt oldInput} with {\tt newInput}
-    void setStreamInput(QtONCStream* oldInput, QtONCStream* newInput);
+    void setStreamInput(QtONCStream *oldInput, QtONCStream *newInput);
     ///
     //inline virtual void setParents();
     //@}
 
     /// get input type tuple
-    void getInputTypeTuple(QtTypeTuple& typeTuple);
+    void getInputTypeTuple(QtTypeTuple &typeTuple);
 
 protected:
     /// list of input streams
-    QtONCStreamList* inputs;
+    QtONCStreamList *inputs;
 
 private:
     /// atribute for identification of nodes

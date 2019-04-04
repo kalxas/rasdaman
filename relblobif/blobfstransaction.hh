@@ -58,9 +58,9 @@ public:
      * Initialize given storage paths. The transaction directory
      * fileStorageTransactionPath is typically empty, and is initialized here.
      */
-    BlobFSTransaction(BlobFSConfig& config,
-                      const std::string& transactionDir,
-                      const std::string& fileStorageTransactionPath);
+    BlobFSTransaction(BlobFSConfig &config,
+                      const std::string &transactionDir,
+                      const std::string &fileStorageTransactionPath);
 
     /**
      * Clears any transaction locks and removes the transaction directory in
@@ -71,7 +71,7 @@ public:
     /**
      * Add blob data to the list of pending operations to be executed in this transaction.
      */
-    virtual void add(BlobData& blobData) = 0;
+    virtual void add(BlobData &blobData) = 0;
 
     /**
      * To be called before committing to RASBASE. This is utilized only on remove
@@ -110,12 +110,12 @@ public:
 
     // Return the right transaction object, based on the given transaction path;
     // Return NULL in case of invalid path.
-    static BlobFSTransaction* getBlobFSTransaction(
-        const std::string& transactionPath, BlobFSConfig& config);
+    static BlobFSTransaction *getBlobFSTransaction(
+        const std::string &transactionPath, BlobFSConfig &config);
 
 protected:
 
-    BlobFSTransaction(BlobFSConfig& config);
+    BlobFSTransaction(BlobFSConfig &config);
 
     /**
      * Finalize a transaction that crashed during a commit/abort on RASBASE.
@@ -159,9 +159,9 @@ protected:
      * Create temporary transaction directory under $RASDATA/TRANSACTIONS
      * for a given transaction type
      */
-    void initTransactionDirectory(const std::string& transactionType);
+    void initTransactionDirectory(const std::string &transactionType);
 
-    BlobFSConfig& config;
+    BlobFSConfig &config;
 
     // Root file storage path, tiles can be organized in a flat-file scheme, or
     // nested in subdirectories in subdir TILES
@@ -171,7 +171,7 @@ protected:
     std::vector<long long> blobIds;
 
     // Underlying transaction lock handler, used in the commit/abort handlers.
-    BlobFSTransactionLock* transactionLock;
+    BlobFSTransactionLock *transactionLock;
 
     static const std::string FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR;
     static const std::string FILESTORAGE_UPDATE_TRANSACTIONS_SUBDIR;
@@ -184,10 +184,10 @@ protected:
 class BlobFSInsertTransaction: public BlobFSTransaction
 {
 public:
-    BlobFSInsertTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string());
+    BlobFSInsertTransaction(BlobFSConfig &config,
+                            const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData);
+    virtual void add(BlobData &blobData);
 
     // To be called after commit to RASBASE
     virtual void postRasbaseCommit();
@@ -198,10 +198,10 @@ public:
 class BlobFSUpdateTransaction: public BlobFSTransaction
 {
 public:
-    BlobFSUpdateTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string());
+    BlobFSUpdateTransaction(BlobFSConfig &config,
+                            const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData);
+    virtual void add(BlobData &blobData);
 
     // To be called after commit to RASBASE
     virtual void postRasbaseCommit();
@@ -212,10 +212,10 @@ public:
 class BlobFSRemoveTransaction: public BlobFSTransaction
 {
 public:
-    BlobFSRemoveTransaction(BlobFSConfig& config,
-                            const std::string& fileStorageTransactionPath = std::string());
+    BlobFSRemoveTransaction(BlobFSConfig &config,
+                            const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData& blobData);
+    virtual void add(BlobData &blobData);
 
     // To be called before commit to RASBASE
     virtual void preRasbaseCommit();
@@ -228,9 +228,9 @@ public:
 class BlobFSSelectTransaction: public BlobFSTransaction
 {
 public:
-    BlobFSSelectTransaction(BlobFSConfig& config);
+    BlobFSSelectTransaction(BlobFSConfig &config);
 
-    virtual void add(BlobData& blobData);
+    virtual void add(BlobData &blobData);
 };
 
 }

@@ -64,7 +64,7 @@ public:
     could be superceded by OId::OIdType
     */
 
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /*@Doc:
     returns type as string:
         marray <>
@@ -73,32 +73,32 @@ public:
     /**
      * @brief getNewTypeStructure - returns the type structe in the format required by SQL type manipulation format
      */
-    virtual char* getNewTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
 
-    MDDType(const OId& id);
+    MDDType(const OId &id);
 
     MDDType();
     /*@Doc:
     constructor.
     */
 
-    MDDType(const char* newTypeName);
+    MDDType(const char *newTypeName);
     /*@Doc:
     constructor using type name.
     */
 
-    MDDType(const MDDType& old);
+    MDDType(const MDDType &old);
     /*@Doc:
     copy constructor.
     */
 
-    MDDType& operator=(const MDDType& old);
+    MDDType &operator=(const MDDType &old);
     /*@Doc:
     assignment operator.
     */
 
-    virtual void print_status(ostream& s) const;
+    virtual void print_status(ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
         \tr_Marray<>
@@ -114,13 +114,13 @@ public:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     check for compatibility of MDDTypes:
         if aType is a MDDTYPE Type (don't confuse with MDDType!!)
     */
 
-    virtual int compatibleWithDomain(const r_Minterval* aDomain) const;
+    virtual int compatibleWithDomain(const r_Minterval *aDomain) const;
     /*@Doc:
     check for compatibility with a certain domain.
     always returns 1.

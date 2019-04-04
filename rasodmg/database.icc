@@ -27,12 +27,12 @@ rasdaman GmbH.
  * CLASS:   r_Database
  *
  * COMMENTS:
- *		None
+ *      None
 */
 
 inline
-r_Database::access_status 
+r_Database::access_status
 r_Database::get_status() const
 {
-  return db_status;
+    return db_status;
 }

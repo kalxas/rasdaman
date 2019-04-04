@@ -40,10 +40,10 @@ using namespace std;
 // try to allocate requested memory;
 // if impossible, try to free some, then retry allocation (by recursion)
 // if nothing can be freed & allocated, give up & throw exception
-void* mymalloc(size_t size)
+void *mymalloc(size_t size)
 {
-    void* ret = aligned_alloc(RAS_MEMORY_ALIGNMENT, size);
-    if (ret != (void*)NULL)
+    void *ret = aligned_alloc(RAS_MEMORY_ALIGNMENT, size);
+    if (ret != (void *)NULL)
     {
         // success, return
         return ret;
@@ -52,16 +52,16 @@ void* mymalloc(size_t size)
     {
         // failed, retry
         auto retriesSoFar = MAX_RETRIES;   // while all of these are true:
-        while (ret == (void*)NULL          //  - p is null == malloc failed
-            && retriesSoFar != 0           //  - retried less than MAX_RETRIES times so far
-            && ObjectBroker::freeMemory()) //  - it's possible to free some cached memory
+        while (ret == (void *)NULL         //  - p is null == malloc failed
+                && retriesSoFar != 0           //  - retried less than MAX_RETRIES times so far
+                && ObjectBroker::freeMemory()) //  - it's possible to free some cached memory
         {
             ret = malloc(size);
             --retriesSoFar;
         }
     }
 
-    if (ret != (void*)NULL)
+    if (ret != (void *)NULL)
     {
         // success, return
         return ret;

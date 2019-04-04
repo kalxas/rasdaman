@@ -54,9 +54,13 @@ void
 TransactionIf::begin(bool readOnly)
 {
     if (readOnly)
+    {
         SQLiteQuery::execute("BEGIN TRANSACTION");
+    }
     else
+    {
         SQLiteQuery::execute("BEGIN IMMEDIATE TRANSACTION");
+    }
 
     isReadOnly = readOnly;
     AdminIf::setAborted(false);
@@ -96,7 +100,7 @@ TransactionIf::commit()
         BlobFS::getInstance().preRasbaseCommit();
         SQLiteQuery::execute("COMMIT TRANSACTION");
     }
-    catch (const r_Error& err)
+    catch (const r_Error &err)
     {
         LERROR << "Commit failed: " << err.what() << "; aborting transaction.";
         abort();

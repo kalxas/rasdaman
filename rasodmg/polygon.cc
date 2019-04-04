@@ -69,18 +69,18 @@ static const char rcsid[] = "@(#)rasodmg, r_Polygon: $Header: /home/rasdev/CVS-r
 // r_Edge
 // ------------------------------------------------------------------
 
-r_Edge::r_Edge(const r_Point& newStart, const r_Point& newEnd) :
+r_Edge::r_Edge(const r_Point &newStart, const r_Point &newEnd) :
     start(newStart), end(newEnd)
 {
 }
 
-const r_Point&
+const r_Point &
 r_Edge::getStart() const
 {
     return start;
 }
 
-const r_Point&
+const r_Point &
 r_Edge::getEnd() const
 {
     return end;
@@ -129,7 +129,7 @@ r_Edge::getCurrY(r_Range x) const
 }
 
 void
-r_Edge::print_status(std::ostream& s) const
+r_Edge::print_status(std::ostream &s) const
 {
     start.print_status(s);
     s << "->";
@@ -149,7 +149,7 @@ r_Edge::isHorizontal() const
 
 const r_Dimension r_Polygon::polyPointDim = 2;
 
-r_Polygon::r_Polygon(const char* init)
+r_Polygon::r_Polygon(const char *init)
     :   closed(false),
         firstPointSet(false)
 {
@@ -160,10 +160,10 @@ r_Polygon::r_Polygon(const char* init)
         throw r_Error(POLYGONWRONGINITSTRING);
     }
     const int POINTBUFFERLEN = 512;
-    const char* endPos = NULL;
+    const char *endPos = NULL;
     size_t pointLen = 0;
     char pointBuffer[POINTBUFFERLEN];
-    const char* startPos = index(init, '[');
+    const char *startPos = index(init, '[');
     if (startPos == NULL)
     {
         LDEBUG << "r_Polygon::r_Polygon(" << init << ") the init string has to start with a '['";
@@ -209,7 +209,7 @@ r_Polygon::r_Polygon() : closed(false), firstPointSet(false)
 {
 }
 
-r_Polygon::r_Polygon(const r_Polygon& old)
+r_Polygon::r_Polygon(const r_Polygon &old)
 {
     closed = old.closed;
     firstPointSet = old.firstPointSet;
@@ -219,8 +219,8 @@ r_Polygon::r_Polygon(const r_Polygon& old)
     edges = old.edges;
 }
 
-r_Polygon&
-r_Polygon::operator=(const r_Polygon& old)
+r_Polygon &
+r_Polygon::operator=(const r_Polygon &old)
 {
     if (this != &old)
     {
@@ -235,7 +235,7 @@ r_Polygon::operator=(const r_Polygon& old)
 }
 
 void
-r_Polygon::addPoint(const r_Point& newPoint)
+r_Polygon::addPoint(const r_Point &newPoint)
 {
     if (newPoint.dimension() != polyPointDim)
     {
@@ -286,7 +286,7 @@ r_Polygon::close()
     closed = true;
 }
 
-const std::vector<r_Edge>&
+const std::vector<r_Edge> &
 r_Polygon::getEdges() const
 {
     // if the polygon is not closed we raise an exception.
@@ -388,7 +388,7 @@ r_Polygon::checkFistPoint()
 }
 
 void
-r_Polygon::print_status(std::ostream& s) const
+r_Polygon::print_status(std::ostream &s) const
 {
 
     std::vector<r_Edge>::const_iterator iter = edges.begin();
@@ -412,14 +412,14 @@ r_Polygon::print_status(std::ostream& s) const
 
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Polygon& d)
+std::ostream &operator<<(std::ostream &s, const r_Polygon &d)
 {
     d.print_status(s);
     return s;
 }
 
 void
-r_Polygon::fillMArray(r_GMarray& myArray, bool fillInside, const std::string& bgr) const
+r_Polygon::fillMArray(r_GMarray &myArray, bool fillInside, const std::string &bgr) const
 {
     if (!closed)
     {
@@ -537,7 +537,7 @@ r_Polygon::getBoundingBox() const
 }
 
 void
-r_Polygon::clip(const r_Minterval& clipDom)
+r_Polygon::clip(const r_Minterval &clipDom)
 {
     if (!closed)
     {
@@ -578,8 +578,8 @@ r_Polygon::clip(const r_Minterval& clipDom)
 
 
 void
-r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
-                 const r_Minterval& clipDom, const double& scaleFactor)
+r_Polygon::scale(const r_Point &origin, const r_Minterval &mddDom,
+                 const r_Minterval &clipDom, const double &scaleFactor)
 {
     r_Dimension dim = origin.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -616,7 +616,7 @@ r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
 
 
 void
-r_Polygon::scale(const r_Point& origin, const double& scaleFactor)
+r_Polygon::scale(const r_Point &origin, const double &scaleFactor)
 {
     r_Dimension dim = origin.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -649,7 +649,7 @@ r_Polygon::scale(const r_Point& origin, const double& scaleFactor)
 }
 
 void
-r_Polygon::mirror(const r_Minterval& mddDom)
+r_Polygon::mirror(const r_Minterval &mddDom)
 {
     r_Dimension dim = mddDom.dimension();
     std::vector<r_Point> oldPoints = getPoints();
@@ -672,7 +672,7 @@ r_Polygon::mirror(const r_Minterval& mddDom)
 }
 
 void
-r_Polygon::fromPoints(const std::vector<r_Point>& newPoints)
+r_Polygon::fromPoints(const std::vector<r_Point> &newPoints)
 {
     std::vector<r_Point>::const_iterator iter, iterEnd;
 
@@ -699,7 +699,7 @@ r_Polygon::fromPoints(const std::vector<r_Point>& newPoints)
 }
 
 void
-r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const
+r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray &myArray, const std::string &bgr) const
 {
     // Do nothing in that case (may happen due to rounding problems)
     if (x2 < x1)
@@ -712,8 +712,8 @@ r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, cons
     r_Minterval arrayDom = myArray.spatial_domain();
     r_Bytes typeSize = myArray.get_type_length();
     r_Bytes bgrSize = bgr.size();
-    const char* bgrContent = bgr.c_str();
-    char* currCell = NULL;
+    const char *bgrContent = bgr.c_str();
+    char *currCell = NULL;
 
 
     // Grrr. In RasDaMan the y are stored close together. So the whole fillPolygon
@@ -740,7 +740,7 @@ r_Polygon::eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, cons
 }
 
 std::vector<r_Point>
-r_Polygon::clip1Side(const r_Minterval& b, r_Polygon::Side s)
+r_Polygon::clip1Side(const r_Minterval &b, r_Polygon::Side s)
 {
     // This routine clips a polygon against one (endless) edge of a bounding box.
     // It is an implementation of the Sutherland-Hodgman algorithm geared more
@@ -787,7 +787,7 @@ r_Polygon::clip1Side(const r_Minterval& b, r_Polygon::Side s)
 }
 
 bool
-r_Polygon::inside(const r_Minterval& b, const r_Point& p, r_Polygon::Side s)
+r_Polygon::inside(const r_Minterval &b, const r_Point &p, r_Polygon::Side s)
 {
     switch (s)
     {
@@ -805,7 +805,7 @@ r_Polygon::inside(const r_Minterval& b, const r_Point& p, r_Polygon::Side s)
 }
 
 r_Point
-r_Polygon::intersect(const r_Minterval& b, const r_Edge& e, r_Polygon::Side s)
+r_Polygon::intersect(const r_Minterval &b, const r_Edge &e, r_Polygon::Side s)
 {
     switch (s)
     {

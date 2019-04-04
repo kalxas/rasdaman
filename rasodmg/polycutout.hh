@@ -72,13 +72,13 @@ using std::ostream;
 class r_SegmentIterator
 {
 public:
-    r_SegmentIterator(r_Point&, r_Point&);
+    r_SegmentIterator(r_Point &, r_Point &);
     void reset();
     r_Point next();
     bool hasMore();
     int  cosFunc(); // limited use,1000 * cos(alfa)
 private:
-    void  swap(r_Range&, r_Range&);
+    void  swap(r_Range &, r_Range &);
     r_Point createCurrentPoint();
 
     r_Point start;
@@ -98,14 +98,14 @@ class r_Line
 public:
     r_Line();
     r_Line(double, double, double);
-    r_Line(r_Point&, r_Point&);
+    r_Line(r_Point &, r_Point &);
     double getA();
     double getB();
     double getC();
-    float ecuatia(r_Point&);
+    float ecuatia(r_Point &);
 private:
     double a, b, c;
-    friend ostream& operator<<(ostream&, r_Line&);
+    friend ostream &operator<<(ostream &, r_Line &);
 };
 
 
@@ -119,11 +119,11 @@ public:
     ~r_PolygonCutOut();
     void setImageSize(r_Range width, r_Range height);
 
-    void setMArray(r_GMarray& myArray);
-    void addPolygon(const r_Polygon&);
+    void setMArray(r_GMarray &myArray);
+    void addPolygon(const r_Polygon &);
 
-    bool fillMArrayInside(const string& bgr = "");
-    bool fillMArrayOutside(const string& bgr = "");
+    bool fillMArrayInside(const string &bgr = "");
+    bool fillMArrayOutside(const string &bgr = "");
 
     // just for debugging
     void print(r_Range onlyLine = -1);
@@ -131,12 +131,12 @@ public:
 
 private:
     bool compute();
-    void eraseLine(r_Range, r_Range, r_Range y, const string& bgr);
+    void eraseLine(r_Range, r_Range, r_Range y, const string &bgr);
 
     r_Range imgWidth, imgHeight;
     r_Range imgX, imgY; // - the origin of the mdd domain
 
-    r_GMarray* mArray;
+    r_GMarray *mArray;
 
     std::list<r_Polygon> polygons;
 
@@ -145,14 +145,14 @@ private:
         r_Range x;
         int   inside; // where the inside is, -1 left, +1 right, 0 hor. line
         int   cosFunc;
-        bool operator==(TablePoint&);
+        bool operator==(TablePoint &);
     };
 
     r_Range tableWidth;
     r_Range tableHeight;
-    TablePoint* table;
-    int*        usedCount;
-    TablePoint& getTP(r_Range line, r_Range column);
+    TablePoint *table;
+    int        *usedCount;
+    TablePoint &getTP(r_Range line, r_Range column);
 
     bool initTable();
     void clearTables();

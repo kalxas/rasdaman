@@ -56,19 +56,19 @@ values. The value of a Float is stored in four chars.
 class FloatType : public RealType
 {
 public:
-    FloatType(const OId& id);
+    FloatType(const OId &id);
 
     FloatType();
     /*@Doc:
     default constructor, sets type name to "Float".
     */
 
-    FloatType(const FloatType& old);
+    FloatType(const FloatType &old);
     /*@Doc:
     copy constructor.
     */
 
-    FloatType& operator=(const FloatType& old);
+    FloatType &operator=(const FloatType &old);
     /*@Doc:
     assignment operator.
     */
@@ -78,13 +78,13 @@ public:
     virtual destructor.
     */
 
-    virtual void printCell(ostream& stream, const char* cell) const;
+    virtual void printCell(ostream &stream, const char *cell) const;
 
-    virtual double* convertToCDouble(const char* cell, double* value) const;
+    virtual double *convertToCDouble(const char *cell, double *value) const;
 
-    virtual char* makeFromCDouble(char* cell, const double* value) const;
+    virtual char *makeFromCDouble(char *cell, const double *value) const;
 
-    static const char* Name;
+    static const char *Name;
 
 protected:
 

@@ -53,30 +53,30 @@ class QtShift : public QtBinaryOperation
 {
 public:
     /// constructor getting the two operands
-    QtShift(QtOperation* mddOp, QtOperation* pointOp);
+    QtShift(QtOperation *mddOp, QtOperation *pointOp);
 
     /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /// attribute for identification of nodes
@@ -100,7 +100,7 @@ class QtExtend : public QtBinaryOperation
 {
 public:
     /// constructor getting the two operands
-    QtExtend(QtOperation* mddOp, QtOperation* mintervalOp);
+    QtExtend(QtOperation *mddOp, QtOperation *mintervalOp);
     /**
     FIXME: creates one single output tile, but should have a result tiling
      */
@@ -109,24 +109,24 @@ public:
     virtual bool isCommutative() const;
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
     /**
@@ -142,7 +142,7 @@ private:
     @params currentInterval current interval which is being built by iterating over its dimensions
     @params cornerList list of corner intervals that is to be built; has to be deallocated by caller.
     **/
-    void extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, r_Dimension currentDim, r_Dimension maxDim, r_Minterval currentInterval, vector<r_Minterval>* cornerList);
+    void extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, r_Dimension currentDim, r_Dimension maxDim, r_Minterval currentInterval, vector<r_Minterval> *cornerList);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
@@ -162,36 +162,36 @@ class QtScale : public QtBinaryOperation
 {
 public:
     /// constructor getting the two operands
-    QtScale(QtOperation* mddOp, QtOperation* pointOp);
+    QtScale(QtOperation *mddOp, QtOperation *pointOp);
 
     /// returns FALSE saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
 
     /// method for evaluating the node
-    QtData* evaluate(QtDataList* inputList);
+    QtData *evaluate(QtDataList *inputList);
     /**
      */
 
     /// prints the tree
-    virtual void printTree(int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES);
+    virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
     /// prints the algebraic expression
-    virtual void printAlgebraicExpression(std::ostream& s = std::cout);
+    virtual void printAlgebraicExpression(std::ostream &s = std::cout);
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
 
     /// optimizing load access
-    virtual void optimizeLoad(QtTrimList* trimList);
+    virtual void optimizeLoad(QtTrimList *trimList);
 
     /// type checking of the subtree
-    virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);
+    virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
     /// scale domains - initial version
-    virtual int scaleDomain(const r_Minterval& areaOp, const r_Point& origin1, const r_Point& origin2, const vector<double>& scaleFactors, r_Minterval& areaScaled);
+    virtual int scaleDomain(const r_Minterval &areaOp, const r_Point &origin1, const r_Point &origin2, const vector<double> &scaleFactors, r_Minterval &areaScaled);
 
     /// scale domains - the used version
-    virtual int scaleDomain(const r_Minterval& areaOp, const vector<double>& scaleFactors, r_Minterval& areaScaled);
+    virtual int scaleDomain(const r_Minterval &areaOp, const vector<double> &scaleFactors, r_Minterval &areaScaled);
 
 private:
     /// attribute for identification of nodes

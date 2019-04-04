@@ -79,8 +79,8 @@ const int SYSTEMNAME_MAXLEN = 256;
   */
 
 void
-checkCounter(const char* counterName, const char* column,
-             const char* table, const char* tableDescr, bool& retval);
+checkCounter(const char *counterName, const char *column,
+             const char *table, const char *tableDescr, bool &retval);
 
 void
 closeDbConnection();
@@ -88,18 +88,18 @@ closeDbConnection();
 class AdminIf
 {
 public:
-    static AdminIf* instance(bool createDb = false);
+    static AdminIf *instance(bool createDb = false);
     /*@Doc:
     static function used to access instance of AdminIf and start session.
     createDb should be true only for rasdl when it is executed to create RASBASE.
     */
 
-    static DatabaseIf* getCurrentDatabaseIf();
+    static DatabaseIf *getCurrentDatabaseIf();
     /*@Doc:
     static function used to access the current databaseif object
     */
 
-    static void setCurrentDatabaseIf(DatabaseIf* db);
+    static void setCurrentDatabaseIf(DatabaseIf *db);
     /*@Doc:
     static function used to store the current databaseif object in AdminIf
     this function should only be called by DatabaseIf, DatabasIf
@@ -114,7 +114,7 @@ public:
     deinitializes benchmark timers
     */
 
-    static char* getSystemName();
+    static char *getSystemName();
     /*@Doc:
     returns Oracle on oracle
     */
@@ -148,12 +148,12 @@ protected:
     */
 
 private:
-    static AdminIf* myInstance;
+    static AdminIf *myInstance;
     /*@Doc:
     pointer to instance (just needed for Singleton pattern).
     */
 
-    static DatabaseIf* myDatabaseIf;
+    static DatabaseIf *myDatabaseIf;
     /*@Doc:
     pointer to the current DatabaseIf object
     */

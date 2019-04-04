@@ -33,9 +33,9 @@ rasdaman GmbH.
 #include <logging.hh>
 
 inline
-r_Miter::r_Miter( const r_Minterval* newAreaIter,
-                  const r_Minterval* newAreaTile,
-                  r_Bytes newCellSize, const char* newFirstCell )
+r_Miter::r_Miter(const r_Minterval *newAreaIter,
+                 const r_Minterval *newAreaTile,
+                 r_Bytes newCellSize, const char *newFirstCell)
     : areaIter(newAreaIter), areaTile(newAreaTile), cellSize(newCellSize),
       firstCell(newFirstCell), done(false)
 {
@@ -53,7 +53,7 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     // stores the increments
     incArrIter = new incArrElem[dim];
 
-    for( r_Dimension i=0; i<dim; ++i )
+    for (r_Dimension i = 0; i < dim; ++i)
     {
         // in RasDaMan the order of dimensions is the other way round!
         size_t r = dim - 1 - i;
@@ -91,38 +91,39 @@ r_Miter::~r_Miter()
 inline void
 r_Miter::reset()
 {
-    currCell = const_cast<char*>(firstCell);
+    currCell = const_cast<char *>(firstCell);
     done = false;
     lowCount = 0;
-    for( r_Dimension i=0; i<areaIter->dimension(); i++ )
+    for (r_Dimension i = 0; i < areaIter->dimension(); i++)
     {
         incArrIter[i].curr = 0;
     }
 }
 
-inline char*
+inline char *
 r_Miter::nextCell()
 {
     // return the current cell
-    char* retVal = currCell;
+    char *retVal = currCell;
     r_Dimension i = 0;
 
-    if(done){
+    if (done)
+    {
         return retVal;
     }
 
     // increment adresses
     currCell += incArrIter[0].inc;
     lowCount++;
-    if(lowCount == incArrIter[0].repeat)
+    if (lowCount == incArrIter[0].repeat)
     {
         lowCount = 0;
         // increment other dimensions
-        for(i=1; i < areaIter->dimension(); i++)
+        for (i = 1; i < areaIter->dimension(); i++)
         {
             incArrIter[i].curr++;
             currCell += incArrIter[i].inc;
-            if(incArrIter[i].curr < incArrIter[i].repeat)
+            if (incArrIter[i].curr < incArrIter[i].repeat)
             {
                 // no overflow in this dimension
                 break;
@@ -133,7 +134,7 @@ r_Miter::nextCell()
                 incArrIter[i].curr = 0;
             }
         }
-        if( i == areaIter->dimension() )
+        if (i == areaIter->dimension())
         {
             // overflow in last dimension
             done = true;

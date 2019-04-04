@@ -42,7 +42,7 @@ public:
      * @param configuration
      * @return
      */
-    virtual boost::shared_ptr<Server> createServer(const ServerConfig& configuration) = 0;
+    virtual boost::shared_ptr<Server> createServer(const ServerConfig &configuration) = 0;
 };
 
 } /* namespace rasmgr */

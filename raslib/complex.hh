@@ -58,10 +58,10 @@ public:
 
     explicit
     /// constructs a scalar type value
-    r_Complex(const char* newBuffer, const r_Complex_Type* newType);
+    r_Complex(const char *newBuffer, const r_Complex_Type *newType);
 
     /// copy constructor
-    r_Complex(const r_Complex& obj);
+    r_Complex(const r_Complex &obj);
 
     /// destructor
     ~r_Complex();
@@ -69,10 +69,10 @@ public:
     virtual bool isComplex() const;
 
     /// clone operator
-    virtual r_Scalar* clone() const;
+    virtual r_Scalar *clone() const;
 
     /// operator for assigning a primitive
-    const r_Complex& operator =(const r_Complex&);
+    const r_Complex &operator =(const r_Complex &);
 
     r_Double get_re() const;
     r_Double get_im() const;

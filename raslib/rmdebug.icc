@@ -23,90 +23,91 @@
 // -*-C++-*- (for Emacs)
 
 inline
-RMTimer::RMTimer(const char* newClass, const char* newFunc, int newBmLevel)
-  : myClass(newClass), myFunc(newFunc), bmLevel(newBmLevel), running(0)
+RMTimer::RMTimer(const char *newClass, const char *newFunc, int newBmLevel)
+    : myClass(newClass), myFunc(newFunc), bmLevel(newBmLevel), running(0)
 {
 #ifdef __VISUALC__
-  /* Set time zone from TZ environment variable.If TZ is not set,
-   * the operating system is queried to obtain the default value
-   * for the variable
-   */
-  _tzset();
+    /* Set time zone from TZ environment variable.If TZ is not set,
+     * the operating system is queried to obtain the default value
+     * for the variable
+     */
+    _tzset();
 #endif
-  start();
+    start();
 }
 
 inline
 RMTimer::~RMTimer()
 {
-  stop();
+    stop();
 }
 
 inline void
 RMTimer::setOutput(int newOutput)
 {
-  output = newOutput;
+    output = newOutput;
 }
 
 inline void
 RMTimer::start()
 {
-  // reset accu
-  accuTime = 0;
-  // set output to TRUE
-  output = 1;
-  resume();
+    // reset accu
+    accuTime = 0;
+    // set output to TRUE
+    output = 1;
+    resume();
 }
 
 inline void
 RMTimer::pause()
 {
-  if( running )
-  {
-    fetchTime();
+    if (running)
+    {
+        fetchTime();
 #ifdef __VISUALC__
-    // reset acttime.tv_usec which means that no timer is running
-    acttime.tv_usec = 0;
-#endif  
+        // reset acttime.tv_usec which means that no timer is running
+        acttime.tv_usec = 0;
+#endif
 
-    // timer is not running
-    running = 0;
-  }
+        // timer is not running
+        running = 0;
+    }
 }
 
 inline void
 RMTimer::resume()
 {
 #ifdef __VISUALC__
-  time(&acttime);
+    time(&acttime);
 #else
-  gettimeofday(&acttime, &dummy);
+    gettimeofday(&acttime, &dummy);
 #endif
 
-  // timer is running
-  running = 1;
+    // timer is running
+    running = 1;
 }
 
 inline void
 RMTimer::stop()
 {
-  pause();
+    pause();
 
-  if(output && RManBenchmark >= bmLevel ) {
-    RMInit::bmOut
-		<< std::endl
-		<< "PerformanceTimer: " << myClass << " :: " << myFunc << " = " 
-		<< accuTime << " usecs" << std::endl;
-    // set output to FALSE
-    output = 0;
-  }
+    if (output && RManBenchmark >= bmLevel)
+    {
+        RMInit::bmOut
+                << std::endl
+                << "PerformanceTimer: " << myClass << " :: " << myFunc << " = "
+                << accuTime << " usecs" << std::endl;
+        // set output to FALSE
+        output = 0;
+    }
 }
 
 inline int
 RMTimer::getTime()
 {
-  fetchTime();
-  return accuTime;
+    fetchTime();
+    return accuTime;
 }
 
 inline void
@@ -121,7 +122,7 @@ RMTimer::fetchTime()
     time(&acttime);
 
     // add new time to accu
-    accuTime += (acttime-oldsec)*1000000; 
+    accuTime += (acttime - oldsec) * 1000000;
 #else
     // save start time
     oldsec  = acttime.tv_sec;
@@ -131,8 +132,8 @@ RMTimer::fetchTime()
     gettimeofday(&acttime, &dummy);
 
     // add new time to accu
-    accuTime += (acttime.tv_sec-oldsec)*1000000 + acttime.tv_usec - oldusec; 
+    accuTime += (acttime.tv_sec - oldsec) * 1000000 + acttime.tv_usec - oldusec;
 
-#endif  
+#endif
 }
 

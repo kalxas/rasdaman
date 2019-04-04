@@ -38,8 +38,8 @@ static const char rcsid[] = "@(#)catalogif,BaseType: $Id: basetype.C,v 1.11 2001
 #include "reladminif/externs.h"
 #include <logging.hh>
 
-BaseType::BaseType(const char* name)
-	:	Type(name)
+BaseType::BaseType(const char *name)
+    :   Type(name)
 {
     LTRACE << "BaseType(" << getName() << ")";
 }
@@ -53,19 +53,19 @@ BaseType::BaseType(const char* name)
  ************************************************************/
 
 BaseType::BaseType()
-	:	Type("unnamed basetype")
+    :   Type("unnamed basetype")
 {
     LTRACE << "BaseType()";
 }
 
-BaseType::BaseType(const OId& id)
-	:	Type(id)
+BaseType::BaseType(const OId &id)
+    :   Type(id)
 {
     LTRACE << "BaseType(" << myOId << ")";
 }
 
-BaseType::BaseType(const BaseType& old)
-	:	Type(old)
+BaseType::BaseType(const BaseType &old)
+    :   Type(old)
 {
 }
 
@@ -77,10 +77,10 @@ BaseType::BaseType(const BaseType& old)
  * Description...: virtual destructor
  ************************************************************/
 
-BaseType::~BaseType(){}
+BaseType::~BaseType() {}
 
-BaseType&
-BaseType::operator=(const BaseType& old)
+BaseType &
+BaseType::operator=(const BaseType &old)
 {
     Type::operator=(old);
     return *this;
@@ -96,29 +96,29 @@ BaseType::operator=(const BaseType& old)
  * Description...: return requested UnaryOp for ULongType
  ************************************************************/
 
-UnaryOp*
-BaseType::getUnaryOp( Ops::OpType op, const BaseType* optype ) const
+UnaryOp *
+BaseType::getUnaryOp(Ops::OpType op, const BaseType *optype) const
 {
-    return Ops::getUnaryOp(op, static_cast<const BaseType*>(this), optype);
+    return Ops::getUnaryOp(op, static_cast<const BaseType *>(this), optype);
 }
 
-BinaryOp*
-BaseType::getBinaryOp( Ops::OpType op, const BaseType* op1type, 
-		       const BaseType* op2type ) const
+BinaryOp *
+BaseType::getBinaryOp(Ops::OpType op, const BaseType *op1type,
+                      const BaseType *op2type) const
 {
-    return Ops::getBinaryOp(op, static_cast<const BaseType*>(this), op1type, op2type);
+    return Ops::getBinaryOp(op, static_cast<const BaseType *>(this), op1type, op2type);
 }
 
 
-CondenseOp*
-BaseType::getCondenseOp( Ops::OpType op ) const
-{ 
-    return Ops::getCondenseOp(op, static_cast<const BaseType*>(this));
+CondenseOp *
+BaseType::getCondenseOp(Ops::OpType op) const
+{
+    return Ops::getCondenseOp(op, static_cast<const BaseType *>(this));
 }
 
 
 int
-BaseType::compatibleWith(const Type* aType) const
+BaseType::compatibleWith(const Type *aType) const
 {
     int retval = ((myType == aType->getType()) || (aType->getType() == CHAR && myType == BOOLTYPE));
     return retval;

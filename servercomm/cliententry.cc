@@ -78,7 +78,9 @@ ClientTblElt::releaseTransferStructures()
         LTRACE << "release transferData";
         for (auto it = transferData->begin(); it != transferData->end(); it++)
             if (*it)
+            {
                 (*it)->deleteRef(), (*it) = 0;
+            }
         delete transferData, transferData = 0;
     }
 
@@ -132,7 +134,9 @@ ClientTblElt::releaseTransferStructures()
     {
         LTRACE << "release deletableTiles";
         for (auto it = deletableTiles->begin(); it != deletableTiles->end(); it++)
+        {
             delete *it, *it = NULL;
+        }
         delete deletableTiles, deletableTiles = 0;
     }
 
@@ -142,7 +146,9 @@ ClientTblElt::releaseTransferStructures()
         LTRACE << "release persColls";
         for (auto it = persColls->begin(); it != persColls->end(); it++)
             if (*it)
+            {
                 (*it)->releaseAll(), delete *it, *it = NULL;
+            }
         delete persColls, persColls = 0;
     }
 

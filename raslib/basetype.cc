@@ -38,20 +38,20 @@ r_Base_Type::r_Base_Type()
 {
 }
 
-r_Base_Type::r_Base_Type(const char* newTypeName, r_Bytes newTypeSize)
+r_Base_Type::r_Base_Type(const char *newTypeName, r_Bytes newTypeSize)
     :   r_Type(newTypeName),
         typeSize(newTypeSize)
 {
 }
 
-r_Base_Type::r_Base_Type(const r_Base_Type& oldObj)
+r_Base_Type::r_Base_Type(const r_Base_Type &oldObj)
     : r_Type(oldObj),
       typeSize(oldObj.typeSize)
 {
 }
 
-const r_Base_Type&
-r_Base_Type::operator=(const r_Base_Type& oldObj)
+const r_Base_Type &
+r_Base_Type::operator=(const r_Base_Type &oldObj)
 {
     // Gracefully handle self assignment
     if (this == &oldObj)

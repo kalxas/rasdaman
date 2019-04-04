@@ -42,7 +42,7 @@
 using namespace std;
 using namespace blobfs;
 
-BlobFile::BlobFile(const string& filePathArg)
+BlobFile::BlobFile(const string &filePathArg)
     : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR)
 {
 }
@@ -55,7 +55,7 @@ BlobFile::~BlobFile()
     }
 }
 
-void BlobFile::insertData(BlobData& blob)
+void BlobFile::insertData(BlobData &blob)
 {
     prepareForInserting();
     ssize_t count = write(fd, blob.data, blob.size);
@@ -72,7 +72,7 @@ void BlobFile::insertData(BlobData& blob)
     closeFileDescriptor();
 }
 
-void BlobFile::updateData(BlobData& blob)
+void BlobFile::updateData(BlobData &blob)
 {
     prepareForUpdating();
     ssize_t count = write(fd, blob.data, blob.size);
@@ -89,14 +89,14 @@ void BlobFile::updateData(BlobData& blob)
     closeFileDescriptor();
 }
 
-void BlobFile::readData(BlobData& blob)
+void BlobFile::readData(BlobData &blob)
 {
     blob.size = static_cast<r_Bytes>(getSize());
     if (blob.size == 0)
     {
         generateError("cannot read empty blob file", EMPTYBLOBFILE);
     }
-    blob.data = static_cast<char*>(malloc(static_cast<size_t>(blob.size)));
+    blob.data = static_cast<char *>(malloc(static_cast<size_t>(blob.size)));
     if (blob.data == NULL)
     {
         generateError("failed allocating memory for blob file", MEMMORYALLOCATIONERROR);
@@ -146,7 +146,9 @@ void BlobFile::prepareForReading()
 void BlobFile::clearFileDescriptor()
 {
     if (fd != INVALID_FILE_DESCRIPTOR)
+    {
         ftruncate(fd, 0);
+    }
 }
 
 void BlobFile::closeFileDescriptor()
@@ -172,12 +174,12 @@ off_t BlobFile::getSize()
     return status.st_size;
 }
 
-bool BlobFile::fileExists(const string& filePath)
+bool BlobFile::fileExists(const string &filePath)
 {
     return access(filePath.c_str(), F_OK) != IO_ERROR_RC;
 }
 
-void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFilePath)
+void BlobFile::moveFile(const std::string &fromFilePath, const std::string &toFilePath)
 {
     if (rename(fromFilePath.c_str(), toFilePath.c_str()) == IO_ERROR_RC)
     {
@@ -192,7 +194,7 @@ void BlobFile::moveFile(const std::string& fromFilePath, const std::string& toFi
     }
 }
 
-void BlobFile::removeFile(const std::string& filePath)
+void BlobFile::removeFile(const std::string &filePath)
 {
     if (unlink(filePath.c_str()) == IO_ERROR_RC)
     {
@@ -219,11 +221,13 @@ long long BlobFile::getBlobId()
     return ret;
 }
 
-void BlobFile::generateError(const char* message, int errorCode)
+void BlobFile::generateError(const char *message, int errorCode)
 {
     closeFileDescriptor();
     LERROR << message << " - " << filePath;
     if (errno != 0)
+    {
         LERROR << "reason: " << strerror(errno);
+    }
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

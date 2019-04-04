@@ -30,36 +30,42 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtUpdate::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 inline void
-QtUpdate::setInput( QtOperation* inputOld, QtOperation* inputNew )
+QtUpdate::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
-  if( inputOld == updateTarget )
-  {
-    updateTarget = inputNew;
+    if (inputOld == updateTarget)
+    {
+        updateTarget = inputNew;
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 
-  if( inputOld == updateDomain )
-  {
-    updateDomain = inputNew;
+    if (inputOld == updateDomain)
+    {
+        updateDomain = inputNew;
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 
-  if( inputOld == updateSource )
-  {
-    updateSource = inputNew;
+    if (inputOld == updateSource)
+    {
+        updateSource = inputNew;
 
-    if( inputNew )
-      inputNew->setParent( this );
-  }
+        if (inputNew)
+        {
+            inputNew->setParent(this);
+        }
+    }
 }
 
 

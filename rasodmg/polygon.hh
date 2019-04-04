@@ -60,13 +60,13 @@ class r_Edge
 {
 public:
     /// constructor getting a 2-D start and end point.
-    r_Edge(const r_Point& newStart, const r_Point& newEnd);
+    r_Edge(const r_Point &newStart, const r_Point &newEnd);
 
     /// retrieve 2-D start point of edge.
-    const r_Point& getStart() const;
+    const r_Point &getStart() const;
 
     /// retrieve 2-D end point of edge.
-    const r_Point& getEnd() const;
+    const r_Point &getEnd() const;
 
     /// calculate inverse slope of the edge. Note: may throw exception due to division by 0.
     double getInvSlope() const;
@@ -81,7 +81,7 @@ public:
     double getCurrY(r_Range x) const;
 
     /// print start and end point of the edge.
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
 
     /// returns true if the edge is parallel to the first axis
     bool isHorizontal() const;
@@ -128,22 +128,22 @@ public:
     };
 
     /// constructor to initialize polygon from a string
-    r_Polygon(const char* init);
+    r_Polygon(const char *init);
 
     /// constructor getting x and y of the first point in the polygon.
     r_Polygon(r_Range x, r_Range y);
 
     /// copy constructor
-    r_Polygon(const r_Polygon&);
+    r_Polygon(const r_Polygon &);
 
     /// default constructor.
     r_Polygon();
 
     /// asignment opertor
-    r_Polygon& operator=(const r_Polygon&);
+    r_Polygon &operator=(const r_Polygon &);
 
     /// add a point to the polygon.
-    void addPoint(const r_Point& newPoint);
+    void addPoint(const r_Point &newPoint);
 
     /// add a point to the polygon specifying x and y.
     void addPointXY(r_Range x, r_Range y);
@@ -152,7 +152,7 @@ public:
     void close();
 
     /// retrieve the set of all edges of the polygon.
-    const std::vector<r_Edge>& getEdges() const;
+    const std::vector<r_Edge> &getEdges() const;
 
     /// determine the polygon type for an polygon in 2D
     r_Polygon::r_Polygon_Type detectPolygonType() const;
@@ -168,10 +168,10 @@ public:
     */
 
     /// print all edges of the polygon.
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
 
     /// Fill the 2-D array myArray according to the polygon.
-    void fillMArray(r_GMarray& myArray, bool fillInside = false, const std::string& bgr = "") const;
+    void fillMArray(r_GMarray &myArray, bool fillInside = false, const std::string &bgr = "") const;
     /** The polygon has to be completely in the domain of the array. Should this not be the case,
         then the polygon must be clipped according to the domain of the array. Filling is done
         so that the data in the array is overwritten byte by byte with 0 which is not inside
@@ -182,13 +182,13 @@ public:
     r_Minterval getBoundingBox() const;
 
     /// clip the polygon according to the bounding box specified in clipDom.
-    void clip(const r_Minterval& clipDom);
+    void clip(const r_Minterval &clipDom);
     /** Note that the r_Polygon object is modified! So after calling clip you will generally
         have a different polygon represented by your object. */
 
     /// scale the points of the polygon according to scaleFactor.
-    void scale(const r_Point& origin, const r_Minterval& mddDom,
-               const r_Minterval& clipDom, const double& scaleFactor);
+    void scale(const r_Point &origin, const r_Minterval &mddDom,
+               const r_Minterval &clipDom, const double &scaleFactor);
     /** This function is used when using a polygon to extract part of an image retrieved
         with r_Fast_Scale. The scaling is done like in r_Fast_Base_Scale::get_scaled_domain().
         origin is the point of origin for the scaling. mddDom is the domain of the MDD which
@@ -200,13 +200,13 @@ public:
         bit complicated, I know. scaleFactor is trivially the scaleFactor used. */
 
     /// scale the points of the polygon according to scaleFactor.
-    void scale(const r_Point& origin, const double& scaleFactor);
+    void scale(const r_Point &origin, const double &scaleFactor);
     /** This function is used used when we scale a polygon to extract part of an image retrieved
         with r_Fast_Scale. The scaling is done like in r_Fast_Base_Scale::get_scaled_domain().
         origin is the point of origin for the scaling. scaleFactor is the scale factor used. */
 
     /// mirrors a polygon along the y-axes point by point.
-    void mirror(const r_Minterval& mddDom);
+    void mirror(const r_Minterval &mddDom);
     /** The mirroring is done along the middle of mddDom. It is done like that to be coherent
         with the mirroring commonly done when inserting TIFF image, e.g. in insertlva.cc. */
 
@@ -234,19 +234,19 @@ private:
     };
 
     /// overwrite this with a polygon create from a vector of points.
-    void fromPoints(const std::vector<r_Point>& newPoints);
+    void fromPoints(const std::vector<r_Point> &newPoints);
 
     /// erase the area in myArray outside of the polygon for one scanline.
-    void eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray& myArray, const std::string& bgr) const;
+    void eraseLine(r_Range x1, r_Range x2, r_Range y, r_GMarray &myArray, const std::string &bgr) const;
 
     /// return the polygon clipped on the specified side as a list of points.
-    std::vector<r_Point> clip1Side(const r_Minterval& b, r_Polygon::Side s);
+    std::vector<r_Point> clip1Side(const r_Minterval &b, r_Polygon::Side s);
 
     /// determine if a point is inside a bounding line on a certain side.
-    bool inside(const r_Minterval& b, const r_Point& p, r_Polygon::Side s);
+    bool inside(const r_Minterval &b, const r_Point &p, r_Polygon::Side s);
 
     /// intersect an edge with a bounding line on a certain side.
-    r_Point intersect(const r_Minterval& b, const r_Edge& e, r_Polygon::Side s);
+    r_Point intersect(const r_Minterval &b, const r_Edge &e, r_Polygon::Side s);
 
     /// flag if the polygon is closed.
     bool closed;
@@ -264,7 +264,7 @@ private:
     r_Point currPoint;
 };
 
-extern std::ostream& operator<<(std::ostream& s, const r_Polygon& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Polygon &d);
 
 // The following classes are STL function objects which can be used to make
 // sorted collection of r_Edge. In the current implementation only the first
@@ -278,7 +278,7 @@ class EdgeSortCriterion
 public:
     // This is needed for keeping a sorted set of edges (sorted by start coordinate y,
     // then start coordinate x).
-    bool operator()(const r_Edge& e1, const r_Edge& e2) const
+    bool operator()(const r_Edge &e1, const r_Edge &e2) const
     {
         return e1.getStart()[1] < e2.getStart()[1] ||
                (!(e2.getStart()[1] < e1.getStart()[1]) && e1.getStart()[0] < e2.getStart()[0]);
@@ -293,7 +293,7 @@ class ActiveEdgeSortCriterion
 public:
     // This is needed for keeping a sorted set of active edges (sorted by start coordinate x,
     // then start coordinate y).
-    bool operator()(const r_Edge& e1, const r_Edge& e2) const
+    bool operator()(const r_Edge &e1, const r_Edge &e2) const
     {
         return e1.getStart()[0] < e2.getStart()[0] ||
                (!(e2.getStart()[0] < e1.getStart()[0]) && e1.getStart()[1] < e2.getStart()[1]);

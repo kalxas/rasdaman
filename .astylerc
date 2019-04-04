@@ -1,18 +1,17 @@
 --suffix=none
 --convert-tabs
---exclude=third_party
---options=none
+#--exclude=third_party
 --add-brackets
 --convert-tabs
 --close-templates
 --pad-oper
 --pad-header
 --unpad-paren
---align-pointer=type
---align-reference=type
+--align-pointer=name
+--align-reference=name
 --indent-preproc-define
 --indent=spaces=4
---recursive
+#--recursive
 
 # C++
 --style=allman

@@ -52,7 +52,7 @@ class DatabaseIf;
 class TransactionIf
 {
 public:
-    void begin(DatabaseIf* currBase, bool readOnly = false);
+    void begin(DatabaseIf *currBase, bool readOnly = false);
     /*@Doc:
     begin a TA.
     By default, the TA started is a write TA. If {\tt readOnly} is set to 1,
@@ -79,7 +79,7 @@ public:
     the benchmark timers are stopped.
     */
 
-    DatabaseIf* getDatabaseIf();
+    DatabaseIf *getDatabaseIf();
     /*@Doc:
     returns the DatabaseIf object associated with this transaction.
     */
@@ -100,7 +100,7 @@ private:
     keeps track if the current TA is read only or not
     */
 
-    static DatabaseIf* lastBase;
+    static DatabaseIf *lastBase;
     /*@Doc:
     stores the last base used in begin();
     */

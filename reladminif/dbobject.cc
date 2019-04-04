@@ -58,13 +58,13 @@ RMTimer DBObject::insertTimer = RMTimer("DBObject", "insert");
 RMTimer DBObject::deleteTimer = RMTimer("DBObject", "delete");
 #endif
 
-const char*
+const char *
 BinaryRepresentation::fileTag = "RMAN";
 
 void
-DBObject::printStatus(unsigned int level, std::ostream& stream) const
+DBObject::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -135,13 +135,13 @@ DBObject::release()
 void DBObject::incrementReferenceCount(void)
 {
     referenceCount++;
-    LTRACE << "DBObject " << (void*)this << " refs increased to " << referenceCount;
+    LTRACE << "DBObject " << (void *)this << " refs increased to " << referenceCount;
 }
 
 void DBObject::decrementReferenceCount(void)
 {
     referenceCount--;
-    LTRACE << "DBObject " << (void*)this << " refs decreased to " << referenceCount;
+    LTRACE << "DBObject " << (void *)this << " refs decreased to " << referenceCount;
     if (referenceCount == 0)
     {
         LTRACE << "  destroying object...";
@@ -168,7 +168,7 @@ DBObject::DBObject()
     LTRACE << "DBObject()";
 }
 
-DBObject::DBObject(const DBObject& old)
+DBObject::DBObject(const DBObject &old)
     :   _isPersistent(old._isPersistent),
         _isInDatabase(old._isInDatabase),
         _isModified(old._isModified),
@@ -182,7 +182,7 @@ DBObject::DBObject(const DBObject& old)
 
 //constructs an object and reads it from the database.  the oid must match the type of the object.
 //a r_Error::r_Error_ObjectUnknown is thrown when the oid is not in the database.
-DBObject::DBObject(const OId& id)
+DBObject::DBObject(const OId &id)
     :   _isCached(false),
         myOId(id),
         objecttype(id.getType()),
@@ -192,8 +192,8 @@ DBObject::DBObject(const OId& id)
     LTRACE << "DBObject(" << myOId << ")";
 }
 
-DBObject&
-DBObject::operator=(const DBObject& old)
+DBObject &
+DBObject::operator=(const DBObject &old)
 {
     LTRACE << "operator=(" << old.myOId << ")";
     if (this != &old)
@@ -284,7 +284,7 @@ DBObject::validate()
                 if (_isPersistent)
                 {
                     LTRACE
-                        << "is persistent and modified and in database";
+                            << "is persistent and modified and in database";
 #ifdef RMANBENCHMARK
                     updateTimer.resume();
 #endif
@@ -310,7 +310,7 @@ DBObject::validate()
                 if (_isPersistent)
                 {
                     LTRACE
-                        << "is persistent and modified and not in database";
+                            << "is persistent and modified and not in database";
 
 #ifdef RMANBENCHMARK
                     insertTimer.resume();
@@ -419,20 +419,20 @@ DBObject::getBinaryRepresentation() const
 }
 
 void
-DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation& br)
+DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation &br)
 {
     LERROR << "setBinaryRepresentation() for " << objecttype << " not implemented";
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);
 }
 
-char*
+char *
 DBObject::getBinaryName() const
 {
     //if we use 64bit oids we have at most 20 digits + "_" + type
     ostringstream o;
     o << static_cast<int>(objecttype) << '_' << myOId.getCounter() << ".raw";
-    const char* temp = o.str().c_str();
-    char* retval = new char[strlen(temp) + 1];
+    const char *temp = o.str().c_str();
+    char *retval = new char[strlen(temp) + 1];
     memcpy(retval, temp, strlen(temp) + 1);
     return retval;
 }

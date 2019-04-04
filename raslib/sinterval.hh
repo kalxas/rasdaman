@@ -237,7 +237,7 @@ public:
     r_Sinterval();
 
     /// constructor taking string representation (e.g. *:200 )
-    r_Sinterval(char*);
+    r_Sinterval(char *);
 
     /// constructor for an interval with fixed bounds
     r_Sinterval(r_Range low, r_Range high);
@@ -254,14 +254,14 @@ public:
     //@}
 
     /// equal operator
-    bool operator==(const r_Sinterval&) const;
+    bool operator==(const r_Sinterval &) const;
 
     /**
       Two intervals are equal if they have the same lower and upper bound.
     */
 
     /// non equal operator - negation of equal operator
-    bool operator!=(const r_Sinterval&) const;
+    bool operator!=(const r_Sinterval &) const;
 
     //@Man: Read/Write methods:
     //@{
@@ -301,87 +301,87 @@ public:
     //@}
 
     /// determines if the self interval intersects with the delivered one
-    bool intersects_with(const r_Sinterval&) const;
+    bool intersects_with(const r_Sinterval &) const;
 
     //@Man: Methods/Operators for the union operation:
     //@{
     ///
-    r_Sinterval& union_of(const r_Sinterval&, const r_Sinterval&)
-;
+    r_Sinterval &union_of(const r_Sinterval &, const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& union_with(const r_Sinterval&)
-;
+    r_Sinterval &union_with(const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& operator+= (const r_Sinterval&)
-;
+    r_Sinterval &operator+= (const r_Sinterval &)
+    ;
     ///
-    r_Sinterval  create_union(const r_Sinterval&) const
-;
+    r_Sinterval  create_union(const r_Sinterval &) const
+    ;
     ///
-    r_Sinterval  operator+ (const r_Sinterval&) const
-;
+    r_Sinterval  operator+ (const r_Sinterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the difference operation:
     //@{
     ///
-    r_Sinterval& difference_of(const r_Sinterval&, const r_Sinterval&)
-;
+    r_Sinterval &difference_of(const r_Sinterval &, const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& difference_with(const r_Sinterval&)
-;
+    r_Sinterval &difference_with(const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& operator-= (const r_Sinterval&)
-;
+    r_Sinterval &operator-= (const r_Sinterval &)
+    ;
     ///
-    r_Sinterval  create_difference(const r_Sinterval&) const
-;
+    r_Sinterval  create_difference(const r_Sinterval &) const
+    ;
     ///
-    r_Sinterval  operator- (const r_Sinterval&) const
-;
+    r_Sinterval  operator- (const r_Sinterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the intersection operation:
     //@{
     ///
-    r_Sinterval& intersection_of(const r_Sinterval&, const r_Sinterval&)
-;
+    r_Sinterval &intersection_of(const r_Sinterval &, const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& intersection_with(const r_Sinterval&)
-;
+    r_Sinterval &intersection_with(const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& operator*= (const r_Sinterval&)
-;
+    r_Sinterval &operator*= (const r_Sinterval &)
+    ;
     ///
-    r_Sinterval  create_intersection(const r_Sinterval&) const
-;
+    r_Sinterval  create_intersection(const r_Sinterval &) const
+    ;
     ///
-    r_Sinterval  operator* (const r_Sinterval&) const
-;
+    r_Sinterval  operator* (const r_Sinterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the closure operation:
     //@{
     ///
-    r_Sinterval& closure_of(const r_Sinterval&, const r_Sinterval&)
-;
+    r_Sinterval &closure_of(const r_Sinterval &, const r_Sinterval &)
+    ;
     ///
-    r_Sinterval& closure_with(const r_Sinterval&)
-;
+    r_Sinterval &closure_with(const r_Sinterval &)
+    ;
     ///
-    r_Sinterval  create_closure(const r_Sinterval&) const
-;
+    r_Sinterval  create_closure(const r_Sinterval &) const
+    ;
     ///
     //@}
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
 
     /// gives back the string representation
-    char* get_string_representation() const;
+    char *get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using {\tt malloc()} and
       has to be free unsing {\tt free()} in the end. It can be used to construct a {\tt r_Sinterval}
@@ -401,22 +401,22 @@ private:
     //@Man: Calculation methods for the operations:
     //@{
     ///
-    r_Sinterval  calc_union(const r_Sinterval& a, const r_Sinterval& b) const
-;
+    r_Sinterval  calc_union(const r_Sinterval &a, const r_Sinterval &b) const
+    ;
     ///
-    r_Sinterval  calc_difference(const r_Sinterval& a, const r_Sinterval& b) const
-;
+    r_Sinterval  calc_difference(const r_Sinterval &a, const r_Sinterval &b) const
+    ;
     ///
-    r_Sinterval  calc_intersection(const r_Sinterval& a, const r_Sinterval& b) const
-;
+    r_Sinterval  calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const
+    ;
     ///
-    r_Sinterval  calc_closure(const r_Sinterval& a, const r_Sinterval& b) const
-;
+    r_Sinterval  calc_closure(const r_Sinterval &a, const r_Sinterval &b) const
+    ;
     ///
     //@}
 
     /// compute the class of the two operands
-    int          classify(const r_Sinterval& a, const r_Sinterval& b) const;
+    int          classify(const r_Sinterval &a, const r_Sinterval &b) const;
 
     //@Man: Attributes storing the bounds:
     //@{
@@ -444,7 +444,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const r_Sinterval}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Sinterval& d);
+extern std::ostream &operator<<(std::ostream &s, const r_Sinterval &d);
 
 #include "raslib/sinterval.icc"
 

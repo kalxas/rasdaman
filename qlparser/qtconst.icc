@@ -30,14 +30,14 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtConst::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 
-inline QtData*
+inline QtData *
 QtConst::getDataObj()
 {
-  return dataObj;
+    return dataObj;
 }
 

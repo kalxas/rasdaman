@@ -59,14 +59,14 @@ public:
     QtONCStream();
 
     /// constructor getting a pointer to the parent
-    QtONCStream(QtNode* node);
+    QtONCStream(QtNode *node);
 
     //@Man: Operations of the ONC protocol
     //@{
     ///
     virtual void        open() = 0;
     ///
-    virtual QtDataList* next() = 0;
+    virtual QtDataList *next() = 0;
     ///
     virtual void        close() = 0;
     ///
@@ -74,7 +74,7 @@ public:
     //@}
 
     /// type checking of the subtree
-    virtual const QtTypeTuple& checkType() = 0;
+    virtual const QtTypeTuple &checkType() = 0;
     /**
       The method triggers type checking of the node's subtree. If an error occurs, an exception
       is raised.
@@ -84,9 +84,9 @@ public:
     //@{
     ///
     ///
-    void               setDataStreamType(const QtTypeTuple& type);
+    void               setDataStreamType(const QtTypeTuple &type);
     ///
-    inline const QtTypeTuple& getDataStreamType() const;
+    inline const QtTypeTuple &getDataStreamType() const;
     ///
     //@}
 

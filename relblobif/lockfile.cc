@@ -31,7 +31,7 @@
 using namespace std;
 using namespace blobfs;
 
-LockFile::LockFile(const std::string& path)
+LockFile::LockFile(const std::string &path)
     : lockFilePath(path), fd(INVALID_FILE_DESCRIPTOR)
 {
 }

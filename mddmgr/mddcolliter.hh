@@ -60,7 +60,7 @@ rasdaman GmbH.
 class MDDCollIter
 {
 public:
-    void printStatus(unsigned int level = 0, ostream& stream = cout) const;
+    void printStatus(unsigned int level = 0, ostream &stream = cout) const;
 
     void reset();
 
@@ -68,7 +68,7 @@ public:
 
     void advance();
 
-    MDDObj* getElement() const;
+    MDDObj *getElement() const;
 
     ~MDDCollIter();
 
@@ -76,7 +76,7 @@ protected:
 
     friend class MDDColl;
 
-    MDDCollIter(MDDColl*  targetColl);
+    MDDCollIter(MDDColl  *targetColl);
     /**
         Constructor - to be used only by MDDColl
         The iterator is reset after it is created.
@@ -85,13 +85,13 @@ protected:
 private:
 
     // Corresponding iterator in the base DBMS.
-    DBMDDObjIdIter* dbIter;
+    DBMDDObjIdIter *dbIter;
 
     // dbColl has to be kept because of error control.
     DBMDDSetId dbColl;
 
     // Collection to iterate.
-    MDDColl* persColl;
+    MDDColl *persColl;
 };
 
 #endif

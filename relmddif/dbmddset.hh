@@ -52,31 +52,31 @@ class CollectionType;
 class DBMDDSet  :   public DBNamedObject
 {
 public:
-    DBMDDSet(const char* name, const CollectionType* type);
+    DBMDDSet(const char *name, const CollectionType *type);
     /*@Doc:
         creates a new set
     */
 
-    DBMDDSet(const char* name, const OId& id, const CollectionType* type);
+    DBMDDSet(const char *name, const OId &id, const CollectionType *type);
     /*@Doc:
         creates a new set
     */
 
-    static DBMDDSetId getDBMDDSet(const char* name);
+    static DBMDDSetId getDBMDDSet(const char *name);
 
-    static DBMDDSetId getDBMDDSet(const OId& id);
+    static DBMDDSetId getDBMDDSet(const OId &id);
 
-    static bool deleteDBMDDSet(const OId& id);
+    static bool deleteDBMDDSet(const OId &id);
     /*@Doc:
         returns succes
     */
 
-    static bool deleteDBMDDSet(const char* name);
+    static bool deleteDBMDDSet(const char *name);
     /*@Doc:
         returns succes
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
 
     virtual void setPersistent(bool state);
     /*@Doc:
@@ -89,7 +89,7 @@ public:
         The persistent reference count of this DBMDDObj is updated.
     */
 
-    DBMDDObjIdIter* newIterator() const;
+    DBMDDObjIdIter *newIterator() const;
     /*@Doc:
         Returns a new iterator for this collection.
     */
@@ -99,7 +99,7 @@ public:
         Returns the number of elements in the collection.
     */
 
-    void remove(DBMDDObjId& obj);
+    void remove(DBMDDObjId &obj);
     /*@Doc:
         Removes an object from the MDD Collection.
         The persistent reference count of this DBMDDObj is updated.
@@ -116,7 +116,7 @@ public:
         Releases all dynamic memory used by this collection.
     */
 
-    bool contains_element(const DBMDDObjId& elem) const;
+    bool contains_element(const DBMDDObjId &elem) const;
     /*@Doc:
     */
 
@@ -134,12 +134,12 @@ public:
     /*@Doc:
     */
 
-    const CollectionType* getCollType() const;
+    const CollectionType *getCollType() const;
     /*@Doc:
         Returns the collectiontype of this entry.
     */
 
-    void setCollType(const CollectionType* collTypeArg);
+    void setCollType(const CollectionType *collTypeArg);
     /*@Doc:
         Set the collectiontype of this entry.
     */
@@ -149,7 +149,7 @@ protected:
 
     typedef std::set<DBMDDObjId, std::less<DBMDDObjId>> DBMDDObjIdSet;
 
-    DBMDDSet(const OId& id);
+    DBMDDSet(const OId &id);
     /*@Doc:
         gets an existing coll from the db
     */
@@ -176,7 +176,7 @@ private:
         Memory representation of the list of oids of DBMDDObjs.
     */
 
-    CollectionType* collType;
+    CollectionType *collType;
     /*@Doc:
         Pointer to the collectiontype.
     */

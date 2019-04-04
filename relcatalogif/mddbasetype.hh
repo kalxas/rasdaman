@@ -57,19 +57,19 @@ class OId;
 class MDDBaseType : public MDDType
 {
 public:
-    virtual char* getTypeStructure() const;
+    virtual char *getTypeStructure() const;
     /*@Doc:
     returns a string: marray < myBaseType->getTypeStructure >
     */
 
-    virtual char* getNewTypeStructure() const;
+    virtual char *getNewTypeStructure() const;
 
-    MDDBaseType(const OId& id);
+    MDDBaseType(const OId &id);
     /*@Doc:
     constructs a MDDBaseType out of the database.
     */
 
-    MDDBaseType(const char* newTypeName, const BaseType* newBaseType);
+    MDDBaseType(const char *newTypeName, const BaseType *newBaseType);
     /*@Doc:
     constructor.
     */
@@ -80,26 +80,26 @@ public:
     */
 
 
-    MDDBaseType(const char* newtypename);
+    MDDBaseType(const char *newtypename);
     /*@Doc:
     */
 
-    MDDBaseType(const MDDBaseType& old);
+    MDDBaseType(const MDDBaseType &old);
     /*@Doc:
     copy constructor.
     */
 
-    MDDBaseType& operator=(const MDDBaseType& old);
+    MDDBaseType &operator=(const MDDBaseType &old);
     /*@Doc:
     assignment operator.
     */
 
-    const BaseType* getBaseType() const;
+    const BaseType *getBaseType() const;
     /*@Doc:
     returns base type.
     */
 
-    virtual void print_status(ostream& s) const;
+    virtual void print_status(ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
     \tr_Marray < myBaseType->getTypeName() \t>
@@ -111,14 +111,14 @@ public:
     validates the object.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     to be compatible the following must be true:
         aType must be MDDBASETYPE or subclass and
         myBaseType must be compatible with aType->myBaseType
     */
 
-    virtual int compatibleWithDomain(const r_Minterval* aDomain) const;
+    virtual int compatibleWithDomain(const r_Minterval *aDomain) const;
     /*@Doc:
     create a new MDDDomainType with itself and aDomain, then it
     checks compatibility with self.
@@ -138,7 +138,7 @@ protected:
 
     virtual void deleteFromDb();
 
-    const BaseType* myBaseType;
+    const BaseType *myBaseType;
     /*@Doc:
     reference to the basetype
     */

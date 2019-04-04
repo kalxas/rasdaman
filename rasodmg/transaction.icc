@@ -27,20 +27,20 @@ rasdaman GmbH.
  * CLASS:   r_Transaction
  *
  * COMMENTS:
- *		None
+ *      None
 */
 
 inline
 r_Transaction::r_TAStatus
 r_Transaction::get_status() const
-{ 
-  return ta_state;
+{
+    return ta_state;
 }
 
 
 inline
 r_Transaction::r_TAMode
 r_Transaction::get_mode() const
-{ 
-  return ta_mode;
+{
+    return ta_mode;
 }

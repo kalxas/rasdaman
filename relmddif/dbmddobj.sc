@@ -70,7 +70,7 @@ DBMDDObj::DBMDDObj()
 
 }
 
-DBMDDObj::DBMDDObj(const OId& id)
+DBMDDObj::DBMDDObj(const OId &id)
     : DBObject(id),
       persistentRefCount(0),
       mddType(NULL),
@@ -83,11 +83,11 @@ DBMDDObj::DBMDDObj(const OId& id)
     readFromDb();
 }
 
-DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
-                   const r_Minterval& domain,
-                   const DBObjectId& newObjIx,
-                   const DBStorageLayoutId& newSL,
-                   const OId& newOId)
+DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType,
+                   const r_Minterval &domain,
+                   const DBObjectId &newObjIx,
+                   const DBStorageLayoutId &newSL,
+                   const OId &newOId)
     : DBObject(),
       persistentRefCount(0),
       mddType(newMDDType),
@@ -106,7 +106,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
     if (query.nextRow())
     {
         ((DBObjectId) newObjIx)->setPersistent(false);
-        ((DBObject*) const_cast<DBStorageLayout*>(newSL.ptr()))->setPersistent(false);
+        ((DBObject *) const_cast<DBStorageLayout *>(newSL.ptr()))->setPersistent(false);
         LERROR << "DBMDDObj::DBMDDObj() - mdd object: "
                << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
@@ -118,7 +118,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
     }
     else
     {
-        mddType = (const MDDBaseType*) TypeFactory::addMDDType(newMDDType);
+        mddType = (const MDDBaseType *) TypeFactory::addMDDType(newMDDType);
     }
     myDomain = new DBMinterval(domain);
     _isPersistent = true;
@@ -127,7 +127,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
     setPersistent(true);
 }
 
-DBMDDObj::DBMDDObj(const DBMDDObj& old)
+DBMDDObj::DBMDDObj(const DBMDDObj &old)
     : DBObject(old),
       persistentRefCount(0),
       mddType(NULL),
@@ -140,7 +140,7 @@ DBMDDObj::DBMDDObj(const DBMDDObj& old)
     {
         if (old.myDomain->isPersistent())
         {
-            myDomain = (DBMinterval*) ObjectBroker::getObjectByOId(old.myDomain->getOId());
+            myDomain = (DBMinterval *) ObjectBroker::getObjectByOId(old.myDomain->getOId());
         }
         else
         {
@@ -159,7 +159,7 @@ DBMDDObj::DBMDDObj(const DBMDDObj& old)
     mddType = old.mddType;
 }
 
-DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, const DBObjectId& newObjIx, const DBStorageLayoutId& newSL)
+DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType, const r_Minterval &domain, const DBObjectId &newObjIx, const DBStorageLayoutId &newSL)
     : DBObject(),
       persistentRefCount(0),
       mddType(NULL),
@@ -198,16 +198,16 @@ DBMDDObj::getDBStorageLayout() const
 r_Bytes
 DBMDDObj::getMemorySize() const
 {
-    return DBObject::getMemorySize() + sizeof(long) + sizeof(MDDBaseType*) + sizeof(DBMinterval*) + sizeof(OId) + myDomain->getMemorySize() + mddType->getMemorySize() + sizeof(OId);
+    return DBObject::getMemorySize() + sizeof(long) + sizeof(MDDBaseType *) + sizeof(DBMinterval *) + sizeof(OId) + myDomain->getMemorySize() + mddType->getMemorySize() + sizeof(OId);
 }
 
-const MDDBaseType*
+const MDDBaseType *
 DBMDDObj::getMDDBaseType() const
 {
     return mddType;
 }
 
-const BaseType*
+const BaseType *
 DBMDDObj::getCellType() const
 {
     return mddType->getBaseType();
@@ -270,12 +270,12 @@ DBMDDObj::setPersistent(bool o)
     }
     if (o && !mddType->isPersistent())
     {
-        mddType = (const MDDBaseType*) TypeFactory::addMDDType(mddType);
+        mddType = (const MDDBaseType *) TypeFactory::addMDDType(mddType);
     }
 
 }
 
-const char*
+const char *
 DBMDDObj::getCellTypeName() const
 {
     return mddType->getBaseType()->getTypeName();
@@ -290,12 +290,12 @@ DBMDDObj::getDefinitionDomain() const
 r_Bytes
 DBMDDObj::getHeaderSize() const
 {
-    r_Bytes sz = sizeof(MDDBaseType*) + sizeof(r_Minterval*) + sizeof(DBObjectId) + sizeof(DBObject) + sizeof(DBStorageLayoutId);
+    r_Bytes sz = sizeof(MDDBaseType *) + sizeof(r_Minterval *) + sizeof(DBObjectId) + sizeof(DBObject) + sizeof(DBStorageLayoutId);
     return sz;
 }
 
 void
-DBMDDObj::printStatus(unsigned int level, ostream& stream) const
+DBMDDObj::printStatus(unsigned int level, ostream &stream) const
 {
     DBObject::printStatus(level, stream);
     stream << *myDomain << endl;
@@ -320,7 +320,7 @@ DBMDDObj::printStatus(unsigned int level, ostream& stream) const
 }
 
 void
-DBMDDObj::setIx(const DBObjectId& newIx)
+DBMDDObj::setIx(const DBObjectId &newIx)
 {
     if (isPersistent())
     {
@@ -388,7 +388,7 @@ DBMDDObj::updateInDb()
             {
                 oldnullvalueoid = query.nextColumnLong();
             }
-            DBNullvalues* oldNullValues = (DBNullvalues*) ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBNULLVALUESOID));
+            DBNullvalues *oldNullValues = (DBNullvalues *) ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBNULLVALUESOID));
             if (oldNullValues)
             {
                 oldNullValues->setPersistent(false);
@@ -440,7 +440,7 @@ DBMDDObj::readFromDb()
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    long long mddoid2{};
+    long long mddoid2 {};
     long long basetypeid2{};
     long long domainid2{};
     long long objindex2{};
@@ -468,8 +468,8 @@ DBMDDObj::readFromDb()
     objIxId = OId(objindex2);
     storageLayoutId = OId(storage2);
     persistentRefCount = persRefCount2;
-    mddType = (MDDBaseType*) ObjectBroker::getObjectByOId(OId(basetypeid2));
-    myDomain = (DBMinterval*) ObjectBroker::getObjectByOId(OId(domainid2, OId::DBMINTERVALOID));
+    mddType = (MDDBaseType *) ObjectBroker::getObjectByOId(OId(basetypeid2));
+    myDomain = (DBMinterval *) ObjectBroker::getObjectByOId(OId(domainid2, OId::DBMINTERVALOID));
     myDomain->setCached(true);
 
     DBObject::readFromDb();
@@ -508,7 +508,7 @@ DBMDDObj::decrementPersRefCount()
     setModified();
 }
 
-DBNullvalues*
+DBNullvalues *
 DBMDDObj::getNullValues() const
 {
     if (nullValues != NULL)
@@ -519,7 +519,7 @@ DBMDDObj::getNullValues() const
 }
 
 void
-DBMDDObj::setNullValues(const r_Nullvalues& newNullValues)
+DBMDDObj::setNullValues(const r_Nullvalues &newNullValues)
 {
     nullValues = new DBNullvalues(newNullValues);
     setModified();

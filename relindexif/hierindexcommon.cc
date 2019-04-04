@@ -50,7 +50,7 @@ rasdaman GmbH.
 #include "debug.hh"
 #include <logging.hh>
 
-DBHierIndex::DBHierIndex(const OId& id)
+DBHierIndex::DBHierIndex(const OId &id)
     :   HierIndexDS(id),
         parent(0),
         _isNode(false),
@@ -85,7 +85,7 @@ DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
     setCached(true);
 }
 
-IndexDS*
+IndexDS *
 DBHierIndex::getNewInstance() const
 {
     return new DBHierIndex(getDimension(), !isLeaf(), true);
@@ -98,7 +98,7 @@ DBHierIndex::getIdentifier() const
 }
 
 bool
-DBHierIndex::removeObject(const KeyObject& entry)
+DBHierIndex::removeObject(const KeyObject &entry)
 {
     bool found = false;
     unsigned int pos = 0;
@@ -138,7 +138,7 @@ DBHierIndex::removeObject(unsigned int pos)
 
 
 void
-DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
+DBHierIndex::insertObject(const KeyObject &theKey, unsigned int pos)
 {
     if (!isLeaf())
     {
@@ -159,7 +159,7 @@ DBHierIndex::insertObject(const KeyObject& theKey, unsigned int pos)
 }
 
 void
-DBHierIndex::setObjectDomain(const r_Minterval& dom, unsigned int pos)
+DBHierIndex::setObjectDomain(const r_Minterval &dom, unsigned int pos)
 {
     myKeyObjects[pos].setDomain(dom);
     //might be unneccessary/harmfull, check later
@@ -174,7 +174,7 @@ DBHierIndex::setObjectDomain(const r_Minterval& dom, unsigned int pos)
 }
 
 void
-DBHierIndex::setObject(const KeyObject& theKey, unsigned int pos)
+DBHierIndex::setObject(const KeyObject &theKey, unsigned int pos)
 {
     myKeyObjects[pos] = theKey;
     setModified();
@@ -205,7 +205,7 @@ DBHierIndex::getTotalStorageSize() const
 
     for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
-        sz = sz + (static_cast<DBObject*>(ObjectBroker::getObjectByOId(i->getObject().getOId())))->getTotalStorageSize();
+        sz = sz + (static_cast<DBObject *>(ObjectBroker::getObjectByOId(i->getObject().getOId())))->getTotalStorageSize();
     }
 
     return sz;
@@ -291,10 +291,10 @@ DBHierIndex::isValid() const
 }
 
 void
-DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
+DBHierIndex::printStatus(unsigned int level, std::ostream &stream) const
 {
     DBObjectId t;
-    char* indent = new char[level * 2 + 1];
+    char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2 ; j++)
     {
         indent[j] = ' ';
@@ -439,21 +439,21 @@ DBHierIndex::getAssignedDomain() const
 }
 
 void
-DBHierIndex::setAssignedDomain(const r_Minterval& newDomain)
+DBHierIndex::setAssignedDomain(const r_Minterval &newDomain)
 {
     myDomain = newDomain;
     setModified();
 }
 
 void
-DBHierIndex::extendCoveredDomain(const r_Minterval& newTilesExtents)
+DBHierIndex::extendCoveredDomain(const r_Minterval &newTilesExtents)
 {
     myDomain.closure_with(newTilesExtents);
     setModified();
 }
 
 void
-DBHierIndex::setParent(const HierIndexDS* newPa)
+DBHierIndex::setParent(const HierIndexDS *newPa)
 {
     if (static_cast<OId::OIdPrimitive>(parent) != newPa->getIdentifier())
     {
@@ -462,13 +462,13 @@ DBHierIndex::setParent(const HierIndexDS* newPa)
     }
 }
 
-HierIndexDS*
+HierIndexDS *
 DBHierIndex::getParent() const
 {
     LTRACE << "getParent() const " << myOId << " " << parent << " " << parent;
     DBHierIndexId t(parent);
 
-    return static_cast<HierIndexDS*>(t);
+    return static_cast<HierIndexDS *>(t);
 }
 
 bool
@@ -500,7 +500,7 @@ DBHierIndex::freeDS()
     setPersistent(false);
 }
 bool
-DBHierIndex::isSameAs(const IndexDS* other) const
+DBHierIndex::isSameAs(const IndexDS *other) const
 {
     bool result = false;
     if (other->isPersistent())
@@ -520,7 +520,7 @@ DBHierIndex::getOccupancy() const
     return 0;
 }
 
-const KeyObject&
+const KeyObject &
 DBHierIndex::getObject(unsigned int pos) const
 {
     LTRACE << "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos];
@@ -528,7 +528,7 @@ DBHierIndex::getObject(unsigned int pos) const
 }
 
 void
-DBHierIndex::getObjects(KeyObjectVector& objs) const
+DBHierIndex::getObjects(KeyObjectVector &objs) const
 {
     for (KeyObjectVector::const_iterator keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
     {
@@ -569,7 +569,7 @@ DBHierIndex::getHeightToRoot() const
     else
     {
         DBHierIndexId t(parent);
-        const DBHierIndex* tp = static_cast<DBHierIndex*>(t.ptr());
+        const DBHierIndex *tp = static_cast<DBHierIndex *>(t.ptr());
         retval = tp->getHeightToRoot() + 1;
     }
 
@@ -589,7 +589,7 @@ DBHierIndex::getHeightToLeaf() const
     else
     {
         DBHierIndexId t(parent);
-        const DBHierIndex* tp = static_cast<DBHierIndex*>(t.ptr());
+        const DBHierIndex *tp = static_cast<DBHierIndex *>(t.ptr());
         retval = tp->getHeightToLeaf() + 1;
     }
 
@@ -750,13 +750,13 @@ DBHierIndex::getBinaryRepresentation() const
     //number of bytes for the dynamic data
     r_Bytes completesize = boundssize * 2 + fixessize * 2 + idssize + typessize;
 
-    char* completebuffer = new char[completesize];
-    r_Range* upperboundsbuf = new r_Range[boundssize];
-    r_Range* lowerboundsbuf = new r_Range[boundssize];
-    char* upperfixedbuf = new char[fixessize];
-    char* lowerfixedbuf = new char[fixessize];
-    OId::OIdCounter* entryidsbuf = new OId::OIdCounter[idssize];
-    char* entrytypesbuf = new char[typessize];
+    char *completebuffer = new char[completesize];
+    r_Range *upperboundsbuf = new r_Range[boundssize];
+    r_Range *lowerboundsbuf = new r_Range[boundssize];
+    char *upperfixedbuf = new char[fixessize];
+    char *lowerfixedbuf = new char[fixessize];
+    OId::OIdCounter *entryidsbuf = new OId::OIdCounter[idssize];
+    char *entrytypesbuf = new char[typessize];
 
     LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize << " ids " << idssize << " types " << typessize;
 
@@ -838,7 +838,7 @@ DBHierIndex::getBinaryRepresentation() const
 }
 
 void
-DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
+DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
 {
     // This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
@@ -864,9 +864,9 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
     char tempc;
     OId::OIdCounter tempd;
 
-    memcpy((char*)&tempd, &brp.binaryData[7], sizeof(OId::OIdCounter));
+    memcpy((char *)&tempd, &brp.binaryData[7], sizeof(OId::OIdCounter));
     myOId = tempd;
-    char* temp = getBinaryName();
+    char *temp = getBinaryName();
     if (strcmp(temp, brp.binaryName) != 0)
     {
         LERROR << "binary representation " << brp.binaryName << " - expected name " << temp;
@@ -905,13 +905,13 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp)
 
     LTRACE << "size " << size1 << " dimension " << dimension1 << " fixes " << fixessize << " ids " << idssize << " types " << typessize;
 
-    char* completebuffer = new char[completesize];
-    r_Range* upperboundsbuf = new r_Range[boundssize];
-    r_Range* lowerboundsbuf = new r_Range[boundssize];
-    char* upperfixedbuf = new char[fixessize];
-    char* lowerfixedbuf = new char[fixessize];
-    OId::OIdCounter* entryidsbuf = new OId::OIdCounter[idssize];
-    char* entrytypesbuf = new char[typessize];
+    char *completebuffer = new char[completesize];
+    r_Range *upperboundsbuf = new r_Range[boundssize];
+    r_Range *lowerboundsbuf = new r_Range[boundssize];
+    char *upperfixedbuf = new char[fixessize];
+    char *lowerfixedbuf = new char[fixessize];
+    OId::OIdCounter *entryidsbuf = new OId::OIdCounter[idssize];
+    char *entrytypesbuf = new char[typessize];
     memcpy(completebuffer, &brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)], completesize);
 
     //all dynamic data is in completebuffer

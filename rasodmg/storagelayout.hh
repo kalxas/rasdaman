@@ -73,40 +73,40 @@ class r_Storage_Layout
 public:
 
     /// the dataformat is not used.  please use the database methods for this purpose.
-    r_Storage_Layout(r_Data_Format init_format = r_Array, const char* formatParams = NULL);
+    r_Storage_Layout(r_Data_Format init_format = r_Array, const char *formatParams = NULL);
 
     /// the dataformat is not used.  please use the database methods for this purpose.
-    r_Storage_Layout(r_Tiling* ts, r_Data_Format init_format = r_Array, const char* formatParams = NULL);
+    r_Storage_Layout(r_Tiling *ts, r_Data_Format init_format = r_Array, const char *formatParams = NULL);
 
     /// Copy constructor.
-    r_Storage_Layout(const r_Storage_Layout& sl);
+    r_Storage_Layout(const r_Storage_Layout &sl);
 
     ///
-    virtual r_Storage_Layout* clone() const;
+    virtual r_Storage_Layout *clone() const;
 
     /// virtual destructor
     virtual ~r_Storage_Layout();
 
     ///
-    const r_Tiling* get_tiling() const;
+    const r_Tiling *get_tiling() const;
 
     /// this does not do anything important.  please use the database methods for this purpose.
     r_Data_Format get_storage_format() const;
 
     /// this does not do anything important.  please use the database methods for this purpose.
-    const char* get_storage_format_params() const;
+    const char *get_storage_format_params() const;
 
     /// Function for decomposing large MDDs into a set of smaller tiles
-    virtual r_Set<r_GMarray*>* decomposeMDD(const r_GMarray* mar) const;
+    virtual r_Set<r_GMarray *> *decomposeMDD(const r_GMarray *mar) const;
 
     /// Function for decomposing large MDDs into a set of smaller tiles
-    virtual std::vector<r_Minterval>* decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> *decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = cout) const;
+    void print_status(std::ostream &s = cout) const;
 
     ///
-    virtual bool is_compatible(const r_Minterval& obj_domain, r_Bytes celltypesize) const;
+    virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes celltypesize) const;
 
 protected:
 
@@ -114,12 +114,12 @@ protected:
     friend class r_GMArray;
 
     /// Tiling scheme
-    r_Tiling*  til;
+    r_Tiling  *til;
 
     /// the dataformat is not used.  please use the database methods for this purpose.
     r_Data_Format storage_format;
 
-    char* storage_params;
+    char *storage_params;
 
 };
 
@@ -127,7 +127,7 @@ protected:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Storage_Layout}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Storage_Layout& sl);
+extern std::ostream &operator<<(std::ostream &s, const r_Storage_Layout &sl);
 
 #if (defined(__VISUALC__) && !defined(__EXECUTABLE__))
 #define __EXECUTABLE__

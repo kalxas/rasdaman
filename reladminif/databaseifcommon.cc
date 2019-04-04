@@ -57,7 +57,7 @@ rasdaman GmbH.
 // defined in rasserver.cc
 extern char globalConnectId[256];
 
-const char* DatabaseIf::DefaultDatabaseName = DEFAULT_DBNAME;
+const char *DatabaseIf::DefaultDatabaseName = DEFAULT_DBNAME;
 
 DatabaseIf::~DatabaseIf()
 {
@@ -88,7 +88,7 @@ DatabaseIf::isOpen() const
 }
 
 void
-DatabaseIf::open(const char* dbName)
+DatabaseIf::open(const char *dbName)
 {
     if (opened)
     {
@@ -188,14 +188,14 @@ DatabaseIf::DatabaseIf()
 {
 }
 
-const char*
+const char *
 DatabaseIf::getName() const
 {
     return myName;
 }
 
-ostream&
-operator << (ostream& stream, DatabaseIf& db)
+ostream &
+operator << (ostream &stream, DatabaseIf &db)
 {
     stream << "DatabaseIf" << std::endl;
     stream << "\tConnected To\t: " << ((db.getName()) ? db.getName() : " ") << std::endl;

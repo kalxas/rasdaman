@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 
 
-r_MiterDirect::r_MiterDirect(void* data, const r_Minterval& total, const r_Minterval& iter, r_Bytes tlen, unsigned int step)
+r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter, r_Bytes tlen, unsigned int step)
     :   done(false),
         id(NULL),
         baseAddress(data),
@@ -63,7 +63,7 @@ r_MiterDirect::r_MiterDirect(void* data, const r_Minterval& total, const r_Minte
     }
     for (i = 0; i < static_cast<int>(dim); i++)
     {
-        id[i].data = static_cast<void*>((static_cast<r_Octet*>(data)) + offset);
+        id[i].data = static_cast<void *>((static_cast<r_Octet *>(data)) + offset);
     }
 }
 
@@ -85,14 +85,14 @@ void r_MiterDirect::reset(void)
     }
     for (i = 0; i < dim; i++)
     {
-        id[i].data = static_cast<void*>((static_cast<r_Octet*>(baseAddress)) + offset);
+        id[i].data = static_cast<void *>((static_cast<r_Octet *>(baseAddress)) + offset);
     }
     done = false;
 }
 
 
 void
-r_MiterDirect::print_pos(std::ostream& str) const
+r_MiterDirect::print_pos(std::ostream &str) const
 {
     str << '[' << id[0].pos;
     for (r_Dimension i = 1; i < dim; i++)
@@ -104,7 +104,7 @@ r_MiterDirect::print_pos(std::ostream& str) const
 
 
 
-std::ostream& operator<<(std::ostream& str, const r_MiterDirect& iter)
+std::ostream &operator<<(std::ostream &str, const r_MiterDirect &iter)
 {
     iter.print_pos(str);
     return str;

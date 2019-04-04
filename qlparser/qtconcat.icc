@@ -30,14 +30,14 @@ rasdaman GmbH.
 inline QtNode::QtNodeType
 QtConcat::getNodeType() const
 {
-  return nodeType;
+    return nodeType;
 }
 
 
 inline unsigned int
 QtConcat::getDimension()
 {
-  return dimension;
+    return dimension;
 }
 
 

@@ -31,7 +31,7 @@ r_Minterval_Type::r_Minterval_Type()
 {
 }
 
-r_Minterval_Type::r_Minterval_Type(const r_Minterval_Type& oldObj)
+r_Minterval_Type::r_Minterval_Type(const r_Minterval_Type &oldObj)
     : r_Type(oldObj)
 {
 }
@@ -42,7 +42,7 @@ r_Minterval_Type::isMintervalType() const
     return true;
 }
 
-r_Type*
+r_Type *
 r_Minterval_Type::clone() const
 {
     return new r_Minterval_Type(*this);
@@ -55,17 +55,17 @@ r_Minterval_Type::type_id() const
 }
 
 void
-r_Minterval_Type::convertToLittleEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Minterval_Type::convertToLittleEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Minterval_Type::convertToBigEndian(__attribute__((unused)) char* cells, __attribute__((unused)) r_Area noCells) const
+r_Minterval_Type::convertToBigEndian(__attribute__((unused)) char *cells, __attribute__((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Minterval_Type::print_status(std::ostream& s) const
+r_Minterval_Type::print_status(std::ostream &s) const
 {
     s << "minterval";
 }
@@ -74,7 +74,7 @@ r_Minterval_Type::~r_Minterval_Type()
 {
 }
 
-std::ostream& operator<<(std::ostream& str, const r_Minterval_Type& type)
+std::ostream &operator<<(std::ostream &str, const r_Minterval_Type &type)
 {
     type.print_status(str);
     return str;

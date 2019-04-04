@@ -66,7 +66,7 @@ public:
      * @param argv Array of commands.
      * @return TRUE if the parsing was successful, FALSE otherwise
      */
-    bool parseCommandLineParameters(int argc, char** argv);
+    bool parseCommandLineParameters(int argc, char **argv);
 
     boost::int32_t getWorkMode() const;
 
@@ -82,7 +82,7 @@ public:
 
     std::string getHistoryFileName() const;
 
-    std::string getPrompt(const std::string& userName = "USER");
+    std::string getPrompt(const std::string &userName = "USER");
 
     std::string getCommand() const;
 
@@ -118,11 +118,11 @@ private:
     std::string command;
 
     //-- parameters of this program
-    CommandLineParser&    cmlInter;
-    CommandLineParameter& cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
-    CommandLineParameter& cmlHist, &cmlLogFile;
-    CommandLineParameter& cmlPrompt, &cmlTestLogin;
-    CommandLineParameter& cmlInteractive, &cmlQuiet, &cmlExecute;
+    CommandLineParser    &cmlInter;
+    CommandLineParameter &cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
+    CommandLineParameter &cmlHist, &cmlLogFile;
+    CommandLineParameter &cmlPrompt, &cmlTestLogin;
+    CommandLineParameter &cmlInteractive, &cmlQuiet, &cmlExecute;
 
     /**
      * @brief paramError Display error message in case of invalid parameters.

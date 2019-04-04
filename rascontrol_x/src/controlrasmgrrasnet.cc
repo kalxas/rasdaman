@@ -52,7 +52,7 @@ using rasnet::service::RasCtrlResponse;
 using rasnet::service::RasMgrRasCtrlService;
 
 
-ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials, RasControlConfig& config):
+ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials &userCredentials, RasControlConfig &config):
     userCredentials(userCredentials), config(config)
 {
     try
@@ -63,7 +63,7 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
         this->rasmgrService.reset(new RasMgrRasCtrlService::Stub(channel));
         this->healthService.reset(new common::HealthService::Stub(channel));
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         //Failed to connect.
         LERROR << ex.what();
@@ -73,7 +73,7 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
 }
 
 
-std::string ControlRasMgrRasnet::processCommand(const std::string& command)
+std::string ControlRasMgrRasnet::processCommand(const std::string &command)
 {
     RasCtrlRequest request;
     RasCtrlResponse response;

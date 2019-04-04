@@ -42,7 +42,7 @@ typedef std::pair<const r_Range, const r_Range> ConstRangePair;
 class r_Tiler
 {
 public:
-    r_Tiler(std::vector<r_Minterval>& sourceDomains, const std::vector<r_Minterval>& targetDomains);
+    r_Tiler(std::vector<r_Minterval> &sourceDomains, const std::vector<r_Minterval> &targetDomains);
     /*
     sourceDomains will be splitted.
     targetDomains will not be touched.
@@ -73,7 +73,7 @@ public:
     returns the computed domains.  you must call split() first.
     */
 
-    std::vector<Tile*> generateTiles(const std::vector<Tile*>& sourceTiles) const;
+    std::vector<Tile *> generateTiles(const std::vector<Tile *> &sourceTiles) const;
     /*
     uses the previously computed tiled domains to generate the output.
     call split, removeCoveredDomains, removeDoubleDomains, mergeDomains first!
@@ -82,9 +82,9 @@ public:
 
 private:
 
-    std::vector<r_Minterval> splitMinterval(const r_Minterval& sourceDomain, std::vector<RangePair>& splitDimensions);
+    std::vector<r_Minterval> splitMinterval(const r_Minterval &sourceDomain, std::vector<RangePair> &splitDimensions);
 
-    std::vector<RangePair> computeSplitDimensions(const r_Minterval& sourceDomain) const;
+    std::vector<RangePair> computeSplitDimensions(const r_Minterval &sourceDomain) const;
 
     std::vector<r_Minterval> splitedDomains;
 

@@ -53,8 +53,8 @@ MDDDimensionType::insertInDb()
 
     dimension = myDimension;
     mddtypeid = myOId.getCounter();
-    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename));
-    DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
+    (void) strncpy(mddtypename, const_cast<char *>(getName()), (size_t) sizeof(mddtypename));
+    DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
     mddbasetypeid = obj->getOId();
     LTRACE << " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension;
 
@@ -71,7 +71,7 @@ MDDDimensionType::readFromDb()
 #endif
     long long mddtypeid;
     long long mddbasetypeid;
-    char* mddtypename;
+    char *mddtypename;
     short dimension;
 
     mddtypeid = myOId.getCounter();
@@ -95,7 +95,7 @@ MDDDimensionType::readFromDb()
 
     myDimension = static_cast<r_Dimension>(dimension);
     setName(mddtypename);
-    myBaseType = (BaseType*) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
+    myBaseType = (BaseType *) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif

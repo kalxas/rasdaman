@@ -42,7 +42,7 @@ static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/2
 
 #include "raslib/error.hh"
 
-r_Point::r_Point(char* stringRep)
+r_Point::r_Point(char *stringRep)
     : points(NULL), dimensionality(1), streamInitCnt(0)
 {
     char    charToken = 0;
@@ -52,7 +52,7 @@ r_Point::r_Point(char* stringRep)
     std::istringstream str(stringRep);
 
     // calculate dimensionality
-    char* p = stringRep;
+    char *p = stringRep;
     while ((p = strchr(++p, ',')))
     {
         dimensionality++;
@@ -105,7 +105,7 @@ r_Point::r_Point(r_Dimension dim)
 }
 
 
-r_Point& r_Point::operator<<(r_Range newElement)
+r_Point &r_Point::operator<<(r_Range newElement)
 {
     if (streamInitCnt >= dimensionality)
     {
@@ -163,12 +163,12 @@ r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
     points[4] = p5;
 }
 
-r_Point::r_Point(const std::vector<r_Range>& pointArg)
+r_Point::r_Point(const std::vector<r_Range> &pointArg)
     : dimensionality(pointArg.size()),
       streamInitCnt(dimensionality)
 {
     points = new r_Range[dimensionality];
-    for(size_t i = 0; i < dimensionality; i++)
+    for (size_t i = 0; i < dimensionality; i++)
     {
         points[i] = pointArg[i];
     }
@@ -183,7 +183,7 @@ r_Point::r_Point()
 }
 
 
-r_Point::r_Point(const r_Point& pt)
+r_Point::r_Point(const r_Point &pt)
     :   points(new r_Range[pt.dimensionality]),
         dimensionality(pt.dimensionality),
         streamInitCnt(pt.streamInitCnt)
@@ -218,7 +218,7 @@ r_Point::operator[](r_Dimension i) const
 }
 
 
-r_Range&
+r_Range &
 r_Point::operator[](r_Dimension i)
 {
     if (i >= dimensionality)
@@ -231,8 +231,8 @@ r_Point::operator[](r_Dimension i)
 }
 
 
-const r_Point&
-r_Point::operator=(const r_Point& pt)
+const r_Point &
+r_Point::operator=(const r_Point &pt)
 {
     if (this != &pt)
     {
@@ -263,7 +263,7 @@ r_Point::operator=(const r_Point& pt)
 
 
 bool
-r_Point::operator==(const r_Point& pt) const
+r_Point::operator==(const r_Point &pt) const
 {
     bool returnValue = false;
 
@@ -287,21 +287,21 @@ r_Point::operator==(const r_Point& pt) const
 
 
 bool
-r_Point::operator!=(const r_Point& pt) const
+r_Point::operator!=(const r_Point &pt) const
 {
     return !operator==(pt);
 }
 
 bool
-r_Point::operator < (const r_Point& pt) const
+r_Point::operator < (const r_Point &pt) const
 {
-    if(this->dimensionality != pt.dimension())
+    if (this->dimensionality != pt.dimension())
     {
         LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
-    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    for (r_Dimension dim = 0; dim < dimensionality; dim++)
     {
         returnValue &= this->points[dim] < pt[dim];
     }
@@ -309,15 +309,15 @@ r_Point::operator < (const r_Point& pt) const
     return returnValue;
 }
 bool
-r_Point::operator > (const r_Point& pt) const
+r_Point::operator > (const r_Point &pt) const
 {
-    if(this->dimensionality != pt.dimension())
+    if (this->dimensionality != pt.dimension())
     {
         LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
-    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    for (r_Dimension dim = 0; dim < dimensionality; dim++)
     {
         returnValue &= this->points[dim] > pt[dim];
     }
@@ -326,15 +326,15 @@ r_Point::operator > (const r_Point& pt) const
 }
 
 bool
-r_Point::operator >= (const r_Point& pt) const
+r_Point::operator >= (const r_Point &pt) const
 {
-    if(this->dimensionality != pt.dimension())
+    if (this->dimensionality != pt.dimension())
     {
         LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
-    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    for (r_Dimension dim = 0; dim < dimensionality; dim++)
     {
         returnValue &= this->points[dim] >= pt[dim];
     }
@@ -343,15 +343,15 @@ r_Point::operator >= (const r_Point& pt) const
 }
 
 bool
-r_Point::operator <= (const r_Point& pt) const
+r_Point::operator <= (const r_Point &pt) const
 {
-    if(this->dimensionality != pt.dimension())
+    if (this->dimensionality != pt.dimension())
     {
         LERROR << "r_Point::operator<(" << pt << ") dimensions (" << dimensionality << ") do not match";
         throw r_Edim_mismatch(dimensionality, pt.dimension());
     }
     bool returnValue = true;
-    for(r_Dimension dim = 0; dim < dimensionality; dim++)
+    for (r_Dimension dim = 0; dim < dimensionality; dim++)
     {
         returnValue &= this->points[dim] <= pt[dim];
     }
@@ -360,7 +360,7 @@ r_Point::operator <= (const r_Point& pt) const
 }
 
 r_Point
-r_Point::operator+(const r_Point& pt) const
+r_Point::operator+(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -379,7 +379,7 @@ r_Point::operator+(const r_Point& pt) const
 }
 
 r_Point
-r_Point::operator-(const r_Point& pt) const
+r_Point::operator-(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -398,7 +398,7 @@ r_Point::operator-(const r_Point& pt) const
 }
 
 r_Point
-r_Point::operator*(const r_Point& pt) const
+r_Point::operator*(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -430,10 +430,10 @@ r_Point::operator*(const r_Range newElement) const
 }
 
 r_Point
-r_Point::indexedMap(const std::vector<r_Dimension>& vecArg) const
+r_Point::indexedMap(const std::vector<r_Dimension> &vecArg) const
 {
     r_Point retVal(vecArg.size());
-    for(size_t i = 0; i < vecArg.size(); i++)
+    for (size_t i = 0; i < vecArg.size(); i++)
     {
         retVal[i] = points[vecArg[i]];
     }
@@ -442,7 +442,7 @@ r_Point::indexedMap(const std::vector<r_Dimension>& vecArg) const
 
 
 r_Range
-r_Point::dotProduct(const r_Point& pt) const
+r_Point::dotProduct(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -465,7 +465,7 @@ r_Point::getVector() const
 {
     std::vector<r_Range> returnVal;
     returnVal.reserve(dimensionality);
-    for(size_t i = 0; i < dimensionality; i++)
+    for (size_t i = 0; i < dimensionality; i++)
     {
         returnVal.emplace_back(points[i]);
     }
@@ -473,7 +473,7 @@ r_Point::getVector() const
 }
 
 void
-r_Point::print_status(std::ostream& s) const
+r_Point::print_status(std::ostream &s) const
 {
     s << "[";
 
@@ -491,7 +491,7 @@ r_Point::print_status(std::ostream& s) const
 }
 
 
-char*
+char *
 r_Point::get_string_representation() const
 {
     // initialize string stream
@@ -501,21 +501,21 @@ r_Point::get_string_representation() const
     domainStream << (*this);
 
     // allocate memory taking the final string
-    char* returnString = strdup(domainStream.str().c_str());
+    char *returnString = strdup(domainStream.str().c_str());
 
     return returnString;
 }
 
-std::string 
+std::string
 r_Point::to_string() const
 {
-    char* stringRep = this->get_string_representation();
+    char *stringRep = this->get_string_representation();
     std::string returnValue(stringRep);
     std::free(stringRep);
     return returnValue;
 }
 
-std::ostream& operator<<(std::ostream& s, const r_Point& d)
+std::ostream &operator<<(std::ostream &s, const r_Point &d)
 {
     d.print_status(s);
     return s;

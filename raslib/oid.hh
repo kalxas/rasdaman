@@ -51,13 +51,13 @@ public:
     r_OId() = default;
 
     /// constructs an OId from the string representation
-    r_OId(const char*);
+    r_OId(const char *);
 
     /// constructor getting oid parts
-    r_OId(const char* initSystemName, const char* initBaseName, double initLocalOId);
+    r_OId(const char *initSystemName, const char *initBaseName, double initLocalOId);
 
     /// copy constructor
-    r_OId(const r_OId&);
+    r_OId(const r_OId &);
 
     /// destructor
     virtual ~r_OId();
@@ -66,44 +66,44 @@ public:
     virtual void r_deactivate();
 
     /// debug output
-    void print_status(std::ostream& s) const;
+    void print_status(std::ostream &s) const;
 
     /// operator for assigning an oid
-    const r_OId& operator= (const r_OId&);
+    const r_OId &operator= (const r_OId &);
 
     //@Man: Comparison operators:
     //@{
     ///
 
     /// operator for equality
-    bool operator==(const r_OId&) const;
+    bool operator==(const r_OId &) const;
 
     /// operator for not equal
-    bool operator!=(const r_OId&) const;
+    bool operator!=(const r_OId &) const;
 
     /// operator for greater than
-    bool operator> (const r_OId&) const;
+    bool operator> (const r_OId &) const;
 
     /// operator for less than
-    bool operator< (const r_OId&) const;
+    bool operator< (const r_OId &) const;
 
     /// operator for greater or equal than
-    bool operator>=(const r_OId&) const;
+    bool operator>=(const r_OId &) const;
 
     /// operator for less than or equal
-    bool operator<=(const r_OId&) const;
+    bool operator<=(const r_OId &) const;
 
     ///
     //@}
 
     /// gets the oid's string representation
-    inline const char* get_string_representation() const;
+    inline const char *get_string_representation() const;
 
     /// get system name
-    inline const char* get_system_name() const;
+    inline const char *get_system_name() const;
 
     /// get base name
-    inline const char* get_base_name() const;
+    inline const char *get_base_name() const;
 
     /// get local oid
     inline double get_local_oid() const;
@@ -113,13 +113,13 @@ public:
 
 private:
     /// string representation
-    char* oidString{NULL};
+    char *oidString{NULL};
 
     /// system name
-    char* systemName{NULL};
+    char *systemName{NULL};
 
     /// base name
-    char* baseName{NULL};
+    char *baseName{NULL};
 
     /// local oid
     double localOId{};
@@ -131,7 +131,7 @@ private:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Oid}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_OId& oid);
+extern std::ostream &operator<<(std::ostream &s, const r_OId &oid);
 
 #include "raslib/oid.icc"
 #endif

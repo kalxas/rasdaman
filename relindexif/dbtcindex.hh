@@ -45,7 +45,7 @@ public:
         instance is imediately persistent
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
     /*@Doc:
         Prints current status of index, in hierarchical format.
     */
@@ -54,7 +54,7 @@ public:
     /*@Doc:
     */
 
-    virtual bool removeObject(const KeyObject& entry);
+    virtual bool removeObject(const KeyObject &entry);
     /*@Doc:
         will take care of inlined tiles when they are removed.
     */
@@ -64,12 +64,12 @@ public:
         will take care of inlined tiles when they are removed.
     */
 
-    virtual void removeInlineTile(InlineTile*);
+    virtual void removeInlineTile(InlineTile *);
     /*@Doc:
         this method is called by inlinetile to removeitselve from the index when it is outlined.  the oid of this tile is still stored in the index.  do not confuse with removeObejct!
     */
 
-    virtual void addInlineTile(InlineTile*);
+    virtual void addInlineTile(InlineTile *);
     /*@Doc:
         this method is called by inlinetile when it is told to inline itself into this index.
     */
@@ -79,7 +79,7 @@ public:
         called by an inlined inlinetile when it is modified.  the index must know about this in order to update the inlinetile in the database.
     */
 
-    virtual IndexDS* getNewInstance() const;
+    virtual IndexDS *getNewInstance() const;
     /*@Doc:
         used by indexmgr index logic classes to generate new nodes/leaves without knowing what kind of index structure it is operating with.  in essence a clone() pattern.
     */
@@ -90,7 +90,7 @@ protected:
         ObjectBroker needs to access OId constructor and getInlineTile
     */
 
-    InlineTile* getInlineTile(const OId& itid);
+    InlineTile *getInlineTile(const OId &itid);
     /*@Doc:
         returns the specified inline tile.
         memory management is done by the DBTCIndex object.
@@ -103,7 +103,7 @@ protected:
     */
 
 
-    void readyForRemoval(const OId& id);
+    void readyForRemoval(const OId &id);
     /*@Doc:
         inlined inlinetiles must be loaded previous to removing them in order to get them outlined.
     */
@@ -139,7 +139,7 @@ protected:
         write the tiles into the blob space if neccessary.
     */
 
-    void writeInlineTiles(char* cells, r_Bytes blobSize);
+    void writeInlineTiles(char *cells, r_Bytes blobSize);
     /*
         writes the tiles into the blob tablespace.
         errors are database errors.
@@ -151,7 +151,7 @@ protected:
         errors are database errors.
     */
 
-    DBTCIndex(const OId& id);
+    DBTCIndex(const OId &id);
 
     void setMappingHasChanged();
     /*@Doc:

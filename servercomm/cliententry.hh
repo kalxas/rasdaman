@@ -37,7 +37,8 @@ class Tile;
 class RMTimer;
 class r_Parse_Params;
 
-enum class ClientType {
+enum class ClientType
+{
     Invalid, // invalid client
     Http,    // requests routed via HttpServer
     Regular  // requests go directly to ServerComm

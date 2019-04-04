@@ -78,7 +78,7 @@ void ConfigurationManager::loadConfiguration()
     {
         this->loadRasMgrConf();
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << ex.what();
     }
@@ -121,7 +121,7 @@ void ConfigurationManager::loadRasMgrConf()
 
         while (!ifs.eof())
         {
-            ifs.getline(inBuffer , MAX_CONTROL_COMMAND_LENGTH);
+            ifs.getline(inBuffer, MAX_CONTROL_COMMAND_LENGTH);
 
             std::string result = commandExecutor_->sudoExecuteCommand(std::string(inBuffer));
 
@@ -157,7 +157,7 @@ void ConfigurationManager::saveRasMgrConf(bool backup)
     ofs.close();
 }
 
-void ConfigurationManager::saveDatabaseHosts(std::ofstream& out)
+void ConfigurationManager::saveDatabaseHosts(std::ofstream &out)
 {
     DatabaseHostMgrProto dbhMgrData = this->dbhManager_->serializeToProto();
     for (int i = 0; i < dbhMgrData.database_hosts_size(); ++i)
@@ -179,7 +179,7 @@ void ConfigurationManager::saveDatabaseHosts(std::ofstream& out)
     }
 }
 
-void ConfigurationManager::saveDatabases(std::ofstream& out)
+void ConfigurationManager::saveDatabases(std::ofstream &out)
 {
     DatabaseMgrProto dbManagerData = this->dbManager_->serializeToProto();
 
@@ -193,7 +193,7 @@ void ConfigurationManager::saveDatabases(std::ofstream& out)
     }
 }
 
-void ConfigurationManager::saveServers(std::ofstream& out)
+void ConfigurationManager::saveServers(std::ofstream &out)
 {
     ServerMgrProto serverManagerData = this->serverManager_->serializeToProto();
     for (int i = 0; i < serverManagerData.server_groups_size(); ++i)
@@ -274,7 +274,7 @@ void ConfigurationManager::saveServers(std::ofstream& out)
     }
 }
 
-void ConfigurationManager::savePeers(std::ofstream& out)
+void ConfigurationManager::savePeers(std::ofstream &out)
 {
     PeerMgrProto peerManagerData = this->peerManager_->serializeToProto();
 

@@ -61,7 +61,7 @@ ClientManagementService::~ClientManagementService()
 {}
 
 
-grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::ConnectReq* request, rasnet::service::ConnectRepl* response)
+grpc::Status ClientManagementService::Connect(__attribute__((unused)) grpc::ServerContext *context, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response)
 {
     grpc::Status status = Status::OK;
     /**
@@ -87,7 +87,7 @@ grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::Ser
 
         LDEBUG << "Client connected, assigned ID " << response->clientuuid();
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Failed connecting client: " << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
@@ -101,9 +101,9 @@ grpc::Status ClientManagementService::Connect(__attribute__ ((unused)) grpc::Ser
     return status;
 }
 
-grpc::Status ClientManagementService::Disconnect(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::DisconnectReq* request, 
-        __attribute__ ((unused)) rasnet::service::Void* response)
+grpc::Status ClientManagementService::Disconnect(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::DisconnectReq *request,
+        __attribute__((unused)) rasnet::service::Void *response)
 {
     grpc::Status status = Status::OK;
     try
@@ -111,7 +111,7 @@ grpc::Status ClientManagementService::Disconnect(__attribute__ ((unused)) grpc::
         LDEBUG << "Disconnect client " << request->clientuuid();
         this->clientManager->disconnectClient(request->clientuuid());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Failed disconnecting client: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
@@ -124,7 +124,7 @@ grpc::Status ClientManagementService::Disconnect(__attribute__ ((unused)) grpc::
     return status;
 }
 
-grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::ServerContext* context, const rasnet::service::OpenDbReq* request, rasnet::service::OpenDbRepl* response)
+grpc::Status ClientManagementService::OpenDb(__attribute__((unused)) grpc::ServerContext *context, const rasnet::service::OpenDbReq *request, rasnet::service::OpenDbRepl *response)
 {
     string clientId = request->clientuuid();
     string dbName = request->databasename();
@@ -143,7 +143,7 @@ grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::Serv
         response->set_port(session.serverPort);
         response->set_serverhostname(session.serverHostName);
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Failed opening DB session: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
@@ -157,9 +157,9 @@ grpc::Status ClientManagementService::OpenDb(__attribute__ ((unused)) grpc::Serv
     return status;
 }
 
-grpc::Status ClientManagementService::CloseDb(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::CloseDbReq* request, 
-        __attribute__ ((unused)) rasnet::service::Void* response)
+grpc::Status ClientManagementService::CloseDb(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::CloseDbReq *request,
+        __attribute__((unused)) rasnet::service::Void *response)
 {
     grpc::Status status;
 
@@ -169,7 +169,7 @@ grpc::Status ClientManagementService::CloseDb(__attribute__ ((unused)) grpc::Ser
                << " by client " << request->clientid();
         this->clientManager->closeClientDbSession(request->clientuuid(), request->dbsessionid());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Failed closing client database session: " << ex.what();
         status = GrpcUtils::convertExceptionToStatus(ex);
@@ -183,9 +183,9 @@ grpc::Status ClientManagementService::CloseDb(__attribute__ ((unused)) grpc::Ser
     return status;
 }
 
-grpc::Status ClientManagementService::KeepAlive(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::KeepAliveReq* request, 
-        __attribute__ ((unused)) rasnet::service::Void* response)
+grpc::Status ClientManagementService::KeepAlive(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::KeepAliveReq *request,
+        __attribute__((unused)) rasnet::service::Void *response)
 {
     grpc::Status status = Status::OK;
 
@@ -194,7 +194,7 @@ grpc::Status ClientManagementService::KeepAlive(__attribute__ ((unused)) grpc::S
         LDEBUG << "Process keep alive message from client " << request->clientuuid();
         this->clientManager->keepClientAlive(request->clientuuid());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Failed processing keep alive message from client " << request->clientuuid()
                << ": " << ex.what();

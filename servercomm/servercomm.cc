@@ -136,7 +136,7 @@ ClientTblElt *currentClientTblElt = 0;  // used in QtMDDAccess and oql.yy
 // Defined elsewhere
 
 // defined in server/rasserver_main.cc, configurable as a rasserver parameter:
-//       --transbuffer <nnnn>	(default: 4194304)
+//       --transbuffer <nnnn>   (default: 4194304)
 //              maximal size of the transfer buffer in bytes
 extern unsigned long maxTransferBufferSize;
 // defined in oql.yy
@@ -205,7 +205,7 @@ std::stringstream requestStream;
 ServerComm::ServerComm(): ServerComm(0, NULL, 0, NULL) {}
 
 ServerComm::ServerComm(unsigned long newListenPort, char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
-        : listenPort{newListenPort}, rasmgrHost{newRasmgrHost}, rasmgrPort{newRasmgrPort}, serverName{newServerName}
+    : listenPort{newListenPort}, rasmgrHost{newRasmgrHost}, rasmgrPort{newRasmgrPort}, serverName{newServerName}
 {
     assert(!serverCommInstance);
     serverCommInstance = this;
@@ -235,9 +235,13 @@ ClientTblElt *
 ServerComm::getClientContext(unsigned long clientId)
 {
     if (clientTbl && clientId == clientTbl->clientId)
+    {
         return clientTbl;
+    }
     else
+    {
         return NULL;
+    }
 }
 
 void
@@ -334,7 +338,7 @@ ServerComm::printServerStatus()
            << "\n    Client location: " << (clientTbl->clientType == ClientType::Http ? "http" : "non-http")
            << "\n    User name      : " << clientTbl->userName
            << "\n    Database in use: " << clientTbl->baseName
-           << "\n    Creation time  : " << ctime((time_t*)&clientTbl->creationTime)
+           << "\n    Creation time  : " << ctime((time_t *)&clientTbl->creationTime)
            <<   "    MDD collection : " << clientTbl->transferColl
            << "\n    MDD iterator   : " << clientTbl->transferCollIter
            << "\n    Current PersMDD: " << clientTbl->assembleMDD
@@ -569,7 +573,9 @@ ServerComm::commitTA(unsigned long callingClientId)
         try
         {
             if (configuration.isLockMgrOn())
+            {
                 LockManager::Instance()->unlockAllTiles();
+            }
             context->transaction.commit();
             transactionActive = 0;
             DBGOK
@@ -608,7 +614,9 @@ ServerComm::abortTA(unsigned long callingClientId)
         {
             context->transaction.abort();
             if (configuration.isLockMgrOn())
+            {
                 LockManager::Instance()->unlockAllTiles();
+            }
             transactionActive = 0;
             DBGOK
         }
@@ -655,29 +663,29 @@ ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
     returnStructure.token = strdup((info).getToken().c_str());
 
 #define HANDLE_PARSING_ERROR { \
-    if (!parseError) { \
-        parseError = new ParseInfo(); \
-        parseError->setErrorNo(309); \
-    } \
-    HANDLE_PARSE_INFO(*parseError) \
-    delete parseError, parseError = NULL; \
-    yyreset(); \
-    returnValue = RC_PARSING_ERROR; }
+        if (!parseError) { \
+            parseError = new ParseInfo(); \
+            parseError->setErrorNo(309); \
+        } \
+        HANDLE_PARSE_INFO(*parseError) \
+        delete parseError, parseError = NULL; \
+        yyreset(); \
+        returnValue = RC_PARSING_ERROR; }
 
 #define RELEASE_DATA { \
-    mddConstants = NULL; \
-    parseQueryTree = 0; currentClientTblElt = 0; delete qtree; qtree = NULL; }
+        mddConstants = NULL; \
+        parseQueryTree = 0; currentClientTblElt = 0; delete qtree; qtree = NULL; }
 
 #define RELEASE_ALL_DATA { \
-    context->releaseTransferStructures(); \
-    RELEASE_DATA }
+        context->releaseTransferStructures(); \
+        RELEASE_DATA }
 
 std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context) const
 {
     assert(context && context->transferData && !context->transferData->empty());
     assert(context->transferDataIter);
 
-    std::pair<char*, char*> ret{NULL, NULL};
+    std::pair<char *, char *> ret{NULL, NULL};
 
     QtData *data = **context->transferDataIter;
     assert(data);
@@ -688,9 +696,13 @@ std::pair<char *, char *> ServerComm::getTypeNameStructure(ClientTblElt *context
         if (context->transferData->size() > 1)
             // if there are more than one MDD object then they possibly have different domains,
             // so create a dimension result type in this case which will fit for all of them
+        {
             mddType = new MDDDimensionType("tmp", mddObj->getCellType(), mddObj->getLoadDomain().dimension());
+        }
         else
+        {
             mddType = new MDDDomainType("tmp", mddObj->getCellType(), mddObj->getLoadDomain());
+        }
         TypeFactory::addTempType(mddType);
         SetType *setType = new SetType("tmp", mddType);
         TypeFactory::addTempType(setType);
@@ -747,7 +759,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
         context->transferColl = NULL;
         currentClientTblElt = context;        // assign current client table element (temporary)
 
-            context->releaseTransferStructures();
+        context->releaseTransferStructures();
 
         QueryTree *qtree = new QueryTree();   // create a query tree object...
         parseQueryTree = qtree;               // ...and assign it to the global parse query tree pointer;
@@ -767,9 +779,13 @@ ServerComm::executeQuery(unsigned long callingClientId,
 #endif
                 BLINFO << "evaluating... ";
                 if (!insert)
+                {
                     context->transferData = qtree->evaluateRetrieval();
+                }
                 else
+                {
                     context->transferData = qtree->evaluateUpdate();
+                }
             }
             catch (ParseInfo &info)
             {
@@ -967,8 +983,10 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 BLINFO << "evaluating... ";
                 vector<QtData *> *updateResult = qtree->evaluateUpdate();
                 // release data
-                for (auto *iter: *updateResult)
+                for (auto *iter : *updateResult)
+                {
                     delete iter, iter = NULL;
+                }
                 delete updateResult, updateResult = NULL;
                 BLINFO << "ok\n";
             }
@@ -1059,7 +1077,9 @@ ServerComm::startInsertPersMDD(unsigned long callingClientId,
                     // store PersMDDColl for insert operation at the end of the transfer
                     context->transferColl = MDDColl::getMDDCollection(collName);
                     if (!context->transferColl->isPersistent())
+                    {
                         throw r_Error(SYSTEM_COLLECTION_NOT_WRITABLE);
+                    }
                 }
                 catch (r_Error &obj)
                 {
@@ -1106,11 +1126,13 @@ ServerComm::startInsertPersMDD(unsigned long callingClientId,
                 ms.setIndexType(StorageLayout::DefaultIndexType);
                 ms.setTilingScheme(StorageLayout::DefaultTilingScheme);
                 if (domain.dimension() == StorageLayout::DefaultTileConfiguration.dimension())
+                {
                     ms.setTileConfiguration(StorageLayout::DefaultTileConfiguration);
+                }
                 try
                 {
                     context->assembleMDD = new MDDObj(
-                            static_cast<const MDDBaseType *>(mddType), domain, OId(oid.get_local_oid()), ms);
+                        static_cast<const MDDBaseType *>(mddType), domain, OId(oid.get_local_oid()), ms);
                     DBGOK
                 }
                 catch (r_Error &err)
@@ -1266,7 +1288,7 @@ ServerComm::insertTile(unsigned long callingClientId,
     if (context)
     {
         const BaseType *baseType =
-                isPersistent ? context->assembleMDD->getCellType() : context->transferMDD->getCellType();
+            isPersistent ? context->assembleMDD->getCellType() : context->transferMDD->getCellType();
         if (baseType)
         {
             r_Minterval domain(rpcMarray->domain);
@@ -1300,13 +1322,13 @@ ServerComm::insertTile(unsigned long callingClientId,
 
                 // for java clients only: check endianness and swap bytes tile if necessary
                 if (context->clientType == ClientType::Http &&
-                    r_Endian::get_endianness() != r_Endian::r_Endian_Big)
+                        r_Endian::get_endianness() != r_Endian::r_Endian_Big)
                 {
                     DBGINFONNL("big-endian client so changing result endianness... ");
                     // we have to swap the endianess
                     char *tpstruct = baseType->getTypeStructure();
                     auto useType = std::unique_ptr<r_Base_Type>(
-                            static_cast<r_Base_Type *>(r_Type::get_any_type(tpstruct)));
+                                       static_cast<r_Base_Type *>(r_Type::get_any_type(tpstruct)));
                     free(tpstruct);
                     char *newContents = static_cast<char *>(mymalloc(tile->getSize()));
                     // change the endianness of the entire tile for identical domains for src and dest
@@ -1320,10 +1342,12 @@ ServerComm::insertTile(unsigned long callingClientId,
                 DBGINFONNL("inserting tile, " << dataSize << " bytes... ")
                 std::unique_ptr<vector<Tile *>> tileSet;
                 if (tileSize)
+                {
                     tileSet.reset(tile->splitTile(*tileSize));
+                }
                 else
                 {
-                    tileSet.reset(new vector<Tile *>{tile.get()});
+                    tileSet.reset(new vector<Tile *> {tile.get()});
                     tile.release(); // don't destroy tile in this case
                 }
 
@@ -1331,9 +1355,13 @@ ServerComm::insertTile(unsigned long callingClientId,
                 for (auto it = tileSet->begin(); it != tileSet->end(); it++)
                 {
                     if (isPersistent)
+                    {
                         context->assembleMDD->insertTile(*it);
+                    }
                     else
+                    {
                         context->transferMDD->insertTile(*it);
+                    }
                 }
                 DBGOK
             }
@@ -1385,7 +1413,7 @@ ServerComm::getNextMDD(unsigned long callingClientId,
     if (context)
     {
         if (context->transferData && context->transferDataIter &&
-            *context->transferDataIter != context->transferData->end())
+                *context->transferDataIter != context->transferData->end())
         {
             try
             {
@@ -1410,13 +1438,17 @@ ServerComm::getNextMDD(unsigned long callingClientId,
                 auto tiles = differentDomains ? mddObj->intersect(mddDomain) : mddObj->getTiles();
                 // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
                 for (size_t i = 0; i < tiles->size(); ++i)
+                {
                     context->transTiles->push_back((*tiles)[i].get());
+                }
                 delete tiles, tiles = NULL;
 
                 if (differentDomains)
                 {
                     if (!(context->deletableTiles))
+                    {
                         context->deletableTiles = new vector<Tile *>();
+                    }
                     for (auto it = context->transTiles->begin(); it != context->transTiles->end(); it++)
                     {
                         // get relevant domain of source tile
@@ -1446,16 +1478,22 @@ ServerComm::getNextMDD(unsigned long callingClientId,
 
                 // set output parameter currentFormat
                 if (!context->transTiles->empty())
+                {
                     currentFormat = (*(context->transTiles))[0]->getDataFormat();
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 
                 // set output parameter oid in case of persistent MDD objects
                 if (mddObj->isPersistent())
                 {
                     EOId eOId;
                     if (mddObj->getEOId(&eOId) == 0)
+                    {
                         oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                    }
                 }
             }
             catch (r_Error &err)
@@ -1511,57 +1549,57 @@ ServerComm::swapScalarElement(char *buffer, const BaseType *baseType)
     assert(baseType);
     switch (baseType->getType())
     {
-        case USHORT:
+    case USHORT:
+    {
+        auto *buf = reinterpret_cast<r_UShort *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case SHORT:
+    {
+        auto *buf = reinterpret_cast<r_Short *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case LONG:
+    {
+        auto *buf = reinterpret_cast<r_Long *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case ULONG:
+    {
+        auto *buf = reinterpret_cast<r_ULong *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case FLOAT:
+    {
+        auto *buf = reinterpret_cast<r_Float *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case DOUBLE:
+    {
+        auto *buf = reinterpret_cast<r_Double *>(buffer);
+        *buf = r_Endian::swap(*buf);
+        break;
+    }
+    case STRUCT:
+    {
+        const StructType *st = static_cast<const StructType *>(baseType);
+        unsigned int numElems = st->getNumElems();
+        for (unsigned int i = 0; i < numElems; i++)
         {
-            auto *buf = reinterpret_cast<r_UShort*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
+            const BaseType *bt = st->getElemType(i);
+            unsigned int elemTypeSize = bt->getSize();
+            swapScalarElement(buffer, bt);
+            buffer += elemTypeSize;
         }
-        case SHORT:
-        {
-            auto *buf = reinterpret_cast<r_Short*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
-        }
-        case LONG:
-        {
-            auto *buf = reinterpret_cast<r_Long*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
-        }
-        case ULONG:
-        {
-            auto *buf = reinterpret_cast<r_ULong*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
-        }
-        case FLOAT:
-        {
-            auto *buf = reinterpret_cast<r_Float*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
-        }
-        case DOUBLE:
-        {
-            auto *buf = reinterpret_cast<r_Double*>(buffer);
-            *buf = r_Endian::swap(*buf);
-            break;
-        }
-        case STRUCT:
-        {
-            const StructType *st = static_cast<const StructType *>(baseType);
-            unsigned int numElems = st->getNumElems();
-            for (unsigned int i = 0; i < numElems; i++)
-            {
-                const BaseType *bt = st->getElemType(i);
-                unsigned int elemTypeSize = bt->getSize();
-                swapScalarElement(buffer, bt);
-                buffer += elemTypeSize;
-            }
-            break;
-        }
-        default:
-            break;
+        break;
+    }
+    default:
+        break;
     }
 
 }
@@ -1599,57 +1637,57 @@ ServerComm::getNextElement(unsigned long callingClientId,
                 QtData *dataObj = **(context->transferDataIter);
                 switch (dataObj->getDataType())
                 {
-                    case QT_STRING:
+                case QT_STRING:
+                {
+                    QtStringData *stringDataObj = static_cast<QtStringData *>(dataObj);
+                    bufferSize = stringDataObj->getStringData().length() + 1;
+                    buffer = static_cast<char *>(mymalloc(bufferSize));
+                    memcpy(buffer, stringDataObj->getStringData().c_str(), bufferSize);
+                    DBGINFONNL("string data of size " << bufferSize << "... ")
+                    break;
+                }
+                case QT_INTERVAL:
+                {
+                    QtIntervalData *tmp = static_cast<QtIntervalData *>(dataObj);
+                    buffer = tmp->getIntervalData().get_string_representation();
+                    bufferSize = strlen(buffer) + 1;
+                    DBGINFONNL("interval data of size " << bufferSize << "... ")
+                    break;
+                }
+                case QT_MINTERVAL:
+                {
+                    QtMintervalData *tmp = static_cast<QtMintervalData *>(dataObj);
+                    buffer = tmp->getMintervalData().get_string_representation();
+                    bufferSize = strlen(buffer) + 1;
+                    DBGINFONNL("minterval data of size " << bufferSize << "... ")
+                    break;
+                }
+                case QT_POINT:
+                {
+                    QtPointData *tmp = static_cast<QtPointData *>(dataObj);
+                    buffer = tmp->getPointData().get_string_representation();
+                    bufferSize = strlen(buffer) + 1;
+                    DBGINFONNL("point data of size " << bufferSize << "... ")
+                    break;
+                }
+                default:
+                {
+                    if (dataObj->isScalarData())
                     {
-                        QtStringData *stringDataObj = static_cast<QtStringData *>(dataObj);
-                        bufferSize = stringDataObj->getStringData().length() + 1;
+                        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(dataObj);
+                        bufferSize = scalarDataObj->getValueType()->getSize();
                         buffer = static_cast<char *>(mymalloc(bufferSize));
-                        memcpy(buffer, stringDataObj->getStringData().c_str(), bufferSize);
-                        DBGINFONNL("string data of size " << bufferSize << "... ")
-                        break;
-                    }
-                    case QT_INTERVAL:
-                    {
-                        QtIntervalData *tmp = static_cast<QtIntervalData *>(dataObj);
-                        buffer = tmp->getIntervalData().get_string_representation();
-                        bufferSize = strlen(buffer) + 1;
-                        DBGINFONNL("interval data of size " << bufferSize << "... ")
-                        break;
-                    }
-                    case QT_MINTERVAL:
-                    {
-                        QtMintervalData *tmp = static_cast<QtMintervalData *>(dataObj);
-                        buffer = tmp->getMintervalData().get_string_representation();
-                        bufferSize = strlen(buffer) + 1;
-                        DBGINFONNL("minterval data of size " << bufferSize << "... ")
-                        break;
-                    }
-                    case QT_POINT:
-                    {
-                        QtPointData *tmp = static_cast<QtPointData *>(dataObj);
-                        buffer = tmp->getPointData().get_string_representation();
-                        bufferSize = strlen(buffer) + 1;
-                        DBGINFONNL("point data of size " << bufferSize << "... ")
-                        break;
-                    }
-                    default:
-                    {
-                        if (dataObj->isScalarData())
-                        {
-                            QtScalarData *scalarDataObj = static_cast<QtScalarData *>(dataObj);
-                            bufferSize = scalarDataObj->getValueType()->getSize();
-                            buffer = static_cast<char *>(mymalloc(bufferSize));
-                            memcpy(buffer, scalarDataObj->getValueBuffer(), bufferSize);
-                            // change endianess if necessary
-                            if (context->clientType == ClientType::Http &&
+                        memcpy(buffer, scalarDataObj->getValueBuffer(), bufferSize);
+                        // change endianess if necessary
+                        if (context->clientType == ClientType::Http &&
                                 r_Endian::get_endianness() != r_Endian::r_Endian_Big)
-                            {
-                                swapScalarElement(buffer, scalarDataObj->getValueType());
-                            }
-                            DBGINFONNL("scalar data of size " << bufferSize << "... ")
+                        {
+                            swapScalarElement(buffer, scalarDataObj->getValueType());
                         }
-                        break;
+                        DBGINFONNL("scalar data of size " << bufferSize << "... ")
                     }
+                    break;
+                }
                 }
                 context->totalTransferedSize += bufferSize;
             }
@@ -2000,45 +2038,45 @@ ServerComm::deleteObjByOId(unsigned long callingClientId,
         OId::OIdType objType = oidIf.getType();
         switch (objType)
         {
-            case OId::MDDOID:
+        case OId::MDDOID:
+        {
+            // There's no API in MDDObj to remove the object, it has to be removed
+            // from the collection that contains it. The collection is not known though,
+            // as only the OID is given.
+            DBGINFO("found MDD object; not deleted yet... ok");
+            break;
+        }
+        case OId::MDDCOLLOID:
+        {
+            try
             {
-                // There's no API in MDDObj to remove the object, it has to be removed
-                // from the collection that contains it. The collection is not known though,
-                // as only the OID is given.
-                DBGINFO("found MDD object; not deleted yet... ok");
-                break;
+                if (MDDColl::dropMDDCollection(oidIf))
+                {
+                    DBGOK
+                }
+                else
+                {
+                    DBGERROR("collection does not exist.")
+                    returnValue = RC_ERROR;
+                }
             }
-            case OId::MDDCOLLOID:
+            catch (r_Error &err)
             {
-                try
-                {
-                    if (MDDColl::dropMDDCollection(oidIf))
-                    {
-                        DBGOK
-                    }
-                    else
-                    {
-                        DBGERROR("collection does not exist.")
-                        returnValue = RC_ERROR;
-                    }
-                }
-                catch (r_Error &err)
-                {
-                    DBGERROR(err.what())
-                    throw;
-                }
-                catch (...)
-                {
-                    DBGERROR("unspecific exception while dropping collection.")
-                    throw;
-                }
-                break;
+                DBGERROR(err.what())
+                throw;
             }
-            default:
+            catch (...)
             {
-                DBGERROR("object has unknown type '" << objType << "'.")
-                returnValue = RC_ERROR;
+                DBGERROR("unspecific exception while dropping collection.")
+                throw;
             }
+            break;
+        }
+        default:
+        {
+            DBGERROR("object has unknown type '" << objType << "'.")
+            returnValue = RC_ERROR;
+        }
         }
     }
     else
@@ -2088,7 +2126,8 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
         if (coll && coll->isPersistent())
         {
             OId mddId(oid.get_local_oid());
-            OId collId; coll->getOId(collId);
+            OId collId;
+            coll->getOId(collId);
             try
             {
                 if (MDDColl::removeMDDObject(collId, mddId))
@@ -2126,7 +2165,7 @@ ServerComm::removeObjFromColl(unsigned long callingClientId,
 // -----------------------------------------------------------------------------------------
 
 unsigned short ServerComm::getTransferCollInfo(
-        ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const
+    ClientTblElt *context, r_OId &oid, char *&typeName, char *&typeStructure, MDDColl *coll) const
 {
     static constexpr unsigned short RC_OK_SOME_ELEMENTS = 0;
     static constexpr unsigned short RC_OK_NO_ELEMENTS = 1;
@@ -2142,7 +2181,9 @@ unsigned short ServerComm::getTransferCollInfo(
         {
             EOId eOId;
             if (coll->getEOId(eOId))
+            {
                 oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+            }
         }
         DBGINFO("ok, " << coll->getCardinality() << " result(s).");
     }
@@ -2545,7 +2586,9 @@ ServerComm::getMDDByOId(unsigned long callingClientId,
                     std::unique_ptr<vector<boost::shared_ptr<Tile>>> tiles(context->transferMDD->getTiles());
                     context->transTiles = new vector<Tile *>;
                     for (size_t i = 0; i < tiles->size(); ++i)
+                    {
                         context->transTiles->push_back((*tiles)[i].get());
+                    }
                 }
                 context->tileIter = new vector<Tile *>::iterator;
                 *(context->tileIter) = context->transTiles->begin();
@@ -2556,21 +2599,27 @@ ServerComm::getMDDByOId(unsigned long callingClientId,
                 typeName = strdup("");
                 // create a temporary mdd type for the moment being
                 MDDType *mddType = new MDDDomainType(
-                        "tmp", context->transferMDD->getCellType(), context->transferMDD->getCurrentDomain());
+                    "tmp", context->transferMDD->getCellType(), context->transferMDD->getCurrentDomain());
                 TypeFactory::addTempType(mddType);
 
                 typeStructure = mddType->getTypeStructure();  // no copy !!!
                 if (context->transTiles->size())
+                {
                     currentFormat = (*(context->transTiles))[0]->getDataFormat();
+                }
                 else
+                {
                     currentFormat = r_Array;
+                }
 
                 // set oid in case of persistent MDD objects
                 if (context->transferMDD->isPersistent())
                 {
                     EOId eOId;
                     if (context->transferMDD->getEOId(&eOId) == 0)
+                    {
                         oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
+                    }
                 }
 
                 if (context->transTiles->size() > 0)
@@ -2701,23 +2750,33 @@ ServerComm::getTypeStructure(unsigned long callingClientId,
     }
     else
     {
-        const Type* mappedType = NULL;
+        const Type *mappedType = NULL;
         switch (typeType)
         {
-            case TYPE_COLL: mappedType = TypeFactory::mapSetType(typeName); break;
-            case TYPE_MDD:  mappedType = TypeFactory::mapMDDType(typeName); break;
-            default:        returnValue = RC_INVALID_TYPE;                  break;
+        case TYPE_COLL:
+            mappedType = TypeFactory::mapSetType(typeName);
+            break;
+        case TYPE_MDD:
+            mappedType = TypeFactory::mapMDDType(typeName);
+            break;
+        default:
+            returnValue = RC_INVALID_TYPE;
+            break;
         }
         if (mappedType)
-            typeStructure = mappedType->getTypeStructure(); // no copy
+        {
+            typeStructure = mappedType->getTypeStructure();    // no copy
+        }
         else
+        {
             returnValue = RC_INVALID_TYPE;
+        }
 
         if (returnValue == RC_INVALID_TYPE)
             DBGERROR("unknown type.")
-        else
-            DBGOK
-    }
+            else
+                DBGOK
+            }
     return returnValue;
 }
 
@@ -2807,7 +2866,7 @@ ServerComm::ensureTileFormat(__attribute__((unused)) r_Data_Format &hasFmt,
     return status;
 }
 
-void ServerComm::resetExecuteQueryRes(ExecuteQueryRes& res)
+void ServerComm::resetExecuteQueryRes(ExecuteQueryRes &res)
 {
     res.typeStructure = NULL;
     res.token = NULL;
@@ -2827,13 +2886,19 @@ void ServerComm::resetExecuteUpdateRes(ExecuteUpdateRes &res)
     res.token = NULL;
 }
 
-void ServerComm::cleanExecuteQueryRes(ExecuteQueryRes& res)
+void ServerComm::cleanExecuteQueryRes(ExecuteQueryRes &res)
 {
     if (res.typeStructure)
+    {
         free(res.typeStructure);
+    }
     if (res.token)
+    {
         free(res.token);
+    }
     if (res.typeName)
+    {
         free(res.typeName);
+    }
     resetExecuteQueryRes(res);
 }

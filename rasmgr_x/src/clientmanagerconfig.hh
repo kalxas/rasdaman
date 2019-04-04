@@ -16,10 +16,10 @@ public:
     virtual ~ClientManagerConfig();
 
     boost::int32_t getCleanupInterval() const;
-    void setCleanupInterval(const boost::int32_t& value);
+    void setCleanupInterval(const boost::int32_t &value);
 
     boost::int32_t getClientLifeTime() const;
-    void setClientLifeTime(const boost::int32_t& value);
+    void setClientLifeTime(const boost::int32_t &value);
 
 private:
     boost::int32_t clientLifeTime;/*!< The number of milliseconds that defines the client's life time*/

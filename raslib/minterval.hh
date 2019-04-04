@@ -251,24 +251,24 @@ class r_Minterval
 {
 public:
     /// constructor getting a low, high pair
-    r_Minterval(const r_Point& low, const r_Point& high);
+    r_Minterval(const r_Point &low, const r_Point &high);
     /// constructor getting dimensionality for stream initializing
     r_Minterval(r_Dimension);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(const char*);
+    r_Minterval(const char *);
     /// constructor taking string representation (e.g. [ 1:255, *:200, *:* ])
-    r_Minterval(char*);
+    r_Minterval(char *);
     /// for stream initializing with intervals
-    r_Minterval& operator<<(const r_Sinterval&)
-;
+    r_Minterval &operator<<(const r_Sinterval &)
+    ;
     /// for stream initializing with point intervals
-    r_Minterval& operator<<(r_Range)
-;
+    r_Minterval &operator<<(r_Range)
+    ;
 
     /// default constructor
     r_Minterval();
     /// copy constructor
-    r_Minterval(const r_Minterval&);
+    r_Minterval(const r_Minterval &);
     /// destructor: cleanup dynamic memory
     ~r_Minterval();
 
@@ -276,7 +276,7 @@ public:
     void r_deactivate();
 
     /// determines if the self minterval intersects with the delivered one
-    bool intersects_with(const r_Minterval&) const;
+    bool intersects_with(const r_Minterval &) const;
 
 #ifdef OPT_INLINE
     inline
@@ -287,16 +287,16 @@ public:
     inline
 #endif
     /// write access the i-th interval
-    r_Sinterval& operator[](r_Dimension);
+    r_Sinterval &operator[](r_Dimension);
 
     const r_Sinterval &at_unsafe(r_Dimension dim) const;
     r_Sinterval &at_unsafe(r_Dimension dim);
 
     /// assignment: cleanup + copy
-    const r_Minterval& operator= (const r_Minterval&);
+    const r_Minterval &operator= (const r_Minterval &);
 
     /// equal operator
-    bool operator==(const r_Minterval&) const;
+    bool operator==(const r_Minterval &) const;
 
     /**
       Two domains are equal if they have the same number of dimensions and
@@ -304,19 +304,19 @@ public:
     */
 
     /// non equal operator - negation of equal operator
-    bool operator!=(const r_Minterval&) const;
+    bool operator!=(const r_Minterval &) const;
 
     /// equal operator, but ignores slices (dimensions of extent 1) in either minterval
     bool equal_extents(const r_Minterval &other) const;
 
     /// does this interval cover the given point
-    inline bool covers(const r_Point& pnt) const;
+    inline bool covers(const r_Point &pnt) const;
     /**
     throws r_Edim_mismatch when dimensions do not match
     */
 
     /// does this interval cover the given interval
-    inline bool covers(const r_Minterval& inter) const;
+    inline bool covers(const r_Minterval &inter) const;
     /**
     throws r_Edim_mismatch when dimensions do not match
     */
@@ -370,7 +370,7 @@ public:
     */
 
     /// Checks if this block is mergeable with another block (interval)
-    bool is_mergeable(const r_Minterval& other) const;
+    bool is_mergeable(const r_Minterval &other) const;
     /**
       This method checks if two r_Mintervals are "mergeable" side by side.
       For this to be possible, they have to have the same low() and high()
@@ -393,32 +393,32 @@ public:
     //@Man: Methods for translation:
     //@{
     /// translates this by a point.
-    r_Minterval& reverse_translate(const r_Point&)
-;
+    r_Minterval &reverse_translate(const r_Point &)
+    ;
     /*@Doc:
       Subtracts respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
       fixed!
     */
     /// returns new interval as translation of this by a point.
-    r_Minterval create_reverse_translation(const r_Point&) const
-;
+    r_Minterval create_reverse_translation(const r_Point &) const
+    ;
     /*@Doc:
       Subtracts respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
       fixed!
     */
     /// translates this by a point.
-    r_Minterval& translate(const r_Point&)
-;
+    r_Minterval &translate(const r_Point &)
+    ;
     /*@Doc:
       Adds respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all bounds are
       fixed!
     */
     /// returns new interval as translation of this by a point.
-    r_Minterval create_translation(const r_Point&) const
-;
+    r_Minterval create_translation(const r_Point &) const
+    ;
     /*@Doc:
       Adds respective coordinate of a point to the lower bounds of an
       interval. This operation is only legal if all lower bounds are
@@ -432,22 +432,22 @@ public:
     //@Man: Methods for scaling:
     //@{
     /// scales this by a factor.
-    r_Minterval& scale(const double&);
+    r_Minterval &scale(const double &);
     /*@Doc:
       Scales respective extents by factor.
     */
     /// scales this by a factor.
-    r_Minterval& scale(const std::vector<double>&);
+    r_Minterval &scale(const std::vector<double> &);
     /*@Doc:
       Scales respective extents by vector of factors.
     */
     /// returns new interval as scaled from this by a point.
-    r_Minterval create_scale(const double&) const;
+    r_Minterval create_scale(const double &) const;
     /*@Doc:
       Scales respective extents by factor.
     */
     /// returns new interval as scaled from this by a point.
-    r_Minterval create_scale(const std::vector<double>&) const;
+    r_Minterval create_scale(const std::vector<double> &) const;
     /*@Doc:
       Scales respective extents by vector of factors.
     */
@@ -462,74 +462,74 @@ public:
     //@Man: Methods/Operators for the union operation:
     //@{
     ///
-    r_Minterval& union_of(const r_Minterval&, const r_Minterval&)
-;
+    r_Minterval &union_of(const r_Minterval &, const r_Minterval &)
+    ;
     ///
-    r_Minterval& union_with(const r_Minterval&)
-;
+    r_Minterval &union_with(const r_Minterval &)
+    ;
     ///
-    r_Minterval& operator+= (const r_Minterval&)
-;
+    r_Minterval &operator+= (const r_Minterval &)
+    ;
     ///
-    r_Minterval  create_union(const r_Minterval&) const
-;
+    r_Minterval  create_union(const r_Minterval &) const
+    ;
     ///
-    r_Minterval  operator+ (const r_Minterval&) const
-;
+    r_Minterval  operator+ (const r_Minterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the difference operation:
     //@{
     ///
-    r_Minterval& difference_of(const r_Minterval&, const r_Minterval&)
-;
+    r_Minterval &difference_of(const r_Minterval &, const r_Minterval &)
+    ;
     ///
-    r_Minterval& difference_with(const r_Minterval&)
-;
+    r_Minterval &difference_with(const r_Minterval &)
+    ;
     ///
-    r_Minterval& operator-= (const r_Minterval&)
-;
+    r_Minterval &operator-= (const r_Minterval &)
+    ;
     ///
-    r_Minterval  create_difference(const r_Minterval&) const
-;
+    r_Minterval  create_difference(const r_Minterval &) const
+    ;
     ///
-    r_Minterval  operator- (const r_Minterval&) const
-;
+    r_Minterval  operator- (const r_Minterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the intersection operation:
     //@{
     ///
-    r_Minterval& intersection_of(const r_Minterval&, const r_Minterval&)
-;
+    r_Minterval &intersection_of(const r_Minterval &, const r_Minterval &)
+    ;
     ///
-    r_Minterval& intersection_with(const r_Minterval&)
-;
+    r_Minterval &intersection_with(const r_Minterval &)
+    ;
     ///
-    r_Minterval& operator*= (const r_Minterval&)
-;
+    r_Minterval &operator*= (const r_Minterval &)
+    ;
     ///
-    r_Minterval  create_intersection(const r_Minterval&) const
-;
+    r_Minterval  create_intersection(const r_Minterval &) const
+    ;
     ///
-    r_Minterval  operator* (const r_Minterval&) const
-;
+    r_Minterval  operator* (const r_Minterval &) const
+    ;
     ///
     //@}
 
     //@Man: Methods/Operators for the closure operation:
     //@{
     ///
-    r_Minterval& closure_of(const r_Minterval&, const r_Minterval&)
-;
+    r_Minterval &closure_of(const r_Minterval &, const r_Minterval &)
+    ;
     ///
-    r_Minterval& closure_with(const r_Minterval&)
-;
+    r_Minterval &closure_with(const r_Minterval &)
+    ;
     ///
-    r_Minterval  create_closure(const r_Minterval&) const
-;
+    r_Minterval  create_closure(const r_Minterval &) const
+    ;
     ///
     //@}
 
@@ -537,28 +537,28 @@ public:
     //@{
     /// the vector of projection dimensions cannot have more values than this->dimensionality
     /// this should really be called "trim_wrt_slice" because the result dimension is this->dimensionality
-    r_Minterval trim_along_slice(const r_Minterval&, const std::vector<r_Dimension>&) const
-;
+    r_Minterval trim_along_slice(const r_Minterval &, const std::vector<r_Dimension> &) const
+    ;
     /// the vector of projection dimensions can have more values than this->dimensionality
-    r_Minterval project_along_dims(const std::vector<r_Dimension>&) const
-;
+    r_Minterval project_along_dims(const std::vector<r_Dimension> &) const
+    ;
     ///
     //@}
-    
+
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream& s = std::cout) const;
+    void print_status(std::ostream &s = std::cout) const;
 
     /// gives back the string representation
-    char* get_string_representation() const;
+    char *get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using {\tt malloc()} and
       has to be free using {\tt free()} in the end. It can be used to construct a {\tt r_Minterval}
       again with a special constructor provided. The string representation is build using
       {\tt print_status()}.
     */
-    
+
     /**
-     * If you want the output of {\tt get_string_representation()}, 
+     * If you want the output of {\tt get_string_representation()},
      * but you do not want to worry about memory allocation/deallocation.
      */
     std::string to_string() const;
@@ -574,9 +574,9 @@ public:
     /// calculate number of cells
     r_Area cell_count() const;
     /// calculate offset in cells for one dimensional access (dimension ordering is high first)
-    r_Area cell_offset(const r_Point&) const;
+    r_Area cell_offset(const r_Point &) const;
     // as above, but without error checking, for performance
-    r_Area efficient_cell_offset(const r_Point&) const;
+    r_Area efficient_cell_offset(const r_Point &) const;
     /// calculate point index out of offset
     r_Point cell_point(r_Area) const;
     /// delete the specified dimension
@@ -592,7 +592,7 @@ public:
 
 protected:
     /// array for storing the intervals
-    r_Sinterval* intervals;
+    r_Sinterval *intervals;
 
     /// dimensionality of the domain
     r_Dimension dimensionality;
@@ -601,7 +601,7 @@ protected:
     r_Dimension streamInitCnt;
 
     /// initialization for constructors which take chars
-    void constructorinit(char*);
+    void constructorinit(char *);
 };
 
 
@@ -611,9 +611,9 @@ protected:
 /**
   Output stream operator for objects of type {\tt const} \Ref{r_Minterval}.
 */
-extern std::ostream& operator<<(std::ostream& s, const r_Minterval& d);
-extern std::ostream& operator<<(std::ostream& s, const std::vector<r_Minterval>& d);
-extern std::ostream& operator<<(std::ostream& s, const std::vector<double>& doubleVec);
+extern std::ostream &operator<<(std::ostream &s, const r_Minterval &d);
+extern std::ostream &operator<<(std::ostream &s, const std::vector<r_Minterval> &d);
+extern std::ostream &operator<<(std::ostream &s, const std::vector<double> &doubleVec);
 
 #include "raslib/minterval.icc"
 

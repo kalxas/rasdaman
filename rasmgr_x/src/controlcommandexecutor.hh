@@ -53,7 +53,7 @@ public:
      * @param userPass Password of the user requesting that this command is executed
      * @return Message that will be displayed to the user.
      */
-    std::string executeCommand(const std::string& command, const std::string& userName, const std::string& userPass);
+    std::string executeCommand(const std::string &command, const std::string &userName, const std::string &userPass);
 
     /**
      * Execute a rascontrol command with super-user privilege.
@@ -61,7 +61,7 @@ public:
      * @param command Command that conforms to the rascontrol grammar.
      * @return Empty string if the command is successful, error message otherwise;
      */
-    std::string sudoExecuteCommand(const std::string& command);
+    std::string sudoExecuteCommand(const std::string &command);
 
 private:
     RasControlGrammar grammar;
@@ -75,7 +75,7 @@ private:
      * @param command
      * @return
      */
-    bool canRunCommand(const std::string& userName, const std::string& password, const std::string& command);
+    bool canRunCommand(const std::string &userName, const std::string &password, const std::string &command);
 };
 
 }

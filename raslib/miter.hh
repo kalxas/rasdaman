@@ -52,9 +52,9 @@ class r_Miter
 {
 public:
     /// constructor.
-    inline r_Miter(const r_Minterval* newAreaIter,
-                   const r_Minterval* newAreaTile, r_Bytes newCellSize,
-                   const char* newFirstCell);
+    inline r_Miter(const r_Minterval *newAreaIter,
+                   const r_Minterval *newAreaTile, r_Bytes newCellSize,
+                   const char *newFirstCell);
     /**
       The pointers are stored, do not delete the objects as long
       as the iterator is used!
@@ -65,7 +65,7 @@ public:
     /// resets iterator to first cell.
     inline void reset();
     /// returns current cell and sets iterator to next cell.
-    inline char* nextCell();
+    inline char *nextCell();
     /// returns TRUE if iteration is finished.
     inline bool isDone();
 protected:
@@ -78,19 +78,19 @@ protected:
         int curr;   // current repeat
     } incArrElem;
     /// area to be iterated through
-    const r_Minterval* areaIter;
+    const r_Minterval *areaIter;
     /// area of tile.
-    const r_Minterval* areaTile;
+    const r_Minterval *areaTile;
     /// size of base type.
     r_Bytes cellSize;
     /// offset of first cell in tile.
-    const char* firstCell;
+    const char *firstCell;
     /// array with increments
-    incArrElem* incArrIter;
+    incArrElem *incArrIter;
     /// flag set if iteration is finished.
     bool done;
     /// current cell for iteration;
-    char* currCell;
+    char *currCell;
     /// counter for position in lowest dimension.
     int lowCount;
 };

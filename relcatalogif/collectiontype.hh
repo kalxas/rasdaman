@@ -59,7 +59,7 @@ class MDDType;
 class CollectionType : public Type
 {
 public:
-    const MDDType* getMDDType() const;
+    const MDDType *getMDDType() const;
     /*@Doc:
     returns MDDType of collection.
     */
@@ -68,13 +68,13 @@ public:
     */
 
 
-    void print_status(ostream& s) const;
+    void print_status(ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
     d_MYNAME <MYMDDTYPE->printStatus >
     */
 
-    CollectionType(const MDDType* newMDDType);
+    CollectionType(const MDDType *newMDDType);
     /*@Doc:
     constructor receiving pointer to an MDDType (or subclass).
     */
@@ -84,15 +84,15 @@ public:
     default constructor, cannot be used.
     */
 
-    CollectionType(const OId& id);
+    CollectionType(const OId &id);
     /*@Doc:
     */
 
-    CollectionType(const CollectionType& old);
+    CollectionType(const CollectionType &old);
     /*@Doc:
     */
 
-    CollectionType& operator=(const CollectionType& old);
+    CollectionType &operator=(const CollectionType &old);
     /*@Doc:
     */
 
@@ -101,7 +101,7 @@ public:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type* aType) const;
+    virtual int compatibleWith(const Type *aType) const;
     /*@Doc:
     overloaded from Type.
     returns true if myMDDType is compatible with the type.
@@ -113,29 +113,29 @@ public:
         myMDDType->getMemorySize() + sizeof(MDDType*);
     */
 
-    DBNullvalues* getNullValues() const;
+    DBNullvalues *getNullValues() const;
     /*@Doc:
     return null values associated with this type
     */
 
-    void setNullValues(const r_Nullvalues& newNullValues);
+    void setNullValues(const r_Nullvalues &newNullValues);
     /*@Doc:
     associate null values with this type
     */
 
 protected:
-    const MDDType* myMDDType;
+    const MDDType *myMDDType;
     /*@Doc:
     persistent pointer to MDDType of collection.
     */
     /// null values
-    DBNullvalues* nullValues;
+    DBNullvalues *nullValues;
 
-    CollectionType(const char* name);
+    CollectionType(const char *name);
     /*@Doc:
     */
 
-    CollectionType(const char* name, const MDDType* newMDDType);
+    CollectionType(const char *name, const MDDType *newMDDType);
     /*@Doc:
     */
 };

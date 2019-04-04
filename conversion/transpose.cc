@@ -37,13 +37,15 @@ rasdaman GmbH.
 #include <logging.hh>
 
 
-void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) {
+void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType)
+{
     LDEBUG << "transposing last two dimensions...";
     const auto dim = dimData.dimension();
-    size_t typeSize = static_cast<r_Base_Type*>(const_cast<r_Type*>(dataType))->size();
+    size_t typeSize = static_cast<r_Base_Type *>(const_cast<r_Type *>(dataType))->size();
     //the number of 2D slices we need to transpose
     size_t s = 1;
-    for (size_t i = 0; i < static_cast<size_t>(dim - 2); i++) {
+    for (size_t i = 0; i < static_cast<size_t>(dim - 2); i++)
+    {
         s *= static_cast<size_t>(dimData[i].get_extent());
     }
     //the number of rows in the 2d slices
@@ -54,11 +56,13 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) 
     const size_t sliceSize = m * n * typeSize;
     std::unique_ptr<char[]> dataTempPtr;
     dataTempPtr.reset(new char [sliceSize]);
-    char* dataTemp = dataTempPtr.get();
+    char *dataTemp = dataTempPtr.get();
     //a loop for changing each 2D data slice
-    for (size_t v = 0; v < s; v++) {
+    for (size_t v = 0; v < s; v++)
+    {
         //change the current 2D data slice
-        for (size_t k = 0; k < m * n; k++) {
+        for (size_t k = 0; k < m * n; k++)
+        {
             //column
             size_t col = k / n;
             //row
@@ -71,21 +75,21 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType) 
         memcpy(data, dataTemp, sliceSize);
         //move to the next 2D data slice
         data += sliceSize;
-    }   
+    }
     //swap the index assignments in the corresponding r_Minterval
     dimData.transpose(dim - 2, dim - 1);
 }
 
-void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)
+void transpose(char *data, r_Minterval &dimData, const r_Type *dataType, const std::pair<int, int> transposeParams)
 {
     int dims = static_cast<int>(dimData.dimension());
     int tParam0 = std::get<0>(transposeParams);
     int tParam1 = std::get<1>(transposeParams);
     LDEBUG << "dims: " << dims << ", transpose dim 1: " << tParam0 << ", transpose dim 2: " << tParam1;
-    
-    if( ( dims-1 == tParam0 || dims-1 == tParam1 ) 
-     && ( dims-2 == tParam0 || dims-2 == tParam1 ) 
-     && ( tParam0 != tParam1 ) )
+
+    if ((dims - 1 == tParam0 || dims - 1 == tParam1)
+            && (dims - 2 == tParam0 || dims - 2 == tParam1)
+            && (tParam0 != tParam1))
     {
         transposeLastTwo(data, dimData, dataType);
     }

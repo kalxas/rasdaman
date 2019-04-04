@@ -53,19 +53,19 @@ private:
     LockManager();
 
     // copy constructor is private such that it cannot be called from the outside
-    LockManager(LockManager const&);
+    LockManager(LockManager const &);
 
     // destructor is private such that it cannot be called from the outside
     ~LockManager();
 
     // a static lock manager object used to call the function of the lock manager
-    static LockManager* LM_instance;
+    static LockManager *LM_instance;
 
     // an ECPG lock manager object used to call the ECPG-functions of the lock manager
-    ECPG_LockManager* ecpg_LockManager;
+    ECPG_LockManager *ecpg_LockManager;
 
     // the name of the lockmanager's own connection
-    const char* connectionName;
+    const char *connectionName;
 
     // function for beginning a new transaction
     void beginTransaction();
@@ -74,36 +74,36 @@ private:
     void endTransaction();
 
     // private function for locking a tile (shared or exclusive)
-    void lockTileInternal(const char*, OId::OIdCounter, enum Lock);
+    void lockTileInternal(const char *, OId::OIdCounter, enum Lock);
 
     // private function for unlocking a tile with respect to a specific rasserver
-    void unlockTileInternal(const char*, OId::OIdCounter);
+    void unlockTileInternal(const char *, OId::OIdCounter);
 
     // private function for unlocking all tiles with respect to a specific rasserver
-    void unlockAllTilesInternal(const char*);
+    void unlockAllTilesInternal(const char *);
 
     // private function for checking if a tile is locked or not by a specific type of lock
     bool isTileLockedInternal(OId::OIdCounter, enum Lock);
 
     // private function for clearing the locks from the lock table corresponding to a specific rasserver
-    void clearLockTableInternal(const char*);
+    void clearLockTableInternal(const char *);
 
     // function for fetching the id of the current rasserver
-    void generateServerId(char*);
+    void generateServerId(char *);
 
     // function for fetching the type of the operation / lock (i.e., shared or exclusive)
     enum Lock generateLockType();
 
     // compare function need by qsort from stdlib.h which is used to sort the sequence of tile ids
-    static int compareIds(const void*, const void*);
+    static int compareIds(const void *, const void *);
 
     // function for locking an array of tile ids at "once"
-    void lockTilesInternal(const char*, long long [], int, enum Lock);
+    void lockTilesInternal(const char *, long long [], int, enum Lock);
 
 public:
     // function creating an instance of the lock manager. There should be no other
     // possibility for creating one.
-    static LockManager* Instance();
+    static LockManager *Instance();
 
     // function for opening the database connection
     void connect();
@@ -113,16 +113,16 @@ public:
 
     // function processes parameters and then call the corresponding private functions for
     // a vector of tiles
-    void lockTiles(std::vector<boost::shared_ptr<Tile>>*);
+    void lockTiles(std::vector<boost::shared_ptr<Tile>> *);
 
     // function for locking all tiles corresponding to the ids in the array
     void lockTiles(long long [], int);
 
     // functions processes parameters and then call the corresponding private functions for locking a tile
-    void lockTile(Tile*);
+    void lockTile(Tile *);
 
     // function processes parameters and then call the corresponding private functions for unlocking a tile
-    void unlockTile(Tile*);
+    void unlockTile(Tile *);
 
     // function processes parameters and then call the corresponding private functions for
     // unlocking all tiles corresponding to a specific rasserver
@@ -130,7 +130,7 @@ public:
 
     // function processes parameters and then call the corresponding private functions for
     // checking if a tile is locked (shared or exclusive)
-    bool isTileLocked(Tile*, enum Lock);
+    bool isTileLocked(Tile *, enum Lock);
 
     // function processes parameters and then call the corresponding private functions for
     // clearing the locks from the lock table corresponding to a specific rasserver

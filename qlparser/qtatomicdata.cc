@@ -153,7 +153,7 @@ QtAtomicData::QtAtomicData(double value, unsigned short byteLength)
 
 
 
-QtAtomicData::QtAtomicData(const QtAtomicData& obj)
+QtAtomicData::QtAtomicData(const QtAtomicData &obj)
     : QtScalarData(obj)
 {
 }
@@ -208,7 +208,7 @@ QtAtomicData::getDoubleValue() const
 
 
 void
-QtAtomicData::printStatus(ostream& stream) const
+QtAtomicData::printStatus(ostream &stream) const
 {
     stream << "atomic, " << flush;
 
@@ -233,7 +233,7 @@ QtAtomicData::QtAtomicData(double valRe, double valIm, unsigned short size)
     }
 
     valueBuffer = new char[valueType->getSize()];
-    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType*>(const_cast<BaseType*>(valueType)))->getReOffset(), &dummyRe);
-    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType*>(const_cast<BaseType*>(valueType)))->getImOffset(), &dummyIm);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
 }
 

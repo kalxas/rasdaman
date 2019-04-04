@@ -47,9 +47,9 @@ RasmgrService::RasmgrService(boost::shared_ptr<ClientManager> clientManager)
 RasmgrService::~RasmgrService()
 {}
 
-grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::GetRemoteServerRequest* request, 
-        rasnet::service::GetRemoteServerReply* response)
+grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::GetRemoteServerRequest *request,
+        rasnet::service::GetRemoteServerReply *response)
 {
     grpc::Status status = Status::OK;
 
@@ -75,7 +75,7 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__ ((unused)) 
 
         LDEBUG << "Opened DB session for remote client with ID:" << clientSessionId;
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << ex.what();
         status  = GrpcUtils::convertExceptionToStatus(ex);
@@ -91,9 +91,9 @@ grpc::Status rasmgr::RasmgrService::TryGetRemoteServer(__attribute__ ((unused)) 
     return status;
 }
 
-grpc::Status RasmgrService::ReleaseServer(__attribute__ ((unused)) grpc::ServerContext* context, 
-        const rasnet::service::ReleaseServerRequest* request, 
-        __attribute__ ((unused)) rasnet::service::Void* response)
+grpc::Status RasmgrService::ReleaseServer(__attribute__((unused)) grpc::ServerContext *context,
+        const rasnet::service::ReleaseServerRequest *request,
+        __attribute__((unused)) rasnet::service::Void *response)
 {
     grpc::Status status;
 
@@ -103,7 +103,7 @@ grpc::Status RasmgrService::ReleaseServer(__attribute__ ((unused)) grpc::ServerC
 
         this->clientManager->disconnectClient(request->client_session_id());
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << ex.what();
 

@@ -78,17 +78,17 @@ class SDirIndexLogic
 {
 public:
 
-    static bool insertObject(IndexDS* theIx, const KeyObject& newObject, const StorageLayout& sl);
+    static bool insertObject(IndexDS *theIx, const KeyObject &newObject, const StorageLayout &sl);
     /*@Doc:
         Inserts a new object in the index.
     */
 
-    static bool removeObject(IndexDS* theIx, const KeyObject& tileToRemove, const StorageLayout& sl);
+    static bool removeObject(IndexDS *theIx, const KeyObject &tileToRemove, const StorageLayout &sl);
     /*@Doc:
         Removes the tile from the object.
     */
 
-    static void intersect(const IndexDS* theIx, const r_Minterval& searchInter, KeyObjectVector& objs, const StorageLayout& sl);
+    static void intersect(const IndexDS *theIx, const r_Minterval &searchInter, KeyObjectVector &objs, const StorageLayout &sl);
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
@@ -98,7 +98,7 @@ public:
         afterwards by the caller.
     */
 
-    static void intersectUnOpt(const IndexDS* theIx, const r_Minterval& searchInter, KeyObjectVector& objs);
+    static void intersectUnOpt(const IndexDS *theIx, const r_Minterval &searchInter, KeyObjectVector &objs);
     /*@Doc:
         Search the index for a search region.
         Old unoptimized version of intersect(). Just scans all the entries,
@@ -106,13 +106,13 @@ public:
         This method is actually used for removing of tiles (a tile can be stored in multiple nodes).
     */
 
-    static void containPointQuery(const IndexDS* theIx, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl);
+    static void containPointQuery(const IndexDS *theIx, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
     /*@Doc:
         Passes a pointer to the searched item.
         Memory is for the KeyObject is not to be released by the caller.
     */
 
-    static void getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl);
+    static void getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl);
     /*@Doc:
         Returns all the tiles belonging to the object.
     */
@@ -126,8 +126,8 @@ public:
     /*@Doc:
     */
 
-    static int compare(const r_Minterval& mint1,
-                       const r_Minterval& mint2,
+    static int compare(const r_Minterval &mint1,
+                       const r_Minterval &mint2,
                        OrderPoint o1 = Lowest,
                        OrderPoint o2 = Lowest);
     /*@Doc:
@@ -139,8 +139,8 @@ public:
         mint.point(o) is the highest corner point of mint if o == Highest.
     */
 
-    static int binarySearch(const IndexDS* theIx,
-                            const r_Minterval& newDomain,
+    static int binarySearch(const IndexDS *theIx,
+                            const r_Minterval &newDomain,
                             OrderPoint o,
                             int first,
                             int last);
@@ -150,8 +150,8 @@ public:
         inserted at the beginning of the list).
     */
 
-    static int binaryPointSearch(const IndexDS* theIx,
-                                 const r_Point& pnt,
+    static int binaryPointSearch(const IndexDS *theIx,
+                                 const r_Point &pnt,
                                  OrderPoint o,
                                  int first,
                                  int last);
@@ -159,10 +159,10 @@ public:
         Returns position of tile having the point, -1 if point not there.
     */
 
-    static int binaryRegionSearch(const IndexDS* theIx,
-                                  const r_Minterval& mint,
-                                  r_Area& area,
-                                  KeyObjectVector& intersectedObjects,
+    static int binaryRegionSearch(const IndexDS *theIx,
+                                  const r_Minterval &mint,
+                                  r_Area &area,
+                                  KeyObjectVector &intersectedObjects,
                                   int first,
                                   int last);
     /*@Doc:

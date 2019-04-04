@@ -36,8 +36,8 @@ public:
      * @param userName User name
      * @param passwordHash Password hash
      */
-    ClientCredentials(const std::string& userName = "",
-                      const std::string& passwordHash = "");
+    ClientCredentials(const std::string &userName = "",
+                      const std::string &passwordHash = "");
 
     /**
      * Destroy an instance of the ClientCredentials object
@@ -47,25 +47,25 @@ public:
     /**
      * @return the password hash.
      */
-    const std::string& getPasswordHash() const;
+    const std::string &getPasswordHash() const;
 
     /**
      * Set the password hash.
      * @param passwordHash
      */
-    void setPasswordHash(const std::string& passwordHash);
+    void setPasswordHash(const std::string &passwordHash);
 
     /**
      *
      * @return the user name
      */
-    const std::string& getUserName() const;
+    const std::string &getUserName() const;
 
     /**
      * Set the user name
      * @param userName
      */
-    void setUserName(const std::string& userName);
+    void setUserName(const std::string &userName);
 
 private:
     std::string userName;/*! User name used for authenticating the client*/

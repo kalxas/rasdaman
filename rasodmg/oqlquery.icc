@@ -31,22 +31,22 @@ rasdaman GmbH.
 */
 
 
-inline const char*
+inline const char *
 r_OQL_Query::get_query() const
 {
-  return static_cast<const char*>(queryString);
+    return static_cast<const char *>(queryString);
 }
 
 
-inline const r_Set< r_GMarray* >*
+inline const r_Set< r_GMarray * > *
 r_OQL_Query::get_constants() const
 {
-  return mddConstants;
+    return mddConstants;
 }
 
 
-inline const char*
+inline const char *
 r_OQL_Query::get_parameterized_query() const
 {
-  return static_cast<const char*>(parameterizedQueryString);
+    return static_cast<const char *>(parameterizedQueryString);
 }

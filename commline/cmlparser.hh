@@ -56,17 +56,17 @@ using std::ostream;
 using std::cout;
 
 // Command Line Parser version
-extern const char* CommandLineParserVersion;
+extern const char *CommandLineParserVersion;
 
-char* dupString(const char* cc);
+char *dupString(const char *cc);
 
 // specific errors thrown by the parser
 class CmlException : public std::exception
 {
 public:
-    explicit CmlException(const string& whatString);
+    explicit CmlException(const string &whatString);
     virtual ~CmlException() noexcept;
-    virtual  const char* what() const noexcept;
+    virtual  const char *what() const noexcept;
 
 protected:
     string  problem;
@@ -77,111 +77,111 @@ class CommandLineParameter
 {
 public:
 
-    static const char* defaultTitle;
-    static const char* descSep;
-    static const char* descTab;
-    static const char* descIndent;
-    static const char* descLineSep;
+    static const char *defaultTitle;
+    static const char *descSep;
+    static const char *descTab;
+    static const char *descIndent;
+    static const char *descLineSep;
     static const char  descOpen;
     static const char  descClose;
-    static const char* descLeftDefault;
-    static const char* descRightDefault;
+    static const char *descLeftDefault;
+    static const char *descRightDefault;
 
     virtual ~CommandLineParameter();
 
     //interface for Parser
-    void setDescription(const char*);
+    void setDescription(const char *);
 
     bool doesMatch(char c);
-    bool doesMatch(const char* s);
+    bool doesMatch(const char *s);
 
     char         getShortName() const;
-    const char*  getLongName() const;
+    const char  *getLongName() const;
 
     virtual bool setPresent(char c) = 0;
-    virtual bool setPresent(const char* s) = 0;
+    virtual bool setPresent(const char *s) = 0;
 
     virtual bool needsValue() = 0;
-    virtual bool takeValue(const char* s) = 0;
+    virtual bool takeValue(const char *s) = 0;
     virtual void popValue() = 0;
 
     void virtual reset();
-    const char* calledName();
+    const char *calledName();
 
     // has a (at least one) value been assigned?
     virtual bool isPresent() = 0;
 
-    virtual const char* getValueAsString() = 0;
+    virtual const char *getValueAsString() = 0;
     virtual long        getValueAsLong() = 0;
     virtual double      getValueAsDouble() = 0;
 
-    virtual ostream& printStatus(ostream& = cout) = 0;
-    ostream& printHelp(ostream& = cout);
+    virtual ostream &printStatus(ostream & = cout) = 0;
+    ostream &printHelp(ostream & = cout);
 
 protected:
-    CommandLineParameter(char newShortName, const char* newLongName, const char* newDefaultValue);
-    CommandLineParameter(char newShortName, const char* newLongName, long newDefaultValue);
+    CommandLineParameter(char newShortName, const char *newLongName, const char *newDefaultValue);
+    CommandLineParameter(char newShortName, const char *newLongName, long newDefaultValue);
 
 protected:
 
     char  shortName;
-    char* longName;
+    char *longName;
     bool  present;
     bool  wasLongName;
 
-    char* defaultValue;
+    char *defaultValue;
     char  shNameString[2];
 
-    char* descriptionText;
-    char* paramDescription;
+    char *descriptionText;
+    char *paramDescription;
 };
 
 
 class FlagParameter: public CommandLineParameter
 {
 public:
-    FlagParameter(char nShortName, const char* nLongName);
+    FlagParameter(char nShortName, const char *nLongName);
 
     bool setPresent(char c);
-    bool setPresent(const char* s);
+    bool setPresent(const char *s);
     bool isPresent();
 
     bool needsValue();
-    bool takeValue(const char* s);
+    bool takeValue(const char *s);
     void popValue();
 
-    const char* getValueAsString();
+    const char *getValueAsString();
     long        getValueAsLong();
     double      getValueAsDouble();
 
-    ostream& printStatus(ostream& = cout);
+    ostream &printStatus(ostream & = cout);
 };
 
 class StringParameter: public CommandLineParameter
 {
 private:
-    list<char*> value;
+    list<char *> value;
 
 public:
-    StringParameter(char nShortName, const char* nLongName, const char* newDefaultValue = NULL);
-    StringParameter(char nShortName, const char* nLongName, long newDefaultValue = 0L);
+    StringParameter(char nShortName, const char *nLongName, const char *newDefaultValue = NULL);
+    StringParameter(char nShortName, const char *nLongName, long newDefaultValue = 0L);
     ~StringParameter();
 
     bool setPresent(char c);
-    bool setPresent(const char* s);
+    bool setPresent(const char *s);
     bool isPresent();
 
     bool needsValue();
-    bool takeValue(const char* s);
+    bool takeValue(const char *s);
     void popValue();
 
-    const char* getValueAsString();
+    const char *getValueAsString();
     long        getValueAsLong();
     double      getValueAsDouble();
 
     void reset();
 
-    ostream& printStatus(ostream& = cout);
+    ostream &printStatus(ostream & = cout);
 
 };
 
@@ -190,12 +190,12 @@ class CommandLineParser
 {
 public:
     static const char noShortName;
-    static const char* noLongName;
-    static const char* ShortSign;
-    static const char* LongSign;
+    static const char *noLongName;
+    static const char *ShortSign;
+    static const char *LongSign;
 
 
-    static CommandLineParser& getInstance();
+    static CommandLineParser &getInstance();
 
     ~CommandLineParser();
 
@@ -206,46 +206,46 @@ public:
         brackets<> and space after are mandatory if there is a parameter!
         Otherwise no <>!
     */
-    CommandLineParameter& addFlagParameter(char shortName, const char* longName, const char* description);
-    CommandLineParameter& addStringParameter(char shortName, const char* longName,  const char* description, const char* newDefaultValue = NULL);
-    CommandLineParameter& addLongParameter(char shortName, const char* longName,  const char* description, long newDefaultValue = 0L);
+    CommandLineParameter &addFlagParameter(char shortName, const char *longName, const char *description);
+    CommandLineParameter &addStringParameter(char shortName, const char *longName,  const char *description, const char *newDefaultValue = NULL);
+    CommandLineParameter &addLongParameter(char shortName, const char *longName,  const char *description, long newDefaultValue = 0L);
 
     bool isPresent(char shortName);
-    bool isPresent(const char* longName);
+    bool isPresent(const char *longName);
 
-    const char* getValueAsString(char shortName);
+    const char *getValueAsString(char shortName);
     long        getValueAsLong(char shortName);
     double      getValueAsDouble(char shortName);
 
-    const char* getValueAsString(const char* longName);
-    long        getValueAsLong(const char* longName);
-    double      getValueAsDouble(const char* longName);
+    const char *getValueAsString(const char *longName);
+    long        getValueAsLong(const char *longName);
+    double      getValueAsDouble(const char *longName);
 
-    void processCommandLine(int argc, char** argv);
+    void processCommandLine(int argc, char **argv);
 
-    bool testProcessCommandLine(const char* test_cml);
+    bool testProcessCommandLine(const char *test_cml);
 
     void printHelp();
     void printStatus();
 
 private:
-    static CommandLineParser* myself;
+    static CommandLineParser *myself;
 
-    list<CommandLineParameter*> cmlParameter;
+    list<CommandLineParameter *> cmlParameter;
 
-    CommandLineParameter* lastParameter;
+    CommandLineParameter *lastParameter;
     bool nextTokenIsValue;
 
     CommandLineParser();
 
-    CommandLineParameter& getParameter(char shortName);
-    CommandLineParameter& getParameter(const char* longName);
+    CommandLineParameter &getParameter(char shortName);
+    CommandLineParameter &getParameter(const char *longName);
 
-    void setValue(const char* value);
+    void setValue(const char *value);
 
-    void longNameParameter(const char* nextToken);
+    void longNameParameter(const char *nextToken);
 
-    void shortNameParameter(const char* nextToken);
+    void shortNameParameter(const char *nextToken);
 };
 
 #endif

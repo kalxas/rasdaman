@@ -14,7 +14,7 @@ public:
     ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
     virtual ~ServerGroupFactoryImpl();
 
-    virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto& config);
+    virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config);
 private:
     boost::shared_ptr<DatabaseHostManager> dbhManager;
     boost::shared_ptr<ServerFactory> serverFactory;

@@ -49,86 +49,88 @@ rasdaman GmbH.
  ************************************************************/
 
 Type::Type()
-	:	DBNamedObject("unnamed type")
-	{
-        LTRACE << "Type()";
-	}
+    :   DBNamedObject("unnamed type")
+{
+    LTRACE << "Type()";
+}
 
-Type::Type(const OId& id)
-	:	DBNamedObject(id)
-	{
-        LTRACE << "Type(" << myOId << ")";
-	}
+Type::Type(const OId &id)
+    :   DBNamedObject(id)
+{
+    LTRACE << "Type(" << myOId << ")";
+}
 
-Type::Type(const char* name)
-	:	DBNamedObject(name)
-	{
-        LTRACE << "Type(" << name << ")";
-	}
+Type::Type(const char *name)
+    :   DBNamedObject(name)
+{
+    LTRACE << "Type(" << name << ")";
+}
 
-Type::Type(const Type& old)
-	:	DBNamedObject(old)
-	{
-	myType = old.myType;
-	}
+Type::Type(const Type &old)
+    :   DBNamedObject(old)
+{
+    myType = old.myType;
+}
 
-Type&
-Type::operator=(const Type& old)
-	{
-	DBNamedObject::operator=(old);
-	myType = old.myType;
-	return *this;
-	}
+Type &
+Type::operator=(const Type &old)
+{
+    DBNamedObject::operator=(old);
+    myType = old.myType;
+    return *this;
+}
 
 void
 Type::destroy()
-	{
-	//does nothing to prevent types from being deleted because of reference counts
-	}
+{
+    //does nothing to prevent types from being deleted because of reference counts
+}
 
 /*************************************************************
  * Method name...: getTypeName()
  *
  * Arguments.....: none
- * Return value..: 
+ * Return value..:
  *   name of the type as a C string.
  * Description...: returns name of the type.
  ************************************************************/
 
-const char*
+const char *
 Type::getTypeName() const
 {
-  return getName();
+    return getName();
 }
 
-char*
+char *
 Type::getTypeStructure() const
 {
-  // default implementation for all non-structured base types.
-  char* dummy = const_cast<char*>(getTypeName());
-  char* result = static_cast<char*>(mymalloc(strlen(dummy) + 1));
-  strcpy(result, dummy);
-  for(int i = 0; i < static_cast<int>(strlen(dummy)); i++)
-    result[i] = tolower(result[i]);
-  return result;
+    // default implementation for all non-structured base types.
+    char *dummy = const_cast<char *>(getTypeName());
+    char *result = static_cast<char *>(mymalloc(strlen(dummy) + 1));
+    strcpy(result, dummy);
+    for (int i = 0; i < static_cast<int>(strlen(dummy)); i++)
+    {
+        result[i] = tolower(result[i]);
+    }
+    return result;
 }
 
-char*
+char *
 Type::getNewTypeStructure() const
 {
-  return getTypeStructure();
+    return getTypeStructure();
 }
 
 TypeEnum
 Type::getType() const
 {
-  return myType;
+    return myType;
 }
 
 int
-Type::compatibleWith(const Type* /* aType */) const
+Type::compatibleWith(const Type * /* aType */) const
 {
-  return 0;
+    return 0;
 }
 
 /*************************************************************
@@ -140,5 +142,5 @@ Type::compatibleWith(const Type* /* aType */) const
  ************************************************************/
 
 Type::~Type()
-	{
-	}
+{
+}

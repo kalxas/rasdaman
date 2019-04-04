@@ -62,7 +62,7 @@ SymbolTable<T>::~SymbolTable()
 
 // put symbol in keys and in the hash-table
 template <class T>
-bool SymbolTable<T>::putSymbol(const std::string& symbol, T value)
+bool SymbolTable<T>::putSymbol(const std::string &symbol, T value)
 {
     bool retVal = false;
     // if not locally declared
@@ -84,14 +84,14 @@ bool SymbolTable<T>::putSymbol(const std::string& symbol, T value)
 
 // store symbol into hash-table
 template <class T>
-void SymbolTable<T>::storeSymbol(const std::string& symbol, T value)
+void SymbolTable<T>::storeSymbol(const std::string &symbol, T value)
 {
     STVars[symbol] = value;
 }
 
 // get symbol from table
 template <class T>
-T SymbolTable<T>::getSymbol(const std::string& symbol)
+T SymbolTable<T>::getSymbol(const std::string &symbol)
 {
     T retVal = 0;
 
@@ -118,7 +118,7 @@ T SymbolTable<T>::getSymbol(const std::string& symbol)
 
 // lookup symbol in table
 template <class T>
-bool SymbolTable<T>::lookupSymbol(const std::string& symbol)
+bool SymbolTable<T>::lookupSymbol(const std::string &symbol)
 {
     bool retVal = false;
 

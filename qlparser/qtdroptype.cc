@@ -25,7 +25,7 @@ rasdaman GmbH.
  *
  *
  * PURPOSE:
- *   switching between various cases of dropping 
+ *   switching between various cases of dropping
  *   user-defined mdd, set, and struct types
  *
  *
@@ -40,14 +40,14 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtDropType::nodeType = QtNode::QT_DROP_TYPE;
 
-QtDropType::QtDropType(const std::string& typeName2)
+QtDropType::QtDropType(const std::string &typeName2)
     : typeName(typeName2)
 {
 }
 
-QtData* QtDropType::evaluate()
+QtData *QtDropType::evaluate()
 {
-    QtData* returnValue = NULL;
+    QtData *returnValue = NULL;
     // here we are sure that the type exists in the database (checkType passed)
     switch (dropType)
     {
@@ -100,14 +100,14 @@ void QtDropType::checkType()
     }
 }
 
-void QtDropType::printTree(int tab, std::ostream& s, __attribute__((unused)) QtChildType mode)
+void QtDropType::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDropType Object" << std::endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  DROP TYPE " << typeName;
 }
 
 
-void QtDropType::printAlgebraicExpression(std::ostream& s)
+void QtDropType::printAlgebraicExpression(std::ostream &s)
 {
     s << "command <";
     s << "DROP TYPE " << typeName;

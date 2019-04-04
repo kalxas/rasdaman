@@ -37,7 +37,7 @@ DBNullvalues::DBNullvalues()
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::DBNullvalues(const OId& id)
+DBNullvalues::DBNullvalues(const OId &id)
     :   DBObject(id),
         r_Nullvalues()
 {
@@ -45,14 +45,14 @@ DBNullvalues::DBNullvalues(const OId& id)
     readFromDb();
 }
 
-DBNullvalues::DBNullvalues(const DBNullvalues& old)
+DBNullvalues::DBNullvalues(const DBNullvalues &old)
     :   DBObject(old),
         r_Nullvalues(old)
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::DBNullvalues(const r_Nullvalues& old)
+DBNullvalues::DBNullvalues(const r_Nullvalues &old)
     :   DBObject(),
         r_Nullvalues(old)
 {
@@ -64,8 +64,8 @@ DBNullvalues::~DBNullvalues() noexcept(false)
     validate();
 }
 
-DBNullvalues&
-DBNullvalues::operator=(const DBNullvalues& old)
+DBNullvalues &
+DBNullvalues::operator=(const DBNullvalues &old)
 {
     if (this == &old)
     {
@@ -76,8 +76,8 @@ DBNullvalues::operator=(const DBNullvalues& old)
     return *this;
 }
 
-DBNullvalues&
-DBNullvalues::operator=(const r_Nullvalues& old)
+DBNullvalues &
+DBNullvalues::operator=(const r_Nullvalues &old)
 {
     if (this == &old)
     {
@@ -156,21 +156,21 @@ DBNullvalues::readFromDb()
                       "WHERE NullValueOId = %lld "
                       "ORDER BY Count ASC",
                       myOId.getCounter());
-    
+
     while (query.nextRow())
     {
         query.nextColumn(); // skip OId column
         query.nextColumn(); // skip count column, they are ordered already
-        double low = (query.currColumnNull()) 
-            ? std::numeric_limits<double>::quiet_NaN() 
-            : query.nextColumnDouble();
-        double high = (query.currColumnNull()) 
-            ? std::numeric_limits<double>::quiet_NaN() 
-            : query.nextColumnDouble();
+        double low = (query.currColumnNull())
+                     ? std::numeric_limits<double>::quiet_NaN()
+                     : query.nextColumnDouble();
+        double high = (query.currColumnNull())
+                      ? std::numeric_limits<double>::quiet_NaN()
+                      : query.nextColumnDouble();
         LDEBUG << "read null values: " << low << ":" << high;
         nullvalues.emplace_back(low, high);
     }
-    
+
     if (nullvalues.empty())
     {
         LERROR << "DBNullvalues::readFromDb() - nullvalues object: "
