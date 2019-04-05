@@ -91,7 +91,7 @@ void Configuration::initParameters()
     cmlHelp     = &cmlInter.addFlagParameter('h', "help", "print this help");
 
     //connection
-    cmlRsn      = &cmlInter.addStringParameter(NSN, "rsn", "<srv-name> rasserver instance name");
+    cmlRsn      = &cmlInter.addStringParameter(NSN, "rsn", "<srv-name> rasserver instance name", DEFAULT_SERVERNAME);
     cmlPort     = &cmlInter.addStringParameter(NSN, "lport", "<nnnn> rasserver listen port (RPC or HTTP)");
     cmlMgr      = &cmlInter.addStringParameter(NSN, "mgr", "<mgr-host> name of RasMGR host", DEFAULT_HOSTNAME);
     cmlMgrPort  = &cmlInter.addLongParameter(NSN, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT);

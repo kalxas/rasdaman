@@ -52,6 +52,9 @@ rasdaman GmbH.
 /// default name of server machine, if gethostname() fails
 #define DEFAULT_HOSTNAME    "localhost"
 
+// default name of rasserver instance, if getServerName() fails
+#define DEFAULT_SERVERNAME	"rasserver"
+
 /// default database name
 #define DEFAULT_DBNAME      "RASBASE"
 
