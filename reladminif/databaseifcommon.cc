@@ -68,34 +68,31 @@ DatabaseIf::~DatabaseIf()
     if (myName)
     {
         free(myName);
-        myName = NULL;
+        myName = nullptr;
     }
 
     connected = false;
     opened = false;
 }
 
-bool
-DatabaseIf::isConnected() const
+bool DatabaseIf::isConnected() const
 {
     return connected;
 }
 
-bool
-DatabaseIf::isOpen() const
+bool DatabaseIf::isOpen() const
 {
     return opened;
 }
 
-void
-DatabaseIf::open(const char *dbName)
+void DatabaseIf::open(const char *dbName)
 {
     if (opened)
     {
         LTRACE << "another database is already open";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
-    //cannot do any further error checking
+    // cannot do any further error checking
     if (0)   // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
     {
         LTRACE << "database name unknown";
@@ -111,8 +108,7 @@ DatabaseIf::open(const char *dbName)
     }
 }
 
-void
-DatabaseIf::baseDBMSOpen()
+void DatabaseIf::baseDBMSOpen()
 {
 #ifdef RMANDEBUG
     if (AdminIf::getCurrentDatabaseIf())
@@ -146,14 +142,13 @@ DatabaseIf::baseDBMSOpen()
 #endif
 }
 
-void
-DatabaseIf::close()
+void DatabaseIf::close()
 {
     opened = false;
     if (myName)
     {
         free(myName);
-        myName = NULL;
+        myName = nullptr;
     }
     if (connected)
     {
@@ -162,40 +157,34 @@ DatabaseIf::close()
     }
 }
 
-void
-DatabaseIf::baseDBMSClose()
+void DatabaseIf::baseDBMSClose()
 {
 #ifdef RMANDEBUG
     if (AdminIf::getCurrentDatabaseIf() == this)
     {
 #endif
-        AdminIf::setCurrentDatabaseIf(0);
+        AdminIf::setCurrentDatabaseIf(nullptr);
 #ifdef RMANDEBUG
     }
     else
     {
-        //this happens when a transaction is killed by the server
+        // this happens when a transaction is killed by the server
         LTRACE << "baseDBMSClose() current DatabaseIf != this";
     }
 #endif
 }
 
 DatabaseIf::DatabaseIf()
-    :   opened(false),
-        myName(NULL),
-        connected(false)
+    : opened(false), myName(nullptr), connected(false)
 
-{
-}
+{}
 
-const char *
-DatabaseIf::getName() const
+const char *DatabaseIf::getName() const
 {
     return myName;
 }
 
-ostream &
-operator << (ostream &stream, DatabaseIf &db)
+std::ostream &operator<<(std::ostream &stream, DatabaseIf &db)
 {
     stream << "DatabaseIf" << std::endl;
     stream << "\tConnected To\t: " << ((db.getName()) ? db.getName() : " ") << std::endl;

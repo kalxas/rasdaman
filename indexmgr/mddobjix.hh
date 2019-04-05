@@ -20,24 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
-#ifndef _MDDOBJIX_HH_
-#define _MDDOBJIX_HH_
-
-class PersTile;
-class BaseType;
-class Tile;
-class r_Point;
-#include "raslib/minterval.hh"
-#include "raslib/rmdebug.hh"
-#include "indexmgr/indexds.hh"
-#include "storagemgr/sstoragelayout.hh"
-#include "reladminif/lists.h"
-#include "relindexif/indexid.hh"
-#include <vector>
-#include <boost/shared_ptr.hpp>
-
-
 /****************************************************************************
  *
  *
@@ -58,18 +40,40 @@ class r_Point;
  *  @ingroup indexmgr
  */
 
+#ifndef _MDDOBJIX_HH_
+#define _MDDOBJIX_HH_
+
+#include "raslib/minterval.hh"
+#include "indexmgr/indexds.hh"
+#include "storagemgr/sstoragelayout.hh"
+#include "reladminif/lists.h"
+#include "relindexif/indexid.hh"
+#include <boost/shared_ptr.hpp>
+#include <vector>
+
+class PersTile;
+class BaseType;
+class Tile;
+class r_Point;
 
 /*@Doc:
 
 Each MDD Object is composed of a set of tiles which are accessed through an index.
-The task of the index is to determine the tiles affected by a spatial operation and to allow fast access to them.  It will also take care of memory management of the tiles.
+The task of the index is to determine the tiles affected by a spatial operation
+and to allow fast access to them.  It will also take care of memory management of the tiles.
 
 {\bfMDD Objects indexes: }
 
-MDD Objects indexes are multidimensional since they provide access to multidimensional rectangular tiles existing in multidimensional intervals. An MDDObjIx has to be able to deal with different dimensionalities.
+MDD Objects indexes are multidimensional since they provide access to
+multidimensional rectangular tiles existing in
+multidimensional intervals. An MDDObjIx has to be able to deal with different dimensionalities.
 
-The index of an MDD object keeps the information about the current domain of the MDD object. During the lifetime of the object, it is possible that the definition (or current) domain of an object is not completely covered by the tiles already inserted.
-At each moment, the current domain of an object is the closure of the domains of all tiles. All tiles should be completely contained
+The index of an MDD object keeps the information about the current domain of the
+MDD object. During the lifetime of the
+object, it is possible that the definition (or current) domain of an object is
+not completely covered by the tiles already inserted.
+At each moment, the current domain of an object is the closure of the domains of
+all tiles. All tiles should be completely contained
 in the definition domain of an object.
 The definition domain may have open boundaries, but the current domain is always a closed interval.
 
@@ -81,31 +85,31 @@ This class has to be changed to reflect this aability.
 
 */
 
-//function pointer to the static function which inserts objects
-typedef bool (*IxLogic_insertObject)(IndexDS *theIx, const KeyObject &theObj, const StorageLayout &sl);
+// function pointer to the static function which inserts objects
+using IxLogic_insertObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
 
-//function pointer to the static function which removes objects
-typedef bool (*IxLogic_removeObject)(IndexDS *theIx, const KeyObject &theObj, const StorageLayout &sl);
+// function pointer to the static function which removes objects
+using IxLogic_removeObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
 
-//function pointer to the static function which gets objects from the index
-typedef void (*IxLogic_intersect)(const IndexDS *theIx, const r_Minterval &searchInterval, KeyObjectVector &objs, const StorageLayout &sl);
+// function pointer to the static function which gets objects from the index
+using IxLogic_intersect = void (*)(const IndexDS *, const r_Minterval &, KeyObjectVector &, const StorageLayout &);
 
-//function pointer to the static function which gets object at point
-typedef void (*IxLogic_containPointQuery)(const IndexDS *theIx, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
+// function pointer to the static function which gets object at point
+using IxLogic_containPointQuery = void (*)(const IndexDS *, const r_Point &, KeyObject &, const StorageLayout &);
 
-//function pointer to the static function which inserts objects
-typedef void (*IxLogic_getObjects)(const IndexDS *theIx, KeyObjectVector &objs, const StorageLayout &sl);
+// function pointer to the static function which inserts objects
+using IxLogic_getObjects = void (*)(const IndexDS *, KeyObjectVector &, const StorageLayout &);
 
 class MDDObjIx
 {
 public:
-
     MDDObjIx(const StorageLayout &sl, const r_Minterval &dom);
     /*@Doc:
         Initialize a transient index.
     */
 
-    MDDObjIx(const StorageLayout &sl, const r_Minterval &dom, const BaseType *bt, bool persistent = true);
+    MDDObjIx(const StorageLayout &sl, const r_Minterval &dom,
+             const BaseType *bt, bool persistent = true);
     /*@Doc:
         When persistent is false this index will behave as if it were a transient index.
     */
@@ -115,7 +119,7 @@ public:
         When bt is NULL this index will behave as if it were a transient index.
     */
 
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const;
 
     ~MDDObjIx();
 
@@ -143,7 +147,8 @@ public:
 
     void releasePersTiles();
     /*@Doc:
-        This function has to be called by the destructors of persistent subclasses which use the cache, to make sure that the memory for the tiles in the cache is freed.
+        This function has to be called by the destructors of persistent subclasses
+        which use the cache, to make sure that the memory for the tiles in the cache is freed.
         This will only have effect on persistent indexes.
         Transient indexes keep their tiles in TransDirIx which deletes its tiles in the destructor.
     */
@@ -166,9 +171,11 @@ protected:
 
     bool removeTileFromLastAccesses(boost::shared_ptr<Tile> tileToRemove);
     /*@Doc:
-        Does NOT free tileToRemove allocated memory. Only removes this pointer from lastAccesses list if it finds it there.
+        Does NOT free tileToRemove allocated memory. Only removes this pointer
+        from lastAccesses list if it finds it there.
         Returns true if found.
-        Subclasses which use the cache must call this function before removing a tile from the index, or else the tile may remain in main memory.
+        Subclasses which use the cache must call this function before removing a
+        tile from the index, or else the tile may remain in main memory.
     */
 
     r_Minterval lastAccess;
@@ -219,7 +226,6 @@ protected:
         It Should be considered to move the creation of PersTiles into the
         MDDObj class.
     */
-
 
     IndexDS *actualIx;
     /*@Doc:

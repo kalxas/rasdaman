@@ -33,8 +33,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
-#include "debug-srv.hh"
 #include "mddbasetype.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
@@ -43,63 +41,55 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 
-void
-MDDBaseType::insertInDb()
+void MDDBaseType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
     char mddtypename[STRING_MAXLEN];
 
-    (void) strncpy(mddtypename, const_cast<char *>(getName()), (size_t) sizeof(mddtypename));
+    (void)strncpy(mddtypename, const_cast<char *>(getName()),
+                  (size_t)sizeof(mddtypename));
     DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDBASETYPES ( MDDBaseTypeOId, MDDTypeName, BaseTypeId) VALUES (%lld, '%s', %lld)",
-                                   mddtypeid, mddtypename, mddbasetypeid);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_MDDBASETYPES ( MDDBaseTypeOId, MDDTypeName, BaseTypeId) "
+        "VALUES (%lld, '%s', %lld)",
+        mddtypeid, mddtypename, mddbasetypeid);
     DBObject::insertInDb();
 }
 
-void
-MDDBaseType::readFromDb()
+void MDDBaseType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    long long mddtypeid;
-    long long mddbasetypeid;
-    char *mddtypename;
-
-    mddtypeid = myOId.getCounter();
-    mddbasetypeid = 0;
-
-    SQLiteQuery query("SELECT BaseTypeId, MDDTypeName FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld",
-                      mddtypeid);
+    SQLiteQuery query(
+        "SELECT BaseTypeId, MDDTypeName FROM RAS_MDDBASETYPES WHERE "
+        "MDDBaseTypeOId = %lld",
+        myOId.getCounter());
     if (query.nextRow())
     {
-        mddbasetypeid = query.nextColumnLong();
-        mddtypename = query.nextColumnString();
+        myBaseType = (BaseType *)ObjectBroker::getObjectByOId(OId(query.nextColumnLong()));
+        setName(query.nextColumnString());
     }
     else
     {
-        LERROR << "MDDBaseType::readFromDb() - mdd type: "
-               << mddtypeid << " not found in the database.";
+        LERROR << "mdd type: " << myOId.getCounter() << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
     }
 
-    setName(mddtypename);
-    myBaseType = (BaseType *) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
     DBObject::readFromDb();
 }
 
-void
-MDDBaseType::deleteFromDb()
+void MDDBaseType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld",
-                                   mddtypeid);
+    SQLiteQuery::executeWithParams(
+        "DELETE FROM RAS_MDDBASETYPES WHERE MDDBaseTypeOId = %lld", mddtypeid);
     DBObject::deleteFromDb();
 }

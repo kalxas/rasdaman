@@ -22,7 +22,7 @@
 ###################################################################
 
 add_library(mddmgr mddcoll.hh mddcoll.cc
-        mddcolliter.hh mddcolliter.cc mddcolliter.icc
+        mddcolliter.hh mddcolliter.cc
         mddobj.hh mddobj.cc)
 
 install(TARGETS mddmgr

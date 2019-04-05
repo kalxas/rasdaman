@@ -35,20 +35,18 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-#include "debug-srv.hh"
 
-#include <cstdlib>
 #include "dbmddset.hh"
-#include "reladminif/sqlerror.hh"
 #include "reladminif/objectbroker.hh"
+#include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "relcatalogif/collectiontype.hh"
 #include <logging.hh>
+#include <cstdlib>
 
 DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
-    : DBNamedObject(id, name),
-      collType(const_cast<CollectionType *>(type))
+    : DBNamedObject(id, name), collType(type)
 {
     if (name == NULL)
     {
@@ -84,8 +82,7 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     }
     if (set)
     {
-        LTRACE << "already have a set with name " << getName();
-        LERROR << "DBMDDSet::DBMDDSet() mdd collection with name \"" << getName() << "\" exists already";
+        LERROR << "mdd collection with name \"" << getName() << "\" exists already";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
     long testoid1;
@@ -96,8 +93,7 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", testoid1);
     if (query.nextRow())
     {
-        LERROR << "DBMDDObj::DBMDDObj() - mdd object: "
-               << testoid1 << " already exists in the database.";
+        LERROR << "mdd object: " << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
     }
     else
@@ -111,8 +107,7 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     }
 }
 
-void
-DBMDDSet::insertInDb()
+void DBMDDSet::insertInDb()
 {
     long long mddoid;
     long long mddcolloid;
@@ -121,22 +116,23 @@ DBMDDSet::insertInDb()
     mddcolloid = myOId.getCounter();
     colltypeoid = collType->getOId().getCounter();
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDCOLLNAMES ( MDDCollName, MDDCollId, SetTypeId) VALUES ('%s',%lld,%lld)",
-                                   getName(), mddcolloid, colltypeoid);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_MDDCOLLNAMES ( MDDCollName, MDDCollId, SetTypeId) VALUES ('%s',%lld,%lld)",
+        getName(), mddcolloid, colltypeoid);
     for (DBMDDObjIdSet::iterator i = mySet.begin(); i != mySet.end(); i++)
     {
         mddoid = (*i).getOId().getCounter();
         LTRACE << "mddobject with id " << mddoid;
 
-        SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDCOLLECTIONS ( MDDId, MDDCollId) VALUES (%lld,%lld)",
-                                       mddoid, mddcolloid);
+        SQLiteQuery::executeWithParams(
+            "INSERT INTO RAS_MDDCOLLECTIONS ( MDDId, MDDCollId) VALUES (%lld,%lld)",
+            mddoid, mddcolloid);
         LTRACE << "wrote mddobjoid\t: " << (*i).getOId();
     }
     DBObject::insertInDb();
 }
 
-void
-DBMDDSet::deleteFromDb()
+void DBMDDSet::deleteFromDb()
 {
     long long mddcolloid1 = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", mddcolloid1);
@@ -144,8 +140,7 @@ DBMDDSet::deleteFromDb()
     DBObject::deleteFromDb();
 }
 
-void
-DBMDDSet::readFromDb()
+void DBMDDSet::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -166,8 +161,7 @@ DBMDDSet::readFromDb()
     }
     else
     {
-        LERROR << "DBMDDSet::readFromDb() - set object: "
-               << mddcolloid2 << " not found in the database.";
+        LERROR << "set object: " << mddcolloid2 << " not found in the database.";
         if (collname2)
         {
             free(collname2);
@@ -184,7 +178,9 @@ DBMDDSet::readFromDb()
     }
     collType = (CollectionType *) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
 
-    SQLiteQuery cquery("SELECT MDDId FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = %lld ORDER BY MDDId", mddcolloid2);
+    SQLiteQuery cquery(
+        "SELECT MDDId FROM RAS_MDDCOLLECTIONS "
+        "WHERE MDDCollId = %lld ORDER BY MDDId", mddcolloid2);
     while (cquery.nextRow())
     {
         mddoid2 = cquery.nextColumnLong();

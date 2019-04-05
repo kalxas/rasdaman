@@ -36,9 +36,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include <cstring>
-#include "debug-srv.hh"
-
 #include "hierindex.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
@@ -47,9 +44,9 @@ rasdaman GmbH.
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 #include <memory>
+#include <cstring>
 
-void
-DBHierIndex::insertInDb()
+void DBHierIndex::insertInDb()
 {
     // old format a 13, new format >= 1009 (to align with dbrcindex.pgc)
     long long header = 1010;
@@ -68,87 +65,101 @@ DBHierIndex::insertInDb()
     indexsubtype2 = _isNode;
 
     if (parent.getType() == OId::INVALID)
-    {
         parentid2 = 0;
-    }
     else
-    {
         parentid2 = parent;
-    }
 
     // (1) -- set all buffers
-    r_Bytes headersize = sizeof(header);
+    r_Bytes headerSize = sizeof(header);
 
-    //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size2 + 1) * dimension2;
-    //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size2 + 1) * dimension2;
-    //number of bytes for ids of entries
-    r_Bytes idssize = sizeof(OId::OIdCounter) * size2;
-    //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size2;
-    //number of bytes for the dynamic data, plus 1 starter byte (see below)
-    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    // number of bytes for bounds for "size" entries and mydomain
+    r_Bytes boundsSize =
+        sizeof(r_Range) * (size2 + 1) * dimension2;
+    // number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixesSize = sizeof(char) * (size2 + 1) * dimension2;
+    // number of bytes for ids of entries
+    r_Bytes idsSize = sizeof(OId::OIdCounter) * size2;
+    // number of bytes for types of entries
+    r_Bytes typesSize = sizeof(char) * size2;
+    // number of bytes for the dynamic data, plus 1 starter byte (see below)
+    r_Bytes completeSize =
+        headerSize + boundsSize * 2 + fixesSize * 2 + idsSize + typesSize;
 
     // HST After some testing of the new format all these allocations
     // should be removed.
-    char *completebuffer = (char *) mymalloc(completesize);
-    if (completebuffer == NULL)
+    char *completeBuf = (char *)malloc(completeSize);
+    if (completeBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
-    if (upperboundsbuf == NULL)
+    r_Range *upperBoundsBuf = (r_Range *)malloc(boundsSize);
+    if (upperBoundsBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
-    if (lowerboundsbuf == NULL)
+    r_Range *lowerBoundsBuf = (r_Range *)malloc(boundsSize);
+    if (lowerBoundsBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char *upperfixedbuf = (char *) mymalloc(fixessize);
-    if (upperfixedbuf == NULL)
+    char *upperFixedBuf = (char *)malloc(fixesSize);
+    if (upperFixedBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char *lowerfixedbuf = (char *) mymalloc(fixessize);
-    if (lowerfixedbuf == NULL)
+    char *lowerFixedBuf = (char *)malloc(fixesSize);
+    if (lowerFixedBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    OId::OIdCounter *entryidsbuf = (OId::OIdCounter *)mymalloc(idssize);
-    if (entryidsbuf == NULL)
+    OId::OIdCounter *entryIdsBuf = (OId::OIdCounter *)malloc(idsSize);
+    if (entryIdsBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
-    char *entrytypesbuf = (char *) mymalloc(typessize);
-    if (entrytypesbuf == NULL)
+    char *entryTypesBuf = (char *)malloc(typesSize);
+    if (entryTypesBuf == NULL)
     {
         LERROR << "DBHierIndex::insertInDb() cannot malloc buffer";
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
 
-    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size2 << " dimension=" << dimension2;
+    LTRACE << "complete=" << completeSize << " bounds=" << boundsSize
+           << " fixes=" << fixesSize << " ids=" << idsSize
+           << " types=" << typesSize << ", size=" << size2
+           << " dimension=" << dimension2;
 
-    myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension2, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    //populate the buffers with data
+    myDomain.insertInDb(&(lowerBoundsBuf[0]), &(upperBoundsBuf[0]),
+                        &(lowerFixedBuf[0]), &(upperFixedBuf[0]));
+    LTRACE << "domain " << myDomain << " stored as "
+           << InlineMinterval(dimension2, &(lowerBoundsBuf[0]),
+                              &(upperBoundsBuf[0]), &(lowerFixedBuf[0]),
+                              &(upperFixedBuf[0]));
+    // populate the buffers with data
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
-    for (long i = 0; i < size2; i++, it++)
+    for (size_t i = 0; i < size2; i++, it++)
     {
         indom = (*it).getDomain();
-        indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
-        entryidsbuf[i] = (*it).getObject().getOId().getCounter();
-        entrytypesbuf[i] = (char)(*it).getObject().getOId().getType();
-        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i + 1) * dimension2]), &(upperboundsbuf[(i + 1) * dimension2]), &(lowerfixedbuf[(i + 1) * dimension2]), &(upperfixedbuf[(i + 1) * dimension2]));
+        indom.insertInDb(&(lowerBoundsBuf[(i + 1) * dimension2]),
+                         &(upperBoundsBuf[(i + 1) * dimension2]),
+                         &(lowerFixedBuf[(i + 1) * dimension2]),
+                         &(upperFixedBuf[(i + 1) * dimension2]));
+        entryIdsBuf[i] = (*it).getObject().getOId().getCounter();
+        entryTypesBuf[i] = (char)(*it).getObject().getOId().getType();
+        LTRACE << "entry " << entryIdsBuf[i] << " "
+               << (OId::OIdType)entryTypesBuf[i] << " at "
+               << InlineMinterval(dimension2,
+                                  &(lowerBoundsBuf[(i + 1) * dimension2]),
+                                  &(upperBoundsBuf[(i + 1) * dimension2]),
+                                  &(lowerFixedBuf[(i + 1) * dimension2]),
+                                  &(upperFixedBuf[(i + 1) * dimension2]));
     }
 
     // write the buffers in the complete buffer, free all unnecessary buffers
@@ -156,36 +167,37 @@ DBHierIndex::insertInDb()
     // this is only necessary for the old format, not the new format...
 
     // write the new header
-    memcpy(&completebuffer[0], &header, sizeof(header));  //the first char must not be a \0 ??
+    memcpy(&completeBuf[0], &header, sizeof(header));  // the first char must not be a \0 ??
 
-    (void) memcpy(&completebuffer[headersize], lowerboundsbuf, boundssize);
-    free(lowerboundsbuf);
-    (void) memcpy(&completebuffer[boundssize + headersize], upperboundsbuf, boundssize);
-    free(upperboundsbuf);
-    (void) memcpy(&completebuffer[boundssize * 2 + headersize], lowerfixedbuf, fixessize);
-    free(lowerfixedbuf);
-    (void) memcpy(&completebuffer[boundssize * 2 + fixessize + headersize], upperfixedbuf, fixessize);
-    free(upperfixedbuf);
-    (void) memcpy(&completebuffer[boundssize * 2 + fixessize * 2 + headersize], entryidsbuf, idssize);
-    free(entryidsbuf);
-    (void) memcpy(&completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize], entrytypesbuf, typessize);
-    free(entrytypesbuf);
+    (void) memcpy(&completeBuf[headerSize], lowerBoundsBuf, boundsSize);
+    free(lowerBoundsBuf);
+    (void) memcpy(&completeBuf[boundsSize + headerSize], upperBoundsBuf, boundsSize);
+    free(upperBoundsBuf);
+    (void) memcpy(&completeBuf[boundsSize * 2 + headerSize], lowerFixedBuf, fixesSize);
+    free(lowerFixedBuf);
+    (void) memcpy(&completeBuf[boundsSize * 2 + fixesSize + headerSize], upperFixedBuf, fixesSize);
+    free(upperFixedBuf);
+    (void) memcpy(&completeBuf[boundsSize * 2 + fixesSize * 2 + headerSize], entryIdsBuf, idsSize);
+    free(entryIdsBuf);
+    (void) memcpy(&completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize + headerSize], entryTypesBuf, typesSize);
+    free(entryTypesBuf);
 
     // (3) --- insert HIERIX tuple into db
-    SQLiteQuery query("INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, IndexSubType, DynData ) VALUES ( %lld, %ld, %ld, %lld, %d, ? )",
-                      id2, size2, dimension2, parentid2, indexsubtype2);
-    query.bindBlob(completebuffer, static_cast<int>(completesize));
+    SQLiteQuery query(
+        "INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, "
+        "IndexSubType, DynData ) VALUES ( %lld, %ld, %ld, %lld, %d, ? )",
+        id2, size2, dimension2, parentid2, indexsubtype2);
+    query.bindBlob(completeBuf, static_cast<int>(completeSize));
     query.execute();
 
-    free(completebuffer); // free main buffer
+    free(completeBuf);  // free main buffer
 
     // (4) --- dbobject insert
     DBObject::insertInDb();
 
 } // insertInDb()
 
-void
-DBHierIndex::readFromDb()
+void DBHierIndex::readFromDb()
 {
 
     // (0) --- prepare variables
@@ -295,10 +307,10 @@ DBHierIndex::readFromDb()
 
     char *lowerBoundsBuf = &completeBuf[0];
     char *upperBoundsBuf = &completeBuf[boundsSize];
-    char *lowerFixedBuf = &completeBuf[boundsSize * 2];
-    char *upperFixedBuf = &completeBuf[boundsSize * 2 + fixesSize];
-    char *entryIdsBuf = &completeBuf[boundsSize * 2 + fixesSize * 2];
-    char *entryTypesBuf = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
+    char *lowerFixedBuf  = &completeBuf[boundsSize * 2];
+    char *upperFixedBuf  = &completeBuf[boundsSize * 2 + fixesSize];
+    char *entryIdsBuf    = &completeBuf[boundsSize * 2 + fixesSize * 2];
+    char *entryTypesBuf  = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
 
     // (4) --- copy data into buffers
 
@@ -348,8 +360,7 @@ DBHierIndex::readFromDb()
 
 }  // readFromDb()
 
-void
-DBHierIndex::updateInDb()
+void DBHierIndex::updateInDb()
 {
     long long header = 1010;
 
@@ -365,89 +376,97 @@ DBHierIndex::updateInDb()
     dimension4 = myDomain.dimension();
     size4 = myKeyObjects.size();
     if (parent.getType() == OId::INVALID)
-    {
         parentid4 = 0;
-    }
     else
-    {
         parentid4 = parent;
-    }
 
     // (1) --- prepare buffer
     // number of bytes for header
-    r_Bytes headersize = sizeof(header);
+    r_Bytes headerSize = sizeof(header);
 
-    //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size4 + 1) * dimension4;
-    //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size4 + 1) * dimension4;
-    //number of bytes for ids of entries
-    r_Bytes idssize = sizeof(OId::OIdCounter) * size4;
-    //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size4;
-    //number of bytes for the dynamic data; 1 starter byte!
-    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    // number of bytes for bounds for "size" entries and mydomain
+    r_Bytes boundsSize = sizeof(r_Range) * (size4 + 1) * dimension4;
+    // number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixesSize = sizeof(char) * (size4 + 1) * dimension4;
+    // number of bytes for ids of entries
+    r_Bytes idsSize = sizeof(OId::OIdCounter) * size4;
+    // number of bytes for types of entries
+    r_Bytes typesSize = sizeof(char) * size4;
+    // number of bytes for the dynamic data; 1 starter byte!
+    r_Bytes completeSize = headerSize + boundsSize * 2 + fixesSize * 2 + idsSize + typesSize;
 
-    char *completebuffer = (char *) mymalloc(completesize);
-    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
-    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
-    char *upperfixedbuf = (char *) mymalloc(fixessize);
-    char *lowerfixedbuf = (char *) mymalloc(fixessize);
-    OId::OIdCounter *entryidsbuf = (OId::OIdCounter *)mymalloc(idssize);
-    char *entrytypesbuf = (char *) mymalloc(typessize);
-
-    LTRACE << "Updating index in rasbase with oid " << myOId;
+    char *completeBuf = (char *)malloc(completeSize);
+    r_Range *upperBoundsBuf = (r_Range *)malloc(boundsSize);
+    r_Range *lowerBoundsBuf = (r_Range *)malloc(boundsSize);
+    char *upperFixedBuf = (char *)malloc(fixesSize);
+    char *lowerFixedBuf = (char *)malloc(fixesSize);
+    OId::OIdCounter *entryIdsBuf = (OId::OIdCounter *)malloc(idsSize);
+    char *entryTypesBuf = (char *)malloc(typesSize);
 
     // populate the buffers with data
-    myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension4, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    myDomain.insertInDb(&(lowerBoundsBuf[0]), &(upperBoundsBuf[0]), &(lowerFixedBuf[0]), &(upperFixedBuf[0]));
+    LTRACE << "domain " << myDomain << " stored as "
+           << InlineMinterval(dimension4, &(lowerBoundsBuf[0]), &(upperBoundsBuf[0]), &(lowerFixedBuf[0]), &(upperFixedBuf[0]));
 
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
-    for (long i = 0; i < size4; i++, it++)
+    for (size_t i = 0; i < size4; i++, it++)
     {
         indom = (*it).getDomain();
-        indom.insertInDb(&(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
-        entryidsbuf[i] = (*it).getObject().getOId().getCounter();
-        entrytypesbuf[i] = (char)(*it).getObject().getOId().getType();
-        LTRACE << "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension4, &(lowerboundsbuf[(i + 1) * dimension4]), &(upperboundsbuf[(i + 1) * dimension4]), &(lowerfixedbuf[(i + 1) * dimension4]), &(upperfixedbuf[(i + 1) * dimension4]));
+        indom.insertInDb(&(lowerBoundsBuf[(i + 1) * dimension4]),
+                         &(upperBoundsBuf[(i + 1) * dimension4]),
+                         &(lowerFixedBuf[(i + 1) * dimension4]),
+                         &(upperFixedBuf[(i + 1) * dimension4]));
+        entryIdsBuf[i] = (*it).getObject().getOId().getCounter();
+        entryTypesBuf[i] = (char)(*it).getObject().getOId().getType();
+        LTRACE << "entry " << entryIdsBuf[i] << " "
+               << (OId::OIdType)entryTypesBuf[i] << " at "
+               << InlineMinterval(dimension4,
+                                  &(lowerBoundsBuf[(i + 1) * dimension4]),
+                                  &(upperBoundsBuf[(i + 1) * dimension4]),
+                                  &(lowerFixedBuf[(i + 1) * dimension4]),
+                                  &(upperFixedBuf[(i + 1) * dimension4]));
     }
 
-    LTRACE << "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size4 << " dimension=" << dimension4;
+    LTRACE << "complete=" << completeSize << " bounds=" << boundsSize
+           << " fixes=" << fixesSize << " ids=" << idsSize
+           << " types=" << typesSize << ", size=" << size4
+           << " dimension=" << dimension4;
 
     // write the buffers in the complete buffer, plus starter byte
-    // OUTDATED this indirection is necessary because of memory alignement of longs...
-    memcpy(&completebuffer[0], &header, headersize);
+    // OUTDATED this indirection is necessary because of memory alignement of  longs...
+    memcpy(&completeBuf[0], &header, headerSize);
 
-    memcpy(&completebuffer[headersize], lowerboundsbuf, boundssize);
-    free(lowerboundsbuf);
-    memcpy(&completebuffer[boundssize + headersize], upperboundsbuf, boundssize);
-    free(upperboundsbuf);
-    memcpy(&completebuffer[boundssize * 2 + headersize], lowerfixedbuf, fixessize);
-    free(lowerfixedbuf);
-    memcpy(&completebuffer[boundssize * 2 + fixessize + headersize], upperfixedbuf, fixessize);
-    free(upperfixedbuf);
-    memcpy(&completebuffer[boundssize * 2 + fixessize * 2 + headersize], entryidsbuf, idssize);
-    free(entryidsbuf);
-    memcpy(&completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize], entrytypesbuf, typessize);
-    free(entrytypesbuf);
+    memcpy(&completeBuf[headerSize], lowerBoundsBuf, boundsSize);
+    free(lowerBoundsBuf);
+    memcpy(&completeBuf[boundsSize + headerSize], upperBoundsBuf, boundsSize);
+    free(upperBoundsBuf);
+    memcpy(&completeBuf[boundsSize * 2 + headerSize], lowerFixedBuf, fixesSize);
+    free(lowerFixedBuf);
+    memcpy(&completeBuf[boundsSize * 2 + fixesSize + headerSize], upperFixedBuf, fixesSize);
+    free(upperFixedBuf);
+    memcpy(&completeBuf[boundsSize * 2 + fixesSize * 2 + headerSize], entryIdsBuf, idsSize);
+    free(entryIdsBuf);
+    memcpy(&completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize + headerSize], entryTypesBuf, typesSize);
+    free(entryTypesBuf);
 
     // (3) -- update HierIx entry
-    SQLiteQuery query("UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %lld, IndexSubType = %d, DynData = ? WHERE MDDObjIxOId = %lld",
-                      size4, dimension4, parentid4, indexsubtype4, id4);
-    query.bindBlob(completebuffer, static_cast<int>(completesize));
+    SQLiteQuery query(
+        "UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %lld, "
+        "IndexSubType = %d, DynData = ? WHERE MDDObjIxOId = %lld",
+        size4, dimension4, parentid4, indexsubtype4, id4);
+    query.bindBlob(completeBuf, static_cast<int>(completeSize));
     query.execute();
 
-    free(completebuffer);
-    completebuffer = NULL;
+    free(completeBuf);
+    completeBuf = NULL;
 
     // (4) --- dbobject update
     DBObject::updateInDb();
 
 } // updateInDb()
 
-void
-DBHierIndex::deleteFromDb()
+void DBHierIndex::deleteFromDb()
 {
     long long id = myOId.getCounter();
 

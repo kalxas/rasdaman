@@ -90,7 +90,7 @@ public:
     Should be revised not to include attribute sizes
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    virtual void printStatus(unsigned int level, std::ostream &stream) const;
     /*@Doc:
     prints the status of DBObject + Name: myName
     */

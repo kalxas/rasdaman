@@ -37,13 +37,7 @@ rasdaman GmbH.
 
 class OId;
 
-#include <iostream>
-
-#include "raslib/error.hh"
-
-#ifdef RMANBENCHMARK
-#include "raslib/rmdebug.hh"
-#endif
+#include <iosfwd>
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -67,41 +61,43 @@ transactions.
 class OId
 {
 public:
-    enum OIdType {  INVALID = 0,
-                    MDDOID,
-                    MDDCOLLOID,
-                    MDDTYPEOID,
-                    MDDBASETYPEOID,
-                    MDDDIMTYPEOID,
-                    MDDDOMTYPEOID,
-                    STRUCTTYPEOID,
-                    SETTYPEOID,
-                    BLOBOID,
-                    DBMINTERVALOID,
-                    STORAGEOID,
-                    MDDHIERIXOID,
-                    DBTCINDEXOID,
-                    INLINETILEOID,
-                    INNEROID,
-                    ATOMICTYPEOID,
-                    UDFOID,
-                    UDFPACKAGEOID,
-                    MDDRCIXOID,
-                    FILETILEOID,
-                    DBNULLVALUESOID
-                 };
+    enum OIdType
+    {
+        INVALID = 0,
+        MDDOID,
+        MDDCOLLOID,
+        MDDTYPEOID,
+        MDDBASETYPEOID,
+        MDDDIMTYPEOID,
+        MDDDOMTYPEOID,
+        STRUCTTYPEOID,
+        SETTYPEOID,
+        BLOBOID,
+        DBMINTERVALOID,
+        STORAGEOID,
+        MDDHIERIXOID,
+        DBTCINDEXOID,
+        INLINETILEOID,
+        INNEROID,
+        ATOMICTYPEOID,
+        UDFOID,
+        UDFPACKAGEOID,
+        MDDRCIXOID,
+        FILETILEOID,
+        DBNULLVALUESOID
+    };
     /*@Doc:
     every persistent class needs a unique OIdType.
     There is as always an exception: INNEROID is only used by DBTCIndex internally
     */
 
-    typedef long long OIdCounter;
+    using OIdCounter = long long;
     /*@Doc:
     every persistent object needs a unique OIdCounter within all persistent objects
     with the same OIdType.
     */
 
-    typedef long long OIdPrimitive;
+    using OIdPrimitive = long long;
     /*@Doc:
     an oid can be converted from and to a primitive of this type.
     */
@@ -157,7 +153,7 @@ public:
     returns the counter part of the oid.
     */
 
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
     /*@Doc:
     prints a long long
     */
@@ -177,17 +173,17 @@ public:
 
     OId &operator=(const OId &old);
 
-    bool operator== (const OId &one) const;
+    bool operator==(const OId &one) const;
 
-    bool operator!= (const OId &one) const;
+    bool operator!=(const OId &one) const;
 
-    bool operator< (const OId &old) const;
+    bool operator<(const OId &old) const;
 
-    bool operator> (const OId &old) const;
+    bool operator>(const OId &old) const;
 
-    bool operator<= (const OId &old) const;
+    bool operator<=(const OId &old) const;
 
-    bool operator>= (const OId &old) const;
+    bool operator>=(const OId &old) const;
 
 #ifdef RMANBENCHMARK
     static RMTimer oidAlloc;
@@ -196,7 +192,6 @@ public:
 protected:
     // protection agains writing back unloaded counters => inconsistent DB!!
     static bool loadedOk;
-
 
     OIdCounter oid;
     /*@Doc:
@@ -255,8 +250,8 @@ protected:
 
     static OIdCounter nextDBMINTERVALOID;
     /*@Doc:
-    counter which holds the next oid
-    */
+      counter which holds the next oid
+     */
 
     static OIdCounter nextDBNULLVALUESOID;
     /*@Doc:
@@ -273,12 +268,12 @@ protected:
     counter which holds the next oid
     */
 
-    //static OIdCounter nextDBTCINDEXOID;
+    // static OIdCounter nextDBTCINDEXOID;
     /*@Doc:
     this counter is not used because mddhierix takes care of that
     */
 
-    //static OIdCounter nextINLINETILEOID;
+    // static OIdCounter nextINLINETILEOID;
     /*@Doc:
     not used because they are the same as bloboid counter
     */
@@ -318,8 +313,8 @@ extern std::ostream &operator<<(std::ostream &in, const OId &d);
 
 extern std::ostream &operator<<(std::ostream &in, OId::OIdType d);
 
-extern bool operator== (const OId::OIdPrimitive one, const OId &two);
+extern bool operator==(const OId::OIdPrimitive one, const OId &two);
 
-extern bool operator== (const OId &two, const OId::OIdPrimitive one);
+extern bool operator==(const OId &two, const OId::OIdPrimitive one);
 
 #endif

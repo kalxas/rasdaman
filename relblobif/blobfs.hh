@@ -32,8 +32,9 @@
 #ifndef _BLOBFS_HH_
 #define _BLOBFS_HH_
 
+#include <string>           // for string
 #include <vector>
-#include <string>
+
 #include "blobfile.hh"
 #include "blobfstransaction.hh"
 
@@ -50,7 +51,6 @@ class BlobFS
 {
     friend class TestBlobFS;
 public:
-
     static BlobFS &getInstance();
 
     // Store the content of a new blob.
@@ -77,7 +77,6 @@ public:
     virtual ~BlobFS();
 
 private:
-
     // Initialize with a root file storage path determined from the -connect
     // option in rasmgr.conf
     BlobFS();
@@ -87,14 +86,16 @@ private:
     // Initialize
     void init();
 
-    // Return root file storage path determined from the -connect
-    // option in rasmgr.conf
-    static const std::string getFileStorageRootPath();
-    // Check that the root storage path is valid (exists, is writable, etc) and throw an exception if it isn't
+    // Check that the root storage path is valid (exists, is writable, etc) and
+    // throw an exception if it isn't
     void validateFileStorageRootPath();
 
     const std::string getTilesRootPath();
     const std::string getTransactionsRootPath();
+
+    // Return root file storage path determined from the -connect
+    // option in rasmgr.conf
+    static const std::string getFileStorageRootPath();
 
     // Helper for generating an error
     void generateError(const char *message, const std::string &path, int errorCode);

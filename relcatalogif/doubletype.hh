@@ -37,8 +37,9 @@ rasdaman GmbH.
 #ifndef _DOUBLETYPE_HH_
 #define _DOUBLETYPE_HH_
 
-#include <iostream>
-#include "realtype.hh"
+#include <iosfwd>     // for ostream
+
+#include "realtype.hh"  // for RealType
 #include "catalogmgr/ops.hh"
 
 class OId;
@@ -75,28 +76,27 @@ public:
     assignment operator.
     */
 
-    virtual ~DoubleType();
+    ~DoubleType() override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual void printCell(ostream &stream, const char *cell) const;
+    void printCell(std::ostream &stream, const char *cell) const override;
     /*@Doc:
     */
 
-    virtual double *convertToCDouble(const char *cell, double *value) const;
+    double *convertToCDouble(const char *cell, double *value) const override;
     /*@Doc:
     */
 
-    virtual char *makeFromCDouble(char *cell, const double *value) const;
+    char *makeFromCDouble(char *cell, const double *value) const override;
     /*@Doc:
     */
 
     static const char *Name;
 
 protected:
-
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

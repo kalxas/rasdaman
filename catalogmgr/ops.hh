@@ -40,6 +40,7 @@ rasdaman GmbH.
 
 #include <limits.h>
 #include "nullvalues.hh"
+#include "typeenum.hh"
 
 class CondenseOp;
 class UnaryOp;
@@ -48,29 +49,6 @@ class BaseType;
 class StructType;
 class Tile;
 class r_Point;
-
-//@Man: TypeEnum
-//@Type: typedef
-//@Memo: Module: {\bf catalogif}.
-
-enum TypeEnum
-{
-    ULONG, USHORT, CHAR, BOOLTYPE, LONG, SHORT, OCTET, DOUBLE, FLOAT,
-    NUMERICAL_TYPES_END = FLOAT,
-    COMPLEXTYPE1,             // COMPLEX already defined as token !!!
-    COMPLEXTYPE2,
-    STRUCT,
-    CLASSTYPE, SETTYPE, MDDTYPE, INVALID_TYPE
-};
-
-/*@Doc: This is an enum used for handling types instead of using the
-    string representation of the name. For some strange reason
-    I did not manage to define it in Ops scope. I had to use BOOLTYPE
-    instead of BOOL because of name conflicts.
-
-    Attention: DO NOT change the sequence because some code relies on it.
-This is the ops code and the persistence code: from the typenum the oids are generated.  changing the order of the enums makes old databases incompatible.  there is already a migration tool which shows how to adapt the database schema.
- */
 
 //@ManMemo: Module: {\bf catalogif}.
 

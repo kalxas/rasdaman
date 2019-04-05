@@ -23,7 +23,14 @@ rasdaman GmbH.
 #ifndef _DBMDDOBJ_HH_
 #define _DBMDDOBJ_HH_
 
-#include <iostream>
+#include "mddid.hh"
+#include "raslib/mddtypes.hh"
+#include "relindexif/indexid.hh"
+#include "reladminif/dbobject.hh"
+#include "relstorageif/storageid.hh"
+#include "relstorageif/dbstoragelayout.hh"
+#include <iosfwd>
+
 class ObjectBroker;
 class BaseType;
 class MDDBaseType;
@@ -34,12 +41,6 @@ class r_Error;
 class DBMinterval;
 class DBNullvalues;
 
-#include "mddid.hh"
-#include "relindexif/indexid.hh"
-#include "reladminif/dbobject.hh"
-#include "raslib/mddtypes.hh"
-#include "relstorageif/storageid.hh"
-#include "relstorageif/dbstoragelayout.hh"
 
 //@ManMemo: Module: {\bf relmddif}
 /*@Doc:
@@ -64,13 +65,11 @@ The definition domain is stored in an extensible but inefficient way.
   * \ingroup Relmddifs
   */
 
-class DBMDDObj  :   public DBObject
+class DBMDDObj : public DBObject
 {
 public:
-    DBMDDObj(const MDDBaseType *type,
-             const r_Minterval &domain,
-             const DBObjectId &i,
-             const DBStorageLayoutId &s,
+    DBMDDObj(const MDDBaseType *type, const r_Minterval &domain,
+             const DBObjectId &i, const DBStorageLayoutId &s,
              const OId &theMDDObj);
     /*@Doc:
         type: it contains the basetype which will be used to create perstiles.
@@ -80,10 +79,8 @@ public:
         theMDDObj: this oid may not be assigned to an mdd object yet!
     */
 
-    DBMDDObj(const MDDBaseType *newMDDType,
-             const r_Minterval &domain,
-             const DBObjectId &newObjIx,
-             const DBStorageLayoutId &newSL);
+    DBMDDObj(const MDDBaseType *newMDDType, const r_Minterval &domain,
+             const DBObjectId &newObjIx, const DBStorageLayoutId &newSL);
     /*@Doc:
         newMDDType: it contains the basetype which will be used to create perstiles.
         domain: the definition domain.  the extend to which the mdd object may grow.
@@ -134,7 +131,7 @@ public:
             getPhysicalStorageSize
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
     /*@Doc:
         Prints the status of the object:
         the name of the cell type
@@ -159,18 +156,18 @@ public:
         Should raise a r_Error.
     */
 
-    virtual ~DBMDDObj() noexcept(false);
+    ~DBMDDObj() noexcept(false) override;
     /*@Doc:
         Validates the object and deletes the definition domain.
     */
 
-    virtual void setPersistent(bool t = true);
+    void setPersistent(bool t = true) override;
     /*@Doc:
         Was overridden to pass changes to definition domain, storage layout  and
         to the index.
     */
 
-    virtual void setCached(bool ic);
+    void setCached(bool ic) override;
     /*@Doc:
         overrides DBObject to handle the DBMinterval
     */
@@ -193,7 +190,7 @@ public:
         when zero, the object may be deleted
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
         Calculates the size of this object in main memory.
     */
@@ -216,28 +213,27 @@ protected:
         Constructs a DBMDDObj from the database.
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
 
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
 
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
 
     */
 
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
 
     */
 
 private:
-
     DBMDDObj();
     /*@Doc:
         creates an empty object and does NOT register it

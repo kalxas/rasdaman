@@ -32,14 +32,13 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,LongType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/longtype.C,v 1.9 2003/12/27 23:23:04 rasdev Exp $";
+#include <iomanip>        // for operator<<, setw
 
+#include "atomictype.hh"  // for AtomicType
 #include "longtype.hh"
-#include <iomanip>
-#include <string.h>
+#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
 
-LongType::LongType(const OId &id)
-    :   IntegralType(id)
+LongType::LongType(const OId &id) : IntegralType(id)
 {
     readFromDb();
 }
@@ -53,15 +52,13 @@ LongType::LongType(const OId &id)
  *                 LongType.
  ************************************************************/
 
-LongType::LongType()
-    :   IntegralType(LongType::Name, 4)
+LongType::LongType() : IntegralType(LongType::Name, 4)
 {
     myType = LONG;
     myOId = OId(LONG, OId::ATOMICTYPEOID);
 }
 
-void
-LongType::readFromDb()
+void LongType::readFromDb()
 {
     setName(LongType::Name);
     size = 4;
@@ -77,10 +74,7 @@ LongType::readFromDb()
  * Description...: copy constructor
  ************************************************************/
 
-LongType::LongType(const LongType &old)
-    :   IntegralType(old)
-{
-}
+LongType::LongType(const LongType &old)  = default;
 
 /*************************************************************
  * Method name...: operator=(const LongType&);
@@ -109,9 +103,7 @@ LongType &LongType::operator=(const LongType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-LongType::~LongType()
-{
-}
+LongType::~LongType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -127,23 +119,19 @@ LongType::~LongType()
  *                 on HP.
  ************************************************************/
 
-void
-LongType::printCell(ostream &stream, const char *cell) const
+void LongType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setw(8) << *(r_Long *)(const_cast<char *>(cell));
+    stream << std::setw(8) << *reinterpret_cast<const r_Long *>(cell);
 }
 
-r_Long *
-LongType::convertToCLong(const char *cell, r_Long *value) const
+r_Long *LongType::convertToCLong(const char *cell, r_Long *value) const
 {
-    *value = *(r_Long *)(const_cast<char *>(cell));
+    *value = *reinterpret_cast<const r_Long *>(cell);
     return value;
 }
 
-
-char *
-LongType::makeFromCLong(char *cell, const r_Long *value) const
+char *LongType::makeFromCLong(char *cell, const r_Long *value) const
 {
-    *(r_Long *)(cell) = *value;
+    *reinterpret_cast<r_Long *>(cell) = *value;
     return cell;
 }

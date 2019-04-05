@@ -28,7 +28,7 @@ class BinaryRepresentation
 public:
     char *binaryName;
     char *binaryData;
-    size_t binaryLength;
+    unsigned long binaryLength;
     static const char *fileTag;
 };
 

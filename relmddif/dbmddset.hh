@@ -23,17 +23,17 @@ rasdaman GmbH.
 #ifndef _MDDSET_HH_
 #define _MDDSET_HH_
 
-class MDDSet;
-class OId;
-class EOId;
+#include "mddid.hh"
+#include "reladminif/lists.h"
+#include "reladminif/dbnamedobject.hh"
+#include "reladminif/dbref.hh"
+
 class r_Error;
 class DBMDDObj;
 class CollectionType;
-
-#include "reladminif/lists.h"
-#include "mddid.hh"
-#include "reladminif/dbnamedobject.hh"
-#include "reladminif/dbref.hh"
+class MDDSet;
+class OId;
+class EOId;
 
 //@ManMemo: Module: {\bf mddif}
 /*@Doc:
@@ -49,7 +49,7 @@ class CollectionType;
   * \ingroup Relmddifs
   */
 
-class DBMDDSet  :   public DBNamedObject
+class DBMDDSet : public DBNamedObject
 {
 public:
     DBMDDSet(const char *name, const CollectionType *type);
@@ -76,9 +76,9 @@ public:
         returns succes
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
-    virtual void setPersistent(bool state);
+    void setPersistent(bool state) override;
     /*@Doc:
         throws r_Error when the mdd set may not be made persistent.
     */
@@ -120,7 +120,7 @@ public:
     /*@Doc:
     */
 
-    virtual ~DBMDDSet() noexcept(false);
+    ~DBMDDSet() noexcept(false) override;
     /*@Doc:
     */
 
@@ -130,7 +130,7 @@ public:
         used by DatabaseIf::destroyRoot
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     */
 
@@ -147,26 +147,26 @@ public:
 protected:
     friend class ObjectBroker;
 
-    typedef std::set<DBMDDObjId, std::less<DBMDDObjId>> DBMDDObjIdSet;
+    using DBMDDObjIdSet = std::set<DBMDDObjId, std::less<DBMDDObjId>>;
 
     DBMDDSet(const OId &id);
     /*@Doc:
         gets an existing coll from the db
     */
 
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
     */
 
@@ -176,7 +176,7 @@ private:
         Memory representation of the list of oids of DBMDDObjs.
     */
 
-    CollectionType *collType;
+    const CollectionType *collType;
     /*@Doc:
         Pointer to the collectiontype.
     */

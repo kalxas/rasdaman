@@ -1,7 +1,7 @@
 --suffix=none
 --convert-tabs
 #--exclude=third_party
---add-brackets
+#--add-brackets
 --convert-tabs
 --close-templates
 --pad-oper

@@ -32,9 +32,9 @@
 #ifndef _BLOBFSCOMMON_HH_
 #define _BLOBFSCOMMON_HH_
 
-#include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string>
 
 namespace blobfs
@@ -67,14 +67,11 @@ public:
     // nested in subdirectories in subdir TILES
     std::string transactionsPath;
 
-    inline
-    BlobFSConfig(const std::string &rootPathArg, const std::string &tilesPathArg,
-                 const std::string &transactionsPathArg)
+    inline BlobFSConfig(const std::string &rootPathArg,
+                        const std::string &tilesPathArg,
+                        const std::string &transactionsPathArg)
         : rootPath(rootPathArg), tilesPath(tilesPathArg),
-          transactionsPath(transactionsPathArg)
-    {
-    }
-
+          transactionsPath(transactionsPathArg) {}
 };
 
 }

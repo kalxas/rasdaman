@@ -37,12 +37,12 @@ rasdaman GmbH.
 #ifndef _COLLECTIONTYPE_HH_
 #define _COLLECTIONTYPE_HH_
 
-class CollectionType;
+#include <iosfwd>                             // for ostream
 
-#include <iostream>
 #include "catalogmgr/ops.hh"
 #include "type.hh"
 #include "relcatalogif/dbnullvalues.hh"
+
 
 class MDDType;
 
@@ -67,8 +67,7 @@ public:
         MDDType* getMDDType() const;
     */
 
-
-    void print_status(ostream &s) const;
+    void print_status(std::ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
     d_MYNAME <MYMDDTYPE->printStatus >
@@ -96,18 +95,18 @@ public:
     /*@Doc:
     */
 
-    virtual ~CollectionType();
+    ~CollectionType() override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     overloaded from Type.
     returns true if myMDDType is compatible with the type.
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     returns DBNamedObject::getMemorySize() +
         myMDDType->getMemorySize() + sizeof(MDDType*);

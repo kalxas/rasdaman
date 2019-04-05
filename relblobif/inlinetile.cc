@@ -20,8 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
-#include "mymalloc/mymalloc.h"
+
 // This is -*- C++ -*-
 /*************************************************************
  *
@@ -35,69 +34,71 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: inlinetile.cc,v 1.5 2002/06/15 16:47:29 coman Exp $";
-
-#include <iostream>
-
 #include "inlinetile.hh"
+#include "blobtile.hh"            // for BLOBTile
 #include "reladminif/externs.h"
 #include "raslib/error.hh"
 #include "reladminif/objectbroker.hh"
-#include "blobtile.hh"
 #include "relindexif/dbtcindex.hh"
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
-#include <logging.hh>
+#include "mymalloc/mymalloc.h"
 
-#include <cstring>
+#include "logging.hh"             // for LTRACE
+#include <cstring>                // for memcpy
+#include <iostream>               // for operator<<, ostream, endl, basic_os...
+
+using std::endl;
 
 InlineTile::InlineTile(r_Data_Format dataformat)
-    :   BLOBTile(dataformat)
+    : BLOBTile(dataformat)
 {
     LTRACE << "InlineTile()";
     objecttype = OId::INLINETILEOID;
 }
 
 InlineTile::InlineTile(r_Bytes newSize, r_Data_Format dataformat)
-    :   BLOBTile(newSize, dataformat)
+    : BLOBTile(newSize, dataformat)
 {
     LTRACE << "InlineTile(" << newSize << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(r_Bytes newSize, char c, r_Data_Format dataformat)
-    :   BLOBTile(newSize, c, dataformat)
+InlineTile::InlineTile(r_Bytes newSize, char c,
+                       r_Data_Format dataformat)
+    : BLOBTile(newSize, c, dataformat)
 {
     LTRACE << "InlineTile(" << newSize << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
-    :   BLOBTile(newSize, newCells, dataformat)
+InlineTile::InlineTile(r_Bytes newSize, const char *newCells,
+                       r_Data_Format dataformat)
+    : BLOBTile(newSize, newCells, dataformat)
 {
     LTRACE << "InlineTile(" << size << ", data)";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat)
-    :   BLOBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
+InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
+                       char *newCells, r_Data_Format dataformat)
+    : BLOBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
 {
-    LTRACE << "InlineTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
+    LTRACE << "InlineTile(" << size << ", data, " << dataformat
+           << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(const OId &id)
-    :   BLOBTile(id)
+InlineTile::InlineTile(const OId &id) : BLOBTile(id)
 {
     LTRACE << "InlineTile(" << id << ")";
     objecttype = OId::INLINETILEOID;
 }
 
-void
-InlineTile::printStatus(unsigned int level, std::ostream &stream) const
+void InlineTile::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2 ; j++)
+    auto *indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2; j++)
     {
         indent[j] = ' ';
     }
@@ -116,8 +117,7 @@ InlineTile::printStatus(unsigned int level, std::ostream &stream) const
     delete[] indent;
 }
 
-void
-InlineTile::destroy()
+void InlineTile::destroy()
 {
     if (isCached())
     {
@@ -129,24 +129,23 @@ InlineTile::destroy()
     }
 }
 
-bool
-InlineTile::isCached() const
+bool InlineTile::isCached() const
 {
     char retval = true;
-    //not previously cached
+    // not previously cached
     if (!_isCached)
     {
         if (!isInlined())
         {
-            //outlined
-            if (getSize() > StorageLayout::DefaultMinimalTileSize)//size is ok
+            // outlined
+            if (getSize() > StorageLayout::DefaultMinimalTileSize)  // size is ok
             {
                 retval = false;
             }
         }
-        else     //inlined
+        else    // inlined
         {
-            if (getSize() < StorageLayout::DefaultPCTMax)//size is ok
+            if (getSize() < StorageLayout::DefaultPCTMax)  // size is ok
             {
                 retval = false;
             }
@@ -155,8 +154,7 @@ InlineTile::isCached() const
     return retval;
 }
 
-void
-InlineTile::setModified()
+void InlineTile::setModified()
 {
     DBObject::setModified();
     if (isInlined())
@@ -171,26 +169,22 @@ InlineTile::setModified()
     }
 }
 
-const OId &
-InlineTile::getIndexOId() const
+const OId &InlineTile::getIndexOId() const
 {
     return myIndexOId;
 }
 
-void
-InlineTile::setIndexOId(const OId &oid)
+void InlineTile::setIndexOId(const OId &oid)
 {
     myIndexOId = oid;
 }
 
-r_Bytes
-InlineTile::getStorageSize() const
+r_Bytes InlineTile::getStorageSize() const
 {
     return size + sizeof(r_Bytes) + sizeof(r_Data_Format) + sizeof(OId);
 }
 
-void
-InlineTile::outlineTile()
+void InlineTile::outlineTile()
 {
     DBTCIndexId t(myIndexOId);
     t->removeInlineTile(this);
@@ -199,8 +193,7 @@ InlineTile::outlineTile()
     _isModified = true;
 }
 
-void
-InlineTile::inlineTile(const OId &ixId)
+void InlineTile::inlineTile(const OId &ixId)
 {
     setIndexOId(ixId);
     DBTCIndexId t(myIndexOId);
@@ -215,28 +208,26 @@ InlineTile::inlineTile(const OId &ixId)
     }
 }
 
-bool
-InlineTile::isInlined() const
+bool InlineTile::isInlined() const
 {
     return (myIndexOId.getType() == OId::DBTCINDEXOID);
 }
 
-char *
-InlineTile::insertInMemBlock(char *thecontents)
+char *InlineTile::insertInMemBlock(char *thecontents)
 {
-    //store size of blob
+    // store size of blob
     memcpy(thecontents, &size, sizeof(r_Bytes));
     thecontents = thecontents + sizeof(r_Bytes);
 
-    //store the dataformat
+    // store the dataformat
     memcpy(thecontents, &dataFormat, sizeof(r_Data_Format));
     thecontents = thecontents + sizeof(r_Data_Format);
 
-    //store my own oid
+    // store my own oid
     memcpy(thecontents, &myOId, sizeof(OId));
     thecontents = thecontents + sizeof(OId);
 
-    //store the blob
+    // store the blob
     memcpy(thecontents, cells, size * sizeof(char));
     thecontents = thecontents + size * sizeof(char);
     LTRACE << "OId " << myOId << " size " << size << " DataFormat " << dataFormat;
@@ -250,7 +241,4 @@ InlineTile::insertInMemBlock(char *thecontents)
     return thecontents;
 }
 
-InlineTile::~InlineTile()
-{
-}
 

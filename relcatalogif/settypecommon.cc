@@ -20,31 +20,24 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
+
+#include "settype.hh"         // for SetType
+#include "mddtype.hh"         // for MDDType
+#include "collectiontype.hh"  // for CollectionType
+#include "raslib/odmgtypes.hh"       // for SETTYPE
+#include "reladminif/oidif.hh"
 #include "mymalloc/mymalloc.h"
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
-#include "settype.hh"
-#include <stdlib.h>
-#include <string.h>
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/objectbroker.hh"
-#include "mddtype.hh"
 
+#include <stdlib.h>           // for free, malloc
+#include <string.h>           // for strcat, strcpy, strlen
 
-SetType::SetType(const OId &id)
-    :   CollectionType(id)
+SetType::SetType(const OId &id) : CollectionType(id)
 {
     objecttype = OId::SETTYPEOID;
     readFromDb();
 }
 
-char *
-SetType::getTypeStructure() const
+char *SetType::getTypeStructure() const
 {
     char *dummy = myMDDType->getTypeStructure();
     char *result = static_cast<char *>(mymalloc(5 + strlen(dummy) + 2));
@@ -58,16 +51,13 @@ SetType::getTypeStructure() const
 }
 
 SetType::SetType(const char *newTypeName, MDDType *newMDDType)
-    :   CollectionType(newTypeName, newMDDType)
+    : CollectionType(newTypeName, newMDDType)
 {
     myType = SETTYPE;
     objecttype = OId::SETTYPEOID;
 }
 
-SetType::SetType(const SetType &old)
-    :   CollectionType(old)
-{
-}
+SetType::SetType(const SetType &old)  = default;
 
 SetType &SetType::operator=(const SetType &old)
 {
@@ -80,8 +70,7 @@ SetType &SetType::operator=(const SetType &old)
     return *this;
 }
 
-SetType::SetType()
-    :   CollectionType("unnamed settype")
+SetType::SetType() : CollectionType("unnamed settype")
 {
     myType = SETTYPE;
     objecttype = OId::SETTYPEOID;

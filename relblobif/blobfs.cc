@@ -29,22 +29,26 @@
  *
  ************************************************************/
 
-#include "config.h"
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
-#include <logging.hh>
-#include "blobfscommon.hh"
-#include "blobtile.hh"
-#include "dirwrapper.hh"
 #include "blobfs.hh"
-#include "blobfstransactionlock.hh"
+#include "blobfscommon.hh"           // for BlobFSConfig
+#include "blobfstransaction.hh"      // for BlobFSTransaction, BlobFSInsertT...
+#include "blobfstransactionlock.hh"  // for BlobFSTransactionLock
+#include "blobtile.hh"               // for BLOBTile, BLOBTile::NO_TILE_FOUND
+#include "dirwrapper.hh"             // for DirEntryIterator, DirWrapper
+#include "lockfile.hh"               // for LockFile
+#include "raslib/error.hh"           // for r_Error, FILEDATADIR_NOTFOUND
+#include "logging.hh"                // for LERROR, LDEBUG, LINFO
+
+#include <errno.h>                   // for errno
+#include <stdlib.h>                  // for getenv
+#include <string.h>                  // for strcmp, strerror
+#include <sys/stat.h>                // for stat, S_ISDIR
+#include <unistd.h>                  // for access, W_OK, X_OK
 
 using namespace std;
 using namespace blobfs;
+
+extern char globalConnectId[PATH_MAX];
 
 #ifndef FILESTORAGE_TILES_SUBDIR
 #define FILESTORAGE_TILES_SUBDIR "TILES"
@@ -54,8 +58,6 @@ using namespace blobfs;
 #define FILESTORAGE_TRANSACTIONS_SUBDIR "TRANSACTIONS"
 #endif
 
-extern char globalConnectId[PATH_MAX];
-
 BlobFS &BlobFS::getInstance()
 {
     static BlobFS instance;
@@ -64,14 +66,16 @@ BlobFS &BlobFS::getInstance()
 
 BlobFS::BlobFS()
     : config(BlobFS::getFileStorageRootPath(), string(""), string("")),
-      insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
+      insertTransaction(nullptr), updateTransaction(nullptr),
+      removeTransaction(nullptr), selectTransaction(nullptr)
 {
     init();
 }
 
 BlobFS::BlobFS(const string &rasdataPathParam)
     : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string("")),
-      insertTransaction(NULL), updateTransaction(NULL), removeTransaction(NULL), selectTransaction(NULL)
+      insertTransaction(nullptr), updateTransaction(nullptr),
+      removeTransaction(nullptr), selectTransaction(nullptr)
 {
     init();
 }
@@ -99,7 +103,8 @@ void BlobFS::init()
 
     finalizeUncompletedTransactions();
 
-    LDEBUG << "initialized blob file storage handler with root data directory " << config.tilesPath;
+    LDEBUG << "initialized blob file storage handler with root data directory "
+           << config.tilesPath;
 }
 
 void BlobFS::validateFileStorageRootPath()
@@ -156,7 +161,8 @@ const string BlobFS::getFileStorageRootPath()
     auto rootPath = DirWrapper::getBasename(globalConnectId);
     if (rootPath.empty())
     {
-        LERROR << "The file storage root path must be an absolute path.";
+        LERROR << "blob file storage data directory has not been set; "
+               << "please set the -connect value in rasmgr.conf.";
         throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTABSOLUTE));
     }
 
@@ -216,20 +222,22 @@ void BlobFS::finalizeUncompletedTransactions()
             {
                 continue;
             }
-            LockFile checkTransactionLock(DirWrapper::convertFromCanonicalPath(subdir) + ".lock");
+            LockFile checkTransactionLock(
+                DirWrapper::convertFromCanonicalPath(subdir) + ".lock");
             if (checkTransactionLock.lock())
             {
                 BlobFSTransactionLock transactionLock(subdir, true);
                 if (!transactionLock.lockedForTransaction())
                 {
                     transactionLock.clearTransactionLock();
-                    BlobFSTransaction *transaction = BlobFSTransaction::getBlobFSTransaction(subdir, config);
-                    if (transaction != NULL)
+                    BlobFSTransaction *transaction =
+                        BlobFSTransaction::getBlobFSTransaction(subdir, config);
+                    if (transaction != nullptr)
                     {
                         NNLDEBUG << "transaction in invalid state discovered, recovering...";
                         transaction->finalizeUncompleted();
                         delete transaction;
-                        transaction = NULL;
+                        transaction = nullptr;
                         BLDEBUG << "ok.\n";
                     }
                 }
@@ -242,24 +250,24 @@ void BlobFS::finalizeUncompletedTransactions()
 
 BlobFS::~BlobFS()
 {
-    if (insertTransaction != NULL)
+    if (insertTransaction != nullptr)
     {
         delete insertTransaction;
-        insertTransaction = NULL;
+        insertTransaction = nullptr;
     }
-    if (updateTransaction != NULL)
+    if (updateTransaction != nullptr)
     {
         delete updateTransaction;
-        updateTransaction = NULL;
+        updateTransaction = nullptr;
     }
-    if (removeTransaction != NULL)
+    if (removeTransaction != nullptr)
     {
         delete removeTransaction;
-        removeTransaction = NULL;
+        removeTransaction = nullptr;
     }
-    if (selectTransaction != NULL)
+    if (selectTransaction != nullptr)
     {
         delete selectTransaction;
-        selectTransaction = NULL;
+        selectTransaction = nullptr;
     }
 }

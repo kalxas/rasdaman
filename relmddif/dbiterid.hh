@@ -23,11 +23,12 @@ rasdaman GmbH.
 #ifndef _DBITERID_HH_
 #define _DBITERID_HH_
 
-class DBMDDObj;
 #include "dbobjectiterator.hh"
 
-typedef DBObjectIterator<DBMDDObj> DBIter;
-typedef DBIter *DBIterId;
+class DBMDDObj;
+
+using DBIter = DBObjectIterator<DBMDDObj>;
+using DBIterId = DBIter*;
 
 #endif
 

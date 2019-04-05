@@ -40,7 +40,9 @@ rasdaman GmbH.
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
-Can't have DBRCIndex and DBHierIndex under a common father class because the compiler has problems resolving the DBRef<> functions correctly.
+Can't have DBRCIndex and DBHierIndex under a common father class because the
+compiler has problems resolving the DBRef<>
+functions correctly.
 
 Persistent class for storing data on regular computed indexes.
 
@@ -85,10 +87,12 @@ which we do not want on our binary data.
   * \ingroup Relindexifs
   */
 
-class DBRCIndexDS   :   public IndexDS
+class DBRCIndexDS : public IndexDS
 {
 public:
-    DBRCIndexDS(const r_Minterval &definedDomain, unsigned int numberTiles, OId::OIdType theEntryType = OId::BLOBOID);
+    DBRCIndexDS(const r_Minterval &definedDomain,
+                unsigned int numberTiles,
+                OId::OIdType theEntryType = OId::BLOBOID);
     /*@Doc:
         Create a new index which handles the domain definedDomain, with tiles of domain
         tileConfig.  As soon as you create this index it will check if the tileConfig fits
@@ -96,63 +100,64 @@ public:
         allocate as many oids as are necessary to fill the definedDomain.
     */
 
-    virtual r_Minterval getCoveredDomain() const;
+    r_Minterval getCoveredDomain() const override;
     /// return defined domain
 
-    virtual r_Minterval getAssignedDomain() const;
+    r_Minterval getAssignedDomain() const override;
     /// return defined domain
 
-    virtual r_Minterval getObjectDomain(unsigned int pos) const;
+    r_Minterval getObjectDomain(unsigned int pos) const override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual r_Dimension getDimension() const;
+    r_Dimension getDimension() const override;
 
-    virtual void setAssignedDomain(const r_Minterval &domain);
+    void setAssignedDomain(const r_Minterval &domain) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual unsigned int getSize() const;
-    /// this will return the maximum number of tiles that can be stored in the definedDomain.
+    unsigned int getSize() const override;
+    /// this will return the maximum number of tiles that can be stored in the
+    /// definedDomain.
 
-    virtual r_Bytes getTotalStorageSize() const;
+    r_Bytes getTotalStorageSize() const override;
 
-    virtual bool isValid() const;
+    bool isValid() const override;
     /// returns true
 
-    virtual bool isUnderFull() const;
+    bool isUnderFull() const override;
     /// returns false
 
-    virtual bool isOverFull() const;
+    bool isOverFull() const override;
     /// returns false
 
-    virtual bool isSameAs(const IndexDS *pix) const;
+    bool isSameAs(const IndexDS *pix) const override;
 
-    virtual bool removeObject(unsigned int pos);
+    bool removeObject(unsigned int pos) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual bool removeObject(const KeyObject &theKey);
+    bool removeObject(const KeyObject &theKey) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual void insertObject(const KeyObject &theKey, unsigned int pos);
+    void insertObject(const KeyObject &theKey, unsigned int pos) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual void setObject(const KeyObject &theKey, unsigned int pos);
+    void setObject(const KeyObject &theKey, unsigned int pos) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
+    void setObjectDomain(const r_Minterval &dom, unsigned int pos) override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual const KeyObject &getObject(unsigned int pos) const;
+    const KeyObject &getObject(unsigned int pos) const override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual void getObjects(KeyObjectVector &objs) const;
+    void getObjects(KeyObjectVector &objs) const override;
     /// throw r_Error_FeatureNotSupported
 
-    virtual unsigned int getOptimalSize() const;
+    unsigned int getOptimalSize() const override;
     /// returns the maximum number of entries that can be stored in this index
 
-    virtual void freeDS();
+    void freeDS() override;
 
-    virtual OId::OIdPrimitive getIdentifier() const;
+    OId::OIdPrimitive getIdentifier() const override;
 
     static r_Bytes BytesPerTuple;
     /*@Doc:
@@ -160,14 +165,13 @@ public:
         an index.  this is also the number of bytes written to the
         database.
     */
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    ~DBRCIndexDS() noexcept(false) override;
 
-    virtual ~DBRCIndexDS() noexcept(false);
+    void destroy() override;
 
-    virtual void destroy();
-
-    virtual IndexDS *getNewInstance() const;
+    IndexDS *getNewInstance() const override;
     /// throw r_Error_FeatureNotSupported
 
     virtual OId::OIdType getBaseOIdType() const;
@@ -184,19 +188,19 @@ protected:
     /*@Doc:
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     */
 
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
     */
 

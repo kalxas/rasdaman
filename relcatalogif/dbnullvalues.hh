@@ -23,14 +23,14 @@ rasdaman GmbH.
 #ifndef _DBNULLVALUES_HH_
 #define _DBNULLVALUES_HH_
 
-class DBNullvalues;
-
-template<class T> class DBRef;
-typedef DBRef<DBNullvalues> DBNullvaluesId;
-
 #include "reladminif/dbobject.hh"
 #include "raslib/nullvalues.hh"
 
+class DBNullvalues;
+
+template <class T>
+class DBRef;
+typedef DBRef<DBNullvalues> DBNullvaluesId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 /*@Doc:
@@ -72,7 +72,6 @@ public:
     */
 
 protected:
-
     virtual void insertInDb();
     /*@Doc:
     inserts the object into the database.  it uses one table

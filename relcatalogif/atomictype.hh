@@ -38,7 +38,6 @@ rasdaman GmbH.
 #ifndef _ATOMICTYPE_HH_
 #define _ATOMICTYPE_HH_
 
-#include <iostream>
 #include "basetype.hh"
 
 //@ManMemo: Module: {\bf relcatalogif}.
@@ -59,7 +58,7 @@ AtomicType is the abstract base class for all non-structured
 class AtomicType : public BaseType
 {
 public:
-    virtual unsigned int getSize() const;
+    unsigned int getSize() const override;
     /*@Doc:
     get size of cells of this base type.
     */
@@ -82,7 +81,12 @@ public:
     /*@Doc:
     */
 
-    virtual ~AtomicType();
+    /// generate equivalent C type names
+    void generateCTypeName(std::vector<const char *> &names) const override;
+    void generateCTypePos(std::vector<int> &positions, int offset = 0) const override;
+    void getTypes(std::vector<const BaseType *> &types) const override;
+
+    ~AtomicType() override;
     /*@Doc:
     */
 

@@ -48,12 +48,12 @@ rasdaman GmbH.
  is required to allow SDirIndexLogic to manage this object.
 */
 
-class IndexDS   :   public DBObject
+class IndexDS : public DBObject
 {
 public:
-    IndexDS(): DBObject() {}
+    IndexDS() : DBObject() {}
 
-    IndexDS(const OId &id): DBObject(id) {}
+    IndexDS(const OId &id) : DBObject(id) {}
 
     ~IndexDS() noexcept(false) override = default;
 
@@ -78,8 +78,11 @@ public:
     virtual r_Minterval getObjectDomain(unsigned int pos) const = 0;
     /*@Doc:
         Returns the (assigned) domain for the object in position {\ttpos}.
-        The object domain is always a assigned domain, because we do not read the domain from the entries (blobtiles do not store one).
-        At some point this of course makes storing the assigned domain obsolete (because it is stored at the parent, in case of the root it is the covered domain which can be computed from the entries)
+        The object domain is always a assigned domain, because we do not read the
+        domain from the entries (blobtiles do not store one).
+        At some point this of course makes storing the assigned domain obsolete
+        (because it is stored at the parent, in case of the root it is the covered
+        domain which can be computed from the entries)
     */
 
     virtual r_Dimension getDimension() const = 0;
@@ -96,13 +99,15 @@ public:
     /*@Doc:
         true when domains of entries of nodes are completely covered
         by the assigned domains of the nodes and assigned domains of
-        leafs intersect with each of their entries domains.  The assigned domains may not intersect.
+        leafs intersect with each of their entries domains.  The assigned domains
+        may not intersect.
         false otherwise.
     */
 
     virtual bool isUnderFull() const = 0;
     /*@Doc:
-        Returns true when the index does not have the minimal number of entries (it is a candidate for merging).
+        Returns true when the index does not have the minimal number of entries
+        (it is a candidate for merging).
         Otherwise false.
     */
 
@@ -121,12 +126,14 @@ public:
 
     virtual bool removeObject(unsigned int pos) = 0;
     /*@Doc:
-        Removes an object from this index. It returns true if the object was successfully removed.
+        Removes an object from this index. It returns true if the object was
+        successfully removed.
     */
 
     virtual bool removeObject(const KeyObject &theKey) = 0;
     /*@Doc:
-        Removes an object from this index. It returns true if the object was successfully removed.
+        Removes an object from this index. It returns true if the object was
+        successfully removed.
     */
 
     virtual void insertObject(const KeyObject &theKey, unsigned int pos) = 0;

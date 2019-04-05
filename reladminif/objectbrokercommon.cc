@@ -20,7 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
 #include <map>
 #include <set>
 #include <cstring>
@@ -48,9 +47,11 @@ rasdaman GmbH.
 #include "catalogmgr/typefactory.hh"
 #include "relmddif/dbmddset.hh"
 #include "relindexif/dbrcindexds.hh"
-#include "debug.hh"
-#include <logging.hh>
 
+#include <logging.hh>                           // for Writer, CTRACE, CFATAL
+
+class DBTile;
+class InlineTile;
 #ifdef LINUX
 template class DBRef<BLOBTile>;
 template class DBRef<DBTile>;
@@ -62,95 +63,38 @@ using namespace std;
 OId::OIdType
 ObjectBroker::clearingObjectsOfType = OId::INVALID;
 
-LongType *
-ObjectBroker::theLong = 0;
+LongType *ObjectBroker::theLong = nullptr;
+ShortType *ObjectBroker::theShort = nullptr;
+OctetType *ObjectBroker::theOctet = nullptr;
+ULongType *ObjectBroker::theULong = nullptr;
+UShortType *ObjectBroker::theUShort = nullptr;
+CharType *ObjectBroker::theChar = nullptr;
+BoolType *ObjectBroker::theBool = nullptr;
+DoubleType *ObjectBroker::theDouble = nullptr;
+FloatType *ObjectBroker::theFloat = nullptr;
+ComplexType1 *ObjectBroker::theComplex1 = nullptr;
+ComplexType2 *ObjectBroker::theComplex2 = nullptr;
 
-ShortType *
-ObjectBroker::theShort = 0;
+DBObjectPMap ObjectBroker::theAtomicTypes;
+DBObjectPMap ObjectBroker::theSetTypes;
+DBObjectPMap ObjectBroker::theMDDTypes;
+DBObjectPMap ObjectBroker::theMDDBaseTypes;
+DBObjectPMap ObjectBroker::theMDDDimensionTypes;
+DBObjectPMap ObjectBroker::theMDDDomainTypes;
+DBObjectPMap ObjectBroker::theStructTypes;
+DBObjectPMap ObjectBroker::theDBMintervals;
+DBObjectPMap ObjectBroker::theDBNullvalues;
+DBObjectPMap ObjectBroker::theDBMDDObjs;
+DBObjectPMap ObjectBroker::theMDDSets;
+DBObjectPMap ObjectBroker::theDBStorages;
+DBObjectPMap ObjectBroker::theDBHierIndexs;
+DBObjectPMap ObjectBroker::theDBTCIndexs;
+DBObjectPMap ObjectBroker::theBLOBTiles;
+DBObjectPMap ObjectBroker::theInlineTiles;
+DBObjectPMap ObjectBroker::theRCIndexes;
+OIdMap ObjectBroker::theTileIndexMappings;
 
-OctetType *
-ObjectBroker::theOctet = 0;
-
-ULongType *
-ObjectBroker::theULong = 0;
-
-UShortType *
-ObjectBroker::theUShort = 0;
-
-CharType *
-ObjectBroker::theChar = 0;
-
-BoolType *
-ObjectBroker::theBool = 0;
-
-DoubleType *
-ObjectBroker::theDouble = 0;
-
-FloatType *
-ObjectBroker::theFloat = 0;
-
-ComplexType1 *
-ObjectBroker::theComplex1 = 0;
-
-ComplexType2 *
-ObjectBroker::theComplex2 = 0;
-
-DBObjectPMap
-ObjectBroker::theAtomicTypes;
-
-DBObjectPMap
-ObjectBroker::theSetTypes;
-
-DBObjectPMap
-ObjectBroker::theMDDTypes;
-
-DBObjectPMap
-ObjectBroker::theMDDBaseTypes;
-
-DBObjectPMap
-ObjectBroker::theMDDDimensionTypes;
-
-DBObjectPMap
-ObjectBroker::theMDDDomainTypes;
-
-DBObjectPMap
-ObjectBroker::theStructTypes;
-
-DBObjectPMap
-ObjectBroker::theDBMintervals;
-
-DBObjectPMap
-ObjectBroker::theDBNullvalues;
-
-DBObjectPMap
-ObjectBroker::theDBMDDObjs;
-
-DBObjectPMap
-ObjectBroker::theMDDSets;
-
-DBObjectPMap
-ObjectBroker::theDBStorages;
-
-DBObjectPMap
-ObjectBroker::theDBHierIndexs;
-
-DBObjectPMap
-ObjectBroker::theDBTCIndexs;
-
-DBObjectPMap
-ObjectBroker::theBLOBTiles;
-
-DBObjectPMap
-ObjectBroker::theInlineTiles;
-
-DBObjectPMap
-ObjectBroker::theRCIndexes;
-
-OIdMap
-ObjectBroker::theTileIndexMappings;
-
-bool
-ObjectBroker::freeMemory()
+bool ObjectBroker::freeMemory()
 {
     LDEBUG << "memory overflow: attempting to remove a blob tile to free memory.";
     bool retval = false;
@@ -168,8 +112,7 @@ ObjectBroker::freeMemory()
     return retval;
 }
 
-void
-ObjectBroker::init()
+void ObjectBroker::init()
 {
     LDEBUG << "initializing object caches";
     ObjectBroker::theLong = new LongType();
@@ -203,32 +146,31 @@ ObjectBroker::init()
     }
 }
 
-void
-ObjectBroker::deinit()
+void ObjectBroker::deinit()
 {
     LTRACE << "deinitializing object caches";
     delete ObjectBroker::theLong;
-    ObjectBroker::theLong = NULL;
+    ObjectBroker::theLong = nullptr;
     delete ObjectBroker::theShort;
-    ObjectBroker::theShort = NULL;
+    ObjectBroker::theShort = nullptr;
     delete ObjectBroker::theOctet;
-    ObjectBroker::theOctet = NULL;
+    ObjectBroker::theOctet = nullptr;
     delete ObjectBroker::theULong;
-    ObjectBroker::theULong = NULL;
+    ObjectBroker::theULong = nullptr;
     delete ObjectBroker::theUShort;
-    ObjectBroker::theUShort = NULL;
+    ObjectBroker::theUShort = nullptr;
     delete ObjectBroker::theChar;
-    ObjectBroker::theChar = NULL;
+    ObjectBroker::theChar = nullptr;
     delete ObjectBroker::theBool;
-    ObjectBroker::theBool = NULL;
+    ObjectBroker::theBool = nullptr;
     delete ObjectBroker::theDouble;
-    ObjectBroker::theDouble = NULL;
+    ObjectBroker::theDouble = nullptr;
     delete ObjectBroker::theFloat;
-    ObjectBroker::theFloat = NULL;
+    ObjectBroker::theFloat = nullptr;
     delete ObjectBroker::theComplex1;
-    ObjectBroker::theComplex1 = NULL;
+    ObjectBroker::theComplex1 = nullptr;
     delete ObjectBroker::theComplex2;
-    ObjectBroker::theComplex2 = NULL;
+    ObjectBroker::theComplex2 = nullptr;
 
     // clear maps and other datastructures, in order from "simplest" to more complex objects
     theAtomicTypes.clear();
@@ -255,12 +197,11 @@ ObjectBroker::deinit()
     theTileIndexMappings.clear();
 }
 
-DBObject *
-ObjectBroker::getObjectByOId(const OId &id)
+DBObject *ObjectBroker::getObjectByOId(const OId &id)
 {
     if (id.getType() == OId::INVALID)
     {
-        return NULL;    // invalid OId, can't return any valid object
+        return nullptr;    // invalid OId, can't return any valid object
     }
 
     auto *cached = ObjectBroker::isInMemory(id);
@@ -274,12 +215,10 @@ ObjectBroker::getObjectByOId(const OId &id)
     }
 }
 
-DBObject *
-ObjectBroker::isInMemory(const OId &id)
+DBObject *ObjectBroker::isInMemory(const OId &id)
 {
     assert(id.getType() != OId::INVALID);
-
-    DBObject *retval = 0;
+    DBObject *retval = nullptr;
     DBObjectPMap &theMap = ObjectBroker::getMap(id.getType());
     auto i = theMap.find(id);
     if (i != theMap.end())
@@ -372,15 +311,17 @@ ObjectBroker::loadObjectByOId(const OId &id)
     }
 }
 
-void
-ObjectBroker::registerDBObject(DBObject *obj)
+void ObjectBroker::registerDBObject(DBObject *obj)
 {
-    DBObjectPMap &t = ObjectBroker::getMap(obj->getOId().getType());
-    t.emplace(obj->getOId(), obj);
+    DBObjectPPair myPair(obj->getOId(), obj);
+    auto it = ObjectBroker::getMap(obj->getOId().getType()).insert(myPair);
+    if (!it.second)
+    {
+        LDEBUG << "Object is already registered: " << obj->getOId();
+    }
 }
 
-void
-ObjectBroker::deregisterDBObject(const OId &id)
+void ObjectBroker::deregisterDBObject(const OId &id)
 {
     if (id.getType() != OId::INVALID && id.getType() != clearingObjectsOfType)
     {
@@ -388,14 +329,13 @@ ObjectBroker::deregisterDBObject(const OId &id)
         auto i = t.find(id);
         if (i != t.end())
         {
-            (*i).second = 0;
-            i = t.erase(i);
+            (*i).second = nullptr;
+            t.erase(i);
         }
     }
 }
 
-OIdSet *
-ObjectBroker::getAllObjects(OId::OIdType type)
+OIdSet *ObjectBroker::getAllObjects(OId::OIdType type)
 {
     switch (type)
     {
@@ -418,13 +358,10 @@ ObjectBroker::getAllObjects(OId::OIdType type)
     case OId::ATOMICTYPEOID:
         return getAllAtomicTypes();
     default:
-    {
         LERROR << "Retrival of all cached objects of type " << type << " failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
     }
-    }
 }
-
 
 OId
 ObjectBroker::getOIdByName(OId::OIdType type, const char *name)
@@ -532,16 +469,18 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char *name)
         theMap = &theAtomicTypes;
         break;
     default:
-        LERROR << "Retrival of object of type " << type << " and name '" << name << "' failed: invalid OId type.";
+        LERROR << "Retrival of object of type " << type << " and name '" << name
+               << "' failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
     }
 
     // check if there is an object with that name already in memory
     // TODO: theMap should be a bidirectional map, this linear iteration mode is inefficient
     DBObject *retval = 0;
-    for (DBObjectPMap::iterator iter = theMap->begin(); iter != theMap->end(); iter++)
+    for (auto iter = theMap->begin(); iter != theMap->end(); iter++)
     {
-        if (strcmp((static_cast<DBNamedObject *>((*iter).second))->getName(), name) == 0)
+        const char *objName = static_cast<DBNamedObject *>(iter->second)->getName();
+        if (objName && strcmp(objName, name) == 0)
         {
             retval = (*iter).second;
             break;
@@ -587,10 +526,9 @@ ObjectBroker::validateMap(DBObjectPMap &theMap)
     }
 }
 
-void
-ObjectBroker::clearBroker()
+void ObjectBroker::clearBroker()
 {
-    //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
+    // do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
     // Important: the order matters, start from most basic datastructures and progress to more complex ones.
 
     LDEBUG << "Clearing ObjectBroker...";
@@ -625,8 +563,7 @@ ObjectBroker::clearBroker()
     LDEBUG << "ObjectBroker cleared successfully.";
 }
 
-DBObjectPMap &
-ObjectBroker::getMap(OId::OIdType type)
+DBObjectPMap &ObjectBroker::getMap(OId::OIdType type)
 {
     switch (type)
     {
@@ -670,8 +607,7 @@ ObjectBroker::getMap(OId::OIdType type)
     }
 }
 
-DBObject *
-ObjectBroker::loadDBStorage(const OId &id)
+DBObject *ObjectBroker::loadDBStorage(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new DBStorageLayout(id));
@@ -679,8 +615,7 @@ ObjectBroker::loadDBStorage(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadSetType(const OId &id)
+DBObject *ObjectBroker::loadSetType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new SetType(id));
@@ -688,8 +623,7 @@ ObjectBroker::loadSetType(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadMDDType(const OId &id)
+DBObject *ObjectBroker::loadMDDType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new MDDType(id));
@@ -697,8 +631,7 @@ ObjectBroker::loadMDDType(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadMDDBaseType(const OId &id)
+DBObject *ObjectBroker::loadMDDBaseType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new MDDBaseType(id));
@@ -706,8 +639,7 @@ ObjectBroker::loadMDDBaseType(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadMDDDimensionType(const OId &id)
+DBObject *ObjectBroker::loadMDDDimensionType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new MDDDimensionType(id));
@@ -715,8 +647,7 @@ ObjectBroker::loadMDDDimensionType(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadMDDDomainType(const OId &id)
+DBObject *ObjectBroker::loadMDDDomainType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new MDDDomainType(id));
@@ -724,8 +655,7 @@ ObjectBroker::loadMDDDomainType(const OId &id)
     return retval.release();
 }
 
-DBObject *
-ObjectBroker::loadStructType(const OId &id)
+DBObject *ObjectBroker::loadStructType(const OId &id)
 {
     unique_ptr<DBObject> retval;
     retval.reset(new StructType(id));
@@ -808,14 +738,12 @@ ObjectBroker::loadBLOBTile(const OId &id)
     return retval.release();
 }
 
-void
-ObjectBroker::registerTileIndexMapping(const OId &tileoid, const OId &indexoid)
+void ObjectBroker::registerTileIndexMapping(const OId &tileoid, const OId &indexoid)
 {
     theTileIndexMappings.emplace(tileoid, indexoid);
 }
 
-void
-ObjectBroker::deregisterTileIndexMapping(const OId &tileoid, const OId &indexoid)
+void ObjectBroker::deregisterTileIndexMapping(const OId &tileoid, const OId &indexoid)
 {
     auto i = theTileIndexMappings.find(tileoid);
     if (i != theTileIndexMappings.end())
@@ -828,12 +756,11 @@ ObjectBroker::deregisterTileIndexMapping(const OId &tileoid, const OId &indexoid
     }
 }
 
-OIdSet *
-ObjectBroker::getAllAtomicTypes()
+OIdSet *ObjectBroker::getAllAtomicTypes()
 {
-    OIdSet *retval = new OIdSet();
+    auto *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::ATOMICTYPEOID);
-    for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
+    for (auto i = theMap.begin(); i != theMap.end(); i++)
     {
         LTRACE << "inserted from memory " << (*i).first;
         retval->insert((*i).first);

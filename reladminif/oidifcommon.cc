@@ -32,129 +32,67 @@ rasdaman GmbH.
  *   uses embedded SQL
  *
  *****************************************************************************/
-#include "config.h"
-#include <string.h>
-#include "oidif.hh"
-#include "adminif.hh"
-#include "databaseif.hh"
-#include <stdlib.h>
-#include "externs.h"
-#include "sqlerror.hh"
-#include "raslib/error.hh"
-#include <logging.hh>
 
-#ifdef RMANBENCHMARK
-RMTimer OId::oidAlloc("OId", "allocateOId");
-#endif
-
-#ifdef RMANBENCHMARK
-RMTimer OId::oidResolve("OId", "resolveOId");
-#endif
+#include "databaseif.hh"        // for ostream
+#include "oidif.hh"             // for OId, OId::OIdCounter, OId::OIdType
+#include "raslib/error.hh"  // for r_Error, r_Error::r_Error_CreatingOId...
+#include <ostream>              // for operator<<, ostream, basic_ostream
+#include <logging.hh>           // for Writer, CTRACE, LTRACE, CFATAL, LERROR
 
 long long OId::ID_MULTIPLIER = 512;
 
 OId::OIdCounter OId::nextMDDOID = 0;
-
 OId::OIdCounter OId::nextMDDCOLLOID = 0;
-
 OId::OIdCounter OId::nextMDDTYPEOID = 0;
-
 OId::OIdCounter OId::nextMDDBASETYPEOID = 0;
-
 OId::OIdCounter OId::nextMDDDIMTYPEOID = 0;
-
 OId::OIdCounter OId::nextMDDDOMTYPEOID = 0;
-
 OId::OIdCounter OId::nextSTRUCTTYPEOID = 0;
-
 OId::OIdCounter OId::nextSETTYPEOID = 0;
-
 OId::OIdCounter OId::nextBLOBOID = 0;
-
 OId::OIdCounter OId::nextDBMINTERVALOID = 0;
-
 OId::OIdCounter OId::nextSTORAGEOID = 0;
-
 OId::OIdCounter OId::nextMDDHIERIXOID = 0;
-
 OId::OIdCounter OId::nextATOMICTYPEOID = 0;
-
 OId::OIdCounter OId::nextMDDRCIXOID = 0;
-
 OId::OIdCounter OId::nextUDFOID = 0;
-
 OId::OIdCounter OId::nextUDFPACKAGEOID = 0;
-
 OId::OIdCounter OId::nextFILETILEOID = 0;
-
 OId::OIdCounter OId::nextDBNULLVALUESOID = 0;
 
-unsigned int
-OId::maxCounter = 22;
+unsigned int OId::maxCounter = 22;
 
-const char *
-OId::counterNames[] = { "INVALID",
-                        "MDDOID",
-                        "MDDCOLLOID",
-                        "MDDTYPEOID",
-                        "MDDBASETYPEOID",
-                        "MDDDIMTYPEOID",
-                        "MDDDOMTYPEOID",
-                        "STRUCTTYPEOID",
-                        "SETTYPEOID",
-                        "BLOBOID",
-                        "DBMINTERVALOID",
-                        "STORAGEOID",
-                        "MDDHIERIXOID",
-                        "INLINEINDEXOID",
-                        "INLINETILEOID",
-                        "INNEROID",
-                        "ATOMICTYPEOID",
-                        "UDFOID",
-                        "UDFPACKAGEOID",
-                        "MDDRCIXOID",
-                        "FILETILEOID",
-                        "DBNULLVALUESOID"
-                      };
-
-OId::OIdCounter *
-OId::counterIds[] =
+const char *OId::counterNames[] =
 {
-    NULL,
-    &nextMDDOID,
-    &nextMDDCOLLOID,
-    &nextMDDTYPEOID,
-    &nextMDDBASETYPEOID,
-    &nextMDDDIMTYPEOID,
-    &nextMDDDOMTYPEOID,
-    &nextSTRUCTTYPEOID,
-    &nextSETTYPEOID,
-    &nextBLOBOID,
-    &nextDBMINTERVALOID,
-    &nextSTORAGEOID,
-    &nextMDDHIERIXOID,
-    &nextMDDHIERIXOID,
-    &nextBLOBOID,
-    &nextBLOBOID,
-    &nextATOMICTYPEOID,
-    &nextUDFOID,
-    &nextUDFPACKAGEOID,
-    &nextMDDRCIXOID,
-    &nextFILETILEOID,
+    "INVALID", "MDDOID", "MDDCOLLOID", "MDDTYPEOID", "MDDBASETYPEOID",
+    "MDDDIMTYPEOID", "MDDDOMTYPEOID", "STRUCTTYPEOID", "SETTYPEOID", "BLOBOID",
+    "DBMINTERVALOID", "STORAGEOID", "MDDHIERIXOID", "INLINEINDEXOID",
+    "INLINETILEOID", "INNEROID", "ATOMICTYPEOID", "UDFOID", "UDFPACKAGEOID",
+    "MDDRCIXOID", "FILETILEOID", "DBNULLVALUESOID"
+};
+
+OId::OIdCounter *OId::counterIds[] =
+{
+    nullptr, &nextMDDOID, &nextMDDCOLLOID, &nextMDDTYPEOID, &nextMDDBASETYPEOID,
+    &nextMDDDIMTYPEOID, &nextMDDDOMTYPEOID, &nextSTRUCTTYPEOID, &nextSETTYPEOID,
+    &nextBLOBOID, &nextDBMINTERVALOID, &nextSTORAGEOID, &nextMDDHIERIXOID,
+    &nextMDDHIERIXOID, &nextBLOBOID, &nextBLOBOID, &nextATOMICTYPEOID,
+    &nextUDFOID, &nextUDFPACKAGEOID, &nextMDDRCIXOID, &nextFILETILEOID,
     &nextDBNULLVALUESOID
 };
 
 bool OId::loadedOk = false;
 
-void
-OId::allocateOId(OId &id, OIdType type, OIdCounter howMany)
+void OId::allocateOId(OId &id, OIdType type, OIdCounter howMany)
 {
     if (howMany == 0)
     {
-        LERROR << "OId::allocateOId(" << id << ", " << type << ", " << howMany << ") allocation of zero oids not supported";
+        LERROR << "OId::allocateOId(" << id << ", " << type << ", " << howMany
+               << ") allocation of zero oids not supported";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);
     }
-    if (type == INVALID || type == INNEROID || type == ATOMICTYPEOID || static_cast<unsigned int>(type) > maxCounter)
+    if (type == INVALID || type == INNEROID || type == ATOMICTYPEOID ||
+            type > static_cast<int>(maxCounter))
     {
         LERROR << "OIDs of the specified type (" << type << " cannot be allocated.";
         throw r_Error(r_Error::r_Error_CreatingOIdFailed);
@@ -182,7 +120,9 @@ OId::OId()
 OId::OId(OIdPrimitive newId)
 {
     oid = newId / OId::ID_MULTIPLIER;
-    oidtype = static_cast<OId::OIdType>(newId - static_cast<OIdPrimitive>(static_cast<OIdPrimitive>(oid) * OId::ID_MULTIPLIER));
+    oidtype = static_cast<OId::OIdType>(
+                  newId - static_cast<OIdPrimitive>(static_cast<OIdPrimitive>(oid) *
+                          OId::ID_MULTIPLIER));
 }
 
 OId::OId(OIdCounter newId, OIdType type)
@@ -191,41 +131,32 @@ OId::OId(OIdCounter newId, OIdType type)
     oid = newId;
 }
 
-OId::OIdType
-OId::getType() const
+OId::OIdType OId::getType() const
 {
-    //LTRACE << "getType() " << oidtype;
     return oidtype;
 }
 
-void
-OId::print_status(ostream &s) const
+void OId::print_status(std::ostream &s) const
 {
     s << this;
 }
 
-OId::OIdCounter
-OId::getCounter() const
+OId::OIdCounter OId::getCounter() const
 {
-//    LTRACE << "getCounter() " << oid;
     return oid;
 }
 
 OId::operator long long() const
 {
-//    LTRACE << "operator() " << oid;
     return oid * OId::ID_MULTIPLIER + oidtype;
 }
 
-bool
-OId::operator!= (const OId &one) const
+bool OId::operator!=(const OId &one) const
 {
-//    LTRACE << "operator!=(" << one << ") " << *this;
     return !(OId::operator==(one));
 }
 
-bool
-OId::operator== (const OId &one) const
+bool OId::operator==(const OId &one) const
 {
     bool retval = false;
     if (oidtype == one.oidtype)
@@ -236,14 +167,11 @@ OId::operator== (const OId &one) const
     {
         retval = false;
     }
-//    LTRACE << "operator==(" << one << ") " << *this << " retval=" << retval;
     return retval;
 }
 
-OId &
-OId::operator=(const OId &old)
+OId &OId::operator=(const OId &old)
 {
-//    LTRACE << "operator=(" << old << ") "<< *this;
     if (this != &old)
     {
         oid = old.oid;
@@ -252,8 +180,7 @@ OId::operator=(const OId &old)
     return *this;
 }
 
-bool
-OId::operator<(const OId &old) const
+bool OId::operator<(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -264,12 +191,10 @@ OId::operator<(const OId &old) const
     {
         retval = (oidtype < old.oidtype);
     }
-//    LTRACE << "operator<(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
-bool
-OId::operator>(const OId &old) const
+bool OId::operator>(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -280,12 +205,10 @@ OId::operator>(const OId &old) const
     {
         retval = (oidtype > old.oidtype);
     }
-//    LTRACE << "operator>(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
-bool
-OId::operator<=(const OId &old) const
+bool OId::operator<=(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -296,12 +219,10 @@ OId::operator<=(const OId &old) const
     {
         retval = (oidtype < old.oidtype);
     }
-//    LTRACE << "operator<=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
-bool
-OId::operator>=(const OId &old) const
+bool OId::operator>=(const OId &old) const
 {
     bool retval = false;
     if (oidtype == old.oidtype)
@@ -312,14 +233,11 @@ OId::operator>=(const OId &old) const
     {
         retval = (oidtype > old.oidtype);
     }
-//    LTRACE << "operator>=(" << old << ") " << *this << " retval=" << retval;
     return retval;
 }
 
-bool
-operator== (const long long one, const OId &two)
+bool operator==(const long long one, const OId &two)
 {
-//    LTRACE << "operator==(" << one << "," << two << ")";
     bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
@@ -329,10 +247,8 @@ operator== (const long long one, const OId &two)
     return retval;
 }
 
-bool
-operator== (const OId &two, const long long one)
+bool operator==(const OId &two, const long long one)
 {
-//    LTRACE << "operator==(" << two << "," << one << ")";
     bool retval = false;
     // see conversion operator above
     if ((static_cast<long long>(two)) == one)
@@ -342,15 +258,13 @@ operator== (const OId &two, const long long one)
     return retval;
 }
 
-std::ostream &
-operator<<(std::ostream &s, const OId &d)
+std::ostream &operator<<(std::ostream &s, const OId &d)
 {
     s << "OId(" << d.getCounter() << ":" << d.getType() << ")";
     return s;
 }
 
-std::ostream &
-operator<<(std::ostream &s, OId::OIdType d)
+std::ostream &operator<<(std::ostream &s, OId::OIdType d)
 {
     switch (d)
     {

@@ -42,6 +42,8 @@ add_library(rasodmg alignedtiling.hh alignedtiling.cc alignedtiling.icc
         tiling.hh tiling.cc
         transaction.hh transaction.cc transaction.icc)
 
+target_link_libraries(rasodmg clientcomm)
+
 install(TARGETS rasodmg
         DESTINATION ${LIB_DIR})
 

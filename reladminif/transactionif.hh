@@ -40,12 +40,10 @@ TransactionIf has the functionality to begin, commit and abort a base
 DBMS transaction.
 */
 
+#include <iosfwd>
+
 class TransactionIf;
 class DatabaseIf;
-
-#include <iostream>
-
-#include "raslib/error.hh"
 /**
   * \ingroup Reladminifs
   */

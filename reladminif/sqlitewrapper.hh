@@ -32,10 +32,9 @@ rasdaman GmbH.
 
 #include "config.h"
 #ifdef BASEDB_SQLITE
-
 #include <sqlite3.h>
 #include <string>
-#include "sqlglobals.h"
+#include <cstdarg>
 
 /**
  * Convenience class for executing SQLite queries.
@@ -43,7 +42,6 @@ rasdaman GmbH.
 class SQLiteQuery
 {
 public:
-
     /**
      * Construct a query object from a constant string SQL query.
      * @param query the SQL query to be turned into an SQLite statement.
@@ -117,7 +115,7 @@ public:
      * next column.
      * @return the blob value of the current column.
      */
-    char *nextColumnBlob();
+    const char *nextColumnBlob();
 
     /**
      * Returns the current column length in bytes, if the column is blob/text.
@@ -133,7 +131,8 @@ public:
     int currColumnType();
 
     /**
-     * @return true if the value of the current column is null, or false otherwise.
+     * @return true if the value of the current column is null, or false
+     * otherwise.
      */
     int currColumnNull();
 
@@ -203,6 +202,19 @@ public:
     static void closeConnection();
 
     static bool openConnection(const char *globalConnectId);
+
+    static bool isConnected();
+
+    /*@Doc:
+    * Throw an exception when an error happens.
+    */
+    static void failOnError(const char *msg);
+
+    /*@Doc:
+    * Print a warning when an error happens.
+    */
+    static void warnOnError(const char *msg);
+
 private:
 
     sqlite3_stmt *stmt{NULL};

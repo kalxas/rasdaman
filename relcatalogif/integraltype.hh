@@ -53,39 +53,35 @@ double. It's subclasses must implement conversions to/from long.
 class IntegralType : public AtomicType
 {
 public:
-    IntegralType(unsigned int newSize):
-        AtomicType(newSize) {}
+    IntegralType(unsigned int newSize) : AtomicType(newSize) {}
     /*@Doc:
     constructor.
     */
 
-    IntegralType(const IntegralType &old):
-        AtomicType(old) {}
+    IntegralType(const IntegralType &old)  = default;
     /*@Doc:
     copy constructor.
     */
 
-    IntegralType(const OId &id):
-        AtomicType(id) {}
+    IntegralType(const OId &id) : AtomicType(id) {}
     /*@Doc:
     */
 
-    virtual ~IntegralType() {}
+    ~IntegralType() override = default;
     /*@Doc:
     */
 
-    virtual r_ULong *convertToCULong(const char *, r_ULong *) const;
-    virtual char *makeFromCULong(char *, const r_ULong *) const;
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
 
-    virtual double *convertToCDouble(const char *, double *) const;
-    virtual char *makeFromCDouble(char *, const double *) const;
+    double *convertToCDouble(const char *, double *) const override;
+    char *makeFromCDouble(char *, const double *) const override;
 
 protected:
-    IntegralType(const char *name, unsigned int newSize):
-        AtomicType(name, newSize) {}
+    IntegralType(const char *name, unsigned int newSize)
+        : AtomicType(name, newSize) {}
     /*@Doc:
     */
-
 };
 
 #include "integraltype.icc"

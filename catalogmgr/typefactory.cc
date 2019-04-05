@@ -40,6 +40,7 @@ rasdaman GmbH.
 #include <set>
 
 #include "raslib/rminit.hh"
+#include "raslib/structuretype.hh"
 #include "relcatalogif/alltypes.hh"
 #include "typefactory.hh"
 #include "reladminif/objectbroker.hh"
@@ -734,3 +735,69 @@ TypeFactory::createMDDIter()
 
     return TypeIterator<MDDType>(theMDDTypes);
 }
+
+const Type *
+TypeFactory::fromRaslibType(const r_Type *type)
+{
+    if (!type->isBaseType() && !type->isPrimitiveType() && !type->isStructType())
+    {
+        RMInit::logOut << "TypeFactory::fromRaslibType: cannot convert non-base type "
+                       << type->type_id() << std::endl;
+        throw r_Error(r_Error::r_Error_General);
+    }
+
+    if (type->isPrimitiveType())
+    {
+        switch (type->type_id())
+        {
+        case r_Type::BOOL:
+            return TypeFactory::mapType(BoolType::Name);
+        case r_Type::OCTET:
+            return TypeFactory::mapType(OctetType::Name);
+        case r_Type::CHAR:
+            return TypeFactory::mapType(CharType::Name);
+        case r_Type::SHORT:
+            return TypeFactory::mapType(ShortType::Name);
+        case r_Type::USHORT:
+            return TypeFactory::mapType(UShortType::Name);
+        case r_Type::LONG:
+            return TypeFactory::mapType(LongType::Name);
+        case r_Type::ULONG:
+            return TypeFactory::mapType(ULongType::Name);
+        case r_Type::FLOAT:
+            return TypeFactory::mapType(FloatType::Name);
+        case r_Type::DOUBLE:
+            return TypeFactory::mapType(DoubleType::Name);
+        case r_Type::COMPLEXTYPE1:
+            return TypeFactory::mapType(ComplexType1::Name);
+        case r_Type::COMPLEXTYPE2:
+            return TypeFactory::mapType(ComplexType2::Name);
+        default:
+            RMInit::logOut << "TypeFactory::fromRaslibType: unkown type "
+                           << type->type_id() << std::endl;
+            throw r_Error(r_Error::r_Error_General);
+        }
+    }
+    else if (type->isStructType())
+    {
+        const r_Structure_Type *structType = (const r_Structure_Type *) type;
+        std::vector<const Type *> attributeTypes(structType->count_elements());
+        for (size_t i = 0; i < structType->count_elements(); ++i)
+        {
+            attributeTypes[i] = fromRaslibType(&((*structType)[i].type_of()));
+        }
+        StructType *resultType = new StructType("tmp", structType->count_elements());
+        for (size_t i = 0; i < structType->count_elements(); ++i)
+        {
+            resultType->addElement((*structType)[i].name(), (const BaseType *) attributeTypes[i]);
+        }
+        return TypeFactory::addTempType(resultType);
+    }
+    else
+    {
+        RMInit::logOut << "TypeFactory::fromRaslibType: unkown type "
+                       << type->type_id() << std::endl;
+        throw r_Error(r_Error::r_Error_General);
+    }
+}
+

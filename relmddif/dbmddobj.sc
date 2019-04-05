@@ -32,10 +32,9 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 #include "config.h"
-#include "reladminif/oidif.hh"
 #include "reladminif/dbref.hh"
+#include "reladminif/oidif.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlglobals.h"
@@ -46,13 +45,11 @@ rasdaman GmbH.
 #include "relcatalogif/dbminterval.hh"
 #include "relcatalogif/dbnullvalues.hh"
 #include "relstorageif/dbstoragelayout.hh"
-#include "dbmddobj.hh"
 #include "relindexif/indexid.hh"
 #include "indexmgr/indexds.hh"
 #include "reladminif/sqlitewrapper.hh"
+#include "dbmddobj.hh"
 #include <logging.hh>
-
-#include "debug-srv.hh"
 
 DBMDDObj::DBMDDObj()
     : DBObject(),
@@ -67,7 +64,6 @@ DBMDDObj::DBMDDObj()
     myDomain = new DBMinterval();
     myDomain->setPersistent(true);
     storageLayoutId->setPersistent(true);
-
 }
 
 DBMDDObj::DBMDDObj(const OId &id)
@@ -107,8 +103,7 @@ DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType,
     {
         ((DBObjectId) newObjIx)->setPersistent(false);
         ((DBObject *) const_cast<DBStorageLayout *>(newSL.ptr()))->setPersistent(false);
-        LERROR << "DBMDDObj::DBMDDObj() - mdd object: "
-               << testoid1 << " already exists in the database.";
+        LERROR << "mdd object: " << testoid1 << " already exists in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
     }
 
@@ -159,7 +154,9 @@ DBMDDObj::DBMDDObj(const DBMDDObj &old)
     mddType = old.mddType;
 }
 
-DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType, const r_Minterval &domain, const DBObjectId &newObjIx, const DBStorageLayoutId &newSL)
+DBMDDObj::DBMDDObj(const MDDBaseType *newMDDType,
+                   const r_Minterval &domain,
+                   const DBObjectId &newObjIx, const DBStorageLayoutId &newSL)
     : DBObject(),
       persistentRefCount(0),
       mddType(NULL),
@@ -198,29 +195,27 @@ DBMDDObj::getDBStorageLayout() const
 r_Bytes
 DBMDDObj::getMemorySize() const
 {
-    return DBObject::getMemorySize() + sizeof(long) + sizeof(MDDBaseType *) + sizeof(DBMinterval *) + sizeof(OId) + myDomain->getMemorySize() + mddType->getMemorySize() + sizeof(OId);
+    return DBObject::getMemorySize() + sizeof(long) + sizeof(MDDBaseType *) +
+           sizeof(DBMinterval *) + sizeof(OId) + myDomain->getMemorySize() +
+           mddType->getMemorySize() + sizeof(OId);
 }
 
-const MDDBaseType *
-DBMDDObj::getMDDBaseType() const
+const MDDBaseType *DBMDDObj::getMDDBaseType() const
 {
     return mddType;
 }
 
-const BaseType *
-DBMDDObj::getCellType() const
+const BaseType *DBMDDObj::getCellType() const
 {
     return mddType->getBaseType();
 }
 
-r_Dimension
-DBMDDObj::dimensionality() const
+r_Dimension DBMDDObj::dimensionality() const
 {
     return myDomain->dimension();
 }
 
-void
-DBMDDObj::setCached(bool ic)
+void DBMDDObj::setCached(bool ic)
 {
     DBObject::setCached(ic);
     if (myDomain)
@@ -229,10 +224,9 @@ DBMDDObj::setCached(bool ic)
     }
 }
 
-//this should only receive an setPersistent(false)
+// this should only receive an setPersistent(false)
 
-void
-DBMDDObj::setPersistent(bool o)
+void DBMDDObj::setPersistent(bool o)
 {
     DBObject::setPersistent(o);
     if (!o)
@@ -260,8 +254,7 @@ DBMDDObj::setPersistent(bool o)
 
     if (storageLayoutId.is_null())
     {
-        LTRACE << "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId();
-        LERROR << "DBMDDObj::setPersistent() layout object is not valid";
+        LERROR << "layout object is not valid " << myOId << " layout " << storageLayoutId.getOId();
         throw r_Error(STORAGE_OF_MDD_IS_NULL);
     }
     else
@@ -272,33 +265,30 @@ DBMDDObj::setPersistent(bool o)
     {
         mddType = (const MDDBaseType *) TypeFactory::addMDDType(mddType);
     }
-
 }
 
-const char *
-DBMDDObj::getCellTypeName() const
+const char *DBMDDObj::getCellTypeName() const
 {
     return mddType->getBaseType()->getTypeName();
 }
 
-r_Minterval
-DBMDDObj::getDefinitionDomain() const
+r_Minterval DBMDDObj::getDefinitionDomain() const
 {
     return *myDomain;
 }
 
-r_Bytes
-DBMDDObj::getHeaderSize() const
+r_Bytes DBMDDObj::getHeaderSize() const
 {
-    r_Bytes sz = sizeof(MDDBaseType *) + sizeof(r_Minterval *) + sizeof(DBObjectId) + sizeof(DBObject) + sizeof(DBStorageLayoutId);
+    r_Bytes sz = sizeof(MDDBaseType *) + sizeof(r_Minterval *) +
+                 sizeof(DBObjectId) + sizeof(DBObject) +
+                 sizeof(DBStorageLayoutId);
     return sz;
 }
 
-void
-DBMDDObj::printStatus(unsigned int level, ostream &stream) const
+void DBMDDObj::printStatus(unsigned int level, std::ostream &stream) const
 {
     DBObject::printStatus(level, stream);
-    stream << *myDomain << endl;
+    stream << *myDomain << std::endl;
     mddType->printStatus(level + 1, stream);
     DBObjectId testIx(objIxId);
     if (!testIx.is_null())
@@ -319,8 +309,7 @@ DBMDDObj::printStatus(unsigned int level, ostream &stream) const
     }
 }
 
-void
-DBMDDObj::setIx(const DBObjectId &newIx)
+void DBMDDObj::setIx(const DBObjectId &newIx)
 {
     if (isPersistent())
     {
@@ -336,8 +325,7 @@ DBMDDObj::setIx(const DBObjectId &newIx)
     }
 }
 
-void
-DBMDDObj::updateInDb()
+void DBMDDObj::updateInDb()
 {
     long long mddoid3{};
     long long objindex3{};
@@ -361,7 +349,9 @@ DBMDDObj::updateInDb()
         nullvalueoid = nullValues->getOId().getCounter();
 
         {
-            SQLiteQuery query("SELECT c.settypeid FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = %lld", mddoid3);
+            SQLiteQuery query(
+                "SELECT c.settypeid FROM ras_mddcollnames as c, ras_mddcollections "
+                "as m WHERE m.mddcollid = c.mddcollid and m.mddid = %lld", mddoid3);
             if (query.nextRow())
             {
                 settypeoid = query.nextColumnLong();
@@ -388,7 +378,8 @@ DBMDDObj::updateInDb()
             {
                 oldnullvalueoid = query.nextColumnLong();
             }
-            DBNullvalues *oldNullValues = (DBNullvalues *) ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBNULLVALUESOID));
+            DBNullvalues *oldNullValues = (DBNullvalues *)ObjectBroker::getObjectByOId(
+                                              OId(oldnullvalueoid, OId::DBNULLVALUESOID));
             if (oldNullValues)
             {
                 oldNullValues->setPersistent(false);
@@ -404,8 +395,7 @@ DBMDDObj::updateInDb()
     DBObject::updateInDb();
 }
 
-void
-DBMDDObj::insertInDb()
+void DBMDDObj::insertInDb()
 {
     long long mddoid{};
     long long basetypeid{};
@@ -421,21 +411,21 @@ DBMDDObj::insertInDb()
     domainid = myDomain->getOId().getCounter();
     persRefCount = persistentRefCount;
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId) VALUES (%lld, %lld, %lld, %ld, %lld, %lld)",
-                                   mddoid, basetypeid, domainid, persRefCount, objindex, storage);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_MDDOBJECTS ( MDDId, BaseTypeOId, DomainId, "
+        "PersRefCount, NodeOId, StorageOId) VALUES (%lld, %lld, %lld, %ld, %lld, %lld)",
+        mddoid, basetypeid, domainid, persRefCount, objindex, storage);
     DBObject::insertInDb();
 }
 
-void
-DBMDDObj::deleteFromDb()
+void DBMDDObj::deleteFromDb()
 {
     long long mddoid1 = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDOBJECTS WHERE MDDId = %lld", mddoid1);
     DBObject::deleteFromDb();
 }
 
-void
-DBMDDObj::readFromDb()
+void DBMDDObj::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -449,7 +439,9 @@ DBMDDObj::readFromDb()
 
     mddoid2 = myOId.getCounter();
 
-    SQLiteQuery query("SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId FROM RAS_MDDOBJECTS WHERE MDDId = %lld", mddoid2);
+    SQLiteQuery query(
+        "SELECT BaseTypeOId, DomainId, PersRefCount, NodeOId, StorageOId FROM "
+        "RAS_MDDOBJECTS WHERE MDDId = %lld", mddoid2);
     if (query.nextRow())
     {
         basetypeid2 = query.nextColumnLong();
@@ -460,8 +452,7 @@ DBMDDObj::readFromDb()
     }
     else
     {
-        LERROR << "DBMDDObj::readFromDb() - mdd object: "
-               << mddoid2 << " not found in the database.";
+        LERROR << "mdd object: " << mddoid2 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object not found in the database.");
     }
 
@@ -478,27 +469,23 @@ DBMDDObj::readFromDb()
 #endif
 }
 
-DBObjectId
-DBMDDObj::getDBIndexDS() const
+DBObjectId DBMDDObj::getDBIndexDS() const
 {
     return objIxId;
 }
 
-int
-DBMDDObj::getPersRefCount() const
+int DBMDDObj::getPersRefCount() const
 {
     return persistentRefCount;
 }
 
-void
-DBMDDObj::incrementPersRefCount()
+void DBMDDObj::incrementPersRefCount()
 {
     persistentRefCount++;
     setModified();
 }
 
-void
-DBMDDObj::decrementPersRefCount()
+void DBMDDObj::decrementPersRefCount()
 {
     persistentRefCount--;
     if (persistentRefCount == 0)
@@ -508,13 +495,8 @@ DBMDDObj::decrementPersRefCount()
     setModified();
 }
 
-DBNullvalues *
-DBMDDObj::getNullValues() const
+DBNullvalues *DBMDDObj::getNullValues() const
 {
-    if (nullValues != NULL)
-    {
-        LDEBUG << "returning null values: " << nullValues->toString();
-    }
     return nullValues;
 }
 

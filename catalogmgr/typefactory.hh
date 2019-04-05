@@ -40,6 +40,7 @@ class TypeFactory;
 
 #include "reladminif/oidif.hh"
 #include "relcatalogif/typeiterator.hh"
+#include "raslib/type.hh"
 
 class ULongType;
 class LongType;
@@ -250,6 +251,8 @@ public:
         this currently works only for StructTypes!
     has to be called on temporary types getting persistent.
     */
+
+    static const Type *fromRaslibType(const r_Type *type);
 
     static const short MaxBuiltInId;
 

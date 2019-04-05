@@ -34,11 +34,6 @@ rasdaman GmbH.
  *   none
  *
  ************************************************************/
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-
-#include <iostream>
-#include <cstring>
 
 #include "tile.hh"
 #include "catalogmgr/ops.hh"
@@ -49,24 +44,23 @@ rasdaman GmbH.
 #include "raslib/miterf.hh"
 #include "raslib/miterd.hh"
 #include "raslib/basetype.hh"
+#include "mymalloc/mymalloc.h"
 
-#include <logging.hh>
-
+#include <logging.hh>               // for Writer, CTRACE
+#include <cstring>                  // for memcpy, strcpy, strlen
+#include <iostream>                 // for endl, ostream
 
 #ifdef RMANBENCHMARK
 RMTimer Tile::opTimer("Tile", "opTimer");
 RMTimer Tile::relTimer("Tile", "relTimer");
-// RMTimer Tile::o2Timer("Tile","o2Timer");
 #endif
 
 using namespace std;
 
-const Tile &
-Tile::operator=(const Tile &tile)
+const Tile &Tile::operator=(const Tile &tile)
 {
     if (this != &tile)
     {
-        LTRACE << "Tile::operator=(this tile size " << getSize() << ", other tile size " << tile.getSize() << ")";
         type = tile.type;
         domain = tile.domain;
         blobTile->resize(tile.blobTile->getSize());
@@ -78,10 +72,9 @@ Tile::operator=(const Tile &tile)
 }
 
 Tile::Tile(const Tile &tile)
-    :   domain(tile.domain),
-        type(tile.type),
-        blobTile((DBTile *)NULL)
+    : domain(tile.domain), type(tile.type), blobTile((DBTile *)nullptr)
 {
+    LTRACE << "Tile copy constructor (this tile size " << getSize() << ", other tile size " << tile.getSize() << ")";
     if (RMInit::useTileContainer)
     {
         blobTile = new InlineTile(tile.blobTile->getSize(), tile.blobTile->getCells(), tile.blobTile->getDataFormat());
@@ -101,9 +94,7 @@ Tile::Tile(const Tile &tile)
 }
 
 Tile::Tile(std::vector<Tile *> *tilesVec)
-    :   domain(),
-        type(NULL),
-        blobTile((DBTile *)NULL)
+    : domain(), type(nullptr), blobTile((DBTile *)nullptr)
 {
     // iterators for tiles
     std::vector<Tile *>::iterator tileIt = tilesVec->begin();
@@ -142,9 +133,8 @@ Tile::Tile(std::vector<Tile *> *tilesVec)
 }
 
 Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Dimension, std::less<r_Dimension>> *projDimSet)
-    :   domain(projDom.dimension() - projDimSet->size()),
-        type(projTile->type),
-        blobTile((DBTile *)NULL)
+    : domain(projDom.dimension() - projDimSet->size()),
+      type(projTile->type), blobTile((DBTile *)nullptr)
 {
     // calculate dimension of new Tile
     r_Dimension dim = 0;
@@ -155,7 +145,7 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
     for (dim = 0; dim < projDom.dimension(); dim++)
     {
         // do not include dimensions projected away
-        std::set<r_Dimension, std::less<r_Dimension>>::const_iterator tempIt = projDimSet->find(dim);
+        auto tempIt = projDimSet->find(dim);
         if (tempIt == projDimSet->end())
         {
             domain << projDom[dim];
@@ -166,13 +156,9 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
 
     // init contents
     if (RMInit::useTileContainer)
-    {
         blobTile = new InlineTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
-    }
     else
-    {
         blobTile = new BLOBTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
-    }
     // using r_Miter to iterate through tile to be projected and new tile.
     r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), static_cast<const char *>(projTile->getContents()));
     r_Miter newTileIter(&domain, &domain, type->getSize(), blobTile->getCells());
@@ -195,17 +181,13 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
 }
 
 Tile::Tile(const r_Minterval &newDom, const BaseType *newType, DBTileId newBLOBTile)
-    :   domain(newDom),
-        type(newType),
-        blobTile(newBLOBTile)
+    : domain(newDom), type(newType), blobTile(newBLOBTile)
 {
     LTRACE << "Tile(" << newDom << ", " << newType->getName() << ", blob)";
 }
 
 Tile::Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format newFormat)
-    :   domain(newDom),
-        type(newType),
-        blobTile((DBTile *)NULL)
+    : domain(newDom), type(newType), blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(new), size " << getSize();
     // note that the size is not correct (usually too big) for compressed
@@ -226,7 +208,8 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershi
         type(newType),
         blobTile((DBTile *)NULL)
 {
-    LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells;
+    LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize
+           << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells;
     r_Data_Format current = r_Array;
     if (!newSize)
     {
@@ -239,13 +222,9 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershi
         current = newFormat;
     }
     if (RMInit::useTileContainer)
-    {
         blobTile = new InlineTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
-    }
     else
-    {
         blobTile = new BLOBTile(newSize, takeOwnershipOfNewCells, newCells, newFormat);
-    }
     blobTile->setCurrentFormat(current);
 }
 
@@ -283,15 +262,13 @@ Tile::setPersistent(bool state)
     blobTile->setPersistent(state);
 }
 
-r_Bytes
-Tile::getCompressedSize() const
+r_Bytes Tile::getCompressedSize() const
 {
     return blobTile->getSize();
 }
 
 
-bool
-Tile::isPersistent() const
+bool Tile::isPersistent() const
 {
     return blobTile->isPersistent();
 }
@@ -633,11 +610,12 @@ Tile::execScaleOp(const Tile *opTile, const r_Minterval &sourceDomain)
     fast_scale_resample_array((char *)getContents(), ((Tile *)opTile)->getContents(), domain, opTile->getDomain(), sourceDomain, 1, 2);
 #else
 
+    char *dummy1 = getContents();
+    assert(dummy1);
     unsigned int typeLength = getType()->getSize();
-    const char *srcPtr = (const_cast<Tile *>(opTile))->getContents();
 
     r_MiterFloat iterSrc(const_cast<Tile *>(opTile), const_cast<r_Minterval &>(sourceDomain), domain);
-    r_Miter iterDest(&domain, &domain, typeLength, getContents());
+    r_Miter iterDest(&domain, &domain, typeLength, dummy1);
 
     // optimize for common basetypes
     switch (getType()->getType())
@@ -670,7 +648,7 @@ Tile::execScaleOp(const Tile *opTile, const r_Minterval &sourceDomain)
         while (!iterDest.isDone())
         {
             char *destPtr = iterDest.nextCell();
-            srcPtr  = iterSrc.nextCell();
+            const char *srcPtr  = iterSrc.nextCell();
             memcpy(destPtr, srcPtr, typeLength);
             CHECK_ITER_SYNC(iterSrc, iterDest)
         }
@@ -846,15 +824,15 @@ Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, cons
 #endif
 }
 
-std::vector<Tile *> *
-Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
+std::vector<Tile *> *Tile::splitTile(r_Minterval resDom,
+                                     __attribute__((unused)) int storageDomain)
 {
     // domain of current tile
     r_Minterval currDom(resDom.dimension());
     // type of result tiles
     const BaseType *resType;
     // iterators for tiles
-    std::vector<Tile *> *resultVec = new std::vector<Tile *>;
+    auto *resultVec = new std::vector<Tile *>;
     // pointer to generated current tile
     Tile *smallTile;
     // current factor for translating
@@ -905,7 +883,8 @@ Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
 
         // increment cursor, start with highest dimension
         i = static_cast<int>(cursor.dimension()) - 1;
-        cursor[static_cast<r_Dimension>(i)] += tileSize[static_cast<r_Dimension>(i)];
+        cursor[static_cast<r_Dimension>(i)] +=
+            tileSize[static_cast<r_Dimension>(i)];
         // move cursor
         currDom = resDom.create_translation(cursor);
         while (!(currDom.intersects_with(this->getDomain())))
@@ -917,7 +896,8 @@ Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
                 done = 1;
                 break;
             }
-            cursor[static_cast<r_Dimension>(i)] += tileSize[static_cast<r_Dimension>(i)];
+            cursor[static_cast<r_Dimension>(i)] +=
+                tileSize[static_cast<r_Dimension>(i)];
             // move cursor
             currDom = resDom.create_translation(cursor);
         }
@@ -925,8 +905,8 @@ Tile::splitTile(r_Minterval resDom, __attribute__((unused)) int storageDomain)
     return resultVec;
 }
 
-void
-Tile::printStatus(__attribute__((unused)) unsigned int level, std::ostream &stream) const
+void Tile::printStatus(__attribute__((unused)) unsigned int level,
+                       std::ostream &stream) const
 {
     r_Point p(domain.dimension());
     int done = 0;
@@ -970,52 +950,50 @@ Tile::printStatus(__attribute__((unused)) unsigned int level, std::ostream &stre
     }
 }
 
-char *
-Tile::getCell(const r_Point &aPoint)
+char *Tile::getCell(const r_Point &aPoint)
 {
     r_Area cellOffset = domain.cell_offset(aPoint);
     return getCell(cellOffset);
 }
 
-const char *
-Tile::getCell(const r_Point &aPoint) const
+const char *Tile::getCell(const r_Point &aPoint) const
 {
     r_Area cellOffset = domain.cell_offset(aPoint);
     return getCell(cellOffset);
 }
 
-const r_Minterval &
-Tile::getDomain() const
+const r_Minterval &Tile::getDomain() const
 {
     return domain;
 }
 
-const BaseType *
-Tile::getType() const
+const BaseType *Tile::getType() const
 {
     return type;
 }
 
-r_Dimension
-Tile::getDimension() const
+r_Dimension Tile::getDimension() const
 {
     return domain.dimension();
 }
 
-r_Bytes
-Tile::getSize() const
+r_Bytes Tile::getSize() const
 {
     return domain.cell_count() * type->getSize();
 }
 
-r_Data_Format
-Tile::getDataFormat() const
+r_Data_Format Tile::getDataFormat() const
 {
     return blobTile->getDataFormat();
 }
 
-const char *
-Tile::getCell(r_Area index) const
+r_Data_Format
+Tile::getCurrentFormat() const
+{
+    return blobTile->getCurrentFormat();
+}
+
+const char *Tile::getCell(r_Area index) const
 {
     const auto *ret = getContents();
     const auto offset = index * type->getSize();
@@ -1024,8 +1002,7 @@ Tile::getCell(r_Area index) const
     return &ret[offset];
 }
 
-char *
-Tile::getCell(r_Area index)
+char *Tile::getCell(r_Area index)
 {
     auto *ret = getContents();
     const auto offset = index * type->getSize();
@@ -1034,8 +1011,7 @@ Tile::getCell(r_Area index)
     return &ret[offset];
 }
 
-void
-Tile::setCell(r_Area index, const char *newCell)
+void Tile::setCell(r_Area index, const char *newCell)
 {
     assert(newCell);
     char *cells = getCell(index);
@@ -1043,26 +1019,22 @@ Tile::setCell(r_Area index, const char *newCell)
     memcpy(cells, newCell, typeSize);
 }
 
-char *
-Tile::getContents()
+char *Tile::getContents()
 {
     return blobTile->getCells();
 }
 
-const char *
-Tile::getContents() const
+const char *Tile::getContents() const
 {
     return blobTile->getCells();
 }
 
-void
-Tile::setContents(char *newContents)
+void Tile::setContents(char *newContents)
 {
     blobTile->setCells(newContents);
 }
 
-r_Bytes
-Tile::calcOffset(const r_Point &point) const
+r_Bytes Tile::calcOffset(const r_Point &point) const
 {
     r_Bytes offset = 0;
     r_Bytes factor = 1;

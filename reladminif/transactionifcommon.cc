@@ -27,31 +27,18 @@ rasdaman GmbH.
  *   Code common to all DBMS interface implementations
  */
 
-#include "config.h"
-#include <iostream>
+#include "databaseif.hh"        // for DatabaseIf
+#include "raslib/error.hh"      // for r_Error
+#include "transactionif.hh"     // for TransactionIf
 
-#include "transactionif.hh"
-#include "adminif.hh"
-#include "catalogmgr/typefactory.hh"
-#include "oidif.hh"
-#include "databaseif.hh"
-#include "externs.h"
-#include "objectbroker.hh"
-#include "raslib/error.hh"
-#include "dbobject.hh"
-#include "sqlerror.hh"
-#include <logging.hh>
+DatabaseIf *TransactionIf::lastBase = nullptr;
 
-DatabaseIf *TransactionIf::lastBase = NULL;
-
-DatabaseIf *
-TransactionIf::getDatabaseIf()
+DatabaseIf *TransactionIf::getDatabaseIf()
 {
     return lastBase;
 }
 
-void
-TransactionIf::begin(DatabaseIf *currBase, bool readOnly)
+void TransactionIf::begin(DatabaseIf *currBase, bool readOnly)
 {
     try
     {

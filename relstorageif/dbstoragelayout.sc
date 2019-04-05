@@ -33,14 +33,16 @@ rasdaman GmbH.
  ****************************************************************************/
 
 #include "config.h"
+#include "dbstoragelayout.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
 #include "reladminif/sqlglobals.h"
-#include "dbstoragelayout.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
+
+using std::endl;
 
 DBStorageLayout::DBStorageLayout()
     : DBObject(),
@@ -87,8 +89,7 @@ DBStorageLayout::DBStorageLayout(const OId &id)
     readFromDb();
 }
 
-void
-DBStorageLayout::printStatus(unsigned int level, std::ostream &stream) const
+void DBStorageLayout::printStatus(unsigned int level, std::ostream &stream) const
 {
     char *indent = new char[level * 2 + 1];
     for (unsigned int j = 0; j < level * 2; j++)
@@ -183,160 +184,136 @@ DBStorageLayout::printStatus(unsigned int level, std::ostream &stream) const
     delete[] indent;
 }
 
-bool
-DBStorageLayout::supportsIndexType() const
+bool DBStorageLayout::supportsIndexType() const
 {
     return _supportsIndexType;
 }
 
-bool
-DBStorageLayout::supportsDataFormat() const
+bool DBStorageLayout::supportsDataFormat() const
 {
     return _supportsDataFormat;
 }
 
-bool
-DBStorageLayout::supportsTilingScheme() const
+bool DBStorageLayout::supportsTilingScheme() const
 {
     return _supportsTiling;
 }
 
-bool
-DBStorageLayout::supportsTileSize() const
+bool DBStorageLayout::supportsTileSize() const
 {
     return _supportsTileSize;
 }
 
-bool
-DBStorageLayout::supportsIndexSize() const
+bool DBStorageLayout::supportsIndexSize() const
 {
     return _supportsIndexSize;
 }
 
-bool
-DBStorageLayout::supportsPCTMin() const
+bool DBStorageLayout::supportsPCTMin() const
 {
     return _supportsPCTMin;
 }
 
-bool
-DBStorageLayout::supportsPCTMax() const
+bool DBStorageLayout::supportsPCTMax() const
 {
     return _supportsPCTMax;
 }
 
-bool
-DBStorageLayout::supportsTileConfiguration() const
+bool DBStorageLayout::supportsTileConfiguration() const
 {
     return _supportsTileConfiguration;
 }
 
-r_Index_Type
-DBStorageLayout::getIndexType() const
+r_Index_Type DBStorageLayout::getIndexType() const
 {
     return indexType;
 }
 
-r_Data_Format
-DBStorageLayout::getDataFormat() const
+r_Data_Format DBStorageLayout::getDataFormat() const
 {
     return dataFormat;
 }
 
-r_Tiling_Scheme
-DBStorageLayout::getTilingScheme() const
+r_Tiling_Scheme DBStorageLayout::getTilingScheme() const
 {
     return tilingScheme;
 }
 
-r_Bytes
-DBStorageLayout::getTileSize() const
+r_Bytes DBStorageLayout::getTileSize() const
 {
     return tileSize;
 }
 
-unsigned int
-DBStorageLayout::getIndexSize() const
+unsigned int DBStorageLayout::getIndexSize() const
 {
     return indexSize;
 }
 
-r_Bytes
-DBStorageLayout::getPCTMin() const
+r_Bytes DBStorageLayout::getPCTMin() const
 {
     return pctMin;
 }
 
-r_Bytes
-DBStorageLayout::getPCTMax() const
+r_Bytes DBStorageLayout::getPCTMax() const
 {
     return pctMax;
 }
 
-r_Minterval
-DBStorageLayout::getTileConfiguration() const
+r_Minterval DBStorageLayout::getTileConfiguration() const
 {
     return *tileConfiguration;
 }
 
-void
-DBStorageLayout::setIndexType(r_Index_Type it)
+void DBStorageLayout::setIndexType(r_Index_Type it)
 {
     _supportsIndexType = true;
     indexType = it;
     setModified();
 }
 
-void
-DBStorageLayout::setDataFormat(r_Data_Format cs)
+void DBStorageLayout::setDataFormat(r_Data_Format cs)
 {
     _supportsDataFormat = true;
     dataFormat = cs;
     setModified();
 }
 
-void
-DBStorageLayout::setTilingScheme(r_Tiling_Scheme ts)
+void DBStorageLayout::setTilingScheme(r_Tiling_Scheme ts)
 {
     _supportsTiling = true;
     tilingScheme = ts;
     setModified();
 }
 
-void
-DBStorageLayout::setTileSize(r_Bytes tsize)
+void DBStorageLayout::setTileSize(r_Bytes tsize)
 {
     _supportsTileSize = true;
     tileSize = tsize;
     setModified();
 }
 
-void
-DBStorageLayout::setTileConfiguration(const r_Minterval &tc)
+void DBStorageLayout::setTileConfiguration(const r_Minterval &tc)
 {
     _supportsTileConfiguration = true;
     *tileConfiguration = tc;
     setModified();
 }
 
-void
-DBStorageLayout::setIndexSize(unsigned int newindexSize)
+void DBStorageLayout::setIndexSize(unsigned int newindexSize)
 {
     _supportsIndexSize = true;
     indexSize = newindexSize;
     setModified();
 }
 
-void
-DBStorageLayout::setPCTMin(r_Bytes newpctMin)
+void DBStorageLayout::setPCTMin(r_Bytes newpctMin)
 {
     _supportsPCTMin = true;
     pctMin = newpctMin;
     setModified();
 }
 
-void
-DBStorageLayout::setPCTMax(r_Bytes newpctMax)
+void DBStorageLayout::setPCTMax(r_Bytes newpctMax)
 {
     _supportsPCTMax = true;
     pctMax = newpctMax;
@@ -362,31 +339,16 @@ TABLE RAS_STORAGE (
     )
  */
 
-void
-DBStorageLayout::readFromDb()
+void DBStorageLayout::readFromDb()
 {
     long long storageid1;
-    long long domainid1;
-    short domainid1ind;
-    long tilesize1;
-    short tilesize1ind;
-    long pctmin1;
-    short pctmin1ind;
-    long pctmax1;
-    short pctmax1ind;
-    long indexsize1;
-    short indexsize1ind;
-    short indextype1;
-    short indextype1ind;
-    short tilingscheme1;
-    short tilingscheme1ind;
-    short dataformat1;
-    short dataformat1ind;
 
     storageid1 = myOId.getCounter();
 
-    SQLiteQuery query("SELECT DomainId, TileSize, PCTMin, PCTMax, IndexType, TilingScheme, DataFormat, IndexSize FROM RAS_STORAGE WHERE StorageId = %lld",
-                      storageid1);
+    SQLiteQuery query(
+        "SELECT DomainId, TileSize, PCTMin, PCTMax, IndexType, TilingScheme, "
+        "DataFormat, IndexSize FROM RAS_STORAGE WHERE StorageId = %lld",
+        storageid1);
     if (query.nextRow())
     {
         if (query.currColumnNull())
@@ -487,31 +449,29 @@ DBStorageLayout::readFromDb()
     }
     else
     {
-        LERROR << "DBStorageLayout::readFromDb() - storage id: "
-               << storageid1 << " not found in the database.";
+        LERROR << "storage id: " << storageid1 << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd storage data not found in the database.");
     }
 
     DBObject::readFromDb();
 }
 
-void
-DBStorageLayout::updateInDb()
+void DBStorageLayout::updateInDb()
 {
     deleteFromDb();
     insertInDb();
     DBObject::updateInDb();
 }
 
-void
-DBStorageLayout::insertInDb()
+void DBStorageLayout::insertInDb()
 {
     long long storageid2;
     long long domainid2;
 
     storageid2 = myOId.getCounter();
-    SQLiteQuery insert("INSERT INTO RAS_STORAGE(StorageId,DomainId,TileSize,PCTMin,PCTMax,IndexType,TilingScheme,DataFormat,IndexSize) VALUES (%lld, ?, ?, ?, ?, ?, ?, ?, ?)",
-                       storageid2);
+    SQLiteQuery insert(
+        "INSERT INTO RAS_STORAGE(StorageId,DomainId,TileSize,PCTMin,PCTMax,IndexType,"
+        "TilingScheme,DataFormat,IndexSize) VALUES (%lld, ?, ?, ?, ?, ?, ?, ?, ?)", storageid2);
 
     if (supportsTileConfiguration())
     {
@@ -591,8 +551,7 @@ DBStorageLayout::insertInDb()
     DBObject::insertInDb();
 }
 
-void
-DBStorageLayout::deleteFromDb()
+void DBStorageLayout::deleteFromDb()
 {
     long long storageid3;
 
@@ -601,3 +560,4 @@ DBStorageLayout::deleteFromDb()
     tileConfiguration->setPersistent(false);
     DBObject::deleteFromDb();
 }
+

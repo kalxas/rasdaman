@@ -50,7 +50,6 @@ class BlobFSTransactionLock
     friend class TestBlobFSTransactionLock;
 
 public:
-
     /**
      * Initialize lock file on fileStorageTransactionPath.
      *
@@ -87,7 +86,6 @@ public:
     bool abortLockValid();
 
 private:
-
     // transaction root path
     std::string fileStorageTransactionPath;
 

@@ -1,15 +1,3 @@
-#ifndef _MDDCOLLITER_HH_
-#define _MDDCOLLITER_HH_
-
-class MDDCollIter;
-class MDDColl;
-class MDDObj;
-
-#include "mddobj.hh"
-#include "relmddif/mddid.hh"                // from mddif interface module
-
-#include <stdlib.h>
-#include <iostream>
 /*
 * This file is part of rasdaman community.
 *
@@ -44,7 +32,19 @@ rasdaman GmbH.
  *       - Functionality: stream operator, inc/dec operators,...
  *
 */
+#ifndef _MDDCOLLITER_HH_
+#define _MDDCOLLITER_HH_
 
+
+#include "mddobj.hh"
+#include "relmddif/mddid.hh"  // for DBMDDObjIdIter, DBMDDSetId
+
+#include <stdlib.h>
+#include <iosfwd>         // for cout, ostream
+
+class MDDColl;
+class MDDCollIter;
+class MDDObj;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:
@@ -60,7 +60,7 @@ rasdaman GmbH.
 class MDDCollIter
 {
 public:
-    void printStatus(unsigned int level = 0, ostream &stream = cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const;
 
     void reset();
 
@@ -73,17 +73,15 @@ public:
     ~MDDCollIter();
 
 protected:
-
     friend class MDDColl;
 
-    MDDCollIter(MDDColl  *targetColl);
+    MDDCollIter(MDDColl *targetColl);
     /**
         Constructor - to be used only by MDDColl
         The iterator is reset after it is created.
     */
 
 private:
-
     // Corresponding iterator in the base DBMS.
     DBMDDObjIdIter *dbIter;
 

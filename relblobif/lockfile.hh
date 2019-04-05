@@ -35,7 +35,6 @@ class LockFile
 {
     friend class TestBlobFSTransactionLock;
 public:
-
     LockFile(const std::string &lockFilePath);
 
     /**
@@ -66,7 +65,6 @@ public:
     bool unlock();
 
 private:
-
     std::string lockFilePath;
     int fd;
 };

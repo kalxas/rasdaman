@@ -31,45 +31,38 @@ rasdaman GmbH.
  *
  **********************************************************************/
 
-#include "config.h"
 #include "eoid.hh"
-#include "externs.h"
-#include "adminif.hh"
-#include "databaseif.hh"
-#include "raslib/error.hh"
-#include <logging.hh>
+#include <ostream>              // for operator<<, basic_ostream, ostream
 
-void
-EOId::print_status(std::ostream &s) const
+#include "adminif.hh"           // for AdminIf
+#include "databaseif.hh"        // for ostream, DatabaseIf
+#include "raslib/error.hh"      // for r_Error, r_Error::r_Error_Transaction...
+
+void EOId::print_status(std::ostream &s) const
 {
     s << systemName.c_str() << "|" << databaseName.c_str() << "|";
     OId::print_status(s);
 }
 
-std::ostream &
-operator<<(std::ostream &s, const EOId &d)
+std::ostream &operator<<(std::ostream &s, const EOId &d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
 }
 
-std::ostream &
-operator<<(std::ostream &s, EOId &d)
+std::ostream &operator<<(std::ostream &s, EOId &d)
 {
     s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
     return s;
 }
 
-EOId::EOId(const char *systemname, const char *dbname, OId::OIdCounter id, OId::OIdType type)
-    :   OId(id, type),
-        databaseName(dbname),
-        systemName(systemname)
+EOId::EOId(const char *systemname, const char *dbname, OId::OIdCounter id,
+           OId::OIdType type)
+    : OId(id, type), databaseName(dbname), systemName(systemname)
 {
-    LTRACE << "EOId(" << systemname << "," << dbname << "," << id << "," << type << ")";
 }
 
-EOId::EOId(const OId &id)
-    :   OId(id)
+EOId::EOId(const OId &id) : OId(id)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
@@ -78,13 +71,11 @@ EOId::EOId(const OId &id)
     }
     else
     {
-        LTRACE << "EOId(" << id << ") no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
 }
 
-EOId::EOId()
-    :   OId()
+EOId::EOId() : OId()
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
@@ -93,42 +84,30 @@ EOId::EOId()
     }
     else
     {
-        LTRACE << "EOId() no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
 }
 
 EOId::~EOId()
 {
-    LTRACE <<  "~EOId()";
 }
 
-const char *
-EOId::getSystemName() const
+const char *EOId::getSystemName() const
 {
-    LTRACE << "getSystemName() " << systemName.c_str();
     return systemName.c_str();
 }
 
-
-const char *
-EOId::getBaseName() const
+const char *EOId::getBaseName() const
 {
-    LTRACE << "getBaseName() " << databaseName.c_str();
     return databaseName.c_str();
 }
 
-
-OId
-EOId::getOId() const
+OId EOId::getOId() const
 {
-    LTRACE << "getOId() " << (OId)*this;
     return static_cast<OId>(*this);
 }
 
-
-void
-EOId::allocateEOId(EOId &eoid, OId::OIdType t)
+void EOId::allocateEOId(EOId &eoid, OId::OIdType t)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
@@ -137,16 +116,13 @@ EOId::allocateEOId(EOId &eoid, OId::OIdType t)
     }
     else
     {
-        LTRACE << "allocateEOId(" << eoid << ") no current databaseif";
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
     allocateOId(eoid, t);
 }
 
-bool
-EOId::operator==(const EOId &one) const
+bool EOId::operator==(const EOId &one) const
 {
-    LTRACE << "operator==(" << one << ")";
     bool retval = false;
     if (OId::operator==(one))
         if (systemName == one.systemName)
@@ -157,17 +133,13 @@ EOId::operator==(const EOId &one) const
     return retval;
 }
 
-bool
-EOId::operator!=(const EOId &one) const
+bool EOId::operator!=(const EOId &one) const
 {
-    LTRACE << "operator!=(" << one << ")";
     return !EOId::operator==(one);
 }
 
-EOId &
-EOId::operator=(const EOId &old)
+EOId &EOId::operator=(const EOId &old)
 {
-    LTRACE << "operator=(" << old << ")";
     if (this != &old)
     {
         OId::operator=(old);
@@ -177,10 +149,8 @@ EOId::operator=(const EOId &old)
     return *this;
 }
 
-bool
-EOId::operator<(const EOId &old) const
+bool EOId::operator<(const EOId &old) const
 {
-    LTRACE << "operator<(" << old << ")";
     bool retval = false;
     if (OId::operator<(old))
     {
@@ -197,10 +167,8 @@ EOId::operator<(const EOId &old) const
     return retval;
 }
 
-bool
-EOId::operator>(const EOId &old) const
+bool EOId::operator>(const EOId &old) const
 {
-    LTRACE << "operator>(" << old << ")";
     bool retval = false;
     if (OId::operator>(old))
     {
@@ -217,10 +185,8 @@ EOId::operator>(const EOId &old) const
     return retval;
 }
 
-bool
-EOId::operator<=(const EOId &old) const
+bool EOId::operator<=(const EOId &old) const
 {
-    LTRACE << "operator<=(" << old << ")";
     bool retval = false;
     if (operator<(old))
     {
@@ -233,10 +199,8 @@ EOId::operator<=(const EOId &old) const
     return retval;
 }
 
-bool
-EOId::operator>=(const EOId &old) const
+bool EOId::operator>=(const EOId &old) const
 {
-    LTRACE << "operator<=(" << old << ")";
     bool retval = false;
     if (operator>(old))
     {

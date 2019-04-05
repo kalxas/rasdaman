@@ -38,8 +38,10 @@ rasdaman GmbH.
 #ifndef _USHORTTYPE_HH_
 #define _USHORTTYPE_HH_
 
-#include <iostream>
-#include "uintegraltype.hh"
+#include <iosfwd>          // for ostream
+#include "uintegraltype.hh"  // for UIntegralType
+#include "raslib/odmgtypes.hh"      // for r_ULong
+#include "reladminif/oidif.hh"          // for OId
 #include "catalogmgr/ops.hh"
 
 //@ManMemo: Module: {\bf relcatalogif}.
@@ -72,28 +74,27 @@ public:
     assignment operator.
     */
 
-    virtual ~UShortType();
+    ~UShortType() override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual void printCell(ostream &stream, const char *cell) const;
+    void printCell(std::ostream &stream, const char *cell) const override;
     /*@Doc:
     */
 
-    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
+    r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
     /*@Doc:
     */
 
-    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
+    char *makeFromCULong(char *cell, const r_ULong *value) const override;
     /*@Doc:
     */
 
     static const char *Name;
 
 protected:
-
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.

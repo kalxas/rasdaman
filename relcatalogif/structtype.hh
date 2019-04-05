@@ -37,7 +37,7 @@ rasdaman GmbH.
 #ifndef _STRUCTTYPE_HH_
 #define _STRUCTTYPE_HH_
 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 
 #include "compositetype.hh"
@@ -67,13 +67,19 @@ struct.
   */
 class StructType : public CompositeType
 {
-    //  friend ostream& operator << (ostream& stream, StructType& b);
+    //  friend ostream& operator << (std::ostream& stream, StructType& b);
 
 public:
-    virtual void printCell(ostream &stream, const char *cell) const;
+    void printCell(std::ostream &stream, const char *cell) const override;
 
-    virtual char *getTypeStructure() const;
-    virtual char *getNewTypeStructure() const;
+    char *getTypeStructure() const override;
+    char *getNewTypeStructure() const override;
+
+    /// generate equivalent C type names
+    void generateCTypeName(std::vector<const char *> &names) const override;
+    void generateCTypePos(std::vector<int> &positions,
+                          int offset = 0) const override;
+    void getTypes(std::vector<const BaseType *> &types) const override;
 
     /// add new element to struct
     unsigned int addElement(const char *elemName, const char *elemType);
@@ -120,30 +126,28 @@ public:
     StructType &operator=(const StructType &old);
 
     /// virtual destructor.
-    virtual ~StructType() noexcept(false);
+    ~StructType() noexcept(false) override;
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
 
 private:
     // those inherited from BaseType aren't useful at all for StructType
-    // made them private to prevent calling them
-    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
-    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
-    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
-    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
-    virtual double *convertToCDouble(const char *cell, double *value) const;
-    virtual char *makeFromCDouble(char *cell, const double *value) const;
-
+    // made them private to preven calling them
+    r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
+    char *makeFromCULong(char *cell, const r_ULong *value) const override;
+    r_Long *convertToCLong(const char *cell, r_Long *value) const override;
+    char *makeFromCLong(char *cell, const r_Long *value) const override;
+    double *convertToCDouble(const char *cell, double *value) const override;
+    char *makeFromCDouble(char *cell, const double *value) const override;
 
 protected:
+    void insertInDb() override;
 
-    virtual void insertInDb();
+    void deleteFromDb() override;
 
-    virtual void deleteFromDb();
-
-    virtual void readFromDb();
+    void readFromDb() override;
 
     // moves back one step all elements all elements behind pos
     void moveBack(int pos);

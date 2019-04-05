@@ -1,16 +1,3 @@
-#ifndef _STORAGELAYOUT_HH_
-#define _STORAGELAYOUT_HH_
-
-#include <vector>
-
-#include "raslib/minterval.hh"
-#include "relstorageif/dbstoragelayout.hh"
-#include "rasodmg/interesttiling.hh"
-#include "rasodmg/stattiling.hh"
-#include "rasodmg/dirdecompose.hh"
-#include "storagemgr/stgmddconfig.hh"
-
-
 /*
 * This file is part of rasdaman community.
 *
@@ -52,6 +39,19 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#ifndef _STORAGELAYOUT_HH_
+#define _STORAGELAYOUT_HH_
+
+#include <vector>
+
+#include "relstorageif/dbstoragelayout.hh"
+#include "storagemgr/stgmddconfig.hh"
+#include "raslib/minterval.hh"
+#include "rasodmg/interesttiling.hh"
+#include "rasodmg/stattiling.hh"
+#include "rasodmg/dirdecompose.hh"
+
+
 //@ManMemo: Module: {\bf indexmgr}
 /*@Doc:
   The {\bf StorageLayout} class is used to set the storage layout for persistent
@@ -67,56 +67,67 @@ rasdaman GmbH.
 class StorageLayout
 {
 public:
-
     //@Man: Default values
     //@{
     /**
         These values are initialized by rassserver.
     */
-    static const r_Bytes    DBSPageSize;
+    static const r_Bytes DBSPageSize;
     /*@Doc:
     Database system page size.  not used at the moment.
     */
 
-    static r_Bytes      DefaultMinimalTileSize;
+    static r_Bytes DefaultMinimalTileSize;
     /*@Doc:
-    For inlinetiles.  this is the minimum size for a blobtile to be stored as a single blob.
-    if you use inlinetile index and a tile is smaller than this value the inlinetile will be stored inside the indexstructure.
+    For inlinetiles.  this is the minimum size for a blobtile to be stored as a
+    single blob.
+    if you use inlinetile index and a tile is smaller than this value the
+    inlinetile will be stored inside the
+    indexstructure.
     this value should be smaller than a database system page size.
     */
 
-    static r_Bytes      DefaultPCTMax;
+    static r_Bytes DefaultPCTMax;
     /*@Doc:
-    for inlinetiles.  the maximum size of inlined inlinetiles.  if they grow larger than this value they are outlined and stored as a single blob.
+    for inlinetiles.  the maximum size of inlined inlinetiles.  if they grow
+    larger than this value they are outlined and
+    stored as a single blob.
     */
 
-    static r_Bytes      DefaultTileSize;
+    static r_Bytes DefaultTileSize;
     /*@Doc:
-    for serverside retiling based on tile size.  this is very bad for production systems but will allow for easier testing.
-    when an incomming tile from the client is larger than this number and tile size tiling is enabled the server will split the tile into smaller tiles so that each resulting tile has a smaller size than the incomming tile.
+    for serverside retiling based on tile size.  this is very bad for production
+    systems but will allow for easier
+    testing.
+    when an incomming tile from the client is larger than this number and tile
+    size tiling is enabled the server will
+    split the tile into smaller tiles so that each resulting tile has a smaller
+    size than the incomming tile.
     */
 
-    static unsigned int     DefaultIndexSize;
+    static unsigned int DefaultIndexSize;
     /*@Doc:
-    this is usually computed by the index structures.  for testing purposes and bugfixing it will allow the user to override the computed number of childs per hierarchical index node.
+    this is usually computed by the index structures.  for testing purposes and
+    bugfixing it will allow the user to
+    override the computed number of childs per hierarchical index node.
     */
 
-    static r_Index_Type     DefaultIndexType;
+    static r_Index_Type DefaultIndexType;
     /*@Doc:
     the default index to be used.
     */
 
-    static r_Tiling_Scheme      DefaultTilingScheme;
+    static r_Tiling_Scheme DefaultTilingScheme;
     /*@Doc:
     the default tiling to be used.
     */
     ///
-    static r_Minterval      DefaultTileConfiguration;
+    static r_Minterval DefaultTileConfiguration;
     /*@Doc:
     the default tiling configuration to be used.
     */
     ///
-    static r_Data_Format        DefaultDataFormat;
+    static r_Data_Format DefaultDataFormat;
     /*@Doc:
     the default data format for tiles.
     */
@@ -225,11 +236,11 @@ public:
 
     r_Data_Format getDataFormat(const r_Point &where) const;
     /*@Doc:
-    this is supplied to offer later implementations to specify the dataformat depending on the region of space.
+    this is supplied to offer later implementations to specify the dataformat
+    depending on the region of space.
     */
 
     //@}
-
 
     //@Man: Destruction
     //@{
@@ -242,29 +253,29 @@ public:
     */
 
     // Functions added by Andrei Aiordachioaie, to match function definitions. (17-08-2009)
-    void setBBoxes(const vector<r_Minterval> &input);
+    void setBBoxes(const std::vector<r_Minterval> &input);
     void setSubTiling();
     void resetSubTiling();
     void setInterestThreshold(double i);
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
-    void setDirDecomp(vector<r_Dir_Decompose> *);
+    void setDirDecomp(std::vector<r_Dir_Decompose> *);
     void setExtraFeatures(StgMddConfig *extraFeatures);
 
     //Added by uadhikari
     void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
 
-    //Gets default configuration
+    // Gets default configuration
     static r_Minterval getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension);
     /*@Doc:
     Gets default tile configuration adjusted to each type
     */
 
-
 protected:
     std::vector<r_Minterval> calcRegLayout(const r_Minterval &layout) const;
     /*@Doc:
-    calculate the domains which intersect the layout parameter.  as point of origin the domain specified in myLayout is used.
+    calculate the domains which intersect the layout parameter.  as point of
+    origin the domain specified in myLayout is used.
     */
 
     //@Man: Actual Parameters:
@@ -276,23 +287,19 @@ protected:
     DBStorageLayoutId myLayout;
     //@Man: Persistent Representation of a StorageLayout object.
     //@{
-    ///All parameters are stored there.
+    /// All parameters are stored there.
     //@}
-    std::vector<r_Minterval>
-    calcInterestLayout(const r_Minterval &tileDomain);
+    std::vector<r_Minterval> calcInterestLayout(const r_Minterval &tileDomain);
 
     //@Man: Actual Parameters:
     //@{
-    std::vector<r_Minterval>
-    calcAlignedLayout(const r_Minterval &);
+    std::vector<r_Minterval> calcAlignedLayout(const r_Minterval &);
 
-    std::vector<r_Minterval>
-    calcDirectionalLayout(const r_Minterval &);
+    std::vector<r_Minterval> calcDirectionalLayout(const r_Minterval &);
 
-    std::vector<r_Minterval>
-    calcStatisticLayout(const r_Minterval &);
+    std::vector<r_Minterval> calcStatisticLayout(const r_Minterval &);
 
     //@}
-
 };
+
 #endif

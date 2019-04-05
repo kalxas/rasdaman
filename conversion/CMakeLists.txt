@@ -42,7 +42,7 @@ set(CONVERSION_HEADER_FILES
 
 set_source_files_properties(csv.cc PROPERTIES COMPILE_FLAGS " -Wno-sign-conversion ")
 
-add_library(conversion ${CONVERSION_HEADER_FILES}        
+add_library(conversion ${CONVERSION_HEADER_FILES}
         convertor.cc
         convfactory.cc
         convutil.cc

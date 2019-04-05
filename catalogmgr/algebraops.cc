@@ -251,7 +251,12 @@ QLInducedCondenseOp::operator()(const r_Point &p)
         //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
         else
         {
-            QtMDD *result = static_cast<QtMDD *>(QtBinaryInduce::computeBinaryMDDOp(accumulatedValue, resultData, accumulatedValue->getCellType(), myOp));
+            QtMDD *result = static_cast<QtMDD *>(
+                                QtBinaryInduce::computeBinaryMDDOp(accumulatedValue,
+                                        resultData,
+                                        accumulatedValue->getCellType(),
+                                        myOp
+                            ));
             //delete the mdds as they are not used
             accumulatedValue->deleteRef();
             resultData->deleteRef();

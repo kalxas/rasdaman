@@ -30,15 +30,7 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-
-
-#ifdef AIX
-#include <strings.h>
-#else
-#include <string.h>
-#endif
-
+#include <cstring>
 #include "raslib/mddtypes.hh"
 #include <logging.hh>
 
@@ -180,14 +172,13 @@ r_Data_Format get_data_format_from_name(const char *name)
 
 std::ostream &operator<<(std::ostream &s, r_Data_Format &d)
 {
-    s << static_cast<const r_Data_Format>(d);
+    s << get_name_from_data_format(d);
     return s;
 }
 
 std::ostream &operator<<(std::ostream &s, const r_Data_Format &d)
 {
     s << get_name_from_data_format(d);
-
     return s;
 }
 

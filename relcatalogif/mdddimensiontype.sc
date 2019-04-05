@@ -1,4 +1,3 @@
-#include "mymalloc/mymalloc.h"
 // This is -*- C++ -*-
 
 /*
@@ -41,10 +40,10 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
-void
-MDDDimensionType::insertInDb()
+void MDDDimensionType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
@@ -53,18 +52,21 @@ MDDDimensionType::insertInDb()
 
     dimension = myDimension;
     mddtypeid = myOId.getCounter();
-    (void) strncpy(mddtypename, const_cast<char *>(getName()), (size_t) sizeof(mddtypename));
+    (void)strncpy(mddtypename, const_cast<char *>(getName()),
+                  (size_t)sizeof(mddtypename));
     DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
     mddbasetypeid = obj->getOId();
-    LTRACE << " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension;
+    LTRACE << " typeid " << mddtypeid << " name " << mddtypename
+           << " basetypeoid " << mddbasetypeid << "dimension " << dimension;
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDDIMTYPES ( MDDDimTypeOId, MDDTypeName, BaseTypeId, Dimension) VALUES (%lld, '%s', %lld, %d)",
-                                   mddtypeid, mddtypename, mddbasetypeid, dimension);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_MDDDIMTYPES ( MDDDimTypeOId, MDDTypeName, BaseTypeId, "
+        "Dimension) VALUES (%lld, '%s', %lld, %d)",
+        mddtypeid, mddtypename, mddbasetypeid, dimension);
     DBObject::insertInDb();
 }
 
-void
-MDDDimensionType::readFromDb()
+void MDDDimensionType::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -78,24 +80,26 @@ MDDDimensionType::readFromDb()
     mddbasetypeid = 0;
     dimension = 0;
 
-    SQLiteQuery query("SELECT Dimension, BaseTypeId, MDDTypeName FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld",
-                      mddtypeid);
+    SQLiteQuery query(
+        "SELECT Dimension, BaseTypeId, MDDTypeName FROM RAS_MDDDIMTYPES WHERE "
+        "MDDDimTypeOId = %lld",
+        mddtypeid);
     if (query.nextRow())
     {
         dimension = query.nextColumnInt();
         mddbasetypeid = query.nextColumnLong();
-        mddtypename = query.nextColumnString();
+        setName(query.nextColumnString());
     }
     else
     {
-        LERROR << "MDDDimensionType::readFromDb() - mdd type: "
-               << mddtypeid << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
+        LERROR << "MDDDimensionType::readFromDb() - mdd type: " << mddtypeid
+               << " not found in the database.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND,
+                           "mdd type object not found in the database.");
     }
 
     myDimension = static_cast<r_Dimension>(dimension);
-    setName(mddtypename);
-    myBaseType = (BaseType *) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
+    myBaseType = (BaseType *)ObjectBroker::getObjectByOId(OId(mddbasetypeid));
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
@@ -103,11 +107,10 @@ MDDDimensionType::readFromDb()
     DBObject::readFromDb();
 }
 
-void
-MDDDimensionType::deleteFromDb()
+void MDDDimensionType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld",
-                                   mddtypeid);
+    SQLiteQuery::executeWithParams(
+        "DELETE FROM RAS_MDDDIMTYPES WHERE MDDDimTypeOId = %lld", mddtypeid);
     DBObject::deleteFromDb();
 }

@@ -32,10 +32,10 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include "mymalloc/mymalloc.h"
 
-#include <iostream>
 #include "mddcoll.hh"
+
+#include "mymalloc/mymalloc.h"
 #include "mddcolliter.hh"
 #include "relmddif/dbmddset.hh"
 #include "mddobj.hh"
@@ -47,15 +47,17 @@ rasdaman GmbH.
 #include "relmddif/dbmddset.hh"
 #include "reladminif/eoid.hh"
 #include "tilemgr/tile.hh"
-#include <logging.hh>
 
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/alltypes.hh"
 #include "catalogmgr/typefactory.hh"
+#include <logging.hh>                            // for Writer, CTRACE
 
-#include <boost/algorithm/string/predicate.hpp>
+#include <iostream>                              // for operator<<, ostream
+#include <boost/algorithm/string/predicate.hpp>  // for starts_with
+#include <cstring>
 
 // MDD and SET names required for returning the list of types
 // they can be any string and are required just by the internal structure
@@ -63,45 +65,39 @@ rasdaman GmbH.
 #define MOCK_SET_COLLECTION_NAME "RAS_NAMESETTYPE"
 
 
-#include <cstring>
 
 MDDColl::MDDColl(const CollectionType *newType, const char *name)
 {
-    LTRACE << "MDDColl(" << newType->getName() << ", " << (name ? name : "null") << ") " << (r_Ptr)this;
     const char *theName = name;
-    if (theName == NULL)
+    if (theName == nullptr)
     {
         theName = "rasdaman temporary collection";
     }
     dbColl = new DBMDDSet(theName, newType);
 }
 
-const char *
-MDDColl::getName() const
+const char *MDDColl::getName() const
 {
     return dbColl->getName();
 }
 
-const CollectionType *
-MDDColl::getCollectionType() const
+const CollectionType *MDDColl::getCollectionType() const
 {
     return dbColl->getCollType();
 }
 
-void
-MDDColl::setCollectionType(const CollectionType *collType)
+void MDDColl::setCollectionType(const CollectionType *collType)
 {
     return dbColl->setCollType(collType);
 }
 
-unsigned long
-MDDColl::getCardinality() const
+
+unsigned long MDDColl::getCardinality() const
 {
     return dbColl->getCardinality();
 }
 
-bool
-MDDColl::getOId(OId &pOId) const
+bool MDDColl::getOId(OId &pOId) const
 {
     if (isPersistent())
     {
@@ -111,8 +107,7 @@ MDDColl::getOId(OId &pOId) const
     return false;
 }
 
-bool
-MDDColl::getEOId(EOId &pEOId) const
+bool MDDColl::getEOId(EOId &pEOId) const
 {
     if (isPersistent())
     {
@@ -122,8 +117,7 @@ MDDColl::getEOId(EOId &pEOId) const
     return false;
 }
 
-void
-MDDColl::insert(const MDDObj *newObj)
+void MDDColl::insert(const MDDObj *newObj)
 {
 #ifdef DEBUG
     if (newObj == 0)
@@ -140,15 +134,14 @@ MDDColl::insert(const MDDObj *newObj)
 #endif
 }
 
-void
-MDDColl::releaseAll()
+void MDDColl::releaseAll()
 {
     LDEBUG << "release all MDD objects in coll " << getName();
-    MDDObj *tempMDD = 0;
+    MDDObj *tempMDD = nullptr;
     while (!mddCache.empty())
     {
         tempMDD = (*mddCache.begin()).second;
-        (*mddCache.begin()).second = NULL;
+        (*mddCache.begin()).second = nullptr;
         delete tempMDD;
         mddCache.erase(mddCache.begin());
     }
@@ -160,31 +153,26 @@ MDDColl::~MDDColl()
     {
         releaseAll();
     }
-    //else released by release transfer structures
+    // else released by release transfer structures
 }
 
-MDDColl::MDDColl(const DBMDDSetId &coll)
-    : dbColl(coll)
-{
-}
+MDDColl::MDDColl(const DBMDDSetId &coll) : dbColl(coll) {}
 
-DBMDDSetId
-MDDColl::getDBMDDSet() const
+DBMDDSetId MDDColl::getDBMDDSet() const
 {
     return dbColl;
 }
 
-void
-MDDColl::insertIntoCache(const MDDObj *objToInsert) const
+void MDDColl::insertIntoCache(const MDDObj *objToInsert) const
 {
     LTRACE << "insertIntoCache(" << (r_Ptr)objToInsert << ")";
-    mddCache[objToInsert->getDBMDDObjId().ptr()] = const_cast<MDDObj *>(objToInsert);
+    mddCache[objToInsert->getDBMDDObjId().ptr()] =
+        const_cast<MDDObj *>(objToInsert);
 }
 
-MDDObj *
-MDDColl::getMDDObj(const DBMDDObj *objToGet) const
+MDDObj *MDDColl::getMDDObj(const DBMDDObj *objToGet) const
 {
-    MDDObj *persMDDObjToGet = NULL;
+    MDDObj *persMDDObjToGet = nullptr;
     MDDObjMap::const_iterator i = mddCache.find(const_cast<DBMDDObj *>(objToGet));
     if (i != mddCache.end())
     {
@@ -198,48 +186,44 @@ MDDColl::getMDDObj(const DBMDDObj *objToGet) const
     return persMDDObjToGet;
 }
 
-bool
-MDDColl::isPersistent() const
+bool MDDColl::isPersistent() const
 {
     return dbColl->isPersistent();
 }
 
-void
-MDDColl::printStatus(unsigned int level, std::ostream &stream) const
+void MDDColl::printStatus(unsigned int level, std::ostream &stream) const
 {
     dbColl->printStatus(level, stream);
-    char *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2 ; j++)
+    auto *indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2; j++)
     {
         indent[j] = ' ';
     }
     indent[level * 2] = '\0';
     stream << indent;
-    for (MDDObjMap::iterator i = mddCache.begin(); i != mddCache.end(); i++)
+    for (auto i = mddCache.begin(); i != mddCache.end(); i++)
     {
         stream << (r_Ptr)(*i).second;
     }
     delete[] indent;
-    indent = 0;
+    indent = nullptr;
 }
 
-MDDCollIter *
-MDDColl::createIterator() const
+MDDCollIter *MDDColl::createIterator() const
 {
-    MDDCollIter *iter = new MDDCollIter(const_cast<MDDColl *>(this));
+    auto *iter = new MDDCollIter(const_cast<MDDColl *>(this));
     return iter;
 }
 
-void
-MDDColl::remove(const MDDObj *obj)
+void MDDColl::remove(const MDDObj *obj)
 {
-    if (obj != NULL)
+    if (obj != nullptr)
     {
         DBMDDObjId t2 = obj->getDBMDDObjId();
         dbColl->remove(t2);
 
-        //remove from cache ;(
-        MDDObjMap::iterator i = mddCache.find(t2.ptr());
+        // remove from cache ;(
+        auto i = mddCache.find(t2.ptr());
         if (i != mddCache.end())
         {
             LTRACE << "remove(" << (r_Ptr)obj << ") found in cache";
@@ -284,34 +268,26 @@ MDDColl::removeFromCache(const PersMDDObj* objToRemove)
     }
 */
 
-void
-MDDColl::removeAll()
+void MDDColl::removeAll()
 {
     dbColl->removeAll();
 }
 
+const char *MDDColl::AllCollectionnamesName = "RAS_COLLECTIONNAMES";
+const char *MDDColl::AllStructTypesName = "RAS_STRUCT_TYPES";
+const char *MDDColl::AllMarrayTypesName = "RAS_MARRAY_TYPES";
+const char *MDDColl::AllSetTypesName = "RAS_SET_TYPES";
+const char *MDDColl::AllTypesName = "RAS_TYPES";
 
-const char *
-MDDColl::AllCollectionnamesName = "RAS_COLLECTIONNAMES";
-
-const char *
-MDDColl::AllStructTypesName = "RAS_STRUCT_TYPES";
-
-const char *
-MDDColl::AllMarrayTypesName = "RAS_MARRAY_TYPES";
-
-const char *
-MDDColl::AllSetTypesName = "RAS_SET_TYPES";
-
-MDDColl *
-MDDColl::createMDDCollection(const char *name, const CollectionType *ct)
+MDDColl *MDDColl::createMDDCollection(const char *name,
+                                      const CollectionType *ct)
 {
-    if (name == NULL)
+    if (name == nullptr)
     {
         LTRACE << "createMDDColl(NULL, colltype)";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
-    if (ct == NULL)
+    if (ct == nullptr)
     {
         LTRACE << "createMDDColl(" << name << ", NULL)";
         throw r_Error(COLLTYPE_NULL);
@@ -328,16 +304,16 @@ MDDColl::createMDDCollection(const char *name, const CollectionType *ct)
     return new MDDColl(newDBColl);
 }
 
-MDDColl *
-MDDColl::createMDDCollection(const char *name, const OId &o, const CollectionType *ct)
+MDDColl *MDDColl::createMDDCollection(const char *name, const OId &o,
+                                      const CollectionType *ct)
 {
     // may generate an exception:
-    if (name == NULL)
+    if (name == nullptr)
     {
         LTRACE << "createMDDColl(NULL, " << o << ", colltype)";
         throw r_Error(r_Error::r_Error_NameNotUnique);
     }
-    if (ct == NULL)
+    if (ct == nullptr)
     {
         LTRACE << "createMDDColl(" << name << ", " << o << ", NULL)";
         throw r_Error(COLLTYPE_NULL);
@@ -346,32 +322,30 @@ MDDColl::createMDDCollection(const char *name, const OId &o, const CollectionTyp
     {
         r_Error t(209);
         t.setTextParameter("type", ct->getName());
-        LTRACE << "createMDDColl(" << name << ", " << o << ", " << ct->getName() << " not persistent)";
+        LTRACE << "createMDDColl(" << name << ", " << o << ", " << ct->getName()
+               << " not persistent)";
         throw t;
     }
     DBMDDSetId newDBColl = new DBMDDSet(name, o, ct);
     return new MDDColl(newDBColl);
 }
 
-bool
-MDDColl::dropMDDCollection(const char *name)
+bool MDDColl::dropMDDCollection(const char *name)
 {
     return DBMDDSet::deleteDBMDDSet(name);
 }
 
-bool
-MDDColl::dropMDDCollection(const OId &o)
+bool MDDColl::dropMDDCollection(const OId &o)
 {
     return DBMDDSet::deleteDBMDDSet(o);
 }
 
-MDDColl *
-MDDColl::getMDDCollection(const OId &collOId)
+MDDColl *MDDColl::getMDDCollection(const OId &collOId)
 {
     DBMDDSetId t(collOId);
-    //this will throw an exception
+    // this will throw an exception
     t->isModified();
-    MDDColl *retval = new MDDColl(t);
+    auto *retval = new MDDColl(t);
     return retval;
 }
 
@@ -403,10 +377,9 @@ bool MDDColl::collExists(const char *collName)
     }
 }
 
-MDDColl *
-MDDColl::getMDDCollection(const char *collName)
+MDDColl *MDDColl::getMDDCollection(const char *collName)
 {
-    MDDColl *retval = 0;
+    MDDColl *retval = nullptr;
     DBMDDSetId dbset;
     if (strcmp(collName, AllCollectionnamesName) == 0)
     {
@@ -415,15 +388,15 @@ MDDColl::getMDDCollection(const char *collName)
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
         const BaseType *bt = TypeFactory::mapType("Char");
-        MDDDomainType *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
+        auto *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
         CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllCollectionnamesName);
         OIdSet *list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
-        MDDObj *transObj = 0;
+        MDDObj *transObj = nullptr;
         boost::shared_ptr<Tile> transTile;
-        const char *nameBuffer = 0;
+        const char *nameBuffer = nullptr;
         size_t namelen = 0;
         while (!list->empty())
         {
@@ -450,15 +423,15 @@ MDDColl::getMDDCollection(const char *collName)
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
         const BaseType *bt = TypeFactory::mapType(CharType::Name);
-        MDDDomainType *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
+        auto *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
         CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllStructTypesName);
 
         TypeIterator<StructType> structIter = TypeFactory::createStructIter();
-        MDDObj *transObj = 0;
-        Tile *transTile = 0;
+        MDDObj *transObj = nullptr;
+        Tile *transTile = nullptr;
 
         while (structIter.not_done())
         {
@@ -474,7 +447,7 @@ MDDColl::getMDDCollection(const char *collName)
                 continue;
             }
 
-            char       *typeStructure = typePtr->getNewTypeStructure();
+            char *typeStructure = typePtr->getNewTypeStructure();
 
             if (!boost::starts_with(typePtr->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
             {
@@ -503,15 +476,14 @@ MDDColl::getMDDCollection(const char *collName)
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
         const BaseType *bt = TypeFactory::mapType(CharType::Name);
-        MDDDomainType *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
+        auto *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
         CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllMarrayTypesName);
 
-        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
-        MDDObj *transObj = 0;
-        Tile *transTile = 0;
+        MDDObj *transObj = nullptr;
+        Tile *transTile = nullptr;
 
         TypeIterator<MDDType> mddIter = TypeFactory::createMDDIter();
 
@@ -563,15 +535,15 @@ MDDColl::getMDDCollection(const char *collName)
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
         const BaseType *bt = TypeFactory::mapType(CharType::Name);
-        MDDDomainType *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
+        auto *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
         CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllSetTypesName);
 
         TypeIterator<StructType> structIter = TypeFactory::createStructIter();
-        MDDObj *transObj = 0;
-        Tile *transTile = 0;
+        MDDObj *transObj = nullptr;
+        Tile *transTile = nullptr;
 
         TypeIterator<SetType> setIter = TypeFactory::createSetIter();
         while (setIter.not_done())
@@ -621,8 +593,7 @@ MDDColl::getMDDCollection(const char *collName)
     return retval;
 }
 
-bool
-MDDColl::removeMDDObject(const OId &collOId, const OId &mddOId)
+bool MDDColl::removeMDDObject(const OId &collOId, const OId &mddOId)
 {
     bool retval = true;
     DBMDDSetId coll(collOId);
@@ -630,7 +601,7 @@ MDDColl::removeMDDObject(const OId &collOId, const OId &mddOId)
 
     if (coll.is_null())
     {
-        //does not exist
+        // does not exist
         retval = false;
     }
     else

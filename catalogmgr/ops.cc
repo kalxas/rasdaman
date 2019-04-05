@@ -1780,7 +1780,7 @@ OpMIN_BINARYULong::OpMIN_BINARYULong(const BaseType *newResType, const BaseType 
 void
 OpMIN_BINARYULong::operator()(char *res, const char *op1, const char *op2)
 {
-    cout << "Hier krachts?" << endl;
+    std::cout << "Hier krachts?" << endl;
     if (*(r_ULong *)(const_cast<char *>(op1) + op1Off) < * (r_ULong *)(const_cast<char *>(op2) + op2Off))
     {
         *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op1) + op1Off);

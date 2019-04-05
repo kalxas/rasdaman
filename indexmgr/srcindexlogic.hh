@@ -32,8 +32,8 @@ rasdaman GmbH.
 #define _SRCINDEXLOGIC_HH_
 
 #include "reladminif/lists.h"
-#include "raslib/minterval.hh"
 #include "reladminif/oidif.hh"
+#include "raslib/minterval.hh"
 
 class r_Point;
 class StorageLayout;
@@ -69,20 +69,28 @@ public:
 
     static unsigned int computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain);
     /*@Doc:
-        Compute the number of tiles that will have to be allocated by the index.  This is based on the tile config from storagelayout and the domain covered by the mdd.
+        Compute the number of tiles that will have to be allocated by the index.
+       This is based on the tile config from
+       storagelayout and the domain covered by the mdd.
     */
 
-    static bool insertObject(IndexDS *theIx, const KeyObject &newObject, const StorageLayout &sl);
+    static bool insertObject(IndexDS *theIx, const KeyObject &newObject,
+                             const StorageLayout &sl);
     /*@Doc:
-        Inserts a new object in the index.  Creates a new tile which has the oid that belongs to that domain.  The original tile is deleted from database.
+        Inserts a new object in the index.  Creates a new tile which has the oid
+       that belongs to that domain.  The
+       original tile is deleted from database.
     */
 
-    static bool removeObject(IndexDS *theIx, const KeyObject &tileToRemove, const StorageLayout &sl);
+    static bool removeObject(IndexDS *theIx, const KeyObject &tileToRemove,
+                             const StorageLayout &sl);
     /*@Doc:
         Removes the tile from the object.
     */
 
-    static void intersect(const IndexDS *theIx, const r_Minterval &searchInter, KeyObjectVector &objs, const StorageLayout &sl);
+    static void intersect(const IndexDS *theIx,
+                          const r_Minterval &searchInter,
+                          KeyObjectVector &objs, const StorageLayout &sl);
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
@@ -92,46 +100,69 @@ public:
         afterwards by the caller.
     */
 
-    static void containPointQuery(const IndexDS *theIx, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
+    static void containPointQuery(const IndexDS *theIx,
+                                  const r_Point &searchPoint,
+                                  KeyObject &result, const StorageLayout &sl);
     /*@Doc:
         Passes a pointer to the searched item.
         Memory is for the KeyObject is not to be released by the caller.
     */
 
-    static void getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl);
+    static void getObjects(const IndexDS *ixDS, KeyObjectVector &objs,
+                           const StorageLayout &sl);
     /*@Doc:
         Returns all the tiles belonging to the object.
     */
 
 protected:
-
-    static r_Minterval computeNormalizedDomain(const r_Point &mddDomainExtent, const r_Point &tileConfigExtent);
+    static r_Minterval computeNormalizedDomain(
+        const r_Point &mddDomainExtent,
+        const r_Point &tileConfigExtent);
     /*@Doc:
         compute the normalized matrix from the extent of the domain and the extent of the tile config.
     */
 
-    static r_Point computeNormalizedPoint(const r_Point &toNormalize, const r_Point &tileConfigExtent, const r_Point &mddDomainOrigin);
+    static r_Point computeNormalizedPoint(
+        const r_Point &toNormalize,
+        const r_Point &tileConfigExtent,
+        const r_Point &mddDomainOrigin);
     /*@Doc:
-        compute the normalized point from the point, the extent of the tile config and the origin of the mdd domain.
-        this point is then used to calculate the number of the tile in the normailzed matrix.
+        compute the normalized point from the point, the extent of the tile config
+       and the origin of the mdd domain.
+        this point is then used to calculate the number of the tile in the
+       normailzed matrix.
     */
 
-    static r_Minterval computeDomain(const r_Point &toConvert, const r_Point &tileConfigExtent, const r_Point &mddDomainOrigin);
+    static r_Minterval computeDomain(
+        const r_Point &toConvert, const r_Point &tileConfigExtent,
+        const r_Point &mddDomainOrigin);
     /*@Doc:
-        compute the tile domain based on the point inside that domain, the tile config extent and the origin of the mdd.
+        compute the tile domain based on the point inside that domain, the tile
+       config extent and the origin of the mdd.
     */
 
-    static OId computeOId(const r_Minterval &mddDomain, const r_Point &tileConfigExtent, OId::OIdCounter baseCounter, OId::OIdType type, const r_Point &tileOrigin);
+    static OId computeOId(const r_Minterval &mddDomain,
+                          const r_Point &tileConfigExtent,
+                          OId::OIdCounter baseCounter, OId::OIdType type,
+                          const r_Point &tileOrigin);
     /*@Doc:
-        compute the oid of an entry based on the domain of the mdd, the extent of the tile config, the starting oid adress, the type of oid and the origin of the tile domain.
+        compute the oid of an entry based on the domain of the mdd, the extent of
+       the tile config, the starting oid
+       adress, the type of oid and the origin of the tile domain.
     */
 
-    static r_Minterval computeTiledDomain(const r_Minterval &completeDomain, const r_Point &tileConfigExtent, const r_Minterval &widenMe);
+    static r_Minterval computeTiledDomain(
+        const r_Minterval &completeDomain,
+        const r_Point &tileConfigExtent,
+        const r_Minterval &widenMe);
     /*@Doc:
-        compute the completely tiled domain, which is the intersection of the complete domain and the domain to be tiled (widenMe), based on the tile config.
-        Example: user requests tiles in domain [3:5].  the tile config is [1], the complete domain is [2:7].  the result will be [2:5] because [3:3] belongs to the tile [2:3].
+        compute the completely tiled domain, which is the intersection of the
+       complete domain and the domain to be tiled
+       (widenMe), based on the tile config.
+        Example: user requests tiles in domain [3:5].  the tile config is [1], the
+       complete domain is [2:7].  the result
+       will be [2:5] because [3:3] belongs to the tile [2:3].
     */
-
 };
 
 #endif

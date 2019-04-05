@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "keyobject.hh"
 #include "tilemgr/tile.hh"
 
-ostream &operator<<(ostream &in,  const KeyObject &d)
+std::ostream &operator<<(std::ostream &in, const KeyObject &d)
 {
     if (d.isPersCarrier())
     {
@@ -38,20 +38,24 @@ ostream &operator<<(ostream &in,  const KeyObject &d)
     return in;
 }
 
-KeyObject::KeyObject()
-{
-}
+KeyObject::KeyObject() = default;
 
-KeyObject::KeyObject(const KeyObject &old)
-    :   persobject(old.persobject),
-        domain(old.domain),
-        transobject(old.transobject)
+KeyObject::KeyObject(const KeyObject &old) = default;
+
+std::string KeyObject::toString() const
 {
+    if (isPersCarrier())
+    {
+        return "Carrier{" + getDomain().to_string() + ", " + std::to_string(getObject().getOId().getCounter()) + "}";
+    }
+    else
+    {
+        return "Carrier{" + getDomain().to_string() + ", TransTile}";
+    }
 }
 
 KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
-    :   persobject(),
-        domain(tile->getDomain())
+    : persobject(), domain(tile->getDomain())
 {
     if (tile->isPersistent())
     {
@@ -64,37 +68,30 @@ KeyObject::KeyObject(boost::shared_ptr<Tile> tile)
 }
 
 KeyObject::KeyObject(const DBObjectId &obj, const r_Minterval &dom)
-    :   persobject(obj),
-        domain(dom)
-{
-}
+    : persobject(obj), domain(dom) {}
 
 KeyObject::~KeyObject() noexcept(false)
 {
     transobject.reset();
 }
 
-void
-KeyObject::setDomain(const r_Minterval &dom)
+void KeyObject::setDomain(const r_Minterval &dom)
 {
     domain = dom;
 }
 
-void
-KeyObject::setTransObject(boost::shared_ptr<Tile> tile)
+void KeyObject::setTransObject(boost::shared_ptr<Tile> tile)
 {
     domain = tile->getDomain();
     transobject = tile;
 }
 
-void
-KeyObject::setObject(const DBObjectId &obj)
+void KeyObject::setObject(const DBObjectId &obj)
 {
     persobject = obj;
 }
 
-bool
-KeyObject::isInitialised() const
+bool KeyObject::isInitialised() const
 {
     if (transobject)
     {
@@ -107,26 +104,22 @@ KeyObject::isInitialised() const
     return false;
 }
 
-bool
-KeyObject::isPersCarrier() const
+bool KeyObject::isPersCarrier() const
 {
-    return (transobject == NULL);
+    return (transobject == nullptr);
 }
 
-boost::shared_ptr<Tile>
-KeyObject::getTransObject() const
+boost::shared_ptr<Tile> KeyObject::getTransObject() const
 {
     return transobject;
 }
 
-const DBObjectId &
-KeyObject::getObject() const
+const DBObjectId &KeyObject::getObject() const
 {
     return persobject;
 }
 
-r_Minterval
-KeyObject::getDomain() const
+r_Minterval KeyObject::getDomain() const
 {
     return domain;
 }

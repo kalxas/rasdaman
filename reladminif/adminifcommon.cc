@@ -34,11 +34,6 @@ rasdaman GmbH.
 
 #include "config.h"
 #include <string.h>
-#if defined(DECALPHA) || defined(LINUX) || defined(AIX) || defined(SOLARIS)
-//#include <algorith.h>
-//#elif defined(LINUX) || defined(AIX) || defined(SOLARIS)
-#include <algorithm>
-#endif
 
 #include "raslib/error.hh"
 #include "adminif.hh"
@@ -53,58 +48,38 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-// defined in rasserver.cc
-extern char globalConnectId[256];
 
-
-AdminIf *AdminIf::myInstance = NULL;
-
+AdminIf *AdminIf::myInstance = nullptr;
 bool AdminIf::validConnection = false;
-
 bool AdminIf::readOnlyTA = false;
-
-DatabaseIf *AdminIf::myDatabaseIf = NULL;
-
+DatabaseIf *AdminIf::myDatabaseIf = nullptr;
 char AdminIf::systemName[SYSTEMNAME_MAXLEN + 1];
 const char DEFAULT_SYSTEM_NAME[SYSTEMNAME_MAXLEN] = "localhost";
-
 bool AdminIf::_isAborted = false;
 
-bool
-AdminIf::isAborted()
+bool AdminIf::isAborted()
 {
-    bool retval = false;
-
-#ifdef READ_ONLY_RMAN
-    retval = true;
-#else
-    retval = _isAborted;
-#endif
-    return retval;
+    return _isAborted;
 }
 
-void
-AdminIf::setAborted(bool newAborted)
+void AdminIf::setAborted(bool newAborted)
 {
     _isAborted = newAborted;
 }
 
-DatabaseIf *
-AdminIf::getCurrentDatabaseIf()
+DatabaseIf *AdminIf::getCurrentDatabaseIf()
 {
     return myDatabaseIf;
 }
 
-void
-AdminIf::setCurrentDatabaseIf(DatabaseIf *db)
+void AdminIf::setCurrentDatabaseIf(DatabaseIf *db)
 {
     myDatabaseIf = db;
 }
 
-AdminIf *
-AdminIf::instance(bool createDb)
+AdminIf *AdminIf::instance(bool createDb)
 {
-    AdminIf *retval = NULL;
+    AdminIf *retval = nullptr;
 
     int hostResult = gethostname(systemName, sizeof(systemName));
     if (hostResult != 0)
@@ -126,38 +101,30 @@ AdminIf::instance(bool createDb)
 
 AdminIf::~AdminIf()
 {
-    myInstance = NULL;
+    myInstance = nullptr;
     ObjectBroker::deinit();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.setOutput(0);
-
     DBObject::updateTimer.setOutput(0);
-
     DBObject::deleteTimer.setOutput(0);
-
     DBObject::insertTimer.setOutput(0);
-
     OId::oidAlloc.setOutput(0);
-
     OId::oidResolve.setOutput(0);
 #endif
 }
 
-void
-AdminIf::setReadOnlyTA(bool newReadOnlyTA)
+void AdminIf::setReadOnlyTA(bool newReadOnlyTA)
 {
     readOnlyTA = newReadOnlyTA;
 }
 
-bool
-AdminIf::isReadOnlyTA()
+bool AdminIf::isReadOnlyTA()
 {
     return readOnlyTA;
 }
 
-char *
-AdminIf::getSystemName()
+char *AdminIf::getSystemName()
 {
     return systemName;
 }

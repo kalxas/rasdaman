@@ -37,10 +37,11 @@ rasdaman GmbH.
 #ifndef _BASETYPE_HH_
 #define _BASETYPE_HH_
 
-#include <iostream>
-#include "catalogmgr/ops.hh"
-#include "type.hh"
+#include <iosfwd>      // for ostream
+
 #include "raslib/odmgtypes.hh"
+#include "type.hh"
+#include "catalogmgr/ops.hh"
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -102,7 +103,7 @@ public:
     returns C #double# in cell #cell#.
     */
 
-    virtual void printCell(ostream &stream, const char *cell) const = 0;
+    virtual void printCell(std::ostream &stream, const char *cell) const = 0;
     /*@Doc:
     print contents of a cell to stream.
     */
@@ -147,12 +148,12 @@ public:
 
     BaseType &operator=(const BaseType &old);
 
-    virtual ~BaseType() noexcept(false);
+    ~BaseType() noexcept(false) override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     returns true if my TypeEnum == aType->getType()
     */

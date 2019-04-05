@@ -23,84 +23,85 @@ rasdaman GmbH.
 #ifndef _LISTS_H_
 #define _LISTS_H_
 
-#include <vector>
-#include <set>
 #include <map>
+#include <set>
+#include <vector>
 #include "relmddif/mddid.hh"
+#include "raslib/mddtypes.hh"
+#include "raslib/minterval.hh"
 
 class DBObject;
 class OId;
 class InlineMinterval;
-class r_Minterval;
 class KeyObject;
 class IndexDS;
 class HierIndexDS;
 class Tile;
 
-#include "raslib/mddtypes.hh"
-
-//used to hold oids for indexes, blobs, and dbmintervals.  no double entries
+// used to hold oids for indexes, blobs, and dbmintervals.  no double entries
 using OIdSet = std::set<OId, std::less<OId>>;
 
-//used to hold oids for indexes, blobs, and dbmintervals.  no double entries
+// used to hold oids for indexes, blobs, and dbmintervals.  no double entries
 using OIdConstSet = std::set<const OId, std::less<OId>>;
 
-typedef std::vector<HierIndexDS *> HierIndexDSPVector;
+using HierIndexDSPVector = std::vector<HierIndexDS *>;
 
-//used to hold DBObject*.  e.g. in objectbroker to temporarily store them before deletion
-typedef std::vector<DBObject *> DBObjectPVector;
+// used to hold DBObject*.  e.g. in objectbroker to temporarily store them
+// before deletion
+using DBObjectPVector = std::vector<DBObject *>;
 
-//used to hold DBObject*.  e.g. in objectbroker to temporarily store them before deletion
-typedef std::vector<const DBObject *> DBObjectPConstVector;
+// used to hold DBObject*.  e.g. in objectbroker to temporarily store them
+// before deletion
+using DBObjectPConstVector = std::vector<const DBObject *>;
 
-//used to hold oids for indexes, blobs, and dbmintervals
-typedef std::vector<OId> OIdVector;
+// used to hold oids for indexes, blobs, and dbmintervals
+using OIdVector = std::vector<OId>;
 
-//used to hold oids for indexes, blobs, and dbmintervals
-typedef std::vector<const OId> OIdConstVector;
+// used to hold oids for indexes, blobs, and dbmintervals
+using OIdConstVector = std::vector<const OId>;
 
-//holds type information on specific blobs which are stored in above oidlists
-typedef std::vector<r_Data_Format> CompTypeVector;
+// holds type information on specific blobs which are stored in above oidlists
+using CompTypeVector = std::vector<r_Data_Format>;
 
-typedef std::vector<const InlineMinterval *> IntervalPConstVector;
+using IntervalPConstVector = std::vector<const InlineMinterval *>;
 
-typedef std::vector<InlineMinterval *> IntervalPVector;
+using IntervalPVector = std::vector<InlineMinterval *>;
 
-typedef std::vector<const InlineMinterval> IntervalConstVector;
+using IntervalConstVector = std::vector<const InlineMinterval>;
 
-typedef std::vector<InlineMinterval> IntervalVector;
+using IntervalVector = std::vector<InlineMinterval>;
 
-typedef std::vector<const KeyObject *> KeyObjectPConstVector;
+using KeyObjectPConstVector = std::vector<const KeyObject *>;
 
-typedef std::vector<KeyObject *> KeyObjectPVector;
+using KeyObjectPVector = std::vector<KeyObject *>;
 
-typedef std::vector<const KeyObject> KeyObjectConstVector;
+using KeyObjectConstVector = std::vector<const KeyObject>;
 
-typedef std::vector<KeyObject> KeyObjectVector;
+using KeyObjectVector = std::vector<KeyObject>;
 
-typedef std::vector<r_Minterval> DomainVector;
+using DomainVector = std::vector<r_Minterval>;
 
-typedef std::vector<r_Minterval *> DomainPVector;
+using DomainPVector = std::vector<r_Minterval *>;
 
-typedef std::vector<const r_Minterval *> DomainPConstVector;
+using DomainPConstVector = std::vector<const r_Minterval *>;
 
-typedef std::vector<IndexDS *> IndexPVector;
+using IndexPVector = std::vector<IndexDS *>;
 
-typedef std::vector<Tile *> TilePVector;
+using TilePVector = std::vector<Tile *>;
 
-typedef std::map<double, DBObject *, std::less<double>> DBObjectPMap;
-typedef std::pair<double, DBObject *> DBObjectPPair;
-typedef std::pair<const double, DBObject *> ConstDBObjectPPair;
+using DBObjectPMap = std::map<double, DBObject *, std::less<double>>;
+using DBObjectPPair = std::pair<double, DBObject *>;
+using ConstDBObjectPPair = std::pair<const double, DBObject *>;
 
-typedef std::map<double, const DBObject *, std::less<double>> DBObjectPConstMap;
-typedef std::pair<double, const DBObject *> DBObjectPConstPair;
-typedef std::pair<const double, const DBObject *> ConstDBObjectPConstPair;
+using DBObjectPConstMap = std::map<double, const DBObject *, std::less<double>>;
+using DBObjectPConstPair = std::pair<double, const DBObject *>;
+using ConstDBObjectPConstPair = std::pair<const double, const DBObject *>;
 
-typedef std::map<double, OId, std::less<double>> OIdMap;
-typedef std::pair<const double, OId> OIdPair;
-typedef std::pair<const double, const OId> OIdConstPair;
+using OIdMap = std::map<double, OId, std::less<double>>;
+using OIdPair = std::pair<const double, OId>;
+using OIdConstPair = std::pair<const double, const OId>;
 
-typedef std::map<double, r_Minterval, std::less<double>> DomainMap;
-typedef std::pair<const double, r_Minterval> DomainPair;
-typedef std::pair<const double, const r_Minterval> DomainConstPair;
+using DomainMap = std::map<double, r_Minterval, std::less<double>>;
+using DomainPair = std::pair<const double, r_Minterval>;
+using DomainConstPair = std::pair<const double, const r_Minterval>;
 #endif

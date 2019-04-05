@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
-
-#ifndef _STORAGE_MDD_CONFIG_HH_
-#define _STORAGE_MDD_CONFIG_HH_
-
-#include <vector>
-#include "rasodmg/dirdecompose.hh"
-#include "raslib/minterval.hh"
-#include "../rasodmg/interesttiling.hh"
 /****************************************************************************
  *
  *
@@ -45,6 +36,13 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ****************************************************************************/
+#ifndef _STORAGE_MDD_CONFIG_HH_
+#define _STORAGE_MDD_CONFIG_HH_
+
+#include <vector>
+#include "rasodmg/dirdecompose.hh"
+#include "raslib/minterval.hh"
+#include "../rasodmg/interesttiling.hh"
 
 class StgMddConfig
 {
@@ -57,7 +55,6 @@ private:
     std::vector<r_Dir_Decompose> dirDecomp;
     r_Interest_Tiling::Tilesize_Limit tilingSizeStrategy_AOI{r_Interest_Tiling::NO_LIMIT};
 public:
-
     StgMddConfig();
     ~StgMddConfig();
 
@@ -79,6 +76,5 @@ public:
     int getCellSize();
     std::vector<r_Dir_Decompose> &getDirDecompose();
     r_Interest_Tiling::Tilesize_Limit getTilingSizeStrategy_AOI();
-
 };
 #endif

@@ -28,28 +28,29 @@ rasdaman GmbH.
  * 27-May-99    webbasan    Added prefix "RAS_" to tablenames.
  */
 
-#include "config.h"
 #include "inlineminterval.hh"
-#include <logging.hh>
+#include "raslib/sinterval.hh"  // for r_Sinterval
+#include "logging.hh"               // for LTRACE
 
 InlineMinterval::InlineMinterval()
-    :   r_Minterval(static_cast<r_Dimension>(0))
+    : r_Minterval(static_cast<r_Dimension>(0))
 {
     LTRACE << "InlineMinterval()";
 }
 
-InlineMinterval::~InlineMinterval()
-{
-}
+InlineMinterval::~InlineMinterval() {}
 
 InlineMinterval::InlineMinterval(r_Dimension dim)
-    :   r_Minterval(dim)
+    : r_Minterval(dim)
 {
     LTRACE << "InlineMinterval(" << dim << ")";
 }
 
-InlineMinterval::InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *upperbound, char *lowerfixed, char *upperfixed)
-    :   r_Minterval(dim)
+InlineMinterval::InlineMinterval(r_Dimension dim,
+                                 r_Range *lowerbound,
+                                 r_Range *upperbound, char *lowerfixed,
+                                 char *upperfixed)
+    : r_Minterval(dim)
 {
     char undefined = '*';
     streamInitCnt = dim;
@@ -77,19 +78,18 @@ InlineMinterval::InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *
 }
 
 InlineMinterval::InlineMinterval(const InlineMinterval &old)
-    :   r_Minterval(old)
+    : r_Minterval(old)
 {
     LTRACE << "InlineMinterval(InlineMinterval)";
 }
 
 InlineMinterval::InlineMinterval(const r_Minterval &old)
-    :   r_Minterval(old)
+    : r_Minterval(old)
 {
     LTRACE << "InlineMinterval(r_Minterval)";
 }
 
-InlineMinterval &
-InlineMinterval::operator=(const InlineMinterval &old)
+InlineMinterval &InlineMinterval::operator=(const InlineMinterval &old)
 {
     if (this == &old)
     {
@@ -99,8 +99,7 @@ InlineMinterval::operator=(const InlineMinterval &old)
     return *this;
 }
 
-InlineMinterval &
-InlineMinterval::operator=(const r_Minterval &old)
+InlineMinterval &InlineMinterval::operator=(const r_Minterval &old)
 {
     if (this == &old)
     {
@@ -110,8 +109,9 @@ InlineMinterval::operator=(const r_Minterval &old)
     return *this;
 }
 
-void
-InlineMinterval::insertInDb(r_Range *lowerbound, r_Range *upperbound, char *lowerfixed, char *upperfixed) const
+void InlineMinterval::insertInDb(r_Range *lowerbound,
+                                 r_Range *upperbound, char *lowerfixed,
+                                 char *upperfixed) const
 {
     char undefined = '*';
     for (unsigned int count = 0; count < dimensionality; count++)

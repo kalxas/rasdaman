@@ -32,36 +32,32 @@ rasdaman GmbH.
  *
  *****************************************************************************/
 
-#include "config.h"
-#include "debug-srv.hh"
 #include "sqlglobals.h"
 
 #include "oidif.hh"
-#include "sqlerror.hh"
 #include "adminif.hh"
+#include "sqlerror.hh"
 #include "sqlitewrapper.hh"
 #include <logging.hh>
 
-void
-OId::initialize()
+void OId::initialize()
 {
     loadedOk = false;
     {
         SQLiteQuery query("SELECT NextValue FROM RAS_COUNTERS ORDER BY CounterId");
         unsigned int i = 1;
-        NNLDEBUG << "Counters: ";
+        NNLTRACE << "Counters: ";
         while (query.nextRow() && i < OId::maxCounter)
         {
             *counterIds[i] = query.nextColumnLong();
             if (i != 1)
             {
-                BLDEBUG << ", ";
+                BLTRACE << ", ";
             }
-            BLDEBUG << counterNames[i] << " = " << *counterIds[i];
+            BLTRACE << counterNames[i] << " = " << *counterIds[i];
             ++i;
         }
-        BLDEBUG << "\n";
-        BLFLUSH;
+        BLTRACE << "\n";
         if (i == OId::maxCounter)
         {
             loadedOk = true;
@@ -69,15 +65,15 @@ OId::initialize()
     }
 }
 
-void
-OId::deinitialize()
+void OId::deinitialize()
 {
     if (loadedOk && !AdminIf::isAborted() && !AdminIf::isReadOnlyTA())
     {
         for (unsigned int i = 1; i < OId::maxCounter; i++)
         {
-            SQLiteQuery::executeWithParams("UPDATE RAS_COUNTERS SET NextValue = %lld WHERE CounterName = '%s'",
-                                           *counterIds[i], counterNames[i]);
+            SQLiteQuery::executeWithParams(
+                "UPDATE RAS_COUNTERS SET NextValue = %lld WHERE CounterName = '%s'",
+                *counterIds[i], counterNames[i]);
         }
     }
     loadedOk = false;

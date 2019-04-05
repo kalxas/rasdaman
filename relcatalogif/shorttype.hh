@@ -38,8 +38,9 @@ rasdaman GmbH.
 #ifndef _SHORTTYPE_HH_
 #define _SHORTTYPE_HH_
 
-#include <iostream>
-#include "integraltype.hh"
+#include <iosfwd>         // for ostream
+#include "integraltype.hh"  // for IntegralType
+#include "raslib/odmgtypes.hh"     // for r_Long
 #include "catalogmgr/ops.hh"
 
 class OId;
@@ -75,33 +76,31 @@ public:
     assignment operator.
     */
 
-    virtual ~ShortType();
+    ~ShortType() override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual void printCell(ostream &stream, const char *cell) const;
+    void printCell(std::ostream &stream, const char *cell) const override;
     /*@Doc:
     */
 
-    virtual r_Long *convertToCLong(const char *cell, r_Long *value) const;
+    r_Long *convertToCLong(const char *cell, r_Long *value) const override;
     /*@Doc:
     */
 
-    virtual char *makeFromCLong(char *cell, const r_Long *value) const;
+    char *makeFromCLong(char *cell, const r_Long *value) const override;
     /*@Doc:
     */
 
     static const char *Name;
 
 protected:
-
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.
     */
-
 };
 
 #endif

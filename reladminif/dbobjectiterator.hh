@@ -23,22 +23,30 @@ rasdaman GmbH.
 #ifndef _DBOBJECTITERATOR_HH_
 #define _DBOBJECTITERATOR_HH_
 
-template <class T> class DBObjectIterator;
-template <class T> class DBRef;
-class ObjectBroker;
+#include "lists.h"  // for OIdSet
 
-#include "lists.h"
+#ifdef EARLY_TEMPLATE
+#ifdef __EXECUTABLE__
+#include "objectbroker.hh"
+#endif
+#endif
+
+
+template <class T>
+class DBRef;
+
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
 
-this object gets a set of oids.  when an oid is accessed the iterator returns a DBRef to the oid.
+this object gets a set of oids.  when an oid is accessed the iterator returns a
+DBRef to the oid.
 
 */
 
 /**
   * \ingroup Reladminifs
   */
-template<class T>
+template <class T>
 class DBObjectIterator
 {
 public:

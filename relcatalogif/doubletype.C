@@ -32,14 +32,14 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,DoubleType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/doubletype.C,v 1.8 2003/12/27 23:23:04 rasdev Exp $";
-
+#include "atomictype.hh"  // for AtomicType
 #include "doubletype.hh"
+#include "raslib/odmgtypes.hh"   // for DOUBLE
+#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
 #include <iomanip>
-#include <string.h>
+#include <limits>
 
-DoubleType::DoubleType(const OId &id)
-    :   RealType(id)
+DoubleType::DoubleType(const OId &id) : RealType(id)
 {
     readFromDb();
 }
@@ -53,8 +53,7 @@ DoubleType::DoubleType(const OId &id)
  *                 DoubleType.
  ************************************************************/
 
-DoubleType::DoubleType()
-    :   RealType(DoubleType::Name, 8)
+DoubleType::DoubleType() : RealType(DoubleType::Name, 8)
 {
     myType = DOUBLE;
     myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
@@ -68,10 +67,7 @@ DoubleType::DoubleType()
  * Description...: copy constructor
  ************************************************************/
 
-DoubleType::DoubleType(const DoubleType &old) :
-    RealType(old)
-{
-}
+DoubleType::DoubleType(const DoubleType &old)  = default;
 
 /*************************************************************
  * Method name...: operator=(const DoubleType&);
@@ -81,8 +77,7 @@ DoubleType::DoubleType(const DoubleType &old) :
  * Description...: copy constructor
  ************************************************************/
 
-DoubleType &
-DoubleType::operator=(const DoubleType &old)
+DoubleType &DoubleType::operator=(const DoubleType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -101,12 +96,9 @@ DoubleType::operator=(const DoubleType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-DoubleType::~DoubleType()
-{
-}
+DoubleType::~DoubleType() = default;
 
-void
-DoubleType::readFromDb()
+void DoubleType::readFromDb()
 {
     size = 8;
     setName(DoubleType::Name);
@@ -128,29 +120,25 @@ DoubleType::readFromDb()
  *                 on HP.
  ************************************************************/
 
-void
-DoubleType::printCell(ostream &stream, const char *cell) const
+void DoubleType::printCell(std::ostream &stream, const char *cell) const
 {
     // !!!! HP specific, assumes 4 Byte double and MSB..LSB
     // byte order
-    stream << *(double *)const_cast<char *>(cell) << " ";
+    stream << std::setprecision(std::numeric_limits<double>::digits10 + 1) << *reinterpret_cast<const double *>(cell);
 }
 
-double *
-DoubleType::convertToCDouble(const char *cell, double *value) const
+double *DoubleType::convertToCDouble(const char *cell, double *value) const
 {
     // !!!! HP specific, assumes 8 Byte double
     // byte order
-    *value = *(double *)const_cast<char *>(cell);
+    *value = *reinterpret_cast<const double *>(cell);
     return value;
 }
 
-
-char *
-DoubleType::makeFromCDouble(char *cell, const double *value) const
+char *DoubleType::makeFromCDouble(char *cell, const double *value) const
 {
     // !!!! HP specific, assumes 4 Byte double and MSB..LSB
     // byte order
-    *(double *)(cell) = *value;
+    *reinterpret_cast<double *>(cell) = *value;
     return cell;
 }

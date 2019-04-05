@@ -28,6 +28,8 @@ add_library(catalogmgr
         ops.hh ops.cc
         typefactory.hh typefactory.cc)
 
+add_dependencies(catalogmgr reladminif)
+
 target_include_directories(catalogmgr PUBLIC ${BASEDB_INCLUDE_DIR})
 
 install(TARGETS catalogmgr

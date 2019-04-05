@@ -35,26 +35,24 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include "config.h"
-#include "debug-srv.hh"
+#include "objectbroker.hh"
+
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
-
-#include "objectbroker.hh"
 #include "sqlerror.hh"
+#include "relindexif/dbrcindexds.hh"
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/indexid.hh"
 #include "adminif.hh"
-#include "relindexif/dbrcindexds.hh"
+#include "dbnamedobject.hh"
 #include "relblobif/inlinetile.hh"
 #include "dbref.hh"
-#include "dbnamedobject.hh"
 #include "externs.h"
 #include "catalogmgr/typefactory.hh"
 
 #include <logging.hh>
 
-DBObject *
-ObjectBroker::loadInlineTile(const OId &id)
+DBObject *ObjectBroker::loadInlineTile(const OId &id)
 {
     DBObject *retval = 0;
     OIdMap::iterator i = theTileIndexMappings.find(id);
@@ -106,8 +104,7 @@ ObjectBroker::loadInlineTile(const OId &id)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfSetType(const char *name)
+OId ObjectBroker::getOIdOfSetType(const char *name)
 {
     long long setoid;
 
@@ -134,8 +131,7 @@ ObjectBroker::getOIdOfSetType(const char *name)
     return retval;
 }
 
-MDDType *
-ObjectBroker::getMDDTypeByName(const char *name)
+MDDType *ObjectBroker::getMDDTypeByName(const char *name)
 {
     long long mddtoidv;
 
@@ -186,8 +182,7 @@ ObjectBroker::getMDDTypeByName(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfMDDType(const char *name)
+OId ObjectBroker::getOIdOfMDDType(const char *name)
 {
     char mddtname[STRING_MAXLEN];
     long long mddtoid;
@@ -216,8 +211,7 @@ ObjectBroker::getOIdOfMDDType(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfMDDBaseType(const char *name)
+OId ObjectBroker::getOIdOfMDDBaseType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -242,8 +236,7 @@ ObjectBroker::getOIdOfMDDBaseType(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfMDDDimensionType(const char *name)
+OId ObjectBroker::getOIdOfMDDDimensionType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -268,8 +261,7 @@ ObjectBroker::getOIdOfMDDDimensionType(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfMDDDomainType(const char *name)
+OId ObjectBroker::getOIdOfMDDDomainType(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -294,10 +286,8 @@ ObjectBroker::getOIdOfMDDDomainType(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfStructType(const char *name)
+OId ObjectBroker::getOIdOfStructType(const char *name)
 {
-
     OId retval;
     unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
@@ -321,8 +311,7 @@ ObjectBroker::getOIdOfStructType(const char *name)
     return retval;
 }
 
-OId
-ObjectBroker::getOIdOfMDDSet(const char *name)
+OId ObjectBroker::getOIdOfMDDSet(const char *name)
 {
     OId retval;
     unsigned int len = strlen(name);
@@ -347,8 +336,7 @@ ObjectBroker::getOIdOfMDDSet(const char *name)
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllSetTypes()
+OIdSet *ObjectBroker::getAllSetTypes()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::SETTYPEOID);
@@ -374,8 +362,7 @@ ObjectBroker::getAllSetTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDTypes()
+OIdSet *ObjectBroker::getAllMDDTypes()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDTYPEOID);
@@ -401,8 +388,7 @@ ObjectBroker::getAllMDDTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDBaseTypes()
+OIdSet *ObjectBroker::getAllMDDBaseTypes()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDBASETYPEOID);
@@ -420,7 +406,7 @@ ObjectBroker::getAllMDDBaseTypes()
     {
         oid = query.nextColumnLong();
         id = OId(oid, OId::MDDBASETYPEOID);
-        LTRACE <<   "read " << id << " " << id.getType();
+        LTRACE << "read " << id << " " << id.getType();
         LDEBUG << "got object " << id << " " << id.getType();
         retval->insert(id);
     }
@@ -428,10 +414,8 @@ ObjectBroker::getAllMDDBaseTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDDimensionTypes()
+OIdSet *ObjectBroker::getAllMDDDimensionTypes()
 {
-
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDDIMTYPEOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
@@ -456,8 +440,7 @@ ObjectBroker::getAllMDDDimensionTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDDomainTypes()
+OIdSet *ObjectBroker::getAllMDDDomainTypes()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDDOMTYPEOID);
@@ -483,8 +466,7 @@ ObjectBroker::getAllMDDDomainTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllStructTypes()
+OIdSet *ObjectBroker::getAllStructTypes()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::STRUCTTYPEOID);
@@ -510,8 +492,7 @@ ObjectBroker::getAllStructTypes()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDObjects()
+OIdSet *ObjectBroker::getAllMDDObjects()
 {
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDOID);
@@ -536,10 +517,8 @@ ObjectBroker::getAllMDDObjects()
     return retval;
 }
 
-OIdSet *
-ObjectBroker::getAllMDDSets()
+OIdSet *ObjectBroker::getAllMDDSets()
 {
-
     OIdSet *retval = new OIdSet();
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDCOLLOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)

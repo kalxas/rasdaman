@@ -34,11 +34,13 @@ rasdaman GmbH.
  * statements in the operator"<" and ">" must be changed.
  ***************************************************************************/
 
-class EOId;
-class r_Error;
+#include <iosfwd>    // for ostream
+#include <string>    // for string
 
-#include "oidif.hh"
-#include <string>
+#include "oidif.hh"  // for OId, OId::OIdType, OId::OIdCounter
+
+class r_Error;
+class EOId;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -49,7 +51,7 @@ statements in the operator"<" and ">" must be changed.
 /**
   * \ingroup Reladminifs
   */
-class EOId :    public OId
+class EOId : public OId
 {
 public:
     EOId(const char *systemname, const char *dbname, OId::OIdCounter id, OIdType type);
@@ -71,7 +73,6 @@ public:
     database is not really open.
     */
 
-
     ~EOId();
     /*@Doc:
     does not do anything.
@@ -82,13 +83,11 @@ public:
     assignes all atributes.
     */
 
-
     const char *getSystemName() const;
     /*@Doc:
     returns the system name, which is the same as the
     one returned by databaseif.
     */
-
 
     const char *getBaseName() const;
     /*@Doc:
@@ -96,12 +95,10 @@ public:
     one returned by databaseif
     */
 
-
     OId getOId() const;
     /*@Doc:
     returns the oid of this eoid
     */
-
 
     void print_status(std::ostream &o) const;
     /*@Doc:
@@ -122,12 +119,11 @@ public:
 
     bool operator>=(const EOId &old) const;
 
-    bool operator== (const EOId &one) const;
+    bool operator==(const EOId &one) const;
 
-    bool operator!= (const EOId &one) const;
+    bool operator!=(const EOId &one) const;
 
 private:
-
     std::string databaseName;
     /*@Doc:
     the name of the database the oid of this eoid is valid for.

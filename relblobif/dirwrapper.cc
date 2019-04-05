@@ -29,19 +29,24 @@
  ************************************************************/
 
 #include "config.h"
-#include <ftw.h>
-#include <errno.h>
-#include <cassert>
 #include "dirwrapper.hh"
-#include "blobfscommon.hh"
+#include "blobfscommon.hh"      // for IO_ERROR_RC, IO_SUCCESS_RC
+#include "raslib/error.hh"  // for r_Error, FILEDATADIR_NOTWRITABLE
 #include <logging.hh>
+
+#include <errno.h>              // for errno, ENOENT
+#include <ftw.h>                // for nftw, FTW_DEPTH, FTW_PHYS
+#include <stdio.h>              // for remove
+#include <string.h>             // for strerror, strcmp
+#include <sys/stat.h>           // for stat, fstatat, mkdir, S_ISDIR
+#include <cassert>
 
 using namespace std;
 using namespace blobfs;
 
 void DirWrapper::createDirectory(const string &dirPath)
 {
-    struct stat status;
+    struct stat status {};
     if (stat(dirPath.c_str(), &status) == IO_ERROR_RC)
     {
         if (mkdir(dirPath.c_str(), 0770) == IO_ERROR_RC)
@@ -131,7 +136,7 @@ bool DirEntryIterator::open()
 {
     bool ret = true;
     dirStream = opendir(dirPath.c_str());
-    if (dirStream == NULL)
+    if (dirStream == nullptr)
     {
         LWARNING << "error opening directory: " << dirPath;
         LWARNING << strerror(errno);
@@ -142,17 +147,17 @@ bool DirEntryIterator::open()
 
 bool DirEntryIterator::done()
 {
-    return dirEntry == NULL;
+    return dirEntry == nullptr;
 }
 
 string DirEntryIterator::next()
 {
     string ret("");
-    if (dirStream != NULL && (dirEntry = readdir(dirStream)) != NULL)
+    if (dirStream != nullptr && (dirEntry = readdir(dirStream)) != nullptr)
     {
         if (strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
         {
-            struct stat st;
+            struct stat st {};
             if (fstatat(dirfd(dirStream), dirEntry->d_name, &st, 0) == IO_ERROR_RC)
             {
                 if (errno == ENOENT)
@@ -181,11 +186,11 @@ string DirEntryIterator::next()
 bool DirEntryIterator::close()
 {
     bool ret = true;
-    if (dirStream != NULL)
+    if (dirStream != nullptr)
     {
         ret = closedir(dirStream) == IO_SUCCESS_RC;
-        dirStream = NULL;
-        dirEntry = NULL;
+        dirStream = nullptr;
+        dirEntry = nullptr;
     }
-    return true;
+    return ret;
 }

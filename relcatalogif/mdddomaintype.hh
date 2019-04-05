@@ -37,16 +37,16 @@ rasdaman GmbH.
 #ifndef _MDDDOMAINTYPE_HH_
 #define _MDDDOMAINTYPE_HH_
 
-class MDDDomainType;
 
-#include <iostream>
+#include <iosfwd>
 #include "raslib/minterval.hh"
 #include "catalogmgr/ops.hh"
 #include "mddbasetype.hh"
-#include "raslib/mddtypes.hh"       //for r_Range
+#include "raslib/mddtypes.hh"  //for r_Range
 
 class DBMinterval;
 class OId;
+class MDDDomainType;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -61,13 +61,13 @@ class OId;
 class MDDDomainType : public MDDBaseType
 {
 public:
-    virtual char *getTypeStructure() const;
+    char *getTypeStructure() const override;
     /*@Doc:
     looks like:
         marray <myBaseType->getTypeStructure(), myDomain->get_string_representation()>
     */
 
-    virtual char *getNewTypeStructure() const;
+    char *getNewTypeStructure() const override;
 
     MDDDomainType(const OId &id);
 
@@ -93,32 +93,32 @@ public:
     returns domain.
     */
 
-    virtual void print_status(ostream &s) const;
+    void print_status(std::ostream &s) const override;
     /*@Doc:
     writes the state of the object to the specified stream.
     looks like: \tr_Marray<myBaseType->getTypeName(), myDomain->print_status()\t>
     */
 
-    virtual ~MDDDomainType() noexcept(false);
+    ~MDDDomainType() noexcept(false) override;
     /*@Doc:
     virtual destructor.
     calls validate and deletes myDomain
     */
 
-    virtual void setPersistent(bool t);
+    void setPersistent(bool t) override;
     /*@Doc:
         this method from DBObject is overridden to make sure that
         the dbminterval is also made persistent/deleted from db.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     aType is compatible if:
         aType is a MDDDomainType and
         the basetypes are compatible
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     memory space is computed by
         MDDBaseType::getMemorySize() + sizeof(DBMinterval*)
@@ -126,17 +126,16 @@ public:
     */
 
 protected:
-
     DBMinterval *myDomain;
     /*@Doc:
     persistent domain.
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
 
-    virtual void readFromDb();
+    void readFromDb() override;
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 };
 
 #endif

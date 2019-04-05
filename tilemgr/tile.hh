@@ -23,7 +23,6 @@ rasdaman GmbH.
 
 /*************************************************************
  *
- *
  * PURPOSE:
  *   Tile is the abstract base class for persTile, transTile
  *   and constTile
@@ -36,9 +35,6 @@ rasdaman GmbH.
 #ifndef _TILE_HH_
 #define _TILE_HH_
 
-#include <vector>
-#include <set>
-
 #include "raslib/minterval.hh"   // for r_Minterval
 #include "raslib/point.hh"       // for r_Point
 #include "raslib/mddtypes.hh"    // for r_Data_Format
@@ -49,11 +45,15 @@ rasdaman GmbH.
 #include "relblobif/inlinetile.hh"
 #include "relblobif/dbtile.hh"
 #include "reladminif/dbref.hh"
-#include <boost/shared_ptr.hpp>
-
 #ifdef RMANBENCHMARK
 #include "raslib/rmdebug.hh"        // for RMTimer
 #endif
+
+#include <boost/shared_ptr.hpp>
+#include <vector>
+#include <set>
+#include <memory>
+
 class KeyObject;
 class PersMDDObjIx;
 
@@ -68,8 +68,11 @@ Tile uses a pointer to \Ref{BaseType} to store the base type of the Tile.
 It uses a \Ref{r_Minterval} to store the domain of the Tile.
 Pointers to Tiles are used by many classes.
 
-Persistent Tiles are created either by servercomm, when data is received from a client, or by indexif if a BLOBTile is retrieved from the
-index. The query tree can also create tiles in case of INSERT or UPDATE queries, and Tile::splitTile creates new tiles.
+Persistent Tiles are created either by servercomm, when data is received from a
+client, or by indexif if a BLOBTile is
+retrieved from the
+index. The query tree can also create tiles in case of INSERT or UPDATE queries,
+and Tile::splitTile creates new tiles.
 */
 
 /**
@@ -83,7 +86,6 @@ index. The query tree can also create tiles in case of INSERT or UPDATE queries,
 class Tile
 {
 public:
-
     /// assignment operator (needed, as class uses dynamic memory).
     const Tile &operator=(const Tile &cell);
 
@@ -124,7 +126,8 @@ public:
       tilesVec} has to overlap with {\tt resDom}.
     */
     /// constructs Tile as projection of {\tt projTile}.
-    Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Dimension, std::less<r_Dimension>> *projDim);
+    Tile(const Tile *projTile, const r_Minterval &projDom,
+         const std::set<r_Dimension, std::less<r_Dimension>> *projDim);
     /*@Doc:
       Constructs a new Tile out of the projection of Tile {\tt
       projTile} with the dimensions given in {\tt projDim} projected
@@ -136,13 +139,15 @@ public:
     */
     /*@ManMemo: constructs a Tile with base type {\tt newType} and
             spatial domain {\tt newDom}. */
-    Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format newFormat = r_Array);
+    Tile(const r_Minterval &newDom, const BaseType *newType,
+         r_Data_Format newFormat = r_Array);
     /*@Doc
       The contents are undefined! This constructor should usually not
       be used.
     */
     /// constructs a Tile with contents {\tt newCells}.
-    Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells, char *newCells, r_Bytes newSize, r_Data_Format newFormat);
+    Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells,
+         char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
       Constructs a new Tile with basetype {\tt newType} and spatial
       domain {\tt newDom}. The char array {\tt newCells} contains the
@@ -153,7 +158,8 @@ public:
       The newCells are copied if takeNewCellsOwnership is false, otherwise the pointer
       newCells is directly owned by DBTile.
     */
-    Tile(const r_Minterval &newDom, const BaseType *newType, const char *newCells, r_Bytes newSize, r_Data_Format newFormat);
+    Tile(const r_Minterval &newDom, const BaseType *newType,
+         const char *newCells, r_Bytes newSize, r_Data_Format newFormat);
     /*Doc
       Constructs a new Tile with basetype {\tt newType} and spatial
       domain {\tt newDom}. The char array {\tt newCells} contains the
@@ -167,6 +173,8 @@ public:
     //@{
     /// returns the spatial domain of the tile.
     const r_Minterval &getDomain() const;
+    /// returns the spatial domain for operations that will change it
+    r_Minterval &getDomainForWrite();
     /// returns the BaseType of the tile.
     const BaseType *getType() const;
     /// returns the dimension of the tile.
@@ -177,9 +185,12 @@ public:
     r_Bytes getCompressedSize() const;
     /// returns the format of the data maintained by the tile
     r_Data_Format getDataFormat() const;
+    /// returns the current format of the data maintained by the tile
+    r_Data_Format getCurrentFormat() const;
     /// returns true for persistent instances.
     bool isPersistent() const;
-    /// returns true if the contents are currently compressed and must be decompressed in order to be usefull
+    /// returns true if the contents are currently compressed and must be
+    /// decompressed in order to be usefull
     bool isCompressed() const;
     //@}
 
@@ -209,7 +220,7 @@ public:
     //@}
 
     /// printed output for testing.
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const;
     /*@Doc:
        Prints the contents of the Tile on stream. Prints every cell in
        the Tile with the {\tt printCell} function of the \Ref{BaseType}.
@@ -333,9 +344,12 @@ public:
     virtual ~Tile();
 
     /// copy a subcube from one tile to another
-    virtual void copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp);
+    virtual void copyTile(const r_Minterval &areaRes, const Tile *opTile,
+                          const r_Minterval &areaOp);
     /*@Doc:
-      The part of opTile covered by areaOp is copied to areaRes of this tile. Identical in functionality to execUnaryOp(OP_IDENTITY, ...) but much faster.
+      The part of opTile covered by areaOp is copied to areaRes of this tile.
+      Identical in functionality to
+      execUnaryOp(OP_IDENTITY, ...) but much faster.
       Requires matching base types and matching domains.
     */
 
@@ -369,7 +383,7 @@ protected:
     /// spatial domain of the tile.
     r_Minterval domain;
     /// pointer to base type for cells of Tile.
-    const BaseType *type;
+    const BaseType *type{NULL};
     /// Smart pointer to the persistent BLOBTile.
     DBTileId blobTile;
 };

@@ -65,7 +65,7 @@ See indexmgr/hierindexds.hh and indexmgr/indexds.hh for documentation.
   * \ingroup Relindexifs
   */
 
-class DBHierIndex   :   public HierIndexDS
+class DBHierIndex : public HierIndexDS
 {
 public:
     DBHierIndex(r_Dimension dim, bool isNode, bool makePersistent);
@@ -75,22 +75,22 @@ public:
         a leaf instance is imediately persistent
     */
 
-    virtual double getOccupancy() const;
+    double getOccupancy() const override;
 
-    HierIndexDS *getParent() const;
+    HierIndexDS *getParent() const override;
 
-    void setParent(const HierIndexDS *newPa);
+    void setParent(const HierIndexDS *newPa) override;
 
-    virtual void setIsNode(bool beNode);
+    void setIsNode(bool beNode) override;
 
-    virtual bool isLeaf() const;
+    bool isLeaf() const override;
 
-    virtual bool isRoot() const;
+    bool isRoot() const override;
     /*@Doc:
         is a check for a valid myParent OId
     */
 
-    virtual unsigned int getHeight() const;
+    unsigned int getHeight() const override;
 
     virtual unsigned int getHeightOfTree() const;
     /*@Doc:
@@ -108,49 +108,49 @@ public:
         leafs.
     */
 
-    virtual unsigned int getTotalEntryCount() const;
+    unsigned int getTotalEntryCount() const override;
 
-    virtual unsigned int getTotalNodeCount() const;
+    unsigned int getTotalNodeCount() const override;
 
-    virtual unsigned int getTotalLeafCount() const;
+    unsigned int getTotalLeafCount() const override;
 
-    virtual r_Minterval getCoveredDomain() const;
+    r_Minterval getCoveredDomain() const override;
 
-    virtual r_Minterval getAssignedDomain() const;
+    r_Minterval getAssignedDomain() const override;
 
-    virtual r_Minterval getObjectDomain(unsigned int pos) const;
+    r_Minterval getObjectDomain(unsigned int pos) const override;
 
-    virtual r_Dimension getDimension() const;
+    r_Dimension getDimension() const override;
 
-    virtual void setAssignedDomain(const r_Minterval &domain);
+    void setAssignedDomain(const r_Minterval &domain) override;
 
-    virtual unsigned int getSize() const;
+    unsigned int getSize() const override;
 
-    virtual r_Bytes getTotalStorageSize() const;
+    r_Bytes getTotalStorageSize() const override;
 
-    virtual bool isValid() const;
+    bool isValid() const override;
 
-    virtual bool isUnderFull() const;
+    bool isUnderFull() const override;
 
-    virtual bool isOverFull() const;
+    bool isOverFull() const override;
 
-    virtual bool isSameAs(const IndexDS *pix) const;
+    bool isSameAs(const IndexDS *pix) const override;
 
-    virtual bool removeObject(unsigned int pos);
+    bool removeObject(unsigned int pos) override;
 
-    virtual bool removeObject(const KeyObject &theKey);
+    bool removeObject(const KeyObject &theKey) override;
 
-    virtual void insertObject(const KeyObject &theKey, unsigned int pos);
+    void insertObject(const KeyObject &theKey, unsigned int pos) override;
 
-    virtual void setObject(const KeyObject &theKey, unsigned int pos);
+    void setObject(const KeyObject &theKey, unsigned int pos) override;
 
-    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
+    void setObjectDomain(const r_Minterval &dom, unsigned int pos) override;
 
-    virtual const KeyObject &getObject(unsigned int pos) const;
+    const KeyObject &getObject(unsigned int pos) const override;
 
-    virtual void getObjects(KeyObjectVector &objs) const;
+    void getObjects(KeyObjectVector &objs) const override;
 
-    virtual unsigned int getOptimalSize() const;
+    unsigned int getOptimalSize() const override;
 
     static unsigned int getOptimalSize(r_Dimension dim);
     /*@Doc:
@@ -158,9 +158,9 @@ public:
         that dimension
     */
 
-    virtual void freeDS();
+    void freeDS() override;
 
-    virtual OId::OIdPrimitive getIdentifier() const;
+    OId::OIdPrimitive getIdentifier() const override;
 
     static r_Bytes BytesPerTuple;
     /*@Doc:
@@ -169,17 +169,17 @@ public:
         database.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
     ~DBHierIndex() noexcept(false) override;
 
-    virtual void destroy();
+    void destroy() override;
 
-    virtual IndexDS *getNewInstance() const;
+    IndexDS *getNewInstance() const override;
 
-    virtual BinaryRepresentation getBinaryRepresentation() const;
+    BinaryRepresentation getBinaryRepresentation() const override;
 
-    virtual void setBinaryRepresentation(const BinaryRepresentation &);
+    void setBinaryRepresentation(const BinaryRepresentation &) override;
 
 protected:
     friend class ObjectBroker;
@@ -191,19 +191,19 @@ protected:
     /*@Doc:
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     */
 
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
     */
 
@@ -223,10 +223,10 @@ protected:
         persistent, tells the object what it is.
     */
 
-
     unsigned int maxSize;
     /*@Doc:
-        Non persistent attribute.  a cache so the maxSize does not have to be calculated all the time.
+        Non persistent attribute.  a cache so the maxSize does not have to be
+       calculated all the time.
     */
 
     KeyObjectVector myKeyObjects;

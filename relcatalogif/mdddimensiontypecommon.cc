@@ -20,34 +20,40 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
+
+#include "basetype.hh"                           // for BaseType
+#include "mdddomaintype.hh"                      // for MDDDomainType
+#include "mdddimensiontype.hh"                   // for MDDDimensionType
+#include "mddbasetype.hh"                        // for MDDBaseType
+#include "mddtype.hh"                            // for MDDType, MDDType::MD...
+#include "type.hh"                               // for Type (ptr only), ost...
+#include "raslib/mddtypes.hh"                    // for r_Dimension, r_Bytes
+#include "raslib/minterval.hh"                   // for r_Minterval
 #include "mymalloc/mymalloc.h"
-#include "mdddimensiontype.hh"
+#include "reladminif/sqlerror.hh"
+#include "reladminif/externs.h"
+#include "reladminif/objectbroker.hh"
+#include <logging.hh>                            // for Writer, CTRACE, LTRACE
+
+#include <boost/algorithm/string/predicate.hpp>  // for starts_with
+#include <stdio.h>                               // for sprintf
+#include <stdlib.h>                              // for free, malloc
+#include <cstring>                               // for strcat, strlen, strcpy
+#include <iostream>                              // for operator<<, basic_os...
+#include <string>                                // for basic_string, string
 #ifdef __APPLE__
 #include <sys/malloc.h>
 #else
 #include <malloc.h>
 #endif
-#include "basetype.hh"
-#include "mdddomaintype.hh"
-#include <iostream>
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/objectbroker.hh"
-#include <logging.hh>
-#include <stdio.h>
-#include <cstring>
-#include <boost/algorithm/string/predicate.hpp>
 
-r_Bytes
-MDDDimensionType::getMemorySize() const
+r_Bytes MDDDimensionType::getMemorySize() const
 {
     return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
 }
 
 MDDDimensionType::MDDDimensionType(const OId &id)
-    :   MDDBaseType(id),
-        myDimension(0)
+    : MDDBaseType(id), myDimension(0)
 {
     if (objecttype == OId::MDDDIMTYPEOID)
     {
@@ -56,31 +62,30 @@ MDDDimensionType::MDDDimensionType(const OId &id)
     }
 }
 
-MDDDimensionType::MDDDimensionType(const char *newTypeName, const BaseType *newBaseType, r_Dimension newDimension)
-    :   MDDBaseType(newTypeName, newBaseType),
-        myDimension(newDimension)
+MDDDimensionType::MDDDimensionType(const char *newTypeName,
+                                   const BaseType *newBaseType,
+                                   r_Dimension newDimension)
+    : MDDBaseType(newTypeName, newBaseType), myDimension(newDimension)
 {
     objecttype = OId::MDDDIMTYPEOID;
     mySubclass = MDDDIMENSIONTYPE;
 }
 
 MDDDimensionType::MDDDimensionType()
-    :   MDDBaseType("unnamed mdddimensiontype"),
-        myDimension(0)
+    : MDDBaseType("unnamed mdddimensiontype"), myDimension(0)
 {
     objecttype = OId::MDDDIMTYPEOID;
     mySubclass = MDDDIMENSIONTYPE;
 }
 
 MDDDimensionType::MDDDimensionType(const MDDDimensionType &old)
-    :   MDDBaseType(old)
+    : MDDBaseType(old)
 {
     objecttype = OId::MDDDIMTYPEOID;
     myDimension = old.myDimension;
 }
 
-MDDDimensionType &
-MDDDimensionType::operator=(const MDDDimensionType &old)
+MDDDimensionType &MDDDimensionType::operator=(const MDDDimensionType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -92,8 +97,7 @@ MDDDimensionType::operator=(const MDDDimensionType &old)
     return *this;
 }
 
-char *
-MDDDimensionType::getTypeStructure() const
+char *MDDDimensionType::getTypeStructure() const
 {
     char dimBuf[255];
     sprintf(dimBuf, "%d", myDimension);
@@ -116,13 +120,15 @@ char *MDDDimensionType::getNewTypeStructure() const
 {
     std::ostringstream ss;
 
-    if (boost::starts_with(myBaseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+    if (boost::starts_with(myBaseType->getTypeName(),
+                           TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
     {
         ss << myBaseType->getNewTypeStructure();
     }
     else
     {
-        ss << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
+        ss << TypeFactory::getSyntaxTypeFromInternalType(
+               std::string(myBaseType->getTypeName()));
     }
 
     ss << " MDARRAY ";
@@ -146,14 +152,13 @@ char *MDDDimensionType::getNewTypeStructure() const
     return strdup(result.c_str());
 }
 
-void
-MDDDimensionType::print_status(ostream &s) const
+void MDDDimensionType::print_status(std::ostream &s) const
 {
-    s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
+    s << "\tr_Marray"
+      << "<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
 }
 
-r_Dimension
-MDDDimensionType::getDimension() const
+r_Dimension MDDDimensionType::getDimension() const
 {
     return myDimension;
 }
@@ -163,12 +168,11 @@ MDDDimensionType::~MDDDimensionType() noexcept(false)
     validate();
 }
 
-int
-MDDDimensionType::compatibleWith(const Type *aType) const
+int MDDDimensionType::compatibleWith(const Type *aType) const
 {
     int retval = 0;
-    if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDOMAINTYPE &&
-            (static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() != MDDDIMENSIONTYPE)
+    if (static_cast<const MDDType *>(aType)->getSubtype() != MDDDOMAINTYPE &&
+        static_cast<const MDDType *>(aType)->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not a domain- or dimensiontype";
         retval = 0;
@@ -176,7 +180,7 @@ MDDDimensionType::compatibleWith(const Type *aType) const
     else
     {
         // check BaseType first
-        if (!(myBaseType->compatibleWith((static_cast<MDDBaseType *>(const_cast<Type *>(aType)))->getBaseType())))
+        if (!myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType()))
         {
             LTRACE << "basetypes are not compatible";
             retval = 0;
@@ -184,17 +188,17 @@ MDDDimensionType::compatibleWith(const Type *aType) const
         else
         {
             // check dimensionality
-            if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() == MDDDIMENSIONTYPE)
+            if (static_cast<const MDDType *>(aType)->getSubtype() == MDDDIMENSIONTYPE)
             {
                 LTRACE << "check for dimension equality";
-                retval = (myDimension == (static_cast<MDDDimensionType *>(const_cast<Type *>(aType)))->getDimension());
+                retval = (myDimension == static_cast<const MDDDimensionType *>(aType)->getDimension());
             }
             else
             {
-                if ((static_cast<MDDType *>(const_cast<Type *>(aType)))->getSubtype() == MDDDOMAINTYPE)
+                if (static_cast<const MDDType *>(aType)->getSubtype() == MDDDOMAINTYPE)
                 {
                     LTRACE << "check for dimension equality";
-                    retval = ((const_cast<MDDDimensionType *>(this))->myDimension == (static_cast<MDDDomainType *>(const_cast<Type *>(aType)))->getDomain()->dimension());
+                    retval = (myDimension == static_cast<const MDDDomainType *>(aType)->getDomain()->dimension());
                 }
             }
         }

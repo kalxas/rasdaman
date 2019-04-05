@@ -20,8 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
-#include "mymalloc/mymalloc.h"
 
 // This is -*- C++ -*-
 /*************************************************************
@@ -37,37 +35,31 @@ rasdaman GmbH.
  *  has common code for all database interface implementations
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <vector>
-#include <iostream>
-#include <cstring>
-#include <stdlib.h>             /* atoi */
-#include <sys/stat.h>
+#include "config.h"
+#include "mymalloc/mymalloc.h"
 
-#include "blobtile.hh"
-
-#include "raslib/error.hh"
-#include "reladminif/externs.h"
-#include "reladminif/sqlerror.hh"
+#include "blobtile.hh"               // for BLOBTile
+#include "dbtile.hh"                 // for DBTile
 #include "tileid.hh"
 #include "inlinetile.hh"
+#include "raslib/error.hh"
+#include "reladminif/sqlerror.hh"
 #include "reladminif/objectbroker.hh"
-#include "reladminif/dbref.hh"
 #include <logging.hh>
+
+#include <stdlib.h>                  // for malloc
+#include <cstring>                   // for memset
 
 // defined in rasserver.cc
 extern char globalConnectId[256];
 
 const long long BLOBTile::NO_TILE_FOUND;
 
-BLOBTile::BLOBTile(r_Data_Format dataformat)
-    :   DBTile(dataformat)
+BLOBTile::BLOBTile(r_Data_Format dataformat) : DBTile(dataformat)
 {
     LTRACE << "BLOBTile(" << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
-
 
 /*************************************************************
  * Method name...: BLOBTile(r_Bytes newSize, char c)
@@ -81,14 +73,14 @@ BLOBTile::BLOBTile(r_Data_Format dataformat)
  ************************************************************/
 
 BLOBTile::BLOBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
-    :   DBTile(newSize, c, dataformat)
+    : DBTile(newSize, c, dataformat)
 {
     LTRACE << "BLOBTile(" << newSize << ", char " << (int)c << ", " << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
 
 BLOBTile::BLOBTile(r_Bytes newSize, r_Data_Format dataformat)
-    :   DBTile(newSize, dataformat)
+    : DBTile(newSize, dataformat)
 {
     LTRACE << "BLOBTile(" << newSize << ", " << dataformat << ")";
     objecttype = OId::BLOBOID;
@@ -108,21 +100,24 @@ BLOBTile::BLOBTile(r_Bytes newSize, r_Data_Format dataformat)
  ************************************************************/
 
 BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
-    :   DBTile(newSize, newCells, dataformat)
+    : DBTile(newSize, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ")";
     objecttype = OId::BLOBOID;
 }
 
-BLOBTile::BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat)
-    :   DBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
+BLOBTile::BLOBTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
+                   char *newCells, r_Data_Format dataformat)
+    : DBTile(newSize, takeOwnershipOfNewCells, newCells, dataformat)
 {
-    LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
+    LTRACE << "BLOBTile(" << size << ", data, " << dataformat
+           << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells << ")";
     objecttype = OId::BLOBOID;
 }
 
-BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat, const OId &id)
-    :   DBTile(newSize, newCells, dataformat)
+BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells,
+                   r_Data_Format dataformat, const OId &id)
+    : DBTile(newSize, newCells, dataformat)
 {
     LTRACE << "BLOBTile(" << size << ", data, " << dataformat << ", " << id << ")";
     objecttype = OId::BLOBOID;
@@ -134,15 +129,13 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataform
     ObjectBroker::registerDBObject(this);
 }
 
-BLOBTile::BLOBTile(const OId &id)
-    :   DBTile(id)
+BLOBTile::BLOBTile(const OId &id) : DBTile(id)
 {
-    LTRACE << "BLOBTile(oid " << id << ")";
     readFromDb();
 }
 
 BLOBTile::BLOBTile(const OId &id, r_Bytes newSize, r_Data_Format newFmt)
-    :   DBTile(id)
+    : DBTile(id)
 {
     _isInDatabase = false;
     _isPersistent = true;
@@ -162,7 +155,6 @@ BLOBTile::BLOBTile(const OId &id, r_Bytes newSize, r_Data_Format newFmt)
 
 BLOBTile::~BLOBTile() noexcept(false)
 {
-    LTRACE << "~BLOBTile, size " << size;
     validate();
 }
 

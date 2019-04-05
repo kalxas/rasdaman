@@ -32,38 +32,37 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include <iostream>
 
 #include "mddcolliter.hh"
-#include "mddcoll.hh"
+#include "mddcoll.hh"          // for MDDColl
+#include "relmddif/dbmddset.hh" // for DBMDDSet
+#include "relmddif/dbmddobj.hh" // for DBMDDObj
 #include "mddobj.hh"
-#include "relmddif/dbmddobj.hh"
-#include "relmddif/dbmddset.hh"
 #include "reladminif/dbobjectiditerator.hh"
-#include <logging.hh>
+#include "logging.hh"          // for LTRACE
+
+#include <iostream>            // for operator<<, ostream
 
 MDDCollIter::MDDCollIter(MDDColl *targetColl)
-    :   dbIter(0),
-        persColl(targetColl)
+    : dbIter(nullptr), persColl(targetColl)
 {
     LTRACE << "MDDCollIter(" << targetColl->getName() << ")";
     dbColl = targetColl->getDBMDDSet();
     dbIter = dbColl->newIterator();
 }
 
-void
-MDDCollIter::printStatus(__attribute__((unused)) unsigned int level, ostream &stream) const
+void MDDCollIter::printStatus(__attribute__((unused)) unsigned int level,
+                              std::ostream &stream) const
 {
-    stream << "   MDDCollIter printStatus:  " ;
+    stream << "   MDDCollIter printStatus:  ";
 }
 
-MDDObj *
-MDDCollIter::getElement() const
+MDDObj *MDDCollIter::getElement() const
 {
     // Initialization to null: make sure null pointer is returned if the
     // collection is empty or if the iterator has come to the end already
 
-    MDDObj *persEl = NULL;
+    MDDObj *persEl = nullptr;
 
     if (dbIter->not_done())
     {
@@ -79,22 +78,19 @@ MDDCollIter::getElement() const
     return persEl;
 }
 
-void
-MDDCollIter::reset()
+void MDDCollIter::reset()
 {
     LTRACE << "reset()";
     dbIter->reset();
 }
 
-bool
-MDDCollIter::notDone() const
+bool MDDCollIter::notDone() const
 {
     LTRACE << "notDone()";
     return dbIter->not_done();
 }
 
-void
-MDDCollIter::advance()
+void MDDCollIter::advance()
 {
     LTRACE << "advance()";
     dbIter->advance();
@@ -104,6 +100,6 @@ MDDCollIter::~MDDCollIter()
 {
     LTRACE << "~MDDCollIter()";
     delete dbIter;
-    dbIter = NULL;
+    dbIter = nullptr;
 }
 

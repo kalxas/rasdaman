@@ -28,6 +28,7 @@ rasdaman GmbH.
 
 #include <limits>
 #include <boost/algorithm/string.hpp>
+#include <logging.hh>
 
 using std::string;
 using std::vector;

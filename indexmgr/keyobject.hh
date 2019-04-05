@@ -24,16 +24,16 @@ rasdaman GmbH.
 #ifndef _KEYOBJECT_HH_
 #define _KEYOBJECT_HH_
 
-#include <boost/shared_ptr.hpp>
-
 #include "reladminif/dbobject.hh"
 #include "raslib/minterval.hh"
 #include "reladminif/dbref.hh"
 
+#include <boost/shared_ptr.hpp>     // for shared_ptr
+#include <iosfwd>                   // for ostream
 
-class Tile;
+
 class KeyObject;
-
+class Tile;
 
 /**
  *  @file keyobject.hh
@@ -116,6 +116,8 @@ public:
         makes the KeyObject a persistent carrier and copies object.
     */
 
+    std::string toString() const;
+
 protected:
     DBObjectId persobject;
     /*@Doc:
@@ -137,6 +139,6 @@ protected:
 /*@Doc:
     Prints the status of KeyObject object.
 */
-extern std::ostream &operator<<(std::ostream &in,  const KeyObject &d);
+extern std::ostream &operator<<(std::ostream &in, const KeyObject &d);
 
 #endif

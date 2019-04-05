@@ -31,18 +31,12 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-
-#include <iostream>
-#include <stdlib.h>
-#include <cstring>
-
 #include "mddobj.hh"
+
+#include "mymalloc/mymalloc.h"
 #include "relmddif/dbmddobj.hh"
 #include "relindexif/indexid.hh"
 #include "reladminif/eoid.hh"
-
 #include "tilemgr/tile.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "raslib/mddtypes.hh"
@@ -50,17 +44,24 @@ rasdaman GmbH.
 #include "relcatalogif/structtype.hh"
 #include <logging.hh>
 
-using boost::shared_ptr;
+#include <boost/make_shared.hpp>    // for make_shared, shared_ptr::operator...
+#include <iostream>                 // for ostream
+#include <stdlib.h>
+#include <cstring>
 
-const r_Minterval &
-MDDObj::checkStorage(const r_Minterval &domain2)
+
+using boost::shared_ptr;
+using boost::make_shared;
+
+const r_Minterval &MDDObj::checkStorage(const r_Minterval &domain2)
 {
     r_Minterval domain(domain2.dimension());
     if (myStorageLayout->getIndexType() == r_Reg_Computed_Index)
     {
         if (myStorageLayout->getTilingScheme() != r_RegularTiling)
         {
-            LERROR << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a regular tiling defined";
+            LERROR << "MDDObj::checkStorage(" << domain2
+                   << ") the rc index needs a regular tiling defined";
             throw r_Error(RCINDEXWITHOUTREGULARTILING);
         }
         r_Dimension dim = domain2.dimension();
@@ -71,14 +72,17 @@ MDDObj::checkStorage(const r_Minterval &domain2)
         r_Point tileConfigExtent = tileConfig.get_extent();
         for (r_Dimension i = 0; i < dim; i++)
         {
-            if (!domain2[i].is_high_fixed() || !domain2[i].is_low_fixed() || !tileConfig[i].is_high_fixed() || !tileConfig[i].is_low_fixed())
+            if (!domain2[i].is_high_fixed() || !domain2[i].is_low_fixed() ||
+                    !tileConfig[i].is_high_fixed() || !tileConfig[i].is_low_fixed())
             {
-                LERROR << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
+                LERROR << "MDDObj::checkStorage(" << domain2 << ") the rc index needs a domain and tile configuration with "
+                       "fixed domains in all dimensions.  Dimension " << i << " seems not to be fixed.";
                 throw r_Error(RCINDEXWITHINCOMPATIBLEMARRAYTYPE);
             }
             if (mddDomainExtent[i] % tileConfigExtent[i] != 0)
             {
-                LERROR << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig << ") does not fit the domain of the marray (" << domain << ").";
+                LERROR << "MDDObj::checkStorage(" << domain2 << ") the tile configuration (" << tileConfig
+                       << ") does not fit the domain of the marray (" << domain << ").";
                 throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
             }
         }
@@ -87,14 +91,11 @@ MDDObj::checkStorage(const r_Minterval &domain2)
 }
 
 MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain)
-    :   NullValuesHandler(),
-        myDBMDDObj(),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    :   NullValuesHandler(), myDBMDDObj(), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
     if (!mddType)
     {
-        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -106,14 +107,11 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain)
 }
 
 MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, r_Nullvalues *newNullValues)
-    :   NullValuesHandler(),
-        myDBMDDObj(),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    :   NullValuesHandler(), myDBMDDObj(), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
     if (!mddType)
     {
-        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -125,15 +123,13 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, r_Nullvalu
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
-MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId, const StorageLayout &ms)
-    :   NullValuesHandler(),
-        myDBMDDObj(),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain,
+               const OId &newOId, const StorageLayout &ms)
+    :   NullValuesHandler(), myDBMDDObj(), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
     if (!mddType)
     {
-        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.";
         throw r_Error(MDDTYPE_NULL);
     }
 
@@ -145,13 +141,11 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId 
 }
 
 MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId)
-    : myDBMDDObj(),
-      myMDDIndex(NULL),
-      myStorageLayout(NULL)
+    : myDBMDDObj(), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
     if (!mddType)
     {
-        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout();
@@ -163,10 +157,7 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId 
 
 
 MDDObj::MDDObj(const DBMDDObjId &dbmddobj)
-    :   NullValuesHandler(),
-        myDBMDDObj(dbmddobj),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    :   NullValuesHandler(), myDBMDDObj(dbmddobj), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
     LTRACE << "MDDObj(DBRef " << dbmddobj.getOId() << ") " << (r_Ptr)this;
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
@@ -175,12 +166,9 @@ MDDObj::MDDObj(const DBMDDObjId &dbmddobj)
 }
 
 MDDObj::MDDObj(const OId &givenOId)
-    :   NullValuesHandler(),
-        myDBMDDObj(OId()),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    :   NullValuesHandler(), myDBMDDObj(OId()), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
-    LTRACE << "MDDObj(" << givenOId << ") " << (r_Ptr)this;
+    LTRACE << "MDDObj(" << givenOId << ") " << (r_Ptr) this;
     myDBMDDObj = DBMDDObjId(givenOId);
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
     myStorageLayout->setCellSize(static_cast<int>(myDBMDDObj->getCellType()->getSize()));
@@ -188,15 +176,13 @@ MDDObj::MDDObj(const OId &givenOId)
 }
 
 MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const StorageLayout &ms)
-    :   NullValuesHandler(),
-        myDBMDDObj(OId()),
-        myMDDIndex(NULL),
-        myStorageLayout(NULL)
+    :   NullValuesHandler(), myDBMDDObj(OId()), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
-    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this;
+    LTRACE << "MDDObj(" << mddType->getName() << ", " << domain << ", "
+           << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr) this;
     if (!mddType)
     {
-        LERROR << "MDD type is NULL.  Please report query or raslib program to Customer Support.";
+        LERROR << "MDD type is NULL.";
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout(ms);
@@ -206,8 +192,7 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const Stor
     myDBMDDObj->setPersistent();
 }
 
-void
-MDDObj::insertTile(Tile *newTile)
+void MDDObj::insertTile(Tile *newTile)
 {
     insertTile(shared_ptr<Tile>(newTile));
 }
@@ -315,11 +300,10 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     }
 }
 
-std::vector<shared_ptr<Tile>> *
-                           MDDObj::intersect(const r_Minterval &searchInter) const
+std::vector<shared_ptr<Tile>> *MDDObj::intersect(const r_Minterval &searchInter) const
 {
     std::vector<shared_ptr<Tile>> *retval = myMDDIndex->intersect(searchInter);
-#ifdef RASDEBUG
+#ifdef DEBUG
     if (retval)
     {
         for (auto it = retval->begin(); it != retval->end(); it++)
@@ -331,139 +315,122 @@ std::vector<shared_ptr<Tile>> *
     return retval;
 }
 
-std::vector<shared_ptr<Tile>> *
-                           MDDObj::getTiles() const
+std::vector<shared_ptr<Tile>> *MDDObj::getTiles() const
 {
-    RMTIMER("MDDObj", "getTiles");
-    return  myMDDIndex->getTiles();
+    return myMDDIndex->getTiles();
 }
 
-char *
-MDDObj::pointQuery(const r_Point &searchPoint)
+char *MDDObj::pointQuery(const r_Point &searchPoint)
 {
-    return  myMDDIndex->pointQuery(searchPoint);
+    return myMDDIndex->pointQuery(searchPoint);
 }
 
-const char *
-MDDObj::pointQuery(const r_Point &searchPoint) const
+const char *MDDObj::pointQuery(const r_Point &searchPoint) const
 {
-    return  myMDDIndex->pointQuery(searchPoint);
+    return myMDDIndex->pointQuery(searchPoint);
 }
 
-DBMDDObjId
-MDDObj::getDBMDDObjId() const
+DBMDDObjId MDDObj::getDBMDDObjId() const
 {
     return myDBMDDObj;
 }
 
-const MDDBaseType *
-MDDObj::getMDDBaseType() const
+const MDDBaseType *MDDObj::getMDDBaseType() const
 {
     return myDBMDDObj->getMDDBaseType();
 }
 
-r_Minterval
-MDDObj::getDefinitionDomain() const
+r_Minterval MDDObj::getDefinitionDomain() const
 {
     return myDBMDDObj->getDefinitionDomain();
 }
 
-r_Minterval
-MDDObj::getCurrentDomain() const
+r_Minterval MDDObj::getCurrentDomain() const
 {
     return myMDDIndex->getCurrentDomain();
 }
 
-const char *
-MDDObj::getCellTypeName() const
+const char *MDDObj::getCellTypeName() const
 {
     return myDBMDDObj->getCellTypeName();
 }
 
-const BaseType *
-MDDObj::getCellType() const
+const BaseType *MDDObj::getCellType() const
 {
     return myDBMDDObj->getCellType();
 }
 
-r_Dimension
-MDDObj::getDimension() const
+r_Dimension MDDObj::getDimension() const
 {
     return myDBMDDObj->dimensionality();
 }
 
-bool
-MDDObj::isPersistent() const
+bool MDDObj::isPersistent() const
 {
     return myDBMDDObj->isPersistent();
 }
 
-
-int
-MDDObj::getOId(OId *pOId) const
+int MDDObj::getOId(OId *pOId) const
 {
     *pOId = myDBMDDObj->getOId();
     return (pOId->getCounter() == 0);
 }
 
-int
-MDDObj::getEOId(EOId *pEOId) const
+int MDDObj::getEOId(EOId *pEOId) const
 {
     *pEOId = myDBMDDObj->getEOId();
     return (pEOId->getCounter() == 0);
 }
 
-void
-MDDObj::printStatus(unsigned int level, std::ostream &stream) const
+void MDDObj::printStatus(unsigned int level, std::ostream &stream) const
 {
     myDBMDDObj->printStatus(level, stream);
     myMDDIndex->printStatus(level, stream);
 }
 
-void
-MDDObj::removeTile(shared_ptr<Tile> &tileToRemove)
+void MDDObj::removeTile(shared_ptr<Tile> &tileToRemove)
 {
+    LTRACE << "removing tile: " << tileToRemove->getDBTile().getOId().getCounter() << ", with sdom: " << tileToRemove->getDomain()
+           << ", from index: " << myMDDIndex->getDBMDDObjIxId().getOId().getCounter();
     int found = myMDDIndex->removeTile(tileToRemove);
     if (found)
     {
         // frees its memory. Persistent freeing??
-        LTRACE << "removeTile() about to delete tile";
+        LTRACE << "tile removed from index, deleting from RASBASE...";
         tileToRemove->getDBTile().delete_object();
         tileToRemove.reset();
+    }
+    else
+    {
+        LTRACE << "tile not found in index.";
     }
 }
 
 MDDObj::~MDDObj() noexcept(false)
 {
-    LTRACE << "~MDDObj() " << (r_Ptr)this;
-
     if (myMDDIndex)
     {
         delete myMDDIndex;
-        myMDDIndex = NULL;
+        myMDDIndex = nullptr;
     }
     if (myStorageLayout)
     {
         delete myStorageLayout;
-        myStorageLayout = NULL;
+        myStorageLayout = nullptr;
     }
 }
 
-void
-MDDObj::releaseTiles()
+void MDDObj::releaseTiles()
 {
-    LDEBUG << "release tiles in MDD object " << myDBMDDObj->getOId();
     myMDDIndex->releasePersTiles();
 }
 
-StorageLayout *
-MDDObj::getStorageLayout() const
+StorageLayout *MDDObj::getStorageLayout() const
 {
     return myStorageLayout;
 }
 
-void
-MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
+void MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
 {
     nullValues = newNullValues;
     if (newNullValues)
@@ -490,7 +457,6 @@ MDDObj::setUpdateNullValues(r_Nullvalues *newNullValues)
     case FLOAT:    { using T = r_Float;   code break; } \
     default:       { codeDefault break; } \
     }
-
 
 template <class T>
 void fillTile(r_Range fillValArg, size_t cellCount, char *startPointArg)
@@ -597,3 +563,4 @@ void MDDObj::fillMultibandTileWithNullvalues(char *resDataPtr, size_t cellCount)
         }
     }
 }
+

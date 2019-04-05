@@ -32,15 +32,14 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,ShortType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/shorttype.C,v 1.11 2003/12/27 23:23:04 rasdev Exp $";
+#include <limits.h>       // for SHRT_MAX, SHRT_MIN
+#include <iomanip>        // for operator<<, setw
 
+#include "atomictype.hh"  // for AtomicType
+#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
 #include "shorttype.hh"
-#include <iomanip>
-#include <limits.h>
-#include <string.h>
 
-ShortType::ShortType(const OId &id)
-    : IntegralType(id)
+ShortType::ShortType(const OId &id) : IntegralType(id)
 {
     readFromDb();
 }
@@ -54,8 +53,7 @@ ShortType::ShortType(const OId &id)
  *                 ShortType.
  ************************************************************/
 
-ShortType::ShortType()
-    :   IntegralType(ShortType::Name, 2)
+ShortType::ShortType() : IntegralType(ShortType::Name, 2)
 {
     myType = SHORT;
     myOId = OId(SHORT, OId::ATOMICTYPEOID);
@@ -69,10 +67,7 @@ ShortType::ShortType()
  * Description...: copy constructor
  ************************************************************/
 
-ShortType::ShortType(const ShortType &old)
-    :   IntegralType(old)
-{
-}
+ShortType::ShortType(const ShortType &old)  = default;
 
 /*************************************************************
  * Method name...: operator=(const ShortType&);
@@ -101,9 +96,7 @@ ShortType &ShortType::operator=(const ShortType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-ShortType::~ShortType()
-{
-}
+ShortType::~ShortType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -119,34 +112,29 @@ ShortType::~ShortType()
  *                 on HP.
  ************************************************************/
 
-void
-ShortType::printCell(ostream &stream, const char *cell) const
+void ShortType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setw(5) << *(short *)const_cast<char *>(cell);
+    stream << std::setw(5) << *reinterpret_cast<const short *>(cell);
 }
 
-r_Long *
-ShortType::convertToCLong(const char *cell, r_Long *value) const
+r_Long *ShortType::convertToCLong(const char *cell, r_Long *value) const
 {
-    *value = *(short *)const_cast<char *>(cell);
+    *value = *reinterpret_cast<const short *>(cell);
     return value;
 }
 
-
-char *
-ShortType::makeFromCLong(char *cell, const r_Long *value) const
+char *ShortType::makeFromCLong(char *cell, const r_Long *value) const
 {
     r_Long myLong = *value;
     // restricting long to value range of short
     myLong = myLong > SHRT_MAX ? SHRT_MAX : myLong;
     myLong = myLong < SHRT_MIN ? SHRT_MIN : myLong;
     // !!!! HP specific, assumes 2 Byte short
-    *(short *)(cell) = (short)myLong;
+    *reinterpret_cast<short *>(cell) = (short)myLong;
     return cell;
 }
 
-void
-ShortType::readFromDb()
+void ShortType::readFromDb()
 {
     setName(ShortType::Name);
     myType = SHORT;

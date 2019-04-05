@@ -68,6 +68,7 @@ add_library(raslib attribute.hh attribute.cc
 
 target_include_directories(raslib PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 target_link_libraries(raslib 
+        mymalloc_cln
         stdc++
         m)
 

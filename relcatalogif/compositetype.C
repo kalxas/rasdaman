@@ -32,10 +32,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,CompositeType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/compositetype.C,v 1.6 2003/12/27 23:23:04 rasdev Exp $";
-
 #include "compositetype.hh"
-#include "reladminif/externs.h"
 
 /*************************************************************
  * Method name...: unsigned int getSize() const
@@ -45,8 +42,7 @@ static const char rcsid[] = "@(#)catalogif,CompositeType: $Header: /home/rasdev/
  * Description...: returns size of CompositeType in chars
  ************************************************************/
 
-unsigned int
-CompositeType::getSize() const
+unsigned int CompositeType::getSize() const
 {
     return size;
 }
@@ -60,45 +56,19 @@ CompositeType::getSize() const
  *                 CompositeType.
  ************************************************************/
 
-CompositeType::CompositeType()
-    :   BaseType("unnamed compositetype"),
-        size(0)
-{
-}
+CompositeType::CompositeType() : BaseType("unnamed compositetype"), size(0) {}
 
 CompositeType::CompositeType(unsigned int newSize)
-    :   BaseType("unnamed compositetype"),
-        size(newSize)
-{
-}
+    : BaseType("unnamed compositetype"), size(newSize) {}
 
 CompositeType::CompositeType(const char *name, unsigned int newSize)
-    :   BaseType(name),
-        size(newSize)
-{
-}
+    : BaseType(name), size(newSize) {}
 
-CompositeType::CompositeType(const CompositeType &old)
-    :   BaseType(old),
-        size(old.size)
-{
-}
+CompositeType::CompositeType(const CompositeType &old) = default;
 
-CompositeType::CompositeType(const OId &id)
-    :   BaseType(id)
-{
-}
+CompositeType::CompositeType(const OId &id) : BaseType(id) {}
 
-CompositeType::~CompositeType()
-{
-}
+CompositeType::~CompositeType() = default;
 
-CompositeType &
-CompositeType::operator=(const CompositeType &old)
-{
-    BaseType::operator=(old);
-    size = old.size;
-    return *this;
-}
-
+CompositeType &CompositeType::operator=(const CompositeType &old) = default;
 

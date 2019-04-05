@@ -20,42 +20,36 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
-#include "dbobjectiditerator.hh"
-#include "objectbroker.hh"
-#include "dbref.hh"
-#include <logging.hh>
 
-template<class T>
+#include "dbobjectiditerator.hh"
+#include "dbref.hh"    // for DBRef
+
+template <class T>
 DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T> &oidlist)
-    :   mySet(NULL),
-        counter(0)
+    : mySet(nullptr), counter(0)
 {
-    LTRACE << "DBObjectIdIterator(const DBObjectIdIterator<T>&)";
     mySet = oidlist.mySet;
     myIter = mySet->begin();
 }
 
-template<class T>
-DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBRef<T>>> &oidlist)
-    :   mySet(NULL),
-        counter(0)
+template <class T>
+DBObjectIdIterator<T>::DBObjectIdIterator(
+    const std::set<DBRef<T>, std::less<DBRef<T>>> &oidlist)
+    : mySet(nullptr), counter(0)
 {
-    LTRACE << "DBObjectIdIterator(OIdSet)";
     mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T>>>*>(&oidlist);
     myIter = mySet->begin();
 }
 
-template<class T> void
-DBObjectIdIterator<T>::reset()
+template <class T>
+void DBObjectIdIterator<T>::reset()
 {
-    LTRACE << "reset()";
     myIter = mySet->begin();
     counter = 0;
 }
 
-template<class T> bool
-DBObjectIdIterator<T>::not_done() const
+template <class T>
+bool DBObjectIdIterator<T>::not_done() const
 {
     bool retval = false;
     if (myIter == mySet->end())
@@ -76,26 +70,23 @@ DBObjectIdIterator<T>::not_done() const
     return retval;
 }
 
-template<class T> void
-DBObjectIdIterator<T>::advance()
+template <class T>
+void DBObjectIdIterator<T>::advance()
 {
-    LTRACE << "advance() " << counter;
     myIter++;
     counter++;
 }
 
-template<class T> DBRef<T>
-DBObjectIdIterator<T>::get_element() const
+template <class T>
+DBRef<T> DBObjectIdIterator<T>::get_element() const
 {
-    LTRACE << "get_element() " << (*myIter).getOId();
     return (*myIter);
 }
 
-template<class T>
+template <class T>
 DBObjectIdIterator<T>::~DBObjectIdIterator()
 {
-    LTRACE << "~DBObjectIdIterator()";
-    mySet = NULL;
+    mySet = nullptr;
     counter = 0;
 }
 

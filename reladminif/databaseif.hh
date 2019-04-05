@@ -20,9 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DATABASEIF_HH_
-#define _DATABASEIF_HH_
-
 /************************************************************************
  *
  *
@@ -32,6 +29,14 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ***********************************************************************/
+
+#ifndef _DATABASEIF_HH_
+#define _DATABASEIF_HH_
+
+#include <iosfwd>
+
+class DatabaseIf;
+class TransactionIf;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -51,22 +56,13 @@ used (see also \Ref{AdminIf}).
 {\tt database.close();}
 */
 
-class DatabaseIf;
-class TransactionIf;
-
-#include <iostream>
-using std::cout;
-using std::endl;
-using std::ostream;
-
-#include "raslib/error.hh"
 /**
   * \ingroup Reladminifs
   */
 class DatabaseIf
 {
 public:
-    friend std::ostream &operator<< (std::ostream &stream, DatabaseIf &db);
+    friend std::ostream &operator<<(std::ostream &stream, DatabaseIf &db);
     /*@Doc:
     prints the status of the database (connected, online, offline, name)
     */
@@ -106,7 +102,6 @@ public:
         A transaction must not be opened.
         Returns -1 if database does not exist.
     */
-
 
     const char *getName() const;
     /*@Doc:

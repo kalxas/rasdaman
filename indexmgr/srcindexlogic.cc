@@ -28,11 +28,7 @@ rasdaman GmbH.
  *
 */
 
-static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.cc,v 1.8 2002/09/19 11:38:25 hoefner Exp $";
-
 #include "config.h"
-#include <iostream>
-#include <math.h>
 #include "raslib/rmdebug.hh"
 #include "raslib/odmgtypes.hh"
 #include "indexmgr/srcindexlogic.hh"
@@ -43,8 +39,10 @@ static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.c
 #include "relblobif/tileid.hh"
 #include "relblobif/blobtile.hh"
 #include "raslib/mitera.hh"
-
 #include <logging.hh>
+
+#include <math.h>
+#include <iostream>
 
 unsigned int
 SRCIndexLogic::computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain)
@@ -83,7 +81,8 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point &mddDomainExtent, const r_P
         }
         normalizedDomain[dim] = r_Sinterval(0LL, normalized);
     }
-    LTRACE << "computeNormalizedDomain(" << mddDomainExtent << ", " << tileConfigExtent << ") " << normalizedDomain;
+    LTRACE << "computeNormalizedDomain(" << mddDomainExtent << ", "
+           << tileConfigExtent << ") " << normalizedDomain;
     return normalizedDomain;
 }
 
@@ -95,9 +94,11 @@ SRCIndexLogic::computeNormalizedPoint(const r_Point &toNormalize, const r_Point 
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalizedPoint[dim] = static_cast<r_Range>((toNormalize[dim] - mddDomainOrigin[dim]) / tileConfigExtent[dim]);
+        normalizedPoint[dim] = static_cast<r_Range>(
+            (toNormalize[dim] - mddDomainOrigin[dim]) / tileConfigExtent[dim]);
     }
-    LTRACE << "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << normalizedPoint;
+    LTRACE << "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent
+           << ", " << mddDomainOrigin << ") " << normalizedPoint;
     return normalizedPoint;
 }
 
@@ -116,16 +117,19 @@ SRCIndexLogic::computeDomain(const r_Point &toConvert, const r_Point &tileConfig
         toConvTemp = toConvert[dim];
         offset = fmod(static_cast<r_Double>(toConvTemp - mddDomainOrigin[dim]), tileConfigExtent[dim]);
         low = toConvTemp - offset;
-        //there has to be a check if we support border tiles.
+        // there has to be a check if we support border tiles.
         high = toConvTemp - offset + tileConfigExtent[dim];
         result[dim] = r_Sinterval(low, high);
     }
-    LTRACE << "computeDomain(" << toConvert << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << result;
+    LTRACE << "computeDomain(" << toConvert << ", " << tileConfigExtent << ", "
+           << mddDomainOrigin << ") " << result;
     return result;
 }
 
-OId
-SRCIndexLogic::computeOId(const r_Minterval &mddDomain, const r_Point &tileConfigExtent, OId::OIdCounter baseCounter, OId::OIdType type, const r_Point &tileOrigin)
+OId SRCIndexLogic::computeOId(const r_Minterval &mddDomain,
+                              const r_Point &tileConfigExtent,
+                              OId::OIdCounter baseCounter, OId::OIdType type,
+                              const r_Point &tileOrigin)
 {
     OId::OIdCounter counter;
     counter = static_cast<OId::OIdCounter>(computeNormalizedDomain(mddDomain.get_extent(), tileConfigExtent).cell_offset(computeNormalizedPoint(tileOrigin, tileConfigExtent, mddDomain.get_origin()))) + baseCounter;
@@ -136,7 +140,7 @@ SRCIndexLogic::computeOId(const r_Minterval &mddDomain, const r_Point &tileConfi
 bool
 SRCIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, const StorageLayout &sl)
 {
-    //this method should check if the tile is actually in the tiling
+    // this method should check if the tile is actually in the tiling
 
     /* LERROR << "SRCIndexLogic::insertObject(" << ixDS->getIdentifier() << ", " << newKeyObject << ", sl) insert operation not allowed";
     throw r_Error(INSERTINTORCINDEX); // thrown without a check and therefore commented out in order to make rc_index work MR 29.05.2012 */
@@ -144,14 +148,17 @@ SRCIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, const 
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
     r_Minterval tileConfig = sl.getTileConfiguration();
     r_Minterval mddDomain = ixDS->getCoveredDomain();
-    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(), (static_cast<DBRCIndexDS *>(ixDS))->getBaseCounter(), (static_cast<DBRCIndexDS *>(ixDS))->getBaseOIdType(), newKeyObjectDomain.get_origin()));
+    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(),
+                              (static_cast<DBRCIndexDS *>(ixDS))->getBaseCounter(),
+                              (static_cast<DBRCIndexDS *>(ixDS))->getBaseOIdType(),
+                              newKeyObjectDomain.get_origin()));
     DBTileId tile = newKeyObject.getObject();
     BLOBTile *t = new BLOBTile(tile->getSize(), tile->getCells(), tile->getDataFormat(), newBlobOId);
     // is done in the constructor
-    //t->setPersistent(true);
+    // t->setPersistent(true);
     tile->setPersistent(false);
 
-    //should check if insertion was succesfull
+    // should check if insertion was succesfull
     return true;
 }
 
@@ -178,8 +185,10 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
     }
 */
 
-r_Minterval
-SRCIndexLogic::computeTiledDomain(const r_Minterval &completeDomain, const r_Point &tileConfigExtent, const r_Minterval &widenMe)
+r_Minterval SRCIndexLogic::computeTiledDomain(
+    const r_Minterval &completeDomain,
+    const r_Point &tileConfigExtent,
+    const r_Minterval &widenMe)
 {
     r_Minterval searchDomain(completeDomain.create_intersection(widenMe));
     r_Dimension theDim = searchDomain.dimension();
@@ -204,15 +213,19 @@ SRCIndexLogic::computeTiledDomain(const r_Minterval &completeDomain, const r_Poi
         tileExtent = tileConfigExtent[dim];
         offsetlow = (low - mddOrigin) % tileExtent;
         offsethigh = (high - mddOrigin) % tileExtent;
-        //this has to be revised if we support border tiles
-        retval[dim] = r_Sinterval(low - offsetlow, high - offsethigh + tileExtent - 1);
-        LTRACE << "mdd interval " << currSi << " offset low " << offsetlow << " offset high " << offsethigh << " tile extent " << tileExtent;
+        // this has to be revised if we support border tiles
+        retval[dim] = r_Sinterval(low - offsetlow,
+                                  high - offsethigh + tileExtent - 1);
+        LTRACE << "mdd interval " << currSi << " offset low " << offsetlow
+               << " offset high " << offsethigh << " tile extent " << tileExtent;
     }
     return retval;
 }
 
-void
-SRCIndexLogic::intersect(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &intersectedObjs, const StorageLayout &sl)
+void SRCIndexLogic::intersect(const IndexDS *ixDS,
+                              const r_Minterval &searchInter,
+                              KeyObjectVector &intersectedObjs,
+                              const StorageLayout &sl)
 {
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (searchInter.intersects_with(mddDomain))
@@ -249,8 +262,10 @@ SRCIndexLogic::intersect(const IndexDS *ixDS, const r_Minterval &searchInter, Ke
     }
 }
 
-void
-SRCIndexLogic::containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl)
+void SRCIndexLogic::containPointQuery(const IndexDS *ixDS,
+                                      const r_Point &searchPoint,
+                                      KeyObject &result,
+                                      const StorageLayout &sl)
 {
     r_Minterval mddDomain = ixDS->getCoveredDomain();
     if (mddDomain.covers(searchPoint))
@@ -272,15 +287,18 @@ SRCIndexLogic::containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint
     }
 }
 
-void
-SRCIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl)
+void SRCIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs,
+                               const StorageLayout &sl)
 {
     LTRACE << "getObjects()";
     intersect(ixDS, ixDS->getCoveredDomain(), objs, sl);
 }
 
-bool
-SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS *ixDS, __attribute__((unused)) const KeyObject &objToRemove, __attribute__((unused)) const StorageLayout &sl)
+bool SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS *ixDS,
+                                 __attribute__((unused))
+                                 const KeyObject &objToRemove,
+                                 __attribute__((unused))
+                                 const StorageLayout &sl)
 {
     LTRACE << "removeObject(" << objToRemove << ")";
     return true;

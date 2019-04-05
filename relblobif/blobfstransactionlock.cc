@@ -20,11 +20,8 @@
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "blobfstransactionlock.hh"
-#include "blobfscommon.hh"
-#include "dirwrapper.hh"
-#include <logging.hh>
+#include "dirwrapper.hh"  // for DirWrapper
 
 using namespace std;
 using namespace blobfs;

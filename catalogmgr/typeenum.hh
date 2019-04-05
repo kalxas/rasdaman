@@ -1,5 +1,3 @@
-// -*-C++-*- (for Emacs)
-
 /*
 * This file is part of rasdaman community.
 *
@@ -26,59 +24,39 @@ rasdaman GmbH.
  *
  *
  * PURPOSE:
- *   The SetType class represents the type for sets of MDD
- *   objects.
+ *   Ops contains an enum for identifying all possible
+ *   operations.
  *
  *
  * COMMENTS:
  *
  ************************************************************/
 
-#ifndef _SETTYPE_HH_
-#define _SETTYPE_HH_
+#ifndef _TYPEENUM_HH_
+#define _TYPEENUM_HH_
 
-#include <iosfwd>
-#include "collectiontype.hh"
-#include "catalogmgr/ops.hh"
+//@Man: TypeEnum
+//@Type: typedef
+//@Memo: Module: {\bf catalogif}.
 
-class SetType;
-class OId;
-
-//@ManMemo: Module: {\bf relcatalogif}.
-
-/*@Doc:
-  The SetType class represents the type for sets of MDD
-  objects.
-*/
-
-/**
-  * \ingroup Relcatalogifs
-  */
-class SetType : public CollectionType
+enum TypeEnum
 {
-public:
-    SetType(const OId &id);
-
-    char *getTypeStructure() const override;
-
-    /// constructor receiving pointer to an MDDType (or subclass).
-    SetType(const char *newTypeName, MDDType *newMDDType);
-    /// default constructor, cannot be used.
-    SetType();
-    /// copy constructor.
-    SetType(const SetType &old);
-    /// assignment operator.
-    SetType &operator=(const SetType &old);
-
-    /// virtual destructor.
-    ~SetType() noexcept(false) override;
-
-protected:
-    void deleteFromDb() override;
-
-    void insertInDb() override;
-
-    void readFromDb() override;
+    ULONG, USHORT, CHAR, BOOLTYPE, LONG, SHORT, OCTET, DOUBLE, FLOAT,
+    NUMERICAL_TYPES_END = FLOAT,
+    COMPLEXTYPE1,             // COMPLEX already defined as token !!!
+    COMPLEXTYPE2,
+    STRUCT,
+    CLASSTYPE, SETTYPE, MDDTYPE, INVALID_TYPE
 };
+
+/*@Doc: This is an enum used for handling types instead of using the
+    string representation of the name. For some strange reason
+    I did not manage to define it in Ops scope. I had to use BOOLTYPE
+    instead of BOOL because of name conflicts.
+
+    Attention: DO NOT change the sequence because some code relies on it.
+This is the ops code and the persistence code: from the typenum the oids are generated.
+changing the order of the enums makes old databases incompatible.
+ */
 
 #endif

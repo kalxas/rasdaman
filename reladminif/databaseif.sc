@@ -33,10 +33,10 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include <sqlite3.h>
-#include <iostream>
+#include <climits>
 #include <cstdlib>
 #include <cstring>
-#include <climits>
+#include <iostream>
 #include "config.h"
 #include "version.h"
 #include "debug/debug.hh"
@@ -46,47 +46,53 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include "sqlitewrapper.hh"
 
-using namespace std;
-
+#include "adminif.hh"
 #include "databaseif.hh"
 #include "oidif.hh"
-#include "adminif.hh"
+#include "raslib/error.hh"
+
 #include <logging.hh>
 
+using namespace std;
+
 extern char globalConnectId[PATH_MAX];
+
+#define UPDATE_QUERY(c)                   \
+    {                                       \
+        sqlite3_exec(SQLiteQuery::getConnection(), c, 0, 0, 0); \
+        SQLiteQuery::failOnError(c);           \
+    }
+#define DROP_TABLE(table_name) \
+    UPDATE_QUERY("DROP TABLE IF EXISTS " #table_name);
+#define DROP_VIEW(view_name) \
+    UPDATE_QUERY("DROP VIEW IF EXISTS "#view_name);
 
 // size of ARCHITECTURE attribute in RAS_ADMIN:
 #define SIZE_ARCH_RASADMIN 20
 
-void
-DatabaseIf::disconnect()
+void DatabaseIf::disconnect()
 {
     SQLiteQuery::closeConnection();
 }
 
-void
-DatabaseIf::connect()
+void DatabaseIf::connect()
 {
     SQLiteQuery::openConnection(globalConnectId);
 }
 
-void
-DatabaseIf::checkCompatibility()
-{
-}
+void DatabaseIf::checkCompatibility() {}
 
-bool
-DatabaseIf::isConsistent()
+bool DatabaseIf::isConsistent()
 {
     // done once at rasserver startup, in AdminIf
     bool retval = true;
     return retval;
 }
 
-void
-DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
-                     __attribute__((unused)) const char *schemaName,
-                     __attribute__((unused)) const char *volumeName)
+void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
+                          __attribute__((unused)) const char *schemaName,
+                          __attribute__((unused))
+                          const char *volumeName)
 {
     try
     {
@@ -351,13 +357,11 @@ DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
     }
 }
 
-void
-DatabaseIf::destroyDB(const char *dbName)
+void DatabaseIf::destroyDB(const char *dbName)
 {
     if (AdminIf::getCurrentDatabaseIf() != 0)
     {
-        LTRACE << "another database is already open;";
-        LERROR << "Another database is already open.\n" << "Cannot destroy database " << dbName << ".";
+        LERROR << "Another database is already open, cannot destroy database " << dbName << ".";
         throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
     connect();
@@ -398,8 +402,7 @@ DatabaseIf::destroyDB(const char *dbName)
 #endif
 #define LONGVER 9800
 
-long
-DatabaseIf::rmanverToLong()
+long DatabaseIf::rmanverToLong()
 {
     string s(RMANVERSION);
     // return default version if RMANVERSION length is 0
@@ -409,8 +412,6 @@ DatabaseIf::rmanverToLong()
     }
     string versionstr;
     string final;
-    int i;
-    int c;
     long longver = 0;
     size_t first = s.find_first_of("0123456789;");
     // return default version if no number found in s

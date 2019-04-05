@@ -21,8 +21,9 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 #include "config.h"
-#include <unistd.h>
 
+#include "reladminif/adminif.hh"
+#include "reladminif/objectbroker.hh"
 #include "dbtcindex.hh"
 #include "reladminif/lists.h"
 #include "reladminif/sqlerror.hh"
@@ -30,49 +31,46 @@ rasdaman GmbH.
 #include "relblobif/blobtile.hh"
 #include "relblobif/inlinetile.hh"
 #include "relblobif/tileid.hh"
-#include "reladminif/objectbroker.hh"
-#include "reladminif/adminif.hh"
 #include "reladminif/dbref.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "indexmgr/keyobject.hh"
 #include <logging.hh>
 
-void
-DBTCIndex::setMappingHasChanged()
+#include <unistd.h>
+
+void DBTCIndex::setMappingHasChanged()
 {
     mappingHasChanged = true;
 }
 
-void
-DBTCIndex::setInlineTileHasChanged()
+void DBTCIndex::setInlineTileHasChanged()
 {
     inlineTileHasChanged = true;
 }
 
 DBTCIndex::DBTCIndex(const OId &id)
-    :   DBHierIndex(id),
-        mappingHasChanged(false),
-        inlineTileHasChanged(false),
-        _isLoaded(false),
-        hasBlob(false)
+    : DBHierIndex(id),
+      mappingHasChanged(false),
+      inlineTileHasChanged(false),
+      _isLoaded(false),
+      hasBlob(false)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
     readFromDb();
     _isLoaded = !hasBlob;
 }
 
-IndexDS *
-DBTCIndex::getNewInstance() const
+IndexDS *DBTCIndex::getNewInstance() const
 {
     return static_cast<HierIndexDS *>(new DBTCIndex(getDimension(), !isLeaf()));
 }
 
 DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
-    :   DBHierIndex(dim, isNode, false),
-        mappingHasChanged(false),
-        inlineTileHasChanged(false),
-        _isLoaded(true),
-        hasBlob(false)
+    : DBHierIndex(dim, isNode, false),
+      mappingHasChanged(false),
+      inlineTileHasChanged(false),
+      _isLoaded(true),
+      hasBlob(false)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
     objecttype = OId::DBTCINDEXOID;
@@ -80,14 +78,10 @@ DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
     setCached(true);
 }
 
-void
-DBTCIndex::printStatus(unsigned int level, std::ostream &stream) const
+void DBTCIndex::printStatus(unsigned int level, std::ostream &stream) const
 {
-    char *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2 ; j++)
-    {
-        indent[j] = ' ';
-    }
+    auto *indent = new char[level * 2 + 1];
+    for (unsigned int j = 0; j < level * 2; j++) indent[j] = ' ';
     indent[level * 2] = '\0';
 
     stream << indent << "DBTCIndex ";
@@ -95,48 +89,32 @@ DBTCIndex::printStatus(unsigned int level, std::ostream &stream) const
     delete[] indent;
 }
 
-
 DBTCIndex::~DBTCIndex() noexcept(false)
 {
     if (!isModified())
     {
         if (!AdminIf::isReadOnlyTA())
         {
-            if (isLeaf())
-            {
-                decideForInlining();
-            }
-            if (mappingHasChanged)
-            {
-                updateTileIndexMappings();
-            }
+            if (isLeaf()) decideForInlining();
+            if (mappingHasChanged) updateTileIndexMappings();
             if (inlineTileHasChanged)
             {
                 storeTiles();
                 changeBOIdToIOId();
             }
-            if (isModified())
-            {
-                DBHierIndex::updateInDb();
-            }
-            if (isLeaf())
-            {
-                changeIOIdToBOId();
-            }
+            if (isModified()) DBHierIndex::updateInDb();
+            if (isLeaf()) changeIOIdToBOId();
         }
     }
     else
-    {
         validate();
-    }
     currentDbRows = 0;
     parent = OId(0);
 }
 
-void
-DBTCIndex::registerIOIds()
+void DBTCIndex::registerIOIds()
 {
-    for (KeyObjectVector::iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
+    for (auto i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
         if ((*i).getObject().getOId().getType() == OId::INNEROID)
         {
             LTRACE << "registering tileoid " << OId((*i).getObject().getOId().getCounter(), OId::INLINETILEOID) << " indexoid " << myOId;
@@ -145,36 +123,34 @@ DBTCIndex::registerIOIds()
         }
 }
 
-void
-DBTCIndex::changeIOIdToBOId()
+void DBTCIndex::changeIOIdToBOId()
 {
-    for (KeyObjectVector::iterator it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
+    for (auto it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
         if ((*it).getObject().getOId().getType() == OId::INNEROID)
         {
             OId o((*it).getObject().getOId().getCounter(), OId::INLINETILEOID);
-            DBObjectPPair p(o, 0);
+            DBObjectPPair p(o, nullptr);
             inlineTiles.insert(p);
             (*it).setObject(o);
         }
 }
 
-void
-DBTCIndex::changeBOIdToIOId()
+void DBTCIndex::changeBOIdToIOId()
 {
-    for (KeyObjectVector::iterator it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
+    for (auto it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
     {
-        DBObjectPMap::iterator itit = inlineTiles.find((*it).getObject().getOId());
+        auto itit = inlineTiles.find((*it).getObject().getOId());
         if (itit != inlineTiles.end())
         {
-            (*it).setObject(OId((*it).getObject().getOId().getCounter(), OId::INNEROID));
+            (*it).setObject(
+                OId((*it).getObject().getOId().getCounter(), OId::INNEROID));
         }
     }
 }
 
-void
-DBTCIndex::removeInlineTile(InlineTile *it)
+void DBTCIndex::removeInlineTile(InlineTile *it)
 {
-    DBObjectPMap::iterator itit = inlineTiles.find(it->getOId());
+    auto itit = inlineTiles.find(it->getOId());
     if (itit != inlineTiles.end())
     {
         inlineTiles.erase(itit);
@@ -188,13 +164,9 @@ DBTCIndex::removeInlineTile(InlineTile *it)
     }
 }
 
-void
-DBTCIndex::addInlineTile(InlineTile *it)
+void DBTCIndex::addInlineTile(InlineTile *it)
 {
-    if (!_isLoaded)
-    {
-        readInlineTiles();
-    }
+    if (!_isLoaded) readInlineTiles();
     DBObjectPPair p(it->getOId(), it);
     inlineTiles.insert(p);
     ObjectBroker::registerTileIndexMapping(it->getOId(), myOId);
@@ -202,8 +174,7 @@ DBTCIndex::addInlineTile(InlineTile *it)
     setInlineTileHasChanged();
 }
 
-void
-DBTCIndex::insertInDb()
+void DBTCIndex::insertInDb()
 {
     if (isLeaf())
     {
@@ -217,14 +188,10 @@ DBTCIndex::insertInDb()
         }
     }
     DBHierIndex::insertInDb();
-    if (isLeaf())
-    {
-        changeIOIdToBOId();
-    }
+    if (isLeaf()) changeIOIdToBOId();
 }
 
-void
-DBTCIndex::readFromDb()
+void DBTCIndex::readFromDb()
 {
     DBHierIndex::readFromDb();
     if (isLeaf())
@@ -236,36 +203,19 @@ DBTCIndex::readFromDb()
     mappingHasChanged = false;
 }
 
-void
-DBTCIndex::updateInDb()
+void DBTCIndex::updateInDb()
 {
-    if (isLeaf())
-    {
-        decideForInlining();
-    }
-    if (mappingHasChanged)
-    {
-        updateTileIndexMappings();
-    }
-    if (inlineTileHasChanged)
-    {
-        storeTiles();
-    }
-    if (inlineTiles.size() != 0)
-    {
-        changeBOIdToIOId();
-    }
+    if (isLeaf()) decideForInlining();
+    if (mappingHasChanged) updateTileIndexMappings();
+    if (inlineTileHasChanged) storeTiles();
+    if (inlineTiles.size() != 0) changeBOIdToIOId();
     DBHierIndex::updateInDb();
-    if (isLeaf())
-    {
-        changeIOIdToBOId();
-    }
+    if (isLeaf()) changeIOIdToBOId();
 }
 
-InlineTile *
-DBTCIndex::getInlineTile(const OId &itid)
+InlineTile *DBTCIndex::getInlineTile(const OId &itid)
 {
-    InlineTile *retval = 0;
+    InlineTile *retval = nullptr;
     DBObjectPMap::iterator itit;
     if (!_isLoaded)
     {
@@ -279,8 +229,7 @@ DBTCIndex::getInlineTile(const OId &itid)
     return retval;
 }
 
-void
-DBTCIndex::readyForRemoval(const OId &id)
+void DBTCIndex::readyForRemoval(const OId &id)
 {
     if (id.getType() == OId::INLINETILEOID)
     {
@@ -305,45 +254,38 @@ DBTCIndex::readyForRemoval(const OId &id)
     }
 }
 
-bool
-DBTCIndex::removeObject(const KeyObject &entry)
+bool DBTCIndex::removeObject(const KeyObject &entry)
 {
-    if (isLeaf())
-    {
-        readyForRemoval(entry.getObject().getOId());
-    }
+    if (isLeaf()) readyForRemoval(entry.getObject().getOId());
     bool found = DBHierIndex::removeObject(entry);
     return found;
 }
 
-bool
-DBTCIndex::removeObject(unsigned int pos)
+bool DBTCIndex::removeObject(unsigned int pos)
 {
     if (isLeaf())
         if (pos <= myKeyObjects.size())
-        {
             readyForRemoval(myKeyObjects[pos].getObject().getOId());
-        }
     bool found = DBHierIndex::removeObject(static_cast<unsigned int>(pos));
     return found;
 }
 
-void
-DBTCIndex::decideForInlining()
+void DBTCIndex::decideForInlining()
 {
     if (isLeaf())
     {
-        InlineTile *itile = NULL;
+        InlineTile *itile = nullptr;
         KeyObjectVector::iterator it;
         for (it = myKeyObjects.begin(); it != myKeyObjects.end(); it++)
         {
             LTRACE << " we do oid " << (*it);
             if ((*it).getObject().getOId().getType() == OId::INLINETILEOID)
             {
-                if ((itile = static_cast<InlineTile *>(ObjectBroker::isInMemory((*it).getObject().getOId()))) != 0)
+                if ((itile = static_cast<InlineTile *>(ObjectBroker::isInMemory(
+                        (*it).getObject().getOId()))) != nullptr)
                 {
                     LTRACE << "in memory";
-                    //decide for inlineing
+                    // decide for inlineing
                     if (itile->isInlined())
                     {
                         LTRACE << "inlined";

@@ -37,7 +37,7 @@ rasdaman GmbH.
 #ifndef _BOOLTYPE_HH_
 #define _BOOLTYPE_HH_
 
-#include <iostream>
+#include <iosfwd>          // for ostream
 #include "uintegraltype.hh"
 #include "catalogmgr/ops.hh"
 
@@ -75,33 +75,31 @@ public:
     assignment operator.
     */
 
-    virtual ~BoolType();
+    ~BoolType() override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual void printCell(ostream &stream, const char *cell) const;
+    void printCell(std::ostream &stream, const char *cell) const override;
     /*@Doc:
     */
 
-    virtual r_ULong *convertToCULong(const char *cell, r_ULong *value) const;
+    r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
     /*@Doc:
     */
 
-    virtual char *makeFromCULong(char *cell, const r_ULong *value) const;
+    char *makeFromCULong(char *cell, const r_ULong *value) const override;
     /*@Doc:
     */
 
     static const char *Name;
 
 protected:
-
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     initializes the attributes of this type.
     there is no database activity.  this is hard coded.
     */
-
 };
 
 #endif

@@ -21,18 +21,15 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "tiler.hh"
 #include "tilemgr/tile.hh"
+#include "raslib/sinterval.hh"  // for r_Sinterval
 
-r_Tiler::r_Tiler(std::vector<r_Minterval> &sourceDomain2s, const std::vector<r_Minterval> &targetDomain2s)
-    :   sourceDomains(sourceDomain2s),
-        targetDomains(targetDomain2s)
-{
-}
+r_Tiler::r_Tiler(std::vector<r_Minterval> &sourceDomain2s,
+                 const std::vector<r_Minterval> &targetDomain2s)
+    : sourceDomains(sourceDomain2s), targetDomains(targetDomain2s) {}
 
-void
-r_Tiler::mergeDomains()
+void r_Tiler::mergeDomains()
 {
     std::vector<r_Minterval>::iterator splitedIt;
     std::vector<r_Minterval> temp;
@@ -47,16 +44,16 @@ r_Tiler::mergeDomains()
         {
             if (tempDom.is_mergeable(*splitedIt))
             {
-                //cout << "is mergeable " << tempDom << " " << *splitedIt << endl;
+                // cout << "is mergeable " << tempDom << " " << *splitedIt << endl;
                 tempDom.closure_with(*splitedIt);
-                //cout << "closure " << tempDom << endl;
+                // cout << "closure " << tempDom << endl;
                 splitedDomains.erase(splitedIt);
                 merged = true;
                 break;
             }
             else
             {
-                //cout << "is not mergeable " << tempDom << " " << *splitedIt << endl;
+                // cout << "is not mergeable " << tempDom << " " << *splitedIt << endl;
             }
         }
         if (merged)
@@ -71,8 +68,7 @@ r_Tiler::mergeDomains()
     splitedDomains = temp;
 }
 
-void
-r_Tiler::split()
+void r_Tiler::split()
 {
     std::vector<r_Minterval>::iterator sourceIt;
     std::vector<r_Minterval>::iterator retvalIt;
@@ -81,14 +77,16 @@ r_Tiler::split()
 
     for (sourceIt = sourceDomains.begin(); sourceIt != sourceDomains.end(); sourceIt++)
     {
-        //cout << "starting with source domain " << *sourceIt << endl;
+        // cout << "starting with source domain " << *sourceIt << endl;
         points = computeSplitDimensions(*sourceIt);
         splits = splitMinterval(*sourceIt, points);
         for (retvalIt = splits.begin(); retvalIt != splits.end(); retvalIt++)
         {
             splitedDomains.push_back(*retvalIt);
         }
-        //it is either splitted and in retval or not splitted and then there is an error, because not splitted were inserted
+        // it is either splitted and in retval or not splitted and then there is an
+        // error, because not splitted were
+        // inserted
     }
 }
 
@@ -106,7 +104,6 @@ r_Tiler::computeSplitDimensions(const r_Minterval &sourceDomain) const
     std::vector<r_Minterval>::const_iterator targetIt;
 
     std::vector<RangePair> points;
-    std::vector<RangePair>::iterator pointIt;
     RangePair pair;
 
     //cout << "\tfinding the intersections of current source with targets" << endl;
@@ -114,12 +111,12 @@ r_Tiler::computeSplitDimensions(const r_Minterval &sourceDomain) const
     {
         if ((*targetIt).intersects_with(sourceDomain))
         {
-            //cout << "\t\tsource intersected target " << *targetIt << endl;
+            // cout << "\t\tsource intersected target " << *targetIt << endl;
             intersects.push_back((*targetIt).create_intersection(sourceDomain));
         }
         else
         {
-            //cout << "\t\tsource did not intersect target " << *targetIt << endl;
+            // cout << "\t\tsource did not intersect target " << *targetIt << endl;
         }
     }
 
@@ -140,14 +137,14 @@ r_Tiler::computeSplitDimensions(const r_Minterval &sourceDomain) const
             {
                 pair.first = dim;
                 pair.second = ilow - 1;
-                //cout << "\t\t\tadding " << pair.second << endl;
+                // cout << "\t\t\tadding " << pair.second << endl;
                 points.push_back(pair);
             }
             if ((slow <= ihigh) & (shigh >= ihigh))
             {
                 pair.first = dim;
                 pair.second = ihigh;
-                //cout << "\t\t\tadding " << pair.second << endl;
+                // cout << "\t\t\tadding " << pair.second << endl;
                 points.push_back(pair);
             }
         }
@@ -197,7 +194,6 @@ r_Tiler::splitMinterval(const r_Minterval &sourceTile, std::vector<RangePair> &p
     std::vector<r_Minterval> splits;
     std::vector<r_Minterval> split2s;
     std::vector<r_Minterval>::iterator splitIt;
-    std::vector<r_Minterval>::iterator split2It;
 
     r_Minterval splitInterval1;
     r_Minterval splitInterval2;
@@ -214,7 +210,7 @@ r_Tiler::splitMinterval(const r_Minterval &sourceTile, std::vector<RangePair> &p
     //initialize the split std::vector.  the result will contain a list of splitted domains.
     splits.push_back(sourceTile);
 
-    //cout << "\t\tstarting to actually split" << endl;
+    // cout << "\t\tstarting to actually split" << endl;
     for (pointIt = points.begin(); pointIt != points.end(); pointIt++)
     {
         split2s = std::vector<r_Minterval>();
@@ -230,7 +226,7 @@ r_Tiler::splitMinterval(const r_Minterval &sourceTile, std::vector<RangePair> &p
             //cout << "\t\t\t\ttrying split" << endl;
             for (dim = 0; dim < ((*splitIt)).dimension(); dim++)
             {
-                if ((dim == (*pointIt).first))
+                if (dim == (*pointIt).first)
                 {
                     high = (*splitIt)[dim].high();
                     low = (*splitIt)[dim].low();
@@ -318,8 +314,7 @@ r_Tiler::splitMinterval(const r_Minterval &sourceTile, std::vector<RangePair> &p
     return splits;
 }
 
-void
-r_Tiler::removeCoveredDomains()
+void r_Tiler::removeCoveredDomains()
 {
     r_Minterval temp;
     std::vector<r_Minterval> retval;
@@ -346,8 +341,7 @@ r_Tiler::removeCoveredDomains()
     }
 }
 
-void
-r_Tiler::removeDoubleDomains()
+void r_Tiler::removeDoubleDomains()
 {
     r_Minterval temp;
     std::vector<r_Minterval> retval;
@@ -374,44 +368,24 @@ r_Tiler::removeDoubleDomains()
     retval.swap(splitedDomains);
 }
 
-std::vector<r_Minterval>
-r_Tiler::getTiledDomains() const
+std::vector<r_Minterval> r_Tiler::getTiledDomains() const
 {
     return splitedDomains;
 }
 
-std::vector<Tile *>
-r_Tiler::generateTiles(const std::vector<Tile *> &sourceTiles) const
+std::vector<Tile *> r_Tiler::generateTiles(const std::vector<Tile *> &sourceTiles) const
 {
-    std::vector<r_Minterval>::const_iterator splitedDomIt;
-    std::vector<Tile *>::const_iterator sourceTileIt;
-    std::vector<Tile *> retval;
-    r_Minterval dummy;
-    Tile *p = 0;
+    std::vector<Tile *> ret;
+    ret.reserve(splitedDomains.size());
+
     const BaseType *basetype = (*sourceTiles.begin())->getType();
     r_Data_Format dataformat = (*sourceTiles.begin())->getDataFormat();
 
-    for (splitedDomIt = splitedDomains.begin(); splitedDomIt != splitedDomains.end(); splitedDomIt++)
+    for (const auto &splitedDom : splitedDomains)
     {
-        dummy = *splitedDomIt;
-        p = new Tile(dummy, basetype, dataformat);
-//        LDEBUG << "new tile " << dummy << " " << basetype->getName() << " " << dataformat << " size " << p->getSize() << " other size " << p->getDBTile()->getSize();
-        for (sourceTileIt = sourceTiles.begin(); sourceTileIt != sourceTiles.end(); sourceTileIt++)
-        {
-//            LDEBUG << " the other tile domain " << (*sourceTileIt)->getDomain() << " type " << (*sourceTileIt)->getType()->getName();
-            if (dummy.intersects_with((*sourceTileIt)->getDomain()))
-            {
-                const r_Minterval &updateDomain = dummy.create_intersection((*sourceTileIt)->getDomain());
-//                LDEBUG << "  they intersect.  on " << updateDomain;
-                //UnaryOp* tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, p->getType(), (*sourceTileIt)->getType(), 0, 0);
-                //causes fmr/abr/umr
-                p->copyTile(updateDomain, *sourceTileIt, updateDomain);
-                //p->execUnaryOp(tempOp, dummy.create_intersection((*sourceTileIt)->getDomain()), *sourceTileIt, dummy.create_intersection((*sourceTileIt)->getDomain()));
-                //delete tempOp;
-            }
-        }
-        retval.push_back(p);
+        Tile *p = new Tile(splitedDom, basetype, dataformat);
+        ret.push_back(p);
     }
-    return retval;
+    return ret;
 }
 

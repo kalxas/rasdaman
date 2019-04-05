@@ -31,10 +31,10 @@
 #ifndef _BLOBFILE_HH_
 #define _BLOBFILE_HH_
 
-#include <string>
-#include <sys/types.h>
-#include "raslib/mddtypes.hh"
 #include "raslib/error.hh"
+#include "raslib/mddtypes.hh"
+#include <string>       // for string
+#include <sys/types.h>  // for off_t
 
 namespace blobfs
 {
@@ -68,9 +68,7 @@ public:
  */
 class BlobFile
 {
-
 public:
-
     BlobFile(const std::string &filePath);
     ~BlobFile();
 
@@ -113,7 +111,6 @@ public:
     static void removeFile(const std::string &filePath);
 
 private:
-
     void prepareForInserting();
     void prepareForUpdating();
     void prepareForReading();
@@ -129,9 +126,12 @@ private:
      */
     void generateError(const char *message, int errorCode);
 
+    // helper to read size bytes from fd into dst. The file is decompressed if
+    // needed.
+    void readFile(char *dst, size_t size);
+
     const std::string &filePath;
     int fd;
-
 };
 
 }

@@ -29,23 +29,27 @@
  ************************************************************/
 
 #include "config.h"
-#include <fcntl.h>
-#include <sys/stat.h>
+#include "blobfile.hh"
+#include "blobfscommon.hh"
+#include "mymalloc/mymalloc.h"
+#include "logging.hh"               // for LERROR, LWARNING
+
+#include <errno.h>                  // for errno, ENOENT
+#include <fcntl.h>                  // for open, O_CREAT, O_WRONLY, O_RDONLY
+#include <stdio.h>                  // for rename, size_t
+#include <string.h>                 // for strerror
+#include <sys/stat.h>               // for stat
+#include <unistd.h>                 // for write, access, close, read, unlink
+#include <istream>                  // for stringstream, basic_istream, basi...
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include "blobfile.hh"
-#include "blobfscommon.hh"
-#include <logging.hh>
 
 using namespace std;
 using namespace blobfs;
 
 BlobFile::BlobFile(const string &filePathArg)
-    : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR)
-{
-}
+    : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR) {}
 
 BlobFile::~BlobFile()
 {
@@ -93,27 +97,21 @@ void BlobFile::readData(BlobData &blob)
 {
     blob.size = static_cast<r_Bytes>(getSize());
     if (blob.size == 0)
-    {
         generateError("cannot read empty blob file", EMPTYBLOBFILE);
-    }
-    blob.data = static_cast<char *>(malloc(static_cast<size_t>(blob.size)));
-    if (blob.data == NULL)
-    {
-        generateError("failed allocating memory for blob file", MEMMORYALLOCATIONERROR);
-    }
-
+    blob.data = static_cast<char *>(mymalloc(static_cast<size_t>(blob.size)));
     prepareForReading();
-    ssize_t count = read(fd, blob.data, blob.size);
-    if (count == IO_ERROR_RC)
-    {
-        generateError("failed reading data from blob file", FAILEDREADINGFROMDISK);
-    }
-    if (count < blob.size)
-    {
-        LERROR << "read only " << count << " out of " << blob.size << " bytes from blob file.";
-        generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
-    }
+    readFile(blob.data, blob.size);
     closeFileDescriptor();
+}
+
+void BlobFile::readFile(char *dst, size_t size)
+{
+//  LDEBUG << "reading blob file of size " << size;
+    ssize_t count = read(fd, dst, size);
+    if (count == IO_ERROR_RC)
+        generateError("failed reading data from blob file", FAILEDREADINGFROMDISK);
+    if (count < static_cast<ssize_t>(size))
+        generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
 }
 
 void BlobFile::prepareForInserting()
@@ -224,10 +222,9 @@ long long BlobFile::getBlobId()
 void BlobFile::generateError(const char *message, int errorCode)
 {
     closeFileDescriptor();
-    LERROR << message << " - " << filePath;
     if (errno != 0)
-    {
-        LERROR << "reason: " << strerror(errno);
-    }
+        LERROR << message << " - " << filePath << ", reason: " << strerror(errno);
+    else
+        LERROR << message << " - " << filePath;
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

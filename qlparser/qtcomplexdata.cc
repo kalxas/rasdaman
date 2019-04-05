@@ -101,7 +101,7 @@ QtComplexData::QtComplexData(const QtComplexData &obj)
 
 
 void
-QtComplexData::printStatus(ostream &stream) const
+QtComplexData::printStatus(std::ostream &stream) const
 {
     stream << "complex, " << std::flush;
     QtScalarData::printStatus(stream);

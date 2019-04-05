@@ -23,23 +23,18 @@ rasdaman GmbH.
 #ifndef _DBOBJECT_HH_
 #define _DBOBJECT_HH_
 
-class DBObject;
-class EOId;
-
-template <class T> class DBRef;
+#include "binaryrepresentation.hh"  // for BinaryRepresentation
+#include "oidif.hh"                 // for OId, OId::OIdType
+#include "raslib/error.hh"
+#include "raslib/mddtypes.hh"   // for r_Bytes
 
 #include <iosfwd>
 
-#include "oidif.hh"
-#include "raslib/mddtypes.hh"
-#include "raslib/error.hh"
-#include "binaryrepresentation.hh"
-
-#ifdef RMANBENCHMARK
-#include "raslib/rmdebug.hh"
-#endif
-
-typedef DBRef<DBObject> DBObjectId;
+class DBObject;
+class EOId;
+template <class T>
+class DBRef;
+using DBObjectId = DBRef<DBObject>;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -173,7 +168,7 @@ public:
     returns the memory space used by this object.
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    virtual void printStatus(unsigned int level, std::ostream &stream) const;
     /*@Doc:
     prints the indent, OIdType, myOId as long and myOId as double.
     */

@@ -23,14 +23,14 @@ rasdaman GmbH.
 #ifndef _DBMINTERVAL_HH_
 #define _DBMINTERVAL_HH_
 
-class DBMinterval;
-
-template<class T> class DBRef;
-typedef DBRef<DBMinterval> DBMintervalId;
-
 #include "reladminif/dbobject.hh"
 #include "raslib/minterval.hh"
 
+class DBMinterval;
+
+template <class T>
+class DBRef;
+using DBMintervalId = DBRef<DBMinterval>;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -59,7 +59,7 @@ public:
 
     DBMinterval(const DBMinterval &old);
 
-    ~DBMinterval() noexcept(false);
+    ~DBMinterval() noexcept(false) override;
     /*@Doc:
     validates the object in the database.
     */
@@ -74,7 +74,7 @@ public:
     replaces only the r_Minterval part of the object
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     esimates the space taken up by this object with:
     DBObject::getMemorySize() + sizeof(r_Minterval)
@@ -82,23 +82,22 @@ public:
     */
 
 protected:
-
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
     inserts the object into the database.  it uses one table
     for the fixed length attributes (oid, size, dimension) and
     another for dynamic data (lower/upper bounds/fixed ranges)
     */
 
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     */
 };

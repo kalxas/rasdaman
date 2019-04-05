@@ -1,6 +1,3 @@
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-
 /*
 * This file is part of rasdaman community.
 *
@@ -35,44 +32,40 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "debug-srv.hh"
+#include "config.h"
 
-#include "dbtcindex.hh"
-#include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
+#include "reladminif/sqlerror.hh"
+#include "dbtcindex.hh"
 
-void
-DBTCIndex::deleteFromDb()
+void DBTCIndex::deleteFromDb()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
-void
-DBTCIndex::storeTiles()
+void DBTCIndex::storeTiles()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
-void
-DBTCIndex::insertBlob()
+void DBTCIndex::insertBlob()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
-void
-DBTCIndex::writeInlineTiles(__attribute__((unused)) char *theblob, __attribute__((unused)) r_Bytes blobSize)
+void DBTCIndex::writeInlineTiles(__attribute__((unused)) char *theblob,
+                                 __attribute__((unused))
+                                 r_Bytes blobSize)
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
-void
-DBTCIndex::readInlineTiles()
+void DBTCIndex::readInlineTiles()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }
 
-void
-DBTCIndex::updateTileIndexMappings()
+void DBTCIndex::updateTileIndexMappings()
 {
     throw r_Error(r_Error::r_Error_BaseDBMSFailed);
 }

@@ -36,22 +36,20 @@ rasdaman GmbH.
 #ifndef _DBREF_HH_
 #define _DBREF_HH_
 
+#include "oidif.hh"
+
+class r_Error;
+
+class BLOBTile;
 class DBHierIndex;
+class DBMDDObj;
+class DBObject;
 class DBRCIndexDS;
 class DBTCIndex;
-class BLOBTile;
 class InlineTile;
 class DBTile;
-class OId;
-class DBObject;
-class r_Error;
-class IndexDS;
 class HierIndexDS;
-class DBMDDObj;
-
-template <class T> class DBRef;
-
-#include "oidif.hh"
+class IndexDS;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -62,7 +60,7 @@ operator.
 All access methods may throw database related r_Errors.
 */
 
-#define DBOBJID_NONE    OId()
+#define DBOBJID_NONE OId()
 /**
   * \ingroup Reladminifs
   */
@@ -70,7 +68,6 @@ template <class T>
 class DBRef
 {
 public:
-
     DBRef(void);
     /*@Doc:
     Default constructor. Object must be assigned a value before the first dereferencing.
@@ -189,6 +186,12 @@ public:
     this method may instantiate an object from the database
     */
 
+    bool is_null_ref(void) const;
+    /*@Doc:
+    Returns false if valid binding exists, true otherwise.
+    this method will not instantiate an object from the database.
+    */
+
     bool is_valid(void) const;
     /*@Doc:
     Returns true if valid binding exists, false otherwise
@@ -299,7 +302,8 @@ private:
     static bool pointerCaching;
 };
 
-template <class T> bool operator< (const DBRef<T> &me, const DBRef<T> &him);
+template <class T>
+bool operator<(const DBRef<T> &me, const DBRef<T> &him);
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__

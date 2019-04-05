@@ -31,12 +31,16 @@
 #ifndef _DIRWRAPPER_HH_
 #define _DIRWRAPPER_HH_
 
-#include <string>
-#include <dirent.h>
 #include "raslib/error.hh"
 
+#include <dirent.h>  // for DIR
+#include <ftw.h>
+#include <sys/stat.h>
+#include <string>    // for string
+
 // used by DirWrapper::removeDirectory
-int removePath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
+int removePath(const char *fpath, const struct stat *sb, int typeflag,
+               struct FTW *ftwbuf);
 
 namespace blobfs
 {
@@ -47,7 +51,6 @@ namespace blobfs
 class DirWrapper
 {
 public:
-
     // Create a directory at dirPath; ignore if directory already exists
     static void createDirectory(const std::string &dirPath);
 
@@ -71,7 +74,6 @@ public:
 class DirEntryIterator
 {
 public:
-
     /**
      * Initialize with root directory path; if filesOnly is true then next()
      * will return only files, otherwise only directories.
@@ -99,7 +101,6 @@ public:
     bool close();
 
 private:
-
     std::string dirPath;
     bool filesOnly;
     DIR *dirStream;

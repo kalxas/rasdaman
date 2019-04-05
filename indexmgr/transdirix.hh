@@ -36,6 +36,8 @@ rasdaman GmbH.
 #include "indexmgr/indexds.hh"
 #include "reladminif/lists.h"
 
+#include <iosfwd>                   // for cout, ostream
+
 /**
  *  @file transdirix.hh
  *
@@ -53,20 +55,18 @@ and a set of entries, one for each object belonging to the mdd object.
 For documentation on methods see IndexDS.
 */
 
-class TransDirIx    :    public IndexDS
+class TransDirIx : public IndexDS
 {
-
 public:
-
     TransDirIx(r_Dimension dim);
     /*@Doc:
     Creates a new transient index for an object with dimensionality
     {\tt dim}.
     */
 
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
-    void insertObject(const KeyObject &newKeyObject, unsigned int pos);
+    void insertObject(const KeyObject &newKeyObject, unsigned int pos) override;
     /*@Doc:
     Inserts a new tile in the index at position {\tt pos}, which must be
     between 0 and {\tt getNumberElems()} (that is, {\tt pos } is
@@ -76,61 +76,61 @@ public:
     must be transient (of type TransKeyObject). The current domain is updated.
     */
 
-    virtual void setObject(const KeyObject &theKey, unsigned int pos);
+    void setObject(const KeyObject &theKey, unsigned int pos) override;
 
-    virtual void setObjectDomain(const r_Minterval &dom, unsigned int pos);
+    void setObjectDomain(const r_Minterval &dom, unsigned int pos) override;
 
-    bool removeObject(unsigned int pos);
+    bool removeObject(unsigned int pos) override;
 
-    bool removeObject(const KeyObject &theKey);
+    bool removeObject(const KeyObject &theKey) override;
 
-    virtual bool isValid() const;
+    bool isValid() const override;
 
-    virtual bool isUnderFull() const;
+    bool isUnderFull() const override;
 
-    virtual bool isOverFull() const;
+    bool isOverFull() const override;
 
-    virtual bool isSameAs(const IndexDS *pix) const;
+    bool isSameAs(const IndexDS *pix) const override;
 
-    const KeyObject &getObject(unsigned int pos) const;
+    const KeyObject &getObject(unsigned int pos) const override;
 
-    r_Minterval getObjectDomain(unsigned int pos) const;
+    r_Minterval getObjectDomain(unsigned int pos) const override;
 
     DomainPVector *getObjectDomains() const;
 
-    void getObjects(KeyObjectVector &) const;
+    void getObjects(KeyObjectVector &) const override;
 
-    r_Minterval getCoveredDomain() const;
+    r_Minterval getCoveredDomain() const override;
 
-    r_Minterval getAssignedDomain() const;
+    r_Minterval getAssignedDomain() const override;
 
-    r_Dimension getDimension() const;
+    r_Dimension getDimension() const override;
 
-    void setAssignedDomain(const r_Minterval &domain);
+    void setAssignedDomain(const r_Minterval &domain) override;
 
-    unsigned int getSize() const;
+    unsigned int getSize() const override;
 
-    r_Bytes getTotalStorageSize() const;
+    r_Bytes getTotalStorageSize() const override;
 
     bool isPersistent() const;
 
-    virtual ~TransDirIx();
+    ~TransDirIx() override;
     /*@Doc:
         Destructor - deletes tiles from main memory.
     */
 
-    virtual unsigned int getOptimalSize() const;
+    unsigned int getOptimalSize() const override;
 
-    virtual void freeDS();
+    void freeDS() override;
     /*@Doc:
         does not do anything - there is no persistent data structure
     */
 
-    virtual OId::OIdPrimitive getIdentifier() const;
+    OId::OIdPrimitive getIdentifier() const override;
 
-    virtual IndexDS *getNewInstance() const;
+    IndexDS *getNewInstance() const override;
+
 private:
-
     r_Minterval currDomain;
     /**
     Always set automatically to the MBR of the tiles in {\tt tiles}.

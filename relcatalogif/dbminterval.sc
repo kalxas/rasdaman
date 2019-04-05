@@ -34,53 +34,44 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include "config.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
 #include "dbminterval.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "raslib/sinterval.hh"
 #include <logging.hh>
 
-DBMinterval::DBMinterval()
-    :   DBObject(),
-        r_Minterval()
+DBMinterval::DBMinterval() : DBObject(), r_Minterval()
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const OId &id)
-    :   DBObject(id),
-        r_Minterval()
+    : DBObject(id), r_Minterval()
 {
     objecttype = OId::DBMINTERVALOID;
     readFromDb();
 }
 
 DBMinterval::DBMinterval(r_Dimension dim)
-    :   DBObject(),
-        r_Minterval(dim)
+    : DBObject(), r_Minterval(dim)
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const char *dom)
-    :   DBObject(),
-        r_Minterval(const_cast<char *>(dom))
+    : DBObject(), r_Minterval(const_cast<char *>(dom))
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const DBMinterval &old)
-    :   DBObject(old),
-        r_Minterval(old)
+    : DBObject(old), r_Minterval(old)
 {
     objecttype = OId::DBMINTERVALOID;
 }
 
 DBMinterval::DBMinterval(const r_Minterval &old)
-    :   DBObject(),
-        r_Minterval(old)
+    : DBObject(), r_Minterval(old)
 {
     objecttype = OId::DBMINTERVALOID;
 }
@@ -90,8 +81,7 @@ DBMinterval::~DBMinterval() noexcept(false)
     validate();
 }
 
-DBMinterval &
-DBMinterval::operator=(const DBMinterval &old)
+DBMinterval &DBMinterval::operator=(const DBMinterval &old)
 {
     if (this == &old)
     {
@@ -102,8 +92,7 @@ DBMinterval::operator=(const DBMinterval &old)
     return *this;
 }
 
-DBMinterval &
-DBMinterval::operator=(const r_Minterval &old)
+DBMinterval &DBMinterval::operator=(const r_Minterval &old)
 {
     if (this == &old)
     {
@@ -114,26 +103,26 @@ DBMinterval::operator=(const r_Minterval &old)
     return *this;
 }
 
-r_Bytes
-DBMinterval::getMemorySize() const
+r_Bytes DBMinterval::getMemorySize() const
 {
-    return DBObject::getMemorySize() + sizeof(r_Minterval) + dimensionality * (4 + 4 + 1 + 1);
+    return DBObject::getMemorySize() + sizeof(r_Minterval) +
+           dimensionality * (4 + 4 + 1 + 1);
 }
 
-void
-DBMinterval::insertInDb()
+void DBMinterval::insertInDb()
 {
     long long domainid;
     unsigned int count;
     r_Dimension dimension2;
-    char    high[STRING_MAXLEN];
-    char    low[STRING_MAXLEN];
+    char high[STRING_MAXLEN];
+    char low[STRING_MAXLEN];
 
     domainid = myOId.getCounter();
     dimension2 = dimensionality;
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_DOMAINS ( DomainId, Dimension) VALUES  ( %lld, %d)",
-                                   domainid, dimension2);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_DOMAINS ( DomainId, Dimension) VALUES  ( %lld, %d)",
+        domainid, dimension2);
 
     for (count = 0; count < dimensionality; count++)
     {
@@ -154,65 +143,71 @@ DBMinterval::insertInDb()
             strcpy(high, "NULL");
         }
 
-        SQLiteQuery::executeWithParams("INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount, Low, High ) VALUES  ( %lld, %d, %s, %s)",
-                                       domainid, count, low, high);
+        SQLiteQuery::executeWithParams(
+            "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount, Low, High ) "
+            "VALUES  ( %lld, %d, %s, %s)",
+            domainid, count, low, high);
     }
 
     DBObject::insertInDb();
 }
 
-void
-DBMinterval::updateInDb()
+void DBMinterval::updateInDb()
 {
     long long domainid;
     unsigned int count;
     r_Dimension dimension2;
-    char    high[STRING_MAXLEN];
-    char    low[STRING_MAXLEN];
+    char high[STRING_MAXLEN];
+    char low[STRING_MAXLEN];
 
     domainid = myOId.getCounter();
 
-    SQLiteQuery query("SELECT Dimension FROM RAS_DOMAINS WHERE DomainId = %lld", domainid);
+    SQLiteQuery query("SELECT Dimension FROM RAS_DOMAINS WHERE DomainId = %lld",
+                      domainid);
     if (query.nextRow())
     {
         dimension2 = static_cast<r_Dimension>(query.nextColumnInt());
     }
     else
     {
-        LERROR << "DBMinterval::updateInDb() - domain object: "
-               << domainid << " not found in the database.";
+        LERROR << "DBMinterval::updateInDb() - domain object: " << domainid
+               << " not found in the database.";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
 
     if (dimension2 < dimensionality)
     {
-        //insert more rows in RAS_DOMAINVALUES
+        // insert more rows in RAS_DOMAINVALUES
         for (count = dimension2; count < dimensionality; count++)
         {
-            SQLiteQuery::executeWithParams("INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount) VALUES  ( %lld, %d )",
-                                           domainid, count);
+            SQLiteQuery::executeWithParams(
+                "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount) VALUES  ( %lld, %d )",
+                domainid, count);
         }
         dimension2 = dimensionality;
-        SQLiteQuery::executeWithParams("UPDATE RAS_DOMAINS SET Dimension = %d WHERE DomainId = %lld",
-                                       dimension2, domainid);
+        SQLiteQuery::executeWithParams(
+            "UPDATE RAS_DOMAINS SET Dimension = %d WHERE DomainId = %lld",
+            dimension2, domainid);
     }
     else
     {
         if (dimension2 > dimensionality)
         {
-            //delete superfluous dimensions
+            // delete superfluous dimensions
             for (count = dimension2; count > dimensionality; count--)
             {
-                SQLiteQuery::executeWithParams("DELETE FROM RAS_DOMAINVALUES WHERE DomainId = %lld AND DimensionCount = %d",
-                                               domainid, count);
+                SQLiteQuery::executeWithParams(
+                    "DELETE FROM RAS_DOMAINVALUES WHERE DomainId = %lld AND DimensionCount = %d",
+                    domainid, count);
             }
             dimension2 = dimensionality;
-            SQLiteQuery::executeWithParams("UPDATE RAS_DOMAINS SET Dimension = %d WHERE DomainId = %lld",
-                                           dimension2, domainid);
+            SQLiteQuery::executeWithParams(
+                "UPDATE RAS_DOMAINS SET Dimension = %d WHERE DomainId = %lld",
+                dimension2, domainid);
         }
         else
         {
-            //only update dimension boundaries
+            // only update dimension boundaries
         }
     }
 
@@ -235,15 +230,15 @@ DBMinterval::updateInDb()
             strcpy(high, "NULL");
         }
 
-        SQLiteQuery::executeWithParams("UPDATE RAS_DOMAINVALUES SET Low = %s, High = %s WHERE DomainId = %lld AND DimensionCount = %d",
-                                       low, high, domainid, count);
+        SQLiteQuery::executeWithParams(
+            "UPDATE RAS_DOMAINVALUES SET Low = %s, High = %s WHERE DomainId = %lld AND DimensionCount = %d",
+            low, high, domainid, count);
     }
 
     DBObject::updateInDb();
 }
 
-void
-DBMinterval::deleteFromDb()
+void DBMinterval::deleteFromDb()
 {
     long long domainid = myOId.getCounter();
     SQLiteQuery::executeWithParams("DELETE FROM RAS_DOMAINS WHERE DomainId = %lld", domainid);
@@ -251,29 +246,25 @@ DBMinterval::deleteFromDb()
     DBObject::deleteFromDb();
 }
 
-void
-DBMinterval::readFromDb()
+void DBMinterval::readFromDb()
 {
     char undefined = '*';
     long long domainid;
-    long    count;
-    long    low;
-    short   lowind;
-    long    high;
-    short   highind;
-    long    dimension2;
+    long count;
+    long dimension2;
 
     domainid = myOId.getCounter();
 
-    SQLiteQuery query("SELECT Dimension FROM RAS_DOMAINS WHERE DomainId = %lld", domainid);
+    SQLiteQuery query("SELECT Dimension FROM RAS_DOMAINS WHERE DomainId = %lld",
+                      domainid);
     if (query.nextRow())
     {
         dimension2 = query.nextColumnInt();
     }
     else
     {
-        LERROR << "DBMinterval::readFromDb() - domain object: "
-               << domainid << " not found in the database..";
+        LERROR << "DBMinterval::readFromDb() - domain object: " << domainid
+               << " not found in the database..";
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object not found in the database.");
     }
 
@@ -284,8 +275,9 @@ DBMinterval::readFromDb()
 
     for (count = 0; count < dimension2; count++)
     {
-        SQLiteQuery query2("SELECT Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
-                           count, domainid);
+        SQLiteQuery query2(
+            "SELECT Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
+            count, domainid);
         if (query2.nextRow())
         {
             if (!query2.currColumnNull())
@@ -309,9 +301,10 @@ DBMinterval::readFromDb()
         }
         else
         {
-            LERROR << "DBMinterval::readFromDb() - domain object: "
-                   << domainid << " has no dimension " << count << " description in the database.";
-            throw r_Ebase_dbms(SQLITE_NOTFOUND, "domain object has no dimension description in the database.");
+            LERROR << "DBMinterval::readFromDb() - domain object: " << domainid
+                   << " has no dimension " << count << " description in the database.";
+            throw r_Ebase_dbms(SQLITE_NOTFOUND,
+                "domain object has no dimension description in the database.");
         }
 
         streamInitCnt++;

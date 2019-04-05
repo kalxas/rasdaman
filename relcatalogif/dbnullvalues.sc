@@ -22,39 +22,33 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
 #include "dbnullvalues.hh"
+#include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "reladminif/externs.h"
 #include <limits>
 #include <logging.hh>
 
-DBNullvalues::DBNullvalues()
-    :   DBObject(),
-        r_Nullvalues()
+DBNullvalues::DBNullvalues() : DBObject(), r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::DBNullvalues(const OId &id)
-    :   DBObject(id),
-        r_Nullvalues()
+DBNullvalues::DBNullvalues(const OId &id) : DBObject(id), r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
     readFromDb();
 }
 
 DBNullvalues::DBNullvalues(const DBNullvalues &old)
-    :   DBObject(old),
-        r_Nullvalues(old)
+    : DBObject(old), r_Nullvalues(old)
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
 DBNullvalues::DBNullvalues(const r_Nullvalues &old)
-    :   DBObject(),
-        r_Nullvalues(old)
+    : DBObject(), r_Nullvalues(old)
 {
     objecttype = OId::DBNULLVALUESOID;
 }
@@ -64,8 +58,7 @@ DBNullvalues::~DBNullvalues() noexcept(false)
     validate();
 }
 
-DBNullvalues &
-DBNullvalues::operator=(const DBNullvalues &old)
+DBNullvalues &DBNullvalues::operator=(const DBNullvalues &old)
 {
     if (this == &old)
     {
@@ -76,8 +69,7 @@ DBNullvalues::operator=(const DBNullvalues &old)
     return *this;
 }
 
-DBNullvalues &
-DBNullvalues::operator=(const r_Nullvalues &old)
+DBNullvalues &DBNullvalues::operator=(const r_Nullvalues &old)
 {
     if (this == &old)
     {
@@ -88,14 +80,13 @@ DBNullvalues::operator=(const r_Nullvalues &old)
     return *this;
 }
 
-r_Bytes
-DBNullvalues::getMemorySize() const
+r_Bytes DBNullvalues::getMemorySize() const
 {
-    return DBObject::getMemorySize() + sizeof(r_Nullvalues) + nullvalues.size() * sizeof(nullvalues[0]);
+    return DBObject::getMemorySize() + sizeof(r_Nullvalues) +
+           nullvalues.size() * sizeof(nullvalues[0]);
 }
 
-void
-DBNullvalues::insertInDb()
+void DBNullvalues::insertInDb()
 {
     for (size_t i = 0; i < nullvalues.size(); ++i)
     {
@@ -117,8 +108,7 @@ DBNullvalues::insertInDb()
     DBObject::insertInDb();
 }
 
-void
-DBNullvalues::updateInDb()
+void DBNullvalues::updateInDb()
 {
     for (size_t i = 0; i < nullvalues.size(); ++i)
     {
@@ -140,27 +130,27 @@ DBNullvalues::updateInDb()
     DBObject::updateInDb();
 }
 
-void
-DBNullvalues::deleteFromDb()
+void DBNullvalues::deleteFromDb()
 {
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_NULLVALUEPAIRS "
-                                   "WHERE NullValueOId = %lld",
-                                   myOId.getCounter());
+    SQLiteQuery::executeWithParams(
+        "DELETE FROM RAS_NULLVALUEPAIRS "
+        "WHERE NullValueOId = %lld",
+        myOId.getCounter());
     DBObject::deleteFromDb();
 }
 
-void
-DBNullvalues::readFromDb()
+void DBNullvalues::readFromDb()
 {
-    SQLiteQuery query("SELECT * FROM RAS_NULLVALUEPAIRS "
-                      "WHERE NullValueOId = %lld "
-                      "ORDER BY Count ASC",
-                      myOId.getCounter());
+    SQLiteQuery query(
+        "SELECT * FROM RAS_NULLVALUEPAIRS "
+        "WHERE NullValueOId = %lld "
+        "ORDER BY Count ASC",
+        myOId.getCounter());
 
     while (query.nextRow())
     {
-        query.nextColumn(); // skip OId column
-        query.nextColumn(); // skip count column, they are ordered already
+        query.nextColumn();  // skip OId column
+        query.nextColumn();  // skip count column, they are ordered already
         double low = (query.currColumnNull())
                      ? std::numeric_limits<double>::quiet_NaN()
                      : query.nextColumnDouble();
@@ -175,7 +165,8 @@ DBNullvalues::readFromDb()
     {
         LERROR << "DBNullvalues::readFromDb() - nullvalues object: "
                << myOId.getCounter() << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND, "nullvalues data not found in the database.");
+        throw r_Ebase_dbms(SQLITE_NOTFOUND,
+                           "nullvalues data not found in the database.");
     }
 
     DBObject::readFromDb();

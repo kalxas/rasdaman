@@ -37,45 +37,48 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mdddomaintype.hh"
+#include "dbminterval.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "dbminterval.hh"
 #include <logging.hh>
 #include <cstring>
 
-void
-MDDDomainType::insertInDb()
+void MDDDomainType::insertInDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
     long long domainid;
     char mddtypename[VARCHAR_MAXLEN];
 
-    (void) strncpy(mddtypename, const_cast<char *>(getName()), (size_t) sizeof(mddtypename));
+    (void)strncpy(mddtypename, const_cast<char *>(getName()),
+                  (size_t)sizeof(mddtypename));
     DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
     domainid = myDomain->getOId().getCounter();
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, DomainId) VALUES (%lld, '%s', %lld, %lld)",
-                                   mddtypeid, mddtypename, mddbasetypeid, domainid);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, "
+        "DomainId) VALUES (%lld, '%s', %lld, %lld)",
+        mddtypeid, mddtypename, mddbasetypeid, domainid);
     DBObject::insertInDb();
 }
 
-void
-MDDDomainType::readFromDb()
+void MDDDomainType::readFromDb()
 {
     long long mddtypeid;
     long long mddbasetypeid;
     long long domainid;
-    char *mddtypename;
+    const char *mddtypename;
 
     mddtypeid = myOId.getCounter();
     mddbasetypeid = 0;
 
-    SQLiteQuery query("SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",
-                      mddtypeid);
+    SQLiteQuery query(
+        "SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE "
+        "MDDDomTypeOId = %lld",
+        mddtypeid);
     if (query.nextRow())
     {
         mddbasetypeid = query.nextColumnLong();
@@ -84,9 +87,10 @@ MDDDomainType::readFromDb()
     }
     else
     {
-        LERROR << "MDDDomainType::readFromDb() - mdd type: "
-               << mddtypeid << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
+        LERROR << "MDDDomainType::readFromDb() - mdd type: " << mddtypeid
+               << " not found in the database.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND,
+                           "mdd type object not found in the database.");
     }
 
     setName(strlen(mddtypename), mddtypename);
@@ -100,12 +104,11 @@ MDDDomainType::readFromDb()
     DBObject::readFromDb();
 }
 
-void
-MDDDomainType::deleteFromDb()
+void MDDDomainType::deleteFromDb()
 {
     long long mddtypeid = myOId.getCounter();
-    SQLiteQuery::executeWithParams("DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",
-                                   mddtypeid);
+    SQLiteQuery::executeWithParams(
+        "DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld", mddtypeid);
     myDomain->setPersistent(false);
     myDomain->setCached(false);
     DBObject::deleteFromDb();

@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
-
-#include "config.h"
-#include "storagemgr/stgmddconfig.hh"
-
-using namespace std;
-
 /****************************************************************************
  *
  *
@@ -45,10 +38,15 @@ using namespace std;
  *
  ****************************************************************************/
 
-StgMddConfig::StgMddConfig()
-{}
-StgMddConfig::~StgMddConfig()
-{}
+
+
+#include "config.h"
+#include "storagemgr/stgmddconfig.hh"
+
+using namespace std;
+
+StgMddConfig::StgMddConfig() = default;
+StgMddConfig::~StgMddConfig() = default;
 
 // Setter functions
 void StgMddConfig::setBBoxes(const vector<r_Minterval> &input)

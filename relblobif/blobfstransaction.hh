@@ -23,11 +23,12 @@
 #ifndef _BLOBFILESTORAGETRANSACTION_HH_
 #define _BLOBFILESTORAGETRANSACTION_HH_
 
-#include <vector>
-#include <string>
 #include "blobfile.hh"
-#include "blobfstransactionlock.hh"
 #include "blobfscommon.hh"
+#include "blobfstransactionlock.hh"
+
+#include <string>  // for string
+#include <vector>  // for vector
 
 using blobfs::BlobData;
 
@@ -53,7 +54,6 @@ class BlobFSTransaction
     friend class TestBlobFS;
 
 public:
-
     /**
      * Initialize given storage paths. The transaction directory
      * fileStorageTransactionPath is typically empty, and is initialized here.
@@ -114,7 +114,6 @@ public:
         const std::string &transactionPath, BlobFSConfig &config);
 
 protected:
-
     BlobFSTransaction(BlobFSConfig &config);
 
     /**
@@ -181,56 +180,56 @@ protected:
 
 };
 
-class BlobFSInsertTransaction: public BlobFSTransaction
+class BlobFSInsertTransaction : public BlobFSTransaction
 {
 public:
     BlobFSInsertTransaction(BlobFSConfig &config,
                             const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData &blobData);
+    void add(BlobData &blobData) override;
 
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit();
+    void postRasbaseCommit() override;
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort();
+    void postRasbaseAbort() override;
 };
 
-class BlobFSUpdateTransaction: public BlobFSTransaction
+class BlobFSUpdateTransaction : public BlobFSTransaction
 {
 public:
     BlobFSUpdateTransaction(BlobFSConfig &config,
                             const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData &blobData);
+    void add(BlobData &blobData) override;
 
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit();
+    void postRasbaseCommit() override;
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort();
+    void postRasbaseAbort() override;
 };
 
-class BlobFSRemoveTransaction: public BlobFSTransaction
+class BlobFSRemoveTransaction : public BlobFSTransaction
 {
 public:
     BlobFSRemoveTransaction(BlobFSConfig &config,
                             const std::string &fileStorageTransactionPath = std::string());
 
-    virtual void add(BlobData &blobData);
+    void add(BlobData &blobData) override;
 
     // To be called before commit to RASBASE
-    virtual void preRasbaseCommit();
+    void preRasbaseCommit() override;
     // To be called after commit to RASBASE
-    virtual void postRasbaseCommit();
+    void postRasbaseCommit() override;
     // To be called before abort to RASBASE
-    virtual void postRasbaseAbort();
+    void postRasbaseAbort() override;
 };
 
-class BlobFSSelectTransaction: public BlobFSTransaction
+class BlobFSSelectTransaction : public BlobFSTransaction
 {
 public:
     BlobFSSelectTransaction(BlobFSConfig &config);
 
-    virtual void add(BlobData &blobData);
+    void add(BlobData &blobData) override;
 };
 
 }

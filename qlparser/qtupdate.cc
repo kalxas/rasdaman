@@ -617,7 +617,7 @@ QtUpdate::getChilds(QtChildType flag)
 
 
 void
-QtUpdate::printTree(int tab, ostream &s, QtChildType mode)
+QtUpdate::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
 
@@ -670,7 +670,7 @@ QtUpdate::printTree(int tab, ostream &s, QtChildType mode)
 
 
 void
-QtUpdate::printAlgebraicExpression(ostream &s)
+QtUpdate::printAlgebraicExpression(std::ostream &s)
 {
     s << "update<" << std::flush;
     if (updateTarget)

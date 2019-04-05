@@ -20,42 +20,34 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
 #include "dbobjectiterator.hh"
-#include "objectbroker.hh"
-#include "dbref.hh"
-#include <logging.hh>
+#include "dbref.hh"    // for DBRef
 
-template<class T>
+template <class T>
 DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T> &oidlist)
-    :   mySet(NULL),
-        counter(0)
+    : mySet(nullptr), counter(0)
 {
-    LTRACE << "DBObjectIterator(const DBObjectIterator<T>&)";
     mySet = new OIdSet(*(oidlist.mySet));
     myIter = mySet->begin();
 }
 
-template<class T>
+template <class T>
 DBObjectIterator<T>::DBObjectIterator(const OIdSet &oidlist)
-    :   mySet(NULL),
-        counter(0)
+    : mySet(nullptr), counter(0)
 {
-    LTRACE << "DBObjectIterator(OIdSet)";
     mySet = new OIdSet(oidlist);
     myIter = mySet->begin();
 }
 
-template<class T> void
-DBObjectIterator<T>::reset()
+template <class T>
+void DBObjectIterator<T>::reset()
 {
-    LTRACE << "reset()";
     myIter = mySet->begin();
     counter = 0;
 }
 
-template<class T> bool
-DBObjectIterator<T>::not_done() const
+template <class T>
+bool DBObjectIterator<T>::not_done() const
 {
     bool retval = false;
     if (myIter == mySet->end())
@@ -83,27 +75,24 @@ DBObjectIterator<T>::not_done() const
     return retval;
 }
 
-template<class T> void
-DBObjectIterator<T>::advance()
+template <class T>
+void DBObjectIterator<T>::advance()
 {
-    LTRACE << "advance() " << counter;
     myIter++;
     counter++;
 }
 
-template<class T> DBRef<T>
-DBObjectIterator<T>::get_element() const
+template <class T>
+DBRef<T> DBObjectIterator<T>::get_element() const
 {
-    LTRACE << "get_element() " << *myIter << " " << (*myIter).getType();
     return DBRef<T>(*myIter);
 }
 
-template<class T>
+template <class T>
 DBObjectIterator<T>::~DBObjectIterator()
 {
-    LTRACE << "~DBObjectIterator()";
     delete mySet;
-    mySet = NULL;
+    mySet = nullptr;
     counter = 0;
 }
 

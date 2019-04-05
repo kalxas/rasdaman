@@ -25,13 +25,15 @@ rasdaman GmbH.
 
 class DBHierIndex;
 class DBTCIndex;
-//class DBIndexDS;
+// class DBIndexDS;
 class DBRCIndexDS;
 
-template <class T> class DBRef;
+template <class T>
+class DBRef;
 
-typedef DBRef<DBHierIndex> DBHierIndexId;
-typedef DBRef<DBTCIndex> DBTCIndexId;
-typedef DBRef<DBRCIndexDS> DBRCIndexDSId;
-//typedef DBRef<DBIndexDS> DBIndexDSId;
+using DBHierIndexId = DBRef<DBHierIndex>;
+using DBTCIndexId = DBRef<DBTCIndex>;
+using DBRCIndexDSId = DBRef<DBRCIndexDS>;
+// using DBIndexDSId = DBRef<DBIndexDS>;
+
 #endif

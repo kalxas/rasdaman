@@ -23,18 +23,23 @@ rasdaman GmbH.
 #ifndef _DBTILE_HH_
 #define _DBTILE_HH_
 
-class OId;
-class r_Error;
-
-#include "reladminif/dbobject.hh"
-#include "raslib/mddtypes.hh"
-#include "tileid.hh"
+#include "reladminif/dbobject.hh"     // for DBObject
 #include "relindexif/indexid.hh"
+#include "raslib/mddtypes.hh"   // for r_Bytes, r_Data_Format
+#include "raslib/minterval.hh"  // for r_Minterval
+#include "tileid.hh"
+
+class r_Error;
+class OId;
 
 //@ManMemo: Module: {\bf reldbif}.
 
 /*@Doc:
-This class is used in tilemgr as an interface to the persistent tiles.  There are subclasses of dbtile which store themselves differently.  This class can also be used to get rid of tilemgr/TransTile.  When no persistent tile is needed then a dbtile and not a blobtile/inlinetile can be used.
+This class is used in tilemgr as an interface to the persistent tiles.  There
+are subclasses of dbtile which store
+themselves differently.  This class can also be used to get rid of
+tilemgr/TransTile.  When no persistent tile is needed
+then a dbtile and not a blobtile/inlinetile can be used.
 */
 
 /**
@@ -43,7 +48,7 @@ This class is used in tilemgr as an interface to the persistent tiles.  There ar
 class DBTile : public DBObject
 {
 public:
-    friend std::ostream &operator << (std::ostream &stream, DBTile &b);
+    friend std::ostream &operator<<(std::ostream &stream, DBTile &b);
     /*@Doc:
     prints info about the dbtile (flags, id, dbdata, size, modified)
     */
@@ -167,7 +172,7 @@ public:
     */
     //@}
 
-    virtual ~DBTile() noexcept(false);
+    ~DBTile() noexcept(false) override;
     /*@Doc:
     validates the object.  deletes it cells.
     */
@@ -177,14 +182,14 @@ public:
     resize DBTile.  previous contents are lost.
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     returns the space taken up by this object in memory:
     size * sizeof(char) + sizeof(char*) +
         DBObject::getMemorySize() + sizeof(r_Data_Format) + sizeof(r_Bytes)
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
     /*@Doc:
     prints the status of DBObject, the dataformat, the size and the contents as (int)
     */
@@ -221,7 +226,8 @@ protected:
 
     mutable r_Data_Format currentFormat;
     /*@Doc:
-    the current format of the contents.  This is neccessary to know when getting mixed up compressed contents.
+    the current format of the contents.  This is neccessary to know when getting
+    mixed up compressed contents.
     */
 
     mutable bool ownCells;

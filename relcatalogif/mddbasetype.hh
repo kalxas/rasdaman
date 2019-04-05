@@ -37,10 +37,11 @@ rasdaman GmbH.
 #ifndef _MDDBASETYPE_HH_
 #define _MDDBASETYPE_HH_
 
-class MDDBaseType;
-
 #include "catalogmgr/ops.hh"
 #include "mddtype.hh"
+#include <iosfwd>
+
+class MDDBaseType;
 
 class OId;
 
@@ -57,12 +58,12 @@ class OId;
 class MDDBaseType : public MDDType
 {
 public:
-    virtual char *getTypeStructure() const;
+    char *getTypeStructure() const override;
     /*@Doc:
     returns a string: marray < myBaseType->getTypeStructure >
     */
 
-    virtual char *getNewTypeStructure() const;
+    char *getNewTypeStructure() const override;
 
     MDDBaseType(const OId &id);
     /*@Doc:
@@ -78,7 +79,6 @@ public:
     /*@Doc:
     default constructor, cannot be used.
     */
-
 
     MDDBaseType(const char *newtypename);
     /*@Doc:
@@ -99,44 +99,43 @@ public:
     returns base type.
     */
 
-    virtual void print_status(ostream &s) const;
+    void print_status(std::ostream &s) const override;
     /*@Doc:
     writes the state of the object to the specified stream:
     \tr_Marray < myBaseType->getTypeName() \t>
     */
 
-    virtual ~MDDBaseType() noexcept(false);
+    ~MDDBaseType() noexcept(false) override;
     /*@Doc:
     virtual destructor.
     validates the object.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     to be compatible the following must be true:
         aType must be MDDBASETYPE or subclass and
         myBaseType must be compatible with aType->myBaseType
     */
 
-    virtual int compatibleWithDomain(const r_Minterval *aDomain) const;
+    int compatibleWithDomain(const r_Minterval *aDomain) const override;
     /*@Doc:
     create a new MDDDomainType with itself and aDomain, then it
     checks compatibility with self.
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     computes memory size by:
     MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType*);
     */
 
 protected:
+    void insertInDb() override;
 
-    virtual void insertInDb();
+    void readFromDb() override;
 
-    virtual void readFromDb();
-
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 
     const BaseType *myBaseType;
     /*@Doc:

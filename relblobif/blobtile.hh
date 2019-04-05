@@ -36,15 +36,15 @@ rasdaman GmbH.
 #ifndef _BLOBTILE_HH_
 #define _BLOBTILE_HH_
 
-class OId;
-class r_Error;
-
 #include "config.h"
+#include "blobfs.hh"
 #include "dbtile.hh"
 #include "tilecache.hh"
 #include "tilecachevalue.hh"
 #include "raslib/mddtypes.hh"
-#include "blobfs.hh"
+
+class r_Error;
+class OId;
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -72,7 +72,7 @@ highly dependent on the base DBMS used.
   * \ingroup Relblobifs
   */
 
-class BLOBTile  : public DBTile
+class BLOBTile : public DBTile
 {
 public:
     //@Man: constructors
@@ -124,7 +124,7 @@ public:
 
     //@}
 
-    virtual ~BLOBTile() noexcept(false);
+    ~BLOBTile() noexcept(false) override;
     /*@Doc:
     validates the object.  deletes it cells.
     */
@@ -142,26 +142,27 @@ public:
     the old file tile organization is used or the new nested organization.
     */
 
+    static r_Data_Format getTileDataFormat(long long blobOid);
+
     static const long long NO_TILE_FOUND = -1;
 
 protected:
-
-    virtual void updateInDb();
+    void updateInDb() override;
     /*@Doc:
     update the contents of a Tile in the db
     */
 
-    virtual void insertInDb();
+    void insertInDb() override;
     /*@Doc:
     inserts the Blob into the db.
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
     /*@Doc:
     read blob from db into blobtile
     */
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
     /*@Doc:
     deletes a blob from TILES, sets size to 0 and flags to -1
     */

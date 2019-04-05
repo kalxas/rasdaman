@@ -47,12 +47,12 @@ rasdaman GmbH.
  *  class.
 */
 
-class HierIndexDS   :   public IndexDS
+class HierIndexDS : public IndexDS
 {
 public:
-    HierIndexDS(): IndexDS() {}
+    HierIndexDS() : IndexDS() {}
 
-    HierIndexDS(const OId &id): IndexDS(id) {}
+    HierIndexDS(const OId &id) : IndexDS(id) {}
 
     ~HierIndexDS() override = default;
 
@@ -119,7 +119,6 @@ public:
         when called by the root node.
         I do count myself -> I am a leaf, I return 1.
     */
-
 };
 
 #endif

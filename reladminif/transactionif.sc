@@ -33,25 +33,24 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include "config.h"
-#include "debug.hh"
+#include "transactionif.hh"
+
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
-
-#include "transactionif.hh"
-#include "adminif.hh"
-#include "oidif.hh"
-#include "catalogmgr/typefactory.hh"
 #include "sqlerror.hh"
-#include "objectbroker.hh"
+
+#include "adminif.hh"
+#include "relblobif/blobfs.hh"
+#include "catalogmgr/typefactory.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
-#include "relblobif/blobfs.hh"
+#include "objectbroker.hh"
+#include "oidif.hh"
 #include <logging.hh>
 
 using blobfs::BlobFS;
 
-void
-TransactionIf::begin(bool readOnly)
+void TransactionIf::begin(bool readOnly)
 {
     if (readOnly)
     {
@@ -85,8 +84,7 @@ TransactionIf::begin(bool readOnly)
 #endif
 }
 
-void
-TransactionIf::commit()
+void TransactionIf::commit()
 {
     AdminIf::setAborted(false);
     TypeFactory::freeTempTypes();
@@ -128,11 +126,9 @@ TransactionIf::commit()
     OId::oidAlloc.stop();
     OId::oidResolve.stop();
 #endif
-
 }
 
-void
-TransactionIf::abort()
+void TransactionIf::abort()
 {
     AdminIf::setAborted(true);
     TypeFactory::freeTempTypes();

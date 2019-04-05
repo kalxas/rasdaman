@@ -26,6 +26,7 @@ rasdaman GmbH.
 
 #include "indexmgr/hierindexds.hh"
 #include "reladminif/lists.h"
+
 class r_Point;
 class StorageLayout;
 
@@ -87,8 +88,7 @@ public:
         Returns all the tiles belonging to the object.
     */
 
-    static int insertObject(const KeyObject &newObject,
-                            HierIndexDS *ix,
+    static int insertObject(const KeyObject &newObject, HierIndexDS *ix,
                             IndexPVector &leafNodes2Split,
                             const StorageLayout &sl);
     /*@Doc:
@@ -100,12 +100,11 @@ public:
         It should be passed to {\tt splitNodes()}.
     */
 
-
-    static void extendFaces(HierIndexDS        *ix,
-                            const r_Minterval  &newKeyObjectDom,
-                            const r_Minterval  &oldCurrDom,
-                            const bool     *facesToExtendLo,
-                            const bool     *facesToExtendHi);
+    static void extendFaces(HierIndexDS *ix,
+                            const r_Minterval &newKeyObjectDom,
+                            const r_Minterval &oldCurrDom,
+                            const bool *facesToExtendLo,
+                            const bool *facesToExtendHi);
     /*@Doc:
         This method extends the domains of all index nodes which
         intersect with the object that will be inserted.
@@ -114,8 +113,7 @@ public:
         DirIndexLogic.
     */
 
-    static void splitNodes(HierIndexDS *ixDS,
-                           IndexPVector &leafNodes2Split,
+    static void splitNodes(HierIndexDS *ixDS, IndexPVector &leafNodes2Split,
                            const StorageLayout &sl);
     /*@Doc:
         Splits all nodes after insert
@@ -123,12 +121,9 @@ public:
         Uses splitLeaf and splitNonLeaf to carry out the task.
     */
 
-    static void splitLeaf(HierIndexDS    *n1,
-                          HierIndexDS    *n2,
-                          KeyObjectVector &keyvec,
-                          r_Dimension axis,
-                          r_Range     value,
-                          r_Minterval    &domain,
+    static void splitLeaf(HierIndexDS *n1, HierIndexDS *n2,
+                          KeyObjectVector &keyvec, r_Dimension axis,
+                          r_Range value, r_Minterval &domain,
                           const StorageLayout &sl);
     /*@Doc:
         Splits a leaf node
@@ -139,13 +134,11 @@ public:
         based on axis and value.  Then the tiles are assigned to the leaf that covers them - or both.
     */
 
-    static void splitNonLeaf(HierIndexDS        *n1,
-                             HierIndexDS        *n2,
-                             KeyObjectVector    &keyvec,
-                             IndexPVector       &leafNodes2Split,
-                             r_Dimension     axis,
-                             r_Range         value,
-                             const r_Minterval  &domain,
+    static void splitNonLeaf(HierIndexDS *n1, HierIndexDS *n2,
+                             KeyObjectVector &keyvec,
+                             IndexPVector &leafNodes2Split,
+                             r_Dimension axis, r_Range value,
+                             const r_Minterval &domain,
                              const StorageLayout &sl);
     /*@Doc:
         Splits a nonleaf node
@@ -153,8 +146,7 @@ public:
         for over full nodes and treat them.
     */
 
-    static void redistributeEntries(IndexDS *node,
-                                    KeyObjectVector &listMinKO,
+    static void redistributeEntries(IndexDS *node, KeyObjectVector &listMinKO,
                                     const StorageLayout &sl);
     /*@Doc:
         stores the Keyobjects in the node.  could do some more
@@ -171,10 +163,8 @@ public:
     */
 
     static void calculateDistribution(r_Dimension axis,
-                                      r_Range value,
-                                      float &dist1,
-                                      float &dist2,
-                                      const HierIndexDS *node);
+                                      r_Range value, float &dist1,
+                                      float &dist2, const HierIndexDS *node);
     /*@Doc:
         Caluculates the distribution of entries for a given partition
         Used by calculate partition.
@@ -184,11 +174,10 @@ public:
         (percentage of nodes intersecting  x(axis) > value).
     */
 
-    static void intersect(const r_Minterval  &searchInter,
-                          const r_Minterval  &parentDomain,
-                          KeyObjectVector    &intersectedObjs,
-                          const HierIndexDS  *ix,
-                          r_Area         &area);
+    static void intersect(const r_Minterval &searchInter,
+                          const r_Minterval &parentDomain,
+                          KeyObjectVector &intersectedObjs, const HierIndexDS *ix,
+                          r_Area &area);
     /*@Doc:
         This method helps you get the data out of the index again : )
         searchInter will tell you for what to look.
@@ -207,28 +196,25 @@ public:
         one and will be included from there.
     */
 
-
-    static int binaryRegionSearch(const HierIndexDS  *ixNode,
-                                  const r_Minterval  &mint,
-                                  r_Area         &area,
-                                  KeyObjectVector    &intersectedObjects,
-                                  int         first,
-                                  int         last,
-                                  const r_Minterval  &parentEntryDom);
+    static int binaryRegionSearch(const HierIndexDS *ixNode,
+                                  const r_Minterval &mint, r_Area &area,
+                                  KeyObjectVector &intersectedObjects, int first, int last,
+                                  const r_Minterval &parentEntryDom);
     /*@Doc:
         This will use a binary search algorithm to quickly find the nodes we want.
     */
 
-    static int regionSearch(const HierIndexDS  *ixNode,
-                            const r_Minterval  &mint,
-                            r_Area         &area,
-                            KeyObjectVector    &intersectedObjects,
-                            const r_Minterval  &parentDomain);
+    static int regionSearch(const HierIndexDS *ixNode,
+                            const r_Minterval &mint, r_Area &area,
+                            KeyObjectVector &intersectedObjects,
+                            const r_Minterval &parentDomain);
     /*@Doc:
         This is a not binary search algorithm for doing the same as binaryRegionSearch.
     */
 
-    static void containPointQuery(const r_Point &searchPoint, const HierIndexDS *ix, KeyObject &result, const StorageLayout &sl);
+    static void containPointQuery(const r_Point &searchPoint,
+                                  const HierIndexDS *ix, KeyObject &result,
+                                  const StorageLayout &sl);
     /*@Doc:
     */
 
@@ -245,7 +231,6 @@ public:
         the parameter must be deleted by the caller.
         the returned object must be deleted by the caller.
     */
-
 };
 
 #endif

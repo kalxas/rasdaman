@@ -54,39 +54,35 @@ long.
 class UIntegralType : public AtomicType
 {
 public:
-    UIntegralType(unsigned int newSize):
-        AtomicType(newSize) {}
+    UIntegralType(unsigned int newSize) : AtomicType(newSize) {}
     /*@Doc:
     constructor.
     */
 
-    UIntegralType(const UIntegralType &old):
-        AtomicType(old) {}
+    UIntegralType(const UIntegralType &old)  = default;
     /*@Doc:
     copy constructor.
     */
 
-    UIntegralType(const OId &id):
-        AtomicType(id) {}
+    UIntegralType(const OId &id) : AtomicType(id) {}
     /*@Doc:
     */
 
-    virtual ~UIntegralType() {}
+    ~UIntegralType() override = default;
     /*@Doc:
     */
 
-    virtual r_Long *convertToCLong(const char *, r_Long *) const;
-    virtual char *makeFromCLong(char *, const r_Long *) const;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
 
-    virtual double *convertToCDouble(const char *, double *) const;
-    virtual char *makeFromCDouble(char *, const double *) const;
+    double *convertToCDouble(const char *, double *) const override;
+    char *makeFromCDouble(char *, const double *) const override;
 
 protected:
-    UIntegralType(const char *name, unsigned int newSize):
-        AtomicType(name, newSize) {}
+    UIntegralType(const char *name, unsigned int newSize)
+        : AtomicType(name, newSize) {}
     /*@Doc:
     */
-
 };
 
 #include "uintegraltype.icc"

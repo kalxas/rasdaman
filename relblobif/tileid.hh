@@ -27,10 +27,11 @@ class DBTile;
 class BLOBTile;
 class InlineTile;
 
-template <class T> class DBRef;
+template <class T>
+class DBRef;
 
-typedef DBRef<BLOBTile> BLOBTileId;
-typedef DBRef<InlineTile> InlineTileId;
-typedef DBRef<DBTile> DBTileId;
+using BLOBTileId = DBRef<BLOBTile>;
+using InlineTileId = DBRef<InlineTile>;
+using DBTileId = DBRef<DBTile>;
 
 #endif

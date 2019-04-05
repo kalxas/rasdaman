@@ -37,16 +37,15 @@ rasdaman GmbH.
 #ifndef _TYPE_HH_
 #define _TYPE_HH_
 
-class Type;
-class OId;
-
-#include <iostream>
-using std::ostream;
-using std::cout;
-using std::endl;
-
+#include "reladminif/dbnamedobject.hh"  // for DBNamedObject
 #include "catalogmgr/ops.hh"
-#include "reladminif/dbnamedobject.hh"
+#include "catalogmgr/typeenum.hh"
+
+#include <iosfwd>                   // for cout, endl, ostream
+#include <vector>                     // for vector
+
+class BaseType;
+class OId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -68,7 +67,7 @@ are also used in subclasses of \Ref{MDDObject}.
 class Type : public DBNamedObject
 {
 public:
-    virtual void destroy();
+    void destroy() override;
     /*@Doc:
     does nothing.  is neccessary to stop types from being deleted by ~DBRef<Type>
     */
@@ -80,6 +79,12 @@ public:
       e.g. "Bool" for \Ref{BoolType}, or "ULong" for \Ref{ULongType},
       or "Set" for \Ref{SetType}, or "Dimension" for \Ref{DimensionType}.
     */
+
+    /// generate equivalent C type names
+    virtual void generateCTypeName(std::vector<const char *> &names) const;
+    virtual void generateCTypePos(std::vector<int> &positions, int offset = 0) const;
+
+    virtual void getTypes(std::vector<const BaseType *> &types) const;
 
     /// returns the structure of the type as a C string.
     virtual char *getTypeStructure() const;
@@ -120,7 +125,7 @@ public:
     /*@Doc:
     */
 
-    virtual ~Type();
+    ~Type() override;
     /*@Doc:
     virtual destructor.
     */

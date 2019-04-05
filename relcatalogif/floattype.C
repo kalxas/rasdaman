@@ -20,76 +20,28 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
-
-static const char rcsid[] = "@(#)catalogif,FloatType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/floattype.C,v 1.10 2003/12/27 23:23:04 rasdev Exp $";
 
 #include "floattype.hh"
-#include <iomanip>
-#include <string.h>
 #include "reladminif/oidif.hh"
-#ifdef __APPLE__
-#include <float.h>
-#else
-#include <values.h>
-#endif
+#include <float.h>        // for FLT_MAX
+#include <iomanip>        // for operator<<, setw
+#include <limits>
 
-FloatType::FloatType(const OId &id)
-    :   RealType(id)
+FloatType::FloatType(const OId &id) : RealType(id)
 {
     readFromDb();
 }
 
-/*************************************************************
- * Method name...: FloatType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 FloatType.
- ************************************************************/
-
-FloatType::FloatType()
-    :   RealType(FloatType::Name, 4)
+FloatType::FloatType() : RealType(FloatType::Name, 4)
 {
     myType = FLOAT;
     myOId = OId(FLOAT, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: FloatType(const FloatType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-FloatType::FloatType(const FloatType &old)
-    :   RealType(old)
-{
-}
-
-/*************************************************************
- * Method name...: operator=(const FloatType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
+FloatType::FloatType(const FloatType &old)  = default;
 
 FloatType &FloatType::operator=(const FloatType &old)
 {
-    // Gracefully handle self assignment
     if (this == &old)
     {
         return *this;
@@ -98,20 +50,9 @@ FloatType &FloatType::operator=(const FloatType &old)
     return *this;
 }
 
-/*************************************************************
- * Method name...: ~FloatType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
+FloatType::~FloatType() = default;
 
-FloatType::~FloatType()
-{
-}
-
-void
-FloatType::readFromDb()
+void FloatType::readFromDb()
 {
     setName(FloatType::Name);
     size = 4;
@@ -119,41 +60,20 @@ FloatType::readFromDb()
     myOId = OId(FLOAT, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that Float is stored MSB..LSB
- *                 on HP.
- ************************************************************/
-
-void
-FloatType::printCell(ostream &stream, const char *cell) const
+void FloatType::printCell(std::ostream &stream, const char *cell) const
 {
-    // !!!! HP specific, assumes 4 Byte float and MSB..LSB
-    // byte order
-    stream << std::setw(8) << *(float *)const_cast<char *>(cell);
+    stream << std::setprecision(std::numeric_limits<float>::digits10 + 1) 
+           << *reinterpret_cast<const float *>(cell);
 }
 
-double *
-FloatType::convertToCDouble(const char *cell, double *value) const
+double *FloatType::convertToCDouble(const char *cell, double *value) const
 {
-    *value = static_cast<double>(*(reinterpret_cast<float *>(const_cast<char *>(cell))));
+    *value = static_cast<double>(*reinterpret_cast<const float *>(cell));
     return value;
 }
 
-
-char *
-FloatType::makeFromCDouble(char *cell, const double *value) const
+char *FloatType::makeFromCDouble(char *cell, const double *value) const
 {
-    // make sure that a float is not assigned a double (DEC Alpha correctly dumps core)
-    double dummy = *value;
-    *reinterpret_cast<float *>(cell) = static_cast<float>(dummy);
+    *reinterpret_cast<float *>(cell) = static_cast<float>(*value);
     return cell;
 }

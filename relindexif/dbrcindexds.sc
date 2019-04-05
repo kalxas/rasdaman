@@ -35,12 +35,11 @@ rasdaman GmbH.
  ************************************************************/
 
 #include <cstring>
-#include "debug-srv.hh"
 
-#include "dbrcindexds.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "dbrcindexds.hh"
 #include <logging.hh>
 
 // container size for index node
@@ -48,19 +47,14 @@ rasdaman GmbH.
 #define BYTES_PER_TUPLE 3990
 #define SQL_BYTES_PER_TUPLE 3991;
 
-r_Bytes
-DBRCIndexDS::BytesPerTuple = BYTES_PER_TUPLE;
+r_Bytes DBRCIndexDS::BytesPerTuple = BYTES_PER_TUPLE;
 
-void
-DBRCIndexDS::insertInDb()
+void DBRCIndexDS::insertInDb()
 {
     int header = 1010;
-    int headersize = 4;
 
     long long id2;
     int count2;
-    long blobOid;
-    char pgQuery[SQL_QUERY_BUFFER_SIZE]; // prelim
 
     // alternative solution for now:
 
@@ -68,31 +62,31 @@ DBRCIndexDS::insertInDb()
     id2 = myOId;
     r_Dimension dimension = myDomain.dimension();
 
-    //number of bytes for bounds in 1 minterval
+    // number of bytes for bounds in 1 minterval
     r_Bytes boundssize = sizeof(r_Range) * dimension;
-    //number of bytes for fixes in 1 minterval
+    // number of bytes for fixes in 1 minterval
     r_Bytes fixessize = sizeof(char) * dimension;
-    //number of bytes for the dynamic data
-    r_Bytes completesize = sizeof(header) + sizeof(r_Dimension) + sizeof(long long)
-                           + sizeof(OId::OIdCounter) + sizeof(OId::OIdCounter)
-                           + boundssize * 2 + fixessize * 2;
+    // number of bytes for the dynamic data
+    r_Bytes completesize = sizeof(header) + sizeof(r_Dimension) +
+                           sizeof(long long) + sizeof(OId::OIdCounter) +
+                           sizeof(OId::OIdCounter) + boundssize * 2 +
+                           fixessize * 2;
 
-    char *completebuffer = (char *) mymalloc(completesize);
+    char *completebuffer = (char *)malloc(completesize);
     // At a later stage get rid of all the unnecessary mallocs and memcpys,
     // but first make sure that everything works as expected
 
-    r_Range *upperboundsbuf = (r_Range *) mymalloc(boundssize);
-    r_Range *lowerboundsbuf = (r_Range *) mymalloc(boundssize);
-    char *upperfixedbuf = (char *) mymalloc(fixessize);
-    char *lowerfixedbuf = (char *) mymalloc(fixessize);
+    r_Range *upperboundsbuf = (r_Range *)malloc(boundssize);
+    r_Range *lowerboundsbuf = (r_Range *)malloc(boundssize);
+    char *upperfixedbuf = (char *)malloc(fixessize);
+    char *lowerfixedbuf = (char *)malloc(fixessize);
 
     LTRACE << "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
-    LDEBUG << "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize;
 
     // insert myDomain in buffers
     myDomain.insertInDb(&(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    LTRACE << "domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    LDEBUG << "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    LTRACE << "domain " << myDomain << " stored as " 
+           << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     char *insertionpointer = completebuffer;
 
@@ -136,7 +130,7 @@ DBRCIndexDS::insertInDb()
     memcpy(insertionpointer, upperfixedbuf, fixessize);
     free(upperfixedbuf);
 
-#ifdef RMANDEBUG        // dump low-level blob byte string
+#ifdef RMANDEBUG  // dump low-level blob byte string
     {
         char printbuf[10000];
         (void) sprintf(printbuf, "DBRCIndexDS::insertInDb(): [%d]", completesize);
@@ -165,8 +159,7 @@ DBRCIndexDS::insertInDb()
     DBObject::insertInDb();
 }
 
-void
-DBRCIndexDS::readFromDb()
+void DBRCIndexDS::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -188,9 +181,9 @@ DBRCIndexDS::readFromDb()
     if (query.nextRow())
     {
         // read blob
-        char *tmpblobbuffer = query.nextColumnBlob();
+        const auto *tmpblobbuffer = query.nextColumnBlob();
         blobsize = static_cast<unsigned int>(query.currColumnBytes());
-        completebuffer = static_cast<char *>(mymalloc(blobsize));
+        completebuffer = static_cast<char *>(malloc(blobsize));
         memcpy(completebuffer, tmpblobbuffer, blobsize);
     }
     else
@@ -200,7 +193,7 @@ DBRCIndexDS::readFromDb()
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "index entry not found in the database.");
     }
 
-#ifdef RMANDEBUG        // dump low-level blob byte string
+#ifdef RMANDEBUG  // dump low-level blob byte string
     {
         char printbuf[10000];
         (void) sprintf(printbuf, "DBRCIndexDS::readFromDb(): [%d]", blobsize);
@@ -235,7 +228,7 @@ DBRCIndexDS::readFromDb()
         blobformat = 8;
         // no header, first 4 bytes are actually the dimension;
         headersize = 0;
-        dimension =  static_cast<r_Dimension>(header);
+        dimension = static_cast<r_Dimension>(header);
         bytesdone = headersize + sizeof(r_Dimension);
 
         // this is needed for correct assignment
@@ -278,14 +271,12 @@ DBRCIndexDS::readFromDb()
 
     if (blobformat >= 9)
     {
-
         // this is needed for correct assignment
         long long tmpBaseOIdType;
         memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(long long));
         myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
         bytesdone += sizeof(long long);
 
-        long long tmpBaseCounter;
         memcpy(&myBaseCounter, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
         bytesdone += sizeof(OId::OIdCounter);
 
@@ -293,20 +284,21 @@ DBRCIndexDS::readFromDb()
         bytesdone += sizeof(OId::OIdCounter);
     }
 
-    r_Bytes fixessize = sizeof(char) * dimension;  //number of bytes for fixes in 2 domains
-    r_Bytes completesize = boundssize * 2 + fixessize * 2; //number of bytes for the dynamic data
-    char *dynamicBuffer = &completebuffer[bytesdone]; // ptr to start of dynamic part of buffer
+    r_Bytes fixessize = sizeof(char) * dimension;          // number of bytes for fixes in 2 domains
+    r_Bytes completesize = boundssize * 2 + fixessize * 2; // number of bytes for the dynamic data
+    char *dynamicBuffer = &completebuffer[bytesdone];      // ptr to start of dynamic part of buffer
 
     // TODO: UNCOMMENT BELOW
     // additional plausi check
     if (blobsize != bytesdone + completesize)
     {
-        LERROR << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
-        LDEBUG << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
+        LERROR << "blob size inconsistency: blobSize (" << blobsize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
 
-    LTRACE << "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize;
+    LTRACE << "dimension " << dimension << ", base oid type " << myBaseOIdType
+           << ", base counter " << myBaseCounter << ", size " << mySize
+           << ", complete data size " << completesize;
 
     int *oldupperboundsbuf = NULL;
     int *oldlowerboundsbuf = NULL;
@@ -316,12 +308,12 @@ DBRCIndexDS::readFromDb()
 
     if (blobformat == 8 || blobformat == 9)
     {
-        oldupperboundsbuf = static_cast<int *>(mymalloc(boundssize));
-        oldlowerboundsbuf = static_cast<int *>(mymalloc(boundssize));
+        oldupperboundsbuf = static_cast<int *>(malloc(boundssize));
+        oldlowerboundsbuf = static_cast<int *>(malloc(boundssize));
         memcpy(oldlowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(oldupperboundsbuf, &dynamicBuffer[boundssize], boundssize);
-        upperboundsbuf = static_cast<r_Range *>(mymalloc(newboundssize));
-        lowerboundsbuf = static_cast<r_Range *>(mymalloc(newboundssize));
+        upperboundsbuf = static_cast<r_Range *>(malloc(newboundssize));
+        lowerboundsbuf = static_cast<r_Range *>(malloc(newboundssize));
         // we need to copy all values to new variables
         for (long i = 0; i < dimension; i++)
         {
@@ -331,14 +323,14 @@ DBRCIndexDS::readFromDb()
     }
     else
     {
-        upperboundsbuf = (r_Range *) mymalloc(boundssize);
-        lowerboundsbuf = (r_Range *) mymalloc(boundssize);
+        upperboundsbuf = (r_Range *) malloc(boundssize);
+        lowerboundsbuf = (r_Range *) malloc(boundssize);
         memcpy(lowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(upperboundsbuf, &dynamicBuffer[boundssize], boundssize);
     }
 
-    char *upperfixedbuf = (char *) mymalloc(fixessize);
-    char *lowerfixedbuf = (char *) mymalloc(fixessize);
+    char *upperfixedbuf = (char *)malloc(fixessize);
+    char *lowerfixedbuf = (char *)malloc(fixessize);
 
     // HST at later stage remove unnecessary copying
     // all dynamic data is in dynamicBuffer
@@ -352,7 +344,8 @@ DBRCIndexDS::readFromDb()
 
     // rebuild attributes from buffers
     myDomain = InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
-    LTRACE << "domain " << myDomain << " constructed from " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
+    LTRACE << "domain " << myDomain << " constructed from " 
+           << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0]));
 
     if (blobformat == 8 || blobformat == 9)
     {
@@ -376,8 +369,7 @@ DBRCIndexDS::readFromDb()
     DBObject::readFromDb();
 }
 
-void
-DBRCIndexDS::deleteFromDb()
+void DBRCIndexDS::deleteFromDb()
 {
     long long id3 = myOId;
     // (3) --- delete tuple

@@ -32,15 +32,12 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,ULongType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/ulongtype.C,v 1.10 2003/12/27 23:23:04 rasdev Exp $";
+#include <iomanip>        // for operator<<, setw
 
+#include "atomictype.hh"  // for AtomicType
 #include "ulongtype.hh"
-#include <iomanip>
-#include <string.h>
-#include "reladminif/externs.h"
 
-ULongType::ULongType(const OId &id)
-    :   UIntegralType(id)
+ULongType::ULongType(const OId &id) : UIntegralType(id)
 {
     readFromDb();
 }
@@ -54,8 +51,7 @@ ULongType::ULongType(const OId &id)
  *                 ULongType.
  ************************************************************/
 
-ULongType::ULongType()
-    :   UIntegralType(ULongType::Name, 4)
+ULongType::ULongType() : UIntegralType(ULongType::Name, 4)
 {
     myOId = OId(ULONG, OId::ATOMICTYPEOID);
     myType = ULONG;
@@ -69,10 +65,7 @@ ULongType::ULongType()
  * Description...: copy constructor
  ************************************************************/
 
-ULongType::ULongType(const ULongType &old)
-    :   UIntegralType(old)
-{
-}
+ULongType::ULongType(const ULongType &old)  = default;
 
 /*************************************************************
  * Method name...: operator=(const ULongType&);
@@ -101,9 +94,7 @@ ULongType &ULongType::operator=(const ULongType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-ULongType::~ULongType()
-{
-}
+ULongType::~ULongType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -119,29 +110,24 @@ ULongType::~ULongType()
  *                 on HP.
  ************************************************************/
 
-void
-ULongType::printCell(ostream &stream, const char *cell) const
+void ULongType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setw(8) << *(r_ULong *)(const_cast<char *>(cell));
+    stream << std::setw(8) << *reinterpret_cast<const r_ULong *>(cell);
 }
 
-r_ULong *
-ULongType::convertToCULong(const char *cell, r_ULong *value) const
+r_ULong *ULongType::convertToCULong(const char *cell, r_ULong *value) const
 {
-    *value = *(r_ULong *)(const_cast<char *>(cell));
+    *value = *reinterpret_cast<const r_ULong *>(cell);
     return value;
 }
 
-
-char *
-ULongType::makeFromCULong(char *cell, const r_ULong *value) const
+char *ULongType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-    *(r_ULong *)(cell) = *value;
+    *reinterpret_cast<r_ULong *>(cell) = *value;
     return cell;
 }
 
-void
-ULongType::readFromDb()
+void ULongType::readFromDb()
 {
     setName(ULongType::Name);
     size = 4;

@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 /****************************************************************************
  *
  *
@@ -54,62 +53,62 @@ rasdaman GmbH.
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/stattiling.hh"
 #include "mddmgr/mddobj.hh"
+#include <logging.hh>
+
+#include <string>                              // for string
+#include <vector>                              // for vector
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
 
-#include <logging.hh>
 
 // this number should be DBMS dependent.. default in postgres seems to be 8kB, in MySQL 16kB, etc.
 const r_Bytes   StorageLayout::DBSPageSize = 4096;
 
-r_Bytes     StorageLayout::DefaultMinimalTileSize = DBSPageSize;
+r_Bytes StorageLayout::DefaultMinimalTileSize = DBSPageSize;
 
-r_Bytes     StorageLayout::DefaultPCTMax = 2 * DBSPageSize;
+r_Bytes StorageLayout::DefaultPCTMax = 2 * DBSPageSize;
 
 // 4MB
-r_Bytes     StorageLayout::DefaultTileSize = 4194304;
+r_Bytes StorageLayout::DefaultTileSize = 4194304;
 
-unsigned int        StorageLayout::DefaultIndexSize = 0;
+unsigned int StorageLayout::DefaultIndexSize = 0;
 
 r_Index_Type        StorageLayout::DefaultIndexType = r_RPlus_Tree_Index; // DirTilesIx; // AutoIx;
 
-r_Tiling_Scheme     StorageLayout::DefaultTilingScheme = r_AlignedTiling;
+r_Tiling_Scheme StorageLayout::DefaultTilingScheme = r_AlignedTiling;
 
-r_Minterval     StorageLayout::DefaultTileConfiguration("[0:1023,0:1023]");
+r_Minterval StorageLayout::DefaultTileConfiguration("[0:1023,0:1023]");
 
-r_Data_Format       StorageLayout::DefaultDataFormat = r_Array;
+r_Data_Format StorageLayout::DefaultDataFormat = r_Array;
 
 StorageLayout::StorageLayout(r_Index_Type ixType)
-    :   myLayout(new DBStorageLayout())
+    : myLayout(new DBStorageLayout())
 {
     setIndexType(ixType);
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout(" << ixType << ")";
 }
 
-StorageLayout::StorageLayout()
-    :   myLayout(new DBStorageLayout())
+StorageLayout::StorageLayout() : myLayout(new DBStorageLayout())
 {
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout()";
 }
 
-StorageLayout::StorageLayout(const DBStorageLayoutId &id)
-    :   myLayout(id)
+StorageLayout::StorageLayout(const DBStorageLayoutId &id) : myLayout(id)
 {
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout(" << id.getOId() << ")";
 }
 
 StorageLayout::StorageLayout(const StorageLayout &other)
-    :   extraFeatures(NULL),
-        myLayout(other.myLayout)
+    : extraFeatures(nullptr), myLayout(other.myLayout)
 {
     StgMddConfig *o = other.extraFeatures;
     if (o)
     {
-        if (extraFeatures == NULL)
+        if (extraFeatures == nullptr)
         {
             extraFeatures = new StgMddConfig();
         }
@@ -131,113 +130,93 @@ StorageLayout::getName() const
     }
 */
 
-DBStorageLayoutId
-StorageLayout::getDBStorageLayout() const
+DBStorageLayoutId StorageLayout::getDBStorageLayout() const
 {
     return myLayout;
 }
 
-
-r_Index_Type
-StorageLayout::getIndexType() const
+r_Index_Type StorageLayout::getIndexType() const
 {
     return myLayout->getIndexType();
 }
 
-
-r_Tiling_Scheme
-StorageLayout::getTilingScheme() const
+r_Tiling_Scheme StorageLayout::getTilingScheme() const
 {
     return myLayout->getTilingScheme();
 }
 
-r_Bytes
-StorageLayout::getTileSize() const
+r_Bytes StorageLayout::getTileSize() const
 {
     return myLayout->getTileSize();
 }
 
-r_Bytes
-StorageLayout::getMinimalTileSize() const
+r_Bytes StorageLayout::getMinimalTileSize() const
 {
     return StorageLayout::DBSPageSize;
 }
 
-r_Minterval
-StorageLayout::getTileConfiguration() const
+r_Minterval StorageLayout::getTileConfiguration() const
 {
     return myLayout->getTileConfiguration();
 }
 
-
-void
-StorageLayout::setIndexType(r_Index_Type it)
+void StorageLayout::setIndexType(r_Index_Type it)
 {
     myLayout->setIndexType(it);
 }
 
-void
-StorageLayout::setDataFormat(r_Data_Format cs)
+void StorageLayout::setDataFormat(r_Data_Format cs)
 {
     myLayout->setDataFormat(cs);
 }
 
-void
-StorageLayout::setTilingScheme(r_Tiling_Scheme ts)
+void StorageLayout::setTilingScheme(r_Tiling_Scheme ts)
 {
     myLayout->setTilingScheme(ts);
 }
 
-void
-StorageLayout::setTileSize(r_Bytes newSize)
+void StorageLayout::setTileSize(r_Bytes newSize)
 {
     myLayout->setTileSize(newSize);
 }
 
-void
-StorageLayout::setTileConfiguration(const r_Minterval &tc)
+void StorageLayout::setTileConfiguration(const r_Minterval &tc)
 {
     myLayout->setTileConfiguration(tc);
 }
 
-r_Data_Format
-StorageLayout::getDataFormat(__attribute__((unused)) const r_Point &where) const
+r_Data_Format StorageLayout::getDataFormat(
+    __attribute__((unused)) const r_Point &where) const
 {
     return myLayout->getDataFormat();
 }
 
-void
-StorageLayout::setBBoxes(const vector<r_Minterval> &input)
+void StorageLayout::setBBoxes(const vector<r_Minterval> &input)
 {
     extraFeatures->setBBoxes(input);
 }
 
-void
-StorageLayout::setSubTiling()
+void StorageLayout::setSubTiling()
 {
     extraFeatures->setSubTiling();
 }
 
-void
-StorageLayout::resetSubTiling()
+void StorageLayout::resetSubTiling()
 {
     extraFeatures->resetSubTiling();
 }
 
-void
-StorageLayout::setInterestThreshold(double i)
+void StorageLayout::setInterestThreshold(double i)
 {
     extraFeatures->setInterestThreshold(i);
 }
 
-void
-StorageLayout::setBorderThreshold(unsigned int b)
+void StorageLayout::setBorderThreshold(unsigned int b)
 {
     extraFeatures->setBorderThreshold(b);
 }
 
-void
-StorageLayout::setCellSize(int i)
+void StorageLayout::setCellSize(int i)
 {
     extraFeatures->setCellSize(i);
 }
@@ -254,8 +233,7 @@ StorageLayout::setDirDecomp(vector<r_Dir_Decompose> *dir)
     extraFeatures->setDirDecompose(dec);
 }
 
-void
-StorageLayout::setExtraFeatures(StgMddConfig *newExtraFeatures)
+void StorageLayout::setExtraFeatures(StgMddConfig *newExtraFeatures)
 {
     extraFeatures = newExtraFeatures;
 }
@@ -340,7 +318,7 @@ StorageLayout::~StorageLayout()
     if (extraFeatures)
     {
         delete extraFeatures;
-        extraFeatures = NULL;
+        extraFeatures = nullptr;
     }
 }
 
@@ -413,9 +391,11 @@ StorageLayout::calcRegLayout(const r_Minterval &tileDomain) const
         }
 
         // advance current dimension
-        for (j = trans[static_cast<r_Dimension>(currdim)]; j <= transexmax[static_cast<r_Dimension>(currdim)]; j++)
+        for (j = trans[static_cast<r_Dimension>(currdim)];
+                j <= transexmax[static_cast<r_Dimension>(currdim)]; j++)
         {
-            transcotemp[static_cast<r_Dimension>(currdim)] = bextent[static_cast<r_Dimension>(currdim)] * j;
+            transcotemp[static_cast<r_Dimension>(currdim)] =
+                bextent[static_cast<r_Dimension>(currdim)] * j;
             nextDomain = base.create_translation(transcotemp);
             retval.push_back(nextDomain);
         }
@@ -425,7 +405,9 @@ StorageLayout::calcRegLayout(const r_Minterval &tileDomain) const
         // advance the next available dimension
         //
         // 1. find the next available dimension
-        while (currdim >= 0 && trans[static_cast<r_Dimension>(currdim)] == transexmax[static_cast<r_Dimension>(currdim)])
+        while (currdim >= 0 &&
+                trans[static_cast<r_Dimension>(currdim)] ==
+                transexmax[static_cast<r_Dimension>(currdim)])
         {
             --currdim;
         }
@@ -440,15 +422,17 @@ StorageLayout::calcRegLayout(const r_Minterval &tileDomain) const
         ++currdim;
         while (currdim < static_cast<int>(bdim))
         {
-            trans[static_cast<r_Dimension>(currdim)] = transex[static_cast<r_Dimension>(currdim)];
+            trans[static_cast<r_Dimension>(currdim)] =
+                transex[static_cast<r_Dimension>(currdim)];
             ++currdim;
         }
     }
 
 #ifdef DEBUG
-    for (std::vector<r_Minterval>::iterator iter = retval.begin(); iter != retval.end(); iter++)
+    for (std::vector<r_Minterval>::iterator i = retval.begin();
+            i != retval.end(); i++)
     {
-        LTRACE << *iter;
+        LTRACE << *i;
     }
 #endif
     return retval;
@@ -550,7 +534,6 @@ StorageLayout::calcStatisticLayout(const r_Minterval &tileDomain)
 
     return ret;
 }
-
 
 r_Minterval
 StorageLayout::getDefaultTileCfg(__attribute__((unused)) int baseTypeSize, r_Dimension sourceDimension)

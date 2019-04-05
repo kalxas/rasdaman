@@ -31,71 +31,60 @@ rasdaman GmbH.
  *  none
  *
 */
-static const char rcsid[] = "@(#)transdirix, TransDirIx: $Id: transdirix.cc,v 1.17 2002/05/16 16:26:10 coman Exp $";
 
 #include "config.h"
-#include <iostream>
-#include "indexmgr/keyobject.hh"
 #include "indexmgr/transdirix.hh"
-#include "raslib/rmdebug.hh"
 #include "reladminif/oidif.hh"
+#include "indexmgr/keyobject.hh"
 #include "tilemgr/tile.hh"
 #include <logging.hh>
 
+#include <iostream>
 
-IndexDS *
-TransDirIx::getNewInstance() const
+
+IndexDS *TransDirIx::getNewInstance() const
 {
     return new TransDirIx(getDimension());
 }
 
-void
-TransDirIx::freeDS()
-{
-}
+void TransDirIx::freeDS() {}
 
-unsigned int
-TransDirIx::getOptimalSize() const
+unsigned int TransDirIx::getOptimalSize() const
 {
     return 1000;
 }
 
-unsigned int
-TransDirIx::getDimension() const
+unsigned int TransDirIx::getDimension() const
 {
     return currDomain.dimension();
 }
 
-bool
-TransDirIx::isPersistent() const
+bool TransDirIx::isPersistent() const
 {
     return false;
 }
 
-TransDirIx::TransDirIx(r_Dimension dim)
-    :       currDomain(dim),
-            tiles()
+TransDirIx::TransDirIx(r_Dimension dim) : currDomain(dim), tiles()
 {
-    LTRACE << "TransDirIx() " << (r_Ptr)this;
+    LTRACE << "TransDirIx() " << (r_Ptr) this;
 }
 
-void
-TransDirIx::printStatus(__attribute__((unused)) unsigned int level, std::ostream &stream) const
+void TransDirIx::printStatus(__attribute__((unused)) unsigned int level,
+                             std::ostream &stream) const
 {
-    stream << "TransDirIx " << currDomain << endl;
-    KeyObjectVector::const_iterator entryIt = tiles.begin();
+    stream << "TransDirIx " << currDomain << std::endl;
+    auto entryIt = tiles.begin();
 
     int i = 0;
     while (entryIt != tiles.end())
     {
-        stream << i << ". " << (*entryIt).getDomain() << endl;
+        stream << i << ". " << (*entryIt).getDomain() << std::endl;
         entryIt++;
         i++;
     }
 }
 
-void
-TransDirIx::insertObject(const KeyObject &newKeyObject, unsigned int pos)
+void TransDirIx::insertObject(const KeyObject &newKeyObject, unsigned int pos)
 {
     if (pos > getSize())
     {
@@ -105,22 +94,17 @@ TransDirIx::insertObject(const KeyObject &newKeyObject, unsigned int pos)
     else
     {
         if (tiles.size() == 0)
-        {
             currDomain = newKeyObject.getDomain();
-        }
         else
-        {
             currDomain.closure_with(newKeyObject.getDomain());
-        }
         tiles.insert(tiles.begin() + pos, newKeyObject);
     }
 }
 
-bool
-TransDirIx::removeObject(const KeyObject &tileToRemove)
+bool TransDirIx::removeObject(const KeyObject &tileToRemove)
 {
     bool found = false;
-    for (KeyObjectVector::iterator iter = tiles.begin(); iter != tiles.end(); iter++)
+    for (auto iter = tiles.begin(); iter != tiles.end(); iter++)
     {
         if ((*iter).getTransObject() == tileToRemove.getTransObject())
         {
@@ -132,51 +116,42 @@ TransDirIx::removeObject(const KeyObject &tileToRemove)
     return found;
 }
 
-OId::OIdPrimitive
-TransDirIx::getIdentifier() const
+OId::OIdPrimitive TransDirIx::getIdentifier() const
 {
-    return (OId::OIdPrimitive)(r_Ptr)this;
+    return (OId::OIdPrimitive)(r_Ptr) this;
 }
 
-void
-TransDirIx::setAssignedDomain(const r_Minterval &newDomain)
+void TransDirIx::setAssignedDomain(const r_Minterval &newDomain)
 {
     currDomain = newDomain;
 }
 
-
-const KeyObject &
-TransDirIx::getObject(unsigned int pos) const
+const KeyObject &TransDirIx::getObject(unsigned int pos) const
 {
     return tiles[pos];
 }
 
-r_Minterval
-TransDirIx::getObjectDomain(unsigned int pos) const
+r_Minterval TransDirIx::getObjectDomain(unsigned int pos) const
 {
     return tiles[pos].getDomain();
 }
 
-void
-TransDirIx::getObjects(KeyObjectVector &objs) const
+void TransDirIx::getObjects(KeyObjectVector &objs) const
 {
     objs = tiles;
 }
 
-r_Minterval
-TransDirIx::getCoveredDomain() const
+r_Minterval TransDirIx::getCoveredDomain() const
 {
     return currDomain;
 }
 
-unsigned int
-TransDirIx::getSize() const
+unsigned int TransDirIx::getSize() const
 {
     return tiles.size();
 }
 
-r_Bytes
-TransDirIx::getTotalStorageSize() const
+r_Bytes TransDirIx::getTotalStorageSize() const
 {
     // size of currDomain field:
     r_Bytes sz = currDomain.get_storage_size();
@@ -197,10 +172,9 @@ TransDirIx::~TransDirIx()
     tiles.clear();
 }
 
-std::vector<r_Minterval *> *
-TransDirIx::getObjectDomains(void) const
+std::vector<r_Minterval *> *TransDirIx::getObjectDomains(void) const
 {
-    std::vector<r_Minterval *> *te = new std::vector<r_Minterval *>();
+    auto *te = new std::vector<r_Minterval *>();
     te->reserve(tiles.size());
     unsigned int end = tiles.size();
     for (unsigned int i = 0; i < end; i++)
@@ -210,61 +184,48 @@ TransDirIx::getObjectDomains(void) const
     return te;
 }
 
-bool
-TransDirIx::isValid() const
+bool TransDirIx::isValid() const
 {
     return true;
 }
 
-bool
-TransDirIx::isUnderFull() const
+bool TransDirIx::isUnderFull() const
 {
     return false;
 }
 
-bool
-TransDirIx::isOverFull() const
+bool TransDirIx::isOverFull() const
 {
     return false;
 }
 
-bool
-TransDirIx::isSameAs(const IndexDS *ix) const
+bool TransDirIx::isSameAs(const IndexDS *ix) const
 {
     if (ix->isPersistent())
-    {
         return false;
-    }
     else if (ix == this)
-    {
         return true;
-    }
     else
-    {
         return false;
-    }
 }
 
-void
-TransDirIx::setObject(const KeyObject &theKey, unsigned int i)
+void TransDirIx::setObject(const KeyObject &theKey, unsigned int i)
 {
     tiles[i] = theKey;
 }
 
-void
-TransDirIx::setObjectDomain(const r_Minterval &dom, unsigned int i)
+void TransDirIx::setObjectDomain(const r_Minterval &dom,
+                                 unsigned int i)
 {
     tiles[i].setDomain(dom);
 }
 
-r_Minterval
-TransDirIx::getAssignedDomain(void) const
+r_Minterval TransDirIx::getAssignedDomain(void) const
 {
     return currDomain;
 }
 
-bool
-TransDirIx::removeObject(unsigned int pos)
+bool TransDirIx::removeObject(unsigned int pos)
 {
     bool found = false;
     if (pos < tiles.size())

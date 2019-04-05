@@ -32,12 +32,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,CharType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/chartype.C,v 1.10 2003/12/27 23:23:04 rasdev Exp $";
-
 #include "chartype.hh"
-#include <iomanip>
-#include <string.h>
-#include <limits.h>
+#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include <limits.h>       // for UCHAR_MAX
+#include <iomanip>        // for operator<<, setw
 
 /*************************************************************
  * Method name...: CharType();
@@ -48,8 +46,7 @@ static const char rcsid[] = "@(#)catalogif,CharType: $Header: /home/rasdev/CVS-r
  *                 CharType.
  ************************************************************/
 
-CharType::CharType()
-    :   UIntegralType(CharType::Name, 1)
+CharType::CharType() : UIntegralType(CharType::Name, 1)
 {
     myType = CHAR;
     myOId = OId(CHAR, OId::ATOMICTYPEOID);
@@ -64,12 +61,10 @@ CharType::CharType()
  ************************************************************/
 
 CharType::CharType(const CharType &old)
-    :   UIntegralType(CharType::Name, old.size)
-{
-}
+    : UIntegralType(CharType::Name, old.size) {}
 
 CharType::CharType(__attribute__((unused)) const OId &id)
-    :   UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
+    : UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
 {
     readFromDb();
 }
@@ -82,8 +77,7 @@ CharType::CharType(__attribute__((unused)) const OId &id)
  * Description...: copy constructor
  ************************************************************/
 
-CharType &
-CharType::operator=(const CharType &old)
+CharType &CharType::operator=(const CharType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -94,8 +88,7 @@ CharType::operator=(const CharType &old)
     return *this;
 }
 
-void
-CharType::readFromDb()
+void CharType::readFromDb()
 {
     setName(CharType::Name);
     myType = CHAR;
@@ -111,9 +104,7 @@ CharType::readFromDb()
  * Description...: virtual destructor
  ************************************************************/
 
-CharType::~CharType()
-{
-}
+CharType::~CharType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -129,15 +120,13 @@ CharType::~CharType()
  *                 on HP.
  ************************************************************/
 
-void
-CharType::printCell(ostream &stream, const char *cell) const
+void CharType::printCell(std::ostream &stream, const char *cell) const
 {
     // !!!! HP specific, assumes 1 Byte char
     stream << std::setw(4) << (r_Long)(*(unsigned char *)const_cast<char *>(cell));
 }
 
-r_ULong *
-CharType::convertToCULong(const char *cell, r_ULong *value) const
+r_ULong *CharType::convertToCULong(const char *cell, r_ULong *value) const
 {
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order
@@ -145,12 +134,10 @@ CharType::convertToCULong(const char *cell, r_ULong *value) const
     return value;
 }
 
-
-char *
-CharType::makeFromCULong(char *cell, const r_ULong *value) const
+char *CharType::makeFromCULong(char *cell, const r_ULong *value) const
 {
     r_ULong myLong = *value;
-    //restricting long to value range of short
+    // restricting long to value range of short
     myLong = myLong > UCHAR_MAX ? UCHAR_MAX : myLong;
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order

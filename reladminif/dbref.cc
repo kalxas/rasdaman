@@ -33,70 +33,50 @@ rasdaman GmbH.
  ************************************************************/
 
 
-#include "config.h"
 #include "dbref.hh"
-#include <iostream>
 #include <stdio.h>
-#include "objectbroker.hh"
-#include "indexmgr/indexds.hh"
 #include "relindexif/dbrcindexds.hh"
 #include "relindexif/dbtcindex.hh"
 #include "indexmgr/hierindexds.hh"
-#include "debug/debug.hh"
-#include <logging.hh>
+#include "indexmgr/indexds.hh"
+#include "objectbroker.hh"
 
-template <class T> bool
-DBRef<T>::pointerCaching = true;
+template <class T>
+bool DBRef<T>::pointerCaching = true;
 
-template <class T> void
-DBRef<T>::setPointerCaching(bool useIt)
+template <class T>
+void DBRef<T>::setPointerCaching(bool useIt)
 {
-    LTRACE << "setPointerCaching(" << useIt << ") " << pointerCaching;
     pointerCaching = useIt;
 }
 
-template <class T> bool
-DBRef<T>::getPointerCaching()
+template <class T>
+bool DBRef<T>::getPointerCaching()
 {
-    LTRACE << "getPointerCaching() " << pointerCaching;
     return pointerCaching;
 }
 
 template <class T>
 DBRef<T>::DBRef(void)
-    :   object(0),
-        objId(DBOBJID_NONE),
-        pointerValid(false)
+    : object(nullptr), objId(DBOBJID_NONE), pointerValid(false)
 {
-    LTRACE << "DBRef()";
 }
-
 
 template <class T>
 DBRef<T>::DBRef(const OId &id)
-    :   object(0),
-        objId(id),
-        pointerValid(false)
+    : object(nullptr), objId(id), pointerValid(false)
 {
-    LTRACE << "DBRef(" << id << ")";
 }
-
 
 template <class T>
 DBRef<T>::DBRef(long long id)
-    :   object(0),
-        objId(id),
-        pointerValid(false)
+    : object(nullptr), objId(id), pointerValid(false)
 {
-    LTRACE << "DBRef(long long " << id << ")";
 }
-
 
 template <class T>
 DBRef<T>::DBRef(const DBRef<T> &src)
-    :   object(0),
-        objId(src.objId),
-        pointerValid(src.pointerValid)
+    : object(nullptr), objId(src.objId), pointerValid(src.pointerValid)
 {
     if (pointerCaching)
     {
@@ -114,39 +94,31 @@ DBRef<T>::DBRef(const DBRef<T> &src)
             object = src.object;
         }
     }
-
 }
-
 
 template <class T>
 DBRef<T>::DBRef(T *newPtr)
-    :   object(newPtr),
-        objId(DBOBJID_NONE),
-        pointerValid(true)
+    : object(newPtr), objId(DBOBJID_NONE), pointerValid(true)
 {
-
-    if (object != 0)
+    if (object != nullptr)
     {
         objId = object->getOId();
         object->incrementReferenceCount();
-        LTRACE << "DBRef(T* " << newPtr->getOId() << ")";
     }
     else
     {
         pointerValid = false;
-        LTRACE << "DBRef(T* 0) " << objId;
     }
 }
-
 
 template <class T>
 DBRef<T>::~DBRef(void) noexcept(false)
 {
-    if ((object != 0) && pointerCaching)
+    if ((object != nullptr) && pointerCaching)
     {
         object->decrementReferenceCount();
     }
-    object = 0;
+    object = nullptr;
 }
 
 template <class T>
@@ -157,7 +129,7 @@ bool DBRef<T>::operator<(const DBRef<T> &other) const
 }
 
 template <class T>
-bool operator< (const DBRef<T> &me, const DBRef<T> &him)
+bool operator<(const DBRef<T> &me, const DBRef<T> &him)
 {
     return me.operator < (him);
 }
@@ -174,7 +146,7 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
             {
                 if (object->isPersistent())
                 {
-                    //this persistent
+                    // this persistent
                     if (src.object)
                     {
                         if (src.object->isPersistent())
@@ -187,14 +159,14 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                             {
                                 retval = +1;
                             }
-                            //else == -> 0
+                            // else == -> 0
                         }
-                        else     //src is transient
+                        else    // src is transient
                         {
                             retval = +1;
                         }
                     }
-                    else     //src is persistent
+                    else    // src is persistent
                     {
                         if (object->getOId() < src.objId)
                         {
@@ -206,11 +178,11 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                             {
                                 retval = +1;
                             }
-                            //else == -> 0
+                            // else == -> 0
                         }
                     }
                 }
-                else     //this transient
+                else    // this transient
                 {
                     if (src.object)
                     {
@@ -218,7 +190,7 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         {
                             retval = -1;
                         }
-                        else     //src is transient
+                        else    // src is transient
                         {
                             if (object < src.object)
                             {
@@ -228,16 +200,16 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                             {
                                 retval = +1;
                             }
-                            //else == -> 0
+                            // else == -> 0
                         }
                     }
-                    else     //src is persistent
+                    else    // src is persistent
                     {
                         retval = -1;
                     }
                 }
             }
-            else     //this is persistent
+            else    // this is persistent
             {
                 if (src.object)
                 {
@@ -253,16 +225,16 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                             {
                                 retval = +1;
                             }
-                            //else == -> 0
+                            // else == -> 0
                         }
 
                     }
-                    else     //src not persistent
+                    else    // src not persistent
                     {
                         retval = +1;
                     }
                 }
-                else     //src is persistent
+                else    // src is persistent
                 {
                     if (objId < src.objId)
                     {
@@ -274,7 +246,7 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
                         {
                             retval = +1;
                         }
-                        //else == -> 0
+                        // else == -> 0
                     }
                 }
             }
@@ -290,16 +262,15 @@ int DBRef<T>::operator==(const DBRef<T> &src) const
         {
             retval = -1;
         }
-        //else is 0
+        // else is 0
     }
     return retval;
 }
 
-
 template <class T>
 DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 {
-    if ((object != 0) && pointerCaching)
+    if ((object != nullptr) && pointerCaching)
     {
         object->decrementReferenceCount();
     }
@@ -325,17 +296,16 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
     return *this;
 }
 
-
-template<class T>
+template <class T>
 DBRef<T> &DBRef<T>::operator=(T *newPtr)
 {
-    if ((object != 0) && pointerCaching)
+    if ((object != nullptr) && pointerCaching)
     {
         object->decrementReferenceCount();
     }
 
     object = newPtr;
-    if (object == 0)
+    if (object == nullptr)
     {
         objId = DBOBJID_NONE;
         pointerValid = false;
@@ -349,49 +319,36 @@ DBRef<T> &DBRef<T>::operator=(T *newPtr)
     return *this;
 }
 
-
 template <class T>
-T &DBRef<T>::operator *(void)
+T &DBRef<T>::operator*(void)
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::operator*(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return *object;
 }
 
-
 template <class T>
-const T &DBRef<T>::operator *(void) const
+const T &DBRef<T>::operator*(void) const
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::operator*(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return *object;
 }
-
 
 #ifndef __GNUG__
 
 template <class T>
 T &DBRef<T>::operator[](int idx) const
 {
-
     if (is_null())
     {
-        LDEBUG << "DBRef::operator[](): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return *((this + idx).object);
@@ -404,55 +361,40 @@ T *DBRef<T>::operator->(void)
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::operator->(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
 }
-
 
 template <class T>
 const T *DBRef<T>::operator->(void) const
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::operator->(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
 }
-
 
 template <class T>
 T *DBRef<T>::ptr(void)
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::ptr(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
 }
-
 
 template <class T>
 const T *DBRef<T>::ptr(void) const
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::ptr(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
@@ -464,36 +406,27 @@ OId DBRef<T>::getObjId()
     return objId;
 }
 
-
 template <class T>
 DBRef<T>::operator T *()
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::T*(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
 }
-
 
 template <class T>
 DBRef<T>::operator const T *() const
 {
     if (is_null())
     {
-        LDEBUG << "DBRef::T*(): object not found " << objId;
-        LTRACE << "object was not found " << objId;
-        r_Error err = r_Error(r_Error::r_Error_RefNull);
-        throw err;
+        throw r_Error(r_Error::r_Error_RefNull);
     }
 
     return object;
 }
-
 
 template <class T>
 OId DBRef<T>::getOId(void) const
@@ -512,22 +445,19 @@ void DBRef<T>::delete_object(void)
     {
         object->setPersistent(false);
         object->decrementReferenceCount();
-        object = 0;
+        object = nullptr;
         objId = DBOBJID_NONE;
     }
     else
     {
-        r_Error err;
         if (objId.getType() == OId::INVALID)
         {
-            err = r_Error(r_Error::r_Error_OIdInvalid);
+            throw r_Error(r_Error::r_Error_OIdInvalid);
         }
         else
         {
-            err = r_Error(r_Error::r_Error_ObjectUnknown);
+            throw r_Error(r_Error::r_Error_ObjectUnknown);
         }
-        LTRACE << "delete_object() " << objId << " not ok";
-        throw err;
     }
 }
 
@@ -560,17 +490,15 @@ bool DBRef<T>::is_valid(void) const
     return retval;
 }
 
-
 template <class T>
 void DBRef<T>::release()
 {
-    if ((object != 0) && pointerCaching)
+    if ((object != nullptr) && pointerCaching)
     {
         object->decrementReferenceCount();
     }
-    object = 0;
+    object = nullptr;
 }
-
 
 template <class T>
 DBRef<T>::operator DBRef<DBObject>() const
@@ -602,7 +530,6 @@ DBRef<T>::operator DBRef<InlineTile>() const
             return DBRef<InlineTile>(objId);
         }
     }
-    LDEBUG << "DBRef::<InlineTile>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -611,29 +538,20 @@ DBRef<T>::operator DBRef<DBTile>() const
 {
     if (object && pointerCaching)
     {
-        if ((object->getObjectType() == OId::BLOBOID) || (object->getObjectType() == OId::INLINETILEOID))
+        if ((object->getObjectType() == OId::BLOBOID) ||
+                (object->getObjectType() == OId::INLINETILEOID))
         {
             return DBRef<DBTile>((DBTile *)object);
         }
     }
     else
     {
-        if ((objId.getType() == OId::BLOBOID) || (objId.getType() == OId::INLINETILEOID))
+        if ((objId.getType() == OId::BLOBOID) ||
+                (objId.getType() == OId::INLINETILEOID))
         {
             return DBRef<DBTile>(objId);
         }
     }
-    if (object)
-    {
-        LDEBUG << "DBRef::DBRef<DBTile>(): object->getObjectType()=" << object->getObjectType();
-    }
-    LDEBUG << "DBRef::DBRef<DBTile>():  objId->getObjectType()=" <<  objId.getType();
-    LDEBUG << "DBRef::DBRef<DBTile>(): operator mismatch" << objId;
-    if (object)
-    {
-        LTRACE << "object->getObjectType()=" << object->getObjectType();
-    }
-    LTRACE << "objId->getObjectType()=" <<  objId.getType();
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -642,19 +560,20 @@ DBRef<T>::operator DBRef<BLOBTile>() const
 {
     if (object && pointerCaching)
     {
-        if (object->getObjectType() == OId::BLOBOID || (object->getObjectType() == OId::INLINETILEOID))
+        if (object->getObjectType() == OId::BLOBOID ||
+                (object->getObjectType() == OId::INLINETILEOID))
         {
             return DBRef<BLOBTile>((BLOBTile *)object);
         }
     }
     else
     {
-        if ((objId.getType() == OId::BLOBOID) || (objId.getType() == OId::INLINETILEOID))
+        if ((objId.getType() == OId::BLOBOID) ||
+                (objId.getType() == OId::INLINETILEOID))
         {
             return DBRef<BLOBTile>(objId);
         }
     }
-    LDEBUG << "DBRef::DBRef<BLOBTile>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -675,7 +594,6 @@ DBRef<T>::operator DBRef<DBTCIndex>() const
             return DBRef<DBTCIndex>(objId);
         }
     }
-    LDEBUG << "DBRef::DBRef<DBTCIndex>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
 
@@ -684,22 +602,22 @@ DBRef<T>::operator DBRef<DBHierIndex>() const
 {
     if (object && pointerCaching)
     {
-        if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
+        if ((object->getObjectType() == OId::MDDHIERIXOID) ||
+                (object->getObjectType() == OId::DBTCINDEXOID))
         {
             return DBRef<DBHierIndex>((DBHierIndex *)object);
         }
     }
     else
     {
-        if ((objId.getType() == OId::MDDHIERIXOID) || (objId.getType() == OId::DBTCINDEXOID))
+        if ((objId.getType() == OId::MDDHIERIXOID) ||
+                (objId.getType() == OId::DBTCINDEXOID))
         {
             return DBRef<DBHierIndex>(objId);
         }
     }
-    LDEBUG << "DBRef::DBRef<DBHierIndex>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
-
 
 template <class T>
 DBRef<T>::operator DBRef<DBRCIndexDS>() const
@@ -718,17 +636,16 @@ DBRef<T>::operator DBRef<DBRCIndexDS>() const
             return DBRef<DBRCIndexDS>(objId);
         }
     }
-    LDEBUG << "DBRef::DBRef<DBRCIndexDS>(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
-
 
 template <class T>
 DBRef<T>::operator HierIndexDS *() const
 {
     if (object && pointerCaching)
     {
-        if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID))
+        if ((object->getObjectType() == OId::MDDHIERIXOID) ||
+                (object->getObjectType() == OId::DBTCINDEXOID))
         {
             return (HierIndexDS *)object;
         }
@@ -738,28 +655,28 @@ DBRef<T>::operator HierIndexDS *() const
         if (objId.getType() == OId::MDDHIERIXOID)
         {
             DBRef<DBHierIndex> t(objId);
-            return static_cast<HierIndexDS *>(t.ptr());
+            return reinterpret_cast<HierIndexDS *>(t.ptr());
         }
         else
         {
             if (objId.getType() == OId::DBTCINDEXOID)
             {
                 DBRef<DBTCIndex> t(objId);
-                return static_cast<HierIndexDS *>(t.ptr());
+                return reinterpret_cast<HierIndexDS *>(t.ptr());
             }
         }
     }
-    LDEBUG << "DBRef::HierIndexDS*(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
-
 
 template <class T>
 DBRef<T>::operator IndexDS *() const
 {
     if (object && pointerCaching)
     {
-        if ((object->getObjectType() == OId::MDDHIERIXOID) || (object->getObjectType() == OId::DBTCINDEXOID) || (object->getObjectType() == OId::MDDRCIXOID))
+        if ((object->getObjectType() == OId::MDDHIERIXOID) ||
+                (object->getObjectType() == OId::DBTCINDEXOID) ||
+                (object->getObjectType() == OId::MDDRCIXOID))
         {
             return (IndexDS *)object;
         }
@@ -771,26 +688,24 @@ DBRef<T>::operator IndexDS *() const
         case OId::MDDHIERIXOID:
         {
             DBRef<DBHierIndex> t(objId);
-            return static_cast<IndexDS *>(t.ptr());
+            return reinterpret_cast<IndexDS *>(t.ptr());
         }
         case OId::DBTCINDEXOID:
         {
             DBRef<DBTCIndex> t(objId);
-            return static_cast<IndexDS *>(t.ptr());
+            return reinterpret_cast<IndexDS *>(t.ptr());
         }
         case OId::MDDRCIXOID:
         {
             DBRef<DBRCIndexDS> t(objId);
-            return static_cast<IndexDS *>(t.ptr());
+            return reinterpret_cast<IndexDS *>(t.ptr());
         }
         default:
             break;
         }
     }
-    LDEBUG << "DBRef::IndexDS*(): operator mismatch" << objId;
     throw r_Error(r_Error::r_Error_DatabaseClassMismatch);
 }
-
 
 template <class T>
 bool DBRef<T>::is_null(void) const
@@ -806,8 +721,6 @@ bool DBRef<T>::is_null(void) const
             T *t = static_cast<T *>(ObjectBroker::getObjectByOId(objId));
             t->incrementReferenceCount();
             (const_cast<DBRef<T>*>(this))->object = t;
-            LTRACE << "found object " << object << " with oid " << objId
-                   << " in database and increased ref count";
         }
         catch (const r_Error &err)
         {
@@ -822,4 +735,11 @@ bool DBRef<T>::is_null(void) const
         }
     }
     return false;
+}
+
+
+template <class T>
+bool DBRef<T>::is_null_ref(void) const
+{
+    return object == 0 || (!pointerCaching && !pointerValid);
 }

@@ -32,10 +32,8 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,BoolType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/booltype.C,v 1.8 2003/12/27 23:23:04 rasdev Exp $";
-
 #include "booltype.hh"
-#include <string.h>
+#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
 
 /*************************************************************
  * Method name...: BoolType();
@@ -46,14 +44,12 @@ static const char rcsid[] = "@(#)catalogif,BoolType: $Header: /home/rasdev/CVS-r
  *                 BoolType.
  ************************************************************/
 
-BoolType::BoolType(const OId &id)
-    :   UIntegralType(id)
+BoolType::BoolType(const OId &id) : UIntegralType(id)
 {
     readFromDb();
 }
 
-BoolType::BoolType()
-    :   UIntegralType(BoolType::Name, 1)
+BoolType::BoolType() : UIntegralType(BoolType::Name, 1)
 {
     myType = BOOLTYPE;
     myOId = OId(BOOLTYPE, OId::ATOMICTYPEOID);
@@ -67,10 +63,7 @@ BoolType::BoolType()
  * Description...: copy constructor
  ************************************************************/
 
-BoolType::BoolType(const BoolType &old)
-    :   UIntegralType(old)
-{
-}
+BoolType::BoolType(const BoolType &old)  = default;
 
 /*************************************************************
  * Method name...: operator=(const BoolType&);
@@ -80,8 +73,7 @@ BoolType::BoolType(const BoolType &old)
  * Description...: copy constructor
  ************************************************************/
 
-BoolType &
-BoolType::operator=(const BoolType &old)
+BoolType &BoolType::operator=(const BoolType &old)
 {
     // Gracefully handle self assignment
     if (this == &old)
@@ -100,9 +92,7 @@ BoolType::operator=(const BoolType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-BoolType::~BoolType()
-{
-}
+BoolType::~BoolType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -118,8 +108,7 @@ BoolType::~BoolType()
  *                 on HP.
  ************************************************************/
 
-void
-BoolType::printCell(ostream &stream, const char *cell) const
+void BoolType::printCell(std::ostream &stream, const char *cell) const
 {
     if (*cell == 0)
     {
@@ -131,8 +120,7 @@ BoolType::printCell(ostream &stream, const char *cell) const
     }
 }
 
-r_ULong *
-BoolType::convertToCULong(const char *cell, r_ULong *value) const
+r_ULong *BoolType::convertToCULong(const char *cell, r_ULong *value) const
 {
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order
@@ -142,9 +130,7 @@ BoolType::convertToCULong(const char *cell, r_ULong *value) const
     return value;
 }
 
-
-char *
-BoolType::makeFromCULong(char *cell, const r_ULong *value) const
+char *BoolType::makeFromCULong(char *cell, const r_ULong *value) const
 {
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order
@@ -152,8 +138,7 @@ BoolType::makeFromCULong(char *cell, const r_ULong *value) const
     return cell;
 }
 
-void
-BoolType::readFromDb()
+void BoolType::readFromDb()
 {
     setName(BoolType::Name);
     size = 1;

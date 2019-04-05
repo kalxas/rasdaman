@@ -37,7 +37,7 @@ rasdaman GmbH.
 #ifndef _COMPLEXTYPE_HH_
 #define _COMPLEXTYPE_HH_
 
-#include <iostream>
+#include <iosfwd>
 #ifdef __APPLE__
 #include <float.h>
 #else
@@ -48,60 +48,53 @@ rasdaman GmbH.
 
 class OId;
 
-
-
 /**
   * \ingroup Relcatalogifs
   */
 class GenericComplexType : public AtomicType
 {
-
 public:
     GenericComplexType(const char *name, unsigned int newSize): AtomicType(name, newSize) {}
     GenericComplexType(const OId &id): AtomicType(id) {}
-    virtual ~GenericComplexType() {}
+    ~GenericComplexType() override = default;
     virtual unsigned int getReOffset() const = 0;
     virtual unsigned int getImOffset() const = 0;
 
 protected:
-    virtual void readFromDb() = 0;
+    void readFromDb() override = 0;
 };
-
 
 /**
   * \ingroup Relcatalogifs
   */
 class ComplexType1 : public GenericComplexType
 {
-
 public:
     ComplexType1();
     ComplexType1(const OId &id);
     ComplexType1(const ComplexType1 &old);
     ComplexType1 &operator=(const ComplexType1 &old);
-    virtual ~ComplexType1();
-    virtual void printCell(ostream &stream, const char *cell) const;
-    unsigned int getReOffset() const;
-    unsigned int getImOffset() const;
-    virtual const char *getTypeName() const;
+    ~ComplexType1() override;
+    void printCell(std::ostream &stream, const char *cell) const override;
+    unsigned int getReOffset() const override;
+    unsigned int getImOffset() const override;
+    const char *getTypeName() const override;
     static const char *Name;
 
-
 protected:
-    virtual void readFromDb();
+    void readFromDb() override;
 
 private:
     unsigned int reOffset, imOffset;
 
-//  static const char* complexTypeName;
+    //  static const char* complexTypeName;
 
-    r_ULong *convertToCULong(const char *, r_ULong *) const;
-    char *makeFromCULong(char *, const r_ULong *) const;
-    r_Long *convertToCLong(const char *, r_Long *) const;
-    char *makeFromCLong(char *, const r_Long *) const;
-    double *convertToCDouble(const char *cell, double *value) const;
-    char *makeFromCDouble(char *cell, const double *value) const;
-
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
+    double *convertToCDouble(const char *cell, double *value) const override;
+    char *makeFromCDouble(char *cell, const double *value) const override;
 };
 
 /**
@@ -109,39 +102,34 @@ private:
   */
 class ComplexType2 : public GenericComplexType
 {
-
 public:
     ComplexType2();
     ComplexType2(const OId &id);
     ComplexType2(const ComplexType2 &old);
     ComplexType2 &operator=(const ComplexType2 &old);
-    virtual ~ComplexType2();
-    virtual void printCell(ostream &stream, const char *cell) const;
-    unsigned int getReOffset() const;
-    unsigned int getImOffset() const;
-    virtual const char *getTypeName() const;
+    ~ComplexType2() override;
+    void printCell(std::ostream &stream, const char *cell) const override;
+    unsigned int getReOffset() const override;
+    unsigned int getImOffset() const override;
+    const char *getTypeName() const override;
     static const char *Name;
 
 protected:
-    virtual void readFromDb();
+    void readFromDb() override;
 
 private:
     unsigned int reOffset, imOffset;
 
-//  static const char* complexTypeName;
+    //  static const char* complexTypeName;
 
-    r_ULong *convertToCULong(const char *, r_ULong *) const;
-    char *makeFromCULong(char *, const r_ULong *) const;
-    r_Long *convertToCLong(const char *, r_Long *) const;
-    char *makeFromCLong(char *, const r_Long *) const;
-    double *convertToCDouble(const char *cell, double *value) const;
-    char *makeFromCDouble(char *cell, const double *value) const;
-
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
+    double *convertToCDouble(const char *cell, double *value) const override;
+    char *makeFromCDouble(char *cell, const double *value) const override;
 };
 
-
 #include "complextype.icc"
-
-
 
 #endif

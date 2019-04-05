@@ -33,15 +33,11 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-class AdminIf;
-class DatabaseIf;
-
-class r_Error;
-
-#include <iostream>
+#include <iosfwd>
 #include "lists.h"
 
 class AdminIf;
+class DatabaseIf;
 
 //@ManMemo: Module: {\bf reladminif}.
 
@@ -78,12 +74,10 @@ const int SYSTEMNAME_MAXLEN = 256;
   * \ingroup Reladminifs
   */
 
-void
-checkCounter(const char *counterName, const char *column,
-             const char *table, const char *tableDescr, bool &retval);
+void checkCounter(const char *counterName, const char *column,
+                  const char *table, const char *tableDescr, bool &retval);
 
-void
-closeDbConnection();
+void closeDbConnection();
 
 class AdminIf
 {
@@ -131,7 +125,8 @@ public:
 
     static bool isAborted();
     /*@Doc:
-    used by DBObject::validate() to determine if it should execute the persistency functions
+    used by DBObject::validate() to determine if it should execute the persistency
+    functions
     */
 
     static void setAborted(bool newAborted);
@@ -142,7 +137,8 @@ public:
 protected:
     AdminIf(bool createDb = false);
     /*@Doc:
-    constructor, can not be used from outside; initializes the objectbroker and checks
+    constructor, can not be used from outside; initializes the objectbroker and
+    checks
     validity of RAS_COUNTERs.
     createDb should be true only for rasdl when it is executed to create RASBASE.
     */

@@ -53,36 +53,33 @@ It's subclasses must implement conversions to/from double
 class RealType : public AtomicType
 {
 public:
-    RealType(unsigned int newSize):
-        AtomicType(newSize) {}
+    RealType(unsigned int newSize) : AtomicType(newSize) {}
     /*@Doc:
     constructor.
     */
 
-    RealType(const RealType &old):
-        AtomicType(old) {}
+    RealType(const RealType &old)  = default;
     /*@Doc:
     copy constructor.
     */
 
-    RealType(const OId &id):
-        AtomicType(id) {}
+    RealType(const OId &id) : AtomicType(id) {}
     /*@Doc:
     */
 
-    virtual ~RealType() {}
+    ~RealType() override = default;
     /*@Doc:
     */
 
-    virtual r_ULong *convertToCULong(const char *, r_ULong *) const;
-    virtual char *makeFromCULong(char *, const r_ULong *) const;
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
 
-    virtual r_Long *convertToCLong(const char *, r_Long *) const;
-    virtual char *makeFromCLong(char *, const r_Long *) const;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
 
 protected:
-    RealType(const char *name, unsigned int newSize):
-        AtomicType(name, newSize) {}
+    RealType(const char *name, unsigned int newSize)
+        : AtomicType(name, newSize) {}
     /*@Doc:
     */
 };

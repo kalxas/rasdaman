@@ -23,56 +23,48 @@ rasdaman GmbH.
 #include "config.h"
 #include "mymalloc/mymalloc.h"
 #include "dbtile.hh"
-#include "reladminif/externs.h"
-#include "reladminif/sqlerror.hh"
+#include "reladminif/oidif.hh"             // for OId, operator<<, OId::INVALID
 #include "raslib/error.hh"
-#include "reladminif/objectbroker.hh"
-#include "blobtile.hh"
-#include "inlinetile.hh"
-#include "reladminif/dbref.hh"
+#include "tilecache.hh"
+#include "tilecachevalue.hh"
 #include <logging.hh>
 
-#include "unistd.h"
-#include <iostream>
-#include <cstring>
-#include <vector>
+#include <stdlib.h>             // for malloc, free
+#include <cstring>              // for memcpy, memset
+#include <iostream>             // for operator<<, ostream, endl, basic_ostream
 
 
 
-r_Data_Format
-DBTile::getDataFormat() const
+using std::endl;
+
+r_Data_Format DBTile::getDataFormat() const
 {
-    LTRACE << "getDataFormat() const " << myOId << " " << dataFormat;
     return dataFormat;
 }
 
-r_Data_Format
-DBTile::getCurrentFormat() const
+r_Data_Format DBTile::getCurrentFormat() const
 {
     return currentFormat;
 }
 
-void
-DBTile::setCurrentFormat(const r_Data_Format &dataformat) const
+void DBTile::setCurrentFormat(const r_Data_Format &dataformat) const
 {
     currentFormat = dataformat;
 }
 
-void
-DBTile::setDataFormat(const r_Data_Format &dataformat)
+void DBTile::setDataFormat(const r_Data_Format &dataformat)
 {
     dataFormat = dataformat;
     setModified();
 }
 
-r_Bytes
-DBTile::getMemorySize() const
+r_Bytes DBTile::getMemorySize() const
 {
-    return size * sizeof(char) + sizeof(char *) + sizeof(r_Data_Format) + DBObject::getMemorySize() + sizeof(r_Bytes);
+    return size * sizeof(char) + sizeof(char *) + sizeof(r_Data_Format) +
+           DBObject::getMemorySize() + sizeof(r_Bytes);
 }
 
-void
-DBTile::setCells(char *newCells)
+void DBTile::setCells(char *newCells)
 {
     if (cells != newCells)
     {
@@ -82,14 +74,12 @@ DBTile::setCells(char *newCells)
     }
 }
 
-void
-DBTile::setNoModificationData(char *newCells) const
+void DBTile::setNoModificationData(char *newCells) const
 {
     if (cells != newCells)
     {
-        if (cells != NULL && ownCells)
+        if (cells != nullptr && ownCells)
         {
-            LDEBUG << "DBTile::setNoModificationData() freeing blob cells";
             free(cells);
             // cells = NULL;    // added PB 2005-jan-10
         }
@@ -98,53 +88,44 @@ DBTile::setNoModificationData(char *newCells) const
     }
 }
 
-void
-DBTile::setNoModificationSize(r_Bytes newSize) const
+
+void DBTile::setNoModificationSize(r_Bytes newSize) const
 {
     size = newSize;
 }
 
-char *
-DBTile::getCells()
+char *DBTile::getCells()
 {
     setModified();
     return cells;
 }
 
-const char *
-DBTile::getCells() const
+const char *DBTile::getCells() const
 {
     return cells;
 }
 
-char
-DBTile::getCell(r_Bytes index) const
+char DBTile::getCell(r_Bytes index) const
 {
     return getCells()[index];
 }
 
-r_Bytes
-DBTile::getSize() const
+r_Bytes DBTile::getSize() const
 {
     return size;
 }
 
-void
-DBTile::setCell(r_Bytes index, char newCell)
+void DBTile::setCell(r_Bytes index, char newCell)
 {
     setModified();
     getCells()[index] = newCell;
 }
 
 DBTile::DBTile(r_Data_Format dataformat)
-    :   DBObject(),
-        size(0),
-        cells(NULL),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(), size(0), cells(nullptr), dataFormat(dataformat),
+      currentFormat(r_Array), ownCells{true}
 {
-    LTRACE << "DBTile::DBTile() empty tile, data format: " << dataFormat;
+    LTRACE << "DBTile(" << dataFormat << ")";
 }
 
 DBTile::DBTile(r_Bytes newSize, r_Data_Format dataformat)
@@ -155,17 +136,13 @@ DBTile::DBTile(r_Bytes newSize, r_Data_Format dataformat)
         currentFormat(r_Array),
         ownCells{true}
 {
-    LTRACE << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, not initialized with any value ";
+    LTRACE << "allocating " << newSize << " bytes for blob cells, not initialized with any value ";
     cells = static_cast<char *>(mymalloc(newSize));
 }
 
 DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
-    :   DBObject(),
-        size(newSize),
-        cells(NULL),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(), size(newSize), cells(nullptr), dataFormat(dataformat),
+      currentFormat(r_Array), ownCells{true}
 {
     LTRACE << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells initialized with value " << (long)c;
     cells = static_cast<char *>(mymalloc(newSize));
@@ -173,12 +150,8 @@ DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
 }
 
 DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char *pat, r_Data_Format dataformat)
-    :   DBObject(),
-        size(newSize),
-        cells(NULL),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(), size(newSize), cells(nullptr), dataFormat(dataformat),
+      currentFormat(r_Array), ownCells{true}
 {
     LTRACE << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells with pattern of size " << patSize;
     cells = static_cast<char *>(mymalloc(newSize * sizeof(char)));
@@ -226,12 +199,8 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char *pat, r_Data_Format 
 }
 
 DBTile::DBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
-    :   DBObject(),
-        size(newSize),
-        cells(0),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(), size(newSize), cells(nullptr), dataFormat(dataformat),
+      currentFormat(r_Array), ownCells{true}
 {
     LTRACE << "DBTile::DBTile() allocating " << newSize << " bytes for blob cells with copying the given data";
 
@@ -240,12 +209,8 @@ DBTile::DBTile(r_Bytes newSize, const char *newCells, r_Data_Format dataformat)
 }
 
 DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat)
-    :   DBObject(),
-        size(newSize),
-        cells(0),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(), size(newSize), cells(nullptr), dataFormat(dataformat),
+      currentFormat(r_Array), ownCells{true}
 {
     if (takeOwnershipOfNewCells)
     {
@@ -261,11 +226,7 @@ DBTile::DBTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_
 }
 
 DBTile::DBTile(const OId &id)
-    :   DBObject(id),
-        size(0),
-        cells(NULL),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(id), size(0), cells(nullptr), currentFormat(r_Array), ownCells{true}
 {
     LTRACE << "DBTile::DBTile() oid: " << id;
 }
@@ -274,7 +235,6 @@ DBTile::~DBTile() noexcept(false)
 {
     if (!ownCells)
     {
-        LTRACE << "DBTile::~DBTile() does not own data, will not free blob cells of size: " << size;
         return;
     }
 
@@ -284,7 +244,7 @@ DBTile::~DBTile() noexcept(false)
         {
             if (!TileCache::contains(myOId))
             {
-                LTRACE << "DBTile::~DBTile() not cached, freeing blob cells of size: " << size;
+                //LTRACE << "DBTile::~DBTile() not cached, freeing blob cells of size: " << size;
                 if (!allocatedWithNew)
                 {
                     free(cells);
@@ -297,7 +257,7 @@ DBTile::~DBTile() noexcept(false)
             }
             else
             {
-                LTRACE << "DBTile::~DBTile() cached, will not free cells: " << size;
+                //LTRACE << "DBTile::~DBTile() cached, will not free cells: " << size;
                 CacheValue *value = TileCache::get(myOId);
                 value->removeReferencingTile(this);
                 cells = NULL;
@@ -305,7 +265,7 @@ DBTile::~DBTile() noexcept(false)
         }
         else
         {
-            LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
+            //LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
             if (!allocatedWithNew)
             {
                 free(cells);
@@ -317,14 +277,13 @@ DBTile::~DBTile() noexcept(false)
             cells = NULL;
         }
     }
-    else
-    {
-        LTRACE << "DBTile::~DBTile() blob cells null, nothing to free";
-    }
+    //else
+    //{
+    //    LTRACE << "DBTile::~DBTile() blob cells null, nothing to free";
+    //}
 }
 
-void
-DBTile::resize(r_Bytes newSize)
+void DBTile::resize(r_Bytes newSize)
 {
     LTRACE << "resize(" << newSize << ") " << myOId;
     if (size != newSize)
@@ -334,11 +293,11 @@ DBTile::resize(r_Bytes newSize)
         {
             LTRACE << "freeing existing blob cells";
             free(cells);
-            cells = NULL;
+            cells = nullptr;
         }
         LTRACE << "allocating " << newSize << " bytes for blob cells.";
         cells = static_cast<char *>(mymalloc(newSize * sizeof(char)));
-        if (cells == NULL)
+        if (cells == nullptr)
         {
             LERROR << "failed allocating " << newSize << " bytes of memory for tile.";
             throw new r_Error(r_Error::r_Error_MemoryAllocation);
@@ -347,8 +306,7 @@ DBTile::resize(r_Bytes newSize)
     }
 }
 
-void
-DBTile::printStatus(unsigned int level, std::ostream &stream) const
+void DBTile::printStatus(unsigned int level, std::ostream &stream) const
 {
     DBObject::printStatus(level, stream);
     stream << " r_Data_Format " << dataFormat << " size " << size << " ";
@@ -361,8 +319,7 @@ DBTile::printStatus(unsigned int level, std::ostream &stream) const
 #endif
 }
 
-std::ostream &
-operator << (std::ostream &stream, DBTile &b)
+std::ostream &operator<<(std::ostream &stream, DBTile &b)
 {
     stream << "\tDBTile at " << &b << endl;
     stream << "\t\tOId\t\t:" << b.myOId << endl;

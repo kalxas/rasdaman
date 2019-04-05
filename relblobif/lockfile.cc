@@ -20,21 +20,22 @@
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "blobfscommon.hh"  // for INVALID_FILE_DESCRIPTOR, IO_ERROR_RC, IO_...
 #include "lockfile.hh"
-#include "blobfscommon.hh"
-#include <logging.hh>
+#include "logging.hh"       // for LWARNING
+
+#include <errno.h>          // for errno
+#include <fcntl.h>          // for open, O_WRONLY, O_CREAT
+#include <logging.hh>       // for Writer, CWARNING
+#include <string.h>         // for strerror
+#include <sys/file.h>       // for flock, LOCK_EX, LOCK_NB, LOCK_UN
+#include <unistd.h>         // for close, unlink
 
 using namespace std;
 using namespace blobfs;
 
 LockFile::LockFile(const std::string &path)
-    : lockFilePath(path), fd(INVALID_FILE_DESCRIPTOR)
-{
-}
+    : lockFilePath(path), fd(INVALID_FILE_DESCRIPTOR) {}
 
 LockFile::~LockFile()
 {
@@ -101,7 +102,8 @@ bool LockFile::unlock()
         ret = flock(fd, LOCK_UN) == IO_SUCCESS_RC;
         if (close(fd) == IO_ERROR_RC)
         {
-            LWARNING << "failed closing lock file descriptor (" << lockFilePath << "): " << strerror(errno);
+            LWARNING << "failed closing lock file descriptor (" << lockFilePath
+                     << "): " << strerror(errno);
         }
         if (unlink(lockFilePath.c_str()) == IO_ERROR_RC)
         {

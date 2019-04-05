@@ -134,9 +134,9 @@ public:
     vector<QtData *> *evaluateUpdate();
 
     /// debugging method
-    void printTree(int tab, ostream &s = cout);
+    void printTree(int tab, std::ostream &s = std::cout);
 
-    virtual ostream &operator<<(ostream &os);
+    virtual std::ostream &operator<<(std::ostream &os);
 
     void log(el::base::type::ostream_t &ostream1) const override;
 

@@ -24,17 +24,18 @@ rasdaman GmbH.
 #ifndef _D_TILER_
 #define _D_TILER_
 
-#include "raslib/minterval.hh"
-#include <vector>
-#include <utility>
-//#include<pair>
+#include "raslib/mddtypes.hh"   // for r_Range
+#include "raslib/minterval.hh"  // for r_Minterval
 
-class Tile;
+#include <utility>                  // for pair
+#include <vector>                   // for vector
+
 class PersTile;
+class Tile;
 class TransTile;
 
-typedef std::pair<r_Range, r_Range> RangePair;
-typedef std::pair<const r_Range, const r_Range> ConstRangePair;
+using RangePair = std::pair<r_Range, r_Range>;
+using ConstRangePair = std::pair<const r_Range, const r_Range>;
 
 /**
   * \ingroup Tilemgrs
@@ -42,7 +43,8 @@ typedef std::pair<const r_Range, const r_Range> ConstRangePair;
 class r_Tiler
 {
 public:
-    r_Tiler(std::vector<r_Minterval> &sourceDomains, const std::vector<r_Minterval> &targetDomains);
+    r_Tiler(std::vector<r_Minterval> &sourceDomains,
+            const std::vector<r_Minterval> &targetDomains);
     /*
     sourceDomains will be splitted.
     targetDomains will not be touched.
@@ -92,5 +94,6 @@ private:
 
     std::vector<r_Minterval> targetDomains;
 };
+
 #endif
 

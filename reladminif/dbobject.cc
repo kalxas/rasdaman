@@ -177,7 +177,7 @@ DBObject::DBObject(const DBObject &old)
         objecttype(old.objecttype),
         referenceCount(old.referenceCount)
 {
-    LTRACE << "DBObject(copy from " << myOId << ")";
+    LTRACE << "DBObject(copy from " << myOId.getCounter() << ")";
 }
 
 //constructs an object and reads it from the database.  the oid must match the type of the object.
@@ -189,13 +189,13 @@ DBObject::DBObject(const OId &id)
         referenceCount(0)
 {
     //flags must be set by readFromDb()
-    LTRACE << "DBObject(" << myOId << ")";
+    LTRACE << "DBObject(" << myOId.getCounter() << ")";
 }
 
 DBObject &
 DBObject::operator=(const DBObject &old)
 {
-    LTRACE << "operator=(" << old.myOId << ")";
+    LTRACE << "operator=(" << old.myOId.getCounter() << ")";
     if (this != &old)
     {
         _isPersistent = old._isPersistent;

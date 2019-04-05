@@ -20,8 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _INLINETILE_HH_
-#define _INLINETILE_HH_
 // -*-C++-*- (for Emacs)
 
 /*************************************************************
@@ -37,12 +35,17 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-class OId;
-class r_Error;
+#ifndef _INLINETILE_HH_
+#define _INLINETILE_HH_
 
-#include "raslib/mddtypes.hh"
+#include "blobtile.hh"             // for BLOBTile
 #include "tileid.hh"
-#include "blobtile.hh"
+#include "raslib/mddtypes.hh"
+
+#include <iosfwd>                // for cout, ostream
+
+class r_Error;
+class OId;
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -60,10 +63,9 @@ they can only be inlined by a dbtcindex.
 /**
   * \ingroup Relblobifs
   */
-class InlineTile    : public BLOBTile
+class InlineTile : public BLOBTile
 {
 public:
-
     //@Man: constructors
     //@{
 
@@ -94,20 +96,29 @@ public:
     newCells is directly owned by DBTile.
     */
 
-    InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells, char *newCells, r_Data_Format dataformat);
+    InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
+               char *newCells, r_Data_Format dataformat);
     /*@Doc:
     constructs a new InlineTile of size newSize filled with the contents of newCells.
     */
 
-    //@}
-    virtual void destroy();
+    ~InlineTile() override = default;
     /*@Doc:
-    may not destroy the object because it is inlined and therefore depending on its parent index.
+        no functionality.  if it is inlined the dbtcindex will take care of storing it.
+        if it is not inlined the blobtile functionality will take over.
+    */
+
+    //@}
+    void destroy() override;
+    /*@Doc:
+    may not destroy the object because it is inlined and therefore depending on
+    its parent index.
     */
 
     const OId &getIndexOId() const;
     /*@Doc:
-    returns the oid of the index which contains the inlined tile.  if the tile is outlined then this oid is invalid.
+    returns the oid of the index which contains the inlined tile.  if the tile is
+    outlined then this oid is invalid.
     */
 
     void setIndexOId(const OId &oid);
@@ -126,7 +137,7 @@ public:
         the returned pointer is after the end of this tiles data.
     */
 
-    virtual void setModified();
+    void setModified() override;
     /*@Doc:
         does not only set itself modified but also informs its parent of changes.
     */
@@ -153,22 +164,14 @@ public:
         checks if it has a valid index parent.
     */
 
-    virtual ~InlineTile();
-    /*@Doc:
-        no functionality.  if it is inlined the dbtcindex will take care of storing it.
-        if it is not inlined the blobtile functionality will take over.
-    */
-
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
 protected:
-
     OId myIndexOId;
     /*@Doc:
         when this inlinetile is in inlined mode the myIndexOId points to the parent index.
         if this oid is invalid the inlinetile is not in inline mode.
     */
-
 };
 
 #endif

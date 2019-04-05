@@ -32,8 +32,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,AtomicType: $Id: atomictype.C,v 1.4 2001/06/20 08:06:37 hoefner Exp $";
-
 #include "atomictype.hh"
 #include "reladminif/externs.h"
 
@@ -47,8 +45,7 @@ static const char rcsid[] = "@(#)catalogif,AtomicType: $Id: atomictype.C,v 1.4 2
  ************************************************************/
 
 AtomicType::AtomicType(unsigned int newSize)
-    :   BaseType("unnamed atomictype"),
-        size(newSize)
+    : BaseType("unnamed atomictype"), size(newSize)
 {
     objecttype = OId::ATOMICTYPEOID;
     _isPersistent = 1;
@@ -57,8 +54,7 @@ AtomicType::AtomicType(unsigned int newSize)
 }
 
 AtomicType::AtomicType(const char *name, unsigned int newSize)
-    :   BaseType(name),
-        size(newSize)
+    : BaseType(name), size(newSize)
 {
     objecttype = OId::ATOMICTYPEOID;
     _isPersistent = 1;
@@ -66,9 +62,7 @@ AtomicType::AtomicType(const char *name, unsigned int newSize)
     _isModified = 0;
 }
 
-AtomicType::AtomicType(const AtomicType &old)
-    :   BaseType(old),
-        size(old.size)
+AtomicType::AtomicType(const AtomicType &old) : BaseType(old), size(old.size)
 {
     objecttype = OId::ATOMICTYPEOID;
     _isPersistent = 1;
@@ -76,8 +70,7 @@ AtomicType::AtomicType(const AtomicType &old)
     _isModified = 0;
 }
 
-AtomicType::AtomicType(const OId &id)
-    :   BaseType(id)
+AtomicType::AtomicType(const OId &id) : BaseType(id)
 {
     objecttype = OId::ATOMICTYPEOID;
     _isPersistent = 1;
@@ -85,16 +78,64 @@ AtomicType::AtomicType(const OId &id)
     _isModified = 0;
 }
 
-AtomicType::~AtomicType()
+AtomicType::~AtomicType() = default;
+
+AtomicType &AtomicType::operator=(const AtomicType &old) = default;
+
+/// generate equivalent C type names
+void AtomicType::generateCTypeName(std::vector<const char *> &names) const
 {
+    switch (myType)
+    {
+    case ULONG:
+        names.push_back("unsigned int");
+        break;
+    case USHORT:
+        names.push_back("unsigned short");
+        break;
+    case BOOLTYPE:
+        names.push_back("unsigned char");
+        break;
+    case LONG:
+        names.push_back("int");;
+        break;
+    case SHORT:
+        names.push_back("short");
+        break;
+    case OCTET:
+        names.push_back("unsigned char");
+        break;
+    case DOUBLE:
+        names.push_back("double");
+        break;
+    case FLOAT:
+        names.push_back("float");
+        break;
+    case CHAR:
+        names.push_back("char");
+        break;
+    case COMPLEXTYPE1:
+        names.push_back("float");
+        names.push_back("float");
+        break;
+    case COMPLEXTYPE2:
+        names.push_back("double");
+        names.push_back("double");
+        break;
+    default:
+        throw r_Error(INTERNALDLPARSEERROR);
+    }
 }
 
-AtomicType &
-AtomicType::operator=(const AtomicType &old)
+void AtomicType::getTypes(std::vector<const BaseType *> &types) const
 {
-    BaseType::operator=(old);
-    size = old.size;
-    return *this;
+    types.push_back(this);
+    return;
+}
+
+void AtomicType::generateCTypePos(std::vector<int> &positions, int offset) const
+{
+    positions.push_back(offset);
 }
 
 /*************************************************************
@@ -105,8 +146,7 @@ AtomicType::operator=(const AtomicType &old)
  * Description...: returns size of AtomicType in chars
  ************************************************************/
 
-unsigned int
-AtomicType::getSize() const
+unsigned int AtomicType::getSize() const
 {
     return size;
 }

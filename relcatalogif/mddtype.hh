@@ -41,6 +41,7 @@ rasdaman GmbH.
 #include "catalogmgr/ops.hh"
 #include "type.hh"
 #include "raslib/minterval.hh"
+#include <iosfwd>
 
 class OId;
 
@@ -58,23 +59,29 @@ class OId;
 class MDDType : public Type
 {
 public:
-    enum MDDTypeEnum { MDDONLYTYPE, MDDBASETYPE, MDDDOMAINTYPE, MDDDIMENSIONTYPE };
+    enum MDDTypeEnum
+    {
+        MDDONLYTYPE,
+        MDDBASETYPE,
+        MDDDOMAINTYPE,
+        MDDDIMENSIONTYPE
+    };
     /*@Doc:
     enum used for runtime typing.
     could be superceded by OId::OIdType
     */
 
-    virtual char *getTypeStructure() const;
+    char *getTypeStructure() const override;
     /*@Doc:
     returns type as string:
         marray <>
     */
 
     /**
-     * @brief getNewTypeStructure - returns the type structe in the format required by SQL type manipulation format
+     * @brief getNewTypeStructure - returns the type structe in the format
+     * required by SQL type manipulation format
      */
-    virtual char *getNewTypeStructure() const;
-
+    char *getNewTypeStructure() const override;
 
     MDDType(const OId &id);
 
@@ -98,7 +105,7 @@ public:
     assignment operator.
     */
 
-    virtual void print_status(ostream &s) const;
+    virtual void print_status(std::ostream &s) const;
     /*@Doc:
     writes the state of the object to the specified stream:
         \tr_Marray<>
@@ -109,12 +116,12 @@ public:
     return subclass of MDDType (runtime typing)
     */
 
-    virtual ~MDDType() noexcept(false);
+    ~MDDType() noexcept(false) override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     check for compatibility of MDDTypes:
         if aType is a MDDTYPE Type (don't confuse with MDDType!!)
@@ -126,19 +133,18 @@ public:
     always returns 1.
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     the memory space is computed by:
         sizeof(MDDType::MDDTypeEnum) + DBNamedObject::getMemorySize();
     */
 
 protected:
+    void insertInDb() override;
 
-    virtual void insertInDb();
+    void readFromDb() override;
 
-    virtual void readFromDb();
-
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 
     MDDTypeEnum mySubclass;
     /*@Doc:

@@ -23,6 +23,10 @@ rasdaman GmbH.
 #ifndef _OBJECTBROKER_HH_
 #define _OBJECTBROKER_HH_
 
+#include "raslib/error.hh"
+#include "lists.h"
+#include "oidif.hh"
+
 class ObjectBroker;
 class ULongType;
 class LongType;
@@ -42,14 +46,6 @@ class MDDType;
 class Type;
 class DBObject;
 
-#include "oidif.hh"
-#include "raslib/error.hh"
-#include "lists.h"
-
-#ifdef RMANBENCHMARK
-#include "raslib/rmdebug.hh"
-#endif
-
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
 the ObjectBroker is one of the three columns one which the persistence layer rests:
@@ -61,7 +57,7 @@ deleted.
 The ObjectBroker supplies functionality for accessing persistent objects by oid and by
 name.
 The ObjectBroker can be configured to serve as a cross transaction cache.
-The ObejctBroker can retrieve the oids of all objects of a specific type which are stored
+The ObjectBroker can retrieve the oids of all objects of a specific type which are stored
 in the database.
 The list of objects which are kept by the ObjectBroker are cleared by TransactionIf.
 */

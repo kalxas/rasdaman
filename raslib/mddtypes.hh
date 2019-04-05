@@ -36,17 +36,8 @@ rasdaman GmbH.
 #ifndef _D_MDDTYPES_
 #define _D_MDDTYPES_
 
-
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <sstream>
-#endif
-
-#include <stdint.h>
-
-//typedef unsigned int uint32;
-//typedef int int32;
+#include <ostream>
+#include <cstdint>
 
 //@Man: r_Bytes
 //@Type: typedef
@@ -82,7 +73,7 @@ typedef unsigned long r_Ptr;
 //@Args: as unsigned int
 //@Memo: Module: {\bf raslib}.
 
-typedef uint64_t r_Area;
+typedef std::uint64_t r_Area;
 
 /**
   {\tt typedef unsigned int r_Area;}

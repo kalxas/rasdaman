@@ -33,9 +33,9 @@ rasdaman GmbH.
 #ifndef _MDDCOLL_HH_
 #define _MDDCOLL_HH_
 
-#include <iostream>
-#include <map>
 #include <stdlib.h>
+#include <iosfwd>                  // for cout, ostream
+#include <map>                     // for map
 
 #include "mddobj.hh"
 #include "mddcolliter.hh"
@@ -97,15 +97,15 @@ class DatabaseIf;
 
 class MDDColl
 {
-
 public:
-    ///transient collection
-    MDDColl(const CollectionType *newType, const char *name = 0);
+    /// transient collection
+    MDDColl(const CollectionType *newType, const char *name = nullptr);
 
     static const char *AllCollectionnamesName;
     static const char *AllStructTypesName;
     static const char *AllMarrayTypesName;
     static const char *AllSetTypesName;
+    static const char *AllTypesName;
 
     static bool isVirtual(const char *collName);
     /**
@@ -157,7 +157,7 @@ public:
         Returns always true.
     */
 
-    void printStatus(unsigned int level = 0, ostream &stream = cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const;
     /**
         Prints current status of the MDD Collection.
     */
@@ -190,17 +190,23 @@ public:
     void insert(const MDDObj *newObj);
     /**
         Inserts reference to MDD object into the collection.
-        If the type of the object (transient/persistent) does not fit the collection an exception is thrown.
+        If the type of the object (transient/persistent) does not fit the
+       collection an exception is thrown.
     */
 
     MDDCollIter *createIterator() const;
     /**
-        Creates a new iterator for this collection. Returns a pointer to the new allocated iterator object. Returned pointer must be freed afterwards.
+        Creates a new iterator for this collection. Returns a pointer to the new
+       allocated iterator object. Returned
+       pointer must be freed afterwards.
     */
 
     void remove(const MDDObj *obj);
     /**
-        Remove reference to MDD object from the current collection. The object itself is not obligatorily destroyed from the storage domain where it exists.  If the object does not live in the collection nothing is done.
+        Remove reference to MDD object from the current collection. The object
+       itself is not obligatorily destroyed from
+       the storage domain where it exists.  If the object does not live in the
+       collection nothing is done.
     */
 
     void removeAll();
@@ -212,8 +218,12 @@ public:
     void releaseAll();
     /**
         Releases all dynamic memory allocated for the current collection.
-        This method has to be called explicitely, since the destructor doesn't deallocate memory for the elements of the collection.
-        The reason for this is to allow the user to use MDDObjs from this collection, even after the collection itself is no longer in main memory.
+        This method has to be called explicitely, since the destructor doesn't
+       deallocate memory for the elements of the
+       collection.
+        The reason for this is to allow the user to use MDDObjs from this
+       collection, even after the collection itself is
+       no longer in main memory.
         This is only true for transient collections.
     */
 
@@ -227,16 +237,19 @@ public:
     ~MDDColl();
     /**
         Doesn't free main memory allocated for the objects of the collection.
-        See ReleaseAll() for an explanation on this issue.  Even if it does nothing, it has to be defined because derived classes may have non-trivial destructors.
+        See ReleaseAll() for an explanation on this issue.  Even if it does
+       nothing, it has to be defined because derived
+       classes may have non-trivial destructors.
     */
 protected:
-
     friend class MDDCollIter;
 
     MDDObj *getMDDObj(const DBMDDObj *) const;
     /**
         Will get from cache/instantiate and return an MDDObj.
-        Instantiation: it will just create a new one if isPersistent() == true -> passing it a oid that does not belong to the collection -> problem.
+        Instantiation: it will just create a new one if isPersistent() == true ->
+    passing it a oid that does not belong to
+    the collection -> problem.
     **/
 
     MDDColl(const DBMDDSetId &coll);
@@ -252,7 +265,7 @@ protected:
         Insert persistent MDD object in the internal cache.
     */
 
-    //void removeFromCache(DBMDDObjId& objToGet);
+    // void removeFromCache(DBMDDObjId& objToGet);
 
     DBMDDSetId dbColl;
     /**
@@ -260,10 +273,12 @@ protected:
         Based on the Base DBMS DBMDDSet class from relmddif.
     */
 
-    typedef std::map<DBMDDObj *, MDDObj *, std::less<DBMDDObj *>> MDDObjMap;
+    using MDDObjMap = std::map<DBMDDObj *, MDDObj *, std::less<DBMDDObj *>>;
     mutable MDDObjMap mddCache;
     /**
-    The mdd objs that are instantiated may not be twice in memory.  Therefore it has to be checked if an mdd obj was already created for a specific dbmddobj.
+    The mdd objs that are instantiated may not be twice in memory.  Therefore it
+    has to be checked if an mdd obj was
+    already created for a specific dbmddobj.
     This is achieved by maintaining this map.
     */
 };

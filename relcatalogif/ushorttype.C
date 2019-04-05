@@ -32,11 +32,11 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,UShortType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/ushorttype.C,v 1.9 2003/12/27 23:23:04 rasdev Exp $";
+#include <limits.h>       // for USHRT_MAX
+#include <iomanip>        // for operator<<, setw
 
+#include "atomictype.hh"  // for AtomicType
 #include "ushorttype.hh"
-#include <iomanip>
-#include <string.h>
 
 /*************************************************************
  * Method name...: UShortType();
@@ -47,8 +47,7 @@ static const char rcsid[] = "@(#)catalogif,UShortType: $Header: /home/rasdev/CVS
  *                 UShortType.
  ************************************************************/
 
-UShortType::UShortType()
-    :   UIntegralType(UShortType::Name, 2)
+UShortType::UShortType() : UIntegralType(UShortType::Name, 2)
 {
     myType = USHORT;
     myOId = OId(USHORT, OId::ATOMICTYPEOID);
@@ -62,13 +61,9 @@ UShortType::UShortType()
  * Description...: copy constructor
  ************************************************************/
 
-UShortType::UShortType(const UShortType &old)
-    :   UIntegralType(old)
-{
-}
+UShortType::UShortType(const UShortType &old)  = default;
 
-UShortType::UShortType(const OId &id)
-    :   UIntegralType(id)
+UShortType::UShortType(const OId &id) : UIntegralType(id)
 {
     readFromDb();
 }
@@ -100,9 +95,7 @@ UShortType &UShortType::operator=(const UShortType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-UShortType::~UShortType()
-{
-}
+UShortType::~UShortType() = default;
 
 /*************************************************************
  * Method name...: void printCell( ostream& stream,
@@ -118,36 +111,31 @@ UShortType::~UShortType()
  *                 on HP.
  ************************************************************/
 
-void
-UShortType::printCell(ostream &stream, const char *cell) const
+void UShortType::printCell(std::ostream &stream, const char *cell) const
 {
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order
-    stream << std::setw(5) << *(unsigned short *)(const_cast<char *>(cell));
+    stream << std::setw(5) << *reinterpret_cast<const r_UShort *>(cell);
 }
 
-r_ULong *
-UShortType::convertToCULong(const char *cell, r_ULong *value) const
+r_ULong *UShortType::convertToCULong(const char *cell, r_ULong *value) const
 {
     // !!!! HP specific, assumes 2 Byte short
-    *value = *(unsigned short *)(const_cast<char *>(cell));
+    *value = *reinterpret_cast<const r_UShort *>(cell);
     return value;
 }
 
-
-char *
-UShortType::makeFromCULong(char *cell, const r_ULong *value) const
+char *UShortType::makeFromCULong(char *cell, const r_ULong *value) const
 {
     r_ULong myLong = *value;
     // restricting long to value range of short
     myLong = myLong > USHRT_MAX ? USHRT_MAX : myLong;
     // !!!! HP specific, assumes 2 Byte short
-    *(unsigned short *)(cell) = (unsigned short)myLong;
+    *reinterpret_cast<r_UShort *>(cell) = (unsigned short)myLong;
     return cell;
 }
 
-void
-UShortType::readFromDb()
+void UShortType::readFromDb()
 {
     size = 2;
     setName(UShortType::Name);

@@ -56,12 +56,12 @@ inline ComplexType1 &ComplexType1::operator =(const ComplexType1 &old)
     return *this;
 }
 
-inline ComplexType1::~ComplexType1() {}
+inline ComplexType1::~ComplexType1() = default;
 
-inline void ComplexType1::printCell(ostream &stream, const char *cell) const
+inline void ComplexType1::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(float *)(const_cast<char *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(float *)(const_cast<char *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const float *>(cell) + reOffset) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const float *>(cell) + imOffset) << " )\n";
 }
 
 inline void ComplexType1::readFromDb()
@@ -84,24 +84,24 @@ inline unsigned int ComplexType1::getImOffset() const
 // those would better throw an exception
 inline r_ULong *ComplexType1::convertToCULong(const char *, r_ULong *) const
 {
-    return 0;
+    return nullptr;
 }
 inline char *ComplexType1::makeFromCULong(char *, const r_ULong *) const
 {
-    return 0;
+    return nullptr;
 }
 inline r_Long *ComplexType1::convertToCLong(const char *, r_Long *) const
 {
-    return 0;
+    return nullptr;
 }
 inline char *ComplexType1::makeFromCLong(char *, const r_Long *) const
 {
-    return 0;
+    return nullptr;
 }
 
 inline double *ComplexType1::convertToCDouble(const char *cell, double *value) const
 {
-    *value = static_cast<double>(*(reinterpret_cast<float *>(const_cast<char *>(cell))));
+    *value = *reinterpret_cast<const float *>(cell);
     return value;
 }
 
@@ -152,12 +152,12 @@ inline ComplexType2 &ComplexType2::operator =(const ComplexType2 &old)
     return *this;
 }
 
-inline ComplexType2::~ComplexType2() {}
+inline ComplexType2::~ComplexType2() = default;
 
-inline void ComplexType2::printCell(ostream &stream, const char *cell) const
+inline void ComplexType2::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(double *)(const_cast<char *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(double *)(const_cast<char *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const double *>(cell) + reOffset) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const double *>(cell) + imOffset) << " )\n";
 }
 
 inline void ComplexType2::readFromDb()
@@ -180,30 +180,30 @@ inline unsigned int ComplexType2::getImOffset() const
 // those would better throw an exception
 inline r_ULong *ComplexType2::convertToCULong(const char *, r_ULong *) const
 {
-    return 0;
+    return nullptr;
 }
 inline char *ComplexType2::makeFromCULong(char *, const r_ULong *) const
 {
-    return 0;
+    return nullptr;
 }
 inline r_Long *ComplexType2::convertToCLong(const char *, r_Long *) const
 {
-    return 0;
+    return nullptr;
 }
 inline char *ComplexType2::makeFromCLong(char *, const r_Long *) const
 {
-    return 0;
+    return nullptr;
 }
 
 inline double *ComplexType2::convertToCDouble(const char *cell, double *value) const
 {
-    *value = *(double *)const_cast<char *>(cell);
+    *value = *reinterpret_cast<const double *>(cell);
     return value;
 }
 
 inline char *ComplexType2::makeFromCDouble(char *cell, const double *value) const
 {
-    *(double *)(cell) = *value;
+    *reinterpret_cast<double *>(cell) = *value;
     return cell;
 }
 

@@ -1,16 +1,3 @@
-#ifndef _DBSTORAGELAYOUT_HH_
-#define _DBSTORAGELAYOUT_HH_
-
-#include <string>
-#include <vector>
-#include "relcatalogif/dbminterval.hh"
-#include "reladminif/dbobject.hh"
-#include "reladminif/dbref.hh"
-
-class DBStorageLayout;
-template<class T> class DBRef;
-typedef DBRef<DBStorageLayout> DBStorageLayoutId;
-
 /*
 * This file is part of rasdaman community.
 *
@@ -41,12 +28,31 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#ifndef _DBSTORAGELAYOUT_HH_
+#define _DBSTORAGELAYOUT_HH_
+
+#include <string>
+#include <vector>
+#include "relcatalogif/dbminterval.hh"
+#include "reladminif/dbobject.hh"
+#include "reladminif/dbref.hh"
+
+class DBStorageLayout;
+template <class T>
+class DBRef;
+using DBStorageLayoutId = DBRef<DBStorageLayout>;
+
 //@ManMemo: Module: {\bf relstorageif}
 /*@Doc:
     Each instance of the {\tt DBStorageLayout} class describes a physical
     storage layout for an MDD object or collection.
-    Every storage parameter which is not defined using the proper set* methods will result in a default value to be returned.  the supports* methods will tell if the value is a default value defined at instantiation time through the static storagemgr/StorageLayout attributes or an explicitly defined value.
-    For information on the meaning of these attributes refere to storagemgr/storagelayout
+    Every storage parameter which is not defined using the proper set* methods
+   will result in a default value to be
+   returned.  the supports* methods will tell if the value is a default value
+   defined at instantiation time through the
+   static storagemgr/StorageLayout attributes or an explicitly defined value.
+    For information on the meaning of these attributes refere to
+   storagemgr/storagelayout
 */
 /**
   * \defgroup Relstorageifs Relstorageif Classes
@@ -67,7 +73,7 @@ public:
 
     //@}
 
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
     //@Man: check operations
     //@{
@@ -83,7 +89,7 @@ public:
 
     bool supportsTilingScheme() const;
 
-    //is checked by OId::INVALID on tilingConfiguration
+    // is checked by OId::INVALID on tilingConfiguration
     bool supportsTileConfiguration() const;
 
     bool supportsDataFormat() const;
@@ -131,11 +137,10 @@ public:
 
     //@}
 
-
     //@Man: Destruction
     //@{
     ///
-    ~DBStorageLayout() noexcept(false);
+    ~DBStorageLayout() noexcept(false) override;
     //@}
 
 protected:
@@ -146,19 +151,17 @@ protected:
     //@Man: Operations
     //@{
 
-    virtual void readFromDb();
+    void readFromDb() override;
 
-    virtual void insertInDb();
+    void insertInDb() override;
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 
-    virtual void updateInDb();
-
+    void updateInDb() override;
 
     //@}
 
 private:
-
     //@Man: Actual Parameters:
     //@{
 
@@ -181,7 +184,6 @@ private:
     /// Tile size in bytes.
     r_Bytes tileSize;
 
-
     /// Default configuration of the tiles.
     DBMintervalId tileConfiguration;
     /**
@@ -190,7 +192,6 @@ private:
         Tiles will be appended from there according to the tileConfig.
     */
     //@}
-
 
     //@Man: DataFormat
     //@{

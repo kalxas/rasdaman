@@ -38,8 +38,8 @@ rasdaman GmbH.
 #ifndef _COMPOSITETYPE_HH_
 #define _COMPOSITETYPE_HH_
 
-#include <iostream>
 #include "basetype.hh"
+#include "reladminif/oidif.hh"     // for OId
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -54,7 +54,7 @@ CompositeType is the abstract base class for all structured
 class CompositeType : public BaseType
 {
 public:
-    virtual unsigned int getSize() const;
+    unsigned int getSize() const override;
     /*@Doc:
     get size of cells of this base type.
     */
@@ -79,7 +79,7 @@ public:
     constructor.
     */
 
-    virtual ~CompositeType();
+    ~CompositeType() override;
     /*@Doc:
     virtual destructor needed because of subclasses
     */

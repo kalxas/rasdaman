@@ -20,14 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
-#ifndef _DIRIX_HH_
-#define _DIRIX_HH_
-
-#include "reladminif/lists.h"
-class r_Point;
-class StorageLayout;
-
 /***********************
  *
  * INCLUDE: dirix.hh
@@ -45,6 +37,15 @@ class StorageLayout;
  *
  *  @ingroup indexmgr
  */
+
+#ifndef _DIRIX_HH_
+#define _DIRIX_HH_
+
+#include "reladminif/lists.h"
+
+class StorageLayout;
+class r_Point;
+
 
 /*@Doc:
 
@@ -140,35 +141,25 @@ public:
     */
 
     static int binarySearch(const IndexDS *theIx,
-                            const r_Minterval &newDomain,
-                            OrderPoint o,
-                            int first,
-                            int last);
+                            const r_Minterval &newDomain, OrderPoint o,
+                            int first, int last);
     /*@Doc:
         Returns position of searched item or position before the one where
         it should be inserted to keep the order of the list (-1 means it should be
         inserted at the beginning of the list).
     */
 
-    static int binaryPointSearch(const IndexDS *theIx,
-                                 const r_Point &pnt,
-                                 OrderPoint o,
-                                 int first,
-                                 int last);
+    static int binaryPointSearch(const IndexDS *theIx, const r_Point &pnt,
+                                 OrderPoint o, int first, int last);
     /*@Doc:
         Returns position of tile having the point, -1 if point not there.
     */
 
-    static int binaryRegionSearch(const IndexDS *theIx,
-                                  const r_Minterval &mint,
-                                  r_Area &area,
-                                  KeyObjectVector &intersectedObjects,
-                                  int first,
-                                  int last);
+    static int binaryRegionSearch(const IndexDS *theIx, const r_Minterval &mint, r_Area &area,
+                                  KeyObjectVector &intersectedObjects, int first, int last);
     /*@Doc:
         Assumes ordering according to the lowest corner of the tiles!!!
     */
-
 };
 
 #endif

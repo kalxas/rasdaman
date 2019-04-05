@@ -1,6 +1,3 @@
-#ifndef _SQLERROR_HH_
-#define _SQLERROR_HH_
-
 /*
 * This file is part of rasdaman community.
 *
@@ -40,13 +37,20 @@ rasdaman GmbH.
   SQL Errors Handling
 
 */
+
+#ifndef _SQLERROR_HH_
+#define _SQLERROR_HH_
+
+#include "config.h"
+#include "raslib/error.hh"
 #include <iostream>
 #include <cstring>
-#include "config.h"
+#include <cstddef>
 using std::cout;
 using std::endl;
 
-#include "raslib/error.hh"
+const int SQLOK = 0;
+const short INDNULL = -1;
 
 #ifdef BASEDB_DB2
 #define generateException() generateExceptionn(sqlca)
@@ -105,6 +109,13 @@ This diplays cli errors.
 #endif
 
 #ifdef BASEDB_PGSQL
+
+#include "ecpgerrno.h"  // PgSQL error codes
+// const int  SQLNULLFETCHED = -1405;   unused
+// const int  SQLTABLEUNKNOWN = -942;   not supported by PG
+const int SQLNODATAFOUND = ECPG_NOT_FOUND;
+// SQLCODE and SQLSTATE are defined in the sqlca.h file
+
 void generateException();
 /*@Doc:
 This generates exceptions.
@@ -117,26 +128,9 @@ Display error message if SQL errors have occurred.
 #endif
 
 #ifdef BASEDB_SQLITE
+
 #define UNDEFINED_RETVAL -10000
 #include <sqlite3.h>
-
-bool is_error(sqlite3 *db);
-/*@Doc:
-Display error message if SQL errors have occurred.
-*/
-
-void failOnError(const char *msg, sqlite3 *db);
-/*@Doc:
- * Throw an exception when an error happens.
- * retval is an optional return value from an sqlite3_* function execution.
-*/
-
-void warnOnError(const char *msg, sqlite3 *db);
-/*@Doc:
- * Print a warning when an error happens.
- * retval is an optional return value from an sqlite3_* function execution.
-*/
-#endif
 
 #endif
 
@@ -149,3 +143,5 @@ void disp_error(const char *stmt, char *msgbuf, size_t length);
 char *disp_exception(const char *stmt, int sqlerr_code);
 
 bool is_error_code(int return_code);
+
+#endif

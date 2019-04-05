@@ -36,9 +36,6 @@ rasdaman GmbH.
 #ifndef _EXTERNS_H_
 #define _EXTERNS_H_
 
-const int  SQLOK = 0;
-const short  INDNULL = -1;
-
 #ifdef BASEDB_PGSQL
 #include "ecpgerrno.h"      // PgSQL error codes
 // const int  SQLNULLFETCHED = -1405;   unused

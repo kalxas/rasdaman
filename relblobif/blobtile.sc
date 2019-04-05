@@ -32,16 +32,16 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include <set>
 
-#include "mymalloc/mymalloc.h"
+#include "blobtile.hh"
+#include "blobfs.hh"
+#include "inlinetile.hh"
+#include "reladminif/dbref.hh"
+#include "reladminif/objectbroker.hh"
+#include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "blobtile.hh"
-#include "reladminif/objectbroker.hh"
-#include "reladminif/dbref.hh"
-#include "reladminif/sqlerror.hh"
-#include "inlinetile.hh"
+#include "mymalloc/mymalloc.h"
 #include "tilecache.hh"
-#include "blobfs.hh"
 
 #include <logging.hh>
 
@@ -49,8 +49,7 @@ using namespace std;
 using blobfs::BlobFS;
 using blobfs::BlobData;
 
-void
-BLOBTile::updateInDb()
+void BLOBTile::updateInDb()
 {
     long long blobOid = myOId.getCounter();
     LDEBUG << "updating tile with id " << blobOid << ", size " << size;
@@ -63,7 +62,8 @@ BLOBTile::updateInDb()
     }
     checkQuery.finalize();
 
-    SQLiteQuery::executeWithParams("UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %lld", dataFormat, blobOid);
+    SQLiteQuery::executeWithParams(
+        "UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %lld", dataFormat, blobOid);
     if (TileCache::cacheLimit > 0)
     {
         CacheValue *value = new CacheValue(cells, size, true, myOId, blobOid, this);
@@ -79,19 +79,22 @@ BLOBTile::updateInDb()
     DBObject::updateInDb();
 }
 
-void
-BLOBTile::insertInDb()
+void BLOBTile::insertInDb()
 {
     long long blobOid = myOId.getCounter();
     SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     if (checkQuery.nextRow())
     {
         LERROR << "tile with id " << blobOid << " already exists.";
-        throw r_Ebase_dbms(SQLITE_ERROR, "a tile with the same id already exists in the database; see the server log for more details.");
+        throw r_Ebase_dbms(SQLITE_ERROR,
+                           "a tile with the same id already exists in the "
+                           "database; see the server log for more details.");
     }
     checkQuery.finalize();
 
-    SQLiteQuery::executeWithParams("INSERT INTO RAS_TILES ( BlobId, DataFormat ) VALUES  ( %lld, %d )", blobOid, dataFormat);
+    SQLiteQuery::executeWithParams(
+        "INSERT INTO RAS_TILES ( BlobId, DataFormat ) VALUES  ( %lld, %d )",
+        blobOid, dataFormat);
 
     BlobData blob(blobOid, size, cells);
     BlobFS::getInstance().insert(blob);
@@ -106,8 +109,7 @@ BLOBTile::insertInDb()
     DBObject::insertInDb();
 }
 
-void
-BLOBTile::deleteFromDb()
+void BLOBTile::deleteFromDb()
 {
     long long blobOid = myOId.getCounter();
     LDEBUG << "deleting tile with id " << blobOid;
@@ -134,8 +136,7 @@ BLOBTile::deleteFromDb()
 // delete a range of tuple(s) from ras_tiles table, update map ref;
 // tuples are identified by target and a range
 
-void
-BLOBTile::kill(const OId &target, unsigned int range)
+void BLOBTile::kill(const OId &target, unsigned int range)
 {
     if (range == 0) // single tuple
     {
@@ -151,7 +152,8 @@ BLOBTile::kill(const OId &target, unsigned int range)
         SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES WHERE BlobId = %lld", blobOid);
         if (!checkQuery.nextRow())
         {
-            // This is not an error case and is ignored, as kill is often repeatedly called with the same blob id.
+            // This is not an error case and is ignored, as kill is often repeatedly
+            // called with the same blob id.
             return;
         }
         checkQuery.finalize();
@@ -182,7 +184,9 @@ BLOBTile::kill(const OId &target, unsigned int range)
         long long blobOidEnd = end.getCounter();
         LDEBUG << "deleting (kill) tiles with ids " << blobOid << " - " << blobOidEnd;
 
-        SQLiteQuery query("SELECT BlobId FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", blobOid, blobOidEnd);
+        SQLiteQuery query(
+            "SELECT BlobId FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld",
+            blobOid, blobOidEnd);
         while (query.nextRow())
         {
             blobOid = query.nextColumnLong();
@@ -194,16 +198,18 @@ BLOBTile::kill(const OId &target, unsigned int range)
             }
         }
         query.finalize();
-        SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", blobOid, blobOidEnd);
+        SQLiteQuery::executeWithParams(
+            "DELETE FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld",
+            blobOid, blobOidEnd);
     }
 }
 
-long long
-BLOBTile::getAnyTileOid()
+long long BLOBTile::getAnyTileOid()
 {
     long long ret = NO_TILE_FOUND;
 
-    SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
+    SQLiteQuery checkTable(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_TILES'");
     if (checkTable.nextRow())
     {
         SQLiteQuery checkQuery("SELECT BlobId FROM RAS_TILES LIMIT 1");
@@ -219,8 +225,7 @@ BLOBTile::getAnyTileOid()
 // allocates necessary mem into ptr 'cells' and fills it; must be freed elsewhere
 // external var 'size' is set to the number of bytes read
 
-void
-BLOBTile::readFromDb()
+void BLOBTile::readFromDb()
 {
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
@@ -229,18 +234,7 @@ BLOBTile::readFromDb()
     long long blobOid = myOId.getCounter();
     LDEBUG << "reading tile with id " << blobOid;
 
-    SQLiteQuery query("SELECT DataFormat FROM RAS_TILES WHERE BlobId = %lld", blobOid);
-    if (query.nextRow())
-    {
-        dataFormat = static_cast<r_Data_Format>(query.nextColumnInt());
-        currentFormat = dataFormat;
-    }
-    else
-    {
-        LERROR << "no tile with id " << blobOid << " found.";
-        throw r_Error(r_Error::r_Error_ObjectUnknown);
-    }
-    query.finalize();
+    dataFormat = BLOBTile::getTileDataFormat(blobOid);
 
     if (TileCache::cacheLimit > 0 && TileCache::contains(blobOid))
     {
@@ -282,6 +276,20 @@ BLOBTile::readFromDb()
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
+}
+
+r_Data_Format BLOBTile::getTileDataFormat(long long blobOid)
+{
+    SQLiteQuery query("SELECT DataFormat FROM RAS_TILES WHERE BlobId = %lld", blobOid);
+    if (query.nextRow())
+    {
+        return static_cast<r_Data_Format>(query.nextColumnInt());
+    }
+    else
+    {
+        LERROR << "no tile with id " << blobOid << " found.";
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
+    }
 }
 
 void BLOBTile::writeCachedToDb(CacheValue *value)

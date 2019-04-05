@@ -33,36 +33,60 @@ rasdaman GmbH.
 #ifndef _MDDOBJ_HH_
 #define _MDDOBJ_HH_
 
-#include <vector>
-
 #include "tilemgr/tile.hh"
 #include "relcatalogif/mddbasetype.hh"   // from catalogif base DBMS class
 #include "raslib/minterval.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "relmddif/mddid.hh"
 #include "catalogmgr/nullvalues.hh"
-#include <boost/shared_ptr.hpp>
+
+#include <boost/shared_ptr.hpp>                // for shared_ptr
+#include <vector>                              // for vector
+#include <iosfwd>                              // for cout, ostream
 
 class MDDObjIx;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:
 
-An MDDObj object (Multidimensional Discrete Data Object) is a multidimensional array of cells of a fixed base type.
-Each MDDObj object keeps information about its cell base type, definition domain, the storage layout and the index.
+An MDDObj object (Multidimensional Discrete Data Object) is a multidimensional
+array of cells of a fixed base type.
+Each MDDObj object keeps information about its cell base type, definition
+domain, the storage layout and the index.
 Actual data is stored in tiles which are linked to the MDDObj via the index.
 
-When the object is first created, a spatial {\bf definition domain} for the object is given, which specifies the extents of the object array. This is expressed through an interval which may have open bounds along some (or all) directions.
-An open bound along a direction specifies that the object may grow arbitrarily along this direction.
+When the object is first created, a spatial {\bf definition domain} for the
+object is given, which specifies the extents
+of the object array. This is expressed through an interval which may have open
+bounds along some (or all) directions.
+An open bound along a direction specifies that the object may grow arbitrarily
+along this direction.
 
-At each point in time, an MDDObj has a fixed {\bf current domain} which specifies the actual extent of the object at the moment.
-The current domain is an interval with fixed bounds corresponding to the coverage of all the tiles already inserted in the MDDObj.
-The current domain should  be a subinterval of the definition domain, so that tiles inserted in the object should always be completely contained in the definition domain of the object.  This is not checked here!
+At each point in time, an MDDObj has a fixed {\bf current domain} which
+specifies the actual extent of the object at the
+moment.
+The current domain is an interval with fixed bounds corresponding to the
+coverage of all the tiles already inserted in
+the MDDObj.
+The current domain should  be a subinterval of the definition domain, so that
+tiles inserted in the object should always
+be completely contained in the definition domain of the object.  This is not
+checked here!
 
-Objects of this class provide the needed functionality of MDDObjs to the RasDaMan server, namely, access to the tiles (which are the actual units of execution, processing and management internally at the server).
+Objects of this class provide the needed functionality of MDDObjs to the
+RasDaMan server, namely, access to the tiles
+(which are the actual units of execution, processing and management internally
+at the server).
 
-Even though tiles are the units of execution in RasDaMan, once a tile is inserted in an MDDObj, it is no longer an independent entity.  It should only be deleted from its storage domain through the MDD object it belongs to. Each MDDObj is responsible for managing its own tiles, including deallocation of memory occupied by the tiles.
-The memory management is delegated to the index.  Only when the MDDObjIx is deleted the tiles that were accessed during the transaction will be removed from memory.
+Even though tiles are the units of execution in RasDaMan, once a tile is
+inserted in an MDDObj, it is no longer an
+independent entity.  It should only be deleted from its storage domain through
+the MDD object it belongs to. Each MDDObj
+is responsible for managing its own tiles, including deallocation of memory
+occupied by the tiles.
+The memory management is delegated to the index.  Only when the MDDObjIx is
+deleted the tiles that were accessed during
+the transaction will be removed from memory.
 
 */
 class MDDObj : public NullValuesHandler
@@ -76,16 +100,21 @@ public:
         Creates a new transient MDD object with definition domain {\tt domain } and type (\tt mddType).
         The newly created object has no tiles.
     */
-    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, r_Nullvalues *newNullValues);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain,
+           r_Nullvalues *newNullValues);
     /**
-        Creates a new transient MDD object with definition domain {\tt domain }, type (\tt mddType) and null values newNullValues.
+        Creates a new transient MDD object with definition domain {\tt domain },
+       type (\tt mddType) and null values
+       newNullValues.
         The newly created object has no tiles.
     */
 
     /// Creates a new persistent MDD object using preallocated OId {\ttnewOId}.
-    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId &newOId, const StorageLayout &ms);
+    MDDObj(const MDDBaseType *mddType, const r_Minterval &domain,
+           const OId &newOId, const StorageLayout &ms);
     /**
-        Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
+        Creates a new persistent MDD object with definition domaini {\tt domain}
+       and type (\tt mddType).
         The newly created object has no tiles.
         {\ttnewOId } must have been previously allocated with {\tt OIdIf::allocateOId() }
         Throws an exception if the object already exists or if the OId is not valid.
@@ -115,7 +144,8 @@ public:
     ///
     MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const StorageLayout &ms);
     /**
-        Creates a new persistent MDD object with definition domain {\tt domain}, storage layout {\tt ms} and type {\tt mddType}.
+        Creates a new persistent MDD object with definition domain {\tt domain}, 
+        storage layout {\tt ms} and type {\tt mddType}.
         The newly created object has no tiles.
     */
 
@@ -137,7 +167,7 @@ public:
     //@Man: Printing the status of the object.
     //@{
     /// Prints current status of the object.
-    void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level, std::ostream &stream) const;
     //@}
 
     //@Man: Insertion of new tiles in the MDD object:
@@ -171,7 +201,10 @@ public:
     //@Man: Retrieval of tiles from the MDD object:
     //@{
     /**
-        The methods which allow access to tiles of the MDDObj return pointers to tiles in the object, which continue being managed by the MDDObject. For that reason, the caller should not free the returned pointers to tiles.
+        The methods which allow access to tiles of the MDDObj return pointers to
+       tiles in the object, which continue being
+       managed by the MDDObject. For that reason, the caller should not free the
+       returned pointers to tiles.
     */
 
     /// Finds all tiles of the object which intersect searchInter.
@@ -201,7 +234,6 @@ public:
     */
     //@}
 
-
     //@Man: Cell and domain properties of the MDD Object:
     //@{
 
@@ -223,7 +255,6 @@ public:
     /// Returns the dimensionality of the object.
     r_Dimension getDimension() const;
     //@}
-
 
     //@Man: Miscellaneous Methods
     //@{
@@ -278,21 +309,23 @@ protected:
     /// does some consistency checks for regular tiling with rc index
     const r_Minterval &checkStorage(const r_Minterval &domain);
 
-    ///The data class that holds all information
+    /// The data class that holds all information
     DBMDDObjId myDBMDDObj;
 
-    ///The index class that is used to access tile, before deleting thems
+    /// The index class that is used to access tile, before deleting thems
     MDDObjIx *myMDDIndex;
 
-    ///The storage class which is reponsible for the tiling
+    /// The storage class which is reponsible for the tiling
     StorageLayout *myStorageLayout;
 
 //      bool doNotUseThisBugFix;
     /**
-        The qlparser deletes transient mdd objects also in some cases (when passing transient mddobjs to a transient collection) this is bad.
-        Therefore the qlparser checks for transient mdds if they have this switch set to on, before deleting them.
+        The qlparser deletes transient mdd objects also in some cases (when
+       passing transient mddobjs to a transient
+       collection) this is bad.
+        Therefore the qlparser checks for transient mdds if they have this switch
+       set to on, before deleting them.
     */
-
 };
 
 #endif

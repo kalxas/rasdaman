@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include <climits>
 
 #include "config.h"
-#include "debug-srv.hh"
+
 #include "sqlerror.hh"
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
@@ -45,18 +45,16 @@ rasdaman GmbH.
 #include "relblobif/blobfs.hh"
 #include <logging.hh>
 
-using blobfs::BlobFS;
-
 extern char globalConnectId[PATH_MAX];
 
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
 
 /**
- * Check if a counter value matches the actual column value in the respective table.
+ * Check if a counter value matches the actual column value in the respective
+ * table.
  */
-void
-checkCounter(const char *counterName, const char *column,
-             const char *table, const char *tableDescr, bool &retval)
+void checkCounter(const char *counterName, const char *column,
+                  const char *table, const char *tableDescr, bool &retval)
 {
     if (retval)
     {
@@ -89,8 +87,7 @@ checkCounter(const char *counterName, const char *column,
     }
 }
 
-void
-closeDbConnection()
+void closeDbConnection()
 {
     SQLiteQuery::closeConnection();
 }
@@ -112,7 +109,7 @@ AdminIf::AdminIf(bool createDb)
     ObjectBroker::init();
 
     // check database consistency
-    if (!createDb)
+    if (!createDb /* && SQLiteQuery::isConnected() */)
     {
         bool rasbaseExists{};
         {
@@ -166,7 +163,7 @@ AdminIf::AdminIf(bool createDb)
         }
     }
 
-    BlobFS::getInstance();
+    blobfs::BlobFS::getInstance();
 
     closeDbConnection();
 

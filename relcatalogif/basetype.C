@@ -32,14 +32,11 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,BaseType: $Id: basetype.C,v 1.11 2001/06/20 08:06:37 hoefner Exp $";
 
 #include "basetype.hh"
-#include "reladminif/externs.h"
 #include <logging.hh>
 
-BaseType::BaseType(const char *name)
-    :   Type(name)
+BaseType::BaseType(const char *name) : Type(name)
 {
     LTRACE << "BaseType(" << getName() << ")";
 }
@@ -52,22 +49,17 @@ BaseType::BaseType(const char *name)
  * Description...: constructor
  ************************************************************/
 
-BaseType::BaseType()
-    :   Type("unnamed basetype")
+BaseType::BaseType() : Type("unnamed basetype")
 {
     LTRACE << "BaseType()";
 }
 
-BaseType::BaseType(const OId &id)
-    :   Type(id)
+BaseType::BaseType(const OId &id) : Type(id)
 {
     LTRACE << "BaseType(" << myOId << ")";
 }
 
-BaseType::BaseType(const BaseType &old)
-    :   Type(old)
-{
-}
+BaseType::BaseType(const BaseType &old)  = default;
 
 /*************************************************************
  * Method name...: ~BaseType()
@@ -77,14 +69,9 @@ BaseType::BaseType(const BaseType &old)
  * Description...: virtual destructor
  ************************************************************/
 
-BaseType::~BaseType() {}
+BaseType::~BaseType() noexcept(false)  = default;
 
-BaseType &
-BaseType::operator=(const BaseType &old)
-{
-    Type::operator=(old);
-    return *this;
-}
+BaseType &BaseType::operator=(const BaseType &old) = default;
 
 /*************************************************************
  * Method name...: UnaryOp* getUnaryOp( Ops::OpType optype )

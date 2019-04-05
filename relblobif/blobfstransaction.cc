@@ -21,22 +21,19 @@
 */
 
 #include "config.h"
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <limits.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <stdio.h>
-#include "blobfile.hh"
-#include "dirwrapper.hh"
+#include "blobfile.hh"               // for BlobFile
+#include "blobfscommon.hh"           // for BlobFSConfig, INVALID_BLOB_ID
 #include "blobfstransaction.hh"
-#include <logging.hh>
-#include "blobfstransactionlock.hh"
+#include "blobfstransactionlock.hh"  // for BlobFSTransactionLock
+#include "dirwrapper.hh"             // for DirEntryIterator, DirWrapper
 #include "reladminif/sqlitewrapper.hh"
+#include "raslib/error.hh"       // for r_Error, BLOBFILENOTFOUND, FAILE...
+#include "logging.hh"                // for LINFO, LERROR, LDEBUG
+
+#include <errno.h>                   // for errno
+#include <stdlib.h>                  // for mkdtemp
+#include <string.h>                  // for strerror
+#include <ostream>                   // for stringstream, basic_ostream, ope...
 
 using namespace std;
 using namespace blobfs;
@@ -46,7 +43,7 @@ using namespace blobfs;
 #endif
 
 #ifndef FILESTORAGE_DIRS_PER_DIR
-#define FILESTORAGE_DIRS_PER_DIR  16384
+#define FILESTORAGE_DIRS_PER_DIR 16384
 #endif
 
 const string BlobFSTransaction::FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR = "insert";
@@ -55,22 +52,20 @@ const string BlobFSTransaction::FILESTORAGE_REMOVE_TRANSACTIONS_SUBDIR = "remove
 
 BlobFSTransaction::~BlobFSTransaction()
 {
-    if (transactionLock != NULL)
-    {
-        delete transactionLock;
-        transactionLock = NULL;
-    }
+    delete transactionLock;
+    transactionLock = nullptr;
     if (!transactionPath.empty())
     {
         DirWrapper::removeDirectory(transactionPath);
     }
 }
 
-BlobFSTransaction::BlobFSTransaction(BlobFSConfig &configArg,
-                                     const std::string &transactionDir,
-                                     const std::string &fileStorageTransactionPathArg)
-    : config(configArg), transactionPath(DirWrapper::convertToCanonicalPath(fileStorageTransactionPathArg)),
-      transactionLock(NULL)
+BlobFSTransaction::BlobFSTransaction(
+    BlobFSConfig &configArg, const std::string &transactionDir,
+    const std::string &fileStorageTransactionPathArg)
+    : config(configArg),
+      transactionPath(DirWrapper::convertToCanonicalPath(fileStorageTransactionPathArg)),
+      transactionLock(nullptr)
 {
     if (fileStorageTransactionPathArg.empty() && !transactionDir.empty())
     {
@@ -84,21 +79,13 @@ BlobFSTransaction::BlobFSTransaction(BlobFSConfig &configArg,
 }
 
 BlobFSTransaction::BlobFSTransaction(BlobFSConfig &configArg)
-    : config(configArg), transactionLock(NULL)
-{
-}
+    : config(configArg), transactionLock(nullptr) {}
 
-void BlobFSTransaction::preRasbaseCommit()
-{
-}
+void BlobFSTransaction::preRasbaseCommit() {}
 
-void BlobFSTransaction::postRasbaseCommit()
-{
-}
+void BlobFSTransaction::postRasbaseCommit() {}
 
-void BlobFSTransaction::postRasbaseAbort()
-{
-}
+void BlobFSTransaction::postRasbaseAbort() {}
 
 const string BlobFSTransaction::getTmpBlobPath(long long blobId)
 {
@@ -240,7 +227,7 @@ bool BlobFSTransaction::addBlobId(const std::string blobPath)
 void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir)
 {
     string tempDirPath = config.transactionsPath + transactionSubdir + ".XXXXXX";
-    if (mkdtemp(const_cast<char *>(tempDirPath.c_str())) == NULL)
+    if (mkdtemp(const_cast<char *>(tempDirPath.c_str())) == nullptr)
     {
         LERROR << "failed creating transaction directory: " << tempDirPath;
         LERROR << "reason: " << strerror(errno);
@@ -249,7 +236,7 @@ void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir
     else
     {
         transactionPath = tempDirPath + '/';
-        if (transactionLock == NULL)
+        if (transactionLock == nullptr)
         {
             transactionLock = new BlobFSTransactionLock(transactionPath);
             transactionLock->lockForTransaction();
@@ -277,11 +264,12 @@ BlobFSTransaction *
 BlobFSTransaction::getBlobFSTransaction(const string &transactionPath,
                                         BlobFSConfig &config)
 {
-    BlobFSTransaction *ret = NULL;
+    BlobFSTransaction *ret = nullptr;
     if (!transactionPath.empty())
     {
-        string transactionDir = transactionPath.substr(config.transactionsPath.size(),
-                                FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR.size());
+        string transactionDir =
+            transactionPath.substr(config.transactionsPath.size(),
+                                   FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR.size());
         if (transactionDir == FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR)
         {
             ret = new BlobFSInsertTransaction(config, transactionPath);
@@ -300,11 +288,9 @@ BlobFSTransaction::getBlobFSTransaction(const string &transactionPath,
 
 // -- insert
 
-BlobFSInsertTransaction::BlobFSInsertTransaction(BlobFSConfig &configArg,
-        const string &fileStorageTransactionPathArg)
-    : BlobFSTransaction(configArg, FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
-{
-}
+BlobFSInsertTransaction::BlobFSInsertTransaction(
+    BlobFSConfig &configArg, const string &fileStorageTransactionPathArg)
+    : BlobFSTransaction(configArg, FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg) {}
 
 void BlobFSInsertTransaction::add(BlobData &blob)
 {
@@ -344,11 +330,9 @@ void BlobFSInsertTransaction::postRasbaseAbort()
 
 // -- update
 
-BlobFSUpdateTransaction::BlobFSUpdateTransaction(BlobFSConfig &configArg,
-        const string &fileStorageTransactionPathArg)
-    : BlobFSTransaction(configArg, FILESTORAGE_UPDATE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
-{
-}
+BlobFSUpdateTransaction::BlobFSUpdateTransaction(
+    BlobFSConfig &configArg, const string &fileStorageTransactionPathArg)
+    : BlobFSTransaction(configArg, FILESTORAGE_UPDATE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg) {}
 
 void BlobFSUpdateTransaction::add(BlobData &blob)
 {
@@ -388,11 +372,9 @@ void BlobFSUpdateTransaction::postRasbaseAbort()
 
 // -- remove
 
-BlobFSRemoveTransaction::BlobFSRemoveTransaction(BlobFSConfig &configArg,
-        const string &fileStorageTransactionPathArg)
-    : BlobFSTransaction(configArg, FILESTORAGE_REMOVE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg)
-{
-}
+BlobFSRemoveTransaction::BlobFSRemoveTransaction(
+    BlobFSConfig &configArg, const string &fileStorageTransactionPathArg)
+    : BlobFSTransaction(configArg, FILESTORAGE_REMOVE_TRANSACTIONS_SUBDIR, fileStorageTransactionPathArg) {}
 
 void BlobFSRemoveTransaction::add(BlobData &blob)
 {
@@ -479,9 +461,7 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
 // -- select/retrieve
 
 BlobFSSelectTransaction::BlobFSSelectTransaction(BlobFSConfig &configArg)
-    : BlobFSTransaction(configArg)
-{
-}
+    : BlobFSTransaction(configArg) {}
 
 void BlobFSSelectTransaction::add(BlobData &blob)
 {

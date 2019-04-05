@@ -30,10 +30,6 @@ rasdaman GmbH.
  *
 */
 
-// -*-C++-*- (for Emacs)
-#include "raslib/error.hh"
-#include <logging.hh>
-
 inline r_Dimension
 r_Minterval::dimension() const
 {
@@ -76,67 +72,6 @@ r_Minterval::is_high_fixed() const
         {
             retval &= intervals[i].is_high_fixed();
         }
-    }
-
-    return retval;
-}
-
-
-
-inline bool
-r_Minterval::covers(const r_Point &pnt) const
-{
-    bool retval = true;
-    if (dimensionality == pnt.dimension())
-    {
-        for (r_Dimension i = 0; i < pnt.dimension(); i++)
-        {
-            if ((intervals[i].is_low_fixed() && pnt[i] < intervals[i].low()) || (intervals[i].is_high_fixed() && pnt[i] > intervals[i].high()))
-            {
-                retval = false;
-                break;
-            }
-        }
-    }
-    else
-    {
-        LERROR << "r_Minterval::covers(" << pnt << ") dimensions do not match";
-        retval = false;
-    }
-
-    return retval;
-}
-
-
-inline bool
-r_Minterval::covers(const r_Minterval &inter2) const
-{
-    bool retval = true;
-    if (dimensionality == inter2.dimension())
-    {
-        for (r_Dimension i = 0; i < dimensionality ; i++)
-        {
-            // first check if it is low fixed and the other isn't: false
-            // both are low fixed
-            // check if it is smaller than the other: false
-            // second check if it is high fixed and the other isn't: false
-            // both are high fixed
-            // check if it is smaller than the other: false
-            if (
-                (intervals[i].is_low_fixed() && (!(inter2[i].is_low_fixed()) || intervals[i].low() > inter2[i].low()))
-                ||
-                (intervals[i].is_high_fixed() && (!(inter2[i].is_high_fixed()) || intervals[i].high() < inter2[i].high()))
-            )
-            {
-                retval = false;
-                break;
-            }
-        }
-    }
-    else
-    {
-        LERROR << "r_Minterval::covers(" << inter2 << ") dimensions do not match";
-        retval = false;
     }
 
     return retval;

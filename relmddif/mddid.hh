@@ -26,11 +26,13 @@ rasdaman GmbH.
 class DBMDDObj;
 class DBMDDSet;
 
-template <class T> class DBRef;
-template <class T> class DBObjectIdIterator;
+template <class T>
+class DBRef;
+template <class T>
+class DBObjectIdIterator;
 
-typedef DBRef<DBMDDObj> DBMDDObjId;
-typedef DBRef<DBMDDSet> DBMDDSetId;
-typedef DBObjectIdIterator<DBMDDObj> DBMDDObjIdIter;
+using DBMDDObjId = DBRef<DBMDDObj>;
+using DBMDDSetId = DBRef<DBMDDSet>;
+using DBMDDObjIdIter = DBObjectIdIterator<DBMDDObj>;
 
 #endif

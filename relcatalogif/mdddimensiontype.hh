@@ -37,7 +37,7 @@ rasdaman GmbH.
 #ifndef _MDDDIMENSIONTYPE_HH_
 #define _MDDDIMENSIONTYPE_HH_
 
-#include <iostream>
+#include <iosfwd>
 #include "raslib/mddtypes.hh"
 #include "catalogmgr/ops.hh"
 #include "mddbasetype.hh"
@@ -57,13 +57,13 @@ class OId;
 class MDDDimensionType : public MDDBaseType
 {
 public:
-    virtual char *getTypeStructure() const;
+    char *getTypeStructure() const override;
     /*@Doc:
     */
 
-    virtual char *getNewTypeStructure() const;
+    char *getNewTypeStructure() const override;
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     the memory size is computed by:
     MDDBaseType::getMemorySize() + sizeof(r_Dimension);
@@ -73,7 +73,8 @@ public:
     /*@Doc:
     */
 
-    MDDDimensionType(const char *newTypeName, const BaseType *newBaseType, r_Dimension newDimension);
+    MDDDimensionType(const char *newTypeName, const BaseType *newBaseType,
+                     r_Dimension newDimension);
     /*@Doc:
     constructor.
     */
@@ -93,7 +94,7 @@ public:
     assignment operator.
     */
 
-    virtual void print_status(ostream &s) const;
+    void print_status(std::ostream &s) const override;
     /*@Doc:
     writes the state of the object to the specified stream
     */
@@ -103,12 +104,12 @@ public:
     return dimensionality
     */
 
-    virtual ~MDDDimensionType() noexcept(false);
+    ~MDDDimensionType() noexcept(false) override;
     /*@Doc:
     virtual destructor.
     */
 
-    virtual int compatibleWith(const Type *aType) const;
+    int compatibleWith(const Type *aType) const override;
     /*@Doc:
     is compatible if:
         aType is MDDDimType or MDDDomType and
@@ -117,12 +118,11 @@ public:
     */
 
 protected:
+    void insertInDb() override;
 
-    virtual void insertInDb();
+    void readFromDb() override;
 
-    virtual void readFromDb();
-
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 
     r_Dimension myDimension;
     /*@Doc:
