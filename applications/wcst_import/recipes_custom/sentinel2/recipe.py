@@ -110,6 +110,8 @@ class Recipe(GeneralCoverageRecipe):
     BANDS = { LVL_L1C: BANDS_L1C, LVL_L2A: BANDS_L2A }
     DEFAULT_CRS = "OGC/0/AnsiDate@EPSG/0/${crsCode}"
     DEFAULT_IMPORT_ORDER = GdalToCoverageConverter.IMPORT_ORDER_ASCENDING
+
+    DEFAULT_NULL_VALUE = 0
     
     #
     # public
@@ -369,7 +371,10 @@ class Recipe(GeneralCoverageRecipe):
         bands_metadata_fields = {}
         axis_metadata_fields = {}
 
-        return GdalToCoverageConverter(self.resumer, 
+        default_null_values = [self.DEFAULT_NULL_VALUE]
+
+        return GdalToCoverageConverter(self.resumer,
+                                       default_null_values,
                                        recipe_type, 
                                        sentence_evaluator, 
                                        cov_id, 

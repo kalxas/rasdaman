@@ -6,7 +6,7 @@
     "automated": true,
     "track_files": false,
     "subset_correction": false,
-    "default_null_values": ["-9999"]
+    "default_null_values": ["0"]
   },
   "input": {
     "coverage_id": "Sentinel_2A_BY_B040302_0101",

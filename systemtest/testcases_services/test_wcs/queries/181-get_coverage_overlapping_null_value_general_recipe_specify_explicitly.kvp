@@ -1,0 +1,5 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=GetCoverage&
+COVERAGEID=test_wcs_overlapping_null_value_explicitly_specify_general_recipe&
+format=image/png

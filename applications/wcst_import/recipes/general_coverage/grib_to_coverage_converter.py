@@ -79,13 +79,14 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
     MIMETYPE = "application/grib"
     RECIPE_TYPE = "grib"
 
-    def __init__(self, resumer, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
+    def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields, axes_metadata_fields,
                  metadata_type,
                  grid_coverage, pixel_is_point, import_order):
         """
         Converts a grib list of files to a coverage
         :param resumer: Resumer object
+        :param default_null_values: list of null values from ingredient files if specified
         :param recipe_type: the type of recipe
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
@@ -105,6 +106,7 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         """
         AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
         self.resumer = resumer
+        self.default_null_values = default_null_values
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands
@@ -133,6 +135,9 @@ class GRIBToCoverageConverter(AbstractToCoverageConverter):
         """
         if len(self.files) < 1:
             raise RuntimeException("No files to import were specified.")
+
+        if self.default_null_values is not None:
+            return self.default_null_values
 
         # NOTE: all files should have same bands's metadata
         try:

@@ -26,11 +26,6 @@ from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
 from util.file_util import FileUtil
 from util.gdal_field import GDALField
-from util.log import log
-from functools import wraps # for caching in _get_spatial_ref
-import re
-import math
-
 
 _spatial_ref_cache = {}
 

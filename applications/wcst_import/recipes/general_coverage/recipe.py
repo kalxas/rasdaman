@@ -47,6 +47,7 @@ from util.string_util import escape_metadata_nested_dicts
 from util.file_util import FileUtil
 from util.gdal_util import GDALGmlUtil
 from master.importer.resumer import Resumer
+from util.list_util import get_null_values
 
 
 class Recipe(BaseRecipe):
@@ -209,6 +210,15 @@ class Recipe(BaseRecipe):
         """
         if "bands" in self.options['coverage']['slicer']:
             bands = self.options['coverage']['slicer']['bands']
+
+            number_of_bands = len(bands)
+
+            # NOTE: rasdaman supports 1 band grib only to import
+            recipe_type = self.options['coverage']['slicer']['type']
+            if recipe_type == GRIBToCoverageConverter.RECIPE_TYPE and number_of_bands > 1:
+                raise RuntimeError("Only single band grib files are currently supported. "
+                                   "Given " + str(number_of_bands) + " bands in ingredient file.")
+
             ret_bands = []
             for band in bands:
                 ret_bands.append(UserBand(
@@ -594,6 +604,13 @@ class Recipe(BaseRecipe):
                 "No valid slicer could be found, given: " + recipe_type)
         return coverage
 
+    def __get_default_null_values(self):
+        null_values = None
+        if len(self.session.default_null_values) > 0:
+            null_values = get_null_values(self.session.default_null_values)
+
+        return null_values
+
     def _get_gdal_coverage(self, recipe_type):
         """
         Returns a coverage that uses the gdal slicer
@@ -602,7 +619,8 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GdalToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = GdalToCoverageConverter(self.resumer, self.__get_default_null_values(),
+                                           recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),
@@ -627,7 +645,8 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = NetcdfToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = NetcdfToCoverageConverter(self.resumer, self.__get_default_null_values(),
+                                             recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
                                              self.options['tiling'], self._netcdf_global_metadata_fields(),
@@ -651,7 +670,9 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = GRIBToCoverageConverter(self.resumer, recipe_type, sentence_evaluator, self.session.get_coverage_id(),
+        coverage = GRIBToCoverageConverter(self.resumer, self.__get_default_null_values(),
+                                           recipe_type,
+                                           sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
                                            self.options['tiling'], self._global_metadata_fields(),

@@ -75,6 +75,8 @@ class Recipe(GeneralCoverageRecipe):
 
     DEFAULT_IMPORT_ORDER = GdalToCoverageConverter.IMPORT_ORDER_ASCENDING
 
+    DEFAULT_NULL_VALUE = 0;
+
     #
     # public
     #
@@ -303,7 +305,10 @@ class Recipe(GeneralCoverageRecipe):
         bands_metadata_fields = {}
         axis_metadata_fields = {}
 
+        default_null_values = [self.DEFAULT_NULL_VALUE]
+
         return GdalToCoverageConverter(self.resumer,
+                                       default_null_values,
                                        recipe_type,
                                        sentence_evaluator,
                                        cov_id,

@@ -100,3 +100,17 @@ def __get_time_axis_order(axis_subsets):
         i += 1
 
     return None
+
+
+def get_null_values(default_null_values):
+    """
+    Parse from 1 list of user-defined null values to individual null values
+     (e.g: ["20", "30, 40, 50"] -> [20, 30, 40, 50])
+    :param list[str] default_null_values: user defined null values in ingredient file
+    """
+    null_values = []
+    for value in default_null_values:
+        values = str(value).strip().split(",")
+        null_values += values
+
+    return null_values

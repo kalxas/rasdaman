@@ -1,0 +1,55 @@
+{
+   "config":{
+      "service_url":"PETASCOPE_URL",
+      "track_files":false,
+      "mock":false,
+      "automated":true,
+      "default_null_values": [
+         0
+      ]
+   },
+   "input":{
+      "coverage_id":"test_wcs_overlapping_null_value_explicitly_specify_general_recipe",
+      "paths":[
+         "*.tif"
+      ]
+   },
+   "recipe":{
+      "name":"general_coverage",
+      "options":{
+         "coverage":{
+            "crs":"EPSG/0/32651",
+            "metadata":{
+               "type":"json",
+               "global":{
+                  "AOI":"UK"
+               }
+            },
+            "slicer":{
+               "type":"gdal",
+               "bands":[
+                  {
+                     "name":"Gray",
+                     "identifier":"1"
+                  }
+               ],
+               "axes":{
+                  "N":{
+                     "min":"${gdal:minY}",
+                     "max":"${gdal:maxY}",
+                     "resolution":"${gdal:resolutionY}",
+                     "gridOrder":1
+                  },
+                  "E":{
+                     "min":"${gdal:minX}",
+                     "max":"${gdal:maxX}",
+                     "resolution":"${gdal:resolutionX}",
+                     "gridOrder":0
+                  }
+               }
+            }
+         },
+         "tiling":"ALIGNED [0:1023, 0:1023] TILE SIZE 4194304"
+      }
+   }
+}

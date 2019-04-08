@@ -48,7 +48,7 @@ from util.log import log
 class NetcdfToCoverageConverter(AbstractToCoverageConverter):
     RECIPE_TYPE = "netcdf"
 
-    def __init__(self, resumer, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
+    def __init__(self, resumer, default_null_values, recipe_type, sentence_evaluator, coverage_id, bands, files, crs, user_axes, tiling,
                  global_metadata_fields, local_metadata_fields, bands_metadata_fields,
                  axes_metadata_fields,
                  metadata_type,
@@ -56,6 +56,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         """
         Converts a netcdf list of files to a coverage
         :param resumer: Resumber object
+        :param default_null_values: list of null values from ingredient files if specified
         :param recipe_type: the type of recipe
         :param SentenceEvaluator sentence_evaluator: the evaluator for wcst sentences
         :param str coverage_id: the id of the coverage
@@ -74,6 +75,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         :param import_order: ascending(default), descending if specified in ingredient file
         """
         AbstractToCoverageConverter.__init__(self, resumer, recipe_type, sentence_evaluator, import_order)
+        self.default_null_values = default_null_values
         self.sentence_evaluator = sentence_evaluator
         self.coverage_id = coverage_id
         self.bands = bands
@@ -106,6 +108,9 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
         """
         if len(self.files) < 1:
             raise RuntimeException("No netcdf files given for import!")
+
+        if self.default_null_values is not None:
+            return self.default_null_values
 
         netCDF4 = import_netcdf4()
         # NOTE: all files should have same bands's metadata for each file
