@@ -1,0 +1,4 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=DescribeCoverage&
+COVERAGEID=test_pre_hook_merge_3_bands

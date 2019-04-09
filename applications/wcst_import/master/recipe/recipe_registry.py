@@ -128,9 +128,11 @@ class RecipeRegistry:
                 cmd = self.sentence_evaluator.evaluate(cmd_template, evaluator_slice)
                 self.__run_shell_command(cmd, abort_on_error)
 
-                if FileExpressionEvaluator.FILE_PATH_EXPRESSION not in cmd_template:
-                    # Only need to run hook once if ${file:path} does not exist in cmd command,
-                    # otherwise it runs duplicate commands for nothing (!)
+                if FileExpressionEvaluator.PREFIX not in cmd_template:
+                    # Only need to run hook once if ${...} does not exist in cmd command,
+                    # otherwise it runs duplicate commands multiple times (!)
+                    if replace_path_template is not None:
+                        replace_paths.append(FilePair(replace_path_template, file.filepath))
                     break
 
                 if replace_path_template is not None:

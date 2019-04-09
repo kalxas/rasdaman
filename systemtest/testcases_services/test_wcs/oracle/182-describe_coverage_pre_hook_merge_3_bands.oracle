@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions 
+
+
+
+
+
+>
+<wcs:CoverageDescription id="test_pre_hook_merge_3_bands">
+<boundedBy>
+<Envelope axisLabels="E N" srsDimension="2"
+srsName="/crs/EPSG/0/32632" uomLabels="metre metre">
+<lowerCorner>399960 5999400</lowerCorner>
+<upperCorner>400560 6000000</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_pre_hook_merge_3_bands</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata/>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_pre_hook_merge_3_bands-grid">
+<limits>
+<GridEnvelope>
+<low>0 0</low>
+<high>9 9</high>
+</GridEnvelope>
+</limits>
+<axisLabels>E N</axisLabels>
+<origin>
+<Point
+id="test_pre_hook_merge_3_bands-point" srsName="/crs/EPSG/0/32632">
+<pos>399990 5999970</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/EPSG/0/32632">60 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/32632">0 -60</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity>
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_2">
+<swe:Quantity>
+<swe:label>field_2</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_3">
+<swe:Quantity>
+<swe:label>field_3</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
+</wcs:CoverageDescriptions>
