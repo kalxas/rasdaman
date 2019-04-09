@@ -178,6 +178,7 @@ class Importer:
 
         for i in range(self.processed, self.total):
             try:
+                index = "{}/{}".format(str(i + 1), str(self.total))
                 # Log the time to send the slice (file) to server to ingest
                 # NOTE: in case of using wcs_extract recipe, it will fetch file from server, so don't know the file size
                 if hasattr(self.coverage.slices[i].data_provider, "file"):
@@ -191,7 +192,7 @@ class Importer:
                         pass
                     start_time = time.time()
                     self._insert_slice(self.coverage.slices[i])
-                    self._log_file_ingestion(file_name, start_time, file_size_in_mb, is_loggable, log_file)
+                    self._log_file_ingestion(index, file_name, start_time, file_size_in_mb, is_loggable, log_file)
                 else:
                     is_ingest_file = False
                     # extract coverage from petascope to ingest a new coverage
@@ -220,7 +221,7 @@ class Importer:
             log_file.write("\nResult: success.")
             log_file.close()
     
-    def _log_file_ingestion(self, file_name, start_time, file_size_in_mb, is_loggable, log_file):
+    def _log_file_ingestion(self, index, file_name, start_time, file_size_in_mb, is_loggable, log_file):
         end_time = time.time()
         time_to_ingest = round(end_time - start_time, 2)
         if time_to_ingest < 0.0000001:
@@ -228,10 +229,10 @@ class Importer:
 
         if file_size_in_mb != 0:
             size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-            log_text = "File '{}' of size '{}' MB; Total time to ingest file {} s @ {} MB/s.".format(file_name,
+            log_text = "{} - File '{}' of size {} MB; Total time to ingest file {} s @ {} MB/s.".format(index, file_name,
                                                                 file_size_in_mb, time_to_ingest, size_per_second)
         else:
-            log_text = "Total time to ingest file '{}': {} s.".format(file_name, time_to_ingest)
+            log_text = "Total time to ingest {} - file '{}': {} s.".format(index, file_name, time_to_ingest)
 
         log_text = prepend_time(log_text)
         # write to console

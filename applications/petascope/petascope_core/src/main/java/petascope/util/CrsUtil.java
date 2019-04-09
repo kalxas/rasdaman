@@ -543,7 +543,7 @@ public class CrsUtil {
                 ret = doc.getRootElement();
             }
         } catch (IOException | ParsingException | PetascopeException ex) {
-            log.debug("Error while building the document from URL '" + url + "'", ex);
+            log.warn("Error while building the document from URL '" + url + "'", ex);
             ret = null;
         }
         return ret;

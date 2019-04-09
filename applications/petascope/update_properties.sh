@@ -207,6 +207,19 @@ if [[ "$keep_backup" == 0 ]]; then
     check
 fi
 
+# replace misconfiugration for log4j rolling file appender for strategy 2
+matchLine="log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy"
+oldLine="log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender"
+newLine="log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender"
+
+# Case 1: Using logging strategy 2
+grep --quiet -E "^$matchLine" "$new_file_tmp" && \
+sed -i "s/^$oldLine/$newLine/g" "$new_file_tmp"
+
+# Case 2: Using logging strategy 1 (logging strategy 2 is commented out)
+grep --quiet -E "^# *$matchLine" "$new_file_tmp" && \
+sed -i "s/^# *$oldLine/# $newLine/g" "$new_file_tmp"
+
 # ---------------------------------------------
 #6 Remove old_file properties file and rename new_file.tmp to the original file
 rm -f "$old_file" && mv "$new_file_tmp" "$old_file" # rename new_file.tmp to old file.

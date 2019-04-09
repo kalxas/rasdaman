@@ -146,8 +146,12 @@ public class ConfigManager {
 
     /* ***** SECORE configuration ***** */
     public static List<String> SECORE_URLS;
-    public static final int CRSRESOLVER_CONN_TIMEOUT = 60000;
-    public static final int CRSRESOLVER_READ_TIMEOUT = 60000;
+    
+    // NOTE: When Petascope imports multiple coverages in different CRSs (e.g: Sentinel 2 UTM zones),
+    // it will take long time to ask SECORE when it sends multiple CRS requests to SECORE.
+    // Hence, time out is increased to 2 minutes.    
+    public static final int CRSRESOLVER_CONN_TIMEOUT = 120000;
+    public static final int CRSRESOLVER_READ_TIMEOUT = 120000;
 
     /* ***** WCST configuration ***** */
     // disable write operations (WCST)
