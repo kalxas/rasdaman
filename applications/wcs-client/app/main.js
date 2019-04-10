@@ -2877,7 +2877,10 @@ var rasdaman;
                     var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
                     var parser = new DOMParser();
                     var xmlDoc = parser.parseFromString(rawCoverageDescription, "text/xml");
-                    var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                    var gridBoundsLowElement = xmlDoc.evaluate("//*[local-name() = 'low']", xmlDoc, null, XPathResult.ANY_TYPE, null);
+                    var gridBoundsHighElement = xmlDoc.evaluate("//*[local-name() = 'high']", xmlDoc, null, XPathResult.ANY_TYPE, null);
+                    var gridLowerBounds = gridBoundsLowElement.iterateNext().textContent.split(" ");
+                    var gridUpperBounds = gridBoundsHighElement.iterateNext().textContent.split(" ");
                     var offsetVectorElements = xmlDoc.evaluate("//*[local-name() = 'offsetVector']", xmlDoc, null, XPathResult.ANY_TYPE, null);
                     var coefficientsElements = xmlDoc.evaluate("//*[local-name() = 'coefficients']", xmlDoc, null, XPathResult.ANY_TYPE, null);
                     var offsetVectorElement = offsetVectorElements.iterateNext();
@@ -2888,7 +2891,8 @@ var rasdaman;
                     if (axisType == $scope.IRREGULAR_AXIS) {
                         axisResolution = $scope.NOT_AVALIABLE;
                     }
-                    $scope.axes[i] = { "resolution": axisResolution, "type": axisType };
+                    $scope.axes[i] = { "resolution": axisResolution, "type": axisType,
+                        "gridLowerBound": gridLowerBounds[0], "gridUpperBound": gridUpperBounds[0] };
                     while (offsetVectorElement) {
                         i++;
                         offsetVectorElement = offsetVectorElements.iterateNext();
@@ -2904,9 +2908,11 @@ var rasdaman;
                         if (axisType == $scope.IRREGULAR_AXIS) {
                             axisResolution = $scope.NOT_AVALIABLE;
                         }
-                        $scope.axes[i] = { "resolution": axisResolution, "type": axisType };
+                        $scope.axes[i] = { "resolution": axisResolution, "type": axisType,
+                            "gridLowerBound": gridLowerBounds[i], "gridUpperBound": gridUpperBounds[i] };
                     }
                     var metadataContent = "";
+                    var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
                     if (elements.length > 0) {
                         metadataContent = elements[0].innerHTML;
                     }

@@ -26,7 +26,8 @@
                         <thead>
                             <th>Axis name</th>
                             <th>Type</th>
-                            <th>Extent</th>
+                            <th>Geo Extent</th>
+                            <th>Grid Extent</th>
                             <th>Resolution</th>
                             <th>UoM</th>
                         </thead>
@@ -35,6 +36,7 @@
                                 <td>{{axisLabel}}</td>
                                 <td>{{axes[$index].type}}</td>
                                 <td>[{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}, {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]</td>
+                                <td>[{{axes[$index].gridLowerBound}}, {{axes[$index].gridUpperBound}}]</td>
                                 <td>{{axes[$index].resolution}}</td>
                                 <td>{{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</td>
                             </tr>
