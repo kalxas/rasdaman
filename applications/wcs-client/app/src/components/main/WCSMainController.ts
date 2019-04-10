@@ -64,7 +64,7 @@ module rasdaman {
                 getCoveragesExtents: null,
                 selectedCoverageDescriptions: null,
                 selectedGetCoverageId: null,
-                reloadServerCapabilities: null
+                reloadServerCapabilities: true
             };
 
             // When click on the coverageId in the table of GetCapabilities tab,

@@ -202,8 +202,10 @@ module rasdaman {
                 }
             }
 
-            // look at the showed/hided coverage extent's center
-            this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            if (coverageExtent != null) {
+                // look at the showed/hided coverage extent's center
+                this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            }
 
             // Iterate the current loaded polygons to remove a polygon for input coverageId
             for (var i = 0; i < polygonLayer.renderables.length; i++) {

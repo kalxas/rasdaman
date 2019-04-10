@@ -123,10 +123,13 @@ module rasdaman {
 
                         $scope.firstChangedSlider = [];
                         
-
                         // Fetch the coverageExtent by layerName to display on globe if possible
                         // as WMS layer name is as same as WCS coverageId
-                        var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
+                        var coveragesExtents = [{"bbox": {"xmin": $scope.layer.coverageExtent.bbox.xmin,
+                                                          "ymin": $scope.layer.coverageExtent.bbox.ymin,
+                                                          "xmax": $scope.layer.coverageExtent.bbox.xmax,
+                                                          "ymax": $scope.layer.coverageExtent.bbox.ymax}
+                                               }];
 
                         // And load the layer as footprint on the globe
                         // Show coverage's extent on the globe                        
@@ -272,7 +275,7 @@ module rasdaman {
                 var stepLong = ($scope.bboxLayer.xmax - $scope.bboxLayer.xmin) / numberStepsLong;
 
                 // Latitude slider
-                $("#lat").slider({
+                $("#latSlider").slider({
                     max: numberStepsLat,
                     range: true,
                     values: [0, numberStepsLat],
@@ -296,10 +299,9 @@ module rasdaman {
                         $scope.bboxLayer = auxbBox;
 
                         // Update the lat info tooltip of the sliders
-                        var tooltip = minLat + ':' + maxLat;
-                        $('#lat').tooltip();
-                        $('#lat').attr('data-original-title', tooltip);
-                        $('#lat').tooltip('show');
+                        var tooltip = minLat + ':' + maxLat;                        
+                        $("#latSlider").attr('data-original-title', tooltip);
+                        $("#latSlider").tooltip('show');
                     
                         // Update the GetMap url
                         var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
@@ -315,12 +317,15 @@ module rasdaman {
                     }
                 });
 
+                $("#latSlider").tooltip();
+                $("#latSlider").attr('data-original-title', $scope.bboxLayer.ymin + ':' + $scope.bboxLayer.ymax);
+
                 // If the lat slider hasn't yet been moved set it to the initial position
-                if($scope.firstChangedSlider[1] == false) {
-                    $( "#lat" ).slider('values', [0, numberStepsLat]);
+                if ($scope.firstChangedSlider[1] == false) {
+                    $("#latSlider").slider('values', [0, numberStepsLat]);
                 }
                 
-                $("#long").slider({
+                $("#longSlider").slider({
                     max: numberStepsLong,
                     range: true,
                     values: [0, numberStepsLong],
@@ -344,10 +349,9 @@ module rasdaman {
                         $scope.bboxLayer = auxbBox;
 
                         // Update the long info tooltip of the sliders
-                        var tooltip = minLong + ':' + maxLong;
-                        $('#long').tooltip();
-                        $('#long').attr('data-original-title', tooltip);
-                        $('#long').tooltip('show');
+                        var tooltip = minLong + ':' + maxLong;                        
+                        $("#longSlider").attr('data-original-title', tooltip);
+                        $("#longSlider").tooltip('show');
 
                         // Update the GetMap url
                         var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
@@ -363,14 +367,17 @@ module rasdaman {
                     }
                 });
 
+                $("#longSlider").tooltip();
+                $("#longSlider").attr('data-original-title', $scope.bboxLayer.xmin + ':' + $scope.bboxLayer.xmax);
+
                 // If the long slider hasn't yet been moved set it to the initial position
-                if($scope.firstChangedSlider[2] == false) {
-                    $( "#long" ).slider('values', [0, numberStepsLong]);
+                if ($scope.firstChangedSlider[2] == false) {
+                    $("#longSlider").slider('values', [0, numberStepsLong]);
                 }
 
                 var sufixSlider = "d";
 
-                for(var j = 3; j <= dimensions; j++) {
+                for (var j = 3; j <= dimensions; j++) {
                     // Create for each dimension the view components for its corresponding slider 
                     $("<div />", { class:"containerSliders", id:"containerSlider"+j+sufixSlider})
                         .appendTo( $("#sliders"));
@@ -382,32 +389,23 @@ module rasdaman {
                     $("<div />", { class:"slider", id:"slider"+j+sufixSlider})
                         .appendTo( $("#containerSlider"+j+sufixSlider));
 
-                    $("#slider"+j+sufixSlider).attr('data-toggle', 'tooltip');
-                    $("#slider"+j+sufixSlider).attr('title', 'dimension');
-
-
+                    let sliderId = "#slider" + j + sufixSlider;
+                  
                     // Controler of the slider
                     $( function() {
-                        $( "#slider"+j+sufixSlider ).slider({
+                        $(sliderId).slider({
                             // Set for each dimension the number of steps on its corresponding the slider
                             max: $scope.layer.layerDimensions[j].array.length - 1,
                             // Initialisations for each slider
                             create: function(event, slider) {
                                 // Define the variables such that they can be seen inside the slider code
-                                this.sliderObj = $scope.layer.layerDimensions[j];
-                                this.sliderPos = j;
+                                this.sliderObj = $scope.layer.layerDimensions[j];                                
                                 var sizeSlider = $scope.layer.layerDimensions[j].array.length - 1;
-
-                                // Add the first and the last index below the slider
-                                $("<label>"+this.sliderObj.array[0]+"</label>").css('left', '0%')
-                                    .appendTo( $("#slider"+j+sufixSlider));
-                                $("<label>"+this.sliderObj.array[sizeSlider]+"</label>").css('left', '100%')
-                                    .appendTo( $("#slider"+j+sufixSlider));
                                 
                                 // Add the index lines below the slider
-                                for(var it = 1; it < sizeSlider; ++it) {
+                                for (var it = 1; it < sizeSlider; ++it) {
                                     $("<label>|</label>").css('left', (it/sizeSlider*100)+'%')
-                                        .appendTo( $("#slider"+j+sufixSlider));
+                                        .appendTo($(sliderId));
                                 }
                                 
                             },
@@ -417,36 +415,39 @@ module rasdaman {
                                 $scope.firstChangedSlider[this.sliderPos] = true;
 
                                 // Update the GetMap url
-                                if(this.sliderObj.isTemporal == true) {
-                                    dimStr[this.sliderPos] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
+                                if (this.sliderObj.isTemporal == true) {
+                                    dimStr[j] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
                                     $scope.timeString = this.sliderObj.array[slider.value];
-                                }
-                                else {
-                                    dimStr[this.sliderPos] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
+                                } else {
+                                    dimStr[j] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
                                 }
 
                                 var pos1 = url.indexOf('&' + this.sliderObj.name + '=');
                                 var pos2 = url.indexOf('&', pos1 + 1);
-                                url = url.substr(0, pos1 + 1) + dimStr[this.sliderPos] + url.substr(pos2, url.length - pos2);
+                                url = url.substr(0, pos1 + 1) + dimStr[j] + url.substr(pos2, url.length - pos2);
                                 $scope.getMapRequestURL = url;
                                 
                                 // Update the dimenitional info tooltip of the slider
-                                var tooltip = this.sliderObj.array[slider.value];
-                                $("#slider"+this.sliderPos+sufixSlider).tooltip();
-                                $("#slider"+this.sliderPos+sufixSlider).attr('data-original-title', tooltip);
-                                $("#slider"+this.sliderPos+sufixSlider).tooltip('show');
+                                var tooltip = this.sliderObj.array[slider.value];                                
+                                $(sliderId).attr('data-original-title', tooltip);
+                                $(sliderId).tooltip('show');
 
                                 renewDisplayedWMSGetMapURL(url);
 
                                 // Load the changed footprint of the layer on the globe
-                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
+                                webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, 
+                                                                            $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
                             }
                         });
                     } );
 
+                    $(sliderId).tooltip();
+                    $(sliderId).attr('data-original-title', $scope.layer.layerDimensions[j].array[0]);
+                    
+
                     // If the i-th dimentional slider hasn't yet been moved set it to the initial position
-                    if($scope.firstChangedSlider[j] == false) {
-                        $( "#slider"+j+sufixSlider ).slider('value', 0);
+                    if ($scope.firstChangedSlider[j] == false) {
+                        $(sliderId).slider('value', 0);
                     }
                 }
             }

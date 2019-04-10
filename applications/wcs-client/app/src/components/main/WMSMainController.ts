@@ -50,7 +50,7 @@ module rasdaman {
             // from DescribeLayer controller will not work and return null.
             $scope.wmsStateInformation = {
                 serverCapabilities: null,
-                reloadServerCapabilities: null
+                reloadServerCapabilities: true
             };
         }
 

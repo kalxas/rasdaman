@@ -121,9 +121,16 @@ module rasdaman {
                 }                
             }
 
+            // rootScope broadcasts an event to all children controllers
+            $scope.$on("reloadWCSServerCapabilities", function(event, b) {                
+                $scope.getServerCapabilities();
+            });
+
             // When deleteCoverage, insertCoverage is called sucessfully, it should reload the new capabilities
             $scope.$watch("wcsStateInformation.reloadServerCapabilities", (capabilities:wcs.Capabilities)=> {
-                $scope.getServerCapabilities();
+                if ($scope.wcsStateInformation.reloadServerCapabilities == true) {
+                    $scope.getServerCapabilities();
+                }
                 // It already reloaded, then set to false.
                 $scope.wcsStateInformation.reloadServerCapabilities = false;
             });
@@ -197,13 +204,8 @@ module rasdaman {
                         })
                     .finally(()=> {
                         $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
-                        // Broadcast to WMS controller to reload its server capabilities when WCS GetCapabitlies button is clicked
-                        $rootScope.$broadcast("reloadServerCapabilities", true);                        
                     });
             };            
-
-            // When the constructor is called, make a call to retrieve the server capabilities.
-            $scope.getServerCapabilities();
         }
     }
 

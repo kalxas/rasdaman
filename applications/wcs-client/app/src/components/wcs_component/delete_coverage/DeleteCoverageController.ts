@@ -30,6 +30,7 @@ module rasdaman {
     export class WCSDeleteCoverageController {
 
         public static $inject = [
+            "$rootScope",
             "$scope",
             "$log",
             "Notification",
@@ -37,7 +38,9 @@ module rasdaman {
             "rasdaman.ErrorHandlingService"
         ];
 
-        public constructor(private $scope:WCSDeleteCoverageControllerScope,
+        public constructor(
+                           private $rootScope:angular.IRootScopeService,
+                           private $scope:WCSDeleteCoverageControllerScope,
                            private $log:angular.ILogService,
                            private alertService:any,
                            private wcsService:rasdaman.WCSService,
@@ -80,9 +83,10 @@ module rasdaman {
                     this.wcsService.deleteCoverage($scope.idOfCoverageToDelete).then(
                         (...args:any[])=> {
                             this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
-                            this.$log.log(args);
-                            // after delete coverage Id, it should reload GetCapabilities to remove the id from the list
-                            $scope.wcsStateInformation.reloadServerCapabilities = true;
+
+                            // Reload GetCapabilities in children controllers
+                            $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                            $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                         }, (...args:any[])=> {
                             this.errorHandlingService.handleError(args);
                             this.$log.error(args);

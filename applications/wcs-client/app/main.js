@@ -2364,7 +2364,9 @@ var rasdaman;
                     break;
                 }
             }
-            this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            if (coverageExtent != null) {
+                this.gotoCoverageExtentCenter(canvasId, [coverageExtent]);
+            }
             for (var i = 0; i < polygonLayer.renderables.length; i++) {
                 var polygonObj = polygonLayer.renderables[i];
                 if (polygonObj.coverageId == coverageId) {
@@ -2651,7 +2653,7 @@ var rasdaman;
                 getCoveragesExtents: null,
                 selectedCoverageDescriptions: null,
                 selectedGetCoverageId: null,
-                reloadServerCapabilities: null
+                reloadServerCapabilities: true
             };
             $scope.describeCoverage = function (coverageId) {
                 $scope.wcsDescribeCoverageTab.active = true;
@@ -2779,8 +2781,13 @@ var rasdaman;
                     }
                 }
             };
-            $scope.$watch("wcsStateInformation.reloadServerCapabilities", function (capabilities) {
+            $scope.$on("reloadWCSServerCapabilities", function (event, b) {
                 $scope.getServerCapabilities();
+            });
+            $scope.$watch("wcsStateInformation.reloadServerCapabilities", function (capabilities) {
+                if ($scope.wcsStateInformation.reloadServerCapabilities == true) {
+                    $scope.getServerCapabilities();
+                }
                 $scope.wcsStateInformation.reloadServerCapabilities = false;
             });
             $scope.getServerCapabilities = function () {
@@ -2838,10 +2845,8 @@ var rasdaman;
                     $log.error(args);
                 })["finally"](function () {
                     $scope.wcsStateInformation.serverCapabilities = $scope.capabilities;
-                    $rootScope.$broadcast("reloadServerCapabilities", true);
                 });
             };
-            $scope.getServerCapabilities();
         }
         WCSGetCapabilitiesController.$inject = [
             "$scope",
@@ -3019,8 +3024,9 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSDeleteCoverageController = (function () {
-        function WCSDeleteCoverageController($scope, $log, alertService, wcsService, errorHandlingService) {
+        function WCSDeleteCoverageController($rootScope, $scope, $log, alertService, wcsService, errorHandlingService) {
             var _this = this;
+            this.$rootScope = $rootScope;
             this.$scope = $scope;
             this.$log = $log;
             this.alertService = alertService;
@@ -3063,8 +3069,8 @@ var rasdaman;
                             args[_i] = arguments[_i];
                         }
                         _this.alertService.success("Successfully deleted coverage with ID <b>" + $scope.idOfCoverageToDelete + "<b/>");
-                        _this.$log.log(args);
-                        $scope.wcsStateInformation.reloadServerCapabilities = true;
+                        $rootScope.$broadcast("reloadWCSServerCapabilities", true);
+                        $rootScope.$broadcast("reloadWMSServerCapabilities", true);
                     }, function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -3082,6 +3088,7 @@ var rasdaman;
             $scope.isCoverageIdValid = false;
         }
         WCSDeleteCoverageController.$inject = [
+            "$rootScope",
             "$scope",
             "$log",
             "Notification",
@@ -4374,7 +4381,7 @@ var rasdaman;
             };
             $scope.wmsStateInformation = {
                 serverCapabilities: null,
-                reloadServerCapabilities: null
+                reloadServerCapabilities: true
             };
         }
         WMSMainController.prototype.initializeTabs = function ($scope) {
@@ -4797,8 +4804,13 @@ var rasdaman;
                     }
                 }
             };
-            $scope.$watch("wmsStateInformation.reloadServerCapabilities", function (capabilities) {
+            $scope.$on("reloadWMSServerCapabilities", function (event, b) {
                 $scope.getServerCapabilities();
+            });
+            $scope.$watch("wmsStateInformation.reloadServerCapabilities", function (capabilities) {
+                if ($scope.wmsStateInformation.reloadServerCapabilities == true) {
+                    $scope.getServerCapabilities();
+                }
                 $scope.wmsStateInformation.reloadServerCapabilities = false;
             });
             $scope.getServerCapabilities = function () {
@@ -4842,7 +4854,6 @@ var rasdaman;
                     $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                 });
             };
-            $scope.getServerCapabilities();
         }
         WMSGetCapabilitiesController.$inject = [
             "$rootScope",
@@ -4904,7 +4915,11 @@ var rasdaman;
                         $scope.layer = $scope.layers[i];
                         $scope.isLayerDocumentOpen = true;
                         $scope.firstChangedSlider = [];
-                        var coveragesExtents = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedLayerName);
+                        var coveragesExtents = [{ "bbox": { "xmin": $scope.layer.coverageExtent.bbox.xmin,
+                                    "ymin": $scope.layer.coverageExtent.bbox.ymin,
+                                    "xmax": $scope.layer.coverageExtent.bbox.xmax,
+                                    "ymax": $scope.layer.coverageExtent.bbox.ymax }
+                            }];
                         $scope.isCoverageDescriptionsHideGlobe = false;
                         var coverageIds = [];
                         coverageIds.push($scope.layer.name);
@@ -4997,7 +5012,7 @@ var rasdaman;
                 var numberStepsLong = ($scope.bboxLayer.xmax - $scope.bboxLayer.xmin) / stepSize;
                 var stepLat = ($scope.bboxLayer.ymax - $scope.bboxLayer.ymin) / numberStepsLat;
                 var stepLong = ($scope.bboxLayer.xmax - $scope.bboxLayer.xmin) / numberStepsLong;
-                $("#lat").slider({
+                $("#latSlider").slider({
                     max: numberStepsLat,
                     range: true,
                     values: [0, numberStepsLat],
@@ -5013,9 +5028,8 @@ var rasdaman;
                         auxbBox.ymax = maxLat;
                         $scope.bboxLayer = auxbBox;
                         var tooltip = minLat + ':' + maxLat;
-                        $('#lat').tooltip();
-                        $('#lat').attr('data-original-title', tooltip);
-                        $('#lat').tooltip('show');
+                        $("#latSlider").attr('data-original-title', tooltip);
+                        $("#latSlider").tooltip('show');
                         var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
                         var pos1 = url.indexOf('&bbox=');
                         var pos2 = url.indexOf('&', pos1 + 1);
@@ -5025,10 +5039,12 @@ var rasdaman;
                         webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
                     }
                 });
+                $("#latSlider").tooltip();
+                $("#latSlider").attr('data-original-title', $scope.bboxLayer.ymin + ':' + $scope.bboxLayer.ymax);
                 if ($scope.firstChangedSlider[1] == false) {
-                    $("#lat").slider('values', [0, numberStepsLat]);
+                    $("#latSlider").slider('values', [0, numberStepsLat]);
                 }
-                $("#long").slider({
+                $("#longSlider").slider({
                     max: numberStepsLong,
                     range: true,
                     values: [0, numberStepsLong],
@@ -5044,9 +5060,8 @@ var rasdaman;
                         auxbBox.xmax = maxLong;
                         $scope.bboxLayer = auxbBox;
                         var tooltip = minLong + ':' + maxLong;
-                        $('#long').tooltip();
-                        $('#long').attr('data-original-title', tooltip);
-                        $('#long').tooltip('show');
+                        $("#longSlider").attr('data-original-title', tooltip);
+                        $("#longSlider").tooltip('show');
                         var bboxStr = 'bbox=' + minLat + "," + minLong + "," + maxLat + "," + maxLong;
                         var pos1 = url.indexOf('&bbox=');
                         var pos2 = url.indexOf('&', pos1 + 1);
@@ -5056,11 +5071,13 @@ var rasdaman;
                         webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
                     }
                 });
+                $("#longSlider").tooltip();
+                $("#longSlider").attr('data-original-title', $scope.bboxLayer.xmin + ':' + $scope.bboxLayer.xmax);
                 if ($scope.firstChangedSlider[2] == false) {
-                    $("#long").slider('values', [0, numberStepsLong]);
+                    $("#longSlider").slider('values', [0, numberStepsLong]);
                 }
                 var sufixSlider = "d";
-                for (var j = 3; j <= dimensions; j++) {
+                var _loop_1 = function () {
                     $("<div />", { "class": "containerSliders", id: "containerSlider" + j + sufixSlider })
                         .appendTo($("#sliders"));
                     $("<label />", { "class": "sliderLabel", id: "label" + j + sufixSlider })
@@ -5068,49 +5085,47 @@ var rasdaman;
                     $("#label" + j + sufixSlider).text($scope.layer.layerDimensions[j].name + ':');
                     $("<div />", { "class": "slider", id: "slider" + j + sufixSlider })
                         .appendTo($("#containerSlider" + j + sufixSlider));
-                    $("#slider" + j + sufixSlider).attr('data-toggle', 'tooltip');
-                    $("#slider" + j + sufixSlider).attr('title', 'dimension');
+                    var sliderId = "#slider" + j + sufixSlider;
                     $(function () {
-                        $("#slider" + j + sufixSlider).slider({
+                        $(sliderId).slider({
                             max: $scope.layer.layerDimensions[j].array.length - 1,
                             create: function (event, slider) {
                                 this.sliderObj = $scope.layer.layerDimensions[j];
-                                this.sliderPos = j;
                                 var sizeSlider = $scope.layer.layerDimensions[j].array.length - 1;
-                                $("<label>" + this.sliderObj.array[0] + "</label>").css('left', '0%')
-                                    .appendTo($("#slider" + j + sufixSlider));
-                                $("<label>" + this.sliderObj.array[sizeSlider] + "</label>").css('left', '100%')
-                                    .appendTo($("#slider" + j + sufixSlider));
                                 for (var it = 1; it < sizeSlider; ++it) {
                                     $("<label>|</label>").css('left', (it / sizeSlider * 100) + '%')
-                                        .appendTo($("#slider" + j + sufixSlider));
+                                        .appendTo($(sliderId));
                                 }
                             },
                             slide: function (event, slider) {
                                 $scope.firstChangedSlider[this.sliderPos] = true;
                                 if (this.sliderObj.isTemporal == true) {
-                                    dimStr[this.sliderPos] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
+                                    dimStr[j] = this.sliderObj.name + '="' + this.sliderObj.array[slider.value] + '"';
                                     $scope.timeString = this.sliderObj.array[slider.value];
                                 }
                                 else {
-                                    dimStr[this.sliderPos] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
+                                    dimStr[j] = this.sliderObj.name + '=' + this.sliderObj.array[slider.value];
                                 }
                                 var pos1 = url.indexOf('&' + this.sliderObj.name + '=');
                                 var pos2 = url.indexOf('&', pos1 + 1);
-                                url = url.substr(0, pos1 + 1) + dimStr[this.sliderPos] + url.substr(pos2, url.length - pos2);
+                                url = url.substr(0, pos1 + 1) + dimStr[j] + url.substr(pos2, url.length - pos2);
                                 $scope.getMapRequestURL = url;
                                 var tooltip = this.sliderObj.array[slider.value];
-                                $("#slider" + this.sliderPos + sufixSlider).tooltip();
-                                $("#slider" + this.sliderPos + sufixSlider).attr('data-original-title', tooltip);
-                                $("#slider" + this.sliderPos + sufixSlider).tooltip('show');
+                                $(sliderId).attr('data-original-title', tooltip);
+                                $(sliderId).tooltip('show');
                                 renewDisplayedWMSGetMapURL(url);
                                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, auxbBox, $scope.displayWMSLayer, $scope.timeString);
                             }
                         });
                     });
+                    $(sliderId).tooltip();
+                    $(sliderId).attr('data-original-title', $scope.layer.layerDimensions[j].array[0]);
                     if ($scope.firstChangedSlider[j] == false) {
-                        $("#slider" + j + sufixSlider).slider('value', 0);
+                        $(sliderId).slider('value', 0);
                     }
+                };
+                for (var j = 3; j <= dimensions; j++) {
+                    _loop_1();
                 }
             }
             $scope.isLayerDocumentOpen = false;

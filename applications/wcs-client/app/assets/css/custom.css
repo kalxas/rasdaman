@@ -561,16 +561,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     color: #aaa;
 }
 
-#lat {
-    width: 90%;
-    float: right;
-}
-
-#long {
-    width: 90%;
-    float: right;
-}
-
 .slider {
     width: 90%;
     float: right;

@@ -116,11 +116,18 @@ module rasdaman {
                         }
                     }
                 }
-            }            
+            }
+
+            // rootScope broadcasts an event to all children controllers
+            $scope.$on("reloadWMSServerCapabilities", function(event, b) {                
+                $scope.getServerCapabilities();
+            });
 
             // When WMS insertStyle, updateStyle, deleteStyle is called sucessfully, it should reload the new capabilities            
-            $scope.$watch("wmsStateInformation.reloadServerCapabilities", (capabilities:wms.Capabilities)=> {
-                $scope.getServerCapabilities();
+            $scope.$watch("wmsStateInformation.reloadServerCapabilities", (capabilities:wms.Capabilities)=> {                
+                if ($scope.wmsStateInformation.reloadServerCapabilities == true) {                    
+                    $scope.getServerCapabilities();
+                }
                 // It already reloaded, then set to false.
                 $scope.wmsStateInformation.reloadServerCapabilities = false;
             });            
@@ -181,9 +188,6 @@ module rasdaman {
                         $scope.wmsStateInformation.serverCapabilities = $scope.capabilities;
                     });
             };            
-
-            // When the constructor is called, make a call to retrieve the server capabilities.
-            $scope.getServerCapabilities();
         }
     }
 
