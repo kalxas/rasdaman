@@ -21,15 +21,19 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "dbmddset.hh"                 // for DBMDDSet, DBMDDSet::DBMDDObjIdSet
 #include "dbmddobj.hh"                 // for DBMDDObj
-#include "reladminif/dbref.hh"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/objectbroker.hh"
-#include "relcatalogif/collectiontype.hh"
+#include "mddid.hh"                    // for DBMDDObjId, DBMDDSetId, DBMDDO...
+#include "reladminif/dbnamedobject.hh"   // for DBNamedObject
+#include "reladminif/dbref.hh"           // for DBRef
+#include "reladminif/dbobject.hh"        // for DBObject
 #include "reladminif/dbobjectiditerator.hh"
+#include "reladminif/objectbroker.hh"    // for ObjectBroker
+#include "reladminif/oidif.hh"           // for OId, operator<<, OId::MDDCOLLOID
+#include "reladminif/lists.h"            // for OIdSet
+#include "relcatalogif/collectiontype.hh"  // for CollectionType
+#include "relcatalogif/type.hh"            // for ostream, std::endl
+#include "raslib/mddtypes.hh"          // for r_Bytes, r_Ptr
 #include "raslib/error.hh"             // for r_Error, r_Error::r_Error_Obje...
 #include <logging.hh>                  // for Writer, CTRACE, LTRACE, CFATAL
 

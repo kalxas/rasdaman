@@ -22,14 +22,17 @@
 ###################################################################
 
 add_library(indexmgr
-        hierindexds.hh hierindexds.cc
-        indexds.hh indexds.cc
-        keyobject.hh keyobject.cc
-        mddobjix.hh mddobjix.cc
-        sdirindexlogic.hh sdirindexlogic.cc
-        srcindexlogic.hh srcindexlogic.cc
-        srptindexlogic.hh srptindexlogic.cc
-        transdirix.hh transdirix.cc)
+    hierindexds.hh hierindexds.cc
+    indexds.hh indexds.cc
+    keyobject.hh keyobject.cc
+    mddobjix.hh mddobjix.cc
+    sdirindexlogic.hh sdirindexlogic.cc
+    srcindexlogic.hh srcindexlogic.cc
+    srptindexlogic.hh srptindexlogic.cc
+    transdirix.hh transdirix.cc)
+
+target_link_libraries(indexmgr
+    tilemgr raslib reladminif relblobif relindexif storagemgr)
 
 install(TARGETS indexmgr
-        DESTINATION ${LIB_DIR})
+    DESTINATION ${LIB_DIR})

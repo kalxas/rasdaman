@@ -41,10 +41,15 @@ rasdaman GmbH.
 #ifndef _DIRIX_HH_
 #define _DIRIX_HH_
 
-#include "reladminif/lists.h"
+#include "keyobject.hh"         // for KeyObject
+#include "reladminif/lists.h"   // for KeyObjectVector
+#include "raslib/mddtypes.hh"   // for r_Area
+#include "raslib/minterval.hh"  // for r_Minterval
+#include "raslib/point.hh"      // for r_Point
+
 
 class StorageLayout;
-class r_Point;
+class IndexDS;
 
 
 /*@Doc:

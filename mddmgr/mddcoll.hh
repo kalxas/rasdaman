@@ -33,20 +33,25 @@ rasdaman GmbH.
 #ifndef _MDDCOLL_HH_
 #define _MDDCOLL_HH_
 
+#include "mddobj.hh"
+#include "mddcolliter.hh"
+#include "reladminif/databaseif.hh"  // for ostream
+#include "reladminif/oidif.hh"       // for OId
+#include "relmddif/mddid.hh"         // for DBMDDSetId
+#include "relcatalogif/collectiontype.hh"  // from catalogif base DBMS interface module
+#include "raslib/error.hh"
+
 #include <stdlib.h>
+#include <functional>              // for less
 #include <iosfwd>                  // for cout, ostream
 #include <map>                     // for map
 
-#include "mddobj.hh"
-#include "mddcolliter.hh"
-#include "mddcoll.hh"
-#include "reladminif/oidif.hh"
-#include "raslib/error.hh"
-#include "relmddif/mddid.hh"
-#include "relcatalogif/collectiontype.hh"     // from catalogif base DBMS interface module
-
 class CollectionType;
 class DatabaseIf;
+class DBMDDObj;
+class EOId;
+class MDDCollIter;
+class MDDObj;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:
@@ -115,6 +120,12 @@ public:
     static bool collExists(const char *collName);
     /**
      * @return true if collName exists in the database.
+     */
+
+    static std::vector<std::string> getVirtualCollection(const char *collName);
+    /**
+     * @return result of "selecting" RAS_COLLECTIONNAMES, RAS_STRUCT_TYPES,
+     * RAS_MARRAY_TYPES, RAS_SET_TYPES
      */
 
     static MDDColl *getMDDCollection(const char *collName);

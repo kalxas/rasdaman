@@ -37,14 +37,14 @@ rasdaman GmbH.
 
 
 #include "mddobj.hh"
-#include "relmddif/mddid.hh"  // for DBMDDObjIdIter, DBMDDSetId
+#include "relmddif/mddid.hh"    // for DBMDDObjIdIter, DBMDDSetId
+#include "relcatalogif/type.hh" // for cout, ostream
 
 #include <stdlib.h>
 #include <iosfwd>         // for cout, ostream
 
 class MDDColl;
 class MDDCollIter;
-class MDDObj;
 
 //@ManMemo: Module: {\bf cachetamgr}
 /*@Doc:

@@ -24,9 +24,9 @@ rasdaman GmbH.
 #ifndef _KEYOBJECT_HH_
 #define _KEYOBJECT_HH_
 
-#include "reladminif/dbobject.hh"
-#include "raslib/minterval.hh"
+#include "reladminif/dbobject.hh"   // for DBObjectId
 #include "reladminif/dbref.hh"
+#include "raslib/minterval.hh"      // for r_Minterval
 
 #include <boost/shared_ptr.hpp>     // for shared_ptr
 #include <iosfwd>                   // for ostream

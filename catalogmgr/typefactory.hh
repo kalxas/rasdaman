@@ -33,32 +33,34 @@ rasdaman GmbH.
 #ifndef _TYPEFACTORY_HH_
 #define _TYPEFACTORY_HH_
 
-class TypeFactory;
-
-#include <vector>
-#include <map>
-
 #include "reladminif/oidif.hh"
-#include "relcatalogif/typeiterator.hh"
+#include "reladminif/dbobjectiterator.hh"// for DBObjectIterator
+#include "relcatalogif/typeiterator.hh"  // for TypeIterator
 #include "raslib/type.hh"
 
-class ULongType;
-class LongType;
-class CharType;
+#include <map>                           // for map
+#include <string>                        // for string
+#include <vector>                        // for vector
+
+class BaseType;
 class BoolType;
-class UShortType;
-class ShortType;
-class OctetType;
-class DoubleType;
-class FloatType;
+class CharType;
 class ComplexType1;
 class ComplexType2;
-class StructType;
-class BaseType;
-class SetType;
-class MDDType;
-class Type;
 class DBNullvalues;
+class DBMinterval;
+class DoubleType;
+class FloatType;
+class LongType;
+class MDDType;
+class OctetType;
+class SetType;
+class ShortType;
+class StructType;
+class Type;
+class TypeFactory;
+class ULongType;
+class UShortType;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -120,7 +122,7 @@ public:
         to a user defined StructType.
     */
 
-    //static BaseType* mapType(char* typeName);
+    // static BaseType* mapType(char* typeName);
     /*@Doc:
     maps a string to a base type
     use the const char* version!!
@@ -131,7 +133,7 @@ public:
     maps a string to a set type
     */
 
-    //static const SetType* mapSetType(char* typeName);
+    // static const SetType* mapSetType(char* typeName);
     /*@Doc:
     maps a string to a set type
     use the const char* version!!
@@ -142,7 +144,7 @@ public:
     maps a string to a mdd type
     */
 
-    //static const MDDType* mapMDDType(char* typeName);
+    // static const MDDType* mapMDDType(char* typeName);
     /*@Doc:
     maps a string to a mdd type.
     use the const char* version!!
@@ -172,17 +174,17 @@ public:
         persistent after commit.
     */
 
-    static void deleteStructType(const char *typeName);
+    static bool deleteStructType(const char *typeName);
     /*@Doc:
     delete a struct type in the current DBMS.
     */
 
-    static void deleteSetType(const char *typeName);
+    static bool deleteSetType(const char *typeName);
     /*@Doc:
     delete a set type in the current DBMS.
     */
 
-    static void deleteMDDType(const char *typeName);
+    static bool deleteMDDType(const char *typeName);
     /*@Doc:
     delete a mdd type in the current DBMS.
     */
@@ -214,7 +216,6 @@ public:
         Note that get_element returns a pointer to a MDDType!
     returns an iterator for MDDTypes.
     */
-
 
     static Type *addTempType(Type *type);
     /*@Doc:
@@ -284,7 +285,6 @@ private:
     /*@Doc:
     a vector containing pointers to temporary allocated types.
     */
-
 };
 
 #endif

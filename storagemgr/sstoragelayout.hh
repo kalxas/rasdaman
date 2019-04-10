@@ -44,9 +44,12 @@ rasdaman GmbH.
 
 #include <vector>
 
+#include "stgmddconfig.hh"
 #include "relstorageif/dbstoragelayout.hh"
-#include "storagemgr/stgmddconfig.hh"
+#include "relstorageif/storageid.hh"
+#include "raslib/mddtypes.hh"
 #include "raslib/minterval.hh"
+#include "raslib/point.hh"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/dirdecompose.hh"

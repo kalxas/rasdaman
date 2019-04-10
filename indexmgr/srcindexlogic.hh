@@ -34,8 +34,8 @@ rasdaman GmbH.
 #include "reladminif/lists.h"
 #include "reladminif/oidif.hh"
 #include "raslib/minterval.hh"
+#include "raslib/point.hh"
 
-class r_Point;
 class StorageLayout;
 class SRCIndexLogic;
 

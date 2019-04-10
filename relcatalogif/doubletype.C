@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include "atomictype.hh"  // for AtomicType
 #include "doubletype.hh"
 #include "raslib/odmgtypes.hh"   // for DOUBLE
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include "reladminif/oidif.hh"    // for OId
 #include <iomanip>
 #include <limits>
 

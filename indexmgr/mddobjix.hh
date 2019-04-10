@@ -43,18 +43,18 @@ rasdaman GmbH.
 #ifndef _MDDOBJIX_HH_
 #define _MDDOBJIX_HH_
 
-#include "raslib/minterval.hh"
-#include "indexmgr/indexds.hh"
-#include "storagemgr/sstoragelayout.hh"
+#include "indexds.hh"
 #include "reladminif/lists.h"
 #include "relindexif/indexid.hh"
+#include "storagemgr/sstoragelayout.hh"
+#include "raslib/minterval.hh"
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
+class r_Point;
 class PersTile;
 class BaseType;
 class Tile;
-class r_Point;
 
 /*@Doc:
 
@@ -154,7 +154,6 @@ public:
     */
 
 protected:
-
     void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<boost::shared_ptr<Tile>> *newLastTiles);
 
     void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);

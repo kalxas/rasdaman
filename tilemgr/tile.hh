@@ -50,13 +50,14 @@ rasdaman GmbH.
 #endif
 
 #include <boost/shared_ptr.hpp>
-#include <vector>
-#include <set>
-#include <memory>
+#include <functional>               // for less
+#include <iosfwd>                   // for cout, ostream
+#include <set>                      // for set
+#include <string>                   // for string
+#include <vector>                   // for vector
 
 class KeyObject;
 class PersMDDObjIx;
-
 
 //@ManMemo: Module: {\bf cachetamgr}.
 
@@ -390,7 +391,7 @@ protected:
 
 template <typename TilePtr>
 Tile::Tile(std::vector<TilePtr> *tilesVec, const r_Minterval &resDom)
-    :   domain(resDom)
+    : domain(resDom)
 {
     // get first Tile
     auto tileIt = tilesVec->begin();

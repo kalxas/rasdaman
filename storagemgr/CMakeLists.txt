@@ -22,8 +22,13 @@
 ###################################################################
 
 add_library(storagemgr
-        sstoragelayout.hh sstoragelayout.cc
-        stgmddconfig.hh stgmddconfig.cc)
+    sstoragelayout.hh sstoragelayout.cc
+    stgmddconfig.hh stgmddconfig.cc)
+
+target_link_libraries(storagemgr
+    raslib
+    reladminif relstorageif
+    common_logging)
 
 install(TARGETS storagemgr
-        DESTINATION ${LIB_DIR})
+    DESTINATION ${LIB_DIR})

@@ -33,14 +33,13 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ************************************************************/
-
-#include <cstring>
-
+ 
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "dbrcindexds.hh"
 #include <logging.hh>
+#include <cstring>
 
 // container size for index node
 // BEWARE: keep these parameters always consistent!

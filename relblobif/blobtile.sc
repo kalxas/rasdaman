@@ -235,6 +235,7 @@ void BLOBTile::readFromDb()
     LDEBUG << "reading tile with id " << blobOid;
 
     dataFormat = BLOBTile::getTileDataFormat(blobOid);
+    currentFormat = dataFormat;
 
     if (TileCache::cacheLimit > 0 && TileCache::contains(blobOid))
     {

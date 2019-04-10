@@ -39,11 +39,12 @@ rasdaman GmbH.
 
 #include <iosfwd>                             // for ostream
 
-#include "catalogmgr/ops.hh"
-#include "type.hh"
-#include "relcatalogif/dbnullvalues.hh"
+#include "raslib/mddtypes.hh"                 // for r_Bytes
+#include "type.hh"                            // for Type, ostream
+#include "dbnullvalues.hh"
 
 
+class OId;
 class MDDType;
 
 //@ManMemo: Module: {\bf relcatalogif}.

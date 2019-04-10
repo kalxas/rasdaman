@@ -31,13 +31,13 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 
 #include "mddcolliter.hh"
-#include "mddcoll.hh"          // for MDDColl
-#include "relmddif/dbmddset.hh" // for DBMDDSet
-#include "relmddif/dbmddobj.hh" // for DBMDDObj
-#include "mddobj.hh"
+#include "mddcoll.hh"            // for MDDColl
+#include "relmddif/dbmddset.hh"  // for DBMDDSet
+#include "relmddif/dbmddobj.hh"  // for DBMDDObj
+#include "relmddif/mddid.hh"
+#include "reladminif/dbref.hh"   // for DBRef
 #include "reladminif/dbobjectiditerator.hh"
 #include "logging.hh"          // for LTRACE
 

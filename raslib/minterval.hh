@@ -35,16 +35,11 @@ rasdaman GmbH.
 
 #include "raslib/sinterval.hh"
 #include "raslib/point.hh"
+#include "raslib/mddtypes.hh"  // for r_Dimension, r_Area, r_Bytes, r_Range
 
 #include <iosfwd>     // for ostream, cout
 #include <string>       // for string
 #include <vector>       // for vector
-
-class r_Edim_mismatch;
-class r_Error;
-class r_Einit_overflow;
-class r_Eno_interval;
-class r_Eno_cell;
 
 // TODO: remove and fix compilation
 using std::vector;

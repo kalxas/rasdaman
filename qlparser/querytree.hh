@@ -23,14 +23,6 @@ rasdaman GmbH.
 #ifndef _QUERYTREE_
 #define _QUERYTREE_
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-#include <algorithm>
-#include <ostream>
-
 #include "mddmgr/mddcoll.hh"
 
 #include "qlparser/qtnode.hh"
@@ -41,6 +33,10 @@ rasdaman GmbH.
 #include "qlparser/qtmarrayop2.hh"
 #include "qlparser/qtpointop.hh"
 #include "qlparser/symtab.hh"
+
+#include <string>
+#include <algorithm>
+#include <ostream>
 
 // forward declarations
 class MDDObj;

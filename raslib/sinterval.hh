@@ -33,17 +33,9 @@
 #ifndef _D_SINTERVAL_
 #define _D_SINTERVAL_
 
-#ifdef __VISUALC__
-// Disable warning about exception specification.
-#pragma warning( disable : 4290 )
-#endif
+#include <iosfwd>     // for ostream, cout
 
-class r_Error;
-class r_Eno_interval;
-
-#include <iostream>
-
-#include "raslib/point.hh"
+#include "raslib/mddtypes.hh"  // for r_Range, r_Bytes
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -245,11 +237,11 @@ public:
     //@Man: Constructors for intervals with at least one open bound.
     //@{
     ///
-    r_Sinterval(char,        r_Range high);
+    r_Sinterval(char, r_Range high);
     ///
     r_Sinterval(r_Range low, char);
     ///
-    r_Sinterval(char,        char);
+    r_Sinterval(char, char);
     ///
     //@}
 
@@ -266,13 +258,13 @@ public:
     //@Man: Read/Write methods:
     //@{
     ///
-    inline r_Range  low() const;
+    inline r_Range low() const;
     ///
-    inline r_Range  high() const;
+    inline r_Range high() const;
     ///
-    inline bool      is_low_fixed() const;
+    inline bool is_low_fixed() const;
     ///
-    inline bool      is_high_fixed() const;
+    inline bool is_high_fixed() const;
 
     ///
     void set_low(r_Range low);
@@ -292,11 +284,11 @@ public:
     ///
     void set_interval(r_Range low, r_Range high);
     ///
-    void set_interval(char,        r_Range high);
+    void set_interval(char, r_Range high);
     ///
     void set_interval(r_Range low, char);
     ///
-    void set_interval(char,        char);
+    void set_interval(char, char);
     ///
     //@}
 
@@ -306,79 +298,61 @@ public:
     //@Man: Methods/Operators for the union operation:
     //@{
     ///
-    r_Sinterval &union_of(const r_Sinterval &, const r_Sinterval &)
-    ;
+    r_Sinterval &union_of(const r_Sinterval &, const r_Sinterval &);
     ///
-    r_Sinterval &union_with(const r_Sinterval &)
-    ;
+    r_Sinterval &union_with(const r_Sinterval &);
     ///
-    r_Sinterval &operator+= (const r_Sinterval &)
-    ;
+    r_Sinterval &operator+=(const r_Sinterval &);
     ///
-    r_Sinterval  create_union(const r_Sinterval &) const
-    ;
+    r_Sinterval create_union(const r_Sinterval &) const;
     ///
-    r_Sinterval  operator+ (const r_Sinterval &) const
-    ;
+    r_Sinterval operator+(const r_Sinterval &) const;
     ///
     //@}
 
     //@Man: Methods/Operators for the difference operation:
     //@{
     ///
-    r_Sinterval &difference_of(const r_Sinterval &, const r_Sinterval &)
-    ;
+    r_Sinterval &difference_of(const r_Sinterval &, const r_Sinterval &);
     ///
-    r_Sinterval &difference_with(const r_Sinterval &)
-    ;
+    r_Sinterval &difference_with(const r_Sinterval &);
     ///
-    r_Sinterval &operator-= (const r_Sinterval &)
-    ;
+    r_Sinterval &operator-=(const r_Sinterval &);
     ///
-    r_Sinterval  create_difference(const r_Sinterval &) const
-    ;
+    r_Sinterval create_difference(const r_Sinterval &) const;
     ///
-    r_Sinterval  operator- (const r_Sinterval &) const
-    ;
+    r_Sinterval operator-(const r_Sinterval &) const;
     ///
     //@}
 
     //@Man: Methods/Operators for the intersection operation:
     //@{
     ///
-    r_Sinterval &intersection_of(const r_Sinterval &, const r_Sinterval &)
-    ;
+    r_Sinterval &intersection_of(const r_Sinterval &, const r_Sinterval &);
     ///
-    r_Sinterval &intersection_with(const r_Sinterval &)
-    ;
+    r_Sinterval &intersection_with(const r_Sinterval &);
     ///
-    r_Sinterval &operator*= (const r_Sinterval &)
-    ;
+    r_Sinterval &operator*=(const r_Sinterval &);
     ///
-    r_Sinterval  create_intersection(const r_Sinterval &) const
-    ;
+    r_Sinterval create_intersection(const r_Sinterval &) const;
     ///
-    r_Sinterval  operator* (const r_Sinterval &) const
-    ;
+    r_Sinterval operator*(const r_Sinterval &)const;
     ///
     //@}
 
     //@Man: Methods/Operators for the closure operation:
     //@{
     ///
-    r_Sinterval &closure_of(const r_Sinterval &, const r_Sinterval &)
-    ;
+    r_Sinterval &closure_of(const r_Sinterval &, const r_Sinterval &);
     ///
-    r_Sinterval &closure_with(const r_Sinterval &)
-    ;
+    r_Sinterval &closure_with(const r_Sinterval &);
     ///
-    r_Sinterval  create_closure(const r_Sinterval &) const
-    ;
+    r_Sinterval create_closure(const r_Sinterval &) const;
     ///
     //@}
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
 
     /// gives back the string representation
     char *get_string_representation() const;
@@ -397,26 +371,22 @@ public:
     //@}
 
 private:
-
     //@Man: Calculation methods for the operations:
     //@{
     ///
-    r_Sinterval  calc_union(const r_Sinterval &a, const r_Sinterval &b) const
-    ;
+    r_Sinterval calc_union(const r_Sinterval &a, const r_Sinterval &b) const;
     ///
-    r_Sinterval  calc_difference(const r_Sinterval &a, const r_Sinterval &b) const
-    ;
+    r_Sinterval calc_difference(const r_Sinterval &a, const r_Sinterval &b) const;
     ///
-    r_Sinterval  calc_intersection(const r_Sinterval &a, const r_Sinterval &b) const
-    ;
+    r_Sinterval calc_intersection(const r_Sinterval &a,
+                                  const r_Sinterval &b) const;
     ///
-    r_Sinterval  calc_closure(const r_Sinterval &a, const r_Sinterval &b) const
-    ;
+    r_Sinterval calc_closure(const r_Sinterval &a, const r_Sinterval &b) const;
     ///
     //@}
 
     /// compute the class of the two operands
-    int          classify(const r_Sinterval &a, const r_Sinterval &b) const;
+    int classify(const r_Sinterval &a, const r_Sinterval &b) const;
 
     //@Man: Attributes storing the bounds:
     //@{
@@ -430,15 +400,12 @@ private:
     //@Man: Attributes specifying wheter the lower/upper bound is fixed or not:
     //@{
     ///
-    bool     low_fixed;
+    bool low_fixed;
     ///
-    bool     high_fixed;
+    bool high_fixed;
     ///
     //@}
 };
-
-
-
 
 //@ManMemo: Module: {\bf raslib}
 /**

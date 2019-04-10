@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include <iosfwd>         // for ostream
 #include "integraltype.hh"  // for IntegralType
 #include "raslib/odmgtypes.hh"     // for r_Long
-#include "catalogmgr/ops.hh"
 
 class OId;
 

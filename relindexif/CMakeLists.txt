@@ -31,15 +31,21 @@ foreach (FILE ${EMBEDDED_SQL_SOURCES})
 endforeach ()
 
 add_library(relindexif ${COMPILED_SQL_SOURCES}
-        dbrcindexds.hh dbrcindexdscommon.cc
-        dbtcindex.hh dbtcindexcommon.cc
-        hierindex.hh hierindexcommon.cc
-        indexid.hh)
+    dbrcindexds.hh dbrcindexdscommon.cc
+    dbtcindex.hh dbtcindexcommon.cc
+    hierindex.hh hierindexcommon.cc
+    indexid.hh
+    )
 
 target_include_directories(relindexif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relindexif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relindexif ${BASEDB_LIBRARIES})
+target_link_libraries(relindexif PUBLIC
+    reladminif
+    relcatalogif
+    relblobif
+    relstorageif
+    )
 
 install(TARGETS relindexif
         DESTINATION ${LIB_DIR})

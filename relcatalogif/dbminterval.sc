@@ -35,8 +35,8 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include "dbminterval.hh"
-#include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "reladminif/sqlglobals.h"
 #include "raslib/sinterval.hh"
 #include <logging.hh>
 

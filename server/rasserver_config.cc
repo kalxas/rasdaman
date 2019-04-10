@@ -359,9 +359,6 @@ void Configuration::checkParameters()
     // evaluate optional parameter type --------------------------------------
    
     displayType = cmlType->isPresent();
-    
-    // evaluate optional parameter outfile --------------------------------------
-        
         
     outputType = OUT_FILE;
         
@@ -394,7 +391,13 @@ void Configuration::checkParameters()
             throw RasqlError(ILLEGALOUTPUTTYPE);
         }
     } 
-
+    
+    // evaluate optional parameter outfile --------------------------------------
+    if (cmlOutfile->isPresent())
+    {
+        outFileMask = cmlOutfile->getValueAsString();
+        outputType = OUT_FILE;
+    }
 
     // evaluate optional parameter domain --------------------------------------
     if (cmlMddDomain->isPresent())

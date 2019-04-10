@@ -34,22 +34,33 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-
-#include "hierindex.hh"
-#include "mymalloc/mymalloc.h"
-#include "reladminif/objectbroker.hh"
+#include "hierindex.hh"                 // for DBHierIndex
+#include "reladminif/dbobject.hh"         // for DBObjectId, DBObject
 #include "reladminif/dbref.hh"
-#include "reladminif/lists.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
+#include "reladminif/lists.h"             // for KeyObjectVector
+#include "reladminif/objectbroker.hh"     // for ObjectBroker
+#include "reladminif/oidif.hh"            // for OId, operator<<, OId::OIdCounter
 #include "relblobif/blobtile.hh"
-#include "indexmgr/keyobject.hh"
-#include "storagemgr/sstoragelayout.hh"
+#include "indexmgr/hierindexds.hh"      // for HierIndexDS
+#include "indexmgr/indexds.hh"          // for IndexDS
+#include "indexmgr/keyobject.hh"        // for KeyObject, operator<<
+#include "storagemgr/sstoragelayout.hh" // for StorageLayout, StorageLayout:...
+#include "relindexif/indexid.hh"          // for DBHierIndexId
+#include "relcatalogif/inlineminterval.hh"  // for InlineMinterval
+#include "raslib/error.hh"          // for r_Error
+#include "raslib/mddtypes.hh"       // for r_Bytes, r_Range, r_Dimension
+#include "raslib/minterval.hh"      // for operator<<, r_Minterval
 #include "raslib/endian.hh"
-#include "debug.hh"
-#include <logging.hh>
+#include "mymalloc/mymalloc.h"
+#include <logging.hh>                   // for Writer, CTRACE, LTRACE, CDEBUG
 
-#include <cstring>
+#include <algorithm>                    // for max
+#include <cstring>                      // for memcpy, memset, memcmp, strcmp
+#include <memory>                       // for allocator_traits<>::value_type
+#include <ostream>                      // for operator<<, ostream, basic_os...
+#include <vector>                       // for vector
+
+
 
 DBHierIndex::DBHierIndex(const OId &id)
     : HierIndexDS(id),

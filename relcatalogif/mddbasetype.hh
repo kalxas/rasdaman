@@ -37,7 +37,6 @@ rasdaman GmbH.
 #ifndef _MDDBASETYPE_HH_
 #define _MDDBASETYPE_HH_
 
-#include "catalogmgr/ops.hh"
 #include "mddtype.hh"
 #include <iosfwd>
 

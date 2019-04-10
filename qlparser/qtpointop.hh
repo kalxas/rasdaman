@@ -1,13 +1,8 @@
 #ifndef _QTPOINTOP_
 #define _QTPOINTOP_
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
 #include "qlparser/qtnaryoperation.hh"
+#include "raslib/point.hh"
 
 /*
 * This file is part of rasdaman community.

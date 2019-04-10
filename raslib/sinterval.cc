@@ -30,33 +30,23 @@
  *
 */
 
-#include "config.h"
-#include "sinterval.hh"
+#include "raslib/sinterval.hh"
+#include "raslib/mddtypes.hh"      // for r_Range, r_Bytes
 #include "raslib/error.hh"
-#include <logging.hh>
 
-#include <string>
-#include <cstring>
-#include <sstream>
-// for min and max
-#include <algorithm>
+#include <logging.hh>              // for Writer, CFATAL, LOG
+#include <string.h>                // for strdup
+#include <algorithm>               // for max, min
+#include <stdexcept>               // for runtime_error
+#include <string>                  // for basic_string
 
 using namespace std;
 
 r_Sinterval::r_Sinterval()
-    : lower_bound(0),
-      upper_bound(0),
-      low_fixed(false),
-      high_fixed(false)
-{
-}
-
+    : lower_bound(0), upper_bound(0), low_fixed(false), high_fixed(false) {}
 
 r_Sinterval::r_Sinterval(char *stringRep)
-    : lower_bound(0),
-      upper_bound(0),
-      low_fixed(false),
-      high_fixed(false)
+    : lower_bound(0), upper_bound(0), low_fixed(false), high_fixed(false)
 {
     if (!stringRep)
     {
@@ -64,7 +54,7 @@ r_Sinterval::r_Sinterval(char *stringRep)
         throw r_Eno_interval();
     }
 
-    char    charToken = 0;
+    char charToken = 0;
     r_Range valueToken = 0;
 
     // for parsing the string
@@ -109,7 +99,6 @@ r_Sinterval::r_Sinterval(char *stringRep)
     }
 }
 
-
 r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh)
     : lower_bound(newLow),
       upper_bound(newHigh),
@@ -124,36 +113,19 @@ r_Sinterval::r_Sinterval(r_Range newLow, r_Range newHigh)
     }
 }
 
-
 r_Sinterval::r_Sinterval(char, r_Range newHigh)
     : lower_bound(0),
       upper_bound(newHigh),
       low_fixed(false),
-      high_fixed(true)
-{
-}
-
+      high_fixed(true) {}
 
 r_Sinterval::r_Sinterval(r_Range newLow, char)
-    : lower_bound(newLow),
-      upper_bound(0),
-      low_fixed(true),
-      high_fixed(false)
-{
-}
-
+    : lower_bound(newLow), upper_bound(0), low_fixed(true), high_fixed(false) {}
 
 r_Sinterval::r_Sinterval(char, char)
-    : lower_bound(0),
-      upper_bound(0),
-      low_fixed(false),
-      high_fixed(false)
-{
-}
+    : lower_bound(0), upper_bound(0), low_fixed(false), high_fixed(false) {}
 
-
-bool
-r_Sinterval::operator==(const r_Sinterval &interval) const
+bool r_Sinterval::operator==(const r_Sinterval &interval) const
 {
     bool returnValue = true;
 
@@ -163,7 +135,7 @@ r_Sinterval::operator==(const r_Sinterval &interval) const
     }
     else
     {
-        returnValue = !interval.low_fixed;    //other is fixed -> false
+        returnValue = !interval.low_fixed;    // other is fixed -> false
     }
     if (returnValue)
     {
@@ -180,16 +152,12 @@ r_Sinterval::operator==(const r_Sinterval &interval) const
     return returnValue;
 }
 
-
-
-bool
-r_Sinterval::operator!=(const r_Sinterval &interval) const
+bool r_Sinterval::operator!=(const r_Sinterval &interval) const
 {
     return !operator==(interval);
 }
 
-r_Range
-r_Sinterval::get_extent() const
+r_Range r_Sinterval::get_extent() const
 {
     r_Range ext;
 
@@ -205,8 +173,7 @@ r_Sinterval::get_extent() const
     return ext;
 }
 
-void
-r_Sinterval::set_low(r_Range newLow)
+void r_Sinterval::set_low(r_Range newLow)
 {
     if (high_fixed && newLow > upper_bound)
     {
@@ -219,9 +186,7 @@ r_Sinterval::set_low(r_Range newLow)
     low_fixed = true;
 }
 
-
-void
-r_Sinterval::set_high(r_Range newHigh)
+void r_Sinterval::set_high(r_Range newHigh)
 {
     if (low_fixed && newHigh < lower_bound)
     {
@@ -234,9 +199,7 @@ r_Sinterval::set_high(r_Range newHigh)
     high_fixed = true;
 }
 
-
-void
-r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
+void r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
 {
     if (newLow > newHigh)
     {
@@ -247,43 +210,35 @@ r_Sinterval::set_interval(r_Range newLow, r_Range newHigh)
 
     lower_bound = newLow;
     upper_bound = newHigh;
-    low_fixed  = true;
+    low_fixed = true;
     high_fixed = true;
 }
 
-
-void
-r_Sinterval::set_interval(char, r_Range newHigh)
+void r_Sinterval::set_interval(char, r_Range newHigh)
 {
     lower_bound = 0;
     upper_bound = newHigh;
-    low_fixed  = false;
+    low_fixed = false;
     high_fixed = true;
 }
 
-
-void
-r_Sinterval::set_interval(r_Range newLow, char)
+void r_Sinterval::set_interval(r_Range newLow, char)
 {
     lower_bound = newLow;
     upper_bound = 0;
-    low_fixed  = true;
+    low_fixed = true;
     high_fixed = false;
 }
 
-
-void
-r_Sinterval::set_interval(char, char)
+void r_Sinterval::set_interval(char, char)
 {
     lower_bound = 0;
     upper_bound = 0;
-    low_fixed  = false;
+    low_fixed = false;
     high_fixed = false;
 }
 
-
-bool
-r_Sinterval::intersects_with(const r_Sinterval &interval) const
+bool r_Sinterval::intersects_with(const r_Sinterval &interval) const
 {
     int classnr = classify(*this, interval);
 
@@ -291,36 +246,29 @@ r_Sinterval::intersects_with(const r_Sinterval &interval) const
            classnr != 26 && classnr != 31 && classnr != 34 && classnr != 37;
 }
 
-
-r_Sinterval &
-r_Sinterval::union_of(const r_Sinterval &interval1, const r_Sinterval &interval2)
+r_Sinterval &r_Sinterval::union_of(const r_Sinterval &interval1,
+                                   const r_Sinterval &interval2)
 {
     *this = calc_union(interval1, interval2);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::union_with(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::union_with(const r_Sinterval &interval)
 {
     *this = calc_union(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::operator+=(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::operator+=(const r_Sinterval &interval)
 {
     *this = calc_union(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval
-r_Sinterval::create_union(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::create_union(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -329,9 +277,7 @@ r_Sinterval::create_union(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval
-r_Sinterval::operator+(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::operator+(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -340,37 +286,29 @@ r_Sinterval::operator+(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval &
-r_Sinterval::difference_of(const r_Sinterval &interval1, const r_Sinterval &interval2)
+r_Sinterval &r_Sinterval::difference_of(const r_Sinterval &interval1,
+                                        const r_Sinterval &interval2)
 {
     *this = calc_difference(interval1, interval2);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::difference_with(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::difference_with(const r_Sinterval &interval)
 {
     *this = calc_difference(interval, *this);
 
     return *this;
 }
 
-
-
-r_Sinterval &
-r_Sinterval::operator-=(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::operator-=(const r_Sinterval &interval)
 {
     *this = calc_difference(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval
-r_Sinterval::create_difference(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::create_difference(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -379,9 +317,7 @@ r_Sinterval::create_difference(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval
-r_Sinterval::operator-(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::operator-(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -390,36 +326,29 @@ r_Sinterval::operator-(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval &
-r_Sinterval::intersection_of(const r_Sinterval &interval1, const r_Sinterval &interval2)
+r_Sinterval &r_Sinterval::intersection_of(const r_Sinterval &interval1,
+        const r_Sinterval &interval2)
 {
     *this = calc_intersection(interval1, interval2);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::intersection_with(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::intersection_with(const r_Sinterval &interval)
 {
     *this = calc_intersection(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::operator*=(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::operator*=(const r_Sinterval &interval)
 {
     *this = calc_intersection(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval
-r_Sinterval::create_intersection(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::create_intersection(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -428,9 +357,7 @@ r_Sinterval::create_intersection(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval
-r_Sinterval::operator*(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::operator*(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -439,27 +366,22 @@ r_Sinterval::operator*(const r_Sinterval &interval) const
     return result;
 }
 
-
-r_Sinterval &
-r_Sinterval::closure_of(const r_Sinterval &interval1, const r_Sinterval &interval2)
+r_Sinterval &r_Sinterval::closure_of(const r_Sinterval &interval1,
+                                     const r_Sinterval &interval2)
 {
     *this = calc_closure(interval1, interval2);
 
     return *this;
 }
 
-
-r_Sinterval &
-r_Sinterval::closure_with(const r_Sinterval &interval)
+r_Sinterval &r_Sinterval::closure_with(const r_Sinterval &interval)
 {
     *this = calc_closure(interval, *this);
 
     return *this;
 }
 
-
-r_Sinterval
-r_Sinterval::create_closure(const r_Sinterval &interval) const
+r_Sinterval r_Sinterval::create_closure(const r_Sinterval &interval) const
 {
     r_Sinterval result;
 
@@ -468,9 +390,7 @@ r_Sinterval::create_closure(const r_Sinterval &interval) const
     return result;
 }
 
-
-void
-r_Sinterval::print_status(std::ostream &s) const
+void r_Sinterval::print_status(std::ostream &s) const
 {
     if (low_fixed)
     {
@@ -493,15 +413,13 @@ r_Sinterval::print_status(std::ostream &s) const
     }
 }
 
-
-r_Bytes
-r_Sinterval::get_storage_size() const
+r_Bytes r_Sinterval::get_storage_size() const
 {
     return (2 * (sizeof(r_Range) + sizeof(bool)));
 }
 
-r_Sinterval
-r_Sinterval::calc_union(const r_Sinterval &a, const r_Sinterval &b) const
+r_Sinterval r_Sinterval::calc_union(const r_Sinterval &a,
+                                    const r_Sinterval &b) const
 {
     r_Sinterval result;
 
@@ -601,7 +519,7 @@ r_Sinterval::calc_union(const r_Sinterval &a, const r_Sinterval &b) const
         result = b;
         break;
 
-    default: // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
+    default:  // case in { 1, 6, 16, 21, 26, 31, 34, 37 }
     {
         LDEBUG << "Cannot calculate union of intervals " << a << " and " << b << ".";
         throw r_Eno_interval();
@@ -885,8 +803,7 @@ r_Sinterval::calc_closure(const r_Sinterval &a, const r_Sinterval &b) const
  *                 in the table in file sinterval.hh:
  ************************************************************/
 
-int
-r_Sinterval::classify(const r_Sinterval &a, const r_Sinterval &b) const
+int r_Sinterval::classify(const r_Sinterval &a, const r_Sinterval &b) const
 {
     int classification = 0;
 
@@ -911,7 +828,7 @@ r_Sinterval::classify(const r_Sinterval &a, const r_Sinterval &b) const
                     classification = 2;
                 }
             }
-            else  if (a.high() == b.high())
+            else if (a.high() == b.high())
             {
                 classification = 9;
             }
@@ -926,7 +843,7 @@ r_Sinterval::classify(const r_Sinterval &a, const r_Sinterval &b) const
             {
                 classification = 12;
             }
-            else  if (a.high() == b.high())
+            else if (a.high() == b.high())
             {
                 classification = 11;
             }
@@ -1171,10 +1088,7 @@ r_Sinterval::classify(const r_Sinterval &a, const r_Sinterval &b) const
     return classification;
 }
 
-
-
-char *
-r_Sinterval::get_string_representation() const
+char *r_Sinterval::get_string_representation() const
 {
     std::ostringstream domainStream;
 
@@ -1185,8 +1099,6 @@ r_Sinterval::get_string_representation() const
     char *returnString = strdup(domainStream.str().c_str());
     return returnString;
 }
-
-
 
 /*************************************************************
  * Method name...: operator<<( std::ostream& s, r_Sinterval& d )

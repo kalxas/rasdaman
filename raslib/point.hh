@@ -33,21 +33,9 @@ rasdaman GmbH.
 #ifndef _D_POINT_
 #define _D_POINT_
 
-#ifdef __VISUALC__
-// disable warning for exception specification
-#pragma warning( disable : 4290 )
-#endif
-
-class r_Error;
-class r_Einit_overflow;
-class r_Eindex_violation;
-class r_Edim_mismatch;
-
-#include "raslib/mddtypes.hh"
-#include "raslib/error.hh"
-
+#include "raslib/mddtypes.hh"  // for r_Range, r_Dimension
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -93,15 +81,15 @@ public:
     ~r_Point();
 
     /// subscriptor for read access
-    r_Range  operator[](r_Dimension) const;
+    r_Range operator[](r_Dimension) const;
     /// subscriptor for write access
     r_Range &operator[](r_Dimension);
 
     /// assignment: cleanup + copy
-    const r_Point &operator= (const r_Point &);
+    const r_Point &operator=(const r_Point &);
 
     /// compares this point with the given point.
-    inline int compare_with(const  r_Point &p) const;
+    inline int compare_with(const r_Point &p) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in decreasing order of magnitude).
@@ -117,14 +105,9 @@ public:
 
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Point &) const;
-
     bool operator < (const r_Point &) const;
-
     bool operator > (const r_Point &) const;
-
-
     bool operator <= (const r_Point &) const;
-
     bool operator >= (const r_Point &) const;
 
     /// vector addition
@@ -152,7 +135,7 @@ public:
     std::vector<r_Range> getVector() const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
 
     /// gives back the string representation
     char *get_string_representation() const;
@@ -178,14 +161,8 @@ private:
     r_Dimension streamInitCnt;
 };
 
-
-
-//@ManMemo: Module: {\bf raslib}
-/**
-  Output stream operator for objects of type {\tt const} \Ref{r_Point}.
-*/
 extern std::ostream &operator<<(std::ostream &s, const r_Point &d);
 
-#include "raslib/point.icc"
+#include "point.icc" // IWYU pragma: keep
 
 #endif

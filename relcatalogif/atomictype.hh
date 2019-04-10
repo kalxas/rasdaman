@@ -38,7 +38,8 @@ rasdaman GmbH.
 #ifndef _ATOMICTYPE_HH_
 #define _ATOMICTYPE_HH_
 
-#include "basetype.hh"
+#include "basetype.hh"            // for BaseType
+#include "reladminif/oidif.hh"    // for OId
 
 //@ManMemo: Module: {\bf relcatalogif}.
 

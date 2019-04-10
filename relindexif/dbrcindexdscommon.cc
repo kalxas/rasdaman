@@ -32,18 +32,19 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-#include "dbrcindexds.hh"
-#include "reladminif/objectbroker.hh"
-#include "reladminif/dbref.hh"
-#include "reladminif/lists.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "relblobif/blobtile.hh"
-#include "indexmgr/keyobject.hh"
-#include "storagemgr/sstoragelayout.hh"
-#include <logging.hh>
+#include "dbrcindexds.hh"                   // for DBRCIndexDS
+#include "reladminif/dbobject.hh"           // for DBObject
+#include "reladminif/oidif.hh"              // for OId, operator<<, operator==
+#include "reladminif/lists.h"               // for KeyObjectVector
+#include "indexmgr/indexds.hh"              // for IndexDS
+#include "indexmgr/keyobject.hh"            // for KeyObject, operator<<
+#include "relcatalogif/inlineminterval.hh"  // for InlineMinterval
+#include "raslib/error.hh"                  // for r_Error, r_Error::r_Error_Fea...
+#include "raslib/mddtypes.hh"               // for r_Bytes, r_Dimension
+#include "raslib/minterval.hh"              // for r_Minterval, operator<<
+
+#include <logging.hh>                       // for Writer, CFATAL, LERROR, CTRACE
+#include <ostream>                          // for operator<<, basic_ostream, std::endl
 
 DBRCIndexDS::DBRCIndexDS(const OId &id)
     : IndexDS(id),

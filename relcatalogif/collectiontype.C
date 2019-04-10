@@ -25,6 +25,8 @@ rasdaman GmbH.
 
 #include "collectiontype.hh"
 #include "mddtype.hh"                 // for MDDType
+#include "reladminif/dbnamedobject.hh"  // for DBNamedObject
+#include "dbnullvalues.hh"            // for DBNullvalues
 #include "raslib/nullvalues.hh"
 
 r_Bytes CollectionType::getMemorySize() const

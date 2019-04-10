@@ -23,7 +23,11 @@ rasdaman GmbH.
 
 #include "mddtype.hh"                 // for MDDType, MDDType::MDDONLYTYPE
 #include "type.hh"                    // for Type, ostream
-#include "raslib/minterval.hh"
+#include "reladminif/dbnamedobject.hh"// for DBNamedObject
+#include "reladminif/oidif.hh"        // for OId, OId::MDDTYPEOID
+#include "raslib/odmgtypes.hh"        // for MDDTYPE
+#include "raslib/mddtypes.hh"         // for r_Bytes
+#include "raslib/minterval.hh"        // for operator<<, r_Minterval
 #include "mymalloc/mymalloc.h"
 
 #include <logging.hh>                 // for Writer, CTRACE, LTRACE

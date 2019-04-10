@@ -39,7 +39,6 @@ rasdaman GmbH.
 
 #include <iosfwd>
 #include "collectiontype.hh"
-#include "catalogmgr/ops.hh"
 
 class SetType;
 class OId;

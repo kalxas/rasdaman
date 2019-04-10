@@ -44,7 +44,6 @@ rasdaman GmbH.
 #include <values.h>
 #endif
 #include "realtype.hh"
-#include "catalogmgr/ops.hh"
 
 class OId;
 

@@ -32,11 +32,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
-#include "config.h"
 #include "dbstoragelayout.hh"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/sqlglobals.h"
 #include "storagemgr/sstoragelayout.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"

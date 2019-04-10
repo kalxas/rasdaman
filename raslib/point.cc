@@ -29,23 +29,18 @@ rasdaman GmbH.
  * COMMENTS:
  *
 */
-
-static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/28 11:58:13 coman Exp $";
-
-#include "config.h"
 #include "point.hh"
-
-#include <string.h>
-#include <sstream>
-
-#include <logging.hh>
-
 #include "raslib/error.hh"
+#include <logging.hh>              // for Writer, CFATAL, LOG
+#include <string.h>                // for strchr, strdup
+#include <iostream>                 // for operator<<, basic_ostream<>::__ost...
+#include <stdexcept>               // for runtime_error
+#include <string>                  // for basic_string
 
 r_Point::r_Point(char *stringRep)
-    : points(NULL), dimensionality(1), streamInitCnt(0)
+    : points(nullptr), dimensionality(1), streamInitCnt(0)
 {
-    char    charToken = 0;
+    char charToken = 0;
     r_Range valueToken = 0;
 
     // for parsing the string
@@ -59,7 +54,7 @@ r_Point::r_Point(char *stringRep)
     }
 
     // allocate space for intervals
-    points = new r_Range[ dimensionality ];
+    points = new r_Range[dimensionality];
 
     str >> charToken;
     if (charToken != '[')
@@ -67,7 +62,7 @@ r_Point::r_Point(char *stringRep)
         // error
         dimensionality = 0;
         delete[] points;
-        points = NULL;
+        points = nullptr;
         throw r_Error(NOPOINT);
     }
 
@@ -84,26 +79,22 @@ r_Point::r_Point(char *stringRep)
                 // error
                 dimensionality = 0;
                 delete[] points;
-                points = NULL;
+                points = nullptr;
                 throw r_Error(NOPOINT);
             }
         }
     }
 }
 
-
-r_Point::r_Point(r_Dimension dim)
-    : dimensionality(dim),
-      streamInitCnt(0)
+r_Point::r_Point(r_Dimension dim) : dimensionality(dim), streamInitCnt(0)
 {
-    points = new r_Range[ dimensionality ];
+    points = new r_Range[dimensionality];
 
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
         points[i] = 0;
     }
 }
-
 
 r_Point &r_Point::operator<<(r_Range newElement)
 {
@@ -117,45 +108,36 @@ r_Point &r_Point::operator<<(r_Range newElement)
     return *this;
 }
 
-
-r_Point::r_Point(r_Range p1, r_Range p2)
-    : dimensionality(2),
-      streamInitCnt(2)
+r_Point::r_Point(r_Range p1, r_Range p2) : dimensionality(2), streamInitCnt(2)
 {
-    points    = new r_Range[dimensionality];
+    points = new r_Range[dimensionality];
     points[0] = p1;
     points[1] = p2;
 }
 
-
 r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3)
-    : dimensionality(3),
-      streamInitCnt(3)
+    : dimensionality(3), streamInitCnt(3)
 {
-    points    = new r_Range[dimensionality];
+    points = new r_Range[dimensionality];
     points[0] = p1;
     points[1] = p2;
     points[2] = p3;
 }
 
-
 r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4)
-    : dimensionality(4),
-      streamInitCnt(4)
+    : dimensionality(4), streamInitCnt(4)
 {
-    points    = new r_Range[dimensionality];
+    points = new r_Range[dimensionality];
     points[0] = p1;
     points[1] = p2;
     points[2] = p3;
     points[3] = p4;
 }
 
-
 r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
-    : dimensionality(5),
-      streamInitCnt(5)
+    : dimensionality(5), streamInitCnt(5)
 {
-    points    = new r_Range[dimensionality];
+    points = new r_Range[dimensionality];
     points[0] = p1;
     points[1] = p2;
     points[2] = p3;
@@ -164,8 +146,7 @@ r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
 }
 
 r_Point::r_Point(const std::vector<r_Range> &pointArg)
-    : dimensionality(pointArg.size()),
-      streamInitCnt(dimensionality)
+    : dimensionality(pointArg.size()), streamInitCnt(dimensionality)
 {
     points = new r_Range[dimensionality];
     for (size_t i = 0; i < dimensionality; i++)
@@ -174,19 +155,12 @@ r_Point::r_Point(const std::vector<r_Range> &pointArg)
     }
 }
 
-
-r_Point::r_Point()
-    : points(NULL),
-      dimensionality(0),
-      streamInitCnt(0)
-{
-}
-
+r_Point::r_Point() : points(nullptr), dimensionality(0), streamInitCnt(0) {}
 
 r_Point::r_Point(const r_Point &pt)
-    :   points(new r_Range[pt.dimensionality]),
-        dimensionality(pt.dimensionality),
-        streamInitCnt(pt.streamInitCnt)
+    : points(new r_Range[pt.dimensionality]),
+      dimensionality(pt.dimensionality),
+      streamInitCnt(pt.streamInitCnt)
 {
     for (r_Dimension i = 0; i < dimensionality; i++)
     {
@@ -194,19 +168,16 @@ r_Point::r_Point(const r_Point &pt)
     }
 }
 
-
 r_Point::~r_Point()
 {
     if (points)
     {
         delete[] points;
-        points = NULL;
+        points = nullptr;
     }
 }
 
-
-r_Range
-r_Point::operator[](r_Dimension i) const
+r_Range r_Point::operator[](r_Dimension i) const
 {
     if (i >= dimensionality)
     {
@@ -217,9 +188,7 @@ r_Point::operator[](r_Dimension i) const
     return points[i];
 }
 
-
-r_Range &
-r_Point::operator[](r_Dimension i)
+r_Range &r_Point::operator[](r_Dimension i)
 {
     if (i >= dimensionality)
     {
@@ -230,40 +199,34 @@ r_Point::operator[](r_Dimension i)
     return points[i];
 }
 
-
-const r_Point &
-r_Point::operator=(const r_Point &pt)
+const r_Point &r_Point::operator=(const r_Point &pt)
 {
     if (this != &pt)
     {
         if (points && dimensionality != pt.dimension())
         {
             delete[] points;
-            points = NULL;
+            points = nullptr;
         }
 
         dimensionality = pt.dimension();
-        streamInitCnt  = dimensionality;
+        streamInitCnt = dimensionality;
 
         if (!points)
         {
-            points = new r_Range[ dimensionality ];
+            points = new r_Range[dimensionality];
         }
 
         for (r_Dimension i = 0; i < dimensionality; i++)
         {
             points[i] = pt[i];
         }
-
     }
 
     return *this;
 }
 
-
-
-bool
-r_Point::operator==(const r_Point &pt) const
+bool r_Point::operator==(const r_Point &pt) const
 {
     bool returnValue = false;
 
@@ -271,7 +234,7 @@ r_Point::operator==(const r_Point &pt) const
     {
         returnValue = true;
 
-        for (r_Dimension i = 0; i < dimensionality && returnValue ; i++)
+        for (r_Dimension i = 0; i < dimensionality && returnValue; i++)
         {
             if (points[i] != pt[i])
             {
@@ -284,10 +247,7 @@ r_Point::operator==(const r_Point &pt) const
     return returnValue;
 }
 
-
-
-bool
-r_Point::operator!=(const r_Point &pt) const
+bool r_Point::operator!=(const r_Point &pt) const
 {
     return !operator==(pt);
 }
@@ -359,8 +319,7 @@ r_Point::operator <= (const r_Point &pt) const
     return returnValue;
 }
 
-r_Point
-r_Point::operator+(const r_Point &pt) const
+r_Point r_Point::operator+(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -378,8 +337,7 @@ r_Point::operator+(const r_Point &pt) const
     return result;
 }
 
-r_Point
-r_Point::operator-(const r_Point &pt) const
+r_Point r_Point::operator-(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -397,8 +355,7 @@ r_Point::operator-(const r_Point &pt) const
     return result;
 }
 
-r_Point
-r_Point::operator*(const r_Point &pt) const
+r_Point r_Point::operator*(const r_Point &pt) const
 {
     if (dimensionality != pt.dimension())
     {
@@ -472,8 +429,7 @@ r_Point::getVector() const
     return returnVal;
 }
 
-void
-r_Point::print_status(std::ostream &s) const
+void r_Point::print_status(std::ostream &s) const
 {
     s << "[";
 
@@ -490,9 +446,7 @@ r_Point::print_status(std::ostream &s) const
     s << "]";
 }
 
-
-char *
-r_Point::get_string_representation() const
+char *r_Point::get_string_representation() const
 {
     // initialize string stream
     std::ostringstream domainStream;

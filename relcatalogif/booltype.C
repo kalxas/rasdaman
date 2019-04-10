@@ -33,7 +33,7 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "booltype.hh"
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include "reladminif/oidif.hh"    // for OId
 
 /*************************************************************
  * Method name...: BoolType();

@@ -30,9 +30,7 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"                    // for r_Dimension, r_Bytes
 #include "raslib/minterval.hh"                   // for r_Minterval
 #include "mymalloc/mymalloc.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/objectbroker.hh"
+#include "catalogmgr/typefactory.hh"             // for TypeFactory
 #include <logging.hh>                            // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with

@@ -33,8 +33,12 @@ rasdaman GmbH.
 #ifndef _TRANSDIRIX_HH_
 #define _TRANSDIRIX_HH_
 
-#include "indexmgr/indexds.hh"
-#include "reladminif/lists.h"
+#include "indexds.hh"           // for IndexDS
+#include "keyobject.hh"         // for KeyObject
+#include "reladminif/lists.h"   // for KeyObjectVector, DomainPVector
+#include "reladminif/oidif.hh"  // for OId, OId::OIdPrimitive
+#include "raslib/mddtypes.hh"   // for r_Dimension, r_Bytes
+#include "raslib/minterval.hh"  // for r_Minterval
 
 #include <iosfwd>                   // for cout, ostream
 

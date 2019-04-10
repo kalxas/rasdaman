@@ -38,10 +38,9 @@ rasdaman GmbH.
 #define _TYPE_HH_
 
 #include "reladminif/dbnamedobject.hh"  // for DBNamedObject
-#include "catalogmgr/ops.hh"
 #include "catalogmgr/typeenum.hh"
 
-#include <iosfwd>                   // for cout, endl, ostream
+#include <iosfwd>                     // for cout, endl, ostream
 #include <vector>                     // for vector
 
 class BaseType;

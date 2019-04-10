@@ -41,7 +41,6 @@ rasdaman GmbH.
 #include <vector>
 
 #include "compositetype.hh"
-#include "catalogmgr/ops.hh"
 
 class BaseType;
 

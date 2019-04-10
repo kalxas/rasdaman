@@ -5,6 +5,7 @@
 #include "qlparser/qtoncstream.hh"
 #include "qlparser/qtoperation.hh"
 #include "qlparser/qtmdd.hh"
+#include "catalogmgr/ops.hh"
 
 #include <iostream>
 

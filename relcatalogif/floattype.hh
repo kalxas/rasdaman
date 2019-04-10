@@ -39,7 +39,6 @@ rasdaman GmbH.
 
 #include <iosfwd>     // for ostream
 #include "realtype.hh"  // for RealType
-#include "catalogmgr/ops.hh"
 
 class OId;
 

@@ -34,11 +34,9 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "mddbasetype.hh"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
-#include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
+#include "reladminif/sqlglobals.h"
 #include <logging.hh>
 
 void MDDBaseType::insertInDb()

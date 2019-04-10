@@ -4,7 +4,7 @@
 #include "globals.hh"
 #include "rasserver_error.hh"
 #include "rasserver_config.hh"
-
+#include "raslib/error.hh"
 
 
 using namespace std;

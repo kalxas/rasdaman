@@ -53,7 +53,8 @@ string crsToWkt(const string &crs) {
 }
 
 GeoBbox::GeoBbox(const string &crsArg, const string &boundsArg, int w, int h)
-  : width{w}, height{h}, crs{crsArg}, wkt{crsToWkt(crsArg)}, bounds{boundsArg}
+  : gt{0,0,0,0,0}, width{w}, height{h}, crs{crsArg}, wkt{crsToWkt(crsArg)},
+    bounds{boundsArg}
 {
   // parse bounds
   if (!bounds.empty()) {

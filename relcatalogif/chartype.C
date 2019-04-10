@@ -33,7 +33,8 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "chartype.hh"
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include "reladminif/oidif.hh"    // for OId
+
 #include <limits.h>       // for UCHAR_MAX
 #include <iomanip>        // for operator<<, setw
 

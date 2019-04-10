@@ -22,9 +22,11 @@
 ###################################################################
 
 # The name of the SQL sources files without extension
-set(EMBEDDED_SQL_SOURCES dbminterval dbnullvalues 
-        mddbasetype mdddimensiontype mdddomaintype mddtype
-        settype structtype)
+set(EMBEDDED_SQL_SOURCES
+    dbminterval dbnullvalues
+    mddbasetype mdddimensiontype mdddomaintype mddtype
+    settype structtype
+    )
 
 set(COMPILED_SQL_SOURCES "")
 
@@ -33,41 +35,43 @@ foreach (FILE ${EMBEDDED_SQL_SOURCES})
 endforeach ()
 
 add_library(relcatalogif ${COMPILED_SQL_SOURCES}
-        alltypes.hh
-        atomictype.C atomictype.hh
-        basetype.C basetype.hh
-        booltype.C booltype.hh
-        chartype.C chartype.hh
-        collectiontype.C collectiontype.hh
-        complextype.hh complextype.icc
-        compositetype.C compositetype.hh
-        dbminterval.hh 
-        dbnullvalues.hh
-        doubletype.C doubletype.hh
-        floattype.C floattype.hh
-        inlineminterval.cc inlineminterval.hh
-        integraltype.hh integraltype.icc
-        longtype.C longtype.hh
-        mddbasetype.hh
-        mddbasetypecommon.cc
-        mdddimensiontype.hh mdddimensiontypecommon.cc
-        mdddomaintype.hh mdddomaintypecommon.cc
-        mddtype.hh mddtypecommon.cc
-        octettype.C octettype.hh
-        realtype.hh realtype.icc
-        settype.hh settypecommon.cc
-        shorttype.C shorttype.hh
-        structtype.hh structtype.icc structtypecommon.cc
-        type.C type.hh
-        typeiterator.hh
-        uintegraltype.hh uintegraltype.icc
-        ulongtype.C ulongtype.hh
-        ushorttype.C ushorttype.hh)
+    alltypes.hh
+    atomictype.C atomictype.hh
+    basetype.C basetype.hh
+    booltype.C booltype.hh
+    chartype.C chartype.hh
+    collectiontype.C collectiontype.hh
+    complextype.hh complextype.icc
+    compositetype.C compositetype.hh
+    dbminterval.hh
+    dbnullvalues.hh
+    doubletype.C doubletype.hh
+    floattype.C floattype.hh
+    inlineminterval.cc inlineminterval.hh
+    integraltype.hh integraltype.icc
+    longtype.C longtype.hh
+    mddbasetype.hh
+    mddbasetypecommon.cc
+    mdddimensiontype.hh mdddimensiontypecommon.cc
+    mdddomaintype.hh mdddomaintypecommon.cc
+    mddtype.hh mddtypecommon.cc
+    octettype.C octettype.hh
+    realtype.hh realtype.icc
+    settype.hh settypecommon.cc
+    shorttype.C shorttype.hh
+    structtype.hh structtype.icc structtypecommon.cc
+    type.C type.hh
+    typeiterator.hh
+    uintegraltype.hh uintegraltype.icc
+    ulongtype.C ulongtype.hh
+    ushorttype.C ushorttype.hh
+    )
 
 target_include_directories(relcatalogif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relcatalogif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relcatalogif ${BASEDB_LIBRARIES})
+target_link_libraries(relcatalogif PUBLIC
+        relmddif reladminif raslib)
 
 install(TARGETS relcatalogif
         DESTINATION ${LIB_DIR})

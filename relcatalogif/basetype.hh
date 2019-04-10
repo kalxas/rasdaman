@@ -39,9 +39,11 @@ rasdaman GmbH.
 
 #include <iosfwd>      // for ostream
 
-#include "raslib/odmgtypes.hh"
-#include "type.hh"
+#include "raslib/odmgtypes.hh"  // for r_Long, r_ULong
+#include "type.hh"       // for Type, ostream
 #include "catalogmgr/ops.hh"
+
+class OId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 

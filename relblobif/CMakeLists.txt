@@ -33,12 +33,14 @@ endforeach ()
 set(SQLITE_SRC "")
 
 if (BASEDB_SQLITE)
-  set(SQLITE_SRC blobfs.cc blobfs.hh
-               dirwrapper.cc dirwrapper.hh
-               blobfstransaction.cc blobfstransaction.hh
-               blobfstransactionlock.cc blobfstransactionlock.hh
-               blobfile.cc blobfile.hh
-               lockfile.cc lockfile.hh)
+  set(SQLITE_SRC
+      blobfs.cc blobfs.hh
+      dirwrapper.cc dirwrapper.hh
+      blobfstransaction.cc blobfstransaction.hh
+      blobfstransactionlock.cc blobfstransactionlock.hh
+      blobfile.cc blobfile.hh
+      lockfile.cc lockfile.hh
+      )
 endif(BASEDB_SQLITE)
 
 add_library(relblobif 
@@ -57,6 +59,8 @@ add_library(relblobif
 target_include_directories(relblobif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relblobif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+
+add_dependencies(relblobif reladminif)
 
 target_link_libraries(relblobif ${BASEDB_LIBRARIES})
 

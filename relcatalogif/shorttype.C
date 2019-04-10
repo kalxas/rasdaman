@@ -38,6 +38,7 @@ rasdaman GmbH.
 #include "atomictype.hh"  // for AtomicType
 #include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
 #include "shorttype.hh"
+#include "reladminif/oidif.hh"        // for OId
 
 ShortType::ShortType(const OId &id) : IntegralType(id)
 {

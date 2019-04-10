@@ -23,10 +23,15 @@
 ###################################################################
 
 add_library(catalogmgr
-        algebraops.hh algebraops.cc
-        nullvalues.hh nullvalues.cc
-        ops.hh ops.cc
-        typefactory.hh typefactory.cc)
+    algebraops.hh algebraops.cc
+    nullvalues.hh nullvalues.cc
+    ops.hh ops.cc
+    typeenum.hh
+    typefactory.hh typefactory.cc
+    )
+
+target_link_libraries(catalogmgr
+    reladminif relcatalogif relmddif raslib)
 
 add_dependencies(catalogmgr reladminif)
 

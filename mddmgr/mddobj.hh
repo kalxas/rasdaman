@@ -33,9 +33,14 @@ rasdaman GmbH.
 #ifndef _MDDOBJ_HH_
 #define _MDDOBJ_HH_
 
+#include "reladminif/oidif.hh"              // for OId
+#include "relmddif/mddid.hh"                // for DBMDDObjId
+#include "storagemgr/sstoragelayout.hh"     // for StorageLayout
 #include "tilemgr/tile.hh"
-#include "relcatalogif/mddbasetype.hh"   // from catalogif base DBMS class
-#include "raslib/minterval.hh"
+#include "relcatalogif/mddbasetype.hh"      // from catalogif base DBMS class
+#include "raslib/mddtypes.hh"               // for r_Dimension
+#include "raslib/minterval.hh"              // for r_Minterval
+#include "raslib/point.hh"                  // for r_Point
 #include "storagemgr/sstoragelayout.hh"
 #include "relmddif/mddid.hh"
 #include "catalogmgr/nullvalues.hh"
@@ -43,6 +48,7 @@ rasdaman GmbH.
 #include <boost/shared_ptr.hpp>                // for shared_ptr
 #include <vector>                              // for vector
 #include <iosfwd>                              // for cout, ostream
+#include <string>                              // for string
 
 class MDDObjIx;
 

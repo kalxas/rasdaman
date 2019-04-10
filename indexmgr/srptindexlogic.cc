@@ -21,20 +21,22 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
-#include "indexmgr/srptindexlogic.hh"
-#include "tilemgr/tile.hh"
-#include "raslib/point.hh"
-#include "indexmgr/sdirindexlogic.hh"
-#include "indexmgr/keyobject.hh"
-#include "relindexif/hierindex.hh"
-#include "reladminif/dbref.hh"
-#include "relindexif/indexid.hh"
+#include "srptindexlogic.hh"
+#include "sdirindexlogic.hh"           // for SDirIndexLogic
+#include "hierindexds.hh"              // for HierIndexDS
+#include "indexds.hh"                  // for IndexDS
+#include "keyobject.hh"                // for KeyObject, operator<<
+#include "reladminif/oidif.hh"         // for OId, operator<<, OId::OIdPrimi...
+#include "reladminif/dbobject.hh"      // for DBObjectId
+#include "relindexif/hierindex.hh"     // for DBHierIndex
+#include "relindexif/indexid.hh"       // for DBHierIndexId
+#include "raslib/error.hh"             // for r_Error, INDEXEXHAUSTEDAREA
+#include "raslib/sinterval.hh"         // for r_Sinterval
+#include "logging.hh"                  // for LTRACE, LERROR
 
-#include <logging.hh>
-#include <math.h>
-
-const float    ff = 0.5;
+#include <math.h>                      // for fabs
+#include <memory>                      // for allocator_traits<>::value_type
+#include <vector>                      // for vector
 
 using std::vector;
 

@@ -28,21 +28,27 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-#include "raslib/rmdebug.hh"
-#include "raslib/odmgtypes.hh"
-#include "indexmgr/srcindexlogic.hh"
-#include "keyobject.hh"
-#include "indexds.hh"
-#include "relindexif/dbrcindexds.hh"
-#include "storagemgr/sstoragelayout.hh"
-#include "relblobif/tileid.hh"
-#include "relblobif/blobtile.hh"
+#include "srcindexlogic.hh"           // for SRCIndexLogic
+#include "indexds.hh"                 // for IndexDS
+#include "keyobject.hh"               // for KeyObject, operator<<
+#include "reladminif/dbobject.hh"     // for DBObjectId, DBObject
+#include "reladminif/lists.h"         // for KeyObjectVector
+#include "reladminif/oidif.hh"        // for OId, OId::OIdCounter, operator<<
+#include "relindexif/dbrcindexds.hh"  // for DBRCIndexDS
+#include "relblobif/blobtile.hh"      // for BLOBTile
+#include "relblobif/tileid.hh"        // for DBTileId
+#include "relblobif/dbtile.hh"        // for DBTile
 #include "raslib/mitera.hh"
-#include <logging.hh>
+#include "raslib/error.hh"            // for r_Error, TILECONFIGMARRAYINCOMP...
+#include "raslib/mddtypes.hh"         // for r_Range, r_Dimension
+#include "raslib/odmgtypes.hh"        // for r_Double
+#include "raslib/minterval.hh"        // for r_Minterval, operator<<
+#include "raslib/point.hh"            // for r_Point, operator<<
+#include "raslib/sinterval.hh"        // for r_Sinterval, operator<<
+#include "storagemgr/sstoragelayout.hh"
+#include "logging.hh"                 // for LTRACE, LERROR
 
-#include <math.h>
-#include <iostream>
+#include <cmath>                      // for fmod
 
 unsigned int
 SRCIndexLogic::computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain)

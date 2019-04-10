@@ -22,8 +22,12 @@
 ###################################################################
 
 add_library(mddmgr mddcoll.hh mddcoll.cc
-        mddcolliter.hh mddcolliter.cc
-        mddobj.hh mddobj.cc)
+    mddcolliter.hh mddcolliter.cc
+    mddobj.hh mddobj.cc)
+
+target_link_libraries(mddmgr
+    indexmgr tilemgr catalogmgr raslib
+    reladminif relblobif relcatalogif relmddif relstorageif)
 
 install(TARGETS mddmgr
-        DESTINATION ${LIB_DIR})
+    DESTINATION ${LIB_DIR})

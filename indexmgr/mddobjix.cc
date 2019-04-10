@@ -31,23 +31,34 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-#include <iostream>
-#include <math.h>
-
-#include "indexmgr/mddobjix.hh"
-#include "tilemgr/tile.hh"
-#include "indexmgr/srptindexlogic.hh"
-#include "indexmgr/sdirindexlogic.hh"
-#include "indexmgr/srcindexlogic.hh"
-#include "indexmgr/transdirix.hh"
-#include "relindexif/hierindex.hh"
-#include "relindexif/dbtcindex.hh"
-#include "relindexif/dbrcindexds.hh"
-#include "keyobject.hh"
-#include "reladminif/lists.h"
-#include "relblobif/tileid.hh"
+#include "mddobjix.hh"                 // for MDDObjIx
+#include "hierindexds.hh"              // for HierIndexDS
+#include "keyobject.hh"                // for KeyObject, operator<<
+#include "indexds.hh"                  // for IndexDS
+#include "sdirindexlogic.hh"           // for SDirIndexLogic
+#include "srcindexlogic.hh"            // for SRCIndexLogic
+#include "srptindexlogic.hh"           // for SRPTIndexLogic
+#include "transdirix.hh"               // for TransDirIx
+#include "reladminif/lists.h"          // for KeyObjectVector
+#include "reladminif/dbobject.hh"      // for DBObjectId, DBObject
+#include "relindexif/dbrcindexds.hh"   // for DBRCIndexDS
+#include "relindexif/dbtcindex.hh"     // for DBTCIndex
+#include "relindexif/hierindex.hh"     // for DBHierIndex
+#include "relblobif/tileid.hh"         // for DBTileId
+#include "tilemgr/tile.hh"             // for Tile
+#include "storagemgr/sstoragelayout.hh"// for StorageLayout
+#include "raslib/error.hh"             // for r_Error, ILLEGAL_INDEX_TYPE
+#include "raslib/mddtypes.hh"          // for r_Auto_Index, r_Directory_Index
+#include "raslib/minterval.hh"         // for r_Minterval, operator<<
+#include "raslib/point.hh"             // for r_Point
 #include <logging.hh>
+
+#include <boost/make_shared.hpp>       // for shared_ptr::operator!, shared_...
+#include <boost/shared_ptr.hpp>        // for shared_ptr, operator==
+#include <ext/alloc_traits.h>          // for __alloc_traits<>::value_type
+#include <iostream>                    // for operator<<, ostream, basic_ost...
+#include <memory>                      // for allocator_traits<>::value_type
+#include <vector>                      // for vector, vector<>::iterator
 
 using boost::shared_ptr;
 using std::vector;

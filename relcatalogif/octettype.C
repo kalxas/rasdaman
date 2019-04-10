@@ -32,14 +32,13 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,OctetType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/octettype.C,v 1.9 2003/12/27 23:23:04 rasdev Exp $";
 
 #include <limits.h>       // for SCHAR_MAX, SCHAR_MIN
 #include <iomanip>        // for operator<<, setw
 
 #include "atomictype.hh"  // for AtomicType
 #include "octettype.hh"
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include "reladminif/oidif.hh"        // for OId
 
 OctetType::OctetType(const OId &id) : IntegralType(id)
 {

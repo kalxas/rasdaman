@@ -23,20 +23,27 @@ rasdaman GmbH.
 #ifndef _DBTCINDEX_HH_
 #define _DBTCINDEX_HH_
 
-#include "hierindex.hh"
+#include "relindexif/hierindex.hh"
+#include "reladminif/oidif.hh"
 #include "relblobif/tileid.hh"
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
-This class stores data of hierarchical indexes in the database.  It is extended to store tiles _inline_.  this means it is possible for this class to concatenate several tiles into one large blob and store this blob in the database.  the tiles must be inlinetiles.  it is only interessting if the size of the tiles is very small (smaller than a disc page).
+This class stores data of hierarchical indexes in the database.  It is extended
+to store tiles _inline_.  this means it
+is possible for this class to concatenate several tiles into one large blob and
+store this blob in the database.  the
+tiles must be inlinetiles.  it is only interessting if the size of the tiles is
+very small (smaller than a disc page).
 
-for further information on the methods of this class see hierindexds and indexds interface classes in indexmgr.
+for further information on the methods of this class see hierindexds and indexds
+interface classes in indexmgr.
 */
 /**
   * \ingroup Relindexifs
   */
 
-class DBTCIndex :   public DBHierIndex
+class DBTCIndex : public DBHierIndex
 {
 public:
     DBTCIndex(r_Dimension dim, bool isNode);
@@ -45,43 +52,51 @@ public:
         instance is imediately persistent
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream &stream = std::cout) const;
+    void printStatus(unsigned int level,
+                     std::ostream &stream) const override;
     /*@Doc:
         Prints current status of index, in hierarchical format.
     */
 
-    ~DBTCIndex() noexcept(false);
+    ~DBTCIndex() noexcept(false) override;
     /*@Doc:
     */
 
-    virtual bool removeObject(const KeyObject &entry);
+    bool removeObject(const KeyObject &entry) override;
     /*@Doc:
         will take care of inlined tiles when they are removed.
     */
 
-    virtual bool removeObject(unsigned int pos);
+    bool removeObject(unsigned int pos) override;
     /*@Doc:
         will take care of inlined tiles when they are removed.
     */
 
     virtual void removeInlineTile(InlineTile *);
     /*@Doc:
-        this method is called by inlinetile to removeitselve from the index when it is outlined.  the oid of this tile is still stored in the index.  do not confuse with removeObejct!
+        this method is called by inlinetile to removeitselve from the index when
+       it is outlined.  the oid of this tile is
+       still stored in the index.  do not confuse with removeObejct!
     */
 
     virtual void addInlineTile(InlineTile *);
     /*@Doc:
-        this method is called by inlinetile when it is told to inline itself into this index.
+        this method is called by inlinetile when it is told to inline itself into
+       this index.
     */
 
     void setInlineTileHasChanged();
     /*@Doc:
-        called by an inlined inlinetile when it is modified.  the index must know about this in order to update the inlinetile in the database.
+        called by an inlined inlinetile when it is modified.  the index must know
+       about this in order to update the
+       inlinetile in the database.
     */
 
-    virtual IndexDS *getNewInstance() const;
+    IndexDS *getNewInstance() const override;
     /*@Doc:
-        used by indexmgr index logic classes to generate new nodes/leaves without knowing what kind of index structure it is operating with.  in essence a clone() pattern.
+        used by indexmgr index logic classes to generate new nodes/leaves without
+       knowing what kind of index structure it
+       is operating with.  in essence a clone() pattern.
     */
 
 protected:
@@ -96,26 +111,29 @@ protected:
         memory management is done by the DBTCIndex object.
     */
 
-
     void changeIOIdToBOId();
     /*@Doc:
-        changes all inlineoids to bloboids.  needed in order to be able to use dbhierindex database functionality.
+        changes all inlineoids to bloboids.  needed in order to be able to use
+       dbhierindex database functionality.
     */
-
 
     void readyForRemoval(const OId &id);
     /*@Doc:
-        inlined inlinetiles must be loaded previous to removing them in order to get them outlined.
+        inlined inlinetiles must be loaded previous to removing them in order to
+       get them outlined.
     */
 
     void changeBOIdToIOId();
     /*@Doc:
-        changes the bloboids of the inlinetiles which are stored in this index into inlineoids.  also neccessary to be able to use dbhierindex functionality.
+        changes the bloboids of the inlinetiles which are stored in this index
+       into inlineoids.  also neccessary to be
+       able to use dbhierindex functionality.
     */
 
     void registerIOIds();
     /*@Doc:
-        registers all inline oids with the objectbroker.  changeIOIdToBOId is supposed to be called afterwards.
+        registers all inline oids with the objectbroker.  changeIOIdToBOId is
+       supposed to be called afterwards.
     */
 
     void readInlineTiles();
@@ -147,7 +165,8 @@ protected:
 
     void updateTileIndexMappings();
     /*
-        writes the mappings among dbtcindex and inlinetiles into the database for objectbroker to see.
+        writes the mappings among dbtcindex and inlinetiles into the database for
+       objectbroker to see.
         errors are database errors.
     */
 
@@ -155,16 +174,17 @@ protected:
 
     void setMappingHasChanged();
     /*@Doc:
-        tells the index that it has to update the table for mapping inlined inlinetile oids to dbtcindexes.
+        tells the index that it has to update the table for mapping inlined
+       inlinetile oids to dbtcindexes.
     */
 
-    virtual void readFromDb();
+    void readFromDb() override;
 
-    virtual void updateInDb();
+    void updateInDb() override;
 
-    virtual void deleteFromDb();
+    void deleteFromDb() override;
 
-    virtual void insertInDb();
+    void insertInDb() override;
 
     bool mappingHasChanged;
     /*@Doc:

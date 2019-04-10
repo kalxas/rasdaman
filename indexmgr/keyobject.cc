@@ -21,9 +21,14 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
+
 #include "keyobject.hh"
-#include "tilemgr/tile.hh"
+#include "tilemgr/tile.hh"        // for Tile
+#include "relblobif/tileid.hh"    // for DBTileId
+
+#include <boost/make_shared.hpp>  // for shared_ptr::operator bool
+#include <ostream>                // for operator<<, ostream, basic_ostream
+
 
 std::ostream &operator<<(std::ostream &in, const KeyObject &d)
 {

@@ -227,26 +227,26 @@ private:
     const char* newServerId;
 
     // directql
-    const char* queryString;
-    const char* fileName;
-    const char* baseName;
-    const char* user;
-    const char* passwd;
-    bool        output;
-    bool        displayType;
+    const char* queryString{NULL};
+    const char* fileName{NULL};
+    const char* baseName{NULL};
+    const char* user{NULL};
+    const char* passwd{NULL};
+    bool        output{false};
+    bool        displayType{false};
 
     OUTPUT_TYPE outputType;
-    const char* outFileMask;
+    const char* outFileMask{NULL};
     r_Minterval mddDomain;
-    const char* mddTypeName;
-    bool        quietLog;
-    bool        mddDomainDef;
-    bool        mddTypeNameDef;
-    bool        queryStringOn;
+    const char* mddTypeName{NULL};
+    bool        quietLog{false};
+    bool        mddDomainDef{false};
+    bool        mddTypeNameDef{false};
+    bool        queryStringOn{false};
 
     // rasdl
-    ProgModes   progMode;
-    bool        rasdlOn;
+    ProgModes   progMode{M_INVALID};
+    bool        rasdlOn{false};
 
 
 #ifdef RMANDEBUG

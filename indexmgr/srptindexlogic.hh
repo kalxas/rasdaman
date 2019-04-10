@@ -24,12 +24,14 @@ rasdaman GmbH.
 #ifndef _SRPTINDEXLOGIC_HH_
 #define _SRPTINDEXLOGIC_HH_
 
-#include "indexmgr/hierindexds.hh"
-#include "reladminif/lists.h"
+#include "hierindexds.hh"
+#include "keyobject.hh"         // for KeyObject
+#include "reladminif/lists.h"   // for KeyObjectVector, IndexPVector
+#include "raslib/mddtypes.hh"   // for r_Dimension, r_Range, r_Area
+#include "raslib/minterval.hh"  // for r_Minterval
+#include "raslib/point.hh"      // for r_Point
 
-class r_Point;
 class StorageLayout;
-
 
 /**
  *  @file srpindexlogic.hh

@@ -26,15 +26,14 @@ rasdaman GmbH.
 #include "mdddimensiontype.hh"                   // for MDDDimensionType
 #include "mdddomaintype.hh"                      // for MDDDomainType
 #include "mddtype.hh"                            // for MDDType::MDDDOMAINTYPE
-#include "raslib/odmgtypes.hh"                          // for MDDTYPE
-#include "raslib/error.hh"                   // for r_Error, r_Error::r_...
-#include "raslib/mddtypes.hh"                // for r_Bytes
-#include "raslib/minterval.hh"               // for operator<<, r_Minterval
+#include "type.hh"                               // for Type, ostream
+#include "catalogmgr/typefactory.hh"             // for TypeFactory, TypeFac...
+#include "raslib/odmgtypes.hh"                   // for MDDTYPE
+#include "raslib/error.hh"                       // for r_Error, r_Error::r_...
+#include "raslib/mddtypes.hh"                    // for r_Bytes
+#include "raslib/minterval.hh"                   // for operator<<, r_Minterval
 #include "mymalloc/mymalloc.h"
-#include "reladminif/sqlerror.hh"
-#include "reladminif/externs.h"
-#include "reladminif/objectbroker.hh"
-#include <logging.hh>
+#include <logging.hh>                            // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
 #include <stdlib.h>                              // for free, malloc

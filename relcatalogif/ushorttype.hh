@@ -38,11 +38,10 @@ rasdaman GmbH.
 #ifndef _USHORTTYPE_HH_
 #define _USHORTTYPE_HH_
 
-#include <iosfwd>          // for ostream
-#include "uintegraltype.hh"  // for UIntegralType
-#include "raslib/odmgtypes.hh"      // for r_ULong
-#include "reladminif/oidif.hh"          // for OId
-#include "catalogmgr/ops.hh"
+#include <iosfwd>              // for ostream
+#include "uintegraltype.hh"    // for UIntegralType
+#include "raslib/odmgtypes.hh" // for r_ULong
+#include "reladminif/oidif.hh" // for OId
 
 //@ManMemo: Module: {\bf relcatalogif}.
 

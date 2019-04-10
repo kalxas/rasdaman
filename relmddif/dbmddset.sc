@@ -93,8 +93,8 @@ DBMDDSet::DBMDDSet(const char *name, const OId &id, const CollectionType *type)
     SQLiteQuery query("SELECT MDDCollId FROM RAS_MDDCOLLNAMES WHERE MDDCollId = %lld", testoid1);
     if (query.nextRow())
     {
-        LERROR << "mdd object: " << testoid1 << " already exists in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
+        LERROR << "mdd collection with id " << testoid1 << " already exists in the database.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd collection with id already exists in the database.");
     }
     else
     {

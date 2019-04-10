@@ -35,18 +35,16 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "inlinetile.hh"
-#include "blobtile.hh"            // for BLOBTile
-#include "reladminif/externs.h"
-#include "raslib/error.hh"
-#include "reladminif/objectbroker.hh"
-#include "relindexif/dbtcindex.hh"
-#include "reladminif/dbref.hh"
-#include "storagemgr/sstoragelayout.hh"
+#include "blobtile.hh"              // for BLOBTile
+#include "reladminif/dbobject.hh"   // for DBObject
+#include "relindexif/dbtcindex.hh"  // for DBTCIndex
+#include "relindexif/indexid.hh"    // for DBTCIndexId
+#include "storagemgr/sstoragelayout.hh" // for StorageLayout
 #include "mymalloc/mymalloc.h"
 
-#include "logging.hh"             // for LTRACE
-#include <cstring>                // for memcpy
-#include <iostream>               // for operator<<, ostream, endl, basic_os...
+#include "logging.hh"               // for LTRACE
+#include <cstring>                  // for memcpy
+#include <iostream>                 // for operator<<, ostream, endl
 
 using std::endl;
 

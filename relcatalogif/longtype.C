@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 #include "atomictype.hh"  // for AtomicType
 #include "longtype.hh"
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
+#include "reladminif/oidif.hh"    // for OId
 
 LongType::LongType(const OId &id) : IntegralType(id)
 {

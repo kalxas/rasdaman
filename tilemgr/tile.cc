@@ -139,8 +139,8 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
     // calculate dimension of new Tile
     r_Dimension dim = 0;
     // pointer to cells in tile to be projected and new tile
-    char *cellTile = NULL;
-    char *cellProj = NULL;
+    char *cellTile = nullptr;
+    char *cellProj = nullptr;
 
     for (dim = 0; dim < projDom.dimension(); dim++)
     {
@@ -204,9 +204,8 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, r_Data_Format new
 
 Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershipOfNewCells,
            char *newCells, r_Bytes newSize, r_Data_Format newFormat)
-    :   domain(newDom),
-        type(newType),
-        blobTile((DBTile *)NULL)
+    : domain(newDom), type(newType),
+      blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize
            << ", takeOwnershipOfNewCells: " << takeOwnershipOfNewCells;
@@ -229,9 +228,8 @@ Tile::Tile(const r_Minterval &newDom, const BaseType *newType, bool takeOwnershi
 }
 
 Tile::Tile(const r_Minterval &newDom, const BaseType *newType, const char *newCells, r_Bytes newSize, r_Data_Format newFormat)
-    :   domain(newDom),
-        type(newType),
-        blobTile((DBTile *)NULL)
+    : domain(newDom), type(newType),
+      blobTile((DBTile *)NULL)
 {
     LTRACE << "Tile(), fmt " << newFormat << ", size " << newSize;
     r_Data_Format current = r_Array;
@@ -277,8 +275,7 @@ Tile::~Tile()
 {
 }
 
-DBTileId
-Tile::getDBTile()
+DBTileId Tile::getDBTile()
 {
     return blobTile;
 }
@@ -286,7 +283,7 @@ Tile::getDBTile()
 char *
 Tile::execCondenseOp(CondenseOp *myOp, const r_Minterval &areaOp)
 {
-    char *cellOp = NULL;
+    char *cellOp = nullptr;
     char *dummy = getContents();
     assert(dummy);
     r_Miter opTileIter(&areaOp, &getDomain(), getType()->getSize(), dummy);
@@ -680,8 +677,8 @@ Tile::scaleGetDomain(const r_Minterval &areaOp, const std::vector<double> &scale
 void
 Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval &areaOp)
 {
-    const char *cellOp = NULL;
-    char *cellRes = NULL;
+    const char *cellOp = nullptr;
+    char *cellRes = nullptr;
 
     // this may trigger decompression
     cellOp = opTile->getContents();
@@ -761,8 +758,8 @@ Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, cons
     {
 
 
-        const char *cellOp = NULL;
-        char *cellRes = NULL;
+        const char *cellOp = nullptr;
+        char *cellRes = nullptr;
 
         // this may trigger decompression
         cellOp = opTile->getContents();

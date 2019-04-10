@@ -39,7 +39,12 @@ add_library(relmddif ${COMPILED_SQL_SOURCES}
 target_include_directories(relmddif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relmddif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relmddif ${BASEDB_LIBRARIES})
+target_link_libraries(relmddif PUBLIC
+    reladminif
+    relblobif
+    relcatalogif
+    relstorageif
+    relindexif)
 
 install(TARGETS relmddif
         DESTINATION ${LIB_DIR})

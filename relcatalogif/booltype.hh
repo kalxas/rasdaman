@@ -37,9 +37,9 @@ rasdaman GmbH.
 #ifndef _BOOLTYPE_HH_
 #define _BOOLTYPE_HH_
 
+#include "uintegraltype.hh"  // for UIntegralType
+#include "raslib/odmgtypes.hh"      // for r_ULong
 #include <iosfwd>          // for ostream
-#include "uintegraltype.hh"
-#include "catalogmgr/ops.hh"
 
 class OId;
 

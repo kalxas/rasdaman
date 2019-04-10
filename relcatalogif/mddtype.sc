@@ -34,7 +34,6 @@ rasdaman GmbH.
 
 #include "mddtype.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include "reladminif/sqlglobals.h"
 #include <logging.hh>
 
 void MDDType::insertInDb()

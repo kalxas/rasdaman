@@ -32,10 +32,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "reladminif/oidif.hh"             // for OId
-#include "raslib/error.hh"  // for r_Error, INTERNALDLPARSEERROR
 #include "type.hh"
 #include "mymalloc/mymalloc.h"
+#include "reladminif/oidif.hh"  // for OId
+#include "raslib/error.hh"      // for r_Error, INTERNALDLPARSEERROR
 #include "logging.hh"           // for LERROR
 
 #include <ctype.h>              // for tolower

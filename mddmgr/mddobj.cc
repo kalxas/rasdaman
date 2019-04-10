@@ -33,19 +33,26 @@ rasdaman GmbH.
 
 #include "mddobj.hh"
 
+#include "indexmgr/mddobjix.hh"         // for MDDObjIx
+#include "tilemgr/tile.hh"              // for Tile
+#include "reladminif/eoid.hh"           // for EOId
 #include "mymalloc/mymalloc.h"
-#include "relmddif/dbmddobj.hh"
-#include "relindexif/indexid.hh"
-#include "reladminif/eoid.hh"
-#include "tilemgr/tile.hh"
 #include "relcatalogif/mdddomaintype.hh"
-#include "raslib/mddtypes.hh"
-#include "indexmgr/mddobjix.hh"
 #include "relcatalogif/structtype.hh"
+#include "relblobif/dbtile.hh"          // for DBTile
+#include "relblobif/tileid.hh"          // for DBTileId
+#include "relcatalogif/basetype.hh"     // for BaseType
+#include "relcatalogif/mddbasetype.hh"  // for MDDBaseType
+#include "relmddif/dbmddobj.hh"         // for DBMDDObj
+#include "relstorageif/storageid.hh"    // for DBStorageLayoutId
+#include "raslib/error.hh"              // for r_Error, MDDTYPE_NULL, LAYOUTALGO...
+#include "raslib/mddtypes.hh"           // for r_Ptr, r_Dimension, r_Directory_I...
+#include "raslib/sinterval.hh"          // for r_Sinterval
+#include "raslib/point.hh"
 #include <logging.hh>
 
-#include <boost/make_shared.hpp>    // for make_shared, shared_ptr::operator...
-#include <iostream>                 // for ostream
+#include <boost/make_shared.hpp>        // for make_shared, shared_ptr::operator...
+#include <iostream>                     // for ostream
 #include <stdlib.h>
 #include <cstring>
 
@@ -154,8 +161,6 @@ MDDObj::MDDObj(const MDDBaseType *mddType, const r_Minterval &domain, const OId 
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout(), newOId);
 }
 
-
-
 MDDObj::MDDObj(const DBMDDObjId &dbmddobj)
     :   NullValuesHandler(), myDBMDDObj(dbmddobj), myMDDIndex(nullptr), myStorageLayout(nullptr)
 {
@@ -203,17 +208,15 @@ insert tile:
  the storage layout returns the domains into which the tile should be divided before insertion.
  if there is not enough data to fill a complete layout domain, then 0 will be set.
 */
-void
-MDDObj::insertTile(shared_ptr<Tile> newTile)
+void MDDObj::insertTile(shared_ptr<Tile> insertTile)
 {
-    std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
+    auto layoutDoms = myStorageLayout->getLayout(insertTile->getDomain());
 #ifdef RASDEBUG
     LTRACE << "storage layout returned the following domains";
-    for (std::vector <r_Minterval>::iterator domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
+    for (auto domit = layoutDoms.begin(); domit != layoutDoms.end(); domit++)
     {
-        LTRACE << *domit;
+        LTRACE << "  " << *domit;
     }
-    LTRACE << "end of storage layout domains";
 #endif
 
     shared_ptr<Tile> tile;
@@ -221,7 +224,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
     r_Area tempArea = 0;
     r_Area completeArea = 0;
     r_Minterval tempDom;
-    r_Minterval tileDom = newTile->getDomain();
+    r_Minterval tileDom = insertTile->getDomain();
     std::vector<shared_ptr<Tile>> *indexTiles = NULL;
     char *newContents = NULL;
     size_t sizeOfData = 0;
@@ -233,9 +236,9 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
             // normal case.  just insert the tile.
             // this case also means that there was no insertion in the previous loops
             LTRACE << "tile domain is same as layout domain, just inserting data";
-            myMDDIndex->insertTile(newTile);
+            myMDDIndex->insertTile(insertTile);
             // set to NULL so it will not get deleted at the end of the method
-            newTile.reset();
+            insertTile.reset();
             if (layoutDoms.size() != 1)
             {
                 LERROR << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain";
@@ -260,7 +263,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 }
                 // update the existing tile with the new data
                 tempDom = (*it).create_intersection(tileDom);
-                (*(indexTiles->begin()))->copyTile(tempDom, newTile.get(), tempDom);
+                (*(indexTiles->begin()))->copyTile(tempDom, insertTile.get(), tempDom);
                 //LDEBUG << "updated tile to";
                 // (*(indexTiles->begin()))->printStatus(99,RMInit::dbgOut);
             }
@@ -270,11 +273,11 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 // must be computed everytime because layoutDoms may change in size
                 LTRACE << "found no tiles in layout domain " << *it;
                 // generate a tile of the domain : layout domain
-                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newTile->getDataFormat()));
+                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), insertTile->getDataFormat()));
 
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0
-                tile->copyTile(tempDom, newTile.get(), tempDom);
+                tile->copyTile(tempDom, insertTile.get(), tempDom);
                 LTRACE << "created tile with domain " << tile->getDomain();
                 //LDEBUG << "insert tile";
                 //  tile->printStatus(99,RMInit::dbgOut);
@@ -289,14 +292,14 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
         }
         checkEquality = false;
     }
-    if (newTile)
+    if (insertTile)
     {
-        LTRACE << "have to delete newTile";
-        if (newTile->isPersistent())
+        LTRACE << "deleting inserted tile";
+        if (insertTile->isPersistent())
         {
-            newTile->getDBTile()->setPersistent(false);
+            insertTile->getDBTile()->setPersistent(false);
         }
-        newTile.reset();
+        insertTile.reset();
     }
 }
 

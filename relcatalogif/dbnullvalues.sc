@@ -26,7 +26,6 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "reladminif/externs.h"
 #include <limits>
 #include <logging.hh>
 

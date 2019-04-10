@@ -40,7 +40,6 @@ rasdaman GmbH.
 
 #include <iosfwd>
 #include "raslib/minterval.hh"
-#include "catalogmgr/ops.hh"
 #include "mddbasetype.hh"
 #include "raslib/mddtypes.hh"  //for r_Range
 

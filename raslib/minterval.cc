@@ -30,8 +30,9 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 #include "minterval.hh"
+#include "raslib/error.hh"
+#include "raslib/mddtypes.hh"           // for r_Dimension, r_Area, r_Range, r_Bytes
 #include "odmgtypes.hh"
 
 #include <logging.hh>

@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 void MDDDimensionType::insertInDb()

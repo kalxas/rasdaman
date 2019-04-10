@@ -33,7 +33,8 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "atomictype.hh"
-#include "reladminif/externs.h"
+#include "raslib/odmgtypes.hh"         // for BOOLTYPE, CHAR, COMPLEXTYPE1, COMPLEX...
+#include "raslib/error.hh"  // for r_Error, INTERNALDLPARSEERROR
 
 /*************************************************************
  * Method name...: AtomicType();

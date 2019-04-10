@@ -38,7 +38,10 @@ add_library(relstorageif ${COMPILED_SQL_SOURCES}
 target_include_directories(relstorageif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relstorageif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(relstorageif ${BASEDB_LIBRARIES})
+target_link_libraries(relstorageif PUBLIC
+    relcatalogif
+    reladminif
+    )
 
 install(TARGETS relstorageif
         DESTINATION ${LIB_DIR})

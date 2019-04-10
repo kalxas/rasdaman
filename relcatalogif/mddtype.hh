@@ -38,7 +38,6 @@ rasdaman GmbH.
 #ifndef _MDDTYPE_HH_
 #define _MDDTYPE_HH_
 
-#include "catalogmgr/ops.hh"
 #include "type.hh"
 #include "raslib/minterval.hh"
 #include <iosfwd>

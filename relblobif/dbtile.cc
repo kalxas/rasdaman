@@ -20,10 +20,9 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 #include "dbtile.hh"
-#include "reladminif/oidif.hh"             // for OId, operator<<, OId::INVALID
+#include "reladminif/oidif.hh"  // for OId, operator<<, OId::INVALID
 #include "raslib/error.hh"
 #include "tilecache.hh"
 #include "tilecachevalue.hh"

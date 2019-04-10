@@ -28,7 +28,6 @@
  *
  ************************************************************/
 
-#include "config.h"
 #include "dirwrapper.hh"
 #include "blobfscommon.hh"      // for IO_ERROR_RC, IO_SUCCESS_RC
 #include "raslib/error.hh"  // for r_Error, FILEDATADIR_NOTWRITABLE

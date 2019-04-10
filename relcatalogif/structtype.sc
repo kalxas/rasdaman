@@ -36,8 +36,6 @@ rasdaman GmbH.
 #include "structtype.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
-#include "reladminif/sqlglobals.h"
-#include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 void StructType::insertInDb()

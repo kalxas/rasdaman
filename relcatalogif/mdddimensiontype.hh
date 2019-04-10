@@ -39,7 +39,6 @@ rasdaman GmbH.
 
 #include <iosfwd>
 #include "raslib/mddtypes.hh"
-#include "catalogmgr/ops.hh"
 #include "mddbasetype.hh"
 
 class OId;

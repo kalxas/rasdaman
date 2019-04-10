@@ -45,22 +45,25 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
-#include "config.h"
-#include "sstoragelayout.hh"
-#include <stdlib.h>
-#include "raslib/rmdebug.hh"
+#include "sstoragelayout.hh"                   // for StorageLayout
+#include "dbstoragelayout.hh"                  // for DBStorageLayout
+#include "stgmddconfig.hh"                     // for StgMddConfig
+#include "relstorageif/storageid.hh"           // for DBStorageLayoutId
+#include "reladminif/oidif.hh"                 // for operator<<, OId
+#include "mddmgr/mddobj.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/stattiling.hh"
-#include "mddmgr/mddobj.hh"
-#include <logging.hh>
+#include "raslib/rmdebug.hh"
+#include "raslib/mddtypes.hh"                  // for r_Dimension, r_Bytes
+#include "raslib/minterval.hh"                 // for r_Minterval, operator<<
+#include "raslib/point.hh"                     // for r_Point, operator<<
+#include <logging.hh>                          // for Writer, CTRACE
 
 #include <string>                              // for string
 #include <vector>                              // for vector
-#include <cstring>
-#include <cstdlib>
-#include <sstream>
 
+using namespace std;
 
 // this number should be DBMS dependent.. default in postgres seems to be 8kB, in MySQL 16kB, etc.
 const r_Bytes   StorageLayout::DBSPageSize = 4096;

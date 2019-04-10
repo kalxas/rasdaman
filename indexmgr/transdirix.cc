@@ -32,14 +32,18 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-#include "indexmgr/transdirix.hh"
-#include "reladminif/oidif.hh"
-#include "indexmgr/keyobject.hh"
-#include "tilemgr/tile.hh"
+#include "transdirix.hh"
+#include "keyobject.hh"           // for KeyObject, operator<<
+#include "reladminif/oidif.hh"    // for OId, OId::OIdPrimitive
+#include "raslib/error.hh"        // for r_Error, TRANSIENT_INDEX_OUT_OF_BO...
+#include "raslib/mddtypes.hh"     // for r_Bytes, r_Ptr, r_Dimension
 #include <logging.hh>
 
-#include <iostream>
+#include <boost/shared_ptr.hpp>    // for operator==, shared_ptr
+#include <ext/alloc_traits.h>      // for __alloc_traits<>::value_type
+#include <memory>                  // for allocator_traits<>::value_type
+#include <ostream>                 // for operator<<, ostream, std::endl, basic_o...
+#include <vector>                  // for vector
 
 
 IndexDS *TransDirIx::getNewInstance() const

@@ -30,13 +30,12 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
-#include "indexmgr/sdirindexlogic.hh"
-#include "indexds.hh"
-#include "keyobject.hh"
+#include "sdirindexlogic.hh"
+#include "indexds.hh"              // for IndexDS
+#include "keyobject.hh"            // for KeyObject, operator<<
+#include "raslib/mddtypes.hh"      // for r_Area
 
 #include <logging.hh>              // for Writer, CTRACE
-#include <iostream>
 
 
 bool SDirIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject,

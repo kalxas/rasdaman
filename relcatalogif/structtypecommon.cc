@@ -33,11 +33,13 @@ rasdaman GmbH.
 #include "basetype.hh"                // for BaseType
 #include "structtype.hh"              // for StructType
 #include "compositetype.hh"           // for CompositeType
-#include "reladminif/oidif.hh"        // for OId, OId::STRUCTTYPEOID, OId::A...
-#include "reladminif/objectbroker.hh"
-#include "catalogmgr/typefactory.hh"
+#include "type.hh"                    // for Type
+#include "reladminif/oidif.hh"        // for OId
+#include "reladminif/dbnamedobject.hh"// for DBNamedObject
+#include "reladminif/objectbroker.hh" // for ObjectBroker
+#include "raslib/odmgtypes.hh"        // for STRUCT
+#include "raslib/mddtypes.hh"         // for r_Bytes
 #include "mymalloc/mymalloc.h"
-#include "type.hh"                    // for ostream, Type
 #include <logging.hh>
 
 #include <stdlib.h>                   // for free, malloc

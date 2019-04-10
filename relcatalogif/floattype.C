@@ -22,7 +22,8 @@ rasdaman GmbH.
 */
 
 #include "floattype.hh"
-#include "reladminif/oidif.hh"
+#include "raslib/odmgtypes.hh"   // for FLOAT
+#include "reladminif/oidif.hh"    // for OId
 #include <float.h>        // for FLT_MAX
 #include <iomanip>        // for operator<<, setw
 #include <limits>
@@ -77,3 +78,4 @@ char *FloatType::makeFromCDouble(char *cell, const double *value) const
     *reinterpret_cast<float *>(cell) = static_cast<float>(*value);
     return cell;
 }
+

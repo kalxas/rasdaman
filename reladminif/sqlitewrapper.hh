@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #ifdef BASEDB_SQLITE
+#include "sqlglobals.h"
 #include <sqlite3.h>
 #include <string>
 #include <cstdarg>
