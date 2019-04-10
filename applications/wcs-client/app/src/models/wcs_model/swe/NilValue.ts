@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -23,22 +23,21 @@
 
 ///<reference path="../../../common/_common.ts"/>
 
-///<reference path="Field.ts"/>
-
 /**
- * Extend this class so that it fully complies with the OGC SWE specification if the need arises.
+ * e.g: <swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/BelowDetectionRange">-INF</swe:nilValue>
  */
 module swe {
-    export class DataRecord {
-        public fields:Field[];
+    export class NilValue {
+        public reason:string;
+        public value:string;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            this.fields = [];
-            source.getChildrenAsSerializedObjects("swe:field").forEach(o => {
-                this.fields.push(new Field(o));
-            });
+            let element = source.getChildAsSerializedObject("swe:nilValue");
+
+            this.reason = element.getAttributeAsString("reason");
+            this.value = element.getValueAsString();
         }
     }
 }

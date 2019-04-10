@@ -47,12 +47,15 @@
                 <p>with range type:</p>
                 <table class="table table-bordered">
                         <thead>
-                            <th>Field name</th>                            
-                            <th>UoM code</th>                            
+                            <th>Field name</th>
+                            <th>Null Values</th>
+                            <th>UoM code</th>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="field in coverageDescription.rangeType.dataRecord.field">
-                                <td>{{field.name}}</td>                                
+                            <tr ng-repeat="field in coverageDescription.rangeType.dataRecord.fields">
+                                <td>{{field.name}}</td>
+                                <td ng-if="field.quantity.nilValuesWrapper">{{field.quantity.nilValuesWrapper.getNullValues()}}</td>
+                                <td ng-if="!field.quantity.nilValuesWrapper">N/A</td>
                                 <td>{{field.quantity.uom.code}}</td>
                             </tr>
                         </tbody>

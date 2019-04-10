@@ -193,7 +193,7 @@ module rasdaman {
                 $scope.display4BandsExclamationMark = false;
 
                 var showGetMapURL = false;
-                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.fields.length;
                 var bbox = coveragesExtents[0].bbox; 
                 $scope.bboxLayer = bbox;  
                 

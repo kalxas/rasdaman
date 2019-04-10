@@ -1392,9 +1392,59 @@ var swe;
 })(swe || (swe = {}));
 var swe;
 (function (swe) {
+    var NilValue = (function () {
+        function NilValue(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            var element = source.getChildAsSerializedObject("swe:nilValue");
+            this.reason = element.getAttributeAsString("reason");
+            this.value = element.getValueAsString();
+        }
+        return NilValue;
+    }());
+    swe.NilValue = NilValue;
+})(swe || (swe = {}));
+var swe;
+(function (swe) {
+    var NilValues = (function () {
+        function NilValues(source) {
+            var _this = this;
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.nilValues = [];
+            source.getChildrenAsSerializedObjects("swe:NilValues").forEach(function (o) {
+                _this.nilValues.push(new swe.NilValue(o));
+            });
+        }
+        return NilValues;
+    }());
+    swe.NilValues = NilValues;
+})(swe || (swe = {}));
+var swe;
+(function (swe) {
+    var NilValuesWrapper = (function () {
+        function NilValuesWrapper(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.nilValues = new swe.NilValues(source);
+        }
+        NilValuesWrapper.prototype.getNullValues = function () {
+            var values = [];
+            this.nilValues.nilValues.forEach(function (obj) {
+                values.push(obj.value);
+            });
+            var result = values.join(", ");
+            return result;
+        };
+        return NilValuesWrapper;
+    }());
+    swe.NilValuesWrapper = NilValuesWrapper;
+})(swe || (swe = {}));
+var swe;
+(function (swe) {
     var Quantity = (function () {
         function Quantity(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            if (source.doesElementExist("swe:nilValues")) {
+                this.nilValuesWrapper = new swe.NilValuesWrapper(source.getChildAsSerializedObject("swe:nilValues"));
+            }
             if (source.doesElementExist("swe:uom")) {
                 this.uom = new swe.Uom(source.getChildAsSerializedObject("swe:uom"));
             }
@@ -1425,9 +1475,9 @@ var swe;
         function DataRecord(source) {
             var _this = this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.field = [];
+            this.fields = [];
             source.getChildrenAsSerializedObjects("swe:field").forEach(function (o) {
-                _this.field.push(new swe.Field(o));
+                _this.fields.push(new swe.Field(o));
             });
         }
         return DataRecord;
@@ -4002,7 +4052,7 @@ var rasdaman;
             this.rangeSubset = new wcs.RangeSubset();
             this.availableRanges = [];
             this.isInterval = [];
-            coverageDescription.rangeType.dataRecord.field.forEach(function (field) {
+            coverageDescription.rangeType.dataRecord.fields.forEach(function (field) {
                 _this.availableRanges.push(field.name);
             });
         }
@@ -4894,7 +4944,7 @@ var rasdaman;
                 $scope.display3DLayerNotification = dimensions > 2 ? true : false;
                 $scope.display4BandsExclamationMark = false;
                 var showGetMapURL = false;
-                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.field.length;
+                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.fields.length;
                 var bbox = coveragesExtents[0].bbox;
                 $scope.bboxLayer = bbox;
                 if (bands == 2 || bands > 4) {

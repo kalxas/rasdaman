@@ -25,3 +25,6 @@
 ///<reference path="DataRecord.ts"/>
 ///<reference path="Field.ts"/>
 ///<reference path="Quantity.ts"/>
+///<reference path="NilValue.ts"/>
+///<reference path="NilValues.ts"/>
+///<reference path="NilValuesWrapper.ts"/>

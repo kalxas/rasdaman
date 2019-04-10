@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -22,23 +22,39 @@
  */
 
 ///<reference path="../../../common/_common.ts"/>
-
-///<reference path="Field.ts"/>
+///<reference path="NilValues.ts"/>
 
 /**
- * Extend this class so that it fully complies with the OGC SWE specification if the need arises.
+ e.g:
+ 
+ <swe:nilValues>
+    <swe:NilValues>
+        <swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/BelowDetectionRange">-INF</swe:nilValue>
+        <swe:nilValue reason="http://www.opengis.net/def/nil/OGC/0/AboveDetectionRange">INF</swe:nilValue>
+    </swe:NilValues>
+</swe:nilValues>
  */
 module swe {
-    export class DataRecord {
-        public fields:Field[];
+    export class NilValuesWrapper {
+        public nilValues:NilValues;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.nilValues = new NilValues(source);
+        }
 
-            this.fields = [];
-            source.getChildrenAsSerializedObjects("swe:field").forEach(o => {
-                this.fields.push(new Field(o));
+        /** 
+         * Get all avaiable null values of this band and concatenate as a string
+        */
+        public getNullValues():String {
+            let values = [];
+
+            this.nilValues.nilValues.forEach(obj => {
+                values.push(obj.value);
             });
+
+            let result = values.join(", ");
+            return result;
         }
     }
 }

@@ -35,7 +35,7 @@ module rasdaman {
             this.availableRanges = [];
             this.isInterval = [];
 
-            coverageDescription.rangeType.dataRecord.field.forEach(field=> {
+            coverageDescription.rangeType.dataRecord.fields.forEach(field => {
                 this.availableRanges.push(field.name);
             });
         }

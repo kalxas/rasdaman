@@ -23,20 +23,38 @@
 
 ///<reference path="../../../common/_common.ts"/>
 
+///<reference path="NilValuesWrapper.ts"/>
 ///<reference path="Uom.ts"/>
 
 /**
- * Extend this class so that it fully complies with the OGC SWE specification if the need arises.
+ * e.g:
+ * 
+<swe:Quantity>
+    <swe:label>Gray</swe:label>
+    <swe:description/>
+    <swe:nilValues>
+        <swe:NilValues>
+            <swe:nilValue reason="">9999</swe:nilValue>
+        </swe:NilValues>
+    </swe:nilValues>
+    <swe:uom code="10^0"/>
+    <swe:constraint/>
+</swe:Quantity>
  */
 module swe {
     export class Quantity {
+        public nilValuesWrapper:NilValuesWrapper;
         public uom:swe.Uom;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
+            if (source.doesElementExist("swe:nilValues")) {
+                this.nilValuesWrapper = new NilValuesWrapper(source.getChildAsSerializedObject("swe:nilValues"));
+            }
+
             if (source.doesElementExist("swe:uom")) {
-                this.uom = new swe.Uom(source.getChildAsSerializedObject("swe:uom"));
+                this.uom = new Uom(source.getChildAsSerializedObject("swe:uom"));
             }
         }
     }
