@@ -40,9 +40,9 @@ using namespace std;
 #include "debug/debug.hh"
 #include "debug.hh"
 #include "loggingutils.hh"
+
+// -- directql section start
 #include "rasserver_error.hh"
-
-
 
 #define PARAM_HELP_FLAG 'h'
 #define PARAM_HELP  "help"
@@ -114,6 +114,15 @@ using namespace std;
 
 #define PARAM_DEBUG "debug"
 #define HELP_DEBUG  "generate diagnostic output"
+// -- directql section end
+
+// -- rasdl section start
+#define FLAG_CREATE     'c'
+#define PARAM_CREATE    "createdatabase"
+#define HELP_CREATE     "create database and initialize schema information"
+
+#define PARAM_DELDB     "deldatabase"
+#define HELP_DELDB      "delete database"
 
 Configuration configuration;
 
@@ -122,7 +131,9 @@ Configuration::Configuration()
     logToStdOut = true;
     logFileName = 0;
     queryStringOn = false;
+    rasdlOn = false;
     outputType = DEFAULT_OUT;
+    progMode = M_INVALID;
 }
 
 
@@ -231,6 +242,11 @@ void Configuration::initParameters()
     cmlPasswd = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
     cmlQuiet = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
 
+    // rasdl
+    cmlCreateDb = &cmlInter.addFlagParameter(FLAG_CREATE, PARAM_CREATE, HELP_CREATE);
+    cmlDelDb = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DELDB, HELP_DELDB);
+
+
 #ifdef RMANDEBUG
     cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
     cmlDbgLevel  = &cmlInter.addLongParameter(NSN, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
@@ -240,7 +256,6 @@ void Configuration::initParameters()
     {
         queryStringOn = true;
     }
-
 }
 #undef NSN
 
@@ -291,7 +306,7 @@ void Configuration::checkParameters()
     dbgLevel   = 4;
 #endif
 
-// directql 
+// -- directql section start
 
     queryString = cmlQuery->getValueAsString();
 
@@ -406,6 +421,23 @@ void Configuration::checkParameters()
     // evaluate optional parameter 'quiet' --------------------------------------------
     
     quietLog = cmlQuiet->isPresent();
+// -- directql section end
+
+// -- rasdl section start
+
+    //create database
+    if (cmlCreateDb->isPresent())
+    {
+        progMode = M_CREATEDATABASE;
+    }
+
+    //delete database
+    if (cmlDelDb->isPresent())
+    {
+        progMode = M_DELDATABASE;
+    }
+
+    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
     
 }
 
@@ -588,6 +620,7 @@ const char* Configuration::getNewServerId()
     return newServerId;
 }
 
+// -- directql section start
 const char* Configuration::getQueryString()
 {
     return queryString;
@@ -656,4 +689,17 @@ bool        Configuration::isOutputOn()
 void        Configuration::setMddTypeName(const char* mddtn)
 {
     this->mddTypeName = mddtn;
+}
+// -- directql section end
+
+// -- directql section start
+
+bool        Configuration::usesRasdl()
+{
+    return rasdlOn;
+}
+
+ProgModes   Configuration::getProgMode()
+{
+    return progMode;
 }

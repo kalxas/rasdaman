@@ -40,10 +40,10 @@ using namespace std;
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#define DEBUG_MAIN
-
+#ifdef __GNUG__
 #include "template_inst.hh"
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
@@ -54,6 +54,7 @@ using namespace std;
 #include <signal.h>
 #include <vector>
 
+#include "storagemgr/sstoragelayout.hh"
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
 #include "common/logging/signalhandler.hh"
@@ -65,9 +66,6 @@ using namespace std;
 // from some unknown location the debug-srv.hh guard seems to be defined already, so get rid of it -- PB 2005-jan-10
 #undef DEBUG_HH
 #define DEBUG_MAIN debug_main
-//#include "debug-clt.hh"
-#include "storagemgr/sstoragelayout.hh"
-
 
 #include "server/rasserver_config.hh"
 #include "rnprotocol/rnpserver.hh"
@@ -79,7 +77,7 @@ using namespace std;
 
 #include <logging.hh>
 
-// directql libraries 
+// -- directql section start
 
 #include "rasodmg/ref.hh"
 #include "rasodmg/set.hh"
@@ -108,6 +106,9 @@ using namespace std;
 #include "raslib/marraytype.hh"
 #include "rasserver_config.hh"
 #include "rasserver_error.hh"
+
+#include "rasserver_rasdl.hh"
+
 
 // directql macros, constants and function prototypes
 #define SECURE_FREE_PTR(ptr) \
@@ -217,9 +218,9 @@ openDatabase();
 void
 closeDatabase();
 
-auto baseName = getDefaultDb();
+std::string baseName = getDefaultDb();
 
-// end of directql code
+// -- end of directql code
 
 
 // return codes
@@ -265,8 +266,6 @@ shutdownHandler(int sig, siginfo_t* info, void* ucontext);
 
 void
 crashHandler(int sig, siginfo_t* info, void* ucontext);
-
-
 
 
 
@@ -353,7 +352,7 @@ int main(int argc, char** argv)
 
     if (configuration.parseCommandLine(argc, argv) == false)
     {
-        LERROR << "Error: cannot parse command line.";
+        cerr << "Error: cannot parse command line." << endl;
         return RC_ERROR;
     }
 
@@ -369,7 +368,6 @@ int main(int argc, char** argv)
           << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
           << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
           << "GNU General Public License for more details.";
-
     LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
 
     if (initialization() == false)
@@ -392,13 +390,6 @@ int main(int argc, char** argv)
             LDEBUG << "startRnpServer()...";
             startRnpServer();
             LDEBUG << "startRnpServer() done.";
-
-            if (configuration.hasQueryString())
-            {
-                openDatabase();
-                doStuff();
-                closeDatabase();
-            } 
         }
         else if (configuration.isHttpServer())
         {
@@ -425,12 +416,17 @@ int main(int argc, char** argv)
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
 
+            // -- directql
             if (configuration.hasQueryString())
             {
                 openDatabase();
                 doStuff();
                 closeDatabase();
-            } 
+            }
+            else if (configuration.usesRasdl())
+            {
+                runRasdl(argc, argv);
+            }
         }
     }
     catch (r_Error& errorObj)

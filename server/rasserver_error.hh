@@ -59,6 +59,7 @@ rasdaman GmbH.
 #define FILEEMPTY                       11
 #define FILEREADERROR                   12
 #define FILEWRITEERROR                  13
+#define NOCONNECTION					14
 
 class RasqlError // : public std::exception
 {

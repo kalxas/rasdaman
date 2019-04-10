@@ -138,7 +138,7 @@ template class rb_tree<OId, pair<OId const, StructType*>, select1st<pair<OId con
 template class rb_tree<long, pair<long const, BLOBTile*>, select1st<pair<long const, BLOBTile*>>, less<long>>;
 template class rb_tree<long, pair<long const, InlineTile*>, select1st<pair<long const, InlineTile*>>, less<long>>;
 }
-namespace std 
+namespace std
 {
 template class vector<BaseType const*>;
 template class vector<OId>;

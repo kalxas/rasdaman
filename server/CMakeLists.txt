@@ -27,6 +27,7 @@ add_executable(rasserver createinitmdd.hh createinitmdd.cc
         rasserver_entry.hh rasserver_entry.cc
         rasserver_main.cc template_inst.hh
         rasserver_error.hh rasserver_error.cc
+        rasserver_rasdl.hh rasserver_rasdl.cc
         ../mymalloc/mymalloc.h ../mymalloc/mymalloc_svc.cc
 )
 
@@ -47,5 +48,5 @@ endif (RMANRASNET)
 install(TARGETS rasserver
         DESTINATION ${BIN_DIR})
         
-install( CODE "execute_process(COMMAND ln -sf 
+install(CODE "execute_process(COMMAND ln -sf 
     ${BIN_DIR}/rasserver ${BIN_DIR}/directql)")

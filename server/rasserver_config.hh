@@ -27,7 +27,7 @@ rasdaman GmbH.
 #include "commline/cmlparser.hh"
 #include "raslib/minterval.hh"
 
-
+// -- directql
 typedef enum
 {
     OUT_UNDEF,
@@ -37,6 +37,15 @@ typedef enum
     OUT_HEX,
     OUT_FORMATTED
 } OUTPUT_TYPE;
+
+// -- rasdl
+enum ProgModes
+{
+    M_INVALID,
+    M_CREATEDATABASE,
+    M_DELDATABASE
+};
+
 
 /**
   * \ingroup Servers
@@ -86,6 +95,7 @@ public:
 
     const char* getNewServerId();
 
+    // -- directql
     const char* getQueryString();
     const char* getFileName();
     const char* getUser();
@@ -99,9 +109,12 @@ public:
     bool        isOutputOn();
     bool        hasQueryString();
     OUTPUT_TYPE getOutputType();
-
+    
     void        setMddTypeName(const char* mddtn);
 
+    // -- rasdl
+    bool usesRasdl();
+    ProgModes getProgMode();
 
 
 
@@ -168,6 +181,10 @@ private:
     CommandLineParameter* cmlPasswd;
     CommandLineParameter* cmlQuiet;
 
+    // rasdl parameters
+    CommandLineParameter* cmlCreateDb;
+    CommandLineParameter* cmlDelDb;
+
 
 #ifdef RMANDEBUG
     CommandLineParameter* cmlDbg;
@@ -226,6 +243,10 @@ private:
     bool        mddDomainDef;
     bool        mddTypeNameDef;
     bool        queryStringOn;
+
+    // rasdl
+    ProgModes   progMode;
+    bool        rasdlOn;
 
 
 #ifdef RMANDEBUG
