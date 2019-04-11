@@ -4,24 +4,38 @@
             <table style="margin-left: 10px">
                 <tbody>
                     <tr ng-repeat="item in model.rangeSubset.rangeItem">
-                        <td ng-if="!model.isInterval[$index]" class="range-select">
+                        <td class="range-select">
+                            {{$index + 1}}.
+                        </td>
+                        <!-- Single Range selector -->
+                        <td ng-if="!model.isIntervals[$index]" class="range-select">
                             <select ng-model="item.rangeComponent"
-                                    ng-options="range for range in model.availableRanges">
+                                    ng-options="range for range in model.availableRanges"
+                                    ng-change="model.validate($index)">                                    
                             </select>
                         </td>
-                        <td ng-if="!model.isInterval[$index]" class="range-select">
+                        <td ng-if="!model.isIntervals[$index]" class="range-select">
 
                         </td>
-                        <td ng-if="model.isInterval[$index]" class="range-select">
+
+                        <!-- Interval Ranges selector -->
+                        <!-- From Range -->
+                        <td ng-if="model.isIntervals[$index]" class="range-select">
                             <select ng-model="item.startComponent.rangeComponent"
-                                    ng-options="range for range in model.availableRanges">
+                                    ng-options="range for range in model.availableRanges"
+                                    ng-change="model.validate()">
                             </select>
                         </td>
-                        <td ng-if="model.isInterval[$index]" class="range-select">
+
+                        <!-- To Range -->
+                        <td ng-if="model.isIntervals[$index]" class="range-select">
                             <select ng-model="item.endComponent.rangeComponent"
-                                    ng-options="range for range in model.availableRanges">
+                                    ng-options="range for range in model.availableRanges"
+                                    ng-change="model.validate()">
                             </select>
                         </td>
+
+                        <!-- Delete range selector -->
                         <td class="range-select">
                             <a ng-click="model.deleteRangeComponent($index)">
                                 <span class="glyphicon glyphicon-trash"></span>
@@ -33,10 +47,15 @@
         </div>
 
         <div class="row top7 btn-toolbar">
-            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponent()">
+            <div ng-show="model.errorMessage != ''" style="color: red;">
+                {{model.errorMessage}}
+            </div> 
+            <br/>
+
+            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponent()" ng-disabled="model.isMaxRanges">
                 Add range component
             </button>
-            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponentInterval()">
+            <button class="btn btn-default btn-sm" ng-click="model.addRangeComponentInterval()" ng-disabled="model.isMaxRanges">
                 Add range component interval
             </button>
         </div>

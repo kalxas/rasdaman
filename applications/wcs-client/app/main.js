@@ -4058,23 +4058,107 @@ var rasdaman;
             var _this = this;
             this.rangeSubset = new wcs.RangeSubset();
             this.availableRanges = [];
-            this.isInterval = [];
+            this.isIntervals = [];
+            this.isMaxRanges = false;
             coverageDescription.rangeType.dataRecord.fields.forEach(function (field) {
                 _this.availableRanges.push(field.name);
             });
         }
         RangeSubsettingModel.prototype.addRangeComponent = function () {
             this.rangeSubset.rangeItem.push(new wcs.RangeComponent(this.availableRanges[0]));
-            this.isInterval.push(false);
+            this.isIntervals.push(false);
+            if (this.isIntervals.length == this.availableRanges.length) {
+                this.isMaxRanges = true;
+            }
+            else {
+                this.validate();
+            }
         };
         RangeSubsettingModel.prototype.addRangeComponentInterval = function () {
-            var begin = new wcs.RangeComponent(this.availableRanges[0]);
+            var start = new wcs.RangeComponent(this.availableRanges[0]);
             var end = new wcs.RangeComponent(this.availableRanges[this.availableRanges.length - 1]);
-            this.rangeSubset.rangeItem.push(new wcs.RangeInterval(begin, end));
-            this.isInterval.push(true);
+            this.rangeSubset.rangeItem.push(new wcs.RangeInterval(start, end));
+            this.isIntervals.push(true);
+            if (this.isIntervals.length == this.availableRanges.length) {
+                this.isMaxRanges = true;
+            }
+            else {
+                this.validate();
+            }
         };
         RangeSubsettingModel.prototype.deleteRangeComponent = function (index) {
             this.rangeSubset.rangeItem.splice(index, 1);
+            this.isIntervals.splice(index, 1);
+            this.isMaxRanges = false;
+            this.validate();
+        };
+        RangeSubsettingModel.prototype.getIndexByRangeName = function (rangeName) {
+            for (var i = 0; i < this.availableRanges.length; i++) {
+                if (this.availableRanges[i] == rangeName) {
+                    return i;
+                }
+            }
+        };
+        RangeSubsettingModel.prototype.getSelectedRangeIndexesByIndex = function (index) {
+            var isInterval = this.isIntervals[index];
+            var result = [];
+            if (!isInterval) {
+                var rangeItem = this.rangeSubset.rangeItem[index];
+                var rangeName = rangeItem.rangeComponent;
+                var rangeIndex = this.getIndexByRangeName(rangeName);
+                result.push(rangeIndex, rangeIndex);
+            }
+            else {
+                var rangeItem = this.rangeSubset.rangeItem[index];
+                var fromRangeName = rangeItem.startComponent.rangeComponent;
+                var endRangeName = rangeItem.endComponent.rangeComponent;
+                var fromRangeIndex = this.getIndexByRangeName(fromRangeName);
+                var endRangeIndex = this.getIndexByRangeName(endRangeName);
+                result.push(fromRangeIndex, endRangeIndex);
+            }
+            return result;
+        };
+        RangeSubsettingModel.prototype.getListOfSelectedRangeIndexes = function () {
+            var result = [];
+            for (var i = 0; i < this.isIntervals.length; i++) {
+                var tmpArray = this.getSelectedRangeIndexesByIndex(i);
+                result.push(tmpArray);
+            }
+            return result;
+        };
+        RangeSubsettingModel.prototype.validateByIndex = function (index) {
+            var selectedRangeIndexesNestedArray = this.getListOfSelectedRangeIndexes();
+            if (index < this.isIntervals.length) {
+                var currentSelectedRangeIndexesArray = this.getSelectedRangeIndexesByIndex(index);
+                for (var i = 0; i < selectedRangeIndexesNestedArray.length; i++) {
+                    if (i == index) {
+                        continue;
+                    }
+                    var selectedRangeIndexesArray = selectedRangeIndexesNestedArray[i];
+                    var currentStartIndex = currentSelectedRangeIndexesArray[0];
+                    var currentEndIndex = currentSelectedRangeIndexesArray[1];
+                    if (currentStartIndex > currentEndIndex) {
+                        this.errorMessage = "Range selector " + (index + 1) + " must have lower range < upper range.";
+                        return false;
+                    }
+                    if ((currentStartIndex >= selectedRangeIndexesArray[0] && currentStartIndex <= selectedRangeIndexesArray[1])
+                        || (currentEndIndex >= selectedRangeIndexesArray[0] && currentEndIndex <= selectedRangeIndexesArray[1])) {
+                        this.errorMessage = "Range selector " + (index + 1) + " is duplicate or overlapping with Range selector " + (i + 1);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+        RangeSubsettingModel.prototype.validate = function () {
+            var selectedRangeIndexesNestedArray = this.getListOfSelectedRangeIndexes();
+            for (var i = 0; i < this.isIntervals.length; i++) {
+                var result = this.validateByIndex(i);
+                if (result == false) {
+                    return;
+                }
+            }
+            this.errorMessage = "";
         };
         return RangeSubsettingModel;
     }());
