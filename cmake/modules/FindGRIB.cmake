@@ -22,13 +22,13 @@
 include(FindPackageHandleStandardArgs)
 include(CheckLibraryExists)
 
-find_library(GRIB_LIBRARIES NAMES grib_api)
+find_library(GRIB_LIBRARIES NAMES grib_api eccodes)
 find_path(GRIB_INCLUDE_DIR NAMES grib_api.h)
 
 # since there's no grib_api.pc let's check if this installation of grib required jasper and jpeg
 set(CMAKE_REQUIRED_LIBRARIES m)
 
-check_library_exists(${GRIB_LIBRARIES} grib_index_new_from_file "" GRIB_COMPILES)
+check_library_exists(${GRIB_LIBRARIES} grib_handle_new_from_file "" GRIB_COMPILES)
 if(GRIB_COMPILES)
 	find_package_handle_standard_args(GRIB DEFAULT_MSG GRIB_LIBRARIES GRIB_INCLUDE_DIR)
 endif(GRIB_COMPILES)

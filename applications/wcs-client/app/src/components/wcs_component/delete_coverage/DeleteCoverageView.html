@@ -8,15 +8,12 @@
             <input type="text" class="form-control" autocomplete source="availableCoverageIds" ng-model="idOfCoverageToDelete" placeholder="Input coverage ID or part of it" />
 
             <span class="input-group-btn">
-                            <button ng-disabled="!isCoverageIdValid"
-                                    ng-click="deleteCoverage()"                                    
-                                    type="button" class="btn btn-info">
-                                Delete Coverage
-                            </button>
-
-                            <img ng-show="requestInProgress" src="assets/img/loading.gif"
-                                 class="loading-image"/>
-                        </span>
+                <button ng-disabled="!isCoverageIdValid"
+                        ng-click="deleteCoverage()"                                    
+                        type="button" class="btn btn-info">
+                    Delete Coverage
+                </button>
+            </span>
         </div>
     </div>
 </div>

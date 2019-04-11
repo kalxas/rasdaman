@@ -345,8 +345,6 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char** argv)
 {
-    SET_OUTPUT(true);       // enable debug output, if compiled so
-
     if (configuration.parseCommandLine(argc, argv) == false)
     {
         cerr << "Error: cannot parse command line." << endl;

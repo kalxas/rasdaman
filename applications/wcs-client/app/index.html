@@ -55,6 +55,10 @@
     </head>
     <body> 
         <img class="logo" src="assets/img/rasdaman-logo.png" align="right">
+        
+        <!-- Show this loading icon when an Ajax request sent -->
+        <img id="loader" style="position: fixed; right: 8%; margin-top: 4%;" src="assets/img/loading.gif" align="right"/>
+
         <div class="container">
             <div class="row">
                 <div class="col-sm-12">
@@ -102,6 +106,8 @@
                 </div>
             </div>
         </div>
+
+
     </body>
 
     <!-- WebWorldWind -->
@@ -134,4 +140,42 @@
 
     <script src="assets/components/angular-ui-codemirror/ui-codemirror.min.js"></script>
     <script src="main.js"></script>
+
+    <script>
+        // Based on the idea: https://stackoverflow.com/a/18988012/2028440 to detect any running Ajax requests
+        var s_ajaxListener = new Object();
+        s_ajaxListener.tempOpen = XMLHttpRequest.prototype.open;
+        s_ajaxListener.tempSend = XMLHttpRequest.prototype.send;
+
+        var numberOfRequests = 0;
+
+        XMLHttpRequest.prototype.open = function(a, b) {
+            // An ajax request is sent
+            if (numberOfRequests == 0) {
+                $("#loader").show();
+            }
+
+            numberOfRequests++;
+
+            s_ajaxListener.tempOpen.apply(this, arguments);
+        }
+
+        XMLHttpRequest.prototype.send = function(a, b) {            
+            s_ajaxListener.tempSend.apply(this, arguments);
+
+            this.onreadystatechange = function() {
+                // An ajax request is finished (successful or failed)
+                if (this.readyState === 4) {                    
+                    numberOfRequests--;
+
+                    if (numberOfRequests <= 1) {
+                        $("#loader").hide();
+
+                        numberOfRequests = 0;
+                    }
+                }
+            };
+        }
+
+    </script>
 </html>
