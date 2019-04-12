@@ -1847,6 +1847,31 @@ they are updated to a coverage. Parameters are explained below.
       ...
   ]
 
+
+*Example: Import GDAL subdatasets*
+
+The example ingredients below contains a pre-hook which replaces the collected
+file path into a GDAL subdataset form; in this particular case, with the GDAL
+driver for NetCDF a single variable from the collected NetCDF files is imported.
+
+.. code-block:: json
+
+  "slicer": {
+          "type": "gdal",
+          ...
+  },
+  "hooks": [
+      {
+        "description": "Demonstrate import 1 variable for netCDF with subdataset",
+        "when": "before_ingestion",
+        "cmd": "",
+        "abort_on_error": true,
+        // GDAL netCDF subdataset variable file path
+        "replace_path": ["NETCDF:${file:path}:area"]
+      }
+   ]
+
+
 .. _data-import-recipe-mosaic-map:
 
 Mosaic map

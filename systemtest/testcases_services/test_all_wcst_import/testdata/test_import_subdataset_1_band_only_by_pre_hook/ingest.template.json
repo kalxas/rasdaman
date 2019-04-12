@@ -1,0 +1,65 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "automated": true,
+    "track_files": false,
+    "subset_correction": false
+  },
+  "input": {
+    "coverage_id": "test_import_subdataset_1_band_only_by_pre_hook",
+    "paths": [
+      "*.nc"
+    ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "EPSG/0/4326",
+        "metadata": {
+          "type": "xml",
+          "global": {
+            "Title": "'This is a test file'",
+            "Project": "'This is another test file'",
+            "Creator": "'This is a test creator file'"
+          }
+        },
+        "slicer": {
+          "type": "gdal",
+          "bands": [
+            {
+              "name": "area",
+              "identifier": "area"
+            }
+          ],
+          "axes": {  
+            "Lat": {
+	      "min": "${gdal:minY}",
+              "max": "${gdal:maxY}",
+              "gridOrder": 1,
+              "resolution": "${gdal:resolutionY}"
+            },
+            "Long": {              
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
+              "gridOrder": 0,
+              "resolution": "${gdal:resolutionX}"
+            }
+          }
+        }
+      },
+      "tiling": "ALIGNED [0:1023, 0:1023]"
+    }
+  }, 
+  "hooks": [
+      {
+        "description": "Demonstrate import 1 variable for netCDF with subdataset",
+        "when": "before_ingestion",
+        "cmd": "",
+        "abort_on_error": true,
+        "replace_path": ["NETCDF:${file:path}:area"]
+      }
+   ]
+}

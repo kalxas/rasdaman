@@ -143,7 +143,8 @@ class NetcdfEvaluatorSlice(FileEvaluatorSlice):
         """
         if self.dataset is None:
             netCDF4 = import_netcdf4()
-            self.dataset = netCDF4.Dataset(self.get_file().get_filepath(), "r")
+            file_path = self.get_file().get_filepath()
+            self.dataset = netCDF4.Dataset(file_path, "r")
 
         return self.dataset
 

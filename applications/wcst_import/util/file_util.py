@@ -112,8 +112,8 @@ class FileUtil:
         # SENTINEL2_L1C:/vsizip//*_20181204T111726.zip/*_20181204T111726.SAFE/MTD_MSIL1C.xml:TCI:EPSG_32632
         pattern = re.compile(".*/vsi[a-z]+/.*")
 
-        if pattern.match(file_path):
-            # It is gdal virtual file system, just ignore
+        if pattern.match(file_path) or ":" in file_path:
+            # It is gdal virtual file system or subdataset (e.g: NETCDF:file_path:variable), just ignore
             return True
         elif not os.access(file_path, os.R_OK):
             log.warn("File '" + file_path + "' is not accessible, will be skipped from further processing.")

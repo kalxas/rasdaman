@@ -272,7 +272,7 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
 
                 if variable_axis_label in dataset.variables:
                     axes_metadata[crs_axis_label] = {}
-                    
+
                     attrs_list = dataset.variables[variable_axis_label].ncattrs()
                     for attr in attrs_list:
                         try:
@@ -283,4 +283,3 @@ class NetcdfToCoverageConverter(AbstractToCoverageConverter):
                                 "Attribute '" + attr + "' of axis '" + variable_axis_label + "' cannot be parsed as string, ignored.")
 
         return axes_metadata
-

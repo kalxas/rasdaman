@@ -132,7 +132,8 @@ class RecipeRegistry:
                     # Only need to run hook once if ${...} does not exist in cmd command,
                     # otherwise it runs duplicate commands multiple times (!)
                     if replace_path_template is not None:
-                        replace_paths.append(FilePair(replace_path_template, file.filepath))
+                        replace_path = self.sentence_evaluator.evaluate(replace_path_template, evaluator_slice)
+                        replace_paths.append(FilePair(replace_path, file.filepath))
                     break
 
                 if replace_path_template is not None:
