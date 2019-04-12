@@ -341,6 +341,14 @@ class Recipe(BaseRecipe):
                 user_axes.append(
                     IrregularUserAxis(crs_axis.label, resolution, order, axis["min"], axis["directPositions"], max,
                                       type, data_bound, statements, slice_group_size))
+
+        number_of_specified_axes = len(axes_configurations.items())
+        number_of_crs_axes = len(crs_axes)
+
+        if number_of_specified_axes != number_of_crs_axes:
+            raise RuntimeException("Number of axes in the coverage CRS ({}) does not match "
+                                   "the number of axes specified in the ingredients file ({}).".format(number_of_crs_axes, number_of_specified_axes))
+
         return user_axes
 
     def _global_metadata_fields(self):
