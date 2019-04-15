@@ -115,6 +115,8 @@ map<string, string> TypeFactory::createSyntaxTypeInternalTypeMap()
     ret.insert(std::make_pair(SyntaxType::CHAR_NAME, CharType::Name));
     ret.insert(std::make_pair(SyntaxType::FLOAT_NAME, FloatType::Name));
     ret.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
+    ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE1, ComplexType1::Name));
+    ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE2, ComplexType2::Name));
 
     return ret;
 }

@@ -339,6 +339,8 @@ int string_yyinput( char* buf, int max_size )
 "ulong"					 { SETTOKEN( TULONG, typeToken, TULONG)	}
 "float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
+"CFloat32"        { SETTOKEN( TCOMPLEX1, typeToken, TCOMPLEX1)  }
+"CFloat64"       { SETTOKEN( TCOMPLEX2, typeToken, TCOMPLEX2)  }
 
 
 "nan"                     { SETFLTTOKEN( NAN, 8 ) }

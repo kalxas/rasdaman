@@ -306,13 +306,32 @@ void Configuration::checkParameters()
     dbgLevel   = 4;
 #endif
 
+// -- rasdl section start
+
+    //create database
+    if (cmlCreateDb->isPresent())
+    {
+        progMode = M_CREATEDATABASE;
+    }
+
+    //delete database
+    if (cmlDelDb->isPresent())
+    {
+        progMode = M_DELDATABASE;
+    }
+
+    // true if any rasdl specific flag was specified
+    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
+
+// -- rasdl section end
+
 // -- directql section start
 
     queryString = cmlQuery->getValueAsString();
+    queryStringOn = cmlQuery->isPresent();
 
-    if (queryString != NULL)
+    if (queryStringOn || rasdlOn)
     {
-        queryStringOn = true;
         if (cmlPort->isPresent())
         {
             listenPort = cmlPort->getValueAsLong();
@@ -425,23 +444,7 @@ void Configuration::checkParameters()
     
     quietLog = cmlQuiet->isPresent();
 // -- directql section end
-
-// -- rasdl section start
-
-    //create database
-    if (cmlCreateDb->isPresent())
-    {
-        progMode = M_CREATEDATABASE;
-    }
-
-    //delete database
-    if (cmlDelDb->isPresent())
-    {
-        progMode = M_DELDATABASE;
-    }
-
-    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
-    
+   
 }
 
 void Configuration::printHelp()

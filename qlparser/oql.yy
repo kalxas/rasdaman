@@ -244,7 +244,7 @@ struct QtUpdateSpecElement
 %token <integerToken>    IntegerLit
 %token <floatToken>      FloatLit
 %token <stringToken>     StringLit
-%token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE
+%token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE TCOMPLEX1 TCOMPLEX2
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS VAR_POP VAR_SAMP STDDEV_POP STDDEV_SAMP SDOM OVER USING LO HI UPDATE
                          SET ASSIGN MARRAY MDARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
@@ -3477,6 +3477,8 @@ castType: TBOOL			{ $$.info = $1.info; $$.value = SyntaxType::BOOL_NAME.c_str();
         | TDOUBLE		{ $$.info = $1.info; $$.value = SyntaxType::DOUBLE_NAME.c_str(); }
         | TUNSIG TSHORT	        { $$.info = $1.info; $$.value = SyntaxType::UNSIGNED_SHORT_NAME.c_str(); }
         | TUNSIG TLONG	        { $$.info = $1.info; $$.value = SyntaxType::UNSIGNED_LONG_NAME.c_str(); };
+        | TCOMPLEX1 { $$.info = $1.info; $$.value = SyntaxType::COMPLEXTYPE1.c_str(); }
+        | TCOMPLEX2 { $$.info = $1.info; $$.value = SyntaxType::COMPLEXTYPE2.c_str(); }
 
 collectionList: collectionList COMMA iteratedCollection 
 	{

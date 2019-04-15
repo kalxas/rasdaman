@@ -78,6 +78,11 @@ logn()
   echo -n "$PROG: $*"
 }
 
+execute_query() {
+  @bindir@rasserver -q "$1" > /dev/null || \
+    error "failed executing query: $1"
+}
+
 log "creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
 
 # --- checking preconditions
@@ -131,13 +136,118 @@ fi
 log "rasdaman dictionary initialization... "
 
 logn "  creating RASBASE... "
-@bindir@rasdl -c --connect @dbconn@ > /dev/null || \
+@bindir@rasserver -c --connect @dbconn@ > /dev/null || \
   error "rasdl failed creating RASBASE."
 echo "ok."
 
 logn "  inserting standard types... "
-@bindir@rasdl -r $DEFINITION_FILE -i --connect @dbconn@ > /dev/null || \
-  error "rasdl failed reading standard type definitions."
+
+# 2D greyscale image of unlimited spatial extent
+execute_query "CREATE TYPE GreyImage as char mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE GreySet as set ( GreyImage )" > /dev/null
+
+execute_query "CREATE TYPE BoolImage as bool mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE BoolSet as set ( BoolImage )" > /dev/null
+
+execute_query "CREATE TYPE RGBPixel as (red char, green char, blue char)" > /dev/null
+execute_query "CREATE TYPE RGBImage as RGBPixel mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE RGBSet as set ( RGBImage )" > /dev/null
+
+execute_query "CREATE TYPE GreyCube as char mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE GreySet3 as set ( GreyCube )"  > /dev/null
+
+execute_query "CREATE TYPE BoolString as bool mdarray [ x ]"  > /dev/null
+execute_query "CREATE TYPE BoolSet1 as set ( BoolString )"  > /dev/null
+
+execute_query "CREATE TYPE BoolCube as bool mdarray [ x, y, z ]"  > /dev/null
+execute_query "CREATE TYPE BoolSet3 as set ( BoolCube )"  > /dev/null
+
+execute_query "CREATE TYPE GreyString as char mdarray [ x ]"  > /dev/null
+execute_query "CREATE TYPE GreySet1 as set ( GreyString )"  > /dev/null
+
+execute_query "CREATE TYPE OctetString as octet mdarray [ x ]"  > /dev/null
+execute_query "CREATE TYPE OctetSet1 as set ( OctetString )"  > /dev/null
+
+execute_query "CREATE TYPE OctetImage as octet mdarray [ x, y ]"  > /dev/null
+execute_query "CREATE TYPE OctetSet as set ( OctetImage )"  > /dev/null
+
+execute_query "CREATE TYPE OctetCube as octet mdarray [ x, y, z ]"  > /dev/null
+execute_query "CREATE TYPE OctetSet3 as set ( OctetCube )"  > /dev/null
+
+execute_query "CREATE TYPE ShortString as short mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE ShortSet1 as set ( ShortString )" > /dev/null
+
+execute_query "CREATE TYPE ShortImage as short mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE ShortSet as set ( ShortImage )" > /dev/null
+
+execute_query "CREATE TYPE ShortCube as short mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE ShortSet3 as set ( ShortCube )" > /dev/null
+
+execute_query "CREATE TYPE UShortString as unsigned short mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE UShortSet1 as set ( UShortString )" > /dev/null
+
+execute_query "CREATE TYPE UShortImage as unsigned short mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE UShortSet as set ( UShortImage )" > /dev/null
+
+execute_query "CREATE TYPE UShortCube as unsigned short mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE UShortSet3 as set ( UShortCube )" > /dev/null
+
+execute_query "CREATE TYPE LongString as long mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE LongSet1 as set ( LongString )" > /dev/null
+
+execute_query "CREATE TYPE LongImage as long mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE LongSet as set ( LongImage )" > /dev/null
+
+execute_query "CREATE TYPE LongCube as long mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE LongSet3 as set ( LongCube )" > /dev/null
+
+execute_query "CREATE TYPE ULongString as unsigned long mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE ULongSet1 as set ( ULongString )" > /dev/null
+
+execute_query "CREATE TYPE ULongImage as unsigned long mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE ULongSet as set ( ULongImage )" > /dev/null
+
+execute_query "CREATE TYPE ULongCube as unsigned long mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE ULongSet3 as set ( ULongCube )" > /dev/null
+
+execute_query "CREATE TYPE RGBString as RGBPixel mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE RGBSet1 as set ( RGBString )" > /dev/null
+
+execute_query "CREATE TYPE RGBCube as RGBPixel mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE RGBSet3 as set ( RGBCube )" > /dev/null
+
+execute_query "CREATE TYPE FloatString as float mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE FloatSet1 as set ( FloatString )" > /dev/null
+
+execute_query "CREATE TYPE FloatImage as float mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE FloatSet as set ( FloatImage )" > /dev/null
+
+execute_query "CREATE TYPE FloatCube as float mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE FloatSet3 as set ( FloatCube )" > /dev/null
+
+execute_query "CREATE TYPE FloatCube4 as float mdarray [ x, y, z, t ]" > /dev/null
+execute_query "CREATE TYPE FloatSet4 as set ( FloatCube4 )" > /dev/null
+
+execute_query "CREATE TYPE DoubleString as double mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE DoubleSet1 as set ( DoubleString )" > /dev/null
+
+execute_query "CREATE TYPE DoubleImage as double mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE DoubleSet as set ( DoubleImage )" > /dev/null
+
+execute_query "CREATE TYPE DoubleCube as double mdarray [ x, y, z ]" > /dev/null
+execute_query "CREATE TYPE DoubleSet3 as set ( DoubleCube )" > /dev/null
+
+execute_query "CREATE TYPE Gauss1 as CFloat32 mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE GaussSet1 as set ( Gauss1 )" > /dev/null
+
+execute_query "CREATE TYPE Gauss2 as CFloat64 mdarray [ x ]" > /dev/null
+execute_query "CREATE TYPE GaussSet2 as set ( Gauss2 )" > /dev/null
+
+execute_query "CREATE TYPE Gauss1Image as CFloat32 mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE Gauss1Set as set ( Gauss1Image )" > /dev/null
+
+execute_query "CREATE TYPE Gauss2Image as CFloat64 mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE Gauss2Set as set ( Gauss2Image )" > /dev/null
 echo "ok."
 
 # --- action end 
