@@ -14,3 +14,6 @@
 
 # Failed in Ubuntu 14.04 due to different order of elements in coverage's metadata
 143-describe_coverage_color_palette_table_in_coverage_global_metadata_json.kvp
+
+# Failed due to http://rasdaman.org/ticket/2079
+112-get_coverage_clip_invalid_wkt_coordinates.error.kvp

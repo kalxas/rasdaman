@@ -104,14 +104,6 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * @throws PetascopeException
      */
     protected String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) throws PetascopeException {
-        // add/substract epsilon as the coordinate from crs transform can be approximately
-        if (geoPointCoordinate.add(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(axis.getGeoBounds().getLowerLimit()) < 0 ||
-            geoPointCoordinate.subtract(BigDecimalUtil.COEFFICIENT_DECIMAL_EPSILON).compareTo(axis.getGeoBounds().getUpperLimit()) > 0) {
-            String errorMessage = "Coordinate is not within domain ["
-                    + axis.getGeoBounds().getLowerLimit().toPlainString() + RASQL_BOUND_SEPARATION + axis.getGeoBounds().getUpperLimit().toPlainString() + "] of axis '" + axis.getLabel() + "'.";
-            throw new InvalidCoordinatesForClippingException(geoPointCoordinate, errorMessage);
-        }
-
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(geoPointCoordinate, geoPointCoordinate);
         // Translate geo coordinate of a slice point to a grid point
         ParsedSubset<Long> gridSubset = wcpsCoverageMetadataGeneralService.translateGeoToGridCoordinates(parsedSubset, axis,
@@ -363,7 +355,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         // Update clipped coverage expression with the new subsets from WKT shape
         // e.g: original coverage has axis with geo bounds: Lat(0, 20), Long(0, 30) and WKT polygon has a bounding box is Lat(0:5), Long(20:25)
         // then output is a coverage with bounding box in geo bounds: Lat(0:5), Long(20:25)
-        this.wcpsCoverageMetadataGeneralService.applySubsets(true, metadata, subsets);
+        // NOTE: coordinates of vertices of WKT can be out of coverage's bounding box (not throw exception in this case)
+        this.wcpsCoverageMetadataGeneralService.applySubsets(false, metadata, subsets);
     }
     
     /**
