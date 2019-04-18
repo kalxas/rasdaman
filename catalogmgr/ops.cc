@@ -4652,7 +4652,15 @@ OpMAX_BINARYChar::OpMAX_BINARYChar(const BaseType *newResType, const BaseType *n
 void
 OpMAX_BINARYChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) > *(unsigned char *)(const_cast<char *>(op2)  + op2Off))
+    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    {
+        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+    }
+    else if (isNull(*(unsigned char *)(const_cast<char *>(op2)  + op2Off)))
+    {
+        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+    }
+    else if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) > *(unsigned char *)(const_cast<char *>(op2)  + op2Off))
     {
         *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
     }
@@ -4683,7 +4691,15 @@ OpMIN_BINARYChar::OpMIN_BINARYChar(const BaseType *newResType, const BaseType *n
 void
 OpMIN_BINARYChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) < * (unsigned char *)(const_cast<char *>(op2)  + op2Off))
+    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    {
+        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+    }
+    else if (isNull(*(unsigned char *)(const_cast<char *>(op2)  + op2Off)))
+    {
+        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+    }
+    else if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) < * (unsigned char *)(const_cast<char *>(op2)  + op2Off))
     {
         *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
     }

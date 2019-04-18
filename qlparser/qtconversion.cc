@@ -362,6 +362,7 @@ QtConversion::evaluate(QtDataList *inputList)
 
         resultQtMDD->setFromConversion(true);
         returnValue = resultQtMDD.release();
+        returnValue->setNullValues(nullValues);
     }
     else
     {
