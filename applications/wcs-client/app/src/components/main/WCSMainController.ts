@@ -23,7 +23,7 @@
 
 ///<reference path="../../../assets/typings/tsd.d.ts"/>
 ///<reference path="../../models/wcs_model/wcs/Capabilities.ts"/>
-///<reference path="../../models/wcs_model/wcs/CoverageDescriptions.ts"/>
+///<reference path="../../models/wcs_model/wcs/CoverageDescription.ts"/>
 
 module rasdaman {
     /**
@@ -50,7 +50,7 @@ module rasdaman {
                 }
             });
 
-            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", (newValue:wcs.CoverageDescriptions, oldValue:wcs.CoverageDescriptions)=> {
+            $scope.$watch("wcsStateInformation.selectedCoverageDescription", (newValue:wcs.CoverageDescription, oldValue:wcs.CoverageDescription)=> {
                 $scope.wcsGetCoverageTab.disabled = newValue ? false : true;
             });
 
@@ -62,7 +62,7 @@ module rasdaman {
             $scope.wcsStateInformation = {
                 serverCapabilities: null,
                 getCoveragesExtents: null,
-                selectedCoverageDescriptions: null,
+                selectedCoverageDescription: null,
                 selectedGetCoverageId: null,
                 reloadServerCapabilities: true
             };
@@ -144,7 +144,7 @@ module rasdaman {
         wcsStateInformation:{
             serverCapabilities:wcs.Capabilities,
             getCoveragesExtents:string,
-            selectedCoverageDescriptions:wcs.CoverageDescriptions,
+            selectedCoverageDescription:wcs.CoverageDescription,
             selectedGetCoverageId:string,
             reloadServerCapabilities:boolean
         };

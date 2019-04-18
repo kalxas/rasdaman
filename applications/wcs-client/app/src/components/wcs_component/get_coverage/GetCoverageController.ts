@@ -162,10 +162,10 @@ module rasdaman {
                 }                           
             }
 
-            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions",
-                (coverageDescriptions:wcs.CoverageDescriptions)=> {
-                    if (coverageDescriptions && coverageDescriptions.coverageDescription) {
-                        $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
+            $scope.$watch("wcsStateInformation.selectedCoverageDescription",
+                (coverageDescription:wcs.CoverageDescription)=> {
+                    if (coverageDescription) {
+                        $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescription;
                         $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
 
                         // NOTE: this one is important to make "Select Coverage" on a same coverage can trigger DescribeCoverage
@@ -199,7 +199,7 @@ module rasdaman {
                         
                         wcsService.getCoverageDescription(describeCoverageRequest)
                         .then(
-                            (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
+                            (response:rasdaman.common.Response<wcs.CoverageDescription>)=> {
                                 //Success handler
                                 $scope.coverageDescriptionsDocument = response.document;
 

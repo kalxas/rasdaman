@@ -57,9 +57,8 @@ module rasdaman {
             $scope.IRREGULAR_AXIS = "irregular";
             $scope.NOT_AVALIABLE = "N/A";
 
-            $scope.isCoverageDescriptionsDocumentOpen = false;
             // default hide the div containing the Globe
-            $scope.isCoverageDescriptionsHideGlobe = true;
+            $scope.hideWebWorldWindGlobe = true;
 
             $scope.isCoverageIdValid = ()=> {
                 if ($scope.wcsStateInformation.serverCapabilities) {
@@ -97,22 +96,31 @@ module rasdaman {
                 }
             });
 
-            // return a non-zero value from offset vector string (e.g: 0 1 0 -> return 1)
-            $scope.getAxisResolution = function(index:number, offsetVectorElement:any) {
-                if (offsetVectorElement != null) {
-                    var tmp = offsetVectorElement.textContent.split(" ");
-                    return tmp[index];
-                }   
-                return "";
-            }
+            /**
+             * Parse coverage metadata as string and show it to a dropdown
+             */
+            $scope.parseCoverageMetadata = () => {
+                $scope.metadata = null;
+                
+                // Extract the metadata from the coverage document (inside <rasdaman:covMetadata></rasdaman:covMetadata>)
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString($scope.rawCoverageDescription, "text/xml");
 
-            // from GML result of DescribeCoverage, find the types for all available axes
-            $scope.getAxisType = function(index:number, coefficientsElement:any) {
-                // Coverage contains irregular axis and this axis has coefficients
-                if (coefficientsElement != null && coefficientsElement.textContent !== "") {
-                    return $scope.IRREGULAR_AXIS;
+                var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                if (elements.length > 0) {
+                    $scope.metadata = elements[0].innerHTML;
+
+                    // Check if coverage metadata is XML / JSON format
+                    for (let i = 0; i < $scope.metadata.length; i++) {
+                        if ($scope.metadata[i] === "{") {
+                            $scope.typeMetadata = "json";
+                            break;
+                        } else {
+                            $scope.typeMetadata = "xml";
+                            break;
+                        }
+                    }
                 }
-                return $scope.REGULAR_AXIS;
             }
 
             $scope.describeCoverage = function () {                
@@ -132,91 +140,21 @@ module rasdaman {
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(
-                        (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
-                            //Success handler
-                            $scope.coverageDescriptionsDocument = response.document;
-                            $scope.coverageDescriptions = response.value;
-                            $scope.metaDataPrint = ' ';
+                        (response:rasdaman.common.Response<wcs.CoverageDescription>)=> {
+                            // //Success handler                            
+                            $scope.coverageDescription = response.value;                           
+                            $scope.rawCoverageDescription = response.document.value;
 
-                            var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
-
-                            // Extract the metadata from the coverage document (inside <rasdaman:covMetadata></rasdaman:covMetadata>)
-                            var parser = new DOMParser();
-                            var xmlDoc = parser.parseFromString(rawCoverageDescription,"text/xml");                             
-                            var gridBoundsLowElement = xmlDoc.evaluate("//*[local-name() = 'low']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                            var gridBoundsHighElement = xmlDoc.evaluate("//*[local-name() = 'high']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                            var gridLowerBounds = gridBoundsLowElement.iterateNext().textContent.split(" ");
-                            var gridUpperBounds = gridBoundsHighElement.iterateNext().textContent.split(" ");
-
-                            var offsetVectorElements = xmlDoc.evaluate("//*[local-name() = 'offsetVector']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                            var coefficientsElements = xmlDoc.evaluate("//*[local-name() = 'coefficients']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                                                        
-                            var offsetVectorElement = offsetVectorElements.iterateNext();
-                            var coeffcientsElement = coefficientsElements.iterateNext();
-
-                            var i = 0;
-                            var axisResolution = $scope.getAxisResolution(i, offsetVectorElement);
-                            var axisType = $scope.getAxisType(i, coeffcientsElement);
-
-                            if (axisType == $scope.IRREGULAR_AXIS) {
-                                // Don't show resolution for irregular axis as it is always 1
-                                axisResolution = $scope.NOT_AVALIABLE;
-                            }
-
-                            $scope.axes[i] = {"resolution": axisResolution, "type": axisType, 
-                                              "gridLowerBound": gridLowerBounds[0], "gridUpperBound": gridUpperBounds[0]};
-                            
-                            while (offsetVectorElement) {         
-                                i++;
-
-                                offsetVectorElement = offsetVectorElements.iterateNext();                      
-                                if (offsetVectorElement != null) {                                    
-                                    axisResolution = $scope.getAxisResolution(i, offsetVectorElement);                                                                
-                                }
-
-                                if (coeffcientsElement != null) {
-                                    coeffcientsElement = coefficientsElements.iterateNext();
-                                    if (coeffcientsElement != null) {                                    
-                                        axisType = $scope.getAxisType(i, coeffcientsElement);
-                                    }   
-                                }
-
-                                if (axisType == $scope.IRREGULAR_AXIS) {
-                                    // Don't show resolution for irregular axis as it is always 1
-                                    axisResolution = $scope.NOT_AVALIABLE;
-                                }
-
-                                $scope.axes[i] = {"resolution": axisResolution, "type": axisType,
-                                                  "gridLowerBound": gridLowerBounds[i], "gridUpperBound": gridUpperBounds[i]};
-                            }
-
-                            var metadataContent = "";
-                            var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
-                            if (elements.length > 0) {
-                                metadataContent = elements[0].innerHTML;
-                            }
-
-                            if (metadataContent != "") {  
-                                $scope.metaDataPrint = metadataContent;
-                                //Define the characters that indicates if the metadata string represents JSON code.
-                                var ch = /{/gi;
-
-                                //Checks if the metadata is written in JSON.
-                                if ($scope.metaDataPrint.search(ch) != -1) {
-                                    $scope.typeMetadata = 'json';
-                                } else {
-                                    $scope.typeMetadata = 'xml';
-                                }
-                            }                                
-
+                            $scope.parseCoverageMetadata();
+                    
                             // Fetch the coverageExtent by coverageId to display on globe if possible
                             var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                             if (coverageExtentArray == null) {
-                                $scope.isCoverageDescriptionsHideGlobe = true;
+                                $scope.hideWebWorldWindGlobe = true;
                             } else {
                                 // Show coverage's extent on the globe
                                 var canvasId = "wcsCanvasDescribeCoverage";
-                                $scope.isCoverageDescriptionsHideGlobe = false;
+                                $scope.hideWebWorldWindGlobe = false;
                                 // Also prepare for DescribeCoverage's globe with only 1 coverageExtent                                
                                 webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                                 // Then, load the footprint of this coverage on the globe
@@ -225,44 +163,43 @@ module rasdaman {
                                 webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
                             }
                         },
-                        (...args:any[])=> {
-                            $scope.coverageDescriptionsDocument = null;
-                            $scope.coverageDescriptions = null;
+                        (...args:any[])=> {                            
+                            $scope.coverageDescription = null;
 
                             errorHandlingService.handleError(args);
                             $log.error(args);
                         })
                     .finally(()=> {
-                        $scope.wcsStateInformation.selectedCoverageDescriptions = $scope.coverageDescriptions;
+                        $scope.wcsStateInformation.selectedCoverageDescription = $scope.coverageDescription;
                     });
-            };
-
-            $scope.isCoverageDescriptionsDocumentOpen = false;
+            };           
         }
     }
 
-    interface WCSDescribeCoverageControllerScope extends WCSMainControllerScope {
-        isCoverageDescriptionsDocumentOpen:boolean;
+    interface WCSDescribeCoverageControllerScope extends WCSMainControllerScope {        
         // Not show the globe when coverage cannot reproject to EPSG:4326
-        isCoverageDescriptionsHideGlobe:boolean;
+        isCoverageDescriptionsDocumentOpen:boolean;
+        hideWebWorldWindGlobe:boolean;
 
-        coverageDescriptionsDocument:rasdaman.common.ResponseDocument;
-        coverageDescriptions:wcs.CoverageDescriptions;
+        coverageDescription:wcs.CoverageDescription;
+        rawCoverageDescription:string;
 
         availableCoverageIds:string[];
         selectedCoverageId:string;
-
-        getAxisResolution(number, any):string;
-        getAxisType(number, any):string;
 
         // Array of objects
         axes:any[];
 
         requestUrl:string;
 
-        isCoverageIdValid():void;
-        describeCoverage():void;    
-        metaDataPrint:string;
+        metadata:string;
         typeMetadata:string;
+
+
+        isCoverageIdValid():void;
+        describeCoverage():void;
+        getAxisResolution(number, any):string;
+        getAxisType(number, any):string;
+        parseCoverageMetadata():void;
     }
 }

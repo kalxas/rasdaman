@@ -25,25 +25,44 @@
 
 module gml {
 
-    export class DomainSet {
+    /**
+     * Abstract class for 3 supported Grid Coverage types
+     */
+    export abstract class AbstractGridCoverage {
         
-        public abstractGridCoverage:AbstractGridCoverage;
+        public gridEnvelope:GridEnvelope;
+        public offsetVectors:String[] = [];
+        public axisTypes:String[] = [];
+
+        protected REGULAR_AXIS:String = "Regular Axis";
+        protected IRREGULAR_AXIS:String = "Irregular Axis";
+        protected IRREGULAR_AXIS_RESOLUTION = "N/A";
+
+        protected currentSource:rasdaman.common.ISerializedObject;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-
-            if (source.doesElementExist("gml:Grid")) {
-                // Grid Coverage
-                this.abstractGridCoverage = new GridCoverage(source);
-            } else if (source.doesElementExist("gml:RectifiedGrid")) {
-                // Rectified Grid Coverage
-                this.abstractGridCoverage = new RectifiedGridCoverage(source);
-            } else if (source.doesElementExist("gmlrgrid:ReferenceableGridByVectors")) {
-                // Referenceable Grid Coverage
-                this.abstractGridCoverage = new ReferenceableGridCoverage(source);
-            }
-
-            this.abstractGridCoverage.buildObj();
         }
+
+        /**
+         * Build properties of this object
+         */
+        public buildObj(): void {
+            this.parseGridEnvelope();
+            this.parseAxisTypesAndOffsetVectors();
+        }
+
+        /**
+         * Parse GridEnvelope objects containing Grid Axes Extents         
+         */
+        private parseGridEnvelope(): void {
+            this.gridEnvelope = new GridEnvelope(this.currentSource.getChildAsSerializedObject("gml:limits"));
+        }
+
+        /**
+         Parse a list of axes resolutions (offset vectors)
+         */
+        protected abstract parseAxisTypesAndOffsetVectors():void;
+
     }
 }

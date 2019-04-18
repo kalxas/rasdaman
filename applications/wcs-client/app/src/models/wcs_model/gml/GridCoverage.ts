@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -25,25 +25,24 @@
 
 module gml {
 
-    export class DomainSet {
-        
-        public abstractGridCoverage:AbstractGridCoverage;
+    export class GridCoverage extends AbstractGridCoverage {       
 
         public constructor(source:rasdaman.common.ISerializedObject) {
-            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            super(source)
 
-            if (source.doesElementExist("gml:Grid")) {
-                // Grid Coverage
-                this.abstractGridCoverage = new GridCoverage(source);
-            } else if (source.doesElementExist("gml:RectifiedGrid")) {
-                // Rectified Grid Coverage
-                this.abstractGridCoverage = new RectifiedGridCoverage(source);
-            } else if (source.doesElementExist("gmlrgrid:ReferenceableGridByVectors")) {
-                // Referenceable Grid Coverage
-                this.abstractGridCoverage = new ReferenceableGridCoverage(source);
+            this.currentSource = source.getChildAsSerializedObject("gml:Grid");
+        }
+
+        protected parseAxisTypesAndOffsetVectors(): void {            
+            let numberOfDimensions = this.currentSource.getAttributeAsNumber("dimension");
+
+            // For Grid Coverage, offset vector is 1 for each axis
+            for (let i = 0; i < numberOfDimensions; i++) {
+                this.axisTypes[i] = this.REGULAR_AXIS;
+                this.offsetVectors[i] = "1";                
             }
-
-            this.abstractGridCoverage.buildObj();
+            
         }
     }
+    
 }

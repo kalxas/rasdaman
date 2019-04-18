@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="row top15" ng-repeat="coverageDescription in coverageDescriptions.coverageDescription">
+        <div class="row top15" ng-show="coverageDescription">
             <div class="col-sm-12" style="background-color: white;">
                 <p>Coverage <span class="important-text">{{coverageDescription.coverageId}} </span> is of type <span class="important-text"> {{coverageDescription.serviceParameters.coverageSubtype}}</span> with <span class="important-text">{{coverageDescription.boundedBy.envelope.srsDimension}}</span> axes:
                 </p>
@@ -34,10 +34,12 @@
                         <tbody>
                             <tr ng-repeat="axisLabel in coverageDescription.boundedBy.envelope.axisLabels">
                                 <td>{{axisLabel}}</td>
-                                <td>{{axes[$index].type}}</td>
-                                <td>[{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}, {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]</td>
-                                <td>[{{axes[$index].gridLowerBound}}, {{axes[$index].gridUpperBound}}]</td>
-                                <td>{{axes[$index].resolution}}</td>
+                                <td>{{coverageDescription.domainSet.abstractGridCoverage.axisTypes[$index]}}</td>
+                                <td>[{{coverageDescription.boundedBy.envelope.lowerCorner.values[$index]}}, 
+                                    {{coverageDescription.boundedBy.envelope.upperCorner.values[$index]}}]</td>
+                                <td>[{{coverageDescription.domainSet.abstractGridCoverage.gridEnvelope.gridLows[$index]}}, 
+                                    {{coverageDescription.domainSet.abstractGridCoverage.gridEnvelope.gridHighs[$index]}}]</td>
+                                <td>{{coverageDescription.domainSet.abstractGridCoverage.offsetVectors[$index]}}</td>
                                 <td>{{coverageDescription.boundedBy.envelope.uomLabels[$index]}}</td>
                             </tr>
                         </tbody>
@@ -69,11 +71,11 @@
         </div>
 
         <!-- WebWorldWind -->
-        <div class="row" ng-hide="isCoverageDescriptionsHideGlobe" style="margin-top: 10px; margin-bottom: -25px;">
+        <div class="row" ng-hide="hideWebWorldWindGlobe" style="margin-top: 10px; margin-bottom: -25px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
-                        Footprint of geo-referenced coverages
+                        Footprint of geo-referenced coverage
                         <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen, 
                                     'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
                     </uib-accordion-heading>
@@ -87,33 +89,33 @@
             </uib-accordion>
         </div>
        
-        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: 20px;">
+        <div class="row" ng-show="metadata" style="margin-top: 20px; margin-bottom: -20px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
-                        Extra metadata
+                        Coverage metadata
                         <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen, 
                                     'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
                     </uib-accordion-heading>
 
-                    <ras-pretty-print data="{value:metaDataPrint, type:typeMetadata}">
+                    <ras-pretty-print data="{value:metadata, type:typeMetadata}">
                     </ras-pretty-print>
                     
                 </uib-accordion-group>
             </uib-accordion>
         </div>
 
-        <div class="row" ng-show="coverageDescriptionsDocument.value" style="margin-top: -10px;">
+        <div class="row" ng-show="coverageDescription" style="margin-top: 10px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
-                        GML coverage descriptions document 
+                        GML coverage description
                         <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isCoverageDescriptionsDocumentOpen,
                                     'glyphicon-chevron-right': !isCoverageDescriptionsDocumentOpen}"></i>
                     </uib-accordion-heading>
 
 
-                    <ras-pretty-print data="{value:coverageDescriptionsDocument.value, type:'xml'}">
+                    <ras-pretty-print data="{value:rawCoverageDescription, type:'xml'}">
                     </ras-pretty-print>
                 </uib-accordion-group>
 

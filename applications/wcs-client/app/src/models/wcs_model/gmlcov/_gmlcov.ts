@@ -22,4 +22,7 @@
  */
 
 ///<reference path="Metadata.ts"/>
+///<reference path="Extension.ts"/>
+///<reference path="CovMetadata.ts"/>
+
 ///<reference path="RangeType.ts"/>

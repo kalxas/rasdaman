@@ -21,12 +21,19 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-///<reference path="AbstractFeature.ts"/>
 ///<reference path="BoundedBy.ts"/>
 ///<reference path="CoverageFunction.ts"/>
-///<reference path="DomainSet.ts"/>
 ///<reference path="Envelope.ts"/>
 ///<reference path="EnvelopeWithTimePeriod.ts"/>
 ///<reference path="LowerCorner.ts"/>
 ///<reference path="Pos.ts"/>
 ///<reference path="UpperCorner.ts"/>
+
+///<reference path="DomainSet.ts"/>
+
+///<reference path="AbstractGridCoverage.ts"/>
+///<reference path="GridCoverage.ts"/>
+///<reference path="RectifiedGridCoverage.ts"/>
+///<reference path="ReferenceableGridCoverage.ts"/>
+
+///<reference path="GridEnvelope.ts"/>

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -25,25 +25,24 @@
 
 module gml {
 
-    export class DomainSet {
-        
-        public abstractGridCoverage:AbstractGridCoverage;
+    /*
+    e.g: 
+    <gml:GridEnvelope>
+        <gml:low>0 0 0</gml:low>
+        <gml:high>3 62 35</gml:high>
+    </gml:GridEnvelope>
+    */
+    export class GridEnvelope {
 
-        public constructor(source:rasdaman.common.ISerializedObject) {
+        public gridLows:string[]
+        public gridHighs:string[]
+
+        public constructor(source:rasdaman.common.ISerializedObject) {            
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            if (source.doesElementExist("gml:Grid")) {
-                // Grid Coverage
-                this.abstractGridCoverage = new GridCoverage(source);
-            } else if (source.doesElementExist("gml:RectifiedGrid")) {
-                // Rectified Grid Coverage
-                this.abstractGridCoverage = new RectifiedGridCoverage(source);
-            } else if (source.doesElementExist("gmlrgrid:ReferenceableGridByVectors")) {
-                // Referenceable Grid Coverage
-                this.abstractGridCoverage = new ReferenceableGridCoverage(source);
-            }
-
-            this.abstractGridCoverage.buildObj();
+            let obj = source.getChildAsSerializedObject("gml:GridEnvelope");
+            this.gridLows = obj.getChildAsSerializedObject("low").getValueAsString().split(" ");
+            this.gridHighs = obj.getChildAsSerializedObject("high").getValueAsString().split(" ");
         }
     }
 }

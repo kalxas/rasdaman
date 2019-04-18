@@ -29,8 +29,16 @@ module gmlcov {
      */
     export class Metadata {
 
+        public extension:Extension;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+
+            let childElementTag = "gmlcov:Extension";
+
+            if (source.doesElementExist(childElementTag)) {
+                this.extension = new Extension(source.getChildAsSerializedObject(childElementTag));
+            }
         }
     }
 }

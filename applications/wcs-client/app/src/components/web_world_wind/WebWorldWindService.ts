@@ -76,7 +76,8 @@ module rasdaman {
         // Init the WebWorldWind on the canvasId HTML element
         private initWebWorldWind(canvasId: string) {
             // Create a WorldWindow for the canvas.                
-            var wwd = new WorldWind.WorldWindow(canvasId);    
+            var wwd = new WorldWind.WorldWindow(canvasId);
+            
             // Create a layer to hold the polygons.
             var polygonLayer = new WorldWind.RenderableLayer();         
             var surfaceImageLayer = new WorldWind.RenderableLayer();

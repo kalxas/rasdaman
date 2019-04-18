@@ -66,7 +66,7 @@ module rasdaman {
             $scope.displayWMSLayer = false;
 
             $scope.timeString = null;
-            $scope.coverageDescriptions = null;
+            $scope.coverageDescription = null;
 
             var canvasId = "wmsCanvasDescribeLayer";
 
@@ -147,10 +147,10 @@ module rasdaman {
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(
-                                (response:rasdaman.common.Response<wcs.CoverageDescriptions>)=> {
+                                (response:rasdaman.common.Response<wcs.CoverageDescription>)=> {
                                     //Success handler                                    
-                                    $scope.coverageDescriptions = response.value;
-                                    var dimensions = $scope.coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                                    $scope.coverageDescription = response.value;
+                                    var dimensions = $scope.coverageDescription.boundedBy.envelope.srsDimension;
 
                                     addSliders(dimensions, coveragesExtents);                                  
                                    
@@ -196,7 +196,7 @@ module rasdaman {
                 $scope.display4BandsExclamationMark = false;
 
                 var showGetMapURL = false;
-                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.fields.length;
+                var bands = $scope.coverageDescription.rangeType.dataRecord.fields.length;
                 var bbox = coveragesExtents[0].bbox; 
                 $scope.bboxLayer = bbox;  
                 
@@ -627,6 +627,6 @@ module rasdaman {
 	    updateStyle():void;
         describeStyleToUpdate(styleName:string):void;
         
-        coverageDescriptions:any;
+        coverageDescription:wcs.CoverageDescription;
     }
 }

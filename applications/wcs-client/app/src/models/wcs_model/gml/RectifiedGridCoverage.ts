@@ -22,19 +22,37 @@
  */
 
 ///<reference path="../../../common/_common.ts"/>
-///<reference path="CoverageDescription.ts"/>
 
-module wcs {
-    export class CoverageDescriptions {
-        public coverageDescription:CoverageDescription[];
+module gml {
+
+    export class RectifiedGridCoverage extends AbstractGridCoverage {       
 
         public constructor(source:rasdaman.common.ISerializedObject) {
-            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            super(source)
 
-            this.coverageDescription = [];
-            source.getChildrenAsSerializedObjects("wcs:CoverageDescription").forEach(o=> {
-                this.coverageDescription.push(new wcs.CoverageDescription(o));
+            this.currentSource = source.getChildAsSerializedObject("gml:RectifiedGrid");
+        }
+
+        protected parseAxisTypesAndOffsetVectors(): void {
+
+            // Iterate all offsetVectors element of coverage
+            this.currentSource.getChildrenAsSerializedObjects("offsetVector").forEach((element) => {
+
+                this.axisTypes.push(this.REGULAR_AXIS);
+
+                let tmpArray:string[] = element.getValueAsString().split(" ");
+
+                for (let i = 0; i < tmpArray.length; i++) {
+                    // e.g: <gml:offsetVector>-0.5 0</gml:offsetVector>
+                    if (tmpArray[i] != "0") {
+                        this.offsetVectors.push(tmpArray[i]);                        
+                        break;
+                    }
+                }
+
             });
+
         }
     }
+    
 }

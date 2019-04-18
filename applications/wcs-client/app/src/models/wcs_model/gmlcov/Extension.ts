@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
@@ -23,27 +23,18 @@
 
 ///<reference path="../../../common/_common.ts"/>
 
-module gml {
-
-    export class DomainSet {
-        
-        public abstractGridCoverage:AbstractGridCoverage;
+module gmlcov {    
+    export class Extension {
+        public covMetadata:CovMetadata;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            if (source.doesElementExist("gml:Grid")) {
-                // Grid Coverage
-                this.abstractGridCoverage = new GridCoverage(source);
-            } else if (source.doesElementExist("gml:RectifiedGrid")) {
-                // Rectified Grid Coverage
-                this.abstractGridCoverage = new RectifiedGridCoverage(source);
-            } else if (source.doesElementExist("gmlrgrid:ReferenceableGridByVectors")) {
-                // Referenceable Grid Coverage
-                this.abstractGridCoverage = new ReferenceableGridCoverage(source);
-            }
+            let childElementTag = "rasdaman:covMetadata";
 
-            this.abstractGridCoverage.buildObj();
+            if (source.doesElementExist(childElementTag)) {
+                this.covMetadata = new CovMetadata(source.getChildAsSerializedObject(childElementTag));
+            }
         }
     }
 }

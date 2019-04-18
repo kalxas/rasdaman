@@ -1326,31 +1326,6 @@ var gml;
 })(gml || (gml = {}));
 var gml;
 (function (gml) {
-    var AbstractFeature = (function () {
-        function AbstractFeature(source) {
-            var _this = this;
-            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.id = source.getAttributeAsString("gml:id");
-            if (source.doesElementExist("gml:description")) {
-                this.description = source.getChildAsSerializedObject("gml:description").getValueAsString();
-            }
-            if (source.doesElementExist("gml:identifier")) {
-                this.identifier = source.getChildAsSerializedObject("gml:identifier").getValueAsString();
-            }
-            this.name = [];
-            source.getChildrenAsSerializedObjects("gml:name").forEach(function (o) {
-                _this.name.push(o.getValueAsString());
-            });
-            if (source.doesElementExist("gml:boundedBy")) {
-                this.boundedBy = new gml.BoundedBy(source.getChildAsSerializedObject("gml:boundedBy"));
-            }
-        }
-        return AbstractFeature;
-    }());
-    gml.AbstractFeature = AbstractFeature;
-})(gml || (gml = {}));
-var gml;
-(function (gml) {
     var CoverageFunction = (function () {
         function CoverageFunction(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
@@ -1364,20 +1339,178 @@ var gml;
     var DomainSet = (function () {
         function DomainSet(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            if (source.doesElementExist("gml:Grid")) {
+                this.abstractGridCoverage = new gml.GridCoverage(source);
+            }
+            else if (source.doesElementExist("gml:RectifiedGrid")) {
+                this.abstractGridCoverage = new gml.RectifiedGridCoverage(source);
+            }
+            else if (source.doesElementExist("gmlrgrid:ReferenceableGridByVectors")) {
+                this.abstractGridCoverage = new gml.ReferenceableGridCoverage(source);
+            }
+            this.abstractGridCoverage.buildObj();
         }
         return DomainSet;
     }());
     gml.DomainSet = DomainSet;
+})(gml || (gml = {}));
+var gml;
+(function (gml) {
+    var AbstractGridCoverage = (function () {
+        function AbstractGridCoverage(source) {
+            this.offsetVectors = [];
+            this.axisTypes = [];
+            this.REGULAR_AXIS = "Regular Axis";
+            this.IRREGULAR_AXIS = "Irregular Axis";
+            this.IRREGULAR_AXIS_RESOLUTION = "N/A";
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+        }
+        AbstractGridCoverage.prototype.buildObj = function () {
+            this.parseGridEnvelope();
+            this.parseAxisTypesAndOffsetVectors();
+        };
+        AbstractGridCoverage.prototype.parseGridEnvelope = function () {
+            this.gridEnvelope = new gml.GridEnvelope(this.currentSource.getChildAsSerializedObject("gml:limits"));
+        };
+        return AbstractGridCoverage;
+    }());
+    gml.AbstractGridCoverage = AbstractGridCoverage;
+})(gml || (gml = {}));
+var gml;
+(function (gml) {
+    var GridCoverage = (function (_super) {
+        __extends(GridCoverage, _super);
+        function GridCoverage(source) {
+            var _this = _super.call(this, source) || this;
+            _this.currentSource = source.getChildAsSerializedObject("gml:Grid");
+            return _this;
+        }
+        GridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
+            var numberOfDimensions = this.currentSource.getAttributeAsNumber("dimension");
+            for (var i = 0; i < numberOfDimensions; i++) {
+                this.axisTypes[i] = this.REGULAR_AXIS;
+                this.offsetVectors[i] = "1";
+            }
+        };
+        return GridCoverage;
+    }(gml.AbstractGridCoverage));
+    gml.GridCoverage = GridCoverage;
+})(gml || (gml = {}));
+var gml;
+(function (gml) {
+    var RectifiedGridCoverage = (function (_super) {
+        __extends(RectifiedGridCoverage, _super);
+        function RectifiedGridCoverage(source) {
+            var _this = _super.call(this, source) || this;
+            _this.currentSource = source.getChildAsSerializedObject("gml:RectifiedGrid");
+            return _this;
+        }
+        RectifiedGridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
+            var _this = this;
+            this.currentSource.getChildrenAsSerializedObjects("offsetVector").forEach(function (element) {
+                _this.axisTypes.push(_this.REGULAR_AXIS);
+                var tmpArray = element.getValueAsString().split(" ");
+                for (var i = 0; i < tmpArray.length; i++) {
+                    if (tmpArray[i] != "0") {
+                        _this.offsetVectors.push(tmpArray[i]);
+                        break;
+                    }
+                }
+            });
+        };
+        return RectifiedGridCoverage;
+    }(gml.AbstractGridCoverage));
+    gml.RectifiedGridCoverage = RectifiedGridCoverage;
+})(gml || (gml = {}));
+var gml;
+(function (gml) {
+    var ReferenceableGridCoverage = (function (_super) {
+        __extends(ReferenceableGridCoverage, _super);
+        function ReferenceableGridCoverage(source) {
+            var _this = _super.call(this, source) || this;
+            _this.currentSource = source.getChildAsSerializedObject("gmlrgrid:ReferenceableGridByVectors");
+            return _this;
+        }
+        ReferenceableGridCoverage.prototype.parseAxisTypesAndOffsetVectors = function () {
+            var _this = this;
+            this.currentSource.getChildrenAsSerializedObjects("gmlrgrid:generalGridAxis").forEach(function (element) {
+                var coefficientsElement = element.getChildAsSerializedObject("gmlrgrid:GeneralGridAxis").getChildAsSerializedObject("gmlrgrid:coefficients");
+                if (coefficientsElement.getValueAsString() === "") {
+                    _this.axisTypes.push(_this.REGULAR_AXIS);
+                }
+                else {
+                    _this.axisTypes.push(_this.IRREGULAR_AXIS);
+                }
+                var offsetVectorElement = element.getChildAsSerializedObject("gmlrgrid:GeneralGridAxis").getChildAsSerializedObject("gmlrgrid:offsetVector");
+                var tmpArray = offsetVectorElement.getValueAsString().split(" ");
+                for (var i = 0; i < tmpArray.length; i++) {
+                    if (tmpArray[i] != "0") {
+                        if (_this.axisTypes[_this.axisTypes.length - 1] !== _this.IRREGULAR_AXIS) {
+                            _this.offsetVectors.push(tmpArray[i]);
+                        }
+                        else {
+                            _this.offsetVectors.push(_this.IRREGULAR_AXIS_RESOLUTION);
+                        }
+                        break;
+                    }
+                }
+            });
+        };
+        return ReferenceableGridCoverage;
+    }(gml.AbstractGridCoverage));
+    gml.ReferenceableGridCoverage = ReferenceableGridCoverage;
+})(gml || (gml = {}));
+var gml;
+(function (gml) {
+    var GridEnvelope = (function () {
+        function GridEnvelope(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            var obj = source.getChildAsSerializedObject("gml:GridEnvelope");
+            this.gridLows = obj.getChildAsSerializedObject("low").getValueAsString().split(" ");
+            this.gridHighs = obj.getChildAsSerializedObject("high").getValueAsString().split(" ");
+        }
+        return GridEnvelope;
+    }());
+    gml.GridEnvelope = GridEnvelope;
 })(gml || (gml = {}));
 var gmlcov;
 (function (gmlcov) {
     var Metadata = (function () {
         function Metadata(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            var childElementTag = "gmlcov:Extension";
+            if (source.doesElementExist(childElementTag)) {
+                this.extension = new gmlcov.Extension(source.getChildAsSerializedObject(childElementTag));
+            }
         }
         return Metadata;
     }());
     gmlcov.Metadata = Metadata;
+})(gmlcov || (gmlcov = {}));
+var gmlcov;
+(function (gmlcov) {
+    var Extension = (function () {
+        function Extension(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            var childElementTag = "rasdaman:covMetadata";
+            if (source.doesElementExist(childElementTag)) {
+                this.covMetadata = new gmlcov.CovMetadata(source.getChildAsSerializedObject(childElementTag));
+            }
+        }
+        return Extension;
+    }());
+    gmlcov.Extension = Extension;
+})(gmlcov || (gmlcov = {}));
+var gmlcov;
+(function (gmlcov) {
+    var CovMetadata = (function () {
+        function CovMetadata(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.content = source;
+        }
+        return CovMetadata;
+    }());
+    gmlcov.CovMetadata = CovMetadata;
 })(gmlcov || (gmlcov = {}));
 var swe;
 (function (swe) {
@@ -1517,41 +1650,21 @@ var wcs;
 })(wcs || (wcs = {}));
 var wcs;
 (function (wcs) {
-    var CoverageDescription = (function (_super) {
-        __extends(CoverageDescription, _super);
+    var CoverageDescription = (function () {
         function CoverageDescription(source) {
-            var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
-            if (source.doesElementExist("gml:coverageFunction")) {
-                _this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
-            }
-            if (source.doesElementExist("gmlcov:metadata")) {
-                _this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
-            }
-            _this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
-            _this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
-            _this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
-            return _this;
+            var obj = source.getChildAsSerializedObject("CoverageDescription");
+            this.coverageId = obj.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            this.boundedBy = new gml.BoundedBy(obj.getChildAsSerializedObject("gml:boundedBy"));
+            this.coverageFunction = new gml.CoverageFunction(obj.getChildAsSerializedObject("gml:coverageFunction"));
+            this.metadata = new gmlcov.Metadata(obj.getChildAsSerializedObject("gmlcov:metadata"));
+            this.domainSet = new gml.DomainSet(obj.getChildAsSerializedObject("gml:domainSet"));
+            this.rangeType = new gmlcov.RangeType(obj.getChildAsSerializedObject("gmlcov:rangeType"));
+            this.serviceParameters = new wcs.ServiceParameters(obj.getChildAsSerializedObject("wcs:ServiceParameters"));
         }
         return CoverageDescription;
-    }(gml.AbstractFeature));
-    wcs.CoverageDescription = CoverageDescription;
-})(wcs || (wcs = {}));
-var wcs;
-(function (wcs) {
-    var CoverageDescriptions = (function () {
-        function CoverageDescriptions(source) {
-            var _this = this;
-            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            this.coverageDescription = [];
-            source.getChildrenAsSerializedObjects("wcs:CoverageDescription").forEach(function (o) {
-                _this.coverageDescription.push(new wcs.CoverageDescription(o));
-            });
-        }
-        return CoverageDescriptions;
     }());
-    wcs.CoverageDescriptions = CoverageDescriptions;
+    wcs.CoverageDescription = CoverageDescription;
 })(wcs || (wcs = {}));
 var wcs;
 (function (wcs) {
@@ -2086,8 +2199,8 @@ var rasdaman;
                 try {
                     var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                     var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
-                    var descriptions = new wcs.CoverageDescriptions(serializedResponse);
-                    var response = new rasdaman.common.Response(doc, descriptions);
+                    var description = new wcs.CoverageDescription(serializedResponse);
+                    var response = new rasdaman.common.Response(doc, description);
                     result.resolve(response);
                 }
                 catch (err) {
@@ -2274,7 +2387,7 @@ var rasdaman;
             return null;
         };
         WebWorldWindService.prototype.initWebWorldWind = function (canvasId) {
-            var wwd = new WorldWind.WorldWindow(canvasId);
+            var wwd = new WorldWind.WorldWindow(canvasId, null);
             var polygonLayer = new WorldWind.RenderableLayer();
             var surfaceImageLayer = new WorldWind.RenderableLayer();
             var wmsLayer = null;
@@ -2644,14 +2757,14 @@ var rasdaman;
                     _this.resetState();
                 }
             });
-            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (newValue, oldValue) {
+            $scope.$watch("wcsStateInformation.selectedCoverageDescription", function (newValue, oldValue) {
                 $scope.wcsGetCoverageTab.disabled = newValue ? false : true;
             });
             $scope.tabs = [$scope.wcsGetCapabilitiesTab, $scope.wcsDescribeCoverageTab, $scope.wcsGetCoverageTab, $scope.wcsProcessCoverageTab, $scope.wcsDeleteCoverageTab, $scope.wcsInsertCoverageTab];
             $scope.wcsStateInformation = {
                 serverCapabilities: null,
                 getCoveragesExtents: null,
-                selectedCoverageDescriptions: null,
+                selectedCoverageDescription: null,
                 selectedGetCoverageId: null,
                 reloadServerCapabilities: true
             };
@@ -2870,8 +2983,7 @@ var rasdaman;
             $scope.REGULAR_AXIS = "regular";
             $scope.IRREGULAR_AXIS = "irregular";
             $scope.NOT_AVALIABLE = "N/A";
-            $scope.isCoverageDescriptionsDocumentOpen = false;
-            $scope.isCoverageDescriptionsHideGlobe = true;
+            $scope.hideWebWorldWindGlobe = true;
             $scope.isCoverageIdValid = function () {
                 if ($scope.wcsStateInformation.serverCapabilities) {
                     var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
@@ -2901,18 +3013,24 @@ var rasdaman;
                     $scope.describeCoverage();
                 }
             });
-            $scope.getAxisResolution = function (index, offsetVectorElement) {
-                if (offsetVectorElement != null) {
-                    var tmp = offsetVectorElement.textContent.split(" ");
-                    return tmp[index];
+            $scope.parseCoverageMetadata = function () {
+                $scope.metadata = null;
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString($scope.rawCoverageDescription, "text/xml");
+                var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
+                if (elements.length > 0) {
+                    $scope.metadata = elements[0].innerHTML;
+                    for (var i = 0; i < $scope.metadata.length; i++) {
+                        if ($scope.metadata[i] === "{") {
+                            $scope.typeMetadata = "json";
+                            break;
+                        }
+                        else {
+                            $scope.typeMetadata = "xml";
+                            break;
+                        }
+                    }
                 }
-                return "";
-            };
-            $scope.getAxisType = function (index, coefficientsElement) {
-                if (coefficientsElement != null && coefficientsElement.textContent !== "") {
-                    return $scope.IRREGULAR_AXIS;
-                }
-                return $scope.REGULAR_AXIS;
             };
             $scope.describeCoverage = function () {
                 if (!$scope.isCoverageIdValid()) {
@@ -2926,68 +3044,16 @@ var rasdaman;
                 $scope.axes = [];
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(function (response) {
-                    $scope.coverageDescriptionsDocument = response.document;
-                    $scope.coverageDescriptions = response.value;
-                    $scope.metaDataPrint = ' ';
-                    var rawCoverageDescription = $scope.coverageDescriptionsDocument.value;
-                    var parser = new DOMParser();
-                    var xmlDoc = parser.parseFromString(rawCoverageDescription, "text/xml");
-                    var gridBoundsLowElement = xmlDoc.evaluate("//*[local-name() = 'low']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                    var gridBoundsHighElement = xmlDoc.evaluate("//*[local-name() = 'high']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                    var gridLowerBounds = gridBoundsLowElement.iterateNext().textContent.split(" ");
-                    var gridUpperBounds = gridBoundsHighElement.iterateNext().textContent.split(" ");
-                    var offsetVectorElements = xmlDoc.evaluate("//*[local-name() = 'offsetVector']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                    var coefficientsElements = xmlDoc.evaluate("//*[local-name() = 'coefficients']", xmlDoc, null, XPathResult.ANY_TYPE, null);
-                    var offsetVectorElement = offsetVectorElements.iterateNext();
-                    var coeffcientsElement = coefficientsElements.iterateNext();
-                    var i = 0;
-                    var axisResolution = $scope.getAxisResolution(i, offsetVectorElement);
-                    var axisType = $scope.getAxisType(i, coeffcientsElement);
-                    if (axisType == $scope.IRREGULAR_AXIS) {
-                        axisResolution = $scope.NOT_AVALIABLE;
-                    }
-                    $scope.axes[i] = { "resolution": axisResolution, "type": axisType,
-                        "gridLowerBound": gridLowerBounds[0], "gridUpperBound": gridUpperBounds[0] };
-                    while (offsetVectorElement) {
-                        i++;
-                        offsetVectorElement = offsetVectorElements.iterateNext();
-                        if (offsetVectorElement != null) {
-                            axisResolution = $scope.getAxisResolution(i, offsetVectorElement);
-                        }
-                        if (coeffcientsElement != null) {
-                            coeffcientsElement = coefficientsElements.iterateNext();
-                            if (coeffcientsElement != null) {
-                                axisType = $scope.getAxisType(i, coeffcientsElement);
-                            }
-                        }
-                        if (axisType == $scope.IRREGULAR_AXIS) {
-                            axisResolution = $scope.NOT_AVALIABLE;
-                        }
-                        $scope.axes[i] = { "resolution": axisResolution, "type": axisType,
-                            "gridLowerBound": gridLowerBounds[i], "gridUpperBound": gridUpperBounds[i] };
-                    }
-                    var metadataContent = "";
-                    var elements = xmlDoc.getElementsByTagName("rasdaman:covMetadata");
-                    if (elements.length > 0) {
-                        metadataContent = elements[0].innerHTML;
-                    }
-                    if (metadataContent != "") {
-                        $scope.metaDataPrint = metadataContent;
-                        var ch = /{/gi;
-                        if ($scope.metaDataPrint.search(ch) != -1) {
-                            $scope.typeMetadata = 'json';
-                        }
-                        else {
-                            $scope.typeMetadata = 'xml';
-                        }
-                    }
+                    $scope.coverageDescription = response.value;
+                    $scope.rawCoverageDescription = response.document.value;
+                    $scope.parseCoverageMetadata();
                     var coverageExtentArray = webWorldWindService.getCoveragesExtentsByCoverageId($scope.selectedCoverageId);
                     if (coverageExtentArray == null) {
-                        $scope.isCoverageDescriptionsHideGlobe = true;
+                        $scope.hideWebWorldWindGlobe = true;
                     }
                     else {
                         var canvasId = "wcsCanvasDescribeCoverage";
-                        $scope.isCoverageDescriptionsHideGlobe = false;
+                        $scope.hideWebWorldWindGlobe = false;
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
                         webWorldWindService.gotoCoverageExtentCenter(canvasId, coverageExtentArray);
@@ -2997,15 +3063,13 @@ var rasdaman;
                     for (var _i = 0; _i < arguments.length; _i++) {
                         args[_i] = arguments[_i];
                     }
-                    $scope.coverageDescriptionsDocument = null;
-                    $scope.coverageDescriptions = null;
+                    $scope.coverageDescription = null;
                     errorHandlingService.handleError(args);
                     $log.error(args);
                 })["finally"](function () {
-                    $scope.wcsStateInformation.selectedCoverageDescriptions = $scope.coverageDescriptions;
+                    $scope.wcsStateInformation.selectedCoverageDescription = $scope.coverageDescription;
                 });
             };
-            $scope.isCoverageDescriptionsDocumentOpen = false;
         }
         WCSDescribeCoverageController.$inject = [
             "$scope",
@@ -3242,9 +3306,9 @@ var rasdaman;
                     wcsService.getCoverageHTTPPOST(getCoverageRequest);
                 }
             };
-            $scope.$watch("wcsStateInformation.selectedCoverageDescriptions", function (coverageDescriptions) {
-                if (coverageDescriptions && coverageDescriptions.coverageDescription) {
-                    $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescriptions.coverageDescription[0];
+            $scope.$watch("wcsStateInformation.selectedCoverageDescription", function (coverageDescription) {
+                if (coverageDescription) {
+                    $scope.coverageDescription = $scope.wcsStateInformation.selectedCoverageDescription;
                     $scope.selectedCoverageId = $scope.coverageDescription.coverageId;
                     $scope.wcsStateInformation.selectedGetCoverageId = null;
                     $scope.typeOfAxis = [];
@@ -4962,7 +5026,7 @@ var rasdaman;
             $scope.layers = [];
             $scope.displayWMSLayer = false;
             $scope.timeString = null;
-            $scope.coverageDescriptions = null;
+            $scope.coverageDescription = null;
             var canvasId = "wmsCanvasDescribeLayer";
             var WCPS_QUERY_FRAGMENT = 0;
             var RASQL_QUERY_FRAGMENT = 1;
@@ -5013,8 +5077,8 @@ var rasdaman;
                         webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, coverageExtentArray);
                         wcsService.getCoverageDescription(describeCoverageRequest)
                             .then(function (response) {
-                            $scope.coverageDescriptions = response.value;
-                            var dimensions = $scope.coverageDescriptions.coverageDescription[0].boundedBy.envelope.srsDimension;
+                            $scope.coverageDescription = response.value;
+                            var dimensions = $scope.coverageDescription.boundedBy.envelope.srsDimension;
                             addSliders(dimensions, coveragesExtents);
                             webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                         }, function () {
@@ -5043,7 +5107,7 @@ var rasdaman;
                 $scope.display3DLayerNotification = dimensions > 2 ? true : false;
                 $scope.display4BandsExclamationMark = false;
                 var showGetMapURL = false;
-                var bands = $scope.coverageDescriptions.coverageDescription[0].rangeType.dataRecord.fields.length;
+                var bands = $scope.coverageDescription.rangeType.dataRecord.fields.length;
                 var bbox = coveragesExtents[0].bbox;
                 $scope.bboxLayer = bbox;
                 if (bands == 2 || bands > 4) {

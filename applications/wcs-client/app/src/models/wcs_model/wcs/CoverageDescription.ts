@@ -26,35 +26,34 @@
 ///<reference path="ServiceParameters.ts"/>
 
 module wcs {
-    export class CoverageDescription extends gml.AbstractFeature {
+    export class CoverageDescription {
         public coverageId:string;
+        public boundedBy:gml.BoundedBy;
         public coverageFunction:gml.CoverageFunction;
         public metadata:gmlcov.Metadata;
         public domainSet:gml.DomainSet;
         public rangeType:gmlcov.RangeType;
-        public serviceParameters:wcs.ServiceParameters;
-
+        public serviceParameters:wcs.ServiceParameters;       
 
         public constructor(source:rasdaman.common.ISerializedObject) {
-            super(source);
-
+            
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+            let obj = source.getChildAsSerializedObject("CoverageDescription");
+
+            this.coverageId = obj.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
+
+            this.boundedBy = new gml.BoundedBy(obj.getChildAsSerializedObject("gml:boundedBy"));           
             
-            if (source.doesElementExist("gml:coverageFunction")) {
-                this.coverageFunction = new gml.CoverageFunction(source.getChildAsSerializedObject("gml:coverageFunction"));
-            }
+            this.coverageFunction = new gml.CoverageFunction(obj.getChildAsSerializedObject("gml:coverageFunction"));
+            
+            this.metadata = new gmlcov.Metadata(obj.getChildAsSerializedObject("gmlcov:metadata"));            
 
-            if(source.doesElementExist("gmlcov:metadata")) {
-                this.metadata = new gmlcov.Metadata(source.getChildAsSerializedObject("gmlcov:metadata"));
-            }
+            this.domainSet = new gml.DomainSet(obj.getChildAsSerializedObject("gml:domainSet"));
 
-            this.domainSet = new gml.DomainSet(source.getChildAsSerializedObject("gml:domainSet"));
+            this.rangeType = new gmlcov.RangeType(obj.getChildAsSerializedObject("gmlcov:rangeType"));
 
-            this.rangeType = new gmlcov.RangeType(source.getChildAsSerializedObject("gmlcov:rangeType"));
-
-            this.serviceParameters = new wcs.ServiceParameters(source.getChildAsSerializedObject("wcs:ServiceParameters"));
+            this.serviceParameters = new wcs.ServiceParameters(obj.getChildAsSerializedObject("wcs:ServiceParameters"));
 
         }
     }

@@ -87,8 +87,8 @@ module rasdaman {
                     try {
                         var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
-                        var descriptions = new wcs.CoverageDescriptions(serializedResponse);
-                        var response = new rasdaman.common.Response<wcs.CoverageDescriptions>(doc, descriptions);
+                        var description = new wcs.CoverageDescription(serializedResponse);
+                        var response = new rasdaman.common.Response<wcs.CoverageDescription>(doc, description);
 
                         result.resolve(response);
                     } catch (err) {

@@ -24,7 +24,6 @@
 /// <reference path="Capabilities.ts"/>
 /// <reference path="Contents.ts"/>
 /// <reference path="CoverageDescription.ts"/>
-/// <reference path="CoverageDescriptions.ts"/>
 /// <reference path="CoverageSubtypeParent.ts"/>
 /// <reference path="CoverageSummary.ts"/>
 /// <reference path="CRS.ts"/>
