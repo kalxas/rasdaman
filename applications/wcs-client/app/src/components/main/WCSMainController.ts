@@ -60,8 +60,7 @@ module rasdaman {
             // NOTE: must initialize wcsStateInformation first or watcher for ServerCapabilities in GetCapabilities
             // from DescribeCoverage, GetCoverage controllers will not work and return null.
             $scope.wcsStateInformation = {
-                serverCapabilities: null,
-                getCoveragesExtents: null,
+                serverCapabilities: null,                
                 selectedCoverageDescription: null,
                 selectedGetCoverageId: null,
                 reloadServerCapabilities: true
@@ -142,8 +141,7 @@ module rasdaman {
 
     export interface WCSMainControllerScope extends angular.IScope {
         wcsStateInformation:{
-            serverCapabilities:wcs.Capabilities,
-            getCoveragesExtents:string,
+            serverCapabilities:wcs.Capabilities,            
             selectedCoverageDescription:wcs.CoverageDescription,
             selectedGetCoverageId:string,
             reloadServerCapabilities:boolean

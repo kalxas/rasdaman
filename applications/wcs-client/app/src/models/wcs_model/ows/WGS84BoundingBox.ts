@@ -28,8 +28,16 @@
  */
 module ows {
     export class WGS84BoundingBox {
+        // Long Lat order (xmin ymin)
+        public lowerCorner:String;
+        // xmax ymax
+        public upperCorner:String;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+
+            this.lowerCorner = source.getChildAsSerializedObject("ows:LowerCorner").getValueAsString();
+            this.upperCorner = source.getChildAsSerializedObject("ows:UpperCorner").getValueAsString();
         }
     }
 }

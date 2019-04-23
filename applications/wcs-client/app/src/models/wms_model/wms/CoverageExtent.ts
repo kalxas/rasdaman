@@ -23,7 +23,6 @@
 
 /**
  * WMS already has the Ex_GeographicBoundingBox element to have XY bounding box in EPSG:4326.
- * So, it will not use the made-up request /GetCoverageExtents as in WCS GetCapabilities.
  * However, the outcome of them should be the same object (CoverageExtent) and WMS needs to translate
  * EX_GeographicBoundingBox to CoverageExtent before WebWorldWind can process and load this bbox on globe.
  */

@@ -328,6 +328,7 @@ public interface XMLSymbols {
     String LABEL_CONTENTS = "Contents";
     String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
     String LABEL_BOUNDING_BOX = "BoundingBox";
+    String LABEL_WGS84_BOUNDING_BOX = "WGS84BoundingBox";
 
     // gmlcov
     String LABEL_ABSTRACT_COVERAGE = "Coverage";

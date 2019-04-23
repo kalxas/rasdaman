@@ -1061,6 +1061,8 @@ var ows;
     var WGS84BoundingBox = (function () {
         function WGS84BoundingBox(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.lowerCorner = source.getChildAsSerializedObject("ows:LowerCorner").getValueAsString();
+            this.upperCorner = source.getChildAsSerializedObject("ows:UpperCorner").getValueAsString();
         }
         return WGS84BoundingBox;
     }());
@@ -1116,21 +1118,18 @@ var wcs;
             _this.displayFootprint = null;
             _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             _this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
-            if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+            var childElement = "wcs:CoverageSubtypeParent";
+            if (source.doesElementExist(childElement)) {
+                _this.coverageSubtypeParent = new wcs.CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
             }
-            _this.wgs84BoundingBox = [];
-            source.getChildrenAsSerializedObjects("ows:WGS84BoundingBox").forEach(function (o) {
-                _this.wgs84BoundingBox.push(new ows.WGS84BoundingBox(o));
-            });
-            _this.boundingBox = [];
-            source.getChildrenAsSerializedObjects("ows:BoundingBox").forEach(function (o) {
-                _this.boundingBox.push(new ows.BoundingBox(o));
-            });
-            _this.metadata = [];
-            source.getChildrenAsSerializedObjects("ows:Metadata").forEach(function (o) {
-                _this.metadata.push(new ows.Metadata(o));
-            });
+            childElement = "ows:WGS84BoundingBox";
+            if (source.doesElementExist(childElement)) {
+                _this.wgs84BoundingBox = new ows.WGS84BoundingBox(source.getChildAsSerializedObject(childElement));
+            }
+            childElement = "ows:BoundingBox";
+            if (source.doesElementExist(childElement)) {
+                _this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
+            }
             return _this;
         }
         return CoverageSummary;
@@ -1144,9 +1143,9 @@ var wcs;
         function Contents(source) {
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            _this.coverageSummary = [];
+            _this.coverageSummaries = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
-                _this.coverageSummary.push(new wcs.CoverageSummary(o));
+                _this.coverageSummaries.push(new wcs.CoverageSummary(o));
             });
             if (source.doesElementExist("wcs.Extension")) {
                 _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
@@ -2178,18 +2177,6 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.prototype.getCoveragesExtents = function () {
-            var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint + "/GetCoveragesExtents";
-            this.$http.get(requestUrl)
-                .then(function (data) {
-                var response = new rasdaman.common.Response(null, data.data);
-                result.resolve(response);
-            }, function (error) {
-                result.reject(error);
-            });
-            return result.promise;
-        };
         WCSService.prototype.getCoverageDescription = function (request) {
             var result = this.$q.defer();
             var self = this;
@@ -2387,7 +2374,7 @@ var rasdaman;
             return null;
         };
         WebWorldWindService.prototype.initWebWorldWind = function (canvasId) {
-            var wwd = new WorldWind.WorldWindow(canvasId, null);
+            var wwd = new WorldWind.WorldWindow(canvasId);
             var polygonLayer = new WorldWind.RenderableLayer();
             var surfaceImageLayer = new WorldWind.RenderableLayer();
             var wmsLayer = null;
@@ -2763,7 +2750,6 @@ var rasdaman;
             $scope.tabs = [$scope.wcsGetCapabilitiesTab, $scope.wcsDescribeCoverageTab, $scope.wcsGetCoverageTab, $scope.wcsProcessCoverageTab, $scope.wcsDeleteCoverageTab, $scope.wcsInsertCoverageTab];
             $scope.wcsStateInformation = {
                 serverCapabilities: null,
-                getCoveragesExtents: null,
                 selectedCoverageDescription: null,
                 selectedGetCoverageId: null,
                 reloadServerCapabilities: true
@@ -2848,11 +2834,12 @@ var rasdaman;
             $scope.isServiceIdentificationOpen = false;
             $scope.isServiceProviderOpen = false;
             $scope.isCapabilitiesDocumentOpen = false;
+            $scope.coveragesExtents = [];
             $scope.rowPerPageSmartTable = 10;
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
             var canvasId = "wcsCanvasGetCapabilities";
             $scope.initCheckboxesForCoverageIds = function () {
-                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
                 for (var i = 0; i < coverageSummaryArray.length; i++) {
                     for (var j = 0; j < $scope.coveragesExtents.length; j++) {
                         if ($scope.coveragesExtents[j].coverageId === coverageSummaryArray[i].coverageId) {
@@ -2863,7 +2850,7 @@ var rasdaman;
                 }
             };
             $scope.getCoverageSummaryByCoverageId = function (coverageId) {
-                var coverageSummaryArray = $scope.capabilities.contents.coverageSummary;
+                var coverageSummaryArray = $scope.capabilities.contents.coverageSummaries;
                 for (var i = 0; i < coverageSummaryArray.length; i++) {
                     if (coverageSummaryArray[i].coverageId == coverageId) {
                         return coverageSummaryArray[i];
@@ -2903,6 +2890,36 @@ var rasdaman;
                 }
                 $scope.wcsStateInformation.reloadServerCapabilities = false;
             });
+            $scope.parseCoveragesExtents = function () {
+                var coverageSummaries = $scope.capabilities.contents.coverageSummaries;
+                coverageSummaries.forEach(function (coverageSummary) {
+                    var coverageId = coverageSummary.coverageId;
+                    var wgs84BoundingBox = coverageSummary.wgs84BoundingBox;
+                    if (wgs84BoundingBox != null) {
+                        var lowerArrayTmp = wgs84BoundingBox.lowerCorner.split(" ");
+                        var xMin = parseFloat(lowerArrayTmp[0]);
+                        var yMin = parseFloat(lowerArrayTmp[1]);
+                        var upperArrayTmp = wgs84BoundingBox.upperCorner.split(" ");
+                        var xMax = parseFloat(upperArrayTmp[0]);
+                        var yMax = parseFloat(upperArrayTmp[1]);
+                        var bboxObj = {
+                            "coverageId": coverageId,
+                            "bbox": {
+                                "xmin": xMin,
+                                "ymin": yMin,
+                                "xmax": xMax,
+                                "ymax": yMax
+                            },
+                            "displayFootprint": false
+                        };
+                        $scope.coveragesExtents.push(bboxObj);
+                    }
+                });
+                webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
+                $scope.isCoveragesExtentsOpen = true;
+                $scope.initCheckboxesForCoverageIds();
+                webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, $scope.coveragesExtents);
+            };
             $scope.getServerCapabilities = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -2921,29 +2938,7 @@ var rasdaman;
                     $scope.isAvailableCoveragesOpen = true;
                     $scope.isServiceIdentificationOpen = true;
                     $scope.isServiceProviderOpen = true;
-                    wcsService.getCoveragesExtents()
-                        .then(function (response) {
-                        $scope.coveragesExtents = response.value;
-                        for (var i = 0; i < $scope.coveragesExtents.length; i++) {
-                            $scope.coveragesExtents[i].displayFootprint = false;
-                        }
-                        webWorldWindService.setCoveragesExtentsArray($scope.coveragesExtents);
-                        $scope.isCoveragesExtentsOpen = true;
-                        $scope.initCheckboxesForCoverageIds();
-                        webWorldWindService.prepareCoveragesExtentsForGlobe(canvasId, $scope.coveragesExtents);
-                        webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.selectedCoverageId);
-                    }, function () {
-                        var args = [];
-                        for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
-                        }
-                        $scope.coveragesExtents = null;
-                        $scope.isCoveragesExtentsOpen = false;
-                        errorHandlingService.handleError(args);
-                        $log.error(args);
-                    })["finally"](function () {
-                        $scope.wcsStateInformation.getCoveragesExtents = $scope.coveragesExtents;
-                    });
+                    $scope.parseCoveragesExtents();
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
@@ -2986,7 +2981,7 @@ var rasdaman;
             $scope.hideWebWorldWindGlobe = true;
             $scope.isCoverageIdValid = function () {
                 if ($scope.wcsStateInformation.serverCapabilities) {
-                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
                         if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
@@ -3002,7 +2997,7 @@ var rasdaman;
             $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
                     $scope.availableCoverageIds = [];
-                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                    capabilities.contents.coverageSummaries.forEach(function (coverageSummary) {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }
@@ -3098,7 +3093,7 @@ var rasdaman;
             this.errorHandlingService = errorHandlingService;
             function isCoverageIdValid(coverageId) {
                 if ($scope.wcsStateInformation.serverCapabilities) {
-                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
                         if (coverageSummaries[i].coverageId == coverageId) {
                             return true;
@@ -3113,7 +3108,7 @@ var rasdaman;
             $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
                     $scope.availableCoverageIds = [];
-                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                    capabilities.contents.coverageSummaries.forEach(function (coverageSummary) {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }
@@ -3223,7 +3218,7 @@ var rasdaman;
             $scope.isGetCoverageHideGlobe = true;
             $scope.isCoverageIdValid = function () {
                 if ($scope.wcsStateInformation.serverCapabilities) {
-                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
                         if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
@@ -3237,7 +3232,7 @@ var rasdaman;
                     $scope.avaiableHTTPRequests = ["GET", "POST"];
                     $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                     $scope.availableCoverageIds = [];
-                    capabilities.contents.coverageSummary.forEach(function (coverageSummary) {
+                    capabilities.contents.coverageSummaries.forEach(function (coverageSummary) {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }

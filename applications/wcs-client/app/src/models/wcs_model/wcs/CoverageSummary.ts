@@ -30,9 +30,8 @@ module wcs {
         public coverageId:string;
         public coverageSubtype:string;
         public coverageSubtypeParent:CoverageSubtypeParent;
-        public wgs84BoundingBox:ows.WGS84BoundingBox[];
-        public boundingBox:ows.BoundingBox[];
-        public metadata:ows.Metadata[];
+        public wgs84BoundingBox:ows.WGS84BoundingBox;
+        public boundingBox:ows.BoundingBox;
         public displayFootprint:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
@@ -45,24 +44,21 @@ module wcs {
             this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
 
-            if (source.doesElementExist("wcs:CoverageSubtypeParent")) {
-                this.coverageSubtypeParent = new CoverageSubtypeParent(source.getChildAsSerializedObject("wcs:CoverageSubtypeParent"));
+            let childElement = "wcs:CoverageSubtypeParent";
+            if (source.doesElementExist(childElement)) {
+                this.coverageSubtypeParent = new CoverageSubtypeParent(source.getChildAsSerializedObject(childElement));
             }
 
-            this.wgs84BoundingBox = [];
-            source.getChildrenAsSerializedObjects("ows:WGS84BoundingBox").forEach(o=> {
-                this.wgs84BoundingBox.push(new ows.WGS84BoundingBox(o));
-            });
+            childElement = "ows:WGS84BoundingBox";
+            // optional parameter if coverage's CRS can project to EPSG:4326
+            if (source.doesElementExist(childElement)) {
+                this.wgs84BoundingBox = new ows.WGS84BoundingBox(source.getChildAsSerializedObject(childElement));
+            }
 
-            this.boundingBox = [];
-            source.getChildrenAsSerializedObjects("ows:BoundingBox").forEach(o=> {
-                this.boundingBox.push(new ows.BoundingBox(o));
-            });
-
-            this.metadata = [];
-            source.getChildrenAsSerializedObjects("ows:Metadata").forEach(o=> {
-                this.metadata.push(new ows.Metadata(o));
-            });
+            childElement = "ows:BoundingBox";
+            if (source.doesElementExist(childElement)) {
+                this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
+            }
         }
     }
 }

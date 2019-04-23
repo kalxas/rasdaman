@@ -43,10 +43,10 @@ import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.rasdaman.config.VersionManager;
+import petascope.core.BoundingBox;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import static petascope.core.KVPSymbols.WCS_SERVICE;
 import petascope.core.Pair;
-import petascope.core.XMLSymbols;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.ListUtil;
@@ -114,6 +114,7 @@ import static petascope.core.XMLSymbols.LABEL_UPPER_CORNER_ASSOCIATE_ROLE;
 import static petascope.core.XMLSymbols.LABEL_VALUE;
 import static petascope.core.XMLSymbols.LABEL_VERSION;
 import static petascope.core.XMLSymbols.LABEL_VOICE;
+import static petascope.core.XMLSymbols.LABEL_WGS84_BOUNDING_BOX;
 import static petascope.core.XMLSymbols.NAMESPACE_INTERPOLATION;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_CRS;
@@ -129,6 +130,7 @@ import static petascope.core.XMLSymbols.NAMESPACE_WCS_20;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_21;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
+import petascope.util.BigDecimalUtil;
 
 /**
  * Class to represent result of WCS GetCapabilities request.
@@ -599,6 +601,7 @@ public class GMLGetCapabilitiesBuilder {
     private Element buildContentsElement(String version) throws PetascopeException, SecoreException {
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
+        this.persistedCoverageService.createAllCoveragesExtents();
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
@@ -620,7 +623,13 @@ public class GMLGetCapabilitiesBuilder {
             Element coverageSubTypeElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_COVERAGE_SUBTYPE), this.getWCSNameSpace(version));
             coverageSubTypeElement.appendChild(coveragePair.fst.getCoverageType());
             coverageSummaryElement.appendChild(coverageSubTypeElement);
-
+            
+            // Optional element for coverage which can reproject to WGS84 CRS
+            Element wgs84BoundingBoxElement = this.createWGS84BoundingBoxElement(coverage.getCoverageId());
+            if (wgs84BoundingBoxElement != null) {
+                coverageSummaryElement.appendChild(wgs84BoundingBoxElement);
+            }
+            
             EnvelopeByAxis envelopeByAxis = coveragePair.fst.getEnvelope().getEnvelopeByAxis();
             Element boundingBox = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_BOUNDING_BOX), NAMESPACE_OWS);
             // Attributes of BoundingBox element
@@ -647,6 +656,32 @@ public class GMLGetCapabilitiesBuilder {
         }
 
         return contentsElement;
+    }
+    
+    /**
+     * Create an optional WGS84 bounding box for coverages which have X and Y georeferenced-axes
+     * which can project to EPSG:4326 CRS (Long - Lat order)
+     */
+    private Element createWGS84BoundingBoxElement(String coverageId) {
+        BoundingBox wgs84BoundingBox = this.persistedCoverageService.coveragesExtentsCacheMap.get(coverageId);
+        Element wgs84BoundingBoxElement = null;
+        
+        if (wgs84BoundingBox != null) {
+            // Only coverage with possible projection is displayed
+            wgs84BoundingBoxElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_WGS84_BOUNDING_BOX), NAMESPACE_OWS);
+            
+            Element lowerCornerElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_LOWER_CORNER_ASSOCIATE_ROLE), NAMESPACE_OWS);
+            String lowerCorner = BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getXMin()) + " " + BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getYMin());
+            lowerCornerElement.appendChild(lowerCorner);
+            wgs84BoundingBoxElement.appendChild(lowerCornerElement);
+
+            Element upperCornerElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_UPPER_CORNER_ASSOCIATE_ROLE), NAMESPACE_OWS);
+            String upperCorner = BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getXMax()) + " " + BigDecimalUtil.stripDecimalZeros(wgs84BoundingBox.getYMax());
+            upperCornerElement.appendChild(upperCorner);
+            wgs84BoundingBoxElement.appendChild(upperCornerElement);
+        }
+        
+        return wgs84BoundingBoxElement;
     }
 
     /**

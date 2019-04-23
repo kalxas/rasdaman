@@ -48,7 +48,7 @@ module rasdaman {
 
             function isCoverageIdValid(coverageId:string):boolean {
                 if ($scope.wcsStateInformation.serverCapabilities) {
-                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummary;
+                    var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; ++i) {
                         if (coverageSummaries[i].coverageId == coverageId) {
                             return true;
@@ -66,7 +66,7 @@ module rasdaman {
             $scope.$watch("wcsStateInformation.serverCapabilities", (capabilities:wcs.Capabilities)=> {
                 if (capabilities) {
                     $scope.availableCoverageIds = [];
-                    capabilities.contents.coverageSummary.forEach((coverageSummary:wcs.CoverageSummary)=> {
+                    capabilities.contents.coverageSummaries.forEach((coverageSummary:wcs.CoverageSummary)=> {
                         $scope.availableCoverageIds.push(coverageSummary.coverageId);
                     });
                 }

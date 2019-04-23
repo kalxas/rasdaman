@@ -160,8 +160,7 @@ module rasdaman {
                             $scope.isServiceIdentificationOpen = true;
                             $scope.isServiceProviderOpen = true;                            
                                                         
-                            // NOTE: WMS does not have the request GetCoverageExtents to fetch the reprojected coverages's extents in EPSG:4326
-                            // It already has the EX_GeographicBoundingBox element of each layer from GetCapabilities request.
+                            // NOTE: WMS already has the EX_GeographicBoundingBox element of each layer from GetCapabilities request.
                             // But, WMS still needs to convert the EX_GeographicBoundingBox the same outcome (CoverageExtent) to be displayable on globe.                            
                             $scope.initCheckboxesForCoverageIds();
                             

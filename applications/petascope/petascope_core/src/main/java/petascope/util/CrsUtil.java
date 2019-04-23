@@ -225,7 +225,7 @@ public class CrsUtil {
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
     public static CrsDefinition getCrsDefinition(String givenCrsUri) throws PetascopeException, SecoreException {
         CrsDefinition crs = null;
-        List<List<String>> axes = new ArrayList<List<String>>();
+        List<List<String>> axes = new ArrayList<>();
 
         // Remove any possible slicing suffixes:
         givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "").trim();

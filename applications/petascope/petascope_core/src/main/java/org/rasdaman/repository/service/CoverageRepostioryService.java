@@ -49,6 +49,7 @@ import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
+import petascope.core.CrsDefinition;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.RasUtil;
@@ -152,7 +153,7 @@ public class CoverageRepostioryService {
         
         // This happens when Petascope starts and user sends a WCPS query to a coverage instead of WCS GetCapabilities
         if (coveragesCacheMap.isEmpty()) {
-            this.readAllCoveragesBasicMetatata();
+            this.readAllCoveragesBasicMetatata();            
         }
         
         long start = System.currentTimeMillis();
@@ -277,7 +278,9 @@ public class CoverageRepostioryService {
     public void createAllCoveragesExtents() throws PetascopeException, SecoreException {
         long start = System.currentTimeMillis();
         for (String coverageId : coveragesCacheMap.keySet()) {
-            this.createCoverageExtent(coverageId);
+            if (!coveragesExtentsCacheMap.containsKey(coverageId)) {
+                this.createCoverageExtent(coverageId);
+            }
         }
 
         long end = System.currentTimeMillis();
@@ -288,15 +291,12 @@ public class CoverageRepostioryService {
      * Create a coverage's extent by cached coverage's metadata
      * (EnvelopeByAxis). The XY axes' BoundingBox is reprojected to EPSG:4326.
      */
-    private void createCoverageExtent(String coverageId) throws PetascopeException, SecoreException {
-        // Tranformed XY extents to EPSG:4326 (Long, Lat for OpenLayers)
-        BoundingBox boundingBox = new BoundingBox();
-
+    public void createCoverageExtent(String coverageId) throws PetascopeException, SecoreException {
         // Only need a coverage's basic metadata, it is slow to query the whole coverage's metadata
         Coverage coverage = this.readCoverageBasicMetadataByIdFromCache(coverageId);
         List<AxisExtent> axisExtents = ((GeneralGridCoverage) coverage).getEnvelope().getEnvelopeByAxis().getAxisExtents();
         boolean foundX = false, foundY = false;
-        String xMin = null, yMin = null, xMax = null, yMax = null;
+        BigDecimal xMin = null, yMin = null, xMax = null, yMax = null;
         String xyAxesCRS = null;
         String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
         
@@ -305,97 +305,99 @@ public class CoverageRepostioryService {
             String axisExtentCrs = axisExtent.getSrsName();
             // NOTE: the basic coverage metadata can have the abstract SECORE URL, so must replace it first
             axisExtentCrs = CrsUtil.CrsUri.fromDbRepresentation(axisExtentCrs);
-            // x, y, t,...
-            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
-            if (axisType.equals(AxisTypes.X_AXIS)) {
-                foundX = true;
-                xMin = axisExtent.getLowerBound();
-                xMax = axisExtent.getUpperBound();
-                xyAxesCRS = axisExtentCrs;
-            } else if (axisType.equals(AxisTypes.Y_AXIS)) {
-                foundY = true;
-                yMin = axisExtent.getLowerBound();
-                yMax = axisExtent.getUpperBound();
-            }
-            if (foundX && foundY) {
-                break;
+            
+            if (axisExtentCrs.contains(CrsUtil.EPSG_AUTH)) {
+                // x, y
+                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+                if (axisType.equals(AxisTypes.X_AXIS)) {
+                    foundX = true;
+                    xMin = new BigDecimal(axisExtent.getLowerBound());
+                    xMax = new BigDecimal(axisExtent.getUpperBound());
+                    xyAxesCRS = axisExtentCrs;
+                } else if (axisType.equals(AxisTypes.Y_AXIS)) {
+                    foundY = true;
+                    yMin = new BigDecimal(axisExtent.getLowerBound());
+                    yMax = new BigDecimal(axisExtent.getUpperBound());
+                }
+                if (foundX && foundY) {
+                    break;
+                }
             }
             
             i++;
         }
 
-        log.debug("Coverage Id '" + coverageId + "' to transform extents.");
-
         // Don't transform the XY extents to EPSG:4326 if it is not EPSG code or it is not at least 2D
+        BoundingBox boundingBox = null;
         if (foundX && foundY && CrsUtil.isValidTransform(xyAxesCRS)) {
-            double[] xyMinArray = {Double.valueOf(xMin), Double.valueOf(yMin)};
-            double[] xyMaxArray = {Double.valueOf(xMax), Double.valueOf(yMax)};
-            List<BigDecimal> minLongLatList = null, maxLongLatList = null;
+            if (xyAxesCRS.contains(CrsUtil.WGS84_EPSG_CODE)) {
+                // coverage already in EPSG:4326
+                boundingBox = new BoundingBox(xMin, yMin, xMax, yMax);                
+            } else {            
+                // coverage in different CRS than EPSG:4326
+                double[] xyMinArray = {xMin.doubleValue(), yMin.doubleValue()};
+                double[] xyMaxArray = {xMax.doubleValue(), yMax.doubleValue()};
+                List<BigDecimal> minLongLatList = null, maxLongLatList = null;
 
-            try {
-                // NOTE: cannot reproject every kind of EPSG:codes to EPSG:4326, but should not stop application for this.
-                minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
-                maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
-                
-                // NOTE: EPSG:4326 cannot display outside of coordinates for lat(-90, 90), lon(-180, 180) and it should only contain 5 precisions.                
-                BigDecimal minLon = minLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
-                BigDecimal minLat = minLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
-                BigDecimal maxLon = maxLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
-                BigDecimal maxLat = maxLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
-                
-                if (minLon.compareTo(new BigDecimal("-180")) < 0) {
-                    if (minLon.compareTo(new BigDecimal("-180.5")) > 0) {
-                        minLon = new BigDecimal("-180");
-                    } else {
-                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                        return;
+                try {
+                    // NOTE: cannot reproject every kind of EPSG:codes to EPSG:4326, but should not stop application for this.
+                    minLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMinArray);
+                    maxLongLatList = CrsProjectionUtil.transform(xyAxesCRS, COVERAGES_EXTENT_TARGET_CRS_DEFAULT, xyMaxArray);
+
+                    // NOTE: EPSG:4326 cannot display outside of coordinates for lat(-90, 90), lon(-180, 180) and it should only contain 5 precisions.                
+                    BigDecimal lonMin = minLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal latMin = minLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal lonMax = maxLongLatList.get(0).setScale(5, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal latMax = maxLongLatList.get(1).setScale(5, BigDecimal.ROUND_HALF_UP);
+
+                    if (lonMin.compareTo(new BigDecimal("-180")) < 0) {
+                        if (lonMin.compareTo(new BigDecimal("-180.5")) > 0) {
+                            lonMin = new BigDecimal("-180");
+                        } else {
+                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                            return;
+                        }
                     }
+                    if (latMin.compareTo(new BigDecimal("-90")) < 0) {
+                        if (lonMin.compareTo(new BigDecimal("-90.5")) > 0) {
+                            latMin = new BigDecimal("-90");
+                        } else {
+                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                            return;
+                        }                    
+                    }                
+                    if (lonMax.compareTo(new BigDecimal("180")) > 0) {
+                        if (lonMax.compareTo(new BigDecimal("180.5")) < 0) {
+                            lonMax = new BigDecimal("180");
+                        } else {
+                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                            return;
+                        }
+                    }
+                    if (latMax.compareTo(new BigDecimal("90")) > 0) {
+                        if (latMax.compareTo(new BigDecimal("90.5")) < 0) {
+                            latMax = new BigDecimal("90");
+                        } else {
+                            // It is too far from the threshold and basically it is wrong bounding box from input coverage.
+                            return;
+                        }
+                    }
+                    
+                    boundingBox = new BoundingBox(lonMin, latMin, lonMax, latMax);
+                } catch (PetascopeException ex) {
+                    log.warn("Cannot create extent for coverage '" + coverageId + "', error from crs transform '" + ex.getExceptionText() + "'.");
                 }
-                if (minLat.compareTo(new BigDecimal("-90")) < 0) {
-                    if (minLon.compareTo(new BigDecimal("-90.5")) > 0) {
-                        minLat = new BigDecimal("-90");
-                    } else {
-                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                        return;
-                    }                    
-                }                
-                if (maxLon.compareTo(new BigDecimal("180")) > 0) {
-                    if (maxLon.compareTo(new BigDecimal("180.5")) < 0) {
-                        maxLon = new BigDecimal("180");
-                    } else {
-                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                        return;
-                    }
-                }
-                if (maxLat.compareTo(new BigDecimal("90")) > 0) {
-                    if (maxLat.compareTo(new BigDecimal("90.5")) < 0) {
-                        maxLat = new BigDecimal("90");
-                    } else {
-                        // It is too far from the threshold and basically it is wrong bounding box from input coverage.
-                        return;
-                    }
-                }                
-                
-                boundingBox.setXmin(minLon);
-                boundingBox.setYmin(minLat);
-                boundingBox.setXmax(maxLon);
-                boundingBox.setYmax(maxLat);
-                
+            }
+            
+            if (boundingBox != null) {
                 // Transformed is done, put it to cache
                 coveragesExtentsCacheMap.put(coverageId, boundingBox);
-            } catch (PetascopeException ex) {
-                log.warn("Cannot create extent for coverage '" + coverageId + "', error from GDAL crs transform '" + ex.getExceptionText() + "'.");
             }
         }
     }
 
     /**
      * Update or Insert a new Coverage to database
-     *
-     * @param coverage
-     * @return
-     * @throws petascope.exceptions.PetascopeException
-     * @throws petascope.exceptions.SecoreException
      */
     @Transactional
     public Coverage save(Coverage coverage) throws PetascopeException {

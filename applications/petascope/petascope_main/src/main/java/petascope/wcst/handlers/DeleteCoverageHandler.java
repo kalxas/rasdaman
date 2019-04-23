@@ -148,7 +148,7 @@ public class DeleteCoverageHandler {
      * @param coverageId
      * @throws WCSException
      */
-    private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException {
+    private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException, SecoreException {
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
         if (coverage == null) {
             throw new WCSTCoverageIdNotFound(coverageId);

@@ -28,7 +28,7 @@
 
 module wcs {
     export class Contents extends ows.ContentsBase {
-        public coverageSummary:CoverageSummary[];
+        public coverageSummaries:CoverageSummary[];
         public extension:Extension;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
@@ -36,9 +36,9 @@ module wcs {
 
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            this.coverageSummary = [];
-            source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(o=> {
-                this.coverageSummary.push(new CoverageSummary(o));
+            this.coverageSummaries = [];
+            source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(o => {
+                this.coverageSummaries.push(new CoverageSummary(o));
             });
 
             if (source.doesElementExist("wcs.Extension")) {
