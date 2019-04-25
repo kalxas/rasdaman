@@ -692,12 +692,14 @@ public class GMLParserService {
             //for intervals, split after :
             String[] parts = nilValue.split(":");
             //each part has to be an integer
-            for (String i : parts) {
-                try {
-                    new Float(i);                    
-                } catch (NumberFormatException ex) {
-                    throw new WCSTInvalidNilValueException(nilValue);
-                }
+            for (String part : parts) {
+                if (!containsNaN(part)) {
+                    try {
+                        new Float(part);
+                    } catch (NumberFormatException ex) {
+                        throw new WCSTInvalidNilValueException(nilValue);
+                    }
+                    }
             }
         }
     }
