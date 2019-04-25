@@ -26,6 +26,7 @@ import petascope.controller.handler.service.AbstractHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +50,16 @@ import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
 import petascope.exceptions.WMSException;
 import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
+import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_DELETE_SCALE_LEVEL;
+import static petascope.core.KVPSymbols.VALUE_INSERT_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_INSERT_SCALE_LEVEL;
+import static petascope.core.KVPSymbols.VALUE_UPDATE_COVERAGE;
+import static petascope.core.KVPSymbols.VALUE_WMS_DELETE_STYLE;
+import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_STYLE;
+import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER;
+import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
+import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
 import petascope.exceptions.ExceptionReport;
 import petascope.util.ExceptionUtil;
 import petascope.util.MIMEUtil;
@@ -65,6 +76,14 @@ public class PetascopeController extends AbstractController {
     
     @Autowired
     HttpServletRequest httpServletRequest;
+    
+    // These write requests will need to check if requesting IP address is in petascope's whitelist.
+    private static final List WRITE_REQUESTS = Arrays.asList(new String[]{ VALUE_INSERT_COVERAGE, VALUE_UPDATE_COVERAGE, VALUE_DELETE_COVERAGE, 
+                                                    VALUE_INSERT_SCALE_LEVEL, VALUE_DELETE_SCALE_LEVEL,
+                                                    VALUE_WMS_INSERT_WCS_LAYER, VALUE_WMS_UPDATE_WCS_LAYER,
+                                                    VALUE_WMS_INSERT_STYLE, VALUE_WMS_UPDATE_STYLE,
+                                                    VALUE_WMS_DELETE_STYLE
+                                                   });
 
     public PetascopeController() {
 
@@ -101,6 +120,23 @@ public class PetascopeController extends AbstractController {
     @RequestMapping(value = OWS + "/", method = RequestMethod.GET)
     protected void handleGetFallBack(HttpServletRequest httpServletRequest) throws WCSException, IOException, PetascopeException, SecoreException, Exception {
         this.handleGet(httpServletRequest);
+    }
+    
+    /**
+     * Check if a source IP address can send a write request to petascope.
+     */
+    private void validateWriteRequestFromIP(String request, String sourceIP) throws PetascopeException {
+        // localhost IP in servlet
+        if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+            sourceIP = "127.0.0.1";
+        }
+        
+        if (this.WRITE_REQUESTS.contains(request)) {
+            if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                            "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+            }
+        }
     }
 
     /**
@@ -143,6 +179,9 @@ public class PetascopeController extends AbstractController {
                 // e.g: GetCapabilities, DescribeCoverage
                 String requestService = kvpParameters.get(KVPSymbols.KEY_REQUEST)[0];
                 request = requestService;
+                
+                String sourceIP = httpServletRequest.getRemoteAddr();
+                this.validateWriteRequestFromIP(request, sourceIP);
 
                 // Check if any handlers can handle the request
                 for (AbstractHandler handler : handlers) {

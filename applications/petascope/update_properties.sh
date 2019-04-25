@@ -197,6 +197,10 @@ if [ "$new_file_name" != "secore.properties" ]; then
         $(replace_value "spring.datasource.password=" "$metadata_pass_value" "$new_file_tmp")                      
         check
     fi
+
+    # Update for petascope 9.8 for blocking write requests from any IP addresses
+    disable_write_operations=$(get_value "disable_write_operations" "$old_file")
+    [ "$disable_write_operations" == "true" ] && $(replace_value "allow_write_requests_from=" "" "$new_file_tmp")       
 fi
 
 # if no old settings were removed in old file from new file, the backup for old file is not needed
@@ -207,7 +211,7 @@ if [[ "$keep_backup" == 0 ]]; then
     check
 fi
 
-# replace misconfiugration for log4j rolling file appender for strategy 2
+# replace misconfiguration for log4j rolling file appender for strategy 2
 matchLine="log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy"
 oldLine="log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender"
 newLine="log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender"

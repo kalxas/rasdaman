@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -51,12 +50,10 @@ import static petascope.core.KVPSymbols.KEY_PIXEL_DATA_TYPE;
 import static petascope.core.KVPSymbols.KEY_REQUEST;
 import static petascope.core.KVPSymbols.KEY_TILING;
 import static petascope.core.KVPSymbols.KEY_USE_ID;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.subsets.AbstractSubsetDimension;
 import petascope.wcs2.parsers.subsets.SubsetDimensionParserService;
 import petascope.wcst.exceptions.WCSTMissingMandatoryParameter;
-import petascope.wcst.exceptions.WCSTOperationNotAllowed;
 import petascope.wcst.exceptions.WCSTScaleLevelNotValid;
 
 /**
@@ -69,9 +66,6 @@ import petascope.wcst.exceptions.WCSTScaleLevelNotValid;
 public class KVPWCSTParser {
 
     private static final Logger log = LoggerFactory.getLogger(KVPWCSTParser.class);
-    private static final String ERROR_MESSAGE_TEMPLATE = "Missing key parameter '$key' from '$request' request.";
-    private static final String KEY_TEMPLATE = "$key";
-    private static final String REQUEST_TEMPLATE = "$request";
 
     /**
      * Constructor which distinguishes between the possible request types.
@@ -83,11 +77,7 @@ public class KVPWCSTParser {
     public AbstractWCSTRequest parse(Map<String, String[]> kvpParameters) throws WCSException, PetascopeException {
         //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
         String requestType = kvpParameters.get(KEY_REQUEST)[0];
-        //NOTE: when disable_write_operations is enabled in petascope.properties
-        // All WCST requests: Insertcoverage, UpdateCoverage, DeleteCoverage will be rejected to protect the imported coverages.
-        if (ConfigManager.DISABLE_WRITE_OPERATIONS) {
-            throw new WCSTOperationNotAllowed(requestType);
-        }
+
         if (requestType.equals(KVPSymbols.VALUE_INSERT_COVERAGE)) {
             //validate the request against WCS-T spec requirements
             validateInsertCoverageRequest(kvpParameters);

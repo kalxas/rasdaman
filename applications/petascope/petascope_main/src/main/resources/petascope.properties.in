@@ -129,12 +129,13 @@ ogc_cite_output_optimization=false
 # need to adapt: no
 petascope_servlet_url=
 
-# parameter:     disable_write_operations
-# purpose:       disables access to WCST (InsertCoverage, UpdateCoverage and DeleteCoverage) operations.
-# description:   Used to disable requests which could change 
-#                (insert new coverage, update/delete existing coverage) in Rasdaman through Petascope.
+# parameter:     allow_write_requests_from
+# purpose:       Allow only the comma-separated list of IP addresses to send write requests
+#                such as WCS-T (InsertCoverage, UpdateCoverage and DeleteCoverage).
+# description:   Used to control which IP addresses can send write requests which could change 
+#                rasdaman data through petascope. Set to empty to block any IP addresses (even localhost).
 # need to adapt: no
-disable_write_operations=false
+allow_write_requests_from=127.0.0.1
 
 # parameter:     uploaded_files_dir_tmp
 # purpose:       The path to the folder in server to store uploaded files to Petascope.

@@ -24,6 +24,8 @@ package org.rasdaman.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
@@ -153,9 +155,8 @@ public class ConfigManager {
     public static final int CRSRESOLVER_CONN_TIMEOUT = 120000;
     public static final int CRSRESOLVER_READ_TIMEOUT = 120000;
 
-    /* ***** WCST configuration ***** */
-    // disable write operations (WCST)
-    public static boolean DISABLE_WRITE_OPERATIONS = false;
+    // allow write requests from listed IP addresses
+    public static List ALLOW_WRITE_REQUESTS_FROM = new ArrayList<>();
 
     /* ***** WMS configuration ***** */
     public static long MAX_WMS_CACHE_SIZE = 100000000; // 100 MB (in bytes)
@@ -207,8 +208,10 @@ public class ConfigManager {
     // Only used for OGC CITE test as it will optimize output from WCS to bypass some test cases (xml_validation must set to false).
     private static final String KEY_OGC_CITE_OUTPUT_OPTIMIZATION = "ogc_cite_output_optimization";
 
-    /* ***** WCST configuration ***** */
-    private static final String KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
+    private static final String KEY_ALLOW_WRITE_REQUESTS_FROM = "allow_write_requests_from";
+    
+    // Deprecated property used for backwards compatibility
+    private static final String DEPRECATED_KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
 
     /* ***** LOG4J configuration ***** */
     // from petascope.properties used for log4j
@@ -341,8 +344,26 @@ public class ConfigManager {
         XML_VALIDATION = Boolean.parseBoolean(get(KEY_XML_VALIDATION));
         // Only used when testing OGC CITE (with xml_validation is set to false)
         OGC_CITE_OUTPUT_OPTIMIZATION = Boolean.parseBoolean(get(KEY_OGC_CITE_OUTPUT_OPTIMIZATION));
-        // Disable write operations
-        DISABLE_WRITE_OPERATIONS = Boolean.parseBoolean(get(KEY_DISABLE_WRITE_OPERATIONS));
+        
+        try {
+            String allowWriteRequestsFrom = get(KEY_ALLOW_WRITE_REQUESTS_FROM);
+            String[] tmpArray = allowWriteRequestsFrom.split(",");
+            for (String ip : tmpArray) {
+                ALLOW_WRITE_REQUESTS_FROM.add(ip.trim());
+            }
+        } catch (PetascopeException ex) {
+            if (ex.getExceptionCode().equals(ExceptionCode.MissingPropertyKey)) {
+                // petascope.properties is not updated for new property: allow_write_requests_from
+                log.warn("petascope.properties is outdated, missing property '" + KEY_ALLOW_WRITE_REQUESTS_FROM + "'.");
+                boolean value = Boolean.parseBoolean(get(DEPRECATED_KEY_DISABLE_WRITE_OPERATIONS));
+                if (value == false) {
+                    // Only allow localhost to send write requests
+                    ALLOW_WRITE_REQUESTS_FROM.add("127.0.0.1");
+                }
+            } else {
+                throw ex;
+            }
+        }
     }
     
     private void initRasdamanSettings() throws PetascopeException {
