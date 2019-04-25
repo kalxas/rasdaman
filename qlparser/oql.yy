@@ -1677,10 +1677,11 @@ vertexList: vertex
         {
             $$ = new QtNode::QtOperationList();
             QtPointOp* pt = new QtPointOp( $1 );
-            parseQueryTree->addDynamicObject( pt );
-            for(auto iter = $1->begin(); iter != $1->end(); iter++)
-                parseQueryTree->removeDynamicObject( dynamic_cast<QtPointOp*>(*iter) );
             $$->push_back ( pt );
+            parseQueryTree->addDynamicObject( pt );
+            for(auto iter = $$->begin(); iter != $$->end(); iter++)
+                parseQueryTree->removeDynamicObject( dynamic_cast<QtPointOp*>(*iter) );
+
         }
         | vertexList COMMA vertex
         {
