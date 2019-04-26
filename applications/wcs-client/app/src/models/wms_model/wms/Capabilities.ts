@@ -35,6 +35,9 @@ module wms {
         public layers:Layer[];
         public gmlDocument:string;
 
+        // If at least 1 coverage is remote then show Layer location in WMS GetCapabilities layers table
+        public showLayerLocationsColumn:boolean;
+
         // source is the JSON object parsed from gmlDocument (a full XML result of WMS GetCapabilities request)
         public constructor(source:rasdaman.common.ISerializedObject, gmlDocument:string) {
             this.gmlDocument = gmlDocument;
@@ -87,6 +90,14 @@ module wms {
                     var name = obj.getChildAsSerializedObject("Name").getValueAsString();
                     var title = obj.getChildAsSerializedObject("Title").getValueAsString();
                     var abstract = obj.getChildAsSerializedObject("Abstract").getValueAsString();
+
+                    var customizedMetadata = this.parseLayerCustomizedMetadata(obj);
+                    if (customizedMetadata != null) {
+                        if (customizedMetadata.hostname != null) {
+                            this.showLayerLocationsColumn = true;
+                        }
+                    }
+                    
                     // native CRS of layer
                     var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();
 
@@ -108,12 +119,26 @@ module wms {
                     
                     var layerGMLDocument = this.extractLayerGMLDocument(name);
 
-                    this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, 
+                    this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, customizedMetadata,
                                                    westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude,
                                                    crs, minx, miny, maxx, maxy));
                 });
                 
             }
+        }
+
+        /**
+         * Parse layer's customized metadata (if any)
+         */
+        private parseLayerCustomizedMetadata(source:rasdaman.common.ISerializedObject) {
+            let childElement = "ows:Metadata";
+            let customizedMetadata:ows.CustomizedMetadata = null;
+
+            if (source.doesElementExist(childElement)) {
+                customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+            }
+
+            return customizedMetadata;            
         }
 
         // extract the specific GML by layer name from the full GML result of GetCapabilities request

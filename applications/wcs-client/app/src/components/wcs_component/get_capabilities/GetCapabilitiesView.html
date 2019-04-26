@@ -30,10 +30,11 @@
                             <tr>
                                 <th st-sort="coverageId" colspan="2">Coverage ID</th>
                                 <th>Coverage subtype</th>
+                                <th ng-show="capabilities.contents.showCoverageLocationsColumn == true">Coverage location</th>
                                 <th>Display footprints</th>
                             </tr>
                             <tr>
-                                <th colspan="4"><input st-search="coverageId" class="form-control"
+                                <th colspan="5"><input st-search="coverageId" class="form-control"
                                                        placeholder="Search coverage by ID ..." type="text"/></th>
                             </tr>
 
@@ -43,6 +44,9 @@
                                 <td colspan="2"><a ng-click='describeCoverage(coverageSummary.coverageId);'>{{coverageSummary.coverageId}}</a>
                                 </td>
                                 <td>{{coverageSummary.coverageSubtype}}</td>
+                                <td ng-show="capabilities.contents.showCoverageLocationsColumn == true">
+                                    <a href="{{coverageSummary.customizedMetadata.petascopeEndPoint}}">{{coverageSummary.customizedMetadata.hostname}}</a>
+                                </td>
                                 <td><input type="checkbox" ng-model="coverageSummary.displayFootprint" ng-hide="coverageSummary.displayFootprint === null"
                                          ng-change="displayFootprintOnGlobe(coverageSummary.coverageId)"
                                          onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left" title="Show/Hide this coverage's footprint on globe."/>
@@ -51,7 +55,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4" class="text-right">
+                                <td colspan="5" class="text-right">
                                     <div st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)"></div>
                                     <div class="checkbox" style="font-size: 16px;">
                                         <input type="checkbox" id="wcsDisplayAllFootprintsCheckbox" title="Load all coverages's footprints on globe from all pages." 

@@ -267,6 +267,12 @@ public interface XMLSymbols {
     // wcs interpolation extension
     String LABEL_INTERPOLATION_METADATA = "InterpolationMetadata";
     String LABEL_INTERPOLATION_SUPPORTED = "InterpolationSupported";
+    
+    // Rasdaman
+    String LABEL_CUSTOMIZED_METADATA = "Metadata";
+    String LABEL_CUSTOMIZED_METADATA_LOCATION = "location";
+    String LABEL_CUSTOMIZED_METADATA_HOSTNAME = "hostname";
+    String LABEL_CUSTOMIZED_METADATA_PETASCOPE_ENDPOINT = "endpoint";
 
     // ows
     // // Service Identification

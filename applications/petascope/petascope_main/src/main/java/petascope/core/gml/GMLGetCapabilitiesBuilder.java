@@ -73,6 +73,7 @@ import static petascope.core.XMLSymbols.LABEL_COUNTRY;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
+import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
 import static petascope.core.XMLSymbols.LABEL_DCP;
 import static petascope.core.XMLSymbols.LABEL_DELIVERY_POINT;
 import static petascope.core.XMLSymbols.LABEL_DESCRIBE_COVERAGE;
@@ -644,6 +645,11 @@ public class GMLGetCapabilitiesBuilder {
             boundingBox.addAttribute(dimensionsAttribute);
 
             coverageSummaryElement.appendChild(boundingBox);
+            
+            Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst.getCoverageId());
+            if (customizedMetadataElement != null) {
+                coverageSummaryElement.appendChild(customizedMetadataElement);
+            }
 
             // 1.1.1.1 Children elements of BoundingBox element
             Element lowerCornerElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_LOWER_CORNER_ASSOCIATE_ROLE), NAMESPACE_OWS);
@@ -656,6 +662,30 @@ public class GMLGetCapabilitiesBuilder {
         }
 
         return contentsElement;
+    }
+
+    /**
+     * This metadata element is not the real coverage's metadata but some additional information
+     * which is customized for client to get an overview of a coverage.
+     * 
+     * e.g: 
+     * 
+     * <ows:Metadata>
+     *   <rasdaman:location>
+     *      <rasdaman:hostname>code-de</rasdaman:hostname>
+     *      <rasdaman:endpoint>http://code-de.bigdatacube.org:8080/rasdaman/ows</rasdaman:endpoint>
+     *   <rasdaman:location>
+     * </ows:Metadata>
+     */
+    public Element createCustomizedCoverageMetadataElement(String coverageId) {
+        Element metadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CUSTOMIZED_METADATA), NAMESPACE_OWS);      
+        
+        // No customized metadata is added for coverage, not show it to client
+        if (metadataElement.getChildElements().size() == 0) {
+            metadataElement = null;            
+        }
+        
+        return metadataElement;
     }
     
     /**

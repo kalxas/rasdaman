@@ -32,11 +32,13 @@ import org.springframework.stereotype.Service;
 import static petascope.core.XMLSymbols.ATT_SCHEMA_LOCATION;
 import static petascope.core.XMLSymbols.NAMESPACE_GML;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
+import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
 import static petascope.core.XMLSymbols.NAMESPACE_SWE;
 import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
 import static petascope.core.XMLSymbols.NAMESPACE_XSI;
 import static petascope.core.XMLSymbols.PREFIX_GML;
 import static petascope.core.XMLSymbols.PREFIX_OWS;
+import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import static petascope.core.XMLSymbols.PREFIX_SWE;
 import static petascope.core.XMLSymbols.PREFIX_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_XSI;
@@ -71,7 +73,8 @@ public class GMLWCSRequestResultBuilder {
         map.put(PREFIX_SWE, NAMESPACE_SWE);
         map.put(PREFIX_OWS, NAMESPACE_OWS);
         map.put(PREFIX_XLINK, NAMESPACE_XLINK);
-        map.put(PREFIX_XSI, NAMESPACE_XSI);        
+        map.put(PREFIX_XSI, NAMESPACE_XSI);
+        map.put(PREFIX_RASDAMAN, NAMESPACE_RASDAMAN);
 
         return map;
     }

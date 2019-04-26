@@ -32,6 +32,7 @@ module wcs {
         public coverageSubtypeParent:CoverageSubtypeParent;
         public wgs84BoundingBox:ows.WGS84BoundingBox;
         public boundingBox:ows.BoundingBox;
+        public customizedMetadata:ows.CustomizedMetadata;
         public displayFootprint:boolean;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
@@ -58,6 +59,11 @@ module wcs {
             childElement = "ows:BoundingBox";
             if (source.doesElementExist(childElement)) {
                 this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
+            }
+
+            childElement = "ows:Metadata";
+            if (source.doesElementExist(childElement)) {
+                this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
             }
         }
     }

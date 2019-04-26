@@ -54,3 +54,4 @@
 ///<reference path="ServiceProvider.ts"/>
 ///<reference path="Uri.ts"/>
 ///<reference path="WGS84BoundingBox.ts"/>
+///<reference path="CustomizedMetadata.ts"/>

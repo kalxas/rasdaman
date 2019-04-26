@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 import petascope.core.KVPSymbols;
 import petascope.core.Templates;
 import petascope.core.XMLSymbols;
+import petascope.core.gml.GMLGetCapabilitiesBuilder;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.util.MIMEUtil;
@@ -70,6 +71,8 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     private WMSRepostioryService wmsRepostioryService;
     @Autowired
     private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
+    @Autowired
+    private GMLGetCapabilitiesBuilder wcsGMLGetCapabilitiesBuild;
 
     private OwsServiceMetadata owsServiceMetadata;
 
@@ -377,8 +380,14 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
 
         // Abstract
         Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
-        abstractElement.appendChild(layer.getLayerAbstract());
+        String layerAbstract = layer.getLayerAbstract();        
+        abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
+        
+         Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(layer.getName());
+         if (customizedMetadataElement != null) {
+             layerElement.appendChild(customizedMetadataElement);
+         }
 
         // KeywordList
         if (layer.getKeywordList().size() > 0) {

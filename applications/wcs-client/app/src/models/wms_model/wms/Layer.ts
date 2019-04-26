@@ -31,6 +31,7 @@ module wms {
         public name:string;
         public title:string;
         public abstract:string;
+        public customizedMetadata:ows.CustomizedMetadata;
 
         // EX_GeographicBoundingBox (reprojected native bounding box to EPSG:4326)        
         public coverageExtent:CoverageExtent;
@@ -50,13 +51,15 @@ module wms {
         // layer's styles
         public styles:Style[];
         
-        public constructor(gmlDocument:string, name:string, title:string, abstract:string, westBoundLongitude:Number, eastBoundLongitude:Number, 
+        public constructor(gmlDocument:string, name:string, title:string, abstract:string, customizedMetadata:ows.CustomizedMetadata,
+                           westBoundLongitude:Number, eastBoundLongitude:Number, 
                            southBoundLatitude:Number, northBoundLatitude:Number, crs:string,
                            minx:Number, miny:Number, maxx:Number, maxy:Number) {
             this.gmlDocument = gmlDocument;
             this.name = name;            
             this.title = title;
             this.abstract = abstract;
+            this.customizedMetadata = customizedMetadata;
             this.coverageExtent = new CoverageExtent(name, westBoundLongitude, southBoundLatitude, eastBoundLongitude, northBoundLatitude);
             this.crs = crs;
             this.minx = minx;

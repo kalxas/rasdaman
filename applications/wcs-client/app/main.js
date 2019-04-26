@@ -1068,6 +1068,25 @@ var ows;
     }());
     ows.WGS84BoundingBox = WGS84BoundingBox;
 })(ows || (ows = {}));
+var ows;
+(function (ows) {
+    var CustomizedMetadata = (function () {
+        function CustomizedMetadata(source) {
+            rasdaman.common.ArgumentValidator.isNotNull(source, "source");
+            this.parseCoverageLocation(source);
+        }
+        CustomizedMetadata.prototype.parseCoverageLocation = function (source) {
+            var childElement = "rasdaman:location";
+            if (source.doesElementExist(childElement)) {
+                var locationElement = source.getChildAsSerializedObject(childElement);
+                this.hostname = locationElement.getChildAsSerializedObject("rasdaman:hostname").getValueAsString();
+                this.petascopeEndPoint = locationElement.getChildAsSerializedObject("rasdaman:endpoint").getValueAsString();
+            }
+        };
+        return CustomizedMetadata;
+    }());
+    ows.CustomizedMetadata = CustomizedMetadata;
+})(ows || (ows = {}));
 var wcs;
 (function (wcs) {
     var Extension = (function () {
@@ -1130,6 +1149,10 @@ var wcs;
             if (source.doesElementExist(childElement)) {
                 _this.boundingBox = new ows.BoundingBox(source.getChildAsSerializedObject(childElement));
             }
+            childElement = "ows:Metadata";
+            if (source.doesElementExist(childElement)) {
+                _this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+            }
             return _this;
         }
         return CoverageSummary;
@@ -1145,10 +1168,16 @@ var wcs;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             _this.coverageSummaries = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
-                _this.coverageSummaries.push(new wcs.CoverageSummary(o));
+                var coverageSummary = new wcs.CoverageSummary(o);
+                _this.coverageSummaries.push(coverageSummary);
+                if (coverageSummary.customizedMetadata != null) {
+                    if (coverageSummary.customizedMetadata.hostname != null) {
+                        _this.showCoverageLocationsColumn = true;
+                    }
+                }
             });
-            if (source.doesElementExist("wcs.Extension")) {
-                _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs.Extension"));
+            if (source.doesElementExist("wcs:Extension")) {
+                _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
             return _this;
         }
@@ -4479,6 +4508,12 @@ var wms;
                     var name = obj.getChildAsSerializedObject("Name").getValueAsString();
                     var title = obj.getChildAsSerializedObject("Title").getValueAsString();
                     var abstract = obj.getChildAsSerializedObject("Abstract").getValueAsString();
+                    var customizedMetadata = _this.parseLayerCustomizedMetadata(obj);
+                    if (customizedMetadata != null) {
+                        if (customizedMetadata.hostname != null) {
+                            _this.showLayerLocationsColumn = true;
+                        }
+                    }
                     var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();
                     var exBBox = obj.getChildAsSerializedObject("EX_GeographicBoundingBox");
                     var westBoundLongitude = exBBox.getChildAsSerializedObject("westBoundLongitude").getValueAsNumber();
@@ -4492,10 +4527,18 @@ var wms;
                     var maxx = bboxObj.getAttributeAsNumber("maxx");
                     var maxy = bboxObj.getAttributeAsNumber("maxy");
                     var layerGMLDocument = _this.extractLayerGMLDocument(name);
-                    _this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy));
+                    _this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, customizedMetadata, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy));
                 });
             }
         }
+        Capabilities.prototype.parseLayerCustomizedMetadata = function (source) {
+            var childElement = "ows:Metadata";
+            var customizedMetadata = null;
+            if (source.doesElementExist(childElement)) {
+                customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+            }
+            return customizedMetadata;
+        };
         Capabilities.prototype.extractLayerGMLDocument = function (layerName) {
             var regex = /<Layer \S+[\s\S]*?<\/Layer>/g;
             var match = regex.exec(this.gmlDocument);
@@ -4600,11 +4643,12 @@ var wms;
 var wms;
 (function (wms) {
     var Layer = (function () {
-        function Layer(gmlDocument, name, title, abstract, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy) {
+        function Layer(gmlDocument, name, title, abstract, customizedMetadata, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy) {
             this.gmlDocument = gmlDocument;
             this.name = name;
             this.title = title;
             this.abstract = abstract;
+            this.customizedMetadata = customizedMetadata;
             this.coverageExtent = new wms.CoverageExtent(name, westBoundLongitude, southBoundLatitude, eastBoundLongitude, northBoundLatitude);
             this.crs = crs;
             this.minx = minx;

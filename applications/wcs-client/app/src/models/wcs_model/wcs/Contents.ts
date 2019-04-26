@@ -31,6 +31,9 @@ module wcs {
         public coverageSummaries:CoverageSummary[];
         public extension:Extension;
 
+        // If 1 coverage is remote then this column is added to WCS GetCapabilities coverages table
+        public showCoverageLocationsColumn:boolean;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
 
@@ -38,11 +41,18 @@ module wcs {
 
             this.coverageSummaries = [];
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(o => {
-                this.coverageSummaries.push(new CoverageSummary(o));
+                let coverageSummary = new CoverageSummary(o);
+                this.coverageSummaries.push(coverageSummary);
+
+                if (coverageSummary.customizedMetadata != null) {
+                    if (coverageSummary.customizedMetadata.hostname != null) {
+                        this.showCoverageLocationsColumn = true;
+                    }
+                }
             });
 
-            if (source.doesElementExist("wcs.Extension")) {
-                this.extension = new Extension(source.getChildAsSerializedObject("wcs.Extension"));
+            if (source.doesElementExist("wcs:Extension")) {
+                this.extension = new Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
         }
     }
