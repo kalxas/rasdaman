@@ -184,7 +184,46 @@ start_embedded() {
 
 # --- ACTION ------------------------------------------------------
 
-log "starting rasdaman server complex..."
+start_rasmgr_rasservers=false
+start_embedded_petascope=false
+start_embedded_secore=false
+start_all_services=true
+
+SERVERS=()
+
+# Iterate all input arguments (it can contain server names (N1 N2 ...) and some options (--service petascope ...)
+for ((i=1; i <= $#; i++)); do
+    next=$((i+1))
+
+    param="${!i}"
+    next_param="${!next}"
+
+    if [ "$param" == "--service" ]; then
+        start_all_services=false
+        if [ "$next_param" == "core" ]; then
+            start_rasmgr_rasservers=true
+        elif [ "$next_param" == "petascope" ]; then
+            start_embedded_petascope=true
+        elif [ "$next_param" == "secore" ]; then
+            start_embedded_secore=true
+        else
+            echo "Unknow service option value '"$next_param"', expected one of (core|petascope|secore)."
+            exit $RC_ERROR
+        fi
+
+        i=$((i+1))
+    else
+        # Server name
+        SERVERS+=("$param")
+    fi
+done
+
+# No options --service specified, start all services
+if [ "$start_all_services" == true ]; then
+    start_rasmgr_rasservers=true
+    start_embedded_petascope=true
+    start_embedded_secore=true
+fi
 
 # --- start rasmgr: -------------------------------------------------
 
@@ -199,45 +238,54 @@ cd "$log_path"
 [ -w . ] || \
     error "User $USER has no write permissions in $log_path, rasdaman cannot be started."
 
-# check if rasmgr is already running first of all
-pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
-  { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
+if [ "$start_rasmgr_rasservers" == true ]; then
 
-# clear previous log file
-rm -f nohup.out
+    # check if rasmgr is already running first of all
+    pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
+      { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
 
-# start rasdaman server manager as demon; log will go into nohup.out
-# the manager is started in quiet mode
-logn "  starting rasmgr... "
-nohup "$rasmgr_bin" --port $RASMGR_PORT > nohup.out 2>&1 &
-check_process "rasmgr" 1
+    # clear previous log file
+    rm -f nohup.out
 
-# --- start servers: -------------------------------------------------
+    log "starting rasdaman server complex..."
 
-# these servers will be started:
-if [ -n "$1" ]; then
-    # parameters provided, take them as server names
-    SERVERS="$@"
-else
-    SERVERS="$RASSERVERS"
-fi
+    # start rasdaman server manager as demon; log will go into nohup.out
+    # the manager is started in quiet mode
+    logn "  starting rasmgr... "
+    nohup "$rasmgr_bin" --port $RASMGR_PORT > nohup.out 2>&1 &
+    check_process "rasmgr" 1
 
-# ...then spawn server workers
-if [ -n "$SERVERS" ]; then
-    for SRV in $SERVERS; do
-        logn "  starting server $SRV... "
-        "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
+    # --- start servers: -------------------------------------------------
+    servers_size=${#SERVERS[@]}
+
+    # if no input servers provided, check if environmental variable $RASSERVERS exists
+    if [ "$servers_size" -eq 0 ]; then
+        SERVERS="$RASSERVERS"
+    fi
+
+    # ...then spawn server workers
+    if [ "$servers_size" -ne 0 ]; then
+        for SRV in "${SERVERS[@]}"; do
+            logn "  starting server $SRV... "
+            "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
+            check
+        done
+    else
+        logn "  starting all rasdaman servers... "
+        "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv -all || exit $!
         check
-    done
-else
-    logn "  starting all rasdaman servers... "
-    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv -all || exit $!
-    check
+    fi
+
 fi
 
 # start embedded petascope and secore if needed
-start_embedded "$secore_props" "secore" "def.war"
-start_embedded "$petascope_props" "petascope" "rasdaman.war"
+if [ "$start_embedded_secore" == true ]; then
+    start_embedded "$secore_props" "secore" "def.war"
+fi
+
+if [ "$start_embedded_petascope" == true ]; then
+    start_embedded "$petascope_props" "petascope" "rasdaman.war"
+fi
 
 log "done."
 

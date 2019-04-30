@@ -1437,9 +1437,19 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |(as assigned by the ``rasmgr``).                                |
 +------------------------------+----------------------------------------------------------------+
 |``start_rasdaman.sh``         |Start ``rasmgr`` and the worker ``rasservers`` as               |
-|                              |configured in ``$RMANHOME/etc/rasmgr.conf``.                    |
+|                              |configured in ``$RMANHOME/etc/rasmgr.conf``, embedded           |
+|                              |petascope configured in ``$RMANHOME/etc/petascope.properties``  |
+|                              |and embedded secore configured in                               |
+|                              |``$RMANHOME/etc/secore.properties`` by default.                 |
+|                              |Since v9.8, to start a specific service the                     |
+|                              |``--service (core | secore | petascope )`` option can be used   |
+|                              | (``core`` refers to ``rasmgr`` + ``rasservers`` only).         |
 +------------------------------+----------------------------------------------------------------+
-|``stop_rasdaman.sh``          |Shutdown rasdaman.                                              |
+|``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
+|                              |by default.                                                     |
+|                              |Since v9.8, to stop a specific service the                     |
+|                              | ``--service (core | secore | petascope )`` option can be used  |
+|                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
 +------------------------------+----------------------------------------------------------------+
 |``rasdl``                     |Tool for RASBASE creation/deletion and type management          |
 |                              |(deprecated).                                                   |

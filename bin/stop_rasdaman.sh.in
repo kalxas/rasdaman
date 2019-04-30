@@ -171,29 +171,71 @@ stop_embedded() {
 
 # --- ACTION ------------------------------------------------------
 
+stop_rasmgr_rasservers=false
+stop_embedded_petascope=false
+stop_embedded_secore=false
+stop_all_services=true
+
+# Iterate all input arguments (--service petascope ...)
+for ((i=1; i <= $#; i++)); do
+    next=$((i+1))
+
+    param="${!i}"
+    next_param="${!next}"
+
+    if [ "$param" == "--service" ]; then
+        stop_all_services=false
+        if [ "$next_param" == "core" ]; then
+            stop_rasmgr_rasservers=true
+        elif [ "$next_param" == "petascope" ]; then
+            stop_embedded_petascope=true
+        elif [ "$next_param" == "secore" ]; then
+            stop_embedded_secore=true
+        fi
+
+        i=$((i+1))
+    fi
+done
+
+# No options --service specified, stop all services
+if [ "$stop_all_services" == true ]; then
+    stop_rasmgr_rasservers=true
+    stop_embedded_petascope=true
+    stop_embedded_secore=true
+fi
+
 # Check if it should stop embedded tomcat, secore
-stop_embedded "$secore_props" "secore" "def.war"
-stop_embedded "$petascope_props" "petascope" "rasdaman.war"
+if [ "$stop_embedded_secore" == true ]; then
+    stop_embedded "$secore_props" "secore" "def.war"
+fi
 
-# --- stop rasdaman servers ---------------------------------------
+if [ "$stop_embedded_petascope" == true ]; then
+    stop_embedded "$petascope_props" "petascope" "rasdaman.war"
+fi
 
-# check if rasmgr is already running first of all
-pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
-  { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
+if [ "$stop_rasmgr_rasservers" == true ]; then
 
-log "terminating rasdaman server complex... "
+    # --- stop rasdaman servers ---------------------------------------
 
-logn "  terminating rasserver processes... "
-"$rascontrol_bin" --port $RASMGR_PORT -e -q -x down srv -all -kill
-check
-wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"
+    # check if rasmgr is already running first of all
+    pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
+      { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
 
-# --- stop rasmgr -------------------------------------------------
+    log "terminating rasdaman server complex... "
 
-# finally shut down the server manager
-logn "  "
-"$rascontrol_bin" --port $RASMGR_PORT -e -q -x down host -all
-wait_for_process_to_shutdown "$rasmgr_bin" 3 "port $RASMGR_PORT"
+    logn "  terminating rasserver processes... "
+    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x down srv -all -kill
+    check
+    wait_for_process_to_shutdown "$rasserver_bin" 10 "port $RASMGR_PORT"
+
+    # --- stop rasmgr -------------------------------------------------
+
+    # finally shut down the server manager
+    logn "  "
+    "$rascontrol_bin" --port $RASMGR_PORT -e -q -x down host -all
+    wait_for_process_to_shutdown "$rasmgr_bin" 3 "port $RASMGR_PORT"
+
+fi
 
 log "done."
 
