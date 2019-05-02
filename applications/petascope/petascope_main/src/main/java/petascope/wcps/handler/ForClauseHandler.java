@@ -24,7 +24,7 @@ package petascope.wcps.handler;
 import java.util.ArrayList;
 import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class ForClauseHandler {
     private CoverageAliasRegistry coverageAliasRegistry;
     
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForClauseHandler.class);
 

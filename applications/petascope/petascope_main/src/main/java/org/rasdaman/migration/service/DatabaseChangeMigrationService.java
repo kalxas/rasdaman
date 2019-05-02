@@ -37,7 +37,7 @@ import org.rasdaman.domain.migration.Migration;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.wms.Layer;
 import static org.rasdaman.domain.wms.Layer.LAYER_NAME_PROPERTY;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.MigrationRepositoryService;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -66,7 +66,7 @@ public class DatabaseChangeMigrationService extends AbstractMigrationService {
     private MigrationRepositoryService migrationRepositoryService;
 
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
     @Autowired
     private OWSMetadataRepostioryService owsMetadataRepostioryService;
     @Autowired

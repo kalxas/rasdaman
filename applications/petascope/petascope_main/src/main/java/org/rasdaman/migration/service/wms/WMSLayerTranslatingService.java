@@ -35,7 +35,7 @@ import org.rasdaman.domain.wms.Style;
 import org.rasdaman.migration.domain.legacy.LegacyWMSEXGeographicBoundingBox;
 import org.rasdaman.migration.domain.legacy.LegacyWMSLayer;
 import org.rasdaman.migration.domain.legacy.LegacyWMSStyle;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class WMSLayerTranslatingService {
     private static final Logger log = LoggerFactory.getLogger(WMSLayerTranslatingService.class);
 
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
 
     /**
      * Create a WMS layer from legacy WMS layer

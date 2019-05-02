@@ -67,6 +67,9 @@
                 </p>                
                 <p>with Coordinate Reference System: <span class="important-text">{{coverageDescription.boundedBy.envelope.srsName}}</span>
                 </p>
+                <p ng-show="coverageCustomizedMetadatasDict[coverageDescription.coverageId]">
+                    with size: <span class="important-text">{{coverageCustomizedMetadatasDict[coverageDescription.coverageId].coverageSize}}</span>
+                </p>
             </div>
         </div>
 

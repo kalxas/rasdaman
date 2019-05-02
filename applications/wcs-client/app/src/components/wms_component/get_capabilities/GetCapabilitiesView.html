@@ -28,8 +28,9 @@
                            class="table table-striped">
                         <thead>
                             <tr>
-                                <th colspan=70% st-sort="name">Layer name</th>
+                                <th colspan=55% st-sort="name">Layer name</th>
                                 <th colspan=15% ng-show="capabilities.showLayerLocationsColumn == true">Layer location</th>
+                                <th colspan=15% ng-show="capabilities.showLayerSizesColumn == true">Layer size</th>
                                 <th colspan=15% style="width: 15%;">Display footprints</th>
                             </tr>
                             <tr>
@@ -40,9 +41,12 @@
                         </thead>
                         <tbody>                            
                             <tr ng-repeat="layer in layers">                                
-                                <td colspan=70%><a ng-click='describeLayer(layer.name);'>{{layer.name}}</a></td>
+                                <td colspan=55%><a ng-click='describeLayer(layer.name);'>{{layer.name}}</a></td>
                                 <td colspan=15% ng-show="capabilities.showLayerLocationsColumn == true">
                                         <a href="{{layer.customizedMetadata.petascopeEndPoint}}">{{layer.customizedMetadata.hostname}}</a>
+                                </td>
+                                <td colspan=15% ng-show="capabilities.showLayerSizesColumn == true">
+                                    {{layer.customizedMetadata.coverageSize}}
                                 </td>
                                 <td colspan=15%><input type="checkbox" ng-model="layer.displayFootprint"
                                     ng-change="displayFootprintOnGlobe(layer.name)"

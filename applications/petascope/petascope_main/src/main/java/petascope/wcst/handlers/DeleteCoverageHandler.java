@@ -26,7 +26,7 @@ import java.util.List;
 import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
 import org.rasdaman.domain.wms.Layer;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 
 import org.slf4j.LoggerFactory;
@@ -38,6 +38,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.ras.RasUtil;
 import petascope.core.response.Response;
+import petascope.exceptions.ExceptionCode;
 import petascope.util.ras.TypeRegistry;
 import static petascope.util.ras.TypeRegistry.ARRAY_TYPE_SUFFIX;
 import static petascope.util.ras.TypeRegistry.CELL_TYPE_SUFFIX;
@@ -55,7 +56,7 @@ import petascope.wms.handlers.service.WMSGetMapCachingService;
 public class DeleteCoverageHandler {
     
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
     @Autowired
     private WMSRepostioryService wmsRepositoryService;
     @Autowired
@@ -148,7 +149,7 @@ public class DeleteCoverageHandler {
      * @param coverageId
      * @throws WCSException
      */
-    private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException, SecoreException {
+    private Coverage getCoverageById(String coverageId) throws WCSException, PetascopeException {
         Coverage coverage = coverageRepostioryService.readCoverageByIdFromDatabase(coverageId);
         if (coverage == null) {
             throw new WCSTCoverageIdNotFound(coverageId);
@@ -185,7 +186,16 @@ public class DeleteCoverageHandler {
      * @param coverageId the layerID from WMS service to delete
      */
     private void deleteFromWMS(String coverageId) throws PetascopeException {
-        Layer layer = wmsRepositoryService.readLayerByNameFromDatabase(coverageId);
+        Layer layer = null;
+
+        try {
+            layer = wmsRepositoryService.readLayerByNameFromDatabase(coverageId);
+        } catch(PetascopeException ex) {
+            if (!ex.getExceptionCode().equals(ExceptionCode.NoSuchLayer)) {
+                throw ex;
+            }
+        }
+        
         if (layer != null) {
             // Layer does exist, remove it
             wmsRepositoryService.deleteLayer(layer);

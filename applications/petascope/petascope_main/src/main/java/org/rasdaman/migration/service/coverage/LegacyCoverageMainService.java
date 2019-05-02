@@ -32,7 +32,7 @@ import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.rasdaman.migration.domain.legacy.LegacyCoverageMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.PetascopeException;
@@ -60,7 +60,7 @@ public class LegacyCoverageMainService {
 
     // Repository services
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
 
     /**
      * Convert the old legacy coverage to new coverage if coverage id does not

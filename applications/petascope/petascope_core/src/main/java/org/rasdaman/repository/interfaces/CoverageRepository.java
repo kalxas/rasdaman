@@ -55,6 +55,21 @@ public interface CoverageRepository extends CrudRepository<Coverage, String> {
     @Query("Select coverageId, coverageType from Coverage")
     List<Object[]> readAllCoverageIdsAndTypes();
     
+    @Query("Select coverageId, coverageType from Coverage c where c.coverageId = :coverageId")
+    String readCoverageTypeByCoverageId(@Param("coverageId") String coverageId);
+    
     @Query("select b.envelopeByAxis From Coverage c inner join c.envelope b where c.coverageId = :coverageId")
     EnvelopeByAxis readEnvelopeByAxisByCoverageId(@Param("coverageId") String coverageId);
+    
+    @Query("select b.collectionType From Coverage c inner join c.rasdamanRangeSet b where c.coverageId = :coverageId")
+    String readRasdamanSetTypeByCoverageId(@Param("coverageId") String coverageId);
+    
+    @Query("select e.lowerBound, e.upperBound \n"
+    + "FROM Coverage as a \n"
+    + "INNER JOIN a.domainSet as b \n"
+    + "INNER JOIN b.generalGrid as c \n"
+    + "INNER JOIN c.gridLimits as d \n"
+    + "INNER JOIN d.indexAxes as e \n"
+    + "where a.coverageId = :coverageId")
+    List<Object[]> readGridBoundsByCoverageId(@Param("coverageId") String coverageId);
 }

@@ -34,6 +34,9 @@ module wcs {
         // If 1 coverage is remote then this column is added to WCS GetCapabilities coverages table
         public showCoverageLocationsColumn:boolean;
 
+        // If 1 coverage has size then this column is added to WCS GetCapabilities coverages table
+        public showCoverageSizesColumn:boolean;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
 
@@ -47,6 +50,10 @@ module wcs {
                 if (coverageSummary.customizedMetadata != null) {
                     if (coverageSummary.customizedMetadata.hostname != null) {
                         this.showCoverageLocationsColumn = true;
+                    }
+
+                    if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
+                        this.showCoverageSizesColumn = true;
                     }
                 }
             });

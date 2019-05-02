@@ -78,8 +78,16 @@ module rasdaman {
                     $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                     
                     $scope.availableCoverageIds = [];
+                    $scope.coverageCustomizedMetadatasDict = {};
+                    
                     capabilities.contents.coverageSummaries.forEach((coverageSummary:wcs.CoverageSummary)=> {
-                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
+                        let coverageId = coverageSummary.coverageId;
+                        $scope.availableCoverageIds.push(coverageId);
+
+                        // coverage location, size,...
+                        if (coverageSummary.customizedMetadata != null) {
+                            $scope.coverageCustomizedMetadatasDict[coverageId] = coverageSummary.customizedMetadata;
+                        }
                     });
                 }
             });
@@ -620,6 +628,7 @@ module rasdaman {
         isTemporalAxis:boolean[];
 
         availableCoverageIds:string[];
+        coverageCustomizedMetadatasDict:any;
         selectedCoverageId:string;
         isCoverageIdValid():void;
 

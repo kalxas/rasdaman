@@ -31,7 +31,7 @@ import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +56,7 @@ import static petascope.util.ras.RasConstants.RASQL_BOUND_SEPARATION;
 public class PyramidService {
 
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(PyramidService.class);
     

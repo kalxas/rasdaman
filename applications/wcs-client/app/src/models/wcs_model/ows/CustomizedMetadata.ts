@@ -29,10 +29,14 @@ module ows {
         public hostname:String;
         public petascopeEndPoint:String;
 
+        // Convert value of element coverageSizeInBytes to a human-readable value (e.g: 1000 -> 1KB)
+        public coverageSize:String;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
             this.parseCoverageLocation(source);
+            this.parseCoverageSizeInBytes(source);
         }
 
         /**
@@ -50,6 +54,37 @@ module ows {
                 this.hostname = locationElement.getChildAsSerializedObject("rasdaman:hostname").getValueAsString();
                 this.petascopeEndPoint = locationElement.getChildAsSerializedObject("rasdaman:endpoint").getValueAsString();
             }
+        }
+
+        /**
+         * If rasdaman:sizeInbytes exists, then parse it and convert to human-readable value.
+         * 
+         * <rasdaman:sizeInBytes>6912</rasdaman:sizeInBytes>
+         */
+        private parseCoverageSizeInBytes(source:rasdaman.common.ISerializedObject):void {
+            let childElement = "rasdaman:sizeInBytes";
+            if (source.doesElementExist(childElement)) {
+                let sizeInBytesElement = source.getChildAsSerializedObject(childElement);
+                let sizeInBytes = sizeInBytesElement.getValueAsString();
+
+                this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+            } else {
+                // if <sizeInBytes> element not exist                
+                this.coverageSize = "N/A";
+            }
+        }
+
+        /**
+         * Convert a number of bytes to human readable string.
+         * e.g: 1000 -> 1 KB         
+         */
+        private convertNumberOfBytesToHumanReadable(numberOfBytes):String {
+            const k = 1000;            
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            let i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
+            let result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+
+            return result;
         }
     }
 }

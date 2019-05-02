@@ -1074,6 +1074,7 @@ var ows;
         function CustomizedMetadata(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             this.parseCoverageLocation(source);
+            this.parseCoverageSizeInBytes(source);
         }
         CustomizedMetadata.prototype.parseCoverageLocation = function (source) {
             var childElement = "rasdaman:location";
@@ -1082,6 +1083,24 @@ var ows;
                 this.hostname = locationElement.getChildAsSerializedObject("rasdaman:hostname").getValueAsString();
                 this.petascopeEndPoint = locationElement.getChildAsSerializedObject("rasdaman:endpoint").getValueAsString();
             }
+        };
+        CustomizedMetadata.prototype.parseCoverageSizeInBytes = function (source) {
+            var childElement = "rasdaman:sizeInBytes";
+            if (source.doesElementExist(childElement)) {
+                var sizeInBytesElement = source.getChildAsSerializedObject(childElement);
+                var sizeInBytes = sizeInBytesElement.getValueAsString();
+                this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+            }
+            else {
+                this.coverageSize = "N/A";
+            }
+        };
+        CustomizedMetadata.prototype.convertNumberOfBytesToHumanReadable = function (numberOfBytes) {
+            var k = 1000;
+            var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            var i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
+            var result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            return result;
         };
         return CustomizedMetadata;
     }());
@@ -1173,6 +1192,9 @@ var wcs;
                 if (coverageSummary.customizedMetadata != null) {
                     if (coverageSummary.customizedMetadata.hostname != null) {
                         _this.showCoverageLocationsColumn = true;
+                    }
+                    if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
+                        _this.showCoverageSizesColumn = true;
                     }
                 }
             });
@@ -2671,7 +2693,7 @@ var rasdaman;
                 timeString = null;
             }
             if (this.oldLayerName != layerName) {
-                wwd.navigator.range = 300 * 1000;
+                wwd.navigator.range = 30 * 1000;
                 this.oldLayerName = layerName;
             }
             wwd.removeLayer(webWorldWindModel.wmsLayer);
@@ -3026,8 +3048,13 @@ var rasdaman;
             $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
                     $scope.availableCoverageIds = [];
+                    $scope.coverageCustomizedMetadatasDict = {};
                     capabilities.contents.coverageSummaries.forEach(function (coverageSummary) {
-                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
+                        var coverageId = coverageSummary.coverageId;
+                        $scope.availableCoverageIds.push(coverageId);
+                        if (coverageSummary.customizedMetadata != null) {
+                            $scope.coverageCustomizedMetadatasDict[coverageId] = coverageSummary.customizedMetadata;
+                        }
                     });
                 }
             });
@@ -3261,8 +3288,13 @@ var rasdaman;
                     $scope.avaiableHTTPRequests = ["GET", "POST"];
                     $scope.selectedHTTPRequest = $scope.avaiableHTTPRequests[0];
                     $scope.availableCoverageIds = [];
+                    $scope.coverageCustomizedMetadatasDict = {};
                     capabilities.contents.coverageSummaries.forEach(function (coverageSummary) {
-                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
+                        var coverageId = coverageSummary.coverageId;
+                        $scope.availableCoverageIds.push(coverageId);
+                        if (coverageSummary.customizedMetadata != null) {
+                            $scope.coverageCustomizedMetadatasDict[coverageId] = coverageSummary.customizedMetadata;
+                        }
                     });
                 }
             });
@@ -4512,6 +4544,9 @@ var wms;
                     if (customizedMetadata != null) {
                         if (customizedMetadata.hostname != null) {
                             _this.showLayerLocationsColumn = true;
+                        }
+                        if (customizedMetadata.coverageSize != null) {
+                            _this.showLayerSizesColumn = true;
                         }
                     }
                     var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();

@@ -72,7 +72,7 @@ import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.IrregularAxis.CoefficientStatus;
 import org.rasdaman.domain.cis.RasdamanDownscaledCollection;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
@@ -96,7 +96,7 @@ public class UpdateCoverageHandler {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
     
     @Autowired
-    private CoverageRepostioryService persistedCoverageService;
+    private CoverageRepositoryService persistedCoverageService;
     @Autowired
     private GeneralGridCoverageGMLService generalGridCoverageGMLService;
     @Autowired

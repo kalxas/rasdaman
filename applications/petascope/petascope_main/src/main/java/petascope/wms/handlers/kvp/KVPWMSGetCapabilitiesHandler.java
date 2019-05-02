@@ -29,6 +29,7 @@ import java.util.Map;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import org.rasdaman.config.ConfigManager;
+import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.owsmetadata.Address;
 import org.rasdaman.domain.owsmetadata.OwsServiceMetadata;
 import org.rasdaman.domain.owsmetadata.Phone;
@@ -38,6 +39,7 @@ import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
 import org.rasdaman.domain.wms.Style;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
@@ -73,6 +75,8 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
     private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
     @Autowired
     private GMLGetCapabilitiesBuilder wcsGMLGetCapabilitiesBuild;
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
 
     private OwsServiceMetadata owsServiceMetadata;
 
@@ -350,7 +354,7 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @param layer
      * @return
      */
-    private Element buildLayerElement(Layer layer) {
+    private Element buildLayerElement(Layer layer) throws PetascopeException {
         Element layerElement = new Element(XMLSymbols.LABEL_WMS_LAYER);
 
         // All the attributes for one layer element
@@ -384,10 +388,11 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         abstractElement.appendChild(layerAbstract);
         layerElement.appendChild(abstractElement);
         
-         Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(layer.getName());
-         if (customizedMetadataElement != null) {
-             layerElement.appendChild(customizedMetadataElement);
-         }
+        Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
+        Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
+        if (customizedMetadataElement != null) {
+            layerElement.appendChild(customizedMetadataElement);
+        }
 
         // KeywordList
         if (layer.getKeywordList().size() > 0) {

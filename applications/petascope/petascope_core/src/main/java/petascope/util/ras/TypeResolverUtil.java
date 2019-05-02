@@ -346,6 +346,7 @@ public class TypeResolverUtil {
 
     private static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
     private static final HashMap<String, String> RAS_TYPES_TO_ABBREVIATION = new HashMap<String, String>();
+    public static final Map<String, Byte> RAS_TYPES_TO_NUMBER_OF_BYTES = new HashMap<String, Byte>();
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
@@ -366,5 +367,20 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_ABBREVIATION.put(R_Long, R_Abb_Long);
         RAS_TYPES_TO_ABBREVIATION.put(R_Float, R_Abb_Float);
         RAS_TYPES_TO_ABBREVIATION.put(R_Double, R_Abb_Double);
+        
+        // band type -> bits (e.g: char -> 1 byte)
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Boolean, (byte)1);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Octet, (byte)1);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Char, (byte)1);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Short, (byte)2);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_UShort, (byte)2);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_UnsignedShort, (byte)2);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Long, (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_ULong, (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_UnsignedLong, (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Float, (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Double, (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complex, (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complexd, (byte)16);
     }
 }

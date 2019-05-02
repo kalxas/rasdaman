@@ -36,6 +36,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * CIS 1.1
@@ -110,6 +111,10 @@ public abstract class Coverage implements Serializable {
     @Column(name = "coverage_type")
     // To determine coverage is: GridCoverage, RectifiedGridCoverage, ReferenceableGridCoverage
     private String coverageType;
+    
+    @Transient
+    // Store the calculated size of coverage in bytes for overview
+    private long coverageSizeInBytes;
 
     public Coverage() {
 
@@ -186,6 +191,14 @@ public abstract class Coverage implements Serializable {
 
     public void setCoverageType(String coverageType) {
         this.coverageType = coverageType;
+    }
+
+    public long getCoverageSizeInBytes() {
+        return coverageSizeInBytes;
+    }
+
+    public void setCoverageSizeInBytes(long coverageSizeInBytes) {
+        this.coverageSizeInBytes = coverageSizeInBytes;
     }
 
     // Helper methods

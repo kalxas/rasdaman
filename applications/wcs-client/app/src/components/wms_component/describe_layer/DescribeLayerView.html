@@ -29,6 +29,7 @@
                     <li>Title: {{layer.title}}</li>
                     <li>Abstract: {{layer.abstract}}</li>                    
                     <li>Coordinate Reference System (CRS) code: {{layer.crs}}</li>
+                    <li ng-show="layer.customizedMetadata != null">Size: {{layer.customizedMetadata.coverageSize}}</li>
                 </ul>
                 with geographic bounding box (<span class="important-text">EX_GeographicBoundingBox</span>) reprojected to <span class="important-text">WGS84</span>:
                 <ul>

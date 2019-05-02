@@ -38,7 +38,7 @@ import org.rasdaman.domain.owsmetadata.Phone;
 import org.rasdaman.domain.owsmetadata.ServiceContact;
 import org.rasdaman.domain.owsmetadata.ServiceIdentification;
 import org.rasdaman.domain.owsmetadata.ServiceProvider;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,6 +74,7 @@ import static petascope.core.XMLSymbols.LABEL_COVERAGE_ID;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.core.XMLSymbols.LABEL_COVERAGE_SUMMARY;
 import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA;
+import static petascope.core.XMLSymbols.LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES;
 import static petascope.core.XMLSymbols.LABEL_DCP;
 import static petascope.core.XMLSymbols.LABEL_DELIVERY_POINT;
 import static petascope.core.XMLSymbols.LABEL_DESCRIBE_COVERAGE;
@@ -118,6 +119,7 @@ import static petascope.core.XMLSymbols.LABEL_VOICE;
 import static petascope.core.XMLSymbols.LABEL_WGS84_BOUNDING_BOX;
 import static petascope.core.XMLSymbols.NAMESPACE_INTERPOLATION;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
+import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_CRS;
 import static petascope.core.XMLSymbols.NAMESPACE_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_INT;
@@ -129,6 +131,7 @@ import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_SOAP;
 import static petascope.core.XMLSymbols.VALUE_CONSTRAINT_POST_ENCODING_XML;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_20;
 import static petascope.core.XMLSymbols.NAMESPACE_WCS_21;
+import static petascope.core.XMLSymbols.PREFIX_RASDAMAN;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_20_GET_CAPABILITIES;
 import static petascope.core.XMLSymbols.SCHEMA_LOCATION_WCS_21_GET_CAPABILITIES;
 import petascope.util.BigDecimalUtil;
@@ -142,7 +145,7 @@ import petascope.util.BigDecimalUtil;
 public class GMLGetCapabilitiesBuilder {
 
     @Autowired
-    private CoverageRepostioryService persistedCoverageService;
+    private CoverageRepositoryService persistedCoverageService;
     @Autowired
     private OWSMetadataRepostioryService persistedOwsServiceMetadataService;
 
@@ -601,8 +604,9 @@ public class GMLGetCapabilitiesBuilder {
      */
     private Element buildContentsElement(String version) throws PetascopeException, SecoreException {
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
-        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
         this.persistedCoverageService.createAllCoveragesExtents();
+
+        List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {
@@ -646,7 +650,7 @@ public class GMLGetCapabilitiesBuilder {
 
             coverageSummaryElement.appendChild(boundingBox);
             
-            Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst.getCoverageId());
+            Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst);
             if (customizedMetadataElement != null) {
                 coverageSummaryElement.appendChild(customizedMetadataElement);
             }
@@ -677,9 +681,17 @@ public class GMLGetCapabilitiesBuilder {
      *   <rasdaman:location>
      * </ows:Metadata>
      */
-    public Element createCustomizedCoverageMetadataElement(String coverageId) {
-        Element metadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CUSTOMIZED_METADATA), NAMESPACE_OWS);      
-        
+    public Element createCustomizedCoverageMetadataElement(Coverage coverage) {
+	Element metadataElement = new Element(XMLUtil.createXMLLabel(PREFIX_OWS, LABEL_CUSTOMIZED_METADATA), NAMESPACE_OWS);
+
+        // Coverage size in bytes
+        Element coverageSizeInBytesElement = new Element(XMLUtil.createXMLLabel(PREFIX_RASDAMAN, LABEL_CUSTOMIZED_METADATA_COVERAGE_SIZE_IN_BYTES), NAMESPACE_RASDAMAN);
+        Long sizeInBytes = coverage.getCoverageSizeInBytes();
+        if (coverage.getCoverageSizeInBytes() > 0) {
+            coverageSizeInBytesElement.appendChild(sizeInBytes.toString());
+            metadataElement.appendChild(coverageSizeInBytesElement);
+        }
+
         // No customized metadata is added for coverage, not show it to client
         if (metadataElement.getChildElements().size() == 0) {
             metadataElement = null;            

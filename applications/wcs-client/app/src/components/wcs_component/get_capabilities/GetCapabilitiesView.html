@@ -31,6 +31,7 @@
                                 <th st-sort="coverageId" colspan="2">Coverage ID</th>
                                 <th>Coverage subtype</th>
                                 <th ng-show="capabilities.contents.showCoverageLocationsColumn == true">Coverage location</th>
+                                <th ng-show="capabilities.contents.showCoverageSizesColumn == true">Coverage size</th>
                                 <th>Display footprints</th>
                             </tr>
                             <tr>
@@ -46,6 +47,9 @@
                                 <td>{{coverageSummary.coverageSubtype}}</td>
                                 <td ng-show="capabilities.contents.showCoverageLocationsColumn == true">
                                     <a href="{{coverageSummary.customizedMetadata.petascopeEndPoint}}">{{coverageSummary.customizedMetadata.hostname}}</a>
+                                </td>
+                                <td ng-show="capabilities.contents.showCoverageSizesColumn == true">
+                                    {{coverageSummary.customizedMetadata.coverageSize}}
                                 </td>
                                 <td><input type="checkbox" ng-model="coverageSummary.displayFootprint" ng-hide="coverageSummary.displayFootprint === null"
                                          ng-change="displayFootprintOnGlobe(coverageSummary.coverageId)"

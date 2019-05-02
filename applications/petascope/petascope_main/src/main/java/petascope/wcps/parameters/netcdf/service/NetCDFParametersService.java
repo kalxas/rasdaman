@@ -41,7 +41,7 @@ import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IrregularAxis;
 import org.rasdaman.domain.cis.NilValue;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.wcps.encodeparameters.model.AxesMetadata;
@@ -64,7 +64,7 @@ import petascope.wcps.metadata.service.AxesOrderComparator;
 public class NetCDFParametersService {
 
     @Autowired
-    private CoverageRepostioryService persistedCoverageService;
+    private CoverageRepositoryService persistedCoverageService;
     
     public NetCDFParametersService() {
 

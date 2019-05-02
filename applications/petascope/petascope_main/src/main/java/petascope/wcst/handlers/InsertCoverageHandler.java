@@ -35,7 +35,7 @@ import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +80,7 @@ public class InsertCoverageHandler {
     @Autowired
     private GeneralGridCoverageGMLService generalGridCoverageGmlService;
     @Autowired
-    private CoverageRepostioryService persistedCoverageService;
+    private CoverageRepositoryService persistedCoverageService;
 
     /**
      * Handles the InsertCoverage request

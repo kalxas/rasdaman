@@ -37,7 +37,7 @@ import org.rasdaman.migration.legacy.readdatabase.ReadLegacyWMSLayerService;
 import org.rasdaman.migration.service.coverage.LegacyCoverageMainService;
 import org.rasdaman.migration.service.owsmetadata.LegacyOwsServiceMetadataMainService;
 import org.rasdaman.migration.service.wms.LegacyWMSLayerMainService;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.MigrationRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class LegacyMigrationService extends AbstractMigrationService {
     private MigrationRepositoryService migrationRepositoryService;
     
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
 
     @Autowired
     // Use to close the connection to legacy petascopedb when migration is done

@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ public class SerializationEncodingService {
     @Autowired
     private EncodeCoverageHandler encodeCoverageHandler;
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

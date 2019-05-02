@@ -28,7 +28,7 @@ import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeoAxis;
 import org.rasdaman.domain.cis.IndexAxis;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +56,7 @@ public class InsertScaleLevelHandler {
     private PyramidService pyramidService;
     
     @Autowired
-    private CoverageRepostioryService coverageRepostioryService;
+    private CoverageRepositoryService coverageRepostioryService;
     
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(InsertScaleLevelHandler.class);
 

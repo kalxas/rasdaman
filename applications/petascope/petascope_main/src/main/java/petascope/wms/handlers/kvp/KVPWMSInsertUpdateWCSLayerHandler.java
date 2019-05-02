@@ -58,6 +58,7 @@ import petascope.wms.exception.WMSInvalidCrsUriException;
 import petascope.wms.exception.WMSMissingRequestParameter;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 import static petascope.core.KVPSymbols.VALUE_WMS_DIMENSION_MIN_MAX_SEPARATE_CHARACTER;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Handle the InsertWCSLayer request to insert a WMS layer, e.g:
@@ -115,15 +116,19 @@ public class KVPWMSInsertUpdateWCSLayerHandler extends KVPWMSAbstractHandler {
         // InsertWCSLayer
         if (request.equals(KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER)) {
             // Check if layer does not exist
-
-            layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
-            // Cannot add same layer name
-            if (layer != null) {
-                throw new WMSDuplicateLayerException(layerName);
-            } else {
-                // create new layer
-                layer = new Layer();
+            try {
+                layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);
+                // Cannot add same layer name
+                if (layer != null) {
+                    throw new WMSDuplicateLayerException(layerName);
+                } 
+            } catch (PetascopeException ex) {
+                if (!ex.getExceptionCode().getExceptionCodeName().equals(ExceptionCode.NoSuchLayer.getExceptionCodeName())) {                    
+                    throw ex;
+                }
             }
+            
+            layer = new Layer();
         } else {
             // UpdateWCSLayer                        
             layer = this.wmsRepostioryService.readLayerByNameFromDatabase(layerName);

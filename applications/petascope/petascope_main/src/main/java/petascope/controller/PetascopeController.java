@@ -85,6 +85,7 @@ public class PetascopeController extends AbstractController {
                                                     VALUE_WMS_DELETE_STYLE
                                                    });
 
+
     public PetascopeController() {
 
     }

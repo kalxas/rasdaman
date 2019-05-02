@@ -456,7 +456,8 @@ module rasdaman {
 
             // Zoom at distance 1 km (to avoid loading full big coverage which causes server terminated due to not enough RAM)
             if(this.oldLayerName != layerName) {
-                wwd.navigator.range = 300 * 1000;
+                // default set zoom to 30 km
+                wwd.navigator.range = 30 * 1000;
                 this.oldLayerName = layerName;
             }
 

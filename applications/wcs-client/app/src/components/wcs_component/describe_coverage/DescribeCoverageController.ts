@@ -81,8 +81,16 @@ module rasdaman {
             $scope.$watch("wcsStateInformation.serverCapabilities", (capabilities:wcs.Capabilities)=> {
                 if (capabilities) {
                     $scope.availableCoverageIds = [];
+                    $scope.coverageCustomizedMetadatasDict = {};
+                    
                     capabilities.contents.coverageSummaries.forEach((coverageSummary:wcs.CoverageSummary)=> {
-                        $scope.availableCoverageIds.push(coverageSummary.coverageId);
+                        let coverageId = coverageSummary.coverageId;
+                        $scope.availableCoverageIds.push(coverageId);
+
+                        // coverage location, size,...
+                        if (coverageSummary.customizedMetadata != null) {
+                            $scope.coverageCustomizedMetadatasDict[coverageId] = coverageSummary.customizedMetadata;
+                        }
                     });
                 }                
             });
@@ -185,6 +193,7 @@ module rasdaman {
         rawCoverageDescription:string;
 
         availableCoverageIds:string[];
+        coverageCustomizedMetadatasDict:any;
         selectedCoverageId:string;
 
         // Array of objects

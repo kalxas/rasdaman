@@ -479,6 +479,43 @@ public class TypeRegistry {
             this.mdArrayType = mddArrayType;
             this.nilValues = nilValues;
         }
+        
+        /**
+         * return a list of band types (e.g: cellType is char -> [char], cellType is struct { band0 char, band0 short } -> [char, short]
+         */
+        public List<String> getBandsTypes() {
+            List<String> bandTypes = new ArrayList<>();
+            
+            if (this.cellType.contains(STRUCT)) {
+                String structContent = this.cellType.substring(this.cellType.indexOf("{") + 1, this.cellType.indexOf("}"));
+                String[] parts = structContent.trim().split(", ");
+                for (String part : parts) {
+                    // e.g: band0 unsigned short
+                    String bandType = part.substring(part.indexOf(" ") + 1, part.length());
+                    bandTypes.add(bandType);
+                }
+            } else {
+                // e.g: char
+                bandTypes.add(this.cellType);
+            }
+            
+            return bandTypes;
+        }
+        
+        /**
+         * Return the list of number of bytes for list of bands types
+         * e.g: [char, ushort] -> [1, 2] bytes
+         */
+        public List<Byte> getBandsSizesInBytes(List<String> bandsTypes) {
+            List<Byte> bandsSizes = new ArrayList<>();
+            
+            for (String bandType : bandsTypes) {
+                Byte bandSize = TypeResolverUtil.RAS_TYPES_TO_NUMBER_OF_BYTES.get(bandType);
+                bandsSizes.add(bandSize);
+            }
+            
+            return bandsSizes;
+        }
 
         /**
          * Returns the cell type of this type entry
@@ -526,6 +563,7 @@ public class TypeRegistry {
     public static final String CELL_TYPE_SUFFIX = "_Cell";
     
     private static final String AS = " AS ";
+    public static final String STRUCT = "struct";
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
     private final HashMap<String, String> marrayTypeDefinitions = new HashMap<String, String>();

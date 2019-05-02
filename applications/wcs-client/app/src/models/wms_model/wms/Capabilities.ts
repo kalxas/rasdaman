@@ -37,6 +37,7 @@ module wms {
 
         // If at least 1 coverage is remote then show Layer location in WMS GetCapabilities layers table
         public showLayerLocationsColumn:boolean;
+        public showLayerSizesColumn:boolean;
 
         // source is the JSON object parsed from gmlDocument (a full XML result of WMS GetCapabilities request)
         public constructor(source:rasdaman.common.ISerializedObject, gmlDocument:string) {
@@ -95,6 +96,10 @@ module wms {
                     if (customizedMetadata != null) {
                         if (customizedMetadata.hostname != null) {
                             this.showLayerLocationsColumn = true;
+                        }
+
+                        if (customizedMetadata.coverageSize != null) {
+                            this.showLayerSizesColumn = true;
                         }
                     }
                     

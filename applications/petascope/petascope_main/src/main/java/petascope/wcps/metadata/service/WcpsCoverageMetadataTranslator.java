@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.rasdaman.domain.cis.*;
 import org.rasdaman.domain.cis.Coverage;
-import org.rasdaman.repository.service.CoverageRepostioryService;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.CrsDefinition;
@@ -56,7 +56,7 @@ import petascope.wcps.metadata.model.RegularAxis;
 public class WcpsCoverageMetadataTranslator {
 
     @Autowired
-    private CoverageRepostioryService persistedCoverageService;
+    private CoverageRepositoryService persistedCoverageService;
     @Autowired
     private PyramidService pyramidService;
     @Autowired

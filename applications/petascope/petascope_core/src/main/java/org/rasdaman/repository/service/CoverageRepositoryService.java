@@ -49,10 +49,12 @@ import org.rasdaman.repository.interfaces.RasdamanRangeSetRepository;
 import org.springframework.transaction.annotation.Transactional;
 import petascope.core.AxisTypes;
 import petascope.core.BoundingBox;
-import petascope.core.CrsDefinition;
 import petascope.core.Pair;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.RasUtil;
+import petascope.util.ras.TypeRegistry;
+import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
+import petascope.util.ras.TypeResolverUtil;
 
 /**
  *
@@ -63,7 +65,7 @@ import petascope.util.ras.RasUtil;
  */
 @Service
 @Transactional
-public class CoverageRepostioryService {
+public class CoverageRepositoryService {
 
     @Autowired
     private CoverageRepository coverageRepository;
@@ -79,7 +81,7 @@ public class CoverageRepostioryService {
     // NOTE: it needs @Transactional annotate at class level or it throw exception when saving coverage because no transaction.
     EntityManager entityManager;
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CoverageRepostioryService.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CoverageRepositoryService.class);
 
     // add coverage to cache (if insert, update, delete coverage) then update cache also
     // NOTE: as Spring Cache with annotation @Cacheable in findAllCoverages will put only 1 key -> list of coverages so
@@ -94,7 +96,7 @@ public class CoverageRepostioryService {
     public static final Map<String, BoundingBox> coveragesExtentsCacheMap = new ConcurrentHashMap<>();
     public static final String COVERAGES_EXTENT_TARGET_CRS_DEFAULT = "EPSG:4326";
 
-    public CoverageRepostioryService() {
+    public CoverageRepositoryService() {
 
     }
 
@@ -134,8 +136,11 @@ public class CoverageRepostioryService {
      * @param coverageId
      * @return
      */
-    public Coverage readCoverageBasicMetadataByIdFromCache(String coverageId) {
-        Coverage coverage = coveragesCacheMap.get(coverageId).fst;
+    public Coverage readCoverageBasicMetadataByIdFromCache(String coverageId) throws PetascopeException {
+        Coverage coverage = null;
+        if (coveragesCacheMap.get(coverageId) != null) {
+            coverage = coveragesCacheMap.get(coverageId).fst;
+        }
 
         return coverage;
     }
@@ -153,20 +158,24 @@ public class CoverageRepostioryService {
         
         // This happens when Petascope starts and user sends a WCPS query to a coverage instead of WCS GetCapabilities
         if (coveragesCacheMap.isEmpty()) {
-            this.readAllCoveragesBasicMetatata();            
+            this.readAllCoveragesBasicMetatata();
         }
         
         long start = System.currentTimeMillis();
 
         Coverage coverage = this.coverageRepository.findOneByCoverageId(coverageId);
+        
         long end = System.currentTimeMillis();
         log.debug("Time to read coverage '" + coverageId + "' from database is " + String.valueOf(end - start) + " ms.");
 
         if (coverage == null) {
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage: " + coverageId + " does not exist in persistent database.");
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage, "Coverage '" + coverageId + "' does not exist in persistent database.");
         }
-
-        log.debug("Coverage: " + coverageId + " is read from database.");
+        
+        log.debug("Coverage '" + coverageId + "' is read from database.");
+        
+        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        coverage.setCoverageSizeInBytes(coverageSize);
 
         // Then, check if rasdaman's collection tile configuration of this coverage is null or not, if it is null, provide the value from rasql
         if (coverage.getRasdamanRangeSet().getTiling() == null) {
@@ -192,9 +201,83 @@ public class CoverageRepostioryService {
         
         // NOTE: As coverage is saved with a placeholder for SECORE prefix, so after reading coverage from database, 
         // replace placeholder with SECORE configuration endpoint from petascope.properties.
-        CoverageRepostioryService.addCrsPrefix(coverage);
+        CoverageRepositoryService.addCrsPrefix(coverage);
 
         return coverage;
+    }
+    
+    /**
+     * Calculate the size of a coverage in bytes from number of pixels and number of bits per band.
+     */
+    public long calculateCoverageSizeInBytes(String coverageId) throws PetascopeException {
+        long result = 0;
+        
+        String setType = coverageRepository.readRasdamanSetTypeByCoverageId(coverageId);
+        if (setType != null) {
+            TypeRegistryEntry typeEntry = null;
+            try {
+                typeEntry = TypeRegistry.getInstance().getTypeEntry(setType);
+            } catch (PetascopeException ex) {
+                log.warn("Cannot find type entry from registry for set type '" + setType + "'. Reason: " + ex.getMessage());
+            }
+            
+            if (typeEntry != null) {            
+                List<String> bandsTypes = typeEntry.getBandsTypes();
+                List<Byte> bandsSizes = typeEntry.getBandsSizesInBytes(bandsTypes);
+
+                List<Object[]> gridBounds = coverageRepository.readGridBoundsByCoverageId(coverageId);
+
+                long totalPixels = 0;
+
+                for (Object[] lowerUpperBounds : gridBounds) {
+                    long lowerBound = new Long(lowerUpperBounds[0].toString());
+                    long upperBound = new Long(lowerUpperBounds[1].toString());
+                    if (totalPixels == 0) {
+                        totalPixels = 1;
+                    }
+                    totalPixels *= (upperBound - lowerBound + 1);
+                }
+
+                for (Byte bandSize : bandsSizes) {
+                    result += totalPixels * bandSize;
+                }
+            }
+        } else {
+            log.warn("Cannot find rasdaman set type for coverage '" + coverageId + "'.");
+        }
+               
+        return result;
+    }
+    
+    /**
+     * Read a basic coverage metadata from local database.
+     */
+    private void readCoverageBasicMetadataFromDatabase(String coverageId, String coverageType) throws PetascopeException {
+        // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
+        EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
+        // NOTE: this coverage object will update CRS with current configured SECORE URL (e.g: http://localhost:8080/def) in petascope.propeties
+        // don't let Hibernate see this object is updated and it will update this change to petascopedb as it should keep the pattern $SECORE_URL$/crs in petascopedb.
+        entityManager.clear();
+
+        // NOTE: replace the abstract SECORE url in database first ($SECORE$/crs -> localhost:8080/def/crs)
+        envelopeByAxis.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(envelopeByAxis.getSrsName()));
+        // also with AxisExtents of EnvelopeByAxis
+        for (AxisExtent axisExtent : envelopeByAxis.getAxisExtents()) {
+            axisExtent.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(axisExtent.getSrsName()));
+        }
+
+        Coverage coverage = new GeneralGridCoverage();
+        coverage.setCoverageId(coverageId);
+        coverage.setCoverageType(coverageType);
+        Envelope envelope = new Envelope();
+        envelope.setEnvelopeByAxis(envelopeByAxis);
+        ((GeneralGridCoverage) coverage).setEnvelope(envelope);
+
+        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        coverage.setCoverageSizeInBytes(coverageSize);
+
+        // Then cache the read coverage's basic metadata
+        coveragesCacheMap.put(coverage.getCoverageId(), new Pair<>(coverage, false));
     }
 
     /**
@@ -220,44 +303,19 @@ public class CoverageRepostioryService {
         long start = System.currentTimeMillis();
 
         List<Pair<Coverage, Boolean>> coverages = new ArrayList<>();
-        // Only read from database when starting petascope and cache all the coverages
-        if (coveragesCacheMap.isEmpty()) {
-            List<Object[]> coverageIdsAndTypes = coverageRepository.readAllCoverageIdsAndTypes();
-            for (Object[] coverageIdsAndType : coverageIdsAndTypes) {
-                String coverageId = coverageIdsAndType[0].toString();
-                String coverageType = coverageIdsAndType[1].toString();
-
-                // Each coverage has only 1 envelope and each envelope has only 1 envelopeByAxis
-                EnvelopeByAxis envelopeByAxis = coverageRepository.readEnvelopeByAxisByCoverageId(coverageId);
-                // NOTE: this coverage object will update CRS with current configured SECORE URL (e.g: http://localhost:8080/def) in petascope.propeties
-                // don't let Hibernate see this object is updated and it will update this change to petascopedb as it should keep the pattern $SECORE_URL$/crs in petascopedb.
-                entityManager.clear();
-                
-                // NOTE: replace the abstract SECORE url in database first ($SECORE$/crs -> localhost:8080/def/crs)
-                envelopeByAxis.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(envelopeByAxis.getSrsName()));
-                // also with AxisExtents of EnvelopeByAxis
-                for (AxisExtent axisExtent : envelopeByAxis.getAxisExtents()) {
-                    axisExtent.setSrsName(CrsUtil.CrsUri.fromDbRepresentation(axisExtent.getSrsName()));
-                }
-
-                Coverage coverage = new GeneralGridCoverage();
-                coverage.setCoverageId(coverageId);
-                coverage.setCoverageType(coverageType);
-                Envelope envelope = new Envelope();
-                envelope.setEnvelopeByAxis(envelopeByAxis);
-                ((GeneralGridCoverage) coverage).setEnvelope(envelope);
-
-                // Then cache the read coverage's basic metadata
-                coveragesCacheMap.put(coverage.getCoverageId(), new Pair<>(coverage, false));
+        List<Object[]> coverageIdsAndTypes = coverageRepository.readAllCoverageIdsAndTypes();
+        for (Object[] coverageIdAndType : coverageIdsAndTypes) {
+            String coverageId = coverageIdAndType[0].toString();
+            String coverageType = coverageIdAndType[1].toString();
+            
+            if (!coveragesCacheMap.containsKey(coverageId)) {
+                this.readCoverageBasicMetadataFromDatabase(coverageId, coverageType);
             }
-
-            // Read all coverage from persistent database
-            log.debug("Read all persistent coverages from database.");
-            coverages = new ArrayList<>(coveragesCacheMap.values());
-        } else {
-            coverages = new ArrayList<>(coveragesCacheMap.values());
-            log.debug("Read all persistent coverages from cache.");
         }
+
+        // Read all coverage from persistent database
+        log.debug("Read all persistent coverages from database.");
+        coverages = new ArrayList<>(coveragesCacheMap.values());
 
         long end = System.currentTimeMillis();
         log.debug("Time to read all coverages is: " + String.valueOf(end - start) + " ms.");
@@ -405,7 +463,7 @@ public class CoverageRepostioryService {
         // NOTE: Don't save coverage with fixed CRS (e.g: http://localhost:8080/def/crs/epsg/0/4326)
         // it must use a string placeholder so when setting up Petascope with a different SECORE endpoint, it will replace the placeholder
         // with new SECORE endpoint or otherwise the persisted URL will throw exception as non-existing URL.
-        CoverageRepostioryService.removeCrsPrefix(coverage);
+        CoverageRepositoryService.removeCrsPrefix(coverage);
 
         long start = System.currentTimeMillis();
         // then it can save (insert/update) the coverage to database
@@ -416,12 +474,12 @@ public class CoverageRepostioryService {
         entityManager.flush();
         entityManager.clear();
         
-        CoverageRepostioryService.addCrsPrefix(coverage);
+        CoverageRepositoryService.addCrsPrefix(coverage);
+        
+        long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
+        coverage.setCoverageSizeInBytes(coverageSize);
 
-        // Then add the coverage with abstractCRS SECORE to cache
-        // Don't addCrsPrefix now as Hibernate not yet persists the coverage's metadata, so, it will only save the fixed CRSs instead of the abstract CRSs to database.
-        // When reading coverage from cache method, it will add back the CRS.
-        coveragesCacheMap.put(coverageId, new Pair(coverage, false));
+        coveragesCacheMap.put(coverageId, new Pair(coverage, true));
         try {
             // Also insert/update the coverage's extent in cache as the bounding box of XY axes can be extended by WCST_Import.
             this.createCoverageExtent(coverageId);

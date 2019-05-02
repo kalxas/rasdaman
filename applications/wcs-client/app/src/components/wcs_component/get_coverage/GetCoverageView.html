@@ -21,6 +21,9 @@
                 <p>You have selected the coverage with ID:
                     <span class="important-text">{{coverageDescription.coverageId}} </span>
                 </p>
+                <p ng-show="coverageCustomizedMetadatasDict[coverageDescription.coverageId]">
+                    with size: <span class="important-text">{{coverageCustomizedMetadatasDict[coverageDescription.coverageId].coverageSize}}</span>
+                </p>
             </div>
         </div>
 
