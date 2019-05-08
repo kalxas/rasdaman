@@ -369,7 +369,7 @@ class Importer:
         for range_field in self.coverage.range_fields:
             # If band doesn't have null value, default insert value is 0
             insert_value = self.DEFAULT_INSERT_VALUE
-            if range_field.nilValues is not None:
+            if (range_field.nilValues is not None) and (len(range_field.nilValues) > 0):
                 insert_value = strip_trailing_zeros(range_field.nilValues[0].value.split(":")[0])
                 if insert_value == "":
                     insert_value = self.DEFAULT_INSERT_VALUE

@@ -32,6 +32,7 @@ from util.log import log
 from wcst.wcst import WCSTMockExecutor, WCSTExecutor
 from master.error.runtime_exception import RuntimeException
 from util.file_util import FileUtil
+from util.list_util import get_null_values
 
 
 class Session:
@@ -126,7 +127,7 @@ class Session:
         ConfigManager.automated = self.is_automated()
         ConfigManager.crs_resolver = self.crs_resolver
         ConfigManager.default_crs = self.default_crs
-        ConfigManager.default_null_values = self.default_null_values
+        ConfigManager.default_null_values = get_null_values(self.default_null_values)
         ConfigManager.insitu = self.insitu
         ConfigManager.mock = self.mock
         ConfigManager.tmp_directory = self.tmp_directory if self.tmp_directory[-1] == "/" else self.tmp_directory + "/"

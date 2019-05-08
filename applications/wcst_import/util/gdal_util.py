@@ -191,11 +191,6 @@ class GDALGmlUtil:
 
         number_of_bands = self.gdal_dataset.RasterCount
 
-        if len(ConfigManager.default_null_values) > 0 and \
-            (len(ConfigManager.default_null_values) != 1 and len(ConfigManager.default_null_values) != number_of_bands):
-            raise RuntimeException("Default null values must be a list containing 1 null value for all bands, "
-                                   "or N individual null values for N bands.")
-
         for i in range(1, number_of_bands + 1):
             band = self.gdal_dataset.GetRasterBand(i)
 
@@ -205,22 +200,12 @@ class GDALGmlUtil:
             else:
                 field_name = ConfigManager.default_field_name_prefix + str(i)
 
-            # Check if nullvalue is specified in ingredient file
             if len(ConfigManager.default_null_values) > 0:
-                if len(ConfigManager.default_null_values) == 1:
-                    # Only 1 nilValue for all bands
-                    nil_value = ConfigManager.default_null_values[0]
-                else:
-                    # 1 nilValue for 1 separate band
-                    nil_value = ConfigManager.default_null_values[i - 1]
+                nil_values = ConfigManager.default_null_values
             else:
                 # If not, then detects it from file's bands
                 nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
-
-            if nil_value is None:
-                nil_values = [None]
-            else:
-                nil_values = str(nil_value).strip().split(",")
+                nil_values = [nil_value]
 
             # Get the unit of measure
             uom = band.GetUnitType() if band.GetUnitType() else ConfigManager.default_unit_of_measure

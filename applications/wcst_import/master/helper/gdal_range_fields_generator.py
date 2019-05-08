@@ -54,4 +54,5 @@ class GdalRangeFieldsGenerator:
             field_id += 1
             # Old recipes don't support nilReason option
             fields.append(RangeTypeField(field_name, "", "", "", nill_values, range_field.uom_code))
+
         return fields

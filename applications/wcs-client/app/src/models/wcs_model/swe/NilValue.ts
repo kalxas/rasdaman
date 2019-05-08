@@ -34,10 +34,20 @@ module swe {
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
-            let element = source.getChildAsSerializedObject("swe:nilValue");
+            let elements = source.getChildrenAsSerializedObjects("swe:nilValue");
+            let reasons = [];
+            let values = [];
 
-            this.reason = element.getAttributeAsString("reason");
-            this.value = element.getValueAsString();
+            elements.forEach(element => {
+                let reasonTmp = element.getAttributeAsString("reason");
+                reasons.push(reasonTmp);
+                
+                let valueTmp = element.getValueAsString();
+                values.push(valueTmp);
+            });
+
+            this.reason = reasons.join(", ");
+            this.value = values.join(", ");
         }
     }
 }

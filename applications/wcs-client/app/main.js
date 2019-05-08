@@ -1578,9 +1578,17 @@ var swe;
     var NilValue = (function () {
         function NilValue(source) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
-            var element = source.getChildAsSerializedObject("swe:nilValue");
-            this.reason = element.getAttributeAsString("reason");
-            this.value = element.getValueAsString();
+            var elements = source.getChildrenAsSerializedObjects("swe:nilValue");
+            var reasons = [];
+            var values = [];
+            elements.forEach(function (element) {
+                var reasonTmp = element.getAttributeAsString("reason");
+                reasons.push(reasonTmp);
+                var valueTmp = element.getValueAsString();
+                values.push(valueTmp);
+            });
+            this.reason = reasons.join(", ");
+            this.value = values.join(", ");
         }
         return NilValue;
     }());

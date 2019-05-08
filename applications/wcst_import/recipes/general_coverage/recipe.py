@@ -612,13 +612,6 @@ class Recipe(BaseRecipe):
                 "No valid slicer could be found, given: " + recipe_type)
         return coverage
 
-    def __get_default_null_values(self):
-        null_values = None
-        if len(self.session.default_null_values) > 0:
-            null_values = get_null_values(self.session.default_null_values)
-
-        return null_values
-
     def _get_gdal_coverage(self, recipe_type):
         """
         Returns a coverage that uses the gdal slicer
@@ -627,7 +620,7 @@ class Recipe(BaseRecipe):
         """
         crs = self._resolve_crs(self.options['coverage']['crs'])
         sentence_evaluator = SentenceEvaluator(ExpressionEvaluatorFactory())
-        coverage = GdalToCoverageConverter(self.resumer, self.__get_default_null_values(),
+        coverage = GdalToCoverageConverter(self.resumer, self.session.default_null_values,
                                            recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),
                                            self.session.get_files(), crs, self._read_axes(crs),
@@ -653,7 +646,7 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = NetcdfToCoverageConverter(self.resumer, self.__get_default_null_values(),
+        coverage = NetcdfToCoverageConverter(self.resumer, self.session.default_null_values,
                                              recipe_type, sentence_evaluator, self.session.get_coverage_id(),
                                              self._read_bands(),
                                              self.session.get_files(), crs, self._read_axes(crs),
@@ -678,7 +671,7 @@ class Recipe(BaseRecipe):
         if 'pixelIsPoint' in self.options['coverage']['slicer'] and self.options['coverage']['slicer']['pixelIsPoint']:
             pixel_is_point = True
 
-        coverage = GRIBToCoverageConverter(self.resumer, self.__get_default_null_values(),
+        coverage = GRIBToCoverageConverter(self.resumer, self.session.default_null_values,
                                            recipe_type,
                                            sentence_evaluator, self.session.get_coverage_id(),
                                            self._read_bands(),

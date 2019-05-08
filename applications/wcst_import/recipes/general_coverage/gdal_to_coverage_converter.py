@@ -103,7 +103,7 @@ class GdalToCoverageConverter(AbstractToCoverageConverter):
         if len(self.files) < 1:
             raise RuntimeException("No gdal files given for import!")
 
-        if self.default_null_values is not None:
+        if len(self.default_null_values) > 0:
             return self.default_null_values
 
         # NOTE: all files should have same bands's metadata, so 1 file is ok

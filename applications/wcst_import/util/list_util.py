@@ -111,6 +111,7 @@ def get_null_values(default_null_values):
     null_values = []
     for value in default_null_values:
         values = str(value).strip().split(",")
+        values = map(lambda x: x.strip(), values)
         null_values += values
 
     return null_values

@@ -1,0 +1,4 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=DescribeCoverage&
+COVERAGEID=test_wcs_default_multiple_null_values

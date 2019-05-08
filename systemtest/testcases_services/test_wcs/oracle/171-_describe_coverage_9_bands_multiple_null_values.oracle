@@ -1,171 +1,238 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_wcs_multiple_null_values_9_bands">
-        <boundedBy>
-            <Envelope axisLabels="ansi Lat Lon" srsDimension="3"
-                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-                <lowerCorner>"2016-12-31T23:45:00.000Z" 100500 459450</lowerCorner>
-                <upperCorner>"2017-01-01T00:15:00.000Z" 101500 460450</upperCorner>
-            </Envelope>
-        </boundedBy>
-        <wcs:CoverageId>test_wcs_multiple_null_values_9_bands</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
-        <gmlcov:metadata/>
-        <domainSet>
-            <RectifiedGrid dimension="3" id="test_wcs_multiple_null_values_9_bands-grid">
-                <limits>
-                    <GridEnvelope>
-                        <low>0 0 0</low>
-                        <high>0 0 0</high>
-                    </GridEnvelope>
-                </limits>
-                <axisLabels>ansi Lat Lon</axisLabels>
-                <origin>
-                    <Point
-                        id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                        <pos>"2017-01-01T00:00:00.000Z" 101000 459950</pos>
-                    </Point>
-                </origin>
-                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0.0208333333333 0 0</offsetVector>
-                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1000 0</offsetVector>
-                <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1000</offsetVector>
-            </RectifiedGrid>
-        </domainSet>
-        <gmlcov:rangeType>
-            <swe:DataRecord>
-                <swe:field name="Gray">
-                    <swe:Quantity>
-                        <swe:label>Gray</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9999</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_2">
-                    <swe:Quantity>
-                        <swe:label>field_2</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9998</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_3">
-                    <swe:Quantity>
-                        <swe:label>field_3</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9997</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_4">
-                    <swe:Quantity>
-                        <swe:label>field_4</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9996</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_5">
-                    <swe:Quantity>
-                        <swe:label>field_5</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9995</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_6">
-                    <swe:Quantity>
-                        <swe:label>field_6</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9994</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_7">
-                    <swe:Quantity>
-                        <swe:label>field_7</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9993</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_8">
-                    <swe:Quantity>
-                        <swe:label>field_8</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9992</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="field_9">
-                    <swe:Quantity>
-                        <swe:label>field_9</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">9991</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-            </swe:DataRecord>
-        </gmlcov:rangeType>
-        <wcs:ServiceParameters>
-            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
-            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-        </wcs:ServiceParameters>
-    </wcs:CoverageDescription>
+>
+<wcs:CoverageDescription id="test_wcs_multiple_null_values_9_bands">
+<boundedBy>
+<Envelope axisLabels="ansi Lat Lon" srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+<lowerCorner>"2016-12-31T23:45:00.000Z" 100500 459450</lowerCorner>
+<upperCorner>"2017-01-01T00:15:00.000Z" 101500 460450</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_wcs_multiple_null_values_9_bands</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata/>
+<domainSet>
+<RectifiedGrid dimension="3" id="test_wcs_multiple_null_values_9_bands-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>0 0 0</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi Lat Lon</axisLabels>
+<origin>
+<Point
+id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+<pos>"2017-01-01T00:00:00.000Z" 101000 459950</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0.0208333333333 0 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -1000 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 1000</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity>
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_2">
+<swe:Quantity>
+<swe:label>field_2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_3">
+<swe:Quantity>
+<swe:label>field_3</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_4">
+<swe:Quantity>
+<swe:label>field_4</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_5">
+<swe:Quantity>
+<swe:label>field_5</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_6">
+<swe:Quantity>
+<swe:label>field_6</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_7">
+<swe:Quantity>
+<swe:label>field_7</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_8">
+<swe:Quantity>
+<swe:label>field_8</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="field_9">
+<swe:Quantity>
+<swe:label>field_9</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">9999</swe:nilValue>
+<swe:nilValue reason="">9998</swe:nilValue>
+<swe:nilValue reason="">9997</swe:nilValue>
+<swe:nilValue reason="">9996</swe:nilValue>
+<swe:nilValue reason="">9995</swe:nilValue>
+<swe:nilValue reason="">9994</swe:nilValue>
+<swe:nilValue reason="">9993</swe:nilValue>
+<swe:nilValue reason="">9992</swe:nilValue>
+<swe:nilValue reason="">9991</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
 </wcs:CoverageDescriptions>
