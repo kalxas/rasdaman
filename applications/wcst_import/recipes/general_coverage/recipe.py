@@ -160,7 +160,7 @@ class Recipe(BaseRecipe):
                     # Add the content of colorPaletteTable to coverage's metadata
                     with open(file_path, 'r') as file_reader:
                         color_palette_table = file_reader.read()
-                        self.options['coverage']['metadata']['global']['colorPaletteTable'] = color_palette_table
+                        self.options['coverage']['metadata']['colorPaletteTable'] = color_palette_table
 
     def describe(self):
         """
@@ -351,15 +351,29 @@ class Recipe(BaseRecipe):
 
         return user_axes
 
+    def __add_color_palette_table_to_global_metadata(self, metadata_dict):
+        """
+        If colorPaletteTable is added in ingredient file, then add it to coverage's global metadata
+        """
+        if "colorPaletteTable" in self.options["coverage"]["metadata"]:
+            color_palette_table = self.options["coverage"]["metadata"]["colorPaletteTable"]
+            metadata_dict["colorPaletteTable"] = color_palette_table
+
     def _global_metadata_fields(self):
         """
         Returns the global metadata fields
         :rtype: dict
         """
         if "metadata" in self.options['coverage']:
+            metadata_dict = {}
             if "global" in self.options['coverage']['metadata']:
                 metadata_dict = escape_metadata_dict(self.options['coverage']['metadata']['global'])
-                return metadata_dict
+
+            self.__add_color_palette_table_to_global_metadata(metadata_dict)
+
+            result = escape_metadata_dict(metadata_dict)
+            return result
+
         return {}
 
     def _netcdf_global_metadata_fields(self):
@@ -380,7 +394,6 @@ class Recipe(BaseRecipe):
                 # global_metadata is defined with { ... some values }
                 if type(global_metadata) is dict:
                     metadata_dict = self.options['coverage']['metadata']['global']
-                    return escape_metadata_dict(metadata_dict)
                 else:
                     # global metadata is defined with "a string"
                     if global_metadata != "auto":
@@ -388,12 +401,15 @@ class Recipe(BaseRecipe):
                                                "given: " + global_metadata)
                     else:
                         # global metadata is defined with auto, then parse the metadata from the first file to a dict
-                        metadata_dict = escape_metadata_dict(NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path))
-                        return metadata_dict
+                        metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
             else:
                 # global is not specified in ingredient file, it is considered as "global": "auto"
-                metadata_dict = escape_metadata_dict(NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path))
-                return metadata_dict
+                metadata_dict = NetcdfToCoverageConverter.parse_netcdf_global_metadata(file_path)
+
+            self.__add_color_palette_table_to_global_metadata(metadata_dict)
+
+            result = escape_metadata_dict(metadata_dict)
+            return result
 
         return {}
 

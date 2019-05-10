@@ -58,9 +58,8 @@ class CoverageUtil:
                     return True
             return False
         except Exception as ex:
-            raise RuntimeException("Could not check if the coverage exists. "
-                                   "Check that the WCS service is up and running on url: {}. "
-                                   "Detail error: {}".format(self.wcs_service, str(ex)))
+            raise RuntimeException("Could not check if the coverage exists. "                                   
+                                   "Detail error: {}".format(str(ex)))
 
     def __describe_coverage(self):
         """
@@ -73,9 +72,8 @@ class CoverageUtil:
 
             return response
         except Exception as ex:
-            raise RuntimeException("Could not retrieve the axis labels. "
-                                   "Check that the WCS service is up and running on url: {}. "
-                                   "Detail error: {}".format(self.wcs_service, str(ex)))
+            raise RuntimeException("Could not retrieve the axis labels. "                                   
+                                   "Detail error: {}".format(str(ex)))
 
     def get_axes_labels(self):
         """

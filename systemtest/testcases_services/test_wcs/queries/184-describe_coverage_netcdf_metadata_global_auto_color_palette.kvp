@@ -1,0 +1,4 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=DescribeCoverage&
+COVERAGEID=test_wcs_color_palette_netcdf_global_metadata_auto

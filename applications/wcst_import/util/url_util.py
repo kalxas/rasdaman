@@ -31,11 +31,16 @@ def validate_and_read_url(url):
     :param str url: the url to open
     :rtype: str
     """
-    ret = urllib.urlopen(url)
-    response = ret.read()
-    if ret.getcode() != 200:
+    try:
+        ret = urllib.urlopen(url)
+    except Exception as e:
         raise RuntimeException("Failed opening connection to '{}'. "
                                "Check that the service is up and running."
+                               "Detail error: {}.".format(url, str(e)))
+
+    response = ret.read()
+    if ret.getcode() != 200:
+        raise RuntimeException("Server responded failed for request '{}'."
                                "Detail error: {}.".format(url, response))
 
     return response
