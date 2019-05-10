@@ -855,6 +855,16 @@ public:
     virtual void operator()(char *result, const char *op);
 };
 
+class OpUpdateCFloat : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateCFloat(const BaseType *newResType, const BaseType *newOpType,
+                   size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 /*@Doc:
   BinaryOp is the superclass for all binary operations. The operator()
@@ -2248,6 +2258,19 @@ public:
     virtual void operator()(char *result, const char *op);
 };
 
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateOctet : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateOctet(const BaseType *newResType, const BaseType *newOpType,
+                  size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_IDENTITY specialized for RasDaMan type Short.
 
@@ -2277,6 +2300,19 @@ public:
     virtual void operator()(char *result, const char *op);
 };
 
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateUShort : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateUShort(const BaseType *newResType, const BaseType *newOpType,
+                   size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_IDENTITY specialized for RasDaMan type Long.
 
@@ -2302,6 +2338,45 @@ public:
     /// constructor gets RasDaMan base type of result and operand.
     OpUpdateLong(const BaseType *newResType, const BaseType *newOpType,
                  size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateULong : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateULong(const BaseType *newResType, const BaseType *newOpType,
+                  size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateFloat : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateFloat(const BaseType *newResType, const BaseType *newOpType,
+                  size_t newResOff = 0, size_t newOpOff = 0);
+    /// operator to carry out operation on {\tt op} with result {\tt result}.
+    virtual void operator()(char *result, const char *op);
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpUpdateDouble : public UnaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operand.
+    OpUpdateDouble(const BaseType *newResType, const BaseType *newOpType,
+                   size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op} with result {\tt result}.
     virtual void operator()(char *result, const char *op);
 };

@@ -71,14 +71,25 @@ UnaryOp *Ops::getUnaryOp(Ops::OpType op, const BaseType *resType, const BaseType
         }
         else if (op == Ops::OP_UPDATE)
         {
-            switch (resType->getSize())
+            switch (typeRes)
             {
-            case 1:
+            case OCTET:
+                return new OpUpdateOctet(resType, opType, resOff, opOff);
+            case BOOLTYPE:
+            case CHAR:
                 return new OpUpdateChar(resType, opType, resOff, opOff);
-            case 2:
+            case SHORT:
                 return new OpUpdateShort(resType, opType, resOff, opOff);
-            case 4:
+            case USHORT:
+                return new OpUpdateUShort(resType, opType, resOff, opOff);
+            case LONG:
                 return new OpUpdateLong(resType, opType, resOff, opOff);
+            case ULONG:
+                return new OpUpdateULong(resType, opType, resOff, opOff);
+            case FLOAT:
+                return new OpUpdateFloat(resType, opType, resOff, opOff);
+            case DOUBLE:
+                return new OpUpdateDouble(resType, opType, resOff, opOff);
             default:
                 break;
             }
@@ -5117,6 +5128,23 @@ OpUpdateChar::operator()(char *res, const char *op)
     }
 }
 
+OpUpdateOctet::OpUpdateOctet(const BaseType *newResType, const BaseType *newOpType,
+                             size_t newResOff,
+                             size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateOctet::operator()(char *res, const char *op)
+{
+    auto opVal = *(const signed char *)(op + opOff);
+    if (!isNull(opVal))
+    {
+        *(signed char *)(res + resOff) = opVal;
+    }
+}
+
 //--------------------------------------------
 //
 //--------------------------------------------
@@ -5131,7 +5159,7 @@ OpIDENTITYShort::OpIDENTITYShort(const BaseType *newResType, const BaseType *new
 void
 OpIDENTITYShort::operator()(char *res, const char *op)
 {
-    *(unsigned short *)(res + resOff) = *(unsigned short *)(const_cast<char *>(op) + opOff);
+    *(r_UShort *)(res + resOff) = *(const r_UShort *)(op + opOff);
 }
 
 OpUpdateShort::OpUpdateShort(const BaseType *newResType, const BaseType *newOpType,
@@ -5144,10 +5172,27 @@ OpUpdateShort::OpUpdateShort(const BaseType *newResType, const BaseType *newOpTy
 void
 OpUpdateShort::operator()(char *res, const char *op)
 {
-    auto opVal = *(unsigned short *)(const_cast<char *>(op) + opOff);
+    auto opVal = *(const r_Short *)(op + opOff);
     if (!isNull(opVal))
     {
-        *(unsigned short *)(res + resOff) = opVal;
+        *(r_Short *)(res + resOff) = opVal;
+    }
+}
+
+OpUpdateUShort::OpUpdateUShort(const BaseType *newResType, const BaseType *newOpType,
+                               size_t newResOff,
+                               size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateUShort::operator()(char *res, const char *op)
+{
+    auto opVal = *(const r_UShort *)(op + opOff);
+    if (!isNull(opVal))
+    {
+        *(r_UShort *)(res + resOff) = opVal;
     }
 }
 
@@ -5165,7 +5210,7 @@ OpIDENTITYLong::OpIDENTITYLong(const BaseType *newResType, const BaseType *newOp
 void
 OpIDENTITYLong::operator()(char *res, const char *op)
 {
-    *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op) + opOff);
+    *(r_ULong *)(res + resOff) = *(const r_ULong *)(op + opOff);
 }
 
 OpUpdateLong::OpUpdateLong(const BaseType *newResType, const BaseType *newOpType,
@@ -5178,10 +5223,61 @@ OpUpdateLong::OpUpdateLong(const BaseType *newResType, const BaseType *newOpType
 void
 OpUpdateLong::operator()(char *res, const char *op)
 {
-    auto opVal = *(r_Long *)(const_cast<char *>(op) + opOff);
+    auto opVal = *(const r_Long *)(op + opOff);
     if (!isNull(opVal))
     {
         *(r_Long *)(res + resOff) = opVal;
+    }
+}
+
+OpUpdateULong::OpUpdateULong(const BaseType *newResType, const BaseType *newOpType,
+                             size_t newResOff,
+                             size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateULong::operator()(char *res, const char *op)
+{
+    auto opVal = *(const r_ULong *)(op + opOff);
+    if (!isNull(opVal))
+    {
+        *(r_Long *)(res + resOff) = opVal;
+    }
+}
+
+OpUpdateFloat::OpUpdateFloat(const BaseType *newResType, const BaseType *newOpType,
+                             size_t newResOff,
+                             size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateFloat::operator()(char *res, const char *op)
+{
+    auto opVal = *(const r_Float *)(op + opOff);
+    if (!isNull(opVal))
+    {
+        *(r_Float *)(res + resOff) = opVal;
+    }
+}
+
+OpUpdateDouble::OpUpdateDouble(const BaseType *newResType, const BaseType *newOpType,
+                               size_t newResOff,
+                               size_t newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff)
+{
+}
+
+void
+OpUpdateDouble::operator()(char *res, const char *op)
+{
+    auto opVal = *(const r_Double *)(op + opOff);
+    if (!isNull(opVal))
+    {
+        *(r_Double *)(res + resOff) = opVal;
     }
 }
 
