@@ -124,8 +124,7 @@ public class CrsProjectionUtil {
         int targetEPSGCode = CrsUtil.getEpsgCodeAsInt(targetCRS);
         String targetCRSWKT = getSpatialReference(targetEPSGCode).ExportToWkt();
         
-        // error threshold for transformation approximation (in pixel units - defaults to 0.125)
-        // TODO: why 0.125?
+        // error threshold for transformation approximation (in pixel units - defaults https://gdal.org/1.11/gdalwarp.html to 0.125)
         double errorThreshold = 0.125;
         int interpolation = gdalconstConstants.GRA_NearestNeighbour;
         // Expected target extents

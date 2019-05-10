@@ -75,7 +75,7 @@ id="test_slice_group_size_7days-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiD
 <gmlcov:rangeType>
 <swe:DataRecord>
 <swe:field name="Gray">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
 <swe:label>Gray</swe:label>
 <swe:description/>
 <swe:uom code="10^0"/>

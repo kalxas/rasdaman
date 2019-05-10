@@ -24,6 +24,7 @@ package petascope.core.gml.cis.model.rangetype;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import static petascope.core.XMLSymbols.LABEL_CODE;
+import static petascope.core.XMLSymbols.LABEL_DEFINITION;
 import static petascope.core.XMLSymbols.LABEL_DESCRIPTION;
 import static petascope.core.XMLSymbols.LABEL_LABEL;
 import static petascope.core.XMLSymbols.LABEL_QUANTITY;
@@ -32,6 +33,7 @@ import static petascope.core.XMLSymbols.NAMESPACE_SWE;
 import static petascope.core.XMLSymbols.PREFIX_SWE;
 import petascope.core.gml.ISerializeToXMElement;
 import petascope.util.XMLUtil;
+import petascope.util.ras.TypeResolverUtil;
 
 /**
  * Class to represent Quantity element. e.g:
@@ -63,6 +65,7 @@ public class Quantity implements ISerializeToXMElement {
     private NilValues nilValues;
     private String uomCode;
     private Constraint constraint;
+    private String dataType;
 
     public String getLabel() {
         return label;
@@ -104,9 +107,30 @@ public class Quantity implements ISerializeToXMElement {
         this.constraint = constraint;
     }
 
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+    
+    /**
+     * Create an URL which points to opengis data type based on rasdaman data type,
+     * e.g: rasdaman octet -> http://www.opengis.net/def/dataType/OGC/0/signedByte
+     */
+    private String createOpenGisDataTypeDefinitionURL() {
+        String opengisDataType = TypeResolverUtil.RAS_TYPES_TO_OPENGIS_TYPES.get(this.dataType);
+        String result = "http://www.opengis.net/def/dataType/OGC/0/" + opengisDataType;
+        return result;
+    }
+
     @Override
     public Element serializeToXMLElement() {
         Element quantityElement = new Element(XMLUtil.createXMLLabel(PREFIX_SWE, LABEL_QUANTITY), NAMESPACE_SWE);
+        String dataTypeURL = this.createOpenGisDataTypeDefinitionURL();
+        Attribute definitionAttribute = new Attribute(LABEL_DEFINITION, dataTypeURL);
+        quantityElement.addAttribute(definitionAttribute);
         
         Element labelElement = new Element(XMLUtil.createXMLLabel(PREFIX_SWE, LABEL_LABEL), NAMESPACE_SWE);
         labelElement.appendChild(this.label);

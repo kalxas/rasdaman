@@ -389,9 +389,11 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
         layerElement.appendChild(abstractElement);
         
         Coverage coverage = this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(layer.getName());
-        Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
-        if (customizedMetadataElement != null) {
-            layerElement.appendChild(customizedMetadataElement);
+        if (coverage != null) {
+            Element customizedMetadataElement = this.wcsGMLGetCapabilitiesBuild.createCustomizedCoverageMetadataElement(coverage);
+            if (customizedMetadataElement != null) {
+                layerElement.appendChild(customizedMetadataElement);
+            }
         }
 
         // KeywordList

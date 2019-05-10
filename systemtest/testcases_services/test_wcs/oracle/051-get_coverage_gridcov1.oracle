@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:GridCoverage id="test_float_4d"
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="i j" srsDimension="2"
-            srsName="/crs/OGC/0/Index4D" uomLabels="GridSpacing GridSpacing">
-            <lowerCorner>0 0</lowerCorner>
-            <upperCorner>0 0</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <Grid dimension="2" id="test_float_4d-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>0 0</low>
-                    <high>0 0</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>i j</axisLabels>
-        </Grid>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">-150</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-            <startPoint>0 0</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="value">
-                <swe:Quantity>
-                    <swe:label>value</swe:label>
-                    <swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="The nil value represents an error in the sensor.">NaN</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata>
-        <gmlcov:Extension>
-            <rasdaman:covMetadata >
-                <Project>This is another test file</Project>
-                <bands>
-                    <value>
-                        <units>10</units>
-                        <definition>/dataType/OGC/0/float32</definition>
-                        <missing_value>NaNf</missing_value>
-                        <description>primitive</description>
-                    </value>
-                </bands>
-                <Creator>This is a test creator file</Creator>
-                <Title>This is a test file</Title>
-            </rasdaman:covMetadata>
-        </gmlcov:Extension>
-    </gmlcov:metadata>
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="i j" srsDimension="2"
+srsName="/crs/OGC/0/Index4D" uomLabels="GridSpacing GridSpacing">
+<lowerCorner>0 0</lowerCorner>
+<upperCorner>0 0</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<Grid dimension="2" id="test_float_4d-grid">
+<limits>
+<GridEnvelope>
+<low>0 0</low>
+<high>0 0</high>
+</GridEnvelope>
+</limits>
+<axisLabels>i j</axisLabels>
+</Grid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">-150</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="value">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>value</swe:label>
+<swe:description>Count of the number of observations from the MERIS sensor contributing to this bin cell</swe:description>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="The nil value represents an error in the sensor.">NaN</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >
+<Project>This is another test file</Project>
+<bands>
+<value>
+<units>10</units>
+<definition>/dataType/OGC/0/float32</definition>
+<missing_value>NaNf</missing_value>
+<description>primitive</description>
+</value>
+</bands>
+<Creator>This is a test creator file</Creator>
+<Title>This is a test file</Title>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:GridCoverage>

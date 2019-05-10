@@ -1,152 +1,152 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cis11:GeneralGridCoverage id="test_mr"
-    
-    
-    
-    
-    
-     >
-    <cis11:Envelope axisLabels="i j" srsDimension="2" srsName="/crs/OGC/0/Index2D">
-        <cis11:axisExtent axisLabel="i" lowerBound="0"
-            uomLabel="GridSpacing" upperBound="10"/>
-        <cis11:axisExtent axisLabel="j" lowerBound="0"
-            uomLabel="GridSpacing" upperBound="10"/>
-    </cis11:Envelope>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-            <startPoint>0 30</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <cis11:domainSet>
-        <cis11:generalGrid axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-            <cis11:regularAxis axisLabel="i" lowerBound="0"
-                resolution="1" uomLabel="GridSpacing" upperBound="10"/>
-            <cis11:regularAxis axisLabel="j" lowerBound="0"
-                resolution="-1" uomLabel="GridSpacing" upperBound="10"/>
-            <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-                <cis11:indexAxis axisLabel="i" lowerBound="0" upperBound="9"/>
-                <cis11:indexAxis axisLabel="j" lowerBound="30" upperBound="39"/>
-            </cis11:gridLimits>
-        </cis11:generalGrid>
-    </cis11:domainSet>
-    <cis11:rangeType>
-        <swe:DataRecord>
-            <swe:field name="value">
-                <swe:Quantity>
-                    <swe:label>value</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </cis11:rangeType>
-    <rangeSet>
-        <rangeSet>
-            <cis11:V>74</cis11:V>
-            <cis11:V>61</cis11:V>
-            <cis11:V>70</cis11:V>
-            <cis11:V>60</cis11:V>
-            <cis11:V>68</cis11:V>
-            <cis11:V>69</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>26</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>39</cis11:V>
-            <cis11:V>70</cis11:V>
-            <cis11:V>61</cis11:V>
-            <cis11:V>46</cis11:V>
-            <cis11:V>58</cis11:V>
-            <cis11:V>65</cis11:V>
-            <cis11:V>56</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>54</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>36</cis11:V>
-            <cis11:V>71</cis11:V>
-            <cis11:V>40</cis11:V>
-            <cis11:V>48</cis11:V>
-            <cis11:V>65</cis11:V>
-            <cis11:V>16</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>67</cis11:V>
-            <cis11:V>73</cis11:V>
-            <cis11:V>49</cis11:V>
-            <cis11:V>59</cis11:V>
-            <cis11:V>34</cis11:V>
-            <cis11:V>16</cis11:V>
-            <cis11:V>65</cis11:V>
-            <cis11:V>41</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>10</cis11:V>
-            <cis11:V>52</cis11:V>
-            <cis11:V>58</cis11:V>
-            <cis11:V>67</cis11:V>
-            <cis11:V>30</cis11:V>
-            <cis11:V>9</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>57</cis11:V>
-            <cis11:V>20</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>33</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>38</cis11:V>
-            <cis11:V>54</cis11:V>
-            <cis11:V>57</cis11:V>
-            <cis11:V>1</cis11:V>
-            <cis11:V>8</cis11:V>
-            <cis11:V>38</cis11:V>
-            <cis11:V>33</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>35</cis11:V>
-            <cis11:V>32</cis11:V>
-            <cis11:V>20</cis11:V>
-            <cis11:V>42</cis11:V>
-            <cis11:V>16</cis11:V>
-            <cis11:V>4</cis11:V>
-            <cis11:V>14</cis11:V>
-            <cis11:V>23</cis11:V>
-            <cis11:V>5</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>16</cis11:V>
-            <cis11:V>35</cis11:V>
-            <cis11:V>33</cis11:V>
-            <cis11:V>1</cis11:V>
-            <cis11:V>30</cis11:V>
-            <cis11:V>17</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>14</cis11:V>
-            <cis11:V>2</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>82</cis11:V>
-            <cis11:V>40</cis11:V>
-            <cis11:V>29</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>23</cis11:V>
-            <cis11:V>5</cis11:V>
-            <cis11:V>18</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>22</cis11:V>
-            <cis11:V>13</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>9</cis11:V>
-            <cis11:V>2</cis11:V>
-            <cis11:V>0</cis11:V>
-            <cis11:V>8</cis11:V>
-        </rangeSet>
-    </rangeSet>
-    <cis11:metadata>{
-  "resolution": "1"
+
+
+
+
+
+>
+<cis11:Envelope axisLabels="i j" srsDimension="2" srsName="/crs/OGC/0/Index2D">
+<cis11:axisExtent axisLabel="i" lowerBound="0"
+uomLabel="GridSpacing" upperBound="10"/>
+<cis11:axisExtent axisLabel="j" lowerBound="0"
+uomLabel="GridSpacing" upperBound="10"/>
+</cis11:Envelope>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>0 30</startPoint>
+</GridFunction>
+</coverageFunction>
+<cis11:domainSet>
+<cis11:generalGrid axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:regularAxis axisLabel="i" lowerBound="0"
+resolution="1" uomLabel="GridSpacing" upperBound="10"/>
+<cis11:regularAxis axisLabel="j" lowerBound="0"
+resolution="-1" uomLabel="GridSpacing" upperBound="10"/>
+<cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:indexAxis axisLabel="i" lowerBound="0" upperBound="9"/>
+<cis11:indexAxis axisLabel="j" lowerBound="30" upperBound="39"/>
+</cis11:gridLimits>
+</cis11:generalGrid>
+</cis11:domainSet>
+<cis11:rangeType>
+<swe:DataRecord>
+<swe:field name="value">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>value</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</cis11:rangeType>
+<rangeSet>
+<rangeSet>
+<cis11:V>74</cis11:V>
+<cis11:V>61</cis11:V>
+<cis11:V>70</cis11:V>
+<cis11:V>60</cis11:V>
+<cis11:V>68</cis11:V>
+<cis11:V>69</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>26</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>39</cis11:V>
+<cis11:V>70</cis11:V>
+<cis11:V>61</cis11:V>
+<cis11:V>46</cis11:V>
+<cis11:V>58</cis11:V>
+<cis11:V>65</cis11:V>
+<cis11:V>56</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>54</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>36</cis11:V>
+<cis11:V>71</cis11:V>
+<cis11:V>40</cis11:V>
+<cis11:V>48</cis11:V>
+<cis11:V>65</cis11:V>
+<cis11:V>16</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>67</cis11:V>
+<cis11:V>73</cis11:V>
+<cis11:V>49</cis11:V>
+<cis11:V>59</cis11:V>
+<cis11:V>34</cis11:V>
+<cis11:V>16</cis11:V>
+<cis11:V>65</cis11:V>
+<cis11:V>41</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>10</cis11:V>
+<cis11:V>52</cis11:V>
+<cis11:V>58</cis11:V>
+<cis11:V>67</cis11:V>
+<cis11:V>30</cis11:V>
+<cis11:V>9</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>57</cis11:V>
+<cis11:V>20</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>33</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>38</cis11:V>
+<cis11:V>54</cis11:V>
+<cis11:V>57</cis11:V>
+<cis11:V>1</cis11:V>
+<cis11:V>8</cis11:V>
+<cis11:V>38</cis11:V>
+<cis11:V>33</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>35</cis11:V>
+<cis11:V>32</cis11:V>
+<cis11:V>20</cis11:V>
+<cis11:V>42</cis11:V>
+<cis11:V>16</cis11:V>
+<cis11:V>4</cis11:V>
+<cis11:V>14</cis11:V>
+<cis11:V>23</cis11:V>
+<cis11:V>5</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>16</cis11:V>
+<cis11:V>35</cis11:V>
+<cis11:V>33</cis11:V>
+<cis11:V>1</cis11:V>
+<cis11:V>30</cis11:V>
+<cis11:V>17</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>14</cis11:V>
+<cis11:V>2</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>82</cis11:V>
+<cis11:V>40</cis11:V>
+<cis11:V>29</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>23</cis11:V>
+<cis11:V>5</cis11:V>
+<cis11:V>18</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>22</cis11:V>
+<cis11:V>13</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>9</cis11:V>
+<cis11:V>2</cis11:V>
+<cis11:V>0</cis11:V>
+<cis11:V>8</cis11:V>
+</rangeSet>
+</rangeSet>
+<cis11:metadata>{
+"resolution": "1"
 }</cis11:metadata>
 </cis11:GeneralGridCoverage>

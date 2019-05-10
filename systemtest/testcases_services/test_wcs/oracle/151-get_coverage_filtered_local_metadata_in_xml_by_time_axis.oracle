@@ -1,131 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
-    id="test_wcs_local_metadata_netcdf_in_xml"
-    
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="Lat Lon forecast" srsDimension="3"
-            srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" uomLabels="degree degree GridSpacing">
-            <lowerCorner>34.4396675 29.6015625 0</lowerCorner>
-            <upperCorner>34.7208095 29.8828125 3</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_netcdf_in_xml-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>0 0 0</low>
-                    <high>1 1 1</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>Lat Lon forecast</axisLabels>
-            <gmlrgrid:origin>
-                <Point
-                    id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
-                    <pos>34.650524 29.671875 0</pos>
-                </Point>
-            </gmlrgrid:origin>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">-0.140571 0 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0.140625 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 1</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients>0 3</gmlrgrid:coefficients>
-                    <gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-        </gmlrgrid:ReferenceableGridByVectors>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">0,-9999,0,-9999,0,-9999,0,-9999</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-            <startPoint>0 0 0</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="Drought code">
-                <swe:Quantity>
-                    <swe:label>Drought code</swe:label>
-                    <swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="The nil value represents no data value">-9999</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata>
-        <gmlcov:Extension>
-            <rasdaman:covMetadata >
-                <bands>
-                    <dc>
-                        <units>%</units>
-                        <_FillValue>-9999.0</_FillValue>
-                        <missing_value>-9999.0</missing_value>
-                        <grid_type>gaussian</grid_type>
-                        <title>Drought Code</title>
-                    </dc>
-                </bands>
-                <axes>
-                    <Lat>
-                        <units>degrees_north</units>
-                        <long_name>latitude</long_name>
-                        <standard_name>latitude</standard_name>
-                        <axis>Y</axis>
-                    </Lat>
-                    <Lon>
-                        <units>degrees_east</units>
-                        <long_name>longitude</long_name>
-                        <standard_name>longitude</standard_name>
-                        <axis>X</axis>
-                    </Lon>
-                </axes>
-                <slices>
-                    <slice>
-                        <boundedBy>
-                            <Envelope>
-                                <axisLabels>Lat Lon ansi forecast</axisLabels>
-                                <srsDimension>4</srsDimension>
-                                <lowerCorner>34.4396675 29.6015625 "2017-02-10T00:00:00+00:00" 3</lowerCorner>
-                                <upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00+00:00" 3</upperCorner>
-                            </Envelope>
-                        </boundedBy>
-                        <local_metadata_key>FROM FILE 2</local_metadata_key>
-                    </slice>
-                </slices>
-                <Title>Drought code</Title>
-            </rasdaman:covMetadata>
-        </gmlcov:Extension>
-    </gmlcov:metadata>
+id="test_wcs_local_metadata_netcdf_in_xml"
+
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="Lat Lon forecast" srsDimension="3"
+srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;" uomLabels="degree degree GridSpacing">
+<lowerCorner>34.4396675 29.6015625 0</lowerCorner>
+<upperCorner>34.7208095 29.8828125 3</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_netcdf_in_xml-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>1 1 1</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon forecast</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_wcs_local_metadata_netcdf_in_xml-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">
+<pos>34.650524 29.671875 0</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">-0.140571 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0.140625 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;forecast&quot;">0 0 1</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>0 3</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>forecast</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0,-9999,0,-9999,0,-9999,0,-9999</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Drought code">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>Drought code</swe:label>
+<swe:description>Global Fire Forecast (GEFF) - Drought Code</swe:description>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="The nil value represents no data value">-9999</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >
+<bands>
+<dc>
+<units>%</units>
+<_FillValue>-9999.0</_FillValue>
+<missing_value>-9999.0</missing_value>
+<grid_type>gaussian</grid_type>
+<title>Drought Code</title>
+</dc>
+</bands>
+<axes>
+<Lat>
+<units>degrees_north</units>
+<long_name>latitude</long_name>
+<standard_name>latitude</standard_name>
+<axis>Y</axis>
+</Lat>
+<Lon>
+<units>degrees_east</units>
+<long_name>longitude</long_name>
+<standard_name>longitude</standard_name>
+<axis>X</axis>
+</Lon>
+</axes>
+<slices>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>Lat Lon ansi forecast</axisLabels>
+<srsDimension>4</srsDimension>
+<lowerCorner>34.4396675 29.6015625 "2017-02-10T00:00:00+00:00" 3</lowerCorner>
+<upperCorner>34.7208095 29.8828125 "2017-02-10T00:00:00+00:00" 3</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>FROM FILE 2</local_metadata_key>
+</slice>
+</slices>
+<Title>Drought code</Title>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

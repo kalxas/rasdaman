@@ -1,93 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage
-    id="test_wcs_local_metadata_tiff_map_mosaic"
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="Lat Lon" srsDimension="2"
-            srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
-            <lowerCorner>-44.975 144.975</lowerCorner>
-            <upperCorner>-8.975 155.975</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <RectifiedGrid dimension="2" id="test_wcs_local_metadata_tiff_map_mosaic-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>0 33</low>
-                    <high>35 43</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>Lat Lon</axisLabels>
-            <origin>
-                <Point
-                    id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
-                    <pos>-9.475 145.475</pos>
-                </Point>
-            </origin>
-            <offsetVector srsName="/crs/EPSG/0/4326">-1 0</offsetVector>
-            <offsetVector srsName="/crs/EPSG/0/4326">0 1</offsetVector>
-        </RectifiedGrid>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">0,0,0,0,0,0,1,0,108,101,95,100,116,112,115,126,145,165,187,196,210,202,182,182,166,142,120,116,110,107,0,0,92,91,0,0,0,0,0,0,0,0,0,0,0,31,100,99,114,127,125,136,153,167,180,186,188,189,188,184,180,168,142,128,120,114,0,0,102,106,113,0,0,0,0,0,0,0,0,0,0,0,79,119,125,137,141,144,158,174,173,177,180,182,195,189,184,175,164,139,124,13,0,0,115,116,0,0,0,0,0,0,0,0,0,0,0,0,0,112,122,137,147,146,156,168,163,170,176,171,175,183,185,173,169,141,127,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,127,141,145,155,165,160,172,171,165,170,172,173,163,146,125,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,120,133,145,164,169,169,157,157,160,159,151,138,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,126,136,142,151,151,142,139,144,148,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,126,136,134,130,131,136,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,144,128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-            <startPoint>0 33</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="Gray">
-                <swe:Quantity>
-                    <swe:label>Gray</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata>
-        <gmlcov:Extension>
-            <rasdaman:covMetadata >
-                <bands/>
-                <axes/>
-                <slices>
-                    <slice>
-                        <boundedBy>
-                            <Envelope>
-                                <axisLabels>Lat Lon</axisLabels>
-                                <srsDimension>2</srsDimension>
-                                <lowerCorner>-44.975 134.975</lowerCorner>
-                                <upperCorner>-8.975 145.975</upperCorner>
-                            </Envelope>
-                        </boundedBy>
-                        <local_metadata_key>value_3</local_metadata_key>
-                    </slice>
-                    <slice>
-                        <boundedBy>
-                            <Envelope>
-                                <axisLabels>Lat Lon</axisLabels>
-                                <srsDimension>2</srsDimension>
-                                <lowerCorner>-44.975 144.975</lowerCorner>
-                                <upperCorner>-8.975 155.975</upperCorner>
-                            </Envelope>
-                        </boundedBy>
-                        <local_metadata_key>value_4</local_metadata_key>
-                    </slice>
-                </slices>
-                <Title>Drought code</Title>
-            </rasdaman:covMetadata>
-        </gmlcov:Extension>
-    </gmlcov:metadata>
+id="test_wcs_local_metadata_tiff_map_mosaic"
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="Lat Lon" srsDimension="2"
+srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
+<lowerCorner>-44.975 144.975</lowerCorner>
+<upperCorner>-8.975 155.975</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_wcs_local_metadata_tiff_map_mosaic-grid">
+<limits>
+<GridEnvelope>
+<low>0 33</low>
+<high>35 43</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon</axisLabels>
+<origin>
+<Point
+id="test_wcs_local_metadata_tiff_map_mosaic-point" srsName="/crs/EPSG/0/4326">
+<pos>-9.475 145.475</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/EPSG/0/4326">-1 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/4326">0 1</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0,0,0,0,0,0,1,0,108,101,95,100,116,112,115,126,145,165,187,196,210,202,182,182,166,142,120,116,110,107,0,0,92,91,0,0,0,0,0,0,0,0,0,0,0,31,100,99,114,127,125,136,153,167,180,186,188,189,188,184,180,168,142,128,120,114,0,0,102,106,113,0,0,0,0,0,0,0,0,0,0,0,79,119,125,137,141,144,158,174,173,177,180,182,195,189,184,175,164,139,124,13,0,0,115,116,0,0,0,0,0,0,0,0,0,0,0,0,0,112,122,137,147,146,156,168,163,170,176,171,175,183,185,173,169,141,127,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,127,141,145,155,165,160,172,171,165,170,172,173,163,146,125,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,120,133,145,164,169,169,157,157,160,159,151,138,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,126,136,142,151,151,142,139,144,148,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,126,136,134,130,131,136,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,144,128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
+<startPoint>0 33</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >
+<bands/>
+<axes/>
+<slices>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>Lat Lon</axisLabels>
+<srsDimension>2</srsDimension>
+<lowerCorner>-44.975 134.975</lowerCorner>
+<upperCorner>-8.975 145.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_3</local_metadata_key>
+</slice>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>Lat Lon</axisLabels>
+<srsDimension>2</srsDimension>
+<lowerCorner>-44.975 144.975</lowerCorner>
+<upperCorner>-8.975 155.975</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_4</local_metadata_key>
+</slice>
+</slices>
+<Title>Drought code</Title>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

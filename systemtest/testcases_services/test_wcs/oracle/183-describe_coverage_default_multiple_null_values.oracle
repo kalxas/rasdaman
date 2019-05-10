@@ -39,7 +39,7 @@ id="test_wcs_default_multiple_null_values-point" srsName="/crs/EPSG/0/4326">
 <gmlcov:rangeType>
 <swe:DataRecord>
 <swe:field name="Red">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
 <swe:label>Red</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -57,7 +57,7 @@ id="test_wcs_default_multiple_null_values-point" srsName="/crs/EPSG/0/4326">
 </swe:Quantity>
 </swe:field>
 <swe:field name="Green">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
 <swe:label>Green</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -75,7 +75,7 @@ id="test_wcs_default_multiple_null_values-point" srsName="/crs/EPSG/0/4326">
 </swe:Quantity>
 </swe:field>
 <swe:field name="Blue">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
 <swe:label>Blue</swe:label>
 <swe:description/>
 <swe:nilValues>

@@ -31,9 +31,11 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import org.rasdaman.domain.cis.Coverage;
+import org.rasdaman.domain.cis.Field;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.IndexAxis;
 import org.rasdaman.domain.cis.NilValue;
+import org.rasdaman.domain.cis.Quantity;
 import org.rasdaman.domain.cis.RasdamanRangeSet;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,7 @@ import petascope.util.XMLUtil;
 import petascope.util.ras.TypeResolverUtil;
 import petascope.core.response.Response;
 import petascope.core.Templates;
+import static petascope.util.ras.TypeResolverUtil.GDT_Float32;
 import petascope.wcst.exceptions.WCSTCoverageIdNotValid;
 import petascope.wcst.exceptions.WCSTDuplicatedCoverageId;
 import petascope.wcst.helpers.insert.RasdamanCollectionCreator;
@@ -264,6 +267,9 @@ public class InsertCoverageHandler {
 
             // rasdaman collection was created add this to coverage
             coverage.setRasdamanRangeSet(rasdamanRangeSet);
+            
+            this.updateRasdamanDataTypesForRangeQuantities(coverage, pixelDataType);
+            
             // Now can finish the coverage build and persist to database            
             persistedCoverageService.save(coverage);
 
@@ -277,6 +283,32 @@ public class InsertCoverageHandler {
             throw new WCSTInvalidXML(ex.getMessage());
         }
         return result;
+    }
+    
+    /**
+     * Update coverage's range quantities' rasdaman types from request parameter pixelDataType.
+     */
+    private void updateRasdamanDataTypesForRangeQuantities(Coverage coverage, String pixelDataType) {
+        if (pixelDataType == null) {
+            pixelDataType = TypeResolverUtil.GDAL_TYPES_TO_RAS_TYPES.get(GDT_Float32);
+        }
+        // e.g: Float32,Float32,Int16
+        String[] gdalDataTypes = pixelDataType.split(",");
+        int i = 0;
+        for (Field field : coverage.getRangeType().getDataRecord().getFields()) {
+            Quantity quantity = field.getQuantity();
+            
+            String gdalDataType = gdalDataTypes[0];
+            if (gdalDataTypes.length > 1) {
+                gdalDataType = gdalDataTypes[i];
+            }
+            
+            // e.g: gdal Byte -> rasdaman char
+            String rasdamanDataType = TypeResolverUtil.GDAL_TYPES_TO_RAS_TYPES.get(gdalDataType);            
+            quantity.setDataType(rasdamanDataType);
+            
+            i++;
+        }        
     }
 
     /**

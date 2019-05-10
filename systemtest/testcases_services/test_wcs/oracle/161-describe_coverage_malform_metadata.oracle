@@ -1,67 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_malform_metadata">
-        <boundedBy>
-            <Envelope axisLabels="i j" srsDimension="2"
-                srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
-                <lowerCorner>0 0</lowerCorner>
-                <upperCorner>60 40</upperCorner>
-            </Envelope>
-        </boundedBy>
-        <wcs:CoverageId>test_malform_metadata</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-                <startPoint>0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
-        <gmlcov:metadata>
-            <gmlcov:Extension>
-                <rasdaman:covMetadata >{
-  "resolution": "1", 
-  "slices": "[]"
+
+
+
+
+
+>
+<wcs:CoverageDescription id="test_malform_metadata">
+<boundedBy>
+<Envelope axisLabels="i j" srsDimension="2"
+srsName="/crs/OGC/0/Index2D" uomLabels="GridSpacing GridSpacing">
+<lowerCorner>0 0</lowerCorner>
+<upperCorner>60 40</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_malform_metadata</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >{
+"resolution": "1", 
+"slices": "[]"
 }</rasdaman:covMetadata>
-            </gmlcov:Extension>
-        </gmlcov:metadata>
-        <domainSet>
-            <RectifiedGrid dimension="2" id="test_malform_metadata-grid">
-                <limits>
-                    <GridEnvelope>
-                        <low>0 0</low>
-                        <high>59 39</high>
-                    </GridEnvelope>
-                </limits>
-                <axisLabels>i j</axisLabels>
-                <origin>
-                    <Point id="test_malform_metadata-point" srsName="/crs/OGC/0/Index2D">
-                        <pos>0.5 39.5</pos>
-                    </Point>
-                </origin>
-                <offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>
-                <offsetVector srsName="/crs/OGC/0/Index2D">0 -1</offsetVector>
-            </RectifiedGrid>
-        </domainSet>
-        <gmlcov:rangeType>
-            <swe:DataRecord>
-                <swe:field name="value">
-                    <swe:Quantity>
-                        <swe:label>value</swe:label>
-                        <swe:description/>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-            </swe:DataRecord>
-        </gmlcov:rangeType>
-        <wcs:ServiceParameters>
-            <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
-            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-        </wcs:ServiceParameters>
-    </wcs:CoverageDescription>
+</gmlcov:Extension>
+</gmlcov:metadata>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_malform_metadata-grid">
+<limits>
+<GridEnvelope>
+<low>0 0</low>
+<high>59 39</high>
+</GridEnvelope>
+</limits>
+<axisLabels>i j</axisLabels>
+<origin>
+<Point
+id="test_malform_metadata-point" srsName="/crs/OGC/0/Index2D">
+<pos>0.5 39.5</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/OGC/0/Index2D">1 0</offsetVector>
+<offsetVector srsName="/crs/OGC/0/Index2D">0 -1</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="value">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>value</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

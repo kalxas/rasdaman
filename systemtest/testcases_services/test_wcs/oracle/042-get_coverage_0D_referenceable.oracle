@@ -1,80 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage id="test_irr_cube_1"
-    
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
-            <lowerCorner/>
-            <upperCorner/>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="0" gmlrgrid:id="test_irr_cube_1-grid">
-            <limits>
-                <GridEnvelope>
-                    <low/>
-                    <high/>
-                </GridEnvelope>
-            </limits>
-            <axisLabels/>
-            <gmlrgrid:origin>
-                <Point id="test_irr_cube_1-point" srsName="">
-                    <pos/>
-                </Point>
-            </gmlrgrid:origin>
-        </gmlrgrid:ReferenceableGridByVectors>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">524</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="">Linear</sequenceRule>
-            <startPoint/>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="band_1">
-                <swe:Quantity>
-                    <swe:label>band_1</swe:label>
-                    <swe:description>Test values</swe:description>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-999</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata>
-        <gmlcov:Extension>
-            <rasdaman:covMetadata >
-                <bands>
-                    <value>
-                        <units>10</units>
-                        <definition>/dataType/OGC/0/unsignedShort</definition>
-                        <valid_min>0</valid_min>
-                        <valid_max>65535</valid_max>
-                        <description>primitive</description>
-                    </value>
-                </bands>
-                <axes>
-                    <k/>
-                </axes>
-                <description>This is a test coverage</description>
-            </rasdaman:covMetadata>
-        </gmlcov:Extension>
-    </gmlcov:metadata>
+<gmlcov:ReferenceableGridCoverage
+id="test_irr_cube_1"
+
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
+<lowerCorner/>
+<upperCorner/>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="0" gmlrgrid:id="test_irr_cube_1-grid">
+<limits>
+<GridEnvelope>
+<low/>
+<high/>
+</GridEnvelope>
+</limits>
+<axisLabels/>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_1-point" srsName="">
+<pos/>
+</Point>
+</gmlrgrid:origin>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">524</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="">Linear</sequenceRule>
+<startPoint/>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="band_1">
+<swe:Quantity definition="/dataType/OGC/0/signedInt">
+<swe:label>band_1</swe:label>
+<swe:description>Test values</swe:description>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-999</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >
+<bands>
+<value>
+<units>10</units>
+<definition>/dataType/OGC/0/unsignedShort</definition>
+<valid_min>0</valid_min>
+<valid_max>65535</valid_max>
+<description>primitive</description>
+</value>
+</bands>
+<axes>
+<k/>
+</axes>
+<description>This is a test coverage</description>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:ReferenceableGridCoverage>

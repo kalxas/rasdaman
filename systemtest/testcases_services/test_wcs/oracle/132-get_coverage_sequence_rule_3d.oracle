@@ -1,60 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_sequence_rule"
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="ansi Lat Long" srsDimension="3"
-            srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-            <lowerCorner>"2012-12-01T20:07:00.500Z" 20 0</lowerCorner>
-            <upperCorner>"2012-12-05T20:27:06.500Z" 40 20</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <RectifiedGrid dimension="3" id="test_sequence_rule-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>0 0 0</low>
-                    <high>1 1 2</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>ansi Lat Long</axisLabels>
-            <origin>
-                <Point id="test_sequence_rule-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-                    <pos>"2012-12-02T20:12:02.000Z" 35 3.333333333335</pos>
-                </Point>
-            </origin>
-            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">2.00697916667 0 0</offsetVector>
-            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -10 0</offsetVector>
-            <offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 6.66666666667</offsetVector>
-        </RectifiedGrid>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">0,1,2,3,4,5,6,7,8,9,10,11</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
-            <startPoint>0 0 0</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="Gray">
-                <swe:Quantity>
-                    <swe:label>Gray</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata/>
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="ansi Lat Lon" srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
+<lowerCorner>"2012-12-01T20:07:00.500Z" 20 0</lowerCorner>
+<upperCorner>"2012-12-05T20:27:06.500Z" 40 20</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="3" id="test_sequence_rule-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>1 1 2</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi Lat Lon</axisLabels>
+<origin>
+<Point
+id="test_sequence_rule-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
+<pos>"2012-12-02T20:12:02.000Z" 35 3.333333333335</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">2.00697916667 0 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 -10 0</offsetVector>
+<offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">0 0 6.66666666667</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0,1,2,3,4,5,6,7,8,9,10,11</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +3 +1">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

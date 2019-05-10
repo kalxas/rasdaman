@@ -1,100 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage gml:id="test_irr_cube_2"
-    xmlns:gml="http://www.opengis.net/gml/3.2"
-    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
-    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
-    xmlns:ows="http://www.opengis.net/ows/2.0"
-    xmlns:swe="http://www.opengis.net/swe/2.0"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
-    <gml:boundedBy>
-        <gml:Envelope axisLabels="i E N" srsDimension="3"
-            srsName="http://localhost:8080/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/def/crs/EPSG/0/32633" uomLabels="GridSpacing metre metre">
-            <gml:lowerCorner>0 85086.2621804103837348520755767822265625 5115586.534250616095960140228271484375</gml:lowerCorner>
-            <gml:upperCorner>7 110304.9939391745137982070446014404296875 5194341.2000885047018527984619140625</gml:upperCorner>
-        </gml:Envelope>
-    </gml:boundedBy>
-    <gml:domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
-            <gml:limits>
-                <gml:GridEnvelope>
-                    <gml:low>0 1 26</gml:low>
-                    <gml:high>7 3 33</gml:high>
-                </gml:GridEnvelope>
-            </gml:limits>
-            <gml:axisLabels>i E N</gml:axisLabels>
-            <gmlrgrid:origin>
-                <gml:Point gml:id="test_irr_cube_2-point" srsName="http://localhost:8080/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">
-                    <gml:pos>0.5 90086.2621804103837348520755767822265625 5189341.2000885047018527984619140625</gml:pos>
-                </gml:Point>
-            </gmlrgrid:origin>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">0 10000 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://www.opengis.net/def/crs/OGC/0/Index1D&amp;2=http://localhost:8080/def/crs/EPSG/0/32633">0 0 -10000</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-        </gmlrgrid:ReferenceableGridByVectors>
-    </gml:domainSet>
-    <gml:rangeSet>
-        <gml:DataBlock>
-            <gml:rangeParameters/>
-            <gml:tupleList cs=" " ts=",">12.58872 4.165061,11.68599 4.162982,10.6582 4.16229,9.672453 4.16233,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.115076 4.171284,12.30444 4.159751,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,8.875878 4.160815,8.742972 4.163007,8.840999 4.165832,8.850337 4.168553,11.90215 4.153168,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.37078 4.169445,12.58872 4.165061,11.68599 4.162982,10.6582 4.16229,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.036529 4.168159,13.08995 4.163162,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.473894 4.159478,8.875878 4.160815,8.742972 4.163007,8.840999 4.165832,12.71907 4.155389,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.02208 4.175292,13.37078 4.169445,12.58872 4.165061,11.68599 4.162982,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,8.899302 4.165202,13.73209 4.168167,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,10.40728 4.158773,9.473894 4.159478,8.875878 4.160815,8.742972 4.163007,13.37805 4.159307,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.48837 4.1797,14.02208 4.175292,13.37078 4.169445,12.58872 4.165061,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.033231 4.163206,14.18655 4.172117,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,11.40292 4.158625,10.40728 4.158773,9.473894 4.159478,8.875878 4.160815,13.83897 4.162506,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.73219 4.18002,14.48837 4.1797,14.02208 4.175292,13.37078 4.169445,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.672453 4.16233,14.44536 4.172673,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,12.30444 4.159751,11.40292 4.158625,10.40728 4.158773,9.473894 4.159478,14.12031 4.163124,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.76972 4.175335,14.73219 4.18002,14.48837 4.1797,14.02208 4.175292,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,10.6582 4.16229,14.53025 4.168844,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.08995 4.163162,12.30444 4.159751,11.40292 4.158625,10.40728 4.158773,14.25788 4.160441,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.72741 4.168027,14.76972 4.175335,14.73219 4.18002,14.48837 4.1797,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,11.68599 4.162982,14.53074 4.162327,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.73209 4.168167,13.08995 4.163162,12.30444 4.159751,11.40292 4.158625,14.30749 4.155443,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.73661 4.162122,14.72741 4.168027,14.76972 4.175335,14.73219 4.18002,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,12.58872 4.165061,14.54462 4.156631,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.18655 4.172117,13.73209 4.168167,13.08995 4.163162,12.30444 4.159751,14.33072 4.150648,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18</gml:tupleList>
-        </gml:DataBlock>
-    </gml:rangeSet>
-    <gml:coverageFunction>
-        <gml:GridFunction>
-            <gml:sequenceRule axisOrder="+3 +2 +1">Linear</gml:sequenceRule>
-            <gml:startPoint>0 1 26</gml:startPoint>
-        </gml:GridFunction>
-    </gml:coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="b1">
-                <swe:Quantity>
-                    <swe:label>b1</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-            <swe:field name="b2">
-                <swe:Quantity>
-                    <swe:label>b2</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata/>
+<gmlcov:ReferenceableGridCoverage
+id="test_irr_cube_2"
+
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="i E N" srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633" uomLabels="GridSpacing metre metre">
+<lowerCorner>0 85086.2621804103837348520755767822265625 5115586.534250616095960140228271484375</lowerCorner>
+<upperCorner>7 110304.9939391745137982070446014404296875 5194341.2000885047018527984619140625</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
+<limits>
+<GridEnvelope>
+<low>0 1 26</low>
+<high>7 3 33</high>
+</GridEnvelope>
+</limits>
+<axisLabels>i E N</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">
+<pos>0.5 90086.2621804103837348520755767822265625 5189341.2000885047018527984619140625</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">0 10000 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/Index1D&amp;2=/crs/EPSG/0/32633">0 0 -10000</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">12.58872 4.165061,11.68599 4.162982,10.6582 4.16229,9.672453 4.16233,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.115076 4.171284,12.30444 4.159751,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,8.875878 4.160815,8.742972 4.163007,8.840999 4.165832,8.850337 4.168553,11.90215 4.153168,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.37078 4.169445,12.58872 4.165061,11.68599 4.162982,10.6582 4.16229,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.036529 4.168159,13.08995 4.163162,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.473894 4.159478,8.875878 4.160815,8.742972 4.163007,8.840999 4.165832,12.71907 4.155389,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.02208 4.175292,13.37078 4.169445,12.58872 4.165061,11.68599 4.162982,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,8.899302 4.165202,13.73209 4.168167,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,10.40728 4.158773,9.473894 4.159478,8.875878 4.160815,8.742972 4.163007,13.37805 4.159307,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.48837 4.1797,14.02208 4.175292,13.37078 4.169445,12.58872 4.165061,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.033231 4.163206,14.18655 4.172117,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,11.40292 4.158625,10.40728 4.158773,9.473894 4.159478,8.875878 4.160815,13.83897 4.162506,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.73219 4.18002,14.48837 4.1797,14.02208 4.175292,13.37078 4.169445,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,9.672453 4.16233,14.44536 4.172673,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,12.30444 4.159751,11.40292 4.158625,10.40728 4.158773,9.473894 4.159478,14.12031 4.163124,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.76972 4.175335,14.73219 4.18002,14.48837 4.1797,14.02208 4.175292,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,10.6582 4.16229,14.53025 4.168844,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.08995 4.163162,12.30444 4.159751,11.40292 4.158625,10.40728 4.158773,14.25788 4.160441,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.72741 4.168027,14.76972 4.175335,14.73219 4.18002,14.48837 4.1797,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,11.68599 4.162982,14.53074 4.162327,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,13.73209 4.168167,13.08995 4.163162,12.30444 4.159751,11.40292 4.158625,14.30749 4.155443,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.73661 4.162122,14.72741 4.168027,14.76972 4.175335,14.73219 4.18002,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,12.58872 4.165061,14.54462 4.156631,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,14.18655 4.172117,13.73209 4.168167,13.08995 4.163162,12.30444 4.159751,14.33072 4.150648,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18,-9.223372e+18 -9.223372e+18</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+<startPoint>0 1 26</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="b1">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b1</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="b2">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

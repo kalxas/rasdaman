@@ -40,7 +40,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 <gmlcov:rangeType>
 <swe:DataRecord>
 <swe:field name="Gray">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>Gray</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -61,7 +61,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_2">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_2</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -82,7 +82,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_3">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_3</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -103,7 +103,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_4">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_4</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -124,7 +124,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_5">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_5</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -145,7 +145,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_6">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_6</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -166,7 +166,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_7">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_7</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -187,7 +187,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_8">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_8</swe:label>
 <swe:description/>
 <swe:nilValues>
@@ -208,7 +208,7 @@ id="test_wcs_multiple_null_values_9_bands-point" srsName="/crs-compound?1=/crs/O
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_9">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/float32">
 <swe:label>field_9</swe:label>
 <swe:description/>
 <swe:nilValues>

@@ -361,6 +361,7 @@ public interface XMLSymbols {
     String LABEL_DATA_RECORD = "DataRecord";
     String LABEL_DESCRIPTION = "description";
     String LABEL_CODE = "code";
+    String LABEL_DEFINITION = "definition";
     String LABEL_FIELD = "field";
     String LABEL_LABEL = "label";
     String LABEL_FIELD_NAME = "name";

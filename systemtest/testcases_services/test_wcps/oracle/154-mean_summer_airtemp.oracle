@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_mean_summer_airtemp"
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="Lat Long" srsDimension="2"
-            srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
-            <lowerCorner>-13.475 129.975</lowerCorner>
-            <upperCorner>-11.975 131.475</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>6 36</low>
-                    <high>8 38</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>Lat Long</axisLabels>
-            <origin>
-                <Point id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
-                    <pos>-12.225 130.225</pos>
-                </Point>
-            </origin>
-            <offsetVector srsName="/crs/EPSG/0/4326">-0.5 0</offsetVector>
-            <offsetVector srsName="/crs/EPSG/0/4326">0 0.5</offsetVector>
-        </RectifiedGrid>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">0,0,86,7,100,89,108,91,90</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-            <startPoint>6 36</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="Gray">
-                <swe:Quantity>
-                    <swe:label>Gray</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata/>
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="Lat Lon" srsDimension="2"
+srsName="/crs/EPSG/0/4326" uomLabels="degree degree">
+<lowerCorner>-13.475 129.975</lowerCorner>
+<upperCorner>-11.975 131.475</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_mean_summer_airtemp-grid">
+<limits>
+<GridEnvelope>
+<low>6 36</low>
+<high>8 38</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon</axisLabels>
+<origin>
+<Point
+id="test_mean_summer_airtemp-point" srsName="/crs/EPSG/0/4326">
+<pos>-12.225 130.225</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/EPSG/0/4326">-0.5 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/4326">0 0.5</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0,0,86,7,100,89,108,91,90</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
+<startPoint>6 36</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

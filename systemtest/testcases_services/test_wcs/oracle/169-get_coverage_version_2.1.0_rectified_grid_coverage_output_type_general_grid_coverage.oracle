@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cis11:GeneralGridCoverage id="test_mean_summer_airtemp"
-    
-    
-    
-    
-    
-     >
-    <cis11:Envelope axisLabels="Lat Long" srsDimension="2" srsName="/crs/EPSG/0/4326">
-        <cis11:axisExtent axisLabel="Lat" lowerBound="-44.475"
-            uomLabel="degree" upperBound="-43.975"/>
-        <cis11:axisExtent axisLabel="Long" lowerBound="111.975"
-            uomLabel="degree" upperBound="112.475"/>
-    </cis11:Envelope>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
-            <startPoint>70 0</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <cis11:domainSet>
-        <cis11:generalGrid axisLabels="Lat Long" srsName="/crs/EPSG/0/4326">
-            <cis11:regularAxis axisLabel="Lat" lowerBound="-44.475"
-                resolution="-0.5" uomLabel="degree" upperBound="-43.975"/>
-            <cis11:regularAxis axisLabel="Long" lowerBound="111.975"
-                resolution="0.5" uomLabel="degree" upperBound="112.475"/>
-            <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
-                <cis11:indexAxis axisLabel="i" lowerBound="70" upperBound="70"/>
-                <cis11:indexAxis axisLabel="j" lowerBound="0" upperBound="0"/>
-            </cis11:gridLimits>
-        </cis11:generalGrid>
-    </cis11:domainSet>
-    <cis11:rangeType>
-        <swe:DataRecord>
-            <swe:field name="Gray">
-                <swe:Quantity>
-                    <swe:label>Gray</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </cis11:rangeType>
-    <rangeSet>
-        <rangeSet>
-            <cis11:V>0</cis11:V>
-        </rangeSet>
-    </rangeSet>
-    <cis11:metadata/>
+
+
+
+
+
+>
+<cis11:Envelope axisLabels="Lat Lon" srsDimension="2" srsName="/crs/EPSG/0/4326">
+<cis11:axisExtent axisLabel="Lat" lowerBound="-44.475"
+uomLabel="degree" upperBound="-43.975"/>
+<cis11:axisExtent axisLabel="Lon" lowerBound="111.975"
+uomLabel="degree" upperBound="112.475"/>
+</cis11:Envelope>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1 +2">Linear</sequenceRule>
+<startPoint>70 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<cis11:domainSet>
+<cis11:generalGrid axisLabels="Lat Lon" srsName="/crs/EPSG/0/4326">
+<cis11:regularAxis axisLabel="Lat" lowerBound="-44.475"
+resolution="-0.5" uomLabel="degree" upperBound="-43.975"/>
+<cis11:regularAxis axisLabel="Lon" lowerBound="111.975"
+resolution="0.5" uomLabel="degree" upperBound="112.475"/>
+<cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
+<cis11:indexAxis axisLabel="i" lowerBound="70" upperBound="70"/>
+<cis11:indexAxis axisLabel="j" lowerBound="0" upperBound="0"/>
+</cis11:gridLimits>
+</cis11:generalGrid>
+</cis11:domainSet>
+<cis11:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</cis11:rangeType>
+<rangeSet>
+<rangeSet>
+<cis11:V>0</cis11:V>
+</rangeSet>
+</rangeSet>
+<cis11:metadata/>
 </cis11:GeneralGridCoverage>

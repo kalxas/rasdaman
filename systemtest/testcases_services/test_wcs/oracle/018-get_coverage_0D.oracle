@@ -1,62 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:RectifiedGridCoverage id="test_mr"
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
-            <lowerCorner/>
-            <upperCorner/>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <RectifiedGrid dimension="0" id="test_mr-grid">
-            <limits>
-                <GridEnvelope>
-                    <low/>
-                    <high/>
-                </GridEnvelope>
-            </limits>
-            <axisLabels/>
-            <origin>
-                <Point id="test_mr-point" srsName="">
-                    <pos/>
-                </Point>
-            </origin>
-        </RectifiedGrid>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">10</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="">Linear</sequenceRule>
-            <startPoint/>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="value">
-                <swe:Quantity>
-                    <swe:label>value</swe:label>
-                    <swe:description/>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata>
-        <gmlcov:Extension>
-            <rasdaman:covMetadata >{
-  "resolution": "1"
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
+<lowerCorner/>
+<upperCorner/>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="0" id="test_mr-grid">
+<limits>
+<GridEnvelope>
+<low/>
+<high/>
+</GridEnvelope>
+</limits>
+<axisLabels/>
+<origin>
+<Point
+id="test_mr-point" srsName="">
+<pos/>
+</Point>
+</origin>
+</RectifiedGrid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">10</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="">Linear</sequenceRule>
+<startPoint/>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="value">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>value</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >{
+"resolution": "1"
 }</rasdaman:covMetadata>
-        </gmlcov:Extension>
-    </gmlcov:metadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

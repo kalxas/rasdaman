@@ -88,6 +88,7 @@ public class RangeTypeService {
         NilValues nilValues = this.buildNilValues(rangeField);
         String uomCode = rangeField.getUomCode();        
         Constraint constraint = this.buildConstraint(rangeField);
+        String dataType = rangeField.getDataType();
         
         Quantity quantity = new Quantity();
         quantity.setLabel(label);
@@ -95,6 +96,7 @@ public class RangeTypeService {
         quantity.setNilValues(nilValues);
         quantity.setUomCode(uomCode);
         quantity.setConstraint(constraint);
+        quantity.setDataType(dataType);
 
         return quantity;
     }

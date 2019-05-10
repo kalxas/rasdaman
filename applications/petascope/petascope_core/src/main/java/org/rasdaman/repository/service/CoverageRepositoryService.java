@@ -23,6 +23,7 @@ package org.rasdaman.repository.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,9 +35,11 @@ import org.rasdaman.domain.cis.Coverage;
 import org.rasdaman.domain.cis.DomainSet;
 import org.rasdaman.domain.cis.Envelope;
 import org.rasdaman.domain.cis.EnvelopeByAxis;
+import org.rasdaman.domain.cis.Field;
 import org.rasdaman.domain.cis.GeneralGrid;
 import org.rasdaman.domain.cis.GeneralGridCoverage;
 import org.rasdaman.domain.cis.GeneralGridDomainSet;
+import org.rasdaman.domain.cis.Quantity;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,7 +57,8 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
-import petascope.util.ras.TypeResolverUtil;
+import static petascope.util.ras.TypeResolverUtil.STRUCT;
+
 
 /**
  *
@@ -176,23 +180,8 @@ public class CoverageRepositoryService {
         
         long coverageSize = this.calculateCoverageSizeInBytes(coverageId);
         coverage.setCoverageSizeInBytes(coverageSize);
-
-        // Then, check if rasdaman's collection tile configuration of this coverage is null or not, if it is null, provide the value from rasql
-        if (coverage.getRasdamanRangeSet().getTiling() == null) {
-            // e.g: [0:500,0:500] ALIGNED 4194304
-            String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
-            long oid = coverage.getRasdamanRangeSet().getOid();
-            try {
-                String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
-                coverage.getRasdamanRangeSet().setTiling(tiling);                
-                // Then update coverage to database
-                this.save(coverage);
-            } catch (PetascopeException ex) {
-                // NOTE: In case of removing coverage without updated tiling in coverage object and rasdaman collection was deleted manually, 
-                // this causes exception as no collection found and it can be ignored.
-                log.warn("Cannot retrieve tiling from collection '" + collectionName + "'. Reason: " + ex.getMessage(), ex);
-            }
-        }
+        this.addRasdamanDataTypesForRangeQuantities(coverage);
+        this.addRasdamanTilingConfiguration(coverage);
         
         // NOTE: without it, after coverage's crs is replaced from $SECORE_URL$ to localhost:8080 (from petascope.properties)
         // with a DescribeCoverage request, after the replacement, 
@@ -279,6 +268,61 @@ public class CoverageRepositoryService {
         // Then cache the read coverage's basic metadata
         coveragesCacheMap.put(coverage.getCoverageId(), new Pair<>(coverage, false));
     }
+
+    /**
+     * This persists rasdaman data types for range quantities as they were not saved to petascopedb when inserting coverages
+     * before v9.8.
+     */
+    private void addRasdamanDataTypesForRangeQuantities(Coverage coverage) throws PetascopeException {
+        List<Field> fields = coverage.getRangeType().getDataRecord().getFields();
+        String setType = coverage.getRasdamanRangeSet().getCollectionType();
+        
+        Field firstField = fields.get(0);
+        
+        if (firstField.getQuantity().getDataType() == null) {
+            // Need to update rasdaman type for range
+            TypeRegistryEntry typeEntry = TypeRegistry.getInstance().getTypeRegistry().get(setType);
+            List<String> bandsTypes = typeEntry.getBandsTypes();
+            
+            for (int i = 0; i < fields.size(); i++) {
+                Field field = fields.get(i);
+                Quantity quantity = field.getQuantity();
+                
+                if (bandsTypes.size() == 1) {
+                    // primitive cell type
+                    quantity.setDataType(bandsTypes.get(0));
+                } else {
+                    // struct cell type
+                    quantity.setDataType(bandsTypes.get(i));
+                }
+             }
+            
+            this.save(coverage);
+        }
+    }
+    
+    /**
+     * check if rasdaman's collection tile configuration of this coverage is null or not,
+     * if it is null, provide the value from rasql.
+     */
+    private void addRasdamanTilingConfiguration(Coverage coverage) {       
+        if (coverage.getRasdamanRangeSet().getTiling() == null) {
+            // e.g: [0:500,0:500] ALIGNED 4194304
+            String collectionName = coverage.getRasdamanRangeSet().getCollectionName();
+            long oid = coverage.getRasdamanRangeSet().getOid();
+            try {
+                String tiling = RasUtil.retrieveTilingInfo(collectionName, oid);
+                coverage.getRasdamanRangeSet().setTiling(tiling);                
+                // Then update coverage to database
+                this.save(coverage);
+            } catch (PetascopeException ex) {
+                // NOTE: In case of removing coverage without updated tiling in coverage object and rasdaman collection was deleted manually, 
+                // this causes exception as no collection found and it can be ignored.
+                log.warn("Cannot retrieve tiling from collection '" + collectionName + "'. Reason: " + ex.getMessage(), ex);
+            }
+        }
+    }
+    
 
     /**
      * Read all coverage's basic metadata for WCS GetCapabilities request. Why?

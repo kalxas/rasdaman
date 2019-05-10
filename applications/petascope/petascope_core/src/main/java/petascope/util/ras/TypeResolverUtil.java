@@ -206,7 +206,7 @@ public class TypeResolverUtil {
             if (mdArrayDimensions.equals(numberOfDimensions.toString())) {
                 //get the structured base type
                 String cellType;
-                if (mdArrayType.contains("struct")) {
+                if (mdArrayType.contains(STRUCT)) {
                     //more bands, check for each of them
                     String cellTypeArr = mdArrayType.split("}")[0];
                     cellType = cellTypeArr.split("\\{")[1];
@@ -308,6 +308,8 @@ public class TypeResolverUtil {
         }
         return rasTypes;
     }
+    
+    public static final String STRUCT = "struct";
 
     //rasdaman base types
     public static final String R_Char = "char";
@@ -343,16 +345,32 @@ public class TypeResolverUtil {
     public static final String GDT_Int32 = "Int32";
     public static final String GDT_Float32 = "Float32";
     public static final String GDT_Float64 = "Float64";
+    
+    // opengis base types (http://www.opengis.net/def/dataType/OGC/0/)
+    public static final String OPENGIS_BOOLEAN = "unsignedByte";
+    public static final String OPENGIS_OCTET = "signedByte";
+    public static final String OPENGIS_CHAR = "unsignedByte";
+    public static final String OPENGIS_SHORT = "signedShort";
+    public static final String OPENGIS_USHORT = "unsignedShort";
+    public static final String OPENGIS_LONG = "signedInt";
+    public static final String OPENGIS_ULONG = "unsignedInt";
+    public static final String OPENGIS_FLOAT = "float32";
+    public static final String OPENGIS_DOUBLE = "float64";
+    public static final String OPENGIS_COMPLEX = "cfloat32";
+    public static final String OPENGIS_COMPLEXD = "cfloat64";
 
-    private static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
+    public static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
     private static final HashMap<String, String> RAS_TYPES_TO_ABBREVIATION = new HashMap<String, String>();
     public static final Map<String, Byte> RAS_TYPES_TO_NUMBER_OF_BYTES = new HashMap<String, Byte>();
+    
+    // Convert rasdaman data types to opengis types (e.g: char -> unsignedByte)
+    public static final Map<String, String> RAS_TYPES_TO_OPENGIS_TYPES = new HashMap<>();
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UnsignedShort);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_UnsignedLong);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float32, R_Float);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float64, R_Double);
@@ -382,5 +400,19 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Double, (byte)8);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complex, (byte)8);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complexd, (byte)16);
+
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Boolean, OPENGIS_BOOLEAN);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Octet, OPENGIS_OCTET);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Char, OPENGIS_CHAR);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Short, OPENGIS_SHORT);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_UShort, OPENGIS_USHORT);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_UnsignedShort, OPENGIS_USHORT);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Long, OPENGIS_LONG);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_ULong, OPENGIS_ULONG);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_UnsignedLong, OPENGIS_ULONG);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Float, OPENGIS_FLOAT);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Double, OPENGIS_DOUBLE);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Complex, OPENGIS_COMPLEX);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Complexd, OPENGIS_COMPLEXD);
     }
 }

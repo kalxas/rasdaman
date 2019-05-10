@@ -1,92 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage id="test_irr_cube_2"
-    
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="E N" srsDimension="2"
-            srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
-            <lowerCorner>95042.7273594 5094865.55794</lowerCorner>
-            <upperCorner>105042.7273594 5124865.55794</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_2-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>2 33</low>
-                    <high>2 35</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>E N</axisLabels>
-            <gmlrgrid:origin>
-                <Point id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
-                    <pos>100042.7273594 5119865.55794</pos>
-                </Point>
-            </gmlrgrid:origin>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">10000 0</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">0 -10000</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients/>
-                    <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-        </gmlrgrid:ReferenceableGridByVectors>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">8.850337 4.168553,8.714869 4.170761,8.644511 4.172546</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
-            <startPoint>2 33</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="b1">
-                <swe:Quantity>
-                    <swe:label>b1</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-            <swe:field name="b2">
-                <swe:Quantity>
-                    <swe:label>b2</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata/>
+<gmlcov:ReferenceableGridCoverage
+id="test_irr_cube_2"
+
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="E N" srsDimension="2"
+srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
+<lowerCorner>95042.7273594 5094865.55794</lowerCorner>
+<upperCorner>105042.7273594 5124865.55794</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="2" gmlrgrid:id="test_irr_cube_2-grid">
+<limits>
+<GridEnvelope>
+<low>2 33</low>
+<high>2 35</high>
+</GridEnvelope>
+</limits>
+<axisLabels>E N</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
+<pos>100042.7273594 5119865.55794</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">10000 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633">0 -10000</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">8.850337 4.168553,8.714869 4.170761,8.644511 4.172546</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>2 33</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="b1">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b1</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="b2">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

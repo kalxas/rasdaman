@@ -1,101 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-    
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_irr_cube_2">
-        <boundedBy>
-            <Envelope axisLabels="ansi E N" srsDimension="3"
-                srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
-                <lowerCorner>"2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794</lowerCorner>
-                <upperCorner>"2008-01-08T00:02:58.000Z" 705042.727359 5454865.55794</upperCorner>
-            </Envelope>
-        </boundedBy>
-        <wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
-        <gmlcov:metadata/>
-        <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
-                <limits>
-                    <GridEnvelope>
-                        <low>0 0 0</low>
-                        <high>3 62 35</high>
-                    </GridEnvelope>
-                </limits>
-                <axisLabels>ansi E N</axisLabels>
-                <gmlrgrid:origin>
-                    <Point id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-                        <pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</pos>
-                    </Point>
-                </gmlrgrid:origin>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
-                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 10000 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 0 -10000</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-            </gmlrgrid:ReferenceableGridByVectors>
-        </domainSet>
-        <gmlcov:rangeType>
-            <swe:DataRecord>
-                <swe:field name="b1">
-                    <swe:Quantity>
-                        <swe:label>b1</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-                <swe:field name="b2">
-                    <swe:Quantity>
-                        <swe:label>b2</swe:label>
-                        <swe:description/>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-            </swe:DataRecord>
-        </gmlcov:rangeType>
-        <wcs:ServiceParameters>
-            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
-            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-        </wcs:ServiceParameters>
-    </wcs:CoverageDescription>
+
+
+
+
+
+
+>
+<wcs:CoverageDescription id="test_irr_cube_2">
+<boundedBy>
+<Envelope axisLabels="ansi E N" srsDimension="3"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
+<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794</lowerCorner>
+<upperCorner>"2008-01-08T00:02:58.000Z" 705042.727359 5454865.55794</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_irr_cube_2</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata/>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_irr_cube_2-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>3 62 35</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi E N</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
+<pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5449865.55794</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 10000 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">0 0 -10000</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="b1">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b1</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="b2">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

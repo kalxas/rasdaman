@@ -797,6 +797,42 @@ primitive quantity with ``unsigned char`` values is the following:
         </swe:DataRecord>
     </gmlcov:rangeType>
 
+The set of standard rasdaman data types, materializes the base types defined
+in the ODMG standard, which is converted to SWE Quantity elements'
+*defintion* attributes by table below:
+
+.. table:: rasdaman base types to Quantity's definition types
+
+    +--------------------+------------+------------------------------------------+
+    | **rasdaman types** | **size**   | **Quantity's definition types**           |
+    +====================+============+==========================================+
+    | ``boolean``        | 8 bit      | unsignedByte                             |
+    +--------------------+------------+------------------------------------------+
+    | ``octet``          | 8 bit      | signedByte                               |
+    +--------------------+------------+------------------------------------------+
+    | ``char``           | 8 bit      | unsignedByte                             |
+    +--------------------+------------+------------------------------------------+
+    | ``short``          | 16 bit     | signedShort                              |
+    +--------------------+------------+------------------------------------------+
+    | ``unsigned short`` | 16 bit     | unsignedShort                            |
+    | / ``ushort``       |            |                                          |
+    +--------------------+------------+------------------------------------------+
+    | ``long``           | 32 bit     | signedInt                                |
+    +--------------------+------------+------------------------------------------+
+    | ``unsigned long``  | 32 bit     | unsignedInt                              |
+    | / ``ulong``        |            |                                          |
+    +--------------------+------------+------------------------------------------+
+    | ``float``          | 32 bit     | float32                                  |
+    +--------------------+------------+------------------------------------------+
+    | ``double``         | 64 bit     | float64                                  |
+    +--------------------+------------+------------------------------------------+
+    | ``complex``        | 64 bit     | cfloat32                                 |
+    +--------------------+------------+------------------------------------------+
+    | ``complexd``       | 128 bit    | cfloat64                                 |
+    +--------------------+------------+------------------------------------------+
+
+
+
 Note that a quantity can be associated with multiple allowed intervals, as by
 SWE specifications.
 

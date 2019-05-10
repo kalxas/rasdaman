@@ -44,7 +44,7 @@ id="test_pre_hook_merge_3_bands-point" srsName="/crs/EPSG/0/32632">
 <gmlcov:rangeType>
 <swe:DataRecord>
 <swe:field name="Gray">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedShort">
 <swe:label>Gray</swe:label>
 <swe:description/>
 <swe:uom code="10^0"/>
@@ -52,7 +52,7 @@ id="test_pre_hook_merge_3_bands-point" srsName="/crs/EPSG/0/32632">
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_2">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedShort">
 <swe:label>field_2</swe:label>
 <swe:description/>
 <swe:uom code="10^0"/>
@@ -60,7 +60,7 @@ id="test_pre_hook_merge_3_bands-point" srsName="/crs/EPSG/0/32632">
 </swe:Quantity>
 </swe:field>
 <swe:field name="field_3">
-<swe:Quantity>
+<swe:Quantity definition="/dataType/OGC/0/unsignedShort">
 <swe:label>field_3</swe:label>
 <swe:description/>
 <swe:uom code="10^0"/>

@@ -1,84 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gmlcov:ReferenceableGridCoverage id="test_irr_cube_2"
-    
-    
-    
-    
-    
-    
-     >
-    <boundedBy>
-        <Envelope axisLabels="ansi" srsDimension="1"
-            srsName="/crs/OGC/0/AnsiDate" uomLabels="d">
-            <lowerCorner>"2008-01-01T02:01:20.000Z"</lowerCorner>
-            <upperCorner>"2008-01-08T00:02:58.000Z"</upperCorner>
-        </Envelope>
-    </boundedBy>
-    <domainSet>
-        <gmlrgrid:ReferenceableGridByVectors dimension="1" gmlrgrid:id="test_irr_cube_2-grid">
-            <limits>
-                <GridEnvelope>
-                    <low>0</low>
-                    <high>3</high>
-                </GridEnvelope>
-            </limits>
-            <axisLabels>ansi</axisLabels>
-            <gmlrgrid:origin>
-                <Point id="test_irr_cube_2-point" srsName="/crs/OGC/0/AnsiDate">
-                    <pos>"2008-01-01T02:01:20.000Z"</pos>
-                </Point>
-            </gmlrgrid:origin>
-            <gmlrgrid:generalGridAxis>
-                <gmlrgrid:GeneralGridAxis>
-                    <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate">1</gmlrgrid:offsetVector>
-                    <gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
-                    <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-                    <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                </gmlrgrid:GeneralGridAxis>
-            </gmlrgrid:generalGridAxis>
-        </gmlrgrid:ReferenceableGridByVectors>
-    </domainSet>
-    <rangeSet>
-        <DataBlock>
-            <rangeParameters/>
-            <tupleList cs=" " ts=",">8.644511 4.172546,8.644511 4.172546,8.644511 4.172546,8.644511 4.172546</tupleList>
-        </DataBlock>
-    </rangeSet>
-    <coverageFunction>
-        <GridFunction>
-            <sequenceRule axisOrder="+1">Linear</sequenceRule>
-            <startPoint>0</startPoint>
-        </GridFunction>
-    </coverageFunction>
-    <gmlcov:rangeType>
-        <swe:DataRecord>
-            <swe:field name="b1">
-                <swe:Quantity>
-                    <swe:label>b1</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-            <swe:field name="b2">
-                <swe:Quantity>
-                    <swe:label>b2</swe:label>
-                    <swe:description/>
-                    <swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>
-                    <swe:uom code="10^0"/>
-                    <swe:constraint/>
-                </swe:Quantity>
-            </swe:field>
-        </swe:DataRecord>
-    </gmlcov:rangeType>
-    <gmlcov:metadata/>
+<gmlcov:ReferenceableGridCoverage
+id="test_irr_cube_2"
+
+
+
+
+
+
+>
+<boundedBy>
+<Envelope axisLabels="ansi" srsDimension="1"
+srsName="/crs/OGC/0/AnsiDate" uomLabels="d">
+<lowerCorner>"2008-01-01T02:01:20.000Z"</lowerCorner>
+<upperCorner>"2008-01-08T00:02:58.000Z"</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="1" gmlrgrid:id="test_irr_cube_2-grid">
+<limits>
+<GridEnvelope>
+<low>0</low>
+<high>3</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_irr_cube_2-point" srsName="/crs/OGC/0/AnsiDate">
+<pos>"2008-01-01T02:01:20.000Z"</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate">1</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2008-01-01T02:01:20.000Z" "2008-01-03T23:59:55.000Z" "2008-01-05T01:58:30.000Z" "2008-01-08T00:02:58.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">8.644511 4.172546,8.644511 4.172546,8.644511 4.172546,8.644511 4.172546</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+1">Linear</sequenceRule>
+<startPoint>0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="b1">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b1</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="b2">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>b2</swe:label>
+<swe:description/>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-9.22337204e+18</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

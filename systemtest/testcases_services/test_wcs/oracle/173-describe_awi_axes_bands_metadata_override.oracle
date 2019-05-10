@@ -1,182 +1,182 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-    
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_awi_axes_band_local_metadata_override">
-        <boundedBy>
-            <Envelope axisLabels="Lat Lon ansi" srsDimension="3"
-                srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
-                <lowerCorner>39.99999866666666666666666667 25.000007 "2000-01-01T00:00:00.000Z"</lowerCorner>
-                <upperCorner>40.99999733333333333333333333 25.083339 "2000-01-01T00:00:00.000Z"</upperCorner>
-            </Envelope>
-        </boundedBy>
-        <wcs:CoverageId>test_awi_axes_band_local_metadata_override</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
-        <gmlcov:metadata>
-            <gmlcov:Extension>
-                <rasdaman:covMetadata >{
-  "bands" : {
-    "CHL1_mean" : {
-      "units" : "mg/m3",
-      "long_name" : "Chlorophyll concentration - Mean of the binned pixels",
-      "standard_name" : "mass_concentration_of_chlorophyll_a_in_sea_water",
-      "pct_characterised_error" : "43.31",
-      "_FillValue" : "-999.0"
-    }
-  },
-  "axes" : {
-    "Lat" : {
-      "units" : "degrees_north",
-      "long_name" : "latitude",
-      "axis" : "Y"
-    },
-    "Lon" : {
-      "units" : "degrees_east",
-      "long_name" : "longitude",
-      "axis" : "X"
-    }
-  },
-  "slices" : {
-    "slice" : [ {
-      "boundedBy" : {
-        "Envelope" : {
-          "axisLabels" : "Lat Lon ansi",
-          "srsDimension" : 3,
-          "lowerCorner" : "39.99999866666666666666666667 25.0000070 \"2000-01-01T00:00:00+00:00\"",
-          "upperCorner" : "40.99999733333333333333333333 25.0833390 \"2000-01-01T00:00:00+00:00\""
-        }
-      },
-      "history" : "Thu Feb  7 13:43:23 2019: ncks -d lat,40.0,41.0 -d lon,25.0,25.1 L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc -O output.nc\n20171027T104149Z: globcolour_l3_reproject.sh -inlist /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -outdir /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -startdataday 20000101 -enddataday 20000101 -projwin -180 90 180 -90 -insitename GLOB -outsitename GLOB -resolutioncode 4 -resolution 0.041666666666666664 -resolutionx 0.041666666666666664 -parameters CHL1 CDM BBP -tmpdir /work/scratch"
-    } ]
-  },
-  "site_name" : "GLOB",
-  "processing_time" : "20171027T104149Z",
-  "parameter_code" : "CHL1",
-  "product_version" : "2017.2",
-  "max_east_grid" : "180.0",
-  "max_west_grid" : "-180.0",
-  "references" : "http://www.globcolour.info",
-  "registration" : "5",
-  "nb_grid_bins" : "37324800",
-  "lon_step" : "0.0416667",
-  "spatial_resolution" : "4.63831",
-  "max_south_grid" : "-90.0",
-  "publication" : "Maritorena, S. and Siegel, D.A. 2005. Consistent Merging of Satellite Ocean Colour Data Sets Using a Bio-Optical Model. Remote Sensing of Environment, 94, 4, 429-440.        Maritorena S., O. Hembise Fanton d Andon, A. Mangin, and D.A. Siegel. 2010. Merged Satellite Ocean Color Data Products Using a Bio-Optical Model: Characteristics, Benefits and Issues. Remote Sensing of Environment, 114, 8: 1791-1804.",
-  "copyright" : "Copyright ACRI-ST - GlobColour. GlobColour has been originally funded by ESA with data from ESA, NASA, NOAA and GeoEye. This reprocessing version has received funding from the European Community s Seventh Framework Programme ([FP7/2007-2013]) under grant agreement n. 282723 [OSS2015 project].",
-  "title" : "GlobColour daily SeaWiFS product",
-  "period_end_day" : "20000101",
-  "duration_time" : "PT104893S",
-  "max_north_grid" : "90.0",
-  "DPM_reference" : "GC-UD-ACRI-PUG",
-  "lat_step" : "0.0416667",
-  "pct_valid_bins" : "6.18931",
-  "northernmost_latitude" : "46.4167",
-  "IODD_reference" : "GC-UD-ACRI-PUG",
-  "nb_equ_bins" : "8640",
-  "product_name" : "L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc",
-  "grid_type" : "Equirectangular",
-  "product_level" : "3",
-  "period_start_day" : "20000101",
-  "software_name" : "globcolour_l3_reproject",
-  "input_files_reprocessings" : "(2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0)",
-  "software_version" : "2017.2",
-  "parameter_algo_list" : "GSM method",
-  "nb_valid_bins" : "2310148",
-  "start_time" : "19991231T200528Z",
-  "NCO" : "4.4.4",
-  "nb_bins" : "37324800",
-  "netcdf_version" : "4.3.3.1 of Jul  8 2016 18:15:50 $",
-  "sensor_name_list" : "SWF",
-  "institution" : "ACRI",
-  "input_files" : "S1999365193022.L2_GAC_OC.nc,S1999365210919.L2_GAC_OC.nc,S1999365224816.L2_GAC_OC.nc,S2000001002712.L2_GAC_OC.nc,S2000001020609.L2_GAC_OC.nc,S2000001034506.L2_GAC_OC.nc,S2000001052405.L2_GAC_OC.nc,S2000001070259.L2_GAC_OC.nc,S2000001084155.L2_GAC_OC.nc,S2000001102052.L2_GAC_OC.nc,S2000001115949.L2_GAC_OC.nc,S2000001133845.L2_GAC_OC.nc,S2000001151742.L2_GAC_OC.nc,S2000001165111.L2_GAC_OC.nc,S2000001170017.L2_GAC_OC.nc,S2000001183535.L2_GAC_OC.nc,S2000001201432.L2_GAC_OC.nc,S2000001215329.L2_GAC_OC.nc,S2000001233225.L2_GAC_OC.nc,S2000002011122.L2_GAC_OC.nc",
-  "sensor_name" : "GSM",
-  "product_type" : "day",
-  "sensor" : "Garver-Siegel-Maritorena",
-  "parameter" : "Chlorophyll concentration",
-  "easternmost_longitude" : "180.0",
-  "Conventions" : "CF-1.4",
-  "contact" : "service@globcolour.info",
-  "westernmost_longitude" : "-180.0",
-  "end_time" : "20000102T011340Z",
-  "earth_radius" : "6378.137",
-  "southernmost_latitude" : "-78.1667",
-  "pct_bins" : "100.0",
-  "period_duration_day" : "P1D",
-  "history" : "Thu Feb  7 13:43:23 2019: ncks -d lat,40.0,41.0 -d lon,25.0,25.1 L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc -O output.nc\n20171027T104149Z: globcolour_l3_reproject.sh -inlist /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -outdir /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -startdataday 20000101 -enddataday 20000101 -projwin -180 90 180 -90 -insitename GLOB -outsitename GLOB -resolutioncode 4 -resolution 0.041666666666666664 -resolutionx 0.041666666666666664 -parameters CHL1 CDM BBP -tmpdir /work/scratch"
+
+
+
+
+
+
+>
+<wcs:CoverageDescription id="test_awi_axes_band_local_metadata_override">
+<boundedBy>
+<Envelope axisLabels="Lat Lon ansi" srsDimension="3"
+srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
+<lowerCorner>39.99999866666666666666666667 25.000007 "2000-01-01T00:00:00.000Z"</lowerCorner>
+<upperCorner>40.99999733333333333333333333 25.083339 "2000-01-01T00:00:00.000Z"</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_awi_axes_band_local_metadata_override</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1 +3">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >{
+"bands" : {
+"CHL1_mean" : {
+"units" : "mg/m3",
+"long_name" : "Chlorophyll concentration - Mean of the binned pixels",
+"standard_name" : "mass_concentration_of_chlorophyll_a_in_sea_water",
+"pct_characterised_error" : "43.31",
+"_FillValue" : "-999.0"
+}
+},
+"axes" : {
+"Lat" : {
+"units" : "degrees_north",
+"long_name" : "latitude",
+"axis" : "Y"
+},
+"Lon" : {
+"units" : "degrees_east",
+"long_name" : "longitude",
+"axis" : "X"
+}
+},
+"slices" : {
+"slice" : [ {
+"boundedBy" : {
+"Envelope" : {
+"axisLabels" : "Lat Lon ansi",
+"srsDimension" : 3,
+"lowerCorner" : "39.99999866666666666666666667 25.0000070 \"2000-01-01T00:00:00+00:00\"",
+"upperCorner" : "40.99999733333333333333333333 25.0833390 \"2000-01-01T00:00:00+00:00\""
+}
+},
+"history" : "Thu Feb  7 13:43:23 2019: ncks -d lat,40.0,41.0 -d lon,25.0,25.1 L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc -O output.nc\n20171027T104149Z: globcolour_l3_reproject.sh -inlist /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -outdir /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -startdataday 20000101 -enddataday 20000101 -projwin -180 90 180 -90 -insitename GLOB -outsitename GLOB -resolutioncode 4 -resolution 0.041666666666666664 -resolutionx 0.041666666666666664 -parameters CHL1 CDM BBP -tmpdir /work/scratch"
+} ]
+},
+"site_name" : "GLOB",
+"processing_time" : "20171027T104149Z",
+"parameter_code" : "CHL1",
+"product_version" : "2017.2",
+"max_east_grid" : "180.0",
+"max_west_grid" : "-180.0",
+"references" : "http://www.globcolour.info",
+"registration" : "5",
+"nb_grid_bins" : "37324800",
+"lon_step" : "0.0416667",
+"spatial_resolution" : "4.63831",
+"max_south_grid" : "-90.0",
+"publication" : "Maritorena, S. and Siegel, D.A. 2005. Consistent Merging of Satellite Ocean Colour Data Sets Using a Bio-Optical Model. Remote Sensing of Environment, 94, 4, 429-440.        Maritorena S., O. Hembise Fanton d Andon, A. Mangin, and D.A. Siegel. 2010. Merged Satellite Ocean Color Data Products Using a Bio-Optical Model: Characteristics, Benefits and Issues. Remote Sensing of Environment, 114, 8: 1791-1804.",
+"copyright" : "Copyright ACRI-ST - GlobColour. GlobColour has been originally funded by ESA with data from ESA, NASA, NOAA and GeoEye. This reprocessing version has received funding from the European Community s Seventh Framework Programme ([FP7/2007-2013]) under grant agreement n. 282723 [OSS2015 project].",
+"title" : "GlobColour daily SeaWiFS product",
+"period_end_day" : "20000101",
+"duration_time" : "PT104893S",
+"max_north_grid" : "90.0",
+"DPM_reference" : "GC-UD-ACRI-PUG",
+"lat_step" : "0.0416667",
+"pct_valid_bins" : "6.18931",
+"northernmost_latitude" : "46.4167",
+"IODD_reference" : "GC-UD-ACRI-PUG",
+"nb_equ_bins" : "8640",
+"product_name" : "L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc",
+"grid_type" : "Equirectangular",
+"product_level" : "3",
+"period_start_day" : "20000101",
+"software_name" : "globcolour_l3_reproject",
+"input_files_reprocessings" : "(2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0, 2014.0)",
+"software_version" : "2017.2",
+"parameter_algo_list" : "GSM method",
+"nb_valid_bins" : "2310148",
+"start_time" : "19991231T200528Z",
+"NCO" : "4.4.4",
+"nb_bins" : "37324800",
+"netcdf_version" : "4.3.3.1 of Jul  8 2016 18:15:50 $",
+"sensor_name_list" : "SWF",
+"institution" : "ACRI",
+"input_files" : "S1999365193022.L2_GAC_OC.nc,S1999365210919.L2_GAC_OC.nc,S1999365224816.L2_GAC_OC.nc,S2000001002712.L2_GAC_OC.nc,S2000001020609.L2_GAC_OC.nc,S2000001034506.L2_GAC_OC.nc,S2000001052405.L2_GAC_OC.nc,S2000001070259.L2_GAC_OC.nc,S2000001084155.L2_GAC_OC.nc,S2000001102052.L2_GAC_OC.nc,S2000001115949.L2_GAC_OC.nc,S2000001133845.L2_GAC_OC.nc,S2000001151742.L2_GAC_OC.nc,S2000001165111.L2_GAC_OC.nc,S2000001170017.L2_GAC_OC.nc,S2000001183535.L2_GAC_OC.nc,S2000001201432.L2_GAC_OC.nc,S2000001215329.L2_GAC_OC.nc,S2000001233225.L2_GAC_OC.nc,S2000002011122.L2_GAC_OC.nc",
+"sensor_name" : "GSM",
+"product_type" : "day",
+"sensor" : "Garver-Siegel-Maritorena",
+"parameter" : "Chlorophyll concentration",
+"easternmost_longitude" : "180.0",
+"Conventions" : "CF-1.4",
+"contact" : "service@globcolour.info",
+"westernmost_longitude" : "-180.0",
+"end_time" : "20000102T011340Z",
+"earth_radius" : "6378.137",
+"southernmost_latitude" : "-78.1667",
+"pct_bins" : "100.0",
+"period_duration_day" : "P1D",
+"history" : "Thu Feb  7 13:43:23 2019: ncks -d lat,40.0,41.0 -d lon,25.0,25.1 L3m_20000101__GLOB_4_GSM-SWF_CHL1_DAY_00.nc -O output.nc\n20171027T104149Z: globcolour_l3_reproject.sh -inlist /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -outdir /mount/dmz29/prod_data/globcolour/data/GLOB/merged/day/2000/01/01 -startdataday 20000101 -enddataday 20000101 -projwin -180 90 180 -90 -insitename GLOB -outsitename GLOB -resolutioncode 4 -resolution 0.041666666666666664 -resolutionx 0.041666666666666664 -parameters CHL1 CDM BBP -tmpdir /work/scratch"
 }</rasdaman:covMetadata>
-            </gmlcov:Extension>
-        </gmlcov:metadata>
-        <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_awi_axes_band_local_metadata_override-grid">
-                <limits>
-                    <GridEnvelope>
-                        <low>0 0 0</low>
-                        <high>23 1 0</high>
-                    </GridEnvelope>
-                </limits>
-                <axisLabels>Lat Lon ansi</axisLabels>
-                <gmlrgrid:origin>
-                    <Point
-                        id="test_awi_axes_band_local_metadata_override-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                        <pos>40.97916399999999999999999999666666666667 25.02084 "2000-01-01T00:00:00.000Z"</pos>
-                    </Point>
-                </gmlrgrid:origin>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-0.04166666666666666666666666666666666666 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0.041666 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2000-01-01T00:00:00.000Z"</gmlrgrid:coefficients>
-                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-            </gmlrgrid:ReferenceableGridByVectors>
-        </domainSet>
-        <gmlcov:rangeType>
-            <swe:DataRecord>
-                <swe:field name="Chlorophyll-a">
-                    <swe:Quantity>
-                        <swe:label>Chlorophyll-a</swe:label>
-                        <swe:description>Chlorophyll-a concentration in mg/m3</swe:description>
-                        <swe:nilValues>
-                            <swe:NilValues>
-                                <swe:nilValue reason="">-999.0</swe:nilValue>
-                            </swe:NilValues>
-                        </swe:nilValues>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-            </swe:DataRecord>
-        </gmlcov:rangeType>
-        <wcs:ServiceParameters>
-            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
-            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-        </wcs:ServiceParameters>
-    </wcs:CoverageDescription>
+</gmlcov:Extension>
+</gmlcov:metadata>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_awi_axes_band_local_metadata_override-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>23 1 0</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon ansi</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_awi_axes_band_local_metadata_override-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
+<pos>40.97916399999999999999999999666666666667 25.02084 "2000-01-01T00:00:00.000Z"</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-0.04166666666666666666666666666666666666 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0.041666 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2000-01-01T00:00:00.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Chlorophyll-a">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>Chlorophyll-a</swe:label>
+<swe:description>Chlorophyll-a concentration in mg/m3</swe:description>
+<swe:nilValues>
+<swe:NilValues>
+<swe:nilValue reason="">-999.0</swe:nilValue>
+</swe:NilValues>
+</swe:nilValues>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
 </wcs:CoverageDescriptions>

@@ -1,116 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-    
-    
-    
-    
-    
-    
-     >
-    <wcs:CoverageDescription id="test_wcs_local_metadata_tiff">
-        <boundedBy>
-            <Envelope axisLabels="Lat Lon ansi" srsDimension="3"
-                srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
-                <lowerCorner>-44.975 111.975 "2003-01-01T00:00:00.000Z"</lowerCorner>
-                <upperCorner>-8.975 155.975 "2003-10-01T00:00:00.000Z"</upperCorner>
-            </Envelope>
-        </boundedBy>
-        <wcs:CoverageId>test_wcs_local_metadata_tiff</wcs:CoverageId>
-        <coverageFunction>
-            <GridFunction>
-                <sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
-                <startPoint>0 0 0</startPoint>
-            </GridFunction>
-        </coverageFunction>
-        <gmlcov:metadata>
-            <gmlcov:Extension>
-                <rasdaman:covMetadata >
-                    <bands/>
-                    <axes/>
-                    <slices>
-                        <slice>
-                            <boundedBy>
-                                <Envelope>
-                                    <axisLabels>Lat Lon ansi</axisLabels>
-                                    <srsDimension>3</srsDimension>
-                                    <lowerCorner>-44.975 111.975 "2003-01-01T00:00:00+00:00"</lowerCorner>
-                                    <upperCorner>-8.975 155.975 "2003-01-01T00:00:00+00:00"</upperCorner>
-                                </Envelope>
-                            </boundedBy>
-                            <local_metadata_key>value_1</local_metadata_key>
-                        </slice>
-                        <slice>
-                            <boundedBy>
-                                <Envelope>
-                                    <axisLabels>Lat Lon ansi</axisLabels>
-                                    <srsDimension>3</srsDimension>
-                                    <lowerCorner>-44.975 111.975 "2003-10-01T00:00:00+00:00"</lowerCorner>
-                                    <upperCorner>-8.975 155.975 "2003-10-01T00:00:00+00:00"</upperCorner>
-                                </Envelope>
-                            </boundedBy>
-                            <local_metadata_key>value_2</local_metadata_key>
-                        </slice>
-                    </slices>
-                    <Title>Drought code</Title>
-                </rasdaman:covMetadata>
-            </gmlcov:Extension>
-        </gmlcov:metadata>
-        <domainSet>
-            <gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_tiff-grid">
-                <limits>
-                    <GridEnvelope>
-                        <low>0 0 0</low>
-                        <high>35 43 1</high>
-                    </GridEnvelope>
-                </limits>
-                <axisLabels>Lat Lon ansi</axisLabels>
-                <gmlrgrid:origin>
-                    <Point
-                        id="test_wcs_local_metadata_tiff-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
-                        <pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</pos>
-                    </Point>
-                </gmlrgrid:origin>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-1 0 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 1 0</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients/>
-                        <gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-                <gmlrgrid:generalGridAxis>
-                    <gmlrgrid:GeneralGridAxis>
-                        <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
-                        <gmlrgrid:coefficients>"2003-01-01T00:00:00.000Z" "2003-10-01T00:00:00.000Z"</gmlrgrid:coefficients>
-                        <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
-                        <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-                    </gmlrgrid:GeneralGridAxis>
-                </gmlrgrid:generalGridAxis>
-            </gmlrgrid:ReferenceableGridByVectors>
-        </domainSet>
-        <gmlcov:rangeType>
-            <swe:DataRecord>
-                <swe:field name="Gray">
-                    <swe:Quantity>
-                        <swe:label>Gray</swe:label>
-                        <swe:description/>
-                        <swe:uom code="10^0"/>
-                        <swe:constraint/>
-                    </swe:Quantity>
-                </swe:field>
-            </swe:DataRecord>
-        </gmlcov:rangeType>
-        <wcs:ServiceParameters>
-            <wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
-            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-        </wcs:ServiceParameters>
-    </wcs:CoverageDescription>
+
+
+
+
+
+
+>
+<wcs:CoverageDescription id="test_wcs_local_metadata_tiff">
+<boundedBy>
+<Envelope axisLabels="Lat Lon ansi" srsDimension="3"
+srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate" uomLabels="degree degree d">
+<lowerCorner>-44.975 111.975 "2003-01-01T00:00:00.000Z"</lowerCorner>
+<upperCorner>-8.975 155.975 "2003-10-01T00:00:00.000Z"</upperCorner>
+</Envelope>
+</boundedBy>
+<wcs:CoverageId>test_wcs_local_metadata_tiff</wcs:CoverageId>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+3 +1 +2">Linear</sequenceRule>
+<startPoint>0 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata >
+<bands/>
+<axes/>
+<slices>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>Lat Lon ansi</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>-44.975 111.975 "2003-01-01T00:00:00+00:00"</lowerCorner>
+<upperCorner>-8.975 155.975 "2003-01-01T00:00:00+00:00"</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_1</local_metadata_key>
+</slice>
+<slice>
+<boundedBy>
+<Envelope>
+<axisLabels>Lat Lon ansi</axisLabels>
+<srsDimension>3</srsDimension>
+<lowerCorner>-44.975 111.975 "2003-10-01T00:00:00+00:00"</lowerCorner>
+<upperCorner>-8.975 155.975 "2003-10-01T00:00:00+00:00"</upperCorner>
+</Envelope>
+</boundedBy>
+<local_metadata_key>value_2</local_metadata_key>
+</slice>
+</slices>
+<Title>Drought code</Title>
+</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="3" gmlrgrid:id="test_wcs_local_metadata_tiff-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 0</low>
+<high>35 43 1</high>
+</GridEnvelope>
+</limits>
+<axisLabels>Lat Lon ansi</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_wcs_local_metadata_tiff-point" srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">
+<pos>-9.475 112.475 "2003-01-01T00:00:00.000Z"</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">-1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 1 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/4326&amp;2=/crs/OGC/0/AnsiDate">0 0 1</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2003-01-01T00:00:00.000Z" "2003-10-01T00:00:00.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Gray">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Gray</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<wcs:ServiceParameters>
+<wcs:CoverageSubtype>ReferenceableGridCoverage</wcs:CoverageSubtype>
+<wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+</wcs:ServiceParameters>
+</wcs:CoverageDescription>
 </wcs:CoverageDescriptions>
