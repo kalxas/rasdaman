@@ -2,6 +2,6 @@ service=WCS&
 version=2.0.1&
 request=GetCoverage&
 coverageId=test_irr_cube_2&
-subset=E(75042.7273594,75042.7273594)&
+subset=E(75042.72735943,75042.72735943)&
 subset=N(5094865.55794,5094865.55794)&
 scalefactor=1.0000001

@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wcs:CoverageDescriptions 
-
-
-
-
-
-
 >
 <wcs:CoverageDescription id="test_slice_group_size_7days">
 <boundedBy>
@@ -13,8 +7,8 @@
 axisLabels="timeeeeeeeeeeeeeee laaaaaaaaaaaaaaat longgggggggggggggg"
 srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="d degree degree">
-<lowerCorner>"2003-12-20T00:00:00.000Z" -44.475 111.975</lowerCorner>
-<upperCorner>"2003-12-27T00:00:00.000Z" -8.975 156.475</upperCorner>
+<lowerCorner>"2003-12-20T00:00:00.000Z" -44.474999999999987 111.975</lowerCorner>
+<upperCorner>"2003-12-27T00:00:00.000Z" -8.974999999999987 156.475</upperCorner>
 </Envelope>
 </boundedBy>
 <wcs:CoverageId>test_slice_group_size_7days</wcs:CoverageId>
@@ -26,7 +20,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 </coverageFunction>
 <gmlcov:metadata>
 <gmlcov:Extension>
-<rasdaman:covMetadata >
+<rasdaman:covMetadata>
 <Title>This is a test coverage</Title>
 </rasdaman:covMetadata>
 </gmlcov:Extension>
@@ -43,7 +37,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326" uomLabels="
 <gmlrgrid:origin>
 <Point
 id="test_slice_group_size_7days-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/4326">
-<pos>"2003-12-20T00:00:00.000Z" -9.225 112.225</pos>
+<pos>"2003-12-20T00:00:00.000Z" -9.224999999999987 112.225</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

@@ -604,9 +604,8 @@ public class GMLGetCapabilitiesBuilder {
      */
     private Element buildContentsElement(String version) throws PetascopeException, SecoreException {
         Element contentsElement = new Element(XMLUtil.createXMLLabel(PREFIX_WCS, LABEL_CONTENTS), this.getWCSNameSpace(version));
-        this.persistedCoverageService.createAllCoveragesExtents();
-
         List<Pair<Coverage, Boolean>> importedCoveragePairs = this.persistedCoverageService.readAllCoveragesBasicMetatata();
+        this.persistedCoverageService.createAllCoveragesExtents();
 
         // Children elements (list of all imported coverage)
         for (Pair<Coverage, Boolean> coveragePair : importedCoveragePairs) {

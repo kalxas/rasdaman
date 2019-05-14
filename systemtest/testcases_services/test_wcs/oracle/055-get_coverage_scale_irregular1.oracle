@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_irr_cube_2"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="ansi E N" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
-<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.7273594 5094865.55794</lowerCorner>
-<upperCorner>"2008-01-08T00:02:58.000Z" 75042.7273594 5094865.55794</upperCorner>
+<lowerCorner>"2008-01-01T02:01:20.000Z" 75042.72735943 5094865.557938452</lowerCorner>
+<upperCorner>"2008-01-08T00:02:58.000Z" 75042.72735943 5094865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -27,7 +21,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <gmlrgrid:origin>
 <Point
 id="test_irr_cube_2-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<pos>"2008-01-01T02:01:20.000Z" 80042.7273594 5089865.55794</pos>
+<pos>"2008-01-01T02:01:20.000Z" 80042.72735943 5089865.557938452</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cis11:GeneralGridCoverage id="test_irr_cube_2"
-
-
-
-
-
 >
 <cis11:Envelope axisLabels="E N" srsDimension="2" srsName="/crs/EPSG/0/32633">
-<cis11:axisExtent axisLabel="E" lowerBound="75042.7273594"
-uomLabel="metre" upperBound="75042.7273594"/>
-<cis11:axisExtent axisLabel="N" lowerBound="5094865.55794"
-uomLabel="metre" upperBound="5094865.55794"/>
+<cis11:axisExtent axisLabel="E" lowerBound="75042.72735943"
+uomLabel="metre" upperBound="75042.72735943"/>
+<cis11:axisExtent axisLabel="N" lowerBound="5094865.557938452"
+uomLabel="metre" upperBound="5094865.557938452"/>
 </cis11:Envelope>
 <coverageFunction>
 <GridFunction>
@@ -20,10 +15,11 @@ uomLabel="metre" upperBound="5094865.55794"/>
 </coverageFunction>
 <cis11:domainSet>
 <cis11:generalGrid axisLabels="E N" srsName="/crs/EPSG/0/32633">
-<cis11:regularAxis axisLabel="E" lowerBound="75042.7273594"
-resolution="10000" uomLabel="metre" upperBound="75042.7273594"/>
-<cis11:regularAxis axisLabel="N" lowerBound="5094865.55794"
-resolution="-10000" uomLabel="metre" upperBound="5094865.55794"/>
+<cis11:regularAxis axisLabel="E" lowerBound="75042.72735943"
+resolution="10000" uomLabel="metre" upperBound="75042.72735943"/>
+<cis11:regularAxis axisLabel="N"
+lowerBound="5094865.557938452" resolution="-10000"
+uomLabel="metre" upperBound="5094865.557938452"/>
 <cis11:gridLimits axisLabels="i j" srsName="/crs/OGC/0/Index2D">
 <cis11:indexAxis axisLabel="i" lowerBound="-1" upperBound="-1"/>
 <cis11:indexAxis axisLabel="j" lowerBound="35" upperBound="35"/>

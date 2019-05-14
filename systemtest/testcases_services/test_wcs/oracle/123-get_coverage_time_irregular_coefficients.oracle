@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_time_irregular_coefficients_subset"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="ansi E N" srsDimension="3"
 srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels="d metre metre">
-<lowerCorner>"2016-01-02T00:00:06.000Z" 75042.7273594 5054865.55794</lowerCorner>
-<upperCorner>"2016-01-04T00:00:00.000Z" 675042.727359 5454865.55794</upperCorner>
+<lowerCorner>"2016-01-02T00:00:06.000Z" 75042.72735943 5054865.557938452</lowerCorner>
+<upperCorner>"2016-01-04T00:00:00.000Z" 675042.72735943 5454865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -27,7 +21,7 @@ srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633" uomLabels=
 <gmlrgrid:origin>
 <Point
 id="test_time_irregular_coefficients_subset-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/EPSG/0/32633">
-<pos>"2016-01-02T00:00:06.000Z" 125042.7273594 5404865.55794</pos>
+<pos>"2016-01-02T00:00:06.000Z" 125042.72735943 5404865.557938452</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

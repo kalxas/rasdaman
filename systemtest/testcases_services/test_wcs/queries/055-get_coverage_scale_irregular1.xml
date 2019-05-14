@@ -15,8 +15,8 @@
   </wcs:Extension>
   <wcs:DimensionTrim>
     <wcs:Dimension>E</wcs:Dimension>
-    <wcs:TrimLow>75042.7273594</wcs:TrimLow>
-    <wcs:TrimHigh>75042.7273594</wcs:TrimHigh>
+    <wcs:TrimLow>75042.72735943</wcs:TrimLow>
+    <wcs:TrimHigh>75042.72735943</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
     <wcs:Dimension>N</wcs:Dimension>

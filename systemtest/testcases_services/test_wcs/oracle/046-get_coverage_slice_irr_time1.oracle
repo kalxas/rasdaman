@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmlcov:ReferenceableGridCoverage
 id="test_irr_cube_2"
-
-
-
-
-
-
 >
 <boundedBy>
 <Envelope axisLabels="E N" srsDimension="2"
 srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
-<lowerCorner>95042.7273594 5094865.55794</lowerCorner>
-<upperCorner>105042.7273594 5124865.55794</upperCorner>
+<lowerCorner>95042.72735943 5094865.557938452</lowerCorner>
+<upperCorner>105042.72735943 5124865.557938452</upperCorner>
 </Envelope>
 </boundedBy>
 <domainSet>
@@ -27,7 +21,7 @@ srsName="/crs/EPSG/0/32633" uomLabels="metre metre">
 <gmlrgrid:origin>
 <Point
 id="test_irr_cube_2-point" srsName="/crs/EPSG/0/32633">
-<pos>100042.7273594 5119865.55794</pos>
+<pos>100042.72735943 5119865.557938452</pos>
 </Point>
 </gmlrgrid:origin>
 <gmlrgrid:generalGridAxis>

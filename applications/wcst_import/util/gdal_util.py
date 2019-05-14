@@ -26,6 +26,7 @@ from master.error.runtime_exception import RuntimeException
 from util.crs_util import CRSUtil
 from util.file_util import FileUtil
 from util.gdal_field import GDALField
+from decimal import Decimal
 
 _spatial_ref_cache = {}
 
@@ -64,37 +65,41 @@ class GDALGmlUtil:
         Returns the offset vectors for the coverage calculated from the dataset
         :rtype: list[float]
         """
-        offset_x = self.gdal_dataset.GetGeoTransform()[1]
-        offset_y = self.gdal_dataset.GetGeoTransform()[5]
-        return offset_x, offset_y
+        offset_x = repr(self.gdal_dataset.GetGeoTransform()[1])
+        offset_y = repr(self.gdal_dataset.GetGeoTransform()[5])
+        return Decimal(offset_x), Decimal(offset_y)
 
     def get_offset_vector_x(self):
         """
         Returns the offset vectors for the coverage calculated from the dataset on the x axis
         :rtype: float
         """
-        return self.get_offset_vectors()[0]
+        result = repr(self.get_offset_vectors()[0])
+        return Decimal(result)
 
     def get_offset_vector_y(self):
         """
         Returns the offset vectors for the coverage calculated from the dataset on the y axis
         :rtype: float
         """
-        return self.get_offset_vectors()[1]
+        result = repr(self.get_offset_vectors()[1])
+        return Decimal(result)
 
     def get_origin_x(self):
         """
         Returns the origin of the dataset on the x axis
         :rtype: str
         """
-        return self.get_origin()[0]
+        result = self.get_origin()[0]
+        return result
 
     def get_origin_y(self):
         """
         Returns the origin of the dataset on the y axis
         :rtype: str
         """
-        return self.get_origin()[1]
+        result = self.get_origin()[1]
+        return result
 
     def get_origin(self):
         """
@@ -103,8 +108,9 @@ class GDALGmlUtil:
         :rtype: list[str]
         """
         geo = self.gdal_dataset.GetGeoTransform()
-        return str(geo[0] + 0.5 * self.gdal_dataset.GetGeoTransform()[1]), \
-               str(geo[3] + 0.5 * self.gdal_dataset.GetGeoTransform()[5])
+        result = Decimal(repr(geo[0])) + Decimal(0.5) * Decimal(repr(self.gdal_dataset.GetGeoTransform()[1])), \
+                 Decimal(repr(geo[3])) + Decimal(0.5) * Decimal(repr(self.gdal_dataset.GetGeoTransform()[5]))
+        return result
 
     def get_coefficients(self):
         """
@@ -118,14 +124,16 @@ class GDALGmlUtil:
         Return the coefficients of the dataset for the x axis
         :rtype: float
         """
-        return self.get_coefficients()[0]
+        result = repr(self.get_coefficients()[0])
+        return Decimal(result)
 
     def get_coefficient_y(self):
         """
         Return the coefficients of the dataset for the y axis
         :rtype: float
         """
-        return self.get_coefficients()[1]
+        result = repr(self.get_coefficients()[1])
+        return Decimal(result)
 
     def get_extents(self):
         """
@@ -133,10 +141,10 @@ class GDALGmlUtil:
         :rtype: dict[str, list]
         """
         geo_transform = self.gdal_dataset.GetGeoTransform()
-        minx = geo_transform[0]
-        maxy = geo_transform[3]
-        maxx = minx + geo_transform[1] * self.gdal_dataset.RasterXSize
-        miny = maxy + geo_transform[5] * self.gdal_dataset.RasterYSize
+        minx = Decimal(repr(geo_transform[0]))
+        maxy = Decimal(repr(geo_transform[3]))
+        maxx = minx + Decimal(repr(geo_transform[1])) * self.gdal_dataset.RasterXSize
+        miny = maxy + Decimal(repr(geo_transform[5])) * self.gdal_dataset.RasterYSize
         return {
             "x": (minx, maxx),
             "y": (miny, maxy)
@@ -162,7 +170,8 @@ class GDALGmlUtil:
         :rtype: float
         """
         geo_transform = self.gdal_dataset.GetGeoTransform()
-        return geo_transform[1]
+        result = repr(geo_transform[1])
+        return Decimal(result)
 
     def get_resolution_y(self):
         """
@@ -170,7 +179,8 @@ class GDALGmlUtil:
         :rtype: float
         """
         geo_transform = self.gdal_dataset.GetGeoTransform()
-        return geo_transform[5]
+        result = repr(geo_transform[5])
+        return Decimal(result)
     
     def get_raster_band(self, index):
         """
@@ -198,13 +208,13 @@ class GDALGmlUtil:
             if band.GetColorInterpretation():
                 field_name = gdal.GetColorInterpretationName(band.GetColorInterpretation())
             else:
-                field_name = ConfigManager.default_field_name_prefix + str(i)
+                field_name = ConfigManager.default_field_name_prefix + repr(i)
 
             if len(ConfigManager.default_null_values) > 0:
                 nil_values = ConfigManager.default_null_values
             else:
                 # If not, then detects it from file's bands
-                nil_value = str(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
+                nil_value = repr(band.GetNoDataValue()) if band.GetNoDataValue() is not None else ""
                 nil_values = [nil_value]
 
             # Get the unit of measure
