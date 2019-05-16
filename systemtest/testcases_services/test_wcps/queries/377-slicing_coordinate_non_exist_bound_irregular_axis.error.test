@@ -1,0 +1,1 @@
+for c in (test_irr_cube_2) return encode(c[ansi("2008-01-03")], "gml")

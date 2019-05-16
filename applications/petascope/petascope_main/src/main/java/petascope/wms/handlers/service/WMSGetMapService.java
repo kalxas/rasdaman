@@ -83,6 +83,8 @@ import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.service.SubsetParsingService;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Service class to build the response from a WMS GetMap request. In case of a
@@ -410,7 +412,9 @@ public class WMSGetMapService {
 
                 // Then, translate all these parsed subsets to grid domains
                 for (ParsedSubset<BigDecimal> parsedGeoSubset : parsedGeoSubsets) {
-                    ParsedSubset<Long> parsedGridSubset = coordinateTranslationService.geoToGridSpatialDomain(axis, parsedGeoSubset);
+                    WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
+                                                                                      parsedGeoSubset.getLowerLimit().toPlainString(), parsedGeoSubset.getUpperLimit().toPlainString());
+                    ParsedSubset<Long> parsedGridSubset = coordinateTranslationService.geoToGridSpatialDomain(axis, subsetDimension, parsedGeoSubset);
                     translatedGridSubsets.add(parsedGridSubset);
                 }
 
@@ -838,13 +842,18 @@ public class WMSGetMapService {
      * When projection is needed, from ExtendedGeoBBox, calculate grid bounds for it.
      */
     private void createExtendedGridBBox(Axis axisX, Axis axisY) throws PetascopeException {
+        
         ParsedSubset<BigDecimal> parsedGeoSubsetX = new ParsedSubset<>(extendedFittedGeoBBbox.getXMin(), extendedFittedGeoBBbox.getXMax());
-        ParsedSubset<Long> parsedGridSubsetX = coordinateTranslationService.geoToGridSpatialDomain(axisX, parsedGeoSubsetX);
+        WcpsSubsetDimension subsetDimensionX = new WcpsTrimSubsetDimension(axisX.getLabel(), axisX.getNativeCrsUri(), 
+                                                                           parsedGeoSubsetX.getLowerLimit().toPlainString(), parsedGeoSubsetX.getUpperLimit().toPlainString());
+        ParsedSubset<Long> parsedGridSubsetX = coordinateTranslationService.geoToGridSpatialDomain(axisX, subsetDimensionX, parsedGeoSubsetX);
         extendedFittedGridBBbox.setXMin(new BigDecimal(parsedGridSubsetX.getLowerLimit()));
         extendedFittedGridBBbox.setXMax(new BigDecimal(parsedGridSubsetX.getUpperLimit()));
 
         ParsedSubset<BigDecimal> parsedGeoSubsetY = new ParsedSubset<>(extendedFittedGeoBBbox.getYMin(), extendedFittedGeoBBbox.getYMax());
-        ParsedSubset<Long> parsedGridSubsetY = coordinateTranslationService.geoToGridSpatialDomain(axisY, parsedGeoSubsetY);
+        WcpsSubsetDimension subsetDimensionY = new WcpsTrimSubsetDimension(axisY.getLabel(), axisY.getNativeCrsUri(), 
+                                                                           parsedGeoSubsetY.getLowerLimit().toPlainString(), parsedGeoSubsetY.getUpperLimit().toPlainString());
+        ParsedSubset<Long> parsedGridSubsetY = coordinateTranslationService.geoToGridSpatialDomain(axisY, subsetDimensionY, parsedGeoSubsetY);
         extendedFittedGridBBbox.setYMin(new BigDecimal(parsedGridSubsetY.getLowerLimit()));
         extendedFittedGridBBbox.setYMax(new BigDecimal(parsedGridSubsetY.getUpperLimit()));
     }

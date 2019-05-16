@@ -30,11 +30,13 @@ import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.core.service.CrsComputerService;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
+import petascope.wcps.exception.processing.IrreguarAxisCoefficientNotFoundException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.RegularAxis;
+import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Translate the coordinates from geo bound to grid bound for trimming/slicing and vice versa if using CRS:1 in trimming/slicing
@@ -49,13 +51,13 @@ public class CoordinateTranslationService {
      * Translate a geo subset on an axis to grid subset accordingly.
      * e.g: Lat(0:20) -> c[10:15]
      */
-    public ParsedSubset<Long> geoToGridSpatialDomain(Axis axis, ParsedSubset<BigDecimal> parsedGeoSubset) throws PetascopeException {
+    public ParsedSubset<Long> geoToGridSpatialDomain(Axis axis, WcpsSubsetDimension subsetDimension, ParsedSubset<BigDecimal> parsedGeoSubset) throws PetascopeException {
         ParsedSubset<Long> parsedGridSubset;
         if (axis instanceof RegularAxis) {
             parsedGridSubset = this.geoToGridForRegularAxis(parsedGeoSubset, axis.getGeoBounds().getLowerLimit(),
                                                             axis.getGeoBounds().getUpperLimit(), axis.getResolution(), axis.getGridBounds().getLowerLimit());
         } else {
-            parsedGridSubset = this.geoToGridForIrregularAxes(parsedGeoSubset, axis.getResolution(), axis.getGridBounds().getLowerLimit(), 
+            parsedGridSubset = this.geoToGridForIrregularAxes(subsetDimension, parsedGeoSubset, axis.getResolution(), axis.getGridBounds().getLowerLimit(), 
                                                             axis.getGridBounds().getUpperLimit(), axis.getGeoBounds().getLowerLimit(), (IrregularAxis)axis);
         }
         
@@ -76,16 +78,24 @@ public class CoordinateTranslationService {
     public ParsedSubset<Long> geoToGridForRegularAxis(ParsedSubset<BigDecimal> numericSubset, BigDecimal geoDomainMin,
         BigDecimal geoDomainMax, BigDecimal resolution, BigDecimal gridDomainMin) {
         boolean zeroIsMin = resolution.compareTo(BigDecimal.ZERO) > 0;
+        
+        BigDecimal lowerBound = numericSubset.getLowerLimit();
+        BigDecimal upperBound = numericSubset.getUpperLimit();
+        
+        if (numericSubset.isSlicing()) {
+            lowerBound = numericSubset.getSlicingCoordinate();
+            upperBound = numericSubset.getSlicingCoordinate();
+        }
 
         BigDecimal returnLowerLimit, returnUpperLimit;
         if (zeroIsMin) {
             // closed interval on the lower limit, open on the upper limit - use floor and ceil - 1 repsectively
             // e.g: Long(0:20) -> c[0:50]
-            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMin), resolution);
+            BigDecimal lowerLimit = BigDecimalUtil.divide(lowerBound.subtract(geoDomainMin), resolution);
             lowerLimit = CrsComputerService.shiftToNearestGridPointWCPS(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
-            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMin), resolution);            
+            BigDecimal upperLimit = BigDecimalUtil.divide(upperBound.subtract(geoDomainMin), resolution);            
             upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
 
@@ -97,11 +107,11 @@ public class CoordinateTranslationService {
             //        --- --- --- ---
             // geo:  80  60  40  20  0
             // user subset 58: count how many resolution-sized interval are between 80 and 58 (1.1), and floor it to get 1
-            BigDecimal lowerLimit = BigDecimalUtil.divide(numericSubset.getUpperLimit().subtract(geoDomainMax), resolution);
+            BigDecimal lowerLimit = BigDecimalUtil.divide(upperBound.subtract(geoDomainMax), resolution);
             lowerLimit = CrsComputerService.shiftToNearestGridPointWCPS(lowerLimit);
             returnLowerLimit = lowerLimit.setScale(0, RoundingMode.FLOOR).add(gridDomainMin);
             
-            BigDecimal upperLimit = BigDecimalUtil.divide(numericSubset.getLowerLimit().subtract(geoDomainMax), resolution);
+            BigDecimal upperLimit = BigDecimalUtil.divide(lowerBound.subtract(geoDomainMax), resolution);
             upperLimit = CrsComputerService.shiftToNearestGridPointWCPS(upperLimit);
             returnUpperLimit = upperLimit.setScale(0, RoundingMode.CEILING).subtract(BigDecimal.ONE).add(gridDomainMin);
         }
@@ -166,24 +176,41 @@ public class CoordinateTranslationService {
      * This needs to be further refactored: the correct coefficients must be added in the WcpsCoverageMetadata object when a subset is done
      * on it, and the min and max coefficients should be passed to this method.
      *
-     * @param numericSubset    the subset to be translated
-     * @param scalarResolution
-     * @param gridDomainMin
-     * @param gridDomainMax
-     * @param geoDomainMin
-     * @param irregularAxis
-     * @return     
      */
-    public ParsedSubset<Long> geoToGridForIrregularAxes(
+    public ParsedSubset<Long> geoToGridForIrregularAxes(WcpsSubsetDimension subsetDimension,
         ParsedSubset<BigDecimal> numericSubset, BigDecimal scalarResolution, BigDecimal gridDomainMin,
         BigDecimal gridDomainMax, BigDecimal geoDomainMin, IrregularAxis irregularAxis) throws PetascopeException {
+        
+        BigDecimal lowerLimit = null;
+        BigDecimal upperLimit = null;
+        String originalLowerBound = null;
+        String originalUpperBound = null;
+        
+        if (numericSubset.isSlicing()) {
+            lowerLimit = numericSubset.getSlicingCoordinate();
+            upperLimit = numericSubset.getSlicingCoordinate();
+            originalLowerBound = ((WcpsSliceSubsetDimension)subsetDimension).getBound();
+            originalUpperBound = ((WcpsSliceSubsetDimension)subsetDimension).getBound();
+        } else {
+            lowerLimit = numericSubset.getLowerLimit();
+            upperLimit = numericSubset.getUpperLimit();
+            originalLowerBound = ((WcpsTrimSubsetDimension)subsetDimension).getLowerBound();
+            originalUpperBound = ((WcpsTrimSubsetDimension)subsetDimension).getUpperBound();
+        }
 
         // e.g: t(148654) in irr_cube_2
-        BigDecimal lowerCoefficient = ((numericSubset.getLowerLimit()).subtract(geoDomainMin)).divide(scalarResolution);
-        BigDecimal upperCoefficient = ((numericSubset.getUpperLimit()).subtract(geoDomainMin)).divide(scalarResolution);
+        BigDecimal lowerCoefficient = (lowerLimit.subtract(geoDomainMin)).divide(scalarResolution);
+        BigDecimal upperCoefficient = (upperLimit.subtract(geoDomainMin)).divide(scalarResolution);
         
         lowerCoefficient = lowerCoefficient.add(irregularAxis.getFirstCoefficient());
         upperCoefficient = upperCoefficient.add(irregularAxis.getFirstCoefficient());
+        
+        if (numericSubset.isSlicing()) {
+            // e.g: irregular date axis has values "2015-01", "2016-01", "2018-01" and request "2017-01"
+            if (irregularAxis.getIndexOfCoefficient(lowerCoefficient) < 0) {
+                throw new IrreguarAxisCoefficientNotFoundException(irregularAxis.getLabel(), originalLowerBound);
+            }
+        }
         
         // Return the grid indices of the lower and upper coefficients in an irregular axis
         Pair<Long, Long> gridIndicePair = irregularAxis.getGridIndices(lowerCoefficient, upperCoefficient);

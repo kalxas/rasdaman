@@ -63,19 +63,19 @@ public class ExtendExpressionHandler extends AbstractOperatorHandler {
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // extend(coverageExpression, {domainIntervals})
-        List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
-        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata.getAxes());
+        List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(subsetDimensions, metadata.getAxes());
         
-        if (metadata.getAxes().size() != subsets.size()) {
-            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());
+        if (metadata.getAxes().size() != numericSubsets.size()) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), numericSubsets.size());
         }
 
         // NOTE: from WCPS 1.0 standard: In this sense the extendExpr is a generalization of the trimExpr; still the trimExpr should be
         // used whenever the application needs to be sure that a proper subsetting has to take place.
-        wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
+        wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
-        String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
+        String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), numericSubsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                                .replace("$intervalList", domainIntervals);
         

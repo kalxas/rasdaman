@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.0.1"
-    
-      >
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Invalid subsetting '127476.5:127476.5' is not within coverage's domain '127469.5:127475.5' for axis 't'.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="InvalidSubsetting">
+<ows:ExceptionText>slicing '1950-01-07T12:00' is not within coverage's geo bounds '1949-12-31T12:00:00.000Z:1950-01-06T12:00:00.000Z' for axis 't'.</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

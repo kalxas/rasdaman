@@ -41,6 +41,7 @@ import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Class to translate a scale wcps expression into rasql  <code>
@@ -103,13 +104,37 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})
-        List<WcpsSubsetDimension> intervals = dimensionIntervalList.getIntervals();
-        List<Subset> subsets = subsetParsingService.convertToNumericSubsets(intervals, metadata.getAxes());
+        List<WcpsSubsetDimension> subsetDimensions = dimensionIntervalList.getIntervals();
+        List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(subsetDimensions, metadata.getAxes());
         
-        if (!metadata.containsOnlyXYAxes() && (metadata.getAxes().size() != subsets.size())) {
-            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), subsets.size());
-        } else if (subsets.size() == 1) {
-            this.handleScaleWithOnlyXorYAxis(coverageExpression, subsets);
+        if (!metadata.containsOnlyXYAxes() && (metadata.getAxes().size() != numericSubsets.size())) {
+            throw new IncompatibleAxesNumberException(metadata.getCoverageName(), metadata.getAxes().size(), numericSubsets.size());
+        } else if (numericSubsets.size() == 1) {
+            this.handleScaleWithOnlyXorYAxis(coverageExpression, numericSubsets);
+        }
+        
+        for (Axis axis : metadata.getAxes()) {
+            boolean exists = false;
+            for (WcpsSubsetDimension subsetDimension : subsetDimensions) {
+                if (CrsUtil.axisLabelsMatch(subsetDimension.getAxisName(), axis.getLabel())) {
+                    exists = true;
+                    break;
+                }
+            }
+            
+            if (!exists) {
+                String lowerBound = axis.getLowerGeoBoundRepresentation();
+                String upperBound = axis.getUpperGeoBoundRepresentation();
+                for (Subset subset : numericSubsets) {
+                    if (subset.getAxisName().equals(axis.getLabel())) {
+                        lowerBound = subset.getNumericSubset().getLowerLimit().toPlainString();
+                        upperBound = subset.getNumericSubset().getUpperLimit().toPlainString();
+                        break;
+                    }                    
+                }
+                
+                subsetDimensions.add(new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(), lowerBound, upperBound));
+            }
         }
 
         List<Pair> geoBoundAxes = new ArrayList();
@@ -123,10 +148,10 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         // for all a ∈ dimensionList(C2), c ∈ crsSet(C2, a):
         //          imageCrsDomain(C2 , a ) = (lo:hi) - it means: ***axis's grid domain will be set*** to corresponding lo:hi!
         //          domain(C2,a,c) = domain(C1,a,c) - it means: ***axis's geo domain will not change***!
-        wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
+        wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
-        String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), subsets);
+        String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), numericSubsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
                 .replace("$intervalList", domainIntervals);
 

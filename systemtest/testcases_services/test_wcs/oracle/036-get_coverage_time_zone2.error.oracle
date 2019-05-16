@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport version="2.0.1"
-    
-      >
-    <ows:Exception exceptionCode="InvalidSubsetting">
-        <ows:ExceptionText>Invalid 'subsetting' with '127470.54166666666666666666666666666666666666666666666667:127470.5' for axis 't'.</ows:ExceptionText>
-    </ows:Exception>
+>
+<ows:Exception exceptionCode="InvalidSubsetting">
+<ows:ExceptionText>lower bound '1950-01-01T12-01' must be less than or equal to upper bound '1950-01-01T12Z' for axis 't'.</ows:ExceptionText>
+</ows:Exception>
 </ows:ExceptionReport>

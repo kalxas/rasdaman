@@ -1,0 +1,1 @@
+for c in (test_eobstest) return encode(c[t("1969-12-31T12:00:00.000Z")], "gml")

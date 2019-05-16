@@ -2,6 +2,6 @@
 <ows:ExceptionReport version="2.1.0"
 >
 <ows:Exception exceptionCode="InvalidSubsetting">
-<ows:ExceptionText>lower bound '10' must be less than or equal to upper bound '0' for axis 'Lon'.</ows:ExceptionText>
+<ows:ExceptionText>slicing '1969-12-31T12:00:00.000Z' is not within coverage's geo bounds '2008-01-01T02:01:20.000Z:2008-01-08T00:02:58.000Z' for axis 'ansi'.</ows:ExceptionText>
 </ows:Exception>
 </ows:ExceptionReport>

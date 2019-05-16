@@ -82,7 +82,15 @@ public class InvalidSubsettingException extends WCPSException {
         super(ExceptionCode.InvalidSubsetting, subset.isTrimming() ? exceptionMessage.replace("$subsetDomainType", "subsetting").replace("$subsetBound", subset.getLowerLimit() + ":" + subset.getUpperLimit()).replace("$axis", axisName)
               : exceptionMessage.replace("$subsetDomainType", "slicing").replace("$subsetBound", subset.getSlicingCoordinate()).replace("$axis", axisName));
     }
-
+    
+    public InvalidSubsettingException(String axisName, String lowerBound, String upperBound) {
+        super(ExceptionCode.InvalidSubsetting, 
+                            "lower bound '$lowerBound' must be less than or equal to upper bound '$upperBound' for axis '$axis'."
+                            .replace("$lowerBound", lowerBound)
+                            .replace("$upperBound", upperBound)
+                            .replace("$axis", axisName));
+    }
+    
     private static final String ERROR_TEMPLATE = "Invalid '$subsetDomainType' with '$subsetBound' for axis '$axis'.";
 
 }

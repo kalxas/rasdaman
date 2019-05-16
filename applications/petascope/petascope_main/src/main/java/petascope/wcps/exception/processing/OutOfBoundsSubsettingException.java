@@ -40,8 +40,8 @@ public class OutOfBoundsSubsettingException extends InvalidSubsettingException {
      * @param domMin lower limit of coverage's axis domain
      * @param domMax upper limit of coverage's axis domain
      */
-    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, Double domMin, Double domMax, Exception cause) {
-        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()), cause);
+    public OutOfBoundsSubsettingException(String type, String axisName, ParsedSubset<String> subset, Double domMin, Double domMax, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$type", type).replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()), cause);
     }
 
     /**
@@ -52,8 +52,8 @@ public class OutOfBoundsSubsettingException extends InvalidSubsettingException {
      * @param domMin ower limit of coverage's axis domain
      * @param domMax upper limit of coverage's axis domain
      */
-    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, String domMin, String domMax, Exception cause) {
-        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin).replace("$domMax", domMax), cause);
+    public OutOfBoundsSubsettingException(String type, String axisName, ParsedSubset<String> subset, String domMin, String domMax, Exception cause) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$type", type).replace("$domMin", domMin).replace("$domMax", domMax), cause);
     }
     
         /**
@@ -65,8 +65,8 @@ public class OutOfBoundsSubsettingException extends InvalidSubsettingException {
      * @param domMin lower limit of coverage's axis domain
      * @param domMax upper limit of coverage's axis domain
      */
-    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, Double domMin, Double domMax) {
-        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()));
+    public OutOfBoundsSubsettingException(String type, String axisName, ParsedSubset<String> subset, Double domMin, Double domMax) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$type", type).replace("$domMin", domMin.toString()).replace("$domMax", domMax.toString()));
     }
 
     /**
@@ -77,9 +77,12 @@ public class OutOfBoundsSubsettingException extends InvalidSubsettingException {
      * @param domMin ower limit of coverage's axis domain
      * @param domMax upper limit of coverage's axis domain
      */
-    public OutOfBoundsSubsettingException(String axisName, ParsedSubset<String> subset, String domMin, String domMax) {
-        super(axisName, subset, ERROR_TEMPLATE.replace("$domMin", domMin).replace("$domMax", domMax));
+    public OutOfBoundsSubsettingException(String type, String axisName, ParsedSubset<String> subset, String domMin, String domMax) {
+        super(axisName, subset, ERROR_TEMPLATE.replace("$type", type).replace("$domMin", domMin).replace("$domMax", domMax));
     }
+    
+    public static final String GRID_TYPE = "grid";
+    public static final String GEO_TYPE = "geo";
 
-    private static final String ERROR_TEMPLATE = "Invalid $subsetDomainType '$subsetBound' is not within coverage's domain '$domMin:$domMax' for axis '$axis'.";
+    private static final String ERROR_TEMPLATE = "$subsetDomainType '$subsetBound' is not within coverage's $type bounds '$domMin:$domMax' for axis '$axis'.";
 }

@@ -82,7 +82,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         List<Subset> numericSubsets = subsetParsingService.convertToNumericSubsets(terminalSubsetDimensions, metadata.getAxes());
 
         // Update the coverage expression metadata with the new subsets
-        wcpsCoverageMetadataService.applySubsets(true, metadata, numericSubsets);
+        wcpsCoverageMetadataService.applySubsets(true, metadata, subsetDimensions, numericSubsets);
 
         //now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.

@@ -36,6 +36,8 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
+import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Class to translate a scale wcps expression into rasql  <code>
@@ -61,7 +63,8 @@ public class ExtendExpressionByImageCrsDomainHandler extends AbstractOperatorHan
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // scale(coverageExpression, {domainIntervals})
 
-        List<Subset> subsets = new ArrayList<>();
+        List<WcpsSubsetDimension> subsetDimensions = new ArrayList<>();
+        List<Subset> numericSubsets = new ArrayList<>();
         
         List<Axis> axes = metadata.getSortedAxesByGridOrder();
         // e.g: imageCrsdomain(c) returns 0:30,0:40,0:60
@@ -72,16 +75,19 @@ public class ExtendExpressionByImageCrsDomainHandler extends AbstractOperatorHan
         }
         
         for (int i = 0; i < axes.size(); i++) {
+            String axisLabel = axes.get(i).getLabel();
             String lowerValue = values[i].split(":")[0];
             String upperValue = values[i].split(":")[1];
             NumericTrimming numericTrimming = new NumericTrimming(new BigDecimal(lowerValue), new BigDecimal(upperValue));
-            Subset subset = new Subset(numericTrimming, CrsUtil.GRID_CRS, axes.get(i).getLabel());
-            subsets.add(subset);
+            Subset subset = new Subset(numericTrimming, CrsUtil.GRID_CRS, axisLabel);
+            numericSubsets.add(subset);
+            
+            subsetDimensions.add(new WcpsTrimSubsetDimension(axisLabel, CrsUtil.GRID_CRS, lowerValue, upperValue));
         }
         
         // NOTE: from WCPS 1.0 standard: In this sense the extendExpr is a generalization of the trimExpr; still the trimExpr should be
         // used whenever the application needs to be sure that a proper subsetting has to take place.
-        wcpsCoverageMetadataService.applySubsets(false, metadata, subsets);
+        wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
 
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())

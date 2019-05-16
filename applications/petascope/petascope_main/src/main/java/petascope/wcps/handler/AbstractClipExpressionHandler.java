@@ -55,6 +55,7 @@ import petascope.wcps.subset_axis.model.WKTCompoundPoint;
 import petascope.wcps.subset_axis.model.WKTCompoundPoints;
 import petascope.wcps.subset_axis.model.WcpsSliceSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
+import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
 
 /**
  * Abstract class for all clip() epxression handlers.
@@ -105,8 +106,12 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      */
     protected String translateGeoToGridPointCoordinate(Axis axis, BigDecimal geoPointCoordinate) throws PetascopeException {
         ParsedSubset<BigDecimal> parsedSubset = new ParsedSubset<>(geoPointCoordinate, geoPointCoordinate);
+        
+        WcpsSubsetDimension subsetDimension = new WcpsTrimSubsetDimension(axis.getLabel(), axis.getNativeCrsUri(),
+                                                                         geoPointCoordinate.toPlainString(), geoPointCoordinate.toPlainString());
+        
         // Translate geo coordinate of a slice point to a grid point
-        ParsedSubset<Long> gridSubset = wcpsCoverageMetadataGeneralService.translateGeoToGridCoordinates(parsedSubset, axis,
+        ParsedSubset<Long> gridSubset = wcpsCoverageMetadataGeneralService.translateGeoToGridCoordinates(subsetDimension, parsedSubset, axis,
                 axis.getGeoBounds().getLowerLimit(),
                 axis.getGeoBounds().getUpperLimit(),
                 axis.getGridBounds().getLowerLimit(),
@@ -339,7 +344,8 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     protected void updateOuputCoverageGeoAxesDomains(WcpsCoverageMetadata metadata) throws PetascopeException {
         // e.g: clip 2D polygon on a 2D coverage, 
         // it needs to update the bounding box of output coverage based on the bounding box of clipping polygon.
-        List<Subset> subsets = new ArrayList<>();
+        List<WcpsSubsetDimension> subsetDimensions = new ArrayList<>();
+        List<Subset> numericSubsets = new ArrayList<>();
         
         // NOTE: in case of clipping with curtain, only 2 axes from 3D+ coverage will attend to WKT's vertices' coordinates
         // not like plain clipping with WKT when a vertex's coordinate requires all axes of coverage's expression to compound.
@@ -350,13 +356,16 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
             Axis axis = metadata.getAxisByName(axisName);
 
             Subset subset = new Subset(numericSubset, axis.getNativeCrsUri(), axis.getLabel());
-            subsets.add(subset);
+            numericSubsets.add(subset);
+            
+            subsetDimensions.add(new WcpsTrimSubsetDimension(axisName, axis.getNativeCrsUri(), minBound.toPlainString(), maxBound.toPlainString()));
         }
+        
         // Update clipped coverage expression with the new subsets from WKT shape
         // e.g: original coverage has axis with geo bounds: Lat(0, 20), Long(0, 30) and WKT polygon has a bounding box is Lat(0:5), Long(20:25)
         // then output is a coverage with bounding box in geo bounds: Lat(0:5), Long(20:25)
         // NOTE: coordinates of vertices of WKT can be out of coverage's bounding box (not throw exception in this case)
-        this.wcpsCoverageMetadataGeneralService.applySubsets(false, metadata, subsets);
+        this.wcpsCoverageMetadataGeneralService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
     }
     
     /**

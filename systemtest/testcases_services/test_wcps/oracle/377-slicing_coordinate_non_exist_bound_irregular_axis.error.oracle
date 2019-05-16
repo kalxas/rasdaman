@@ -2,6 +2,6 @@
 <ows:ExceptionReport version="2.1.0"
 >
 <ows:Exception exceptionCode="InvalidSubsetting">
-<ows:ExceptionText>lower bound '10' must be less than or equal to upper bound '0' for axis 'Lon'.</ows:ExceptionText>
+<ows:ExceptionText>slicing '2008-01-03' is not valid for irregular axis 'ansi'.</ows:ExceptionText>
 </ows:Exception>
 </ows:ExceptionReport>
