@@ -69,7 +69,7 @@ forClause:  coverageVariableName IN
  * Query:
  *  for $c in (cov1, cov2, cov3) where ($c.red + ($c.blue / 3) <= 163) return encode($c, "image/png")
  */
-whereClause: WHERE (LEFT_PARENTHESIS)? booleanScalarExpression (RIGHT_PARENTHESIS)?
+whereClause: WHERE (LEFT_PARENTHESIS)? coverageExpression (RIGHT_PARENTHESIS)?
 #WhereClauseLabel;
 
 /**

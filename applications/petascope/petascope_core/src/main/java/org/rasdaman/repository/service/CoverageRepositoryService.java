@@ -141,6 +141,10 @@ public class CoverageRepositoryService {
      * @return
      */
     public Coverage readCoverageBasicMetadataByIdFromCache(String coverageId) throws PetascopeException {
+        if (coveragesCacheMap.isEmpty()) {
+            this.readAllCoveragesBasicMetatata();
+        }
+        
         Coverage coverage = null;
         if (coveragesCacheMap.get(coverageId) != null) {
             coverage = coveragesCacheMap.get(coverageId).fst;

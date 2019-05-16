@@ -71,9 +71,6 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     @Autowired
     protected CoverageAliasRegistry coverageAliasRegistry;
 
-    // Store the calculated bounding box of clipped output from a coverage and a WKT shape
-    protected final Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds = new HashMap<>();
-    
     public static final String OPERATOR = "clip";
     
     protected static final String TRANSLATED_COVERAGE_EXPRESSION_RASQL_TEMPLATE = "$TRANSLATED_COVERAGE_EXPRESSION_RASQL";
@@ -129,7 +126,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * @param bound the numeric geo value to be consider to be update as min/max
      * of current axis's geo domain.
      */
-    private void updateGeoBoundsClippedOutput(int totalAxes, String axisName, BigDecimal bound) {
+    private void updateGeoBoundsClippedOutput( Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, int totalAxes, String axisName, BigDecimal bound) {
         if (clippedCoverageAxesGeoBounds.size() < totalAxes) {
             clippedCoverageAxesGeoBounds.put(axisName, new Pair<>(bound, bound));
         } else {
@@ -175,7 +172,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * input CRS to coverage's native XY axes CRS.
      * @return A string representing translated coordinates in grid-axes order
      */
-    protected String translateGeoToGridCoorinates(WcpsCoverageMetadata metadata, List<String> axisNames, 
+    protected String translateGeoToGridCoorinates( Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, WcpsCoverageMetadata metadata, List<String> axisNames, 
                                                   String[] geoCoordinateArray, String wktCRS) throws PetascopeException {
         int geoCoordinateXOrder = -1;
         int geoCoordinateYOrder = -1;
@@ -220,7 +217,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 translatedGridCoordinates.add(new Pair<>(gridCoordinate, axis.getRasdamanOrder()));
 
                 // update geo bound for the clipped output
-                this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisName, numericGeoCoordinate);
+                this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisName, numericGeoCoordinate);
             } else {
                 // XY axes, translate as a pair of geo coordinates in 2 axes (e.g: Lat, Long)
                 Axis axisX = metadata.getXYAxes().get(0);
@@ -250,12 +247,12 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                 // Update the geo bounds for clipped output coverage
                 if (metadata.isXYOrder()) {
                     // XY Axes order                    
-                    this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
-                    this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
+                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
+                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
                 } else {
                     // YX Axes order
-                    this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
-                    this.updateGeoBoundsClippedOutput(geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
+                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisY.getLabel(), newGeoCoordinateY);
+                    this.updateGeoBoundsClippedOutput(clippedCoverageAxesGeoBounds, geoCoordinateArray.length, axisX.getLabel(), newGeoCoordinateX);
                 }
 
                 // Now, translate coordinate for XY axes normally
@@ -341,7 +338,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
     /**
      * After clipping, the axes' domains are reduced not as before, so it needs to update them correspondingly.
      */
-    protected void updateOuputCoverageGeoAxesDomains(WcpsCoverageMetadata metadata) throws PetascopeException {
+    protected void updateOuputCoverageGeoAxesDomains(Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, WcpsCoverageMetadata metadata) throws PetascopeException {
         // e.g: clip 2D polygon on a 2D coverage, 
         // it needs to update the bounding box of output coverage based on the bounding box of clipping polygon.
         List<WcpsSubsetDimension> subsetDimensions = new ArrayList<>();
@@ -349,9 +346,9 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
         
         // NOTE: in case of clipping with curtain, only 2 axes from 3D+ coverage will attend to WKT's vertices' coordinates
         // not like plain clipping with WKT when a vertex's coordinate requires all axes of coverage's expression to compound.
-        for (String axisName : this.clippedCoverageAxesGeoBounds.keySet()) {            
-            BigDecimal minBound = this.clippedCoverageAxesGeoBounds.get(axisName).fst;
-            BigDecimal maxBound = this.clippedCoverageAxesGeoBounds.get(axisName).snd;
+        for (String axisName : clippedCoverageAxesGeoBounds.keySet()) {            
+            BigDecimal minBound = clippedCoverageAxesGeoBounds.get(axisName).fst;
+            BigDecimal maxBound = clippedCoverageAxesGeoBounds.get(axisName).snd;
             NumericSubset numericSubset = new NumericTrimming(minBound, maxBound);
             Axis axis = metadata.getAxisByName(axisName);
 
@@ -372,13 +369,10 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
      * Handle the clip operator and input WKT to be
      * applied on current coverage expression and generate Rasql result for it.
      */
-    protected WcpsResult mainHandle(WcpsResult coverageExpression, List<String> axisNames, 
+    protected WcpsResult mainHandle(Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds, WcpsResult coverageExpression, List<String> axisNames, 
                                     AbstractWKTShape wktShape, String wktCRS, String rasqlTemplate) throws PetascopeException {
         checkOperandIsCoverage(coverageExpression, OPERATOR);
         
-        // Clear stored data from last request
-        this.clippedCoverageAxesGeoBounds.clear();
-
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
         // Translate geo coordinates to grid coordinates for XY axes in pair and other axis individually
         List<String> finalTranslatedWKTCompoundPointsList = new ArrayList<>();
@@ -408,7 +402,7 @@ public abstract class AbstractClipExpressionHandler extends AbstractOperatorHand
                         // e.g: clip(c, POLYGON((...)) ) or clip(c, POLYGON((...)), "http://opengis.net/def/crs/EPSG/0/3857")
                         // then need to translate geo coordinates in WKT to grid coordinates accordingly
                         // This is the tranlsated grid coordinates in grid-axes order to query in rasql
-                        translatedGridPointCoordinates = this.translateGeoToGridCoorinates(metadata, axisNames, geoPointCoordinates, wktCRS);
+                        translatedGridPointCoordinates = this.translateGeoToGridCoorinates(clippedCoverageAxesGeoBounds, metadata, axisNames, geoPointCoordinates, wktCRS);
                     }
                     if (!previousTranslatedGridPointCoordinates.equals(translatedGridPointCoordinates)) {
                         // NOTE: don't add the duplicate grid coordinates to Rasql as they are redundant and cause significant slow in rasserver

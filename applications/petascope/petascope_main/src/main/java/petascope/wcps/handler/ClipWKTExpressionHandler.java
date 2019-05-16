@@ -21,8 +21,11 @@
  */
 package petascope.wcps.handler;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
@@ -74,7 +77,11 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
             rasqlTemplate += WITH_COORDINATES;
         }
         
-        WcpsResult result = this.mainHandle(coverageExpression, axisNames, wktShape, wktCRS, rasqlTemplate);
+        // Store the calculated bounding box of clipped output from a coverage and a WKT shape
+        Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds = new HashMap<>();
+        
+        WcpsResult result = this.mainHandle(clippedCoverageAxesGeoBounds, coverageExpression, axisNames, wktShape, wktCRS, rasqlTemplate);
+        
         WcpsCoverageMetadata metadata = result.getMetadata();
         String rasql = result.getRasql();
         
@@ -91,7 +98,7 @@ public class ClipWKTExpressionHandler extends AbstractClipExpressionHandler {
         } else {
             // NOTE: Coverage's axes' domains are reduced after clipping (e.g: clip a small polygon from a big 2D image)
             // Then, geo domains need to be updated for bounding box of this polygon.
-            this.updateOuputCoverageGeoAxesDomains(metadata);
+            this.updateOuputCoverageGeoAxesDomains(clippedCoverageAxesGeoBounds, metadata);
         }
         
         // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)

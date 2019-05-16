@@ -23,7 +23,9 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
@@ -73,11 +75,14 @@ public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler 
                              AbstractWKTShape wktShape, String crs) throws PetascopeException {
         
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();        
+        // Store the calculated bounding box of clipped output from a coverage and a WKT shape
+        Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds = new HashMap<>();
+        
         // NOTE: translate geo coordinates attending in WKT for these 2 axes only.
         List<String> axisNames = new ArrayList<>();
         axisNames.add(curtainProjectionAxisLabel1);
         axisNames.add(curtainProjectionAxisLabel2);
-        WcpsResult result = this.mainHandle(coverageExpression, axisNames, wktShape, crs, RASQL_TEMPLATE);
+        WcpsResult result = this.mainHandle(clippedCoverageAxesGeoBounds, coverageExpression, axisNames, wktShape, crs, RASQL_TEMPLATE);
         
         String rasqlTmp = result.getRasql();
         Integer gridOrderAxis1 = result.getMetadata().getAxisGridOrder(curtainProjectionAxisLabel1);
@@ -98,7 +103,7 @@ public class ClipCurtainExpressionHandler extends AbstractClipExpressionHandler 
         }
         
         // However, the geo domains just be the reduced ones from original coverage's expression if axes joint in curtain's projection() expression.
-        this.updateOuputCoverageGeoAxesDomains(metadata);
+        this.updateOuputCoverageGeoAxesDomains(clippedCoverageAxesGeoBounds, metadata);
         
         // Update coverag's native CRS after subsetting (e.g: 3D -> 2D, then CRS=compound?time&4326 -> 4326)
         metadata.updateCrsUri();

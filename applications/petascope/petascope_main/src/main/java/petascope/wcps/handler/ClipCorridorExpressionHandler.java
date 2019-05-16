@@ -23,7 +23,9 @@ package petascope.wcps.handler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.AxisTypes;
@@ -86,7 +88,9 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
                              AbstractWKTShape trackLineShape,
                              AbstractWKTShape wktShape, boolean discrete, String crs) throws PetascopeException {
         
-        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();      
+        WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
+        // Store the calculated bounding box of clipped output from a coverage and a WKT shape
+        Map<String, Pair<BigDecimal, BigDecimal>> clippedCoverageAxesGeoBounds = new HashMap<>();
         
         // First, translate the LineString (trackline) to grid coordinates
         String trackLineRasqlTemplate = this.TRANSLATED_WKT_EXPRESSION_RASQL_TEMPLATE;
@@ -94,7 +98,7 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             trackLineAxisNames.add(axis.getLabel());
         }
-        WcpsResult trackLineResult = this.mainHandle(coverageExpression, trackLineAxisNames, trackLineShape, crs, trackLineRasqlTemplate);
+        WcpsResult trackLineResult = this.mainHandle(clippedCoverageAxesGeoBounds, coverageExpression, trackLineAxisNames, trackLineShape, crs, trackLineRasqlTemplate);
         String trackLineRasql = trackLineResult.getRasql();
 
         // Then, translate the WKT (polygon, linestring) to grid coordinates based on specifed axes in projection()
@@ -102,7 +106,7 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
         List<String> projecttionAxisNames = new ArrayList<>();
         projecttionAxisNames.add(corridorProjectionAxisLabel1);
         projecttionAxisNames.add(corridorProjectionAxisLabel2);
-        WcpsResult result = this.mainHandle(coverageExpression, projecttionAxisNames, wktShape, crs, RASQL_TEMPLATE);
+        WcpsResult result = this.mainHandle(clippedCoverageAxesGeoBounds, coverageExpression, projecttionAxisNames, wktShape, crs, RASQL_TEMPLATE);
         
         String rasqlTmp = result.getRasql();
         Integer gridOrderAxis1 = result.getMetadata().getAxisGridOrder(corridorProjectionAxisLabel1);
@@ -120,7 +124,7 @@ public class ClipCorridorExpressionHandler extends AbstractClipExpressionHandler
         result.setRasql(rasql);
         
         // The geo domains just be the reduced ones from original coverage's expression if axes joint in corridor's projection() expression.
-        this.updateOuputCoverageGeoAxesDomains(metadata);
+        this.updateOuputCoverageGeoAxesDomains(clippedCoverageAxesGeoBounds, metadata);
         
         // NOTE: as this corridor operator is a complex query so we must use rasql to get the grid domains for 3D output coverage.
         List<Pair<String, String>> gridDomains = this.getSdomOfClippedOutput(rasql);

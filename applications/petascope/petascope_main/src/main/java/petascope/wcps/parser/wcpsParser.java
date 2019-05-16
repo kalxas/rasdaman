@@ -373,8 +373,8 @@ public class wcpsParser extends Parser {
 		public TerminalNode WHERE() { return getToken(wcpsParser.WHERE, 0); }
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(wcpsParser.LEFT_PARENTHESIS, 0); }
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(wcpsParser.RIGHT_PARENTHESIS, 0); }
-		public BooleanScalarExpressionContext booleanScalarExpression() {
-			return getRuleContext(BooleanScalarExpressionContext.class,0);
+		public CoverageExpressionContext coverageExpression() {
+			return getRuleContext(CoverageExpressionContext.class,0);
 		}
 		public WhereClauseLabelContext(WhereClauseContext ctx) { copyFrom(ctx); }
 		@Override
@@ -401,7 +401,7 @@ public class wcpsParser extends Parser {
 				}
 				break;
 			}
-			setState(225); booleanScalarExpression(0);
+			setState(225); coverageExpression(0);
 			setState(227);
 			_la = _input.LA(1);
 			if (_la==RIGHT_PARENTHESIS) {
@@ -7560,7 +7560,7 @@ public class wcpsParser extends Parser {
 		"\u00dd\3\2\2\2\u00db\u00d9\3\2\2\2\u00dc\u00de\7K\2\2\u00dd\u00dc\3\2"+
 		"\2\2\u00dd\u00de\3\2\2\2\u00de\7\3\2\2\2\u00df\u00e1\7`\2\2\u00e0\u00e2"+
 		"\7\61\2\2\u00e1\u00e0\3\2\2\2\u00e1\u00e2\3\2\2\2\u00e2\u00e3\3\2\2\2"+
-		"\u00e3\u00e5\5\24\13\2\u00e4\u00e6\7K\2\2\u00e5\u00e4\3\2\2\2\u00e5\u00e6"+
+		"\u00e3\u00e5\5J&\2\u00e4\u00e6\7K\2\2\u00e5\u00e4\3\2\2\2\u00e5\u00e6"+
 		"\3\2\2\2\u00e6\t\3\2\2\2\u00e7\u00e9\7H\2\2\u00e8\u00ea\7\61\2\2\u00e9"+
 		"\u00e8\3\2\2\2\u00e9\u00ea\3\2\2\2\u00ea\u00eb\3\2\2\2\u00eb\u00ed\5\16"+
 		"\b\2\u00ec\u00ee\7K\2\2\u00ed\u00ec\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee"+

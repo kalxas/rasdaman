@@ -888,7 +888,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitWhereClauseLabel(@NotNull wcpsParser.WhereClauseLabelContext ctx) {
         // WHERE (LEFT_PARENTHESIS)? booleanScalarExpression (RIGHT_PARENTHESIS)?
         // e.g: where (c > 2)
-        WcpsResult coverageExpr = (WcpsResult) visit(ctx.booleanScalarExpression());
+        WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
         WcpsResult result = whereClauseHandler.handle(coverageExpr);
         return result;
