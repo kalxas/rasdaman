@@ -3412,16 +3412,6 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| MAX_BINARY  generalExp %prec UNARYOP
-	{
-	  $$ = $2;
-	  FREESTACK($1)
-	}
-	| MIN_BINARY generalExp %prec UNARYOP
-	{
-	  $$ = $2;
-	  FREESTACK($1)
-	}
 	| LRPAR castType RRPAR generalExp %prec UNARYOP
 	{
           $$ = new QtCast($4, $2.value);
