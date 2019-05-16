@@ -582,6 +582,10 @@ and that you are logged in as user ``rasdaman``, e.g. with this command: ::
     The dollar sign ("$") symbolizes the command line prompt and
     is not to be typed in.
 
+.. note::
+    As user ``rasdaman`` probably does not have sudo rights,
+    make sure to execute the commands that require sudo with a user that has sudo rights.
+
 Make sure also that your user is a member of the ``tomcat`` or ``tomcat7`` group,
 so that on make install the rasdaman files can be installed to Tomcat without
 requiring sudo access, e.g.: ::
@@ -1447,7 +1451,7 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 +------------------------------+----------------------------------------------------------------+
 |``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
 |                              |by default.                                                     |
-|                              |Since v9.8, to stop a specific service the                     |
+|                              |Since v9.8, to stop a specific service the                      |
 |                              | ``--service (core | secore | petascope )`` option can be used  |
 |                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
 +------------------------------+----------------------------------------------------------------+

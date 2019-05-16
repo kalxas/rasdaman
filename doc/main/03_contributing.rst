@@ -65,22 +65,34 @@ following details are provided to help in this respect.
     $ git config --global user.name "Name Surname"
     $ git config --global user.email my_email@address.xyz
 
-3. rasdaman should be configured and compiled with `-DENABLE_STRICT=ON` to make
+.. 3. rasdaman should be configured and compiled with `-DENABLE_STRICT=ON` to make
    sure that your patch doesn't introduce new warnings.
-4. After ensuring the tests are successful (see TODO systemtest link), stage and
+
+.. 4. After ensuring the tests are successful (see TODO systemtest link), stage and
+   commit your changes (whereby NNNN indicates the number of the ticket that is
+   fixed with this patch): ::
+
+3. After ensuring the tests are successful (see TODO systemtest link), stage and
    commit your changes (whereby NNNN indicates the number of the ticket that is
    fixed with this patch): ::
 
     $ git add <file1> <file2> <dir1/> <dir2>/*.java ...
     $ git commit -m "ticket:NNNN - My brief explanation of the patch"
 
-5. Prepare your patch package through: ::
+.. 5. Prepare your patch package through: ::
+
+4. Prepare your patch package through: ::
 
     $ git format-patch -n
 
   where ``n`` is the number of last commits that you want to create patch files for.
 
-6. Upload your patch file (or a ``.tar.gz`` archive in case of several files)
+.. 6. Upload your patch file (or a ``.tar.gz`` archive in case of several files)
+   using `Patch Manager <http://rasdaman.org/patchmanager>`_. You will have to accept
+   the `Contributor Agreement <http://rasdaman.org/wiki/ContributorAgreement>`_.
+   Without your stated consent we unfortunately cannot accept it, due to legal reasons.
+
+5. Upload your patch file (or a ``.tar.gz`` archive in case of several files)
    using `Patch Manager <http://rasdaman.org/patchmanager>`_. You will have to accept
    the `Contributor Agreement <http://rasdaman.org/wiki/ContributorAgreement>`_.
    Without your stated consent we unfortunately cannot accept it, due to legal reasons.

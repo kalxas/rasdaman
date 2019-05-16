@@ -804,7 +804,7 @@ in the ODMG standard, which is converted to SWE Quantity elements'
 .. table:: rasdaman base types to Quantity's definition types
 
     +--------------------+------------+------------------------------------------+
-    | **rasdaman types** | **size**   | **Quantity's definition types**           |
+    | **rasdaman types** | **size**   | **Quantity's definition types**          |
     +====================+============+==========================================+
     | ``boolean``        | 8 bit      | unsignedByte                             |
     +--------------------+------------+------------------------------------------+
