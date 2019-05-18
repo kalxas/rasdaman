@@ -21,7 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#pragma once
+#ifndef _COMMON_INVALIDBRANCHEXCEPTION_HH_
+#define _COMMON_INVALIDBRANCHEXCEPTION_HH_
 
 #include <string>
 
@@ -38,3 +39,6 @@ class InvalidBranchException : public LogicException {
 };
 
 } /* namespace common */
+
+#endif
+

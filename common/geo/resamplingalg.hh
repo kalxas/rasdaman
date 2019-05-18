@@ -3,7 +3,8 @@
 // Copyright (c) 2017 rasdaman GmbH. All rights reserved.
 //
 
-#pragma once
+#ifndef _COMMON_RESAMPLINGALG_HH_
+#define _COMMON_RESAMPLINGALG_HH_
 
 #include <string>
 
@@ -52,3 +53,6 @@ std::string raToString(ResampleAlg alg);
 std::string raToDescription(ResampleAlg alg);
 
 } // namespace common
+
+#endif
+

@@ -2199,7 +2199,7 @@ Comments in Scripts
 -------------------
 
 To enhance legibility of scripts, ``rascontrol`` accepts comments in the
-usual shell syntax: Lines beginning with a hash sign ‘#' will be
+usual shell syntax: Lines beginning with a hash sign '#' will be
 ignored, whatever they may contain. An example is usage in shell *here
 documents* (type ``man sh`` in your favourite shell for further information
 on this feature): ::

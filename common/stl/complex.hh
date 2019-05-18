@@ -1,10 +1,11 @@
-#pragma once
+#ifndef _COMMON_COMPLEX_HH_
+#define _COMMON_COMPLEX_HH_
 
 #ifdef ENABLE_COMPLEX
 
 #include <complex>
 
-#include "src/common/types/model/typetraits.hh"
+#include "common/types/model/typetraits.hh"
 
 namespace std {
 

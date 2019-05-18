@@ -38,7 +38,7 @@ class RasqlLexer(RegexLexer):
              r'insert|into|values|delete|drop|create|collection|alter|type|typedef|describe|'
              r'update|set|assign|in|marray|mdarray|condense|over|using|coordinates|'
              r'view|function|get|returns|language|extern|blocking|deterministic|'
-             r'nonblocking|nondeterministic|list|begin|end|'
+             r'nonblocking|nondeterministic|list|begin|end|extern|'
              r'index|rc_index|tc_index|a_index|d_index|rd_index|rpt_index|rrpt_index|it_index|auto|'
              r'tiling|aligned|regular|directional|with|subtiling|no_limit|regroup|'
              r'regroup_and_subtiling|area|of|interest|statistic|tile|size|border|threshold|'

@@ -26,7 +26,7 @@ set(UUID_HEADERS uuid.hh)
 add_library(common_uuid uuid.cc ${UUID_HEADERS})
 
 install(TARGETS common_uuid
-        DESTINATION ${LIB_DIR})
+    DESTINATION ${LIB_DIR})
 
 install(FILES ${UUID_HEADERS}
-        DESTINATION "${INCLUDE_DIR}/common/uuid")
+    DESTINATION "${INCLUDE_DIR}/common/uuid")

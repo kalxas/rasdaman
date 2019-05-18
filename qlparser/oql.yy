@@ -1474,7 +1474,6 @@ generalExpList: generalExpList COMMA generalExp
 	};
 
 
-
 concatExp: CONCAT mddList ALONG intLitExp
 	{
 	  if( $4.negative )

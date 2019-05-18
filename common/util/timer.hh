@@ -20,7 +20,8 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#pragma once
+#ifndef _COMMON_TIMER_HH_
+#define _COMMON_TIMER_HH_
 
 #include <chrono>
 
@@ -69,4 +70,6 @@ class Stopwatch {
 #define START_TIMER
 #define LINFO_ELAPSED(msg)
 #define LDEBUG_ELAPSED(msg)
+#endif
+
 #endif

@@ -21,7 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#pragma once
+#ifndef _COMMON_INVALIDTRANSACTIONEXCEPTION_HH_
+#define _COMMON_INVALIDTRANSACTIONEXCEPTION_HH_
 
 #include <string>
 
@@ -37,3 +38,6 @@ class InvalidTransactionException : public LogicException {
 };
 
 } /* namespace common */
+
+#endif
+

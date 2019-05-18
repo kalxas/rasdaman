@@ -93,12 +93,6 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
         error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
 fi
 
-@bindir@rasdl --help 2>&1 1>/dev/null
-if [[ $? != 2 ]]
-then
-	error "Error: cannot find rasdl - PATH variable does not contain rasdaman path?"
-fi
-
 if [[ ! -f $DEFINITION_FILE ]]
 then
 	error "Error: cannot find rasdaman basic type definition file '$DEFINITION_FILE'"

@@ -113,6 +113,7 @@ public:
     static const char *AllTypesName;
 
     static bool isVirtual(const char *collName);
+    static bool isVirtual(const std::string &collName);
     /**
      * @return true if collName is a virtual collection (e.g. RAS_COLLECTIONNAMES)
      */

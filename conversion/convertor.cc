@@ -446,7 +446,7 @@ std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
         os << "struct";
         break;
     default:
-        os  << "convert_type_e unknown type: " << cte << endl;
+        os  << "convert_type_e unknown type: " << cte << std::endl;
         break;
     }
 

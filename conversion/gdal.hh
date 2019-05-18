@@ -249,7 +249,7 @@ private:
     static const std::string PNG_FORMAT;
 
     GDALDataset *poDataset;
-    vector<int> bandIds;
+    std::vector<int> bandIds;
 };
 
 #endif

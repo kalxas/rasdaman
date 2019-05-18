@@ -51,15 +51,15 @@ std::string Crypto::messageDigest(const std::string &message,
 
     md = EVP_get_digestbyname(mdName.c_str());
 
-  if (!md) {
-    throw std::runtime_error("The '" + mdName + "' digest is not available.");
+    if (!md) {
+        throw std::runtime_error("The '" + mdName + "' digest is not available.");
     }
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_MD_CTX mdctx;
-     EVP_DigestInit(&mdctx, md);
-     EVP_DigestUpdate(&mdctx, message.c_str(), strlen(message.c_str()));
-     EVP_DigestFinal(&mdctx, md_value, &md_len);
+    EVP_DigestInit(&mdctx, md);
+    EVP_DigestUpdate(&mdctx, message.c_str(), strlen(message.c_str()));
+    EVP_DigestFinal(&mdctx, md_value, &md_len);
 #else
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     EVP_DigestInit(mdctx, md);
@@ -68,7 +68,7 @@ std::string Crypto::messageDigest(const std::string &message,
     EVP_MD_CTX_free(mdctx);
 #endif
 
-  for (i = 0; i < md_len; i++) {
+    for (i = 0; i < md_len; i++) {
         sprintf(output + i + i, "%02x", md_value[i]);
     }
 

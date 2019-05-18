@@ -3,7 +3,8 @@
 // Copyright (c) 2017 rasdaman GmbH. All rights reserved.
 //
 
-#pragma once
+#ifndef _COMMON_MAKE_UNIQUE_HH_
+#define _COMMON_MAKE_UNIQUE_HH_
 
 #include <cstddef>
 #include <memory>
@@ -52,4 +53,7 @@ typename _Unique_if<T>::_Known_bound
 make_unique(Args &&...) = delete;
 
 }
+
+
+#endif
 

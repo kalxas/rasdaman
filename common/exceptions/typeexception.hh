@@ -21,7 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#pragma once
+#ifndef _COMMON_TYPEEXCEPTION_HH_
+#define _COMMON_TYPEEXCEPTION_HH_
 
 #include "exception.hh"
 
@@ -38,3 +39,6 @@ class TypeException : public Exception {
   ~TypeException() override = default;
 };
 } // namespace common
+
+#endif
+

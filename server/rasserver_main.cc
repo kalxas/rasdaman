@@ -353,17 +353,20 @@ int main(int argc, char** argv)
 
     installSignalHandlers();
 
-    LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << ".";
-    LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
-          << " Rasdaman community is free software: you can redistribute it and/or modify "
-          << "it under the terms of the GNU General Public License as published by "
-          << "the Free Software Foundation, either version 3 of the License, or "
-          << "(at your option) any later version. \n"
-          << " Rasdaman community is distributed in the hope that it will be useful, "
-          << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-          << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-          << "GNU General Public License for more details.";
-    LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
+    if (configuration.isRasserver())
+    {
+        LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS " << BASEDBSTRING << ".";
+        LINFO << " Copyright 2003-2018 Peter Baumann / rasdaman GmbH. \n"
+              << " Rasdaman community is free software: you can redistribute it and/or modify "
+              << "it under the terms of the GNU General Public License as published by "
+              << "the Free Software Foundation, either version 3 of the License, or "
+              << "(at your option) any later version. \n"
+              << " Rasdaman community is distributed in the hope that it will be useful, "
+              << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+              << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+              << "GNU General Public License for more details.";
+        LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.\n";
+    }
 
     if (initialization() == false)
     {
@@ -382,17 +385,17 @@ int main(int argc, char** argv)
 
         if (configuration.isRnpServer())
         {
-            LDEBUG << "startRnpServer()...";
+            LDEBUG << "initializing rnp server...";
             startRnpServer();
-            LDEBUG << "startRnpServer() done.";
+            LDEBUG << "rnp server initialized.";
         }
         else if (configuration.isHttpServer())
         {
-            LDEBUG << "initializing HttpServer()...";
+            LDEBUG << "initializing http server...";
             server = new HttpServer(
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
-            LDEBUG << "HttpServer initialized.";
+            LDEBUG << "http server initialized.";
         }
 #ifdef RMANRASNET
         else if (configuration.isRasnetServer())
@@ -406,7 +409,11 @@ int main(int argc, char** argv)
 #endif
         else
         {
-            LDEBUG << "initializing ServerComm() (ie: RPC)...";
+            // client mode: directql or rasdl
+            common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+            logConf.configClientLogging(configuration.isQuietLogOn());
+
+            LDEBUG << "initializing direct server...";
             server = new ServerComm(
                     static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost),
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
@@ -1073,12 +1080,7 @@ void printError(unsigned short status, ExecuteUpdateRes* result)
 
 void doStuff()
 {
-    common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
-    logConf.configClientLogging();
-    if (configuration.isQuietLogOn())
-    {
-        logConf.configClientLogging(true);
-    }
+    TileCache::cacheLimit = 0;
 
     char* fileContents = NULL; // contents of file satisfying "$1" parameter in query
     r_Marray_Type* mddType = NULL; // this MDD's type

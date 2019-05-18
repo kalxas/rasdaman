@@ -3761,7 +3761,7 @@ OpSUMCULong::operator()(const char *op, char *init)
     {
         if (isNullOnly(longOp))
         {
-            LWARNING << "longOp is null: " << longOp;
+            //LWARNING << "longOp is null: " << longOp;
             resType->makeFromCULong(accu, &longOp);
             nullAccu = true;
         }

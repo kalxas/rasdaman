@@ -21,48 +21,48 @@
 #
 ###################################################################
 
-    set(EXCEPTIONS_HEADER_FILES
-        connectionfailedexception.hh
-        exception.hh
-        invalidargumentexception.hh
-        invalidstateexception.hh
-        logicexception.hh
-        missingresourceexception.hh
-        rasexceptions.hh
-        resourcebusyexception.hh
-        runtimeexception.hh
-        invalidargumentexception.hh
-        notimplementedexception.hh
-        invalidbranchexception.hh
-        outofrangeexception.hh
-        typeexception.hh
-        )
+set(EXCEPTIONS_HEADER_FILES
+    connectionfailedexception.hh
+    exception.hh
+    invalidargumentexception.hh
+    invalidstateexception.hh
+    logicexception.hh
+    missingresourceexception.hh
+    rasexceptions.hh
+    resourcebusyexception.hh
+    runtimeexception.hh
+    invalidargumentexception.hh
+    notimplementedexception.hh
+    invalidbranchexception.hh
+    outofrangeexception.hh
+    typeexception.hh
+    )
 
-    add_library(common_exceptions
-        connectionfailedexception.cc
-        exception.cc
-        invalidargumentexception.cc
-        invalidstateexception.cc
-        logicexception.cc
-        missingresourceexception.cc
-        resourcebusyexception.cc
-        runtimeexception.cc
-        outofrangeexception.cc
-        rasexceptions.hh
-        invalidtransactionexception.cc
-        notimplementedexception.cc 
-        invalidbranchexception.cc
-        ${EXCEPTIONS_HEADER_FILES}
-        )
+add_library(common_exceptions
+    connectionfailedexception.cc
+    exception.cc
+    invalidargumentexception.cc
+    invalidstateexception.cc
+    logicexception.cc
+    missingresourceexception.cc
+    resourcebusyexception.cc
+    runtimeexception.cc
+    outofrangeexception.cc
+    rasexceptions.hh
+    invalidtransactionexception.cc
+    notimplementedexception.cc 
+    invalidbranchexception.cc
+    ${EXCEPTIONS_HEADER_FILES}
+    )
 
-    target_link_libraries(common_exceptions
-        # needed for linking with ldd
-        stdc++
-        m
-        )
+target_link_libraries(common_exceptions
+    # needed for linking with ldd
+    stdc++
+    m
+    )
 
-    install(TARGETS common_exceptions
-        DESTINATION ${LIB_DIR})
+install(TARGETS common_exceptions
+    DESTINATION ${LIB_DIR})
 
-    install(FILES ${EXCEPTIONS_HEADER_FILES}
-        DESTINATION "${INCLUDE_DIR}/common/exceptions")
+install(FILES ${EXCEPTIONS_HEADER_FILES}
+    DESTINATION "${INCLUDE_DIR}/common/exceptions")

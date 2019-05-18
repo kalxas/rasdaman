@@ -329,18 +329,19 @@ int string_yyinput( char* buf, int max_size )
 "size"                  { SETTOKEN( SIZE, commandToken, SIZE ) }
 "border"                { SETTOKEN( BORDER, commandToken, BORDER ) }
 "threshold"             { SETTOKEN( THRESHOLD, commandToken, THRESHOLD ) }
-"unsigned"				 { SETTOKEN( TUNSIG, typeToken, TUNSIG) }
-"bool"					 { SETTOKEN( TBOOL, typeToken, TBOOL) }
-"char"					 { SETTOKEN( TCHAR, typeToken, TCHAR) }
-"octet"					 { SETTOKEN( TOCTET, typeToken, TOCTET) 	}
-"short"					 { SETTOKEN( TSHORT, typeToken, TSHORT) 	}
-"ushort"				 { SETTOKEN( TUSHORT, typeToken, TUSHORT) 	}
-"long"					 { SETTOKEN( TLONG, typeToken, TLONG)	}
-"ulong"					 { SETTOKEN( TULONG, typeToken, TULONG)	}
-"float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
-"double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
-"CFloat32"        { SETTOKEN( TCOMPLEX1, typeToken, TCOMPLEX1)  }
-"CFloat64"       { SETTOKEN( TCOMPLEX2, typeToken, TCOMPLEX2)  }
+
+"unsigned"                { SETTOKEN( TUNSIG, typeToken, TUNSIG) }
+"bool"                    { SETTOKEN( TBOOL, typeToken, TBOOL) }
+"char"                    { SETTOKEN( TCHAR, typeToken, TCHAR) }
+"octet"                   { SETTOKEN( TOCTET, typeToken, TOCTET)     }
+"short"                   { SETTOKEN( TSHORT, typeToken, TSHORT)     }
+"ushort"                  { SETTOKEN( TUSHORT, typeToken, TUSHORT)     }
+"long"                    { SETTOKEN( TLONG, typeToken, TLONG)    }
+"ulong"                   { SETTOKEN( TULONG, typeToken, TULONG)    }
+"float"                   { SETTOKEN( TFLOAT, typeToken, TFLOAT)     }
+"double"                  { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
+"CFloat32"                { SETTOKEN( TCOMPLEX1, typeToken, TCOMPLEX1)  }
+"CFloat64"                { SETTOKEN( TCOMPLEX2, typeToken, TCOMPLEX2)  }
 
 
 "nan"                     { SETFLTTOKEN( NAN, 8 ) }

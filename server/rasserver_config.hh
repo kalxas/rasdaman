@@ -113,9 +113,11 @@ public:
     void        setMddTypeName(const char* mddtn);
 
     // -- rasdl
-    bool usesRasdl();
-    ProgModes getProgMode();
+    bool        usesRasdl();
+    ProgModes   getProgMode();
 
+    // return true if a rasserver is started, and not rasdl or directql
+    bool        isRasserver();
 
 
 private:

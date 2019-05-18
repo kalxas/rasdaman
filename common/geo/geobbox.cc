@@ -21,6 +21,9 @@ namespace common {
 using std::string;
 using std::to_string;
 
+float parseNumber(const char *input);
+string crsToWkt(const string &crs);
+
 float parseNumber(const char *input) {
   char* end;
   float f = strtof(input, &end);

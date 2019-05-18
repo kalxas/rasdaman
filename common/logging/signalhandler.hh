@@ -3,7 +3,8 @@
 // Copyright (c) 2018 rasdaman GmbH. All rights reserved.
 //
 
-#pragma once
+#ifndef _COMMON_SIGNALHANDLER_HH_
+#define _COMMON_SIGNALHANDLER_HH_
 
 #include <signal.h>
 #include <string>
@@ -74,3 +75,5 @@ public:
 };
 
 }
+#endif
+

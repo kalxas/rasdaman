@@ -70,6 +70,7 @@ rasdaman GmbH.
 #include <stdlib.h>                               // for free, size_t
 #include <string>                                 // for string, basic_string
 #include <utility>                                // for pair
+#include <unordered_set>
 
 // MDD and SET names required for returning the list of types
 // they can be any string and are required just by the internal structure
@@ -365,7 +366,16 @@ bool MDDColl::isVirtual(const char *collName)
     return strcmp(collName, AllCollectionnamesName) == 0 ||
            strcmp(collName, AllStructTypesName) == 0 ||
            strcmp(collName, AllMarrayTypesName) == 0 ||
-           strcmp(collName, AllSetTypesName) == 0;
+           strcmp(collName, AllSetTypesName) == 0 ||
+           strcmp(collName, AllTypesName) == 0;
+}
+
+bool MDDColl::isVirtual(const std::string &collName)
+{
+    static std::unordered_set<std::string> virtualColls{
+            "RAS_COLLECTIONNAMES", "RAS_STRUCT_TYPES", "RAS_MARRAY_TYPES",
+            "RAS_SET_TYPES", "RAS_TYPES"};
+    return virtualColls.count(collName) > 0;
 }
 
 bool MDDColl::collExists(const char *collName)

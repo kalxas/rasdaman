@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _COMMON_GEOBBOX_HH_
+#define _COMMON_GEOBBOX_HH_
 
 #include <string>
 
@@ -35,3 +36,6 @@ struct GeoBbox {
 };
 
 }
+
+#endif
+

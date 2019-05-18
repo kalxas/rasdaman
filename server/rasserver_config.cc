@@ -263,7 +263,118 @@ void Configuration::checkParameters()
 {
     serverName = cmlRsn->getValueAsString();
 
+// -- rasdl section start
+
+    //create database
+    if (cmlCreateDb->isPresent())
+    {
+        progMode = M_CREATEDATABASE;
+    }
+
+    //delete database
+    if (cmlDelDb->isPresent())
+    {
+        progMode = M_DELDATABASE;
+    }
+
+    // true if any rasdl specific flag was specified
+    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
+
+// -- rasdl section end
+
+// -- directql section start
+
+    queryString = cmlQuery->getValueAsString();
+    queryStringOn = queryString != NULL;
+    if (queryStringOn || rasdlOn)
+    {
+        if (cmlPort->isPresent())
+        {
+            listenPort = cmlPort->getValueAsLong();
+        }
+        else
+        {
+            listenPort = DEFAULT_PORT;
+        }
+    }
+    else
+    {
+        listenPort = cmlPort->getValueAsLong();
+    }
+   
+
+    // evaluate optional parameter 'quiet' -----------------------------------
+    quietLog = cmlQuiet->isPresent();
+
+    //
+    // at this point the logging can be initialized
     initLogFiles();
+    //
+
+    // evaluate optional parameter file --------------------------------------
+    if (cmlFile->isPresent())
+        fileName = cmlFile->getValueAsString();
+
+    // evaluate optional parameter database ----------------------------------
+    baseName = cmlDatabase->getValueAsString();
+
+    // evaluate optional parameter user --------------------------------------
+    user = cmlUser->getValueAsString();
+
+    // evaluate optional parameter passwd ------------------------------------
+    passwd = cmlPasswd->getValueAsString();
+
+    // evaluate optional parameter content -----------------------------------
+    output = cmlOut->isPresent();
+
+    // evaluate optional parameter type --------------------------------------
+    displayType = cmlType->isPresent();
+    outputType = OUT_FILE;
+    if (output)
+    {
+        const char* val = cmlOut->getValueAsString();
+        if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
+            outputType = OUT_STRING;
+        else if (val != 0 && strcmp(val, PARAM_OUT_FILE) == 0)
+            outputType = OUT_FILE;
+        else if (val != 0 && strcmp(val, PARAM_OUT_FORMATTED) == 0)
+            outputType = OUT_FORMATTED;
+        else if (val != 0 && strcmp(val, PARAM_OUT_HEX) == 0)
+            outputType = OUT_HEX;
+        else if (val != 0 && strcmp(val, PARAM_OUT_NONE) == 0)
+            outputType = OUT_NONE;
+        else
+            throw RasqlError(ILLEGALOUTPUTTYPE);
+    }
+
+    // evaluate optional parameter outfile --------------------------------------
+    if (cmlOutfile->isPresent())
+    {
+        outFileMask = cmlOutfile->getValueAsString();
+        outputType = OUT_FILE;
+    }
+
+    // evaluate optional parameter domain --------------------------------------
+    if (cmlMddDomain->isPresent())
+    {
+        try
+        {
+            mddDomain = r_Minterval(cmlMddDomain->getValueAsString());
+            mddDomainDef = true;
+        }
+        catch (r_Error& e) // Minterval constructor had syntax problems
+        {
+            throw RasqlError(NOVALIDDOMAIN);
+        }
+    }
+
+    // evaluate optional parameter MDD type name --------------------------------------
+    if (cmlMddType->isPresent())
+    {
+        mddTypeName = cmlMddType->getValueAsString();
+        mddTypeNameDef = true;
+    }
+// -- directql section end
 
     rasmgrHost = cmlMgr->getValueAsString();
     rasmgrPort = cmlMgrPort->getValueAsLong();
@@ -305,145 +416,6 @@ void Configuration::checkParameters()
     // dbgLevel   = cmlDbgLevel->getValueAsLong();
     dbgLevel   = 4;
 #endif
-
-// -- rasdl section start
-
-    //create database
-    if (cmlCreateDb->isPresent())
-    {
-        progMode = M_CREATEDATABASE;
-    }
-
-    //delete database
-    if (cmlDelDb->isPresent())
-    {
-        progMode = M_DELDATABASE;
-    }
-
-    // true if any rasdl specific flag was specified
-    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
-
-// -- rasdl section end
-
-// -- directql section start
-
-    queryString = cmlQuery->getValueAsString();
-    queryStringOn = cmlQuery->isPresent();
-
-    if (queryStringOn || rasdlOn)
-    {
-        if (cmlPort->isPresent())
-        {
-            listenPort = cmlPort->getValueAsLong();
-        }
-        else
-        {
-            listenPort = DEFAULT_PORT;
-        }
-    }
-    else
-    {
-       listenPort = cmlPort->getValueAsLong();
-    }
-   
-
-    // check optional parameters ====================================================
-
-    // evaluate optional parameter file --------------------------------------
-    if (cmlFile->isPresent())
-    {
-        fileName = cmlFile->getValueAsString();
-    }
-
-    // evaluate optional parameter database --------------------------------------
-    
-    baseName = cmlDatabase->getValueAsString();
-    
-
-    // evaluate optional parameter user --------------------------------------
-    
-    user = cmlUser->getValueAsString();
-    
-
-    // evaluate optional parameter passwd --------------------------------------
-    
-    passwd = cmlPasswd->getValueAsString();
-    
-
-    // evaluate optional parameter content --------------------------------------
-    
-    output = cmlOut->isPresent();
-    
-
-    // evaluate optional parameter type --------------------------------------
-   
-    displayType = cmlType->isPresent();
-        
-    outputType = OUT_FILE;
-        
-    // evaluate optional parameter hex --------------------------------------
-    if (output)
-    {
-        const char* val = cmlOut->getValueAsString();
-        if (val != 0 && strcmp(val, PARAM_OUT_STRING) == 0)
-        {
-            outputType = OUT_STRING;
-        }
-        else if (val != 0 && strcmp(val, PARAM_OUT_FILE) == 0)
-        {
-            outputType = OUT_FILE;
-        }
-        else if (val != 0 && strcmp(val, PARAM_OUT_FORMATTED) == 0)
-        {
-            outputType = OUT_FORMATTED;
-        }
-        else if (val != 0 && strcmp(val, PARAM_OUT_HEX) == 0)
-        {
-            outputType = OUT_HEX;
-        }
-        else if (val != 0 && strcmp(val, PARAM_OUT_NONE) == 0)
-       {
-            outputType = OUT_NONE;
-        }
-        else
-        {
-            throw RasqlError(ILLEGALOUTPUTTYPE);
-        }
-    } 
-    
-    // evaluate optional parameter outfile --------------------------------------
-    if (cmlOutfile->isPresent())
-    {
-        outFileMask = cmlOutfile->getValueAsString();
-        outputType = OUT_FILE;
-    }
-
-    // evaluate optional parameter domain --------------------------------------
-    if (cmlMddDomain->isPresent())
-    {
-        try
-        {
-            mddDomain = r_Minterval(cmlMddDomain->getValueAsString());
-            mddDomainDef = true;
-        }
-        catch (r_Error& e) // Minterval constructor had syntax problems
-        {
-            throw RasqlError(NOVALIDDOMAIN);
-        }
-    }
-
-    // evaluate optional parameter MDD type name --------------------------------------
-    if (cmlMddType->isPresent())
-    {
-        mddTypeName = cmlMddType->getValueAsString();
-        mddTypeNameDef = true;
-    }
-    
-
-    // evaluate optional parameter 'quiet' --------------------------------------------
-    
-    quietLog = cmlQuiet->isPresent();
-// -- directql section end
    
 }
 
@@ -462,31 +434,37 @@ void Configuration::printHelp()
 void
 Configuration::initLogFiles()
 {
-
-    if (cmlLog->isPresent())
+    if (isRasserver())
     {
-        if (strcasecmp(cmlLog->getValueAsString(), "stdout") != 0)
+        if (cmlLog->isPresent())
         {
-            logFileName = cmlLog->getValueAsString();
-            logToStdOut = false;
+            if (strcasecmp(cmlLog->getValueAsString(), "stdout") != 0)
+            {
+                logFileName = cmlLog->getValueAsString();
+                logToStdOut = false;
+            }
+            else
+            {
+                logFileName = "stdout";
+                logToStdOut = true;
+            }
         }
         else
         {
-            logFileName = "stdout";
-            logToStdOut = true;
+            // default
+            logFileName = makeLogFileName(serverName, LOG_SUFFIX);
+            logToStdOut = false;
         }
+
+        common::LogConfiguration logConf(string(CONFDIR), SERVER_LOG_CONF);
+        logConf.configServerLogging(logFileName);
     }
     else
     {
-        // default
-        logFileName = makeLogFileName(serverName, LOG_SUFFIX);
-        logToStdOut = false;
+        common::LogConfiguration logConf(string(CONFDIR), CLIENT_LOG_CONF);
+        // quiet logging for the client for now, it will be properly reset later in rasserver_main.cc
+        logConf.configClientLogging(true);
     }
-
-
-    // Default logging configuration
-    common::LogConfiguration defaultConf(string(CONFDIR), SERVER_LOG_CONF);
-    defaultConf.configServerLogging(logFileName);
 }
 
 const char*
@@ -698,7 +676,7 @@ void        Configuration::setMddTypeName(const char* mddtn)
 }
 // -- directql section end
 
-// -- directql section start
+// -- rasdl section start
 
 bool        Configuration::usesRasdl()
 {
@@ -708,4 +686,11 @@ bool        Configuration::usesRasdl()
 ProgModes   Configuration::getProgMode()
 {
     return progMode;
+}
+
+// -- rasdl section end
+
+bool        Configuration::isRasserver()
+{
+    return !usesRasdl() && !hasQueryString();
 }

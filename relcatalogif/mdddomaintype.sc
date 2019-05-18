@@ -1,4 +1,3 @@
-#include "mymalloc/mymalloc.h"
 // This is -*- C++ -*-
 
 /*
@@ -35,7 +34,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "mdddomaintype.hh"
 #include "dbminterval.hh"
 #include "reladminif/objectbroker.hh"

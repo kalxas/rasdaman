@@ -21,7 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#pragma once
+#ifndef _COMMON_OUTOFRANGEEXCEPTION_HH_
+#define _COMMON_OUTOFRANGEEXCEPTION_HH_
 
 #include <string>
 
@@ -42,3 +43,6 @@ class OutOfRangeException : public Exception {
   ~OutOfRangeException() override;
 };
 } // namespace common
+
+#endif
+

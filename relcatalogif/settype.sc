@@ -34,8 +34,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
-
 #include "settype.hh"
 #include "mddtype.hh"
 #include "dbnullvalues.hh"

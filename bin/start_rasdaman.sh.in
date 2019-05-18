@@ -51,7 +51,7 @@
 
 PROG=$(basename $0)
 
-RC_OK=0        # everything went fine
+RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
 
 RASMGR_PORT=7001
@@ -129,7 +129,7 @@ get_property_value()
     local -r key="$2"
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
-} 
+}
 
 # Return non-zero if port is available
 # $1: the port to check
@@ -158,7 +158,7 @@ check_port_available()
 start_embedded() {
     local -r props_path="$1"
     local -r app_name="$2"
-    local -r war_file_name="$3"  
+    local -r war_file_name="$3"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external

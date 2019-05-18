@@ -20,9 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _ADMINIF_HH_
-#define _ADMINIF_HH_
-
 /************************************************************************
  *
 = *
@@ -32,6 +29,9 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ***********************************************************************/
+
+#ifndef _ADMINIF_HH_
+#define _ADMINIF_HH_
 
 #include <iosfwd>
 #include "lists.h"

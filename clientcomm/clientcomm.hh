@@ -247,7 +247,7 @@ public:
     /// set the preferred storage format
     virtual int setStorageFormat(r_Data_Format format, const char* formatParams = NULL) = 0;
 
-    /// get real server name (the dinamic one, assigned by the RasMGR)
+    /// get extended error information
     const char* getServerName();
 
     /// user identification for RasMGR

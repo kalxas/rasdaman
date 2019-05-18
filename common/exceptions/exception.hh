@@ -49,7 +49,7 @@ public:
     virtual ~Exception() noexcept = default;
 
     /**
-   * @return exception information
+     * @return exception information
      */
     virtual const std::string &what() const;
 

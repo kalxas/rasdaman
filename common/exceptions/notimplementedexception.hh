@@ -20,7 +20,8 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#pragma once
+#ifndef _COMMON_NOTIMPLEMENTEDEXCEPTION_HH_
+#define _COMMON_NOTIMPLEMENTEDEXCEPTION_HH_
 
 #include <string>
 
@@ -37,3 +38,6 @@ class NotImplementedException : public LogicException {
 };
 
 } /* namespace common */
+
+#endif
+

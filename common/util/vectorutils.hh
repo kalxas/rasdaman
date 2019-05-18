@@ -20,7 +20,8 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#pragma once
+#ifndef _COMMON_VECTORUTILS_HH_
+#define _COMMON_VECTORUTILS_HH_
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -77,3 +78,5 @@ class VectorUtils final {
   VectorUtils() = delete;
 };
 }
+
+#endif
