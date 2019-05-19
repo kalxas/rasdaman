@@ -29,20 +29,14 @@
  *
  ************************************************************/
 
-#ifndef _BLOBFS_HH_
-#define _BLOBFS_HH_
+#pragma once
 
 #include <string>           // for string
 #include <vector>
 
 #include "blobfile.hh"
+#include "blobfscommon.hh"  // for BlobFSConfig
 #include "blobfstransaction.hh"
-
-using blobfs::BlobData;
-using blobfs::BlobFSTransaction;
-
-namespace blobfs
-{
 
 /**
  * Main blob file storage class.
@@ -72,6 +66,11 @@ public:
 
     // To be called once, cleans up any failed transaction (e.g. due to a crash)
     void finalizeUncompletedTransactions();
+
+    BlobFSConfig getConfig() const;
+
+    // return the file path for blob with the given blobId
+    std::string getBlobFilePath(long long blobId) const;
 
     // Destructor
     virtual ~BlobFS();
@@ -108,6 +107,3 @@ private:
     BlobFSTransaction *selectTransaction;
 };
 
-}
-
-#endif

@@ -39,7 +39,6 @@
 #include "loggingutils.hh"
 
 using namespace std;
-using namespace blobfs;
 
 // define external vars
 char globalConnectId[256] = "/tmp/rasdata/RASBASE";
@@ -49,9 +48,6 @@ unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
 INITIALIZE_EASYLOGGINGPP
-
-namespace blobfs
-{
 
 class TestBlobFile
 {
@@ -77,8 +73,6 @@ public:
     }
 
 };
-
-}
 
 int main(int argc, char** argv)
 {

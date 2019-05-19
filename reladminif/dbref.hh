@@ -32,14 +32,18 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
-#ifndef _DBREF_HH_
-#define _DBREF_HH_
+#pragma once
 
 #include "oidif.hh"
 
-class r_Error;
+#ifdef EARLY_TEMPLATE
+#ifdef __EXECUTABLE__
+// needed if dbref.cc is included at the end of this file
+#include "objectbroker.hh"
+#endif
+#endif
 
+class r_Error;
 class BLOBTile;
 class DBHierIndex;
 class DBMDDObj;
@@ -309,6 +313,4 @@ bool operator<(const DBRef<T> &me, const DBRef<T> &him);
 #ifdef __EXECUTABLE__
 #include "dbref.cc"
 #endif
-#endif
-
 #endif

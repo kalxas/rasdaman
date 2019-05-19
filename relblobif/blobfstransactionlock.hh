@@ -20,14 +20,11 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef _BLOBFILESTORAGETRANSACTIONLOCK_HH_
-#define _BLOBFILESTORAGETRANSACTIONLOCK_HH_
+#pragma once
 
 #include <string>
 #include "lockfile.hh"
 
-namespace blobfs
-{
 
 /**
  * Manage locking on a particular transaction.
@@ -108,7 +105,3 @@ private:
     // abort transaction lock (C)
     static const std::string TRANSACTION_ABORT_LOCK;
 };
-
-}
-
-#endif

@@ -8,6 +8,7 @@ id: {{test_id ~ "_" ~ func}}
 {{separator}}
 {%    if dimension == 1 -%}
 query: SELECT {{func}}({{cell_type_val}})
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ func ~ "_scalar"}}
 {{separator}}
 {%    endif -%}
@@ -20,6 +21,7 @@ id: {{test_id ~ "_" ~ func ~ "_band_mdd_" ~ cname}}
 {{separator}}
 {%      if dimension == 1 -%}
 query: SELECT {{func}}({{cell_type_val}}.{{cname}})
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ func ~ "_band_scalar_" ~ cname}}
 {{separator}}
 {%      endif -%}

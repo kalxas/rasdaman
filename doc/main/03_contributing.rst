@@ -782,6 +782,490 @@ uncommenting this line in ``test.sh``: ::
 and choose the proper pattern to select one or more tests.
 
 
+Templated System Test
+=====================
+
+The rasdaman query templating engine **rasqte** (currently found in
+``systemtest/testcases_manual/test_rasql``) allows to write template queries (in
+`Jinja2 <http://jinja.pocoo.org/>`__ format) that focus on the operation that
+should be tested; a preprocessing step expands these templates into concrete
+valid queries targeting various data configurations that can be evaluated in
+rasdaman. 
+
+In Jinja2 templates we have:
+
+- **Output markup** (surrounded in ``{{`` and ``}}`` which resolves to text;
+  this supports some basic arithmetic, string functions, etc. 
+
+- **Tag markup** (surrounded in ``{%`` and ``%}`` which doesn't resolve to text,
+  and can be used for loops, conditionals, etc. 
+
+- **Comments** - any text surrounded in ``{#`` and ``#}``
+
+Comprehensive documentation on Jinja2 templates can be found in the `official
+template designer documentation
+<http://jinja.pocoo.org/docs/2.10/templates/>`__.
+
+The templating engine defines several global objects/variables that can
+be used in the query templates. The table below documents these objects;
+the Example column shows an example for 2-dimensional char data.
+
+.. important:: the templating engine iterates over all dimensions in
+    `dimension_list` and cell types in `cell_type_name_list`, and renders
+    the template for each pair.
+
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  **Variable**           |  **Description**     |  **Example**    |  **Default**                                     |
++=========================+======================+=================+==================================================+
+|                                               **Dimensionality**                                                    |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  dimension_max          | Max dimension tested | 4               | 4                                                |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  dimension_list         | All tested dimensions|                 | [1, 2, 3, 4]                                     |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  dimension              | Curr. dimension      | 2               | one of dimension_list                            |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                   **Cell type**                                                                     |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_name_list    | All tested cell types|                 | | [boolean, octet, char, ushort, short,          |
+|                         |                      |                 | | ulong, long, float, double, complex,           |
+|                         |                      |                 | | complexd, char_char_char                       |
+|                         |                      |                 | | short_float]                                   |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_name         | Curr. cell type      |  char           | one of cell_type_name_list                       |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_suffix_dic   | Cell type ->         |                 |  {'octet': 'o', 'char': 'c', ...}                |
+|                         | constant suffix      |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_suffix       | Curr. cell           |  c              | cell_type_suffix_dic[cell_type_name]             |
+|                         | type suffix          |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_min_dic      | Cell type ->         |                 | {'octet': '-128', 'char': '0', ...}              |
+|                         | min value            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_min          | Min for curr.        |  0              | cell_type_min_dic[cell_type_name]                |
+|                         | cell type            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_max_dic      | Cell type ->         |                 | {'octet': '127', 'char': '255', ...}             |
+|                         | max value            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_max          | Max for curr.        |  255            | cell_type_max_dic[cell_type_name]                |
+|                         | cell type            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_val_dic      | Cell type ->         |                 | {'octet': '-13', 'char': '33', ...}              |
+|                         | non-edge value       |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_val          | Value for curr.      |  33             |  cell_type_val_dic[cell_type_name]               |
+|                         | cell type            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_size_dic     | Cell type ->         |                 |  {'octet': 1, 'char': 1, ...}                    |
+|                         | cell size (B)        |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_size         | Size for curr.       |  1              |  cell_type_size_dic[cell_type_name]              |
+|                         | cell type            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_signed_dic   | Cell type ->         |                 |  {'octet': True, 'char': False, ...}             |
+|                         | is signed            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_signed       | Is curr. cell type   |  False          |  cell_type_signed_dic[cell_type_name]            |
+|                         | signed               |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_components   | Cell type -> comp.   |                 | | {'char_char_char': [('b0','char')              |
+|  _dic                   | name/type pairs      |                 | | ('b1','char'),('b2','char')], ...}             |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  cell_type_components   | Components for curr. |  []             |  cell_type_components_dic[cell_type_name]        |
+|                         | cell type            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                                  **Coll/Mdd type**                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  coll_name_dic          | (dim,cell type) ->   |                 | | {(1,'octet'): 'test_1d_octet',                 |
+|                         | coll name            |                 | | (2,'char'): 'test_2d_char_set', ...}           |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  coll_name              | Curr. coll  name     |  test_2d_char   |  'test\_' + dimension + 'd\_' + cell_type_name   |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  coll_type_name_dic     | (dim,cell type) ->   |                 | | {(1,'octet'): 'test_1d_octet_set',             |
+|                         | coll type            |                 | | (2,'char'): 'test_2d_char_set', ...}           |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  coll_type_name         | Curr. coll type name | test_2d_char_set|  coll_name + '_set'                              |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_type_name_dic      | (dim,cell type) ->   |                 | | {(1,'octet'): 'test_1d_octet_mdd',             |
+|                         | mdd type             |                 | | (2,'char'): 'test_2d_char_mdd', ...}           |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_type_name          | Curr. mdd type name  | test_2d_char_mdd|  coll_name + '_mdd'                              |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                                 **MDD constants**                                                   |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_cell_count| Number of cells in   | 16              | 16                                               |
+|                         | mdd constants        |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+| mdd_constant_extents    | dimension ->         |                 |  [[], [16], [4,4], [2,2,4], [2,2,2,2]]           |
+| _list                   | sdom extents         |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_extents   | dim extents for      |  [4,4]          |  mdd_constant_extents_list[dimension]            |
+|                         | curr. dim            |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_sdom_list | dimension -> sdom    |                 | | ['', '[0:15]', '[0:3,0:3]',                    |
+|                         |                      |                 | | '[0:1,0:1,0:3]', '[0:1,0:1,0:1,0:1]']          |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_sdom      | sdom for curr. dim   |  '[0:3,0:3]'    |  mdd_constant_sdom_list[dimension]               |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_cell      | cell type ->         |                 | | {'char': ['0c','0c','255c','1c',               | 
+|  _values_dic            | cell values          |                 | | '99c','9c','109c','2c','5c','12c',             |
+|                         |                      |                 | | '23c','45c','123c','123c',                     |
+|                         |                      |                 | | '234c','250c'], ...}                           |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+| mdd_constant_cell_values| cell values for      | | ['0c','0c',   |  mdd_constant_cell_values_dic[cell_type_name]    |
+|                         | curr. cell type      | | '255c','1c',  |                                                  |
+|                         |                      | | '99c','9c',   |                                                  |
+|                         |                      | | '109c','2c',  |                                                  |
+|                         |                      | | '5c','12c',   |                                                  |
+|                         |                      | | '23c','45c',  |                                                  |
+|                         |                      | | '123c','123c',|                                                  |
+|                         |                      | | '234c','250c']|                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant_dic       | (dim,cell type) ->   |                 | | {(2,'char'): '<[0:3,0:3] 0c,0c,255c,1c;        |
+|                         | mdd                  |                 | | 99c,9c,109c,2c;5c,12c,23c,45c;                 |
+|                         |                      |                 | | 123c,123c,234c,250c>', ...}                    |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  mdd_constant           | mdd constant for     | | '<[0:3,0:3]   |  mdd_constant_dic[(dimension,cell_type_name)]    |
+|                         | curr. dim/cell type  | | 0c,0c,255c,1c;|                                                  |
+|                         |                      | | 99c,9c,10c,2c;|                                                  |
+|                         |                      | | 5c,12c,23c,   |                                                  |
+|                         |                      | | 45c;123c,123c,|                                                  |
+|                         |                      | | 234c,250c>'   |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                                  **Operations**                                                     |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  oper_induced_unary     | Unary induced ops    |                 |  [+,-,not]                                       |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  oper_induced_unary_name| Unary induced op     |                 |  [plus,minus,not]                                |
+|                         | names                |                 |                                                  |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  oper_induced_binary    | Binary induced ops   |                 | | [+,-,*,/,overlay,is,and,or,xor,                |
+|                         |                      |                 | | =,<,>,<=,>=,!=,]                               |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+| oper_induced_binary_name| Binary induced op    |                 | | [plus,minus,multiplication,division,           |
+|                         | names                |                 | | overlay,is,and,or,xor,                         |
+|                         |                      |                 | | equals,less,greater,lessorequal,               |
+|                         |                      |                 | | greaterorequal,notequal]                       |
+|                         |                      |                 | |                                                |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  oper_condense_op       | Condense operators   |                 |  [+,*,and,or,max,min]                            |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  oper_condense_name     | Condense op names    |                 |  [plus,multiplication,and,or,max,min]            |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                                   **Functions**                                                     |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  func_induced_unary     | Unary induced        |                 | | [sqrt,abs,exp,log,ln,sin,cos,tan,              |
+|                         | functions            |                 | | sinh,cosh,tanh,arcsin,asin,                    |
+|                         |                      |                 | | arccos,acos,arctan,atan]                       |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  func_induced_binary    | Binary induced       |                 | | [pow,power,mod,div,bit,                        |
+|                         | functions            |                 | | max,min,complex]                               |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  func_condense          | Condensers           |                 | | [max_cells,min_cells,all_cells,                |
+|                         |                      |                 | | some_cells,count_cells,add_cells,              |
+|                         |                      |                 | | avg_cells,var_pop,var_samp,                    |
+|                         |                      |                 | | stddev_pop,stddev_samp]                        |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|                                                    **Other**                                                        |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  separator              | Instantiation sep.   |                 |  '==='                                           |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  template_name          | Template file name   |                 | e.g.  'setup'  (extension is removed)            |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+|  test_id                | Unique test id       |                 | | template_name + "_" + dimension + "d\_" +      |
+|                         |                      |                 | | cell_type_name                                 |
++-------------------------+----------------------+-----------------+--------------------------------------------------+
+
+In addition, the following functions can be used in the templates:
+
++------------------------------+----------------------------------------------+-----------------------------------------------+
+| **Function**                 | **Description**                              |  **Example**                                  |
++==============================+==============================================+===============================================+
+| is_atomic_cell_type(type)    | return true if type is an atomic cell type   | is_atomic_cell_type('char') -> True           |
++------------------------------+----------------------------------------------+-----------------------------------------------+
+| is_complex_cell_type(type)   | return true if type is a complex cell type   | is_complex_cell_type('complexd') -> True      |
++------------------------------+----------------------------------------------+-----------------------------------------------+
+| is_composite_cell_type(type) | return true if type is a composite cell type | is_composite_cell_type('short_float') -> True |
++------------------------------+----------------------------------------------+-----------------------------------------------+
+
+Template instantiation
+----------------------
+
+The template instantiation engine is a script ``rasqte.py`` that takes a
+template file as an input and produces a concrete output file.
+
+.. code-block:: text
+
+    usage: rasqte.py [-h] [-t TEMPLATE] [-d OUTDIR] [-s SEPARATOR] [-g]
+
+    rasql query template engine takes a Jinja2 template file as an input and
+    renders it into a concrete output; various global variables and functions are
+    available in the template (see option -g and the documentation). The template
+    is rendered multiple times for different variable configurations; each output
+    is appended to the same output file in the directory specified with -d,
+    separated by a line with a unique separator string (=== by default).
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -t TEMPLATE, --template TEMPLATE
+                            Template file to be rendered; the output should be
+                            multiple lines of the form key:value, e.g.
+                            query:SELECT version(); Consult the documentation for
+                            more details.
+      -d OUTDIR, --outdir OUTDIR
+                            Directory for output files ('.' by default).
+      -s SEPARATOR, --separator SEPARATOR
+                            Separator for different renderings of the same
+                            template ('===' by default).
+      -g, --globals         Print all global variables/functions.
+
+
+Rendered templates
+^^^^^^^^^^^^^^^^^^
+
+The rendered **concrete file** will have many instantiations of one
+template. Each instantiation ends with a separator line (``===`` by
+default): 
+
+.. code-block:: text
+
+    instantiated_query
+    ===
+    instantiated_query
+    ===
+    ...
+    ===
+
+
+Each ``instantiated_query`` has this format: The ``id`` is used to compare the
+result of evaluating the query to an *oracle* file named ``id``. ``id`` and
+``query`` are mandatory, any other parameters are optional.
+
+.. code-block:: text
+
+    query: concrete rasql query (mandatory)
+    id: unique id (mandatory)
+    filter: python string or list of strings that remove matching 
+            lines from the output (usually output that contains random 
+            bits which cannot be compared to a fixed expected oracle)
+    disableoutfile: comment on why --out file should be removed from 
+                    the generated rasql command (e.g. to skip comparing 
+                    random output, or output that is really large)
+    timeout: set how many seconds to wait for the test to finish, 
+             before killing the process; 60 seconds by default
+    knownfail: comment on why this query currently fails; once fixed, 
+               a line like this should be removed
+    skip: comment on why this query should be completely skipped during 
+          the test (i.e. not evaluated at all); should be removed once fixed
+    ...
+    key: value
+    # comment lines start with '#'
+
+    # empty lines (as above) are ignored as well
+    ===
+
+Concrete test evaluation
+------------------------
+
+A systemtest script ``test.py`` then reads a concrete file and evaluates
+the tests, comparing to the expected oracle values.
+
+.. code-block:: text
+
+    usage: test.py [-h] [-d] [-t TESTSFILE]
+
+    rasql query systemtest evaluator; without arguments it evaluates all tests in
+    the queries/ directory, starting with any setup tests and ending with the
+    teardown tests.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -d, --drop            Drop data (execute teardown queries) only and exit.
+      -t TESTSFILE, --testsfile TESTSFILE
+                            Execute a specific tests file (with setup before and
+                            teardown after).
+
+The following directories are used by the script:
+
+- ``queries`` - contains the rendered templates (outputs of ``rasqte.py``) 
+- ``outputs`` - results of evaluating tests in queries are saved in this 
+  directory. For rasql queries two file types are saved:
+
+    1. any file outputs (produced by rasql as ``--out file`` is specified) in 
+       ``template_name.file*`` files
+
+    2. stdout, stderr, and exit code from running the program in a 
+       ``template_name`` file
+
+- ``oracles`` - similar structure as ``outputs`` directory, it contains
+  the expected files against which the outputs are compared.
+
+``setup`` and ``teardown`` tests files in ``queries`` dir are treated specially:
+``setup`` is evaluated first, before any others, and ``teardown`` is evaluated
+at the end. This allows to ingest data for the test, and drop it at the end, for
+example.
+
+
+Examples
+--------
+
+Create collection
+^^^^^^^^^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    CREATE COLLECTION {{ coll_name }} {{ coll_type_name }}
+
+
+*Engine instantiates 4 x 13 = 52 queries* (4 for dimensions [1, 2, 3, 4] and 13
+for cell types [boolean, char, octet, short, unsigned short, long, unsigned
+long, float, double, complex, complexd, char_char_char, short_float]:
+
+.. code-block:: text
+
+    rasql -q 'CREATE COLLECTION test_1d_boolean test_1d_boolean_set' --out file
+    rasql -q 'CREATE COLLECTION test_1d_char test_1d_char_set' --out file
+    rasql -q 'CREATE COLLECTION test_1d_octet test_1d_octet_set' --out file
+    ...
+    rasql -q 'CREATE COLLECTION test_4d_short_float test_4d_short_float_set' --out file
+
+
+Insert literal array
+^^^^^^^^^^^^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    INSERT INTO {{ coll_name }} VALUES {{ mdd_constant }}
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'INSERT INTO test_1d_boolean VALUES ...' --out file
+    rasql -q 'INSERT INTO test_1d_char VALUES ...' --out file
+    ...
+    rasql -q 'INSERT INTO test_3d_RGBPixel VALUES ...' --out file
+
+
+The ``mdd_constant`` is constructed of 16 values that contain edge values
+(min/max) and other "interesting" values, like 0, nan, inf, etc.
+
+
+Select: sin(array)
+^^^^^^^^^^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    select sin(c) from {{coll_name}} as c
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'select sin(c) from test_2d_char as c' --out file
+    ...
+
+
+Select: sin(scalar)
+^^^^^^^^^^^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    select sin( {{cell_max}}{{cell_type_suffix}} )
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'select sin( 255c )' --out file
+    ...
+
+
+Select: all binary induced ops
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    {%- set dimension_other = [dimension + 1] if dimension < dimension_max else [] -%}
+    {%- for dimension_right in [dimension] + dimension_other -%}
+    {%-   for cell_type_right in cell_type_name_list -%}
+    {%-     for op in oper_induced_binary -%}
+    {%-       set coll_name_right = coll_name_dic[(dimension_right, cell_type_right)] -%}
+    SELECT a {{ op }} b FROM {{ coll_name }} AS a, {{ coll_name_right }} AS b
+    {%      endfor -%}
+    {%-   endfor -%}
+    {%- endfor -%}
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'select a + b from test_2d_char as a, test_2d_char as b' --out file
+    rasql -q 'select a + b from test_2d_char as a, test_2d_octet as b' --out file
+    rasql -q 'select a + b from test_2d_char as a, test_2d_ushort as b' --out file
+    ...
+
+
+Drop data
+^^^^^^^^^
+
+*Template:*
+
+.. code-block:: text
+
+    drop collection {{coll_name}}
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'drop collection test_2d_char as a' --out file
+    ...
+
+
+
+Insert encoded data
+^^^^^^^^^^^^^^^^^^^
+
+**TODO**
+
+*Template:*
+
+.. code-block:: text
+
+    ---
+    data.file: ../testdata/data_{{dimension}}d_{{cell_type_name}}.tif
+    data.dimension: [2]
+    ---
+    insert into {{coll_name}} values decode($1)
+
+
+*Instantiation:*
+
+.. code-block:: text
+
+    rasql -q 'insert into test_2d_char values decode($1)' 
+          -f ../testdata/data_2d_char.tif --out file
+    ...
+
+
 
 .. _code-guide:
 

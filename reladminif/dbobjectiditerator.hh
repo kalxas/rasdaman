@@ -24,13 +24,7 @@ rasdaman GmbH.
  * 2007-may-10  CJ     fixed compilation errors (gcc 4.1)
 */
 
-#ifndef _DBOBJECtIdIterATOR_HH_
-#define _DBOBJECtIdIterATOR_HH_
-
-#include <functional>  // for less
-#include <set>         // for set
-
-#include "lists.h"
+#pragma once
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
@@ -38,6 +32,10 @@ rasdaman GmbH.
 #endif
 #endif
 
+#include "lists.h"
+
+#include <functional>  // for less
+#include <set>         // for set
 
 class ObjectBroker;
 template <class T>
@@ -118,7 +116,3 @@ private:
 #include "dbobjectiditerator.cc"
 #endif
 #endif
-
-#endif
-
-

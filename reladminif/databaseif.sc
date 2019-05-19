@@ -32,26 +32,23 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
+#include "config.h"
+#include "version.h"
+
+#include "adminif.hh"
+#include "databaseif.hh"
+#include "oidif.hh"
+#include "sqlglobals.h"
+#include "sqlerror.hh"
+#include "sqlitewrapper.hh"
+#include "raslib/error.hh"
+
+#include <logging.hh>
 #include <sqlite3.h>
 #include <climits>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include "config.h"
-#include "version.h"
-#include "debug/debug.hh"
-
-#include "sqlglobals.h"
-#include "externs.h"
-#include "sqlerror.hh"
-#include "sqlitewrapper.hh"
-
-#include "adminif.hh"
-#include "databaseif.hh"
-#include "oidif.hh"
-#include "raslib/error.hh"
-
-#include <logging.hh>
 
 using namespace std;
 

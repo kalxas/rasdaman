@@ -20,12 +20,12 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBHIERINDEX_HH_
-#define _DBHIERINDEX_HH_
+#pragma once
 
 #include "reladminif/dbobject.hh"
 #include "indexmgr/hierindexds.hh"
 #include "relcatalogif/inlineminterval.hh"
+
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
@@ -243,4 +243,3 @@ protected:
         this instance
     */
 };
-#endif

@@ -20,13 +20,16 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBNAMEDOBJECT_HH_
-#define _DBNAMEDOBJECT_HH_
+#pragma once
 
-class DBObject;
+#include <iosfwd>                  // for cout, ostream
+
+#include "dbobject.hh"             // for DBObject
+#include "oidif.hh"                // for OId
+#include "raslib/mddtypes.hh"  // for r_Bytes
+
 class DBNamedObject;
-
-#include "dbobject.hh"
+class DBObject;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -65,7 +68,7 @@ public:
     sets myName to name and calls DBObject(OId).  this is needed by MDDSet.
     */
 
-    virtual ~DBNamedObject() noexcept(false);
+    ~DBNamedObject() noexcept(false) override;
     /*@Doc:
     frees myName
     */
@@ -85,18 +88,18 @@ public:
     takes care of the name
     */
 
-    virtual r_Bytes getMemorySize() const;
+    r_Bytes getMemorySize() const override;
     /*@Doc:
     Should be revised not to include attribute sizes
     */
 
-    virtual void printStatus(unsigned int level, std::ostream &stream) const;
+    void printStatus(unsigned int level,
+                     std::ostream &stream) const override;
     /*@Doc:
     prints the status of DBObject + Name: myName
     */
 
 protected:
-
     void setName(const char *newname);
     /*@Doc:
     renames the object
@@ -120,4 +123,3 @@ protected:
     static const char *defaultName;
 };
 
-#endif

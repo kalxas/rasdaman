@@ -20,9 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DESTROYABLE_HH_
-#define _DESTROYABLE_HH_
-
 /****************************************************************************
  *
  *
@@ -30,6 +27,8 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ****************************************************************************/
+
+#pragma once
 
 //@ManMemo: Module: {\bf reladminif}
 /*@Doc:
@@ -50,5 +49,3 @@ public:
     */
 
 };
-
-#endif

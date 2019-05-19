@@ -46,8 +46,6 @@ rasdaman GmbH.
 #include <logging.hh>
 
 using namespace std;
-using blobfs::BlobFS;
-using blobfs::BlobData;
 
 void BLOBTile::updateInDb()
 {
@@ -263,6 +261,7 @@ void BLOBTile::readFromDb()
             TileCache::insert(blobOid, value);
         }
     }
+
 #ifdef DEBUG
     LTRACE << "tile contents:";
     for (int a = 0; a < size; a++)

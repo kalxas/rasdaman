@@ -33,11 +33,12 @@ rasdaman GmbH.
  *
  *****************************************************************************/
 
-#include "databaseif.hh"        // for ostream
 #include "oidif.hh"             // for OId, OId::OIdCounter, OId::OIdType
-#include "raslib/error.hh"  // for r_Error, r_Error::r_Error_CreatingOId...
-#include <ostream>              // for operator<<, ostream, basic_ostream
+#include "databaseif.hh"        // for ostream
+#include "raslib/error.hh"      // for r_Error, r_Error::r_Error_CreatingOId...
 #include <logging.hh>           // for Writer, CTRACE, LTRACE, CFATAL, LERROR
+#include <ostream>              // for operator<<, ostream, basic_ostream
+
 
 long long OId::ID_MULTIPLIER = 512;
 
@@ -340,5 +341,4 @@ std::ostream &operator<<(std::ostream &s, OId::OIdType d)
     }
     return s;
 }
-
 

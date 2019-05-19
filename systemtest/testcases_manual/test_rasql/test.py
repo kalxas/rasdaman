@@ -57,7 +57,7 @@ SPECIAL_FILES = ["setup", "teardown"]
 RMANHOME = ""
 RMANHOME_BIN = ""
 # rasql command
-RASQL = ["rasql", "--user", "rasadmin", "--passwd", "rasadmin", "--out", "file", "--type"]
+RASQL = ["rasql", "--user", "rasadmin", "--passwd", "rasadmin", "--type"]
 # global timeout of 60 seconds, can be overriden in the test cases with "timeout: val"
 TIMEOUT = 60
 
@@ -159,6 +159,8 @@ class TestCase:
         self.outprogram = ""
         # file that holds the "file" output (e.g. file from rasql --out file query)
         self.outfile = ""
+        # if disableoutfile is specified, --out file will not be added to the rasql cmd
+        self.disableoutfile = False
 
     def add_config_line(self, line):
         if line.strip() == "" or line.startswith("#"):
@@ -187,6 +189,8 @@ class TestCase:
             self.filters = string_to_list(v)
         elif k == "knownfail" or k == "known_fail" or k == "ignore_result":
             self.knownfail = v
+        elif k == "disableoutfile":
+            self.disableoutfile = True
         elif k == "skip":
             self.skip = v
 
@@ -350,27 +354,36 @@ def evaluate_test(test, outdir, expdir, separator, retries=1):
     """
     Evaluate a single TestCase.
     """
-    outfile = outdir + test.outfile
-    remove_files_with_prefix(outfile)
 
+    log.info("Evaluating test: %s", test.testid)
+
+    # handle rasql stdout output
     outprogram = outdir + test.outprogram
     remove_file(outprogram)
     expprogram = expdir + test.outprogram
 
-    log.info("Evaluating test: %s", test.testid)
+    # handle rasql file output
+    outfile = outdir + test.outfile
+    cmd = ""
+    if not test.disableoutfile:
+        remove_files_with_prefix(outfile)
+        cmd = RASQL + ["--out", "file", "--outfile", outfile]
+    else:
+        cmd = RASQL
 
-    cmd = RASQL + ["--outfile", outfile]
     ret = True
     if not test.skip:
         with open(outprogram, "a") as outprogram_file:
             for q in test.queries:
                 out, err, rc = execute(cmd + ["-q", q], timeout_sec=test.timeout)
                 append_program_output(outprogram_file, out, err, rc, separator, test.filters)
-                outfiles = glob.glob(outfile + "*")
-                expfiles = [s.replace(outdir, expdir) for s in outfiles]
-                if not cmp_allfiles(outfiles, expfiles, False):
-                    log.error("File comparison: %s.", TEST_FAILED)
-                    ret = False
+                # if file output is requested (default)
+                if not test.disableoutfile:
+                    outfiles = glob.glob(outfile + "*")
+                    expfiles = [s.replace(outdir, expdir) for s in outfiles]
+                    if not cmp_allfiles(outfiles, expfiles, False):
+                        log.error("File comparison: %s.", TEST_FAILED)
+                        ret = False
 
         # show diff if these text files are different
         if not cmp_files(outprogram, expprogram, True):

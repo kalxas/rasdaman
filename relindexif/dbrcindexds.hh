@@ -31,8 +31,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#ifndef _DBRCINDEXDS_HH_
-#define _DBRCINDEXDS_HH_
+#pragma once
 
 #include "reladminif/dbobject.hh"
 #include "indexmgr/indexds.hh"
@@ -228,4 +227,3 @@ protected:
         this instance
     */
 };
-#endif

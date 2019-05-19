@@ -32,7 +32,6 @@ rasdaman GmbH.
  *
  *****************************************************************************/
 
-#include "config.h"
 #include "dbnamedobject.hh"
 #include "dbobject.hh"  // for DBObject
 #include "mymalloc/mymalloc.h"
@@ -41,7 +40,6 @@ rasdaman GmbH.
 #include <stdlib.h>     // for free, malloc
 #include <string.h>     // for strncpy, strlen
 #include <ostream>      // for operator<<, ostream, basic_ostream, char_traits
-
 
 // Beware: keep this value less or equal to STRING_MAXLEN in externs.h!
 #define MAXNAMELENGTH_CONST 200

@@ -534,17 +534,19 @@ closeTransaction(bool doCommit)
 {
     if (taIsOpen)
     {
-        LDEBUG << (doCommit ? "Committing" : "Aborting") << " transaction... ";
         if (doCommit)
         {
+            LDEBUG << "Committing transaction... ";
             ta.commit();
+            LDEBUG << "Transaction committed successfully.";
         }
         else
         {
+            NNLINFO << "aborting transaction... ";
             ta.abort();
+            BLINFO << "ok.\n";
         }
 
-        LDEBUG << "Successfully closed transaction.";
         taIsOpen = false;
     }
     return !taIsOpen;

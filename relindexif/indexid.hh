@@ -20,8 +20,8 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _INDEXID_HH_
-#define _INDEXID_HH_
+#pragma once
+
 
 class DBHierIndex;
 class DBTCIndex;
@@ -35,5 +35,3 @@ using DBHierIndexId = DBRef<DBHierIndex>;
 using DBTCIndexId = DBRef<DBTCIndex>;
 using DBRCIndexDSId = DBRef<DBRCIndexDS>;
 // using DBIndexDSId = DBRef<DBIndexDS>;
-
-#endif

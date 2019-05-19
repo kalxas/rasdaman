@@ -32,22 +32,13 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include "config.h"
-#include <string.h>
+#include "adminif.hh"       // for AdminIf, SYSTEMNAME_MAXLEN
+#include "objectbroker.hh"  // for ObjectBroker
 
-#include "raslib/error.hh"
-#include "adminif.hh"
-#include "dbobject.hh"
-
-#include "sqlerror.hh"
-#include "objectbroker.hh"
-#include <unistd.h>
-#include <errno.h>
-
-#include "externs.h"
-
-#include <logging.hh>
-
+#include <logging.hh>       // for Writer, CTRACE, LTRACE
+#include <string.h>         // for strcpy
+#include <errno.h>          // for errno
+#include <unistd.h>         // for gethostname
 
 AdminIf *AdminIf::myInstance = nullptr;
 bool AdminIf::validConnection = false;

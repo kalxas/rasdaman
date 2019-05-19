@@ -32,11 +32,11 @@ rasdaman GmbH.
  **********************************************************************/
 
 #include "eoid.hh"
-#include <ostream>              // for operator<<, basic_ostream, ostream
-
 #include "adminif.hh"           // for AdminIf
 #include "databaseif.hh"        // for ostream, DatabaseIf
 #include "raslib/error.hh"      // for r_Error, r_Error::r_Error_Transaction...
+#include <ostream>              // for operator<<, basic_ostream, ostream
+
 
 void EOId::print_status(std::ostream &s) const
 {
@@ -212,4 +212,3 @@ bool EOId::operator>=(const EOId &old) const
     }
     return retval;
 }
-

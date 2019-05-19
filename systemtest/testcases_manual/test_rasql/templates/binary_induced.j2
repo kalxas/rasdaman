@@ -50,6 +50,7 @@ knownfail: produces random result
 -#}
 {%        if dimension == 1 -%}
 query: SELECT {{cell_type_val}} {{op}} {{cell_type_val_right}}
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right}}
 {%          if one_is_composite -%}
 knownfail: produces random result
@@ -57,12 +58,14 @@ knownfail: produces random result
 {{separator}}
 query: SELECT {{cell_type_val}} {{op}} \"invalid\"
 query: SELECT {{cell_type_val}} {{op}} [0,1]
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_invalid"}}
 {%          if one_is_composite -%}
 knownfail: produces random error (scalar[char,char,char] op "invalid")
 {%          endif -%}
 {{separator}}
 query: SELECT {{cell_type_val}} op {{0 ~ cell_type_suffix_dic[cell_type_right]}}
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_by_zero"}}
 {%          if one_is_composite -%}
 knownfail: produces random result (scalar[char,char,char] op 0)

@@ -20,8 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBOBJECTITERATOR_HH_
-#define _DBOBJECTITERATOR_HH_
+#pragma once
 
 #include "lists.h"  // for OIdSet
 
@@ -30,7 +29,6 @@ rasdaman GmbH.
 #include "objectbroker.hh"
 #endif
 #endif
-
 
 template <class T>
 class DBRef;
@@ -108,7 +106,3 @@ private:
 #include "dbobjectiterator.cc"
 #endif
 #endif
-
-#endif
-
-

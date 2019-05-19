@@ -41,7 +41,7 @@
 #include <cassert>
 
 using namespace std;
-using namespace blobfs;
+
 
 void DirWrapper::createDirectory(const string &dirPath)
 {

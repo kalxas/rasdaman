@@ -23,16 +23,16 @@ query: SELECT {{cell_type_max}}
 id: {{test_id ~ "_scalar_max"}}
 {{separator}}
 {%   if cell_type_name == 'float' -%}
-query: SELECT nan
+query: SELECT NaNf
 id: {{test_id ~ "_scalar_nan"}}
 {{separator}}
-query: SELECT -NaN
+query: SELECT -NaNf
 id: {{test_id ~ "_scalar_nan_minus"}}
 {{separator}}
-query: SELECT inf
+query: SELECT inff
 id: {{test_id ~ "_scalar_inf"}}
 {{separator}}
-query: SELECT -INF
+query: SELECT -INFf
 id: {{test_id ~ "_scalar_inf_minus"}}
 {{separator}}
 query: SELECT 1 -- test comments

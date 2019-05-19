@@ -20,8 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBTILE_HH_
-#define _DBTILE_HH_
+#pragma once
 
 #include "reladminif/dbobject.hh"     // for DBObject
 #include "relindexif/indexid.hh"
@@ -238,5 +237,3 @@ protected:
     */
     bool allocatedWithNew{false};
 };
-
-#endif

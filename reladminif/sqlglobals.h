@@ -32,8 +32,7 @@ rasdaman GmbH.
  *
  *****************************************************************************/
 
-#ifndef _SQLGLOBALS_H_
-#define _SQLGLOBALS_H_
+#pragma once
 
 // this syntax should be the same for all embedded SQL versions
 // right now only tested & used with Informix, though
@@ -54,4 +53,3 @@ EXEC SQL define STRING_MAXLEN 255;
 // SQL query string buffer size
 #define SQL_QUERY_BUFFER_SIZE 400
 
-#endif // _SQLGLOBALS_H_

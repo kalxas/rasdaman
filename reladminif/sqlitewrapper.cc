@@ -30,8 +30,7 @@ rasdaman GmbH.
 #include "sqlitewrapper.hh"        // for SQLiteQuery
 #ifdef BASEDB_SQLITE
 
-#include "sqlglobals.h"
-#include "sqlerror.hh"
+#include "sqlglobals.h"            // for QUERY_MAXLEN
 #include "raslib/error.hh"         // for r_Error, DATABASE_CONNECT_FAILED
 #include <logging.hh>              // for Writer, CDEBUG, LDEBUG, CFATAL
 
@@ -43,7 +42,6 @@ rasdaman GmbH.
 #include <string>                  // for string
 #include <cassert>
 #include <unistd.h>
-#include <cstdarg>
 
 // globally defined here, used as an extern in the new engine as well.
 sqlite3 *sqliteConn = NULL;
@@ -263,11 +261,10 @@ double SQLiteQuery::nextColumnDouble()
     return ret;
 }
 
-char *SQLiteQuery::nextColumnString()
+const char *SQLiteQuery::nextColumnString()
 {
     assert(stmt);
-    auto ret = reinterpret_cast<char*>(
-        const_cast<unsigned char *>(sqlite3_column_text(stmt, columnCounter++)));
+    auto ret = reinterpret_cast<const char *>(sqlite3_column_text(stmt, columnCounter++));
     warnOnError("getting string column");
     return ret;
 }

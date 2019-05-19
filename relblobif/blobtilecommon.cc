@@ -41,14 +41,12 @@ rasdaman GmbH.
 #include "reladminif/sqlerror.hh"
 #include "reladminif/objectbroker.hh"// for ObjectBroker
 #include "raslib/mddtypes.hh"    // for r_Data_Format, r_Bytes, r_Array
-#include "raslib/error.hh"
-#include "tileid.hh"
-#include "inlinetile.hh"
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
 #include <stdlib.h>                  // for malloc
 #include <cstring>                   // for memset
+
 
 // defined in rasserver.cc
 extern char globalConnectId[256];

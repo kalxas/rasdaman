@@ -411,7 +411,7 @@ def get_globals():
 
     cell_type = "float"
     mdd_constant_cell_values_dic[cell_type] = get_standard_vals(cell_type) + \
-        ["nan","-nan","inf","-inf"] + \
+        ["nanf","-nanf","inff","-inff"] + \
         [val + ret["cell_type_suffix_dic"][cell_type] \
          for val in ["0.00001","-0.00001","-2147483633","2147483633","123.456789"]]
 

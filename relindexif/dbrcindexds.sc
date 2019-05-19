@@ -1,6 +1,3 @@
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-
 /*
  * This file is part of rasdaman community.
  *

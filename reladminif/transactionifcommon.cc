@@ -27,9 +27,10 @@ rasdaman GmbH.
  *   Code common to all DBMS interface implementations
  */
 
+#include "transactionif.hh"     // for TransactionIf
 #include "databaseif.hh"        // for DatabaseIf
 #include "raslib/error.hh"      // for r_Error
-#include "transactionif.hh"     // for TransactionIf
+
 
 DatabaseIf *TransactionIf::lastBase = nullptr;
 

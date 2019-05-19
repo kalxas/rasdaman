@@ -28,8 +28,7 @@
  *
  ************************************************************/
 
-#ifndef _DIRWRAPPER_HH_
-#define _DIRWRAPPER_HH_
+#pragma once
 
 #include "raslib/error.hh"
 
@@ -41,9 +40,6 @@
 // used by DirWrapper::removeDirectory
 int removePath(const char *fpath, const struct stat *sb, int typeflag,
                struct FTW *ftwbuf);
-
-namespace blobfs
-{
 
 /**
  * Encapsulate common directory operations.
@@ -106,7 +102,3 @@ private:
     DIR *dirStream;
     struct dirent *dirEntry;
 };
-
-}
-
-#endif  // _DIRWRAPPER_HH_

@@ -30,8 +30,7 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#ifndef _DATABASEIF_HH_
-#define _DATABASEIF_HH_
+#pragma once
 
 #include <iosfwd>
 
@@ -55,10 +54,6 @@ used (see also \Ref{AdminIf}).
 
 {\tt database.close();}
 */
-
-/**
-  * \ingroup Reladminifs
-  */
 class DatabaseIf
 {
 public:
@@ -217,4 +212,3 @@ private:
 
 };
 
-#endif

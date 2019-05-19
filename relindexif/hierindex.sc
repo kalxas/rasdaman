@@ -1,6 +1,3 @@
-#include "config.h"
-#include "mymalloc/mymalloc.h"
-
 /*
  * This file is part of rasdaman community.
  *
@@ -45,6 +42,7 @@ rasdaman GmbH.
 #include <logging.hh>
 #include <memory>
 #include <cstring>
+
 
 void DBHierIndex::insertInDb()
 {

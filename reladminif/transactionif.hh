@@ -1,6 +1,3 @@
-#ifndef _TRANSACTIONIF_HH_
-#define _TRANSACTIONIF_HH_
-
 /*
 * This file is part of rasdaman community.
 *
@@ -32,6 +29,12 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ***********************************************************************/
+#pragma once
+
+#include <iosfwd>
+
+class TransactionIf;
+class DatabaseIf;
 
 //@ManMemo: Module: {\bf transactionif}.
 
@@ -39,11 +42,6 @@ rasdaman GmbH.
 TransactionIf has the functionality to begin, commit and abort a base
 DBMS transaction.
 */
-
-#include <iosfwd>
-
-class TransactionIf;
-class DatabaseIf;
 /**
   * \ingroup Reladminifs
   */
@@ -104,4 +102,3 @@ private:
     */
 };
 
-#endif

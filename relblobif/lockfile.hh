@@ -20,13 +20,10 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef _LOCKFILE_HH_
-#define _LOCKFILE_HH_
+#pragma once
 
 #include <string>
 
-namespace blobfs
-{
 
 /**
  * Encapsulate locking on a single file.
@@ -68,7 +65,3 @@ private:
     std::string lockFilePath;
     int fd;
 };
-
-}
-
-#endif

@@ -20,35 +20,51 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include <map>
-#include <set>
-#include <cstring>
-#include <cstdlib>
-#include <cassert>
-#include <malloc.h>
-
-#include "raslib/minterval.hh"
-#include "objectbroker.hh"
-#include "dbnamedobject.hh"
-#include "relstorageif/dbstoragelayout.hh"
-#include "adminif.hh"
-#include "relcatalogif/alltypes.hh"
-#include "relindexif/hierindex.hh"
-#include "relblobif/blobtile.hh"
-#include "relcatalogif/dbminterval.hh"
-#include "relcatalogif/dbnullvalues.hh"
-#include "relblobif/inlinetile.hh"
-#include "relindexif/dbtcindex.hh"
-#include "sqlerror.hh"
-#include "relindexif/indexid.hh"
-#include "relmddif/mddid.hh"
-#include "dbref.hh"
-#include "relmddif/dbmddobj.hh"
-#include "catalogmgr/typefactory.hh"
-#include "relmddif/dbmddset.hh"
-#include "relindexif/dbrcindexds.hh"
-
+#include "objectbroker.hh"                      // for ObjectBroker
+#include "dbobject.hh"                          // for DBObject
+#include "oidif.hh"                             // for OId, operator<<, OId:...
+#include "dbnamedobject.hh"                     // for DBNamedObject
+#include "dbref.hh"                             // for DBRef
+#include "lists.h"                              // for DBObjectPMap, OIdMap
+#include "relindexif/dbrcindexds.hh"            // for DBRCIndexDS
+#include "relindexif/dbtcindex.hh"              // for DBTCIndex
+#include "relindexif/hierindex.hh"              // for DBHierIndex
+#include "relmddif/dbmddobj.hh"                 // for DBMDDObj
+#include "relmddif/dbmddset.hh"                 // for DBMDDSet
+#include "relblobif/blobtile.hh"                // for BLOBTile
+#include "relstorageif/dbstoragelayout.hh"      // for DBStorageLayout
+#include "relcatalogif/dbminterval.hh"          // for DBMinterval
+#include "relcatalogif/booltype.hh"             // for BoolType, BoolType::Name
+#include "relcatalogif/chartype.hh"             // for CharType, CharType::Name
+#include "relcatalogif/complextype.hh"          // for ComplexType1, Complex...
+#include "relcatalogif/dbnullvalues.hh"         // for DBNullvalues
+#include "relcatalogif/doubletype.hh"           // for DoubleType, DoubleTyp...
+#include "relcatalogif/floattype.hh"            // for FloatType, FloatType:...
+#include "relcatalogif/longtype.hh"             // for LongType, LongType::Name
+#include "relcatalogif/mddbasetype.hh"          // for MDDBaseType
+#include "relcatalogif/mdddimensiontype.hh"     // for MDDDimensionType
+#include "relcatalogif/mdddomaintype.hh"        // for MDDDomainType
+#include "relcatalogif/mddtype.hh"              // for MDDType
+#include "relcatalogif/octettype.hh"            // for OctetType, OctetType:...
+#include "relcatalogif/settype.hh"              // for SetType
+#include "relcatalogif/shorttype.hh"            // for ShortType, ShortType:...
+#include "relcatalogif/structtype.hh"           // for StructType
+#include "relcatalogif/ulongtype.hh"            // for ULongType, ULongType:...
+#include "relcatalogif/ushorttype.hh"           // for UShortType, UShortTyp...
+#include "raslib/error.hh"                      // for r_Error, INVALID_OIDTYPE
 #include <logging.hh>                           // for Writer, CTRACE, CFATAL
+
+#ifdef __APPLE__
+#include <sys/malloc.h>
+#else
+#include <malloc.h>
+#endif
+#include <cassert>
+#include <cstring>                              // for strcmp
+#include <set>                                  // for _Rb_tree_iterator, set
+#include <utility>                              // for pair
+#include <vector>                               // for vector
+
 
 class DBTile;
 class InlineTile;

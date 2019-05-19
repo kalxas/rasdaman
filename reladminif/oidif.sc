@@ -32,10 +32,9 @@ rasdaman GmbH.
  *
  *****************************************************************************/
 
-#include "sqlglobals.h"
-
 #include "oidif.hh"
 #include "adminif.hh"
+#include "sqlglobals.h"
 #include "sqlerror.hh"
 #include "sqlitewrapper.hh"
 #include <logging.hh>

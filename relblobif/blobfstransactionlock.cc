@@ -24,7 +24,6 @@
 #include "dirwrapper.hh"  // for DirWrapper
 
 using namespace std;
-using namespace blobfs;
 
 const std::string BlobFSTransactionLock::TRANSACTION_LOCK = "transaction.lock";
 const std::string BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK = "transaction_commit.lock";

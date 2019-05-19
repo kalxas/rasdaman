@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include <utility>                   // for pair
 #include <vector>                    // for vector, vector<>::iterator
 
+
 void DBTCIndex::setMappingHasChanged()
 {
     mappingHasChanged = true;
@@ -317,4 +318,3 @@ void DBTCIndex::decideForInlining()
         }
     }
 }
-

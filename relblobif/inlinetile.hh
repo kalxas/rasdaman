@@ -35,8 +35,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#ifndef _INLINETILE_HH_
-#define _INLINETILE_HH_
+#pragma once
 
 #include "blobtile.hh"             // for BLOBTile
 #include "tileid.hh"
@@ -174,5 +173,3 @@ protected:
         if this oid is invalid the inlinetile is not in inline mode.
     */
 };
-
-#endif

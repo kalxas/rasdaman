@@ -34,25 +34,46 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
+#include "config.h"        // for BASEDB_SQLITE
+#include "globals.hh"      // DEFAULT_DBNAME
+#include "adminif.hh"      // for AdminIf
+#include "databaseif.hh"   // for DatabaseIf, ostream, operator<<
+#include "raslib/error.hh" // for r_Error, r_Error::r_Error_DatabaseOpen
 
-#include "config.h"
-#include <string.h>
+#include <logging.hh>           // for Writer, CTRACE, LTRACE, CERROR, CFATAL
+#include <ostream>              // for operator<<, std::endl, ostream, basic_ostream
+#include <stdlib.h>             // for free
+#include <string.h>             // for strdup
 #ifdef __APPLE__
 #include <sys/malloc.h>
 #else
 #include <malloc.h>
 #endif
 
-#include "globals.hh"   // DEFAULT_DBNAME
+#ifdef SPARC
+#define RASARCHITECTURE "SPARC"
+#else
+#ifdef DECALPHA
+#define RASARCHITECTURE "DECALPHA"
+#else
+#ifdef X86
+#define RASARCHITECTURE "X86"
+#else
+#ifdef AIX
+#define RASARCHITECTURE "AIX"
+#else
+#define RASARCHITECTURE "X86"
+//#error "problem with platform! please check RASARCHITECTURE define in
+//Makefile.inc!"
+#endif
+#endif
+#endif
+#endif
 
-#include "databaseif.hh"
-#include "adminif.hh"
-#include "externs.h"
-#include "sqlerror.hh"
-#include "raslib/error.hh"
-#include "relcatalogif/alltypes.hh"
-
-#include <logging.hh>
+// schema version, change whenever a change is made to the relational schema -- PB 2005-oct-04
+#ifndef RASSCHEMAVERSION
+const int RASSCHEMAVERSION = 5; // currently still v5
+#endif // RASSCHEMAVERSION
 
 // defined in rasserver.cc
 extern char globalConnectId[256];

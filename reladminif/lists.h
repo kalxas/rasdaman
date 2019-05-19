@@ -20,15 +20,16 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _LISTS_H_
-#define _LISTS_H_
+#pragma once
+
+#include "relmddif/mddid.hh"
+#include "raslib/mddtypes.hh"
+#include "raslib/minterval.hh"
 
 #include <map>
 #include <set>
 #include <vector>
-#include "relmddif/mddid.hh"
-#include "raslib/mddtypes.hh"
-#include "raslib/minterval.hh"
+
 
 class DBObject;
 class OId;
@@ -104,4 +105,4 @@ using OIdConstPair = std::pair<const double, const OId>;
 using DomainMap = std::map<double, r_Minterval, std::less<double>>;
 using DomainPair = std::pair<const double, r_Minterval>;
 using DomainConstPair = std::pair<const double, const r_Minterval>;
-#endif
+

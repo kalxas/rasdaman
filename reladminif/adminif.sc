@@ -31,19 +31,17 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include <sqlite3.h>
-#include <climits>
-
 #include "config.h"
-
+#include "adminif.hh"
 #include "sqlerror.hh"
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
-
-#include "adminif.hh"
 #include "objectbroker.hh"
 #include "relblobif/blobfs.hh"
 #include <logging.hh>
+
+#include <sqlite3.h>
+#include <climits>
 
 extern char globalConnectId[PATH_MAX];
 
@@ -109,7 +107,7 @@ AdminIf::AdminIf(bool createDb)
     ObjectBroker::init();
 
     // check database consistency
-    if (!createDb /* && SQLiteQuery::isConnected() */)
+    if (!createDb && SQLiteQuery::isConnected())
     {
         bool rasbaseExists{};
         {
@@ -163,8 +161,7 @@ AdminIf::AdminIf(bool createDb)
         }
     }
 
-    blobfs::BlobFS::getInstance();
+    BlobFS::getInstance();
 
     closeDbConnection();
-
 }

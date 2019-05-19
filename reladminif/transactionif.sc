@@ -34,21 +34,18 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "transactionif.hh"
-
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
 #include "sqlerror.hh"
-
 #include "adminif.hh"
-#include "relblobif/blobfs.hh"
-#include "catalogmgr/typefactory.hh"
 #include "databaseif.hh"
 #include "dbobject.hh"
 #include "objectbroker.hh"
 #include "oidif.hh"
+#include "relblobif/blobfs.hh"
+#include "catalogmgr/typefactory.hh"
 #include <logging.hh>
 
-using blobfs::BlobFS;
 
 void TransactionIf::begin(bool readOnly)
 {

@@ -1,6 +1,3 @@
-#ifndef _OIDIF_HH_
-#define _OIDIF_HH_
-
 /*
 * This file is part of rasdaman community.
 *
@@ -33,11 +30,11 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-//@ManMemo: Module: {\bf adminif}.
-
-class OId;
+#pragma once
 
 #include <iosfwd>
+
+class OId;
 
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
@@ -317,4 +314,3 @@ extern bool operator==(const OId::OIdPrimitive one, const OId &two);
 
 extern bool operator==(const OId &two, const OId::OIdPrimitive one);
 
-#endif

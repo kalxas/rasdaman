@@ -20,13 +20,12 @@
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "blobfile.hh"               // for BlobFile
 #include "blobfscommon.hh"           // for BlobFSConfig, INVALID_BLOB_ID
 #include "blobfstransaction.hh"
 #include "blobfstransactionlock.hh"  // for BlobFSTransactionLock
 #include "dirwrapper.hh"             // for DirEntryIterator, DirWrapper
-#include "reladminif/sqlitewrapper.hh"
+#include "reladminif/sqlitewrapper.hh"          // for SQLiteQuery
 #include "raslib/error.hh"       // for r_Error, BLOBFILENOTFOUND, FAILE...
 #include "logging.hh"                // for LINFO, LERROR, LDEBUG
 
@@ -35,8 +34,8 @@
 #include <string.h>                  // for strerror
 #include <ostream>                   // for stringstream, basic_ostream, ope...
 
-using namespace std;
-using namespace blobfs;
+using std::string;
+using std::stringstream;
 
 #ifndef FILESTORAGE_TILES_PER_DIR
 #define FILESTORAGE_TILES_PER_DIR 16384

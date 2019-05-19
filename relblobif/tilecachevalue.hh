@@ -20,12 +20,10 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _TILECACHEVALUE_HH_
-#define _TILECACHEVALUE_HH_
+#pragma once
 
 #include "raslib/mddtypes.hh"
 #include "reladminif/oidif.hh"
-#include "debug/debug-srv.hh"
 
 #include <set>
 
@@ -89,4 +87,3 @@ private:
     bool fileStorage;
 };
 
-#endif

@@ -30,24 +30,12 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-//@ManMemo: Module: {\bf reladminif}.
-
-/*@Doc:
-
-  SQL Errors Handling
-
-*/
-
 #ifndef _SQLERROR_HH_
 #define _SQLERROR_HH_
 
 #include "config.h"
-#include "raslib/error.hh"
-#include <iostream>
-#include <cstring>
 #include <cstddef>
-using std::cout;
-using std::endl;
+
 
 const int SQLOK = 0;
 const short INDNULL = -1;

@@ -46,6 +46,7 @@ id: {{test_id ~ "_" ~ op_name ~ "_scalar_left_" ~ cell_type_right}}
 -#}
 {%        if dimension == 1 -%}
 query: SELECT {{op}}({{cell_type_val}}, {{cell_type_val_right}})
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right}}
 {%          if cell_type_components|length > 0 -%}
 knownfail: random result for op(scalar[composite], scalar), where op = div, bit, complex, mod, pow/power
@@ -53,12 +54,14 @@ knownfail: random result for op(scalar[composite], scalar), where op = div, bit,
 {{separator}}
 query: SELECT {{op}}({{cell_type_val}}, \"invalid\")
 query: SELECT {{op}}({{cell_type_val}}, [0,1])
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_invalid"}}
 {%          if cell_type_name == 'char_char_char' and cell_type_right == 'char' -%}
 knownfail: random error for op(scalar[char,char,char], scalar[char]), where op = div, bit, complex, mod, pow/power
 {%          endif -%}
 {{separator}}
 query: SELECT {{op}}({{cell_type_val}}, {{0 ~ cell_type_suffix_dic[cell_type_right]}})
+disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_by_zero"}}
 {{separator}}
 {%        endif -%}

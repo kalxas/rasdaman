@@ -21,8 +21,14 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+// This file is included from dbjectiditerator.hh if EARLY_TEMPLATE and __EXECUTABLE_
+// are defined.
+#ifndef EARLY_TEMPLATE
+#ifndef __EXECUTABLE__
 #include "dbobjectiditerator.hh"
 #include "dbref.hh"    // for DBRef
+#endif
+#endif
 
 template <class T>
 DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T> &oidlist)

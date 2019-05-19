@@ -29,16 +29,13 @@
  *
  ************************************************************/
 
-#ifndef _BLOBFSCOMMON_HH_
-#define _BLOBFSCOMMON_HH_
+#pragma once
 
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
 
-namespace blobfs
-{
 
 static const int INVALID_FILE_DESCRIPTOR = -1;
 static const int INVALID_BLOB_ID = -1;
@@ -74,6 +71,3 @@ public:
           transactionsPath(transactionsPathArg) {}
 };
 
-}
-
-#endif

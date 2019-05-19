@@ -27,15 +27,14 @@ rasdaman GmbH.
  * Created on May 8, 2014, 6:05 PM
  */
 
-#ifndef SQLITEWRAPPER_HH
-#define SQLITEWRAPPER_HH
+#pragma once
 
 #include "config.h"
 #ifdef BASEDB_SQLITE
 #include "sqlglobals.h"
 #include <sqlite3.h>
 #include <string>
-#include <cstdarg>
+
 
 /**
  * Convenience class for executing SQLite queries.
@@ -109,7 +108,7 @@ public:
      * next column.
      * @return the string value of the current column.
      */
-    char *nextColumnString();
+    const char *nextColumnString();
 
     /**
      * Returns the current column value, and then advances the counter to the
@@ -228,5 +227,3 @@ private:
 };
 
 #endif
-
-#endif  /* SQLITEWRAPPER_HH */

@@ -20,8 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBOBJECT_HH_
-#define _DBOBJECT_HH_
+#pragma once
 
 #include "binaryrepresentation.hh"  // for BinaryRepresentation
 #include "oidif.hh"                 // for OId, OId::OIdType
@@ -290,4 +289,3 @@ private:
     */
 };
 
-#endif

@@ -20,12 +20,12 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _DBTCINDEX_HH_
-#define _DBTCINDEX_HH_
+#pragma once
 
 #include "relindexif/hierindex.hh"
 #include "reladminif/oidif.hh"
 #include "relblobif/tileid.hh"
+
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
@@ -211,6 +211,4 @@ protected:
         transient, contains pointers to materialised inlinetiles.
         is filled on demand by loadInlineTiles.
     */
-
 };
-#endif

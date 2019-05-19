@@ -23,6 +23,7 @@ rasdaman GmbH.
 /**
   * \ingroup Reladminifs
   */
+
 class BinaryRepresentation
 {
 public:

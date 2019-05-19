@@ -38,5 +38,6 @@ id: {{test_id ~ "_create_coll"}}
 query: INSERT INTO {{ coll_name }} VALUES {{ mdd_constant }}
 {# The printed oid changes on every insert, so remove it from the output -#}
 filter: "Result element 1"
+disableoutfile: ignore the output file as it just contains a random oid of the inserted array
 id: {{test_id ~ "_insert_mdd_constant"}}
 {{separator}}

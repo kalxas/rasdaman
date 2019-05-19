@@ -23,7 +23,6 @@ rasdaman GmbH.
 #ifndef _STORAGEID_HH_
 #define _STORAGEID_HH_
 
-class DBStorageLayout;
 
 template <class T>
 class DBRef;

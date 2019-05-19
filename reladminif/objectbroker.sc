@@ -36,21 +36,22 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "objectbroker.hh"
-
+#include "adminif.hh"
+#include "dbnamedobject.hh"
+#include "dbref.hh"
 #include "sqlglobals.h"
 #include "sqlitewrapper.hh"
 #include "sqlerror.hh"
+#include "relblobif/inlinetile.hh"
 #include "relindexif/dbrcindexds.hh"
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/indexid.hh"
-#include "adminif.hh"
-#include "dbnamedobject.hh"
-#include "relblobif/inlinetile.hh"
-#include "dbref.hh"
-#include "externs.h"
+#include "common/exceptions/exception.hh"
+
 #include "catalogmgr/typefactory.hh"
 
 #include <logging.hh>
+
 
 DBObject *ObjectBroker::loadInlineTile(const OId &id)
 {

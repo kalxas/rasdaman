@@ -20,8 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _EOIDIF_HH_
-#define _EOIDIF_HH_
 /*************************************************************
  *
  *
@@ -34,10 +32,12 @@ rasdaman GmbH.
  * statements in the operator"<" and ">" must be changed.
  ***************************************************************************/
 
-#include <iosfwd>    // for ostream
-#include <string>    // for string
+#pragma once
 
 #include "oidif.hh"  // for OId, OId::OIdType, OId::OIdCounter
+
+#include <iosfwd>    // for ostream
+#include <string>    // for string
 
 class r_Error;
 class EOId;
@@ -140,5 +140,3 @@ private:
 extern std::ostream &operator<<(std::ostream &s, EOId &d);
 
 extern std::ostream &operator<<(std::ostream &s, const EOId &d);
-
-#endif

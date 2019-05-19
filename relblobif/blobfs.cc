@@ -46,7 +46,6 @@
 #include <unistd.h>                  // for access, W_OK, X_OK
 
 using namespace std;
-using namespace blobfs;
 
 extern char globalConnectId[PATH_MAX];
 
@@ -250,24 +249,18 @@ void BlobFS::finalizeUncompletedTransactions()
 
 BlobFS::~BlobFS()
 {
-    if (insertTransaction != nullptr)
-    {
-        delete insertTransaction;
-        insertTransaction = nullptr;
-    }
-    if (updateTransaction != nullptr)
-    {
-        delete updateTransaction;
-        updateTransaction = nullptr;
-    }
-    if (removeTransaction != nullptr)
-    {
-        delete removeTransaction;
-        removeTransaction = nullptr;
-    }
-    if (selectTransaction != nullptr)
-    {
-        delete selectTransaction;
-        selectTransaction = nullptr;
-    }
+    delete insertTransaction, insertTransaction = nullptr;
+    delete updateTransaction, updateTransaction = nullptr;
+    delete removeTransaction, removeTransaction = nullptr;
+    delete selectTransaction, selectTransaction = nullptr;
+}
+
+std::string BlobFS::getBlobFilePath(long long blobId) const
+{
+    return selectTransaction->getFinalBlobPath(blobId);
+}
+
+BlobFSConfig BlobFS::getConfig() const
+{
+    return config;
 }

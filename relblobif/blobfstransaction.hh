@@ -20,8 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef _BLOBFILESTORAGETRANSACTION_HH_
-#define _BLOBFILESTORAGETRANSACTION_HH_
+#pragma once
 
 #include "blobfile.hh"
 #include "blobfscommon.hh"
@@ -30,10 +29,8 @@
 #include <string>  // for string
 #include <vector>  // for vector
 
-using blobfs::BlobData;
+class BlobFSConfig;
 
-namespace blobfs
-{
 
 /**
  * Handles blob file storage transactions: insert, remove, update. This is a
@@ -232,6 +229,3 @@ public:
     void add(BlobData &blobData) override;
 };
 
-}
-
-#endif

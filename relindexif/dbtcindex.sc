@@ -32,10 +32,9 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
-
 #include "reladminif/sqlglobals.h"
 #include "dbtcindex.hh"
+
 
 void DBTCIndex::deleteFromDb()
 {

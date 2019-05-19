@@ -32,6 +32,7 @@
 #include "blobfile.hh"
 #include "blobfscommon.hh"
 #include "mymalloc/mymalloc.h"
+#include "raslib/error.hh"      // for FAILEDWRITINGTODISK, r_Error, BLO...
 #include "logging.hh"               // for LERROR, LWARNING
 
 #include <errno.h>                  // for errno, ENOENT
@@ -41,12 +42,8 @@
 #include <sys/stat.h>               // for stat
 #include <unistd.h>                 // for write, access, close, read, unlink
 #include <istream>                  // for stringstream, basic_istream, basi...
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
 
 using namespace std;
-using namespace blobfs;
 
 BlobFile::BlobFile(const string &filePathArg)
     : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR) {}

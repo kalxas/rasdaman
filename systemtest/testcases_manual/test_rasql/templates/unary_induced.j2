@@ -9,6 +9,7 @@ id: {{test_id ~ "_" ~ op_name}}
 {{separator}}
 {%    if dimension == 1 -%}
 query: SELECT {{op}} {{cell_type_val}}
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_scalar"}}
 {{separator}}
 {%    endif -%}
@@ -21,6 +22,7 @@ id: {{test_id ~ "_" ~ op_name ~ "_band_mdd_" ~ cname}}
 {{separator}}
 {%      if dimension == 1 -%}
 query: SELECT {{op}}{{cell_type_val}}.{{cname}}
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_band_scalar_" ~ cname}}
 {{separator}}
 {%      endif -%}
@@ -41,6 +43,7 @@ skip: random results when casting an atomic type to a composite type
 {{separator}}
 {%    if dimension == 1 -%}
 query: SELECT ({{op}}) {{cell_type_val}}
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_" ~ op ~ "_scalar"}}
 {%-     if op_composite -%}
 known_fail: random results when casting an atomic type to a composite type
@@ -93,6 +96,7 @@ id: {{test_id ~ "_" ~ op_name ~ "_" ~ loop.index0}}
 {% if dimension == 1 -%}
 query: SELECT {{cell_type_val}}.{{cname}}
 query: SELECT {{cell_type_val}}.{{loop.index0}}
+disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_" ~ loop.index0 ~ "_scalar"}}
 {{separator}}
 {% endif -%}

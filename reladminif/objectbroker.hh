@@ -20,12 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _OBJECTBROKER_HH_
-#define _OBJECTBROKER_HH_
+#pragma once
 
-#include "raslib/error.hh"
-#include "lists.h"
 #include "oidif.hh"
+#include "lists.h"
+#include "raslib/error.hh"
 
 class ObjectBroker;
 class ULongType;
@@ -358,7 +357,7 @@ protected:
     */
 
 private:
-    ///the types have to be in fornt of* the maps because of static destructor!
+    /// the types have to be in fornt of* the maps because of static destructor!
     static ULongType *theULong;
     /*@Doc:
     a pointer to this member is returned by getObjectByOId().
@@ -511,4 +510,3 @@ private:
     static OId::OIdType clearingObjectsOfType;
 };
 
-#endif

@@ -33,8 +33,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#ifndef _BLOBTILE_HH_
-#define _BLOBTILE_HH_
+#pragma once
 
 #include "config.h"
 #include "blobfs.hh"
@@ -177,4 +176,3 @@ private:
     friend class TileCache;
 };
 
-#endif

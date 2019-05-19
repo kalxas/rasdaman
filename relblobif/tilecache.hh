@@ -20,8 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _TILECACHE_HH_
-#define _TILECACHE_HH_
+#pragma once
 
 #include "blobtile.hh"
 #include "tilecachevalue.hh"
@@ -90,4 +89,3 @@ private:
 //    friend class TileCacheTest;
 };
 
-#endif

@@ -28,16 +28,14 @@
  *
  ************************************************************/
 
-#ifndef _BLOBFILE_HH_
-#define _BLOBFILE_HH_
+#pragma once
+
 
 #include "raslib/error.hh"
 #include "raslib/mddtypes.hh"
 #include <string>       // for string
 #include <sys/types.h>  // for off_t
 
-namespace blobfs
-{
 
 /**
  * Contents of a blob identified with a blobId.
@@ -51,20 +49,16 @@ public:
 
     inline
     BlobData(long long blobIdArg)
-        : blobId(blobIdArg), size(0), data(NULL)
-    {
-    }
+        : blobId(blobIdArg), size(0), data(NULL) {}
 
     inline
     BlobData(long long blobIdArg, r_Bytes sizeArg, char *dataArg)
-        : blobId(blobIdArg), size(sizeArg), data(dataArg)
-    {
-    }
+        : blobId(blobIdArg), size(sizeArg), data(dataArg) {}
 };
 
 /**
  * Encapsulates functionality that can be performed on a blob file. Also
- * provides some general file operations (moving, checking existencet, etc).
+ * provides some general file operations (moving, checking existence, etc).
  */
 class BlobFile
 {
@@ -134,6 +128,3 @@ private:
     int fd;
 };
 
-}
-
-#endif

@@ -20,8 +20,8 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#ifndef _TILEID_HH_
-#define _TILEID_HH_
+#pragma once
+
 
 class DBTile;
 class BLOBTile;
@@ -34,4 +34,3 @@ using BLOBTileId = DBRef<BLOBTile>;
 using InlineTileId = DBRef<InlineTile>;
 using DBTileId = DBRef<DBTile>;
 
-#endif

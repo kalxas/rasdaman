@@ -32,6 +32,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+// This file is included from dbref.hh if EARLY_TEMPLATE and __EXECUTABLE__
+// are defined.
+#ifndef EARLY_TEMPLATE
+#ifndef __EXECUTABLE__
 
 #include "dbref.hh"
 #include <stdio.h>
@@ -40,6 +44,9 @@ rasdaman GmbH.
 #include "indexmgr/hierindexds.hh"
 #include "indexmgr/indexds.hh"
 #include "objectbroker.hh"
+
+#endif
+#endif
 
 template <class T>
 bool DBRef<T>::pointerCaching = true;
