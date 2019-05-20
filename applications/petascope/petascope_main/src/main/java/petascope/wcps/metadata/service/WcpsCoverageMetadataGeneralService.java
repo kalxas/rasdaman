@@ -254,6 +254,14 @@ public class WcpsCoverageMetadataGeneralService {
         // Normally, the query will need to calculate the grid bound from geo bound
         int i = 0;
         for (Subset numericSubset : numericSubsets) {
+            WcpsSubsetDimension subsetDimension = null;
+            for (WcpsSubsetDimension tmp : subsetDimensions) {
+                if (CrsUtil.axisLabelsMatch(numericSubset.getAxisName(), tmp.getAxisName())) {
+                    subsetDimension = tmp;
+                    break;
+                }
+            }
+            
             //identify the corresponding axis in the coverage metadata
             for (Axis axis : metadata.getAxes()) {
                 // Only apply to correspondent axis with same name
@@ -269,8 +277,6 @@ public class WcpsCoverageMetadataGeneralService {
                     //   e.g: Lat(0:20) -> c[0:50] (calculate the grid coordinates from geo coordinates)
                     // + update the grid-bound according to the subsets and translate update grid-bound to new geo-bound
                     //   e.g: Lat:"CRS:1"(0:50) -> Lat(0:20) (calculate the geo coordinates from grid coordinates)
-                    
-                    WcpsSubsetDimension subsetDimension = subsetDimensions.get(i);
                     
                     // Trimming
                     if (numericSubset.getNumericSubset() instanceof NumericTrimming) {

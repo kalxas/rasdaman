@@ -29,7 +29,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
+import petascope.exceptions.PetascopeException;
 import petascope.util.ListUtil;
+import static petascope.wcps.handler.ForClauseHandler.AS;
 
 /**
  * This class has the purpose of keeping information about coverage aliases inside 1 query (e.g. "for c in mr" means
@@ -55,6 +57,13 @@ public class CoverageAliasRegistry {
      */
     public void clear() {
         coverageMappings = new LinkedHashMap<>();
+    }
+   
+    public void updateCoverageMapping(String coverageAlias, String coverageName, String rasdamanCollectionName) {
+        List<Pair<String, String>> values = coverageMappings.get(coverageAlias);
+        if (values != null) {
+            coverageMappings.put(coverageAlias, ListUtil.valuesToList(new Pair<>(coverageName, rasdamanCollectionName)));
+        }
     }
 
     public void addCoverageMapping(String coverageAlias, String coverageName, String rasdamanCollectionName) {
@@ -151,7 +160,7 @@ public class CoverageAliasRegistry {
             List<String> tmpList = new ArrayList<>();
             for (Pair<String, String> pair : entry.getValue()) {
                 // e.g: test_mean_summer_airtemp as c, not test_mean_summer_airtemp as $c                
-                tmpList.add(pair.snd + " as " + coverageIterator.replace("$", ""));
+                tmpList.add(pair.snd + " " + AS + " " + coverageIterator.replace("$", ""));
             }
             
             // e.g: test_mean_summer_airtemp as c

@@ -82,17 +82,18 @@ public class ForClauseHandler {
         if (coverageNames.size() > 1) {
             // Multipart query
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                    .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
+                               .replace("$collectionName", COLLECTION_NAME + "_" + translatedCoverageIterator);
         } else {            
             template = TEMPLATE.replace("$iterator", translatedCoverageIterator)
-                    .replace("$collectionName", rasdamanCollectionNames.get(0));
+                               .replace("$collectionName", rasdamanCollectionNames.get(0));
         }
         //metadata is loaded in the return clause, no meta needed here
         WcpsResult result = new WcpsResult(null, template);
         return result;
     }
 
-    private static final String TEMPLATE = "$collectionName AS $iterator";
+    public static final String AS = "AS";
+    private static final String TEMPLATE = "$collectionName " + AS + " $iterator";
     private static final String COVERAGE_VARIABLE_PREFIX = "$";
     public static final String COLLECTION_NAME = "$collectionName";
 }

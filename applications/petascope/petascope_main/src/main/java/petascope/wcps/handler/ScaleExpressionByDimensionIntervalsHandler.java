@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import petascope.core.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
@@ -38,6 +39,7 @@ import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.RasqlTranslationService;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.DimensionIntervalList;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
@@ -60,6 +62,8 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
     private SubsetParsingService subsetParsingService;
     @Autowired
     private RasqlTranslationService rasqlTranslationService;
+    @Autowired
+    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
     
     public static final String OPERATOR = "scale";
     
@@ -97,8 +101,8 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
         Subset subset2 = new Subset(numericTrimming, subset1.getCrs(), axis2.getLabel());
         subsets.add(subset2);
     }
-
-    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException {
+    
+    public WcpsResult handle(WcpsResult coverageExpression, DimensionIntervalList dimensionIntervalList) throws PetascopeException, SecoreException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR); 
 
@@ -143,17 +147,20 @@ public class ScaleExpressionByDimensionIntervalsHandler extends AbstractOperator
             Pair<String, NumericTrimming> pair = new Pair(axis.getLabel(), numericTrimming);
             geoBoundAxes.add(pair);
         }
-
+        
+        // Only for 2D XY coverage imported with downscaled collections
+        this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
+        
         // NOTE: from WCPS 1.0 standard, C2 = scale(C1, {x(lo1:hi1), y(lo2:hi2),...}        
         // for all a ∈ dimensionList(C2), c ∈ crsSet(C2, a):
         //          imageCrsDomain(C2 , a ) = (lo:hi) - it means: ***axis's grid domain will be set*** to corresponding lo:hi!
         //          domain(C2,a,c) = domain(C1,a,c) - it means: ***axis's geo domain will not change***!
         wcpsCoverageMetadataService.applySubsets(false, metadata, subsetDimensions, numericSubsets);
-
+        
         // it will not get all the axis to build the intervals in case of (extend() and scale())
         String domainIntervals = rasqlTranslationService.constructSpecificRasqlDomain(metadata.getSortedAxesByGridOrder(), numericSubsets);
         String rasql = TEMPLATE.replace("$coverage", coverageExpression.getRasql())
-                .replace("$intervalList", domainIntervals);
+                               .replace("$intervalList", domainIntervals);
 
         // Revert the changed axes' geo bounds as before applying scale subsets.
         // e.g: scale(c, {Lat:"CRS:1"(0:20), Long:"CRS:1"(0:20)} and before scale, 

@@ -1,0 +1,4 @@
+for $c in (test_AverageChloro) return encode(
+  (condense + over $date d(imageCrsDomain($c, unix))
+  using $c[unix($date), Lat(-20:90), Long(-30:150)]) / 9 * 1000
+, "jpeg")

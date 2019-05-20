@@ -22,6 +22,10 @@
         
                             <div class="form-group">
                                 <input type="button" class="btn btn-primary" ng-click="login()" value="Login"/>
+                                <input type="button" class="btn btn-warning" value="?" style="float: right;" 
+                                onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')"
+                                data-placement="left" title="" class="ng-pristine ng-valid ng-touched"
+                                data-original-title="Please specify credentials as configured in petascope.properties (petascope_admin_user and petascope_admin_pass settings)."/>
                             </div>
                         </div>
     

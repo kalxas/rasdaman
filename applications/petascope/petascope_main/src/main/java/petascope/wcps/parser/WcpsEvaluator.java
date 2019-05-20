@@ -1390,8 +1390,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         try {
             wcpsResult = scaleExpressionByDimensionIntervalsHandler.handle(coverageExpr, dimensionIntervalList);
-        } catch (PetascopeException ex) {
-            String errorMessage = "Error processing scale() operator expression. Reason: " + ex.getExceptionText() + ".";
+        } catch (PetascopeException | SecoreException ex) {
+            String errorMessage = "Error processing scale() operator expression. Reason: " + ex.getMessage() + ".";
             throw new WCPSException(errorMessage, ex);
         }
 
@@ -1410,8 +1410,16 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String domainIntervalsRasql = StringUtil.stripParentheses(wcpsMetadataResult.getResult());
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
 
-        WcpsResult result = scaleExpressionByImageCrsDomainHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
-        return result;
+        WcpsResult wcpsResult = null;
+        
+        try {
+            wcpsResult = scaleExpressionByImageCrsDomainHandler.handle(coverageExpr, wcpsMetadataResult, domainIntervalsRasql);
+        } catch (PetascopeException | SecoreException ex) {
+            String errorMessage = "Error processing scale() operator expression. Reason: " + ex.getMessage() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
+        
+        return wcpsResult;
     }
 
     @Override

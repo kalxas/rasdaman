@@ -1,0 +1,6 @@
+for c in (test_wcps_scale_downscaled) return encode( scale((
+   condense +
+   over     $ts unix( imageCrsDomain(c[unix:"CRS:1"(-3:0)], unix) )
+   using    c[unix($ts)]
+ ) * 3, { Long:"CRS:1"(0:35), Lat:"CRS:1"(0:35) })
+, "png")

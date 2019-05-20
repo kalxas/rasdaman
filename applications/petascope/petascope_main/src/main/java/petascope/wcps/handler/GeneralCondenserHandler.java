@@ -106,6 +106,7 @@ public class GeneralCondenserHandler extends AbstractOperatorHandler {
         return new WcpsResult(using.getMetadata(), template);
     }
 
+    public static final String USING = "USING";
     private final String CONDENSER_TEMP_NAME = "CONDENSE_TEMP";
-    private final String TEMPLATE = "CONDENSE $operation OVER $iter in [$intervals] $whereClause USING $using";
+    private final String TEMPLATE = "CONDENSE $operation OVER $iter in [$intervals] $whereClause " + USING + " $using";
 }

@@ -26,11 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.wcps.exception.processing.IncompatibleAxesNumberException;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.NumericTrimming;
+import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataGeneralService;
+import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 
@@ -50,8 +54,10 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
     
     @Autowired
     private WcpsCoverageMetadataGeneralService wcpsCoverageMetadataService;
+    @Autowired
+    private WcpsCoverageMetadataTranslator wcpsCoverageMetadataTranslatorService;
 
-    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) {
+    public WcpsResult handle(WcpsResult coverageExpression, WcpsMetadataResult wcpsMetadataResult, String dimensionIntervalList) throws PetascopeException, SecoreException {
         
         checkOperandIsCoverage(coverageExpression, OPERATOR);  
 
@@ -70,20 +76,28 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
         if (axes.size() != values.length) {
             throw new IncompatibleAxesNumberException(metadata.getCoverageName(), axes.size(), values.length);
         }
-
+        
         for (String value : values) {
             String lowerValue = value.split(":")[0];
             String upperValue = value.split(":")[1];
             gridBounds.add(new NumericTrimming(new BigDecimal(lowerValue), new BigDecimal(upperValue)));
         }
         
+        List<Subset> numericSubsets = new ArrayList<>();        
         for (int i = 0; i < axes.size(); i++) {
             Axis axis = axes.get(i);
             axis.setGridBounds(gridBounds.get(i));
             
             // Also recalculate for axis's geo resolution as grid domain has changed
             this.wcpsCoverageMetadataService.updateGeoResolutionByGridBound(axis);
+            
+            NumericTrimming numericTrimming = new NumericTrimming(axis.getGridBounds().getLowerLimit(), axis.getGridBounds().getUpperLimit());
+            Subset numericSubset = new Subset(numericTrimming, axis.getNativeCrsUri(), axis.getLabel());
+            numericSubsets.add(numericSubset);
         }
+        
+        // Only for 2D XY coverage imported with downscaled collections
+        this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
 
         return new WcpsResult(metadata, rasql);
     }

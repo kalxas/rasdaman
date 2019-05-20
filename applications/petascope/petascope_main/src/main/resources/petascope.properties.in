@@ -134,7 +134,7 @@ petascope_servlet_url=
 #                such as WCS-T (InsertCoverage, UpdateCoverage and DeleteCoverage).
 # description:   Used to control which IP addresses can send write requests which could change 
 #                rasdaman data through petascope. Set to empty to block any IP addresses (even localhost).
-#                Set to * to allow write requests from any IP addresses.
+#                Set to * to allow write requests from any IP address.
 # need to adapt: no
 allow_write_requests_from=127.0.0.1
 

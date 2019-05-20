@@ -24,6 +24,8 @@ package petascope.wcps.metadata.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.rasdaman.domain.cis.*;
 import org.rasdaman.domain.cis.Coverage;
@@ -37,6 +39,8 @@ import petascope.core.Pair;
 import petascope.service.PyramidService;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
+import static petascope.wcps.handler.GeneralCondenserHandler.USING;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.model.Axis;
@@ -45,6 +49,8 @@ import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
 import petascope.wcps.metadata.model.ParsedSubset;
 import petascope.wcps.metadata.model.RegularAxis;
+import petascope.wcps.metadata.model.Subset;
+import petascope.wcps.result.WcpsResult;
 
 /**
  * This class translates different types of metadata into WcpsCoverageMetadata.
@@ -61,6 +67,8 @@ public class WcpsCoverageMetadataTranslator {
     private PyramidService pyramidService;
     @Autowired
     private CoordinateTranslationService coordinateTranslationService;
+    @Autowired
+    private CoverageAliasRegistry coverageAliasRegistry;
 
 
     public WcpsCoverageMetadataTranslator() {
@@ -148,6 +156,86 @@ public class WcpsCoverageMetadataTranslator {
         axis.setGeoBounds(geoSubset);
         NumericSubset gridBound = new NumericTrimming(new BigDecimal(gridSubset.getLowerLimit().toString()), new BigDecimal(gridSubset.getUpperLimit().toString()));
         axis.setGridBounds(gridBound);
+    }
+    
+    /**
+     * If a 2D coverage imported with downscaled collections, then it can scale the grid domains on the first parameter of scale()
+     * by the value of selected downscale collection and update coverage name in FROM clause to downscaled collection name.
+     * Based on width and height, calculate the downscaledLevel should be applied on grid XY bounds of original WCPS coverage object
+     * e.g: Lat axis with grid bound (0:10) will change to (0/2:10/2) = (0:5)
+     */
+    public void applyDownscaledLevelOnXYGridAxesForScale(WcpsResult coverageExpression, 
+                                                         WcpsCoverageMetadata metadata, List<Subset> numericSubsets) throws PetascopeException, SecoreException {
+        
+        if (metadata.containsOnlyXYAxes()) {
+            int width = numericSubsets.get(0).getNumericSubset().getUpperLimit().toBigInteger().intValue() - numericSubsets.get(0).getNumericSubset().getLowerLimit().toBigInteger().intValue();
+            int height = numericSubsets.get(1).getNumericSubset().getUpperLimit().toBigInteger().intValue() - numericSubsets.get(1).getNumericSubset().getLowerLimit().toBigInteger().intValue();
+        
+            List<Axis> xyAxes = metadata.getXYAxes();
+
+            Pair<BigDecimal, BigDecimal> geoSubsetX = new Pair<>(xyAxes.get(0).getGeoBounds().getLowerLimit(), xyAxes.get(0).getGeoBounds().getUpperLimit());
+            Pair<BigDecimal, BigDecimal> geoSubsetY = new Pair<>(xyAxes.get(1).getGeoBounds().getLowerLimit(), xyAxes.get(1).getGeoBounds().getUpperLimit());
+            Coverage coverage = this.persistedCoverageService.readCoverageFullMetadataByIdFromCache(metadata.getCoverageName());
+            BigDecimal downscaledLevel = this.pyramidService.getDownscaledLevel(coverage, geoSubsetX, geoSubsetY, width, height);
+            
+            // If no imported downscaled collection, then no need to adjust anything
+            if (!downscaledLevel.equals(BigDecimal.ONE)) {
+
+                String coverageAlias = this.coverageAliasRegistry.getAliasByCoverageName(metadata.getCoverageName());
+                String downscaledCollectionName = this.pyramidService.createDownscaledCollectionName(metadata.getRasdamanCollectionName(), downscaledLevel);
+                this.coverageAliasRegistry.updateCoverageMapping(coverageAlias, metadata.getCoverageName(), downscaledCollectionName);
+
+                String translatedRasqlScaleFirstParameter = coverageExpression.getRasql();
+                // In case of using condenser as first paramter of scale(), it should not downscale domain of iterators
+                int indexOfUsing = translatedRasqlScaleFirstParameter.indexOf(USING);
+                String result = "";
+                for (int i = 0; i < translatedRasqlScaleFirstParameter.length(); i++){
+                    char c = translatedRasqlScaleFirstParameter.charAt(i);
+                    String value = String.valueOf(c);
+                    int numberOfOpenBrackets = 0;
+                    if (c == '[') {
+                        value = "";
+                        numberOfOpenBrackets++;
+                        for (int j = i + 1; j < translatedRasqlScaleFirstParameter.length(); j++) {
+                            char d = translatedRasqlScaleFirstParameter.charAt(j);
+                            if (d == '[') {
+                                numberOfOpenBrackets++;
+                            }
+                            if (d == ']') {
+                                numberOfOpenBrackets--;
+                                i = j;
+                                if (numberOfOpenBrackets == 0) {
+                                    break;
+                                }
+                            }
+                            value += d;
+                        }
+
+                        // e.g: CONDENSE min OVER ts in [0:5]  USING c[ts[0],0:99,0:99], only update grid domains after USING (not [0:5])
+                        if (indexOfUsing < i) {
+                            List<String> boundsList = new ArrayList<>();
+                            String[] parts = value.split(",");
+                            for (String part : parts) {
+                                String updatedPart = part;
+                                if (part.contains(":")) {
+                                    String[] bounds = part.split(":");
+                                    BigDecimal lowerBound = new BigDecimal(bounds[0].trim());
+                                    BigDecimal upperBound = new BigDecimal(bounds[1].trim());
+                                    String appliedLowerBound = BigDecimalUtil.divide(lowerBound, downscaledLevel).toBigInteger().toString();
+                                    String appliedUpperBound = BigDecimalUtil.divide(upperBound, downscaledLevel).toBigInteger().toString();
+                                    updatedPart = appliedLowerBound + ":" + appliedUpperBound;
+                                }
+                                boundsList.add(updatedPart);
+                            }
+                            value = ListUtil.join(boundsList, ",");
+                        }
+                        value = "[" + value + "]";
+                    }
+                    result += value;
+                }
+                 coverageExpression.setRasql(result);
+            }
+        }
     }
     
     /**

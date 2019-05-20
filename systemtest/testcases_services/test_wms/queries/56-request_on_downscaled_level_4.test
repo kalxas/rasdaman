@@ -1,0 +1,1 @@
+service=WMS&version=1.3.0&request=GetMap&layers=test_wcps_scale_downscaled&bbox=-58.975,111.975,-8.975,161.975&crs=EPSG:4326&width=20&height=20&Styles=&format=image/png

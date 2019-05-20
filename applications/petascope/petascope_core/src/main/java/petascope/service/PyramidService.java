@@ -189,10 +189,54 @@ public class PyramidService {
     }
     
     /**
+     * For X or Y axis, calculate which downscaled level should be returned
+     * based on the input width / height.
+     */
+    private BigDecimal calculateSuitableDownscaledLevelForAxis(List<RasdamanDownscaledCollection> rasdamanDownscaledCollections, 
+                                                               GeoAxis geoAxis, Pair<BigDecimal, BigDecimal> geoSubset, int outputGridDomain) throws PetascopeException, SecoreException {
+        
+        int numberOfDownscaledCollections = rasdamanDownscaledCollections.size();
+
+        BigDecimal result = BigDecimal.ONE;
+        
+        for (int i = 0; i < numberOfDownscaledCollections; i++) {
+            BigDecimal level = rasdamanDownscaledCollections.get(i).getLevel();
+            BigDecimal numberOfGridPixels = BigDecimal.ONE;
+            BigDecimal axisResolutionTmp = geoAxis.getResolution().multiply(level);
+
+            BigDecimal nextLevel = level;
+            BigDecimal axisResolutionNextLevelTmp = axisResolutionTmp;
+            BigDecimal numberOfGridPixelsNextLevel = BigDecimal.ONE;
+
+            if (i < numberOfDownscaledCollections - 1) {
+                nextLevel = rasdamanDownscaledCollections.get(i + 1).getLevel();
+                axisResolutionNextLevelTmp = geoAxis.getResolution().multiply(nextLevel);
+            }
+
+            numberOfGridPixels = BigDecimalUtil.divide(geoSubset.snd.subtract(geoSubset.fst), axisResolutionTmp).abs();
+            numberOfGridPixelsNextLevel = BigDecimalUtil.divide(geoSubset.snd.subtract(geoSubset.fst), axisResolutionNextLevelTmp).abs();
+
+            // e.g: level 1 with grid: [0:99], level 4 with grid [0:24, 0:24], select width = 40 should use level 4
+            // select width = 70 should use level 1
+            BigDecimal distance = numberOfGridPixels.subtract(new BigDecimal(outputGridDomain)).abs();
+            BigDecimal distanceNextLevel = numberOfGridPixelsNextLevel.subtract(new BigDecimal(outputGridDomain)).abs();
+
+            // e.g: grid domain level 1 is 0:99, grid domain level 2 is: 0:49, select suset 0:60, then it should use 0:99 to downscale to 0:60
+            if ((distance.compareTo(distanceNextLevel) < 0) || numberOfGridPixelsNextLevel.compareTo(new BigDecimal(outputGridDomain)) < 0) {
+                return level;                
+            } else {
+                result = level;
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * From the list of downscaled collections, select a suitable level for input geo subset on XY axes.
      */
     public BigDecimal getDownscaledLevel(Coverage coverage, Pair<BigDecimal, BigDecimal> geoSubsetX, Pair<BigDecimal, BigDecimal> geoSubsetY, 
-                                         Integer width, Integer height) 
+                                         int width, int height) 
                       throws PetascopeException, SecoreException {
         List<RasdamanDownscaledCollection> rasdamanDownscaledCollections = coverage.getRasdamanRangeSet().getAllPossibleRasdamanDownscaledCollections();
         // By default it is the highest downscaled level with lowest image resolution.
@@ -208,28 +252,12 @@ public class PyramidService {
         String coverageCRS = coverage.getEnvelope().getEnvelopeByAxis().getSrsName();
         
         for (GeoAxis geoAxis : geoAxes) {
-            for (int j = numberOfDownscaledCollections - 1; j >= 0; j--) {
-                BigDecimal level = rasdamanDownscaledCollections.get(j).getLevel();
-                BigDecimal numberOfGridPixels = BigDecimal.ONE;
-                BigDecimal axisResolutionTmp = geoAxis.getResolution().multiply(level);
-                
-                String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
-                
-                if (CrsUtil.isXAxis(axisType)) {
-                    numberOfGridPixels = BigDecimalUtil.divide(geoSubsetX.snd.subtract(geoSubsetX.fst), axisResolutionTmp).abs();
-                    if (numberOfGridPixels.compareTo(new BigDecimal(width)) <= 0) {
-                        lowestDownscaledLevelX = level;                        
-                    } else {
-                        break;
-                    }
-                } else if (CrsUtil.isYAxis(axisType)) {
-                    numberOfGridPixels = BigDecimalUtil.divide(geoSubsetY.snd.subtract(geoSubsetY.fst), axisResolutionTmp).abs();
-                    if (numberOfGridPixels.compareTo(new BigDecimal(height)) <= 0) {
-                        lowestDownscaledLevelY = level;                         
-                    } else {
-                        break;
-                    }
-                }
+            String axisType = CrsUtil.getAxisTypeByIndex(coverageCRS, i);
+            
+            if (CrsUtil.isXAxis(axisType)) {
+                lowestDownscaledLevelX = this.calculateSuitableDownscaledLevelForAxis(rasdamanDownscaledCollections, geoAxis, geoSubsetX, width);
+            } else if (CrsUtil.isYAxis(axisType)) {
+                lowestDownscaledLevelY = this.calculateSuitableDownscaledLevelForAxis(rasdamanDownscaledCollections, geoAxis, geoSubsetY, height);
             }
             
             i++;

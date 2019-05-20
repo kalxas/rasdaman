@@ -52,7 +52,9 @@ public class ForClauseListHandler {
         WcpsResult result = new WcpsResult(null, template);
         return result;
     }
+    
+    public static final String FROM = "FROM";
 
-    private final String TEMPLATE = "FROM $forClausesList";
-    private final String FROM_CLAUSE_SEPARATOR = ",";
+    private static final String TEMPLATE = FROM + " $forClausesList";
+    private static final String FROM_CLAUSE_SEPARATOR = ",";
 }
