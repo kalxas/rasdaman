@@ -209,6 +209,7 @@ public class ConfigManager {
     private static final String KEY_OGC_CITE_OUTPUT_OPTIMIZATION = "ogc_cite_output_optimization";
 
     private static final String KEY_ALLOW_WRITE_REQUESTS_FROM = "allow_write_requests_from";
+    public static final String PUBLIC_WRITE_REQUESTS_FROM = "*";
     
     // Deprecated property used for backwards compatibility
     private static final String DEPRECATED_KEY_DISABLE_WRITE_OPERATIONS = "disable_write_operations";
@@ -349,7 +350,15 @@ public class ConfigManager {
             String allowWriteRequestsFrom = get(KEY_ALLOW_WRITE_REQUESTS_FROM);
             String[] tmpArray = allowWriteRequestsFrom.split(",");
             for (String ip : tmpArray) {
-                ALLOW_WRITE_REQUESTS_FROM.add(ip.trim());
+                ip = ip.trim();
+                ALLOW_WRITE_REQUESTS_FROM.add(ip);
+                
+                // In rare case, where public write requests is enabled
+                if (ip.equals("*")) {
+                    ALLOW_WRITE_REQUESTS_FROM.clear();
+                    ALLOW_WRITE_REQUESTS_FROM.add(PUBLIC_WRITE_REQUESTS_FROM);
+                    break;
+                }
             }
         } catch (PetascopeException ex) {
             if (ex.getExceptionCode().equals(ExceptionCode.MissingPropertyKey)) {

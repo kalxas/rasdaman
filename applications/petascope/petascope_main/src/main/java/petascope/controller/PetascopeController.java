@@ -127,15 +127,18 @@ public class PetascopeController extends AbstractController {
      * Check if a source IP address can send a write request to petascope.
      */
     private void validateWriteRequestFromIP(String request, String sourceIP) throws PetascopeException {
-        // localhost IP in servlet
-        if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
-            sourceIP = "127.0.0.1";
-        }
         
-        if (this.WRITE_REQUESTS.contains(request)) {
-            if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
-                throw new PetascopeException(ExceptionCode.AccessDenied, 
-                                            "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+        if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(ConfigManager.PUBLIC_WRITE_REQUESTS_FROM)) {
+            // localhost IP in servlet
+            if (sourceIP.equals("0:0:0:0:0:0:0:1") || sourceIP.equals("::1")) {
+                sourceIP = "127.0.0.1";
+            }
+
+            if (this.WRITE_REQUESTS.contains(request)) {
+                if (!ConfigManager.ALLOW_WRITE_REQUESTS_FROM.contains(sourceIP)) {
+                    throw new PetascopeException(ExceptionCode.AccessDenied, 
+                                                "Write request '" + request + "' is not permitted from IP address '" + sourceIP + "'.");
+                }
             }
         }
     }
