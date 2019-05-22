@@ -100,7 +100,8 @@ coverageVariableName: COVERAGE_VARIABLE_NAME
  *   (1+1)
  * | encode($c, "image/png")
  */
-processingExpression: scalarExpression
+processingExpression: getComponentExpression
+                    | scalarExpression
                     | encodedCoverageExpression
 		            | scalarValueCoverageExpression;
 
@@ -125,7 +126,6 @@ scalarValueCoverageExpression: (LEFT_PARENTHESIS)?  coverageExpression (RIGHT_PA
 scalarExpression: booleanScalarExpression
                 | numericalScalarExpression
                 | stringScalarExpression
-                | getComponentExpression
                 | starExpression;
 
 /**
@@ -256,6 +256,14 @@ Lat:http://.../4326 http://.../Index3D
 */
 coverageCrsSetExpression: CRSSET LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS                                        #CoverageCrsSetExpressionLabel;
 
+/**
+e.g: imageCrsdomain(c) returns (0:5,0:20,0:60)
+imageCrsdomain(c, ansi) returns (0:5)
+imageCrsdomain(c, Lat).lo returns 0
+imageCrsdomain(c, Long).hi returns 60
+**/
+sdomExtraction: (LOWER_BOUND | UPPER_BOUND);
+
 /*
 domain()
 The domain of coverage with the specific axis and its CRS (geo-referenced CRS or grid CRS)
@@ -263,7 +271,7 @@ The domain of coverage with the specific axis and its CRS (geo-referenced CRS or
 for $c in (eobstest) return domain(c, Lat, "http://.../Index2D")
 return (-25:75)
 */
-domainExpression: DOMAIN LEFT_PARENTHESIS coverageExpression COMMA axisName COMMA crsName RIGHT_PARENTHESIS
+domainExpression: DOMAIN LEFT_PARENTHESIS coverageExpression COMMA axisName (COMMA crsName)? RIGHT_PARENTHESIS
 #DomainExpressionLabel;
 
 
@@ -313,7 +321,7 @@ imageCrsExpression: IMAGECRS LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHES
  */
 describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARENTHESIS coverageVariableName RIGHT_PARENTHESIS                   #DescribeCoverageExpressionLabel;
 
-domainIntervals: domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression;
+domainIntervals: (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?; 
 
 
 extra_params: STRING_LITERAL | EXTRA_PARAMS;
@@ -342,6 +350,8 @@ decodeCoverageExpression: DECODE LEFT_PARENTHESIS
  */
 coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionLogicLabel
+		          | domainIntervals
+                    #CoverageExpressionDomainIntervalsLabel
 		          | coverageConstructorExpression
                     #CoverageExpressionConstructorLabel
                   | coverageExpression coverageArithmeticOperator coverageExpression
@@ -352,8 +362,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionComparissonLabel
                   | coverageVariableName
                     #CoverageExpressionVariableNameLabel
-                  | scalarExpression
-                    #CoverageExpressionScalarLabel
                   | coverageConstantExpression
                     #CoverageExpressionConstantLabel
                   | decodeCoverageExpression
@@ -400,8 +408,6 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                     #CoverageExpressionCrsTransformLabel
 		          | switchCaseExpression
                     #CoverageExpressionSwitchCaseLabel
-		          | domainIntervals
-                    #CoverageExpressionDomainIntervalsLabel
                   | SCALE LEFT_PARENTHESIS
                         coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE (COMMA fieldInterpolationList)*
                     RIGHT_PARENTHESIS
@@ -428,6 +434,8 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                         coverageExpression COMMA LEFT_BRACKET scaleDimensionIntervalList RIGHT_BRACKET
                     RIGHT_PARENTHESIS
                     #CoverageExpressionScaleByExtentLabel
+                  | scalarExpression
+                    #CoverageExpressionScalarLabel
   		          | coverageExpression IS (NOT)? NULL
 		            #CoverageIsNullExpression;
 /**

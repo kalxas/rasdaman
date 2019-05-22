@@ -70,7 +70,7 @@ public class DomainExpressionHandler extends AbstractOperatorHandler {
         // if axisName and axisCrs is belonge to coverageExpression then can just get the bounding of axis from coverageExpression
         if (isValid(coverageExpression, axisName, axisCrs)) {
             String result = getDomainByAxisCrs(coverageExpression, axisName, axisCrs);
-            metadataResult = new WcpsMetadataResult(coverageExpression.getMetadata(), result);
+            metadataResult = new WcpsMetadataResult(null, result);
         } else {
             throw new InvalidAxisInDomainExpressionException(axisName, axisCrs);
         }
@@ -153,7 +153,7 @@ public class DomainExpressionHandler extends AbstractOperatorHandler {
         // check if axisName belonged to coverageExpression first
         for (Axis axis : coverageExpression.getMetadata().getAxes()) {
             // if coverage contains axisName then check the crsUri belonged to axis also
-            if (axis.getLabel().contains(axisName)) {
+            if (CrsUtil.axisLabelsMatch(axis.getLabel(), axisName)) {
                 String axisCrsCode = CrsUtil.CrsUri.getCode(axis.getNativeCrsUri());
                 String inputCrsCode = CrsUtil.CrsUri.getCode(crsUri);
 

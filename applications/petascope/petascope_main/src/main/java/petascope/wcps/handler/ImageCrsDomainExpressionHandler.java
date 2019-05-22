@@ -73,8 +73,8 @@ public class ImageCrsDomainExpressionHandler extends AbstractOperatorHandler {
 
         // (0:5,0:100,0:231)
         rasql = "(" + StringUtils.join(axisBounds, ",") + ")";
-        WcpsMetadataResult wcpsMetadataResult = new WcpsMetadataResult(coverageExpression.getMetadata(), rasql);
-        return wcpsMetadataResult;
+        WcpsMetadataResult wcpsResult = new WcpsMetadataResult(null, rasql);
+        return wcpsResult;
     }
 
     private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";

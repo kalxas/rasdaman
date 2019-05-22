@@ -1623,6 +1623,24 @@ the extent  of *Lat* to a value that preserves the ratio in the output result: :
    for c in (test_mean_summer_airtemp)
    return encode(scale( c, { Long:"CRS:1"(0:160) } ), "png" )
 
+Extract domain interval from domain()/imageCrsdomain() in WCPS
+--------------------------------------------------------------
+
+Since v9.8, one can extract domain interval (lowerBound:upperBound or 
+an individual bound) from result of ``domain`` and ``imagerCrsdomain``
+operators on a specific coverage's axis. 
+The syntax is ``operator(.lo|.hi)?`` with (``.lo`` or ``.hi``)
+returns the lower bound or upper bound of this interval.
+
+Example, coverage test_eobstest has 3 dimensions. By standard,
+``imageCrsdomain(c)`` returns ``(0:5,0:29,0:39)``. With this
+extended feature, ``imageCrsdomain(c,Long)`` returns ``0:39``
+and ``imageCrsdomain(c,Long).hi`` returns ``39``.
+
+Also, the third argument (CRS URI) in ``domain()`` operator changed
+to optional. If this argument is not specified, ``domain()`` will use
+CRS URI of the selected axis (second argument) instead.
+
 Resample a projected output in WMS request
 ------------------------------------------
 

@@ -979,6 +979,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}

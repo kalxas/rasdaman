@@ -106,20 +106,22 @@ public class RasqlTranslationService {
     private boolean validateExpressionSubset(String axisCrs, WcpsSubsetDimension subset){
         String subsetCrs = subset.getCrs();
         //in case no subset crs is indicated, check if the axis' crs is index or grid
-        if(StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(axisCrs) || CrsUtil.isIndexCrs(axisCrs))){
+        if (StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(axisCrs) || CrsUtil.isIndexCrs(axisCrs))) {
             return true;
         }
         //in case a subset crs is indicated, check if it is index or grid
-        if(!StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(subsetCrs) || CrsUtil.isIndexCrs(subsetCrs))){
+        if (!StringUtils.isEmpty(subsetCrs) && (CrsUtil.isGridCrs(subsetCrs) || CrsUtil.isIndexCrs(subsetCrs))) {
             return true;
         }
         //check whether the subset expression contains a rasql axis iterator
-        for(String rasqlIter: axisIteratorAliasRegistry.getRasqlAxisIterators()){
-            if(subset.getStringBounds().contains(rasqlIter)){
+        for (String rasqlIter: axisIteratorAliasRegistry.getRasqlAxisIterators()) {
+            if (subset.getStringBounds().contains(rasqlIter)){
                 return true;
             }
         }
+        
         return false;
+            
     }
 
     /**

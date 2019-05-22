@@ -21,6 +21,7 @@
  */
 package petascope.wcps.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,7 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // Validate axis name before doing other processes.
         validateSubsets(metadata, subsetDimensions);
 
-        //subset dimensions with numeric or timestamp bounds (Lat(0:4) or ansi("2006-01-01")).
+        // subset dimensions with numeric or timestamp bounds (Lat(0:4) or ansi("2006-01-01")).
         List<WcpsSubsetDimension> terminalSubsetDimensions = subsetParsingService.getTerminalSubsetDimensions(subsetDimensions);
         // subset dimension containing expressions as bounds (Lat($px)).
         List<WcpsSubsetDimension> expressionSubsetDimensions = subsetParsingService.getExpressionSubsetDimensions(subsetDimensions);
@@ -84,11 +85,11 @@ public class SubsetExpressionHandler extends AbstractOperatorHandler {
         // Update the coverage expression metadata with the new subsets
         wcpsCoverageMetadataService.applySubsets(true, metadata, subsetDimensions, numericSubsets);
 
-        //now the metadata contains the correct geo and rasdaman subsets
+        // now the metadata contains the correct geo and rasdaman subsets
         // NOTE: if subset dimension has "$" as axis iterator, just keep it and don't translate it to numeric as numeric subset.
-        String dimensions = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
-                                                        expressionSubsetDimensions);
-        String rasqlSubset = template.replace("$dimensionIntervalList", dimensions);
+        String dimensionIntervals = rasqlTranslationService.constructRasqlDomain(metadata.getSortedAxesByGridOrder(),
+                                                                                 expressionSubsetDimensions);
+        String rasqlSubset = template.replace("$dimensionIntervalList", dimensionIntervals);
         
         // NOTE: DimensionIntervalList with Trim expression can contain slicing as well (e.g: c[t(0), Lat(0:20), Long(30)])
         // then the slicing axis also need to be removed from coverage metadata.

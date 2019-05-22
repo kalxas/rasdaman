@@ -823,6 +823,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitForClauseListLabel(@NotNull wcpsParser.ForClauseListLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#sdomExtraction}.
+	 * @param ctx the parse tree
+	 */
+	void enterSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#sdomExtraction}.
+	 * @param ctx the parse tree
+	 */
+	void exitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#ForClauseLabel}.
 	 * @param ctx the parse tree
 	 */

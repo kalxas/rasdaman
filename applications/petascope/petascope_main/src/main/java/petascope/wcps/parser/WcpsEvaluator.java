@@ -93,8 +93,6 @@ import petascope.wcps.result.VisitorResult;
 import static petascope.wcs2.parsers.subsets.SlicingSubsetDimension.ASTERISK;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -113,6 +111,7 @@ import petascope.wcps.handler.ClipCorridorExpressionHandler;
 import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
+import petascope.wcps.handler.DomainIntervalsHandler;
 import petascope.wcps.metadata.model.RangeField;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
@@ -237,6 +236,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     WcsScaleExpressionByScaleSizeHandler scaleExpressionByScaleSizeHandler;
     @Autowired private
     WcsScaleExpressionByScaleExtentHandler scaleExpressionByScaleExtentHandler;
+    @Autowired private
+    DomainIntervalsHandler domainIntervalsHandler;
     @Autowired private
     ImageCrsExpressionHandler imageCrsExpressionHandler;
     @Autowired private
@@ -1466,13 +1467,60 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         // return: (0:20) as domain of inpurt coverage in Lat is 0:20
         WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
         String axisName = ctx.axisName().getText();
-        // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../4326"")
-        String crsName = CrsUtility.stripBoundingQuotes(ctx.crsName().getText());
+        
+        String crsName = null;
+        if (coverageExpr.getMetadata() != null) {        
+            crsName = coverageExpr.getMetadata().getAxisByName(axisName).getNativeCrsUri();
+            // NOTE: Optional parameter since rasdaman 9.8
+            if (ctx.crsName() != null) {
+                // NOTE: need to strip bounding quotes of crs (e.g: ""http://.../4326"")
+                crsName = CrsUtility.stripBoundingQuotes(ctx.crsName().getText());
+            }
+        }
 
         WcpsMetadataResult result = domainExpressionHandler.handle(coverageExpr, axisName, crsName);
         return result;
     }
-
+    
+    @Override 
+    public VisitorResult visitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx) {
+        // (domainExpression | imageCrsDomainExpression | imageCrsDomainByDimensionExpression) (sdomExtraction)?
+        // e.g: imageCrsdomain(c, Lat).lo or imageCrsdomain(c, Lat).hi
+        Boolean sdomLowerBound = null;
+        
+        if (ctx.sdomExtraction() != null) {
+            if (ctx.sdomExtraction().LOWER_BOUND() != null) {
+                sdomLowerBound = true;
+            } else if (ctx.sdomExtraction().UPPER_BOUND() != null) {
+                sdomLowerBound = false;
+            }
+        }
+        
+        WcpsMetadataResult metadataResult = null;
+        if (ctx.domainExpression() != null) {
+            metadataResult = (WcpsMetadataResult)visit(ctx.domainExpression());
+        } else if (ctx.imageCrsDomainExpression() != null) {
+            metadataResult = (WcpsMetadataResult)visit(ctx.imageCrsDomainExpression());
+            // e.g: c is 2D, imageCrsdomain(c).lo which means (0:30,0:50).lo
+            if (sdomLowerBound != null && metadataResult.getResult().contains(",")) {
+                throw new WCPSException(ExceptionCode.WcpsError, "Cannot extract bound from result of imageCrsdomain() on 2D+ coverage.");
+            }
+        } else if (ctx.imageCrsDomainByDimensionExpression()!= null) {
+            metadataResult = (WcpsMetadataResult)visit(ctx.imageCrsDomainByDimensionExpression());
+        }
+        
+        VisitorResult result = new WcpsMetadataResult(null, metadataResult.getResult());
+        if ((sdomLowerBound != null) && (!metadataResult.getResult().contains(","))) {
+            try {
+                result = this.domainIntervalsHandler.handle(new WcpsResult(null, metadataResult.getResult()), sdomLowerBound);
+            } catch (PetascopeException ex) {
+                throw new WCPSException(ExceptionCode.WcpsError, "Cannot extract domain interval of " + ctx.getText() + ". Reason: " + ex.getExceptionText() ,ex);
+            }
+        }
+        
+        return result;
+    }
+    
     @Override
     public VisitorResult visitSwitchCaseRangeConstructorExpressionLabel(@NotNull wcpsParser.SwitchCaseRangeConstructorExpressionLabelContext ctx) {
         // switch case which returns range constructor
@@ -1569,12 +1617,36 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         if (ctx.crsName() != null) {
             crs = StringUtil.stripQuotes(ctx.crsName().getText());
         }
-        String bound = ((WcpsResult)visit(ctx.coverageExpression())).getRasql();
-        WcpsSliceSubsetDimension sliceSubsetDimension = new WcpsSliceSubsetDimension(axisName, crs, bound);
-        if(ctx.coverageExpression().getText().startsWith("\"")){
-            sliceSubsetDimension.setTemporal(true);
+        
+        VisitorResult visitorResult = visit(ctx.coverageExpression());
+        String bound;
+        if (visitorResult instanceof WcpsResult) {
+            bound = ((WcpsResult)visitorResult).getRasql();
+        } else {
+            bound = ((WcpsMetadataResult)visitorResult).getResult();
         }
-        return sliceSubsetDimension;
+        
+        WcpsSubsetDimension subsetDimension;
+        
+        if (StringUtils.countMatches(bound, ":") == 1) {
+            // NOTE: This only happens for this case (subsetting from result of domain()/imageCrsdomain()), with result of domain is an interval, e.g: -20:-10
+            // e.g: c[Lat(domain(c[Lat(-20:-10)], Lat))] -> c[Lat(-20:-10)]
+            bound = StringUtil.stripParentheses(bound);            
+            
+            String[] tmp = bound.split(":");
+            String lowerBound = tmp[0];
+            String upperBound = tmp[1];
+            
+            subsetDimension = new WcpsTrimSubsetDimension(axisName, crs, lowerBound, upperBound);
+        } else {
+            subsetDimension = new WcpsSliceSubsetDimension(axisName, crs, bound);
+        }
+        
+        if (ctx.coverageExpression().getText().startsWith("\"")) {
+            subsetDimension.setTemporal(true);
+        }
+        
+        return subsetDimension;
     }
 
     @Override

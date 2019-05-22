@@ -252,7 +252,6 @@ public class WcpsCoverageMetadataGeneralService {
         // Cannot use Lat min, Lat max to transform as it will be wrong result in any cases.
         // iterate through the subsets
         // Normally, the query will need to calculate the grid bound from geo bound
-        int i = 0;
         for (Subset numericSubset : numericSubsets) {
             WcpsSubsetDimension subsetDimension = null;
             for (WcpsSubsetDimension tmp : subsetDimensions) {
@@ -303,8 +302,6 @@ public class WcpsCoverageMetadataGeneralService {
                     break;
                 }
             }
-            
-            i++;
         }
     }
 

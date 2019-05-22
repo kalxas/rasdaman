@@ -56,7 +56,7 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Abstra
             String highBound = ((NumericTrimming) axis.getGridBounds()).getUpperLimit().toPlainString();
 
             tmp = TRIMMING_TEMPLATE.replace("$lowBound", lowBound)
-                    .replace("$highBound", highBound);
+                                    .replace("$highBound", highBound);
         } else {
             // Slicing
             String bound = ((NumericSlicing) axis.getGridBounds()).getBound().toPlainString();
@@ -65,8 +65,9 @@ public class ImageCrsDomainExpressionByDimensionExpressionHandler extends Abstra
 
         // (0:5)
         rasql = "(" + tmp + ")";
-        WcpsMetadataResult wcpsMetadataResult = new WcpsMetadataResult(coverageExpression.getMetadata(), rasql);
-        return wcpsMetadataResult;
+        
+        WcpsMetadataResult metadataResult = new WcpsMetadataResult(null, rasql);
+        return metadataResult;
     }
 
     private final String TRIMMING_TEMPLATE = "$lowBound:$highBound";

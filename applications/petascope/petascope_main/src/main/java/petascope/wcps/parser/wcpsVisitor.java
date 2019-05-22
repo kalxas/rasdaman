@@ -530,6 +530,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitForClauseListLabel(@NotNull wcpsParser.ForClauseListLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#sdomExtraction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#ForClauseLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

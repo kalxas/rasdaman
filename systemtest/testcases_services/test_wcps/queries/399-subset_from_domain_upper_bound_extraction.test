@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(c[ Lat(-20: domain(c[Lat(-20:-10)], Lat).hi) ], "png")

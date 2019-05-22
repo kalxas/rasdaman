@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+>
+<ows:Exception exceptionCode="WcpsError">
+<ows:ExceptionText>Cannot extract bound from result of imageCrsdomain() on 2D+ coverage.</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

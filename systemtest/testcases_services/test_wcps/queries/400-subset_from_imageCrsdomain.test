@@ -1,0 +1,1 @@
+for c in (test_mean_summer_airtemp) return encode(c[Lat:"CRS:1"(imageCrsdomain(c[Lat(-30:-10)], Lat))], "png")

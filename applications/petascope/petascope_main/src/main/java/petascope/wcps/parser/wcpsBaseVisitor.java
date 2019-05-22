@@ -610,6 +610,14 @@ public class wcpsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements w
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx) { return visitChildren(ctx); }
 
 	/**
