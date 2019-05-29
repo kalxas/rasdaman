@@ -215,7 +215,7 @@ module rasdaman {
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
                 }, {
                     title: 'Encode 2D as gml',
-                    query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
+                    query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-43.525:-42.5), Long(112.5:113.5)], "application/gml+xml")'
                 }, {
                     title: 'Encode 2D as png with WebWorldWind (wwd) widget ',
                     query: 'wwd(-44.525,111.975,-8.975,156.275)>>for $c in (mean_summer_airtemp) return encode($c, "png")'

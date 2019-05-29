@@ -21,8 +21,17 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import urllib
+import urllib2
+import ssl
 from master.error.runtime_exception import RuntimeException
+
+
+def __encode_quote(url):
+    """
+    Encode " from URL
+    :param str url: URL to be encoded
+    """
+    return url.replace('"', "%22")
 
 
 def validate_and_read_url(url):
@@ -31,12 +40,13 @@ def validate_and_read_url(url):
     :param str url: the url to open
     :rtype: str
     """
+    url = __encode_quote(url)
     try:
-        ret = urllib.urlopen(url)
+        ret = urllib2.urlopen(url, context=ssl._create_unverified_context())
     except Exception as e:
         raise RuntimeException("Failed opening connection to '{}'. "
                                "Check that the service is up and running."
-                               "Detail error: {}.".format(url, str(e)))
+                               "Detail error: {}.".format(url, e.read()))
 
     response = ret.read()
     if ret.getcode() != 200:
@@ -55,7 +65,8 @@ def url_read_exception(url, exception_message):
     :param str exception_message: the error message could be in the exception from the requested URL
     :return: boolean (false: if status is 200 or true if message does exist)
     """
-    ret = urllib.urlopen(url)
+    url = __encode_quote(url)
+    ret = urllib2.urlopen(url, context=ssl._create_unverified_context())
     response = ret.read()
     if ret.getcode() == 200:
         return False
