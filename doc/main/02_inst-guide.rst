@@ -2706,11 +2706,9 @@ Define New User
 
 ``-passwd p``
     set login password to pass
-    (default: user name)
 
 ``-rights r``
     rights associated with this login
-    (default: R, i.e., read-only)
 
 The user's password can be changed at any time
 (see :ref:`sec-change-user-attributes`).
