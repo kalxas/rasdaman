@@ -303,7 +303,7 @@ public class SecoreUtil {
      * @return
      * @throws org.rasdaman.secore.util.SecoreException
      */
-    public static boolean existsDefInUserDB(String id, String versionNumber) throws SecoreException {
+    public static String existsDefInUserDB(String id, String versionNumber) throws SecoreException {
         // NOTE: userdb version number is not consistent (e.g: it can has def/crs/OGC/0 or def/crs/AUTO/1.3), not as GML Dictionary.
         String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";" + NEW_LINE
                        + "let $d := (collection('" + DbManager.USER_DB + "')//gml:identifier[contains(.,'" + id + "')]/..)[1]" + NEW_LINE
@@ -312,11 +312,7 @@ public class SecoreUtil {
                        + " else <empty/>";
 
         String ret = DbManager.getInstance().getDb().queryUser(query, versionNumber);
-        if (ret.equals(Constants.EMPTY_XML)) {
-            return false;
-        }
-
-        return true;
+        return ret;
     }
 
     /**

@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 import javax.script.ScriptException;
 import net.n3.nanoxml.IXMLElement;
+import org.rasdaman.secore.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.db.DbManager;
@@ -242,12 +243,13 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         // the targetCrs (e.g: need to check if it is from userdb).
         String id = StringUtil.stripDef(targetCRS);
         id = StringUtil.unWrapUri(id);
-        Boolean existDefInUserDB = SecoreUtil.existsDefInUserDB(id, DbManager.FIX_USER_VERSION_NUMBER);
+        String resultDefInUserDB = SecoreUtil.existsDefInUserDB(id, DbManager.FIX_USER_VERSION_NUMBER);
+        this.validateCRSDefRequiredParameters(resultDefInUserDB, request.getParams());
 
         String versionNumber = "";
         String url = "";
         // If the crs exist in userDB then nothing need to change here.
-        if (existDefInUserDB) {
+        if (!resultDefInUserDB.equals(Constants.EMPTY_XML)) {
             Pair<String, String> versionUrlPair = parseRequest(targetCRSRequest);
             versionNumber = versionUrlPair.fst;
             url = versionUrlPair.snd;
@@ -439,7 +441,7 @@ class Parameter {
         // e.g: http://localhost:8080/def/crs/AUTO/1.3/42001 is not valid
         // but http://localhost:8080/def/crs/AUTO/1.3/42001?lon=20 is valid
         if (value == null) {
-            throw new SecoreException(ExceptionCode.InvalidParameterValue, "Value for parameter '" + name + "' cannot be null.");
+            throw new SecoreException(ExceptionCode.InvalidParameterValue, "Missing required key value parameter: " + name + " from CRS request.");
         }
         
         try {
@@ -447,7 +449,7 @@ class Parameter {
             evaluated = true;
         } catch (ScriptException ex) {
             throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(name),
-                                      "Failed evaluating the parameter value '" + value + "'.", ex);
+                                      "Failed evaluating the parameter value '" + value + "'. Reason: " + ex.getMessage(), ex);
         }
     }
 

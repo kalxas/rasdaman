@@ -157,8 +157,10 @@ public class IncompleteUrlHandler extends AbstractHandler {
         // if URL has both authority param and version number param (e.g: /def/crs/AUTO/1.3)
         // then try with userdb first, if it does not exist, then try with GML dictionary
         if (!versionNumberParam.equals("")) {
-            Boolean existsDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumberParam);
-            if (existsDefInUserDB) {
+            String resultDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumberParam);
+            this.validateCRSDefRequiredParameters(resultDefInUserDB, request.getParams());
+            
+            if (!resultDefInUserDB.equals(Constants.EMPTY_XML)) {
                 // Only query in userdb (e.g: /def/crs/AUTO/1.3)
                 res = SecoreUtil.queryDefVersion(QueryDB.USER_DB, urlTmp, versionNumberParam);
             } else {

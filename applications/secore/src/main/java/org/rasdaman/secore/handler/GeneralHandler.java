@@ -114,12 +114,13 @@ public class GeneralHandler extends AbstractHandler {
         }
 
         // NOTE: check if requested ID is in userdb first (e.g: def/crs/AUTO/1.3/42001?lon=10)
-        Boolean existsDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumber);
+        String resultDefInUserDB = SecoreUtil.existsDefInUserDB(url, versionNumber);
+        this.validateCRSDefRequiredParameters(resultDefInUserDB, request.getParams());
         
         String versionTmp = versionNumber;
 
         // If versionNumber does not exist in userdb, then it should be from GML dictionaries.
-        if (!existsDefInUserDB) {
+        if (resultDefInUserDB.equals(Constants.EMPTY_XML)) {
             
             versionTmp = DbSecoreVersion.getLatestEPSGVersionIfVersionZero(url, versionNumber);
             

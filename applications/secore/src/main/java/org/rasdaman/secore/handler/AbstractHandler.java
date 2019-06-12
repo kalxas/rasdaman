@@ -21,6 +21,7 @@
  */
 package org.rasdaman.secore.handler;
 
+import java.io.StringReader;
 import org.rasdaman.secore.req.ResolveResponse;
 import org.rasdaman.secore.req.ResolveRequest;
 import org.rasdaman.secore.db.DbManager;
@@ -29,14 +30,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.rasdaman.secore.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.rasdaman.secore.req.RequestParam;
 import org.rasdaman.secore.Constants;
 import static org.rasdaman.secore.Constants.*;
+import static org.rasdaman.secore.handler.ParameterizedCrsHandler.PARAMETERIZED_CRS;
+import org.rasdaman.secore.req.SimpleParamValue;
 import org.rasdaman.secore.util.ExceptionCode;
 import org.rasdaman.secore.util.StringUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * An abstract implementation of {@link Handler}, which provides some
@@ -404,6 +415,61 @@ public abstract class AbstractHandler implements Handler {
             log.error("Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
             throw new SecoreException(ExceptionCode.InvalidParameterValue,
                                       "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
+        }
+    }
+    
+    /**
+     * If CRS definition has parameters and the input request does not contain on of them.
+     * It should throw exception in this case. 
+     * e.g: OGC/1.3/AUTO42003 which needs 2 parameters: lat and lon
+     */
+    protected void validateCRSDefRequiredParameters(String crsDefintion, List<RequestParam> requestParams) throws SecoreException {
+        if (crsDefintion.contains(PARAMETERIZED_CRS)) {
+            InputSource source = new InputSource(new StringReader(crsDefintion));
+            XPathFactory xpathFactory = XPathFactory.newInstance();
+            XPath xpath = xpathFactory.newXPath();
+            Document doc = null;
+            NodeList nodeList = null;
+
+            try {
+                doc = (Document) xpath.evaluate("/", source, XPathConstants.NODE);
+                nodeList = (NodeList)xpath.compile("//*[local-name()='parameter']").evaluate(doc, XPathConstants.NODESET);
+            } catch (XPathExpressionException ex) {
+                throw new SecoreException(ExceptionCode.InternalComponentError, "Cannot parse XPath from the crs defintion. Reason: " + ex.getMessage(), ex);
+            }
+
+            List<String> missingParams = new ArrayList<>();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                String requiredParamName = node.getAttributes().getNamedItem("name").getTextContent();
+                
+                boolean hasDefaultValue = false;
+                for (int j = 0; j < node.getChildNodes().getLength(); j++) {
+                    Node childNode = node.getChildNodes().item(j);
+                    if ("value".equals(childNode.getLocalName())) {
+                        // NOTE: if a CRS has default value for parameter (e.g: OGC/0/AnsiDate), then no need key value for it
+                        hasDefaultValue = true;
+                        break;
+                    }
+                }
+                
+                if (!hasDefaultValue) {
+                    // Check if request already contains key=value for the required parameter in the CRS definition
+                    for (int j = 0; j < requestParams.size(); j++) {
+                        if (((SimpleParamValue)requestParams.get(j).val).getValue().equals(requiredParamName)) {
+                            break;
+                        } else {
+                            missingParams.add(requiredParamName);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (missingParams.size() > 0) {
+                throw new SecoreException(ExceptionCode.InvalidParameterValue, 
+                        "Missing required key value parameter(s): " + StringUtil.join(missingParams, ", ")  + " from the CRS request.");
+            }
         }
     }
 }
