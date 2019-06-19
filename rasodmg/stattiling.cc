@@ -100,7 +100,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
     }
 
 //deal with dimension
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -143,7 +143,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
         }
 
         //copy substring in buffer
-        lenToConvert = pRes - pTemp;
+        lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
         pToConvert = new char[lenToConvert + 1];
         memcpy(pToConvert, pTemp, lenToConvert);
         pToConvert[lenToConvert] = '\0';
@@ -158,7 +158,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
 
-        lenInToConvert = pInRes - pToConvert + 1; //1 for ]
+        lenInToConvert = static_cast<r_Bytes>(pInRes - pToConvert + 1); //1 for ]
         pInToConvert = new char[lenInToConvert + 1];
         memcpy(pInToConvert, pToConvert, lenInToConvert);
         pInToConvert[lenInToConvert] = '\0';
@@ -236,7 +236,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
     }
 
 //deal with borderTH
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -271,7 +271,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
     }
 
 //copy substring into buffer
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -311,7 +311,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
 
 //deal with tilesize
     pTemp = pRes;
-    tileS = strtol(pTemp, (char **)NULL, DefaultBase);
+    tileS = static_cast<r_Bytes>(strtol(pTemp, (char **)NULL, DefaultBase));
     if (!tileS)
     {
         LERROR << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile size \"" << pToConvert << "\", not a number.";

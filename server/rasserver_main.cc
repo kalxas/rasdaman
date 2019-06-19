@@ -1257,7 +1257,7 @@ void doStuff()
             unsigned short status =
                 server->executeQuery(DQ_CLIENT_ID, queryString, result);
 
-            if (status >= 0 && status <= 2) {
+            if (status <= 2) {
                 printOutput(status, &result);
             } else if (result.token != NULL) {
                 r_Equery_execution_failed e(

@@ -537,7 +537,7 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
         queryString[tmpStr.length()] = '\0';
 
         //update the reference
-        auto offset = length + strlen(valueString);
+        auto offset = static_cast<size_t>(length) + strlen(valueString);
         if (offset > strlen(queryString))
         {
             break;

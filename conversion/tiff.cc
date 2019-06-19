@@ -601,7 +601,7 @@ r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options) // CONVERTION FROM TI
 
     if (formatParams.getFilePaths().empty())
     {
-        memfs_chunk_initfs(handle, (char *)desc.src, static_cast<r_Long>(desc.srcInterv.cell_count())); //==> CHECK THIS
+        memfs_chunk_initfs(handle, const_cast<char*>(reinterpret_cast<const char*>(desc.src)), static_cast<r_Long>(desc.srcInterv.cell_count())); //==> CHECK THIS
         // Create dummy file for use in the TIFF open function
         sprintf(dummyFile, dummyFileFmt, static_cast<void *>(handle));
         fclose(fopen(dummyFile, "wb"));

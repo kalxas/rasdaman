@@ -491,7 +491,7 @@ r_GMarray *r_GMarray::intersect(r_Minterval where) const
     tile->set_array(obj_data);
     tile->set_array_size(where.cell_count() * tlength);
 
-    r_Bytes block_length = where[num_dims - 1].high() - where[num_dims - 1].low() + 1;
+    r_Bytes block_length = static_cast<r_Bytes>(where[num_dims - 1].high() - where[num_dims - 1].low() + 1);
     r_Bytes total = where.cell_count() / block_length;
 
     for (r_Area cell = 0; cell < total; cell++)

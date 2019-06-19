@@ -74,7 +74,7 @@ r_Miter::r_Miter(const r_Minterval *newAreaIter,
         tIncIter = static_cast<size_t>(areaTile->at_unsafe(r).high() - areaTile->at_unsafe(r).low() + 1) * prevTIncIter;
         // inc is the real increment, after some cells in the dimensions
         // have been iterated through.
-        incIter = static_cast<size_t>(tIncIter - incArrIter[i].repeat * prevTIncIter) * cellSize;
+        incIter = (tIncIter - static_cast<size_t>(incArrIter[i].repeat) * prevTIncIter) * cellSize;
         // remember total increment of last dimension
         prevTIncIter = tIncIter;
     }

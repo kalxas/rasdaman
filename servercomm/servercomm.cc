@@ -193,9 +193,9 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
 #else
 std::stringstream requestStream;
 #define DBGREQUEST(msg) { requestStream.str(""); requestStream.clear(); requestStream << "Request: " << msg << "... "; }
-#define DBGOK           ; // nothing to log if release mode and all is ok
-#define DBGINFO(msg)    ; // nothing to log if release mode and all is ok
-#define DBGINFONNL(msg) ; // nothing to log if release mode and all is ok
+#define DBGOK		; // nothing to log if release mode and all is ok
+#define DBGINFO(msg)	; // nothing to log if release mode and all is ok
+#define DBGINFONNL(msg)	; // nothing to log if release mode and all is ok
 #define DBGERROR(msg)   { NNLINFO << requestStream.str(); BLERROR << "Error: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
 #define DBGWARN(msg)    { NNLINFO << requestStream.str(); BLWARNING << "Warning: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
 #endif

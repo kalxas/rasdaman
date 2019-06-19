@@ -71,7 +71,7 @@ public:
         return geomFlag;
     }
 
-    void printStatus(ostream &s) const override;;
+    void printStatus(ostream &s) const override;
 
 protected:
     void initializeData();

@@ -14,7 +14,7 @@
 //  https://muflihun.github.io/easyloggingpp
 //  http://muflihun.com
 //
-
+#pragma GCC system_header
 #ifndef EASYLOGGINGPP_H
 #define EASYLOGGINGPP_H
 // Compilers and C++0x/C++11 Evaluation

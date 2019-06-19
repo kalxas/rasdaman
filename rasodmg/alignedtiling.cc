@@ -72,7 +72,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char *encoded)
     }
 
 //deal with first param
-    lenToConvert = pRes - pStart;
+    lenToConvert = static_cast<r_Bytes>(pRes - pStart);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pStart, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -115,7 +115,7 @@ r_Aligned_Tiling::r_Aligned_Tiling(const char *encoded)
     }
 
 //deal with second param
-    tileS = strtol(pRes, (char **) NULL, DefaultBase);
+    tileS = static_cast<r_Bytes>(strtol(pRes, (char **) NULL, DefaultBase));
     if (!tileS)
     {
         LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
@@ -254,7 +254,7 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size)
                 l = tile_config[static_cast<r_Dimension>(i)].low();
                 h = tile_config[static_cast<r_Dimension>(i)].high();
 
-                if (static_cast<r_Bytes>(size) * (h - l + 1) > tile_size)
+                if (static_cast<r_Bytes>(size) * static_cast<r_Bytes>(h - l + 1) > static_cast<r_Bytes>(tile_size))
                 {
                     h = static_cast<r_Range>(tile_size / size) + l  - 1;
                 }

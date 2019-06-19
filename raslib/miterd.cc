@@ -44,7 +44,7 @@ r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minte
         length(step)
 {
     int i = 0;
-    r_Range s = tlen;
+    r_Range s = static_cast<r_Range>(tlen);
     r_Range offset = 0;
 
     id = new r_miter_direct_data[dim];

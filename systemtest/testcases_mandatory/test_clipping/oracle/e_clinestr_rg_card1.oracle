@@ -1,1 +1,1 @@
-rasdaman error 526: Error: The number of dimensions projected to should match the dimension of the corresponding mask. In this case, a polygon mask is 2-D, and so two distinct axis numbers should be chosen to represent it.
+rasdaman error 500: Error: Every clip requires at least two vertices.

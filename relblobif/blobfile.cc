@@ -64,7 +64,7 @@ void BlobFile::insertData(BlobData &blob)
     {
         generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
     }
-    if (count < blob.size)
+    if (count < static_cast<ssize_t>(blob.size))
     {
         LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
         clearFileDescriptor();
@@ -81,7 +81,7 @@ void BlobFile::updateData(BlobData &blob)
     {
         generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
     }
-    if (count < blob.size)
+    if (count < static_cast<ssize_t>(blob.size))
     {
         LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
         clearFileDescriptor();

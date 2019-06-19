@@ -47,7 +47,7 @@ QtMShapeData::QtMShapeData(const vector<r_Point> &mShape)
         polytopePointsDouble.push_back(pt);
     }
 
-    if (!mShape.size() > 1)
+    if (!(mShape.size() > 1))
     {
         throw r_Error(NEEDTWOORMOREVERTICES);
     }

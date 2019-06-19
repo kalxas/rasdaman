@@ -166,7 +166,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
     }
 
 //deal with dimension
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -210,7 +210,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
         }
 
         //copy parsed interest area
-        lenToConvert = pRes - pTemp;
+        lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
         pToConvert = new char[lenToConvert + 1];
         memcpy(pToConvert, pTemp, lenToConvert);
         pToConvert[lenToConvert] = '\0';
@@ -253,12 +253,12 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
     }
 
 //deal with tile size
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileS = strtol(pToConvert, (char **)NULL, DefaultBase);
+    tileS = static_cast<r_Bytes>(strtol(pToConvert, (char **)NULL, DefaultBase));
     if (!tileS)
     {
         LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\".";

@@ -92,11 +92,11 @@ bool RnpClientComm::effectivTypeIsRNP() noexcept
     return retval;
 }
 
-int RnpClientComm::openDB(const char* database)
+int RnpClientComm::openDB(const char* databaseArg)
 {
     int retval = 0;
 
-    strcpy(databaseName, database);
+    strcpy(databaseName, databaseArg);
 
     getFreeServer(false, true); // read only, openDB
 
@@ -112,7 +112,7 @@ int RnpClientComm::openDB(const char* database)
     else
     {
         executeConnect();
-        executeOpenDB(database);
+        executeOpenDB(databaseArg);
         executeCloseDB();
         executeDisconnect();
     }

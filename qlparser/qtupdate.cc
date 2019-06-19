@@ -99,7 +99,7 @@ QtUpdate::evaluate()
             input->open(); // open input stream
 
             QtNode::QtDataList *nextTuple;
-            while (nextTuple = input->next())
+            while ((nextTuple = input->next()))
             {
                 if (updateSource)
                 {

@@ -279,7 +279,7 @@ void r_Conv_NETCDF::readDimSizes()
     dimOffsets.resize(numDims);
     dataSize = 1;
     desc.destInterv = r_Minterval(static_cast<r_Dimension>(numDims));
-    for (size_t i = 0; i < ndims; i++)
+    for (size_t i = 0; i < numDims; i++)
     {
         if (subsetDomain.dimension() != 0)
         {
@@ -1086,7 +1086,7 @@ void r_Conv_NETCDF::writeDataStruct(const string &varName, const std::vector<int
     const char *src = desc.src + bandOffset;
     for (size_t i = 0; i < dataSize; ++i, src += structSize)
     {
-        dst[i] = *((T *)src);
+        dst[i] = *const_cast<T*>(reinterpret_cast<const T *>(src));
     }
 
     writeData<T>(varName, dims, reinterpret_cast<const char *>(dst.get()),

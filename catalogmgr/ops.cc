@@ -5243,7 +5243,7 @@ OpUpdateULong::operator()(char *res, const char *op)
     auto opVal = *(const r_ULong *)(op + opOff);
     if (!isNull(opVal))
     {
-        *(r_Long *)(res + resOff) = opVal;
+        *reinterpret_cast<r_Long*>(res + resOff) = opVal;
     }
 }
 

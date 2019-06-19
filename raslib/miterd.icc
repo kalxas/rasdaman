@@ -43,7 +43,7 @@ inline r_Range r_MiterDirect::getDimStep(r_Dimension d) const
     return id[d].step;
 }
 
-inline r_Bytes r_MiterDirect::getDimBaseStep(r_Dimension d) const
+inline r_Range r_MiterDirect::getDimBaseStep(r_Dimension d) const
 {
     return id[d].baseStep;
 }

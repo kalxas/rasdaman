@@ -43,9 +43,7 @@ static const char rcsid[] = "@(#)qlparser, QtNullvaluesOp: $Header: /home/rasdev
 #include "qlparser/qtnullvaluesdata.hh"
 #include "qtatomicdata.hh"
 #include "raslib/nullvalues.hh"
-
-#include <easylogging++.h>
-
+#include "easylogging++.h"
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>

@@ -131,7 +131,7 @@ r_Size_Tiling::r_Size_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    r_Bytes tileS = strtol(encoded, (char **)NULL, DefaultBase);
+    r_Bytes tileS = static_cast<r_Bytes>(strtol(encoded, (char **)NULL, DefaultBase));
     if (tileS <= 0)
     {
         LERROR << "r_Size_Tiling::r_Size_Tiling(" << encoded << "): Error decoding tile size.";

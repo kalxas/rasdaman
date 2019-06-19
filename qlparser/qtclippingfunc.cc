@@ -548,9 +548,9 @@ QtClipping::extractLinestring(const MDDObj *op,
                     // add coordinates first
                     if (withCoordinates)
                     {
-                        for (size_t i = 0; i < dim; ++i)
+                        for (size_t ii = 0; ii < dim; ++ii)
                         {
-                            *((r_Long *) resData) = pt[i];
+                            *((r_Long *) resData) = pt[ii];
                             resData += sizeof(r_Long);
                         }
                     }
@@ -898,7 +898,7 @@ QtClipping::extractCorridor(const MDDObj *op, const r_Minterval &areaOp,
         std::stack< r_Dimension > indices;
         for (auto it = embeddedMaskDomains.begin(); it != embeddedMaskDomains.end(); it++)
         {
-            if (it->intersects_with(srcArea));
+            if (it->intersects_with(srcArea))
             {
                 r_Dimension index = std::distance(embeddedMaskDomains.begin(), it);
                 indices.emplace(index);
@@ -1278,7 +1278,7 @@ QtClipping::checkProjDims(r_Dimension opDim, const vector<r_Dimension> &maskDims
     for (auto iter = maskDims.begin(); iter != maskDims.end(); iter++)
     {
         // is the dimension value outside the expected range?
-        if (*iter >= opDim || *iter < 0)
+        if (*iter >= opDim)
         {
             // throw an error
             LERROR << "Error: The coordinate projections must correspond to existing axes.";

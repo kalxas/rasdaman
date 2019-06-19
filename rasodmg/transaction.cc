@@ -406,9 +406,9 @@ r_Transaction::add_object_list(GenRefType type, void *ref)
 
 
 void
-r_Transaction::setDatabase(r_Database *database)
+r_Transaction::setDatabase(r_Database *databaseArg)
 {
-    this->database = database;
+    this->database = databaseArg;
 }
 
 

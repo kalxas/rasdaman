@@ -150,7 +150,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -185,7 +185,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
@@ -211,7 +211,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         }
         pDirEnd = pDirRes;
 
-        lenDirToConvert = pDirEnd - pDirStart;
+        lenDirToConvert = static_cast<r_Bytes>(pDirEnd - pDirStart);
         if (lenDirToConvert == 1)
         {
             LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\".";
@@ -238,7 +238,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
             }
             while (pDirRes)
             {
-                lenDecomp = pDirRes - pDirTemp;
+                lenDecomp = static_cast<r_Bytes>(pDirRes - pDirTemp);
                 pDecomp = new char[lenDecomp + 1];
                 memcpy(pDecomp, pDirTemp, lenDecomp);
                 pDecomp[lenDecomp] = '\0';
@@ -348,12 +348,12 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-    lenToConvert = pRes - pTemp;
+    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
     pToConvert = new char[lenToConvert + 1];
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert] = '\0';
 
-    tileS = strtol(pToConvert, (char **)NULL, DefaultBase);
+    tileS = static_cast<r_Bytes>(strtol(pToConvert, (char **)NULL, DefaultBase));
 
     if (!tileS)
     {
@@ -575,13 +575,13 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
                 // Some unspecified dimensions
 
                 // Compute edgesize
-                r_Range edgesize = tile_size;
+                r_Range edgesize = static_cast<r_Range>(tile_size);
 
                 for (i = 0; i < dimension; i++)
                 {
                     if (!undef_dim[i])
                     {
-                        edgesize /= (tile[i].high() - tile[i].low() + 1) * typelen;
+                        edgesize /= static_cast<r_Range>(tile[i].high() - tile[i].low() + 1) * static_cast<r_Range>(typelen);
                     }
                 }
 

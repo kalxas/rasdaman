@@ -406,7 +406,7 @@ file2.cc,...) and you want to create a commit; first *stage* the changed files: 
     # or for code review
     $ arc diff
 
-3. Finish with this branch by uploading the patch to the `patchmanager
+3. After your diff is reviewed and accepted, finish with this branch by uploading the patch to the `patchmanager
 <http://rasdaman.org/patchmanager>`_ and switching to another ticket in a new
 branch, starting from master again.
 

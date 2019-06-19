@@ -1164,7 +1164,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
             }
             fseek(fileD, 0, SEEK_SET);
             size_t rsize = fread(fileContents.get(), 1, static_cast<size_t>(size), fileD);
-            if (rsize != size)
+            if (static_cast<long>(rsize) != size)
             {
                 BLERROR << "failed, read only " << rsize << " bytes of " << size << " bytes.\n";
                 throw RasqlError(FILEREADERROR);

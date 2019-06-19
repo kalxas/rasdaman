@@ -178,7 +178,7 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
             {
                 failedRegistrations = 0; // all good, reset
             }
-            else if (failedRegistrations++ >= MAX_GET_SERVER_RETRIES)
+            else if (static_cast<uint32_t>(failedRegistrations++) >= MAX_GET_SERVER_RETRIES)
             {
                 LERROR << "Server registration in group " << getGroupName()
                        << " failed too many times; stopping group.";

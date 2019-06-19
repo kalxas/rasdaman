@@ -2057,13 +2057,13 @@ RpcClientComm::destroyDB(const char* name)
 
 
 int
-RpcClientComm::openDB(const char* database)
+RpcClientComm::openDB(const char* databaseArg)
 {
-    strcpy(dataBase, database);
+    strcpy(dataBase, databaseArg);
 
     connectToServer(1); // this means read-only
 
-    int answer = executeOpenDB(database);
+    int answer = executeOpenDB(databaseArg);
 
     if (answer == 0)
     {
@@ -2076,12 +2076,12 @@ RpcClientComm::openDB(const char* database)
 }
 
 int
-RpcClientComm::executeOpenDB(const char* database)
+RpcClientComm::executeOpenDB(const char* databaseArg)
 {
 
     if (binding_h == NULL)
     {
-        LERROR << "RpcClientComm::executeOpenDB(database) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeOpenDB(databaseArg) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         return CONNECTIONCLOSED;
     }
 
@@ -2093,7 +2093,7 @@ RpcClientComm::executeOpenDB(const char* database)
 #endif
     OpenDBParams* params     = new OpenDBParams;
     OpenDBRes*    thisResult = 0;
-    params->dbName   = const_cast<char*>(database);
+    params->dbName   = const_cast<char*>(databaseArg);
     params->userName = static_cast<char*>(RMInit::userName);
     params->capability = capability;
     int*          dummyParam = new int(0);// dummy
@@ -2115,7 +2115,7 @@ RpcClientComm::executeOpenDB(const char* database)
 
     if (binding_h == NULL)
     {
-        LERROR << "RpcClientComm::executeOpenDB(database) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeOpenDB(databaseArg) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         return CONNECTIONCLOSED;
     }
 
@@ -2140,7 +2140,7 @@ RpcClientComm::executeOpenDB(const char* database)
 
     if (binding_h == NULL)
     {
-        LERROR << "RpcClientComm::executeOpenDB(database) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
+        LERROR << "RpcClientComm::executeOpenDB(databaseArg) ERROR: CONNECTION TO SERVER ALREADY CLOSED";
         return CONNECTIONCLOSED;
     }
 

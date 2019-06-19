@@ -340,7 +340,8 @@ set(ELPP_INCLUDE_DIR "${ELPP_SOURCE_DIR}")
 
 set(ELPP_LIBRARY easyloggingpp)
 add_library(${ELPP_LIBRARY} STATIC ${ELPP_SOURCE_DIR}/easylogging++.cc)
-
+target_include_directories(${ELPP_LIBRARY} PRIVATE include/
+					SYSTEM INTERFACE include/)
 install(FILES ${ELPP_INCLUDE_DIR}/easylogging++.h
         DESTINATION ${INCLUDE_DIR})
 install(TARGETS ${ELPP_LIBRARY} ARCHIVE DESTINATION ${LIB_DIR})

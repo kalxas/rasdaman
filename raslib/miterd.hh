@@ -98,7 +98,7 @@ public:
     /// returns number of bytes to step in dimension d in one iteration
     inline r_Range getDimStep(r_Dimension d) const;
     /// returns number of bytes to step in dimension d when pos changes by 1.
-    inline r_Bytes getDimBaseStep(r_Dimension d) const;
+    inline r_Range getDimBaseStep(r_Dimension d) const;
     /// returns extent in dimension d
     inline r_Range getExtent(r_Dimension d) const;
     /// notify that the position was changed and internal variables need to be recalculated

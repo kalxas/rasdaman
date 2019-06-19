@@ -2,7 +2,6 @@
 #define _LOGGING_HH
 
 #include "easylogging++.h"
-
 // Default logging macros, automatically add a new line at the end
 #ifndef LINFO
 #define LINFO LOG(INFO)
