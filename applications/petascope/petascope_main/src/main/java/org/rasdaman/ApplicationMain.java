@@ -52,6 +52,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import petascope.controller.AbstractController;
 import petascope.core.GeoTransform;
 import petascope.exceptions.ExceptionCode;
@@ -59,6 +62,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
+import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -112,6 +116,21 @@ public class ApplicationMain extends SpringBootServletInitializer {
     @Bean
     public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() throws Exception {
         return init();
+    }
+    
+    @Bean
+    WebMvcConfigurer configurer () {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addResourceHandlers (ResourceHandlerRegistry registry) {
+                if (!STATIC_HTML_DIR_PATH.isEmpty()) {
+                    // valid demo folder path as resource, e.g: file:///var/www/html/Earthlook_RASDAMAN_PROJECTS/bigdatacube/
+                    registry.addResourceHandler("/**")
+                            .addResourceLocations("classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/public/", 
+                                                  "file://" + STATIC_HTML_DIR_PATH + "/");
+                }
+            }
+        };
     }
 
     /**

@@ -3581,6 +3581,16 @@ At the end of ``petascope.properties`` you will find the logging configuration. 
 is recommended to adjust this, and make sure that Tomcat has permissions to write
 the petascope.log file.
 
+Static content via petascope
+----------------------------
+
+Since v9.8, external static content (HTML/CSS/Javascript) which
+exists outside of rasdaman.war can be served by petascope
+at http://petascope-endpoint/rasdaman/ if setting
+``static_html_dir_path`` in ``petascope.properties`` is set to an existing
+directory (absolute) path containing index.html as entry web page
+which the user running Tomcat can read.
+
 
 Database migration
 ==================

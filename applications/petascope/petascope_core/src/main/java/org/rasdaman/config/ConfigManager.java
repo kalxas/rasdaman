@@ -24,8 +24,10 @@ package org.rasdaman.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
@@ -160,6 +162,9 @@ public class ConfigManager {
 
     /* ***** WMS configuration ***** */
     public static long MAX_WMS_CACHE_SIZE = 100000000; // 100 MB (in bytes)
+    
+    /* ***** Demo web pages ***** */
+    public static String STATIC_HTML_DIR_PATH = "";
 
     // properties's keys in petascope.properties file
     /* ***** Petascope configuration ***** */
@@ -217,6 +222,10 @@ public class ConfigManager {
     /* ***** LOG4J configuration ***** */
     // from petascope.properties used for log4j
     private static final String KEY_LOG_FILE_PATH = "log4j.appender.rollingFile.File";
+    
+    /* ***** Demo web pages ***** */
+    // Used only when one wants to add web pages demo (e.g: Earthlook) to be served by Petascope
+    private static final String KEY_STATIC_HTML_DIR_PATH = "static_html_dir_path";
 
     /**
      * Initialize all the keys, values of petascope.properties
@@ -306,6 +315,21 @@ public class ConfigManager {
         return result;
     }
     
+    /**
+     * Get optional property value from setting key in rasfed.properties.
+     * If setting key does not exist, it will use default value.
+     */
+    private String getOptionalPropertyValue(String key, String defaultValue) {        
+        String value = defaultValue;
+        try {
+            value = get(key);
+        } catch (PetascopeException ex) {
+            log.warn("Cannot get value for setting '" + key + "', using default value '" + defaultValue + "' instead. Reason: " + ex.getMessage());
+        }
+        
+        return value;
+    }
+    
     private void initPetascopeSettings() throws PetascopeException {
         PETASCOPE_ENDPOINT_URL = get(KEY_PETASCOPE_SERVLET_URL);
         PETASCOPE_APPLICATION_CONTEXT_PATH = get(KEY_APPLICATION_NAME);
@@ -373,6 +397,25 @@ public class ConfigManager {
                 throw ex;
             }
         }
+        
+        // Demo web pages folder configuration
+        STATIC_HTML_DIR_PATH = getOptionalPropertyValue(KEY_STATIC_HTML_DIR_PATH, "");
+        STATIC_HTML_DIR_PATH = STATIC_HTML_DIR_PATH.trim();
+        if (!STATIC_HTML_DIR_PATH.isEmpty()) {
+            // e.g: folder not exists, tomcat cannot read folder
+            Path path = Paths.get(STATIC_HTML_DIR_PATH);
+            if (!path.isAbsolute()) {
+                log.warn("Path to static HTML directory '" + STATIC_HTML_DIR_PATH + "' must be absolute. Given: '" +  STATIC_HTML_DIR_PATH + "'.");
+                STATIC_HTML_DIR_PATH = "";
+            } else if (!Files.exists(path)) {
+                log.warn("Path to static HTML directory '" + STATIC_HTML_DIR_PATH + "' does not exist.");
+                STATIC_HTML_DIR_PATH = "";
+            } else if (!Files.isReadable(path)) {
+                log.warn("User running Tomcat cannot read content of static HTML directory '" + STATIC_HTML_DIR_PATH + "'.");
+                STATIC_HTML_DIR_PATH = "";
+            }
+        }
+        
     }
     
     private void initRasdamanSettings() throws PetascopeException {

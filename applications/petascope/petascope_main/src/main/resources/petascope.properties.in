@@ -273,4 +273,17 @@ log4j.appender.rollingFile.layout.ConversionPattern=%6p [%d{yyyy-MM-dd HH:mm:ss}
 log4j.appender.rollingFile.rollingPolicy.ActiveFileName=@LOG_DIR@/petascope.log  
 log4j.appender.rollingFile.rollingPolicy.FileNamePattern=@LOG_DIR@/petascope.%d{yyyyMMdd}.log.gz
 log4j.appender.rollingFile=org.apache.log4j.rolling.RollingFileAppender  
-log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy  
+log4j.appender.rollingFile.rollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
+
+#------------------- Demo web pages -------------------
+
+# parameter:     static_html_dir_path
+# description:   Absolute path to a directory which contains demo web pages (html/css/javascript) and petascope
+#                has read permission to read contents. The directory must contains index.html file as entry web page.
+#                If set, petascope will serve the index.html in this directory at the local endpoint,
+#                e.g: http://localhost:8080/rasdaman/
+# purpose:       When petascope starts, it will load content of this directory as static resources.
+#                Any changes for demos inside this directory will not need to restart Petascope to load new contents.
+# need to adapt: no
+static_html_dir_path=
+
