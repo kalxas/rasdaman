@@ -34,6 +34,11 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "common/pragmas/pragmas.hh"
+
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wformat-overflow=")
+
 #include "config.h"
 #include <openssl/evp.h>
 
@@ -1479,3 +1484,5 @@ void RnpClientComm::checkForRwTransaction()
         throw r_Error(r_Error::r_Error_TransactionReadOnly);
     }
 }
+
+DIAGNOSTIC_POP

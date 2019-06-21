@@ -50,7 +50,7 @@ class RasqlLexer(RegexLexer):
              r'Coiflet6Wavelet|Coiflet12Wavelet|Coiflet18Wavelet|Coiflet24Wavelet|'
              r'Coiflet30Wavelet|QHaarWavelet|PACKBITS|TMC|'
              r'accessed|modified|exception|'
-             r'trigger|role|roles|user|users|password|grant|revoke|before|after|instead|'
+             r'trigger|triggers|role|roles|user|users|password|grant|revoke|before|after|instead|for|exemption|to|'
              r'array|string|struct|'
              r'max|min|and|or|xor|is|not|null)\b', Keyword),
             (r'nan', Keyword.Constant),

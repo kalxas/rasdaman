@@ -32,6 +32,11 @@ rasdaman GmbH.
  *          None
 */
 
+#include "common/pragmas/pragmas.hh"
+
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wformat-overflow=")
+
 #include "config.h"
 #include "mymalloc/mymalloc.h"
 
@@ -3967,3 +3972,4 @@ int  RpcClientComm::getTimeoutInterval()
     return 0;
 }
 
+DIAGNOSTIC_POP

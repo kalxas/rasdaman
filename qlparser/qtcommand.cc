@@ -464,7 +464,7 @@ QtCommand::evaluate()
             LERROR << "Error: " << myErr.get_errorno() << " " << myErr.what();
             throw;
         }
-        catch (bad_alloc)
+        catch (bad_alloc &e)
         {
             LERROR << "Error: cannot allocate memory.";
             throw;

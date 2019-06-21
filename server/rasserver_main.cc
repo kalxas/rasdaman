@@ -635,9 +635,15 @@ openDatabase()
 {
     if (!dbIsOpen)
     {
+        if (configuration.getBaseName())
+            baseName = configuration.getBaseName();
         sprintf(globalConnectId, "%s", baseName.c_str());
         auto serverName = configuration.getServerName();
         auto serverPort = configuration.getListenPort();
+        if (configuration.getUser())
+            user = configuration.getUser();
+        if (configuration.getPasswd())
+            passwd = configuration.getPasswd();
         INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
         r = new ClientTblElt(ClientType::Regular, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
@@ -1165,9 +1171,9 @@ void doStuff()
                 marray->data.confarray_len = mddDomain.cell_count() * baseTypeSize;
                 marray->data.confarray_val = fileContents;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &e)
             {
-                LDEBUG << "Unable to claim memory: " << size << " Bytes";
+                LDEBUG << "Unable to claim memory: " << size << " bytes";
                 throw RasqlError(UNABLETOCLAIMRESOURCEFORFILE);
             }
 

@@ -2,6 +2,7 @@ BEGIN                 { nodebug = 0;
                         print"#pragma GCC diagnostic ignored \"-Wsign-compare\"";
                         print"#pragma GCC diagnostic ignored \"-Wstrict-aliasing\"";
                         print"#pragma GCC diagnostic ignored \"-Wsign-conversion\"";
+                        print"#pragma GCC diagnostic ignored \"-Wcast-function-type\"";
 			print"#include \"config.h\"";
 			print"#include <stdio.h>";
 			print"#include \"raslib/error.hh\"";
@@ -53,4 +54,5 @@ END                     {
                         print"#pragma GCC diagnostic warning \"-Wsign-compare\"";
                         print"#pragma GCC diagnostic warning \"-Wstrict-aliasing\"";
                         print"#pragma GCC diagnostic ignored \"-Wsign-conversion\"";
+                        print"#pragma GCC diagnostic ignored \"-Wcast-function-type\"";
                         }

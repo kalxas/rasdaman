@@ -60,6 +60,7 @@ TEST(RasControlTest, UserCredentialsEnvironmentLogin)
     strcpy(envVar, envVarString.c_str());
     UserCredentials credentials;
 
+    unsetenv("RASLOGIN");
     ASSERT_ANY_THROW(credentials.environmentLogin());
 
     putenv(envVar);

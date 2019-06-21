@@ -319,10 +319,10 @@ void Configuration::checkParameters()
     baseName = cmlDatabase->getValueAsString();
 
     // evaluate optional parameter user --------------------------------------
-    user = cmlUser->getValueAsString();
+    user = cmlUserStr->getValueAsString();
 
     // evaluate optional parameter passwd ------------------------------------
-    passwd = cmlPasswd->getValueAsString();
+    passwd = cmlPasswdStr->getValueAsString();
 
     // evaluate optional parameter content -----------------------------------
     output = cmlOut->isPresent();
@@ -673,6 +673,11 @@ bool        Configuration::isOutputOn()
 void        Configuration::setMddTypeName(const char* mddtn)
 {
     this->mddTypeName = mddtn;
+}
+
+const char *Configuration::getBaseName() const
+{
+    return baseName;
 }
 // -- directql section end
 

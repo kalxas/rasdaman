@@ -1288,7 +1288,7 @@ int QtScale::scaleDomain(const r_Minterval &areaOp,
     {
         areaScaled = areaOp.create_scale(scaleFactors);
     }
-    catch (r_Error)
+    catch (r_Error &ex)
     {
         //error scaling
         std::string scaleStr{};

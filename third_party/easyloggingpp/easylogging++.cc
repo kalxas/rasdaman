@@ -14,6 +14,10 @@
 //  https://muflihun.github.io/easyloggingpp
 //  http://muflihun.com
 //
+#include "common/pragmas/pragmas.hh"
+
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wstrict-overflow")
 
 #include "easylogging++.h"
 
@@ -3062,3 +3066,5 @@ const std::string VersionInfo::releaseDate(void) {
 }
 
 } // namespace el
+
+DIAGNOSTIC_POP

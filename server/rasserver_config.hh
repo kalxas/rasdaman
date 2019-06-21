@@ -119,6 +119,7 @@ public:
     // return true if a rasserver is started, and not rasdl or directql
     bool        isRasserver();
 
+     const char *getBaseName() const;
 
 private:
     void printHelp();

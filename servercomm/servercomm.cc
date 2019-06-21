@@ -193,9 +193,9 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
 #else
 std::stringstream requestStream;
 #define DBGREQUEST(msg) { requestStream.str(""); requestStream.clear(); requestStream << "Request: " << msg << "... "; }
-#define DBGOK		; // nothing to log if release mode and all is ok
-#define DBGINFO(msg)	; // nothing to log if release mode and all is ok
-#define DBGINFONNL(msg)	; // nothing to log if release mode and all is ok
+#define DBGOK           ; // nothing to log if release mode and all is ok
+#define DBGINFO(msg)    ; // nothing to log if release mode and all is ok
+#define DBGINFONNL(msg) ; // nothing to log if release mode and all is ok
 #define DBGERROR(msg)   { NNLINFO << requestStream.str(); BLERROR << "Error: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
 #define DBGWARN(msg)    { NNLINFO << requestStream.str(); BLWARNING << "Warning: " << msg << "\n"; BLFLUSH; requestStream.str(""); requestStream.clear(); }
 #endif
@@ -798,7 +798,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 RELEASE_ALL_DATA
                 throw;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 BLERROR << "Error: memory allocation failed.\n";
                 RELEASE_ALL_DATA
@@ -1001,7 +1001,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
                 RELEASE_ALL_DATA
                 throw;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 BLERROR << "Error: memory allocation failed.\n";
                 RELEASE_ALL_DATA
@@ -1140,7 +1140,7 @@ ServerComm::startInsertPersMDD(unsigned long callingClientId,
                     DBGERROR("while creating persistent tile: " << err.what());
                     returnValue = RC_GENERAL_ERROR;
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &ex)
                 {
                     DBGERROR("memory allocation failed.");
                     returnValue = RC_GENERAL_ERROR;
@@ -1365,7 +1365,7 @@ ServerComm::insertTile(unsigned long callingClientId,
                 }
                 DBGOK
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 DBGERROR("failed allocating " << dataSize << " bytes.")
                 throw;
@@ -1501,7 +1501,7 @@ ServerComm::getNextMDD(unsigned long callingClientId,
                 DBGERROR(err.what());
                 throw;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 DBGERROR("memory allocation failed.");
                 throw;
@@ -1831,7 +1831,7 @@ ServerComm::getNextTile(unsigned long callingClientId,
                 DBGERROR(err.what());
                 throw;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 DBGERROR("failed allocating memory.")
                 throw;
@@ -2247,7 +2247,7 @@ ServerComm::getCollByName(unsigned long callingClientId,
                 throw;
             }
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &ex)
         {
             DBGERROR("memory allocation failed.");
             throw;
@@ -2320,7 +2320,7 @@ ServerComm::getCollByOId(unsigned long callingClientId,
                 throw;
             }
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &ex)
         {
             DBGERROR("memory allocation failed.");
             throw;
@@ -2560,7 +2560,7 @@ ServerComm::getMDDByOId(unsigned long callingClientId,
                     throw;
                 }
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &ex)
             {
                 DBGERROR("memory allocation failed.");
                 throw;

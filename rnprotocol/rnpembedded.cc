@@ -27,6 +27,11 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "common/pragmas/pragmas.hh"
+
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wstringop-truncation")
+
 #include "config.h"
 #include <rnpembedded.hh>
 #include <assert.h>
@@ -485,3 +490,4 @@ void BadRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) noexcept
 const char BadRnpCarrier::theHeader[] = "BadCarrier";
 
 
+DIAGNOSTIC_POP

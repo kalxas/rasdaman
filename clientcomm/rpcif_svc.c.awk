@@ -1,6 +1,7 @@
 BEGIN			{
 			print "//patched by awk 1";
                         print"#pragma GCC diagnostic ignored \"-Wmissing-declarations\"";
+                        print"#pragma GCC diagnostic ignored \"-Wcast-function-type\"";
 			print "#include \"config.h\""
 			print "#include \"raslib/error.hh\""
 			print "#include \"servercomm/servercomm.hh\""
@@ -23,7 +24,7 @@ BEGIN			{
 			print "\t\tresult = secureResultBufferForRPC;";
 			print "\t\tmemcpy(result, (char*)&temp, sizeof(u_short));"
 			print "\t\t}";
-			print "\tcatch (std::bad_alloc)";
+			print "\tcatch (std::bad_alloc &ex)";
 			print "\t\t{";
 			print "\t\tbMemFailed = true;"
 			print "\t\tr_Ememory_allocation e;"
@@ -60,4 +61,5 @@ BEGIN			{
 			}
 END                     {
                         print"#pragma GCC diagnostic warning \"-Wmissing-declarations\"";
+                        print"#pragma GCC diagnostic ignored \"-Wcast-function-type\"";
                         }

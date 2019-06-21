@@ -618,7 +618,7 @@ const char *ServerRasNet::getCapability(const char *serverName, const char *data
     char capaS[300];
     sprintf(capaS, "$I%ld$E%s$B%s$T%s$N%s", userID, rString, databaseName, formattedTime, serverName);
 
-    static char capaQ[300];
+    static char capaQ[360];
     sprintf(capaQ, "$Canci%s", capaS);
 
     char digest[50]; // 33 is enough

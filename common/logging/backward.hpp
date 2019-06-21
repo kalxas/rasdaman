@@ -25,6 +25,7 @@
 
 DIAGNOSTIC_PUSH
 IGNORE_WARNING("-Wsign-conversion")
+IGNORE_WARNING("-Wswitch-default")
 
 #ifndef H_6B9572DA_A64B_49E6_B234_051480991C89
 #define H_6B9572DA_A64B_49E6_B234_051480991C89
@@ -108,6 +109,19 @@ IGNORE_WARNING("-Wsign-conversion")
 //
 // Note that only one of the define should be set to 1 at a time.
 //
+#ifndef BACKWARD_HAS_UNWIND
+#define BACKWARD_HAS_UNWIND 0
+#endif
+#ifndef BACKWARD_HAS_BACKTRACE
+#define BACKWARD_HAS_BACKTRACE 0
+#endif
+#ifndef BACKWARD_HAS_BFD
+#define BACKWARD_HAS_BFD 0
+#endif
+#ifndef BACKWARD_HAS_BACKTRACE_SYMBOL
+#define BACKWARD_HAS_BACKTRACE_SYMBOL 0
+#endif
+
 #	if   BACKWARD_HAS_UNWIND == 1
 #	elif BACKWARD_HAS_BACKTRACE == 1
 #	else

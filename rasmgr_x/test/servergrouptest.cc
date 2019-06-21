@@ -37,6 +37,7 @@
 #include "util/testutil.hh"
 
 #include "rasnet/messages/rassrvr_rasmgr_service.pb.h"
+#include "common/exceptions/invalidargumentexception.hh"
 
 #include "../src/serverrasnet.hh"
 #include "../src/servergroupimpl.hh"
@@ -114,14 +115,17 @@ TEST_F(ServerGroupTest, constructorValidation)
         groupConfig.add_ports(2034);
     }
 
-    if (hasAliveServers)
+    if (hasAliveServers || hasAvailableServers)
     {
         groupConfig.set_min_alive_server_no(20);
+        for (size_t i = 0; i < 20; ++i) {
+            groupConfig.add_ports(2035 + i);
+        }
     }
 
-    if (hasAvailableServers)
+    if (hasAvailableServers || hasAliveServers)
     {
-        groupConfig.set_min_available_server_no(102);
+        groupConfig.set_min_available_server_no(10);
     }
 
     if (hasMaxServers)
@@ -156,6 +160,12 @@ TEST_F(ServerGroupTest, constructorValidation)
         EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
         ASSERT_NO_THROW(group = new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory));
+//        try {
+//            group = new ServerGroupImpl(groupConfig, this->dbHostManager, this->serverFactory);
+//        }
+//        catch (common::InvalidArgumentException &ex) {
+//            LERROR << "exception: " << ex.what();
+//        }
         ASSERT_TRUE(group->isStopped());
 
         ASSERT_EQ(groupConfig.name(), group->getConfig().name());
@@ -164,7 +174,7 @@ TEST_F(ServerGroupTest, constructorValidation)
         ASSERT_EQ(groupConfig.ports_size(), group->getConfig().ports_size());
         ASSERT_EQ(rasmgr::STARTING_SERVER_LIFETIME, group->getConfig().starting_server_lifetime());
 
-        if (hasAliveServers)
+        if (hasAliveServers || hasAvailableServers)
         {
             ASSERT_EQ(groupConfig.min_alive_server_no(), group->getConfig().min_alive_server_no());
         }
@@ -173,7 +183,7 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::MIN_ALIVE_SERVER_NO, group->getConfig().min_alive_server_no());
         }
 
-        if (hasAvailableServers)
+        if (hasAvailableServers || hasAliveServers)
         {
             ASSERT_EQ(groupConfig.min_available_server_no(), group->getConfig().min_available_server_no());
         }
