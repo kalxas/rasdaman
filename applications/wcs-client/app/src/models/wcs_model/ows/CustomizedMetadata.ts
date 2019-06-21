@@ -31,6 +31,8 @@ module ows {
 
         // Convert value of element coverageSizeInBytes to a human-readable value (e.g: 1000 -> 1KB)
         public coverageSize:String;
+        public localCoverageSizeInBytes:number;
+        public remoteCoverageSizeInBytes:number;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
@@ -68,6 +70,12 @@ module ows {
                 let sizeInBytes = sizeInBytesElement.getValueAsString();
 
                 this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+
+                if (this.hostname === undefined) {
+                    this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
+                } else {
+                    this.remoteCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
+                }
             } else {
                 // if <sizeInBytes> element not exist                
                 this.coverageSize = "N/A";
@@ -86,5 +94,13 @@ module ows {
 
             return result;
         }
+
+        /**
+         * Convert number of Bytes to GBs
+         */
+        public static convertBytesToGBs(numberOfBytes):String {
+            let result = numberOfBytes / Math.pow(10, 9);
+            return result.toFixed(3);
+        };
     }
 }

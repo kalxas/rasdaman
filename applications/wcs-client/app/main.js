@@ -1090,6 +1090,12 @@ var ows;
                 var sizeInBytesElement = source.getChildAsSerializedObject(childElement);
                 var sizeInBytes = sizeInBytesElement.getValueAsString();
                 this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+                if (this.hostname === undefined) {
+                    this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
+                }
+                else {
+                    this.remoteCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
+                }
             }
             else {
                 this.coverageSize = "N/A";
@@ -1102,6 +1108,11 @@ var ows;
             var result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             return result;
         };
+        CustomizedMetadata.convertBytesToGBs = function (numberOfBytes) {
+            var result = numberOfBytes / Math.pow(10, 9);
+            return result.toFixed(3);
+        };
+        ;
         return CustomizedMetadata;
     }());
     ows.CustomizedMetadata = CustomizedMetadata;
@@ -1186,6 +1197,9 @@ var wcs;
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             _this.coverageSummaries = [];
+            var totalLocalCoverageSizesInBytes = 0;
+            var totalRemoteCoverageSizesInBytes = 0;
+            var totalCoverageSizesInBytes = 0;
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(function (o) {
                 var coverageSummary = new wcs.CoverageSummary(o);
                 _this.coverageSummaries.push(coverageSummary);
@@ -1195,9 +1209,19 @@ var wcs;
                     }
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         _this.showCoverageSizesColumn = true;
+                        if (coverageSummary.customizedMetadata.hostname === undefined) {
+                            totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
+                        }
+                        else {
+                            totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
+                        }
                     }
                 }
             });
+            totalCoverageSizesInBytes += totalLocalCoverageSizesInBytes + totalRemoteCoverageSizesInBytes;
+            _this.totalLocalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalCoverageSizesInBytes);
+            _this.totalRemoteCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteCoverageSizesInBytes);
+            _this.totalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalCoverageSizesInBytes);
             if (source.doesElementExist("wcs:Extension")) {
                 _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
@@ -4141,7 +4165,7 @@ var rasdaman;
                     query: 'diagram>>for $c in (mean_summer_airtemp) return encode($c[Lat(-20)], "application/json")'
                 }, {
                     title: 'Encode 2D as gml',
-                    query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-44.525:-44.5), Long(112.5:113.5)], "application/gml+xml")'
+                    query: 'for $c in (mean_summer_airtemp) return encode($c[Lat(-43.525:-42.5), Long(112.5:113.5)], "application/gml+xml")'
                 }, {
                     title: 'Encode 2D as png with WebWorldWind (wwd) widget ',
                     query: 'wwd(-44.525,111.975,-8.975,156.275)>>for $c in (mean_summer_airtemp) return encode($c, "png")'
@@ -4544,6 +4568,9 @@ var wms;
                 });
                 var layerObjs = capabilityObj.getChildAsSerializedObject("Layer").getChildrenAsSerializedObjects("Layer");
                 this.layers = [];
+                var totalLocalLayerSizesInBytes_1 = 0;
+                var totalRemoteLayerSizesInBytes_1 = 0;
+                var totalLayerSizesInBytes = 0;
                 layerObjs.forEach(function (obj) {
                     var name = obj.getChildAsSerializedObject("Name").getValueAsString();
                     var title = obj.getChildAsSerializedObject("Title").getValueAsString();
@@ -4555,6 +4582,12 @@ var wms;
                         }
                         if (customizedMetadata.coverageSize != null) {
                             _this.showLayerSizesColumn = true;
+                        }
+                        if (customizedMetadata.hostname === undefined) {
+                            totalLocalLayerSizesInBytes_1 += customizedMetadata.localCoverageSizeInBytes;
+                        }
+                        else {
+                            totalRemoteLayerSizesInBytes_1 += customizedMetadata.remoteCoverageSizeInBytes;
                         }
                     }
                     var crs = obj.getChildAsSerializedObject("CRS").getValueAsString();
@@ -4572,6 +4605,10 @@ var wms;
                     var layerGMLDocument = _this.extractLayerGMLDocument(name);
                     _this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, customizedMetadata, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy));
                 });
+                totalLayerSizesInBytes += totalLocalLayerSizesInBytes_1 + totalRemoteLayerSizesInBytes_1;
+                this.totalLocalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalLayerSizesInBytes_1);
+                this.totalRemoteLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteLayerSizesInBytes_1);
+                this.totalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLayerSizesInBytes);
             }
         }
         Capabilities.prototype.parseLayerCustomizedMetadata = function (source) {

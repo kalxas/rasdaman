@@ -20,7 +20,13 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isAvailableCoveragesOpen">
                     <uib-accordion-heading>
-                        Available coverages <i class="pull-right glyphicon"
+                        Available coverages ( Total volume: {{capabilities.contents.totalCoverageSizesInGBs}} GB
+                                            <span ng-show="capabilities.contents.showCoverageLocationsColumn"> 
+                                                - Local volume: {{capabilities.contents.totalLocalCoverageSizesInGBs}} GB
+                                                - Remote volume: {{capabilities.contents.totalRemoteCoverageSizesInGBs}} GB
+                                            </span>                        
+                                            ) 
+                                            <i class="pull-right glyphicon"
                                                ng-class="{'glyphicon-chevron-down': isAvailableCoveragesOpen, 'glyphicon-chevron-right': !isAvailableCoveragesOpen}"></i>
                     </uib-accordion-heading>
                     <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->

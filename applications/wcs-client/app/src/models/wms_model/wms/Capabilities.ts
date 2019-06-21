@@ -39,6 +39,10 @@ module wms {
         public showLayerLocationsColumn:boolean;
         public showLayerSizesColumn:boolean;
 
+        public totalLocalLayerSizesInGBs:String;
+        public totalRemoteLayerSizesInGBs:String;
+        public totalLayerSizesInGBs:String;
+
         // source is the JSON object parsed from gmlDocument (a full XML result of WMS GetCapabilities request)
         public constructor(source:rasdaman.common.ISerializedObject, gmlDocument:string) {
             this.gmlDocument = gmlDocument;
@@ -87,6 +91,11 @@ module wms {
                 // Then, get all the WMS layers
                 var layerObjs = capabilityObj.getChildAsSerializedObject("Layer").getChildrenAsSerializedObjects("Layer");
                 this.layers = [];
+
+                let totalLocalLayerSizesInBytes = 0;
+                let totalRemoteLayerSizesInBytes = 0;
+                let totalLayerSizesInBytes = 0;
+
                 layerObjs.forEach(obj => {
                     var name = obj.getChildAsSerializedObject("Name").getValueAsString();
                     var title = obj.getChildAsSerializedObject("Title").getValueAsString();
@@ -101,6 +110,12 @@ module wms {
                         if (customizedMetadata.coverageSize != null) {
                             this.showLayerSizesColumn = true;
                         }
+
+                        if (customizedMetadata.hostname === undefined) {
+                            totalLocalLayerSizesInBytes += customizedMetadata.localCoverageSizeInBytes;
+                        } else {
+                            totalRemoteLayerSizesInBytes += customizedMetadata.remoteCoverageSizeInBytes;
+                        }     
                     }
                     
                     // native CRS of layer
@@ -128,7 +143,13 @@ module wms {
                                                    westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude,
                                                    crs, minx, miny, maxx, maxy));
                 });
-                
+
+                totalLayerSizesInBytes += totalLocalLayerSizesInBytes + totalRemoteLayerSizesInBytes;
+
+                // Convert Bytes to GBs for total sizes of layers
+                this.totalLocalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalLayerSizesInBytes);
+                this.totalRemoteLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteLayerSizesInBytes);
+                this.totalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLayerSizesInBytes);                
             }
         }
 

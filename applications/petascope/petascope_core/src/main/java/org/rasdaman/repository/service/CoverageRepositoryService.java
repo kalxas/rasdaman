@@ -23,10 +23,10 @@ package org.rasdaman.repository.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.cis.Axis;
@@ -57,7 +57,6 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
-import static petascope.util.ras.TypeResolverUtil.STRUCT;
 
 
 /**
@@ -91,7 +90,7 @@ public class CoverageRepositoryService {
     // NOTE: as Spring Cache with annotation @Cacheable in findAllCoverages will put only 1 key -> list of coverages so
     // it is not good as there is no chance to update or delete one of the cached coverage from this cache, then has to
     // define this map manually.
-    public static final Map<String, Pair<Coverage, Boolean>> coveragesCacheMap = new ConcurrentHashMap<>();
+    public static final Map<String, Pair<Coverage, Boolean>> coveragesCacheMap = new ConcurrentSkipListMap<>();
 
     /**
      * Store the coverages's extents (only geo-referenced XY axes). First String

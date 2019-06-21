@@ -20,7 +20,14 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isAvailableLayersOpen">
                     <uib-accordion-heading>
-                        Available layers <i class="pull-right glyphicon"
+                        Available layers
+                                        ( Total volume: {{capabilities.totalLayerSizesInGBs}} GB
+                                        <span ng-show="capabilities.showLayerLocationsColumn"> 
+                                            - Local volume: {{capabilities.totalLocalLayerSizesInGBs}} GB
+                                            - Remote volume: {{capabilities.totalRemoteLayerSizesInGBs}} GB
+                                        </span>                        
+                                        )  
+                                        <i class="pull-right glyphicon"
                                                ng-class="{'glyphicon-chevron-down': isAvailableLayersOpen, 'glyphicon-chevron-right': !isAvailableLayersOpen}"></i>
                     </uib-accordion-heading>
                     <!-- smart table for pagination http://lorenzofox3.github.io/smart-table-website/ -->

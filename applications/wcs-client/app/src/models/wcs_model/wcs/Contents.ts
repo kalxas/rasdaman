@@ -36,6 +36,10 @@ module wcs {
 
         // If 1 coverage has size then this column is added to WCS GetCapabilities coverages table
         public showCoverageSizesColumn:boolean;
+        
+        public totalLocalCoverageSizesInGBs:String;
+        public totalRemoteCoverageSizesInGBs:String;
+        public totalCoverageSizesInGBs:String;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
@@ -43,6 +47,11 @@ module wcs {
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
 
             this.coverageSummaries = [];
+            
+            let totalLocalCoverageSizesInBytes = 0;
+            let totalRemoteCoverageSizesInBytes = 0;
+            let totalCoverageSizesInBytes = 0;
+
             source.getChildrenAsSerializedObjects("wcs:CoverageSummary").forEach(o => {
                 let coverageSummary = new CoverageSummary(o);
                 this.coverageSummaries.push(coverageSummary);
@@ -54,9 +63,22 @@ module wcs {
 
                     if (coverageSummary.customizedMetadata.coverageSize != "N/A") {
                         this.showCoverageSizesColumn = true;
+
+                        if (coverageSummary.customizedMetadata.hostname === undefined) {
+                            totalLocalCoverageSizesInBytes += coverageSummary.customizedMetadata.localCoverageSizeInBytes;
+                        } else {
+                            totalRemoteCoverageSizesInBytes += coverageSummary.customizedMetadata.remoteCoverageSizeInBytes;
+                        }                        
                     }
                 }
             });
+
+            totalCoverageSizesInBytes += totalLocalCoverageSizesInBytes + totalRemoteCoverageSizesInBytes;
+
+            // Convert Bytes to GBs for total sizes of coverages
+            this.totalLocalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalCoverageSizesInBytes);
+            this.totalRemoteCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteCoverageSizesInBytes);
+            this.totalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalCoverageSizesInBytes);
 
             if (source.doesElementExist("wcs:Extension")) {
                 this.extension = new Extension(source.getChildAsSerializedObject("wcs:Extension"));

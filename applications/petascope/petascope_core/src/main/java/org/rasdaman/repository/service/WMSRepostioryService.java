@@ -24,7 +24,7 @@ package org.rasdaman.repository.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.rasdaman.domain.wms.Layer;
@@ -63,7 +63,7 @@ public class WMSRepostioryService {
     private static final Logger log = LoggerFactory.getLogger(WMSRepostioryService.class);
 
     // Cache all the metadata for WMS layers
-    public static final Map<String, Layer> layersCacheMap = new ConcurrentHashMap<>();
+    public static final Map<String, Layer> layersCacheMap = new ConcurrentSkipListMap<>();
 
 
     /**
