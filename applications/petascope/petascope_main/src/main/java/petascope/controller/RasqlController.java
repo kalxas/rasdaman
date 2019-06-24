@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.RASQL;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.LoggerFactory;
@@ -61,14 +60,16 @@ public class RasqlController extends AbstractController {
     @RequestMapping(value = RASQL, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest, 
                               HttpServletResponse httpServletResponse,
-            @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) throws Exception {
+            @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedMultipartFile) throws Exception {
         String requestBody = this.getPOSTRequestBody(httpServletRequest);
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(requestBody);
 
         // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
         String uploadedFilePath = null;
-        if (uploadedFile != null) {
-            uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
+        if (uploadedMultipartFile != null) {
+            // It is a upload file request
+            byte[] bytes = this.getUploadedMultipartFileContent(uploadedMultipartFile);
+            uploadedFilePath = this.storeUploadFileOnServer(uploadedMultipartFile.getOriginalFilename(), bytes);
             kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
         }
         this.requestDispatcher(httpServletRequest, kvpParameters);

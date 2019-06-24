@@ -2368,6 +2368,24 @@ var rasdaman;
             });
             return result.promise;
         };
+        WCSService.prototype.updateCoverageMetadata = function (formData) {
+            var result = this.$q.defer();
+            var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata";
+            var request = {
+                method: 'POST',
+                url: requestUrl,
+                transformResponse: null,
+                headers: { 'Content-Type': undefined },
+                withCredentials: true,
+                data: formData
+            };
+            this.$http(request).then(function (data) {
+                result.resolve(data);
+            }, function (error) {
+                result.reject(error);
+            });
+            return result.promise;
+        };
         WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
         return WCSService;
     }());
@@ -3065,7 +3083,7 @@ var rasdaman;
             $scope.isCoverageIdValid = function () {
                 if ($scope.wcsStateInformation.serverCapabilities) {
                     var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
-                    for (var i = 0; i < coverageSummaries.length; ++i) {
+                    for (var i = 0; i < coverageSummaries.length; i++) {
                         if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
                         }
@@ -3096,6 +3114,37 @@ var rasdaman;
                     $scope.describeCoverage();
                 }
             });
+            $rootScope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+                if (newValue) {
+                    $scope.adminUserLoggedIn = true;
+                }
+                else {
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
+            $scope.updateCoverageMetadata = function () {
+                var fileInput = document.getElementById("coverageMetadataUploadFile");
+                var mimeType = fileInput.files[0].type;
+                var requiredMimeTypes = ["", "text/xml", "", "application/json", "text/plain"];
+                if (!requiredMimeTypes.includes(mimeType)) {
+                    alertService.error("Coverage's metadata file to update must be <b>xml/json/text</b> format. Given: <b>'" + mimeType + "'</b>.");
+                    return;
+                }
+                var formData = new FormData();
+                formData.append("coverageId", $scope.selectedCoverageId);
+                formData.append("fileName", fileInput.files[0]);
+                wcsService.updateCoverageMetadata(formData).then(function (response) {
+                    alertService.success("Successfully update coverage's metadata from file.");
+                    $scope.describeCoverage();
+                }, function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    errorHandlingService.handleError(args);
+                    $log.error(args);
+                });
+            };
             $scope.parseCoverageMetadata = function () {
                 $scope.metadata = null;
                 var parser = new DOMParser();
@@ -3114,6 +3163,13 @@ var rasdaman;
                         }
                     }
                 }
+                if ($scope.metadata == null) {
+                    $scope.metadata = " ";
+                    $("#btnUpdateCoverageMetadata").text("Insert metadata");
+                }
+                else {
+                    $("#btnUpdateCoverageMetadata").text("Update metadata");
+                }
             };
             $scope.describeCoverage = function () {
                 if (!$scope.isCoverageIdValid()) {
@@ -3125,6 +3181,9 @@ var rasdaman;
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
                 $scope.axes = [];
+                $("#coverageMetadataUploadFile").val("");
+                $("#uploadFileName").html("");
+                $("#btnUpdateCoverageMetadata").hide();
                 wcsService.getCoverageDescription(describeCoverageRequest)
                     .then(function (response) {
                     $scope.coverageDescription = response.value;
@@ -4675,12 +4734,12 @@ var rasdaman;
         function AdminMainController($scope, $rootScope, $state) {
             this.$scope = $scope;
             this.initializeTabs($scope);
-            $scope.adminStateInformation = {
+            $rootScope.adminStateInformation = {
                 loggedIn: false
             };
-            $scope.loggedIn = false;
+            $rootScope.loggedIn = false;
             $scope.tabs = [$scope.adminLogin];
-            $scope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+            $rootScope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
                 if (newValue) {
                     $scope.tabs = [$scope.adminOWSMetadataManagement];
                 }
@@ -5695,7 +5754,7 @@ var rasdaman;
                         args[_i] = arguments[_i];
                     }
                     alertService.success("Successfully logged in.");
-                    $scope.adminStateInformation.loggedIn = true;
+                    $rootScope.adminStateInformation.loggedIn = true;
                 }, function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
@@ -5734,7 +5793,7 @@ var rasdaman;
             $rootScope.$on("reloadServerCapabilities", function (event, value) {
                 $scope.getServerCapabilities();
             });
-            $scope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
+            $rootScope.$watch("adminStateInformation.loggedIn", function (newValue, oldValue) {
                 $scope.getServerCapabilities();
             });
             $scope.getServerCapabilities = function () {
@@ -5820,7 +5879,7 @@ var rasdaman;
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                $scope.adminStateInformation.loggedIn = false;
+                $rootScope.adminStateInformation.loggedIn = false;
             };
         }
         AdminOWSMetadataManagementController.$inject = [

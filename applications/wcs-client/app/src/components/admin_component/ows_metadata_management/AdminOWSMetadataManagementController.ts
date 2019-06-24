@@ -60,7 +60,7 @@ module rasdaman {
             });
 
             // When logged in, load Capabilities for OWS metadata
-            $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
                 $scope.getServerCapabilities();
             });
 
@@ -135,7 +135,7 @@ module rasdaman {
             
             // Logout, just show the loggin form in WSClient and hide other admin tabs
             $scope.logOut = (...args: any[])=> {
-                $scope.adminStateInformation.loggedIn = false;
+                $rootScope.adminStateInformation.loggedIn = false;
             }           
         }
     }

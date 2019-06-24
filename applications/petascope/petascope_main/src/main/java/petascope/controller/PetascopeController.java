@@ -92,14 +92,15 @@ public class PetascopeController extends AbstractController {
     
     @RequestMapping(value = OWS, method = RequestMethod.POST)
     protected void handlePost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                              @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedFile) 
+                              @RequestParam(value = KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedMultipartFile) 
             throws IOException, PetascopeException, WCSException, SecoreException, Exception {
         String postBody = this.getPOSTRequestBody(httpServletRequest);        
         Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(postBody);
         // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
         String uploadedFilePath = null;
-        if (uploadedFile != null) {
-            uploadedFilePath = this.storeUploadFileOnServer(uploadedFile);
+        if (uploadedMultipartFile != null) {
+            byte[] bytes = this.getUploadedMultipartFileContent(uploadedMultipartFile);
+            uploadedFilePath = this.storeUploadFileOnServer(uploadedMultipartFile.getOriginalFilename(), bytes);
             kvpParameters.put(KEY_UPLOADED_FILE_VALUE, new String[] {uploadedFilePath});
         }
         this.requestDispatcher(httpServletRequest, kvpParameters);

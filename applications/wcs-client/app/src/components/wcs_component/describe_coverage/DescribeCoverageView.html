@@ -92,7 +92,7 @@
             </uib-accordion>
         </div>
        
-        <div class="row" ng-show="metadata" style="margin-top: 20px; margin-bottom: -20px;">
+        <div class="row" ng-show="coverageDescription" style="margin-top: 20px; margin-bottom: -20px;">
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isCoverageDescriptionsDocumentOpen">
                     <uib-accordion-heading>
@@ -103,6 +103,31 @@
 
                     <ras-pretty-print data="{value:metadata, type:typeMetadata}">
                     </ras-pretty-print>
+
+
+                    <!-- Select text file to update coverage's metadata, only show when one logged in with petascope admin user (!) -->
+                    <div class="row top15" ng-show="adminUserLoggedIn && coverageDescription">
+                        <div>
+                            <button type="button" class="btn btn-danger" style="float: right; margin-left: 3vw; display: none;" id="btnUpdateCoverageMetadata"
+                                ng-click="updateCoverageMetadata()">
+                                Update metadata
+                            </button>
+
+                            <div style="float: right;">
+                                <label class="btn btn-warning">
+                                    <input id="coverageMetadataUploadFile" type="file" style="display:none" 
+                                    onchange="$('#uploadFileName').html('<b>Selected File: </b>' + this.files[0].name); $('#btnUpdateCoverageMetadata').show();">
+                                Select file
+                                </label>
+                                <br/>                
+                            </div>
+                        </div>
+                        <br/>
+                        
+                    </div>
+                    <div class="row top15">
+                        <span class="label label-success" id="uploadFileName" style="float: right; font-size: 13px;"></span>
+                    </div>
                     
                 </uib-accordion-group>
             </uib-accordion>

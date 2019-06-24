@@ -63,7 +63,7 @@ module rasdaman {
             $scope.isCoverageIdValid = ()=> {
                 if ($scope.wcsStateInformation.serverCapabilities) {
                     var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
-                    for (var i = 0; i < coverageSummaries.length; ++i) {
+                    for (var i = 0; i < coverageSummaries.length; i++) {
                         if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
                             return true;
                         }
@@ -104,6 +104,46 @@ module rasdaman {
                 }
             });
 
+            // When petascope admin user logged in, show the update coverage's metadata feature
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+                if (newValue) {
+                    // Admin logged in
+                    $scope.adminUserLoggedIn = true;
+                } else {
+                    // Admin logged out
+                    $scope.adminUserLoggedIn = false;
+                }
+            });
+
+            /**
+             * Update coverage's metadata from a text file
+             */
+            $scope.updateCoverageMetadata = () => {
+                // Get browsed file to upload
+                var fileInput:any = document.getElementById("coverageMetadataUploadFile");
+                var mimeType = fileInput.files[0].type;
+                var requiredMimeTypes:any = ["", "text/xml", "", "application/json", "text/plain"];
+                if (!requiredMimeTypes.includes(mimeType)) {
+                    alertService.error("Coverage's metadata file to update must be <b>xml/json/text</b> format. Given: <b>'" + mimeType + "'</b>.");
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append("coverageId", $scope.selectedCoverageId);
+                formData.append("fileName", fileInput.files[0]);          
+
+                wcsService.updateCoverageMetadata(formData).then(
+                    response => {
+                        alertService.success("Successfully update coverage's metadata from file.");
+                        // Reload DescribeCoverage to see new changes
+                        $scope.describeCoverage();
+                    }, (...args:any[])=> {                            
+                        errorHandlingService.handleError(args);
+                        $log.error(args);
+                    }
+                );
+            }
+
             /**
              * Parse coverage metadata as string and show it to a dropdown
              */
@@ -129,6 +169,16 @@ module rasdaman {
                         }
                     }
                 }
+
+                // As coverage contains no metadata
+                if ($scope.metadata == null) {
+                    // To display empty in extra metadata dropdown
+                    $scope.metadata = " ";
+                    $("#btnUpdateCoverageMetadata").text("Insert metadata");
+                } else {
+                    // Coverage has existing metadata
+                    $("#btnUpdateCoverageMetadata").text("Update metadata");
+                }
             }
 
             $scope.describeCoverage = function () {                
@@ -144,6 +194,11 @@ module rasdaman {
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
                 $scope.requestUrl = settings.wcsEndpoint + "?" + describeCoverageRequest.toKVP();
                 $scope.axes = [];                
+
+                // Clear selected file to upload
+                $("#coverageMetadataUploadFile").val("");
+                $("#uploadFileName").html("");
+                $("#btnUpdateCoverageMetadata").hide();
                             
                 //Retrieve coverage description
                 wcsService.getCoverageDescription(describeCoverageRequest)
@@ -210,5 +265,9 @@ module rasdaman {
         getAxisResolution(number, any):string;
         getAxisType(number, any):string;
         parseCoverageMetadata():void;
+
+        adminUserLoggedIn:boolean;
+        metadataFileToUpload:string;
+        updateCoverageMetadata():void;
     }
 }

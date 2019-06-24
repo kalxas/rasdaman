@@ -249,27 +249,33 @@ public abstract class AbstractController {
         return kvpParameters;
     }
     
+    /**
+     * Check if petascope can read file's content from uploaded multipart file. If yes, then get file's content.
+     */
+    protected byte[] getUploadedMultipartFileContent(MultipartFile uploadedFile) throws PetascopeException {
+        byte[] bytes = null;            
+            try {
+                bytes = uploadedFile.getBytes();
+            } catch (IOException ex) {
+                throw new PetascopeException(ExceptionCode.IOConnectionError, 
+                        "Cannot get data from uploaded file. Reason: " + ex.getMessage() + ".", ex);
+            }
+            
+        return bytes;
+    }
     
     /**
      * Write the uploaded file from client and store to a folder in server
-     * @param uploadedFile uploaded File object
      * @return the stored file path in server
      */
-    protected String storeUploadFileOnServer(MultipartFile uploadedFile) throws PetascopeException {
-        // It is a upload file request
-        byte[] bytes = null;            
-        try {
-            bytes = uploadedFile.getBytes();
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, 
-                    "Cannot get data from uploaded file. Reason: " + ex.getMessage() + ".", ex);
-        }
+    protected String storeUploadFileOnServer(String uploadedFileName, byte[] bytes) throws PetascopeException {
+
         // Check if temp folder exist first
         File folderPath = new File(UPLOADED_FILE_DIR_TMP);
         if (!folderPath.exists()) {
             folderPath.mkdir();
         }
-        String fileName = StringUtil.addDateTimeSuffix(UPLOAD_FILE_PREFIX + uploadedFile.getOriginalFilename());
+        String fileName = StringUtil.addDateTimeSuffix(UPLOAD_FILE_PREFIX + uploadedFileName);
         String filePath = UPLOADED_FILE_DIR_TMP + "/" + fileName;
         Path path = Paths.get(filePath);
         try {

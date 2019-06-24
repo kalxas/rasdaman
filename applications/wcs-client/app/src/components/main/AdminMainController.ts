@@ -36,15 +36,15 @@ module rasdaman {
         public constructor(private $scope:AdminMainControllerScope, $rootScope:angular.IRootScopeService, $state:any) {
             this.initializeTabs($scope);
 
-            $scope.adminStateInformation = {
+            $rootScope.adminStateInformation = {
                 loggedIn:false
             }
            
-            $scope.loggedIn = false;
+            $rootScope.loggedIn = false;
             // default show only login tab
             $scope.tabs = [$scope.adminLogin];
             
-            $scope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
+            $rootScope.$watch("adminStateInformation.loggedIn", (newValue:boolean, oldValue:boolean)=> {
                 // logged in, show other tabs
                 if (newValue) {
                     $scope.tabs = [$scope.adminOWSMetadataManagement];

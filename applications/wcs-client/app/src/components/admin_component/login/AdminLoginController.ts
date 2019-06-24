@@ -54,7 +54,7 @@ module rasdaman {
                 adminService.login($scope.credential).then(
                     (...args:any[])=> {
                         alertService.success("Successfully logged in.");
-                        $scope.adminStateInformation.loggedIn = true;            
+                        $rootScope.adminStateInformation.loggedIn = true;            
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            
                     }).finally(function () {                        
