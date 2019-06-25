@@ -105,7 +105,7 @@ private:
      */
     template<typename T>
     void encodeImage(GDALDataType gdalBandType, bool isBoolean,
-                     unsigned int width, unsigned int height, unsigned int numBands);
+                     unsigned int width, unsigned int height, unsigned int numBands, bool isComplex);
 
     /**
      * @return (width, height) of the rasdaman array, throw an error in case of

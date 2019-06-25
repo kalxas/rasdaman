@@ -189,37 +189,61 @@ void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, r_Primitive_Type *rasBa
     {
     case GDT_Byte:
     {
-        encodeImage<r_Char>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Char>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_UInt16:
     {
-        encodeImage<r_UShort>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_UShort>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_Int16:
     {
-        encodeImage<r_Short>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Short>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_UInt32:
     {
-        encodeImage<r_ULong>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_ULong>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_Int32:
     {
-        encodeImage<r_Long>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Long>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_Float32:
     {
-        encodeImage<r_Float>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Float>(gdalBandType, isBoolean, width, height, numBands, false);
         break;
     }
     case GDT_Float64:
     {
-        encodeImage<r_Double>(gdalBandType, isBoolean, width, height, numBands);
+        encodeImage<r_Double>(gdalBandType, isBoolean, width, height, numBands, false);
+        break;
+    }
+    case GDT_CFloat32:
+    {
+
+        encodeImage<r_Float>(gdalBandType, isBoolean, 2 * width, height, numBands, true);
+        break;
+    }
+    case GDT_CFloat64:
+    {
+
+        encodeImage<r_Double>(gdalBandType, isBoolean, 2 * width, height, numBands, true);
+        break;
+    }
+    case GDT_CInt16:
+    {
+
+        encodeImage<r_Short>(gdalBandType, isBoolean, 2 * width, height, numBands, true);
+        break;
+    }
+    case GDT_CInt32:
+    {
+
+        encodeImage<r_Long>(gdalBandType, isBoolean, 2 * width, height, numBands, true);
         break;
     }
     default:
@@ -232,7 +256,7 @@ void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, r_Primitive_Type *rasBa
 
 template<typename T>
 void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, bool isBoolean,
-                              unsigned int width, unsigned int height, unsigned int numBands)
+                              unsigned int width, unsigned int height, unsigned int numBands, bool isComplex)
 {
     size_t area = static_cast<size_t>(width) * static_cast<size_t>(height);
     unique_ptr<T[]> dstCells;
@@ -278,7 +302,10 @@ void r_Conv_GDAL::encodeImage(GDALDataType gdalBandType, bool isBoolean,
                 }
             }
         }
-
+        if (isComplex)
+        {
+            width /= 2;
+        }
         CPLErr error = poDataset->GetRasterBand((int)(band + 1))->
                        RasterIO(GF_Write, 0, 0, (int)width, (int)height, (char *) dstCells.get(),
                                 (int)width, (int)height, gdalBandType, 0, 0);
@@ -512,12 +539,12 @@ void r_Conv_GDAL::decodeBand(const char *bandCells, char *tileCells, size_t tile
     }
     case GDT_CFloat32:
     {
-        transposeBand<r_Float>(bandCells, tileCells, tileBaseTypeSize/2, 2*width, height);
+        transposeBand<r_Float>(bandCells, tileCells, tileBaseTypeSize / 2, 2 * width, height);
         break;
     }
     case GDT_CFloat64:
     {
-        transposeBand<r_Double>(bandCells, tileCells, tileBaseTypeSize/2, 2*width, height);
+        transposeBand<r_Double>(bandCells, tileCells, tileBaseTypeSize / 2, 2 * width, height);
         break;
     }
     default:
