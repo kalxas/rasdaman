@@ -71,7 +71,8 @@ check_gdal
 # check data types
 check_type GreySet
 check_type RGBSet
-check_type Gauss2Set
+check_type Gauss1Set # 2D CFloat32 collection type
+check_type Gauss2Set # 2D CFloat64 collection type
 check_user_type TestSet
 if [ $? -ne 0 ]; then
     $RASQL --quiet -q "create type TestPixel as (band1 octet, band2 octet, band3 octet, band4 octet)"
@@ -191,6 +192,10 @@ function run_test()
       f=rgb
     elif [ "$colltype" == TestSet ]; then
       f=multiband
+    elif [ "$colltype" == Gauss1Set ]; then
+      f=cfloat32_image
+    elif [ "$colltype" == Gauss2Set -a "$inv_fun" == decode ]; then
+      f=cfloat64_image
     elif [ "$colltype" == Gauss2Set ]; then
       f=gauss
     elif [ "$colltype" == BoolSet ]; then
@@ -359,6 +364,11 @@ run_test tiff decode tif tif UShortSet
 run_test tiff decode tif tif LongSet
 run_test tiff decode tif tif FloatSet
 run_test tiff decode tif tif DoubleSet
+
+run_test encode decode tif tif Gauss1Set '' ', "tiff"'
+
+# TODO: uncomment below once CFloat64 is fixed
+#run_test encode decode tif tif Gauss2Set '' ', "tiff"'
 
 ################## (TestArray) inv_tiff() ####################
 log ----- user-defined type conversion ------
