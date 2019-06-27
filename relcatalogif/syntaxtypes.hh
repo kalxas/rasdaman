@@ -16,8 +16,8 @@ const string BOOL_NAME = "bool";
 const string CHAR_NAME = "char";
 const string FLOAT_NAME = "float";
 const string DOUBLE_NAME = "double";
-const string COMPLEXTYPE1 = "complex1";
-const string COMPLEXTYPE2 = "complex2";
+const string COMPLEXTYPE1 = "complex";
+const string COMPLEXTYPE2 = "complexd";
 
 }
 

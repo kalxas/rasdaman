@@ -489,10 +489,10 @@ r_Type::getPrimitiveType(char *&pos)
         returnValue = new r_Primitive_Type("Double", r_Type::DOUBLE);
         break;
     case DLCOMPLEXTYPE1:
-        returnValue = new r_Complex_Type("Complex1", r_Type::COMPLEXTYPE1);
+        returnValue = new r_Complex_Type("Complex", r_Type::COMPLEXTYPE1);
         break;
     case DLCOMPLEXTYPE2:
-        returnValue = new r_Complex_Type("Complex2", r_Type::COMPLEXTYPE2);
+        returnValue = new r_Complex_Type("Complexd", r_Type::COMPLEXTYPE2);
         break;
     default:
     {

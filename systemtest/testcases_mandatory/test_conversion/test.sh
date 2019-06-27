@@ -23,21 +23,21 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # SYNOPSIS
-#	test.sh
+#  test.sh
 # Description
-#	Command-line utility for testing rasdaman.
-#	1)creating collection
-# 	2)insert images into collection
-# 	3)extract images
-# 	4)compare
-# 	5)cleanup
+#  Command-line utility for testing rasdaman.
+#  1)creating collection
+#   2)insert images into collection
+#   3)extract images
+#   4)compare
+#   5)cleanup
 #
 # PRECONDITIONS
-# 	1)Postgres Server must be running
-# 	2)Rasdaman Server must be running
-# 	3)database RASBASE must exists
-# 	4)rasql utility must be fully running
-# 	5)images needed for testing shall be put in directory of images
+#   1)Postgres Server must be running
+#   2)Rasdaman Server must be running
+#   3)database RASBASE must exists
+#   4)rasql utility must be fully running
+#   5)images needed for testing shall be put in directory of images
 # Usage: ./test.sh
 #
 # CHANGE HISTORY
@@ -366,9 +366,8 @@ run_test tiff decode tif tif FloatSet
 run_test tiff decode tif tif DoubleSet
 
 run_test encode decode tif tif Gauss1Set '' ', "tiff"'
+run_test encode decode tif tif Gauss2Set '' ', "tiff"'
 
-# TODO: uncomment below once CFloat64 is fixed
-#run_test encode decode tif tif Gauss2Set '' ', "tiff"'
 
 ################## (TestArray) inv_tiff() ####################
 log ----- user-defined type conversion ------

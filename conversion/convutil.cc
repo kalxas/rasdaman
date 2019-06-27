@@ -73,10 +73,10 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
         ret = string("double");
         break;
     case GDT_CFloat32:
-        ret = string("complex1");
+        ret = string("complex");
         break;
     case GDT_CFloat64:
-        ret = string("complex2");
+        ret = string("complexd");
         break;
     default:
         throw r_Error(r_Error::r_Error_FeatureNotSupported);

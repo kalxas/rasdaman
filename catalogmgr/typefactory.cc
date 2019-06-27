@@ -90,8 +90,8 @@ const char *BoolType::Name = "Bool";
 const char *CharType::Name = "Char";
 const char *FloatType::Name = "Float";
 const char *DoubleType::Name = "Double";
-const char *ComplexType1::Name = "Complex1";
-const char *ComplexType2::Name = "Complex2";
+const char *ComplexType1::Name = "Complex";
+const char *ComplexType2::Name = "Complexd";
 
 const std::string TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
 

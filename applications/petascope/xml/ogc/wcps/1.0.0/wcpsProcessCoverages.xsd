@@ -344,7 +344,7 @@
             <xs:enumeration value="float"/>
             <xs:enumeration value="double"/>
             <xs:enumeration value="complex"/>
-            <xs:enumeration value="complex2"/>
+            <xs:enumeration value="complexd"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:group name="BinaryOperationCoverageExprType">

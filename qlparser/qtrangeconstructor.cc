@@ -439,11 +439,11 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
     // return the stronger type
     if (op1->getType() == COMPLEXTYPE2 || op2->getType() == COMPLEXTYPE2)
     {
-        return TypeFactory::mapType("Complex2");
+        return TypeFactory::mapType("Complexd");
     }
     if (op1->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE1)
     {
-        return TypeFactory::mapType("Complex1");
+        return TypeFactory::mapType("Complex");
     }
     if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
     {

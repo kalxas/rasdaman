@@ -280,8 +280,8 @@ def convert_binary_data_stream(dtype, data):
 
         return sinterval
     elif base_type == "scalar" and type == "complexd":
-        # e.g: select complex(0.5, 2.5) from test_mr
-        # complexd is 8 bytes: 8 bytes
+        # e.g: select complexd(0.5, 2.5) from test_mr
+        # complexd is 16 bytes: 16 bytes
         dtsize = get_size_from_data_type(type)
         real_number = convert_data_from_bin(type, data[0: dtsize])
         imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])

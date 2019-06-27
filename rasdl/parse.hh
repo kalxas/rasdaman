@@ -163,7 +163,7 @@ public:
         Enum,
 
         Atomic,
-        Any, Void, Boolean, Float, Integer, Char, Octet, Complex1, Complex2, String,
+        Any, Void, Boolean, Float, Integer, Char, Octet, Complex, Complexd, String,
 
         Atomic_template,
         Domain, Set, MDD

@@ -1035,9 +1035,9 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
                 case FLOAT:
                     return TypeFactory::mapType("Float");
                 case COMPLEXTYPE1:
-                    return TypeFactory::mapType("Complex1");
+                    return TypeFactory::mapType("Complex");
                 case COMPLEXTYPE2:
-                    return TypeFactory::mapType("Complex2");
+                    return TypeFactory::mapType("Complexd");
                 default:
                     return TypeFactory::mapType("Double");
                     break;
@@ -1071,11 +1071,11 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
             }
             else if (type1 == COMPLEXTYPE1)
             {
-                return TypeFactory::mapType("Complex1");
+                return TypeFactory::mapType("Complex");
             }
             else if (type1 == COMPLEXTYPE2)
             {
-                return TypeFactory::mapType("Complex2");
+                return TypeFactory::mapType("Complexd");
             }
             else
             {
@@ -1110,15 +1110,15 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     {
         if (type1 == DOUBLE || type2 == DOUBLE)
         {
-            return TypeFactory::mapType("Complex2");
+            return TypeFactory::mapType("Complexd");
         }
         else if (type1 == FLOAT || type2 == FLOAT)
         {
-            return TypeFactory::mapType("Complex1");
+            return TypeFactory::mapType("Complex");
         }
         else
         {
-            return TypeFactory::mapType("Complex2");
+            return TypeFactory::mapType("Complexd");
         }
     }
     if (op2 == 0)
@@ -1188,11 +1188,11 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     // return the stronger type
     if (type1 == COMPLEXTYPE2 || type2 == COMPLEXTYPE2)
     {
-        return TypeFactory::mapType("Complex2");
+        return TypeFactory::mapType("Complexd");
     }
     if (type1 == COMPLEXTYPE1 || type2 == COMPLEXTYPE1)
     {
-        return TypeFactory::mapType("Complex1");
+        return TypeFactory::mapType("Complex");
     }
     if (type1 == DOUBLE || type2 == DOUBLE)
     {

@@ -622,10 +622,10 @@ QtTypeElement::setDataType(const QtDataType newDataType)
         type = TypeFactory::mapType("Double");
         break;
     case QT_COMPLEXTYPE1:
-        type = TypeFactory::mapType("Complex1");
+        type = TypeFactory::mapType("Complex");
         break;
     case QT_COMPLEXTYPE2:
-        type = TypeFactory::mapType("Complex2");
+        type = TypeFactory::mapType("Complexd");
         break;
 
     case QT_MDD:

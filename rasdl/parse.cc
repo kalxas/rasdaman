@@ -829,10 +829,10 @@ Parse_octet::getType(const char* /*typeName*/) const
 }
 
 
-/* complex1 */
+/* complex */
 Parse_complex1::Parse_complex1()
 {
-    kind   = Complex1;
+    kind   = Complex;
     name   = "r_Complex1";
 }
 
@@ -841,13 +841,13 @@ Parse_complex1::Parse_complex1()
 const Type*
 Parse_complex1::getType(const char* /*typeName*/) const
 {
-    return TypeFactory::mapType("Complex1");
+    return TypeFactory::mapType("Complex");
 }
 
-/* complex2 */
+/* complexd */
 Parse_complex2::Parse_complex2()
 {
-    kind   = Complex2;
+    kind   = Complexd;
     name   = "r_Complex2";
 }
 
@@ -856,7 +856,7 @@ Parse_complex2::Parse_complex2()
 const Type*
 Parse_complex2::getType(const char* /*typeName*/) const
 {
-    return TypeFactory::mapType("Complex2");
+    return TypeFactory::mapType("Complexd");
 }
 
 
@@ -922,7 +922,7 @@ Parse_MDD::getType(const char* typeName) const
             (base_type->kind != Typereference && base_type->kind != Boolean &&
              base_type->kind != Float         && base_type->kind != Integer &&
              base_type->kind != Char          && base_type->kind != Octet   &&
-             base_type->kind != Complex1    && base_type->kind != Complex2
+             base_type->kind != Complex    && base_type->kind != Complexd
             )
        )
         // Error: MDD base type has to be a type reference or an atomic type.

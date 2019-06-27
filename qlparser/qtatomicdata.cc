@@ -225,11 +225,11 @@ QtAtomicData::QtAtomicData(double valRe, double valIm, unsigned short size)
 
     if (size == 2 * sizeof(float))
     {
-        valueType = TypeFactory::mapType("Complex1");
+        valueType = TypeFactory::mapType("Complex");
     }
     else
     {
-        valueType = TypeFactory::mapType("Complex2");
+        valueType = TypeFactory::mapType("Complexd");
     }
 
     valueBuffer = new char[valueType->getSize()];
