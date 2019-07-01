@@ -47,6 +47,8 @@ class BoolType;
 class CharType;
 class ComplexType1;
 class ComplexType2;
+class CInt16;
+class CInt32;
 class DBNullvalues;
 class DBMinterval;
 class DoubleType;

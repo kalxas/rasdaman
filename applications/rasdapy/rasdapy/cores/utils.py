@@ -53,12 +53,12 @@ def get_type_structure_from_string(input_str):
     :return: object {"type", "base_type", "sub_type"(optional)}
     """
     primary_regex = "set\s*<marray\s*<(" \
-                    "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet),\s*.*>>"
-    scalar_regex = "set\s*<(char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*>"
+                    "char|ushort|short|ulong|long|float|double|complexd|complex|cint16|cint32|bool|octet),\s*.*>>"
+    scalar_regex = "set\s*<(char|ushort|short|ulong|long|float|double|complexd|complex|cint16|cint32|bool|octet)\s*>"
     struct_regex = (
         "set\s*<marray\s*<struct\s*{(("
-        "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*.*,)*\s*(("
-        "char|ushort|short|ulong|long|float|double|complexd|complex|bool|octet)\s*.*)},\s*.*>>"
+        "char|ushort|short|ulong|long|float|double|complexd|complex|cint16|cint32|bool|octet)\s*.*,)*\s*(("
+        "char|ushort|short|ulong|long|float|double|complexd|complex|cint16|cint32|bool|octet)\s*.*)},\s*.*>>"
     )
     complex_scalar_regex = (
         "set\s*<struct\s*{((char|ushort|short|ulong|long|float|double|octet)\s*.*,"
@@ -152,7 +152,6 @@ def convert_data_from_bin(dtype, data, big_endian=False):
     :return: unpacked data
     """
     flag = ">" if big_endian else "<"
-
     if dtype == "char":
         # it is hex character and needs to convert to ascii value integer instead
         result = ord(struct.unpack(flag + "c", data)[0])
@@ -165,11 +164,11 @@ def convert_data_from_bin(dtype, data, big_endian=False):
         result = struct.unpack(flag + "B", data)[0]
     elif dtype == "ushort":
         result = struct.unpack(flag + "H", data)[0]
-    elif dtype == "short":
+    elif dtype == "short" or dtype == "cint16":
         result = struct.unpack(flag + "h", data)[0]
     elif dtype == "ulong":
         result = struct.unpack(flag + "I", data)[0]
-    elif dtype == "long":
+    elif dtype == "long" or dtype == "cint32":
         result = struct.unpack(flag + "i", data)[0]
     elif dtype == "float" or dtype == "complex":
         result = struct.unpack(flag + "f", data)[0]
@@ -202,6 +201,10 @@ def get_size_from_data_type(dtype):
         result = 4
     elif dtype == "float":
         result = 4
+    elif dtype == "cint16":
+        result = 4
+    elif dtype == "cint32":
+        result = 8
     elif dtype == "complex":
         result = 8
     elif dtype == "double":
@@ -283,6 +286,18 @@ def convert_binary_data_stream(dtype, data):
         # e.g: select complexd(0.5, 2.5) from test_mr
         # complexd is 16 bytes: 16 bytes
         dtsize = get_size_from_data_type(type)
+        real_number = convert_data_from_bin(type, data[0: dtsize])
+        imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])
+
+        real_number = get_scalar_result(real_number)
+        imagine_number = get_scalar_result(imagine_number)
+        complex_number = Complex(real_number, imagine_number)
+
+        return complex_number
+    elif base_type == "scalar" and type == "cint32":
+        # e.g: select complexd(0.5, 2.5) from test_mr
+        # complexd is 16 bytes: 16 bytes
+        dtsize = get_size_from_data_type(type)/2
         real_number = convert_data_from_bin(type, data[0: dtsize])
         imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])
 

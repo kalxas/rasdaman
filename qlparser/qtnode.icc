@@ -118,7 +118,8 @@ QtTypeElement::isBaseType() const
            dataType == QT_USHORT       || dataType == QT_SHORT   ||
            dataType == QT_ULONG        || dataType == QT_LONG    ||
            dataType == QT_FLOAT        || dataType == QT_DOUBLE  ||
-           dataType == QT_COMPLEXTYPE1 || dataType == QT_COMPLEXTYPE2;
+           dataType == QT_COMPLEXTYPE1 || dataType == QT_COMPLEXTYPE2 ||
+           dataType == QT_CINT16 || dataType == QT_CINT32;
 }
 
 

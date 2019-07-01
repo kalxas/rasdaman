@@ -92,6 +92,9 @@ const char *FloatType::Name = "Float";
 const char *DoubleType::Name = "Double";
 const char *ComplexType1::Name = "Complex";
 const char *ComplexType2::Name = "Complexd";
+const char *CInt16::Name = "CInt16";
+const char *CInt32::Name = "CInt32";
+
 
 const std::string TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX = "__CELLTYPE__";
 
@@ -117,7 +120,8 @@ map<string, string> TypeFactory::createSyntaxTypeInternalTypeMap()
     ret.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
     ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE1, ComplexType1::Name));
     ret.insert(std::make_pair(SyntaxType::COMPLEXTYPE2, ComplexType2::Name));
-
+    ret.insert(std::make_pair(SyntaxType::CINT16, CInt16::Name));
+    ret.insert(std::make_pair(SyntaxType::CINT32, CInt32::Name));
     return ret;
 }
 
@@ -223,6 +227,8 @@ const StructType *TypeFactory::addStructType(const StructType *type)
             case FLOAT:
             case COMPLEXTYPE1:
             case COMPLEXTYPE2:
+            case CINT16:
+            case CINT32:
                 LTRACE << "element is atomic type " << type->getElemName(i)
                        << " of type " << type->getElemType(i)->getName();
                 persistentType->addElement(
@@ -325,17 +331,17 @@ const MDDType *TypeFactory::addMDDType(const MDDType *type)
             break;
         case MDDType::MDDBASETYPE:
             persistentType = new MDDBaseType(type->getTypeName(),
-                addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())));
+                                             addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())));
             break;
         case MDDType::MDDDOMAINTYPE:
             persistentType = new MDDDomainType(type->getTypeName(),
-                addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
-                *static_cast<const MDDDomainType *>(type)->getDomain());
+                                               addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
+                                               *static_cast<const MDDDomainType *>(type)->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
             persistentType = new MDDDimensionType(type->getTypeName(),
-                addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
-                static_cast<const MDDDimensionType *>(type)->getDimension());
+                                                  addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
+                                                  static_cast<const MDDDimensionType *>(type)->getDimension());
             break;
         default:
             LWARNING << "MDD sub-type '" << type->getName() << "' unknown.";
@@ -650,6 +656,12 @@ const Type *TypeFactory::ensurePersistence(Type *type)
     case COMPLEXTYPE2:
         retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID)));
         break;
+    case CINT16:
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(CINT16, OId::ATOMICTYPEOID)));
+        break;
+    case CINT32:
+        retval = static_cast<Type *>(ObjectBroker::getObjectByOId(OId(CINT32, OId::ATOMICTYPEOID)));
+        break;
     default:
         LTRACE << "ensurePersitence() is not a STRUCT/MDDTYPE/SETTYPE/ATOMIC " << type->getName();
         break;
@@ -750,6 +762,10 @@ const Type *TypeFactory::fromRaslibType(const r_Type *type)
             return TypeFactory::mapType(ComplexType1::Name);
         case r_Type::COMPLEXTYPE2:
             return TypeFactory::mapType(ComplexType2::Name);
+        case r_Type::CINT16:
+            return TypeFactory::mapType(CInt16::Name);
+        case r_Type::CINT32:
+            return TypeFactory::mapType(CInt32::Name);
         default:
             LERROR << "unknown type " << type->type_id();
             throw r_Error(r_Error::r_Error_General);

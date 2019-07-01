@@ -50,6 +50,12 @@ r_Complex_Type::r_Complex_Type(const char *newTypeName, const r_Type::r_Type_Id 
     case COMPLEXTYPE2:
         imOff = sizeof(r_Double);
         break;
+    case CINT16:
+        imOff = sizeof(r_Short);
+        break;
+    case CINT32:
+        imOff = sizeof(r_Long);
+        break;
     default:
         LTRACE << "r_Complex_Type(...) bad typeId " << typeId;
         break;
@@ -141,8 +147,63 @@ r_Complex_Type::get_im(const char *cell) const
     }
     return res;
 }
+//versions of getters for integer complex numbers
+r_Long
+r_Complex_Type::get_re_long(const char *cell) const
+{
+    long res = 0;
+
+    if ((typeId != r_Type::CINT16) &&
+            (typeId != r_Type::CINT32))
+    {
+        LERROR << "r_Complex_Type::get_re_long(cell) type not a cint16 or cint32";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
+    }
 
 
+    switch (typeId)
+    {
+    case CINT16:
+        res = *(r_Short *)const_cast<char *>(cell);
+        break;
+    case CINT32:
+        res = *(r_Long *)const_cast<char *>(cell);
+        break;
+    default:
+        LTRACE << "get_re_long(...) bad typeId " << typeId;
+        break;
+    }
+    return res;
+}
+
+r_Long
+r_Complex_Type::get_im_long(const char *cell) const
+{
+    long res = 0;
+
+    if ((typeId != r_Type::CINT16) &&
+            (typeId != r_Type::CINT32))
+    {
+        LERROR << "r_Complex_Type::get_im_long(cell) type not a cint16 or cint32";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
+    }
+
+    switch (typeId)
+    {
+    case CINT16:
+        res = *(r_Short *)(const_cast<char *>(cell) + imOff);
+        break;
+    case CINT32:
+        res = *(r_Long *)(const_cast<char *>(cell) + imOff);
+        break;
+    default:
+        LTRACE << "get_im_long(...) bad typeId " << typeId;
+        break;
+    }
+    return res;
+}
 
 
 void
@@ -200,7 +261,61 @@ r_Complex_Type::set_im(char *cell, r_Double im)
     }
 }
 
+//setters for complex integers
+void
+r_Complex_Type::set_re_long(char *cell, r_Long re)
+{
+    r_Short ref = 0.;
+    if ((typeId != r_Type::CINT16) &&
+            (typeId != r_Type::CINT32))
+    {
+        LERROR << "r_Complex_Type::set_re_long(cell, re) type not a cint16 or cint32";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
+    }
 
+    switch (typeId)
+    {
+    case CINT16:
+        ref = re;
+        memmove(cell, &ref, imOff);
+        break;
+    case CINT32:
+        memmove(cell, &re, imOff);
+        break;
+    default:
+        LTRACE << "set_re_long(...) bad typeId " << typeId;
+        break;
+    }
+}
+
+void
+r_Complex_Type::set_im_long(char *cell, r_Long im)
+{
+    r_Long imf = 0.;
+
+    if ((typeId != r_Type::CINT16) &&
+            (typeId != r_Type::CINT32))
+    {
+        LERROR << "r_Complex_Type::set_im_long(cell, im) type not a cint16 or cint32";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw (err);
+    }
+
+    switch (typeId)
+    {
+    case CINT16:
+        imf = im;
+        memmove((cell + imOff), &imf, imOff);
+        break;
+    case CINT32:
+        memmove((cell + imOff), &im, imOff);
+        break;
+    default:
+        LTRACE << "set_im_long(...) bad typeId " << typeId;
+        break;
+    }
+}
 void
 r_Complex_Type::print_status(std::ostream &s) const
 {
@@ -212,6 +327,12 @@ r_Complex_Type::print_status(std::ostream &s) const
     case COMPLEXTYPE2:
         s << "complex(double, double)";
         break;
+    case CINT16:
+        s << "complex(short, short)";
+        break;
+    case CINT32:
+        s << "complex(long, long)";
+        break;
     default:
         LTRACE << "print_status(...) bad typeId " << typeId;
         break;
@@ -221,7 +342,24 @@ r_Complex_Type::print_status(std::ostream &s) const
 void
 r_Complex_Type::print_value(const char *storage, std::ostream &s) const
 {
-    s << "(" << get_re(storage) << ", " << get_im(storage) << ")";
+    switch (typeId)
+    {
+    case COMPLEXTYPE1:
+        s << "(" << get_re(storage) << ", " << get_im(storage) << ")";
+        break;
+    case COMPLEXTYPE2:
+        s << "(" << get_re(storage) << ", " << get_im(storage) << ")";
+        break;
+    case CINT16:
+        s << "(" << get_re_long(storage) << ", " << get_im_long(storage) << ")";
+        break;
+    case CINT32:
+        s << "(" << get_re_long(storage) << ", " << get_im_long(storage) << ")";
+        break;
+    default:
+        LTRACE << "print_value(...) bad typeId " << typeId;
+        break;
+    }
 }
 
 void
@@ -242,6 +380,21 @@ r_Complex_Type::convertToLittleEndian(char *cells, r_Area noCells) const
         {
             *(r_Double *)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
             *(r_Double *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
+        }
+        break;
+    case CINT16:
+        for (r_Area i = 0; i < noCells; ++i)
+        {
+            *(r_Short *)(cells + i * typeSize) = r_Endian::swap((r_Short)get_re_long(cells + i * typeSize));
+            *(r_Short *)(cells + i * typeSize + imOff) = r_Endian::swap((r_Short)get_im_long(cells + i * typeSize));
+        }
+        break;
+
+    case CINT32:
+        for (r_Area i = 0; i < noCells; ++i)
+        {
+            *(r_Long *)(cells + i * typeSize) = r_Endian::swap(get_re_long(cells + i * typeSize));
+            *(r_Long *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im_long(cells + i * typeSize));
         }
         break;
     default:
@@ -267,6 +420,21 @@ r_Complex_Type::convertToBigEndian(char *cells, r_Area noCells) const
         {
             *(r_Double *)(cells + i * typeSize) = r_Endian::swap(get_re(cells + i * typeSize));
             *(r_Double *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im(cells + i * typeSize));
+        }
+        break;
+    case CINT16:
+        for (r_Area i = 0; i < noCells; ++i)
+        {
+            *(r_Short *)(cells + i * typeSize) = r_Endian::swap((r_Short)get_re_long(cells + i * typeSize));
+            *(r_Short *)(cells + i * typeSize + imOff) = r_Endian::swap((r_Short)get_im_long(cells + i * typeSize));
+        }
+        break;
+
+    case CINT32:
+        for (r_Area i = 0; i < noCells; ++i)
+        {
+            *(r_Long *)(cells + i * typeSize) = r_Endian::swap(get_re_long(cells + i * typeSize));
+            *(r_Long *)(cells + i * typeSize + imOff) = r_Endian::swap(get_im_long(cells + i * typeSize));
         }
         break;
     default:

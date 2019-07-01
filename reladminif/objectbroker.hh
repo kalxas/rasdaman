@@ -38,6 +38,8 @@ class DoubleType;
 class FloatType;
 class ComplexType1;
 class ComplexType2;
+class CInt16;
+class CInt32;
 class StructType;
 class BaseType;
 class SetType;
@@ -409,6 +411,16 @@ private:
     */
 
     static ComplexType2 *theComplex2;
+    /*@Doc:
+    a pointer to this member is returned by getObjectByOId().
+    */
+
+    static CInt16 *theCInt16;
+    /*@Doc:
+    a pointer to this member is returned by getObjectByOId().
+    */
+
+    static CInt32 *theCInt32;
     /*@Doc:
     a pointer to this member is returned by getObjectByOId().
     */

@@ -59,7 +59,7 @@ public:
     /// typedef for the enum specifying a primitive type, structure type, marray type,
     ///                               interval type, minterval type, point type or oid type
     enum r_Type_Id { ULONG, USHORT, BOOL, LONG, SHORT, OCTET,
-                     DOUBLE, FLOAT, CHAR, COMPLEXTYPE1, COMPLEXTYPE2,
+                     DOUBLE, FLOAT, CHAR, COMPLEXTYPE1, COMPLEXTYPE2, CINT16, CINT32,
                      STRUCTURETYPE, MARRAYTYPE, COLLECTIONTYPE,
                      SINTERVALTYPE, MINTERVALTYPE, POINTTYPE, OIDTYPE,
                      UNKNOWNTYPE
@@ -124,7 +124,7 @@ public:
     enum DLTOKEN   { DLMARRAY, DLSET, DLSTRUCT, DLCOMMA,
                      DLLEP, DLREP, DLLAP, DLRAP, DLLCP, DLRCP,
                      DLIDENTIFIER, DLCHAR, DLOCTET, DLSHORT, DLUSHORT,
-                     DLLONG, DLULONG, DLFLOAT, DLDOUBLE, DLBOOL, DLCOMPLEXTYPE1, DLCOMPLEXTYPE2,
+                     DLLONG, DLULONG, DLFLOAT, DLDOUBLE, DLBOOL, DLCOMPLEXTYPE1, DLCOMPLEXTYPE2, 			     DLCINT16, DLCINT32, 
                      DLINTERVAL,  DLMINTERVAL, DLPOINT, DLOID, DLUNKNOWN
                    };
 

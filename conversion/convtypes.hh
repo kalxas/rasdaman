@@ -48,6 +48,8 @@ rasdaman GmbH.
    ctype_struct && struct \\
    ctype_complex1 && single precision complex \\
    ctype_complex2 && double precision complex
+   ctype_cint16 && short complex \\
+   ctype_cint32 && long complex
    \end{tabular}
  */
 enum convert_type_e
@@ -73,7 +75,9 @@ enum convert_type_e
     ctype_struct,
     // complex types
     ctype_complex1,
-    ctype_complex2
+    ctype_complex2,
+    ctype_cint16,
+    ctype_cint32
 };
 
 #endif /* CONVTYPES_HH */

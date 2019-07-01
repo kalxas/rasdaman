@@ -268,6 +268,16 @@ r_Type::getNextToken(char *&pos, char *&identifier)
         token = DLBOOL;
         pos += 4;
     }
+    else if (!strncmp(pos, "cint16", 6))
+    {
+        token = DLCINT16;
+        pos += 6;
+    }
+    else if (!strncmp(pos, "cint32", 6))
+    {
+        token = DLCINT32;
+        pos += 6;
+    }
     else if (!strncmp(pos, "complexd", 8))
     {
         token = DLCOMPLEXTYPE2;
@@ -494,6 +504,12 @@ r_Type::getPrimitiveType(char *&pos)
     case DLCOMPLEXTYPE2:
         returnValue = new r_Complex_Type("Complexd", r_Type::COMPLEXTYPE2);
         break;
+    case DLCINT16:
+        returnValue = new r_Complex_Type("CInt16", r_Type::CINT16);
+        break;
+    case DLCINT32:
+        returnValue = new r_Complex_Type("CInt32", r_Type::CINT32);
+        break;
     default:
     {
         LERROR << "r_Type::getPrimitiveType(" << pos << ") unknown token";
@@ -678,6 +694,12 @@ std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t)
         break;
     case r_Type::COMPLEXTYPE2:
         s << "complextype2";
+        break;
+    case r_Type::CINT16:
+        s << "cint16";
+        break;
+    case r_Type::CINT32:
+        s << "cint32";
         break;
     case r_Type::STRUCTURETYPE:
         s << "structuretype";

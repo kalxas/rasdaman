@@ -203,6 +203,10 @@ std::string r_Convertor::type_to_string(int ctype)
         return "complex";
     case ctype_complex2:
         return "complexd";
+    case ctype_cint16:
+        return "cint16";
+    case ctype_cint32:
+        return "cint32";
     default:
         LERROR << "Error: in conversion: unsupported type " << ctype;
         r_Error err(r_Error::r_Error_General);
@@ -305,6 +309,10 @@ r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
             return ctype_complex1;
         case r_Type::COMPLEXTYPE2:
             return ctype_complex2;
+        case r_Type::CINT16:
+            return ctype_cint16;
+        case r_Type::CINT32:
+            return ctype_cint32;
         default:
             LERROR << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void.";
             return ctype_void;
@@ -399,6 +407,7 @@ void r_Convertor::updateNodataValue(const r_Range *nullValue)
     }
 }
 
+//TODO add cases for complex numbers
 std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
 {
     switch (cte)
@@ -441,6 +450,18 @@ std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
         break;
     case ctype_rgb:
         os << "rgb";
+        break;
+    case ctype_complex1:
+        os << "complex1";
+        break;
+    case ctype_complex2:
+        os << "complexd";
+        break;
+    case ctype_cint16:
+        os << "cint16";
+        break;
+    case ctype_cint32:
+        os << "cint32";
         break;
     case ctype_struct:
         os << "struct";

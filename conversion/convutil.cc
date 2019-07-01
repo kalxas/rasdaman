@@ -78,6 +78,12 @@ string ConvUtil::gdalTypeToRasTypeString(GDALDataType dataType)
     case GDT_CFloat64:
         ret = string("complexd");
         break;
+    case GDT_CInt16:
+        ret = string("cint16");
+        break;
+    case GDT_CInt32:
+        ret = string("cint32");
+        break;
     default:
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
         break;
@@ -213,6 +219,12 @@ GDALDataType ConvUtil::rasTypeToGdalType(r_Type *rasType)
         break;
     case r_Type::COMPLEXTYPE2:
         ret = GDT_CFloat64;
+        break;
+    case r_Type::CINT16:
+        ret = GDT_CInt16;
+        break;
+    case r_Type::CINT32:
+        ret = GDT_CInt32;
         break;
     default:
         LERROR << "Unable to convert rasdaman type " <<

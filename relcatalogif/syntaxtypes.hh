@@ -18,6 +18,9 @@ const string FLOAT_NAME = "float";
 const string DOUBLE_NAME = "double";
 const string COMPLEXTYPE1 = "complex";
 const string COMPLEXTYPE2 = "complexd";
+const string CINT16 = "cint16";
+const string CINT32 = "cint32";
+
 
 }
 

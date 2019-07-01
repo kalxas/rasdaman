@@ -617,7 +617,10 @@ void printScalar(const r_Scalar &scalar)
     case r_Type::COMPLEXTYPE2:
         NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im() << ")";
         break;
-
+    case r_Type::CINT16:
+    case r_Type::CINT32:
+	NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re_long() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im_long() << ")";
+        break;
     case r_Type::STRUCTURETYPE:
     {
         r_Structure *structValue = static_cast<r_Structure *>(&const_cast<r_Scalar &>(scalar));
@@ -670,6 +673,8 @@ void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
         case r_Type::FLOAT:
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
+	case r_Type::CINT16:
+	case r_Type::CINT32:
             writeScalarToFileStream(scalar, file);
             break;
 
@@ -747,6 +752,13 @@ void writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file)
         // default string representation of complex type has space - rejected by system test oracles.
         // eg: complex string representation: (34, 45) - oracle expected: (34,45)
         file << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im() << ")";
+        break;
+
+    case r_Type::CINT16:
+    case r_Type::CINT32:
+        // default string representation of complex type has space - rejected by system test oracles.
+        // eg: complex string representation: (34, 45) - oracle expected: (34,45)
+        file << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re_long() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im_long() << ")";
         break;
 
     case r_Type::STRUCTURETYPE:

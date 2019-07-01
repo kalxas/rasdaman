@@ -110,3 +110,9 @@ typedef set<Gauss1Image> Gauss1Set;
  
 typedef marray<complexd, 2> Gauss2Image;
 typedef set<Gauss2Image> Gauss2Set;
+
+typedef marray<cint16, 2> CInt16Image;
+typedef set<CInt16Image> CInt16Set;
+
+typedef marray<cint32, 2> CInt32Image;
+typedef set<CInt32Image> CInt32Set;

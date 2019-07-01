@@ -333,7 +333,7 @@ QtMarrayOp::checkType(QtTypeTuple *typeTuple)
                 valueExp.getDataType() != QT_USHORT && valueExp.getDataType() != QT_SHORT   &&
                 valueExp.getDataType() != QT_ULONG  && valueExp.getDataType() != QT_LONG    &&
                 valueExp.getDataType() != QT_FLOAT  && valueExp.getDataType() != QT_DOUBLE  &&
-                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2)
+                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 && 			valueExp.getDataType() != QT_CINT16 && valueExp.getDataType() != QT_CINT32)
         {
             LERROR << "Error: QtMarrayOp::checkType() - Value expression must be either of type atomic or complex.";
             parseInfo.setErrorNo(412);

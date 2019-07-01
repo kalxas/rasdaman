@@ -90,6 +90,8 @@ DoubleType *ObjectBroker::theDouble = nullptr;
 FloatType *ObjectBroker::theFloat = nullptr;
 ComplexType1 *ObjectBroker::theComplex1 = nullptr;
 ComplexType2 *ObjectBroker::theComplex2 = nullptr;
+CInt16 *ObjectBroker::theCInt16 = nullptr;
+CInt32 *ObjectBroker::theCInt32 = nullptr;
 
 DBObjectPMap ObjectBroker::theAtomicTypes;
 DBObjectPMap ObjectBroker::theSetTypes;
@@ -142,10 +144,12 @@ void ObjectBroker::init()
     ObjectBroker::theFloat = new FloatType();
     ObjectBroker::theComplex1 = new ComplexType1();
     ObjectBroker::theComplex2 = new ComplexType2();
+    ObjectBroker::theCInt16 = new CInt16();
+    ObjectBroker::theCInt32 = new CInt32();
 
     DBObject *atomicTypes[] =
     {
-        theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort,
+        theCInt16, theCInt32, theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort,
         theLong, theUShort, theBool, theChar, theULong
     };
 #ifdef DEBUG
@@ -187,6 +191,10 @@ void ObjectBroker::deinit()
     ObjectBroker::theComplex1 = nullptr;
     delete ObjectBroker::theComplex2;
     ObjectBroker::theComplex2 = nullptr;
+    delete ObjectBroker::theCInt16;
+    ObjectBroker::theCInt16 = nullptr;
+    delete ObjectBroker::theCInt32;
+    ObjectBroker::theCInt32 = nullptr;
 
     // clear maps and other datastructures, in order from "simplest" to more complex objects
     theAtomicTypes.clear();
@@ -442,6 +450,14 @@ ObjectBroker::getOIdByName(OId::OIdType type, const char *name)
         else if (strcmp(name, ComplexType2::Name) == 0)
         {
             return theComplex2->getOId();
+        }
+        else if (strcmp(name, CInt16::Name) == 0)
+        {
+            return theCInt16->getOId();
+        }
+        else if (strcmp(name, CInt32::Name) == 0)
+        {
+            return theCInt32->getOId();
         }
         else
         {

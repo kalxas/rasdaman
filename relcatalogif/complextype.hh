@@ -129,6 +129,65 @@ private:
     char *makeFromCDouble(char *cell, const double *value) const override;
 };
 
+class CInt16 : public GenericComplexType
+{
+public:
+    CInt16();
+    CInt16(const OId &id);
+    CInt16(const CInt16 &old);
+    CInt16 &operator=(const CInt16 &old);
+    ~CInt16() override;
+    void printCell(std::ostream &stream, const char *cell) const override;
+    unsigned int getReOffset() const override;
+    unsigned int getImOffset() const override;
+    const char *getTypeName() const override;
+    static const char *Name;
+
+protected:
+    void readFromDb() override;
+
+private:
+    unsigned int reOffset, imOffset;
+
+    //  static const char* complexTypeName;
+
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
+    double *convertToCDouble(const char *cell, double *value) const override;
+    char *makeFromCDouble(char *cell, const double *value) const override;
+};
+
+class CInt32 : public GenericComplexType
+{
+public:
+    CInt32();
+    CInt32(const OId &id);
+    CInt32(const CInt32 &old);
+    CInt32 &operator=(const CInt32 &old);
+    ~CInt32() override;
+    void printCell(std::ostream &stream, const char *cell) const override;
+    unsigned int getReOffset() const override;
+    unsigned int getImOffset() const override;
+    const char *getTypeName() const override;
+    static const char *Name;
+
+protected:
+    void readFromDb() override;
+
+private:
+    unsigned int reOffset, imOffset;
+
+    //  static const char* complexTypeName;
+
+    r_ULong *convertToCULong(const char *, r_ULong *) const override;
+    char *makeFromCULong(char *, const r_ULong *) const override;
+    r_Long *convertToCLong(const char *, r_Long *) const override;
+    char *makeFromCLong(char *, const r_Long *) const override;
+    double *convertToCDouble(const char *cell, double *value) const override;
+    char *makeFromCDouble(char *cell, const double *value) const override;
+};
 #include "complextype.icc"
 
 #endif

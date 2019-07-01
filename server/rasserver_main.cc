@@ -783,6 +783,25 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
         break;
     }
 
+    case QT_CINT16:
+    {
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
+        CInt16* ct = static_cast<CInt16*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+        auto re = *((r_Short*) (buffer + ct->getReOffset()));
+        auto im = *((r_Short*) (buffer + ct->getImOffset()));
+        INFO("(" << re << "," << im << ")" << flush)
+        break;
+    }
+    case QT_CINT32:
+    {
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
+        CInt32* ct = static_cast<CInt32*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+        auto re = *((r_Long*) (buffer + ct->getReOffset()));
+        auto im = *((r_Long*) (buffer + ct->getImOffset()));
+        INFO("(" << re << "," << im << ")" << flush)
+        break;
+    }
+
     case QT_COMPLEX:
     {
         QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);

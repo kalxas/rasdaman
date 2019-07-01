@@ -627,6 +627,12 @@ QtTypeElement::setDataType(const QtDataType newDataType)
     case QT_COMPLEXTYPE2:
         type = TypeFactory::mapType("Complexd");
         break;
+    case QT_CINT32:
+        type = TypeFactory::mapType("CInt32");
+        break;
+    case QT_CINT16:
+        type = TypeFactory::mapType("CInt16");
+        break;
 
     case QT_MDD:
     case QT_COMPLEX:
@@ -690,6 +696,12 @@ QtTypeElement::setType(const Type *newType)
             break;
         case COMPLEXTYPE2:
             dataType = QT_COMPLEXTYPE2;
+            break;
+        case CINT32:
+            dataType = QT_CINT32;
+            break;
+        case CINT16:
+            dataType = QT_CINT16;
             break;
         case MDDTYPE:
             dataType = QT_MDD;

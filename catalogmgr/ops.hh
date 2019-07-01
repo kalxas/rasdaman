@@ -127,6 +127,8 @@ public:
 
         OP_REALPART,
         OP_IMAGINARPART,
+        OP_REALPARTINT,
+        OP_IMAGINARPARTINT,
 
         OP_CAST_BEGIN,
         OP_CAST_BOOL,
@@ -2541,6 +2543,32 @@ protected:
     BinaryOp::ScalarFlag scalarFlag;
 };
 
+class OpPLUSComplexInt : public BinaryOp
+{
+public:
+
+    OpPLUSComplexInt(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+    virtual void getCondenseInit(char *init);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
+
 /**
   * \ingroup Catalogmgrs
   */
@@ -2549,6 +2577,32 @@ class OpMAX_BINARYComplex : public BinaryOp
 public:
 
     OpMAX_BINARYComplex(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+    virtual void getCondenseInit(char *init);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
+
+class OpMAX_BINARYComplexInt : public BinaryOp
+{
+public:
+
+    OpMAX_BINARYComplexInt(
         const BaseType *newResType,
         const BaseType *newOp1Type,
         const BaseType *newOp2Type,
@@ -2599,6 +2653,32 @@ protected:
     BinaryOp::ScalarFlag scalarFlag;
 };
 
+class OpMIN_BINARYComplexInt : public BinaryOp
+{
+public:
+
+    OpMIN_BINARYComplexInt(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+    virtual void getCondenseInit(char *init);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
+
 /**
   * \ingroup Catalogmgrs
   */
@@ -2607,6 +2687,31 @@ class OpMINUSComplex : public BinaryOp
 public:
 
     OpMINUSComplex(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
+
+class OpMINUSComplexInt : public BinaryOp
+{
+public:
+
+    OpMINUSComplexInt(
         const BaseType *newResType,
         const BaseType *newOp1Type,
         const BaseType *newOp2Type,
@@ -2655,6 +2760,31 @@ protected:
     BinaryOp::ScalarFlag scalarFlag;
 };
 
+
+class OpDIVComplexInt : public BinaryOp
+{
+public:
+
+    OpDIVComplexInt(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
 /**
   * \ingroup Catalogmgrs
   */
@@ -2684,6 +2814,31 @@ protected:
     BinaryOp::ScalarFlag scalarFlag;
 };
 
+class OpMULTComplexInt : public BinaryOp
+{
+public:
+
+    OpMULTComplexInt(
+        const BaseType *newResType,
+        const BaseType *newOp1Type,
+        const BaseType *newOp2Type,
+        size_t newResOff = 0,
+        size_t newOp1Off = 0,
+        size_t newOp2Off = 0,
+        BinaryOp::ScalarFlag flag = NONE
+    );
+    virtual void operator()(char *res, const char *op1, const char *op2);
+    virtual void getCondenseInit(char *init);
+
+protected:
+    size_t op1ReOff;
+    size_t op1ImOff;
+    size_t op2ReOff;
+    size_t op2ImOff;
+    size_t resReOff;
+    size_t resImOff;
+    BinaryOp::ScalarFlag scalarFlag;
+};
 /**
   * \ingroup Catalogmgrs
   */
@@ -2723,6 +2878,27 @@ private:
     OpMIN_BINARYComplex minBinary;
 };
 
+
+class OpMINComplexInt : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpMINComplexInt(const BaseType *newResType, const BaseType *newOpType,
+                    size_t newResOff = 0, size_t newOpOff = 0);
+    /// constructor initializing internal accu.
+    OpMINComplexInt(const BaseType *newResType, char *newAccu,
+                    const BaseType *newOpType, size_t newResOff,
+                    size_t newOpOff);
+    /// operator to carry out operation on {\tt op}.
+    virtual char *operator()(const char *op, char *myAccu);
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char *operator()(const char *op);
+
+private:
+    OpMIN_BINARYComplexInt minBinary;
+};
+
 /**
   * \ingroup Catalogmgrs
   */
@@ -2746,6 +2922,26 @@ private:
     OpMAX_BINARYComplex maxBinary;
 };
 
+
+class OpMAXComplexInt : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpMAXComplexInt(const BaseType *newResType, const BaseType *newOpType,
+                    size_t newResOff = 0, size_t newOpOff = 0);
+    /// constructor initializing internal accu.
+    OpMAXComplexInt(const BaseType *newResType, char *newAccu,
+                    const BaseType *newOpType, size_t newResOff,
+                    size_t newOpOff);
+    /// operator to carry out operation on {\tt op}.
+    virtual char *operator()(const char *op, char *myAccu);
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char *operator()(const char *op);
+
+private:
+    OpMAX_BINARYComplexInt maxBinary;
+};
 /**
   * \ingroup Catalogmgrs
   */
@@ -2769,6 +2965,25 @@ private:
     OpPLUSComplex plusBinary;
 };
 
+class OpSUMComplexInt : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpSUMComplexInt(const BaseType *newResType, const BaseType *newOpType,
+                    size_t newResOff = 0, size_t newOpOff = 0);
+    /// constructor initializing internal accu.
+    OpSUMComplexInt(const BaseType *newResType, char *newAccu,
+                    const   BaseType *newOpType, size_t newResOff,
+                    size_t newOpOff);
+    /// operator to carry out operation on {\tt op}.
+    virtual char *operator()(const char *op, char *myAccu);
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char *operator()(const char *op);
+
+private:
+    OpPLUSComplexInt plusBinary;
+};
 /**
   * \ingroup Catalogmgrs
   */
@@ -2784,6 +2999,18 @@ private:
     size_t resImOff;
 };
 
+class OpConstructComplexInt : public BinaryOp
+{
+public:
+    OpConstructComplexInt(const BaseType *newResType, const BaseType *newOp1Type,
+                          const BaseType *newOp2Type, size_t newResOff = 0,
+                          size_t newOp1Off = 0, size_t newOp2Off = 0);
+    virtual void operator()(char *res, const char *op1, const char *op2);
+private:
+    size_t resReOff;
+    size_t resImOff;
+};
+
 /**
   * \ingroup Catalogmgrs
   */
@@ -2791,6 +3018,21 @@ class OpRealPart : public UnaryOp
 {
 public:
     OpRealPart(
+        const BaseType *newResType,
+        const BaseType *newOpType,
+        size_t newResOff = 0,
+        size_t newOpOff = 0
+    );
+    virtual void operator()(char *result, const char *op);
+
+private:
+    size_t opReOff;
+};
+
+class OpRealPartInt : public UnaryOp
+{
+public:
+    OpRealPartInt(
         const BaseType *newResType,
         const BaseType *newOpType,
         size_t newResOff = 0,
@@ -2820,6 +3062,20 @@ private:
     size_t opImOff;
 };
 
+class OpImaginarPartInt : public UnaryOp
+{
+public:
+    OpImaginarPartInt(
+        const BaseType *newResType,
+        const BaseType *newOpType,
+        size_t newResOff = 0,
+        size_t newOpOff = 0
+    );
+    virtual void operator()(char *result, const char *op);
+
+private:
+    size_t opImOff;
+};
 //--------------------------------------------
 //      OpCAST
 //--------------------------------------------

@@ -53,9 +53,13 @@ public:
     r_Double get_re(const char *cell) const;
     r_Double get_im(const char *cell) const;
 
+    r_Long get_re_long(const char *cell) const;
+    r_Long get_im_long(const char *cell) const;
+
     void set_re(char *cell, r_Double re);
     void set_im(char *cell, r_Double im);
-
+    void set_re_long(char *cell, r_Long re);
+    void set_im_long(char *cell, r_Long im);
 
     virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;

@@ -211,3 +211,196 @@ inline const char *ComplexType2::getTypeName() const
 {
     return "complexd";
 }
+///////////////////////////////////////////////////////////////
+//  implementation - CInt16
+///////////////////////////////////////////////////////////////
+
+
+inline CInt16::CInt16()
+    : GenericComplexType(CInt16::Name, 2 * sizeof(short)), reOffset(0), imOffset(sizeof(short))
+{
+    myType = CINT16;
+    myOId = OId(CINT16, OId::ATOMICTYPEOID);
+}
+
+inline CInt16::CInt16(const OId &id)
+    : GenericComplexType(id), reOffset(0), imOffset(sizeof(short))
+{
+    readFromDb();
+}
+
+inline CInt16::CInt16(const CInt16 &old) : GenericComplexType(old)
+{
+    reOffset = old.reOffset;
+    imOffset = old.imOffset;
+}
+
+inline CInt16 &CInt16::operator =(const CInt16 &old)
+{
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator =(old);
+    reOffset = old.reOffset;
+    imOffset = old.imOffset;
+    return *this;
+}
+
+inline CInt16::~CInt16() = default;
+
+inline void CInt16::printCell(std::ostream &stream, const char *cell) const
+{
+    stream << "( Re: " << *(reinterpret_cast<const short *>(cell) + reOffset) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const short *>(cell) + imOffset) << " )\n";
+}
+
+inline void CInt16::readFromDb()
+{
+    size = 2 * sizeof(short);
+    setName(CInt16::Name);
+    myType = CINT16;
+    myOId = OId(CINT16, OId::ATOMICTYPEOID);
+}
+
+inline unsigned int CInt16::getReOffset() const
+{
+    return reOffset;
+}
+inline unsigned int CInt16::getImOffset() const
+{
+    return imOffset;
+}
+
+// those would better throw an exception
+inline r_ULong *CInt16::convertToCULong(const char *cell, r_ULong *value) const
+{ 
+	return nullptr;
+}
+inline char *CInt16::makeFromCULong(char *cell, const r_ULong *value) const
+{
+    return nullptr;
+}
+inline r_Long *CInt16::convertToCLong(const char *cell, r_Long *value) const
+{
+    *value = *reinterpret_cast<const short*>(cell);    
+	return value;
+}
+inline char *CInt16::makeFromCLong(char *cell, const r_Long *value) const
+{
+    r_Long dummy = *value;
+    *reinterpret_cast<short *>(cell) = static_cast<short>(dummy);
+    return cell;
+}
+
+inline double *CInt16::convertToCDouble(const char *cell, double *value) const
+{
+    return nullptr;
+}
+
+inline char *CInt16::makeFromCDouble(char *cell, const double *value) const
+{
+    return nullptr;
+}
+
+inline const char *CInt16::getTypeName() const
+{
+    return "cint16";
+}
+
+///////////////////////////////////////////////////////////////
+//  implementation - CInt32
+///////////////////////////////////////////////////////////////
+
+inline CInt32::CInt32()
+    : GenericComplexType(CInt32::Name, 2 * sizeof(int)), reOffset(0), imOffset(sizeof(int))
+{
+    myType = CINT32;
+    myOId = OId(CINT32, OId::ATOMICTYPEOID);
+}
+
+inline CInt32::CInt32(const OId &id)
+    : GenericComplexType(id), reOffset(0), imOffset(sizeof(int))
+{
+    readFromDb();
+}
+
+inline CInt32::CInt32(const CInt32 &old) : GenericComplexType(old)
+{
+    reOffset = old.reOffset;
+    imOffset = old.imOffset;
+}
+
+inline CInt32 &CInt32::operator =(const CInt32 &old)
+{
+    if (this == &old)
+    {
+        return *this;
+    }
+    AtomicType::operator =(old);
+    reOffset = old.reOffset;
+    imOffset = old.imOffset;
+    return *this;
+}
+
+inline CInt32::~CInt32() = default;
+
+inline void CInt32::printCell(std::ostream &stream, const char *cell) const
+{
+    stream << "( Re: " << *(reinterpret_cast<const int *>(cell) + reOffset) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const int *>(cell) + imOffset) << " )\n";
+}
+
+inline void CInt32::readFromDb()
+{
+    size = 2 * sizeof(int);
+    setName(CInt32::Name);
+    myType = CINT32;
+    myOId = OId(CINT32, OId::ATOMICTYPEOID);
+}
+
+inline unsigned int CInt32::getReOffset() const
+{
+    return reOffset;
+}
+inline unsigned int CInt32::getImOffset() const
+{
+    return imOffset;
+}
+
+// those would better throw an exception
+inline r_ULong *CInt32::convertToCULong(const char *cell, r_ULong *value) const
+{   
+	return nullptr;
+}
+inline char *CInt32::makeFromCULong(char * cell, const r_ULong * value) const
+{
+    return nullptr;
+}
+inline r_Long *CInt32::convertToCLong(const char *cell, r_Long *value) const
+{
+*value = *reinterpret_cast<const int*>(cell);    
+	return value;
+}
+inline char *CInt32::makeFromCLong(char *cell, const r_Long *value) const
+{
+    r_Long dummy = *value;
+    *reinterpret_cast<int *>(cell) = static_cast<int>(dummy);
+    return cell;
+}
+
+inline double *CInt32::convertToCDouble(const char *cell, double *value) const
+{
+    return nullptr;
+}
+
+inline char *CInt32::makeFromCDouble(char *cell, const double *value) const
+{
+    
+    return nullptr;
+}
+
+inline const char *CInt32::getTypeName() const
+{
+    return "cint32";
+}

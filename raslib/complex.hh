@@ -80,6 +80,12 @@ public:
     void set_re(r_Double);
     void set_im(r_Double);
 
+    r_Long get_re_long() const;
+    r_Long get_im_long() const;
+
+    void set_re_long(r_Long);
+    void set_im_long(r_Long);
+
 };
 
 

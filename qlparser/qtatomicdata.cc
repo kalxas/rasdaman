@@ -237,3 +237,23 @@ QtAtomicData::QtAtomicData(double valRe, double valIm, unsigned short size)
     valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
 }
 
+QtAtomicData::QtAtomicData(r_Long valRe, r_Long valIm, unsigned short size)
+    : QtScalarData()
+{
+    r_Long dummyRe = valRe;
+    r_Long dummyIm = valIm;
+
+    if (size == 2 * sizeof(r_Long))
+    {
+        valueType = TypeFactory::mapType("CInt32");
+    }
+    else
+    {
+        valueType = TypeFactory::mapType("CInt16");
+    }
+
+    valueBuffer = new char[valueType->getSize()];
+    valueType->makeFromCLong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCLong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
+}
+

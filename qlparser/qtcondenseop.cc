@@ -454,7 +454,8 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
                 op2Type != QT_USHORT && op2Type != QT_SHORT   &&
                 op2Type != QT_ULONG  && op2Type != QT_LONG    &&
                 op2Type != QT_FLOAT  && op2Type != QT_DOUBLE  &&
-                op2Type != QT_COMPLEXTYPE1 && op2Type != QT_COMPLEXTYPE2 && op2Type != QT_MDD)
+                op2Type != QT_COMPLEXTYPE1 && op2Type != QT_COMPLEXTYPE2 &&
+                op2Type != QT_CINT16 && op2Type != QT_CINT32 && op2Type != QT_MDD)
         {
             LERROR << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD.";
             parseInfo.setErrorNo(412);

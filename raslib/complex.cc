@@ -104,6 +104,55 @@ r_Complex::set_im(r_Double im)
     (static_cast<r_Complex_Type *>(valueType))->set_im(const_cast<char *>(get_buffer()), im);
 }
 
+//int 
+
+r_Long
+r_Complex::get_re_long() const
+{
+    if (!get_buffer() || !valueType || !valueType->isComplexType())
+    {
+        LERROR << "r_Complex::get_re() value type is not a complex, not initialised or not buffered";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw err;
+    }
+    return (static_cast<r_Complex_Type *>(valueType))->get_re_long(get_buffer());
+}
+
+r_Long
+r_Complex::get_im_long() const
+{
+    if (!get_buffer() || !valueType || !valueType->isComplexType())
+    {
+        LERROR << "r_Complex::get_im() value type is not a complex, not initialised or not buffered";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw err;
+    }
+    return (static_cast<r_Complex_Type *>(valueType))->get_im_long(get_buffer());
+}
+
+void
+r_Complex::set_re_long(r_Long re)
+{
+    if (!valueType || !valueType->isComplexType())
+    {
+        LERROR << "r_Complex::set_re_long(" << re << ") value type is not a complex or not initialised";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw err;
+    }
+    (static_cast<r_Complex_Type *>(valueType))->set_re_long(const_cast<char *>(get_buffer()), re);
+}
+
+void
+r_Complex::set_im_long(r_Long im)
+{
+    if (!valueType || !valueType->isComplexType())
+    {
+        LERROR << "r_Complex::get_im() value type is not a complex or not initialised";
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw err;
+    }
+    (static_cast<r_Complex_Type *>(valueType))->set_im_long(const_cast<char *>(get_buffer()), im);
+}
 
 bool
 r_Complex::isComplex() const

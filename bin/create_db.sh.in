@@ -242,6 +242,12 @@ execute_query "CREATE TYPE Gauss1Set as set ( Gauss1Image )" > /dev/null
 
 execute_query "CREATE TYPE Gauss2Image as CFloat64 mdarray [ x, y ]" > /dev/null
 execute_query "CREATE TYPE Gauss2Set as set ( Gauss2Image )" > /dev/null
+
+execute_query "CREATE TYPE CInt16Image as CInt16 mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE CInt16Set as set ( CInt16Image )" > /dev/null
+
+execute_query "CREATE TYPE CInt32Image as CInt32 mdarray [ x, y ]" > /dev/null
+execute_query "CREATE TYPE CInt32Set as set ( CInt32Image )" > /dev/null
 echo "ok."
 
 # --- action end 

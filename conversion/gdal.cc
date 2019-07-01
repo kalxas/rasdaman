@@ -547,6 +547,16 @@ void r_Conv_GDAL::decodeBand(const char *bandCells, char *tileCells, size_t tile
         transposeBand<r_Double>(bandCells, tileCells, tileBaseTypeSize / 2, 2 * width, height);
         break;
     }
+    case GDT_CInt16:
+    {
+        transposeBand<r_Short>(bandCells, tileCells, tileBaseTypeSize / 2, 2 * width, height);
+        break;
+    }
+    case GDT_CInt32:
+    {
+        transposeBand<r_Long>(bandCells, tileCells, tileBaseTypeSize / 2, 2 * width, height);
+        break;
+    }
     default:
         throw r_Error(r_Error::r_Error_FeatureNotSupported);
     }

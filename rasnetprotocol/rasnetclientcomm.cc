@@ -1683,6 +1683,8 @@ void RasnetClientComm::getElementCollection(r_Set<r_Ref_Any> &resultColl)
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
+	case r_Type::CINT16:
+        case r_Type::CINT32:
             element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type *>(elementType)));
             transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
             break;

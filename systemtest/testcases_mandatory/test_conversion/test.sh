@@ -73,6 +73,9 @@ check_type GreySet
 check_type RGBSet
 check_type Gauss1Set # 2D CFloat32 collection type
 check_type Gauss2Set # 2D CFloat64 collection type
+check_type CInt32Set
+check_type CInt16Set
+
 check_user_type TestSet
 if [ $? -ne 0 ]; then
     $RASQL --quiet -q "create type TestPixel as (band1 octet, band2 octet, band3 octet, band4 octet)"
@@ -198,6 +201,10 @@ function run_test()
       f=cfloat64_image
     elif [ "$colltype" == Gauss2Set ]; then
       f=gauss
+    elif [ "$colltype" == CInt32Set ]; then
+      f=cint32_image
+    elif [ "$colltype" == CInt16Set ]; then
+      f=cint16_image
     elif [ "$colltype" == BoolSet ]; then
       f=bool_image
     elif [ "$colltype" == ULongSet ]; then
@@ -364,6 +371,8 @@ run_test tiff decode tif tif UShortSet
 run_test tiff decode tif tif LongSet
 run_test tiff decode tif tif FloatSet
 run_test tiff decode tif tif DoubleSet
+run_test encode decode tif tif CInt16Set '' ', "tiff"'
+run_test encode decode tif tif CInt32Set '' ', "tiff"'
 
 run_test encode decode tif tif Gauss1Set '' ', "tiff"'
 run_test encode decode tif tif Gauss2Set '' ', "tiff"'
