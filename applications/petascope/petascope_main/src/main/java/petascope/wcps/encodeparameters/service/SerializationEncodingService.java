@@ -37,6 +37,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.util.JSONUtil;
 import petascope.util.MIMEUtil;
 import petascope.core.gml.metadata.model.CoverageMetadata;
+import petascope.exceptions.ExceptionCode;
 import petascope.wcps.encodeparameters.model.ColorPalette;
 import static petascope.wcps.encodeparameters.model.ColorPalette.COLOR_PALETTE_TABLE_COVERAGE_METADATA;
 import static petascope.wcps.encodeparameters.model.ColorPalette.COLOR_PALETTE_TABLE_SIZE;
@@ -76,27 +77,41 @@ public class SerializationEncodingService {
     /**
      * Depends on encoding (with PNG or TIFF) then colorPallete should be added as JSON extra params.
      */
-    public static void addColorPalleteToJSONExtraParamIfPossible(String rasqlFormat, CoverageMetadata coverageMetadata, JsonExtraParams jsonExtraParams) {
+    public static void addColorPalleteToJSONExtraParamIfPossible(String rasqlFormat, CoverageMetadata coverageMetadata, JsonExtraParams jsonExtraParams) throws PetascopeException {
         ColorPalette colorPalette = null;
         
-        // Add colorPaleteTable for colorPalette if it exists in coverage's global metadata implicitly
-        String colorPaleteTableValue = coverageMetadata.getGlobalAttributesMap().get(COLOR_PALETTE_TABLE_COVERAGE_METADATA);
-        // Only try to deserialize if it is a JSON string
-        if ( colorPaleteTableValue != null && colorPaleteTableValue.trim().startsWith("{")) {
-            try {
-                // e.g:  "colorPaletteTable": "{'colorTable': [[0, 0, 0, 255], [216, 31, 30, 255], ...}"
-                colorPalette = objectMapper.readValue(colorPaleteTableValue.replace("'", "\""), ColorPalette.class);
-                if (colorPalette.getColorTable().size() != COLOR_PALETTE_TABLE_SIZE) {
-                    // Coverage metadata does not contains 256 RGB values for color table, just ignore it
-                    log.warn("ColorTable does not contain exactly " + COLOR_PALETTE_TABLE_SIZE + " values, will be ignored." );
-                    colorPalette = null;                    
+        boolean colorPaletteTableInMetadata = true;
+        
+        if (jsonExtraParams.getColorPalette() != null) {
+            // If input query contains colorPaletteTable then uses it
+            colorPalette = jsonExtraParams.getColorPalette();
+            colorPaletteTableInMetadata = false;
+        } else {
+            // Add colorPaleteTable for colorPalette if it exists in coverage's global metadata implicitly
+            String colorPaleteTableValue = coverageMetadata.getGlobalAttributesMap().get(COLOR_PALETTE_TABLE_COVERAGE_METADATA);
+            // Only try to deserialize if it is a JSON string
+            if ( colorPaleteTableValue != null && colorPaleteTableValue.trim().startsWith("{")) {
+                try {
+                    // e.g:  "colorPaletteTable": "{'colorTable': [[0, 0, 0, 255], [216, 31, 30, 255], ...}"
+                    colorPalette = objectMapper.readValue(colorPaleteTableValue.replace("'", "\""), ColorPalette.class);
+                } catch (IOException ex) {
+                    throw new InvalidCoverageMetadataToDeserializeException(ex.getMessage(), ex);
                 }
-            } catch (IOException ex) {
-                throw new InvalidCoverageMetadataToDeserializeException(ex.getMessage(), ex);
             }
         }
-        
+                
         if (colorPalette != null) {
+            if (colorPalette.getColorTable().size() != COLOR_PALETTE_TABLE_SIZE) {
+                // Coverage metadata does not contains 256 RGB values for color table, just ignore it
+                String errorMessage = "ColorTable does not contain exactly " + COLOR_PALETTE_TABLE_SIZE + " values. "
+                                             + " Given: "  + colorPalette.getColorTable().size() + " values";
+                if (!colorPaletteTableInMetadata) {
+                    throw new PetascopeException(ExceptionCode.InvalidRequest, errorMessage);
+                } else {
+                    log.warn(errorMessage);
+                }
+            }
+        
             if (rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_PNG) ||
                 rasqlFormat.equalsIgnoreCase(MIMEUtil.MIME_PNG) ||
                 rasqlFormat.equalsIgnoreCase(MIMEUtil.ENCODE_TIFF) ||
