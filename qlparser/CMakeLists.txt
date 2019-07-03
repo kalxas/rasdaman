@@ -117,7 +117,7 @@ add_library(qlparser
 if (USE_GDAL)
     find_package(GDAL REQUIRED)
 
-    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${GDAL_LIBRARY} common_geo)
+    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${GDAL_LIBRARY})
     set(OPTIONAL_INCLUDE_DIRECTORIES ${OPTIONAL_INCLUDE_DIRECTORIES} ${GDAL_INCLUDE_DIR})
 endif ()
 
@@ -127,7 +127,7 @@ target_include_directories(qlparser PUBLIC "${CMAKE_SOURCE_DIR}/debug")
 
 add_subdirectory(test)
 
-target_link_libraries(qlparser ${OPTIONAL_LIBRARIES})
+target_link_libraries(qlparser ${OPTIONAL_LIBRARIES} common_geo)
 
 # The qlparser depends on clientcomm and servercomm because somebody included the generated RPC files.
 add_dependencies(qlparser clientcomm servercomm catalogmgr)

@@ -77,14 +77,14 @@ const string r_Conv_GDAL::PNG_FORMAT{"png"};
 /// constructor using an r_Type object. Exception if the type isn't atomic.
 
 r_Conv_GDAL::r_Conv_GDAL(const char *src, const r_Minterval &interv, const r_Type *tp)
-    : r_Convert_Memory(src, interv, tp, true), poDataset{NULL}
+    : r_Convert_Memory(src, interv, tp, true)
 {
 }
 
 /// constructor using convert_type_e shortcut
 
 r_Conv_GDAL::r_Conv_GDAL(const char *src, const r_Minterval &interv, int tp)
-    : r_Convert_Memory(src, interv, tp), poDataset{NULL}
+    : r_Convert_Memory(src, interv, tp)
 {
 }
 
@@ -93,11 +93,13 @@ r_Conv_GDAL::r_Conv_GDAL(const char *src, const r_Minterval &interv, int tp)
 
 r_Conv_GDAL::~r_Conv_GDAL(void)
 {
+#ifdef HAVE_GDAL
     if (poDataset != NULL)
     {
         GDALClose(poDataset);
         poDataset = NULL;
     }
+#endif
 }
 
 #ifdef HAVE_GDAL
@@ -1193,7 +1195,8 @@ r_Conv_Desc &r_Conv_GDAL::convertFrom(r_Format_Params options)
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options)
+r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options,
+                                    const r_Range *nullValue)
 {
     LERROR << "support for encoding with GDAL is not enabled; rasdaman should be configured with option --with-gdal to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

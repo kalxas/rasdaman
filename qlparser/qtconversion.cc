@@ -88,18 +88,24 @@ QtConversion::QtConversion(QtOperation *newInput, QtConversionType
 
 bool QtConversion::isInternalFormat(r_Data_Format dataFormat)
 {
-    bool ret = dataFormat == r_CSV;
-    ret = ret || dataFormat == r_JSON;
+    return dataFormat == r_CSV || dataFormat == r_JSON
 #ifdef HAVE_NETCDF
-    ret = ret || dataFormat == r_NETCDF;
+        || dataFormat == r_NETCDF
+#endif
+#ifdef HAVE_HDF4
+        || dataFormat == r_HDF
 #endif
 #ifdef HAVE_GRIB
-    if (conversionType == QT_FROMGDAL) // QT_TOGRIB isn't implemented, so in this case try with GDAL
-    {
-        ret = ret || dataFormat == r_GRIB;
-    }
+        || (conversionType == QT_FROMGDAL && dataFormat == r_GRIB)
 #endif
-    return ret;
+#ifndef HAVE_GDAL
+        || dataFormat == r_TIFF
+        || dataFormat == r_JPEG
+        || dataFormat == r_PNG
+        || dataFormat == r_BMP
+        || dataFormat == r_DEM
+#endif // HAVE_GDAL
+        ;
 }
 
 void
@@ -107,69 +113,49 @@ QtConversion::setConversionTypeByName(string formatName)
 {
     boost::algorithm::to_lower(formatName);
     if (string("hdf") == formatName)
-    {
         conversionType = QtConversion::QT_TOHDF;
-    }
     else if (string("tiff") == formatName)
-    {
         conversionType = QtConversion::QT_TOTIFF;
-    }
+    else if (string("jpeg") == formatName)
+        conversionType = QtConversion::QT_TOJPEG;
+    else if (string("png") == formatName)
+        conversionType = QtConversion::QT_TOPNG;
+    else if (string("bmp") == formatName)
+        conversionType = QtConversion::QT_TOBMP;
     else if (string("csv") == formatName)
-    {
         conversionType = QtConversion::QT_TOCSV;
-    }
     else if (string("json") == formatName)
-    {
         conversionType = QtConversion::QT_TOJSON;
-    }
     else if (string("dem") == formatName)
-    {
         conversionType = QtConversion::QT_TODEM;
-    }
     else if (string("netcdf") == formatName)
-    {
         conversionType = QtConversion::QT_TONETCDF;
-    }
     else if (string("gdal") == formatName)
-    {
         conversionType = QtConversion::QT_TOGDAL;
-    }
     else if (string("inv_hdf") == formatName)
-    {
         conversionType = QtConversion::QT_FROMHDF;
-    }
     else if (string("inv_csv") == formatName)
-    {
         conversionType = QtConversion::QT_FROMCSV;
-    }
     else if (string("inv_json") == formatName)
-    {
         conversionType = QtConversion::QT_FROMJSON;
-    }
     else if (string("inv_tiff") == formatName)
-    {
         conversionType = QtConversion::QT_FROMTIFF;
-    }
+    else if (string("inv_jpeg") == formatName)
+        conversionType = QtConversion::QT_FROMJPEG;
+    else if (string("inv_png") == formatName)
+        conversionType = QtConversion::QT_FROMPNG;
+    else if (string("inv_bmp") == formatName)
+        conversionType = QtConversion::QT_FROMBMP;
     else if (string("inv_dem") == formatName)
-    {
         conversionType = QtConversion::QT_FROMDEM;
-    }
     else if (string("inv_netcdf") == formatName)
-    {
         conversionType = QtConversion::QT_FROMNETCDF;
-    }
     else if (string("inv_grib") == formatName)
-    {
         conversionType = QtConversion::QT_FROMGRIB;
-    }
     else if (string("inv_gdal") == formatName)
-    {
         conversionType = QtConversion::QT_FROMGDAL;
-    }
     else
-    {
         conversionType = QtConversion::QT_UNKNOWN;
-    }
 }
 
 QtData *
@@ -420,65 +406,47 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_F
     switch (conversionType)
     {
     case QT_TOTIFF:
-        convType = r_TIFF;
-        convFormat = r_TIFF;
-        break;
+        convType = r_TIFF; convFormat = r_TIFF; break;
     case QT_FROMTIFF:
-        convType = r_TIFF;
-        convFormat = r_Array;
-        break;
+        convType = r_TIFF; convFormat = r_Array; break;
+    case QT_TOJPEG:
+        convType = r_JPEG; convFormat = r_JPEG; break;
+    case QT_FROMJPEG:
+        convType = r_JPEG; convFormat = r_Array; break;
+    case QT_TOPNG:
+        convType = r_PNG; convFormat = r_PNG; break;
+    case QT_FROMPNG:
+        convType = r_PNG; convFormat = r_Array; break;
+    case QT_TOBMP:
+        convType = r_BMP; convFormat = r_BMP; break;
+    case QT_FROMBMP:
+        convType = r_BMP; convFormat = r_Array; break;
     case QT_TOHDF:
-        convType = r_HDF;
-        convFormat = r_HDF;
-        break;
+        convType = r_HDF;  convFormat = r_HDF; break;
     case QT_TONETCDF:
-        convType = r_NETCDF;
-        convFormat = r_NETCDF;
-        break;
+        convType = r_NETCDF; convFormat = r_NETCDF; break;
     case QT_TOGDAL:
-        convType = r_GDAL;
-        convFormat = ConvUtil::getDataFormat(format);
-        break;
+        convType = r_GDAL; convFormat = ConvUtil::getDataFormat(format); break;
     case QT_TOCSV:
-        convType = r_CSV;
-        convFormat = r_CSV;
-        break;
+        convType = r_CSV; convFormat = r_CSV; break;
     case QT_TOJSON:
-        convType = r_JSON;
-        convFormat = r_JSON;
-        break;
+        convType = r_JSON; convFormat = r_JSON; break;
     case QT_FROMHDF:
-        convType = r_HDF;
-        convFormat = r_Array;
-        break;
+        convType = r_HDF; convFormat = r_Array; break;
     case QT_FROMNETCDF:
-        convType = r_NETCDF;
-        convFormat = r_Array;
-        break;
+        convType = r_NETCDF; convFormat = r_Array; break;
     case QT_FROMGDAL:
-        convType = r_GDAL;
-        convFormat = ConvUtil::getDataFormat(format);
-        break;
+        convType = r_GDAL; convFormat = ConvUtil::getDataFormat(format); break;
     case QT_FROMGRIB:
-        convType = r_GRIB;
-        convFormat = r_Array;
-        break;
+        convType = r_GRIB; convFormat = r_Array; break;
     case QT_FROMCSV:
-        convType = r_CSV;
-        convFormat = r_Array;
-        break;
+        convType = r_CSV; convFormat = r_Array; break;
     case QT_FROMJSON:
-        convType = r_JSON;
-        convFormat = r_Array;
-        break;
+        convType = r_JSON; convFormat = r_Array; break;
     case QT_TODEM:
-        convType = r_DEM;
-        convFormat = r_DEM;
-        break;
+        convType = r_DEM; convFormat = r_DEM; break;
     case QT_FROMDEM:
-        convType = r_DEM;
-        convFormat = r_Array;
-        break;
+        convType = r_DEM; convFormat = r_Array; break;
     default:
         LERROR << "Error: QtConversion::evaluate(): unsupported format " << conversionType;
         throw r_Error(CONVERSIONFORMATNOTSUPPORTED);
@@ -626,6 +594,15 @@ operator<<(std::ostream &os, QtConversion::QtConversionType type)
     case QtConversion::QT_TOTIFF:
         os << "tiff";
         break;
+    case QtConversion::QT_TOJPEG:
+        os << "jpeg";
+        break;
+    case QtConversion::QT_TOPNG:
+        os << "png";
+        break;
+    case QtConversion::QT_TOBMP:
+        os << "bmp";
+        break;
     case QtConversion::QT_TOHDF:
         os << "hdf";
         break;
@@ -646,6 +623,15 @@ operator<<(std::ostream &os, QtConversion::QtConversionType type)
         break;
     case QtConversion::QT_FROMTIFF:
         os << "inv_tiff";
+        break;
+    case QtConversion::QT_FROMJPEG:
+        os << "inv_jpeg";
+        break;
+    case QtConversion::QT_FROMPNG:
+        os << "inv_png";
+        break;
+    case QtConversion::QT_FROMBMP:
+        os << "inv_bmp";
         break;
     case QtConversion::QT_FROMHDF:
         os << "inv_hdf";

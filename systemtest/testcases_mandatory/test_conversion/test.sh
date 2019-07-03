@@ -123,7 +123,7 @@ function run_transpose_test()
 
     logn "comparing images: "
     if [ -f "$ORACLE_PATH/mr_1.png.checksum" ]; then
-      $GDALINFO $mr_1.png | grep 'Checksum' > mr_1.png.result
+      $GDALINFO mr_1.png | grep 'Checksum' > mr_1.png.result
       diff $ORACLE_PATH/mr_1.png.checksum mr_1.png.result > /dev/null
     else
       cmp $TESTDATA_PATH/mr_1.png mr_1.png > /dev/null
@@ -224,6 +224,7 @@ function run_test()
     local decodeopts="$6"   # used on data insertion
     local encodeopts="$7"   # used on data selection
     local rasqlopts="$8"
+    local oracle2="$9"      # use second oracle with suffix _2
 
     log ----- $fun and $inv_fun $colltype conversion ------
 
@@ -232,7 +233,10 @@ function run_test()
     export_to_file test_tmp "$f" "$fun" "$encodeopts"
 
     logn "comparing images: "
-    if [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
+    if [ -n "$oracle2" -a -f "$ORACLE_PATH/$f.$ext.checksum_2" ]; then
+      $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
+      diff $ORACLE_PATH/$f.$ext.checksum_2 $f.$ext.result > /dev/null
+    elif [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
       $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
       diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
     else
@@ -266,7 +270,6 @@ function run_csv_test()
     drop_colls test_tmp
     rm -f $f*
 }
-
 
 ################################################################################
 #
@@ -403,8 +406,8 @@ run_test png decode png png GreySet
 run_test png decode png png GreySet ", \"png\", \"ZLEVEL=1;\""
 
 ################## bmp() and inv_bmp() #######################
-run_test bmp inv_bmp bmp bmp GreySet
-run_test bmp decode bmp bmp GreySet
+run_test bmp inv_bmp bmp bmp GreySet "" "" "" "_2"
+run_test bmp decode bmp bmp GreySet "" "" "" "_2"
 
 ################## hdf() and inv_hdf() #######################
 

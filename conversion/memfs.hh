@@ -36,9 +36,8 @@ rasdaman GmbH.
 #define _MEMFS_HH_
 
 /* For data types used by the memfs */
-#include "tiffio.h"
 #include "raslib/odmgtypes.hh"
-
+#include <stdint.h>
 
 /* Claim blocks in 4k chunks */
 const int MEMFS_LD_BLOCKSIZE = 12;
@@ -53,32 +52,39 @@ typedef struct memFSContext
     char *chunk;
 } memFSContext;
 
-int memfs_ensure(thandle_t handle, toff_t off);
+// copied from tiffio.h to avoid dependency on TIFF
+// in TIFF these are defined with "t" as prefix instead of "ras_"
+typedef signed long ras_size_t;
+typedef unsigned long ras_off_t;
+typedef void* ras_handle_t;
+typedef void* ras_data_t;
+
+int memfs_ensure(ras_handle_t handle, ras_off_t off);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Flexible, read-write memFS */
-int memfs_initfs(thandle_t handle);
-void memfs_killfs(thandle_t handle);
-void memfs_newfile(thandle_t handle);
-tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size);
-tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size);
-toff_t memfs_seek(thandle_t handle, toff_t offset, int mode);
-int memfs_close(thandle_t handle);
-toff_t memfs_size(thandle_t handle);
-int memfs_map(thandle_t handle, tdata_t *memp, toff_t *top);
-void memfs_unmap(thandle_t handle, tdata_t mem, toff_t top);
+int memfs_initfs(ras_handle_t handle);
+void memfs_killfs(ras_handle_t handle);
+void memfs_newfile(ras_handle_t handle);
+ras_size_t memfs_read(ras_handle_t handle, ras_data_t mem, ras_size_t size);
+ras_size_t memfs_write(ras_handle_t handle, ras_data_t mem, ras_size_t size);
+ras_off_t memfs_seek(ras_handle_t handle, ras_off_t offset, int mode);
+int memfs_close(ras_handle_t handle);
+ras_off_t memfs_size(ras_handle_t handle);
+int memfs_map(ras_handle_t handle, ras_data_t *memp, ras_off_t *top);
+void memfs_unmap(ras_handle_t handle, ras_data_t mem, ras_off_t top);
 
 /* Simple, read-only memFS */
-void memfs_chunk_initfs(thandle_t handle, char *src, r_Long size);
-tsize_t memfs_chunk_read(thandle_t handle, tdata_t mem, tsize_t size);
-toff_t memfs_chunk_seek(thandle_t handle, toff_t offset, int mode);
-int memfs_chunk_close(thandle_t handle);
-toff_t memfs_chunk_size(thandle_t handle);
-int memfs_chunk_map(thandle_t handle, tdata_t *memp, toff_t *top);
-void memfs_chunk_unmap(thandle_t handle, tdata_t mem, toff_t to);
+void memfs_chunk_initfs(ras_handle_t handle, char *src, r_Long size);
+ras_size_t memfs_chunk_read(ras_handle_t handle, ras_data_t mem, ras_size_t size);
+ras_off_t memfs_chunk_seek(ras_handle_t handle, ras_off_t offset, int mode);
+int memfs_chunk_close(ras_handle_t handle);
+ras_off_t memfs_chunk_size(ras_handle_t handle);
+int memfs_chunk_map(ras_handle_t handle, ras_data_t *memp, ras_off_t *top);
+void memfs_chunk_unmap(ras_handle_t handle, ras_data_t mem, ras_off_t to);
 
 #ifdef __cplusplus
 }

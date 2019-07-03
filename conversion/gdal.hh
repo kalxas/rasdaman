@@ -235,6 +235,8 @@ private:
      * Set GDAL configuration parameters from any formatParameters key/values.
      */
     void setConfigOptions();
+    
+    GDALDataset *poDataset{NULL};
 
 #endif // HAVE_GDAL
 
@@ -248,7 +250,6 @@ private:
     static const std::string PNG_DEFAULT_ZLEVEL;
     static const std::string PNG_FORMAT;
 
-    GDALDataset *poDataset;
     std::vector<int> bandIds;
 };
 

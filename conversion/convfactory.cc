@@ -46,6 +46,9 @@ rasdaman GmbH.
 #include "netcdf.hh"
 #include "grib.hh"
 #include "gdal.hh"
+#include "bmp.hh"
+#include "jpeg.hh"
+#include "png.hh"
 
 
 bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
@@ -59,6 +62,9 @@ bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
     case r_NETCDF:
     case r_GRIB:
     case r_GDAL:
+    case r_BMP:
+    case r_JPEG:
+    case r_PNG:
     case r_CSV:
     case r_JSON:
         retval = true;
@@ -79,6 +85,15 @@ r_Convertor *r_Convertor_Factory::create(r_Data_Format fmt, const char *src, con
     {
     case r_TIFF:
         result = new r_Conv_TIFF(src, interv, tp);
+        break;
+    case r_JPEG:
+        result = new r_Conv_JPEG(src, interv, tp);
+        break;
+    case r_PNG:
+        result = new r_Conv_PNG(src, interv, tp);
+        break;
+    case r_BMP:
+        result = new r_Conv_BMP(src, interv, tp);
         break;
     case r_NETCDF:
         result = new r_Conv_NETCDF(src, interv, tp);
@@ -119,6 +134,15 @@ r_Convertor *r_Convertor_Factory::create(r_Data_Format fmt, const char *src, con
     {
     case r_TIFF:
         result = new r_Conv_TIFF(src, interv, type);
+        break;
+    case r_JPEG:
+        result = new r_Conv_JPEG(src, interv, type);
+        break;
+    case r_PNG:
+        result = new r_Conv_PNG(src, interv, type);
+        break;
+    case r_BMP:
+        result = new r_Conv_BMP(src, interv, type);
         break;
     case r_NETCDF:
         result = new r_Conv_NETCDF(src, interv, type);

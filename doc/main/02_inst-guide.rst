@@ -645,6 +645,8 @@ Install Required Packages
 * *libhdf4g-dev* -- required for HDF4 support
 * *libnetcdf-dev*, *python-netcdf4* -- required for NetCDF support
 * *libgrib-api-dev*, *libgrib2c-dev*, *python-grib* - for GRIB data support
+* *libtiff-dev*, *libjpeg-dev*, *ligpng-dev* - internal encoder/decoder implementations
+  for TIFF, JPEG, or PNG formants.
 * *libdw-dev* / *elfutils-devel* -- for segfault stacktraces, useful in development
 * *sphinx*, *sphinx_rtd_theme*, *latexmk*, *texlive* -- main HTML / PDF documentation
 * *doxygen* -- required for C++ API documentation
@@ -712,22 +714,20 @@ Debian 9
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake bison flex git g++ unzip \
+      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
-      libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl libssl1.0-dev
+      libedit-dev libreadline-dev libecpg-dev libdw-dev libssl1.0-dev \
+      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
       openjdk-8-jdk maven ant libgdal-java
-    # CMake needs to be manually downloaded and installed as the system 
-    # provided version is too outdated.
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
-    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
       texlive-latex-extra texlive-fonts-recommended 
     # To generate C++ API documentation
-    $ sudo yum install --no-install-recommends doxygen
+    $ sudo apt-get install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
@@ -747,22 +747,20 @@ Ubuntu 16.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake bison flex git g++ unzip \
+      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev libdw-dev \
-      libedit-dev libreadline-dev libecpg-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
+      libedit-dev libreadline-dev libecpg-dev libdw-dev \
       libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
       openjdk-8-jdk maven ant libgdal-java
-    # CMake needs to be manually downloaded and installed as the system 
-    # provided version is too outdated.
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
-    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
       texlive-latex-extra texlive-fonts-recommended 
     # To generate C++ API documentation
-    $ sudo yum install --no-install-recommends doxygen
+    $ sudo apt-get install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
@@ -782,20 +780,20 @@ Ubuntu 18.04
 
     # To build rasdaman
     $ sudo apt-get install --no-install-recommends \
-      make libtool gawk autoconf automake cmake bison flex git g++ unzip \
+      make libtool gawk autoconf automake cmake bison flex git g++ unzip pkg-config \
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
-      libtiff-dev libgdal-dev zlib1g-dev libffi-dev \
+      libtiff-dev libgdal-dev zlib1g-dev libffi-dev libssl1.0-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl libssl1.0-dev
+      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
       openjdk-8-jdk maven ant libgdal-java
 
     # To generate HTML documentation
     $ sudo pip install sphinx sphinx_rtd_theme
     # To generate PDF documentation (in addition to above)
-    $ sudo apt install --no-install-recommends latexmk texlive-latex-base \
+    $ sudo apt-get install --no-install-recommends latexmk texlive-latex-base \
       texlive-latex-extra texlive-fonts-recommended 
     # To generate C++ API documentation
-    $ sudo yum install --no-install-recommends doxygen
+    $ sudo apt-get install --no-install-recommends doxygen
 
     # To run rasdaman
     $ sudo apt-get install \
@@ -867,6 +865,8 @@ options that can be specified with -D<option>:
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``CMAKE_VERBOSE_OUTPUT`` | ON / **OFF**      | Enable this if you need detailed output from the make process.           |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``CMAKE_CXX_FLAGS``      | <flags>           | Specify additional compiler options, e.g. -DCMAKE_CXX_FLAGS="-g3"        |
+    +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``DEFAULT_BASEDB``       | **sqlite** /      |                                                                          |
     |                          | postgresql        | Specify the DBMS that rasdaman uses for storing RASBASE.                 |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
@@ -893,13 +893,35 @@ options that can be specified with -D<option>:
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``NETWORK_PROTOCOL``     | **rasnet** / rnp  | Set the network protocol used in rasdaman; Note that rnp is deprecated.  |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation.                    |
+    | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
+    |                          |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |
+    |                          |                   | ``-DGDAL_LIBRARY``, ``-DGDAL_JAVA_DIR``, ``-DGDAL_JAVA_VERSION``         |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_GRIB``             | ON / **OFF**      | Enable inclusion of GRIB library during installation.                    |
+    | ``USE_GRIB``             | ON / **OFF**      | Enable inclusion of GRIB library during installation. Further variables  |
+    |                          |                   | allow controlling the GRIB library paths: ``-DGRIB_LIBRARIES`` and       |
+    |                          |                   | ``-DGRIB_INCLUDE_DIR``                                                   |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_HDF4``             | ON / **OFF**      | Enable inclusion of HDF4 library during installation.                    |
+    | ``USE_HDF4``             | ON / **OFF**      | Enable inclusion of HDF4 library during installation. Further variables  |
+    |                          |                   | allow controlling the HDF4 library paths: ``-DHDF4_LIBRARIES`` and       |
+    |                          |                   | ``-DHDF4_INCLUDE_DIR``                                                   |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_NETCDF``           | ON / **OFF**      | Enable inclusion of netCDF library during installation.                  |
+    | ``USE_NETCDF``           | ON / **OFF**      | Enable inclusion of netCDF library during installation. Further variables|
+    |                          |                   | allow controlling the netCDF library paths: ``-DNetCDF_LIBRARIES`` and   |
+    |                          |                   | ``-DNetCDF_INCLUDE_DIRS``                                                |
+    +--------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_TIFF``             | ON / **OFF**      | Enable compilation of internal TIFF encoder/decoder. Further variables   |
+    |                          |                   | allow controlling the TIFF library paths: ``-DTIFF_LIBRARY`` and         |
+    |                          |                   | ``-DTIFF_INCLUDE_DIR``                                                   |
+    +--------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_PNG``              | ON / **OFF**      | Enable compilation of internal PNG encoder/decoder. Further variables    |
+    |                          |                   | allow controlling the PNG library paths: ``-DPNG_LIBRARY`` and           |
+    |                          |                   | ``-DPNG_PNG_INCLUDE_DIR``                                                |
+    +--------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_JPEG``             | ON / **OFF**      | Enable compilation of internal JPEG encoder/decoder. Further variables   |
+    |                          |                   | allow controlling the JPEG library paths: ``-DJPEG_LIBRARY`` and         |
+    |                          |                   | ``-DJPEG_INCLUDE_DIR``                                                   |
+    +--------------------------+-------------------+--------------------------------------------------------------------------+
+    | ``USE_BMP``              | ON / **OFF**      | Enable compilation of internal BMP encoder/decoder.                      |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``FILE_DATA_DIR``        | <path> (default   |                                                                          |
     |                          | $RMANHOME/data)   | The path where the server stores array tiles as files.                   |
@@ -920,6 +942,12 @@ for this configuration step. To get a list of all the custom options that can
 be passed to *cmake* on the command line, try the following command: ::
 
     $ cmake -LH
+
+.. warning::
+    Run ``echo $RMANHOME`` beforehand to verify that this environment variable 
+    is correctly set; if it is empty rasdaman will be installed in ``/`` which 
+    should be avoided.
+
 
 **Step 3:** Next, compile and link rasdaman: ::
 
@@ -1224,11 +1252,11 @@ and `developer guide <http://rasdaman.org/wiki/SecoreDevGuide>`__ pages.
 SSL/TLS Configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
-Transport Layer Security (``TLS``) and its predecessor, Secure Sockets Layer (``SSL``),
-are technologies which allow web browsers and web servers to communicate over
-a secured connection.To configure it for ``petascope`` and ``secore web`` applications
-for ``Tomcat``, check the `official guide
-<https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html>`__.
+Transport Layer Security (``TLS``) and its predecessor, Secure Sockets Layer
+(``SSL``), are technologies which allow web browsers and web servers to
+communicate over a secured connection. To configure it for ``petascope`` and
+``secore web`` applications for ``Tomcat``, check the `official guide
+<https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html>`__.
 
 .. _sec-rrasdaman-install:
 

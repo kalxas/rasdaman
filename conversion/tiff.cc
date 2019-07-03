@@ -22,13 +22,6 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include <iostream>
-#include <string.h>
-#include <sstream>
-
-#ifdef AIX
-#include <strings.h>
-#endif
 
 #include "conversion/tiff.hh"
 #include "conversion/memfs.hh"
@@ -41,6 +34,13 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
+#include <iostream>
+#include <string.h>
+#include <sstream>
+#ifdef HAVE_TIFF
+#include <tiffio.h>
+#endif
+
 using namespace std;
 
 const int r_Conv_TIFF::defaultRPS = 32;
@@ -49,6 +49,7 @@ const char r_Conv_TIFF::dummyFileFmt[] = "/tmp/%p.tif";
 
 const unsigned int r_Conv_TIFF::TIFF_DEFAULT_QUALITY = 80;
 
+#ifdef HAVE_TIFF
 const struct r_Convertor::convert_string_s r_Conv_TIFF::compNames[] =
 {
     {"none", COMPRESSION_NONE},
@@ -85,6 +86,7 @@ const struct r_Convertor::convert_string_s r_Conv_TIFF::resunitNames[] =
     {"centimeter", RESUNIT_CENTIMETER},
     {NULL, RESUNIT_NONE}
 };
+#endif // HAVE_TIFF
 
 // Change these according to the platform!
 // Fill order of bits in bitmap mode. Define 0 for LSB, otherwise MSB
@@ -101,6 +103,7 @@ const struct r_Convertor::convert_string_s r_Conv_TIFF::resunitNames[] =
 
 // TIFF class functions
 
+#ifdef HAVE_TIFF
 /// Translate string compression type to libtiff compression type
 int r_Conv_TIFF::get_compression_from_name(const char *strComp)
 {
@@ -151,6 +154,7 @@ int r_Conv_TIFF::get_resunit_from_name(const char *strResUnit)
 
     return tiffResUnit;
 }
+#endif // HAVE_TIFF
 
 /// Capture errors
 void TIFFError(__attribute__((unused)) const char *module, const char *fmt, va_list argptr)
@@ -191,10 +195,11 @@ void r_Conv_TIFF::initTIFF(void)
     params->add("depth", &override_depth, r_Parse_Params::param_type_int);
     params->add("sampletype", &sampleType, r_Parse_Params::param_type_string);
 
+#ifdef HAVE_TIFF
     // set our error handlers
     TIFFSetErrorHandler(TIFFError);
     TIFFSetWarningHandler(TIFFWarning);
-
+#endif // HAVE_TIFF
 }
 
 /// constructor using type structure
@@ -228,6 +233,7 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
                                     const r_Range *nullValue)
 {
+#ifdef HAVE_TIFF
     TIFF *tif = NULL;
     char dummyFile[256];
     uint16 cmap[256];             // Colour map (for greyscale images)
@@ -570,6 +576,10 @@ r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
     desc.destType = r_Type::get_any_type("char");
 
     return desc;
+#else
+    LERROR << "encoding TIFF with internal encoder is not supported; rasdaman should be configured with option -DUSE_TIFF=ON to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+#endif // HAVE_TIFF
 }
 
 r_Conv_Desc &r_Conv_TIFF::convertFrom(r_Format_Params options)
@@ -582,6 +592,7 @@ r_Conv_Desc &r_Conv_TIFF::convertFrom(r_Format_Params options)
 /// convert TIFF stream into array
 r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options) // CONVERTION FROM TIFF TO DATA
 {
+#ifdef HAVE_TIFF
     if (options && !formatParams.parse(options))
     {
         params->process(options); //==> CHECK THIS "IMP"
@@ -994,6 +1005,10 @@ r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options) // CONVERTION FROM TI
     }
 
     return desc;
+#else
+    LERROR << "decoding TIFF with internal decoder is not supported; rasdaman should be configured with option -DUSE_TIFF=ON to enable it.";
+    throw r_Error(r_Error::r_Error_FeatureNotSupported);
+#endif // HAVE_TIFF
 }
 
 

@@ -35,15 +35,13 @@
 #include "mymalloc/mymalloc.h"
 #include "qtproject.hh"
 
-
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
+const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
+
+#ifdef HAVE_GDAL
 void deleteGDALDataset(GDALDataset *dataset)
 {
     if (dataset)
@@ -51,8 +49,7 @@ void deleteGDALDataset(GDALDataset *dataset)
         GDALClose(dataset);
     }
 }
-
-const QtNode::QtNodeType QtProject::nodeType = QtNode::QT_PROJECT;
+#endif
 
 QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *crsOut)
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, "", 0, 0}

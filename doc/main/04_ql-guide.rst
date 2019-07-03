@@ -435,9 +435,13 @@ database, materializes the base types defined in the ODMG standard
     +--------------------+------------+------------------------------------------+
     | ``double``         | 64 bit     | double precision floating point          |
     +--------------------+------------+------------------------------------------+
-    | ``complex``        | 64 bit     | single precision complex                 |
+    | ``CInt16``         | 32 bit     | complex of 16 bit signed integers        |
     +--------------------+------------+------------------------------------------+
-    | ``complexd``       | 128 bit    | double precision complex                 |
+    | ``CInt32``         | 64 bit     | complex of 32 bit signed integers        |
+    +--------------------+------------+------------------------------------------+
+    | ``CFloat32``       | 64 bit     | single precision floating point complex  |
+    +--------------------+------------+------------------------------------------+
+    | ``CFloat32``       | 128 bit    | double precision floating point complex  |
     +--------------------+------------+------------------------------------------+
     | ``boolean``        | 1 bit [2]_ | true (nonzero value), false (zero value) |
     +--------------------+------------+------------------------------------------+
@@ -1527,8 +1531,9 @@ where *const_i* can be atomic or a **struct** again.
 
 **Complex numbers**
 
-Special built-in structs are ``complex`` and ``complexd`` for single and double
-precision complex numbers, resp. The constructor is defined by
+Special built-in structs are ``CFloat32`` and ``CFloat64`` for single and double
+precision complex numbers, resp, as well as ``CInt16`` and ``CInt32`` for 
+signed integer complex numbers. The constructor is defined by
 
 **Syntax**
 
@@ -1536,16 +1541,26 @@ precision complex numbers, resp. The constructor is defined by
 
     complex( re, im )
 
-where *re* and *im* are floating point expressions. The resulting
-complex constant is of type ``complexd`` if at least one of the constituent
-expressions is double precision, otherwise the result is of type
-complex.
+where *re* and *im* are integer or floating point expressions. The resulting
+complex constant is of type 
+
+- ``CFloat64`` if at least one of the constituent expressions is double 
+  precision floating point, otherwise
+- ``CFloat32`` if at least one of the constituent expressions is single 
+  precision floating point, otherwise
+- ``CInt32`` if at least one of the constituent expressions is 32 bit signed
+  integer (long), otherwise
+- ``CInt16`` if at least one of the constituent expressions is 16 bit signed
+  integer (short).
 
 **Example**
 
 ::
 
-    complex( .35, 16.0d )
+    complex( .35, 16.0d )   -- CFloat64
+    complex( .35f, 16.0f )  -- CFloat32
+    complex( 5s, 16s )      -- CInt16
+    complex( 5, 16 )        -- CInt32
 
 **Component access**
 
@@ -3447,8 +3462,8 @@ condenser statement is as shown in :numref:`table3`.
 
 **Restriction**
 
-Currently condensers of any kind over cells of type ``complex`` are not
-supported.
+Currently condensers over complex numbers are generally not supported, with
+exception of ``add_cells``, ``max_cells``, and ``min_cells``.
 
 
 .. _sec-marray:
@@ -3749,6 +3764,7 @@ rasdaman (more details in :ref:`multidimensional-format-support`:
 -  NetCDF4 (n-D), format name "netcdf"
 -  HDF4 (n-D), format name "hdf"
 -  GRIB (n-D), format name "grib" (decode only)
+-  TIFF, JPEG, PNG, BMP (2-D)
 
 
 Conversion Options
@@ -4033,10 +4049,30 @@ way of identifying CRSs.
 
 .. _multidimensional-format-support:
 
-Multidimensional Format Support
-===============================
+Natively Supported Formats
+==========================
 
-Here we cover the formats with native support in rasdaman.
+Here we cover the formats with native support for encoding/decoding
+in rasdaman.
+
+TIFF, PNG, JPEG, BMP
+--------------------
+
+If ``-DUSE_TIFF=ON``, ``-DUSE_JPEG=ON``, ``-DUSE_PNG=ON``, or ``-DUSE_BMP=ON``
+are specified during configuration with cmake, then the following internal
+convertors (not based on GDAL) are available, respectively:
+
+- ``tiff( mddExpr )``/``tiff( mddExpr, formatParams )`` and ``inv_tiff( mddExp )``
+- ``jpeg( mddExpr )``/``jpeg( mddExpr, formatParams )`` and ``inv_jpeg( mddExp )``
+- ``png( mddExpr )``/``png( mddExpr, formatParams )`` and ``inv_png( mddExp )``
+- ``bmp( mddExpr )``/``bmp( mddExpr, formatParams )`` and ``inv_bmp( mddExp )``
+
+The first version corresponds to ``encode``, while the second version 
+corresponds to ``decode``. Usually there is no reason to use these functions,
+beyond deployment on constrained environments where GDAL presents a heavy
+dependency and only a few specific convertors are sufficient. Therefore,
+``encode`` and ``decode`` are recommended whenever GDAL support is compiled.
+
 
 NetCDF
 ------
@@ -4046,7 +4082,15 @@ TODO
 GRIB
 ----
 
+decode()
+^^^^^^^^
+
 TODO
+
+encode()
+^^^^^^^^
+
+Not supported.
 
 CSV/JSON
 --------
@@ -6022,6 +6066,7 @@ they are in double quotes to distinguish them from the grammar parentheses
     complexLit : [ struct ] { `scalarLitList` }
     atomicLit :  `booleanLit` | `integerLit` | `floatLit`
               :| complex "(" `floatLit` , `floatLit` ")"
+              :| complex "(" `integerLit` , `integerLit` ")"
     typeName : `identifier`
     variable : `identifier`
     namedCollection : `identifier`

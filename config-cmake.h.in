@@ -16,11 +16,8 @@
 
 #cmakedefine HAVE_HDF_H 1
 #cmakedefine HAVE_HDF_HDF_H 1
-
 #cmakedefine HAVE_HDF_MFHDF_H  1
 #cmakedefine HAVE_MFHDF_H 1
-
-#cmakedefine HAVE_NETCDFCPP_H 1
 
 #cmakedefine HAVE_ALLOCA_H  1
 
@@ -28,6 +25,11 @@
 
 #cmakedefine HAVE_GDAL 1
 #cmakedefine HAVE_GRIB 1
+#cmakedefine HAVE_TIFF 1
+#cmakedefine HAVE_JPEG 1
+#cmakedefine HAVE_PNG 1
+#cmakedefine HAVE_NETCDF 1
+#cmakedefine HAVE_HDF  1
 
 #cmakedefine HAVE_BZERO 1
 #cmakedefine HAVE_CLOCK_GETTIME 1
@@ -60,7 +62,6 @@
 #cmakedefine HAVE_STRTOL 1
 #cmakedefine HAVE_STRTOUL 1
 
-#cmakedefine HAVE_HDF  1
 
 #cmakedefine RMANDEBUG  1
 #cmakedefine DEBUG  1
@@ -73,8 +74,6 @@
 #cmakedefine JAVA_SERVER_EMBEDDED 1
 
 #cmakedefine RMANRASNET 1
-
-#cmakedefine HAVE_NETCDF 1
 
 #cmakedefine CPPSTDLIB 1
 #cmakedefine RASARCHITECTURE "@RASARCHITECTURE@"

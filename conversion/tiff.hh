@@ -47,8 +47,6 @@ rasdaman GmbH.
 
 #include "conversion/convertor.hh"
 
-
-
 //@ManMemo: Module {\bf conversion}
 
 /*@Doc:
@@ -124,11 +122,13 @@ public:
     virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
+#ifdef HAVE_TIFF
     /// translate string compression type to libtiff compression type
     static int get_compression_from_name(const char *strComp);
 
     /// translate string resolution unit type to libtiff resolution unit type
     static int get_resunit_from_name(const char *strComp);
+#endif // HAVE_TIFF
 
 private:
     /// init TIFF class
@@ -140,10 +140,14 @@ private:
     int override_bps;
     int override_depth;
     char *sampleType;
+
+#ifdef HAVE_TIFF
     /// connection between string compression type and libtiff compression type
     static const convert_string_t compNames[];
     /// connection between string resolution unit type and libtiff resolution unit type
     static const convert_string_t resunitNames[];
+#endif // HAVE_TIFF
+
     /// default rows per strip (32)
     static const int defaultRPS;
     /// temporary dummy file
