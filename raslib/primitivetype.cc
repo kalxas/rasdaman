@@ -83,10 +83,10 @@ r_Primitive_Type::r_Primitive_Type(const char *newTypeName,
         typeSize = 2 * sizeof(double);
         break;
     case CINT16:
-        typeSize = 2 * sizeof(short);
+        typeSize = 2 * sizeof(r_Short);
         break;
     case CINT32:
-        typeSize = 8;
+        typeSize = 2 * sizeof(r_Long);
         break;
     default:
         LTRACE << "r_Primitive_Type(....) bad typeId " << typeId;

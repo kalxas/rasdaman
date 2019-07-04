@@ -235,7 +235,7 @@ private:
      * Set GDAL configuration parameters from any formatParameters key/values.
      */
     void setConfigOptions();
-    
+
     GDALDataset *poDataset{NULL};
 
 #endif // HAVE_GDAL

@@ -422,8 +422,8 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
         // got to get the thing with the highest precision and make sure
         // it is signed.
         if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
-                op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG ||
-                op2->getType() == CINT32  || op2->getType() == CINT16)
+            op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG ||
+            op2->getType() == CINT32  || op2->getType() == CINT16)
         {
             return op2;
         }

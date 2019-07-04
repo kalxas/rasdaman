@@ -173,7 +173,7 @@ UnaryOp *Ops::getUnaryOp(Ops::OpType op, const BaseType *resType, const BaseType
             return new OpIDENTITYCLong(resType, opType, resOff, opOff);
         case Ops::OP_UPDATE:
             return new OpUpdateCLong(resType, opType, resOff, opOff);
-	case Ops::OP_REALPARTINT:
+        case Ops::OP_REALPARTINT:
             return new OpRealPartInt(resType, opType, resOff, opOff);
         case Ops::OP_IMAGINARPARTINT:
             return new OpImaginarPartInt(resType, opType, resOff, opOff);
@@ -473,7 +473,7 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         }
     }
 
-if (typeRes == CINT16 || typeRes == CINT32)
+    if (typeRes == CINT16 || typeRes == CINT32)
     {
         BinaryOp::ScalarFlag scalarFlag = BinaryOp::NONE;
         if (type1 < COMPLEXTYPE1)
@@ -1102,9 +1102,9 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
                     return TypeFactory::mapType("Complex");
                 case COMPLEXTYPE2:
                     return TypeFactory::mapType("Complexd");
-		case CINT16:
+                case CINT16:
                     return TypeFactory::mapType("CInt16");
-		case CINT32:
+                case CINT32:
                     return TypeFactory::mapType("CInt32");
                 default:
                     return TypeFactory::mapType("Double");
@@ -1145,11 +1145,11 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
             {
                 return TypeFactory::mapType("Complexd");
             }
-	    else if (type1 == CINT16)
+            else if (type1 == CINT16)
             {
                 return TypeFactory::mapType("Cint16");
             }
-	    else if (type1 == CINT32)
+            else if (type1 == CINT32)
             {
                 return TypeFactory::mapType("CInt32");
             }
@@ -1181,11 +1181,11 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         {
             return TypeFactory::mapType("Double");
         }
-	else if (type1 == CINT16)
+        else if (type1 == CINT16)
         {
             return TypeFactory::mapType("Cint16");
         }
-	else if (type1 == CINT32)
+        else if (type1 == CINT32)
         {
             return TypeFactory::mapType("CInt32");
         }
@@ -1200,11 +1200,11 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
         {
             return TypeFactory::mapType("Complex");
         }
-	else if (type1 == LONG || type2 == LONG)
+        else if (type1 == LONG || type2 == LONG)
         {
             return TypeFactory::mapType("CInt32");
         }
-	else if (type1 == SHORT || type2 == SHORT)
+        else if (type1 == SHORT || type2 == SHORT)
         {
             return TypeFactory::mapType("Cint16");
         }
@@ -5343,7 +5343,7 @@ OpUpdateULong::operator()(char *res, const char *op)
     auto opVal = *(const r_ULong *)(op + opOff);
     if (!isNull(opVal))
     {
-        *reinterpret_cast<r_Long*>(res + resOff) = opVal;
+        *reinterpret_cast<r_Long *>(res + resOff) = opVal;
     }
 }
 
@@ -5499,8 +5499,6 @@ OpPLUSComplex::OpPLUSComplex(
     resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();
     resImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getImOffset();
 }
-
-
 
 void OpPLUSComplex::operator()(char *res, const char *op1, const char *op2)
 {
@@ -6656,7 +6654,7 @@ OpMAXComplex::operator()(const char *op)
 // Cint MAX ***
 
 OpMAXComplexInt::OpMAXComplexInt(const BaseType *newResType, const BaseType *newOpType,
-                           size_t newResOff, size_t newOpOff)
+                                 size_t newResOff, size_t newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
     , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6672,8 +6670,8 @@ OpMAXComplexInt::OpMAXComplexInt(const BaseType *newResType, const BaseType *new
 }
 
 OpMAXComplexInt::OpMAXComplexInt(const BaseType *newResType, char *newAccu,
-                           const BaseType *newOpType, size_t newResOff,
-                           size_t newOpOff)
+                                 const BaseType *newOpType, size_t newResOff,
+                                 size_t newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
     , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6734,7 +6732,7 @@ OpMINComplex::operator()(const char *op)
 // Cint MIN ***
 
 OpMINComplexInt::OpMINComplexInt(const BaseType *newResType, const BaseType *newOpType,
-                           size_t newResOff, size_t newOpOff)
+                                 size_t newResOff, size_t newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
     , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6750,8 +6748,8 @@ OpMINComplexInt::OpMINComplexInt(const BaseType *newResType, const BaseType *new
 }
 
 OpMINComplexInt::OpMINComplexInt(const BaseType *newResType, char *newAccu,
-                           const BaseType *newOpType, size_t newResOff,
-                           size_t newOpOff)
+                                 const BaseType *newOpType, size_t newResOff,
+                                 size_t newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
     , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6812,7 +6810,7 @@ OpSUMComplex::operator()(const char *op)
 // Cint SUM ***
 
 OpSUMComplexInt::OpSUMComplexInt(const BaseType *newResType, const BaseType *newOpType,
-                           size_t newResOff, size_t newOpOff)
+                                 size_t newResOff, size_t newOpOff)
     : CondenseOp(newResType, newOpType, newResOff, newOpOff)
     , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6828,8 +6826,8 @@ OpSUMComplexInt::OpSUMComplexInt(const BaseType *newResType, const BaseType *new
 }
 
 OpSUMComplexInt::OpSUMComplexInt(const BaseType *newResType, char *newAccu,
-                           const BaseType *newOpType, size_t newResOff,
-                           size_t newOpOff)
+                                 const BaseType *newOpType, size_t newResOff,
+                                 size_t newOpOff)
     : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
     , plusBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
 {
@@ -6871,8 +6869,8 @@ OpConstructComplex::operator()(char *res, const char *op1, const char *op2)
 // Cint CONSTRUCTING COMPLEX ***
 
 OpConstructComplexInt::OpConstructComplexInt(const BaseType *newResType, const BaseType *newOp1Type,
-                                       const BaseType *newOp2Type, size_t newResOff, size_t newOp1Off,
-                                       size_t newOp2Off)
+        const BaseType *newOp2Type, size_t newResOff, size_t newOp1Off,
+        size_t newOp2Off)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
 {
     resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();

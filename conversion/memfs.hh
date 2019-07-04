@@ -56,8 +56,8 @@ typedef struct memFSContext
 // in TIFF these are defined with "t" as prefix instead of "ras_"
 typedef signed long ras_size_t;
 typedef unsigned long ras_off_t;
-typedef void* ras_handle_t;
-typedef void* ras_data_t;
+typedef void *ras_handle_t;
+typedef void *ras_data_t;
 
 int memfs_ensure(ras_handle_t handle, ras_off_t off);
 

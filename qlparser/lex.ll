@@ -343,8 +343,7 @@ int string_yyinput( char* buf, int max_size )
 "CFloat32"                { SETTOKEN( TCOMPLEX1, typeToken, TCOMPLEX1)  }
 "CFloat64"                { SETTOKEN( TCOMPLEX2, typeToken, TCOMPLEX2)  }
 "CInt16"                  { SETTOKEN( TCINT16, typeToken, TCINT16) }
-"CInt32"		  { SETTOKEN( TCINT32, typeToken, TCINT32) }	
-
+"CInt32"                  { SETTOKEN( TCINT32, typeToken, TCINT32) }
 
 "nan"                     { SETFLTTOKEN( NAN, 8 ) }
 "nanf"                    { SETFLTTOKEN( NAN, 4 ) }

@@ -619,7 +619,7 @@ void printScalar(const r_Scalar &scalar)
         break;
     case r_Type::CINT16:
     case r_Type::CINT32:
-	NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re_long() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im_long() << ")";
+	      NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re_long() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im_long() << ")";
         break;
     case r_Type::STRUCTURETYPE:
     {
@@ -673,8 +673,8 @@ void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
         case r_Type::FLOAT:
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-	case r_Type::CINT16:
-	case r_Type::CINT32:
+        case r_Type::CINT16:
+        case r_Type::CINT32:
             writeScalarToFileStream(scalar, file);
             break;
 

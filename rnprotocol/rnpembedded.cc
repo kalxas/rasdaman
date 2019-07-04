@@ -490,4 +490,4 @@ void BadRnpCarrier::putHeader(akg::CommBuffer* messageBuffer) noexcept
 const char BadRnpCarrier::theHeader[] = "BadCarrier";
 
 
-DIAGNOSTIC_POP
+//DIAGNOSTIC_POP

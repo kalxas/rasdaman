@@ -256,7 +256,7 @@ QLInducedCondenseOp::operator()(const r_Point &p)
                                         resultData,
                                         accumulatedValue->getCellType(),
                                         myOp
-                            ));
+                                                                  ));
             //delete the mdds as they are not used
             accumulatedValue->deleteRef();
             resultData->deleteRef();

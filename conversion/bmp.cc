@@ -77,32 +77,32 @@ typedef struct
 } rgb_quad_t;
 
 // Identifier of BMP data (first two bytes)
-const unsigned short BMP_IDENTIFIER=0x4d42;
+const unsigned short BMP_IDENTIFIER = 0x4d42;
 // Compression types (correspond to BI_RGB, BI_RLE8, BI_RLE4)
-const int COMPRESS_NONE=0;
-const int COMPRESS_RLE8=1;
-const int COMPRESS_RLE4=2;
+const int COMPRESS_NONE = 0;
+const int COMPRESS_RLE8 = 1;
+const int COMPRESS_RLE4 = 2;
 // Size of BITMAPFILEHEADER (the Windows struct)
-const int BMPFILEHEADERSIZE=sizeof(bitmap_file_header_t) - sizeof(BMP_IDENTIFIER);
+const int BMPFILEHEADERSIZE = sizeof(bitmap_file_header_t) - sizeof(BMP_IDENTIFIER);
 // Size of BITMAPINFOHEADER (the Windows struct)
-const int BMPINFOHEADERSIZE=sizeof(bitmap_info_header_t);
+const int BMPINFOHEADERSIZE = sizeof(bitmap_info_header_t);
 // Total header size
-const int BMPHEADERSIZE=(BMPFILEHEADERSIZE + BMPINFOHEADERSIZE);
+const int BMPHEADERSIZE = (BMPFILEHEADERSIZE + BMPINFOHEADERSIZE);
 
 // Shortcuts for reading and writing short and long types from/to little endian bytestreams
 #define READ_LE_SHORT(p,s) \
-  s = p[0] | (p[1] << 8); p += 2;
+    s = p[0] | (p[1] << 8); p += 2;
 #define READ_LE_LONG(p,l) \
-  l = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24); p += 4;
+    l = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24); p += 4;
 #define WRITE_LE_SHORT(p,s) \
-  p[0] = s & 0xff; p[1] = (s >> 8) & 0xff; p += 2;
+    p[0] = s & 0xff; p[1] = (s >> 8) & 0xff; p += 2;
 #define WRITE_LE_LONG(p,l) \
-  p[0] = l & 0xff; p[1] = (l >> 8) & 0xff; \
-  p[2] = (l >> 16) & 0xff; p[3] = (l >> 24) & 0xff; p += 4;
+    p[0] = l & 0xff; p[1] = (l >> 8) & 0xff; \
+    p[2] = (l >> 16) & 0xff; p[3] = (l >> 24) & 0xff; p += 4;
 
 
 
-void r_Conv_BMP::initBMP( void )
+void r_Conv_BMP::initBMP(void)
 {
     memFS = NULL;
 
@@ -133,9 +133,9 @@ r_Conv_BMP::~r_Conv_BMP(void)
 {
     if (memFS != NULL)
     {
-        memfs_killfs(static_cast<void*>(memFS));
+        memfs_killfs(static_cast<void *>(memFS));
         delete memFS;
-        memFS=NULL;
+        memFS = NULL;
     }
 }
 
@@ -159,8 +159,8 @@ unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
         }
         else
         {
-            int litLength=0;
-            r_Ptr align=0;
+            int litLength = 0;
+            r_Ptr align = 0;
 
             litLength = numLit;
             if (litLength > 255) litLength = 255;
@@ -183,23 +183,23 @@ unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
 
 r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue)
 {
-    void *handle=NULL;
+    void *handle = NULL;
     bitmap_info_header_t ihead;
     rgb_quad_t *palette = NULL;
-    int i=0, j=0;
-    r_ULong paletteSize=0;
-    int pixelSize=0;
-    int destPitch=0, pixelAdd=0, lineAdd=0;
-    int width=0, height=0;
-    r_ULong offset=0;
-    r_ULong fileSize=0;
-    unsigned char *dest=NULL, *destPtr=NULL;
-    const unsigned char *srcLine=NULL, *srcPtr=NULL;
+    int i = 0, j = 0;
+    r_ULong paletteSize = 0;
+    int pixelSize = 0;
+    int destPitch = 0, pixelAdd = 0, lineAdd = 0;
+    int width = 0, height = 0;
+    r_ULong offset = 0;
+    r_ULong fileSize = 0;
+    unsigned char *dest = NULL, *destPtr = NULL;
+    const unsigned char *srcLine = NULL, *srcPtr = NULL;
     unsigned char bmpHeaders[BMPHEADERSIZE];
     unsigned char mapColours[256];
 
     memFS = new memFSContext;
-    handle = static_cast<void*>(memFS);
+    handle = static_cast<void *>(memFS);
     if ((memFS == NULL) || (memfs_initfs(handle) < 0))
     {
         LERROR << "couldn't initialize memfs.";
@@ -247,16 +247,16 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
         if (compress != 0) ihead.compression = COMPRESS_RLE8;
         // Determine which colours actually appear in the image
         memset(mapColours, 0, 256);
-        srcLine = (const unsigned char*)desc.src;
-        for (i=0; i<width*height; i++) mapColours[*srcLine++] = 1;
+        srcLine = (const unsigned char *)desc.src;
+        for (i = 0; i < width * height; i++) mapColours[*srcLine++] = 1;
         // Count distinct colours
         paletteSize = 0;
-        for (i=0; i<256; i++) if (mapColours[i] != 0) paletteSize++;
+        for (i = 0; i < 256; i++) if (mapColours[i] != 0) paletteSize++;
         // Create palette
         LTRACE << "convertTo(): number of distinct colours: " << paletteSize;
         palette = new rgb_quad_t[paletteSize];
         paletteSize = 0;
-        for (i=0; i<256; i++)
+        for (i = 0; i < 256; i++)
         {
             if (mapColours[i] != 0)
             {
@@ -269,7 +269,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
         }
         // ``compress'' colourmap
         paletteSize = 0;
-        for (i=0; i<256; i++)
+        for (i = 0; i < 256; i++)
         {
             if (mapColours[i] != 0) mapColours[i] = paletteSize++;
         }
@@ -302,7 +302,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
         palette = NULL;
     }
 
-    srcLine = (const unsigned char*)(desc.src + (height-1) * pixelSize);
+    srcLine = (const unsigned char *)(desc.src + (height - 1) * pixelSize);
 
     if (ihead.compression == COMPRESS_NONE)
     {
@@ -311,7 +311,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
             LERROR << "r_Conv_BMP::convertTo(): out of memory!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
-        for (j=0; j<height; j++, srcLine -= lineAdd)
+        for (j = 0; j < height; j++, srcLine -= lineAdd)
         {
             srcPtr = srcLine;
             destPtr = dest;
@@ -319,12 +319,12 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
             {
             case ctype_bool:
             {
-                int mask=0;
-                unsigned char val=0;
+                int mask = 0;
+                unsigned char val = 0;
 
                 mask = 0x80;
                 val = 0;
-                for (i=0; i<width; i++, srcPtr += pixelAdd)
+                for (i = 0; i < width; i++, srcPtr += pixelAdd)
                 {
                     if (*srcPtr != 0) val |= mask;
                     mask >>= 1;
@@ -339,23 +339,24 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
             }
             break;
             case ctype_char:
-                for (i=0; i<width; i++, srcPtr += pixelAdd)
+                for (i = 0; i < width; i++, srcPtr += pixelAdd)
                 {
                     *destPtr++ = mapColours[*srcPtr];
                 }
                 break;
             case ctype_rgb:
-                for (i=0; i<width; i++, srcPtr += pixelAdd)
+                for (i = 0; i < width; i++, srcPtr += pixelAdd)
                 {
                     *destPtr++ = srcPtr[2];
                     *destPtr++ = srcPtr[1];
                     *destPtr++ = srcPtr[0];
                 }
                 break;
-            default: break;
+            default:
+                break;
             }
             // Align to 32bit-boundary
-            for (i = (4 - (r_Ptr)destPtr) & 3; i>0; i--) *destPtr++ = 0;
+            for (i = (4 - (r_Ptr)destPtr) & 3; i > 0; i--) *destPtr++ = 0;
             memfs_write(handle, dest, destPitch);
         }
         delete [] dest;
@@ -363,16 +364,16 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
     }
     else  // implies RLE 8
     {
-        if ((dest = new unsigned char[2*destPitch]) == NULL)
+        if ((dest = new unsigned char[2 * destPitch]) == NULL)
         {
             LERROR << "r_Conv_BMP::convertTo(): out of memory!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
 
-        for (j=0; j<height; j++, srcLine -= lineAdd)
+        for (j = 0; j < height; j++, srcLine -= lineAdd)
         {
-            const unsigned char *lastLit=NULL, *tryRun=NULL;
-            int k=0, numLit=0;
+            const unsigned char *lastLit = NULL, *tryRun = NULL;
+            int k = 0, numLit = 0;
 
             srcPtr = srcLine;
             destPtr = dest;
@@ -383,7 +384,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
             {
                 k = i;
                 tryRun = srcPtr;
-                while (k < width-1)
+                while (k < width - 1)
                 {
                     if (*tryRun != *(tryRun + pixelAdd)) break;
                     tryRun += pixelAdd;
@@ -391,7 +392,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
                 }
                 // If k < width-1 tryRun points to the first symbol not int the run,
                 // otherwise it points to the last one in the run
-                if (k == width-1) k = width - i;
+                if (k == width - 1) k = width - i;
                 else k -= i;
                 // Run found ==> encode literals + run
                 // If a literal sequence has to be broken for the run we require a longer run.
@@ -407,7 +408,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
                     // Now output the run
                     while (k > 0)
                     {
-                        int runLength=0;
+                        int runLength = 0;
 
                         runLength = k;
                         if (runLength > 255) runLength = 255;
@@ -468,7 +469,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
     memfs_seek(handle, 0, SEEK_SET);
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(fileSize))) == NULL)
+    if ((desc.dest = static_cast<char *>(mystore.storage_alloc(fileSize))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -481,7 +482,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
     memFS = NULL;
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(fileSize)-1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(fileSize) - 1);
 
     desc.destType = r_Type::get_any_type("char");
 
@@ -491,7 +492,7 @@ r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *nullValue
 
 // Auxiliary makro for RLE coders
 #define BMP_RLE_LINEFEED \
-  destLine -= lineAdd; destPtr = destLine; j++; i = 0;
+    destLine -= lineAdd; destPtr = destLine; j++; i = 0;
 
 r_Conv_Desc &r_Conv_BMP::convertFrom(r_Format_Params options)
 {
@@ -499,21 +500,21 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(r_Format_Params options)
     return convertFrom(NULL);
 }
 
-r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options)
+r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__((unused)) const char *options)
 {
     bitmap_file_header_t fhead;
     bitmap_info_header_t ihead;
-    const rgb_quad_t *palette=NULL;
-    const unsigned char *bmp=NULL;
-    int i=0, j=0;
-    int srcPitch=0;
-    int pixelSize=0, destType=0;
-    int paletteIsGrey=0, paletteSize=0;
-    int width=0, height=0;
-    unsigned char emit0=0, emit1=0;   // in case of bitmap -> bool: values to emit for 0 and 1
-    int lineAdd=0, pixelAdd=0;
+    const rgb_quad_t *palette = NULL;
+    const unsigned char *bmp = NULL;
+    int i = 0, j = 0;
+    int srcPitch = 0;
+    int pixelSize = 0, destType = 0;
+    int paletteIsGrey = 0, paletteSize = 0;
+    int width = 0, height = 0;
+    unsigned char emit0 = 0, emit1 = 0; // in case of bitmap -> bool: values to emit for 0 and 1
+    int lineAdd = 0, pixelAdd = 0;
 
-    bmp = (const unsigned char*)desc.src;
+    bmp = (const unsigned char *)desc.src;
 
     // Read file header
     READ_LE_SHORT(bmp, fhead.type);
@@ -552,7 +553,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
     LTRACE << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant;
 #endif
 
-    palette = (const rgb_quad_t*)(desc.src + BMPFILEHEADERSIZE + ihead.size);
+    palette = (const rgb_quad_t *)(desc.src + BMPFILEHEADERSIZE + ihead.size);
     paletteIsGrey = 0;
     paletteSize = static_cast<int>(ihead.clrUsed);
     if ((paletteSize == 0) && (ihead.bitCount != 24)) paletteSize = (1 << ihead.bitCount);
@@ -609,7 +610,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
             srcPitch = ((width + 3) & ~3);
         }
         // Check whether the palette is greyscale
-        for (i=0; i<paletteSize; i++)
+        for (i = 0; i < paletteSize; i++)
         {
             if ((palette[i].red != palette[i].green) || (palette[i].green != palette[i].blue)) break;
         }
@@ -640,15 +641,15 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
 
     LTRACE << "convertFrom(): type " << destType << ", srcPitch " << srcPitch << ", pixelSize " << pixelSize << ", palsize " << paletteSize;
 
-    unsigned char *dest=NULL, *destPtr=NULL, *destLine=NULL;
-    const unsigned char *imgPtr=NULL, *imgLine=NULL;
+    unsigned char *dest = NULL, *destPtr = NULL, *destLine = NULL;
+    const unsigned char *imgPtr = NULL, *imgLine = NULL;
 
     pixelAdd = pixelSize * height;
     lineAdd = pixelSize;
 
     imgLine = (const unsigned char *)(palette + paletteSize);
 
-    if ((dest = static_cast<unsigned char*>(mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
+    if ((dest = static_cast<unsigned char *>(mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertFrom(): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -687,7 +688,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
     switch (ihead.compression)
     {
     case COMPRESS_NONE:
-        for (j=0; j<height; j++, destLine -= lineAdd, imgLine += srcPitch)
+        for (j = 0; j < height; j++, destLine -= lineAdd, imgLine += srcPitch)
         {
             destPtr = destLine;
             imgPtr = imgLine;
@@ -695,14 +696,14 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
             {
             case 1:
             {
-                int mask=0;
-                unsigned char val=0;
+                int mask = 0;
+                unsigned char val = 0;
 
                 mask = 0x00;
                 switch (destType)
                 {
                 case ctype_bool:
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         if (mask == 0x00)
                         {
@@ -714,7 +715,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                     }
                     break;
                 case ctype_char:
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         if (mask == 0x00)
                         {
@@ -726,9 +727,9 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                     }
                     break;
                 case ctype_rgb:
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
-                        int idx=0;
+                        int idx = 0;
 
                         if (mask == 0x00)
                         {
@@ -742,7 +743,8 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                         mask >>= 1;
                     }
                     break;
-                default: break;
+                default:
+                    break;
                 }
             }
             break;
@@ -751,7 +753,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                 switch (destType)
                 {
                 case ctype_char:
-                    for (i=0; i<width; i+=2)
+                    for (i = 0; i < width; i += 2)
                     {
                         *destPtr = palette[(*imgPtr) >> 4].red;
                         destPtr += pixelAdd;
@@ -765,7 +767,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                     }
                     break;
                 case ctype_rgb:
-                    for (i=0; i<width; i+=2)
+                    for (i = 0; i < width; i += 2)
                     {
                         int idx;
 
@@ -791,7 +793,8 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                         destPtr[2] = palette[idx].blue;
                     }
                     break;
-                    default: break;
+                default:
+                    break;
                 }
             }
             break;
@@ -799,13 +802,13 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                 switch (destType)
                 {
                 case ctype_char:
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         *destPtr = palette[*imgPtr++].red;
                     }
                     break;
                 case ctype_rgb:
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         destPtr[0] = palette[*imgPtr].red;
                         destPtr[1] = palette[*imgPtr].green;
@@ -813,11 +816,12 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                         imgPtr++;
                     }
                     break;
-                default: break;
+                default:
+                    break;
                 }
                 break;
             case 24:
-                for (i=0; i<width; i++, destPtr += pixelAdd)
+                for (i = 0; i < width; i++, destPtr += pixelAdd)
                 {
                     destPtr[0] = imgPtr[2];
                     destPtr[1] = imgPtr[1];
@@ -825,7 +829,8 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                     imgPtr += 3;
                 }
                 break;
-            default: break;
+            default:
+                break;
             }
         }
         break;
@@ -837,7 +842,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
         imgPtr = imgLine;
         while (j >= 0)
         {
-            unsigned char val=0, cmd=0;
+            unsigned char val = 0, cmd = 0;
 
             //cout << "(" << i << "," << j << ")" << endl;
             cmd = *imgPtr++;
@@ -926,7 +931,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
         imgPtr = imgLine;
         while (j >= 0)
         {
-            unsigned char val=0, cmd=0;
+            unsigned char val = 0, cmd = 0;
 
             cmd = *imgPtr++;
             if (cmd == 0) // escape
@@ -980,7 +985,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
                             destPtr += pixelAdd;
                             i++;
                         }
-                        cmd-=2;
+                        cmd -= 2;
                     }
                     if (cmd != 0)
                     {
@@ -1070,7 +1075,7 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
     }
     }
 
-    desc.dest = (char*)dest;
+    desc.dest = (char *)dest;
     desc.baseType = destType;
 
     // Build destination interval
@@ -1080,8 +1085,8 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
     else
     {
         desc.destInterv = r_Minterval(2);
-        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width)-1)
-                        << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height)-1);
+        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width) - 1)
+                        << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height) - 1);
     }
 
     desc.destType = get_external_type(desc.baseType);
@@ -1091,19 +1096,19 @@ r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *option
 
 
 
-const char *r_Conv_BMP::get_name( void ) const
+const char *r_Conv_BMP::get_name(void) const
 {
     return format_name_bmp;
 }
 
 
-r_Data_Format r_Conv_BMP::get_data_format( void ) const
+r_Data_Format r_Conv_BMP::get_data_format(void) const
 {
     return r_BMP;
 }
 
 
-r_Convertor *r_Conv_BMP::clone( void ) const
+r_Convertor *r_Conv_BMP::clone(void) const
 {
     return new r_Conv_BMP(desc.src, desc.srcInterv, desc.baseType);
 }

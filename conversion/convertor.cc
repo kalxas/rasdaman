@@ -407,7 +407,6 @@ void r_Convertor::updateNodataValue(const r_Range *nullValue)
     }
 }
 
-//TODO add cases for complex numbers
 std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
 {
     switch (cte)
@@ -452,10 +451,10 @@ std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
         os << "rgb";
         break;
     case ctype_complex1:
-        os << "complex1";
+        os << "cfloat32";
         break;
     case ctype_complex2:
-        os << "complexd";
+        os << "cfloat64";
         break;
     case ctype_cint16:
         os << "cint16";

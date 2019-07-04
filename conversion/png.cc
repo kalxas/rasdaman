@@ -67,40 +67,40 @@ rasdaman GmbH.
 /* memfs interface functions in C namespace */
 extern "C" {
 
-static void png_mem_read_data(png_struct *png_ptr, png_byte *data, png_size_t length)
-{
-    void *handle=NULL;
+    static void png_mem_read_data(png_struct *png_ptr, png_byte *data, png_size_t length)
+    {
+        void *handle = NULL;
 
-    handle = (void*)png_get_io_ptr(png_ptr);
-    memfs_chunk_read(handle, (ras_data_t)data, (ras_size_t)length);
-}
-static void png_mem_write_data(png_struct *png_ptr, png_byte *data, png_size_t length)
-{
-    void *handle=NULL;
+        handle = (void *)png_get_io_ptr(png_ptr);
+        memfs_chunk_read(handle, (ras_data_t)data, (ras_size_t)length);
+    }
+    static void png_mem_write_data(png_struct *png_ptr, png_byte *data, png_size_t length)
+    {
+        void *handle = NULL;
 
-    handle = (void*)png_get_io_ptr(png_ptr);
-    memfs_write(handle, (ras_data_t)data, (ras_size_t)length);
-}
-static void png_mem_flush_data(png_struct *png_ptr)
-{
-    void *handle=NULL;
+        handle = (void *)png_get_io_ptr(png_ptr);
+        memfs_write(handle, (ras_data_t)data, (ras_size_t)length);
+    }
+    static void png_mem_flush_data(png_struct *png_ptr)
+    {
+        void *handle = NULL;
 
-    handle = (void*)png_get_io_ptr(png_ptr);
-}
+        handle = (void *)png_get_io_ptr(png_ptr);
+    }
 
-/* Customized error handling */
-static void *png_user_error_ptr = NULL;
+    /* Customized error handling */
+    static void *png_user_error_ptr = NULL;
 
-static void png_user_warning_fn(__attribute__ ((unused)) png_struct *png_ptr, const char *warning_msg)
-{
-    fprintf(stdout, "r_Conv_PNG warning: %s\n", warning_msg);
-    fflush(stdout);
-}
-static void png_user_error_fn(__attribute__ ((unused)) png_struct *png_ptr, const char *error_msg)
-{
-    fprintf(stderr, "r_Conv_PNG error: %s\n", error_msg);
-    // return from this routine, exception will be thrown in setjmp code
-}
+    static void png_user_warning_fn(__attribute__((unused)) png_struct *png_ptr, const char *warning_msg)
+    {
+        fprintf(stdout, "r_Conv_PNG warning: %s\n", warning_msg);
+        fflush(stdout);
+    }
+    static void png_user_error_fn(__attribute__((unused)) png_struct *png_ptr, const char *error_msg)
+    {
+        fprintf(stderr, "r_Conv_PNG error: %s\n", error_msg);
+        // return from this routine, exception will be thrown in setjmp code
+    }
 
 } // end of C namespace
 
@@ -140,15 +140,15 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(r_Format_Params options)
 }
 
 
-r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValue )
+r_Conv_Desc &r_Conv_PNG::convertTo(const char *options, const r_Range *nullValue)
 {
 #ifdef HAVE_PNG
-    png_struct *write_ptr=NULL;
+    png_struct *write_ptr = NULL;
     png_info *info_ptr = NULL;
-    unsigned int i=0, j=0;
-    png_uint_32 width=0, height=0;
-    int colourType=0, compType=0;
-    int spp=0, bps=0, lineAdd=0, pixelAdd=0;
+    unsigned int i = 0, j = 0;
+    png_uint_32 width = 0, height = 0;
+    int colourType = 0, compType = 0;
+    int spp = 0, bps = 0, lineAdd = 0, pixelAdd = 0;
     png_color_8 sig_bit;
     png_text infotext[1];
     char *trans_string = NULL;        // transparency string buffer
@@ -173,14 +173,14 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
     write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_user_error_ptr, png_user_error_fn, png_user_warning_fn);
 
     if (write_ptr == NULL)
-        i=1;
+        i = 1;
     else
     {
         info_ptr = png_create_info_struct(write_ptr);
         if (info_ptr == NULL)
         {
             LERROR << "Error: unable to allocate PNG header.";
-            i=1;
+            i = 1;
         }
         else if (setjmp(png_jmpbuf(write_ptr)))
         {
@@ -198,7 +198,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
 
     memfs_newfile(handle);
 
-    png_set_write_fn(write_ptr, static_cast<void*>(handle), png_mem_write_data, png_mem_flush_data);
+    png_set_write_fn(write_ptr, static_cast<void *>(handle), png_mem_write_data, png_mem_flush_data);
 
     // Compression
     compType = PNG_COMPRESSION_TYPE_DEFAULT;
@@ -228,7 +228,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         sig_bit.gray = 1;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " %hu ", &GET_TRANS_COLOR(gray) );
+            itemsScanned = sscanf(trans_string, " %hu ", &GET_TRANS_COLOR(gray));
             if (itemsScanned != 1)
             {
                 LERROR << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string;
@@ -246,7 +246,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         sig_bit.gray = 8;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " %hu ", &GET_TRANS_COLOR(gray) );
+            itemsScanned = sscanf(trans_string, " %hu ", &GET_TRANS_COLOR(gray));
             if (itemsScanned != 1)
             {
                 LERROR << "Error: illegal syntax in transparency color specification - should be \"%i\", but is: " << trans_string;
@@ -259,7 +259,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         LINFO << "ctype_rgb";
         spp = 3;
         bps = 8;
-        pixelAdd = 3*static_cast<int>(height);
+        pixelAdd = 3 * static_cast<int>(height);
         lineAdd = 3;
         colourType = PNG_COLOR_TYPE_RGB;
         sig_bit.red = 8;
@@ -267,7 +267,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         sig_bit.blue = 8;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " ( %hu ; %hu ; %hu ) ", &GET_TRANS_COLOR(red), &GET_TRANS_COLOR(green), &GET_TRANS_COLOR(blue) );
+            itemsScanned = sscanf(trans_string, " ( %hu ; %hu ; %hu ) ", &GET_TRANS_COLOR(red), &GET_TRANS_COLOR(green), &GET_TRANS_COLOR(blue));
             if (itemsScanned != 3)
             {
                 LERROR << "Error: illegal syntax in item #" << itemsScanned << " of transparency color specification - should be \"(%i;%i;%i)\", but is: " << trans_string;
@@ -280,7 +280,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         LINFO << "ctype_struct";
         // check first if it's 4 char bands
         {
-            r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
+            r_Structure_Type *st = static_cast<r_Structure_Type *>(const_cast<r_Type *>(desc.srcType));
             r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
             int bands = 0;
             while (iter != st->defines_attribute_end())
@@ -302,7 +302,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
 
         spp = 4;
         bps = 8;
-        pixelAdd = 4*static_cast<int>(height);
+        pixelAdd = 4 * static_cast<int>(height);
         lineAdd = 4;
         colourType = PNG_COLOR_TYPE_RGBA;
         sig_bit.red = 8;
@@ -338,9 +338,9 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
     png_set_sBIT(write_ptr, info_ptr, &sig_bit);
 
     // Info text
-    infotext[0].key = new char[strlen(name_InfoKey)+1];
+    infotext[0].key = new char[strlen(name_InfoKey) + 1];
     strcpy(infotext[0].key, name_InfoKey);
-    infotext[0].text = new char[strlen(name_InfoText)+1];
+    infotext[0].text = new char[strlen(name_InfoText) + 1];
     strcpy(infotext[0].text, name_InfoText);
     infotext[0].compression = PNG_TEXT_COMPRESSION_NONE;
     infotext[0].text_length = strlen(infotext[0].text);
@@ -349,13 +349,13 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
     // Write header
     png_write_info(write_ptr, info_ptr);
 
-    png_byte *row=NULL, *rowPtr=NULL;
-    const unsigned char *src=NULL, *srcPtr=NULL;
+    png_byte *row = NULL, *rowPtr = NULL;
+    const unsigned char *src = NULL, *srcPtr = NULL;
 
     row = new png_byte[((bps * spp * static_cast<int>(width) + 7) >> 3)];
-    src = (const unsigned char*)(desc.src);
+    src = (const unsigned char *)(desc.src);
 
-    for (j=0; j<height; j++)
+    for (j = 0; j < height; j++)
     {
         rowPtr = row;
         srcPtr = src;
@@ -364,12 +364,12 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         {
         case ctype_bool:
         {
-            int mask=0;
-            png_byte val=0;
+            int mask = 0;
+            png_byte val = 0;
 
             val = 0;
             mask = 0x80; // png docs: leftmost pixel in high-order bits
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 if (*srcPtr != 0) val |= mask;
                 mask >>= 1;
@@ -385,7 +385,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         break;
         case ctype_char:
         {
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = *srcPtr;
             }
@@ -393,7 +393,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         break;
         case ctype_rgb:
         {
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = srcPtr[0];
                 *rowPtr++ = srcPtr[1];
@@ -403,7 +403,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
         break;
         case ctype_struct:
         {
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = srcPtr[0];
                 *rowPtr++ = srcPtr[1];
@@ -412,7 +412,8 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
             }
         }
         break;
-        default: break;
+        default:
+            break;
         }
 
         png_write_row(write_ptr, row);
@@ -421,7 +422,7 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
     }
 
     delete [] row;
-    row=NULL;
+    row = NULL;
 
     png_write_end(write_ptr, info_ptr);
 
@@ -429,13 +430,13 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
     png_destroy_write_struct(&write_ptr, &info_ptr);
 
     delete [] infotext[0].key;
-    infotext[0].key=NULL;
+    infotext[0].key = NULL;
     delete [] infotext[0].text;
-    infotext[0].text=NULL;
+    infotext[0].text = NULL;
 
     r_Long pngSize = static_cast<r_Long>(memfs_size(handle));
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
+    if ((desc.dest = static_cast<char *>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
     {
         LERROR << "Error: " << method_convertTo << ": out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -460,20 +461,20 @@ r_Conv_Desc &r_Conv_PNG::convertTo( const char *options, const r_Range *nullValu
 r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
 {
 #ifdef HAVE_PNG
-    png_struct *read_ptr=NULL;
+    png_struct *read_ptr = NULL;
     png_info *info_ptr = NULL;
-    int pass=0, numPasses=0;
-    png_uint_32 width=0, height=0, pitch=0;
-    int colourType=0, interlaceType=0, compType=0, filterType=0;
-    int spp=0, bps=0, lineAdd=0, pixelAdd=0;
+    int pass = 0, numPasses = 0;
+    png_uint_32 width = 0, height = 0, pitch = 0;
+    int colourType = 0, interlaceType = 0, compType = 0, filterType = 0;
+    int spp = 0, bps = 0, lineAdd = 0, pixelAdd = 0;
 
-    unsigned int i = 0, j=0;
+    unsigned int i = 0, j = 0;
     read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, png_user_error_ptr, png_user_error_fn, png_user_warning_fn);
-    if (read_ptr == NULL) i=1;
+    if (read_ptr == NULL) i = 1;
     else
     {
         info_ptr = png_create_info_struct(read_ptr);
-        if (info_ptr == NULL) i=1;
+        if (info_ptr == NULL) i = 1;
         else if (setjmp(png_jmpbuf(read_ptr)))
         {
             png_destroy_read_struct(&read_ptr, &info_ptr, NULL);
@@ -487,11 +488,11 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char *>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     desc.dest = NULL;
 
-    png_set_read_fn(read_ptr, static_cast<void*>(handle), png_mem_read_data);
+    png_set_read_fn(read_ptr, static_cast<void *>(handle), png_mem_read_data);
 
     png_read_info(read_ptr, info_ptr);
 
@@ -528,9 +529,9 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
         png_set_expand(read_ptr);
     case PNG_COLOR_TYPE_RGB:
     case PNG_COLOR_TYPE_RGB_ALPHA:
-        pitch = 3*width;
+        pitch = 3 * width;
         lineAdd = 3;
-        pixelAdd = 3*static_cast<int>(height);
+        pixelAdd = 3 * static_cast<int>(height);
         desc.baseType = ctype_rgb;
         break;
     default:
@@ -566,16 +567,16 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
 
     png_byte *row = new png_byte[pitch];
 
-    desc.dest = static_cast<char*>(mystore.storage_alloc(pitch * height));
+    desc.dest = static_cast<char *>(mystore.storage_alloc(pitch * height));
 
-    for (pass=0; pass < numPasses; pass++)
+    for (pass = 0; pass < numPasses; pass++)
     {
         unsigned char *dest, *destPtr;
 
-        dest = (unsigned char*)(desc.dest);
-        for (j=0; j<height; j++, dest += lineAdd)
+        dest = (unsigned char *)(desc.dest);
+        for (j = 0; j < height; j++, dest += lineAdd)
         {
-            png_byte *rowPtr=NULL;
+            png_byte *rowPtr = NULL;
 
             destPtr = dest;
             rowPtr = row;
@@ -587,7 +588,7 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
                 // In case of multiple passes set up the buffer according to the last pass
                 if (pass != 0)
                 {
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         *rowPtr++ = *destPtr;
                     }
@@ -595,7 +596,7 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
                     rowPtr = row;
                 }
                 png_read_row(read_ptr, row, NULL);
-                for (i=0; i<width; i++, destPtr += pixelAdd)
+                for (i = 0; i < width; i++, destPtr += pixelAdd)
                 {
                     *destPtr = *rowPtr++;
                 }
@@ -605,7 +606,7 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
             {
                 if (pass != 0)
                 {
-                    for (i=0; i<width; i++, destPtr += pixelAdd)
+                    for (i = 0; i < width; i++, destPtr += pixelAdd)
                     {
                         *rowPtr++ = destPtr[0];
                         *rowPtr++ = destPtr[1];
@@ -615,7 +616,7 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
                     rowPtr = row;
                 }
                 png_read_row(read_ptr, row, NULL);
-                for (i=0; i<width; i++, destPtr += pixelAdd)
+                for (i = 0; i < width; i++, destPtr += pixelAdd)
                 {
                     destPtr[0] = *rowPtr++;
                     destPtr[1] = *rowPtr++;
@@ -623,7 +624,8 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
                 }
             }
             break;
-            default: break;
+            default:
+                break;
             }
         }
     }
@@ -631,7 +633,7 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
     png_read_end(read_ptr, info_ptr);
 
     delete [] row;
-    row=NULL;
+    row = NULL;
 
     png_destroy_read_struct(&read_ptr, &info_ptr, NULL);
 
@@ -657,19 +659,19 @@ r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
 
 
 
-const char *r_Conv_PNG::get_name( void ) const
+const char *r_Conv_PNG::get_name(void) const
 {
     return format_name_png;
 }
 
 
-r_Data_Format r_Conv_PNG::get_data_format( void ) const
+r_Data_Format r_Conv_PNG::get_data_format(void) const
 {
     return r_PNG;
 }
 
 
-r_Convertor *r_Conv_PNG::clone( void ) const
+r_Convertor *r_Conv_PNG::clone(void) const
 {
     return new r_Conv_PNG(desc.src, desc.srcInterv, desc.baseType);
 }

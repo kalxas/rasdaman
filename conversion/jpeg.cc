@@ -57,177 +57,177 @@ extern "C" {
 
 #include "jpeglib.h"
 
-typedef struct my_compress_struct
-{
-    jpeg_compress_struct pub;
-    ras_handle_t handle;
-    JOCTET *buffer;
-    int bufferSize;
-} my_compress_struct;
+    typedef struct my_compress_struct
+    {
+        jpeg_compress_struct pub;
+        ras_handle_t handle;
+        JOCTET *buffer;
+        int bufferSize;
+    } my_compress_struct;
 
-typedef struct my_decompress_struct
-{
-    jpeg_decompress_struct pub;
-    ras_handle_t handle;
-    JOCTET *buffer;
-    int bufferSize;
-} my_decompress_struct;
+    typedef struct my_decompress_struct
+    {
+        jpeg_decompress_struct pub;
+        ras_handle_t handle;
+        JOCTET *buffer;
+        int bufferSize;
+    } my_decompress_struct;
 
-typedef struct my_error_mgr
-{
-    jpeg_error_mgr pub;
-    jmp_buf setjmp_buffer;
-} my_error_mgr;
+    typedef struct my_error_mgr
+    {
+        jpeg_error_mgr pub;
+        jmp_buf setjmp_buffer;
+    } my_error_mgr;
 
 
 // See jpeg library example
-static void my_error_exit(jpeg_common_struct *cptr)
-{
-    my_error_mgr *myerr = (my_error_mgr*)(cptr->err);
-    (*cptr->err->output_message)(cptr);
-    longjmp(myerr->setjmp_buffer, 1);
-}
+    static void my_error_exit(jpeg_common_struct *cptr)
+    {
+        my_error_mgr *myerr = (my_error_mgr *)(cptr->err);
+        (*cptr->err->output_message)(cptr);
+        longjmp(myerr->setjmp_buffer, 1);
+    }
 
 
 
-/*
-    *  Memory IO wrapper functions, rely on memFS.
-    */
+    /*
+        *  Memory IO wrapper functions, rely on memFS.
+        */
 
 // Destination manager methods
 // cptr is actually a pointer to my_compress_struct
-static void dm_init_destination(jpeg_compress_struct *cptr)
-{
-    my_compress_struct *mptr = (my_compress_struct*)cptr;
-
-    if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
+    static void dm_init_destination(jpeg_compress_struct *cptr)
     {
-        LERROR << "r_Conv_JPEG@dm_init_destination(): out of memory";
-        throw r_Error(MEMMORYALLOCATIONERROR);
-    }
-    mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
-    cptr->dest->next_output_byte = mptr->buffer;
-    cptr->dest->free_in_buffer = static_cast<size_t>(mptr->bufferSize);
-}
+        my_compress_struct *mptr = (my_compress_struct *)cptr;
 
-
-static boolean dm_empty_output_buffer(jpeg_compress_struct *cptr)
-{
-    my_compress_struct *mptr = (my_compress_struct*)cptr;
-    boolean retval=FALSE;
-
-    if (memfs_write(mptr->handle, mptr->buffer, mptr->bufferSize) == mptr->bufferSize)
-    {
+        if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
+        {
+            LERROR << "r_Conv_JPEG@dm_init_destination(): out of memory";
+            throw r_Error(MEMMORYALLOCATIONERROR);
+        }
+        mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
         cptr->dest->next_output_byte = mptr->buffer;
         cptr->dest->free_in_buffer = static_cast<size_t>(mptr->bufferSize);
-        retval=TRUE;
     }
-    return retval;
-}
 
 
-static void dm_term_destination(jpeg_compress_struct *cptr)
-{
-    my_compress_struct *mptr = (my_compress_struct*)cptr;
-
-    if (cptr->dest->next_output_byte != mptr->buffer)
+    static boolean dm_empty_output_buffer(jpeg_compress_struct *cptr)
     {
-        memfs_write(mptr->handle, mptr->buffer, (cptr->dest->next_output_byte - mptr->buffer));
+        my_compress_struct *mptr = (my_compress_struct *)cptr;
+        boolean retval = FALSE;
+
+        if (memfs_write(mptr->handle, mptr->buffer, mptr->bufferSize) == mptr->bufferSize)
+        {
+            cptr->dest->next_output_byte = mptr->buffer;
+            cptr->dest->free_in_buffer = static_cast<size_t>(mptr->bufferSize);
+            retval = TRUE;
+        }
+        return retval;
     }
-    delete [] mptr->buffer;
-    mptr->buffer = NULL;
-}
+
+
+    static void dm_term_destination(jpeg_compress_struct *cptr)
+    {
+        my_compress_struct *mptr = (my_compress_struct *)cptr;
+
+        if (cptr->dest->next_output_byte != mptr->buffer)
+        {
+            memfs_write(mptr->handle, mptr->buffer, (cptr->dest->next_output_byte - mptr->buffer));
+        }
+        delete [] mptr->buffer;
+        mptr->buffer = NULL;
+    }
 
 
 // Source manager methods
 // dptr is actually a pointer to my_decompress_struct
-static void sm_init_source(jpeg_decompress_struct *dptr)
-{
-    my_decompress_struct *mptr = (my_decompress_struct*)dptr;
-
-    if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
+    static void sm_init_source(jpeg_decompress_struct *dptr)
     {
-        LERROR << "r_Conv_JPEG@sm_init_source(): out of memory";
-        throw r_Error(MEMMORYALLOCATIONERROR);
-    }
-    mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
-    dptr->src->next_input_byte = mptr->buffer;
-    dptr->src->bytes_in_buffer = 0;
-}
+        my_decompress_struct *mptr = (my_decompress_struct *)dptr;
 
-
-// See jdatasrc.c
-static boolean sm_fill_input_buffer(jpeg_decompress_struct *dptr)
-{
-    my_decompress_struct *mptr = (my_decompress_struct*)dptr;
-    int read_bytes=0;
-
-    if ((read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize)) != 0)
-    {
-        dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes);
-    }
-    else
-    {
-        mptr->buffer[0] = (JOCTET)0xff;
-        mptr->buffer[1] = (JOCTET)JPEG_EOI;
-        dptr->src->bytes_in_buffer = 2;
-    }
-    dptr->src->next_input_byte = mptr->buffer;
-
-    return TRUE;
-}
-
-
-// See jdatasrc.c
-static void sm_skip_input_data(jpeg_decompress_struct *dptr, long num_bytes)
-{
-    my_decompress_struct *mptr = (my_decompress_struct*)dptr;
-
-    if (num_bytes < static_cast<long>(dptr->src->bytes_in_buffer))
-    {
-        dptr->src->next_input_byte += num_bytes;
-        dptr->src->bytes_in_buffer -= static_cast<unsigned long>(num_bytes);
-    }
-    else
-    {
-        int read_bytes=0;
-
-        num_bytes -= static_cast<long>(dptr->src->bytes_in_buffer);
-        dptr->src->next_input_byte = mptr->buffer;
-        while (num_bytes >= mptr->bufferSize)
+        if ((mptr->buffer = new JOCTET[JPEG_IO_BUFFER_SIZE]) == NULL)
         {
-            memfs_chunk_seek(mptr->handle, static_cast<ras_off_t>(mptr->bufferSize), SEEK_CUR);
-            num_bytes -= mptr->bufferSize;
+            LERROR << "r_Conv_JPEG@sm_init_source(): out of memory";
+            throw r_Error(MEMMORYALLOCATIONERROR);
         }
-        read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize);
-        if (read_bytes <= num_bytes)
+        mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
+        dptr->src->next_input_byte = mptr->buffer;
+        dptr->src->bytes_in_buffer = 0;
+    }
+
+
+// See jdatasrc.c
+    static boolean sm_fill_input_buffer(jpeg_decompress_struct *dptr)
+    {
+        my_decompress_struct *mptr = (my_decompress_struct *)dptr;
+        int read_bytes = 0;
+
+        if ((read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize)) != 0)
+        {
+            dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes);
+        }
+        else
         {
             mptr->buffer[0] = (JOCTET)0xff;
             mptr->buffer[1] = (JOCTET)JPEG_EOI;
             dptr->src->bytes_in_buffer = 2;
         }
+        dptr->src->next_input_byte = mptr->buffer;
+
+        return TRUE;
+    }
+
+
+// See jdatasrc.c
+    static void sm_skip_input_data(jpeg_decompress_struct *dptr, long num_bytes)
+    {
+        my_decompress_struct *mptr = (my_decompress_struct *)dptr;
+
+        if (num_bytes < static_cast<long>(dptr->src->bytes_in_buffer))
+        {
+            dptr->src->next_input_byte += num_bytes;
+            dptr->src->bytes_in_buffer -= static_cast<unsigned long>(num_bytes);
+        }
         else
         {
-            dptr->src->next_input_byte = mptr->buffer + num_bytes;
-            dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes - num_bytes);
+            int read_bytes = 0;
+
+            num_bytes -= static_cast<long>(dptr->src->bytes_in_buffer);
+            dptr->src->next_input_byte = mptr->buffer;
+            while (num_bytes >= mptr->bufferSize)
+            {
+                memfs_chunk_seek(mptr->handle, static_cast<ras_off_t>(mptr->bufferSize), SEEK_CUR);
+                num_bytes -= mptr->bufferSize;
+            }
+            read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize);
+            if (read_bytes <= num_bytes)
+            {
+                mptr->buffer[0] = (JOCTET)0xff;
+                mptr->buffer[1] = (JOCTET)JPEG_EOI;
+                dptr->src->bytes_in_buffer = 2;
+            }
+            else
+            {
+                dptr->src->next_input_byte = mptr->buffer + num_bytes;
+                dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes - num_bytes);
+            }
         }
     }
-}
 
 
-/*static boolean sm_resync_to_restart(jpeg_decompress_struct *dptr, int desired)
-{
-    return FALSE;
-}*/
+    /*static boolean sm_resync_to_restart(jpeg_decompress_struct *dptr, int desired)
+    {
+        return FALSE;
+    }*/
 
 
-static void sm_term_source(jpeg_decompress_struct *dptr)
-{
-    my_decompress_struct *mptr = (my_decompress_struct*)dptr;
+    static void sm_term_source(jpeg_decompress_struct *dptr)
+    {
+        my_decompress_struct *mptr = (my_decompress_struct *)dptr;
 
-    delete [] mptr->buffer;
-    mptr->buffer = NULL;
-}
+        delete [] mptr->buffer;
+        mptr->buffer = NULL;
+    }
 
 
 } // end of C namespace
@@ -239,7 +239,7 @@ static void sm_term_source(jpeg_decompress_struct *dptr)
  *  r_Conv_JPEG class for converting MDD to JPEG and back
  */
 
-void r_Conv_JPEG::initJPEG( void )
+void r_Conv_JPEG::initJPEG(void)
 {
     quality = defaultQuality;
     if (params == NULL)
@@ -272,22 +272,22 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
 #ifdef HAVE_JPEG
 
     struct jpeg_destination_mgr destMgr;
-    struct jpeg_compress_struct *cptr=NULL;
-    struct jpeg_error_mgr *jptr=NULL;
+    struct jpeg_compress_struct *cptr = NULL;
+    struct jpeg_error_mgr *jptr = NULL;
     my_error_mgr jerr;
     my_compress_struct cinfo;
-    int width=0, height=0, lineAdd=0, pixelAdd=0;
-    int i=0, j=0, spp=0;
+    int width = 0, height = 0, lineAdd = 0, pixelAdd = 0;
+    int i = 0, j = 0, spp = 0;
     J_COLOR_SPACE jcs;
     JSAMPROW row_pointers[1];
-    JSAMPLE *row=NULL, *rowPtr=NULL;
-    r_Long jpegSize=0;
+    JSAMPLE *row = NULL, *rowPtr = NULL;
+    r_Long jpegSize = 0;
 
     row = NULL;
     memset(&cinfo, 0, sizeof(my_compress_struct));
     cinfo.handle = static_cast<ras_handle_t>(handle);
-    cptr = static_cast<struct jpeg_compress_struct*>(&cinfo.pub);
-    jptr = static_cast<struct jpeg_error_mgr*>(&jerr.pub);
+    cptr = static_cast<struct jpeg_compress_struct *>(&cinfo.pub);
+    jptr = static_cast<struct jpeg_error_mgr *>(&jerr.pub);
 
     cptr->err = jpeg_std_error(jptr);
     jptr->error_exit = my_error_exit;
@@ -307,7 +307,7 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
         if (cinfo.buffer != NULL)
         {
             delete [] cinfo.buffer;
-            cinfo.buffer=NULL;
+            cinfo.buffer = NULL;
         }
         LERROR << "r_Conv_JPEG::convertTo(" << options << "): unable to save the stack";
         throw r_Error(r_Error::r_Error_General);
@@ -343,7 +343,7 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
         jcs = JCS_RGB;
         spp = 3;
         lineAdd = 3;
-        pixelAdd = 3*height;
+        pixelAdd = 3 * height;
         break;
     default:
         LERROR << "r_Conv_JPEG::convertTo(" << options  << "): unsupported base type";
@@ -367,11 +367,11 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
 
     row_pointers[0] = row;
 
-    const unsigned char *src=NULL, *srcPtr=NULL;
+    const unsigned char *src = NULL, *srcPtr = NULL;
 
-    src = (const unsigned char*)desc.src;
+    src = (const unsigned char *)desc.src;
 
-    for (j=0; j<height; j++, src += lineAdd)
+    for (j = 0; j < height; j++, src += lineAdd)
     {
         srcPtr = src;
         rowPtr = row;
@@ -379,26 +379,27 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
         switch (desc.baseType)
         {
         case ctype_bool:
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = (*srcPtr == 0) ? 0 : 0xff;
             }
             break;
         case ctype_char:
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = *srcPtr;
             }
             break;
         case ctype_rgb:
-            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 *rowPtr++ = srcPtr[0];
                 *rowPtr++ = srcPtr[1];
                 *rowPtr++ = srcPtr[2];
             }
             break;
-        default: break;
+        default:
+            break;
         }
         jpeg_write_scanlines(cptr, row_pointers, 1);
     }
@@ -412,7 +413,7 @@ r_Conv_Desc &r_Conv_JPEG::convertTo(const char *options, const r_Range *nullValu
 
     jpegSize = static_cast<r_Long>(memfs_size(handle));
 
-    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
+    if ((desc.dest = static_cast<char *>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
     {
         LERROR << "r_Conv_JPEG::convertTo(" << options << "): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -442,23 +443,23 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
 {
 #ifdef HAVE_JPEG
     struct jpeg_source_mgr srcMgr;
-    struct jpeg_decompress_struct *dptr=NULL;
-    struct jpeg_error_mgr *jptr=NULL;
+    struct jpeg_decompress_struct *dptr = NULL;
+    struct jpeg_error_mgr *jptr = NULL;
     my_error_mgr jerr;
     my_decompress_struct cinfo;
-    int width=0, height=0, lineAdd=0, pixelAdd=0;
-    int i=0, j=0, spp=0;
+    int width = 0, height = 0, lineAdd = 0, pixelAdd = 0;
+    int i = 0, j = 0, spp = 0;
     J_COLOR_SPACE jcs;
     JSAMPROW row_pointers[1];
-    JSAMPLE *row=NULL, *rowPtr=NULL;
-    char *dest=NULL, *destPtr=NULL;
+    JSAMPLE *row = NULL, *rowPtr = NULL;
+    char *dest = NULL, *destPtr = NULL;
 
     row = NULL;
     desc.dest = NULL;
     memset(&cinfo, 0, sizeof(my_decompress_struct));
     cinfo.handle = static_cast<ras_handle_t>(handle);
-    dptr = static_cast<struct jpeg_decompress_struct*>(&cinfo.pub);
-    jptr = static_cast<struct jpeg_error_mgr*>(&jerr.pub);
+    dptr = static_cast<struct jpeg_decompress_struct *>(&cinfo.pub);
+    jptr = static_cast<struct jpeg_error_mgr *>(&jerr.pub);
 
     dptr->err = jpeg_std_error(jptr);
     jptr->error_exit = my_error_exit;
@@ -481,7 +482,7 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
         if (cinfo.buffer != NULL)
         {
             delete [] cinfo.buffer;
-            cinfo.buffer=NULL;
+            cinfo.buffer = NULL;
         }
         LERROR << "r_Conv_JPEG::convertFrom(" << options << "): unable to save the stack";
         throw r_Error(r_Error::r_Error_General);
@@ -489,7 +490,7 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
 
     jpeg_create_decompress(dptr);
 
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char *>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     srcMgr.init_source = sm_init_source;
     srcMgr.fill_input_buffer = sm_fill_input_buffer;
@@ -513,7 +514,7 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
     {
         desc.baseType = ctype_rgb;
         lineAdd = 3;
-        pixelAdd = 3*height;
+        pixelAdd = 3 * height;
         dptr->out_color_space = JCS_RGB;
     }
 
@@ -522,7 +523,7 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
     spp = static_cast<int>(dptr->output_components);
 
     row = new JSAMPLE[width * spp];
-    desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(width * height * spp)));
+    desc.dest = static_cast<char *>(mystore.storage_alloc(static_cast<size_t>(width * height * spp)));
 
     if ((row == NULL) || (desc.dest == NULL))
     {
@@ -537,7 +538,7 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
 
     row_pointers[0] = row;
     dest = desc.dest;
-    for (j=0; j<height; j++, dest += lineAdd)
+    for (j = 0; j < height; j++, dest += lineAdd)
     {
         jpeg_read_scanlines(dptr, row_pointers, 1);
         destPtr = dest;
@@ -545,20 +546,21 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
         switch (spp)
         {
         case 1:
-            for (i=0; i<width; i++, destPtr += pixelAdd)
+            for (i = 0; i < width; i++, destPtr += pixelAdd)
             {
                 *destPtr = static_cast<char>(*rowPtr++);
             }
             break;
         case 3:
-            for (i=0; i<width; i++, destPtr += pixelAdd)
+            for (i = 0; i < width; i++, destPtr += pixelAdd)
             {
                 destPtr[0] = static_cast<char>(*rowPtr++);
                 destPtr[1] = static_cast<char>(*rowPtr++);
                 destPtr[2] = static_cast<char>(*rowPtr++);
             }
             break;
-            default: break;
+        default:
+            break;
         }
     }
 
@@ -590,19 +592,19 @@ r_Conv_Desc &r_Conv_JPEG::convertFrom(const char *options)
 
 
 
-const char *r_Conv_JPEG::get_name( void ) const
+const char *r_Conv_JPEG::get_name(void) const
 {
     return format_name_jpeg;
 }
 
 
-r_Data_Format r_Conv_JPEG::get_data_format( void ) const
+r_Data_Format r_Conv_JPEG::get_data_format(void) const
 {
     return r_JPEG;
 }
 
 
-r_Convertor *r_Conv_JPEG::clone( void ) const
+r_Convertor *r_Conv_JPEG::clone(void) const
 {
     return new r_Conv_JPEG(desc.src, desc.srcInterv, desc.baseType);
 }

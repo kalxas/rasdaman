@@ -1086,7 +1086,7 @@ void r_Conv_NETCDF::writeDataStruct(const string &varName, const std::vector<int
     const char *src = desc.src + bandOffset;
     for (size_t i = 0; i < dataSize; ++i, src += structSize)
     {
-        dst[i] = *const_cast<T*>(reinterpret_cast<const T *>(src));
+        dst[i] = *const_cast<T *>(reinterpret_cast<const T *>(src));
     }
 
     writeData<T>(varName, dims, reinterpret_cast<const char *>(dst.get()),
