@@ -49,6 +49,8 @@ class QtProject : public QtUnaryOperation
 public:
     QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *crsOut);
 
+    QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *crsOut, int ra);
+
     QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *boundsOut, const char *crsOut,
               int widthOut = invalidExtent, int heightOut = invalidExtent,
               int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);

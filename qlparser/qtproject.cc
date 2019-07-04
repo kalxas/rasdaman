@@ -62,6 +62,16 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
 #endif
 }
 
+QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *crsOut, int ra)
+    : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, "", 0, 0},
+      resampleAlg{static_cast<common::ResampleAlg>(ra)}
+{
+#ifdef HAVE_GDAL
+    GDALAllRegister();
+#endif
+}
+
+
 QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *boundsOut,
                      const char *crsOut, int widthOut, int heightOut, int ra, double et)
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut, widthOut, heightOut},

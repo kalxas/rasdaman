@@ -2119,10 +2119,12 @@ input arguments ::
 
     (1) project( mddExpr, boundsIn, crsIn, crsOut )
 
-    (2) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
-                          widthOut, heightOut )
+    (2) project( mddExpr, boundsIn, crsIn, crsOut, resampleAlg )
 
     (3) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+                          widthOut, heightOut )
+
+    (4) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
                           widthOut, heightOut, resampleAlg, errThreshold )
 
 where
@@ -2228,7 +2230,7 @@ pixel error threshold is 0.1. ::
     project( Formosat[ 0:2528, 0:2456 ],
       "265725, 2544015, 341595, 2617695", "EPSG:32651",
       "120.630936455 23.5842129067 120.77553782 23.721772322", "EPSG:4326",
-      256, 256, bicubic, 0.1 )
+      256, 256, cubic, 0.1 )
 
 **Limitations**
 

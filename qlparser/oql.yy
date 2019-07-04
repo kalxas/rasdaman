@@ -4032,6 +4032,24 @@ projectExp:
 	  FREESTACK($10)
 	}
 */
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA resampleAlg RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11 );
+	  parseQueryTree->addDynamicObject($$);
+
+	  FREESTACK($1);
+	  FREESTACK($2);
+	  parseQueryTree->removeDynamicObject($3);
+  	  FREESTACK($4)
+	  FREESTACK($5)
+	  FREESTACK($6)
+	  FREESTACK($7)
+ 	  FREESTACK($8)
+	  FREESTACK($9)
+	  FREESTACK($10)
+	  FREESTACK($12)
+	}
+
 	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
 	                           COMMA IntegerLit COMMA IntegerLit RRPAR
 	{
