@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -88,26 +88,26 @@ log "creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
 # --- checking preconditions
 
 # - Can I find utilities?
-if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
+if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
     psql --help 2>&1 1>/dev/null || \
         error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
 fi
 
-if [[ ! -f $DEFINITION_FILE ]]
+if [ ! -f $DEFINITION_FILE ]
 then
 	error "Error: cannot find rasdaman basic type definition file '$DEFINITION_FILE'"
 fi
 
 # --- action: create database directory & cluster if needed
 
-if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
+if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
     logn "PostgreSQL database generation... "
     createdb $DATABASE_NAME > /dev/null || error "createdb failed creating PostgreSQL database $DATABASE_NAME."
     echo "ok."
 fi
 
 # - check if user has rights to create SQLite database
-if [ "$BASEDBMS" == "$BASEDBMS_SQLITE" ]; then
+if [ "$BASEDBMS" = "$BASEDBMS_SQLITE" ]; then
   datadir=$(dirname "@dbconn@")
   if [ ! -d "$datadir" ]
   then

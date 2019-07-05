@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -84,7 +84,7 @@ get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 
 # Check if the last executed command is successfull
 # $1 - process name
-# $2 == 1 - exit with error if failed to start
+# $2 = 1 - exit with error if failed to start
 # return - pid if started successfully
 check_process()
 {
@@ -96,10 +96,10 @@ check_process()
 
     if [ $exit_code -ne 0 ]; then
         echo "failed; please check the logs for more information."
-        [ "$2" == "1" ] && exit $RC_ERROR
+        [ "$2" = "1" ] && exit $RC_ERROR
     elif ! ps -p $pid > /dev/null 2>&1; then
         echo "failed, pid $pid not found; please check the logs for more information."
-        [ "$2" == "1" ] && exit $RC_ERROR
+        [ "$2" = "1" ] && exit $RC_ERROR
     else
         local ok=1
         if [ -n "$2" -a "$2" != "1" ]; then
@@ -125,8 +125,8 @@ get_property_value()
 {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
     # $2 is the key of a property in this file which needs to get the value of this key.
-    local -r properties_file="$1"
-    local -r key="$2"
+    local properties_file="$1"
+    local key="$2"
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
@@ -156,15 +156,15 @@ check_port_available()
 # $2: the web application name (e.g: petascope, secore).
 # $3: the war file of application (e.g: rasdaman.war, def.war).
 start_embedded() {
-    local -r props_path="$1"
-    local -r app_name="$2"
-    local -r war_file_name="$3"
+    local props_path="$1"
+    local app_name="$2"
+    local war_file_name="$3"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
         java_server=$(get_property_value "$props_path" "java_server")
         # check if java-server is embedded
-        if [ "$java_server" == "embedded" ]; then
+        if [ "$java_server" = "embedded" ]; then
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
             logn "  starting $app_name on port $server_port... "
@@ -189,37 +189,37 @@ start_embedded_petascope=false
 start_embedded_secore=false
 start_all_services=true
 
-SERVERS=()
-
+servers=""
 # Iterate all input arguments (it can contain server names (N1 N2 ...) and some options (--service petascope ...)
-for ((i=1; i <= $#; i++)); do
-    next=$((i+1))
-
-    param="${!i}"
-    next_param="${!next}"
-
-    if [ "$param" == "--service" ]; then
-        start_all_services=false
-        if [ "$next_param" == "core" ]; then
-            start_rasmgr_rasservers=true
-        elif [ "$next_param" == "petascope" ]; then
-            start_embedded_petascope=true
-        elif [ "$next_param" == "secore" ]; then
-            start_embedded_secore=true
-        else
-            echo "Unknow service option value '"$next_param"', expected one of (core|petascope|secore)."
-            exit $RC_ERROR
+option=""
+for i in "$@"; do
+    if [ -n "$option" ]; then
+        # Get option value for --service
+        if [ "$option" = "--service" ]; then
+            start_all_services=false
+            if [ "$i" = "core" ] ; then
+                start_rasmgr_rasservers=true
+            elif [ "$i" = "petascope" ] ; then
+                start_embedded_petascope=true
+            elif [ "$i" = "secore" ] ; then
+                start_embedded_secore=true
+            else
+                error "Value for option $option must be core|petascope|secore. Given: $i"
+            fi
         fi
-
-        i=$((i+1))
+        option=""
     else
-        # Server name
-        SERVERS+=("$param")
+        option=""
+        case $i in
+          --service)  option="$i";;
+          --*)        error "unknown option: $i";;
+          *)          servers="$servers $i";;
+        esac
     fi
 done
 
 # No options --service specified, start all services
-if [ "$start_all_services" == true ]; then
+if [ "$start_all_services" = true ]; then
     start_rasmgr_rasservers=true
     start_embedded_petascope=true
     start_embedded_secore=true
@@ -238,7 +238,7 @@ cd "$log_path"
 [ -w . ] || \
     error "User $USER has no write permissions in $log_path, rasdaman cannot be started."
 
-if [ "$start_rasmgr_rasservers" == true ]; then
+if [ "$start_rasmgr_rasservers" = true ]; then
 
     # check if rasmgr is already running first of all
     pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
@@ -256,16 +256,14 @@ if [ "$start_rasmgr_rasservers" == true ]; then
     check_process "rasmgr" 1
 
     # --- start servers: -------------------------------------------------
-    servers_size=${#SERVERS[@]}
-
     # if no input servers provided, check if environmental variable $RASSERVERS exists
-    if [ "$servers_size" -eq 0 ]; then
-        SERVERS="$RASSERVERS"
+    if [ -z "servers" ]; then
+        servers="$RASSERVERS"
     fi
 
     # ...then spawn server workers
-    if [ "$servers_size" -ne 0 ]; then
-        for SRV in "${SERVERS[@]}"; do
+    if [ -n "$servers" ]; then
+        for SRV in $servers; do
             logn "  starting server $SRV... "
             "$rascontrol_bin" --port $RASMGR_PORT -e -q -x up srv $SRV || exit $!
             check
@@ -279,11 +277,11 @@ if [ "$start_rasmgr_rasservers" == true ]; then
 fi
 
 # start embedded petascope and secore if needed
-if [ "$start_embedded_secore" == true ]; then
+if [ "$start_embedded_secore" = true ]; then
     start_embedded "$secore_props" "secore" "def.war"
 fi
 
-if [ "$start_embedded_petascope" == true ]; then
+if [ "$start_embedded_petascope" = true ]; then
     start_embedded "$petascope_props" "petascope" "rasdaman.war"
 fi
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -70,8 +70,8 @@ DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
 
 log()  { echo "$PROG: $@"; }
 logn() { echo -n "$PROG: $@"; }
-error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
-check(){ [ $? ] && echo "ok." || echo "failed."; }
+error() { echo "$PROG: $@" >&2; exit $RC_ERROR; }
+check() { [ $? ] && echo "ok." || echo "failed."; }
 
 sleep --help | grep -q GNU && GNU_SLEEP=true
 get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
@@ -82,14 +82,14 @@ get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 # $3 - [optional] grep the output of pgrep
 wait_for_process_to_shutdown()
 {
-    local proc_path="$1"
-    local proc_name=$(basename "$1")
-    local timeout="$2"
-    local timeout_tenths=$(($timeout * 10))
+    proc_path="$1"
+    proc_name=$(basename "$1")
+    timeout="$2"
+    timeout_tenths=$(($timeout * 10))
 
-    local max_count=$(get_sleep_value $timeout_tenths $timeout)
-    local sleep_sec=$(get_sleep_value 0.1 1)
-    local count=0
+    max_count=$(get_sleep_value $timeout_tenths $timeout)
+    sleep_sec=$(get_sleep_value 0.1 1)
+    count=0
     while [ $count -lt $max_count ]; do
         if [ -n "$3" ]; then
           pgrep -f "$proc_path" -a | grep -q "$3"
@@ -113,8 +113,8 @@ wait_for_process_to_shutdown()
 get_property_value() {
     # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
     # $2 is the key of a property in this file which needs to get the value of this key.
-    local -r properties_file="$1"
-    local -r key="$2"
+    properties_file="$1"
+    key="$2"
     # only grep key=value line not commented line (e.g: #key=value)
     grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
 }
@@ -123,7 +123,7 @@ get_property_value() {
 # $1: the port to check
 check_port_available()
 {
-    local port="$1"
+    port="$1"
     if type fuser > /dev/null 2>&1; then
         fuser -s -n tcp "$port" > /dev/null 2>&1
     elif type lsof > /dev/null 2>&1; then
@@ -143,22 +143,22 @@ check_port_available()
 # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
 # $2: the web application name (e.g: petascope, secore).
 stop_embedded() {
-    local -r props_path="$1"
-    local -r app_name="$2"
-    local -r war_file_name="$3"
+    props_path="$1"
+    app_name="$2"
+    war_file_name="$3"
 
     if [ -f "$props_path" ]; then
         # check if java-server is embedded/external
         java_server=$(get_property_value "$props_path" "java_server")
         # check if java-server is embedded
-        if [ "$java_server" == "embedded" ]; then
+        if [ "$java_server" = "embedded" ]; then
             # Check if the port for this application is running and kill this process
             # Get the embedded port for server
             server_port=$(get_property_value "$props_path" "server.port")
             check_port_available "$server_port"
             if [ $? -eq 0 ]; then
                 # kill process on this port
-                local pid=$(pgrep -f "$war_path/$war_file_name" 2> /dev/null)
+                pid=$(pgrep -f "$war_path/$war_file_name" 2> /dev/null)
                 kill -9 $pid
                 log "embedded $app_name terminated on port $server_port."
             fi
@@ -177,43 +177,49 @@ stop_embedded_secore=false
 stop_all_services=true
 
 # Iterate all input arguments (--service petascope ...)
-for ((i=1; i <= $#; i++)); do
-    next=$((i+1))
-
-    param="${!i}"
-    next_param="${!next}"
-
-    if [ "$param" == "--service" ]; then
-        stop_all_services=false
-        if [ "$next_param" == "core" ]; then
-            stop_rasmgr_rasservers=true
-        elif [ "$next_param" == "petascope" ]; then
-            stop_embedded_petascope=true
-        elif [ "$next_param" == "secore" ]; then
-            stop_embedded_secore=true
+option=""
+for i in "$@"; do
+    if [ -n "$option" ]; then
+        # Get option value for --service
+        if [ "$option" = "--service" ]; then
+            stop_all_services=false
+            if [ "$i" = "core" ] ; then
+                stop_rasmgr_rasservers=true
+            elif [ "$i" = "petascope" ] ; then
+                stop_embedded_petascope=true
+            elif [ "$i" = "secore" ] ; then
+                stop_embedded_secore=true
+            else
+                error "Value for option $option must be core|petascope|secore. Given: $i"
+            fi
         fi
-
-        i=$((i+1))
+        option=""
+    else
+        option=""
+        case $i in
+          --service) option="$i";;
+          *) error "unknown option: $i";;
+        esac
     fi
 done
 
 # No options --service specified, stop all services
-if [ "$stop_all_services" == true ]; then
+if [ "$stop_all_services" = true ]; then
     stop_rasmgr_rasservers=true
     stop_embedded_petascope=true
     stop_embedded_secore=true
 fi
 
 # Check if it should stop embedded tomcat, secore
-if [ "$stop_embedded_secore" == true ]; then
+if [ "$stop_embedded_secore" = true ]; then
     stop_embedded "$secore_props" "secore" "def.war"
 fi
 
-if [ "$stop_embedded_petascope" == true ]; then
+if [ "$stop_embedded_petascope" = true ]; then
     stop_embedded "$petascope_props" "petascope" "rasdaman.war"
 fi
 
-if [ "$stop_rasmgr_rasservers" == true ]; then
+if [ "$stop_rasmgr_rasservers" = true ]; then
 
     # --- stop rasdaman servers ---------------------------------------
 
