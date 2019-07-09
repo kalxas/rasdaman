@@ -110,6 +110,9 @@ public class IrregularAxis extends Axis {
     public Pair<Long, Long> calculateGridBoundsByZeroCoefficientIndex(Long indexOfGridLowerBound, Long indexOfGridUpperBound) {
         int coefficientZeroIndex = this.getIndexOfCoefficientZero();
         indexOfGridLowerBound = indexOfGridLowerBound - coefficientZeroIndex;
+        if (indexOfGridUpperBound != null) {
+            indexOfGridUpperBound = indexOfGridUpperBound - coefficientZeroIndex;
+        }
                 
         Long normalizedCurrentGridLowerBound = -1L * coefficientZeroIndex;
         Long currentGridLowerBound = this.getGridBounds().getLowerLimit().longValue();
