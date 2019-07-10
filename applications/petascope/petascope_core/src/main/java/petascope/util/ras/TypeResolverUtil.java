@@ -128,14 +128,20 @@ public class TypeResolverUtil {
         String initValue = "0";
         cellDataType = cellDataType.trim();
         
-        if (cellDataType.equals(R_Complexd)) {
-            // complexd -> double
-            return R_Complexd + "(0.0d, 0.0d)";
-        } else if (cellDataType.equals(R_Complex)) {
-            // complex -> float
-            return R_Complex + "(0.0f, 0.0f)";
+        if (cellDataType.equals(R_CInt16)) {
+            // CInt16 -> short
+            return R_CInt16 + "(0s, 0s)";
+        } else if (cellDataType.equals(R_CInt32)) {
+            // CInt32 -> long
+            return R_CInt32 + "(0l, 0l)";
+        } else if (cellDataType.equals(R_CFloat64)) {
+            // CFloat64 -> double
+            return R_CFloat64 + "(0.0d, 0.0d)";
+        } else if (cellDataType.equals(R_CFloat32)) {
+            // CFloat32 -> float
+            return R_CFloat32 + "(0.0f, 0.0f)";
         } else if (cellDataType.equals(R_Boolean)) {
-            // boolean -> falses
+            // boolean -> false
             return "false";
         } else {
             // char -> c
@@ -322,8 +328,15 @@ public class TypeResolverUtil {
     public static final String R_Long = "long";
     public static final String R_Float = "float";
     public static final String R_Double = "double";
-    public static final String R_Complex = "complex";
-    public static final String R_Complexd = "complexd";
+    
+    // 32 bit | complex of 16 bit signed integers
+    public static final String R_CInt16 = "CInt16";
+    // 64 bit | complex of 32 bit signed integers
+    public static final String R_CInt32 = "CInt32";
+    // 64 bit | single precision floating point complex
+    public static final String R_CFloat32 = "CFloat32";
+    // 128 bit | single precision floating point complex
+    public static final String R_CFloat64 = "CFloat64";
     public static final String R_Boolean = "boolean";
 
     //rasdaman abbreviations
@@ -335,16 +348,25 @@ public class TypeResolverUtil {
     public static final String R_Abb_Long = "l";
     public static final String R_Abb_Float = "f";
     public static final String R_Abb_Double = "d";
+    // For complex number
+    public static final String R_Abb_CInt16 = "s,s";
+    public static final String R_Abb_CInt32 = "l,l";
+    public static final String R_Abb_CFloat32 = "f,f";
+    public static final String R_Abb_CFloat64 = "d,d";
     
 
     //gdal base types
     public static final String GDT_Byte = "Byte";
     public static final String GDT_UInt16 = "UInt16";
     public static final String GDT_Int16 = "Int16";
+    public static final String GDT_CInt16 = "CInt16";
     public static final String GDT_UInt32 = "UInt32";
     public static final String GDT_Int32 = "Int32";
+    public static final String GDT_CInt32 = "CInt32";
     public static final String GDT_Float32 = "Float32";
+    public static final String GDT_CFloat32 = "CFloat32";
     public static final String GDT_Float64 = "Float64";
+    public static final String GDT_CFloat64 = "CFloat64";
     
     // opengis base types (http://www.opengis.net/def/dataType/OGC/0/)
     public static final String OPENGIS_BOOLEAN = "unsignedByte";
@@ -356,8 +378,10 @@ public class TypeResolverUtil {
     public static final String OPENGIS_ULONG = "unsignedInt";
     public static final String OPENGIS_FLOAT = "float32";
     public static final String OPENGIS_DOUBLE = "float64";
-    public static final String OPENGIS_COMPLEX = "cfloat32";
-    public static final String OPENGIS_COMPLEXD = "cfloat64";
+    public static final String OPENGIS_COMPLEX_Int16 = "cint16";
+    public static final String OPENGIS_COMPLEX_Int32 = "cint32";
+    public static final String OPENGIS_COMPLEX_Float32 = "cfloat32";
+    public static final String OPENGIS_COMPLEX_Float64 = "cfloat64";
 
     public static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
     private static final HashMap<String, String> RAS_TYPES_TO_ABBREVIATION = new HashMap<String, String>();
@@ -371,9 +395,13 @@ public class TypeResolverUtil {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);        
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float32, R_Float);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float64, R_Double);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_CInt16, R_CInt16);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_CInt32, R_CInt32);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_CFloat32, R_CFloat32);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_CFloat64, R_CFloat64);
 
         RAS_TYPES_TO_ABBREVIATION.put(R_Char, R_Abb_Char);
         RAS_TYPES_TO_ABBREVIATION.put(R_Octet, R_Abb_Octet);
@@ -385,6 +413,10 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_ABBREVIATION.put(R_Long, R_Abb_Long);
         RAS_TYPES_TO_ABBREVIATION.put(R_Float, R_Abb_Float);
         RAS_TYPES_TO_ABBREVIATION.put(R_Double, R_Abb_Double);
+        RAS_TYPES_TO_ABBREVIATION.put(R_CInt16, R_Abb_CInt16);
+        RAS_TYPES_TO_ABBREVIATION.put(R_CInt32, R_Abb_CInt32);
+        RAS_TYPES_TO_ABBREVIATION.put(R_CFloat32, R_Abb_CFloat32);
+        RAS_TYPES_TO_ABBREVIATION.put(R_CFloat64, R_Abb_CFloat64);
         
         // band type -> bits (e.g: char -> 1 byte)
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Boolean, (byte)1);
@@ -398,8 +430,10 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_UnsignedLong, (byte)4);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Float, (byte)4);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Double, (byte)8);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complex, (byte)8);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Complexd, (byte)16);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt16, (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt32, (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat32, (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat64, (byte)16);
 
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Boolean, OPENGIS_BOOLEAN);
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Octet, OPENGIS_OCTET);
@@ -412,7 +446,9 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_UnsignedLong, OPENGIS_ULONG);
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Float, OPENGIS_FLOAT);
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Double, OPENGIS_DOUBLE);
-        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Complex, OPENGIS_COMPLEX);
-        RAS_TYPES_TO_OPENGIS_TYPES.put(R_Complexd, OPENGIS_COMPLEXD);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_CInt16, OPENGIS_COMPLEX_Int16);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_CInt32, OPENGIS_COMPLEX_Int32);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_CFloat32, OPENGIS_COMPLEX_Float32);
+        RAS_TYPES_TO_OPENGIS_TYPES.put(R_CFloat64, OPENGIS_COMPLEX_Float64);
     }
 }

@@ -441,7 +441,7 @@ database, materializes the base types defined in the ODMG standard
     +--------------------+------------+------------------------------------------+
     | ``CFloat32``       | 64 bit     | single precision floating point complex  |
     +--------------------+------------+------------------------------------------+
-    | ``CFloat32``       | 128 bit    | double precision floating point complex  |
+    | ``CFloat64``       | 128 bit    | double precision floating point complex  |
     +--------------------+------------+------------------------------------------+
     | ``boolean``        | 1 bit [2]_ | true (nonzero value), false (zero value) |
     +--------------------+------------+------------------------------------------+

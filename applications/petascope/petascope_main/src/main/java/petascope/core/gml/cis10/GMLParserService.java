@@ -854,10 +854,18 @@ public class GMLParserService {
      */
     private static String addSuffix(String val, String suffix) {
         if (containsNaNf(val) ||
-            (containsNaN(val) && !suffix.equals(R_Abb_Float)))
+            (containsNaN(val) && !suffix.equals(R_Abb_Float))) {
             return val;
-        else
-            return val + suffix;
+        } else {
+            String result = val + suffix;
+            if (suffix.contains(",")) {
+                // This is complex number, suffix is e.g: s,s, the result is special (e.g: complex(0s,0s) for CInt16)
+                String tmp[] = suffix.split(",");
+                result = "complex(" + val + tmp[0] + "," + val + tmp[1] + ")";
+            }
+            
+            return result;
+        }
     }
 
     /**
