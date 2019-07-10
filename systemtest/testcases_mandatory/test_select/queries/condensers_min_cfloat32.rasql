@@ -1,0 +1,1 @@
+select min_cells( test_cfloat32 ) from test_cfloat32

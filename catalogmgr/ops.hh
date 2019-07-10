@@ -1987,6 +1987,79 @@ public:
     virtual void operator()(char *res, const char *op1,
                             const char *op2);
 };
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_EQUAL on C type #CFloat# and #CFloat#, result #char#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpEQUALComplexFloat : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpEQUALComplexFloat(const BaseType *newResType, const BaseType *newOp1Type,
+                        const BaseType *newOp2Type, size_t newResOff = 0,
+                        size_t newOp1Off = 0, size_t newOp2Off = 0);
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char *res, const char *op1,
+                            const char *op2);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_NOTEQUAL on C type #CFloat# and #CFloat#, result #char#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpNOTEQUALComplexFloat : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpNOTEQUALComplexFloat(const BaseType *newResType, const BaseType *newOp1Type,
+                           const BaseType *newOp2Type, size_t newResOff = 0,
+                           size_t newOp1Off = 0, size_t newOp2Off = 0);
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char *res, const char *op1,
+                            const char *op2);
+};
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_EQUAL on C type #cInt# and #cInt#, result #char#.
+/**
+  * \ingroup Catalogmgrs
+  */
+
+class OpEQUALComplexInt : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpEQUALComplexInt(const BaseType *newResType, const BaseType *newOp1Type,
+                      const BaseType *newOp2Type, size_t newResOff = 0,
+                      size_t newOp1Off = 0, size_t newOp2Off = 0);
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char *res, const char *op1,
+                            const char *op2);
+};
+
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_NOTEQUAL on C type #cInt# and #cInto#, result #char#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpNOTEQUALComplexInt : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpNOTEQUALComplexInt(const BaseType *newResType, const BaseType *newOp1Type,
+                         const BaseType *newOp2Type, size_t newResOff = 0,
+                         size_t newOp1Off = 0,
+                         size_t newOp2Off = 0);
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()(char *res, const char *op1,
+                            const char *op2);
+};
 
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_PLUS specialized for RasDaMan type Char.

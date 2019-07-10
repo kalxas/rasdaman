@@ -231,13 +231,17 @@ function import_rasql_data()
       error "testdata file $TESTDATA_PATH/$f not found"
     fi
   done
-  
+
   # check data types
   check_type GreySet
   check_type GreySet3
   check_type RGBSet
-  
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
+  check_type Gauss2Set
+  check_type Gauss1Set
+  check_type CInt16Set
+  check_type CInt32Set
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT $TEST_CFLOAT32 
+  drop_colls $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
 
   # create the struct_cube_set type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
@@ -266,10 +270,18 @@ function import_rasql_data()
   create_coll $TEST_GREY2 GreySet
   create_coll $TEST_RGB2 RGBSet
   create_coll $TEST_GREY3D GreySet3
+  create_coll $TEST_CFLOAT32 Gauss1Set
+  create_coll $TEST_CFLOAT64 Gauss2Set
+  create_coll $TEST_CINT16 CInt16Set
+  create_coll $TEST_CINT32 CInt32Set
 
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
+  insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode" 
+  insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode" 
+  insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
+  insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
 
   $RASQL -q "insert into $TEST_GREY3D values \$1 $STORAGE_CLAUSE" -f "$TESTDATA_PATH/50k.bin" --mdddomain "[0:99,0:99,0:4]" --mddtype GreyCube > /dev/null
 }

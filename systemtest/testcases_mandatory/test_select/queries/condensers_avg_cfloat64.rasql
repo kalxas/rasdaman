@@ -1,0 +1,1 @@
+select avg_cells( test_cfloat64) from test_cfloat64

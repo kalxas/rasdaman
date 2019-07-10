@@ -50,6 +50,8 @@ static const char rcsid[] = "@(#)qlparser, QtCondense: $Header: /home/rasdev/CVS
 #include "catalogmgr/typefactory.hh"
 #include "catalogmgr/ops.hh"
 
+#include "relcatalogif/alltypes.hh"
+
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -676,11 +678,11 @@ QtAvgCells::evaluate(QtDataList *inputList)
 
     QtScalarData *scalarDataResult = NULL;
     QtScalarData *scalarDataCond   = static_cast<QtScalarData *>(dataCond);
-    BaseType     *resultType       = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
-
-
+    BaseType     *resultType;
+    BaseType     *inputValueType  = const_cast<BaseType *>(scalarDataCond->getValueType());
+    char         *inputBuffer     = NULL;
     // allocate memory for the result
-    char *resultBuffer = new char[ resultType->getSize() ];
+    char *resultBuffer = NULL;
 
     // allocate ulong constant with number of cells
     r_ULong constValue = scalarDataCond->getTotalValuesCount() - dataCond->getNullValuesCount();
@@ -688,10 +690,65 @@ QtAvgCells::evaluate(QtDataList *inputList)
     {
         constValue = 1;
     }
-    const BaseType     *constType   = TypeFactory::mapType("ULong");
-    char         *constBuffer = new char[ constType->getSize() ];
+    const auto inpType = inputValueType->getType();
+    char *constBuffer;
+    const BaseType     *constType;
+    if (inpType == COMPLEXTYPE1 || inpType == COMPLEXTYPE2 || inpType == CINT16 || inpType == CINT32)
+    {
+        double constValueD = 0;
+        constValueD = static_cast<double>(constValue);
+        if (inpType == COMPLEXTYPE1 || inpType == CINT16)
+        {
+            constType   = TypeFactory::mapType("Float");
+            resultType = const_cast<BaseType *>(TypeFactory::mapType("Complex"));
 
-    constType->makeFromCULong(constBuffer, &constValue);
+        }
+        else
+        {
+            constType   = TypeFactory::mapType("Double");
+            resultType = const_cast<BaseType *>(TypeFactory::mapType("Complexd"));
+        }
+        
+        if (inpType == CINT16 || inpType == CINT32)
+        {
+            size_t inReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(inputValueType)))->getReOffset();
+            size_t inImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(inputValueType)))->getImOffset();
+            r_Long inRe;
+            r_Long inIm;
+            inRe = *(inputValueType->convertToCLong(const_cast<char *>(scalarDataCond->getValueBuffer()) + inReOff, &inRe));
+            inIm = *(inputValueType->convertToCLong(const_cast<char *>(scalarDataCond->getValueBuffer()) + inImOff, &inIm));
+            
+            if (inpType == CINT16)
+                inputValueType = const_cast<BaseType *>(TypeFactory::mapType("Complex"));
+            else
+                inputValueType = const_cast<BaseType *>(TypeFactory::mapType("Complexd"));
+            inputBuffer = new char[ constType->getSize() * 2 ];
+            double resRe = inRe;
+            double resIm = inIm;
+            size_t inResReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(resultType)))->getReOffset();
+            size_t inResImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(resultType)))->getImOffset();
+            inputValueType->makeFromCDouble(inputBuffer + inResReOff, &resRe);
+            inputValueType->makeFromCDouble(inputBuffer + inResImOff, &resIm);
+    
+        }
+        else
+        {
+            inputBuffer     = const_cast<char *>(scalarDataCond->getValueBuffer());
+        }
+        
+        constBuffer = new char[ constType->getSize() ];
+        constType->makeFromCDouble(constBuffer, &constValueD);
+    }
+    else
+    {
+        inputBuffer     = const_cast<char *>(scalarDataCond->getValueBuffer());
+        constType   = TypeFactory::mapType("ULong");
+        constBuffer = new char[ constType->getSize() ];
+        resultType       = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
+        constType->makeFromCULong(constBuffer, &constValue);
+       
+    }
+resultBuffer = new char[ resultType->getSize() ];
 
 #ifdef DEBUG
     LTRACE << "Number of cells....: ";
@@ -699,9 +756,9 @@ QtAvgCells::evaluate(QtDataList *inputList)
 #endif
 
     Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
-                           scalarDataCond->getValueType(),   constType,
+                           inputValueType,   constType,
                            resultBuffer,
-                           scalarDataCond->getValueBuffer(), constBuffer);
+                           inputBuffer, constBuffer);
 
     delete[] constBuffer;
     constBuffer = NULL;

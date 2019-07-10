@@ -99,7 +99,7 @@ drop_petascope_data() {
 drop_data()
 {
   [ $DROP_DATA -eq 0 ] && return
-  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_COMPLEX $TEST_STRUCT
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_COMPLEX $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32 $TEST_STRUCT
   [ "$SVC_NAME" == "clipping" -o "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
   [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
   [ "$SVC_NAME" == "subsetting" ] && drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
@@ -118,6 +118,7 @@ ingest_data()
       drop_colls $TEST_COMPLEX
       create_coll $TEST_COMPLEX Gauss2Set
       insert_into $TEST_COMPLEX "$TESTDATA_PATH/complex.binary" "" "" "--mddtype Gauss2Image --mdddomain [0:7,0:7]"
+	  
     fi
   fi
 }

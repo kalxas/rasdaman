@@ -1,0 +1,1 @@
+select max_cells( test_cint32 ) from test_cint32

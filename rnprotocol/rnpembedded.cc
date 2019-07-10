@@ -29,8 +29,8 @@ rasdaman GmbH.
 
 #include "common/pragmas/pragmas.hh"
 
-//DIAGNOSTIC_PUSH
-//IGNORE_WARNING("-Wstringop-truncation")
+DIAGNOSTIC_PUSH
+IGNORE_WARNING("-Wstringop-truncation")
 
 #include "config.h"
 #include <rnpembedded.hh>

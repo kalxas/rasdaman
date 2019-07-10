@@ -210,7 +210,7 @@ def get_size_from_data_type(dtype):
     elif dtype == "double":
         result = 8
     elif dtype == "complexd":
-        result = 8
+        result = 16
     else:
         raise Exception("Unknown Data type provided: " + dtype)
     return result
@@ -282,10 +282,21 @@ def convert_binary_data_stream(dtype, data):
         sinterval = SInterval(tmp_array[0], tmp_array[1])
 
         return sinterval
-    elif base_type == "scalar" and type == "complexd":
+    elif base_type == "scalar" and type == "complex":
         # e.g: select complexd(0.5, 2.5) from test_mr
         # complexd is 16 bytes: 16 bytes
-        dtsize = get_size_from_data_type(type)
+        dtsize = get_size_from_data_type(type)/2
+        real_number = convert_data_from_bin(type, data[0: dtsize])
+        imagine_number = convert_data_from_bin(type, data[dtsize: dtsize*2])
+
+        real_number = get_scalar_result(real_number)
+        imagine_number = get_scalar_result(imagine_number)
+        complex_number = Complex(real_number, imagine_number)
+
+        return complex_number
+    elif base_type == "scalar" and type == "cint16":
+        # e.g: select complexd(0.5, 2.5) from test_mr
+        dtsize = get_size_from_data_type(type)/2
         real_number = convert_data_from_bin(type, data[0: dtsize])
         imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])
 
@@ -294,9 +305,20 @@ def convert_binary_data_stream(dtype, data):
         complex_number = Complex(real_number, imagine_number)
 
         return complex_number
-    elif base_type == "scalar" and type == "cint32":
+    elif base_type == "scalar" and type == "complexd":
         # e.g: select complexd(0.5, 2.5) from test_mr
         # complexd is 16 bytes: 16 bytes
+        dtsize = get_size_from_data_type(type)/2
+        real_number = convert_data_from_bin(type, data[0: dtsize])
+        imagine_number = convert_data_from_bin(type, data[dtsize: dtsize*2])
+
+        real_number = get_scalar_result(real_number)
+        imagine_number = get_scalar_result(imagine_number)
+        complex_number = Complex(real_number, imagine_number)
+
+        return complex_number
+    elif base_type == "scalar" and type == "cint32":
+        # e.g: select complexd(0.5, 2.5) from test_mr
         dtsize = get_size_from_data_type(type)/2
         real_number = convert_data_from_bin(type, data[0: dtsize])
         imagine_number = convert_data_from_bin(type, data[dtsize: dtsize * 2])

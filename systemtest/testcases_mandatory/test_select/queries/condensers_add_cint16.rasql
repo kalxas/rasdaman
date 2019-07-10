@@ -1,0 +1,1 @@
+select add_cells( test_cint16 ) from test_cint16

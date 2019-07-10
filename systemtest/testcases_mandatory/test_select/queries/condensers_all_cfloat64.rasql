@@ -1,0 +1,1 @@
+select  all_cells( test_cfloat64 != complex(0.0,0)) from test_cfloat64
