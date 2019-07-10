@@ -57,6 +57,7 @@ module wcs {
                 this.coverageSummaries.push(coverageSummary);
 
                 if (coverageSummary.customizedMetadata != null) {
+
                     if (coverageSummary.customizedMetadata.hostname != null) {
                         this.showCoverageLocationsColumn = true;
                     }

@@ -29,7 +29,7 @@ module rasdaman {
         public diagramData:any;
         public diagramOptions:any;
 
-        public constructor(command:WCPSCommand, data:string) {
+        public constructor(command:WCPSCommand, data:any) {
             super(command);
 
             var diagramType = "lineChart";
@@ -68,11 +68,17 @@ module rasdaman {
 
 
             // 1D csv, no need to subtract ([ ... ]), json is needed
+            data = data.replace(/"/g, "");
             if (data.indexOf("[") !== -1) {
                 // json
                 data = data.substr(1, data.length - 2);
             }
-        
+
+            if (data.includes(" ")) {
+                // spectrum view query (1 point over multilbands)
+                data = data.replace(/ /g, ",");
+            }
+                  
             var rawData:number[] = JSON.parse("[" + data  + "]");
             var processedValues = [];
             for (var i = 0; i < rawData.length; ++i) {

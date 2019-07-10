@@ -63,6 +63,11 @@ module rasdaman {
             var canvasId = "wmsCanvasGetCapabilities";          
             // to know which page are selected
             var currentPageNumber = 1;
+
+            $scope.displayLayersDropdownItems = [{"name": "Display all layers", "value":""},
+                                                 {"name": "Display local layers", "value":"local"},
+                                                 {"name": "Display remote layers", "value":"remote"}
+                                                ];
             
             // A callback method is called when the page button of paginator of smart table is clicked            
             // newPage starts from 1

@@ -75,7 +75,7 @@ public class WMSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         // NOTE: this one lists only one coverage and has no paging button, so must put it at the last test case
         testCaseName = this.getSectionTestCaseName("search_layer_by_name");
         log.info("Testing search layer by name textbox...");
-        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_wms_4326", "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/thead/tr[2]/td/input");
+        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_wms_4326", "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/td/input");
         
         /* // Click on the search result (only one result) to move to next tab
         testCaseName = this.getSectionTestCaseName("click_on_a_search_result");

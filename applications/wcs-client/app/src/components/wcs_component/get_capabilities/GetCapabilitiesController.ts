@@ -57,6 +57,12 @@ module rasdaman {
             $scope.isServiceIdentificationOpen = false;
             $scope.isServiceProviderOpen = false;
             $scope.isCapabilitiesDocumentOpen = false;
+
+            $scope.displayCoveragesDropdownItems = [{"name": "Display all coverages", "value":""},
+                                            {"name": "Display local coverages", "value":"local"},
+                                            {"name": "Display remote coverages", "value":"remote"}
+                                           ];
+            $scope.selectedDisplayCoveragesByTypeDropdown = "all";                               
                             
             $scope.coveragesExtents = [];
 

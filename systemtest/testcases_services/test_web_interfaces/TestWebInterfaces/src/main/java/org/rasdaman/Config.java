@@ -90,7 +90,7 @@ public class Config {
     /**
      * Wait milliseconds before taking the image of web page as test result
      */
-    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 3000;
+    public static final int TIME_TO_WAIT_TO_CAPTURE_WEB_PAGE = 4000;
     
     /**
      * Wait milliseconds after switching to another iframe

@@ -62,6 +62,8 @@ FlancheJs.defineClass("Rj.util.CSVParser", {
         .replace("[", "")
         .replace("]", "")
         .replace('"', "")
+         // Replace space by "," to draw data from querying 1 point in multibands coverage (e.g: "30 40 50" as result)
+        .replace(/ /g, ",")
         .split(",")
         .map(this._elementParser);
       return csvArray;

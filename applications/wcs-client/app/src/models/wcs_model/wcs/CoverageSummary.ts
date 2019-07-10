@@ -35,12 +35,18 @@ module wcs {
         public customizedMetadata:ows.CustomizedMetadata;
         public displayFootprint:boolean;
 
+        // Default coverage imported as local
+        public importedType:String;
+
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
 
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             // Don't display checkbox to show/hide coverages's footprints if they are not displayable.
             this.displayFootprint = null;
+
+            // Default coverage is imported locally
+            this.importedType = "local";
 
             this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
@@ -64,6 +70,10 @@ module wcs {
             childElement = "ows:Metadata";
             if (source.doesElementExist(childElement)) {
                 this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+                if (this.customizedMetadata.hostname != null) {
+                    // Coverage imported remotely
+                    this.importedType = "remote";
+                }
             }
         }
     }

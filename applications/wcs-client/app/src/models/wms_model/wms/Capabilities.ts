@@ -102,6 +102,7 @@ module wms {
                     var abstract = obj.getChildAsSerializedObject("Abstract").getValueAsString();
 
                     var customizedMetadata = this.parseLayerCustomizedMetadata(obj);
+
                     if (customizedMetadata != null) {
                         if (customizedMetadata.hostname != null) {
                             this.showLayerLocationsColumn = true;

@@ -50,6 +50,9 @@ module wms {
         
         // layer's styles
         public styles:Style[];
+
+        // Default layer imported locally
+        public importedType:String;
         
         public constructor(gmlDocument:string, name:string, title:string, abstract:string, customizedMetadata:ows.CustomizedMetadata,
                            westBoundLongitude:Number, eastBoundLongitude:Number, 
@@ -87,7 +90,12 @@ module wms {
                 dimen.startPos = this.layerDimensions[j].startPos;
                 j++;
             }
-            
+
+            this.importedType = "local";
+            if (this.customizedMetadata != null && this.customizedMetadata.hostname != null) {            
+                this.importedType = "remote";
+            }
+           
             // build styles from gmlDocument of this layer
             this.buildStylesFromGMLDocument();
         }
@@ -230,9 +238,6 @@ module wms {
                         if(endCurrentElement == -1) {
                             endCurrentElement = rawElementsString.length;
                         }
-
-
-                        
 
                         while(startCurrentElement < endCurrentElement) {
                             dim.array.push(rawElementsString.substr(startCurrentElement, endCurrentElement - startCurrentElement));

@@ -71,13 +71,13 @@ public class WCSGetCapabilitiesTest extends WSAbstractSectionWebPageTest {
         // Search the coverage by id
         // NOTE: this one lists only one coverage and has no paging button, so must put it at the last test case
         testCaseName = this.getSectionTestCaseName("search_coverage_by_id");
-        log.info("Testing search coverage by Id textbox...");
-        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/thead/tr[2]/th/input");
+        log.info("Testing search coverage by Id textbox...");        
+        this.runTestByAddingTextToTextBox(webDriver, testCaseName, "test_mr", "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/thead/tr[2]/th/input");
 
         // Click on the search result (only one result) to move to next tab
         testCaseName = this.getSectionTestCaseName("click_on_a_search_result");
-        log.info("Testing click on a found result of searching by coverageId...");
-        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/table/tbody/tr/td[1]/a");
+        log.info("Testing click on a found result of searching by coverageId...");        
+        this.runTestByClickingOnElement(webDriver, testCaseName, "/html/body/div/div/div/div/div/div[1]/div/ul/div/div/div/div[1]/div/div/div/div[2]/uib-accordion/div/div[1]/div[2]/div/section/table/tbody/tr/td[1]/a");
 
     }
 }

@@ -1165,6 +1165,7 @@ var wcs;
             var _this = _super.call(this, source) || this;
             rasdaman.common.ArgumentValidator.isNotNull(source, "source");
             _this.displayFootprint = null;
+            _this.importedType = "local";
             _this.coverageId = source.getChildAsSerializedObject("wcs:CoverageId").getValueAsString();
             _this.coverageSubtype = source.getChildAsSerializedObject("wcs:CoverageSubtype").getValueAsString();
             var childElement = "wcs:CoverageSubtypeParent";
@@ -1182,6 +1183,9 @@ var wcs;
             childElement = "ows:Metadata";
             if (source.doesElementExist(childElement)) {
                 _this.customizedMetadata = new ows.CustomizedMetadata(source.getChildAsSerializedObject(childElement));
+                if (_this.customizedMetadata.hostname != null) {
+                    _this.importedType = "remote";
+                }
             }
             return _this;
         }
@@ -2935,6 +2939,11 @@ var rasdaman;
             $scope.isServiceIdentificationOpen = false;
             $scope.isServiceProviderOpen = false;
             $scope.isCapabilitiesDocumentOpen = false;
+            $scope.displayCoveragesDropdownItems = [{ "name": "Display all coverages", "value": "" },
+                { "name": "Display local coverages", "value": "local" },
+                { "name": "Display remote coverages", "value": "remote" }
+            ];
+            $scope.selectedDisplayCoveragesByTypeDropdown = "all";
             $scope.coveragesExtents = [];
             $scope.rowPerPageSmartTable = 10;
             $scope.wcsServerEndpoint = settings.wcsEndpoint;
@@ -3913,8 +3922,12 @@ var rasdaman;
                     }
                 }
             };
+            data = data.replace(/"/g, "");
             if (data.indexOf("[") !== -1) {
                 data = data.substr(1, data.length - 2);
+            }
+            if (data.includes(" ")) {
+                data = data.replace(/ /g, ",");
             }
             var rawData = JSON.parse("[" + data + "]");
             var processedValues = [];
@@ -4808,6 +4821,10 @@ var wms;
                 dimen.startPos = this.layerDimensions[j].startPos;
                 j++;
             }
+            this.importedType = "local";
+            if (this.customizedMetadata != null && this.customizedMetadata.hostname != null) {
+                this.importedType = "remote";
+            }
             this.buildStylesFromGMLDocument();
         }
         Layer.prototype.initialiseDimenison = function () {
@@ -5093,6 +5110,10 @@ var rasdaman;
             $scope.wmsServerEndpoint = settings.wmsEndpoint;
             var canvasId = "wmsCanvasGetCapabilities";
             var currentPageNumber = 1;
+            $scope.displayLayersDropdownItems = [{ "name": "Display all layers", "value": "" },
+                { "name": "Display local layers", "value": "local" },
+                { "name": "Display remote layers", "value": "remote" }
+            ];
             $scope.pageChanged = function (newPage) {
                 currentPageNumber = newPage;
                 $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
