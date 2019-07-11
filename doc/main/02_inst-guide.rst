@@ -718,7 +718,7 @@ Debian 9
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev libssl1.0-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
+      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
       openjdk-8-jdk maven ant libgdal-java
 
     # To generate HTML documentation
@@ -751,7 +751,7 @@ Ubuntu 16.04
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev libboost-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
+      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
       openjdk-8-jdk maven ant libgdal-java
 
     # To generate HTML documentation
@@ -784,7 +784,7 @@ Ubuntu 18.04
       libboost-filesystem-dev libboost-thread-dev libboost-system-dev libboost-dev \
       libtiff-dev libgdal-dev zlib1g-dev libffi-dev libssl1.0-dev \
       libedit-dev libreadline-dev libecpg-dev libdw-dev \
-      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl
+      libsqlite3-dev libgrib-api-dev libgrib2c-dev curl \
       openjdk-8-jdk maven ant libgdal-java
 
     # To generate HTML documentation
@@ -798,7 +798,7 @@ Ubuntu 18.04
     # To run rasdaman
     $ sudo apt-get install \
       postgresql postgresql-contrib sqlite3 zlib1g libssl1.0.0 \
-      gdal-bin python-dev debianutils python-dateutil python-lxml 
+      gdal-bin python-dev debianutils python-dateutil python-lxml \
       python-pip libdw1 python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
       openjdk-8-jre libgdal-java
