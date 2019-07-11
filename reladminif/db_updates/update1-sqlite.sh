@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -23,16 +23,24 @@
 
 PROG=$(basename $0)
 
+log()  { echo "$PROG: $@"; }
+error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+
+# set to something to enable this
+enabled=
+
+if [ -n "$enabled" ]; then
+
 FILESTORAGE_TILES_SUBDIR="TILES"
 FILESTORAGE_TILES_PER_DIR="16384"
 FILESTORAGE_DIRS_PER_DIR="16384"
 
 getNestedPath()
 {
-  local -r blobId="$1"
-  local -r dir2Index=$(echo "scale=0; $blobId / $FILESTORAGE_TILES_PER_DIR" | bc)
-  local -r dir1Index=$(echo "scale=0; $dir2Index / $FILESTORAGE_DIRS_PER_DIR" | bc)
-  local -r nestedPath="$FILESTORAGE_TILES_SUBDIR/$dir1Index/$dir2Index"
+  local blobId="$1"
+  local dir2Index=$(echo "scale=0; $blobId / $FILESTORAGE_TILES_PER_DIR" | bc)
+  local dir1Index=$(echo "scale=0; $dir2Index / $FILESTORAGE_DIRS_PER_DIR" | bc)
+  local nestedPath="$FILESTORAGE_TILES_SUBDIR/$dir1Index/$dir2Index"
   echo "$nestedPath"
 }
 
@@ -40,10 +48,11 @@ getNestedPath()
 RASDATA=$(dirname "$DBCONN") # $DBCONN is exported in update_db.sh
 [ -w "$RASDATA" -a -x "$RASDATA" ] || error "no write permissions to the rasdaman data directory: $RASDATA"
 
-pushd "$RASDATA" > /dev/null
+cd "$RASDATA"
 
 mkdir -p "$FILESTORAGE_TILES_SUBDIR"
 
+echo
 log "moving rasdaman blob files in $RASDATA to subdirectories of $FILESTORAGE_TILES_SUBDIR (this may take awhile)..."
 
 for f in *; do
@@ -66,4 +75,4 @@ done
 
 log "done."
 
-popd > /dev/null
+fi

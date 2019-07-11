@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -64,31 +64,17 @@ export DBCONN=@dbconn@
 #
 # logging
 #
-log() {
-  echo "$PROG: $*"
-}
-logn() {
-  echo -n "$PROG: $*"
-}
-error() {
-  echo "$PROG: $*" >&2
-  echo "$PROG: exiting." >&2
-  exit $RC_ERROR
-}
+log()  { echo "$PROG: $@"; }
+logn() { echo -n "$PROG: $@"; }
+error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+check(){ [ $? ] && echo "ok." || echo "failed."; }
 feedback() {
   if [ $? -ne 0 ]; then
-    echo failed.
-    echo "$PROG: exiting." >&2
-    exit $RC_ERROR
+    echo "failed."; echo "$PROG: exiting." >&2; exit $RC_ERROR
   else
     echo ok.
   fi
 }
-
-export -f log
-export -f logn
-export -f error
-export -f feedback
 
 #
 # checks
@@ -100,30 +86,13 @@ fi
 
 readonly last_log=$(mktemp)
 
-if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
+if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
 
-  check_postgres() {
-    which psql > /dev/null || error "PostgreSQL missing, please add psql to the PATH."
-    pgrep postgres > /dev/null
-    if [ $? -ne 0 ]; then
-      pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
-    fi
-  }
-
-  # ------------------------------------------------------------------------------
-  # work
-  # ------------------------------------------------------------------------------
-
-  #
   # postgres connection details (defaults used)
-  #
   RAS_DB=${DBCONN-RASBASE}
   RAS_PORT=${PGPORT-5432}
 
-
-  #
   # commands
-  #
   PSQL="psql -d $RAS_DB -p $RAS_PORT"
   CREATEDB="createdb -p $RAS_PORT"
 
@@ -132,16 +101,16 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
   log "  port: $RAS_PORT"
   log "  db: $RAS_DB"
 
-  check_postgres
-
-  #
-  # check if db is present
-  #
-  psql -p $RAS_PORT --list 2>&1 | egrep "\b$RAS_DB\b" > /dev/null
+  # check if postgres is installed and running
+  type psql > /dev/null 2>&1 || error "PostgreSQL missing, please add psql to the PATH."
+  ps -o pid,args | grep -q "[^]]postgres"
   if [ $? -ne 0 ]; then
-    error "no $RAS_DB database found, please run create_db.sh first"
+    ps -o pid,args | grep -q "[^]]postmaster" || error "The PostgreSQL service is not started."
   fi
 
+  # check if db is present
+  psql -p $RAS_PORT --list 2>&1 | grep -q -E "\b$RAS_DB\b" || \
+    error "no $RAS_DB database found, please run create_db.sh first."
 
   #
   # determine the update number
@@ -152,7 +121,7 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
     counter=0
   else
     # check if there is an entry at all
-    count=`$PSQL -c "select count(UpdateNumber) from RAS_DBUPDATES where UpdateType='$DB_TYPE'" | head -n 3 | tail -n 1 | awk '{print $1}'`
+    count=$($PSQL -c "select count(UpdateNumber) from RAS_DBUPDATES where UpdateType='$DB_TYPE'" | head -n 3 | tail -n 1 | awk '{print $1}')
     if [ $count -gt 0 ]; then
       # get the last update number
       counter=`$PSQL -c "select UpdateNumber from $RAS_DBUPDATE where UpdateType='$DB_TYPE'" | head -n 3 | tail -n 1 | awk '{print $1}'`
@@ -162,9 +131,7 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
     fi
   fi
 
-  #
   # some updates are written in PL/pgSQL, so install the extension in postgres
-  #
   $PSQL -c "CREATE OR REPLACE LANGUAGE plpgsql" > /dev/null 2>&1
   rc=$?
   if [ $rc -ne 0 -a $rc -ne 2 ]; then
@@ -194,35 +161,21 @@ if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
     updated=1
   done
 
-  #
   # save the last update number
-  #
   if [ $updated -eq 1 ]; then
     $PSQL -c "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > /dev/null 2>&1
-    log "updated database to update $((counter-1))"
+    log "updated database to update $((counter-1))."
   else
     log "database already up-to-date, nothing to update."
   fi
 
 else
 
-  check_sqlite() {
-    which sqlite3 > /dev/null || error "sqlite3 missing, please install."
-  }
+  type sqlite3 > /dev/null 2>&1 || error "sqlite3 missing, please install."
 
-  # ------------------------------------------------------------------------------
-  # work
-  # ------------------------------------------------------------------------------
-
-  check_sqlite
-
-  #
   # commands
-  #
   export SQLITE="sqlite3 $DBCONN"
-  if [ ! -f "$DBCONN" ]; then
-    error "no '$DBCONN' database found, please run create_db.sh first"
-  fi
+  [ -f "$DBCONN" ] || error "no '$DBCONN' database found, please run create_db.sh first."
   log "sqlite database to update: $DBCONN"
 
   #
@@ -255,7 +208,7 @@ else
     if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" ]; then
       $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > "$last_log" 2>&1
     else
-      bash "$SCRIPT_DIR/update${counter}-sqlite.sh"
+      sh "$SCRIPT_DIR/update${counter}-sqlite.sh"
     fi
     # Check if the update was successful
     ret=$?
@@ -270,9 +223,7 @@ else
     updated=1
   done
 
-  #
   # save the last update number
-  #
   if [ $updated -eq 1 ]; then
     $SQLITE "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > "$last_log" 2>&1
     log "updated database to update $((counter-1))"

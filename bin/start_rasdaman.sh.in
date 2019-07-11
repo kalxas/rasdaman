@@ -69,6 +69,7 @@ war_path="@pkgdatadir@war"
 
 # base DBMS used by petascope
 PETASCOPEDB=@petascopedb@
+ENABLE_JAVA=@ENABLE_JAVA@
 
 # rasadmin/rasadmin
 DEFAULT_RASCONTROL_LOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
@@ -79,7 +80,7 @@ logn() { echo -n "$PROG: $@"; }
 error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
 check(){ [ $? ] && echo "ok." || echo "failed."; }
 
-sleep --help | grep -q GNU && GNU_SLEEP=true
+sleep --help 2>&1 | grep -q GNU && GNU_SLEEP=true
 get_sleep_value() { [ $GNU_SLEEP ] && echo "$1" || echo "$2"; }
 
 # Check if the last executed command is successfull
@@ -97,8 +98,8 @@ check_process()
     if [ $exit_code -ne 0 ]; then
         echo "failed; please check the logs for more information."
         [ "$2" = "1" ] && exit $RC_ERROR
-    elif ! ps -p $pid > /dev/null 2>&1; then
-        echo "failed, pid $pid not found; please check the logs for more information."
+    elif ! ps -o pid | grep "$pid\b" > /dev/null 2>&1; then
+        echo "failed, pid $pid not found; please check the logs in $log_path for more information."
         [ "$2" = "1" ] && exit $RC_ERROR
     else
         local ok=1
@@ -176,7 +177,7 @@ start_embedded() {
                 echo "failed, port $server_port is occupied."
             fi
         fi
-    else
+    elif [ "$ENABLE_JAVA" != "OFF" ]; then
         log "Warning - cannot start embedded $app_name, $props_path not found."
     fi
 }
@@ -184,10 +185,14 @@ start_embedded() {
 
 # --- ACTION ------------------------------------------------------
 
-start_rasmgr_rasservers=false
-start_embedded_petascope=false
-start_embedded_secore=false
-start_all_services=true
+set_all_options() {
+    start_rasmgr_rasservers=$1
+    start_embedded_petascope=$1
+    start_embedded_secore=$1
+    start_all_services=$1
+}
+
+set_all_options true
 
 servers=""
 # Iterate all input arguments (it can contain server names (N1 N2 ...) and some options (--service petascope ...)
@@ -196,34 +201,24 @@ for i in "$@"; do
     if [ -n "$option" ]; then
         # Get option value for --service
         if [ "$option" = "--service" ]; then
-            start_all_services=false
-            if [ "$i" = "core" ] ; then
-                start_rasmgr_rasservers=true
-            elif [ "$i" = "petascope" ] ; then
-                start_embedded_petascope=true
-            elif [ "$i" = "secore" ] ; then
-                start_embedded_secore=true
-            else
-                error "Value for option $option must be core|petascope|secore. Given: $i"
-            fi
+            set_all_options false
+            case "$i" in
+              core)      start_rasmgr_rasservers=true;;
+              petascope) start_embedded_petascope=true;;
+              secore)    start_embedded_secore=true;;
+              *)         error "Value for option $option must be core|petascope|secore. Given: $i";;
+            esac
         fi
         option=""
     else
         option=""
         case $i in
-          --service)  option="$i";;
-          --*)        error "unknown option: $i";;
-          *)          servers="$servers $i";;
+          --service)      option="$i";;
+          -*)            error "unknown option: $i";;
+          *)              servers="$servers $i";;
         esac
     fi
 done
-
-# No options --service specified, start all services
-if [ "$start_all_services" = true ]; then
-    start_rasmgr_rasservers=true
-    start_embedded_petascope=true
-    start_embedded_secore=true
-fi
 
 # --- start rasmgr: -------------------------------------------------
 
@@ -241,7 +236,7 @@ cd "$log_path"
 if [ "$start_rasmgr_rasservers" = true ]; then
 
     # check if rasmgr is already running first of all
-    pgrep -f "$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
+    ps -o pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
       { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
 
     # clear previous log file

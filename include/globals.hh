@@ -50,7 +50,7 @@ rasdaman GmbH.
 #define DEFAULT_PORT        7001
 
 /// default name of server machine, if gethostname() fails
-#define DEFAULT_HOSTNAME    "localhost"
+#define DEFAULT_HOSTNAME    "127.0.0.1"
 
 // default name of rasserver instance, if getServerName() fails
 #define DEFAULT_SERVERNAME	"rasserver"
@@ -93,6 +93,7 @@ rasdaman GmbH.
 
 // default digest used for encoding passwords
 #define DEFAULT_DIGEST    "MD5"
+#define DEFAULT_DIGEST_SIZE    32
 
 /// max transfer buffer size for raw arrays - 10MB
 #define MAX_BUFFER_SIZE     10000000L

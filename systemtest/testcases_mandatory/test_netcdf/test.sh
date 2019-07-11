@@ -259,7 +259,7 @@ $RASQL -q "create collection float_3d FloatSet3" > /dev/null
 $RASQL -q 'insert into float_3d values inv_netcdf($1, "vars=values")' \
        -f "$TESTDATA_PATH/float_3d.nc" --quiet 2>&1 | \
        grep "rasdaman error 218: Exception: Conversion format is not supported." > /dev/null
-if [ $? -eq 0 ]; then
+if [ $? -eq 0 -o "$HAVE_NETCDF" != ON ]; then
     log "netCDF format not supported, skipping test."
     $RASQL -q "drop collection float_3d" > /dev/null 2>&1
     exit $RC_OK

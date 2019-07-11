@@ -354,19 +354,21 @@ rm -f geo*
 drop_colls test_tmp
 
 ################## jpeg() and inv_jpeg() #######################
+if [ "$HAVE_JPEG" = ON ]; then
 run_test jpeg inv_jpeg jpg jpg GreySet
 run_test jpeg decode jpg jpg GreySet
 run_test jpeg decode jpg jpg GreySet ", \"jpeg2000\", \"QUALITY=10;\""
 run_test jpeg decode jpg jpg GreySet ', "jpeg2000", "{ \"formatParameters\": { \"QUALITY\": \"10\" } }"'
+fi
 
 
 ################## tiff() and inv_tiff() #######################
+if [ "$HAVE_TIFF" = ON ]; then
 run_test tiff inv_tiff tif tif GreySet
 run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
 run_test tiff decode tif tif GreySet
 run_test tiff decode tif tif GreySet ", \"gtiff\", \"ZLEVEL=1;\""
 run_test tiff decode tif tif GreySet ', "gtiff", "{ \"formatParameters\": { \"ZLEVEL\": \"1\" } }"'
-
 run_test tiff decode tif tif BoolSet
 run_test tiff decode tif tif ULongSet
 run_test tiff decode tif tif ShortSet
@@ -374,9 +376,10 @@ run_test tiff decode tif tif UShortSet
 run_test tiff decode tif tif LongSet
 run_test tiff decode tif tif FloatSet
 run_test tiff decode tif tif DoubleSet
+fi
+
 run_test encode decode tif tif CInt16Set '' ', "tiff"'
 run_test encode decode tif tif CInt32Set '' ', "tiff"'
-
 run_test encode decode tif tif Gauss1Set '' ', "tiff"'
 run_test encode decode tif tif Gauss2Set '' ', "tiff"'
 
@@ -386,14 +389,15 @@ log ----- user-defined type conversion ------
 
 create_coll test_tmp TestSet
 
+if [ "$HAVE_TIFF" = ON ]; then
 $RASQL -q 'insert into test_tmp values (TestPixel) inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
 check_result 0 $? "user-defined base type cast inv_tiff test"
+$RASQL -q 'select inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
+check_result 0 $? "user-defined base type inv_tiff test."
+fi
 
 $RASQL -q 'insert into test_tmp values (TestPixel) decode($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
 check_result 0 $? "user-defined base type cast decode test."
-
-$RASQL -q 'select inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
-check_result 0 $? "user-defined base type inv_tiff test."
 
 drop_colls test_tmp
 
@@ -401,26 +405,28 @@ drop_colls test_tmp
 run_transpose_test
 
 ################## png() and inv_png() #######################
+if [ "$HAVE_PNG" = ON ]; then
 run_test png inv_png png png GreySet
 run_test png decode png png GreySet
 run_test png decode png png GreySet ", \"png\", \"ZLEVEL=1;\""
+fi
 
 ################## bmp() and inv_bmp() #######################
+if [ "$HAVE_BMP" = ON ]; then
 run_test bmp inv_bmp bmp bmp GreySet "" "" "" "_2"
 run_test bmp decode bmp bmp GreySet "" "" "" "_2"
+fi
 
 ################## hdf() and inv_hdf() #######################
 
 # run hdf test only if hdf was compiled in
-if [ -f "$SCRIPT_DIR/../../../config.h" ]; then
-    grep 'HAVE_HDF 1' "$SCRIPT_DIR/../../../config.h" > /dev/null
-
-    if [ $? -eq 0 ]; then
-      run_test hdf inv_hdf hdf hdf GreySet
-    fi
+if [ "$HAVE_HDF" = ON ]; then
+run_test hdf inv_hdf hdf hdf GreySet
 fi
 
 ############### export large data (ticket 240) ###############
+
+if [ "$HAVE_TIFF" = ON ]; then
 
 log "----- export large data  conversion test ------"
 COLL=test_large
@@ -448,6 +454,7 @@ NUM_TOTAL=$(($NUM_TOTAL + 1))
 rm -f $f
 drop_colls $COLL
 
+fi # HAVE_TIFF
 
 ################ GML in JPEG2000 encoding ####################
 
@@ -493,7 +500,9 @@ run_test csv inv_png csv png GreySet
 run_test csv inv_png csv png RGBSet
 run_test csv decode csv png GreySet
 run_test csv decode csv png RGBSet
+if [ "$HAVE_PNG" = ON ]; then
 run_test encode inv_png csv png GreySet '' ', "csv"'
+fi
 
 
 run_csv_test FloatSet1 csv_float1 ",\"domain=[0:5];basetype=float\""
@@ -515,7 +524,7 @@ run_csv_scalar_test
 ############## csv(order=inner_outer) #######
 log ----- csv with inner_outer order conversion ------
 create_coll test_tmp GreySet
-insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "inv_png"
+insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
 export_to_file test_tmp "mr_1" "csv" ', "order=inner_outer"'
 
 logn "comparing images: "
@@ -534,7 +543,7 @@ rm -f mr_1.csv
 ############## csv(order=invalid_order) #######
 log ------- csv with invalid_order conversion --------
 create_coll test_tmp GreySet
-insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "inv_png"
+insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "decode"
 $RASQL --quiet -q "select csv(c, \"order=invalid_order\") from test_tmp as c" --out file --outfile "csv" 2>&1 | grep -F -q "242"
 check_result 0 $? "invalid_order"
 

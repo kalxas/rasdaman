@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of rasdaman community.
 #
@@ -23,6 +23,14 @@
 
 PROG=$(basename $0)
 
+log()  { echo "$PROG: $@"; }
+error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+
+# set to something to enable this update.
+enabled=
+
+if [ -n "$enabled" ]; then
+
 FILESTORAGE_TILES_SUBDIR="TILES"
 
 [ -n "$DBCONN" ] || { log "cannot run update, DBCONN env variable is not set."; exit 0; }
@@ -35,3 +43,5 @@ log "changing permissions of tile files in $RASDATA..."
 find "$RASDATA/$FILESTORAGE_TILES_SUBDIR" -type f -exec chmod 660 {} \;
 
 log "done."
+
+fi

@@ -70,7 +70,7 @@ drop_data
 #
 $RASQL -q "create collection test_grib2_3d DoubleSet3" > /dev/null
 $RASQL -q 'insert into test_grib2_3d values inv_grib($1, "{ \"internalStructure\": { \"messageDomains\": [ { \"msgId\": 1, \"domain\": \"[0:0,0:719,0:360]\" },{ \"msgId\": 2, \"domain\": \"[1:1,0:719,0:360]\" },{ \"msgId\": 3, \"domain\": \"[2:2,0:719,0:360]\" },{ \"msgId\": 4, \"domain\": \"[3:3,0:719,0:360]\" },{ \"msgId\": 5, \"domain\": \"[4:4,0:719,0:360]\" } ] } }")' -f "$TEST_FILE" --quiet 2>&1 | grep "rasdaman error 218: Exception: Conversion format is not supported." > /dev/null
-if [ $? -eq 0 ]; then
+if [ $? -eq 0 -o "$HAVE_GRIB" != ON ]; then
     log "GRIB format support disabled, skipping test."
     exit $RC_OK
 fi

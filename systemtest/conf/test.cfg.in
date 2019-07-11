@@ -47,6 +47,13 @@ export RASMGR_CONF=$RMANHOME/etc/rasmgr.conf
 export RASDB="$(grep define $RASMGR_CONF | grep connect | awk '{ print $5 }')"
 export ENABLE_JAVA=@ENABLE_JAVA@
 
+export HAVE_TIFF=@HAVE_TIFF@
+export HAVE_JPEG=@HAVE_JPEG@
+export HAVE_PNG=@HAVE_PNG@
+export HAVE_BMP=@HAVE_BMP@
+export HAVE_HDF=@HAVE_HDF@
+export HAVE_GRIB=@HAVE_GRIB@
+export HAVE_NETCDF=@HAVE_NETCDF@
 
 # ------------------------------------------------------------------------------
 # petascope connection details
