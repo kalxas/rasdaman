@@ -103,9 +103,9 @@ if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
 
   # check if postgres is installed and running
   type psql > /dev/null 2>&1 || error "PostgreSQL missing, please add psql to the PATH."
-  ps -o pid,args | grep -q "[^]]postgres"
+  ps -Ao pid,args | grep -q "[^]]postgres"
   if [ $? -ne 0 ]; then
-    ps -o pid,args | grep -q "[^]]postmaster" || error "The PostgreSQL service is not started."
+    ps -Ao pid,args | grep -q "[^]]postmaster" || error "The PostgreSQL service is not started."
   fi
 
   # check if db is present

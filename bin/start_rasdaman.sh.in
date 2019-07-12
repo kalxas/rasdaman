@@ -98,7 +98,7 @@ check_process()
     if [ $exit_code -ne 0 ]; then
         echo "failed; please check the logs for more information."
         [ "$2" = "1" ] && exit $RC_ERROR
-    elif ! ps -o pid | grep "$pid\b" > /dev/null 2>&1; then
+    elif ! ps -Ao pid | grep "$pid\b" > /dev/null 2>&1; then
         echo "failed, pid $pid not found; please check the logs in $log_path for more information."
         [ "$2" = "1" ] && exit $RC_ERROR
     else
@@ -236,7 +236,7 @@ cd "$log_path"
 if [ "$start_rasmgr_rasservers" = true ]; then
 
     # check if rasmgr is already running first of all
-    ps -o pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
+    ps -Ao pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 && \
       { log "rasdaman is currently running, nothing to do."; exit $RC_OK; }
 
     # clear previous log file

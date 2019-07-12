@@ -51,7 +51,7 @@ using namespace std;
 #define PARAM_SERV_FLAG 's'
 #define PARAM_SERV  "server"
 #define HELP_SERV   "<host-name> rasdaman server"
-#define DEFAULT_SERV    "localhost"
+#define DEFAULT_SERV    "127.0.0.1"
 
 #define PARAM_PORT_FLAG 'p'
 #define PARAM_PORT  "port"

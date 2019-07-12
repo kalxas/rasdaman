@@ -33,6 +33,8 @@
 #include <stdlib.h>                  // for mkdtemp
 #include <string.h>                  // for strerror
 #include <ostream>                   // for stringstream, basic_ostream, ope...
+#include <climits>                   // for CHAR_BIT
+#include <cassert>
 
 using std::string;
 using std::stringstream;
@@ -88,43 +90,36 @@ void BlobFSTransaction::postRasbaseAbort() {}
 
 const string BlobFSTransaction::getTmpBlobPath(long long blobId)
 {
-    if (blobId > 0)
-    {
-        static stringstream ret;
-        ret.clear();
-        ret.str("");
-        ret << transactionPath << blobId;
-        return ret.str();
-    }
-    else
-    {
-        LERROR << "invalid blob id " << blobId;
-        throw r_Error(BLOBFILENOTFOUND);
-    }
+    assert(blobId > 0);
+    return transactionPath + std::to_string(blobId);
 }
 
 const string BlobFSTransaction::getFinalBlobPath(long long blobId)
 {
-    if (blobId > 0)
-    {
-        std::stringstream blobPathStream;
-        blobPathStream << config.tilesPath;
+    assert(blobId > 0);
+    // string length of a long long
+    static const size_t idSize = ((CHAR_BIT * sizeof(long long) / 3) + 2);
+    // string length of dir1Index, dir2Index and blobId + 2 slashes
+    static const size_t allIdsSize = (idSize * 3) + 2;
 
-        long long dir2Index = blobId / FILESTORAGE_TILES_PER_DIR;
-        long long dir1Index = dir2Index / FILESTORAGE_DIRS_PER_DIR;
+    std::string ret;
+    ret.reserve(config.tilesPath.size() + allIdsSize + 1);
+    ret.append(config.tilesPath);
 
-        blobPathStream << dir1Index << '/';
-        DirWrapper::createDirectory(blobPathStream.str());
-        blobPathStream << dir2Index << '/';
-        DirWrapper::createDirectory(blobPathStream.str());
-        blobPathStream << blobId;
-        return blobPathStream.str();
-    }
-    else
-    {
-        LERROR << "invalid blob id " << blobId;
-        throw r_Error(BLOBFILENOTFOUND);
-    }
+    long long dir2Index = blobId / FILESTORAGE_TILES_PER_DIR;
+    long long dir1Index = dir2Index / FILESTORAGE_DIRS_PER_DIR;
+
+    ret.append(std::to_string(dir1Index));
+    ret.append("/");
+    DirWrapper::createDirectory(ret);
+
+    ret.append(std::to_string(dir2Index));
+    ret.append("/");
+    DirWrapper::createDirectory(ret);
+
+    ret.append(std::to_string(blobId));
+
+    return ret;
 }
 
 void BlobFSTransaction::finalizeUncompleted()

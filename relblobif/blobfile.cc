@@ -223,5 +223,18 @@ void BlobFile::generateError(const char *message, int errorCode)
         LERROR << message << " - " << filePath << ", reason: " << strerror(errno);
     else
         LERROR << message << " - " << filePath;
+
+    {
+        auto dirPath = filePath;
+        if (dirPath.size() > 1)
+        {
+            dirPath.erase(std::find(dirPath.rbegin(), dirPath.rend(), '/').base(), dirPath.end());
+            struct stat sb;
+            if (stat(dirPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
+                LERROR << "Directory " << dirPath << " exists.";
+            else
+                LERROR << "Directory " << dirPath << " does not exist.";
+        }
+    }
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

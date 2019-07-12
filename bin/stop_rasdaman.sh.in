@@ -93,9 +93,9 @@ wait_for_process_to_shutdown()
     local count=0
     while [ $count -lt $max_count ]; do
         if [ -n "$3" ]; then
-          ps -o pid,args | grep "[^]]$proc_path" | grep -q "$3" > /dev/null 2>&1
+          ps -Ao pid,args | grep "[^]]$proc_path" | grep -q "$3" > /dev/null 2>&1
         else
-          ps -o pid,args | grep "[^]]$proc_path" > /dev/null 2>&1
+          ps -Ao pid,args | grep "[^]]$proc_path" > /dev/null 2>&1
         fi
         [ $? -ne 0 ] && break # no process found, no need to wait more
         count=$(($count+1))
@@ -159,7 +159,7 @@ stop_embedded() {
             check_port_available "$server_port"
             if [ $? -eq 0 ]; then
                 # kill process on this port
-                local pid=$(ps -o pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)
+                local pid=$(ps -Ao pid,args | grep "[^]]$war_path/$war_file_name\b" | awk '{print $1}' 2> /dev/null)
                 kill -9 $pid
                 log "embedded $app_name terminated on port $server_port."
             fi
@@ -219,7 +219,7 @@ if [ "$stop_rasmgr_rasservers" = true ]; then
     # --- stop rasdaman servers ---------------------------------------
 
     # check if rasmgr is already running first of all
-    ps -o pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
+    ps -Ao pid,args | grep "[^]]$rasmgr_bin --port $RASMGR_PORT" > /dev/null 2>&1 || \
       { log "rasdaman is already down, nothing to do."; exit $RC_OK; }
 
     log "terminating rasdaman server complex... "
