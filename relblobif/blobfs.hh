@@ -67,7 +67,7 @@ public:
     // To be called once, cleans up any failed transaction (e.g. due to a crash)
     void finalizeUncompletedTransactions();
 
-    BlobFSConfig getConfig() const;
+    const BlobFSConfig &getConfig() const;
 
     // return the file path for blob with the given blobId
     std::string getBlobFilePath(long long blobId) const;
@@ -82,28 +82,22 @@ private:
     // Initialize with a given root file storage path
     BlobFS(const std::string &rasdataPath);
 
-    // Initialize
-    void init();
-
     // Check that the root storage path is valid (exists, is writable, etc) and
     // throw an exception if it isn't
     void validateFileStorageRootPath();
 
-    const std::string getTilesRootPath();
-    const std::string getTransactionsRootPath();
-
     // Return root file storage path determined from the -connect
     // option in rasmgr.conf
-    static const std::string getFileStorageRootPath();
+    static std::string getFileStorageRootPath();
 
     // Helper for generating an error
     void generateError(const char *message, const std::string &path, int errorCode);
 
     BlobFSConfig config;
 
-    BlobFSTransaction *insertTransaction;
-    BlobFSTransaction *updateTransaction;
-    BlobFSTransaction *removeTransaction;
-    BlobFSTransaction *selectTransaction;
+    BlobFSTransaction *insertTransaction{nullptr};
+    BlobFSTransaction *updateTransaction{nullptr};
+    BlobFSTransaction *removeTransaction{nullptr};
+    BlobFSTransaction *selectTransaction{nullptr};
 };
 

@@ -921,8 +921,6 @@ options that can be specified with -D<option>:
     |                          |                   | allow controlling the JPEG library paths: ``-DJPEG_LIBRARY`` and         |
     |                          |                   | ``-DJPEG_INCLUDE_DIR``                                                   |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``USE_BMP``              | ON / **OFF**      | Enable compilation of internal BMP encoder/decoder.                      |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``FILE_DATA_DIR``        | <path> (default   |                                                                          |
     |                          | $RMANHOME/data)   | The path where the server stores array tiles as files.                   |
     +--------------------------+-------------------+--------------------------------------------------------------------------+

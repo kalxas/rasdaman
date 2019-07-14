@@ -43,26 +43,28 @@ if (BASEDB_SQLITE)
       )
 endif(BASEDB_SQLITE)
 
-add_library(relblobif 
-        ${COMPILED_SQL_SOURCES}
-        ${SQLITE_SRC}
-        blobfscommon.hh
-        blobtile.hh
-        blobtilecommon.cc
-        dbtile.hh dbtile.cc
-        dirwrapper.hh dirwrapper.cc
-        inlinetile.hh inlinetile.cc
-        tilecache.hh tilecache.cc
-        tilecachevalue.hh tilecachevalue.cc
-        tileid.hh)
+add_library(relblobif
+    ${COMPILED_SQL_SOURCES}
+    ${SQLITE_SRC}
+    blobfscommon.hh
+    blobtile.hh
+    blobtilecommon.cc
+    dbtile.hh dbtile.cc
+    dirwrapper.hh dirwrapper.cc
+    inlinetile.hh inlinetile.cc
+    tilecache.hh tilecache.cc
+    tilecachevalue.hh tilecachevalue.cc
+    tileid.hh
+    )
 
 target_include_directories(relblobif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(relblobif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_link_libraries(relblobif
+    ${BASEDB_LIBRARIES})
 
 add_dependencies(relblobif reladminif)
 
-target_link_libraries(relblobif ${BASEDB_LIBRARIES})
-
 install(TARGETS relblobif
         DESTINATION ${LIB_DIR})
+

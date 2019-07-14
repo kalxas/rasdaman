@@ -63,36 +63,19 @@ BlobFS &BlobFS::getInstance()
     return instance;
 }
 
-BlobFS::BlobFS()
-    : config(BlobFS::getFileStorageRootPath(), string(""), string("")),
-      insertTransaction(nullptr), updateTransaction(nullptr),
-      removeTransaction(nullptr), selectTransaction(nullptr)
+BlobFS::BlobFS() : BlobFS(BlobFS::getFileStorageRootPath())
 {
-    init();
 }
 
 BlobFS::BlobFS(const string &rasdataPathParam)
-    : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string("")),
-      insertTransaction(nullptr), updateTransaction(nullptr),
-      removeTransaction(nullptr), selectTransaction(nullptr)
-{
-    init();
-}
-
-void BlobFS::init()
+    : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string(""))
 {
     LDEBUG << "initializing file storage on directory " << config.rootPath;
-    if (config.rootPath.empty())
-    {
-        LERROR << "blob file storage data directory has not been set; "
-               << "please set the -connect value in rasmgr.conf.";
-        throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTFOUND));
-    }
 
     validateFileStorageRootPath();
-    config.tilesPath = getTilesRootPath();
+    config.tilesPath = config.rootPath + FILESTORAGE_TILES_SUBDIR + '/';
     DirWrapper::createDirectory(config.tilesPath);
-    config.transactionsPath = getTransactionsRootPath();
+    config.transactionsPath = config.rootPath + FILESTORAGE_TRANSACTIONS_SUBDIR + '/';
     DirWrapper::createDirectory(config.transactionsPath);
 
     insertTransaction = new BlobFSInsertTransaction(config);
@@ -107,7 +90,12 @@ void BlobFS::init()
 }
 
 void BlobFS::validateFileStorageRootPath()
-{
+{    
+    if (config.rootPath.empty())
+    {
+        generateError("blob file storage data directory has not been set (-connect setting in rasmgr.conf).",
+                      config.rootPath, FILEDATADIR_NOTFOUND);
+    }
     struct stat status;
     if (stat(config.rootPath.c_str(), &status) == -1)
     {
@@ -143,38 +131,14 @@ void BlobFS::remove(BlobData &blob)
     removeTransaction->add(blob);
 }
 
-const string BlobFS::getTilesRootPath()
+string BlobFS::getFileStorageRootPath()
 {
-    const string ret = config.rootPath + FILESTORAGE_TILES_SUBDIR + '/';
-    return ret;
-}
-
-const string BlobFS::getTransactionsRootPath()
-{
-    const string ret = config.rootPath + FILESTORAGE_TRANSACTIONS_SUBDIR + '/';
-    return ret;
-}
-
-const string BlobFS::getFileStorageRootPath()
-{
-    auto rootPath = DirWrapper::getBasename(globalConnectId);
+    auto rootPath = DirWrapper::getDirname(globalConnectId);
     if (rootPath.empty())
     {
         LERROR << "blob file storage data directory has not been set; "
                << "please set the -connect value in rasmgr.conf.";
         throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTABSOLUTE));
-    }
-
-    char *deprecatedPath = getenv("RASDATA");
-    if (deprecatedPath != NULL && strcmp(deprecatedPath, "") != 0 && strcmp(deprecatedPath, rootPath.c_str()) != 0)
-    {
-        LWARNING << "The filestorage root path was inferred to be '" << rootPath
-                 << "' according to the -connect string specified in etc/rasmgr.conf; "
-                 << "This is, however, different from the deprecated $RASDATA env variable which "
-                 << "points to " << deprecatedPath << ". $RASDATA will be ignored, "
-                 << "if necessary please migrate any data from this location to "
-                 << "the correct filestorage root path and unset it in the environment to "
-                 << "avoid this warning in future.";
     }
     return DirWrapper::convertToCanonicalPath(rootPath);
 }
@@ -212,39 +176,34 @@ void BlobFS::postRasbaseAbort()
 
 void BlobFS::finalizeUncompletedTransactions()
 {
-    DirEntryIterator subdirIterator(config.transactionsPath);
-    if (subdirIterator.open())
+    DirEntryIterator subdirIter(config.transactionsPath);
+    if (!subdirIter.open())
+        return;
+
+    for (string subdir = subdirIter.next(); !subdirIter.done(); subdir = subdirIter.next())
     {
-        for (string subdir = subdirIterator.next(); !subdirIterator.done(); subdir = subdirIterator.next())
-        {
-            if (subdir.empty())
-            {
-                continue;
-            }
-            LockFile checkTransactionLock(
-                DirWrapper::convertFromCanonicalPath(subdir) + ".lock");
-            if (checkTransactionLock.lock())
-            {
-                BlobFSTransactionLock transactionLock(subdir, true);
-                if (!transactionLock.lockedForTransaction())
-                {
-                    transactionLock.clearTransactionLock();
-                    BlobFSTransaction *transaction =
-                        BlobFSTransaction::getBlobFSTransaction(subdir, config);
-                    if (transaction != nullptr)
-                    {
-                        NNLDEBUG << "transaction in invalid state discovered, recovering...";
-                        transaction->finalizeUncompleted();
-                        delete transaction;
-                        transaction = nullptr;
-                        BLDEBUG << "ok.\n";
-                    }
-                }
-                checkTransactionLock.unlock();
-            }
-        }
-        subdirIterator.close();
+        if (subdir.empty())
+            continue;
+
+        LockFile checkTransactionLock(DirWrapper::convertFromCanonicalPath(subdir) + ".lock");
+        if (!checkTransactionLock.lock())
+            continue;
+
+        BlobFSTransactionLock transactionLock(subdir, true);
+        if (transactionLock.lockedForTransaction())
+            continue;
+
+        transactionLock.clearTransactionLock();
+        auto transaction = std::unique_ptr<BlobFSTransaction>(
+            BlobFSTransaction::getBlobFSTransaction(subdir, config));
+        if (!transaction)
+            continue;
+
+        NNLDEBUG << "transaction in invalid state discovered, recovering...";
+        transaction->finalizeUncompleted();
+        BLDEBUG << "ok.\n";
     }
+    subdirIter.close();
 }
 
 BlobFS::~BlobFS()
@@ -260,7 +219,7 @@ std::string BlobFS::getBlobFilePath(long long blobId) const
     return selectTransaction->getFinalBlobPath(blobId);
 }
 
-BlobFSConfig BlobFS::getConfig() const
+const BlobFSConfig &BlobFS::getConfig() const
 {
     return config;
 }

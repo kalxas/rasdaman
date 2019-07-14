@@ -185,6 +185,13 @@ public:
     static void executeWithParams(const char *format, ...);
 
     /**
+     * Execute query, where the query is provided as a printf
+     * formatted string, and return true if the query returns any rows or
+     * false otherwise.
+     */
+    static bool returnsRows(const std::string &format);
+
+    /**
      * @return 1 (true) if a transaction is active, 0 (false) otherwise.
      */
     static int isTransactionActive();

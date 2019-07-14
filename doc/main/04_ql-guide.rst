@@ -4058,7 +4058,7 @@ in rasdaman.
 TIFF, PNG, JPEG, BMP
 --------------------
 
-If ``-DUSE_TIFF=ON``, ``-DUSE_JPEG=ON``, ``-DUSE_PNG=ON``, or ``-DUSE_BMP=ON``
+If ``-DUSE_TIFF=ON``, ``-DUSE_JPEG=ON``, or ``-DUSE_PNG=ON``
 are specified during configuration with cmake, then the following internal
 convertors (not based on GDAL) are available, respectively:
 

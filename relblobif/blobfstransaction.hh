@@ -97,13 +97,13 @@ public:
      * Given a blob ID return its absolute file path in the final $RASDATA/TILES
      * location.
      */
-    const std::string getFinalBlobPath(long long blobId);
+    std::string getFinalBlobPath(long long blobId);
 
     /**
      * Given a blob ID return its absolute file path in the temporary transaction
      * directory (under $RASDATA/TRANSACTIONS).
      */
-    const std::string getTmpBlobPath(long long blobId);
+    std::string getTmpBlobPath(long long blobId);
 
     // Return the right transaction object, based on the given transaction path;
     // Return NULL in case of invalid path.
@@ -131,7 +131,7 @@ protected:
      * Add a blob file path to the list of pending blobIds; returns true if successful
      * (blob file is a number > 0)
      */
-    bool addBlobId(const std::string blobPath);
+    bool addBlobId(const std::string &blobPath);
 
     /**
      * @return false if the transaction state is invalid
@@ -167,11 +167,11 @@ protected:
     std::vector<long long> blobIds;
 
     // Underlying transaction lock handler, used in the commit/abort handlers.
-    BlobFSTransactionLock *transactionLock;
+    BlobFSTransactionLock *transactionLock{nullptr};
 
-    static const std::string FILESTORAGE_INSERT_TRANSACTIONS_SUBDIR;
-    static const std::string FILESTORAGE_UPDATE_TRANSACTIONS_SUBDIR;
-    static const std::string FILESTORAGE_REMOVE_TRANSACTIONS_SUBDIR;
+    static const std::string INSERT_TRANSACTIONS_SUBDIR;
+    static const std::string UPDATE_TRANSACTIONS_SUBDIR;
+    static const std::string REMOVE_TRANSACTIONS_SUBDIR;
 
     static const long long INVALID_DIR_INDEX = -1;
 

@@ -49,6 +49,7 @@ class DirWrapper
 public:
     // Create a directory at dirPath; ignore if directory already exists
     static void createDirectory(const std::string &dirPath);
+    static void createDirectory(const char *dirPath);
 
     // Remove a directory at dirPath recursively, including all content
     // files/subdirs; print warning in case of error
@@ -61,7 +62,7 @@ public:
     static std::string convertFromCanonicalPath(const std::string &dirPath);
 
     // /path/to/dir/file -> /path/to/dir
-    static std::string getBasename(const std::string &filePath);
+    static std::string getDirname(const std::string &filePath);
 };
 
 /**

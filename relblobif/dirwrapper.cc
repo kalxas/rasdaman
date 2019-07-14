@@ -45,10 +45,14 @@ using namespace std;
 
 void DirWrapper::createDirectory(const string &dirPath)
 {
+    createDirectory(dirPath.c_str());
+}
+void DirWrapper::createDirectory(const char *dirPath)
+{
     struct stat status {};
-    if (stat(dirPath.c_str(), &status) == IO_ERROR_RC)
+    if (stat(dirPath, &status) == IO_ERROR_RC)
     {
-        if (mkdir(dirPath.c_str(), 0770) == IO_ERROR_RC)
+        if (mkdir(dirPath, 0770) == IO_ERROR_RC)
         {
             LERROR << "error: failed creating directory - " << dirPath;
             LERROR << "reason: " << strerror(errno);
@@ -106,7 +110,7 @@ string DirWrapper::convertFromCanonicalPath(const string &dirPath)
     }
 }
 
-string DirWrapper::getBasename(const std::string &filePath)
+string DirWrapper::getDirname(const std::string &filePath)
 {
     assert(!filePath.empty());
     auto index = filePath.find_last_of("/");

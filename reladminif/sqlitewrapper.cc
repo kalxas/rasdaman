@@ -210,6 +210,12 @@ void SQLiteQuery::executeWithParams(const char *format, ...)
     }
 }
 
+bool SQLiteQuery::returnsRows(const std::string &format)
+{
+    SQLiteQuery query(format.c_str());
+    return static_cast<bool>(query.nextRow());
+}
+
 sqlite3 *SQLiteQuery::getConnection()
 {
     return sqliteConn;
