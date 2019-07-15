@@ -38,8 +38,6 @@ import org.rasdaman.domain.cis.RegularAxis;
 import org.rasdaman.domain.cis.Uom;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
-import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_0;
-import static petascope.core.CrsDefinition.LONGITUDE_AXIS_LABEL_EPGS_VERSION_85;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -73,7 +71,6 @@ import petascope.core.Pair;
 import petascope.util.StringUtil;
 import petascope.core.XMLSymbols;
 import petascope.util.ListUtil;
-import petascope.util.ras.TypeResolverUtil;
 import static petascope.util.ras.TypeResolverUtil.R_Abb_Float;
 
 /**

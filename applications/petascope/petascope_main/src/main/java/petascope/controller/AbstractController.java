@@ -235,11 +235,14 @@ public abstract class AbstractController {
                     if (kvpParameters.get(KVPSymbols.KEY_ACCEPTVERSIONS) != null) {
                         String value = getValuesByKey(kvpParameters, KVPSymbols.KEY_ACCEPTVERSIONS)[0];
                         versions = value.split(",");
+                        kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
                     }
                     
-                    // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
-                    versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
-                    kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
+                    if (versions == null) {
+                        // NOTE: only petascope allows to request GetCapabilities without known versions before-hand
+                        versions = new String[] {VersionManager.getLatestVersion(WCS_SERVICE)};
+                        kvpParameters.put(KVPSymbols.KEY_VERSION, versions);
+                    }
                 }
             }
 

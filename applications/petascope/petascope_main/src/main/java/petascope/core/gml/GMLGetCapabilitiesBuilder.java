@@ -649,9 +649,12 @@ public class GMLGetCapabilitiesBuilder {
 
             coverageSummaryElement.appendChild(boundingBox);
             
-            Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst);
-            if (customizedMetadataElement != null) {
-                coverageSummaryElement.appendChild(customizedMetadataElement);
+            if (!ConfigManager.OGC_CITE_OUTPUT_OPTIMIZATION) {
+                // NOTE: Rasdaman customized metatadata is not valid from GML 3.2.1 schema validating in WCS GetCapabilities
+                Element customizedMetadataElement = this.createCustomizedCoverageMetadataElement(coveragePair.fst);
+                if (customizedMetadataElement != null) {
+                    coverageSummaryElement.appendChild(customizedMetadataElement);
+                }
             }
 
             // 1.1.1.1 Children elements of BoundingBox element
