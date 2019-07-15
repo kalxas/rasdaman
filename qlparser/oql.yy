@@ -317,7 +317,7 @@ struct QtUpdateSpecElement
 %type <qtAtomicDataValue>     atomicLit
 %type <qtComplexDataValue>    complexLit
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
-%type <floatToken>            numericalLit floatLitExp
+%type <floatToken>            floatLitExp
 
 // vectorized data
 
@@ -3469,8 +3469,8 @@ castType: TBOOL			{ $$.info = $1.info; $$.value = SyntaxType::BOOL_NAME.c_str();
         | TUNSIG TLONG	        { $$.info = $1.info; $$.value = SyntaxType::UNSIGNED_LONG_NAME.c_str(); };
         | TCOMPLEX1 { $$.info = $1.info; $$.value = SyntaxType::COMPLEXTYPE1.c_str(); }
         | TCOMPLEX2 { $$.info = $1.info; $$.value = SyntaxType::COMPLEXTYPE2.c_str(); }
-	| TCINT16 { $$.info = $1.info; $$.value = SyntaxType::CINT16.c_str(); }
-	| TCINT32 { $$.info = $1.info; $$.value = SyntaxType::CINT32.c_str(); }
+	      | TCINT16 { $$.info = $1.info; $$.value = SyntaxType::CINT16.c_str(); }
+	      | TCINT32 { $$.info = $1.info; $$.value = SyntaxType::CINT32.c_str(); }
 
 collectionList: collectionList COMMA iteratedCollection 
 	{
@@ -3841,7 +3841,31 @@ atomicLit: BooleanLit
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| COMPLEX LRPAR numericalLit COMMA numericalLit RRPAR
+  | COMPLEX LRPAR intLitExp COMMA intLitExp RRPAR
+	{
+	  // this should construct a complex type
+	  // for both float and double cell type
+	  if($3.bytes+$5.bytes== 2 * sizeof(int) || $3.bytes + $5.bytes == 2 * sizeof(short) || $3.bytes + $5.bytes == 2 * sizeof(long)) {
+	    $$ = new QtAtomicData($3.svalue, $5.svalue, $3.bytes + $5.bytes);
+	  } else {
+	    if(parseError) delete parseError;
+	    parseError = new ParseInfo(311, $2.info->getToken().c_str(),
+	        $2.info->getLineNo(), $2.info->getColumnNo());
+	    FREESTACK($1)
+	    FREESTACK($2)
+	    FREESTACK($4)
+	    FREESTACK($6)
+	    QueryTree::symtab.wipe();
+	    YYABORT;
+	  }
+	  $$->setParseInfo(*($3.info));
+	  parseQueryTree->addDynamicObject($$);
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	}
+	| COMPLEX LRPAR floatLitExp COMMA floatLitExp RRPAR
 	{
 	  // this should construct a complex type
 	  // for both float and double cell type
@@ -3864,21 +3888,6 @@ atomicLit: BooleanLit
 	  FREESTACK($2)
 	  FREESTACK($4)
 	  FREESTACK($6)
-	};
-
-numericalLit : floatLitExp
-	{
-	  $$ = $1;
-	}
-	| intLitExp
-	{
-	  if ($1.negative) {
-	    $$.value = (double) $1.svalue;
-	  } else {
-	    $$.value = (double) $1.uvalue;
-	  }
-	  $$.bytes = sizeof(double);
-	  $$.info = $1.info;
 	};
 
 complexLit: LCPAR scalarLitList RCPAR           

@@ -322,12 +322,14 @@ void r_Endian::swap_array(const r_Primitive_Type *type, r_Bytes size, const void
         }
         break;
     case r_Primitive_Type::SHORT:
+    case r_Primitive_Type::CINT16:
         swap_array_templ(size, static_cast<r_Short *>(dest), static_cast<const r_Short *>(src));
         break;
     case r_Primitive_Type::USHORT:
         swap_array_templ(size, static_cast<r_UShort *>(dest), static_cast<const r_UShort *>(src));
         break;
     case r_Primitive_Type::LONG:
+    case r_Primitive_Type::CINT32:
         swap_array_templ(size, static_cast<r_Long *>(dest), static_cast<const r_Long *>(src));
         break;
     case r_Primitive_Type::ULONG:
@@ -456,12 +458,14 @@ void r_Endian::swap_array(const r_Primitive_Type *type, const r_Minterval &srcDo
             }
             break;
         case r_Primitive_Type::SHORT:
+        case r_Primitive_Type::CINT16:
             swap_array_templ(iter, static_cast<r_Short *>(dest), static_cast<const r_Short *>(src));
             break;
         case r_Primitive_Type::USHORT:
             swap_array_templ(iter, static_cast<r_UShort *>(dest), static_cast<const r_UShort *>(src));
             break;
         case r_Primitive_Type::LONG:
+        case r_Primitive_Type::CINT32:
             swap_array_templ(iter, static_cast<r_Long *>(dest), static_cast<const r_Long *>(src));
             break;
         case r_Primitive_Type::ULONG:
@@ -553,12 +557,14 @@ void r_Endian::swap_array(const r_Primitive_Type *type, const r_Minterval &srcDo
             }
             break;
         case r_Primitive_Type::SHORT:
+        case r_Primitive_Type::CINT16:
             swap_array_templ(siter, diter, static_cast<const r_Short *>(src));
             break;
         case r_Primitive_Type::USHORT:
             swap_array_templ(siter, diter, static_cast<const r_UShort *>(src));
             break;
         case r_Primitive_Type::LONG:
+        case r_Primitive_Type::CINT32:
             swap_array_templ(siter, diter, static_cast<const r_Long *>(src));
             break;
         case r_Primitive_Type::ULONG:

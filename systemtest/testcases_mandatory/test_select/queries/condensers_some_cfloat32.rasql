@@ -1,1 +1,1 @@
-select some_cells( test_cfloat32 = complex(56.0,51)) from test_cfloat32
+select some_cells( test_cfloat32 = complex(56.0,51.0)) from test_cfloat32

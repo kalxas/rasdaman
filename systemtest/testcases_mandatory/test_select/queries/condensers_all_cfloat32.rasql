@@ -1,1 +1,1 @@
-select all_cells( test_cfloat32 != complex(0.0,0)) from test_cfloat32
+select all_cells( test_cfloat32 != complex(0.0,0.0)) from test_cfloat32
