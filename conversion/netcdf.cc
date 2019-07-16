@@ -1036,7 +1036,7 @@ void r_Conv_NETCDF::addVarAttributes(int var, nc_type nctype, T validMin, T vali
         status = nc_put_att(dataFile, var, VALID_MAX.c_str(), nctype, 1, &validMax);
         warnOnError(status, "failed adding valid_max attribute for variable to netCDF file");
     }
-    if (encodeOptions.isMember(FormatParamKeys::Encode::NODATA))
+    if (encodeOptions.isMember(FormatParamKeys::Encode::NODATA) || formatParams.getNodata().size() > 0)
     {
         boost::optional<T> nodataVal;
         if (formatParams.getNodata().size() > dimNum)
