@@ -37,11 +37,10 @@ rasdaman GmbH.
 #ifndef _BASETYPE_HH_
 #define _BASETYPE_HH_
 
-#include <iosfwd>      // for ostream
+#include <iosfwd>               // for ostream
 
 #include "raslib/odmgtypes.hh"  // for r_Long, r_ULong
-#include "type.hh"       // for Type, ostream
-#include "catalogmgr/ops.hh"
+#include "type.hh"              // for Type, ostream
 
 class OId;
 
@@ -69,6 +68,20 @@ are also used in subclasses of \Ref{MDDObject}.
 class BaseType : public Type
 {
 public:
+
+    BaseType();
+    /*@Doc:
+    default constructor, cannot be used.
+    */
+
+    BaseType(const OId &id);
+
+    BaseType(const BaseType &old) = default;
+
+    BaseType &operator=(const BaseType &old) = default;
+
+    ~BaseType() noexcept(false) override = default;
+
     virtual unsigned int getSize() const = 0;
     /*@Doc:
     returns the size of one cell of the type in chars.
@@ -95,12 +108,12 @@ public:
     returns C #long# in cell #cell#.
     */
 
-    virtual double *convertToCDouble(const char *cell, double *value) const = 0;
+    virtual double *convertToCDouble(const char *cell, r_Double *value) const = 0;
     /*@Doc:
     returns value of the cell as a C #double#.
     */
 
-    virtual char *makeFromCDouble(char *cell, const double *value) const = 0;
+    virtual char *makeFromCDouble(char *cell, const r_Double *value) const = 0;
     /*@Doc:
     returns C #double# in cell #cell#.
     */
@@ -108,51 +121,6 @@ public:
     virtual void printCell(std::ostream &stream, const char *cell) const = 0;
     /*@Doc:
     print contents of a cell to stream.
-    */
-
-    //@Man: methods for getting functions (used by \Ref{Tile})
-    //@{
-    /// get function object for condense operation.
-    virtual CondenseOp *getCondenseOp(Ops::OpType op) const;
-    /*@Doc:
-      \Ref{CondenseOp} carrying out the operation op on a cell of this
-      type. The type of the result depends on the operation carried out,
-      but is usually of type self. See \Ref{Ops} for details.
-    */
-
-    /// get function object for unary operation.
-    virtual UnaryOp *getUnaryOp(Ops::OpType op, const BaseType *optype) const;
-    /*@Doc:
-      Returns a pointer to a function object of a subclass of class
-      \Ref{UnaryOp} carrying out the operation {\tt op} on a cell of
-      type {\tt optype}. The result type has the type self. See
-      \Ref{Ops} for details.
-    */
-
-    /// get function object for binary operation.
-    virtual BinaryOp *getBinaryOp(Ops::OpType op, const BaseType *op1type, const BaseType *op2type) const;
-    /*@Doc:
-      Returns a pointer to a function object of a subclass of class
-      \Ref{BinaryOp} carrying out the operation {\tt op} on two cells of
-      type {\tt op1type} respective {\tt op2type}. The result type has
-      the type self. See \Ref{Ops} for details.
-    */
-    //@}
-
-    BaseType();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
-
-    BaseType(const OId &id);
-
-    BaseType(const BaseType &old);
-
-    BaseType &operator=(const BaseType &old);
-
-    ~BaseType() noexcept(false) override;
-    /*@Doc:
-    virtual destructor.
     */
 
     int compatibleWith(const Type *aType) const override;

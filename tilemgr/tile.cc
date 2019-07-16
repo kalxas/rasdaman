@@ -164,7 +164,7 @@ Tile::Tile(const Tile *projTile, const r_Minterval &projDom, const std::set<r_Di
     r_Miter newTileIter(&domain, &domain, type->getSize(), blobTile->getCells());
 
     // identity operation for base type, used for copying
-    UnaryOp *op = type->getUnaryOp(Ops::OP_IDENTITY, const_cast<BaseType *>(type));
+    UnaryOp *op = Ops::getUnaryOp(Ops::OP_IDENTITY, type, type);
 
     while (!projTileIter.isDone())
     {
@@ -736,6 +736,12 @@ void
 Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, const r_Minterval &areaOp,
                const size_t resOff, const r_Bytes opOff, const r_Bytes bandSize)
 {
+    size_t cellSize = this->getType()->getSize();
+    size_t opCellSize = opTile->getType()->getSize();
+
+    // LDEBUG << "copying domain from op tile " << areaOp << " / offset " << opOff << " / band cell size " << bandSize << " / op cell size " << opCellSize
+    //        << " to domain of res tile " << areaRes << " / offset " << resOff << " / cell size " << cellSize;
+    // LDEBUG << "op tile size in bytes: " << opTile->getSize() << ", res tile size: " << getSize();
     if (areaRes == areaOp && opTile->getDomain() == this->getDomain() && this->getDomain() == areaOp)
     {
         r_Area numCells = this->getDomain().cell_count();
@@ -743,9 +749,6 @@ Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, cons
         char *targetData = this->getContents() + resOff;
         const char *sourceData = opTile->getContents() + opOff;
         assert(targetData && sourceData);
-
-        size_t cellSize = this->getType()->getSize();
-        size_t opCellSize = opTile->getType()->getSize();
 
         for (r_Area i = 0; i < numCells; ++i)
         {
@@ -756,27 +759,15 @@ Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, cons
     }
     else
     {
-
-
-        const char *cellOp = nullptr;
-        char *cellRes = nullptr;
-
-        // this may trigger decompression
-        cellOp = opTile->getContents();
-        cellRes = getContents();
+        const char *cellOp = opTile->getContents();
+        char *cellRes = getContents();
         assert(cellOp && cellRes);
 
-        size_t cellSize = this->getType()->getSize();
+        auto dimRes = areaRes.dimension();
+        auto dimOp = areaOp.dimension();
 
-        r_Dimension dimRes = areaRes.dimension();
-        r_Dimension dimOp = areaOp.dimension();
-
-        r_Range width = areaRes[dimRes - 1].get_extent();
-        if (width > areaOp[dimOp - 1].get_extent())
-        {
-            width = areaOp[dimOp - 1].get_extent();
-            LWARNING << "Had to adjust high dim width to " << width;
-        }
+        auto width = static_cast<size_t>(std::min(areaRes[dimRes - 1].get_extent(),
+                                                  areaOp[dimOp - 1].get_extent()));
 
         // these iterators iterate last dimension first, i.e. minimal step size
         r_MiterDirect resTileIter(static_cast<void *>(cellRes), getDomain(), areaRes, cellSize);
@@ -787,29 +778,28 @@ Tile::copyTile(const r_Minterval &areaRes, boost::shared_ptr<Tile> &opTile, cons
 #endif
         // set up the offsets for the last dimension
         // for faster computations in the iteration in 2+ dimensions.
-        std::vector<size_t> srcJumpsFullWidth;
+        std::vector<size_t> jumpsFullWidth;
+        jumpsFullWidth.reserve(width);
         std::vector<size_t> opJumpsFullWidth;
-        srcJumpsFullWidth.reserve(width);
         opJumpsFullWidth.reserve(width);
-        for (unsigned int i = 0; i < width; i++)
+        for (size_t i = 0; i < width; ++i)
         {
-            srcJumpsFullWidth.push_back(i * cellSize);
-            opJumpsFullWidth.push_back(i * (opTile->getType()->getSize()));
+            jumpsFullWidth.push_back(i * cellSize);
+            opJumpsFullWidth.push_back(i * opCellSize);
         }
         // iterate over the result tile until filled
         while (!resTileIter.isDone())
         {
             // copy entire line (continuous chunk in last dimension) in one go
-
-            auto srcJumpIter = srcJumpsFullWidth.begin();
-            auto opJumpIter = opJumpsFullWidth.begin();
-            for (srcJumpIter, opJumpIter; srcJumpIter != srcJumpsFullWidth.end(); ++srcJumpIter, ++opJumpIter)
+            for (size_t i = 0; i < width; ++i)
             {
-                memcpy(static_cast<char *>(resTileIter.getData()) + *srcJumpIter + resOff, static_cast<char *>(opTileIter.getData()) + *opJumpIter + opOff, bandSize);
+                auto *dst = static_cast<char *>(resTileIter.getData()) + jumpsFullWidth[i] + resOff;
+                auto *src = static_cast<char *>(opTileIter.getData()) + opJumpsFullWidth[i] + opOff;
+                memcpy(dst, src, bandSize);
             }
             // force overflow of last dimension
-            resTileIter.id[dimRes - 1].pos += width;
-            opTileIter.id[dimOp - 1].pos += width;
+            resTileIter.id[dimRes - 1].pos += static_cast<r_Range>(width);
+            opTileIter.id[dimOp - 1].pos += static_cast<r_Range>(width);
 
             // iterate; the last dimension will always overflow now
             ++resTileIter;

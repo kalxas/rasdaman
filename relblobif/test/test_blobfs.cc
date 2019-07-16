@@ -50,6 +50,8 @@ using namespace std;
 char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
+class MDDColl;
+MDDColl *mddConstants = 0;              // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
@@ -61,14 +63,13 @@ class TestBlobFS
 public:
 
     TestBlobFS()
-        : config("", "", "", true)
+        : config("", "", "")
     {
     }
 
     void testNestedRootPath()
     {
         const string expected("/tmp/rasdata/TILES/");
-        EXPECT_TRUE(BlobFS::getInstance().isNestedStorage());
         EXPECT_EQ(BlobFS::getInstance().config.tilesPath, expected);
     }
 
@@ -224,8 +225,8 @@ public:
 
         try
         {
-            const char* expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId).c_str();
-            unlink(expectedFilePath);
+            auto expectedFilePath = BlobFS::getInstance().insertTransaction->getFinalBlobPath(blobId);
+            unlink(expectedFilePath.c_str());
             BlobData blobData(blobId, 4, "test");
             BlobFS::getInstance().update(blobData);
             commit();
@@ -369,7 +370,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(expectedFilePath));
         EXPECT_TRUE(BlobFile::fileExists(tmpFilePath));
 
-        BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::General);
 
         BlobFS::getInstance().finalizeUncompletedTransactions();
         EXPECT_FALSE(BlobFile::fileExists(expectedFilePath));
@@ -390,7 +391,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(expectedFilePath));
         EXPECT_TRUE(BlobFile::fileExists(tmpFilePath));
 
-        BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::General);
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
                               BlobFSTransactionLock::TRANSACTION_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
@@ -416,12 +417,12 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(tmpFilePath));
 
         // create fake (unlocked) commit lock simulating crash in the server during the commit
-        BlobFS::getInstance().insertTransaction->transactionLock->clearCommitLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::Commit);
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
                               BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
-        BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::General);
         string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
                                          BlobFSTransactionLock::TRANSACTION_LOCK;
         fd = open(lockTransactionFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
@@ -450,12 +451,12 @@ public:
         EXPECT_TRUE(BlobFile::fileExists(tmpFilePath));
 
         // create fake (unlocked) commit lock simulating crash in the server during the commit
-        BlobFS::getInstance().insertTransaction->transactionLock->clearCommitLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::Commit);
         string lockFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
                               BlobFSTransactionLock::TRANSACTION_ABORT_LOCK;
         int fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
         close(fd);
-        BlobFS::getInstance().insertTransaction->transactionLock->clearTransactionLock();
+        BlobFS::getInstance().insertTransaction->transactionLock->clear(TransactionLockType::General);
         string lockTransactionFilePath = BlobFS::getInstance().insertTransaction->transactionPath +
                                          BlobFSTransactionLock::TRANSACTION_LOCK;
         fd = open(lockTransactionFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
@@ -486,7 +487,7 @@ public:
 
         BlobFSConfig tmpConfig(BlobFS::getInstance().config.rootPath,
                                BlobFS::getInstance().config.tilesPath,
-                               BlobFS::getInstance().config.transactionsPath, true);
+                               BlobFS::getInstance().config.transactionsPath);
         config = tmpConfig;
     }
 
@@ -519,7 +520,7 @@ int main(int argc, char** argv)
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;
     return 0;
 #endif
-    LogConfiguration defaultConf;
+    common::LogConfiguration defaultConf;
     defaultConf.configClientLogging();
 
     TestBlobFS test;

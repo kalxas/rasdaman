@@ -102,22 +102,7 @@ check_process()
         echo "failed, pid $pid not found; please check the logs in $log_path for more information."
         [ "$2" = "1" ] && exit $RC_ERROR
     else
-        local ok=1
-        if [ -n "$2" -a "$2" != "1" ]; then
-            local TIMEOUT=5
-            local waited=0
-            while [ 1 -eq 1 ]; do
-                (echo > /dev/tcp/localhost/$2) > /dev/null 2>&1 && break
-                sleep 1
-                waited=$(($waited + 1))
-                if [ $waited -ge $TIMEOUT ]; then
-                    echo "failed, cannot connect to process on port $2."
-                    ok=0
-                    break
-                fi
-            done
-        fi
-        [ $ok -eq 1 ] && echo "ok, pid $pid."
+        echo "ok, pid $pid."
     fi
 }
 

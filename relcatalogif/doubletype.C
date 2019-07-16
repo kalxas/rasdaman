@@ -20,125 +20,41 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
 
-#include "atomictype.hh"  // for AtomicType
 #include "doubletype.hh"
 #include "raslib/odmgtypes.hh"   // for DOUBLE
-#include "reladminif/oidif.hh"    // for OId
+#include "reladminif/oidif.hh"   // for OId
 #include <iomanip>
 #include <limits>
 
 DoubleType::DoubleType(const OId &id) : RealType(id)
 {
-    readFromDb();
-}
-
-/*************************************************************
- * Method name...: DoubleType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 DoubleType.
- ************************************************************/
-
-DoubleType::DoubleType() : RealType(DoubleType::Name, 8)
-{
-    myType = DOUBLE;
-    myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
-}
-
-/*************************************************************
- * Method name...: DoubleType(const DoubleType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-DoubleType::DoubleType(const DoubleType &old)  = default;
-
-/*************************************************************
- * Method name...: operator=(const DoubleType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-DoubleType &DoubleType::operator=(const DoubleType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
-}
-
-/*************************************************************
- * Method name...: ~DoubleType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-DoubleType::~DoubleType() = default;
-
-void DoubleType::readFromDb()
-{
-    size = 8;
+    size = sizeof(r_Double);
     setName(DoubleType::Name);
     myType = DOUBLE;
     myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that Double is stored MSB..LSB
- *                 on HP.
- ************************************************************/
+DoubleType::DoubleType() : RealType(DoubleType::Name, sizeof(r_Double))
+{
+    myType = DOUBLE;
+    myOId = OId(DOUBLE, OId::ATOMICTYPEOID);
+}
 
 void DoubleType::printCell(std::ostream &stream, const char *cell) const
 {
-    // !!!! HP specific, assumes 4 Byte double and MSB..LSB
-    // byte order
-    stream << std::setprecision(std::numeric_limits<double>::digits10 + 1) << *reinterpret_cast<const double *>(cell);
+    stream << std::setprecision(std::numeric_limits<r_Double>::digits10 + 1)
+           << *reinterpret_cast<const r_Double *>(cell);
 }
 
-double *DoubleType::convertToCDouble(const char *cell, double *value) const
+double *DoubleType::convertToCDouble(const char *cell, r_Double *value) const
 {
-    // !!!! HP specific, assumes 8 Byte double
-    // byte order
-    *value = *reinterpret_cast<const double *>(cell);
+    *value = *reinterpret_cast<const r_Double *>(cell);
     return value;
 }
 
-char *DoubleType::makeFromCDouble(char *cell, const double *value) const
+char *DoubleType::makeFromCDouble(char *cell, const r_Double *value) const
 {
-    // !!!! HP specific, assumes 4 Byte double and MSB..LSB
-    // byte order
-    *reinterpret_cast<double *>(cell) = *value;
+    *reinterpret_cast<r_Double *>(cell) = *value;
     return cell;
 }

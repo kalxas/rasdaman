@@ -54,10 +54,10 @@ enum QtDataType
     QT_LONG,
     QT_FLOAT,
     QT_DOUBLE,
+    QT_CINT16,        // with short members
+    QT_CINT32,        // with long members
     QT_COMPLEXTYPE1,  // with float members
-    QT_COMPLEXTYPE2,  // with double
-    QT_CINT16,
-    QT_CINT32,
+    QT_COMPLEXTYPE2,  // with double members
     QT_MDD,
     QT_MDD_CONFIG,
     QT_COMPLEX,

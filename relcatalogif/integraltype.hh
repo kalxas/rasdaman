@@ -20,18 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The IntegralType class is the superclass for all signed integral
- *   types (e.g. Char, Long) describing the type of a
- *   cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _INTEGRALTYPE_HH_
 #define _INTEGRALTYPE_HH_
@@ -54,34 +42,22 @@ class IntegralType : public AtomicType
 {
 public:
     IntegralType(unsigned int newSize) : AtomicType(newSize) {}
-    /*@Doc:
-    constructor.
-    */
 
     IntegralType(const IntegralType &old)  = default;
-    /*@Doc:
-    copy constructor.
-    */
 
     IntegralType(const OId &id) : AtomicType(id) {}
-    /*@Doc:
-    */
 
     ~IntegralType() override = default;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
 
-    double *convertToCDouble(const char *, double *) const override;
-    char *makeFromCDouble(char *, const double *) const override;
+    double *convertToCDouble(const char *, r_Double *) const override;
+    char *makeFromCDouble(char *, const r_Double *) const override;
 
 protected:
     IntegralType(const char *name, unsigned int newSize)
         : AtomicType(name, newSize) {}
-    /*@Doc:
-    */
 };
 
 #include "integraltype.icc"

@@ -52,10 +52,8 @@ const string BlobFSTransaction::UPDATE_TRANSACTIONS_SUBDIR = "update";
 const string BlobFSTransaction::REMOVE_TRANSACTIONS_SUBDIR = "remove";
 
 BlobFSTransaction::BlobFSTransaction(
-    BlobFSConfig &configArg, const std::string &transactionDir,
-    const std::string &transactionPathArg)
-    : config(configArg),
-      transactionPath(DirWrapper::convertToCanonicalPath(transactionPathArg))
+    BlobFSConfig &configArg, const std::string &transactionDir, const std::string &transactionPathArg)
+    : config(configArg), transactionPath(DirWrapper::convertToCanonicalPath(transactionPathArg))
 {
     if (transactionPath.empty() && !transactionDir.empty())
     {
@@ -64,7 +62,7 @@ BlobFSTransaction::BlobFSTransaction(
     else
     {
         transactionLock = new BlobFSTransactionLock(transactionPath);
-        transactionLock->lockForTransaction();
+        transactionLock->lock(TransactionLockType::General);
     }
 }
 
@@ -86,8 +84,15 @@ void BlobFSTransaction::postRasbaseAbort() {}
 
 string BlobFSTransaction::getTmpBlobPath(long long blobId)
 {
-    assert(blobId > 0);
-    return transactionPath + std::to_string(blobId);
+    if (blobId > 0)
+    {
+        return transactionPath + std::to_string(blobId);
+    }
+    else
+    {
+        LERROR << "invalid blob id " << blobId;
+        throw r_Error(BLOBFILENOTFOUND);
+    }
 }
 
 string BlobFSTransaction::getFinalBlobPath(long long blobId)
@@ -121,26 +126,26 @@ string BlobFSTransaction::getFinalBlobPath(long long blobId)
 void BlobFSTransaction::finalizeUncompleted()
 {
     collectBlobIds();
-    if (!blobIds.empty())
+    if (blobIds.empty())
+        return;
+        
+    if (!transactionLock->isValid(TransactionLockType::Commit))
     {
-        if (!validCommitState())
-        {
-            NNLINFO << "invalid transaction commit state; finalizing commit procedure...";
-            postRasbaseCommit();
-            BLINFO << "ok.\n";
-        }
-        else if (!validAbortState())
-        {
-            NNLINFO << "invalid transaction abort state; finalizing abort procedure...";
-            postRasbaseAbort();
-            BLINFO << "ok.\n";
-        }
-        else
-        {
-            NNLINFO << "invalid transaction state; running recovery procedure...";
-            finalizeRasbaseCrash();
-            BLINFO << "ok.\n";
-        }
+        NNLINFO << "invalid transaction commit state; finalizing commit procedure...";
+        postRasbaseCommit();
+        BLINFO << "ok.\n";
+    }
+    else if (!transactionLock->isValid(TransactionLockType::Abort))
+    {
+        NNLINFO << "invalid transaction abort state; finalizing abort procedure...";
+        postRasbaseAbort();
+        BLINFO << "ok.\n";
+    }
+    else
+    {
+        NNLINFO << "invalid transaction state; running recovery procedure...";
+        finalizeRasbaseCrash();
+        BLINFO << "ok.\n";
     }
 }
 
@@ -230,25 +235,10 @@ void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir
         if (transactionLock == nullptr)
         {
             transactionLock = new BlobFSTransactionLock(transactionPath);
-            transactionLock->lockForTransaction();
+            transactionLock->lock(TransactionLockType::General);
         }
         LDEBUG << transactionSubdir << " transaction path: " << transactionPath;
     }
-}
-
-bool BlobFSTransaction::validState()
-{
-    return transactionLock->transactionLockValid();
-}
-
-bool BlobFSTransaction::validCommitState()
-{
-    return transactionLock->commitLockValid();
-}
-
-bool BlobFSTransaction::validAbortState()
-{
-    return transactionLock->abortLockValid();
 }
 
 BlobFSTransaction *
@@ -293,13 +283,13 @@ void BlobFSInsertTransaction::postRasbaseCommit()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForCommit();
+    transactionLock->lock(TransactionLockType::Commit);
     for (auto blobId : blobIds)
     {
         BlobFile::moveFile(getTmpBlobPath(blobId), getFinalBlobPath(blobId));
     }
     blobIds.clear();
-    transactionLock->clearCommitLock();
+    transactionLock->clear(TransactionLockType::Commit);
 }
 
 void BlobFSInsertTransaction::postRasbaseAbort()
@@ -307,13 +297,13 @@ void BlobFSInsertTransaction::postRasbaseAbort()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForAbort();
+    transactionLock->lock(TransactionLockType::Abort);
     for (auto blobId : blobIds)
     {
         BlobFile::removeFile(getTmpBlobPath(blobId));
     }
     blobIds.clear();
-    transactionLock->clearAbortLock();
+    transactionLock->clear(TransactionLockType::Abort);
 }
 
 // -- update
@@ -335,13 +325,13 @@ void BlobFSUpdateTransaction::postRasbaseCommit()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForCommit();
+    transactionLock->lock(TransactionLockType::Commit);
     for (auto blobId : blobIds)
     {
         BlobFile::moveFile(getTmpBlobPath(blobId), getFinalBlobPath(blobId));
     }
     blobIds.clear();
-    transactionLock->clearCommitLock();
+    transactionLock->clear(TransactionLockType::Commit);
 }
 
 void BlobFSUpdateTransaction::postRasbaseAbort()
@@ -349,13 +339,13 @@ void BlobFSUpdateTransaction::postRasbaseAbort()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForAbort();
+    transactionLock->lock(TransactionLockType::Abort);
     for (auto blobId : blobIds)
     {
         BlobFile::removeFile(getTmpBlobPath(blobId));
     }
     blobIds.clear();
-    transactionLock->clearAbortLock();
+    transactionLock->clear(TransactionLockType::Abort);
 }
 
 // -- remove
@@ -382,7 +372,7 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForAbort();
+    transactionLock->lock(TransactionLockType::Abort);
     for (auto blobId : blobIds)
     {
         try
@@ -399,7 +389,7 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
             }
         }
     }
-    transactionLock->clearAbortLock();
+    transactionLock->clear(TransactionLockType::Abort);
 }
 
 void BlobFSRemoveTransaction::postRasbaseCommit()
@@ -407,13 +397,13 @@ void BlobFSRemoveTransaction::postRasbaseCommit()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForCommit();
+    transactionLock->lock(TransactionLockType::Commit);
     for (auto blobId : blobIds)
     {
         BlobFile::removeFile(getTmpBlobPath(blobId));
     }
     blobIds.clear();
-    transactionLock->clearCommitLock();
+    transactionLock->clear(TransactionLockType::Commit);
 }
 
 void BlobFSRemoveTransaction::postRasbaseAbort()
@@ -421,7 +411,7 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
     if (blobIds.empty())
         return;
 
-    transactionLock->lockForAbort();
+    transactionLock->lock(TransactionLockType::Abort);
     for (auto blobId : blobIds)
     {
         const string tmpBlobPath = getTmpBlobPath(blobId);
@@ -443,7 +433,7 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
         }
     }
     blobIds.clear();
-    transactionLock->clearAbortLock();
+    transactionLock->clear(TransactionLockType::Abort);
 }
 
 // -- select/retrieve

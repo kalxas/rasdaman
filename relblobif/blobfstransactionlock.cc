@@ -30,10 +30,10 @@ const std::string BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK = "transaction_
 const std::string BlobFSTransactionLock::TRANSACTION_ABORT_LOCK = "transaction_abort.lock";
 
 BlobFSTransactionLock::BlobFSTransactionLock(const std::string &path, bool checkArg)
-    : fileStorageTransactionPath(DirWrapper::convertToCanonicalPath(path)), checkOnly(checkArg),
-      transactionGeneralLock(fileStorageTransactionPath + TRANSACTION_LOCK),
-      transactionCommitLock(fileStorageTransactionPath + TRANSACTION_COMMIT_LOCK),
-      transactionAbortLock(fileStorageTransactionPath + TRANSACTION_ABORT_LOCK)
+    : transactionPath(DirWrapper::convertToCanonicalPath(path)), checkOnly(checkArg),
+      locks{LockFile{transactionPath + TRANSACTION_LOCK},
+            LockFile{transactionPath + TRANSACTION_COMMIT_LOCK},
+            LockFile{transactionPath + TRANSACTION_ABORT_LOCK}}
 {
 }
 
@@ -41,68 +41,33 @@ BlobFSTransactionLock::~BlobFSTransactionLock()
 {
     if (!checkOnly)
     {
-        clearCommitLock();
-        clearAbortLock();
-        clearTransactionLock();
+        clear(TransactionLockType::Commit);
+        clear(TransactionLockType::Abort);
+        clear(TransactionLockType::General);
     }
 }
 
-bool BlobFSTransactionLock::lockForTransaction()
+LockFile &BlobFSTransactionLock::getLock(TransactionLockType lockType)
 {
-    return transactionGeneralLock.lock();
+    return locks[static_cast<size_t>(lockType)];
 }
 
-bool BlobFSTransactionLock::clearTransactionLock()
+bool BlobFSTransactionLock::lock(TransactionLockType lockType)
 {
-    return transactionGeneralLock.unlock();
+    return getLock(lockType).lock();
 }
 
-bool BlobFSTransactionLock::lockedForTransaction()
+bool BlobFSTransactionLock::clear(TransactionLockType lockType)
 {
-    return transactionGeneralLock.isLocked();
+    return getLock(lockType).unlock();
 }
 
-bool BlobFSTransactionLock::transactionLockValid()
+bool BlobFSTransactionLock::isLocked(TransactionLockType lockType)
 {
-    return transactionGeneralLock.isValid();
+    return getLock(lockType).isLocked();
 }
 
-bool BlobFSTransactionLock::lockForCommit()
+bool BlobFSTransactionLock::isValid(TransactionLockType lockType)
 {
-    return transactionCommitLock.lock();
-}
-
-bool BlobFSTransactionLock::clearCommitLock()
-{
-    return transactionCommitLock.unlock();
-}
-
-bool BlobFSTransactionLock::lockedForCommit()
-{
-    return transactionCommitLock.isLocked();
-}
-
-bool BlobFSTransactionLock::commitLockValid()
-{
-    return transactionCommitLock.isValid();
-}
-
-bool BlobFSTransactionLock::lockForAbort()
-{
-    return transactionAbortLock.lock();
-}
-
-bool BlobFSTransactionLock::clearAbortLock()
-{
-    return transactionAbortLock.unlock();
-}
-
-bool BlobFSTransactionLock::lockedForAbort()
-{
-    return transactionAbortLock.isLocked();
-}
-
-bool BlobFSTransactionLock::abortLockValid()
-{
-    return transactionAbortLock.isValid();
+    return getLock(lockType).isValid();
 }

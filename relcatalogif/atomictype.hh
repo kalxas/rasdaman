@@ -39,7 +39,8 @@ rasdaman GmbH.
 #define _ATOMICTYPE_HH_
 
 #include "basetype.hh"            // for BaseType
-#include "reladminif/oidif.hh"    // for OId
+
+class OId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -59,37 +60,23 @@ AtomicType is the abstract base class for all non-structured
 class AtomicType : public BaseType
 {
 public:
-    unsigned int getSize() const override;
-    /*@Doc:
-    get size of cells of this base type.
-    */
 
     AtomicType(unsigned int newSize);
-    /*@Doc:
-    constructor.
-    */
 
     AtomicType(const AtomicType &old);
-    /*@Doc:
-    copy constructor.
-    */
 
     AtomicType(const OId &id);
-    /*@Doc:
-    */
+    
+    ~AtomicType() override = default;
 
-    AtomicType &operator=(const AtomicType &old);
-    /*@Doc:
-    */
+    AtomicType &operator=(const AtomicType &old) = default;
 
     /// generate equivalent C type names
     void generateCTypeName(std::vector<const char *> &names) const override;
     void generateCTypePos(std::vector<int> &positions, int offset = 0) const override;
     void getTypes(std::vector<const BaseType *> &types) const override;
 
-    ~AtomicType() override;
-    /*@Doc:
-    */
+    unsigned int getSize() const override;
 
 protected:
     unsigned int size;

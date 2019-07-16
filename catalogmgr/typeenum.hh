@@ -43,9 +43,10 @@ enum TypeEnum
 {
     ULONG, USHORT, CHAR, BOOLTYPE, LONG, SHORT, OCTET, DOUBLE, FLOAT,
     NUMERICAL_TYPES_END = FLOAT,
-    COMPLEXTYPE1,             // COMPLEX already defined as token !!!
-    COMPLEXTYPE2, CINT16, CINT32,          // complex integers consist of 2 shorts (for CINT16)
-    // and 2 longs (for CINT32)
+    COMPLEXTYPE1,            // COMPLEX already defined as token !!!
+    COMPLEXTYPE2,
+    CINT16,                  // complex integers consist of 2 shorts (for CINT16)
+    CINT32,                  // and 2 longs (for CINT32)
     STRUCT,
     CLASSTYPE, SETTYPE, MDDTYPE, INVALID_TYPE
 };

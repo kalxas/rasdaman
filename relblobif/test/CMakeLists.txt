@@ -21,11 +21,30 @@
 #
 ###################################################################
 
-add_library(tilemgr
-        tile.hh tile.cc
-        tiler.hh tiler.cc)
+set(TEST_SOURCES time/timertest.cc main_test.cc)
 
-target_link_libraries(tilemgr raslib catalogmgr)
+macro(AddRelblobifTest TEST_NAME)
 
-install(TARGETS tilemgr
-        DESTINATION ${LIB_DIR})
+    # ignore -Wwrite-strings warning
+    set_source_files_properties(test_${TEST_NAME}.cc PROPERTIES COMPILE_FLAGS " -Wno-write-strings ")
+
+    add_executable(${TEST_NAME}_test EXCLUDE_FROM_ALL test_${TEST_NAME}.cc testing.cc)
+    target_link_libraries(${TEST_NAME}_test 
+        rasodmg clientcomm compression raslib conversion commline
+        network relstorageif storagemgr relmddif mddmgr
+        relindexif indexmgr relcatalogif catalogmgr
+        tilemgr relblobif reladminif
+    )
+
+    add_test(${TEST_NAME}_testrunner ${TEST_NAME}_test)
+    # run on make unit-check
+    add_dependencies(unit-check ${TEST_NAME}_test)
+
+endmacro()
+
+AddRelblobifTest(blobfs)
+AddRelblobifTest(blobfstransactionlock)
+AddRelblobifTest(blobfstransaction)
+AddRelblobifTest(blobfile)
+
+#AddRelblobifTest(tilecache)

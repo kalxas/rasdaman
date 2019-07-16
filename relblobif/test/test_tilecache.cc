@@ -56,6 +56,8 @@ char globalConnectId[256] = "RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 
+class MDDColl;
+MDDColl *mddConstants = 0; // used in QtMDD
 extern unsigned long maxTransferBufferSize = 4000000;
 extern int noTimeOut = 0;
 
@@ -89,10 +91,10 @@ ExecuteUpdateRes result;
 
 void prepareRun()
 {
-    server = new ServerComm(RASSERVER_TIMEOUT, RASSERVER_MGMT_INTERVAL, RASSERVER_PORT, RASMGR_HOST, RASMGR_PORT, RASSERVER_NAME);
+    server = new ServerComm(RASSERVER_PORT, RASMGR_HOST, RASMGR_PORT, RASSERVER_NAME);
     db.open(globalConnectId);
 
-    r = new ClientTblElt(RASADMIN_USER, CLIENT_ID);
+    r = new ClientTblElt(ClientType::Regular, CLIENT_ID);
     server->addClientTblEntry(r);
     accessControl.setServerName(RASSERVER_NAME);
     server->openDB(CLIENT_ID, globalConnectId, RASADMIN_USER);
@@ -119,7 +121,7 @@ void finishRun()
 
 int main(int argc, char** argv)
 {
-    LogConfiguration defaultConf;
+    common::LogConfiguration defaultConf;
     defaultConf.configClientLogging();
 
     TileCache::cacheLimit = CACHE_LIMIT_READJUST;

@@ -134,24 +134,6 @@ protected:
     bool addBlobId(const std::string &blobPath);
 
     /**
-     * @return false if the transaction state is invalid
-     * (transaction.lock exists but is not locked)
-     */
-    bool validState();
-
-    /**
-     * @return false if the transaction state is invalid
-     * (transaction_commit.lock exists but is not locked)
-     */
-    bool validCommitState();
-
-    /**
-     * Return false if the transaction state is invalid
-     * (transaction_abort.lock exists but is not locked)
-     */
-    bool validAbortState();
-
-    /**
      * Create temporary transaction directory under $RASDATA/TRANSACTIONS
      * for a given transaction type
      */

@@ -22,24 +22,12 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The ULongType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _BOOLTYPE_HH_
 #define _BOOLTYPE_HH_
 
-#include "uintegraltype.hh"  // for UIntegralType
-#include "raslib/odmgtypes.hh"      // for r_ULong
-#include <iosfwd>          // for ostream
+#include "uintegraltype.hh"     // for UIntegralType
+#include "raslib/odmgtypes.hh"  // for r_ULong
+#include <iosfwd>               // for ostream
 
 class OId;
 
@@ -61,45 +49,24 @@ public:
     BoolType(const OId &id);
 
     BoolType();
-    /*@Doc:
-    default constructor, no initialization needed for BoolType.
-    */
 
-    BoolType(const BoolType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    BoolType(const BoolType &old) = default;
 
-    BoolType &operator=(const BoolType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    BoolType &operator=(const BoolType &old) = default;
 
-    ~BoolType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~BoolType() override = default;
 
+    /**
+     * Prints a cell cell in hex on stream followed by a space.
+     */
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

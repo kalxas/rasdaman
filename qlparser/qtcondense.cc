@@ -49,8 +49,7 @@ static const char rcsid[] = "@(#)qlparser, QtCondense: $Header: /home/rasdev/CVS
 
 #include "catalogmgr/typefactory.hh"
 #include "catalogmgr/ops.hh"
-
-#include "relcatalogif/alltypes.hh"
+#include "relcatalogif/complextype.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB

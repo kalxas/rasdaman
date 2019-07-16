@@ -190,10 +190,10 @@ void BlobFS::finalizeUncompletedTransactions()
             continue;
 
         BlobFSTransactionLock transactionLock(subdir, true);
-        if (transactionLock.lockedForTransaction())
+        if (transactionLock.isLocked(TransactionLockType::General))
             continue;
 
-        transactionLock.clearTransactionLock();
+        transactionLock.clear(TransactionLockType::General);
         auto transaction = std::unique_ptr<BlobFSTransaction>(
             BlobFSTransaction::getBlobFSTransaction(subdir, config));
         if (!transaction)

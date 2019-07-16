@@ -32,7 +32,7 @@
 #include "blobfile.hh"
 #include "blobfscommon.hh"
 #include "mymalloc/mymalloc.h"
-#include "raslib/error.hh"      // for FAILEDWRITINGTODISK, r_Error, BLO...
+#include "raslib/error.hh"          // for FAILEDWRITINGTODISK, r_Error, BLO...
 #include "logging.hh"               // for LERROR, LWARNING
 
 #include <errno.h>                  // for errno, ENOENT

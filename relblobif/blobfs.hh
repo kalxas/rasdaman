@@ -73,7 +73,7 @@ public:
     std::string getBlobFilePath(long long blobId) const;
 
     // Destructor
-    virtual ~BlobFS();
+    ~BlobFS();
 
 private:
     // Initialize with a root file storage path determined from the -connect

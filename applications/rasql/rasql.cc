@@ -615,11 +615,13 @@ void printScalar(const r_Scalar &scalar)
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im() << ")";
+        NNLINFO << "(" << (static_cast<const r_Complex &>(scalar)).get_re() << "," 
+                       << (static_cast<const r_Complex &>(scalar)).get_im() << ")";
         break;
     case r_Type::CINT16:
     case r_Type::CINT32:
-	      NNLINFO << "(" << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_re_long() << "," << (static_cast<r_Complex *>(&const_cast<r_Scalar &>(scalar)))->get_im_long() << ")";
+	      NNLINFO << "(" << (static_cast<const r_Complex &>(scalar)).get_re_long() << ","
+                         << (static_cast<const r_Complex &>(scalar)).get_im_long() << ")";
         break;
     case r_Type::STRUCTURETYPE:
     {

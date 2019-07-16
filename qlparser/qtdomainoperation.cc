@@ -80,8 +80,7 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp)
 
 
 QtDomainOperation::QtDomainOperation(r_Minterval domainNew, const vector<bool> *newTrimFlags)
-    : mintervalOp(0),
-      dynamicMintervalExpression(false)
+    : dynamicMintervalExpression(false)
 {
     // make a copy
     vector<bool> *trimFlags  = new vector<bool>(*newTrimFlags);
@@ -93,11 +92,8 @@ QtDomainOperation::QtDomainOperation(r_Minterval domainNew, const vector<bool> *
 
 QtDomainOperation::~QtDomainOperation()
 {
-    if (mintervalOp)
-    {
-        delete mintervalOp;
-        mintervalOp = NULL;
-    }
+    delete mintervalOp;
+    mintervalOp = NULL;
 }
 
 
@@ -149,7 +145,7 @@ QtDomainOperation::equalMeaning(QtNode *node)
 
         result = input->equalMeaning(domainNode->getInput()) &&
                  mintervalOp->equalMeaning(domainNode->getMintervalOp());
-    };
+    }
 
     return (result);
 }
@@ -210,12 +206,12 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
             if (operand->getDataType() == QT_MINTERVAL)
             {
                 r_Minterval   domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
-                vector<bool> *trimFlags = new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags()));
-
+                auto trimFlags = std::unique_ptr<vector<bool>>(
+                    new vector<bool>(*((static_cast<QtMintervalData *>(operand))->getTrimFlags())));
 
                 // no previous specification for that dimension
                 trimming = true;
-                auto *newTrimList = new QtTrimList();
+                auto newTrimList = std::unique_ptr<QtTrimList>(new QtTrimList());
                 for (unsigned int i = 0, j = 0; i != domain.dimension(); i++)
                 {
                     // create a new element
@@ -250,14 +246,6 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
                 {
                     trimList->push_back(newTrimList->at(i));
                 }
-                delete newTrimList;
-                newTrimList = NULL;
-
-                if (trimFlags)
-                {
-                    delete trimFlags;
-                    trimFlags = NULL;
-                }
             }
 
             //      else if( operand->getDataType() == QtData::QT_POINT )
@@ -278,12 +266,12 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList)
     {
         auto inputType = input ? input->getNodeType() : QtNode::QT_UNDEFINED_NODE;
         if (inputType != QtNode::QT_PROJECT && inputType != QtNode::QT_CONVERSION &&
-                inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
+            inputType != QtNode::QT_ENCODE && inputType != QtNode::QT_SCALE)
         {
             LTRACE << "all trimming";
             getParent()->setInput(this, input);
             // Delete the node itself after resetting its input because
-            // otherwise the input is delete either.
+            // otherwise the input will be deleted too.
             setInput(input, NULL);
             delete this;
         }
@@ -836,14 +824,14 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
-                    indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
+                indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;
             }
 #endif
             r_Dimension indexValue = 0;
-            r_Nullvalues *nullValues = NULL;
+            r_Nullvalues *nullValues = indexData->getNullValues();
 
             switch (indexData->getDataType())
             {
@@ -851,29 +839,18 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             {
                 // get first element as index
                 const r_Point &indexPoint = (static_cast<QtPointData *>(indexData))->getPointData();
-                if (indexData != NULL)
-                {
-                    nullValues = (static_cast<QtAtomicData *>(indexData))->getNullValues();
-                }
 
                 if (indexPoint.dimension() != 1)
                 {
-                    LERROR << "Error: QtDomainOperation::evaluate() - Operand of point selection must be of type unsigned integer.";
+                    LERROR << "Operand of point selection must be of type unsigned integer.";
                     parseInfo.setErrorNo(399);
-
                     // delete ressources
                     if (operandData)
-                    {
                         operandData->deleteRef();
-                    }
                     if (indexData)
-                    {
                         indexData  ->deleteRef();
-                    }
-
                     throw parseInfo;
                 }
-
                 indexValue = indexPoint[0];
             }
             break;
@@ -882,21 +859,14 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             case QT_USHORT:
             case QT_ULONG:
                 indexValue = (static_cast<QtAtomicData *>(indexData))->getUnsignedValue();
-                if (indexData != NULL)
-                {
-                    nullValues = (static_cast<QtAtomicData *>(indexData))->getNullValues();
-                }
                 break;
 
             case QT_OCTET:
             case QT_SHORT:
             case QT_LONG:
                 indexValue = static_cast<r_Dimension>((static_cast<QtAtomicData *>(indexData))->getSignedValue());
-                if (indexData != NULL)
-                {
-                    nullValues = (static_cast<QtAtomicData *>(indexData))->getNullValues();
-                }
                 break;
+
             default:
                 LTRACE << "evaluate() 2 - bad type " << indexData->getDataType();
                 break;
@@ -904,19 +874,13 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
             if (indexValue >= pt.dimension())
             {
-                LERROR << "Error: QtDomainOperation::evaluate() - index for point selection is out of range.";
+                LERROR << "index for point selection is out of range.";
                 parseInfo.setErrorNo(411);
-
                 // delete ressources
                 if (operandData)
-                {
                     operandData->deleteRef();
-                }
                 if (indexData)
-                {
                     indexData  ->deleteRef();
-                }
-
                 throw parseInfo;
             }
 
@@ -926,19 +890,14 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
         // delete ressources
         if (operandData)
-        {
             operandData->deleteRef();
-        }
         if (indexData)
-        {
             indexData  ->deleteRef();
-        }
         break;
     }
-
     default:
     {
-        LERROR << "Error: QtDomainOperation::evaluate() - selection operation is not supported on this data type.";
+        LERROR << "selection operation is not supported on this data type.";
         parseInfo.setErrorNo(396);
         throw parseInfo;
     }
@@ -1040,7 +999,7 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
                     && !indexType.isInteger()
                )
             {
-                LERROR << "Error: QtDomainOperation::checkType() - spatial domain expressions must be either of type minterval, point, or integer.";
+                LERROR << "spatial domain expressions must be either of type minterval, point, or integer.";
                 parseInfo.setErrorNo(391);
                 throw parseInfo;
             }
@@ -1062,7 +1021,7 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
             // check index type
             if (!indexType.isInteger() && indexType.getDataType() != QT_POINT)
             {
-                LERROR << "Error: QtDomainOperation::checkType() - Operand of minterval selection must be of type integer.";
+                LERROR << "Operand of minterval selection must be of type integer.";
                 parseInfo.setErrorNo(397);
                 throw parseInfo;
             }
@@ -1074,7 +1033,7 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
             // check index type
             if (!indexType.isInteger() && indexType.getDataType() != QT_POINT)
             {
-                LERROR << "Error: QtDomainOperation::checkType() - Operand of point selection must be of type integer.";
+                LERROR << "Operand of point selection must be of type integer.";
                 parseInfo.setErrorNo(399);
                 throw parseInfo;
             }
@@ -1083,14 +1042,14 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
         }
         else
         {
-            LERROR << "Error: QtDomainOperation::checkType() - selection operation is not supported on this data type.";
+            LERROR << "selection operation is not supported on this data type.";
             parseInfo.setErrorNo(396);
             throw parseInfo;
         }
     }
     else
     {
-        LERROR << "Error: QtDomainOperation::checkType() - input or index branch invalid.";
+        LERROR << "input or index branch invalid.";
     }
 
     return dataStreamType;

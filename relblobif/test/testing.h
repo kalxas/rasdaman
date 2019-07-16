@@ -77,29 +77,29 @@ private:
 #define EXPECT_NOT_EQ(a,b) \
     if ((a) == (b)) Test::test_result_ = false, \
                                              LOG << "Expected different values but found otherwise" <<endl \
-                                             << #a << " : " << (a) << endl \
-                                             << #b << " : " << (b) << endl \
+                                             << #a << " : '" << (a) << "'" << endl \
+                                             << #b << " : '" << (b) << "'" << endl \
                                              << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ(a,b) \
     if ((a) != (b)) Test::test_result_ = false, \
                                              LOG << "Expected equality but found otherwise" <<endl \
-                                             << #a << " : " << (a) << endl \
-                                             << #b << " : " << (b) << endl \
+                                             << #a << " : '" << (a) << "'" << endl \
+                                             << #b << " : '" << (b) << "'" << endl \
                                              << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ_STR(a,b) \
     if (strcmp((a),(b)) != 0) Test::test_result_ = false, \
                 LOG << "Expected equality but found otherwise" <<endl \
-                << "First string : " << a << " ." << endl \
-                << "Second string: " << b << " ." << endl \
+                << "First string : '" << a << "'." << endl \
+                << "Second string: '" << b << "'." << endl \
                 << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define EXPECT_EQ_MEM(a,b,size) \
     if (memcmp((a),(b),(size)) != 0) Test::test_result_ = false, \
                 LOG << "Expected equality but found otherwise" <<endl \
-                << "First string : " << Test::charPtrToString(a, size) << " ." << endl \
-                << "Second string: " << Test::charPtrToString(b, size) << " ." << endl \
+                << "First string : '" << Test::charPtrToString(a, size) << "'." << endl \
+                << "Second string: '" << Test::charPtrToString(b, size) << "'." << endl \
                 << "In file " << __FILE__ << " at line " << __LINE__ << endl
 
 #define RUN_TEST(method) \

@@ -317,6 +317,7 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
     {
         KeyObjectVector resultKeys;
         do_intersect(actualIx, searchInter, resultKeys, myStorageLayout);
+        LDEBUG << "index intersection done, found " << resultKeys.size() << " items.";
         result = new vector<shared_ptr<Tile>>();
         if (!resultKeys.empty())
         {
@@ -357,9 +358,12 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
                 for (i = 0; i < resSize; i++)
                 {
                     if (resultKeys[i].getTransObject() == nullptr)
-                        result->push_back(shared_ptr<Tile>(
-                                              new Tile(resultKeys[i].getDomain(), cellBaseType,
-                                                       DBTileId(resultKeys[i].getObject()))));
+                    {
+                        auto resultDomain = resultKeys[i].getDomain();
+                        auto newResult = boost::make_shared<Tile>(
+                            resultDomain, cellBaseType, DBTileId(resultKeys[i].getObject()));
+                        result->push_back(newResult);
+                    }
                     else
                     {
                         LDEBUG << "found non-persistent trans object entry in index with domain " << resultKeys[i].getDomain();
@@ -370,6 +374,7 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
             (const_cast<MDDObjIx *>(this))->setNewLastAccess(searchInter, result);
         }
     }
+    LDEBUG << "got all intersecting tiles.";
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 3) intersectTimer->stop();
 #endif

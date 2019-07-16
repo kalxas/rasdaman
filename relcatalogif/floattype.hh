@@ -22,18 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The FloatType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _FLOATTYPE_HH_
 #define _FLOATTYPE_HH_
 
@@ -45,7 +33,7 @@ class OId;
 //@ManMemo: Module: {\bf relcatalogif}.
 
 /*@Doc:
-FloatType is the base type used for 32bit integer cell
+FloatType is the base type used for 32bit floating-point cell
 values. The value of a Float is stored in four chars.
 */
 
@@ -58,39 +46,24 @@ public:
     FloatType(const OId &id);
 
     FloatType();
-    /*@Doc:
-    default constructor, sets type name to "Float".
-    */
 
-    FloatType(const FloatType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    FloatType(const FloatType &old) = default;
 
-    FloatType &operator=(const FloatType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    FloatType &operator=(const FloatType &old) = default;
 
-    ~FloatType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~FloatType() override = default;
 
+    /**
+     * Prints a cell cell on stream followed by a space.
+     */
     void printCell(std::ostream &stream, const char *cell) const override;
 
-    double *convertToCDouble(const char *cell, double *value) const override;
+    double *convertToCDouble(const char *cell, r_Double *value) const override;
 
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

@@ -25,6 +25,13 @@
 #include <string>
 #include "lockfile.hh"
 
+enum class TransactionLockType
+{
+    General,
+    Commit,
+    Abort,
+    Invalid // always (!) keep as last item (used in BlobFSTransactionLock)
+};
 
 /**
  * Manage locking on a particular transaction.
@@ -61,42 +68,37 @@ public:
      */
     ~BlobFSTransactionLock();
 
-    // -- general transaction lock (A)
-
-    bool lockForTransaction();
-    bool clearTransactionLock();
-    bool lockedForTransaction();
-    bool transactionLockValid();
-
-    // -- commit transaction lock (B)
-
-    bool lockForCommit();
-    bool clearCommitLock();
-    bool lockedForCommit();
-    bool commitLockValid();
-
-    // -- abort transaction lock (C)
-
-    bool lockForAbort();
-    bool clearAbortLock();
-    bool lockedForAbort();
-    bool abortLockValid();
+    /**
+     * Enable the specified lock.
+     * @return true on success, false otherwise.
+     */
+    bool lock(TransactionLockType lockType);
+    /**
+     * Unlock and remove the specified lock.
+     * @return true on success, false otherwise.
+     */
+    bool clear(TransactionLockType lockType);
+    /**
+     * @return true if the specified lock is in place, false otherwise.
+     */
+    bool isLocked(TransactionLockType lockType);
+    /**
+     * @return true if the specified lock is valid
+     * (it's valid if the lock file exists and is locked, or does not exist at all).
+     */
+    bool isValid(TransactionLockType lockType);
 
 private:
+    LockFile &getLock(TransactionLockType lockType);
+
     // transaction root path
-    std::string fileStorageTransactionPath;
+    std::string transactionPath;
 
     // check only locks, do not clear them in destructor
-    bool checkOnly;
+    bool checkOnly{false};
 
-    // path to general transaction in progress lock (A)
-    LockFile transactionGeneralLock;
-
-    // commit transaction lock (B)
-    LockFile transactionCommitLock;
-
-    // abort transaction lock (C)
-    LockFile transactionAbortLock;
+    // locks (General, Commit, Abort)
+    LockFile locks[static_cast<size_t>(TransactionLockType::Invalid)];
 
     // general transaction in progress lock (A)
     static const std::string TRANSACTION_LOCK;

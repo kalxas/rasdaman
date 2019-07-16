@@ -33,25 +33,13 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "atomictype.hh"
-#include "raslib/odmgtypes.hh"         // for BOOLTYPE, CHAR, COMPLEXTYPE1, COMPLEX...
-#include "raslib/error.hh"  // for r_Error, INTERNALDLPARSEERROR
-
-/*************************************************************
- * Method name...: AtomicType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 AtomicType.
- ************************************************************/
+#include "reladminif/oidif.hh"      // for OId
+#include "raslib/odmgtypes.hh"      // for BOOLTYPE, CHAR, COMPLEXTYPE1, COMPLEX...
+#include "raslib/error.hh"          // for r_Error, INTERNALDLPARSEERROR
 
 AtomicType::AtomicType(unsigned int newSize)
-    : BaseType("unnamed atomictype"), size(newSize)
+    : AtomicType("unnamed atomictype", newSize)
 {
-    objecttype = OId::ATOMICTYPEOID;
-    _isPersistent = 1;
-    _isInDatabase = 1;
-    _isModified = 0;
 }
 
 AtomicType::AtomicType(const char *name, unsigned int newSize)
@@ -63,25 +51,19 @@ AtomicType::AtomicType(const char *name, unsigned int newSize)
     _isModified = 0;
 }
 
-AtomicType::AtomicType(const AtomicType &old) : BaseType(old), size(old.size)
+AtomicType::AtomicType(const AtomicType &old)
+    : AtomicType(old.getName(), old.size)
+{
+}
+
+AtomicType::AtomicType(const OId &id)
+    : BaseType(id)
 {
     objecttype = OId::ATOMICTYPEOID;
     _isPersistent = 1;
     _isInDatabase = 1;
     _isModified = 0;
 }
-
-AtomicType::AtomicType(const OId &id) : BaseType(id)
-{
-    objecttype = OId::ATOMICTYPEOID;
-    _isPersistent = 1;
-    _isInDatabase = 1;
-    _isModified = 0;
-}
-
-AtomicType::~AtomicType() = default;
-
-AtomicType &AtomicType::operator=(const AtomicType &old) = default;
 
 /// generate equivalent C type names
 void AtomicType::generateCTypeName(std::vector<const char *> &names) const
@@ -123,6 +105,14 @@ void AtomicType::generateCTypeName(std::vector<const char *> &names) const
         names.push_back("double");
         names.push_back("double");
         break;
+    case CINT16:
+        names.push_back("short");
+        names.push_back("short");
+        break;
+    case CINT32:
+        names.push_back("long");
+        names.push_back("long");
+        break;
     default:
         throw r_Error(INTERNALDLPARSEERROR);
     }
@@ -138,14 +128,6 @@ void AtomicType::generateCTypePos(std::vector<int> &positions, int offset) const
 {
     positions.push_back(offset);
 }
-
-/*************************************************************
- * Method name...: unsigned int getSize() const
- *
- * Arguments.....: none
- * Return value..: size in d_Octets
- * Description...: returns size of AtomicType in chars
- ************************************************************/
 
 unsigned int AtomicType::getSize() const
 {

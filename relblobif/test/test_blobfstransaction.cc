@@ -46,6 +46,9 @@ using namespace std;
 char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
+
+class MDDColl;
+MDDColl *mddConstants = 0; // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
@@ -57,12 +60,26 @@ class TestBlobFSTransaction
 public:
 
     TestBlobFSTransaction()
-        : config(string("/tmp/rasdata"), string("/tmp/rasdata/TILES"), string("/tmp/rasdata/TRANSACTIONS"), true)
+        : config(string("/tmp/rasdata/"), string("/tmp/rasdata/TILES/"), string("/tmp/rasdata/TRANSACTIONS/"))
     {
         system("rm -rf /tmp/rasdata");
         mkdir(config.rootPath.c_str(), 0770);
         mkdir(config.transactionsPath.c_str(), 0770);
         mkdir(config.tilesPath.c_str(), 0770);
+    }
+
+    void testFinalBlobPath()
+    {
+        BlobFSTransaction* transaction = new BlobFSSelectTransaction(config);
+        long long blobId = 139364;
+
+        auto expectedFinalBlobPath = config.tilesPath + "0/8/139364";
+        auto finalBlobPath = transaction->getFinalBlobPath(blobId);
+        EXPECT_EQ(finalBlobPath, expectedFinalBlobPath);
+        finalBlobPath = transaction->getFinalBlobPath(blobId);
+        EXPECT_EQ(finalBlobPath, expectedFinalBlobPath);
+        finalBlobPath = transaction->getFinalBlobPath(blobId);
+        EXPECT_EQ(finalBlobPath, expectedFinalBlobPath);
     }
 
     void testInsertTransactionCommit()
@@ -363,11 +380,12 @@ int main(int argc, char** argv)
     return 0;
 #endif
 
-    LogConfiguration defaultConf;
+    common::LogConfiguration defaultConf;
     defaultConf.configClientLogging();
 
     TestBlobFSTransaction test;
 
+    RUN_TEST(test.testFinalBlobPath());
     RUN_TEST(test.testInsertTransactionCommit());
     RUN_TEST(test.testInsertTransactionAbort());
     RUN_TEST(test.testUpdateTransactionCommit());

@@ -143,7 +143,7 @@ QueryTree::evaluateRetrieval()
                 rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
                 rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR)
         {
-            LERROR << "QueryTree::evaluateRetrieval() - Retrieval query must start with an ONC node.";
+            LERROR << "Retrieval query must start with an ONC node.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(371);
             throw errorInfo;
@@ -160,7 +160,7 @@ QueryTree::evaluateRetrieval()
         catch (...)
         {
             oncRootNode->close();
-            LERROR << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open().";
+            LERROR << "rethrow exception from oncRootNode->open().";
             throw;
         }
 
@@ -275,11 +275,9 @@ QueryTree::evaluateRetrieval()
 #else
         version << "Unknown version";
 #endif
-
 #ifdef GCCTARGET
         version << " on " << GCCTARGET;
 #endif
-
 #ifdef GCCVERSION
         version << ", compiled by " << GCCVERSION;
 #endif
@@ -314,8 +312,6 @@ vector<QtData *> *
 QueryTree::evaluateUpdate()
 {
     QtData *resultElement = NULL;
-    // create result collection
-    vector<QtData *> *resultData = new vector<QtData *>();
 
     if (rootNode)
     {
@@ -333,30 +329,21 @@ QueryTree::evaluateUpdate()
             LERROR << "Update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
-            delete resultData;
-            resultData = NULL;
             throw errorInfo;
         }
 
         QtExecute *executeNode = static_cast<QtExecute *>(rootNode);
-
-        try
-        {
-            // evaluate the update query
-            resultElement = executeNode->evaluate();
-        }
-        catch (...)
-        {
-            delete resultData;
-            resultData = NULL;
-            throw;
-        }
+        // evaluate the update query
+        resultElement = executeNode->evaluate();
 
 #ifdef RMANBENCHMARK
         LINFO << "Evaluated query tree:";
         rootNode->printTree(2, RMInit::logOut);
 #endif
     }
+
+    // create result collection
+    vector<QtData *> *resultData = new vector<QtData *>();
     resultData->push_back(resultElement);
     return resultData;
 }

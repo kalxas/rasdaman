@@ -20,14 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
-*
-*
-* COMMENTS:
-*
-************************************************************/
-
-
 
 inline r_ULong *
 IntegralType::convertToCULong(const char *cell, r_ULong *value) const
@@ -36,7 +28,7 @@ IntegralType::convertToCULong(const char *cell, r_ULong *value) const
 }
 
 inline double *
-IntegralType::convertToCDouble(const char *cell, double *value) const
+IntegralType::convertToCDouble(const char *cell, r_Double *value) const
 {
     r_Long tmp;
     *value = *this->convertToCLong(cell, &tmp);
@@ -46,12 +38,12 @@ IntegralType::convertToCDouble(const char *cell, double *value) const
 inline char *
 IntegralType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-    return this->makeFromCLong(cell, (r_Long *)const_cast<r_ULong *>(value));
+    return this->makeFromCLong(cell, (const r_Long *) value);
 }
 
 inline char *
-IntegralType::makeFromCDouble(char *cell, const double *value) const
+IntegralType::makeFromCDouble(char *cell, const r_Double *value) const
 {
-    r_Long tmp = *value;
+    r_Long tmp = static_cast<r_Long>(*value);
     return this->makeFromCLong(cell, &tmp);
 }

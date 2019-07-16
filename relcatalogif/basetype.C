@@ -20,94 +20,26 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
-
 
 #include "basetype.hh"
 #include <logging.hh>
 
 BaseType::BaseType(const char *name) : Type(name)
 {
-    LTRACE << "BaseType(" << getName() << ")";
 }
-
-/*************************************************************
- * Method name...: BaseType()
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: constructor
- ************************************************************/
 
 BaseType::BaseType() : Type("unnamed basetype")
 {
-    LTRACE << "BaseType()";
 }
 
 BaseType::BaseType(const OId &id) : Type(id)
 {
-    LTRACE << "BaseType(" << myOId << ")";
 }
-
-BaseType::BaseType(const BaseType &old)  = default;
-
-/*************************************************************
- * Method name...: ~BaseType()
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-BaseType::~BaseType() noexcept(false)  = default;
-
-BaseType &BaseType::operator=(const BaseType &old) = default;
-
-/*************************************************************
- * Method name...: UnaryOp* getUnaryOp( Ops::OpType optype )
- *
- * Arguments.....:
- *   optype: operation to return
- * Return value..:
- *   pointer to ther UnaryOp requested
- * Description...: return requested UnaryOp for ULongType
- ************************************************************/
-
-UnaryOp *
-BaseType::getUnaryOp(Ops::OpType op, const BaseType *optype) const
-{
-    return Ops::getUnaryOp(op, static_cast<const BaseType *>(this), optype);
-}
-
-BinaryOp *
-BaseType::getBinaryOp(Ops::OpType op, const BaseType *op1type,
-                      const BaseType *op2type) const
-{
-    return Ops::getBinaryOp(op, static_cast<const BaseType *>(this), op1type, op2type);
-}
-
-
-CondenseOp *
-BaseType::getCondenseOp(Ops::OpType op) const
-{
-    return Ops::getCondenseOp(op, static_cast<const BaseType *>(this));
-}
-
 
 int
 BaseType::compatibleWith(const Type *aType) const
 {
-    int retval = ((myType == aType->getType()) || (aType->getType() == CHAR && myType == BOOLTYPE));
-    return retval;
+    return (myType == aType->getType()) ||
+           (aType->getType() == CHAR && myType == BOOLTYPE);
 }
 

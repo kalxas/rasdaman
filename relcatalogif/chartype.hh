@@ -59,49 +59,26 @@ class CharType : public UIntegralType
 {
 public:
     CharType();
-    /*@Doc:
-    default constructor, no initialization needed for CharType.
-    */
 
     CharType(const OId &id);
-    /*@Doc:
-    */
 
     CharType(const CharType &old);
-    /*@Doc:
-    copy constructor.
-    */
 
-    CharType &operator=(const CharType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    CharType &operator=(const CharType &old) = default;
 
-    ~CharType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~CharType() override = default;
 
+    /**
+     * Prints a cell cell on stream followed by a space.
+     */
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

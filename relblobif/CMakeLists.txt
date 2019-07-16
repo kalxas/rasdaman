@@ -68,3 +68,4 @@ add_dependencies(relblobif reladminif)
 install(TARGETS relblobif
         DESTINATION ${LIB_DIR})
 
+add_subdirectory(test)

@@ -46,6 +46,9 @@ using namespace std;
 char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
+
+class MDDColl;
+MDDColl *mddConstants = 0; // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
@@ -103,29 +106,29 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
         EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
 
-        EXPECT_TRUE(transactionLock->lockForTransaction());
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::General));
         EXPECT_TRUE(BlobFile::fileExists(trLockPath));
-        EXPECT_TRUE(transactionLock->lockedForTransaction());
+        EXPECT_TRUE(transactionLock->isLocked(TransactionLockType::General));
 
-        EXPECT_TRUE(transactionLock->lockForCommit());
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::Commit));
         EXPECT_TRUE(BlobFile::fileExists(commitLockPath));
-        EXPECT_TRUE(transactionLock->lockedForCommit());
+        EXPECT_TRUE(transactionLock->isLocked(TransactionLockType::Commit));
 
-        EXPECT_TRUE(transactionLock->lockForAbort());
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::Abort));
         EXPECT_TRUE(BlobFile::fileExists(abortLockPath));
-        EXPECT_TRUE(transactionLock->lockedForAbort());
+        EXPECT_TRUE(transactionLock->isLocked(TransactionLockType::Abort));
 
-        EXPECT_TRUE(transactionLock->clearTransactionLock());
-        EXPECT_TRUE(transactionLock->clearCommitLock());
-        EXPECT_TRUE(transactionLock->clearAbortLock());
+        EXPECT_TRUE(transactionLock->clear(TransactionLockType::General));
+        EXPECT_TRUE(transactionLock->clear(TransactionLockType::Commit));
+        EXPECT_TRUE(transactionLock->clear(TransactionLockType::Abort));
 
         EXPECT_FALSE(BlobFile::fileExists(trLockPath));
         EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
         EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
 
-        EXPECT_TRUE(transactionLock->lockForTransaction());
-        EXPECT_TRUE(transactionLock->lockForCommit());
-        EXPECT_TRUE(transactionLock->lockForAbort());
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::General));
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::Commit));
+        EXPECT_TRUE(transactionLock->lock(TransactionLockType::Abort));
 
         delete transactionLock;
 
@@ -145,29 +148,29 @@ public:
 
         BlobFSTransactionLock* transactionLock = new BlobFSTransactionLock(transactionPath);
 
-        EXPECT_FALSE(transactionLock->lockForTransaction());
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::General));
         EXPECT_FALSE(BlobFile::fileExists(trLockPath));
-        EXPECT_FALSE(transactionLock->lockedForTransaction());
+        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::General));
 
-        EXPECT_FALSE(transactionLock->lockForCommit());
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Commit));
         EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
-        EXPECT_FALSE(transactionLock->lockedForCommit());
+        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::Commit));
 
-        EXPECT_FALSE(transactionLock->lockForAbort());
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Abort));
         EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
-        EXPECT_FALSE(transactionLock->lockedForAbort());
+        EXPECT_FALSE(transactionLock->isLocked(TransactionLockType::Abort));
 
-        EXPECT_FALSE(transactionLock->clearTransactionLock());
-        EXPECT_FALSE(transactionLock->clearCommitLock());
-        EXPECT_FALSE(transactionLock->clearAbortLock());
+        EXPECT_FALSE(transactionLock->clear(TransactionLockType::General));
+        EXPECT_FALSE(transactionLock->clear(TransactionLockType::Commit));
+        EXPECT_FALSE(transactionLock->clear(TransactionLockType::Abort));
 
         EXPECT_FALSE(BlobFile::fileExists(trLockPath));
         EXPECT_FALSE(BlobFile::fileExists(commitLockPath));
         EXPECT_FALSE(BlobFile::fileExists(abortLockPath));
 
-        EXPECT_FALSE(transactionLock->lockForTransaction());
-        EXPECT_FALSE(transactionLock->lockForCommit());
-        EXPECT_FALSE(transactionLock->lockForAbort());
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::General));
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Commit));
+        EXPECT_FALSE(transactionLock->lock(TransactionLockType::Abort));
 
         delete transactionLock;
 
@@ -196,7 +199,7 @@ int main(int argc, char** argv)
     return 0;
 #endif
 
-    LogConfiguration defaultConf;
+    common::LogConfiguration defaultConf;
     defaultConf.configClientLogging();
 
     TestBlobFSTransactionLock test;

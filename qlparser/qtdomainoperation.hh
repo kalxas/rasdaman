@@ -109,7 +109,7 @@ public:
 
 private:
     /// pointer to an minterval expression
-    QtOperation *mintervalOp;
+    QtOperation *mintervalOp{NULL};
 
     /// the flag determines if the minterval expression has to be calculated at runtime or not
     bool dynamicMintervalExpression;

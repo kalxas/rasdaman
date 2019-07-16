@@ -44,6 +44,9 @@ using namespace std;
 char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
+
+class MDDColl;
+MDDColl *mddConstants = 0; // used in QtMDD
 unsigned long maxTransferBufferSize = 4000000;
 int noTimeOut = 0;
 
@@ -80,7 +83,7 @@ int main(int argc, char** argv)
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;
     return 0;
 #endif
-    LogConfiguration defaultConf;
+    common::LogConfiguration defaultConf;
     defaultConf.configClientLogging();
 
     TestBlobFile test;

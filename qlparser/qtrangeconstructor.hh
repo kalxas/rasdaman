@@ -78,7 +78,7 @@ public:
 
 private:
 
-    MDDObj *getResultMDD(QtDataList *operandList);
+    std::unique_ptr<MDDObj> getResultMDD(QtDataList *operandList);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

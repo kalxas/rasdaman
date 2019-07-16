@@ -20,15 +20,6 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include "config.h"
 #include "raslib/rmdebug.hh"
@@ -41,21 +32,17 @@ rasdaman GmbH.
 #include "qlparser/qtconst.hh"
 #include "tilemgr/tile.hh"
 #include "catalogmgr/typefactory.hh"
+#include "mddmgr/mddobj.hh"
+#include "mymalloc/mymalloc.h"
+#include "tilemgr/tiler.hh"
 #include "relcatalogif/structtype.hh"
 
 #include <logging.hh>
 
-#include "mddmgr/mddobj.hh"
-#include "mymalloc/mymalloc.h"
-#include "tilemgr/tiler.hh"
-
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
+
 using namespace std;
-#endif
 
 
 const QtNode::QtNodeType QtRangeConstructor::nodeType = QT_RANGE_CONSTRUCTOR;
@@ -132,63 +119,60 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
         // check if we have a complex literal, e.g. {1c,0c,...} and handle separately
         if (complexLit)
         {
-            QtComplexData::QtScalarDataList *scalarOperandList = new QtComplexData::QtScalarDataList();
+            auto *scalarOperands = new QtComplexData::QtScalarDataList();
             for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
             {
-                QtData *operand = *iter;
-                QtDataType operandType = operand->getDataType();
-                if (operandType != QT_TYPE_UNKNOWN && operandType <= QT_COMPLEXTYPE2)
+                if ((*iter)->getDataType() != QT_TYPE_UNKNOWN &&
+                    (*iter)->getDataType() <= QT_COMPLEXTYPE2)
                 {
-                    scalarOperandList->push_back(static_cast<QtScalarData *>(operand));
+                    scalarOperands->push_back(static_cast<QtScalarData *>(*iter));
                 }
                 else
                 {
-                    LERROR << "Error: QtRangeConstructor::evaluate() - invalid scalar type.";
-                    if (scalarOperandList)
-                    {
-                        delete scalarOperandList;
-                        scalarOperandList = NULL;
-                    }
+                    LERROR << "invalid scalar type.";
+                    delete scalarOperands, scalarOperands = NULL;
                     parseInfo.setErrorNo(404);
                     throw parseInfo;
                 }
             }
-            returnValue = new QtComplexData(scalarOperandList);
+            returnValue = new QtComplexData(scalarOperands);
         }
         else
         {
             // create a transient MDD object for the query result
-            MDDObj *resultMDD = getResultMDD(operandList);
+            auto resultMDD = getResultMDD(operandList);
+            auto resultDomain = resultMDD->getDefinitionDomain();
             // size of each cell in the result tile
             unsigned int cellSize = resultMDD->getCellType()->getSize();
+            // create the result tile
+            LDEBUG << "creating result tile with domain " << resultDomain;
+            Tile *resultTile = new Tile(resultDomain, resultMDD->getCellType());
+            resultMDD->insertTile(resultTile);
+
             // total # of cells in the result tile
-            r_Area resultCellCount = resultMDD->getDefinitionDomain().cell_count();
+            r_Area resultCellCount = resultDomain.cell_count();
             // offset used for copying the current operand: starts at 0 and
             // increments based on the size of the previous source cells.
             unsigned short structElemShift = 0;
-            // create the result tile
-            Tile *resultTile = new Tile(resultMDD->getDefinitionDomain(), resultMDD->getCellType());
-            resultMDD->insertTile(resultTile);
             // iterate over the MDD objects from each band
             for (auto iter = operandList->begin(); iter != operandList->end(); iter++)
             {
-                if (static_cast<QtScalarData *>(*iter)->isScalarData())
+                size_t bandCellSize{};
+                if ((*iter)->isScalarData())
                 {
                     // pointer to contents of target tile, shifted for this band
-                    char *targetData = const_cast<char *>(resultTile->getContents()) + structElemShift;
+                    char *targetData = resultTile->getContents() + structElemShift;
                     // ptr to source data -- in this case, we do not shift as the data is constant
                     const char *scalarValuePtr = (static_cast<QtScalarData *>(*iter))->getValueBuffer();
                     // source data size for memcpy
-                    size_t scalarDataSize = (static_cast<QtScalarData *>(*iter))->getValueType()->getSize();
+                    bandCellSize = (static_cast<QtScalarData *>(*iter))->getValueType()->getSize();
                     // loop for copying the data
                     for (unsigned int cell = 0; cell < resultCellCount; ++cell)
                     {
-                        memcpy(targetData, scalarValuePtr, scalarDataSize);
+                        memcpy(targetData, scalarValuePtr, bandCellSize);
                         // shifted by total cell size
                         targetData += cellSize;
                     }
-                    // for offset computations in the next pass
-                    structElemShift += scalarDataSize;
                 }
                 else
                 {
@@ -196,33 +180,30 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
                     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
                     // vector of tiles for the source mdd object
-                    vector<boost::shared_ptr<Tile>> *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+                    auto tiles = std::unique_ptr<vector<boost::shared_ptr<Tile>>>(
+                        currentMDDObj->intersect(qtMDDObj->getLoadDomain()));
                     // cell size for this band
-                    unsigned int bandCellSize = currentMDDObj->getCellType()->getSize();
+                    bandCellSize = currentMDDObj->getCellType()->getSize();
+                    LDEBUG << "copying source tiles with cell size: " << bandCellSize;
                     // iterate over the source tiles of the current band
                     for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
                     {
                         // use copyTile to move contents from source to target
-                        resultTile->copyTile((*tileIter)->getDomain(), *tileIter, (*tileIter)->getDomain(), structElemShift, 0, bandCellSize);
+                        auto intersection = resultDomain.create_intersection((*tileIter)->getDomain());
+                        resultTile->copyTile(intersection, *tileIter, intersection, structElemShift, 0, bandCellSize);
                     }
-                    // for offset computations in the next pass
-                    structElemShift += bandCellSize;
-                    delete tiles;
                 }
+                // for offset computations in the next pass
+                structElemShift += bandCellSize;
             }
-            returnValue = new QtMDD(resultMDD);
+            returnValue = new QtMDD(resultMDD.release());
         }
-        // delete old operands
-        if (operandList)
-        {
-            delete operandList;
-            operandList = NULL;
-        }
+        delete operandList, operandList = NULL;
     }
     return returnValue;
 }
 
-MDDObj *
+std::unique_ptr<MDDObj>
 QtRangeConstructor::getResultMDD(QtDataList *operandList)
 {
     size_t nBands = operandList->size();
@@ -253,14 +234,14 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         }
     }
 
-    if (dynamic_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType())))
+    if (dynamic_cast<const MDDBaseType *>(dataStreamType.getType()))
     {
-        MDDObj *resultMDD = new MDDObj(dynamic_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType())), destinationDomain);
-        return resultMDD;
+        return std::unique_ptr<MDDObj>(
+            new MDDObj(dynamic_cast<const MDDBaseType *>(dataStreamType.getType()), destinationDomain));
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

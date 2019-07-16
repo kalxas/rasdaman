@@ -131,30 +131,31 @@ bool QtNaryOperation::equalMeaning(QtNode *node)
     bool result;
     result = false;
 
-    if (getNodeType() == node->getNodeType())
+    if (node && getNodeType() == node->getNodeType())
     {
-        QtNaryOperation *naryNode;
-        naryNode = static_cast<QtNaryOperation *>(node); // by force
+        QtNaryOperation *naryNode = static_cast<QtNaryOperation *>(node); // by force
 
         // get 2nd operation list
         QtOperationList *operationList2 = naryNode->getInputs();
+        if (!operationList2)
+            return result;
 
         // create iterators
         QtOperationList::iterator iter, iter2;
-
         result = true;
         for (iter = operationList->begin(), iter2 = operationList2->begin();
-                iter != operationList->end() && iter2 != operationList2->end();
-                iter++, iter2++)
+             iter != operationList->end() && iter2 != operationList2->end();
+             iter++, iter2++)
+        {
             if (!((*iter)->equalMeaning(*iter2)))
             {
                 result = false;
                 break;
             }
-
+        }
         // input lists must have the same length
         result &= (iter == operationList->end() && iter2 == operationList2->end());
-    };
+    }
 
     return result;
 }

@@ -22,18 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The DoubleType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _DOUBLETYPE_HH_
 #define _DOUBLETYPE_HH_
 
@@ -46,8 +34,8 @@ class OId;
 //@ManMemo: Module: {\bf relcatalogif}.
 
 /*@Doc:
-DoubleType is the base type used for 32bit integer cell
-values. The value of a Double is stored in four chars.
+DoubleType is the base type used for 64bit floating-point cell
+values. The value of a Double is stored in 8 chars.
 */
 
 /**
@@ -57,49 +45,26 @@ class DoubleType : public RealType
 {
 public:
     DoubleType();
-    /*@Doc:
-    default constructor, sets type name to "Double".
-    */
 
     DoubleType(const OId &id);
-    /*@Doc:
-    */
 
-    DoubleType(const DoubleType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    DoubleType(const DoubleType &old) = default;
 
-    DoubleType &operator=(const DoubleType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    DoubleType &operator=(const DoubleType &old) = default;
 
-    ~DoubleType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~DoubleType() override = default;
 
+    /**
+     * Prints a cell cell on stream followed by a space.
+     */
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     double *convertToCDouble(const char *cell, double *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCDouble(char *cell, const double *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

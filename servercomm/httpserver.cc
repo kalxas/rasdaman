@@ -128,11 +128,11 @@ void encodeNumber(char **output, T value)
 #ifdef RASDEBUG
     if (sizeof(T) == 1)
     {
-        LDEBUG << "encoding number: " << (int) value << ", bytes: " << sizeof(T);
+        LTRACE << "encoding number: " << (int) value << ", bytes: " << sizeof(T);
     }
     else
     {
-        LDEBUG << "encoding number: " << value << ", bytes: " << sizeof(T);
+        LTRACE << "encoding number: " << value << ", bytes: " << sizeof(T);
     }
 #endif
     *reinterpret_cast<T *>(*output) = value;
@@ -183,7 +183,7 @@ static void encodeString(char **dst, const char *src, const char *dstStart, size
         throw r_Error(r_Error::r_Error_TransferFailed);
     }
 #ifdef RASDEBUG
-    LDEBUG << "encoding string: '" << src << "', bytes: " << srcLen + 1;
+    LTRACE << "encoding string: '" << src << "', bytes: " << srcLen + 1;
 #endif
     strcpy(*dst, src);
     *dst += srcLen + 1;
@@ -200,7 +200,7 @@ static void encodeBinary(char **dst, const char *src, size_t srcLen, const char 
         throw r_Error(r_Error::r_Error_TransferFailed);
     }
 #ifdef RASDEBUG
-    LDEBUG << "encoding binary, bytes: " << srcLen;
+    LTRACE << "encoding binary, bytes: " << srcLen;
 #endif
     memcpy(*dst, src, srcLen);
     *dst += srcLen;
@@ -807,7 +807,9 @@ void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Mi
         return;
     }
 
-    LDEBUG << "Changing endianness of tile with domain " << dom;
+#ifdef RASDEBUG
+    LTRACE << "Changing endianness of tile with domain " << dom;
+#endif
     // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
     char *typeStruct = tile->getType()->getTypeStructure();
     auto *baseType = static_cast<r_Base_Type *>(r_Type::get_any_type(typeStruct));
@@ -972,7 +974,7 @@ unsigned short HttpServer::insertMDD(unsigned long callingClientId,
     if (mdd->tileSize != NULL)
     {
         splitInterval.reset(new r_Minterval(mdd->tileSize));
-        LDEBUG << "Split interval is " << *splitInterval;
+        LTRACE << "Split interval is " << *splitInterval;
     }
     // now insert the tile(s)
     auto ret = insertTile(callingClientId, isPersistent, rpcMarray, splitInterval.get());

@@ -107,7 +107,12 @@ ingest()
     else
         $RASQL $RASQL_ARGS -q "create collection $coll_name $coll_type" --quiet || exit 1
         for i in $data_files; do
-	        $RASQL $RASQL_ARGS -q "insert into $coll_name values decode(\$1)" -f $i --quiet > /dev/null || exit 1
+	        $RASQL $RASQL_ARGS -q "insert into $coll_name values decode(\$1)" -f $i --quiet > /dev/null
+            if [ $? -ne 0 ]; then
+                # insert failed -> clean up empty collection
+                $RASQL $RASQL_ARGS -q "drop collection $coll_name" --quiet > /dev/null 2>&1
+                exit 1
+            fi
         done
         echo "ok."
     fi

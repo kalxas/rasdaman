@@ -240,8 +240,8 @@ function import_rasql_data()
   check_type Gauss1Set
   check_type CInt16Set
   check_type CInt32Set
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT $TEST_CFLOAT32 
-  drop_colls $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
+  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_GREY3D $TEST_GREY4D $TEST_STRUCT
+  drop_colls $TEST_CFLOAT32 $TEST_CFLOAT64 $TEST_CINT16 $TEST_CINT32
 
   # create the struct_cube_set type
   $RASQL -q "select c from RAS_SET_TYPES as c" --out string | egrep --quiet  "\bstruct_cube_set\b"
@@ -278,8 +278,8 @@ function import_rasql_data()
   insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode" "" "tiling aligned [0:49,0:29] tile size 1500 $STORAGE_CLAUSE"
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode" "" "tiling aligned [0:49,0:49] tile size 7500 $STORAGE_CLAUSE"
-  insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode" 
-  insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode" 
+  insert_into $TEST_CFLOAT32 "$TESTDATA_PATH/cfloat32_image.tif" "" "decode"
+  insert_into $TEST_CFLOAT64 "$TESTDATA_PATH/cfloat64_image.tif" "" "decode"
   insert_into $TEST_CINT16 "$TESTDATA_PATH/cint16_image.tif" "" "decode"
   insert_into $TEST_CINT32 "$TESTDATA_PATH/cint32_image.tif" "" "decode"
 

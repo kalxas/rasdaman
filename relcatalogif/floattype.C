@@ -30,52 +30,34 @@ rasdaman GmbH.
 
 FloatType::FloatType(const OId &id) : RealType(id)
 {
-    readFromDb();
-}
-
-FloatType::FloatType() : RealType(FloatType::Name, 4)
-{
-    myType = FLOAT;
-    myOId = OId(FLOAT, OId::ATOMICTYPEOID);
-}
-
-FloatType::FloatType(const FloatType &old)  = default;
-
-FloatType &FloatType::operator=(const FloatType &old)
-{
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
-}
-
-FloatType::~FloatType() = default;
-
-void FloatType::readFromDb()
-{
     setName(FloatType::Name);
-    size = 4;
+    size = sizeof(r_Float);
     myType = FLOAT;
     myOId = OId(FLOAT, OId::ATOMICTYPEOID);
 }
+
+FloatType::FloatType() : RealType(FloatType::Name, sizeof(r_Float))
+{
+    myType = FLOAT;
+    myOId = OId(FLOAT, OId::ATOMICTYPEOID);
+}
+
 
 void FloatType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setprecision(std::numeric_limits<float>::digits10 + 1) 
-           << *reinterpret_cast<const float *>(cell);
+    stream << std::setprecision(std::numeric_limits<r_Float>::digits10 + 1) 
+           << *reinterpret_cast<const r_Float *>(cell);
 }
 
-double *FloatType::convertToCDouble(const char *cell, double *value) const
+double *FloatType::convertToCDouble(const char *cell, r_Double *value) const
 {
-    *value = static_cast<double>(*reinterpret_cast<const float *>(cell));
+    *value = static_cast<r_Double>(*reinterpret_cast<const r_Float *>(cell));
     return value;
 }
 
-char *FloatType::makeFromCDouble(char *cell, const double *value) const
+char *FloatType::makeFromCDouble(char *cell, const r_Double *value) const
 {
-    *reinterpret_cast<float *>(cell) = static_cast<float>(*value);
+    *reinterpret_cast<r_Float *>(cell) = static_cast<r_Float>(*value);
     return cell;
 }
 
