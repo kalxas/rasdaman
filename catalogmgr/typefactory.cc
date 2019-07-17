@@ -195,10 +195,10 @@ const BaseType *TypeFactory::mapType(const char *typeName)
     return resultType;
 }
 
-const StructType *TypeFactory::addStructType(const StructType *type)
+const BaseType *TypeFactory::addStructType(const BaseType *type)
 {
     StructType *persistentType = nullptr;
-    const StructType *retval = nullptr;
+    const BaseType *retval = nullptr;
     if (type->isPersistent())
     {
         LTRACE << "type is persistent " << type->getName() << " " << type->getOId();
@@ -206,45 +206,54 @@ const StructType *TypeFactory::addStructType(const StructType *type)
     }
     else
     {
-        persistentType = new StructType(const_cast<char *>(type->getTypeName()), type->getNumElems());
-        for (unsigned int i = 0; i < type->getNumElems(); i++)
+        if (type->getType() <= NUMERICAL_TYPES_END)
         {
-            switch (type->getElemType(i)->getType())
+            persistentType = new StructType(type->getTypeName(), 1);
+            persistentType->addElement(
+                type->getTypeName(),
+                static_cast<BaseType *>(ObjectBroker::getObjectByOId(type->getOId())));
+        }
+        else if (type->getType() <= STRUCT)
+        {
+            const auto *stype = static_cast<const StructType *>(type);
+
+            persistentType = new StructType(stype->getTypeName(), stype->getNumElems());
+            for (unsigned int i = 0; i < stype->getNumElems(); i++)
             {
-            case STRUCT:
-                LTRACE << "element is struct type " << type->getElemName(i)
-                       << " of type " << type->getElemType(i)->getName();
-                LERROR << "Building a struct using a user-defined struct is currently not supported.";
-                throw r_Error(STRUCTOFSTRUCTSDISABLED);
-            case ULONG:
-            case USHORT:
-            case CHAR:
-            case BOOLTYPE:
-            case LONG:
-            case SHORT:
-            case OCTET:
-            case DOUBLE:
-            case FLOAT:
-            case COMPLEXTYPE1:
-            case COMPLEXTYPE2:
-            case CINT16:
-            case CINT32:
-                LTRACE << "element is atomic type " << type->getElemName(i)
-                       << " of type " << type->getElemType(i)->getName();
-                persistentType->addElement(
-                    type->getElemName(i),
-                    static_cast<BaseType *>(ObjectBroker::getObjectByOId(
-                                                type->getElemType(i)->getOId())));
-                break;
-            default:
-                persistentType = nullptr;
-                LTRACE << "addStructType(" << type->getTypeName() << ") unknown type "
-                       << type->getOId() << type->getOId().getType();
-                break;
+                LTRACE << "adding element " << stype->getElemName(i)
+                        << " of type " << stype->getElemType(i)->getName();
+
+                auto elemType = stype->getElemType(i)->getType();
+                if (elemType <= NUMERICAL_TYPES_END)
+                {
+                    persistentType->addElement(
+                        stype->getElemName(i),
+                        static_cast<BaseType *>(ObjectBroker::getObjectByOId(
+                                                    stype->getElemType(i)->getOId())));
+                }
+                else if (elemType == STRUCT)
+                {
+                    delete persistentType, persistentType = nullptr;
+                    LERROR << "element is struct type " << stype->getElemName(i)
+                           << " of type " << stype->getElemType(i)->getName()
+                           << "; building a struct using a user-defined struct is currently not supported.";
+                    throw r_Error(STRUCTOFSTRUCTSDISABLED);
+                }
+                else
+                {
+                    delete persistentType, persistentType = nullptr;
+                    LERROR << "unknown band type " << elemType;
+                    throw r_Error(r_Error::r_Error_General);
+                }
             }
         }
-        LTRACE << "type is now persistent " << persistentType->getName() << " "
-               << persistentType->getOId();
+        else
+        {
+            delete persistentType, persistentType = nullptr;
+            LERROR << "unknown type " << type->getType();
+            throw r_Error(r_Error::r_Error_General);
+        }
+        LTRACE << "type is now persistent " << persistentType->getName() << " " << persistentType->getOId();
         persistentType->setCached(true);
         persistentType->setPersistent(true);
         ObjectBroker::registerDBObject(persistentType);
@@ -324,23 +333,24 @@ const MDDType *TypeFactory::addMDDType(const MDDType *type)
     else
     {
         LTRACE << "type is not persistent " << type->getOId();
+        const BaseType *baseType = NULL;
+        if (type->getSubtype() != MDDType::MDDONLYTYPE)
+            baseType = static_cast<const MDDBaseType *>(type)->getBaseType();
+
         switch (type->getSubtype())
         {
         case MDDType::MDDONLYTYPE:
             persistentType = new MDDType(type->getTypeName());
             break;
         case MDDType::MDDBASETYPE:
-            persistentType = new MDDBaseType(type->getTypeName(),
-                                             addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())));
+            persistentType = new MDDBaseType(type->getTypeName(), addStructType(baseType));
             break;
         case MDDType::MDDDOMAINTYPE:
-            persistentType = new MDDDomainType(type->getTypeName(),
-                                               addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
+            persistentType = new MDDDomainType(type->getTypeName(), addStructType(baseType),
                                                *static_cast<const MDDDomainType *>(type)->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
-            persistentType = new MDDDimensionType(type->getTypeName(),
-                                                  addStructType(static_cast<const StructType *>(static_cast<const MDDBaseType *>(type)->getBaseType())),
+            persistentType = new MDDDimensionType(type->getTypeName(), addStructType(baseType),
                                                   static_cast<const MDDDimensionType *>(type)->getDimension());
             break;
         default:
@@ -350,8 +360,7 @@ const MDDType *TypeFactory::addMDDType(const MDDType *type)
         if (persistentType != nullptr)
         {
             persistentType->setPersistent(true);
-            LTRACE << "adding " << persistentType->getName() << " "
-                   << persistentType->getOId();
+            LTRACE << "adding " << persistentType->getName() << " " << persistentType->getOId();
             persistentType->setCached(true);
             ObjectBroker::registerDBObject(persistentType);
             retval = persistentType;

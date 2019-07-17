@@ -45,13 +45,8 @@ rasdaman GmbH.
 #include <malloc.h>
 #endif
 
-r_Bytes MDDDimensionType::getMemorySize() const
-{
-    return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
-}
-
 MDDDimensionType::MDDDimensionType(const OId &id)
-    : MDDBaseType(id), myDimension(0)
+    : MDDBaseType(id)
 {
     if (objecttype == OId::MDDDIMTYPEOID)
     {
@@ -60,8 +55,7 @@ MDDDimensionType::MDDDimensionType(const OId &id)
     }
 }
 
-MDDDimensionType::MDDDimensionType(const char *newTypeName,
-                                   const BaseType *newBaseType,
+MDDDimensionType::MDDDimensionType(const char *newTypeName, const BaseType *newBaseType,
                                    r_Dimension newDimension)
     : MDDBaseType(newTypeName, newBaseType), myDimension(newDimension)
 {
@@ -70,46 +64,20 @@ MDDDimensionType::MDDDimensionType(const char *newTypeName,
 }
 
 MDDDimensionType::MDDDimensionType()
-    : MDDBaseType("unnamed mdddimensiontype"), myDimension(0)
+    : MDDBaseType("unnamed mdddimensiontype")
 {
     objecttype = OId::MDDDIMTYPEOID;
     mySubclass = MDDDIMENSIONTYPE;
 }
 
-MDDDimensionType::MDDDimensionType(const MDDDimensionType &old)
-    : MDDBaseType(old)
-{
-    objecttype = OId::MDDDIMTYPEOID;
-    myDimension = old.myDimension;
-}
-
-MDDDimensionType &MDDDimensionType::operator=(const MDDDimensionType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    MDDBaseType::operator=(old);
-    myDimension = old.myDimension;
-    return *this;
-}
-
 char *MDDDimensionType::getTypeStructure() const
 {
-    char dimBuf[255];
-    sprintf(dimBuf, "%d", myDimension);
-    LTRACE << "myBaseType at " << myBaseType;
+    auto dimStr = std::to_string(myDimension);
     char *baseType = myBaseType->getTypeStructure();
-    LTRACE << "basetype at " << baseType;
-    char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + strlen(dimBuf)));
+    char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + dimStr.size()));
 
-    strcpy(result, "marray <");
-    strcat(result, baseType);
-    strcat(result, ", ");
-    strcat(result, dimBuf);
-    strcat(result, ">");
-
+    sprintf(result, "marray <%s, %s>", baseType, dimStr.c_str());
+    
     free(baseType);
     return result;
 }
@@ -117,33 +85,24 @@ char *MDDDimensionType::getTypeStructure() const
 char *MDDDimensionType::getNewTypeStructure() const
 {
     std::ostringstream ss;
-
-    if (boost::starts_with(myBaseType->getTypeName(),
-                           TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+    if (boost::starts_with(myBaseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
     {
-        ss << myBaseType->getNewTypeStructure();
+        char *typeStructure = myBaseType->getNewTypeStructure();
+        ss << typeStructure;
+        free(typeStructure);
     }
     else
     {
-        ss << TypeFactory::getSyntaxTypeFromInternalType(
-               std::string(myBaseType->getTypeName()));
+        ss << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
     }
 
-    ss << " MDARRAY ";
-
-    ss << "[";
-    bool isFirst = true;
+    ss << " MDARRAY [";
     for (r_Dimension i = 0; i < myDimension; ++i)
     {
-        if (!isFirst)
-        {
+        if (i > 0)
             ss << ",";
-        }
-
         ss << "a" << i;
-        isFirst = false;
     }
-
     ss << "]";
 
     std::string result = ss.str();
@@ -152,8 +111,7 @@ char *MDDDimensionType::getNewTypeStructure() const
 
 void MDDDimensionType::print_status(std::ostream &s) const
 {
-    s << "\tr_Marray"
-      << "<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
+    s << "\tr_Marray<" << myBaseType->getTypeName() << "\t, " << myDimension << ">";
 }
 
 r_Dimension MDDDimensionType::getDimension() const
@@ -168,39 +126,34 @@ MDDDimensionType::~MDDDimensionType() noexcept(false)
 
 int MDDDimensionType::compatibleWith(const Type *aType) const
 {
-    int retval = 0;
-    if (static_cast<const MDDType *>(aType)->getSubtype() != MDDDOMAINTYPE &&
-        static_cast<const MDDType *>(aType)->getSubtype() != MDDDIMENSIONTYPE)
+    const auto *mddType = static_cast<const MDDType *>(aType);
+    if (mddType->getSubtype() != MDDDOMAINTYPE && mddType->getSubtype() != MDDDIMENSIONTYPE)
     {
         LTRACE << "not a domain- or dimensiontype";
-        retval = 0;
+        return 0;
     }
     else
     {
-        // check BaseType first
-        if (!myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType()))
+        if (!myBaseType->compatibleWith(static_cast<const MDDBaseType *>(mddType)->getBaseType()))
         {
             LTRACE << "basetypes are not compatible";
-            retval = 0;
+            return 0;
+        }
+        else if (mddType->getSubtype() == MDDDIMENSIONTYPE)
+        {
+            LTRACE << "check for dimension equality";
+            return (myDimension == static_cast<const MDDDimensionType *>(aType)->getDimension());
         }
         else
         {
-            // check dimensionality
-            if (static_cast<const MDDType *>(aType)->getSubtype() == MDDDIMENSIONTYPE)
-            {
-                LTRACE << "check for dimension equality";
-                retval = (myDimension == static_cast<const MDDDimensionType *>(aType)->getDimension());
-            }
-            else
-            {
-                if (static_cast<const MDDType *>(aType)->getSubtype() == MDDDOMAINTYPE)
-                {
-                    LTRACE << "check for dimension equality";
-                    retval = (myDimension == static_cast<const MDDDomainType *>(aType)->getDomain()->dimension());
-                }
-            }
+            LTRACE << "check for dimension equality";
+            return (myDimension == static_cast<const MDDDomainType *>(aType)->getDomain()->dimension());
         }
     }
-    return retval;
+}
+
+r_Bytes MDDDimensionType::getMemorySize() const
+{
+    return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
 }
 

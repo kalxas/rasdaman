@@ -20,19 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The UIntegralType class is the superclass for all unsigned
- *   integral types (Char, Short, Long) describing the type of a
- *   cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _UINTEGRALTYPE_HH_
 #define _UINTEGRALTYPE_HH_
 
@@ -55,34 +42,22 @@ class UIntegralType : public AtomicType
 {
 public:
     UIntegralType(unsigned int newSize) : AtomicType(newSize) {}
-    /*@Doc:
-    constructor.
-    */
 
     UIntegralType(const UIntegralType &old)  = default;
-    /*@Doc:
-    copy constructor.
-    */
 
     UIntegralType(const OId &id) : AtomicType(id) {}
-    /*@Doc:
-    */
 
     ~UIntegralType() override = default;
-    /*@Doc:
-    */
 
     r_Long *convertToCLong(const char *, r_Long *) const override;
     char *makeFromCLong(char *, const r_Long *) const override;
 
-    double *convertToCDouble(const char *, double *) const override;
-    char *makeFromCDouble(char *, const double *) const override;
+    double *convertToCDouble(const char *, r_Double *) const override;
+    char *makeFromCDouble(char *, const r_Double *) const override;
 
 protected:
     UIntegralType(const char *name, unsigned int newSize)
         : AtomicType(name, newSize) {}
-    /*@Doc:
-    */
 };
 
 #include "uintegraltype.icc"

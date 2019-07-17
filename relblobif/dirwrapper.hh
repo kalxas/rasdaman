@@ -55,6 +55,9 @@ public:
     // files/subdirs; print warning in case of error
     static void removeDirectory(const std::string &dirPath);
 
+    // Return true if dirPath exists, false otherwise
+    static bool directoryExists(const char *dirPath);
+
     // Append final '/' to dirPath if necessary
     static std::string convertToCanonicalPath(const std::string &dirPath);
 

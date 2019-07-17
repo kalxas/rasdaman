@@ -20,125 +20,48 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
+#include "reladminif/oidif.hh"  // for OId, OId::ATOMICTYPEOID
+#include "shorttype.hh"
+#include "reladminif/oidif.hh"  // for OId
 
 #include <limits.h>       // for SHRT_MAX, SHRT_MIN
 #include <iomanip>        // for operator<<, setw
 
-#include "atomictype.hh"  // for AtomicType
-#include "reladminif/oidif.hh"       // for OId, OId::ATOMICTYPEOID
-#include "shorttype.hh"
-#include "reladminif/oidif.hh"        // for OId
-
 ShortType::ShortType(const OId &id) : IntegralType(id)
 {
-    readFromDb();
+    setName(ShortType::Name);
+    myType = SHORT;
+    size = sizeof(r_Short);
+    myOId = OId(SHORT, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: ShortType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 ShortType.
- ************************************************************/
-
-ShortType::ShortType() : IntegralType(ShortType::Name, 2)
+ShortType::ShortType() : IntegralType(ShortType::Name, sizeof(r_Short))
 {
     myType = SHORT;
     myOId = OId(SHORT, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: ShortType(const ShortType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-ShortType::ShortType(const ShortType &old)  = default;
-
-/*************************************************************
- * Method name...: operator=(const ShortType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-ShortType &ShortType::operator=(const ShortType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
-}
-
-/*************************************************************
- * Method name...: ~ShortType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-ShortType::~ShortType() = default;
-
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that Short is stored MSB..LSB
- *                 on HP.
- ************************************************************/
-
 void ShortType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setw(5) << *reinterpret_cast<const short *>(cell);
+    stream << std::setw(5) << *reinterpret_cast<const r_Short *>(cell);
 }
 
 r_Long *ShortType::convertToCLong(const char *cell, r_Long *value) const
 {
-    *value = *reinterpret_cast<const short *>(cell);
+    *value = *reinterpret_cast<const r_Short *>(cell);
     return value;
 }
 
 char *ShortType::makeFromCLong(char *cell, const r_Long *value) const
 {
-    r_Long myLong = *value;
-    // restricting long to value range of short
-    myLong = myLong > SHRT_MAX ? SHRT_MAX : myLong;
-    myLong = myLong < SHRT_MIN ? SHRT_MIN : myLong;
-    // !!!! HP specific, assumes 2 Byte short
-    *reinterpret_cast<short *>(cell) = (short)myLong;
-    return cell;
-}
+    r_Short myvalue;
+    if (*value > SHRT_MAX)
+        myvalue = SHRT_MAX;
+    else if (*value < SHRT_MIN)
+        myvalue = SHRT_MIN;
+    else
+        myvalue = static_cast<r_Short>(*value);
 
-void ShortType::readFromDb()
-{
-    setName(ShortType::Name);
-    myType = SHORT;
-    size = 2;
-    myOId = OId(SHORT, OId::ATOMICTYPEOID);
+    *reinterpret_cast<r_Short *>(cell) = myvalue;
+    return cell;
 }

@@ -147,7 +147,7 @@ public:
     yet persistent also return their object type.
     */
 
-    DBObject &operator=(const DBObject &old);
+    DBObject &operator=(const DBObject &old) = default;
     /*@Doc:
     clones all DBObject attributes except reference count.
     */
@@ -238,22 +238,22 @@ protected:
     this implementation checks for readOnlyTA
     */
 
-    bool _isPersistent;
+    bool _isPersistent{false};
     /*@Doc:
     tells, if this object should be in the database or not.
     */
 
-    bool _isInDatabase;
+    bool _isInDatabase{false};
     /*@Doc:
     tells, if this object is already in the database.
     */
 
-    bool _isModified;
+    bool _isModified{false};
     /*@Doc:
     tells, if this object has changed an should be updated in the database.
     */
 
-    bool _isCached;
+    bool _isCached{false};
     /*@Doc:
     tells , if this objects is cached or not
     */
@@ -269,12 +269,12 @@ protected:
     of optional persistent objects (types).
     */
 
-    OId::OIdType objecttype;
+    OId::OIdType objecttype{OId::INVALID};
     /*@Doc:
     the type of this object.  needed by setPersistent(1) to allocate the correct oid.
     */
 
-    int referenceCount;
+    int referenceCount{0};
     /*@Doc:
     The number of references that exist for this file. Use get_reference() for reading
     its value from derived classes. Modified by incr_reference and decr_reference.

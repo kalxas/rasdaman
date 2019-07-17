@@ -22,18 +22,8 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   Code with embedded SQL for PostgreSQL DBMS
- *
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- ************************************************************/
 
+#include "basetype.hh"
 #include "mdddomaintype.hh"
 #include "dbminterval.hh"
 #include "reladminif/objectbroker.hh"
@@ -45,68 +35,49 @@ rasdaman GmbH.
 
 void MDDDomainType::insertInDb()
 {
-    long long mddtypeid;
-    long long mddbasetypeid;
-    long long domainid;
-    char mddtypename[VARCHAR_MAXLEN];
-
-    (void)strncpy(mddtypename, const_cast<char *>(getName()),
-                  (size_t)sizeof(mddtypename));
-    DBObject *obj = (DBObject *)const_cast<BaseType *>(getBaseType());
-    mddbasetypeid = obj->getOId();
-    mddtypeid = myOId.getCounter();
-    domainid = myDomain->getOId().getCounter();
+    const auto domainid = myDomain->getOId().getCounter();
+    long long basetypeid = getBaseType()->getOId();
     SQLiteQuery::executeWithParams(
-        "INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, "
-        "DomainId) VALUES (%lld, '%s', %lld, %lld)",
-        mddtypeid, mddtypename, mddbasetypeid, domainid);
+        "INSERT INTO RAS_MDDDOMTYPES ( MDDDomTypeOId, MDDTypeName, BaseTypeId, DomainId ) "
+        "VALUES (%lld, '%s', %lld, %lld)", myOId.getCounter(), getName(), basetypeid, domainid);
     DBObject::insertInDb();
 }
 
 void MDDDomainType::readFromDb()
 {
-    long long mddtypeid;
-    long long mddbasetypeid;
-    long long domainid;
-    const char *mddtypename;
-
-    mddtypeid = myOId.getCounter();
-    mddbasetypeid = 0;
+#ifdef RMANBENCHMARK
+    DBObject::readTimer.resume();
+#endif
 
     SQLiteQuery query(
-        "SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE "
-        "MDDDomTypeOId = %lld",
-        mddtypeid);
+        "SELECT BaseTypeId, MDDTypeName, DomainId FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld",
+        myOId.getCounter());
     if (query.nextRow())
     {
-        mddbasetypeid = query.nextColumnLong();
-        mddtypename = query.nextColumnString();
-        domainid = query.nextColumnInt();
+        auto basetypeid = query.nextColumnLong();
+        setName(query.nextColumnString());
+        auto domainid = query.nextColumnLong();
+        query.finalize();
+
+        myBaseType = static_cast<BaseType *>(ObjectBroker::getObjectByOId(OId(basetypeid)));
+        myDomain = static_cast<DBMinterval *>(ObjectBroker::getObjectByOId(OId(domainid, OId::DBMINTERVALOID)));
+        myDomain->setCached(true);
     }
     else
     {
-        LERROR << "MDDDomainType::readFromDb() - mdd type: " << mddtypeid
-               << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND,
-                           "mdd type object not found in the database.");
+        LERROR << "mdd domain type " << myOId.getCounter() << " not found in RAS_MDDDOMTYPES.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in RAS_MDDDOMTYPES.");
     }
-
-    setName(strlen(mddtypename), mddtypename);
-    myBaseType = (BaseType *) ObjectBroker::getObjectByOId(OId(mddbasetypeid));
-    myDomain = (DBMinterval *) ObjectBroker::getObjectByOId(OId(domainid, OId::DBMINTERVALOID));
-    myDomain->setCached(true);
-
+    DBObject::readFromDb();
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-    DBObject::readFromDb();
 }
 
 void MDDDomainType::deleteFromDb()
 {
-    long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld", mddtypeid);
+        "DELETE FROM RAS_MDDDOMTYPES WHERE MDDDomTypeOId = %lld", myOId.getCounter());
     myDomain->setPersistent(false);
     myDomain->setCached(false);
     DBObject::deleteFromDb();

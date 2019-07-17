@@ -45,7 +45,7 @@ export RC_OK=0
 export RC_ERROR=255
 
 # updateN.sql scripts
-SCRIPT_DIR=@pkgdatadir@/db_updates
+export SCRIPT_DIR=@pkgdatadir@/db_updates
 
 # table storing the current database update number
 export RAS_DBUPDATE=ras_dbupdates
@@ -205,10 +205,10 @@ else
   updated=0
   while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" -o -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
     logn "  update $counter... "
-    if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" ]; then
-      $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > "$last_log" 2>&1
-    else
+    if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; then
       sh "$SCRIPT_DIR/update${counter}-sqlite.sh"
+    else
+      $SQLITE < "$SCRIPT_DIR/update${counter}-sqlite.sql" > "$last_log" 2>&1
     fi
     # Check if the update was successful
     ret=$?

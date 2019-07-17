@@ -520,7 +520,7 @@ OIdSet *ObjectBroker::getAllMDDObjects()
 
 OIdSet *ObjectBroker::getAllMDDSets()
 {
-    OIdSet *retval = new OIdSet();
+    auto retval = std::unique_ptr<OIdSet>(new OIdSet());
     DBObjectPMap &theMap = ObjectBroker::getMap(OId::MDDCOLLOID);
     for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++)
     {
@@ -541,5 +541,5 @@ OIdSet *ObjectBroker::getAllMDDSets()
         retval->insert(id);
     }
 
-    return retval;
+    return retval.release();
 }

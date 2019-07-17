@@ -36,12 +36,6 @@ rasdaman GmbH.
 #include <iostream>                   // for operator<<, basic_ostream, char...
 #include <string>                     // for string
 
-
-r_Bytes MDDType::getMemorySize() const
-{
-    return sizeof(MDDType::MDDTypeEnum) + DBNamedObject::getMemorySize();
-}
-
 MDDType::MDDType(const OId &id) : Type(id)
 {
     if (objecttype == OId::MDDTYPEOID)
@@ -66,25 +60,6 @@ MDDType::MDDType(const char *newTypeName) : Type(newTypeName)
     objecttype = OId::MDDTYPEOID;
 }
 
-MDDType::MDDType(const MDDType &old) : Type(old)
-{
-    myType = old.myType;
-    mySubclass = old.mySubclass;
-}
-
-MDDType &MDDType::operator=(const MDDType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    Type::operator=(old);
-    myType = old.myType;
-    mySubclass = old.mySubclass;
-    return *this;
-}
-
 MDDType::~MDDType() noexcept(false)
 {
     validate();
@@ -92,40 +67,29 @@ MDDType::~MDDType() noexcept(false)
 
 char *MDDType::getTypeStructure() const
 {
-    std::string result = "marray {}";
+    std::string result = "marray <>";
     return strdup(result.c_str());
 }
 
 char *MDDType::getNewTypeStructure() const
 {
-    char *result = static_cast<char *>(mymalloc(10));
-
-    strcpy(result, "marray {}");
-    return result;
+    std::string result = "marray {}";
+    return strdup(result.c_str());
 }
 
 void MDDType::print_status(std::ostream &s) const
 {
-    s << "\tr_Marray" << "<" << ">";
+    s << "\tr_Marray<>";
 }
 
 int MDDType::compatibleWith(const Type *aType) const
 {
-    LTRACE << "compatibleWith(" << aType->getName() << ") " << (aType->getType() != MDDTYPE);
-    if (aType->getType() != MDDTYPE)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
+    return aType->getType() == MDDTYPE;
 }
 
 int MDDType::compatibleWithDomain(__attribute__((unused))
                                   const r_Minterval *aDomain) const
 {
-    LTRACE << "compatibleWithDomain(" << *aDomain << ") " << 1;
     return 1;
 }
 
@@ -134,3 +98,7 @@ MDDType::MDDTypeEnum MDDType::getSubtype() const
     return mySubclass;
 }
 
+r_Bytes MDDType::getMemorySize() const
+{
+    return sizeof(MDDType::MDDTypeEnum) + DBNamedObject::getMemorySize();
+}

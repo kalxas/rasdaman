@@ -23,31 +23,23 @@ rasdaman GmbH.
 
 #include "settype.hh"         // for SetType
 #include "mddtype.hh"         // for MDDType
-#include "collectiontype.hh"  // for CollectionType
-#include "raslib/odmgtypes.hh"       // for SETTYPE
+#include "raslib/odmgtypes.hh" // for SETTYPE
 #include "reladminif/oidif.hh"
 #include "mymalloc/mymalloc.h"
 
 #include <stdlib.h>           // for free, malloc
-#include <string.h>           // for strcat, strcpy, strlen
+#include <string.h>           // for sprintf
+
+SetType::SetType() : CollectionType("unnamed settype")
+{
+    myType = SETTYPE;
+    objecttype = OId::SETTYPEOID;
+}
 
 SetType::SetType(const OId &id) : CollectionType(id)
 {
     objecttype = OId::SETTYPEOID;
     readFromDb();
-}
-
-char *SetType::getTypeStructure() const
-{
-    char *dummy = myMDDType->getTypeStructure();
-    char *result = static_cast<char *>(mymalloc(5 + strlen(dummy) + 2));
-
-    strcpy(result, "set <");
-    strcat(result, dummy);
-    strcat(result, ">");
-
-    free(dummy);
-    return result;
 }
 
 SetType::SetType(const char *newTypeName, MDDType *newMDDType)
@@ -57,26 +49,17 @@ SetType::SetType(const char *newTypeName, MDDType *newMDDType)
     objecttype = OId::SETTYPEOID;
 }
 
-SetType::SetType(const SetType &old)  = default;
-
-SetType &SetType::operator=(const SetType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    CollectionType::operator=(old);
-    return *this;
-}
-
-SetType::SetType() : CollectionType("unnamed settype")
-{
-    myType = SETTYPE;
-    objecttype = OId::SETTYPEOID;
-}
-
 SetType::~SetType() noexcept(false)
 {
     validate();
+}
+
+char *SetType::getTypeStructure() const
+{
+    char *dummy = myMDDType->getTypeStructure();
+    char *result = static_cast<char *>(mymalloc(5 + strlen(dummy) + 2));
+    sprintf(result, "set <%s>", dummy);
+
+    free(dummy);
+    return result;
 }

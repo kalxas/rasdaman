@@ -21,106 +21,66 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   Code with embedded SQL for PostgreSQL DBMS
- *
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- ************************************************************/
 
 #include "structtype.hh"
+#include "basetype.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/sqlitewrapper.hh"
 #include <logging.hh>
 
 void StructType::insertInDb()
 {
-    long long structtypeid;
-    char structtypename[VARCHAR_MAXLEN];
-    long long elementtype;
-    char elementname[VARCHAR_MAXLEN];
-    unsigned int count;
-
-    (void)strncpy(structtypename, const_cast<char *>(getTypeName()),
-                  (size_t)sizeof(structtypename));
-    structtypeid = myOId.getCounter();
-
     SQLiteQuery::executeWithParams(
         "INSERT INTO RAS_BASETYPENAMES (BaseTypeId, BaseTypeName) VALUES (%lld, '%s')",
-        structtypeid, structtypename);
-    for (count = 0; count < getNumElems(); count++)
+        myOId.getCounter(), getTypeName());
+    for (unsigned int count = 0; count < getNumElems(); count++)
     {
-        (void)strncpy(elementname, const_cast<char *>(getElemName(count)),
-                      (size_t)sizeof(elementname));
-        // should not be necessary because of TypeFactory::addType()
-        DBObject *obj = (DBObject *)const_cast<BaseType *>(getElemType(count));
-
-        elementtype = obj->getOId();
-        LTRACE << "element " << count << ". id\t:" << elementtype;
-
+        long long elemtypeid = getElemType(count)->getOId();
+        const char* elemname = getElemName(count);
         SQLiteQuery::executeWithParams(
-            "INSERT INTO RAS_BASETYPES (BaseTypeId, ContentType, Count, "
-            "ContentTypeName) VALUES (%lld, %lld, %d, '%s')",
-            structtypeid, elementtype, count, elementname);
+            "INSERT INTO RAS_BASETYPES (BaseTypeId, ContentType, Count, ContentTypeName) "
+            "VALUES (%lld, %lld, %d, '%s')",
+            myOId.getCounter(), elemtypeid, count, elemname);
     }
     DBObject::insertInDb();
 }
 
 void StructType::readFromDb()
 {
-    short count = 0;
-
-    long long basetypeid;
-    long long elementtypeid;
-    const char *basetypename;
-
-    basetypeid = myOId.getCounter();
-
-    SQLiteQuery query(
-        "SELECT BaseTypeName FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld",
-        basetypeid);
-    if (query.nextRow())
     {
-        basetypename = query.nextColumnString();
+        SQLiteQuery query(
+            "SELECT BaseTypeName FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld", myOId.getCounter());
+        if (query.nextRow())
+        {
+            setName(query.nextColumnString());
+        }
+        else
+        {
+            LERROR << "struct type " << myOId.getCounter() << " not found in RAS_BASETYPENAMES.";
+            throw r_Ebase_dbms(SQLITE_NOTFOUND, "struct type object not found in RAS_BASETYPENAMES.");
+        }
     }
-    else
     {
-        LERROR << "StructType::readFromDb() - base type: " << basetypeid
-               << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND,
-                           "base type object not found in the database.");
-    }
-    setName(basetypename);
-
-    SQLiteQuery query2(
-        "SELECT ContentTypeName, ContentType, Count FROM RAS_BASETYPES WHERE "
-        "BaseTypeId = %lld ORDER BY Count",
-        basetypeid);
-    while (query2.nextRow())
-    {
-        const char *elementname = query2.nextColumnString();
-        elementtypeid = query2.nextColumnLong();
-
-        LTRACE << count << ". contenttypeid is " << elementtypeid
-               << " elementname is " << elementname;
-        addElementPriv(elementname, (BaseType *)ObjectBroker::getObjectByOId(
-                           OId(elementtypeid)));
-        count++;
+        SQLiteQuery query2(
+            "SELECT ContentTypeName, ContentType FROM RAS_BASETYPES WHERE "
+            "BaseTypeId = %lld ORDER BY Count", myOId.getCounter());
+        while (query2.nextRow())
+        {
+            const char *elementname = query2.nextColumnString();
+            const auto elemtypeid = query2.nextColumnLong();
+            
+            auto *et = static_cast<BaseType *>(ObjectBroker::getObjectByOId(OId(elemtypeid)));
+            addElementPriv(elementname, et);
+        }
     }
     DBObject::readFromDb();
 }
 
 void StructType::deleteFromDb()
 {
-    long long basetypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld", basetypeid);
+        "DELETE FROM RAS_BASETYPENAMES WHERE BaseTypeId = %lld", myOId.getCounter());
     SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_BASETYPES WHERE BaseTypeId = %lld", basetypeid);
+        "DELETE FROM RAS_BASETYPES WHERE BaseTypeId = %lld", myOId.getCounter());
     DBObject::deleteFromDb();
 }

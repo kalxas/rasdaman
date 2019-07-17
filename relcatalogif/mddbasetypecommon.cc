@@ -21,14 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 // This is -*- C++ -*-
-/*************************************************************
- *
- *
- * PURPOSE:
- *  code common to all database interface implementations
- *
- * CHANGE HISTORY (append further entries):
- */
 
 #include "basetype.hh"             // for BaseType
 #include "mddbasetype.hh"          // for MDDBaseType
@@ -50,12 +42,16 @@ rasdaman GmbH.
 #include <malloc.h>
 #endif
 
-r_Bytes MDDBaseType::getMemorySize() const
+MDDBaseType::MDDBaseType()
+    : MDDType("unnamed mddbasetype")
 {
-    return MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType *);
+    objecttype = OId::MDDBASETYPEOID;
+    myBaseType = nullptr;
+    mySubclass = MDDBASETYPE;
 }
 
-MDDBaseType::MDDBaseType(const OId &id) : MDDType(id)
+MDDBaseType::MDDBaseType(const OId &id)
+    : MDDType(id)
 {
     if (objecttype == OId::MDDBASETYPEOID)
     {
@@ -72,35 +68,17 @@ MDDBaseType::MDDBaseType(const char *newTypeName, const BaseType *newBaseType)
     mySubclass = MDDBASETYPE;
 }
 
-MDDBaseType::MDDBaseType() : MDDType("unnamed mddbasetype")
+MDDBaseType::MDDBaseType(const char *tname)
+    : MDDType(tname)
 {
     objecttype = OId::MDDBASETYPEOID;
     myBaseType = nullptr;
     mySubclass = MDDBASETYPE;
 }
 
-MDDBaseType::MDDBaseType(const char *tname) : MDDType(tname)
+MDDBaseType::~MDDBaseType() noexcept(false)
 {
-    objecttype = OId::MDDBASETYPEOID;
-    myBaseType = nullptr;
-    mySubclass = MDDBASETYPE;
-}
-
-MDDBaseType::MDDBaseType(const MDDBaseType &old) : MDDType(old)
-{
-    myBaseType = old.myBaseType;
-}
-
-MDDBaseType &MDDBaseType::operator=(const MDDBaseType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    MDDType::operator=(old);
-    myBaseType = old.myBaseType;
-    return *this;
+    validate();
 }
 
 char *MDDBaseType::getTypeStructure() const
@@ -111,27 +89,24 @@ char *MDDBaseType::getTypeStructure() const
     strcpy(result, "marray <");
     strcat(result, baseType);
     strcat(result, ">");
-
+    
     free(baseType);
     return result;
 }
 
 char *MDDBaseType::getNewTypeStructure() const
 {
-    const char *baseType = TypeFactory::getSyntaxTypeFromInternalType(
-                               std::string(myBaseType->getTypeName())).c_str();
+    auto baseTypeStr = TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
+    const char *baseType = baseTypeStr.c_str();
     char *result = static_cast<char *>(mymalloc(10 + strlen(baseType)));
 
-    strcpy(result, "marray {");
-    strcat(result, baseType);
-    strcat(result, "}");
-
+    sprintf(result, "marray {%s}", baseType);
     return result;
 }
 
 void MDDBaseType::print_status(std::ostream &s) const
 {
-    s << "\tr_Marray" << "<" << myBaseType->getTypeName() << "\t>";
+    s << "\tr_Marray<" << myBaseType->getTypeName() << "\t>";
 }
 
 const BaseType *MDDBaseType::getBaseType() const
@@ -139,45 +114,31 @@ const BaseType *MDDBaseType::getBaseType() const
     return myBaseType;
 }
 
-MDDBaseType::~MDDBaseType() noexcept(false)
-{
-    validate();
-}
-
 int MDDBaseType::compatibleWith(const Type *aType) const
 {
-    int retval;
     if (static_cast<const MDDType *>(aType)->getSubtype() != MDDBASETYPE &&
         static_cast<const MDDType *>(aType)->getSubtype() != MDDDOMAINTYPE &&
         static_cast<const MDDType *>(aType)->getSubtype() != MDDDIMENSIONTYPE)
     {
-        LTRACE << "not mddbasetype or subclass";
-        retval = 0;
+        // not mddbasetype or subclass
+        return 0;
     }
     else
     {
         // myBaseType has to be specified
-        if (myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType()))
-        {
-            retval = 1;
-        }
-        else
-        {
-            LTRACE << "basetypes not compatible";
-            retval = 0;
-        }
+        return myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType());
     }
-    return retval;
 }
 
 int MDDBaseType::compatibleWithDomain(const r_Minterval *aDomain) const
 {
-    int retval;
-
     // create an MDDDomainType with aDomain and myBaseType
     MDDDomainType tempType("tempType", myBaseType, *aDomain);
     // use normal compatibleWith
-    retval = this->compatibleWith(&tempType);
-    return retval;
+    return this->compatibleWith(&tempType);
 }
 
+r_Bytes MDDBaseType::getMemorySize() const
+{
+    return MDDType::getMemorySize() + myBaseType->getMemorySize() + sizeof(BaseType *);
+}

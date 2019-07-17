@@ -48,7 +48,6 @@ QtComplexData::QtComplexData()
 QtComplexData::QtComplexData(QtComplexData::QtScalarDataList *&scalarDataList)
     : QtScalarData()
 {
-    char                          elementName[256];
     unsigned int                  i = 0;
     std::list<QtScalarData *>::iterator iter;
 
@@ -63,8 +62,8 @@ QtComplexData::QtComplexData(QtComplexData::QtScalarDataList *&scalarDataList)
     // add type elements, the first element inserted has no 0, the second no 1, and so on
     for (iter = scalarDataList->begin(), i = 0; iter != scalarDataList->end(); iter++, i++)
     {
-        sprintf(elementName, "%d", i);
-        structType->addElement(elementName, (*iter)->getValueType());
+        auto elementName = std::to_string(i);
+        structType->addElement(elementName.c_str(), (*iter)->getValueType());
     }
 
     // add type to typeFactory

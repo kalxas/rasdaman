@@ -44,57 +44,38 @@ rasdaman GmbH.
 
 Type::Type() : DBNamedObject("unnamed type")
 {
-    //        LTRACE << "Type()";
 }
 
 Type::Type(const OId &id) : DBNamedObject(id)
 {
-    //        LTRACE << "Type(" << myOId << ")";
 }
 
 Type::Type(const char *name) : DBNamedObject(name)
 {
-    //        LTRACE << "Type(" << name << ")";
-}
-
-Type::Type(const Type &old) : DBNamedObject(old)
-{
-    myType = old.myType;
 }
 
 void Type::generateCTypeName(std::vector<const char *> &names) const
 {
-    LERROR << "generageCTypeName() - no equivalent type found for C ";
+    LERROR << "no equivalent type found for C";
     throw r_Error(INTERNALDLPARSEERROR);
 }
 
 void Type::generateCTypePos(std::vector<int> &position, int offset) const
 {
-    LERROR << "generageCTypeName() - no equivalent type found for C ";
+    LERROR << "no equivalent type found for C";
     throw r_Error(INTERNALDLPARSEERROR);
 }
 
 void Type::getTypes(std::vector<const BaseType *> &types) const
 {
-    LERROR << "getTypes() - no type information was found";
+    LERROR << "no type information was found";
     throw r_Error(INTERNALDLPARSEERROR);
 }
 
-Type &Type::operator=(const Type &old) = default;
-
 void Type::destroy()
 {
-    //does nothing to prevent types from being deleted because of reference counts
+    // does nothing to prevent types from being deleted because of reference counts
 }
-
-/*************************************************************
- * Method name...: getTypeName()
- *
- * Arguments.....: none
- * Return value..:
- *   name of the type as a C string.
- * Description...: returns name of the type.
- ************************************************************/
 
 const char *Type::getTypeName() const
 {
@@ -104,13 +85,10 @@ const char *Type::getTypeName() const
 char *Type::getTypeStructure() const
 {
     // default implementation for all non-structured base types.
-    char *dummy = const_cast<char *>(getTypeName());
-    char *result = static_cast<char *>(mymalloc(strlen(dummy) + 1));
-    strcpy(result, dummy);
-    for (int i = 0; i < static_cast<int>(strlen(dummy)); i++)
-    {
+    char *result = strdup(getTypeName());
+    for (size_t i = 0; i < strlen(result); ++i)
         result[i] = tolower(result[i]);
-    }
+
     return result;
 }
 
@@ -128,5 +106,3 @@ int Type::compatibleWith(const Type * /* aType */) const
 {
     return 0;
 }
-
-Type::~Type() = default;

@@ -22,18 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The ULongType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *   This file is patched by O2!
- *
- ************************************************************/
 
 #ifndef _ULONGTYPE_HH_
 #define _ULONGTYPE_HH_
@@ -60,45 +48,21 @@ public:
     ULongType(const OId &id);
 
     ULongType();
-    /*@Doc:
-    default constructor, sets type name to "ULong".
-    */
 
-    ULongType(const ULongType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    ULongType(const ULongType &old) = default;
 
-    ULongType &operator=(const ULongType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    ULongType &operator=(const ULongType &old) = default;
 
-    ~ULongType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~ULongType() override = default;
 
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

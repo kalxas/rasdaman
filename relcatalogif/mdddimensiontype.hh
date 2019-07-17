@@ -22,18 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The MDDBaseType class is used as a type for MDDs where
- *   the base type and the dimensionality is specified.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _MDDDIMENSIONTYPE_HH_
 #define _MDDDIMENSIONTYPE_HH_
 
@@ -56,42 +44,16 @@ class OId;
 class MDDDimensionType : public MDDBaseType
 {
 public:
-    char *getTypeStructure() const override;
-    /*@Doc:
-    */
-
-    char *getNewTypeStructure() const override;
-
-    r_Bytes getMemorySize() const override;
-    /*@Doc:
-    the memory size is computed by:
-    MDDBaseType::getMemorySize() + sizeof(r_Dimension);
-    */
-
     MDDDimensionType(const OId &id);
-    /*@Doc:
-    */
 
     MDDDimensionType(const char *newTypeName, const BaseType *newBaseType,
                      r_Dimension newDimension);
-    /*@Doc:
-    constructor.
-    */
 
     MDDDimensionType();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
 
-    MDDDimensionType(const MDDDimensionType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    MDDDimensionType(const MDDDimensionType &old) = default;
 
-    MDDDimensionType &operator=(const MDDDimensionType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    MDDDimensionType &operator=(const MDDDimensionType &old) = default;
 
     void print_status(std::ostream &s) const override;
     /*@Doc:
@@ -104,9 +66,6 @@ public:
     */
 
     ~MDDDimensionType() noexcept(false) override;
-    /*@Doc:
-    virtual destructor.
-    */
 
     int compatibleWith(const Type *aType) const override;
     /*@Doc:
@@ -116,17 +75,18 @@ public:
         and dimensionality is the same
     */
 
+    char *getTypeStructure() const override;
+
+    char *getNewTypeStructure() const override;
+
+    r_Bytes getMemorySize() const override;
+
 protected:
     void insertInDb() override;
-
     void readFromDb() override;
-
     void deleteFromDb() override;
 
-    r_Dimension myDimension;
-    /*@Doc:
-    dimensionality.
-    */
+    r_Dimension myDimension{};
 };
 
 #endif

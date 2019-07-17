@@ -48,9 +48,8 @@ public:
 
     InlineMinterval(r_Dimension dim);
 
-    InlineMinterval(r_Dimension dim, r_Range *lowerbound,
-                    r_Range *upperbound, char *lowerfixed,
-                    char *upperfixed);
+    InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *upperbound,
+                    char *lowerfixed, char *upperfixed);
     /*@Doc:
     construct a InlineMinterval with dimension dim from the
     arrays lowerbound, upperbound, lowerfixed, upperfixed.
@@ -60,13 +59,13 @@ public:
 
     InlineMinterval(const InlineMinterval &old);
 
-    virtual ~InlineMinterval();
-
     // replaces only the r_Minterval part of the object
     virtual InlineMinterval &operator=(const InlineMinterval &old);
 
     // replaces only the r_Minterval part of the object
     virtual InlineMinterval &operator=(const r_Minterval &old);
+
+    ~InlineMinterval();
 
     virtual void insertInDb(r_Range *lowerbound,
                             r_Range *upperbound, char *lowerfixed,

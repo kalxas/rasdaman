@@ -49,13 +49,11 @@ void DirWrapper::createDirectory(const string &dirPath)
 }
 void DirWrapper::createDirectory(const char *dirPath)
 {
-    struct stat status {};
-    if (stat(dirPath, &status) == IO_ERROR_RC)
+    if (!directoryExists(dirPath))
     {
         if (mkdir(dirPath, 0770) == IO_ERROR_RC)
         {
-            LERROR << "error: failed creating directory - " << dirPath;
-            LERROR << "reason: " << strerror(errno);
+            LERROR << "failed creating directory - " << dirPath << ", reason: " << strerror(errno);
             throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTWRITABLE));
         }
     }
@@ -67,10 +65,8 @@ int removePath(const char *fpath, __attribute__((unused)) const struct stat *sb,
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)
     {
-        LWARNING << "failed deleting path from disk - " << fpath;
-        LWARNING << strerror(errno);
+        LWARNING << "failed deleting path from disk - " << fpath << ", reason: " << strerror(errno);
     }
-
     return ret;
 }
 
@@ -80,9 +76,23 @@ void DirWrapper::removeDirectory(const string &dirPath)
     {
         if (errno != ENOENT)
         {
-            LWARNING << "failed deleting directory from disk - " << dirPath;
-            LWARNING << strerror(errno);
+            LWARNING << "failed deleting directory from disk - " << dirPath << ", reason: " << strerror(errno);
         }
+    }
+}
+
+bool DirWrapper::directoryExists(const char *dirPath)
+{
+    struct stat status {};
+    if (stat(dirPath, &status) == IO_ERROR_RC)
+    {
+        return false;
+    }
+    else
+    {
+        if (!S_ISDIR(status.st_mode))
+            LWARNING << "Found a non-dirctory while checking if a directory exists: " << dirPath;
+        return true;
     }
 }
 

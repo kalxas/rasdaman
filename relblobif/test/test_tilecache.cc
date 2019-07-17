@@ -29,7 +29,7 @@ rasdaman GmbH.
 #define __EXECUTABLE__
 #define DEBUG_MAIN
 
-#include "../../applications/directql/template_inst.hh"
+#include "../../server/template_inst.hh"
 #include "../../raslib/template_inst.hh"
 #endif
 

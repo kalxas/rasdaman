@@ -20,108 +20,30 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
 
-#include <iomanip>        // for operator<<, setw
-
-#include "atomictype.hh"  // for AtomicType
 #include "longtype.hh"
 #include "reladminif/oidif.hh"    // for OId
 
+#include <iomanip>        // for operator<<, setw
+
 LongType::LongType(const OId &id) : IntegralType(id)
 {
-    readFromDb();
-}
-
-/*************************************************************
- * Method name...: LongType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 LongType.
- ************************************************************/
-
-LongType::LongType() : IntegralType(LongType::Name, 4)
-{
-    myType = LONG;
-    myOId = OId(LONG, OId::ATOMICTYPEOID);
-}
-
-void LongType::readFromDb()
-{
     setName(LongType::Name);
-    size = 4;
+    size = sizeof(r_Long);
     myType = LONG;
     myOId = OId(LONG, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: LongType(const LongType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-LongType::LongType(const LongType &old)  = default;
-
-/*************************************************************
- * Method name...: operator=(const LongType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-LongType &LongType::operator=(const LongType &old)
+LongType::LongType() : IntegralType(LongType::Name, sizeof(r_Long))
 {
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
+    myType = LONG;
+    myOId = OId(LONG, OId::ATOMICTYPEOID);
 }
-
-/*************************************************************
- * Method name...: ~LongType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-LongType::~LongType() = default;
-
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that Long is stored MSB..LSB
- *                 on HP.
- ************************************************************/
 
 void LongType::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << std::setw(8) << *reinterpret_cast<const r_Long *>(cell);
+    stream << std::setw(8)
+           << *reinterpret_cast<const r_Long *>(cell);
 }
 
 r_Long *LongType::convertToCLong(const char *cell, r_Long *value) const

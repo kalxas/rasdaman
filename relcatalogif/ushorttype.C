@@ -20,125 +20,41 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
-
-#include <limits.h>       // for USHRT_MAX
-#include <iomanip>        // for operator<<, setw
 
 #include "atomictype.hh"  // for AtomicType
 #include "ushorttype.hh"
 
-/*************************************************************
- * Method name...: UShortType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 UShortType.
- ************************************************************/
+#include <limits.h>       // for USHRT_MAX
+#include <iomanip>        // for operator<<, setw
 
-UShortType::UShortType() : UIntegralType(UShortType::Name, 2)
+UShortType::UShortType() : UIntegralType(UShortType::Name, sizeof(r_UShort))
 {
     myType = USHORT;
     myOId = OId(USHORT, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: UShortType(const UShortType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-UShortType::UShortType(const UShortType &old)  = default;
-
 UShortType::UShortType(const OId &id) : UIntegralType(id)
 {
-    readFromDb();
+    size = sizeof(r_UShort);
+    setName(UShortType::Name);
+    myType = USHORT;
+    myOId = OId(USHORT, OId::ATOMICTYPEOID);
 }
-
-/*************************************************************
- * Method name...: operator=(const UShortType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-UShortType &UShortType::operator=(const UShortType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
-}
-
-/*************************************************************
- * Method name...: ~UShortType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-UShortType::~UShortType() = default;
-
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that UShort is stored MSB..LSB
- *                 on HP.
- ************************************************************/
 
 void UShortType::printCell(std::ostream &stream, const char *cell) const
 {
-    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
-    // byte order
     stream << std::setw(5) << *reinterpret_cast<const r_UShort *>(cell);
 }
 
 r_ULong *UShortType::convertToCULong(const char *cell, r_ULong *value) const
 {
-    // !!!! HP specific, assumes 2 Byte short
     *value = *reinterpret_cast<const r_UShort *>(cell);
     return value;
 }
 
 char *UShortType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-    r_ULong myLong = *value;
-    // restricting long to value range of short
-    myLong = myLong > USHRT_MAX ? USHRT_MAX : myLong;
-    // !!!! HP specific, assumes 2 Byte short
-    *reinterpret_cast<r_UShort *>(cell) = (unsigned short)myLong;
+    *reinterpret_cast<r_UShort *>(cell) = 
+        (*value > USHRT_MAX ? USHRT_MAX : static_cast<r_UShort>(*value));
     return cell;
-}
-
-void UShortType::readFromDb()
-{
-    size = 2;
-    setName(UShortType::Name);
-    myType = USHORT;
-    myOId = OId(USHORT, OId::ATOMICTYPEOID);
 }

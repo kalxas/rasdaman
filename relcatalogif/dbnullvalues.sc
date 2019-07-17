@@ -29,12 +29,14 @@ rasdaman GmbH.
 #include <limits>
 #include <logging.hh>
 
-DBNullvalues::DBNullvalues() : DBObject(), r_Nullvalues()
+DBNullvalues::DBNullvalues()
+    : DBObject(), r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::DBNullvalues(const OId &id) : DBObject(id), r_Nullvalues()
+DBNullvalues::DBNullvalues(const OId &id)
+    : DBObject(id), r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
     readFromDb();
@@ -81,7 +83,8 @@ DBNullvalues &DBNullvalues::operator=(const r_Nullvalues &old)
 
 r_Bytes DBNullvalues::getMemorySize() const
 {
-    return DBObject::getMemorySize() + sizeof(r_Nullvalues) +
+    return DBObject::getMemorySize() + 
+           sizeof(r_Nullvalues) +
            nullvalues.size() * sizeof(nullvalues[0]);
 }
 
@@ -132,41 +135,27 @@ void DBNullvalues::updateInDb()
 void DBNullvalues::deleteFromDb()
 {
     SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_NULLVALUEPAIRS "
-        "WHERE NullValueOId = %lld",
-        myOId.getCounter());
+        "DELETE FROM RAS_NULLVALUEPAIRS WHERE NullValueOId = %lld", myOId.getCounter());
     DBObject::deleteFromDb();
 }
 
 void DBNullvalues::readFromDb()
 {
-    SQLiteQuery query(
-        "SELECT * FROM RAS_NULLVALUEPAIRS "
-        "WHERE NullValueOId = %lld "
-        "ORDER BY Count ASC",
-        myOId.getCounter());
-
+    SQLiteQuery query("SELECT Low, High FROM RAS_NULLVALUEPAIRS "
+                      "WHERE NullValueOId = %lld ORDER BY Count ASC", myOId.getCounter());
     while (query.nextRow())
     {
-        query.nextColumn();  // skip OId column
-        query.nextColumn();  // skip count column, they are ordered already
-        double low = (query.currColumnNull())
-                     ? std::numeric_limits<double>::quiet_NaN()
-                     : query.nextColumnDouble();
-        double high = (query.currColumnNull())
-                      ? std::numeric_limits<double>::quiet_NaN()
-                      : query.nextColumnDouble();
+        double low  = query.currColumnNull()
+                    ? std::numeric_limits<double>::quiet_NaN() : query.nextColumnDouble();
+        double high = query.currColumnNull()
+                    ? std::numeric_limits<double>::quiet_NaN() : query.nextColumnDouble();
         LDEBUG << "read null values: " << low << ":" << high;
         nullvalues.emplace_back(low, high);
     }
-
     if (nullvalues.empty())
     {
-        LERROR << "DBNullvalues::readFromDb() - nullvalues object: "
-               << myOId.getCounter() << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND,
-                           "nullvalues data not found in the database.");
+        LERROR << "nullvalues object " << myOId.getCounter() << " not found in the database.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "nullvalues object not found in the database.");
     }
-
     DBObject::readFromDb();
 }

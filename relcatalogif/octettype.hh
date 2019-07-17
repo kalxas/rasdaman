@@ -22,19 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The ULongType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *   This file is patched by O2!
- *
- ************************************************************/
-
 #ifndef _OCTETTYPE_HH_
 #define _OCTETTYPE_HH_
 
@@ -47,10 +34,8 @@ class OId;
 //@ManMemo: Module: {\bf relcatalogif}.
 
 /*@Doc:
-
-OctetType is the base type used for boolean cell values (e.g.  result
-of comparison operations, see \Ref{Ops}). The value of a Octet is
-stored in one char. OctetType is a persistence capable class.
+OctetType is the base type used for signed char cell values.
+The value of a Octet is stored in one char.
 */
 
 /**
@@ -62,43 +47,21 @@ public:
     OctetType(const OId &id);
 
     OctetType();
-    /*@Doc:
-    default constructor, no initialization needed for OctetType.
-    */
 
     OctetType(const OctetType &old);
-    /*@Doc:
-    copy constructor.
-    */
 
-    OctetType &operator=(const OctetType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    OctetType &operator=(const OctetType &old) = default;
 
-    ~OctetType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~OctetType() override = default;
 
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_Long *convertToCLong(const char *cell, r_Long *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCLong(char *cell, const r_Long *value) const override;
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

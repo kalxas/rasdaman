@@ -22,18 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The CollectionType class is the superclass for the class
- *   SetType.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _COLLECTIONTYPE_HH_
 #define _COLLECTIONTYPE_HH_
 
@@ -60,58 +48,21 @@ class MDDType;
 class CollectionType : public Type
 {
 public:
-    const MDDType *getMDDType() const;
-    /*@Doc:
-    returns MDDType of collection.
-    */
-    /*
-        MDDType* getMDDType() const;
-    */
-
-    void print_status(std::ostream &s) const;
-    /*@Doc:
-    writes the state of the object to the specified stream:
-    d_MYNAME <MYMDDTYPE->printStatus >
-    */
+    CollectionType();
 
     CollectionType(const MDDType *newMDDType);
-    /*@Doc:
-    constructor receiving pointer to an MDDType (or subclass).
-    */
-
-    CollectionType();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
 
     CollectionType(const OId &id);
-    /*@Doc:
-    */
 
     CollectionType(const CollectionType &old);
-    /*@Doc:
-    */
 
-    CollectionType &operator=(const CollectionType &old);
-    /*@Doc:
-    */
+    CollectionType &operator=(const CollectionType &old) = default;
 
-    ~CollectionType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~CollectionType() override = default;
 
     int compatibleWith(const Type *aType) const override;
-    /*@Doc:
-    overloaded from Type.
-    returns true if myMDDType is compatible with the type.
-    */
 
     r_Bytes getMemorySize() const override;
-    /*@Doc:
-    returns DBNamedObject::getMemorySize() +
-        myMDDType->getMemorySize() + sizeof(MDDType*);
-    */
 
     DBNullvalues *getNullValues() const;
     /*@Doc:
@@ -123,21 +74,18 @@ public:
     associate null values with this type
     */
 
+    const MDDType *getMDDType() const;
+
+    void print_status(std::ostream &s) const;
+
 protected:
-    const MDDType *myMDDType;
-    /*@Doc:
-    persistent pointer to MDDType of collection.
-    */
-    /// null values
-    DBNullvalues *nullValues;
+    const MDDType *myMDDType{NULL};
+    
+    DBNullvalues *nullValues{NULL};
 
     CollectionType(const char *name);
-    /*@Doc:
-    */
 
     CollectionType(const char *name, const MDDType *newMDDType);
-    /*@Doc:
-    */
 };
 
 #endif

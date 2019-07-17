@@ -22,17 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The SetType class represents the type for sets of MDD
- *   objects.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _SETTYPE_HH_
 #define _SETTYPE_HH_
@@ -56,27 +45,18 @@ class OId;
 class SetType : public CollectionType
 {
 public:
+    SetType();
     SetType(const OId &id);
+    SetType(const char *newTypeName, MDDType *newMDDType);
+    SetType(const SetType &old) = default;
+    SetType &operator=(const SetType &old) = default;
+    ~SetType() noexcept(false) override;
 
     char *getTypeStructure() const override;
 
-    /// constructor receiving pointer to an MDDType (or subclass).
-    SetType(const char *newTypeName, MDDType *newMDDType);
-    /// default constructor, cannot be used.
-    SetType();
-    /// copy constructor.
-    SetType(const SetType &old);
-    /// assignment operator.
-    SetType &operator=(const SetType &old);
-
-    /// virtual destructor.
-    ~SetType() noexcept(false) override;
-
 protected:
     void deleteFromDb() override;
-
     void insertInDb() override;
-
     void readFromDb() override;
 };
 

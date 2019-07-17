@@ -30,41 +30,34 @@ rasdaman GmbH.
 
 #include "inlineminterval.hh"
 #include "raslib/sinterval.hh"  // for r_Sinterval
-#include "logging.hh"               // for LTRACE
 
 InlineMinterval::InlineMinterval()
-    : r_Minterval(static_cast<r_Dimension>(0))
+    : r_Minterval(0u)
 {
-    LTRACE << "InlineMinterval()";
 }
-
-InlineMinterval::~InlineMinterval() {}
 
 InlineMinterval::InlineMinterval(r_Dimension dim)
     : r_Minterval(dim)
 {
-    LTRACE << "InlineMinterval(" << dim << ")";
 }
 
-InlineMinterval::InlineMinterval(r_Dimension dim,
-                                 r_Range *lowerbound,
-                                 r_Range *upperbound, char *lowerfixed,
-                                 char *upperfixed)
+InlineMinterval::InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *upperbound,
+                                 char *lowerfixed, char *upperfixed)
     : r_Minterval(dim)
 {
-    char undefined = '*';
+    static const char unbounded = '*';
     streamInitCnt = dim;
 
     for (r_Dimension count = 0; count < dimensionality; count++)
     {
         if (!lowerfixed[count])
         {
-            intervals[count].set_high(undefined);
+            intervals[count].set_high(unbounded);
             intervals[count].set_low(lowerbound[count]);
         }
         else
         {
-            intervals[count].set_low(undefined);
+            intervals[count].set_low(unbounded);
         }
         if (!upperfixed[count])
         {
@@ -72,7 +65,7 @@ InlineMinterval::InlineMinterval(r_Dimension dim,
         }
         else
         {
-            intervals[count].set_high(undefined);
+            intervals[count].set_high(unbounded);
         }
     }
 }
@@ -80,13 +73,11 @@ InlineMinterval::InlineMinterval(r_Dimension dim,
 InlineMinterval::InlineMinterval(const InlineMinterval &old)
     : r_Minterval(old)
 {
-    LTRACE << "InlineMinterval(InlineMinterval)";
 }
 
 InlineMinterval::InlineMinterval(const r_Minterval &old)
     : r_Minterval(old)
 {
-    LTRACE << "InlineMinterval(r_Minterval)";
 }
 
 InlineMinterval &InlineMinterval::operator=(const InlineMinterval &old)
@@ -109,12 +100,16 @@ InlineMinterval &InlineMinterval::operator=(const r_Minterval &old)
     return *this;
 }
 
-void InlineMinterval::insertInDb(r_Range *lowerbound,
-                                 r_Range *upperbound, char *lowerfixed,
-                                 char *upperfixed) const
+InlineMinterval::~InlineMinterval()
 {
-    char undefined = '*';
-    for (unsigned int count = 0; count < dimensionality; count++)
+    delete [] intervals, intervals = NULL;
+}
+
+void InlineMinterval::insertInDb(r_Range *lowerbound, r_Range *upperbound,
+                                 char *lowerfixed, char *upperfixed) const
+{
+    static const char unbounded = '*';
+    for (r_Dimension count = 0; count < dimensionality; count++)
     {
         if (intervals[count].is_low_fixed())
         {
@@ -123,7 +118,7 @@ void InlineMinterval::insertInDb(r_Range *lowerbound,
         }
         else
         {
-            lowerfixed[count] = undefined;
+            lowerfixed[count] = unbounded;
         }
         if (intervals[count].is_high_fixed())
         {
@@ -132,7 +127,7 @@ void InlineMinterval::insertInDb(r_Range *lowerbound,
         }
         else
         {
-            upperfixed[count] = undefined;
+            upperfixed[count] = unbounded;
         }
     }
 }

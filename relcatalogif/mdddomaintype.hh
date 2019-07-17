@@ -22,17 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The MDDBaseType class is used as a type for MDDs where
- *   the base type and the domain is specified.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _MDDDOMAINTYPE_HH_
 #define _MDDDOMAINTYPE_HH_
@@ -60,48 +49,24 @@ class MDDDomainType;
 class MDDDomainType : public MDDBaseType
 {
 public:
-    char *getTypeStructure() const override;
-    /*@Doc:
-    looks like:
-        marray <myBaseType->getTypeStructure(), myDomain->get_string_representation()>
-    */
-
-    char *getNewTypeStructure() const override;
-
     MDDDomainType(const OId &id);
 
     MDDDomainType(const char *newTypeName, const BaseType *newBaseType, const r_Minterval &newDomain);
 
     MDDDomainType();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
 
-    MDDDomainType(const MDDDomainType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    MDDDomainType(const MDDDomainType &old) = delete;
 
     MDDDomainType &operator=(const MDDDomainType &old);
-    /*@Doc:
-    assignment operator.
-    */
+
+    ~MDDDomainType() noexcept(false) override;
 
     const r_Minterval *getDomain() const;
-    /*@Doc:
-    returns domain.
-    */
 
     void print_status(std::ostream &s) const override;
     /*@Doc:
     writes the state of the object to the specified stream.
     looks like: \tr_Marray<myBaseType->getTypeName(), myDomain->print_status()\t>
-    */
-
-    ~MDDDomainType() noexcept(false) override;
-    /*@Doc:
-    virtual destructor.
-    calls validate and deletes myDomain
     */
 
     void setPersistent(bool t) override;
@@ -117,6 +82,14 @@ public:
         the basetypes are compatible
     */
 
+    char *getTypeStructure() const override;
+    /*@Doc:
+    looks like:
+        marray <myBaseType->getTypeStructure(), myDomain->get_string_representation()>
+    */
+
+    char *getNewTypeStructure() const override;
+
     r_Bytes getMemorySize() const override;
     /*@Doc:
     memory space is computed by
@@ -125,10 +98,7 @@ public:
     */
 
 protected:
-    DBMinterval *myDomain;
-    /*@Doc:
-    persistent domain.
-    */
+    DBMinterval *myDomain{NULL};
 
     void insertInDb() override;
 

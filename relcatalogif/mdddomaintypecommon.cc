@@ -47,25 +47,24 @@ rasdaman GmbH.
 #include <malloc.h>
 #endif
 
-r_Bytes MDDDomainType::getMemorySize() const
+MDDDomainType::MDDDomainType()
+    : MDDBaseType("unnamed mdddomaintype")
 {
-    return MDDBaseType::getMemorySize() + sizeof(DBMinterval *) +
-           myDomain->getMemorySize();
+    objecttype = OId::MDDDOMTYPEOID;
+    mySubclass = MDDDOMAINTYPE;
 }
 
 MDDDomainType::MDDDomainType(const OId &id)
-    : MDDBaseType(id), myDomain(nullptr)
+    : MDDBaseType(id)
 {
     if (objecttype == OId::MDDDOMTYPEOID)
     {
         mySubclass = MDDDOMAINTYPE;
         readFromDb();
     }
-    LTRACE << "Domain\t:" << *myDomain;
 }
 
-MDDDomainType::MDDDomainType(const char *newTypeName,
-                             const BaseType *newBaseType,
+MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseType,
                              const r_Minterval &newDomain)
     : MDDBaseType(newTypeName, newBaseType)
 {
@@ -73,18 +72,6 @@ MDDDomainType::MDDDomainType(const char *newTypeName,
     myDomain = new DBMinterval(newDomain);
     myDomain->setCached(true);
     mySubclass = MDDDOMAINTYPE;
-}
-
-MDDDomainType::MDDDomainType()
-    : MDDBaseType("unnamed mdddomaintype"), myDomain(nullptr)
-{
-    objecttype = OId::MDDDOMTYPEOID;
-    mySubclass = MDDDOMAINTYPE;
-}
-
-MDDDomainType::MDDDomainType(const MDDDomainType &old) : MDDBaseType(old)
-{
-    throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
 MDDDomainType &MDDDomainType::operator=(const MDDDomainType &old)
@@ -106,17 +93,24 @@ MDDDomainType &MDDDomainType::operator=(const MDDDomainType &old)
     return *this;
 }
 
+MDDDomainType::~MDDDomainType() noexcept(false)
+{
+    validate();
+    if (myDomain)
+    {
+        delete myDomain;
+    }
+    myDomain = nullptr;
+}
+
 char *MDDDomainType::getTypeStructure() const
 {
     char *baseType = myBaseType->getTypeStructure();
     char *mdom = myDomain->get_string_representation();
     char *result = static_cast<char *>(mymalloc(12 + strlen(baseType) + strlen(mdom)));
 
-    strcpy(result, "marray <");
-    strcat(result, baseType);
-    strcat(result, ", ");
-    strcat(result, mdom);
-    strcat(result, ">");
+    sprintf(result, "marray <%s, %s>", baseType, mdom);
+
     free(mdom);
     free(baseType);
     return result;
@@ -126,19 +120,19 @@ char *MDDDomainType::getNewTypeStructure() const
 {
     std::ostringstream ss;
 
-    if (boost::starts_with(myBaseType->getTypeName(),
-                           TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
+    if (boost::starts_with(myBaseType->getTypeName(), TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX))
     {
-        ss << myBaseType->getNewTypeStructure();
+        char *typeStructure = myBaseType->getNewTypeStructure();
+        ss << typeStructure;
+        free(typeStructure);
     }
     else
     {
-        ss << TypeFactory::getSyntaxTypeFromInternalType(
-               std::string(myBaseType->getTypeName()));
+        ss << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()));
     }
 
-    ss << " MDARRAY ";
-    ss << myDomain->get_named_axis_string_representation();
+    ss << " MDARRAY "
+       << myDomain->get_named_axis_string_representation();
 
     std::string result = ss.str();
     return strdup(result.c_str());
@@ -151,24 +145,13 @@ const r_Minterval *MDDDomainType::getDomain() const
 
 void MDDDomainType::print_status(std::ostream &s) const
 {
-    s << "\tr_Marray" << "<" << myBaseType->getTypeName() << ", ";
+    s << "\tr_Marray<" << myBaseType->getTypeName() << ", ";
     myDomain->print_status(s);
     s << "\t>";
 }
 
-MDDDomainType::~MDDDomainType() noexcept(false)
-{
-    validate();
-    if (myDomain)
-    {
-        delete myDomain;
-    }
-    myDomain = nullptr;
-}
-
 int MDDDomainType::compatibleWith(const Type *aType) const
 {
-    bool retval = false;
     if (aType->getType() == MDDTYPE)
     {
         MDDTypeEnum ttype = (static_cast<const MDDType *>(aType))->getSubtype();
@@ -180,7 +163,7 @@ int MDDDomainType::compatibleWith(const Type *aType) const
                 {
                     if (myDomain->covers(*(static_cast<const MDDDomainType *>(aType))->getDomain()))
                     {
-                        retval = true;
+                        return true;
                     }
                     else
                     {
@@ -197,37 +180,34 @@ int MDDDomainType::compatibleWith(const Type *aType) const
                 LTRACE << "basetypes are not equal";
             }
         }
-        else
+        else if (ttype == MDDDIMENSIONTYPE)
         {
-            if (ttype == MDDDIMENSIONTYPE)
+            if (myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType()))
             {
-                if (myBaseType->compatibleWith(static_cast<const MDDBaseType *>(aType)->getBaseType()))
+                if (myDomain->dimension() == static_cast<const MDDDimensionType *>(aType)->getDimension())
                 {
-                    if (myDomain->dimension() == static_cast<const MDDDimensionType *>(aType)->getDimension())
-                    {
-                        retval = true;
-                    }
-                    else
-                    {
-                        LTRACE << "dimension marray type has wrong dimension";
-                    }
+                    return true;
                 }
                 else
                 {
-                    LTRACE << "basetypes are not equal";
+                    LTRACE << "dimension marray type has wrong dimension";
                 }
             }
             else
             {
-                LTRACE << "not a dimension/domain type";
+                LTRACE << "basetypes are not equal";
             }
+        }
+        else
+        {
+            LTRACE << "not a dimension/domain type";
         }
     }
     else
     {
-        LERROR << "was passed a type that is not an marray type (" << aType->getName();
+        LERROR << "cannot check compatibility of an MDD domain type and non MDD type (" << aType->getName() << ")";
     }
-    return retval;
+    return false;
 }
 
 void MDDDomainType::setPersistent(bool t)
@@ -236,3 +216,8 @@ void MDDDomainType::setPersistent(bool t)
     myDomain->setPersistent(t);
 }
 
+r_Bytes MDDDomainType::getMemorySize() const
+{
+    return MDDBaseType::getMemorySize() + sizeof(DBMinterval *) +
+           myDomain->getMemorySize();
+}

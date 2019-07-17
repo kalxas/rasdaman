@@ -29,7 +29,7 @@
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
-#include "../../applications/directql/template_inst.hh"
+#include "../../server/template_inst.hh"
 #include "../../raslib/template_inst.hh"
 #endif
 

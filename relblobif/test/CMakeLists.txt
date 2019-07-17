@@ -30,7 +30,7 @@ macro(AddRelblobifTest TEST_NAME)
 
     add_executable(${TEST_NAME}_test EXCLUDE_FROM_ALL test_${TEST_NAME}.cc testing.cc)
     target_link_libraries(${TEST_NAME}_test 
-        rasodmg clientcomm compression raslib conversion commline
+        rasodmg clientcomm raslib conversion commline
         network relstorageif storagemgr relmddif mddmgr
         relindexif indexmgr relcatalogif catalogmgr
         tilemgr relblobif reladminif

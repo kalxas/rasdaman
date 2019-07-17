@@ -20,55 +20,29 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
-
 #include "compositetype.hh"
 
-/*************************************************************
- * Method name...: unsigned int getSize() const
- *
- * Arguments.....: none
- * Return value..: size in d_Octets
- * Description...: returns size of CompositeType in chars
- ************************************************************/
+CompositeType::CompositeType()
+    : BaseType("unnamed compositetype")
+{
+}
+
+CompositeType::CompositeType(unsigned int newSize)
+    : BaseType("unnamed compositetype"), size(newSize)
+{
+}
+
+CompositeType::CompositeType(const char *name, unsigned int newSize)
+    : BaseType(name), size(newSize)
+{
+}
+
+CompositeType::CompositeType(const OId &id)
+    : BaseType(id)
+{
+}
 
 unsigned int CompositeType::getSize() const
 {
     return size;
 }
-
-/*************************************************************
- * Method name...: CompositeType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 CompositeType.
- ************************************************************/
-
-CompositeType::CompositeType() : BaseType("unnamed compositetype"), size(0) {}
-
-CompositeType::CompositeType(unsigned int newSize)
-    : BaseType("unnamed compositetype"), size(newSize) {}
-
-CompositeType::CompositeType(const char *name, unsigned int newSize)
-    : BaseType(name), size(newSize) {}
-
-CompositeType::CompositeType(const CompositeType &old) = default;
-
-CompositeType::CompositeType(const OId &id) : BaseType(id) {}
-
-CompositeType::~CompositeType() = default;
-
-CompositeType &CompositeType::operator=(const CompositeType &old) = default;
-

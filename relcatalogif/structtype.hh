@@ -22,17 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The StructType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _STRUCTTYPE_HH_
 #define _STRUCTTYPE_HH_
@@ -58,7 +47,6 @@ alignment except for types with only chars (one byte alignment) or
 type with only shorts (two byte alignment). Structs as elements of
 structs are aligned with the minimum byte alignment needed for the
 struct.
-
 */
 
 /**
@@ -66,9 +54,14 @@ struct.
   */
 class StructType : public CompositeType
 {
-    //  friend ostream& operator << (std::ostream& stream, StructType& b);
-
 public:
+    StructType();
+    StructType(const char *newTypeName, unsigned int numElem);
+    StructType(const OId &structtypeid);
+    StructType(const StructType &old);
+    StructType &operator=(const StructType &old) = delete;
+    ~StructType() noexcept(false) override;
+
     void printCell(std::ostream &stream, const char *cell) const override;
 
     char *getTypeStructure() const override;
@@ -110,23 +103,6 @@ public:
     /// checks if a certain StructType is contained in this StructType
     int contains(const StructType *aStruct) const;
 
-    StructType(const OId &structtypeid);
-
-    /// default constructor, sets type name to "".
-    StructType();
-
-    /// constructor getting type name and number of elements.
-    StructType(const char *newTypeName, unsigned int numElem);
-
-    /// copy constructor.
-    StructType(const StructType &old);
-
-    /// assignment operator.
-    StructType &operator=(const StructType &old);
-
-    /// virtual destructor.
-    ~StructType() noexcept(false) override;
-
     int compatibleWith(const Type *aType) const override;
 
     r_Bytes getMemorySize() const override;
@@ -138,14 +114,12 @@ private:
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
     r_Long *convertToCLong(const char *cell, r_Long *value) const override;
     char *makeFromCLong(char *cell, const r_Long *value) const override;
-    double *convertToCDouble(const char *cell, double *value) const override;
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    r_Double *convertToCDouble(const char *cell, r_Double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 
 protected:
     void insertInDb() override;
-
     void deleteFromDb() override;
-
     void readFromDb() override;
 
     // moves back one step all elements all elements behind pos
@@ -164,10 +138,10 @@ protected:
     std::vector<unsigned int> elementOffsets;
 
     /// The number of elements.
-    unsigned int numElems;
+    unsigned int numElems{0};
 
     /// Alignment needed for structure if embedded in other structures.
-    unsigned int align;
+    unsigned int align{1};
 
     /// add new element to struct using pointer to BaseType
     /// does the actuall adding.  the public method will not let a persitent type

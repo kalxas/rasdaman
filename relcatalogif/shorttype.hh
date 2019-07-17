@@ -22,18 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The ShortType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *   This file is patched by O2!
- *
- ************************************************************/
 
 #ifndef _SHORTTYPE_HH_
 #define _SHORTTYPE_HH_
@@ -49,7 +37,6 @@ class OId;
 /*@Doc:
 ShortType is the base type used for 16bit integer cell
 values. The value of a Short is stored in four chars.
-
 */
 
 /**
@@ -61,45 +48,21 @@ public:
     ShortType(const OId &id);
 
     ShortType();
-    /*@Doc:
-    default constructor, sets type name to "Short".
-    */
 
-    ShortType(const ShortType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    ShortType(const ShortType &old) = default;
 
-    ShortType &operator=(const ShortType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    ShortType &operator=(const ShortType &old) = default;
 
-    ~ShortType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~ShortType() override = default;
 
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_Long *convertToCLong(const char *cell, r_Long *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCLong(char *cell, const r_Long *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

@@ -20,95 +20,24 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
+
+#include "ulongtype.hh"
 
 #include <iomanip>        // for operator<<, setw
 
-#include "atomictype.hh"  // for AtomicType
-#include "ulongtype.hh"
-
 ULongType::ULongType(const OId &id) : UIntegralType(id)
 {
-    readFromDb();
-}
-
-/*************************************************************
- * Method name...: ULongType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 ULongType.
- ************************************************************/
-
-ULongType::ULongType() : UIntegralType(ULongType::Name, 4)
-{
+    setName(ULongType::Name);
+    size = sizeof(r_ULong);
     myOId = OId(ULONG, OId::ATOMICTYPEOID);
     myType = ULONG;
 }
 
-/*************************************************************
- * Method name...: ULongType(const ULongType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-ULongType::ULongType(const ULongType &old)  = default;
-
-/*************************************************************
- * Method name...: operator=(const ULongType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-ULongType &ULongType::operator=(const ULongType &old)
+ULongType::ULongType() : UIntegralType(ULongType::Name, sizeof(r_ULong))
 {
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
+    myOId = OId(ULONG, OId::ATOMICTYPEOID);
+    myType = ULONG;
 }
-
-/*************************************************************
- * Method name...: ~ULongType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-ULongType::~ULongType() = default;
-
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that ULong is stored MSB..LSB
- *                 on HP.
- ************************************************************/
 
 void ULongType::printCell(std::ostream &stream, const char *cell) const
 {
@@ -126,12 +55,3 @@ char *ULongType::makeFromCULong(char *cell, const r_ULong *value) const
     *reinterpret_cast<r_ULong *>(cell) = *value;
     return cell;
 }
-
-void ULongType::readFromDb()
-{
-    setName(ULongType::Name);
-    size = 4;
-    myOId = OId(ULONG, OId::ATOMICTYPEOID);
-    myType = ULONG;
-}
-

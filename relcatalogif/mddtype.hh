@@ -22,18 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The MDDType class is used as a type for MDDs where nothing
- *   is specified. It also is a superclass for types for MDDs
- *   specifying more.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _MDDTYPE_HH_
 #define _MDDTYPE_HH_
@@ -70,39 +58,17 @@ public:
     could be superceded by OId::OIdType
     */
 
-    char *getTypeStructure() const override;
-    /*@Doc:
-    returns type as string:
-        marray <>
-    */
-
-    /**
-     * @brief getNewTypeStructure - returns the type structe in the format
-     * required by SQL type manipulation format
-     */
-    char *getNewTypeStructure() const override;
-
     MDDType(const OId &id);
 
     MDDType();
-    /*@Doc:
-    constructor.
-    */
 
     MDDType(const char *newTypeName);
-    /*@Doc:
-    constructor using type name.
-    */
 
-    MDDType(const MDDType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    MDDType(const MDDType &old) = default;
 
-    MDDType &operator=(const MDDType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    MDDType &operator=(const MDDType &old) = default;
+
+    ~MDDType() noexcept(false) override;
 
     virtual void print_status(std::ostream &s) const;
     /*@Doc:
@@ -113,11 +79,6 @@ public:
     MDDType::MDDTypeEnum getSubtype() const;
     /*@Doc:
     return subclass of MDDType (runtime typing)
-    */
-
-    ~MDDType() noexcept(false) override;
-    /*@Doc:
-    virtual destructor.
     */
 
     int compatibleWith(const Type *aType) const override;
@@ -131,6 +92,18 @@ public:
     check for compatibility with a certain domain.
     always returns 1.
     */
+
+    char *getTypeStructure() const override;
+    /*@Doc:
+    returns type as string:
+        marray <>
+    */
+
+    /**
+     * @brief getNewTypeStructure - returns the type structe in the format
+     * required by SQL type manipulation format
+     */
+    char *getNewTypeStructure() const override;
 
     r_Bytes getMemorySize() const override;
     /*@Doc:

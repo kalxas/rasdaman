@@ -20,56 +20,64 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include <logging.hh>                 // for Writer, CDEBUG, LDEBUG
-#include <stddef.h>                   // for NULL
-
 #include "collectiontype.hh"
 #include "mddtype.hh"                 // for MDDType
 #include "reladminif/dbnamedobject.hh"  // for DBNamedObject
 #include "dbnullvalues.hh"            // for DBNullvalues
 #include "raslib/nullvalues.hh"
 
+#include <logging.hh>                 // for Writer, CDEBUG, LDEBUG
+#include <stddef.h>                   // for NULL
+
+CollectionType::CollectionType()
+    : Type("unnamed collectiontype")
+{
+}
+
+CollectionType::CollectionType(const MDDType *newMDDType)
+    : Type("unnamed collectiontype"), myMDDType{newMDDType}
+{
+}
+
+CollectionType::CollectionType(const char *name)
+    : Type(name)
+{
+}
+
+CollectionType::CollectionType(const char *name, const MDDType *newMDDType)
+    : Type(name), myMDDType{newMDDType}
+{
+}
+
+CollectionType::CollectionType(const OId &id)
+    : Type(id)
+{
+}
+
+CollectionType::CollectionType(const CollectionType &old)
+    : Type(old), myMDDType{old.myMDDType}, nullValues{old.nullValues}
+{
+}
+
+int CollectionType::compatibleWith(const Type *aType) const
+{
+    return myMDDType->compatibleWith(aType);
+}
+
 r_Bytes CollectionType::getMemorySize() const
 {
     return DBNamedObject::getMemorySize() + myMDDType->getMemorySize() + sizeof(MDDType *);
 }
 
-CollectionType::CollectionType(const MDDType *newMDDType)
-    : Type("unnamed collectiontype")
+DBNullvalues *CollectionType::getNullValues() const
 {
-    myMDDType = newMDDType;
+    return nullValues;
 }
 
-CollectionType::CollectionType()
-    : Type("unnamed collectiontype"), nullValues(NULL)
+void CollectionType::setNullValues(const r_Nullvalues &newNullValues)
 {
-    myMDDType = 0;
+    nullValues = new DBNullvalues(newNullValues);
 }
-
-CollectionType::CollectionType(const char *name)
-    : Type(name), nullValues(NULL)
-{
-    myMDDType = 0;
-}
-
-CollectionType::CollectionType(const char *name, const MDDType *newMDDType)
-    : Type(name), nullValues(NULL)
-{
-    myMDDType = newMDDType;
-}
-
-CollectionType::CollectionType(const OId &id)
-    : Type(id), nullValues(NULL) {}
-
-CollectionType::CollectionType(const CollectionType &old) : Type(old)
-{
-    myMDDType = old.myMDDType;
-    nullValues = old.nullValues;
-}
-
-CollectionType &CollectionType::operator=(const CollectionType &old) = default;
-
-CollectionType::~CollectionType() = default;
 
 const MDDType *CollectionType::getMDDType() const
 {
@@ -81,19 +89,4 @@ void CollectionType::print_status(std::ostream &s) const
     s << "d_" << getName() << "<";
     myMDDType->print_status(s);
     s << " >";
-}
-
-int CollectionType::compatibleWith(const Type *aType) const
-{
-    return myMDDType->compatibleWith(aType);
-}
-
-DBNullvalues *CollectionType::getNullValues() const
-{
-    return nullValues;
-}
-
-void CollectionType::setNullValues(const r_Nullvalues &newNullValues)
-{
-    nullValues = new DBNullvalues(newNullValues);
 }

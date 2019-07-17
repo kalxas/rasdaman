@@ -20,39 +20,21 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   uses ODMG-conformant O2 classes
- *
- *
- * COMMENTS:
- *   none
- *
- ************************************************************/
-
-
-#include <limits.h>       // for SCHAR_MAX, SCHAR_MIN
-#include <iomanip>        // for operator<<, setw
 
 #include "atomictype.hh"  // for AtomicType
 #include "octettype.hh"
 #include "reladminif/oidif.hh"        // for OId
 
+#include <limits.h>       // for SCHAR_MAX, SCHAR_MIN
+#include <iomanip>        // for operator<<, setw
+
 OctetType::OctetType(const OId &id) : IntegralType(id)
 {
-    readFromDb();
+    setName(OctetType::Name);
+    size = sizeof(r_Octet);
+    myType = OCTET;
+    myOId = OId(OCTET, OId::ATOMICTYPEOID);
 }
-
-/*************************************************************
- * Method name...: OctetType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: initializes member variables for an
- *                 OctetType.
- ************************************************************/
 
 OctetType::OctetType() : IntegralType(OctetType::Name, 1)
 {
@@ -60,90 +42,31 @@ OctetType::OctetType() : IntegralType(OctetType::Name, 1)
     myOId = OId(OCTET, OId::ATOMICTYPEOID);
 }
 
-/*************************************************************
- * Method name...: OctetType(const OctetType& old);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-OctetType::OctetType(const OctetType &old)  = default;
-
-/*************************************************************
- * Method name...: operator=(const OctetType&);
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: copy constructor
- ************************************************************/
-
-OctetType &OctetType::operator=(const OctetType &old)
-{
-    // Gracefully handle self assignment
-    if (this == &old)
-    {
-        return *this;
-    }
-    AtomicType::operator=(old);
-    return *this;
-}
-
-/*************************************************************
- * Method name...: ~OctetType();
- *
- * Arguments.....: none
- * Return value..: none
- * Description...: virtual destructor
- ************************************************************/
-
-OctetType::~OctetType() = default;
-
-/*************************************************************
- * Method name...: void printCell( ostream& stream,
- *                                 const char* cell )
- *
- * Arguments.....:
- *   stream: stream to print on
- *   cell:   pointer to cell to print
- * Return value..: none
- * Description...: prints a cell cell in hex on stream
- *                 followed by a space.
- *                 Assumes that Octet is stored MSB..LSB
- *                 on HP.
- ************************************************************/
-
 void OctetType::printCell(std::ostream &stream, const char *cell) const
 {
-    // !!!! HP specific, assumes 1 Byte char
-    stream << std::setw(4) << static_cast<r_Long>(*const_cast<char *>(cell));
+    stream << std::setw(4) 
+           << static_cast<r_Long>(*reinterpret_cast<const r_Octet *>(cell));
 }
 
 r_Long *OctetType::convertToCLong(const char *cell, r_Long *value) const
 {
     // !!!! HP specific, assumes 4 Byte long and MSB..LSB
     // byte order
-    *value = *const_cast<char *>(cell);
+    *value = static_cast<r_Long>(*reinterpret_cast<const r_Octet *>(cell));
     return value;
 }
 
 char *OctetType::makeFromCLong(char *cell, const r_Long *value) const
 {
-    r_Long myLong = *value;
-    // restricting long to value range of short
-    myLong = myLong > SCHAR_MAX ? SCHAR_MAX : myLong;
-    myLong = myLong < SCHAR_MIN ? SCHAR_MIN : myLong;
-    // !!!! HP specific, assumes 4 Byte long and MSB..LSB
-    // byte order
-    *static_cast<char *>(cell) = static_cast<char>(myLong);
+    // restricting long to value range of octet
+    r_Octet myvalue;
+    if (*value > SCHAR_MAX)
+        myvalue = SCHAR_MAX;
+    else if (*value < SCHAR_MIN)
+        myvalue = SCHAR_MIN;
+    else
+        myvalue = static_cast<r_Octet>(*value);
+
+    *reinterpret_cast<r_Octet *>(cell) = myvalue;
     return cell;
 }
-
-void OctetType::readFromDb()
-{
-    setName(OctetType::Name);
-    size = 1;
-    myType = OCTET;
-    myOId = OId(OCTET, OId::ATOMICTYPEOID);
-}
-

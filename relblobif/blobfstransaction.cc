@@ -61,6 +61,7 @@ BlobFSTransaction::BlobFSTransaction(
     }
     else
     {
+        LINFO << "Locking pre-existing transaction directory: " << transactionPath;
         transactionLock = new BlobFSTransactionLock(transactionPath);
         transactionLock->lock(TransactionLockType::General);
     }
@@ -97,7 +98,12 @@ string BlobFSTransaction::getTmpBlobPath(long long blobId)
 
 string BlobFSTransaction::getFinalBlobPath(long long blobId)
 {
-    assert(blobId > 0);
+    if (blobId <= 0)
+    {
+        LERROR << "invalid blob id " << blobId;
+        throw r_Error(BLOBFILENOTFOUND);
+    }
+
     // string length of a long long
     static const size_t idSize = ((CHAR_BIT * sizeof(long long) / 3) + 2);
     // string length of dir1Index, dir2Index and blobId + 2 slashes
@@ -217,6 +223,7 @@ bool BlobFSTransaction::addBlobId(const std::string &blobPath)
 
 void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir)
 {
+    bool first = transactionPath.empty();
     const auto tempDirPathSize = config.transactionsPath.size() + transactionSubdir.size() + 7;
     auto tempDirPath = std::unique_ptr<char[]>(new char[tempDirPathSize + 1]);
     sprintf(tempDirPath.get(), "%s%s.XXXXXX", config.transactionsPath.c_str(), transactionSubdir.c_str());
@@ -237,13 +244,25 @@ void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir
             transactionLock = new BlobFSTransactionLock(transactionPath);
             transactionLock->lock(TransactionLockType::General);
         }
-        LDEBUG << transactionSubdir << " transaction path: " << transactionPath;
+
+        if (DirWrapper::directoryExists(transactionPath.c_str()))
+            LDEBUG << "Created " << transactionSubdir << " transaction path: " << transactionPath;
+        else if (first)
+        {
+            LWARNING << "Successfully created " << transactionSubdir << " transaction path: " << transactionPath
+                     << ", however, now it cannot be found on the filesystem; retrying...";
+            initTransactionDirectory(transactionSubdir);
+        }
+        else
+        {
+            LERROR << "Successfully created " << transactionSubdir << " transaction path: " << transactionPath
+                   << ", however, now it still cannot be found on the filesystem.";
+        }
     }
 }
 
 BlobFSTransaction *
-BlobFSTransaction::getBlobFSTransaction(const string &transactionPath,
-                                        BlobFSConfig &config)
+BlobFSTransaction::getBlobFSTransaction(const string &transactionPath, BlobFSConfig &config)
 {
     if (transactionPath.empty())
         return nullptr;

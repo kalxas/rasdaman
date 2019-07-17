@@ -152,7 +152,7 @@ public:
     use the const char* version!!
     */
 
-    static const StructType *addStructType(const StructType *type);
+    static const BaseType *addStructType(const BaseType *type);
     /*@Doc:
     add a new struct type to the current DBMS.
         After calling this function, a user defined type can be

@@ -20,18 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The RealType class is the superclass for floating point
- *   types (Float, Double) describing the type of a
- *   cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _REALTYPE_HH_
 #define _REALTYPE_HH_
@@ -54,22 +42,12 @@ class RealType : public AtomicType
 {
 public:
     RealType(unsigned int newSize) : AtomicType(newSize) {}
-    /*@Doc:
-    constructor.
-    */
-
-    RealType(const RealType &old)  = default;
-    /*@Doc:
-    copy constructor.
-    */
 
     RealType(const OId &id) : AtomicType(id) {}
-    /*@Doc:
-    */
+
+    RealType(const RealType &old) = default;
 
     ~RealType() override = default;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
@@ -80,8 +58,6 @@ public:
 protected:
     RealType(const char *name, unsigned int newSize)
         : AtomicType(name, newSize) {}
-    /*@Doc:
-    */
 };
 
 #include "realtype.icc"

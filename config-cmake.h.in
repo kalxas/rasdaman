@@ -69,10 +69,6 @@
 #cmakedefine _DISABLE_TRACE_LOGS 1
 #cmakedefine __NO_MATH_INLINES 1
 
-#cmakedefine JAVA_SERVER "@JAVA_SERVER@"
-#cmakedefine JAVA_SERVER_EXTERNAL 1
-#cmakedefine JAVA_SERVER_EMBEDDED 1
-
 #cmakedefine RMANRASNET 1
 
 #cmakedefine CPPSTDLIB 1

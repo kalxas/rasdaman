@@ -20,17 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
-*
-*
-* COMMENTS:
-*
-************************************************************/
 
 inline r_ULong *
 RealType::convertToCULong(const char *cell, r_ULong *value) const
 {
-    double tmp;
+    r_Double tmp;
     *value = (r_ULong) * this->convertToCDouble(cell, &tmp);
     return value;
 }
@@ -44,13 +38,13 @@ RealType::convertToCLong(const char *cell, r_Long *value) const
 inline char *
 RealType::makeFromCULong(char *cell, const r_ULong *value) const
 {
-    double tmp = *value;
+    r_Double tmp = *value;
     return this->makeFromCDouble(cell, &tmp);
 }
 
 inline char *
 RealType::makeFromCLong(char *cell, const r_Long *value) const
 {
-    return this->makeFromCULong(cell, (r_ULong *)const_cast<r_Long *>(value));
+    return this->makeFromCULong(cell, (const r_ULong *)value);
 }
 

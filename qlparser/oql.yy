@@ -1279,6 +1279,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
 typeAttributeList: typeAttributeList COMMA typeAttribute
             {
                 $1->push_back( $3 );
+                $$ = $1;
                 FREESTACK($2);
             }
             | typeAttribute

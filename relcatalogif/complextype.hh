@@ -48,8 +48,8 @@ rasdaman GmbH.
 class OId;
 
 /**
-  * \ingroup Relcatalogifs
-  */
+ * \ingroup Relcatalogifs
+ */
 class GenericComplexType : public AtomicType
 {
 public:
@@ -64,16 +64,20 @@ protected:
 };
 
 /**
-  * \ingroup Relcatalogifs
-  */
+ * Complex type for (float, float)
+ * 
+ * \ingroup Relcatalogifs
+ */
 class ComplexType1 : public GenericComplexType
 {
 public:
+    using PartType = r_Float;
+
     ComplexType1();
     ComplexType1(const OId &id);
     ComplexType1(const ComplexType1 &old);
     ComplexType1 &operator=(const ComplexType1 &old);
-    ~ComplexType1() override;
+    ~ComplexType1() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
     unsigned int getImOffset() const override;
@@ -86,27 +90,29 @@ protected:
 private:
     unsigned int reOffset, imOffset;
 
-    //  static const char* complexTypeName;
-
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
     r_Long *convertToCLong(const char *, r_Long *) const override;
     char *makeFromCLong(char *, const r_Long *) const override;
-    double *convertToCDouble(const char *cell, double *value) const override;
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    r_Double *convertToCDouble(const char *cell, r_Double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 };
 
 /**
-  * \ingroup Relcatalogifs
-  */
+ * Complex type for (double, double)
+ * 
+ * \ingroup Relcatalogifs
+ */
 class ComplexType2 : public GenericComplexType
 {
 public:
+    using PartType = r_Double;
+
     ComplexType2();
     ComplexType2(const OId &id);
     ComplexType2(const ComplexType2 &old);
     ComplexType2 &operator=(const ComplexType2 &old);
-    ~ComplexType2() override;
+    ~ComplexType2() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
     unsigned int getImOffset() const override;
@@ -119,24 +125,29 @@ protected:
 private:
     unsigned int reOffset, imOffset;
 
-    //  static const char* complexTypeName;
-
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
     r_Long *convertToCLong(const char *, r_Long *) const override;
     char *makeFromCLong(char *, const r_Long *) const override;
-    double *convertToCDouble(const char *cell, double *value) const override;
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    r_Double *convertToCDouble(const char *cell, r_Double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 };
 
+/**
+ * Complex type for (short, short)
+ * 
+ * \ingroup Relcatalogifs
+ */
 class CInt16 : public GenericComplexType
 {
 public:
+    using PartType = r_Short;
+
     CInt16();
     CInt16(const OId &id);
     CInt16(const CInt16 &old);
     CInt16 &operator=(const CInt16 &old);
-    ~CInt16() override;
+    ~CInt16() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
     unsigned int getImOffset() const override;
@@ -149,24 +160,29 @@ protected:
 private:
     unsigned int reOffset, imOffset;
 
-    //  static const char* complexTypeName;
-
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
     r_Long *convertToCLong(const char *, r_Long *) const override;
     char *makeFromCLong(char *, const r_Long *) const override;
-    double *convertToCDouble(const char *cell, double *value) const override;
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    r_Double *convertToCDouble(const char *cell, r_Double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 };
 
+/**
+ * Complex type for (int, int)
+ * 
+ * \ingroup Relcatalogifs
+ */
 class CInt32 : public GenericComplexType
 {
 public:
+    using PartType = r_Long;
+
     CInt32();
     CInt32(const OId &id);
     CInt32(const CInt32 &old);
     CInt32 &operator=(const CInt32 &old);
-    ~CInt32() override;
+    ~CInt32() override = default;
     void printCell(std::ostream &stream, const char *cell) const override;
     unsigned int getReOffset() const override;
     unsigned int getImOffset() const override;
@@ -179,14 +195,12 @@ protected:
 private:
     unsigned int reOffset, imOffset;
 
-    //  static const char* complexTypeName;
-
     r_ULong *convertToCULong(const char *, r_ULong *) const override;
     char *makeFromCULong(char *, const r_ULong *) const override;
     r_Long *convertToCLong(const char *, r_Long *) const override;
     char *makeFromCLong(char *, const r_Long *) const override;
-    double *convertToCDouble(const char *cell, double *value) const override;
-    char *makeFromCDouble(char *cell, const double *value) const override;
+    r_Double *convertToCDouble(const char *cell, r_Double *value) const override;
+    char *makeFromCDouble(char *cell, const r_Double *value) const override;
 };
 #include "complextype.icc"
 

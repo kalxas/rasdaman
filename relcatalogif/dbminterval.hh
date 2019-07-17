@@ -35,10 +35,8 @@ using DBMintervalId = DBRef<DBMinterval>;
 //@ManMemo: Module: {\bf relcatalogif}.
 
 /*@Doc:
-Persistent version of r_Minterval.  it stores its attributes not very efficient.
-it is used by DBMDDObj and MDDDomainType because the performance impact is neglectabel.
-
-for a more efficient storage system refere to InlineMInterval
+Persistent version of r_Minterval. It is used by DBMDDObj and MDDDomainType.
+For a more efficient version refer to InlineMInterval.
 */
 
 /**
@@ -76,12 +74,22 @@ public:
 
     r_Bytes getMemorySize() const override;
     /*@Doc:
-    esimates the space taken up by this object with:
+    estimates the space taken up by this object with:
     DBObject::getMemorySize() + sizeof(r_Minterval)
         + dimensionality * (4 + 4 + 1 + 1)
     */
 
 protected:
+    /**
+     * @return the current dimension in RAS_DOMAINS.
+     */
+    r_Dimension getDimensionInDb() const;
+    
+    /**
+     * Set high and low based on the interval at dimension count.
+     */
+    void setBounds(r_Dimension count, std::string &high, std::string &low) const;
+
     void insertInDb() override;
     /*@Doc:
     inserts the object into the database.  it uses one table
@@ -90,16 +98,10 @@ protected:
     */
 
     void updateInDb() override;
-    /*@Doc:
-    */
 
     void deleteFromDb() override;
-    /*@Doc:
-    */
 
     void readFromDb() override;
-    /*@Doc:
-    */
 };
 
 #endif

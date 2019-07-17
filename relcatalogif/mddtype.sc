@@ -20,17 +20,6 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   Code with embedded SQL for PostgreSQL DBMS
- *
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- ************************************************************/
 
 #include "mddtype.hh"
 #include "reladminif/sqlitewrapper.hh"
@@ -38,16 +27,9 @@ rasdaman GmbH.
 
 void MDDType::insertInDb()
 {
-    long long mddtypeid;
-    char mddtypename[VARCHAR_MAXLEN];
-
-    mddtypeid = 0;
-    (void)strncpy(mddtypename, const_cast<char *>(getName()),
-                  (size_t)sizeof(mddtypename));
-    mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams(
         "INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES (%lld, '%s')",
-        mddtypeid, mddtypename);
+        myOId.getCounter(), getName());
     DBObject::insertInDb();
 }
 
@@ -56,36 +38,28 @@ void MDDType::readFromDb()
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    long long mddtypeid;
-    const char *mddtypename;
-
-    mddtypeid = myOId.getCounter();
 
     SQLiteQuery query(
-        "SELECT MDDTypeName FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld",
-        mddtypeid);
+        "SELECT MDDTypeName FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld", myOId.getCounter());
     if (query.nextRow())
     {
-        mddtypename = query.nextColumnString();
+        setName(query.nextColumnString());
     }
     else
     {
-        LERROR << "MDDType::readFromDb() - mdd type: " << mddtypeid
-               << " not found in the database.";
-        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in the database.");
+        LERROR << "mdd type " << myOId.getCounter() << " not found in RAS_MDDTYPES.";
+        throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd type object not found in RAS_MDDTYPES.");
     }
+    DBObject::readFromDb();
 
-    setName(mddtypename);
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-    DBObject::readFromDb();
 }
 
 void MDDType::deleteFromDb()
 {
-    long long mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams(
-        "DELETE FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld", mddtypeid);
+        "DELETE FROM RAS_MDDTYPES WHERE MDDTypeOId = %lld", myOId.getCounter());
     DBObject::deleteFromDb();
 }

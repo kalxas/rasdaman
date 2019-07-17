@@ -30,13 +30,15 @@
 # get script name
 PROG=$( basename $0 )
 
-RC_OK=0
-RC_ERROR=1
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+. "$SCRIPT_DIR"/../../util/common.sh
 
 # By default, it creates ingest.json from ingest.template.json before importing data
 # But, input argument can tell it to just import data instead.
 CREATE_INGEST_FILES=$2
-
 if [ -z "$CREATE_INGEST_FILES" ]; then
     CREATE_INGEST_FILES=0
 fi
@@ -44,13 +46,6 @@ fi
 # Test case which needs to create a collection in rasdaman to test
 COLLECTION_EXISTS="collection_exists"
 COLLECTION_NAME="test_wcst_import_collection_exists"
-
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
-SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-
-. "$SCRIPT_DIR"/../../util/common.sh
-
 
 # get the test datas and recipes from folder
 TEST_DATA="$SCRIPT_DIR/testdata"

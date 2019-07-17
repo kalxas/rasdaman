@@ -167,25 +167,14 @@ DBObject::DBObject(const DBObject &old)
 // constructs an object and reads it from the database.  the oid must match the type of the object.
 // a r_Error::r_Error_ObjectUnknown is thrown when the oid is not in the database.
 DBObject::DBObject(const OId &id)
-    : _isCached(false), myOId(id), objecttype(id.getType()), referenceCount(0)
+    : _isPersistent(false),
+      _isInDatabase(false),
+      _isModified(true),
+      _isCached(false),
+      myOId(id), objecttype(id.getType()), referenceCount(0)
 {
     // flags must be set by readFromDb()
     LTRACE << "DBObject(" << myOId << ")";
-}
-
-DBObject &DBObject::operator=(const DBObject &old)
-{
-    LTRACE << "operator=(" << old.myOId << ")";
-    if (this != &old)
-    {
-        _isPersistent = old._isPersistent;
-        _isInDatabase = old._isInDatabase;
-        _isModified = old._isModified;
-        _isCached = old._isCached;
-        objecttype = old.objecttype;
-        myOId = old.myOId;
-    }
-    return *this;
 }
 
 // setPersistent(true) makes the object persistent as soon as validate is called.

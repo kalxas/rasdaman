@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/nullvalues.hh"
 
 r_Nullvalues::r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg)
@@ -35,19 +34,12 @@ std::string r_Nullvalues::toString() const
     bool addComma = false;
     for (const auto &p : nullvalues)
     {
-        if (addComma)
-        {
+        if (ret.size() > 1) // ret == "[" at the start
             ret += ",";
-        }
-        else
-        {
-            addComma = true;
-        }
+
         ret += std::to_string(p.first);
         if (p.first != p.second)
-        {
             ret += ":" + std::to_string(p.second);
-        }
     }
     ret += "]";
     return ret;

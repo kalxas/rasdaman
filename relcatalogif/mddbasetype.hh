@@ -22,27 +22,14 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The MDDBaseType class is used as a type for MDDs where
- *   only the base type is specified.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _MDDBASETYPE_HH_
 #define _MDDBASETYPE_HH_
 
 #include "mddtype.hh"
 #include <iosfwd>
 
-class MDDBaseType;
-
 class OId;
+class BaseType;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -57,45 +44,28 @@ class OId;
 class MDDBaseType : public MDDType
 {
 public:
+    MDDBaseType(const OId &id);
+
+    MDDBaseType(const char *newTypeName, const BaseType *newBaseType);
+
+    MDDBaseType();
+
+    MDDBaseType(const char *newtypename);
+
+    MDDBaseType(const MDDBaseType &old) = default;
+
+    MDDBaseType &operator=(const MDDBaseType &old) = default;
+
+    ~MDDBaseType() noexcept(false) override;
+
     char *getTypeStructure() const override;
     /*@Doc:
     returns a string: marray < myBaseType->getTypeStructure >
     */
 
     char *getNewTypeStructure() const override;
-
-    MDDBaseType(const OId &id);
     /*@Doc:
-    constructs a MDDBaseType out of the database.
-    */
-
-    MDDBaseType(const char *newTypeName, const BaseType *newBaseType);
-    /*@Doc:
-    constructor.
-    */
-
-    MDDBaseType();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
-
-    MDDBaseType(const char *newtypename);
-    /*@Doc:
-    */
-
-    MDDBaseType(const MDDBaseType &old);
-    /*@Doc:
-    copy constructor.
-    */
-
-    MDDBaseType &operator=(const MDDBaseType &old);
-    /*@Doc:
-    assignment operator.
-    */
-
-    const BaseType *getBaseType() const;
-    /*@Doc:
-    returns base type.
+    returns a string: marray { myBaseType->getTypeStructure }
     */
 
     void print_status(std::ostream &s) const override;
@@ -104,11 +74,7 @@ public:
     \tr_Marray < myBaseType->getTypeName() \t>
     */
 
-    ~MDDBaseType() noexcept(false) override;
-    /*@Doc:
-    virtual destructor.
-    validates the object.
-    */
+    const BaseType *getBaseType() const;
 
     int compatibleWith(const Type *aType) const override;
     /*@Doc:
@@ -137,9 +103,6 @@ protected:
     void deleteFromDb() override;
 
     const BaseType *myBaseType;
-    /*@Doc:
-    reference to the basetype
-    */
 };
 
 #endif

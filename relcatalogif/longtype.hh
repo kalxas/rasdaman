@@ -22,18 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The LongType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _LONGTYPE_HH_
 #define _LONGTYPE_HH_
 
@@ -48,7 +36,6 @@ class OId;
 /*@Doc:
 LongType is the base type used for 32bit integer cell
 values. The value of a Long is stored in four chars.
-
 */
 
 /**
@@ -58,50 +45,23 @@ class LongType : public IntegralType
 {
 public:
     LongType(const OId &id);
-    /*@Doc:
-    */
 
     LongType();
-    /*@Doc:
-    default constructor, sets type name to "Long".
-    */
 
-    LongType(const LongType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    LongType(const LongType &old) = default;
 
-    LongType &operator=(const LongType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    LongType &operator=(const LongType &old) = default;
 
-    ~LongType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~LongType() override = default;
 
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    there is concern about the MSB..LSB problem in the source code.
-    */
 
     r_Long *convertToCLong(const char *cell, r_Long *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCLong(char *cell, const r_Long *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif

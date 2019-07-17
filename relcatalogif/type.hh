@@ -22,17 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The Type class is the superclass for the classes
- *   CollectionType, BaseType, and MDDType.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #ifndef _TYPE_HH_
 #define _TYPE_HH_
@@ -66,6 +55,12 @@ are also used in subclasses of \Ref{MDDObject}.
 class Type : public DBNamedObject
 {
 public:
+    Type();
+    Type(const OId &id);
+    Type(const Type &old) = default;
+    Type &operator=(const Type &old) = default;
+    ~Type() override = default;
+
     void destroy() override;
     /*@Doc:
     does nothing.  is neccessary to stop types from being deleted by ~DBRef<Type>
@@ -107,28 +102,6 @@ public:
     checks, if two types are compatible (see also \Ref{MDDType}).
     */
 
-    Type();
-    /*@Doc:
-    default constructor, cannot be used.
-    */
-
-    Type(const OId &id);
-    /*@Doc:
-    */
-
-    Type(const Type &old);
-    /*@Doc:
-    */
-
-    Type &operator=(const Type &old);
-    /*@Doc:
-    */
-
-    ~Type() override;
-    /*@Doc:
-    virtual destructor.
-    */
-
 protected:
     TypeEnum myType;
     /*@Doc:
@@ -138,8 +111,6 @@ protected:
     */
 
     Type(const char *name);
-    /*@Doc:
-    */
 };
 
 #endif

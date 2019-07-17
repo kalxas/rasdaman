@@ -22,19 +22,6 @@ rasdaman GmbH.
 */
 // -*-C++-*- (for Emacs)
 
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The CompositeType class is the superclass for all for
- *   composite types (e.g. Octet, ULong) describing the type of a
- *   cell
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
 #ifndef _COMPOSITETYPE_HH_
 #define _COMPOSITETYPE_HH_
 
@@ -54,49 +41,30 @@ CompositeType is the abstract base class for all structured
 class CompositeType : public BaseType
 {
 public:
+    CompositeType();
+
+    CompositeType(unsigned int newSize);
+
+    CompositeType(const OId &id);
+
+    CompositeType(const CompositeType &old) = default;
+
+    CompositeType &operator=(const CompositeType &old) = default;
+
+    ~CompositeType() override = default;
+
     unsigned int getSize() const override;
     /*@Doc:
     get size of cells of this base type.
     */
 
-    CompositeType();
-    /*@Doc:
-    constructor.
-    */
-
-    CompositeType(const OId &id);
-    /*@Doc:
-    constructor.
-    */
-
-    CompositeType(const CompositeType &old);
-    /*@Doc:
-    constructor.
-    */
-
-    CompositeType(unsigned int newSize);
-    /*@Doc:
-    constructor.
-    */
-
-    ~CompositeType() override;
-    /*@Doc:
-    virtual destructor needed because of subclasses
-    */
-
-    CompositeType &operator=(const CompositeType &old);
-    /*@Doc:
-    */
-
 protected:
-    unsigned int size;
+    unsigned int size{};
     /*@Doc:
     size of one cell of this base type in number of chars.
     */
 
     CompositeType(const char *name, unsigned int newSize);
-    /*@Doc:
-    */
 };
 
 #endif

@@ -22,18 +22,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   The UShortType class is the superclass for all classes
- *   describing the type of a cell
- *
- *
- * COMMENTS:
- *   This file is patched by O2!
- *
- ************************************************************/
 
 #ifndef _USHORTTYPE_HH_
 #define _USHORTTYPE_HH_
@@ -41,7 +29,8 @@ rasdaman GmbH.
 #include <iosfwd>              // for ostream
 #include "uintegraltype.hh"    // for UIntegralType
 #include "raslib/odmgtypes.hh" // for r_ULong
-#include "reladminif/oidif.hh" // for OId
+
+class OId;
 
 //@ManMemo: Module: {\bf relcatalogif}.
 
@@ -59,45 +48,21 @@ public:
     UShortType(const OId &id);
 
     UShortType();
-    /*@Doc:
-    default constructor, sets type name to "UShort".
-    */
 
-    UShortType(const UShortType &old);
-    /*@Doc:
-    copy constructor.
-    */
+    UShortType(const UShortType &old) = default;
 
-    UShortType &operator=(const UShortType &old);
-    /*@Doc:
-    assignment operator.
-    */
+    UShortType &operator=(const UShortType &old) = default;
 
-    ~UShortType() override;
-    /*@Doc:
-    virtual destructor.
-    */
+    ~UShortType() override = default;
 
     void printCell(std::ostream &stream, const char *cell) const override;
-    /*@Doc:
-    */
 
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
-    /*@Doc:
-    */
 
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
-    /*@Doc:
-    */
 
     static const char *Name;
 
-protected:
-    void readFromDb() override;
-    /*@Doc:
-    initializes the attributes of this type.
-    there is no database activity.  this is hard coded.
-    */
 };
 
 #endif
