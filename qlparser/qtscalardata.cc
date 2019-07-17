@@ -136,6 +136,18 @@ QtScalarData::getDataType() const
         case DOUBLE:
             returnValue = QT_DOUBLE;
             break;
+        case COMPLEXTYPE1:
+            returnValue = QT_COMPLEXTYPE1;
+            break;
+        case COMPLEXTYPE2:
+            returnValue = QT_COMPLEXTYPE2;
+            break;
+        case CINT16:
+            returnValue = QT_CINT16;
+            break;
+        case CINT32:
+            returnValue = QT_CINT32;
+            break;
         case STRUCT:
             returnValue = QT_COMPLEX;
             break;

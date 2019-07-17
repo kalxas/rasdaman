@@ -60,8 +60,8 @@ inline ComplexType1::~ComplexType1() = default;
 
 inline void ComplexType1::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(reinterpret_cast<const float *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(reinterpret_cast<const float *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const float *>(cell+ reOffset)) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const float *>(cell + imOffset)) << " )\n";
 }
 
 inline void ComplexType1::readFromDb()
@@ -156,8 +156,8 @@ inline ComplexType2::~ComplexType2() = default;
 
 inline void ComplexType2::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(reinterpret_cast<const double *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(reinterpret_cast<const double *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const double *>(cell + reOffset)) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const double *>(cell + imOffset)) << " )\n";
 }
 
 inline void ComplexType2::readFromDb()
@@ -251,8 +251,8 @@ inline CInt16::~CInt16() = default;
 
 inline void CInt16::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(reinterpret_cast<const short *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(reinterpret_cast<const short *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const short *>(cell + reOffset)) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const short *>(cell + imOffset)) << " )\n";
 }
 
 inline void CInt16::readFromDb()
@@ -347,8 +347,8 @@ inline CInt32::~CInt32() = default;
 
 inline void CInt32::printCell(std::ostream &stream, const char *cell) const
 {
-    stream << "( Re: " << *(reinterpret_cast<const int *>(cell) + reOffset) << "\t";
-    stream << "Im: " << *(reinterpret_cast<const int *>(cell) + imOffset) << " )\n";
+    stream << "( Re: " << *(reinterpret_cast<const int *>(cell + reOffset)) << "\t";
+    stream << "Im: " << *(reinterpret_cast<const int *>(cell + imOffset))<< " )\n";
 }
 
 inline void CInt32::readFromDb()

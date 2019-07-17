@@ -725,7 +725,6 @@ closeTransaction(bool doCommit)
 void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 {
     INFO("  Result element " << resultIndex << ": ");
-
     switch (data->getDataType())
     {
     case QT_BOOL:
