@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qgsnewhttpconnectionbase</class>
+ <widget class="QDialog" name="qgsnewhttpconnectionbase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>642</width>
+    <height>153</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>New WCPS Server </string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>110</y>
+     <width>341</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_NewSrvName">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>33</y>
+     <width>91</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Server Name</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_NewSrvUrl">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>75</y>
+     <width>91</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Server URL</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txt_NewSrvName">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>30</y>
+     <width>501</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>IBeamCursor</cursorShape>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txt_NewSrvUrl">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>70</y>
+     <width>501</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>qgsnewhttpconnectionbase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>qgsnewhttpconnectionbase</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>read_fields()</slot>
+  <slot>wcs_request_results()</slot>
+ </slots>
+</ui>

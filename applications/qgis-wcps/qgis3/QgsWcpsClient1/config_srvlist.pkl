@@ -1,0 +1,10 @@
+(dp0
+S'servers'
+p1
+(lp2
+(lp3
+Vlocalhost
+p4
+aVhttp://localhost:8080/rasdaman/ows/wcps
+p5
+aas.

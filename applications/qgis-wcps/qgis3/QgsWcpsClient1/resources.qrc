@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/QgsWcpsClient1" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

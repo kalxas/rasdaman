@@ -9,10 +9,13 @@
 [general]
 name=QgsWcpsClient1
 qgisMinimumVersion=2.0
+qgisMaximumVersion=2.9
 description=Makes WCPS requests to the server
 version=1.1
-author=Bidesh Thapaliya,Dimitar Misev
+author=Bidesh Thapaliya, Dimitar Misev
 email=misev@rasdaman.com
+
+about=QgsWcpsClient1 is a plugin that allows sending WCPS (Web Coverage Processing Service) queries to a compliant OGC WCS 2.0 server that implements the Processing extension, and loading the returned result in QGIS. It is known to work with the rasdaman Array DBMS (http://rasdaman.org).
 
 # End of mandatory metadata
 
@@ -26,8 +29,8 @@ changelog=Following are the changes made:
 # Tags are comma separated with spaces allowed
 tags=wcps,ogc
 
-homepage=http://www.rasdaman.org
-tracker=http://http://www.rasdaman.org
+homepage=http://rasdaman.org/wiki/Clients#QGISWCPSplugin
+tracker=http://www.rasdaman.org/report
 repository=http://www.rasdaman.org/browser/applications/qgis-wcps
 icon=icon.png
 # experimental flag

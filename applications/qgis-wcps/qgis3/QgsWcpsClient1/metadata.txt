@@ -1,0 +1,40 @@
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=QgsWcpsClient1
+qgisMinimumVersion=3.0
+description=Makes WCPS requests to the server
+version=2.0
+author=Bidesh Thapaliya, Dimitar Misev
+email=misev@rasdaman.com
+
+about=QgsWcpsClient1 is a plugin that allows sending WCPS (Web Coverage Processing Service) queries to a compliant OGC WCS 2.0 server that implements the Processing extension, and loading the returned result in QGIS. It is known to work with the rasdaman Array DBMS (http://rasdaman.org).
+
+# End of mandatory metadata
+
+# Optional items:
+
+# Uncomment the following line and add your changelog:
+changelog=Following are the changes made:
+	2.0 - Release adapting to the changes of QGIS 3.x
+	1.1 - Minor release to fix the exception handling
+	1.0 - Initial Release
+
+# Tags are comma separated with spaces allowed
+tags=wcps,ogc
+
+homepage=http://rasdaman.org/wiki/Clients#QGISWCPSplugin
+tracker=http://www.rasdaman.org/report
+repository=http://www.rasdaman.org/browser/applications/qgis-wcps
+icon=icon.png
+# experimental flag
+experimental=False
+
+# False flag (applies to the whole plugin, not just a single version)
+deprecated=False
