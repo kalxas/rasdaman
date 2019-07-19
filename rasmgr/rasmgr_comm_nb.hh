@@ -21,10 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 /**
- * SOURCE: rasmgr_comm_nb.hh
- *
- * MODULE: rasmgr
- * CLASS:  <many>
  *
  * PURPOSE:
  *   Performs reliable, non-blocking HTTP communication. used by the master rasmgr

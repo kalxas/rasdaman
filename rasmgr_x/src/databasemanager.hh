@@ -63,7 +63,7 @@ public:
     /**
      * Change the name of a database if there is no database with the same name.
      * @param oldDbName The old name of the database
-     * @param newDbName The new name of the database
+     * @param newDbProp new database properties
      */
     void changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp);
 

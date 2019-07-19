@@ -42,6 +42,7 @@ rasdaman GmbH.
 
 #include <sqlite3.h>
 #include <climits>
+#include <memory>
 
 extern char globalConnectId[PATH_MAX];
 
@@ -52,41 +53,31 @@ const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN] = "SQLite";
  * table.
  */
 void checkCounter(const char *counterName, const char *column,
-                  const char *table, const char *tableDescr, bool &retval)
+                  const char *table, const char *tableDescr)
 {
-    if (retval)
+    SQLiteQuery query("SELECT NextValue, MAX(%s) FROM RAS_COUNTERS, %s "
+                      "WHERE CounterName = '%s'", column, table, counterName);
+    if (query.nextRow())
     {
-        SQLiteQuery query("SELECT NextValue FROM RAS_COUNTERS WHERE CounterName = '%s'", counterName);
-        if (query.nextRow())
-        {
-            auto nextoid = query.nextColumnLong();
+        auto rasCountersOid = query.nextColumnLong();
+        auto actualOid = query.nextColumnLong();
 
-            SQLiteQuery queryTable("SELECT %s FROM %s ORDER BY %s DESC LIMIT 1", column, table, column);
-            if (queryTable.nextRow())
-            {
-                auto checkoid = queryTable.nextColumnLong();
-                if (checkoid > nextoid)
-                {
-                    LWARNING << "The administrative tables for " << tableDescr << " are inconsistent.";
-                    LWARNING << "Counter " << column << " in table " << table << ": " << checkoid;
-                    LWARNING << "Counter in table RAS_COUNTERS with name '" << counterName << "': " << nextoid;
-                    retval = false;
-                }
-            }
-        }
-        else
+        if (actualOid > rasCountersOid)
         {
-            LERROR << "Value for counter '" << counterName << "' not found in the RAS_COUNTERS table in RASBASE. "
-                   << "Most likely you need to run update_db.sh to update the database schema.";
-            closeDbConnection();
-            throw r_Error(DATABASE_INCOMPATIBLE);
+            // TODO: make a backup of RASBASE and attempt to "fix" the issue by updating the counter in RAS_COUNTERS?
+
+            LERROR << "The administrative tables for " << tableDescr << " are inconsistent; "
+                    << "counter " << column << " in table " << table << " is " << actualOid
+                    << ", while counter " << counterName << " in table RAS_COUNTERS is " << rasCountersOid;
+            throw r_Error(DATABASE_INCONSISTENT);
         }
     }
-}
-
-void closeDbConnection()
-{
-    SQLiteQuery::closeConnection();
+    else
+    {
+        LERROR << "Value for counter " << counterName << " not found in the RAS_COUNTERS table in RASBASE. "
+                << "Most likely you need to stop rasdaman, run update_db.sh, and start rasdaman again.";
+        throw r_Error(DATABASE_INCOMPATIBLE);
+    }
 }
 
 AdminIf::AdminIf(bool createDb)
@@ -96,59 +87,44 @@ AdminIf::AdminIf(bool createDb)
         struct stat status;
         if (stat(globalConnectId, &status) == -1)
         {
-            LERROR << "Base DBMS file not found at '" << globalConnectId << "', please run create_db.sh first.";
+            LERROR << "Base DBMS file cannot be accessed at '" << globalConnectId << "', "
+                   << "reason: " << strerror(errno);
             throw r_Error(DATABASE_NOTFOUND);
         }
     }
 
-    validConnection = SQLiteQuery::openConnection(globalConnectId);
+    SQLiteQuery::openConnection(globalConnectId);
+
+    // cleanup: close DB connection automatically on function exit via RAII
+    std::unique_ptr<SQLiteQuery, void(*)(SQLiteQuery*)> closeConnection(
+        nullptr, [](SQLiteQuery*) { SQLiteQuery::closeConnection(); });
 
     ObjectBroker::init();
 
     // check database consistency
-    if (!createDb && SQLiteQuery::isConnected())
+    if (!createDb)
     {
         if (!SQLiteQuery::returnsRows("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'"))
         {
             LERROR << "No tables found in " << globalConnectId << ", please run create_db.sh first.";
-            closeDbConnection();
             throw r_Error(DATABASE_NOTFOUND);
         }
-
-        bool consistent = true;
-        checkCounter(OId::counterNames[OId::DBMINTERVALOID], "DomainId", "RAS_DOMAINS", "domain data", consistent);
-        checkCounter(OId::counterNames[OId::MDDOID], "MDDId", "RAS_MDDOBJECTS", "MDD objects", consistent);
-        checkCounter(OId::counterNames[OId::MDDCOLLOID], "MDDCollId", "RAS_MDDCOLLNAMES", "MDD collections", consistent);
-        checkCounter(OId::counterNames[OId::MDDTYPEOID], "MDDTypeOId", "RAS_MDDTYPES", "MDD types", consistent);
-        checkCounter(OId::counterNames[OId::MDDBASETYPEOID], "MDDBaseTypeOId", "RAS_MDDBASETYPES", "MDD base types", consistent);
-        checkCounter(OId::counterNames[OId::MDDDIMTYPEOID], "MDDDimTypeOId", "RAS_MDDDIMTYPES", "MDD dimension types", consistent);
-        checkCounter(OId::counterNames[OId::MDDDOMTYPEOID], "MDDDomTypeOId", "RAS_MDDDOMTYPES", "MDD domain types", consistent);
-        checkCounter(OId::counterNames[OId::STRUCTTYPEOID], "BaseTypeId", "RAS_BASETYPENAMES", "base types", consistent);
-        checkCounter(OId::counterNames[OId::SETTYPEOID], "SetTypeId", "RAS_SETTYPES", "collection types", consistent);
-        checkCounter(OId::counterNames[OId::BLOBOID], "BlobId", "RAS_TILES", "tiles", consistent);
-        checkCounter(OId::counterNames[OId::MDDHIERIXOID], "MDDObjIxOId", "RAS_HIERIX", "hierarchical MDD indexes", consistent);
-        checkCounter(OId::counterNames[OId::STORAGEOID], "StorageId", "RAS_STORAGE", "MDD storage structures", consistent);
-
-        if (SQLiteQuery::returnsRows("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_NULLVALUEPAIRS'"))
-        {
-            checkCounter(OId::counterNames[OId::DBNULLVALUESOID], "NullValueOId", "RAS_NULLVALUES", "null value data", consistent);
-        }
-        else
-        {
-            LERROR << "Database schema out of date. Please stop rasdaman, run update_db.sh, and start rasdaman again.";
-            closeDbConnection();
-            throw r_Error(DATABASE_INCOMPATIBLE);
-        }
-
-        if (!consistent)
-        {
-            LERROR << "Database OId counters inconsistent.";
-            closeDbConnection();
-            throw r_Error(DATABASE_INCONSISTENT);
-        }
+        checkCounter(OId::counterNames[OId::DBMINTERVALOID], "DomainId", "RAS_DOMAINS", "domain data");
+        checkCounter(OId::counterNames[OId::MDDOID], "MDDId", "RAS_MDDOBJECTS", "MDD objects");
+        checkCounter(OId::counterNames[OId::MDDCOLLOID], "MDDCollId", "RAS_MDDCOLLNAMES", "MDD collections");
+        checkCounter(OId::counterNames[OId::MDDTYPEOID], "MDDTypeOId", "RAS_MDDTYPES", "MDD types");
+        checkCounter(OId::counterNames[OId::MDDBASETYPEOID], "MDDBaseTypeOId", "RAS_MDDBASETYPES", "MDD base types");
+        checkCounter(OId::counterNames[OId::MDDDIMTYPEOID], "MDDDimTypeOId", "RAS_MDDDIMTYPES", "MDD dimension types");
+        checkCounter(OId::counterNames[OId::MDDDOMTYPEOID], "MDDDomTypeOId", "RAS_MDDDOMTYPES", "MDD domain types");
+        checkCounter(OId::counterNames[OId::STRUCTTYPEOID], "BaseTypeId", "RAS_BASETYPENAMES", "base types");
+        checkCounter(OId::counterNames[OId::SETTYPEOID], "SetTypeId", "RAS_SETTYPES", "collection types");
+        checkCounter(OId::counterNames[OId::BLOBOID], "BlobId", "RAS_TILES", "tiles");
+        checkCounter(OId::counterNames[OId::MDDHIERIXOID], "MDDObjIxOId", "RAS_HIERIX", "hierarchical MDD indexes");
+        checkCounter(OId::counterNames[OId::STORAGEOID], "StorageId", "RAS_STORAGE", "MDD storage structures");
+        checkCounter(OId::counterNames[OId::DBNULLVALUESOID], "NullValueOId", "RAS_NULLVALUES", "null value data");
     }
 
     BlobFS::getInstance();
-
-    closeDbConnection();
+    
+    validConnection = true;
 }

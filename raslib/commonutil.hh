@@ -36,7 +36,6 @@
 
 /**
  * Print stack trace.
- * @param fault_address address where the segfault happened.
  */
 void print_stacktrace(void *ucontext);
 

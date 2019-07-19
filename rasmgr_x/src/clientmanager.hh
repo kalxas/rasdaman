@@ -59,11 +59,12 @@ class ClientManager
 public:
     /**
      * @brief ClientManager
+     * @param config client configuration
      * @param userManager Instance of the user manager that holds information
      * about registered users. It is needed to evaluate the access credentials
      * @param serverManager Instance of the server manager that is used to retrieve
-     * servers for clients
-     * of each client
+     * servers for clients of each client
+     * @param peerManager the peer manager
      */
     ClientManager(const ClientManagerConfig &config,
                   boost::shared_ptr<UserManager> userManager,

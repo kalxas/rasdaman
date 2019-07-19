@@ -47,10 +47,10 @@ public:
     /**
      * Initialize a new instance of the Client class.
      * @param clientId UUID assigned to the client by the client manager.
-     * @param accessRights access rights this client has on the database
+     * @param user user object with access rights this client has on the database
      * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      */
-    Client(const std::string &clientIdArg, boost::shared_ptr<User> userArg, boost::int32_t lifeTime);
+    Client(const std::string &clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime);
 
     /**
      *

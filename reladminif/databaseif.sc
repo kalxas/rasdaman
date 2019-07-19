@@ -54,11 +54,9 @@ using namespace std;
 
 extern char globalConnectId[PATH_MAX];
 
-#define UPDATE_QUERY(c)                   \
-    {                                       \
-        sqlite3_exec(SQLiteQuery::getConnection(), c, 0, 0, 0); \
-        SQLiteQuery::failOnError(c);           \
-    }
+#define UPDATE_QUERY(c) { \
+    sqlite3_exec(SQLiteQuery::getConnection(), c, 0, 0, 0); \
+    SQLiteQuery::failOnError(c); }
 #define DROP_TABLE(table_name) \
     UPDATE_QUERY("DROP TABLE IF EXISTS " #table_name);
 #define DROP_VIEW(view_name) \
@@ -67,14 +65,14 @@ extern char globalConnectId[PATH_MAX];
 // size of ARCHITECTURE attribute in RAS_ADMIN:
 #define SIZE_ARCH_RASADMIN 20
 
-void DatabaseIf::disconnect()
-{
-    SQLiteQuery::closeConnection();
-}
-
 void DatabaseIf::connect()
 {
     SQLiteQuery::openConnection(globalConnectId);
+}
+
+void DatabaseIf::disconnect()
+{
+    SQLiteQuery::closeConnection();
 }
 
 void DatabaseIf::checkCompatibility() {}
@@ -82,14 +80,10 @@ void DatabaseIf::checkCompatibility() {}
 bool DatabaseIf::isConsistent()
 {
     // done once at rasserver startup, in AdminIf
-    bool retval = true;
-    return retval;
+    return true;
 }
 
-void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
-                          __attribute__((unused)) const char *schemaName,
-                          __attribute__((unused))
-                          const char *volumeName)
+void DatabaseIf::createDB(const char *, const char *, const char *)
 {
     try
     {
@@ -101,15 +95,11 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
 
         connect();
 
+        if (SQLiteQuery::returnsRows("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'"))
         {
-            SQLiteQuery checkTable("SELECT name FROM sqlite_master WHERE type='table' AND name='RAS_COUNTERS'");
-            if (checkTable.nextRow())
-            {
-                LERROR << "Database exists already.";
-                checkTable.finalize();
-                disconnect();
-                throw r_Error(DATABASE_EXISTS_ALREADY);
-            }
+            LERROR << "Database exists already.";
+            disconnect();
+            throw r_Error(DATABASE_EXISTS_ALREADY);
         }
 
         // --- start table/index creation ------------------------------
@@ -120,8 +110,9 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
                      "Architecture VARCHAR(20) NOT NULL, "
                      "ServerVersion INTEGER NOT NULL)");
 
-        SQLiteQuery::executeWithParams("INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (%d, '%s', %d)",
-                                       RASSCHEMAVERSION, RASARCHITECTURE, DatabaseIf::rmanverToLong());
+        SQLiteQuery::executeWithParams(
+            "INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (%d, '%s', %d)",
+            RASSCHEMAVERSION, RASARCHITECTURE, DatabaseIf::rmanverToLong());
 
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_COUNTERS ("
                      "CounterId INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -133,8 +124,9 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
         // initialising RAS_COUNTERS
         for (unsigned int i = 1; i < OId::maxCounter; i++)
         {
-            SQLiteQuery::executeWithParams("INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES ('%s', 1)",
-                                           OId::counterNames[i]);
+            SQLiteQuery::executeWithParams(
+                "INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES ('%s', 1)",
+                OId::counterNames[i]);
         }
 
         // relblobif
@@ -238,6 +230,20 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_DOMAINVALUES_IX "
                      "ON RAS_DOMAINVALUES (DomainId, DimensionCount)");
 
+        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUES ("
+                     "SetTypeOId INTEGER NOT NULL REFERENCES RAS_SETTYPES (SetTypeId),"
+                     "NullValueOId INTEGER PRIMARY KEY AUTOINCREMENT)");
+        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUES_IX "
+                     "ON RAS_NULLVALUES (SetTypeOId)");
+
+        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUEPAIRS ("
+                     "NullValueOId INTEGER NOT NULL REFERENCES RAS_NULLVALUES,"
+                     "Count INTEGER NOT NULL,"
+                     "Low REAL," // NULL = nan
+                     "High REAL)");
+        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUEPAIRS_IX "
+                     "ON RAS_NULLVALUEPAIRS (NullValueOId, Count)");
+
         // relmddif
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_MDDCOLLECTIONS ("
                      "MDDId INTEGER NOT NULL REFERENCES RAS_MDDOBJECTS,"
@@ -247,7 +253,6 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_COLLECTIONS_IX "
                      "ON RAS_MDDCOLLECTIONS (MDDCOllId, MDDId)");
 
-        // refers to MDDSet
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_MDDCOLLNAMES ("
                      "MDDCollId INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "SetTypeId INTEGER NOT NULL REFERENCES RAS_SETTYPES,"
@@ -321,21 +326,6 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
                      "    FROM"
                      "        RAS_MDDDOMTYPES");
 
-        // nullvalues
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUES ("
-                     "SetTypeOId INTEGER NOT NULL REFERENCES RAS_SETTYPES (SetTypeId),"
-                     "NullValueOId INTEGER PRIMARY KEY AUTOINCREMENT)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUES_IX "
-                     "ON RAS_NULLVALUES (SetTypeOId)");
-
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUEPAIRS ("
-                     "NullValueOId INTEGER NOT NULL REFERENCES RAS_NULLVALUES,"
-                     "Count INTEGER NOT NULL,"
-                     "Low REAL," // NULL = nan
-                     "High REAL)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUEPAIRS_IX "
-                     "ON RAS_NULLVALUEPAIRS (NullValueOId, Count)");
-
         // database updates
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
@@ -346,9 +336,6 @@ void DatabaseIf::createDB(__attribute__((unused)) const char *dbName,
     }
     catch (r_Error &err)
     {
-        LTRACE << "create(" << dbName <<
-               ", " << schemaName << ", " << volumeName <<
-               ") error caught " << err.what() << " " << err.get_errorno();
         disconnect();
         throw; // rethrow exception
     }
@@ -363,35 +350,43 @@ void DatabaseIf::destroyDB(const char *dbName)
     }
     connect();
 
-    DROP_VIEW("RAS_MDDTYPES_VIEW");
-    DROP_TABLE("RAS_TILES");
-    DROP_TABLE("RAS_ITILES");
-    DROP_TABLE("RAS_MDDTYPES");
-    DROP_TABLE("RAS_ITMAP");
-    DROP_TABLE("RAS_MDDBASETYPES");
-    DROP_TABLE("RAS_MDDDIMTYPES");
-    DROP_TABLE("RAS_MDDDOMTYPES");
-    DROP_TABLE("RAS_SETTYPES");
-    DROP_TABLE("RAS_BASETYPENAMES");
-    DROP_TABLE("RAS_BASETYPES");
-    DROP_TABLE("RAS_DOMAINS");
-    DROP_TABLE("RAS_DOMAINVALUES");
-    DROP_TABLE("RAS_MDDCOLLECTIONS");
-    DROP_TABLE("RAS_MDDCOLLNAMES");
-    DROP_TABLE("RAS_MDDOBJECTS");
-    DROP_TABLE("RAS_HIERIX");
-    DROP_TABLE("RAS_HIERIXDYN");
-    DROP_TABLE("RAS_STORAGE");
-    DROP_TABLE("RAS_COUNTERS");
-    DROP_TABLE("RAS_PYRAMIDS");
-    DROP_TABLE("RAS_LOCKEDTILES");
-    DROP_TABLE("RAS_RCINDEXDYN");
-    DROP_TABLE("RAS_ADMIN");
-    DROP_TABLE("RAS_DBUPDATES");
-    DROP_TABLE("RAS_NULLVALUES");
-    DROP_TABLE("RAS_NULLVALUEPAIRS");
-
-    disconnect();
+    try
+    {
+        DROP_VIEW("RAS_MDDTYPES_VIEW");
+        DROP_TABLE("RAS_TILES");
+        DROP_TABLE("RAS_ITILES");
+        DROP_TABLE("RAS_MDDTYPES");
+        DROP_TABLE("RAS_ITMAP");
+        DROP_TABLE("RAS_MDDBASETYPES");
+        DROP_TABLE("RAS_MDDDIMTYPES");
+        DROP_TABLE("RAS_MDDDOMTYPES");
+        DROP_TABLE("RAS_SETTYPES");
+        DROP_TABLE("RAS_BASETYPENAMES");
+        DROP_TABLE("RAS_BASETYPES");
+        DROP_TABLE("RAS_DOMAINS");
+        DROP_TABLE("RAS_DOMAINVALUES");
+        DROP_TABLE("RAS_MDDCOLLECTIONS");
+        DROP_TABLE("RAS_MDDCOLLNAMES");
+        DROP_TABLE("RAS_MDDOBJECTS");
+        DROP_TABLE("RAS_HIERIX");
+        DROP_TABLE("RAS_HIERIXDYN");
+        DROP_TABLE("RAS_STORAGE");
+        DROP_TABLE("RAS_COUNTERS");
+        DROP_TABLE("RAS_PYRAMIDS");
+        DROP_TABLE("RAS_LOCKEDTILES");
+        DROP_TABLE("RAS_RCINDEXDYN");
+        DROP_TABLE("RAS_ADMIN");
+        DROP_TABLE("RAS_DBUPDATES");
+        DROP_TABLE("RAS_NULLVALUES");
+        DROP_TABLE("RAS_NULLVALUEPAIRS");
+        
+        disconnect();
+    }
+    catch (r_Error &err)
+    {
+        disconnect();
+        throw; // rethrow exception
+    }
 }
 
 #ifndef RMANVERSION

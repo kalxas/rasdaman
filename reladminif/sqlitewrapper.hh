@@ -208,7 +208,7 @@ public:
 
     static void closeConnection();
 
-    static bool openConnection(const char *globalConnectId);
+    static void openConnection(const char *globalConnectId);
 
     static bool isConnected();
 

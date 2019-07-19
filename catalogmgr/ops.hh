@@ -162,8 +162,8 @@ public:
                                const BaseType *optype, size_t resOff = 0,
                                size_t opOff = 0);
     /*@Doc:
-      An \Ref{UnaryOp} carrying out #op# on the given types is
-      returned. If #op# is not applicable to the given types,
+      An \Ref{UnaryOp} carrying out `op` on the given types is
+      returned. If `op` is not applicable to the given types,
       0 is returned.
     */
     /// get function object for binary operation.
@@ -173,8 +173,8 @@ public:
                                  size_t op1Off = 0,
                                  size_t op2Off = 0);
     /*@Doc:
-      An \Ref{BinaryOp} carrying out #op# on the given types is
-      returned. If #op# is not applicable to the given types,
+      An \Ref{BinaryOp} carrying out `op` on the given types is
+      returned. If `op` is not applicable to the given types,
       0 is returned.
     */
     static CondenseOp *getCondenseOp(Ops::OpType op, const BaseType *resType,
@@ -187,22 +187,22 @@ public:
                                      size_t resOff = 0,
                                      size_t opOff = 0);
     /*@Doc:
-      An \Ref{CondenseOp} carrying out #op# on the given types is
-      returned. If #op# is not applicable to the given types,
+      An \Ref{CondenseOp} carrying out `op` on the given types is
+      returned. If `op` is not applicable to the given types,
       0 is returned.
     */
 //@}
 
 //@Man: methods for checking applicability of functions.
 //@{
-    /// checks, if #op# is applicable on the given types.
+    /// checks, if `op` is applicable on the given types.
     static int isApplicable(Ops::OpType op, const BaseType *op1Type,
                             const BaseType *op2Type = 0);
     /*@Doc:
       For unary or condense operations, just leave out #op2Type# (or
       set it to 0).
     */
-    /// gives back suggested return type for #op# carried out on the given types.
+    /// gives back suggested return type for `op` carried out on the given types.
     static const BaseType *getResultType(Ops::OpType op, const BaseType *op1,
                                          const BaseType *op2 = 0);
     /*@Doc:
@@ -236,9 +236,9 @@ public:
 //@}
 
 private:
-    /// checks, if #op# is applicable on two struct of type opType.
+    /// checks, if `op` is applicable on two struct of type opType.
     static int isApplicableOnStruct(Ops::OpType op, const BaseType *opType);
-    /*@ManMemo: checks, if #op# is applicable on struct of type op1Type
+    /*@ManMemo: checks, if `op` is applicable on struct of type op1Type
                 and value of type op2Type.*/
     static int isApplicableOnStructConst(Ops::OpType op,
                                          const BaseType *op1Type,

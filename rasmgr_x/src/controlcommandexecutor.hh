@@ -49,6 +49,7 @@ public:
     /**
      * Execute a rascontrol command and return a reply. The command is only executed if the user has valid credentials
      * and the syntax of the command is correct.
+     * @param command Command that conforms to the rascontrol grammar.
      * @param userName Name of the user requesting that this command is executed
      * @param userPass Password of the user requesting that this command is executed
      * @return Message that will be displayed to the user.

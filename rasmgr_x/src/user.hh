@@ -44,7 +44,6 @@ public:
      * Initialize a new instance of the User class.
      * @param name Name of the user
      * @param password User's encrypted password.
-     * @param rights The user's rights on this rasdaman instance.
      */
     User(std::string name, std::string password, const UserDatabaseRights &defaultDbRights, const UserAdminRights &adminRights);
 

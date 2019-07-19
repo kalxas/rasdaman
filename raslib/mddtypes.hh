@@ -184,10 +184,10 @@ enum r_Data_Format
   {\ttr_HDF}                && HDF  format (see \Ref{r_Conv_HDF})\\
   {\ttr_PNG}                && PNG  format (see \Ref{r_Conv_PNG})\\
   {\ttr_BMP}                && BMP  format (see \Ref{r_Conv_BMP})\\
-  {\ttr_PPM}            && PPM  format (see \Ref{r_Conv_PPM})\\
-  {\ttr_DEM}            && DEM  format (see \Ref{r_Conv_DEM})\\
-  {\ttr_ECW}            && ECW  format (see \Ref{r_Conv_ECW})\\
-  {\ttr_NITF}           && NITF  format (see \Ref{r_Conv_NITF})\\
+  {\ttr_PPM}                && PPM  format (see \Ref{r_Conv_PPM})\\
+  {\ttr_DEM}                && DEM  format (see \Ref{r_Conv_DEM})\\
+  {\ttr_ECW}                && ECW  format (see \Ref{r_Conv_ECW})\\
+  {\ttr_NITF}               && NITF  format (see \Ref{r_Conv_NITF})\\
   {\ttr_NETCDF}             && NETCDF  format (see \Ref{r_Conv_NETCDF})\\
   {\ttr_GRIB}               && GRIB  format (see \Ref{r_Conv_GRIB})\\
   {\ttr_GDAL}               && GDAL supported format (see \Ref{r_Conv_GDAL})\\
@@ -200,9 +200,9 @@ enum r_Data_Format
   {\ttr_Wavelet_Daubechies} && Daubechies 4-tap Wavelet compression  (see \Ref{r_Daubechies_Wavelet_Compression})\\
   {\ttr_Sep_ZLib}           && ZLIB compression, compress base types separately  (see \Ref{r_Tile_Separate_ZLIB})\\
   {\ttr_Sep_RLE}            && RLE compression, compress base types separately  (see \Ref{r_Tile_Separate_RLE})\\
-  {\ttr_Wavelet_Daub<n>}    && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
-  {\ttr_Wavelet_Least<n>}   && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
-  {\ttr_Wavelet_Coiflet<n>} && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see \Ref{r_Ortho_Wavelet_Factory})\\
+  {\ttr_Wavelet_Daub#n}     && Daubechies n-tap Wavelet compression, n=6,8,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
+  {\ttr_Wavelet_Least#n}    && Least asymmetric n-tap Wavelet comp., n=8,10,...,18,20  (see \Ref{r_Ortho_Wavelet_Factory})\\
+  {\ttr_Wavelet_Coiflet#n}  && Coiflet n-tap Wavelet compression, n=6,12,18,24,30  (see \Ref{r_Ortho_Wavelet_Factory})\\
   {\ttr_Wavelet_QHaar}      && Lossy Haar Wavelet compression  (see \Ref{r_Haar_QWavelet_Compression})\\
 
   \end{tabular}
@@ -211,9 +211,9 @@ enum r_Data_Format
 //@ManMemo: Module: {\bf raslib}
 /**
    The names of all data types, to avoid redundant storage and inconsistencies.
-   The variable name convention is the prefix format_name_ followed by the name
-   of the data format in lower case without the r_ prefix, i.e. for r_Wavelet_Haar
-   format_name_wavelet_haar.
+   The variable name convention is the prefix `format_name_` followed by the name
+   of the data format in lower case without the `r_` prefix, i.e. for `r_Wavelet_Haar`
+   `format_name_wavelet_haar`.
    In addition there's an array of names all_data_format_names where the data format
    can be used as index to get the name.
 */

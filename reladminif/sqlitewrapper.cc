@@ -316,14 +316,14 @@ void SQLiteQuery::closeConnection()
     }
 }
 
-bool SQLiteQuery::openConnection(const char *globalConnectId)
+void SQLiteQuery::openConnection(const char *globalConnectId)
 {
     sqlite3_enable_shared_cache(0);
     auto rc = sqlite3_open(globalConnectId, &sqliteConn);
     if (rc != SQLITE_OK)
     {
-        LERROR << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'?";
-        LERROR << "Reason: " << sqlite3_errstr(rc);
+        LERROR << "Connect unsuccessful; wrong connect string '" << globalConnectId << "'? "
+               << "Reason: " << sqlite3_errstr(rc);
         throw r_Error(DATABASE_CONNECT_FAILED);
     }
     else
@@ -336,7 +336,6 @@ bool SQLiteQuery::openConnection(const char *globalConnectId)
         sqlite3_extended_result_codes(sqliteConn, 1);
         warnOnError("enable extended result codes");
     }
-    return true;
 }
 
 bool SQLiteQuery::isConnected()

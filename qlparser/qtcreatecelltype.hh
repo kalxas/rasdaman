@@ -44,7 +44,7 @@ class QtCreateCellType : public QtExecute
 public:
     /**
      * @param typeName - name of the new type
-     * @param typeAttributes - list of type attributes (where a type attribute has the form <name> <base_type>
+     * @param typeAttributes - list of type attributes (where a type attribute has the form `name base_type`
      */
     QtCreateCellType(const std::string &typeName, QtNode::QtOperationList *typeAttributes);
 

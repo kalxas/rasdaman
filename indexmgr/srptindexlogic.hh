@@ -34,8 +34,6 @@ rasdaman GmbH.
 class StorageLayout;
 
 /**
- *  @file srpindexlogic.hh
- *
  *  @ingroup indexmgr
  */
 

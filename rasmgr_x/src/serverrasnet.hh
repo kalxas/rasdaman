@@ -54,9 +54,11 @@ class ServerRasNet: public Server
 public:
     /**
      * Initialize a new instance of RasServer which will run on the given host and port
-     * @param hostName The name of the host on which the server will run
-     * @param port The port on which the server will run. The port is int32_t to allow for compatibility with protobuf and java..
-     * @param dbHost Reference to the database host to which this server will connect.
+     * @param config contains the following parameters:
+     *
+     *  * hostName: The name of the host on which the server will run
+     *  * port: The port on which the server will run. The port is int32_t to allow for compatibility with protobuf and java..
+     *  * dbHost: Reference to the database host to which this server will connect.
      */
     ServerRasNet(const ServerConfig &config);
 
@@ -92,8 +94,8 @@ public:
 
     /**
      * Remove the client with the given ID and session ID from the server.
-     * @param clientId
-     * @param sessionId
+     * @param clientId UUID of the client
+     * @param sessionId UUID of the session.
      */
     virtual void deallocateClientSession(const std::string &clientId, const std::string &sessionId);
 
@@ -117,9 +119,6 @@ public:
 
     /**
      * Stop the RasServer process.
-     * @param force TRUE if the server should abort any running transaction and terminate,
-     * FALSE if the server should terminate after it finishes all running transactions.
-     * The server will not accept any more clients from this point.
      */
     virtual void stop(KillLevel level);
 
@@ -212,8 +211,8 @@ private:
      */
     void configureClientContext(grpc::ClientContext &context);
 
-    //TODO-AT: remove this
     const char *getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights &rights);
+
     int messageDigest(const char *input, char *output, const char *mdName);
     const char *convertDatabRights(const UserDatabaseRights &dbRights);
 

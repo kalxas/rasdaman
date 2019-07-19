@@ -39,7 +39,7 @@ public:
     * @param period The number of milliseconds until the timer will expire.
     * @throws InvalidArgumentException is thrown if the period is negative.
     */
-    Timer(boost::int32_t periodArg);
+    Timer(boost::int32_t period);
 
     virtual ~Timer();
 

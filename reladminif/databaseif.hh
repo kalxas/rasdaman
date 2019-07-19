@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/************************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ***********************************************************************/
 
 #pragma once
 
@@ -37,40 +28,37 @@ rasdaman GmbH.
 class DatabaseIf;
 class TransactionIf;
 
-//@ManMemo: Module: {\bf reladminif}.
+//@ManMemo: Module: Reladminif.
 /*@Doc:
 With a DatabaseIf instance a database can be opened or closed. There
 is also functionality for creating and deleting DBs. A
 database has to be open, before persistence capable classes can be
-used (see also \Ref{AdminIf}).
+used (see also AdminIf).
 
-{\bf Example}
+**Example**
 
-{\tt  DatabaseIf database;}
-
-{\tt database.open( "myDatabase" )}
-
-...
-
-{\tt database.close();}
+    DatabaseIf database;
+    database.open( "myDatabase" );
+    ...
+    database.close();
 */
 class DatabaseIf
 {
 public:
-    friend std::ostream &operator<<(std::ostream &stream, DatabaseIf &db);
-    /*@Doc:
-    prints the status of the database (connected, online, offline, name)
-    */
 
+    DatabaseIf() = default;
+
+    ~DatabaseIf();
+    /*@Doc:
+    executes baseDBMSClose() if it is still connected.
+    */
+   
     /// opens database with name {\tt dbName}.
     void open(const char *dbName);
     /*@Doc:
         Precondition: not opened, not connected, db exists
         Postcondition: open, not connected, db exists
-        If last opened database was not closed (throw r_Error::r_Error_DatabaseOpen)),
-        If database does not exist (throw r_Error::r_Error_DatabaseUnknown).
-        In the current implementation this value is returned, when dbName is not RASBASE,
-        regardles if the db exists or not.
+        If last opened database was not closed (throw r_Error::r_Error_DatabaseOpen))
     */
 
     void close();
@@ -78,6 +66,21 @@ public:
         Precondition: open, not connected, db exists
         Postcondition: not open, not connected, db exists
         closes currently opened database.  only frees name and sets connected/opened to false.
+    */
+
+    bool isConnected() const;
+    /*@Doc:
+    true when there has been an EXEC SQL CONNECT
+    */
+
+    bool isOpen() const;
+    /*@Doc:
+    true when it was opened by a transaction
+    */
+
+    const char *getName() const;
+    /*@Doc:
+    returns a pointer to the name of the db.
     */
 
     static void createDB(const char *dbName, const char *schemaName, const char *volumeName = 0);
@@ -96,31 +99,6 @@ public:
         Database must not be open in order to be destroyed.
         A transaction must not be opened.
         Returns -1 if database does not exist.
-    */
-
-    const char *getName() const;
-    /*@Doc:
-    returns a pointer to the name of the db.
-    */
-
-    DatabaseIf();
-    /*@Doc:
-    constructor.  Initializes opened, myName and connected to 0
-    */
-
-    bool isConnected() const;
-    /*@Doc:
-    true when there has been an EXEC SQL CONNECT
-    */
-
-    bool isOpen() const;
-    /*@Doc:
-    true when it was opened by a transaction
-    */
-
-    ~DatabaseIf();
-    /*@Doc:
-    executes a baseDBMSClose() if it is still connected.
     */
 
     static bool databaseExists(const char *dbname);
@@ -145,6 +123,11 @@ public:
         convert it to long by removing the dots.
     */
 
+    friend std::ostream &operator<<(std::ostream &stream, DatabaseIf &db);
+    /*@Doc:
+    prints the status of the database (connected, online, offline, name)
+    */
+
 protected:
     friend class TransactionIf;
 
@@ -165,6 +148,13 @@ protected:
         sets the DatabaseIf object in AdminIf to 0, if it was the same.
     */
 
+    void checkCompatibility();
+    /*@Doc:
+        Precondition: none checked.
+        Postcondition: none.
+        throws r_Error if the current rasdaman system does not match the database.
+    */
+
     static void connect();
     /*@Doc:
         Precondition: none checked.
@@ -181,25 +171,18 @@ protected:
         throws r_Error if there is a problem during disconnection.
     */
 
-    void checkCompatibility();
-    /*@Doc:
-        Precondition: none checked.
-        Postcondition: none.
-        throws r_Error if the current rasdaman system does not match the database.
-    */
-
 private:
-    bool opened;
+    bool opened{false};
     /*@Doc:
     TRUE only if database is open.
     */
 
-    char *myName;
+    char *myName{nullptr};
     /*@Doc:
     Valid only if opened.
     */
 
-    bool connected;
+    bool connected{false};
     /*@Doc:
     TRUE only if database connection exists ; )
     */

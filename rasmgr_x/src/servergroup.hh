@@ -60,8 +60,6 @@ public:
     /**
      * @brief stop Stop the running servers of this group and
      * prevent any other servers from being started.
-     * @param force TRUE if the running servers should be shutdown without waiting for running
-     * transactions to finish
      */
     virtual void stop(KillLevel level) = 0;
 

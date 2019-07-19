@@ -28,6 +28,7 @@ public:
       * Default values will be set and a validation will be performed on the configuration
       * @param dbhManager Database Host Manager used to retrieve the database host
       * used by servers of this server group.
+      * @param serverFactory
       */
     ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
 
@@ -48,8 +49,6 @@ public:
     /**
      * @brief stop Stop the running servers of this group and
      * prevent any other servers from being started.
-     * @param force TRUE if the running servers should be shutdown without waiting for running
-     * transactions to finish
      */
     virtual void stop(KillLevel level);
 

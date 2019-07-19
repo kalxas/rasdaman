@@ -27,9 +27,9 @@ rasdaman GmbH.
 class BinaryRepresentation
 {
 public:
-    char *binaryName;
-    char *binaryData;
-    unsigned long binaryLength;
+    char *binaryName{nullptr};
+    char *binaryData{nullptr};
+    unsigned long binaryLength{};
     static const char *fileTag;
 };
 

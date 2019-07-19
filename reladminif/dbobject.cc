@@ -149,7 +149,6 @@ DBObject::DBObject()
       objecttype(OId::INVALID),
       referenceCount(0)
 {
-    LTRACE << "DBObject() " << myOId;
 }
 
 DBObject::DBObject(const DBObject &old)
@@ -161,7 +160,6 @@ DBObject::DBObject(const DBObject &old)
       objecttype(old.objecttype),
       referenceCount(old.referenceCount)
 {
-    LTRACE << "DBObject(const DBObject& old)" << myOId;
 }
 
 // constructs an object and reads it from the database.  the oid must match the type of the object.
@@ -173,8 +171,6 @@ DBObject::DBObject(const OId &id)
       _isCached(false),
       myOId(id), objecttype(id.getType()), referenceCount(0)
 {
-    // flags must be set by readFromDb()
-    LTRACE << "DBObject(" << myOId << ")";
 }
 
 // setPersistent(true) makes the object persistent as soon as validate is called.

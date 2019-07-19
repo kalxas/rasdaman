@@ -101,7 +101,6 @@ public:
      * @brief stopServerGroup Mark the server group as stopped.
      * The server manager will not be able to spawn new servers
      * and running servers will be removed once they finish already running transactions.
-     * @param serverGroupName
      */
     virtual void stopServerGroup(const StopServerGroup &stopGroup);
 

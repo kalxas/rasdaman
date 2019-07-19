@@ -50,15 +50,15 @@ class r_Transaction;
 //@ManMemo: Module: {\bf rasodmg}
 
 /**
-  The class \Ref{r_Ref_Any} is defined to support a reference to any
+  The class r_Ref_Any is defined to support a reference to any
   type. Its primary purpose is to handle generic refernces and allow
-  conversions of \Ref{r_Ref}s in the type hierarchy. A \Ref{r_Ref_Any}
-  object can be used as an intermediary between any two types \Ref{r_Ref}<X>
-  and \Ref{r_Ref}<Y> where X and Y are different types. A \Ref{r_Ref}<T> can
-  always be converted to a \Ref{r_Ref_Any}; there is a function to perform
-  the conversion in the \Ref{r_Ref}<T> template. Each \Ref{r_Ref}<T> class
+  conversions of r_Refs in the type hierarchy. A r_Ref_Any
+  object can be used as an intermediary between any two types r_Ref<X>
+  and r_Ref<Y> where X and Y are different types. A r_Ref<T> can
+  always be converted to a r_Ref_Any; there is a function to perform
+  the conversion in the r_Ref<T> template. Each r_Ref<T> class
   has a constructor and assignment operator that takes a reference to a
-  \Ref{r_Ref_Any}.
+  r_Ref_Any.
 */
 
 /**
@@ -88,7 +88,7 @@ public:
     /// destructor deletes referenced object from main memory and database
     ~r_Ref_Any();
 
-    /// assignment operator for assigning a \Ref{r_Ref_Any} pointer
+    /// assignment operator for assigning a r_Ref_Any pointer
     r_Ref_Any &operator=(const r_Ref_Any &);
 
     /// assignment operator for assigning a pointer to a persistent capable object
@@ -186,9 +186,9 @@ private:
 //@ManMemo: Module: {\bf rasodmg}
 
 /**
-  References of type \Ref{r_Ref} in many respects behave like
+  References of type r_Ref in many respects behave like
   C++ pointers but provide an additional mechanism that guarantees
-  integrity in references to persistent objects. \Ref{r_Ref}
+  integrity in references to persistent objects. r_Ref
   implements a so called {\bf smart pointer} which behaves like
   a C++ pointer but can do additional things in time of dereferencing
   the pointer. In case that no valid memory pointer is available,
@@ -222,13 +222,13 @@ public:
     /// destructor deletes referenced object from main memory and database
     ~r_Ref();
 
-    /// cast to \Ref{r_Ref_Any}
+    /// cast to r_Ref_Any
     operator r_Ref_Any() const;
 
-    // cast to const \Ref{r_Ref_Any}
+    // cast to const r_Ref_Any
     // operator const r_Ref_Any() const;
 
-    /// assignment operator for assigning a \Ref{r_Ref_Any}
+    /// assignment operator for assigning a r_Ref_Any
     r_Ref<T> &operator=(const r_Ref_Any &);
 
     /// assignment operator for assigning a C pointer

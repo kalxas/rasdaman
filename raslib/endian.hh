@@ -70,10 +70,10 @@ public:
     /// query host machine's endianness
     static r_Endianness get_endianness(void);
 
-    /// change the endianness of a linear array of size <size> and type <type>
+    /// change the endianness of a linear array of size `size` and type `type`
     static void swap_array(const r_Primitive_Type *type, r_Bytes size, const void *src, void *dest);
 
-    /// change the endianness of a linear array of size <size>, type implicit
+    /// change the endianness of a linear array of size `size`, type implicit
     static void swap_array(r_Bytes size, const r_Octet *src, r_Octet *dest);   // dummy
     static void swap_array(r_Bytes size, const r_Char *src, r_Char *dest);   // dummy
     static void swap_array(r_Bytes size, const r_Short *src, r_Short *dest);
@@ -83,7 +83,7 @@ public:
     static void swap_array(r_Bytes size, const r_Float *src, r_Float *dest);
     static void swap_array(r_Bytes size, const r_Double *src, r_Double *dest);
 
-    /// change the endianness of a linear array of size <size> with type size <tsize>
+    /// change the endianness of a linear array of size `size` with type size `tsize`
     static void swap_array(r_Bytes size, r_Bytes tsize, const void *src, void *dest);
 
     /// change the endianness of one type member of an array for identical domains

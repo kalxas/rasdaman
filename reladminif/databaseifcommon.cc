@@ -21,18 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 // This is -*- C++ -*-
-/*************************************************************************
- *
- *
- * PURPOSE:
- *  Contains all code that is shared by the database interface implementations
- *
- *
- * COMMENTS:
- * - schema version depending on release doesn't make sense; rather change
- *   it when the schema _really_ changes!
- *
- ***********************************************************************/
 
 #include "config.h"        // for BASEDB_SQLITE
 #include "globals.hh"      // DEFAULT_DBNAME
@@ -52,22 +40,14 @@ rasdaman GmbH.
 
 #ifdef SPARC
 #define RASARCHITECTURE "SPARC"
-#else
-#ifdef DECALPHA
+#elif DECALPHA
 #define RASARCHITECTURE "DECALPHA"
-#else
-#ifdef X86
+#elif X86
 #define RASARCHITECTURE "X86"
-#else
-#ifdef AIX
+#elif AIX
 #define RASARCHITECTURE "AIX"
 #else
 #define RASARCHITECTURE "X86"
-//#error "problem with platform! please check RASARCHITECTURE define in
-//Makefile.inc!"
-#endif
-#endif
-#endif
 #endif
 
 // schema version, change whenever a change is made to the relational schema -- PB 2005-oct-04
@@ -83,17 +63,34 @@ const char *DatabaseIf::DefaultDatabaseName = DEFAULT_DBNAME;
 DatabaseIf::~DatabaseIf()
 {
     if (isConnected())
-    {
         baseDBMSClose();
-    }
     if (myName)
-    {
-        free(myName);
-        myName = nullptr;
-    }
+        free(myName), myName = nullptr;
 
     connected = false;
     opened = false;
+}
+
+void DatabaseIf::open(const char *dbName)
+{
+    if (opened)
+    {
+        LTRACE << "another database is already open";
+        throw r_Error(r_Error::r_Error_DatabaseOpen);
+    }
+    opened = true;
+    myName = strdup(dbName);
+    connect();
+    connected = true;
+}
+
+void DatabaseIf::close()
+{
+    opened = false;
+    if (myName)
+        free(myName), myName = nullptr;
+    if (connected)
+        disconnect(), connected = false;
 }
 
 bool DatabaseIf::isConnected() const
@@ -106,27 +103,9 @@ bool DatabaseIf::isOpen() const
     return opened;
 }
 
-void DatabaseIf::open(const char *dbName)
+const char *DatabaseIf::getName() const
 {
-    if (opened)
-    {
-        LTRACE << "another database is already open";
-        throw r_Error(r_Error::r_Error_DatabaseOpen);
-    }
-    // cannot do any further error checking
-    if (0)   // we allow any other database name -- strcmp(dbName, DefaultDatabaseName))
-    {
-        LTRACE << "database name unknown";
-        LERROR << "b_DatabaseIf::open(" << dbName << ") dbName=" << dbName;
-        throw r_Error(r_Error::r_Error_DatabaseUnknown);
-    }
-    else
-    {
-        opened = true;
-        myName = strdup(dbName);
-        connect();
-        connected = true;
-    }
+    return myName;
 }
 
 void DatabaseIf::baseDBMSOpen()
@@ -149,11 +128,8 @@ void DatabaseIf::baseDBMSOpen()
 #endif // DBMS_PGSQL
 
 #ifdef BASEDB_SQLITE
-// done on rasserver startup for sqlite
-#define FASTCONNECT
-#endif
-
-#ifndef FASTCONNECT
+    // done on rasserver startup for sqlite
+#else
     checkCompatibility();
     if (!isConsistent())
     {
@@ -161,21 +137,6 @@ void DatabaseIf::baseDBMSOpen()
         throw r_Error(DATABASE_INCONSISTENT);
     }
 #endif
-}
-
-void DatabaseIf::close()
-{
-    opened = false;
-    if (myName)
-    {
-        free(myName);
-        myName = nullptr;
-    }
-    if (connected)
-    {
-        disconnect();
-        connected = false;
-    }
 }
 
 void DatabaseIf::baseDBMSClose()
@@ -190,25 +151,15 @@ void DatabaseIf::baseDBMSClose()
     else
     {
         // this happens when a transaction is killed by the server
-        LTRACE << "baseDBMSClose() current DatabaseIf != this";
+        LDEBUG << "current DatabaseIf != this";
     }
 #endif
 }
 
-DatabaseIf::DatabaseIf()
-    : opened(false), myName(nullptr), connected(false)
-
-{}
-
-const char *DatabaseIf::getName() const
-{
-    return myName;
-}
-
 std::ostream &operator<<(std::ostream &stream, DatabaseIf &db)
 {
-    stream << "DatabaseIf" << std::endl;
-    stream << "\tConnected To\t: " << ((db.getName()) ? db.getName() : " ") << std::endl;
+    stream << "DatabaseIf\n"
+           << "\tConnected To\t: " << ((db.getName()) ? db.getName() : "") << std::endl;
     if (db.opened)
     {
         if (db.connected)

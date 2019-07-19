@@ -79,7 +79,7 @@ TypeFactory *TypeFactory::myInstance = nullptr;
 // This variable is not required since any struct
 // type can now be deleted. This resulted as
 // the resolution of ticket #88
-const short TypeFactory::MaxBuiltInId = 11;
+const short TypeFactory::MaxBuiltInId = 13;
 
 const char *OctetType::Name = "Octet";
 const char *UShortType::Name = "UShort";

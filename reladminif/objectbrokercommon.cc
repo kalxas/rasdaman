@@ -133,68 +133,44 @@ bool ObjectBroker::freeMemory()
 void ObjectBroker::init()
 {
     LDEBUG << "initializing object caches";
-    ObjectBroker::theLong = new LongType();
-    ObjectBroker::theShort = new ShortType();
-    ObjectBroker::theOctet = new OctetType();
-    ObjectBroker::theULong = new ULongType();
-    ObjectBroker::theUShort = new UShortType();
-    ObjectBroker::theChar = new CharType();
-    ObjectBroker::theBool = new BoolType();
-    ObjectBroker::theDouble = new DoubleType();
-    ObjectBroker::theFloat = new FloatType();
-    ObjectBroker::theComplex1 = new ComplexType1();
-    ObjectBroker::theComplex2 = new ComplexType2();
-    ObjectBroker::theCInt16 = new CInt16();
-    ObjectBroker::theCInt32 = new CInt32();
+#define INIT_ATOMIC_TYPE(typeVar, typeClass) \
+    ObjectBroker::typeVar = new typeClass(); \
+    theAtomicTypes.emplace(ObjectBroker::typeVar->getOId(), ObjectBroker::typeVar);
 
-    DBObject *atomicTypes[] =
-    {
-        theCInt16, theCInt32, theComplex2, theComplex1, theFloat, theDouble, theOctet, theShort,
-        theLong, theUShort, theBool, theChar, theULong
-    };
-#ifdef DEBUG
-    if (sizeof(atomicTypes) / sizeof(DBObject *) != TypeFactory::MaxBuiltInId)
-    {
-        LERROR << "ObjectBroker::init() not all atomic types were added!";
-        exit(1);
-    }
-#endif
-    for (unsigned int a = 0; a < sizeof(atomicTypes) / sizeof(DBObject *); a++)
-    {
-        DBObjectPPair myPair(atomicTypes[a]->getOId(), atomicTypes[a]);
-        theAtomicTypes.insert(myPair);
-    }
+    INIT_ATOMIC_TYPE(theLong, LongType)
+    INIT_ATOMIC_TYPE(theShort, ShortType)
+    INIT_ATOMIC_TYPE(theOctet, OctetType)
+    INIT_ATOMIC_TYPE(theULong, ULongType)
+    INIT_ATOMIC_TYPE(theUShort, UShortType)
+    INIT_ATOMIC_TYPE(theChar, CharType)
+    INIT_ATOMIC_TYPE(theBool, BoolType)
+    INIT_ATOMIC_TYPE(theDouble, DoubleType)
+    INIT_ATOMIC_TYPE(theFloat, FloatType)
+    INIT_ATOMIC_TYPE(theComplex1, ComplexType1)
+    INIT_ATOMIC_TYPE(theComplex2, ComplexType2)
+    INIT_ATOMIC_TYPE(theCInt16, CInt16)
+    INIT_ATOMIC_TYPE(theCInt32, CInt32)
 }
 
 void ObjectBroker::deinit()
 {
-    LTRACE << "deinitializing object caches";
-    delete ObjectBroker::theLong;
-    ObjectBroker::theLong = nullptr;
-    delete ObjectBroker::theShort;
-    ObjectBroker::theShort = nullptr;
-    delete ObjectBroker::theOctet;
-    ObjectBroker::theOctet = nullptr;
-    delete ObjectBroker::theULong;
-    ObjectBroker::theULong = nullptr;
-    delete ObjectBroker::theUShort;
-    ObjectBroker::theUShort = nullptr;
-    delete ObjectBroker::theChar;
-    ObjectBroker::theChar = nullptr;
-    delete ObjectBroker::theBool;
-    ObjectBroker::theBool = nullptr;
-    delete ObjectBroker::theDouble;
-    ObjectBroker::theDouble = nullptr;
-    delete ObjectBroker::theFloat;
-    ObjectBroker::theFloat = nullptr;
-    delete ObjectBroker::theComplex1;
-    ObjectBroker::theComplex1 = nullptr;
-    delete ObjectBroker::theComplex2;
-    ObjectBroker::theComplex2 = nullptr;
-    delete ObjectBroker::theCInt16;
-    ObjectBroker::theCInt16 = nullptr;
-    delete ObjectBroker::theCInt32;
-    ObjectBroker::theCInt32 = nullptr;
+    LDEBUG << "deinitializing object caches";
+#define DEINIT_ATOMIC_TYPE(typeVar) \
+    delete ObjectBroker::typeVar, ObjectBroker::typeVar = nullptr;
+
+    DEINIT_ATOMIC_TYPE(theLong)
+    DEINIT_ATOMIC_TYPE(theShort)
+    DEINIT_ATOMIC_TYPE(theOctet)
+    DEINIT_ATOMIC_TYPE(theULong)
+    DEINIT_ATOMIC_TYPE(theUShort)
+    DEINIT_ATOMIC_TYPE(theChar)
+    DEINIT_ATOMIC_TYPE(theBool)
+    DEINIT_ATOMIC_TYPE(theDouble)
+    DEINIT_ATOMIC_TYPE(theFloat)
+    DEINIT_ATOMIC_TYPE(theComplex1)
+    DEINIT_ATOMIC_TYPE(theComplex2)
+    DEINIT_ATOMIC_TYPE(theCInt16)
+    DEINIT_ATOMIC_TYPE(theCInt32)
 
     // clear maps and other datastructures, in order from "simplest" to more complex objects
     theAtomicTypes.clear();

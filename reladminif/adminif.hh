@@ -66,6 +66,12 @@ before using a persistence capable class.
 */
 
 const int SYSTEMNAME_MAXLEN = 256;
+
+void checkCounter(const char *counterName, const char *column,
+                  const char *table, const char *tableDescr);
+
+void closeDbConnection();
+
 /**
   * \defgroup Reladminifs Reladminif Classes
   */
@@ -73,11 +79,6 @@ const int SYSTEMNAME_MAXLEN = 256;
 /**
   * \ingroup Reladminifs
   */
-
-void checkCounter(const char *counterName, const char *column,
-                  const char *table, const char *tableDescr, bool &retval);
-
-void closeDbConnection();
 
 class AdminIf
 {

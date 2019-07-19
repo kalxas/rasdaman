@@ -79,9 +79,9 @@ public:
        and store is a pointer to a variable of this type that will be updated
        by process() if the parameter is encountered there. The variable pointed
        to by store must not be initalized except for param_type_string where it
-       must be set to NULL before calling process() for the first time. The contents
+       must be set to NULL before calling `process()` for the first time. The contents
        of a string variable must be freed by the caller by first checking whether
-       the variable is NULL and if not doing a delete [] <var>.
+       the variable is NULL and if not doing a `delete [] var`.
      */
     /// process parameter string
     int process(const char *str) const;

@@ -75,7 +75,7 @@ AdminIf *AdminIf::instance(bool createDb)
     int hostResult = gethostname(systemName, sizeof(systemName));
     if (hostResult != 0)
     {
-        LTRACE << "Error: cannot obtain hostname, using 'localhost'; errno=" << errno;
+        LDEBUG << "Error: cannot obtain hostname, using 'localhost'; " << strerror(errno);
         (void) strcpy(systemName, DEFAULT_SYSTEM_NAME);
     }
     if (!myInstance)

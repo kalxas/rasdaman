@@ -56,21 +56,34 @@ if (GENERATE_DOCS)
     find_package(Doxygen)
 
     if (Doxygen_FOUND)
+    
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doxygen-all.cfg.in"
+                       "${CMAKE_CURRENT_BINARY_DIR}/doxygen-all.cfg" @ONLY)
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doxygen-api.cfg.in"
+                       "${CMAKE_CURRENT_BINARY_DIR}/doxygen-api.cfg" @ONLY)
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doxygen-basedbms.cfg.in"
+                       "${CMAKE_CURRENT_BINARY_DIR}/doxygen-basedbms.cfg" @ONLY)
+
+        # this is where the doxygen output goes
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manuals")
 
         add_custom_target(doc-cpp ALL
-                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
-                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
-                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/doxygen-all.cfg"
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/doxygen-api.cfg"
+                COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/doxygen-basedbms.cfg"
 
-                DEPENDS "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-all.cfg"
-                "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-api.cfg"
-                "${CMAKE_SOURCE_DIR}/manuals_and_examples/doxygen-basedbms.cfg"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/doxygen-all.cfg"
+                        "${CMAKE_CURRENT_BINARY_DIR}/doxygen-api.cfg"
+                        "${CMAKE_CURRENT_BINARY_DIR}/doxygen-basedbms.cfg"
 
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 COMMENT "Building documentation."
                 VERBATIM)
 
         add_dependencies(doc doc-cpp)
+
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manuals"
+                DESTINATION "${SHARE_DATA_DIR}/doc")
 
     endif()
 

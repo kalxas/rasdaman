@@ -49,8 +49,8 @@ public:
 
     /**
      * Remove the client with the given ID and session ID from the server.
-     * @param clientId
-     * @param sessionId
+     * @param clientId UUID of the client
+     * @param sessionId UUID of the session.
      */
     virtual void deallocateClientSession(const std::string &clientId, const std::string &sessionId) = 0;
 
@@ -68,15 +68,11 @@ public:
      * This method is used by the ServerGroup to restart a server once
      * it has reached a number of sessions
      * (to prevent memory leaks from getting out of control)
-     * @return
      */
     virtual boost::uint32_t getTotalSessionNo() = 0;
 
     /**
      * Stop the RasServer process.
-     * @param force TRUE if the server should abort any running transaction and terminate,
-     * FALSE if the server should terminate after it finishes all running transactions.
-     * The server will not accept any more clients from this point.
      */
     virtual void stop(KillLevel level) = 0;
 
