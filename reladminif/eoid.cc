@@ -37,23 +37,17 @@ rasdaman GmbH.
 #include "raslib/error.hh"      // for r_Error, r_Error::r_Error_Transaction...
 #include <ostream>              // for operator<<, basic_ostream, ostream
 
-
-void EOId::print_status(std::ostream &s) const
+EOId::EOId() : OId()
 {
-    s << systemName.c_str() << "|" << databaseName.c_str() << "|";
-    OId::print_status(s);
-}
-
-std::ostream &operator<<(std::ostream &s, const EOId &d)
-{
-    s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
-    return s;
-}
-
-std::ostream &operator<<(std::ostream &s, EOId &d)
-{
-    s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
-    return s;
+    if (AdminIf::getCurrentDatabaseIf())
+    {
+        systemName = AdminIf::getSystemName();
+        databaseName = AdminIf::getCurrentDatabaseIf()->getName();
+    }
+    else
+    {
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
+    }
 }
 
 EOId::EOId(const char *systemname, const char *dbname, OId::OIdCounter id,
@@ -66,30 +60,13 @@ EOId::EOId(const OId &id) : OId(id)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
-        systemName = (AdminIf::getSystemName());
-        databaseName = (AdminIf::getCurrentDatabaseIf()->getName());
+        systemName = AdminIf::getSystemName();
+        databaseName = AdminIf::getCurrentDatabaseIf()->getName();
     }
     else
     {
         throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
-}
-
-EOId::EOId() : OId()
-{
-    if (AdminIf::getCurrentDatabaseIf())
-    {
-        systemName = (AdminIf::getSystemName());
-        databaseName = (AdminIf::getCurrentDatabaseIf()->getName());
-    }
-    else
-    {
-        throw r_Error(r_Error::r_Error_TransactionNotOpen);
-    }
-}
-
-EOId::~EOId()
-{
 }
 
 const char *EOId::getSystemName() const
@@ -123,92 +100,43 @@ void EOId::allocateEOId(EOId &eoid, OId::OIdType t)
 
 bool EOId::operator==(const EOId &one) const
 {
-    bool retval = false;
-    if (OId::operator==(one))
-        if (systemName == one.systemName)
-            if (databaseName == one.databaseName)
-            {
-                retval = true;
-            }
-    return retval;
+    return OId::operator==(one) && systemName == one.systemName && databaseName == one.databaseName;
 }
-
 bool EOId::operator!=(const EOId &one) const
 {
     return !EOId::operator==(one);
 }
-
-EOId &EOId::operator=(const EOId &old)
-{
-    if (this != &old)
-    {
-        OId::operator=(old);
-        systemName = old.systemName;
-        databaseName = old.databaseName;
-    }
-    return *this;
-}
-
 bool EOId::operator<(const EOId &old) const
 {
-    bool retval = false;
-    if (OId::operator<(old))
-    {
-        retval = true;
-    }
-    if (!retval && (databaseName < old.databaseName))
-    {
-        retval = true;
-    }
-    if (!retval && (systemName < old.systemName))
-    {
-        retval = true;
-    }
-    return retval;
+    return OId::operator<(old) || databaseName < old.databaseName || systemName < old.systemName;
 }
-
 bool EOId::operator>(const EOId &old) const
 {
-    bool retval = false;
-    if (OId::operator>(old))
-    {
-        retval = true;
-    }
-    if (!retval && (databaseName > old.databaseName))
-    {
-        retval = true;
-    }
-    if (!retval && (systemName > old.systemName))
-    {
-        retval = true;
-    }
-    return retval;
+    return !OId::operator>(old) || databaseName > old.databaseName || systemName > old.systemName;
 }
-
 bool EOId::operator<=(const EOId &old) const
 {
-    bool retval = false;
-    if (operator<(old))
-    {
-        retval = true;
-    }
-    if (!retval && (operator==(old)))
-    {
-        retval = true;
-    }
-    return retval;
+    return operator<(old) || operator==(old);
 }
-
 bool EOId::operator>=(const EOId &old) const
 {
-    bool retval = false;
-    if (operator>(old))
-    {
-        retval = true;
-    }
-    if (!retval && (operator==(old)))
-    {
-        retval = true;
-    }
-    return retval;
+    return operator>(old) || operator==(old);
+}
+
+void EOId::print_status(std::ostream &s) const
+{
+    s << systemName.c_str() << "|" << databaseName.c_str() << "|";
+    OId::print_status(s);
+}
+
+std::ostream &operator<<(std::ostream &s, const EOId &d)
+{
+    s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
+    return s;
+}
+
+std::ostream &operator<<(std::ostream &s, EOId &d)
+{
+    s << "EOId(" << d.getSystemName() << "|" << d.getBaseName() << "|" << d.getOId() << ")";
+    return s;
 }

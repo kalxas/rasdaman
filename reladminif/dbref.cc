@@ -20,17 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   DBRef is a smart pointer for managing objects derived from
- *   the DbObject class.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 // This file is included from dbref.hh if EARLY_TEMPLATE and __EXECUTABLE__
 // are defined.
@@ -64,26 +53,20 @@ bool DBRef<T>::getPointerCaching()
 }
 
 template <class T>
-DBRef<T>::DBRef(void)
-    : object(nullptr), objId(DBOBJID_NONE), pointerValid(false)
-{
-}
-
-template <class T>
 DBRef<T>::DBRef(const OId &id)
-    : object(nullptr), objId(id), pointerValid(false)
+    : objId(id)
 {
 }
 
 template <class T>
 DBRef<T>::DBRef(long long id)
-    : object(nullptr), objId(id), pointerValid(false)
+    : objId(id)
 {
 }
 
 template <class T>
 DBRef<T>::DBRef(const DBRef<T> &src)
-    : object(nullptr), objId(src.objId), pointerValid(src.pointerValid)
+    : objId(src.objId), pointerValid(src.pointerValid)
 {
     if (pointerCaching)
     {
@@ -94,18 +77,15 @@ DBRef<T>::DBRef(const DBRef<T> &src)
             object->incrementReferenceCount();
         }
     }
-    else
+    else if (pointerValid && src.object)
     {
-        if (pointerValid && src.object)
-        {
-            object = src.object;
-        }
+        object = src.object;
     }
 }
 
 template <class T>
 DBRef<T>::DBRef(T *newPtr)
-    : object(newPtr), objId(DBOBJID_NONE), pointerValid(true)
+    : object(newPtr), objId(OId()), pointerValid(true)
 {
     if (object != nullptr)
     {
@@ -314,7 +294,7 @@ DBRef<T> &DBRef<T>::operator=(T *newPtr)
     object = newPtr;
     if (object == nullptr)
     {
-        objId = DBOBJID_NONE;
+        objId = OId();
         pointerValid = false;
     }
     else
@@ -408,12 +388,6 @@ const T *DBRef<T>::ptr(void) const
 }
 
 template <class T>
-OId DBRef<T>::getObjId()
-{
-    return objId;
-}
-
-template <class T>
 DBRef<T>::operator T *()
 {
     if (is_null())
@@ -436,6 +410,12 @@ DBRef<T>::operator const T *() const
 }
 
 template <class T>
+OId DBRef<T>::getObjId() const
+{
+    return objId;
+}
+
+template <class T>
 OId DBRef<T>::getOId(void) const
 {
     if (object && pointerCaching)
@@ -453,7 +433,7 @@ void DBRef<T>::delete_object(void)
         object->setPersistent(false);
         object->decrementReferenceCount();
         object = nullptr;
-        objId = DBOBJID_NONE;
+        objId = OId();
     }
     else
     {

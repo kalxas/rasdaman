@@ -20,15 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/************************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ***********************************************************************/
+
 #pragma once
 
 #include <iosfwd>
@@ -91,7 +83,7 @@ private:
     benchmark timers are started.
     */
 
-    bool isReadOnly;
+    bool isReadOnly{true};
     /*@Doc:
     keeps track if the current TA is read only or not
     */

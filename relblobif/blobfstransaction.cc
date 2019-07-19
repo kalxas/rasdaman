@@ -228,7 +228,8 @@ void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir
     auto tempDirPath = std::unique_ptr<char[]>(new char[tempDirPathSize + 1]);
     sprintf(tempDirPath.get(), "%s%s.XXXXXX", config.transactionsPath.c_str(), transactionSubdir.c_str());
 
-    if (mkdtemp(tempDirPath.get()) == nullptr)
+    char *tempDirPathRes = mkdtemp(tempDirPath.get());
+    if (tempDirPathRes == NULL)
     {
         LERROR << "failed creating transaction directory " << tempDirPath.get()
                << ", reason: " << strerror(errno);
@@ -246,17 +247,22 @@ void BlobFSTransaction::initTransactionDirectory(const string &transactionSubdir
         }
 
         if (DirWrapper::directoryExists(transactionPath.c_str()))
+        {
             LDEBUG << "Created " << transactionSubdir << " transaction path: " << transactionPath;
+        }
         else if (first)
         {
             LWARNING << "Successfully created " << transactionSubdir << " transaction path: " << transactionPath
                      << ", however, now it cannot be found on the filesystem; retrying...";
+            transactionPath = "";
+            delete transactionLock, transactionLock = nullptr;
             initTransactionDirectory(transactionSubdir);
         }
         else
         {
             LERROR << "Successfully created " << transactionSubdir << " transaction path: " << transactionPath
-                   << ", however, now it still cannot be found on the filesystem.";
+                   << ", however, it still cannot be found on the filesystem.";
+            throw r_Error(static_cast<unsigned int>(FAILEDCREATINGDIR));
         }
     }
 }

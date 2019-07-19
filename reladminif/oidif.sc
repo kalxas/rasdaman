@@ -21,16 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 // This is -*- C++ -*-
-/*****************************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- *****************************************************************************/
 
 #include "oidif.hh"
 #include "adminif.hh"

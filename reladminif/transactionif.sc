@@ -20,17 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************************
- *
- *
- * PURPOSE:
- *   Code with embedded SQL for relational DBMS
- *
- *
- * COMMENTS:
- * - reconsider this 604 ignorance!
- *
- ***********************************************************************/
 
 #include "config.h"
 #include "transactionif.hh"
@@ -139,6 +128,7 @@ void TransactionIf::abort()
         LWARNING << "Clearing object broker failed during transaction abort.";
     }
 
+    OId::deinitialize();
     AdminIf::setReadOnlyTA(false);
 
     if (SQLiteQuery::isTransactionActive())

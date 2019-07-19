@@ -20,17 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *   DBRef is a smart pointer for managing objects derived from
- *   the DbObject class.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #pragma once
 
@@ -58,13 +47,12 @@ class IndexDS;
 //@ManMemo: Module: {\bf reladminif}.
 /*@Doc:
 DBRef is a smart pointer class operating on classes derived from DBObject. A smart
-pointer to an object with a known id is created using DBRef<T>(id). The object
+pointer to an object with a known id is created using `DBRef<T>(id)`. The object
 managed by a given smart pointer can be changed (rebinding) by using the assignment
 operator.
 All access methods may throw database related r_Errors.
 */
 
-#define DBOBJID_NONE OId()
 /**
   * \ingroup Reladminifs
   */
@@ -72,15 +60,12 @@ template <class T>
 class DBRef
 {
 public:
-    DBRef(void);
-    /*@Doc:
-    Default constructor. Object must be assigned a value before the first dereferencing.
-    */
+    DBRef() = default;
 
     DBRef(const OId &id);
     /*@Doc:
     Id-constructor, binds smart pointer to object with the given id (must only be unique
-    within class T, not within all classes derived from DbObject).
+    within class T, not within all classes derived from DBObject).
     */
 
     DBRef(OId::OIdPrimitive id);
@@ -174,6 +159,21 @@ public:
     Returns pointer to managed object.
     */
 
+    operator T *();
+    /*@Doc:
+    */
+
+    operator const T *() const;
+    /*@Doc:
+    */
+
+    OId getObjId() const;
+    /*@Doc:
+    returns the id of the managed object. Not that this is unsafe; if the object
+     is not set, the objId will be 0. This is primarily used for the locking
+     functionality where we care only about the id - do not use it otherwise.
+    */
+
     OId getOId(void) const;
     /*@Doc:
     Returns id of managed object
@@ -256,14 +256,6 @@ public:
     cast operator.  checks it the objects type is of any valid hierarchical index.
     */
 
-    operator T *();
-    /*@Doc:
-    */
-
-    operator const T *() const;
-    /*@Doc:
-    */
-
     static void setPointerCaching(bool useIt);
     /*@Doc:
     Make the dbref store and use pointers.
@@ -277,27 +269,20 @@ public:
     returns pointerCaching
     */
 
-    OId getObjId();
-    /*@Doc:
-    returns the id of the managed object. Not that this is unsafe; if the object
-     is not set, the objId will be 0. This is primarily used for the locking
-     functionality where we care only about the id - do not use it otherwise.
-    */
-
 private:
 
 
-    mutable T *object;
+    mutable T *object{nullptr};
     /*@Doc:
     Pointer to the managed object or 0 if no binding exists.
     */
 
-    OId objId;
+    OId objId{};
     /*@Doc:
     id of managed object.
     */
 
-    bool pointerValid;
+    bool pointerValid{false};
     /*@Doc:
     whenever a smartpointer is initiaised by a pointer, this attribute is set to true.
     this is neccessary for disabled pointer caching.

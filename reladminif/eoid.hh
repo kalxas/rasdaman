@@ -20,18 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *  EOId is optimized for maps that contain only EOId of one system/database.
- *
- *
- * COMMENTS:
- *   When true multiple connections are implemented the order of compare
- * statements in the operator"<" and ">" must be changed.
- ***************************************************************************/
-
 #pragma once
 
 #include "oidif.hh"  // for OId, OId::OIdType, OId::OIdCounter
@@ -54,6 +42,13 @@ statements in the operator"<" and ">" must be changed.
 class EOId : public OId
 {
 public:
+    EOId();
+    /*@Doc:
+    uses the currently open database to get system and db name
+    systemname and database name will be null string when the
+    database is not really open.
+    */
+
     EOId(const char *systemname, const char *dbname, OId::OIdCounter id, OIdType type);
     /*@Doc:
     constructs a complete EOId.
@@ -66,22 +61,9 @@ public:
     database is not really open.
     */
 
-    EOId();
-    /*@Doc:
-    uses the currently open database to get system and db name
-    systemname and database name will be null string when the
-    database is not really open.
-    */
+    ~EOId() = default;
 
-    ~EOId();
-    /*@Doc:
-    does not do anything.
-    */
-
-    EOId &operator=(const EOId &old);
-    /*@Doc:
-    assignes all atributes.
-    */
+    EOId &operator=(const EOId &old) = default;
 
     const char *getSystemName() const;
     /*@Doc:
@@ -100,11 +82,6 @@ public:
     returns the oid of this eoid
     */
 
-    void print_status(std::ostream &o) const;
-    /*@Doc:
-    returns the systemname|databasename|oid
-    */
-
     static void allocateEOId(EOId &eoid, OId::OIdType t);
     /*@Doc:
     Allocates a new logical MDD EOid in the currently opened base.
@@ -112,16 +89,16 @@ public:
     */
 
     bool operator<(const EOId &old) const;
-
     bool operator>(const EOId &old) const;
-
     bool operator<=(const EOId &old) const;
-
     bool operator>=(const EOId &old) const;
-
     bool operator==(const EOId &one) const;
-
     bool operator!=(const EOId &one) const;
+
+    void print_status(std::ostream &o) const;
+    /*@Doc:
+    returns the systemname|databasename|oid
+    */
 
 private:
     std::string databaseName;

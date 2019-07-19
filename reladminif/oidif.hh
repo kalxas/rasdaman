@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/************************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ***********************************************************************/
-
 #pragma once
 
 #include <iosfwd>
@@ -99,9 +89,44 @@ public:
     an oid can be converted from and to a primitive of this type.
     */
 
-    static OIdPrimitive ID_MULTIPLIER;
+    OId() = default;
     /*@Doc:
-    is used to calculate the actual id and type from a given double
+    invalid oid
+    */
+
+    OId(OIdCounter newId, OIdType type);
+    /*@Doc:
+    New OId with counter = newId, oidtype = type
+    */
+
+    OId(OIdPrimitive oidd);
+    /*@Doc:
+    generate an oid from a long long.
+    */
+
+    OId(const OId &oldOId) = default;
+
+    OId &operator=(const OId &old) = default;
+
+    OIdCounter getCounter() const;
+    /*@Doc:
+    returns the counter part of the oid.
+    */
+
+    OId::OIdType getType() const;
+    /*@Doc:
+    Returns type of the object with this OId.
+    */
+
+    operator long long() const;
+    /*@Doc:
+    converts the oid to a long long:
+    oid * OId::ID_MULTIPLIER + oidtype;
+    */
+
+    void print_status(std::ostream &s) const;
+    /*@Doc:
+    prints a long long
     */
 
     static void allocateOId(OId &id, OIdType type, OIdCounter howMany = 1);
@@ -120,45 +145,9 @@ public:
     reads the state of the oid counters from the database.
     */
 
-    OId::OIdType getType() const;
+    static OIdPrimitive ID_MULTIPLIER;
     /*@Doc:
-    Returns type of the object with this OId.
-    */
-
-    OId(const OId &oldOId);
-    /*@Doc:
-    Copy constructor
-    */
-
-    OId(OIdCounter newId, OIdType type);
-    /*@Doc:
-    New OId with counter = newId, oidtype = type
-    */
-
-    OId(OIdPrimitive oidd);
-    /*@Doc:
-    generate an oid from a long long.
-    */
-
-    OId();
-    /*@Doc:
-    invalid oid
-    */
-
-    OIdCounter getCounter() const;
-    /*@Doc:
-    returns the counter part of the oid.
-    */
-
-    void print_status(std::ostream &s) const;
-    /*@Doc:
-    prints a long long
-    */
-
-    operator long long() const;
-    /*@Doc:
-    converts the oid to a long long:
-    oid * OId::ID_MULTIPLIER + oidtype;
+    is used to calculate the actual id and type from a given double
     */
 
     static const char *counterNames[];
@@ -167,8 +156,6 @@ public:
     */
 
     static unsigned int maxCounter;
-
-    OId &operator=(const OId &old);
 
     bool operator==(const OId &one) const;
 
@@ -190,81 +177,30 @@ protected:
     // protection agains writing back unloaded counters => inconsistent DB!!
     static bool loadedOk;
 
-    OIdCounter oid;
+    OIdCounter oid{};
     /*@Doc:
     the counter inside the oid
     */
 
-    OIdType oidtype;
+    OIdType oidtype{INVALID};
     /*@Doc:
     the type of object
     */
 
     static OIdCounter nextMDDOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDCOLLOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDTYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDBASETYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDDIMTYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDDOMTYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextSTRUCTTYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextSETTYPEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextBLOBOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextDBMINTERVALOID;
-    /*@Doc:
-      counter which holds the next oid
-     */
-
     static OIdCounter nextDBNULLVALUESOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextSTORAGEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextMDDHIERIXOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
+    
     // static OIdCounter nextDBTCINDEXOID;
     /*@Doc:
     this counter is not used because mddhierix takes care of that
@@ -281,24 +217,9 @@ protected:
     */
 
     static OIdCounter nextMDDRCIXOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextUDFOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextUDFPACKAGEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
-
     static OIdCounter nextFILETILEOID;
-    /*@Doc:
-    counter which holds the next oid
-    */
 
     static OIdCounter *counterIds[];
     /*@Doc:
@@ -307,10 +228,8 @@ protected:
 };
 
 extern std::ostream &operator<<(std::ostream &in, const OId &d);
-
 extern std::ostream &operator<<(std::ostream &in, OId::OIdType d);
 
 extern bool operator==(const OId::OIdPrimitive one, const OId &two);
-
 extern bool operator==(const OId &two, const OId::OIdPrimitive one);
 

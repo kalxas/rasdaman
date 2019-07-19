@@ -53,5 +53,3 @@ void TransactionIf::begin(DatabaseIf *currBase, bool readOnly)
     lastBase = currBase;
     begin(readOnly);
 }
-
-
