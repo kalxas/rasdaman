@@ -47,10 +47,22 @@ bool LockFile::lock()
     bool ret = false;
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
-        fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY, 0660);
+        fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
         if (fd != INVALID_FILE_DESCRIPTOR)
         {
             ret = flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC;
+            if (!ret)
+            {
+                LWARNING << "Failed locking file '" << lockFilePath << "': "
+                         << strerror(errno);
+                errno = 0;
+            }
+        }
+        else
+        {
+            LWARNING << "Failed opening lock file '" << lockFilePath << "': "
+                     << strerror(errno);
+            errno = 0;
         }
     }
     return ret;
@@ -65,7 +77,10 @@ bool LockFile::isLocked()
         ret = flock(checkfd, LOCK_EX | LOCK_NB) == IO_ERROR_RC;
         if (!ret)
         {
-            flock(checkfd, LOCK_UN);
+            if (flock(checkfd, LOCK_UN) == IO_ERROR_RC)
+            {
+                LWARNING << "failed reverting lock during lock check: " << strerror(errno);
+            }
         }
         if (close(checkfd) == IO_ERROR_RC)
         {
@@ -84,7 +99,10 @@ bool LockFile::isValid()
         ret = flock(checkfd, LOCK_EX | LOCK_NB) == IO_ERROR_RC;
         if (!ret)
         {
-            flock(checkfd, LOCK_UN);
+            if (flock(checkfd, LOCK_UN) == IO_ERROR_RC)
+            {
+                LWARNING << "failed reverting lock during lock check: " << strerror(errno);
+            }
         }
         if (close(checkfd) == IO_ERROR_RC)
         {
@@ -99,24 +117,14 @@ bool LockFile::unlock()
     bool ret = false;
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
-        ret = flock(fd, LOCK_UN) == IO_SUCCESS_RC;
+        ret = true;
         if (close(fd) == IO_ERROR_RC)
         {
             LWARNING << "failed closing lock file descriptor (" << lockFilePath
                      << "): " << strerror(errno);
+            ret = false;
         }
-        if (unlink(lockFilePath.c_str()) == IO_ERROR_RC)
-        {
-            if (access(lockFilePath.c_str(), F_OK) != IO_ERROR_RC)
-            {
-                // lock file still exists, but cannot be removed; perhaps it was locked by another process?
-                LWARNING << "failed deleting lock file (" << lockFilePath << "): " << strerror(errno);
-            }
-            else
-            {
-                // it was already deleted by another process probably, nothing to do
-            }
-        }
+        remove(lockFilePath.c_str());
         fd = INVALID_FILE_DESCRIPTOR;
     }
     return ret;

@@ -246,6 +246,7 @@
 719^E^Admin error: Failed I/O operation on blob file; check the server log for more details.
 720^E^Admin error: Empty blob file found; check the server log for more details.
 721^E^Admin error: File storage data directory is not an absolute path; please set an absolute path for the -connect option in rasmgr.conf.
+722^E^Admin error: Failed converting blob file name to blob id.
 #
 # 80x errors for RasManager problems
 #

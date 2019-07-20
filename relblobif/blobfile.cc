@@ -19,14 +19,6 @@
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include "config.h"
 #include "blobfile.hh"
@@ -46,7 +38,9 @@
 using namespace std;
 
 BlobFile::BlobFile(const string &filePathArg)
-    : filePath(filePathArg), fd(INVALID_FILE_DESCRIPTOR) {}
+    : filePath(filePathArg), fd{INVALID_FILE_DESCRIPTOR}
+{
+}
 
 BlobFile::~BlobFile()
 {
@@ -103,7 +97,6 @@ void BlobFile::readData(BlobData &blob)
 
 void BlobFile::readFile(char *dst, size_t size)
 {
-//  LDEBUG << "reading blob file of size " << size;
     ssize_t count = read(fd, dst, size);
     if (count == IO_ERROR_RC)
         generateError("failed reading data from blob file", FAILEDREADINGFROMDISK);
@@ -113,7 +106,7 @@ void BlobFile::readFile(char *dst, size_t size)
 
 void BlobFile::prepareForInserting()
 {
-    fd = open(filePath.c_str(), O_CREAT | O_WRONLY, 0660);
+    fd = open(filePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
         generateError("failed opening blob file for inserting", FAILEDOPENFORWRITING);
@@ -122,7 +115,7 @@ void BlobFile::prepareForInserting()
 
 void BlobFile::prepareForUpdating()
 {
-    fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0660);
+    fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0660);
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
         generateError("failed opening blob file for updating", FAILEDOPENFORUPDATING);
@@ -178,8 +171,8 @@ void BlobFile::moveFile(const std::string &fromFilePath, const std::string &toFi
 {
     if (rename(fromFilePath.c_str(), toFilePath.c_str()) == IO_ERROR_RC)
     {
-        LERROR << "failed moving file from " << fromFilePath << " to " << toFilePath << ".";
-        LERROR << "reason: " << strerror(errno);
+        LERROR << "failed moving file from " << fromFilePath << " to " << toFilePath
+               << ", reason: " << strerror(errno);
         unsigned int errorCode = BLOBFILENOTFOUND;
         if (errno != ENOENT)
         {
@@ -193,24 +186,35 @@ void BlobFile::removeFile(const std::string &filePath)
 {
     if (unlink(filePath.c_str()) == IO_ERROR_RC)
     {
-        LWARNING << "failed deleting file from disk: " << filePath;
-        LWARNING << "reason: " << strerror(errno);
+        LWARNING << "failed deleting file from disk: " << filePath
+                 << ", reason: " << strerror(errno);
     }
 }
 
 long long BlobFile::getBlobId()
 {
     long long ret = INVALID_BLOB_ID;
+
+    if (!filePath.empty() && !isdigit(filePath.back()))
+    {
+        return ret; // probably a .lock file, not a blob
+    }
+
     size_t lastIndex = filePath.find_last_of('/');
     if (lastIndex != string::npos)
     {
-        string blobId = filePath.substr(lastIndex + 1);
-        stringstream str;
-        str << blobId;
-        long long tmp;
-        if (str >> tmp)
+        auto fileName = filePath.substr(lastIndex + 1);
+        try
         {
-            ret = tmp;
+            ret = std::stoll(fileName);
+        }
+        catch (std::invalid_argument &ex)
+        {
+            generateError("could not parse long long blob id", FILENAMETOBLOBIDFAILED);
+        }
+        catch (std::out_of_range &ex)
+        {
+            generateError("blob id out of long long range", FILENAMETOBLOBIDFAILED);
         }
     }
     return ret;

@@ -421,6 +421,7 @@ public:
 #define FAILEDIOOPERATION                   719
 #define EMPTYBLOBFILE                       720
 #define FILEDATADIR_NOTABSOLUTE             721
+#define FILENAMETOBLOBIDFAILED              722
 #define INCORRECT_USER_PASSWORD             802
 #define NO_PERMISSION_FOR_OPERATION         803
 #define CAPABILITY_REFUSED                  804

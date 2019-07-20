@@ -68,11 +68,24 @@ public:
 
     void testGetBlobIdInvalid()
     {
-        string filePath = "/some/test/transaction.lock";
-        BlobFile blobFile(filePath);
-        long long expectedBlobId = -1;
-        long long resultBlobId = blobFile.getBlobId();
-        EXPECT_EQ(resultBlobId, expectedBlobId);
+        {
+            string filePath = "/some/test/transaction.00";
+            BlobFile blobFile(filePath);
+            try
+            {
+                long long resultBlobId = blobFile.getBlobId();
+                TEST_FAIL();
+            }
+            catch(...)
+            {
+            }
+        }
+        {
+            string filePath = "/some/test/transaction.new";
+            BlobFile blobFile(filePath);
+            long long resultBlobId = blobFile.getBlobId();
+            EXPECT_EQ(resultBlobId, INVALID_BLOB_ID);
+        }
     }
 
 };

@@ -19,14 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #pragma once
 
@@ -125,6 +117,6 @@ private:
     void readFile(char *dst, size_t size);
 
     const std::string &filePath;
-    int fd;
+    int fd{-1};
 };
 
