@@ -53,28 +53,18 @@ class DBMDDSet : public DBNamedObject
 {
 public:
     DBMDDSet(const char *name, const CollectionType *type);
-    /*@Doc:
-        creates a new set
-    */
 
     DBMDDSet(const char *name, const OId &id, const CollectionType *type);
-    /*@Doc:
-        creates a new set
-    */
+
+    ~DBMDDSet() noexcept(false) override;
 
     static DBMDDSetId getDBMDDSet(const char *name);
 
     static DBMDDSetId getDBMDDSet(const OId &id);
 
     static bool deleteDBMDDSet(const OId &id);
-    /*@Doc:
-        returns succes
-    */
 
     static bool deleteDBMDDSet(const char *name);
-    /*@Doc:
-        returns succes
-    */
 
     void printStatus(unsigned int level, std::ostream &stream) const override;
 
@@ -117,12 +107,6 @@ public:
     */
 
     bool contains_element(const DBMDDObjId &elem) const;
-    /*@Doc:
-    */
-
-    ~DBMDDSet() noexcept(false) override;
-    /*@Doc:
-    */
 
     void deleteName();
     /*@Doc:
@@ -131,18 +115,10 @@ public:
     */
 
     r_Bytes getMemorySize() const override;
-    /*@Doc:
-    */
 
     const CollectionType *getCollType() const;
-    /*@Doc:
-        Returns the collectiontype of this entry.
-    */
 
     void setCollType(const CollectionType *collTypeArg);
-    /*@Doc:
-        Set the collectiontype of this entry.
-    */
 
 protected:
     friend class ObjectBroker;
@@ -155,20 +131,9 @@ protected:
     */
 
     void updateInDb() override;
-    /*@Doc:
-    */
-
     void insertInDb() override;
-    /*@Doc:
-    */
-
     void readFromDb() override;
-    /*@Doc:
-    */
-
     void deleteFromDb() override;
-    /*@Doc:
-    */
 
 private:
     DBMDDObjIdSet mySet;
@@ -176,10 +141,7 @@ private:
         Memory representation of the list of oids of DBMDDObjs.
     */
 
-    const CollectionType *collType;
-    /*@Doc:
-        Pointer to the collectiontype.
-    */
+    const CollectionType *collType{NULL};
 };
 
 #endif

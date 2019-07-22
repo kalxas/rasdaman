@@ -62,7 +62,7 @@ void checkCounter(const char *counterName, const char *column,
         auto rasCountersOid = query.nextColumnLong();
         auto actualOid = query.nextColumnLong();
 
-        if (actualOid > rasCountersOid)
+        if (actualOid >= rasCountersOid && actualOid != 0)
         {
             // TODO: make a backup of RASBASE and attempt to "fix" the issue by updating the counter in RAS_COUNTERS?
 
@@ -125,6 +125,6 @@ AdminIf::AdminIf(bool createDb)
     }
 
     BlobFS::getInstance();
-    
+
     validConnection = true;
 }

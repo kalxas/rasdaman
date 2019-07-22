@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "sqlglobals.h"
 #include "sqlerror.hh"
 #include "sqlitewrapper.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 
 void OId::initialize()
@@ -50,6 +51,12 @@ void OId::initialize()
         if (i == OId::maxCounter)
         {
             loadedOk = true;
+        }
+        else
+        {
+            LERROR << "Expected " << OId::maxCounter << "rows in RAS_COUNTERS, but found only " << i << ". "
+                    << "Most likely you need to stop rasdaman, run update_db.sh, and start rasdaman again.";
+            throw r_Error(DATABASE_INCONSISTENT);
         }
     }
 }
