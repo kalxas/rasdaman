@@ -131,7 +131,7 @@ void ServerManager::registerServer(const string &serverId)
 
     for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
     {
-        if (((*it)->tryRegisterServer(serverId)))
+        if (!(*it)->isStopped() && ((*it)->tryRegisterServer(serverId)))
         {
             registered = true;
             break;
@@ -228,8 +228,10 @@ void ServerManager::startServerGroup(const StartServerGroup &startGroup)
         for (auto it = this->serverGroupList.begin(); it != this->serverGroupList.end(); ++it)
         {
             shared_ptr<ServerGroup>  srv = (*it);
+
             if (srv->getGroupName() == startGroup.group_name())
             {
+                LDEBUG << "STARTING SERVER: " << srv->getGroupName();
                 srv->start();
                 found = true;
 
