@@ -1,6 +1,8 @@
 {
  "oid": "714241",
  "baseType": "marray <char, 2>",
+ "setTypeName": "GreySet",
+ "mddTypeName": "GreyImage",
  "tileNo": "3",
  "totalSize": "2400",
  "tiling": {

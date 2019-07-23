@@ -1,4 +1,6 @@
 {
+ "setTypeName": "GreySet3",
+ "mddTypeName": "GreyCube",
  "tileNo": "1",
  "totalSize": "10000",
  "tiling": {

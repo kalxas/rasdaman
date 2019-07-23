@@ -144,9 +144,9 @@ QtMDDAccess::next()
                 ptr->setNullValues(dbmi);
             }
         }
-
+        
         QtMDD  *elem = new QtMDD(ptr, iteratorName);
-
+        elem->setCollType(collType);
 
         // create the list
         QtNode::QtDataList *dataList = new QtNode::QtDataList(1); // create container to contain one element

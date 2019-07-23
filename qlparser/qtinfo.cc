@@ -130,6 +130,7 @@ QtInfo::evaluate(QtDataList *inputList)
             }
 
             DBMDDObj *dbObj = persMDD->getDBMDDObjId().ptr();
+            CollectionType *collType = qtMDD->getCollType();
 
             if (dbObj)
             {
@@ -139,6 +140,11 @@ QtInfo::evaluate(QtDataList *inputList)
                     ostringstream info("");
                     info << "{\n \"oid\": \"" << static_cast<double>(localOId);
                     info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
+                    if (collType)
+                    {
+                        info << "\",\n \"setTypeName\": \""<< collType->getName();
+                    }
+                    info << "\",\n \"mddTypeName\": \""<<dbObj->getMDDBaseType()->getTypeName();
                     vector<boost::shared_ptr<Tile>> *tiles = persMDD->getTiles();
                     info << "\",\n \"tileNo\": \"" << tiles->size();
 

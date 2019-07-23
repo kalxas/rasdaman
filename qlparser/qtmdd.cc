@@ -65,6 +65,8 @@ QtMDD::QtMDD(MDDObj *ptr)
     {
         loadDomain = ptr->getDefinitionDomain();
     }
+
+    collType = NULL;
 }
 
 
@@ -268,6 +270,11 @@ QtMDD::~QtMDD()
     }
 }
 
+CollectionType *
+QtMDD::getCollType() const
+{
+    return collType;
+}
 
 BaseType *
 QtMDD::getCellType() const

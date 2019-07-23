@@ -1,4 +1,6 @@
 {
+ "setTypeName": "GreySet",
+ "mddTypeName": "GreyImage",
  "tileNo": "3",
  "totalSize": "400",
  "tiling": {

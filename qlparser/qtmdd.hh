@@ -4,6 +4,7 @@
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtscalardata.hh"
 #include "catalogmgr/typefactory.hh"
+#include "mddmgr/mddcoll.hh"
 #include "raslib/minterval.hh"
 
 #include <string>
@@ -97,6 +98,8 @@ public:
     inline bool isFromConversion() const;
     /// set whether the MDD data is result from a conversion function
     inline void setFromConversion(bool newFromConversion);
+    /// sets the Collection Type
+    inline void setCollType(CollectionType *newCollType);
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -107,6 +110,8 @@ public:
     ///
     //@}
 
+    /// returns pointer to the collection type
+    CollectionType *getCollType() const;
     /// returns a pointer to the cell type
     BaseType *getCellType() const;
 
@@ -125,6 +130,8 @@ public:
     /// print status of the object to the specified stream
     virtual void printStatus(std::ostream &stream = std::cout) const;
 
+
+
 private:
     /// prevents from using the default constructor
     QtMDD() {};
@@ -137,6 +144,9 @@ private:
 
     /// load domain
     r_Minterval loadDomain;
+
+    //collection type
+    CollectionType *collType{NULL};
 };
 
 #include "qlparser/qtmdd.icc"
