@@ -532,7 +532,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -fno-strict-overflo
 #
 # Paths
 #
-
+if ("${CMAKE_INSTALL_PREFIX}"  STREQUAL "")
+	message( FATAL_ERROR "-DCMAKE_INSTALL_PREFIX is not set, refusing to install into /")
+endif()
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 set(LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
