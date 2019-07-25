@@ -26,24 +26,33 @@
 
 include(FindPackageHandleStandardArgs)
 
-# try to find version 2.x
-find_library(GDAL_JAVA_VERSION_2 NAMES libgdalalljni.so.20 libgdaljni.so.20
+# try to find version 2.x, x >= 2.3
+find_library(GDAL_JAVA_VERSION_2 NAMES libgdalalljni.so.20
              PATHS /usr/lib/java/gdal /usr/lib/jni/)
-
 if (GDAL_JAVA_VERSION_2)
     get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_2} DIRECTORY)
     set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
     set(GDAL_JAVA_VERSION "2.3.0")
 else()
-    # try to find version 1.x
-    find_library(GDAL_JAVA_VERSION_1 NAMES libgdaljni.so
-                 PATHS /usr/lib/java/gdal /usr/lib/jni/)
 
-    if (GDAL_JAVA_VERSION_1)
-        # found version 1.x
-        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_1} DIRECTORY)
+    # try to find version 2.x, x < 2.3
+    find_library(GDAL_JAVA_VERSION_2 NAMES libgdaljni.so.20
+                 PATHS /usr/lib/java/gdal /usr/lib/jni/)
+    if (GDAL_JAVA_VERSION_2)
+        get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_2} DIRECTORY)
         set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
-        set(GDAL_JAVA_VERSION "1.10.1")
+        set(GDAL_JAVA_VERSION "2.2.1")
+    else()
+
+        # try to find version 1.x
+        find_library(GDAL_JAVA_VERSION_1 NAMES libgdaljni.so
+                     PATHS /usr/lib/java/gdal /usr/lib/jni/)
+        if (GDAL_JAVA_VERSION_1)
+            # found version 1.x
+            get_filename_component(GDAL_JAVA_DIR ${GDAL_JAVA_VERSION_1} DIRECTORY)
+            set(GDAL_JAVA_DIR ${GDAL_JAVA_DIR})
+            set(GDAL_JAVA_VERSION "1.10.1")
+        endif()
     endif()
 endif()  
 
