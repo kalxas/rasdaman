@@ -71,7 +71,7 @@ class Recipe(BaseRecipe):
 
 
         # Validate wcs_endpoint
-        validate_and_read_url(self.options['wcs_endpoint'])
+        validate_and_read_url(self.options['wcs_endpoint'] + "?service=WCS&version=2.0.1&request=GetCapabilities")
 
     def describe(self):
         """

@@ -321,12 +321,12 @@ class Recipe(BaseRecipe):
                                                " with \"dataBound\": false in ingredient file.".format(crs_axis.label))
 
                     try:
-                        slice_group_size = int(value_str)
+                        slice_group_size = float(value_str)
                         if slice_group_size <= 0:
                             raise ValueError
                     except ValueError:
                         raise RuntimeException("Option 'sliceGroupSize' for irregular axis '{}'"
-                                               " in ingredient file must be positive integer. Given '{}'.".format(crs_axis.label, value_str))
+                                               " in ingredient file must be positive number. Given '{}'.".format(crs_axis.label, value_str))
 
             if not irregular:
                 user_axes.append(

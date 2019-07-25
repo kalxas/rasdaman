@@ -53,3 +53,6 @@ class ConfigManager:
     track_files = True
     # input file name of wcst_import.sh
     ingredient_file_name = ""
+
+    user = ""
+    passwd = ""

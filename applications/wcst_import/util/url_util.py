@@ -21,10 +21,9 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-import urllib2
+import urllib2, base64
 import ssl
 from master.error.runtime_exception import RuntimeException
-
 
 def __encode_quote(url):
     """
@@ -42,7 +41,15 @@ def validate_and_read_url(url):
     """
     url = __encode_quote(url)
     try:
-        ret = urllib2.urlopen(url, context=ssl._create_unverified_context())
+        request = urllib2.Request(url)
+
+        from config_manager import ConfigManager
+
+        if ConfigManager.user is not None:
+            base64string = base64.b64encode(ConfigManager.user + ":" + ConfigManager.passwd)
+            request.add_header("Authorization", "Basic %s" % base64string)
+
+        ret = urllib2.urlopen(request, context=ssl._create_unverified_context())
     except Exception as e:
         raise RuntimeException("Failed opening connection to '{}'. "
                                "Check that the service is up and running."
@@ -52,6 +59,10 @@ def validate_and_read_url(url):
     if ret.getcode() != 200:
         raise RuntimeException("Server responded failed for request '{}'."
                                "Detail error: {}.".format(url, response))
+
+    if "<html" in response:
+        raise RuntimeException("Server requests credentials for authentication,"
+                               "please provide them (check wcst_import.sh -h for details)")
 
     return response
 

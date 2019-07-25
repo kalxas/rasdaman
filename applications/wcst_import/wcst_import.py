@@ -42,6 +42,9 @@ from util.log import log
 from util.import_util import import_jsonschema
 from wcst.wcst import WCSTException
 from osgeo import gdal
+from config_manager import ConfigManager
+
+from ArgumentsParser import parse_arguments
 
 # Enable GDAL/OGR exceptions
 gdal.UseExceptions()
@@ -118,17 +121,15 @@ def validate():
         exit_error()
 
 
-def read_ingredients():
+def read_ingredients(ingredient_file):
     """
     Reads the ingredient file and returns a string of json
     :rtype: str
     """
-    path = ""
     try:
-        path = sys.argv[1]
-        return file(path).read()
+        return file(ingredient_file).read()
     except IOError:
-        log.error("We could not read the ingredients file at " + path + ". Make sure the file exists and is readable.")
+        log.error("We could not read the ingredients file at '" + ingredient_file + "'. Make sure the file exists and is readable.")
         exit_error()
 
 
@@ -162,12 +163,20 @@ def main():
 
     reg = RecipeRegistry()
     validate()
+
+    # Parse input arguments from command line
+    arguments = parse_arguments()
+    ingredients_file_path = arguments.ingredients_file
+
+    ConfigManager.user = arguments.user
+    ConfigManager.passwd = arguments.passwd
+
     try:
-        ingredients = decode_ingredients(read_ingredients())
+        ingredients = decode_ingredients(read_ingredients(ingredients_file_path))
         hooks = ingredients["hooks"] if "hooks" in ingredients else None
         session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'], hooks,
-                          os.path.basename(sys.argv[1]),
-                          FileUtil.get_directory_path(sys.argv[1]))
+                          os.path.basename(ingredients_file_path),
+                          FileUtil.get_directory_path(ingredients_file_path))
         reg.run_recipe(session)
     except RecipeValidationException as re:
         log.error(str(re))
