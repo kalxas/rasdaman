@@ -330,7 +330,7 @@ void DatabaseIf::createDB(const char *, const char *, const char *)
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
                      "UpdateNumber INTEGER)");
-        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 3)");
+        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 4)");
 
         disconnect();
     }
