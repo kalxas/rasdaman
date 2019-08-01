@@ -584,16 +584,8 @@ and that you are logged in as user ``rasdaman``, e.g. with this command: ::
 
 .. note::
     As user ``rasdaman`` probably does not have sudo rights,
-    make sure to execute the commands that require sudo with a user that has sudo rights.
-
-Make sure also that your user is a member of the ``tomcat`` or ``tomcat7`` group,
-so that on make install the rasdaman files can be installed to Tomcat without
-requiring sudo access, e.g.: ::
-
-    $ sudo adduser rasdaman tomcat
-
-.. note::
-    You need to log out and log in again for this command to take effect.
+    make sure to execute the commands that require sudo with a user that has 
+    sudo rights.
 
 
 Create Installation Directory
@@ -630,23 +622,24 @@ Install Required Packages
 
 **database stuff:** Pick one option below for rasdaman storage:
 
-* *libsqlite*, *libsqlite-dev*, *sqlite3* -- required for storing arrays in a file
-  system directory and the rasdaman technical metadata in SQLite; see 
+* *libsqlite*, *libsqlite-dev*, *sqlite3* -- required for storing arrays in a
+  filesystem directory and the rasdaman technical metadata in SQLite; see 
   :ref:`details <sec-filesystem-backend>`;
   note that petascope currently requires PostgreSQL independently from the
   PostgreSQL / file system array decision - in other words: even if for the
   array engine you chose to not use PostgreSQL you currently still need to
   install it for storing the geo metadata making an array an OGC coverage)
-* *libecpg-dev*, *postgresql* -- required for `PostgreSQL <http://www.postgresql.org>`_
-  to hold rasdaman arrays and/or petascope geo metadata
+* *libecpg-dev*, *postgresql* -- required for 
+  `PostgreSQL <http://www.postgresql.org>`_ to hold rasdaman arrays and/or 
+  petascope geo metadata
 
 **optional packages:**
 
 * *libhdf4g-dev* -- required for HDF4 support
 * *libnetcdf-dev*, *python-netcdf4* -- required for NetCDF support
 * *libgrib-api-dev*, *libgrib2c-dev*, *python-grib* - for GRIB data support
-* *libtiff-dev*, *libjpeg-dev*, *ligpng-dev* - internal encoder/decoder implementations
-  for TIFF, JPEG, or PNG formants.
+* *libtiff-dev*, *libjpeg-dev*, *ligpng-dev* - internal encoder/decoder 
+  implementations for TIFF, JPEG, or PNG formants.
 * *libdw-dev* / *elfutils-devel* -- for segfault stacktraces, useful in development
 * *sphinx*, *sphinx_rtd_theme*, *latexmk*, *texlive* -- main HTML / PDF documentation
 * *doxygen* -- required for C++ API documentation
@@ -659,7 +652,7 @@ Install Required Packages
 
 * `Tomcat <http://tomcat.apache.org/>`_ (or another suitable servlet
   container) -- required for running the petascope and SECORE Java web
-  applications
+  applications, unless they are configured to start in standalone mode
 * *python-dateutil python-lxml python-pip python-gdal
   python-glob2 python-magic netcdf4-python* (required by :ref:`wcst_import
   <data-import>`, a tool for importing geo-referenced data into rasdaman / 
@@ -702,7 +695,7 @@ CentOS 7
       gdal netcdf libtiff libedit readline openssl gcc python-devel \
       python-dateutil python-magic which python-lxml python-pip \
       python-setuptools grib_api gdal-python pyproj netcdf4-python hdf \
-      grib_api-devel gdal-java sysvinit-tools libxml2
+      grib_api-devel gdal-java sysvinit-tools libxml2 tomcat
 
     # To run wcst_import.sh
     $ sudo pip install glob2 pygrib grpcio
@@ -735,7 +728,7 @@ Debian 9
       gdal-bin python-dev debianutils libdw1 python-dateutil python-lxml \
       python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java
+      openjdk-8-jre libgdal-java tomcat8
 
     # To run wcst_import.sh
     $ sudo pip install glob2 netcdf grpcio
@@ -768,7 +761,7 @@ Ubuntu 16.04
       gdal-bin python-dev debianutils python-dateutil python-lxml \
       python-grib python-pip python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java
+      openjdk-8-jre libgdal-java tomcat8
 
     # To run wcst_import.sh
     $ sudo pip install glob2 grpcio
@@ -801,7 +794,7 @@ Ubuntu 18.04
       gdal-bin python-dev debianutils python-dateutil python-lxml \
       python-pip libdw1 python-gdal libnetcdf-dev netcdf-bin \
       libecpg6 libedit-dev python-netcdf4 libreadline-dev \
-      openjdk-8-jre libgdal-java
+      openjdk-8-jre libgdal-java tomcat8
 
     # To run wcst_import.sh
     $ sudo pip install glob2 pygrib grpcio
@@ -946,7 +939,7 @@ that can be specified with ``-D<option>``, along with the default settings.
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``WAR_DIR``              | <path> (default   |                                                                          |
     |                          | $RMANHOME/share/  |                                                                          |
-    |                          | rasdaman/war)     | The path where Java war files should be installed.                       |
+    |                          | rasdaman/war)     | The path where Java war files will be installed.                         |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
 
 
