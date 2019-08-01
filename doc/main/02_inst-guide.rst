@@ -1473,12 +1473,12 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |``$RMANHOME/etc/secore.properties`` by default.                 |
 |                              |Since v9.8, to start a specific service the                     |
 |                              |``--service (core | secore | petascope )`` option can be used   |
-|                              | (``core`` refers to ``rasmgr`` + ``rasservers`` only).         |
+|                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
 +------------------------------+----------------------------------------------------------------+
 |``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
 |                              |by default.                                                     |
 |                              |Since v9.8, to stop a specific service the                      |
-|                              | ``--service (core | secore | petascope )`` option can be used  |
+|                              |``--service (core | secore | petascope )`` option can be used   |
 |                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
 +------------------------------+----------------------------------------------------------------+
 |``rasdl``                     |Tool for RASBASE creation/deletion and type management          |
