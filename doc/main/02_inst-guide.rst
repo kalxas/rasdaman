@@ -631,8 +631,8 @@ Install Required Packages
 **database stuff:** Pick one option below for rasdaman storage:
 
 * *libsqlite*, *libsqlite-dev*, *sqlite3* -- required for storing arrays in a file
-  system directory and the rasdaman technical metadata in SQLite; see TODO
-  `details <http://rasdaman.org/wiki/InstallFromSource#SQLiteFilesystembackend>`_;
+  system directory and the rasdaman technical metadata in SQLite; see 
+  :ref:`details <sec-filesystem-backend>`;
   note that petascope currently requires PostgreSQL independently from the
   PostgreSQL / file system array decision - in other words: even if for the
   array engine you chose to not use PostgreSQL you currently still need to
@@ -661,9 +661,9 @@ Install Required Packages
   container) -- required for running the petascope and SECORE Java web
   applications
 * *python-dateutil python-lxml python-pip python-gdal
-  python-glob2 python-magic netcdf4-python* (required by TODO`wcst_import
-  <http://rasdaman.org/wiki/WCSTImportGuide>`_, a tool for importing
-  geo-referenced data into rasdaman/petascope)
+  python-glob2 python-magic netcdf4-python* (required by :ref:`wcst_import
+  <data-import>`, a tool for importing geo-referenced data into rasdaman / 
+  petascope)
 
 
 Installation commands for the packages is depending on the platform
@@ -1816,6 +1816,8 @@ The array storage variant can be chosen during the cmake configuration step (cf.
 installing from source; it is fixed in the packages to ``sqlite``, i.e. the
 default recommended option.
 
+
+.. _sec-filesystem-backend:
 
 Storing arrays in a file system directory
 -----------------------------------------
