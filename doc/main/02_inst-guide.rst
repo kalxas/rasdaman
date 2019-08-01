@@ -824,10 +824,10 @@ following command: ::
 This will create a sub-directory rasdaman in your current working
 directory.
 
-Installation
-^^^^^^^^^^^^
+Configure
+^^^^^^^^^
 
-**Step 1:** Change into this directory: ::
+Change into the newly cloned directory: ::
 
     $ cd rasdaman
 
@@ -835,19 +835,39 @@ Optionally, select a tagged stable release. To activate a `particular
 tagged version <http://rasdaman.org/wiki/Versions>`_ use its name
 prefixed with a "v", e.g: ::
 
-    $ git checkout v9.6.0
+    $ git checkout v9.8.1
 
-**Step 2:** The following command will prepare compilation for your
-system. ::
+.. note::
+    You can list all tags with ``git tag``.
 
-    $ mkdir -p build; cd build
-    $ cmake .. [ -D<option>... ]
+The following commands will prepare for building on your system. First create a
+build directory: ::
 
-Any missing components will be reported; if this is the case, then
-install the missing packages and retry configuration.
+    $ mkdir -p build
+    $ cd build
 
-Configuration can be customized, :numref:`table-cmake` summarizes the
-options that can be specified with -D<option>:
+In the build directory we next execute ``cmake`` to configure how rasdaman
+is compiled. A typical configuration looks like this: ::
+
+    $ cmake /path/to/rasdaman/sources -DCMAKE_INSTALL_PREFIX=/opt/rasdaman
+
+Any missing components will be reported; if this is the
+case, then install the missing packages and retry configuration.
+
+The general format of invoking ``cmake`` on the command-line is as follows:
+
+    $ cmake /path/to/rasdaman/sources [ -D<option>... ]
+
+.. note::
+    Alternatively, *ccmake* or *cmake-gui* can be used as graphical interfaces
+    for this configuration step. 
+
+Configuration can be customized, :numref:`table-cmake` summarizes the options
+that can be specified with ``-D<option>``, along with the default settings.
+
+.. note::
+    To get a current list of all the custom options that can be passed to
+    ``cmake`` on the command line, try ``cmake -LH``.
 
 
 .. tabularcolumns:: |p{5.2cm}|p{3.5cm}|p{6cm}|
@@ -929,25 +949,11 @@ options that can be specified with -D<option>:
     |                          | rasdaman/war)     | The path where Java war files should be installed.                       |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
 
-For example, a typical invocation looks like this: ::
 
-    $ cmake .. -DCMAKE_INSTALL_PREFIX=$RMANHOME -DCMAKE_BUILD_TYPE=Release \
-               -DUSE_NETCDF=ON -DUSE_GRIB=ON -DFILE_DATA_DIR=$RMANHOME/data \
-               -DWAR_DIR=/var/lib/tomcat/webapps
+Build
+^^^^^
 
-Alternatively, *ccmake* or *cmake-gui* can be used as graphical interfaces
-for this configuration step. To get a list of all the custom options that can
-be passed to *cmake* on the command line, try the following command: ::
-
-    $ cmake -LH
-
-.. warning::
-    Run ``echo $RMANHOME`` beforehand to verify that this environment variable 
-    is correctly set; if it is empty rasdaman will be installed in ``/`` which 
-    should be avoided.
-
-
-**Step 3:** Next, compile and link rasdaman: ::
+Next, execute ``make`` to compile and link rasdaman: ::
 
     $ make -j2
 
@@ -959,7 +965,11 @@ be passed to *cmake* on the command line, try the following command: ::
     To further improve the compilation speed, especially if you're recompiling
     rasdaman often, it can be helpful to install *ccache*.
 
-**Step 4:** Install rasdaman at the place specified before with
+
+Install
+^^^^^^^
+
+Install rasdaman to the directory specified before with
 ``-DCMAKE_INSTALL_PREFIX``: ::
 
     $ make install
@@ -971,12 +981,11 @@ be passed to *cmake* on the command line, try the following command: ::
     this without using sudo can be found in the :ref:`sec-system-install-prep`
     Section.
 
-**Step 5:** As described in the previous section, the installation directory can be
-chosen at compile time. Inside this installation directory we find the binary
-executable programs, development libraries, documentation, etc.
-(covered in more detail in Section :ref:`sec-system-install-conf`).
-For your convenience you can add the executable path location to the
-``$PATH`` definition, e.g: ::
+As described in the previous section, the installation directory is chosen at
+compile time. Inside this installation directory we find the binary executable
+programs, development libraries, documentation, etc. (covered in more detail in
+Section :ref:`sec-system-install-conf`). For your convenience you can add the
+executable path location to the ``$PATH`` definition, e.g: ::
 
     export RMANHOME=/opt/rasdaman
     export PATH=$RMANHOME/bin:$PATH
