@@ -1732,10 +1732,6 @@ For each one of these there is an ingredients example under the
 directory, together with an example for the available parameters
 Further on each recipe type is described in turn.
 
-.. note::
-    The comments syntax using "//comment explaining things" in the examples
-    is not valid json so they need to be removed if you copy the parameters.
-
 ... data-import-common-options:
 
 Common options

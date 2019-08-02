@@ -52,8 +52,8 @@ if __name__ == "__main__":
 
     arguments = parse_arguments()
 
-    PIDFILE = arguments.ingredient_file + ".wcst_import.pid"
-    LOGFILE = arguments.ingredient_file + ".wcst_import.log"
+    PIDFILE = arguments.ingredients_file + ".wcst_import.pid"
+    LOGFILE = arguments.ingredients_file + ".wcst_import.log"
 
     daemon_action = arguments.daemon
     daemon_watch = arguments.watch

@@ -127,7 +127,17 @@ def read_ingredients(ingredient_file):
     :rtype: str
     """
     try:
-        return file(ingredient_file).read()
+        raw_content = file(ingredient_file).read()
+        # Remove any comments (staring with //) from ingredient file
+        lines = raw_content.splitlines()
+
+        result = ""
+        for line in lines:
+            if not line.lstrip().startswith("//"):
+                result += line
+
+        return result
+
     except IOError:
         log.error("We could not read the ingredients file at '" + ingredient_file + "'. Make sure the file exists and is readable.")
         exit_error()

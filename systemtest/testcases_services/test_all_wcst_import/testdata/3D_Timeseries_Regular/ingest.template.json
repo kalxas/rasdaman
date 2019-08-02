@@ -1,24 +1,36 @@
 {
+// Comment 1
   "config": {
     "service_url": "PETASCOPE_URL",
     "default_crs": "http://abc.secore.net/def/crs/EPSG/0/4326",
     "automated": true,
     "track_files": false
+    // Comment 8
   },
   "input": {
+    // Comment 6
     "coverage_id": "test_AverageTemperature",
     "paths": [
+       // Comment 10
       "SCALED*.TIFF"
+           // Comment 11
     ]
+  // Comment 2
   },
   "recipe": {
     "name": "time_series_regular",
     "options": {
+         // Comment 3
       "time_start": "2012-12-02T20:12:02",
       "time_format": "auto",
+                  // Comment 4
       "time_crs": "SECORE_URL/crs/OGC/0/AnsiDate",
       "time_step": "2 days 10 minutes 3 seconds",
       "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
     }
   }
 }
+
+// Comment 5
+                               //  Comment 6
+
