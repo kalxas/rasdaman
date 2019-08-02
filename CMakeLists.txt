@@ -546,6 +546,9 @@ set(FILE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data" CACHE STRING
     "The path where the server stores array tiles as files.")
 set(WAR_DIR "${SHARE_DATA_DIR}/war" CACHE STRING
     "The path where Java war files should be installed.")
+if (NOT ("${WAR_DIR}" STREQUAL "${SHARE_DATA_DIR}/war") AND NOT (EXISTS "${WAR_DIR}/"))
+	message( FATAL_ERROR "${WAR_DIR} doesn't exist or cannot be accessed.")	
+endif()
 set(LOG_DIR "${CMAKE_INSTALL_PREFIX}/log" CACHE STRING 
     "The path where server logs are stored.")
 install(DIRECTORY DESTINATION ${LOG_DIR})
