@@ -36,6 +36,7 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtcondenseop.hh"
+#include "relcatalogif/mdddomaintype.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtpointdata.hh"
@@ -304,6 +305,18 @@ QtCondenseOp::evaluate(QtDataList *inputList)
             if (cellType == QT_MDD)
             {
                 returnValue = evaluateInducedOp(inputList, cellBinOp.get(), domain);
+                if (!returnValue)
+                {
+                    MDDDomainType *mddBaseType = new MDDDomainType("tmp", resBaseType, domain);
+                    TypeFactory::addTempType(mddBaseType);
+                    MDDObj *mddres = NULL;
+                    mddres = new MDDObj(mddBaseType, domain, operand1->getNullValues());
+                    Tile *resTile = NULL;
+                    resTile = new Tile(domain, resBaseType);
+                    mddres->fillTileWithNullvalues(resTile->getContents(),domain.cell_count());
+                    mddres->insertTile(resTile);
+                    returnValue = new QtMDD(mddres);
+                }
             }
             else
             {
@@ -365,7 +378,8 @@ QtCondenseOp::evaluateInducedOp(QtDataList *inputList, BinaryOp *cellBinOp, r_Mi
 {
     auto qlInducedCondenseOp = std::unique_ptr<QLInducedCondenseOp>(
                                    new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName));
-    return QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp.get(), domain);
+    auto result = QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp.get(), domain);
+    return result;
 }
 
 void
