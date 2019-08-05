@@ -842,10 +842,12 @@ build directory: ::
 In the build directory we next execute ``cmake`` to configure how rasdaman
 is compiled. A typical configuration looks like this: ::
 
-    $ cmake /path/to/rasdaman/sources -DCMAKE_INSTALL_PREFIX=/opt/rasdaman
+    $ cmake .. -DCMAKE_INSTALL_PREFIX=$RMANHOME
 
 Any missing components will be reported; if this is the
-case, then install the missing packages and retry configuration.
+case, then install the missing packages and retry configuration. The ``..``
+indicates the path to the rasdaman source tree, which is now the parent
+directory of the ``build`` directory in which the ``cmake`` command is executed.
 
 The general format of invoking ``cmake`` on the command-line is as follows:
 
@@ -942,6 +944,7 @@ that can be specified with ``-D<option>``, along with the default settings.
     |                          | rasdaman/war)     | The path where Java war files will be installed.                         |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
 
+.. _sec-download-install-build:
 
 Build
 ^^^^^
@@ -958,6 +961,7 @@ Next, execute ``make`` to compile and link rasdaman: ::
     To further improve the compilation speed, especially if you're recompiling
     rasdaman often, it can be helpful to install *ccache*.
 
+.. _sec-download-install-install:
 
 Install
 ^^^^^^^
@@ -993,6 +997,45 @@ This allows to invoke ``rasql`` without specifying the full path
 .. note::
     All paths *inside* rasdaman scripts and binaries are adjusted
     automatically during generation, so you do not need to edit any script.
+
+
+Update rasdaman
+^^^^^^^^^^^^^^^
+
+In order to be able to update your working installation in future, it is
+best to keep the cloned rasdaman repository along with the build directory.
+Otherwise updating would require following the same steps from the
+:ref:`beginning <sec-download-install>`.
+
+*Skip* to the :ref:`next section <sec-system-initialize-rasdaman>` if this is
+the first time your installing rasdaman. This section is only applicable if you
+already have a running, functional instance of rasdaman on your system.
+
+To update, first change to the rasdaman source tree which was cloned in the 
+first step, and run the following command: ::
+
+    $ git pull
+
+If you haven't changed any source files, the command should execute successfully
+and download the latest changes in the rasdaman repository since the last time
+you cloned or updated the repository.
+
+Next, the :ref:`build <sec-download-install-build>` and 
+:ref:`install <sec-download-install-install>` steps need to be repeated.
+However, rasdaman should be stopped before, and started afterwards, so that the
+updated installation is fully reflected in the running system. In addition,
+the database schema of rasdaman may need to be updated with the ``update_db.sh``
+command. In summary: ::
+
+    $ make -j2
+
+    $ stop_rasdaman.sh
+
+    $ make install
+    $ update_db.sh
+
+    $ start_rasdaman.sh
+
 
 .. _sec-system-initialize-rasdaman:
 
