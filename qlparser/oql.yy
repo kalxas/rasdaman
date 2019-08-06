@@ -3846,7 +3846,7 @@ atomicLit: BooleanLit
 	{
 	  // this should construct a complex type
 	  // for both float and double cell type
-	  if($3.bytes+$5.bytes== 2 * sizeof(int) || $3.bytes + $5.bytes == 2 * sizeof(short) || $3.bytes + $5.bytes == 2 * sizeof(long)) {
+	  if($3.bytes+$5.bytes== 2u * sizeof(int) || $3.bytes + $5.bytes == 2u * sizeof(short) || $3.bytes + $5.bytes == 2u * sizeof(long)) {
 	    $$ = new QtAtomicData($3.svalue, $5.svalue, $3.bytes + $5.bytes);
 	  } else {
 	    if(parseError) delete parseError;
@@ -3870,7 +3870,7 @@ atomicLit: BooleanLit
 	{
 	  // this should construct a complex type
 	  // for both float and double cell type
-	  if($3.bytes+$5.bytes== 2 * sizeof(int) || $3.bytes + $5.bytes == 2 * sizeof(float) || $3.bytes + $5.bytes == 2 * sizeof(double)) {
+	  if($3.bytes+$5.bytes== 2u * sizeof(int) || $3.bytes + $5.bytes == 2u * sizeof(float) || $3.bytes + $5.bytes == 2u * sizeof(double)) {
 	    $$ = new QtAtomicData($3.value, $5.value, $3.bytes + $5.bytes);
 	  } else {
 	    if(parseError) delete parseError;

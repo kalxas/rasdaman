@@ -251,9 +251,10 @@ if (RMANRASNET)
 	    # Change the URL for gmock before invoking script to build protobuf
 	    COMMAND sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" autogen.sh
             COMMAND ./autogen.sh
-            COMMAND ./configure ARGS --prefix=${PROTOBUF_BINARY_DIR} --disable-shared
+            COMMAND sh -c "CXXFLAGS=\"-O2\" ./configure --prefix=${PROTOBUF_BINARY_DIR} --disable-shared"
             COMMAND export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
-            && export MAKEFLAGS= && export MAKEOVERRIDES= && $(MAKE) -j${PROCESSOR_COUNT}
+            && export MAKEFLAGS= && export MAKEOVERRIDES=
+            && $(MAKE) -j${PROCESSOR_COUNT}
             && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
             COMMAND $(MAKE) ARGS -j install
             WORKING_DIRECTORY ${PROTOBUF_SOURCE_DIR}
@@ -293,7 +294,9 @@ if (RMANRASNET)
     GetProcessorCount(PROCESSOR_COUNT)
     add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH}
             COMMAND export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
-            && export MAKEFLAGS= && export MAKEOVERRIDES= && $(MAKE) -j${PROCESSOR_COUNT}
+            && sed -i "s|^CPPFLAGS += -g |CPPFLAGS += |" Makefile
+            && export MAKEFLAGS= && export MAKEOVERRIDES=
+            && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt
             && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
             COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH}
             WORKING_DIRECTORY ${GRPC_SOURCE_DIR}

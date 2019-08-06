@@ -37,9 +37,14 @@ std::string r_Nullvalues::toString() const
         if (ret.size() > 1) // ret == "[" at the start
             ret += ",";
 
-        ret += std::to_string(p.first);
+        // std::to_string seems to fail for nan on Ubuntu 18.04 (see #2156)
+        // so that's why this is explicitly handled here.
+        ret += !std::isnan(p.first) ? std::to_string(p.first) : "nan";
         if (p.first != p.second)
-            ret += ":" + std::to_string(p.second);
+        {
+            ret += ":";
+            ret += !std::isnan(p.second) ? std::to_string(p.second) : "nan";
+        }
     }
     ret += "]";
     return ret;
