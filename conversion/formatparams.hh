@@ -28,10 +28,13 @@ rasdaman GmbH.
 
 #include "raslib/minterval.hh"
 #include "raslib/error.hh"
+#include "conversion/colormap.hh"
 
 #include <json/json.h>
 #include <vector>
 #include <string>
+#include <map>
+#include <unordered_map>
 
 //@ManMemo: Module {\bf conversion}
 
@@ -103,6 +106,12 @@ public:
     /// true if transposing dimensions is requested
     bool isTranspose() const;
 
+    /// true if colorMap is requested
+    bool isColorMap() const;
+
+    /// object for the colorMap
+    r_ColorMap colorMapTable;
+
     /// nodata values, if there is more than 1 they are applied correspondingly to each band.
     std::vector<double> getNodata() const;
     /// nodata values, if there is more than 1 they are applied correspondingly to each band.
@@ -150,6 +159,7 @@ private:
 
     void parseJson();
     void parseTranspose();
+    void parseColorMap();
     void parseVariables();
     void parseFilepaths();
     void parseStringKeyValuesList(const std::string &key, std::vector<std::pair<std::string, std::string>> &targetVector);
@@ -183,6 +193,9 @@ private:
 
     /// true if transposing dimensions is requested
     bool transpose{false};
+
+    /// true if colorMap is requested
+    bool colorMapFlag{false};
 
     /// coordinate reference system
     std::string crs;

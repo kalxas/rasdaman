@@ -16,8 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-# rasdaman GmbH.
+# Copyright 2003 - 2019 Peter Baumann / rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -233,9 +232,9 @@ function run_test()
     export_to_file test_tmp "$f" "$fun" "$encodeopts"
 
     logn "comparing images: "
-    if [ -n "$oracle2" -a -f "$ORACLE_PATH/$f.$ext.checksum_2" ]; then
+    if [ -n "$oracle2" -a -f "$ORACLE_PATH/$f.$ext.checksum_$oracle2" ]; then
       $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
-      diff $ORACLE_PATH/$f.$ext.checksum_2 $f.$ext.result > /dev/null
+      diff $ORACLE_PATH/$f.$ext.checksum_$oracle2 $f.$ext.result > /dev/null
     elif [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
       $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
       diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
@@ -404,6 +403,12 @@ drop_colls test_tmp
 ################## png() and transpose #######################
 run_transpose_test
 
+
+############# png() and color table encode ###################
+run_test encode decode png png GreySet ', "png", ""' ', "png", "{\"colorMap\" : { \"type\":\"values\", \"colorTable\" : {\"5\" : [0,100,155], \"90\":[10,75,125],\"1\":[0,0,100]}} }"' '' "2"
+run_test encode decode png png GreySet ', "png", ""' ', "png", "{\"colorMap\" : { \"type\":\"intervals\", \"colorTable\" : {\"2\" : [250,0,0], \"90\":[0,250,0],\"200\":[0,0,250]}} }"' '' "3"
+run_test encode decode png png GreySet ', "png", ""' ', "png", "{\"colorMap\" : { \"type\":\"ramp\", \"colorTable\" : {\"2\" : [250,0,0], \"90\":[0,250,0],\"200\":[0,0,250]}} }"' '' "4"
+
 ################## png() and inv_png() #######################
 if [ "$HAVE_PNG" = ON ]; then
 run_test png inv_png png png GreySet
@@ -413,8 +418,8 @@ fi
 
 ################## bmp() and inv_bmp() #######################
 if [ "$HAVE_BMP" = ON ]; then
-run_test bmp inv_bmp bmp bmp GreySet "" "" "" "_2"
-run_test bmp decode bmp bmp GreySet "" "" "" "_2"
+run_test bmp inv_bmp bmp bmp GreySet "" "" "" "2"
+run_test bmp decode bmp bmp GreySet "" "" "" "2"
 fi
 
 ################## hdf() and inv_hdf() #######################

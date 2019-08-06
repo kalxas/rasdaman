@@ -231,7 +231,7 @@ void ServerManager::startServerGroup(const StartServerGroup &startGroup)
 
             if (srv->getGroupName() == startGroup.group_name())
             {
-                LDEBUG << "STARTING SERVER: " << srv->getGroupName();
+                LDEBUG << "Starting server: " << srv->getGroupName();
                 srv->start();
                 found = true;
 

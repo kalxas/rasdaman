@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2003-2016 Peter Baumann /
+# Copyright 2003 - 2019 Peter Baumann /
 # rasdaman GmbH.
 #
 # For more information please see <http://www.rasdaman.org>
@@ -42,6 +42,7 @@ set(CONVERSION_HEADER_FILES
         bmp.hh
         tmpfile.hh
         transpose.hh
+        colormap.hh
         )
 
 set_source_files_properties(csv.cc PROPERTIES COMPILE_FLAGS " -Wno-sign-conversion ")
@@ -64,7 +65,8 @@ add_library(conversion ${CONVERSION_HEADER_FILES}
         png.cc
         bmp.cc
         tmpfile.cc
-        transpose.cc 
+        transpose.cc
+        colormap.cc
         json.cc)
 
 set(OPTIONAL_LIBRARIES "")

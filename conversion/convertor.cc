@@ -207,6 +207,8 @@ std::string r_Convertor::type_to_string(int ctype)
         return "cint16";
     case ctype_cint32:
         return "cint32";
+    case ctype_struct:
+        return "struct {char, char, char, char}";
     default:
         LERROR << "Error: in conversion: unsupported type " << ctype;
         r_Error err(r_Error::r_Error_General);

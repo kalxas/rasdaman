@@ -36,6 +36,7 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "mymalloc/mymalloc.h"
 #include "conversion/transpose.hh"
+#include "conversion/colormap.hh"
 
 #include <logging.hh>
 #include <limits>
@@ -99,6 +100,16 @@ r_Conv_GDAL::~r_Conv_GDAL(void)
         GDALClose(poDataset);
         poDataset = NULL;
     }
+    if (formatParams.isColorMap())
+    {
+        // Deleting the image data allocated during color mapping
+        delete []desc.src;
+        desc.src = NULL;
+
+        // Deleting allocated data caused by r_Convertor::get_external_type
+        delete desc.srcType;
+        desc.srcType = NULL;
+    }
 #endif
 }
 
@@ -126,6 +137,13 @@ r_Conv_Desc &r_Conv_GDAL::convertTo(const char *options,
     if (formatParams.isTranspose())
     {
         transpose(const_cast<char *>(desc.src), desc.srcInterv, desc.srcType, formatParams.getTranspose());
+    }
+
+    if (formatParams.isColorMap())
+    {
+        desc.src = formatParams.colorMapTable.applyColorMap(desc.srcType, desc.src, desc.srcInterv, desc.baseType);
+
+        desc.srcType = r_Convertor::get_external_type(desc.baseType);
     }
 
     GDALAllRegister();

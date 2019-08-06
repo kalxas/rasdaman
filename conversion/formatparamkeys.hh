@@ -33,6 +33,7 @@ namespace FormatParamKeys
 namespace General
 {
 static const std::string TRANSPOSE{"transpose"};
+static const std::string COLORMAP{"colorMap"};
 static const std::string VARIABLES{"variables"};
 static const std::string FORMAT_PARAMETERS{"formatParameters"};
 static const std::string CONFIG_OPTIONS{"configOptions"};
@@ -50,6 +51,12 @@ static const std::string YMAX{"ymax"};
 static const std::string CRS{"crs"};
 static const std::string NODATA{"nodata"};
 static const std::string METADATA{"metadata"};
+
+namespace ColorMap
+{
+static const std::string TYPE{"type"};
+static const std::string COLORTABLE{"colorTable"};
+}
 
 namespace NetCDF
 {

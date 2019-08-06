@@ -32,6 +32,8 @@ rasdaman GmbH.
 
 using std::string;
 using std::vector;
+using std::map;
+using std::unordered_map;
 using std::pair;
 using std::make_pair;
 using std::numeric_limits;
@@ -89,6 +91,7 @@ bool r_Format_Params::isJson(string options) const
 void r_Format_Params::parseJson()
 {
     parseTranspose();
+    parseColorMap();
     parseVariables();
     parseFilepaths();
     parseStringKeyValuesList(FormatParamKeys::General::FORMAT_PARAMETERS, formatParameters);
@@ -112,6 +115,102 @@ void r_Format_Params::parseTranspose()
         }
         transposePair = make_pair(val[0].asInt(), val[1].asInt());
         transpose = true;
+    }
+}
+
+void r_Format_Params::parseColorMap()
+{
+    std::vector<double> pixelValues;
+    std::map<double, std::string> pixelValuesMap;
+    std::map<double, std::vector<unsigned char>> colorTableMap;
+    std::unordered_map<double, std::vector<unsigned char>> uColorTableMap;
+
+    const string &key = FormatParamKeys::General::COLORMAP;
+    if (params.isMember(key))
+    {
+        const Json::Value &val = params[key];
+
+        const string &type = FormatParamKeys::Encode::ColorMap::TYPE;
+        const string &colorTable = FormatParamKeys::Encode::ColorMap::COLORTABLE;
+        
+        if (val.size() != 2 || !val.isMember(type) || !val.isMember(colorTable))
+        {
+            LERROR << "parameter '" << key << "' has an invalid value(s).";
+            throw r_Error(INVALIDFORMATPARAMETER);
+        }
+
+        if (val[type].asString() == "values")
+        {
+            colorMapTable.setColorMapType(r_ColorMap::Type::VALUES);
+        }
+        else if (val[type].asString() == "intervals")
+        {
+            colorMapTable.setColorMapType(r_ColorMap::Type::INTERVALS);
+        }
+        else if (val[type].asString() == "ramp")
+        {
+            colorMapTable.setColorMapType(r_ColorMap::Type::RAMP);
+        }
+        else
+        {
+            LERROR << "Invalid colorMap type: " << val[type].asString();
+            throw r_Error(INVALIDFORMATPARAMETER);
+        }
+
+        const Json::Value &table = val[colorTable];
+
+        if (table.empty())
+        {
+            LERROR << "Empty colorTable provided.";
+            throw r_Error(INVALIDFORMATPARAMETER);
+        }
+
+        int i = 0;
+        for (Json::ValueConstIterator a = table.begin(); a != table.end(); a++, i++)
+        {
+            try
+            {
+                pixelValues.push_back(stod(a.key().asString()));
+            }
+            catch(...)
+            {
+                LERROR << "Cannot transform '" << a.key().asString() << "' to double.";
+                throw r_Error(r_Error::r_Error_Conversion);
+            }
+            pixelValuesMap[pixelValues.back()] = a.key().asString();
+        }
+        sort(pixelValues.begin(), pixelValues.end());
+
+        int nrComp = -1;
+        for (unsigned int n = 0; n < i; n++)
+        {
+            double it = pixelValues[n];
+            for (Json::Value x : table[pixelValuesMap[it]])
+            {
+                if (x.asInt() >= 0 && x.asInt() <= 255)
+                {
+                    colorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
+                    uColorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
+                }
+                else
+                {
+                    LERROR << "Entry '" << x.asInt() << "' is not whithin the interval [0, 255].";
+                    throw r_Error(INVALIDFORMATPARAMETER);
+                }
+            }
+            if (nrComp == -1)
+            {
+                nrComp = colorTableMap[pixelValues[n]].size();
+            }
+            else if (nrComp != colorTableMap[pixelValues[n]].size())
+            {
+                LERROR << "All entries in the color table must have the same number of components.";
+                throw r_Error(INVALIDFORMATPARAMETER);
+            }
+        }
+        colorMapTable.setColorTable(colorTableMap);
+        colorMapTable.setUColorTable(uColorTableMap);
+        colorMapFlag = true;
     }
 }
 
@@ -367,6 +466,11 @@ pair<int, int> r_Format_Params::getTranspose() const
 bool r_Format_Params::isTranspose() const
 {
     return transpose;
+}
+
+bool r_Format_Params::isColorMap() const
+{
+    return colorMapFlag;
 }
 
 std::vector<double> r_Format_Params::getNodata() const
