@@ -155,10 +155,10 @@ endif()
 #
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-fvisibility=hidden -O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-fvisibility=hidden -O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-fvisibility=hidden -O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_RELEASE "-fvisibility=hidden -O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 
 set(PROJECT_RASDAMAN 1)
 add_definitions(-DPROJECT_RASDAMAN)

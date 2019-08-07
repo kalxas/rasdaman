@@ -67,14 +67,8 @@ export DBCONN=@dbconn@
 log()  { echo "$PROG: $@"; }
 logn() { echo -n "$PROG: $@"; }
 error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
-check(){ [ $? ] && echo "ok." || echo "failed."; }
-feedback() {
-  if [ $? -ne 0 ]; then
-    echo "failed."; echo "$PROG: exiting." >&2; exit $RC_ERROR
-  else
-    echo ok.
-  fi
-}
+check(){ [ $? -eq 0 ] && echo "ok." || echo "failed."; }
+checkerr() { [ $? -eq 0 ] && echo "ok." || echo ""; error "failed, exiting."; }
 
 #
 # checks
@@ -176,6 +170,7 @@ else
   # commands
   export SQLITE="sqlite3 $DBCONN"
   [ -f "$DBCONN" ] || error "no '$DBCONN' database found, please run create_db.sh first."
+  [ -w "$DBCONN" ] || error "cannot update database, user $USER has no write permissions on '$DBCONN'."
   log "sqlite database to update: $DBCONN"
 
   #
@@ -204,6 +199,16 @@ else
   log "executing updates:"
   updated=0
   while [ -f "$SCRIPT_DIR/update${counter}-sqlite.sql" -o -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; do
+
+    if [ $updated -eq 0 ]; then
+      # no update executed yet, create a backup of the DB first
+      curr_datetime=$(date "+%Y-%m-%d_%H-%M-%S")
+      backup_path="$DBCONN-v$counter.$curr_datetime.bak"
+      logn "  backing up database to $backup_path... "
+      cp "$DBCONN" "$backup_path"
+      checkerr
+    fi
+
     logn "  update $counter... "
     if [ -f "$SCRIPT_DIR/update${counter}-sqlite.sh" ]; then
       sh "$SCRIPT_DIR/update${counter}-sqlite.sh"

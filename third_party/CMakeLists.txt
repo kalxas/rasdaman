@@ -221,7 +221,7 @@ set_property(TARGET ${GMOCK_LIBRARY} APPEND PROPERTY
 
 if (RMANRASNET)
     ############################################################################
-    # Begin Google Protobuf
+    # Begin Google RPC
     ############################################################################
     # TODO: Convert the Google Protobuf build process to use External Project once we give up Autotools
 
@@ -244,41 +244,6 @@ if (RMANRASNET)
     set(OLD_GMOCK_URL "https://googlemock.googlecode.com/files/gmock-1.7.0.zip")
     set(NEW_GMOCK_URL "http://rasdaman.org/chrome/site/gmock-1.7.0.zip")
 
-    # Get the number of cores we can use to build the third_party dependency.
-    GetProcessorCount(PROCESSOR_COUNT)
-
-    add_custom_command(OUTPUT ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
-	    # Change the URL for gmock before invoking script to build protobuf
-	    COMMAND sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" autogen.sh
-            COMMAND ./autogen.sh
-            COMMAND sh -c "CXXFLAGS=\"-O2\" ./configure --prefix=${PROTOBUF_BINARY_DIR} --disable-shared"
-            COMMAND export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
-            && export MAKEFLAGS= && export MAKEOVERRIDES=
-            && $(MAKE) -j${PROCESSOR_COUNT}
-            && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
-            COMMAND $(MAKE) ARGS -j install
-            WORKING_DIRECTORY ${PROTOBUF_SOURCE_DIR}
-            COMMENT "Building Google Protocol Buffers library."
-            VERBATIM)
-
-    add_custom_target(google-protobuf
-            DEPENDS ${PROTOBUF_LIBRARY_PATH})
-
-    # Set the Protobuf include directory as a system include.
-    include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
-
-    # Install the Protobuf include files to our include dir.
-    install(DIRECTORY ${PROTOBUF_INCLUDE_DIR}/
-            DESTINATION ${INCLUDE_DIR})
-
-    InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-protobuf)
-    AddExternalExecutable(${PROTOBUF_PROTOC_EXECUTABLE} ${PROTOBUF_PROTOC_EXECUTABLE_PATH} google-protobuf)
-
-    ############################################################################
-    # Begin Google RPC
-    ############################################################################
-    # TODO: Convert the GRPC build process to use External Project once we give up Autotools
-
     set(GRPC_INCLUDE_DIR ${GRPC_BINARY_DIR}/include)
 
     # GRPC Library
@@ -292,22 +257,31 @@ if (RMANRASNET)
     set(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
     GetProcessorCount(PROCESSOR_COUNT)
+
     add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH}
-            COMMAND export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
+                              ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
+            COMMAND 
+               export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
+            && sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" ${PROTOBUF_SOURCE_DIR}/autogen.sh
             && sed -i "s|^CPPFLAGS += -g |CPPFLAGS += |" Makefile
+            && sed -i "s| \./configure | CXXFLAGS=\"-O2\" ./configure |" Makefile
+            && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
+            && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile
             && export MAKEFLAGS= && export MAKEOVERRIDES=
-            && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt
+            && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
             && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
-            COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH}
+            COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
             WORKING_DIRECTORY ${GRPC_SOURCE_DIR}
             COMMENT "Building Google GRPC library."
             VERBATIM)
 
     add_custom_target(google-grpc
-            DEPENDS ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH})
-    add_dependencies(google-grpc google-protobuf)
+            DEPENDS ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${PROTOBUF_LIBRARY_PATH})
 
+    # Set the grpc/protobuf include directories as system includes
     include_directories(SYSTEM ${GRPC_INCLUDE_DIR})
+    include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
+
     install(DIRECTORY ${GRPC_INCLUDE_DIR}/
             DESTINATION ${INCLUDE_DIR})
 
@@ -321,7 +295,10 @@ if (RMANRASNET)
     set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
             IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
+    InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
+
     AddExternalExecutable(${GRPC_CPP_PLUGIN_EXECUTABLE} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH} google-grpc)
+    AddExternalExecutable(${PROTOBUF_PROTOC_EXECUTABLE} ${PROTOBUF_PROTOC_EXECUTABLE_PATH} google-grpc)
 
     # A dependency of GRPC sets this variable for some reason.
     mark_as_advanced(BUILD_TESTING)
