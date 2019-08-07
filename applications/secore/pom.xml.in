@@ -102,6 +102,14 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- java 9+ Ubuntu 18.04 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>def</finalName>

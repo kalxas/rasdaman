@@ -92,10 +92,6 @@ configure_file("${SRC_DIR}/petascope_core/pom.xml.in" "${SRC_DIR}/petascope_core
 # Do the same for the petascope_main pom.xml 
 configure_file("${SRC_DIR}/petascope_main/pom.xml.in" "${SRC_DIR}/petascope_main/pom.xml" @ONLY)
 
-
-# Do the same for log4j.properties.in
-configure_file("${LOG4J_SPRING_FILE_TEMPLATE}" "${LOG4J_SPRING_FILE}" @ONLY)
-
 # Do the same for petascope.properties.in
 configure_file("${SETTINGS_FILE_TEMPLATE}" "${SETTINGS_FILE}" @ONLY)
 

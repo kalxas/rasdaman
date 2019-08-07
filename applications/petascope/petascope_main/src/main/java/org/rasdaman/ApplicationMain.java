@@ -63,6 +63,7 @@ import petascope.util.CrsProjectionUtil;
 import petascope.util.ras.TypeRegistry;
 import petascope.wcs2.parsers.request.xml.XMLAbstractParser;
 import static org.rasdaman.config.ConfigManager.STATIC_HTML_DIR_PATH;
+import petascope.util.IOUtil;
 
 /**
  * This class initializes the petascope properties and runs the application as jar file.
@@ -259,7 +260,7 @@ public class ApplicationMain extends SpringBootServletInitializer {
 
         // As the war file can be run from terminal which has different user name (e.g: rasdaman not tomcat)
         // So must set it to 777 permission then the folder can be deleted from both external tomcat or embedded tomcat.
-        setFullDirPermissions(parentTmpLibDir);
+        IOUtil.setPathFullPermissions(parentTmpLibDir);
         
         return currentTmpLibDir;
     }
@@ -352,16 +353,6 @@ public class ApplicationMain extends SpringBootServletInitializer {
             newPaths[newPaths.length - 1] = currentTmpLibDir.getPath();
             usrPathsField.set(null, newPaths);
         }
-    }
-    
-    /**
-     * Set full directory permissions for dir.
-     * TODO: move to a FileUtil class.
-     */
-    private static void setFullDirPermissions(File dir) throws IOException, InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec("chmod -R 777 " + dir);
-        process.waitFor();
     }
     
     // -----------------------------------------------------------------------------------

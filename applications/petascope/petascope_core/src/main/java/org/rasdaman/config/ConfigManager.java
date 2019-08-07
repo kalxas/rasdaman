@@ -465,13 +465,21 @@ public class ConfigManager {
             UPLOADED_FILE_DIR_TMP = DEFAULT_DIR_TMP;
         }
         
+        try {
+            File tmpDir = new File(ConfigManager.DEFAULT_PETASCOPE_DIR_TMP);
+            FileUtils.forceMkdir(tmpDir);
+            IOUtil.setPathFullPermissions(tmpDir);
+        } catch (Exception ex) {
+            log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
+                    "', reason: " + ex.getMessage());
+        }
+        
         // setup wcs-t tmp dir
         try {
             File wcstTmpDir = new File(ConfigManager.WCST_TMP_DIR);
             FileUtils.forceMkdir(wcstTmpDir);
-            wcstTmpDir.setReadable(true, false);
-            wcstTmpDir.setWritable(true, false);
-        } catch (IOException ex) {
+            IOUtil.setPathFullPermissions(wcstTmpDir);
+        } catch (Exception ex) {
             log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
                     "', reason: " + ex.getMessage());
         }

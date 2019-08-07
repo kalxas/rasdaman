@@ -33,6 +33,8 @@ import java.util.jar.JarInputStream;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
  * I/O utility methods.
@@ -229,6 +231,20 @@ public class IOUtil {
         } catch (URISyntaxException ex) {
             log.warn("URI error", ex);
             return null;
+        }
+    }
+    
+    /**
+     * Set permissions for a file path.
+     */
+    public static void setPathFullPermissions(File file) throws PetascopeException {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process process = rt.exec("chmod -R 777 " + file);
+            process.waitFor(); 
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.IOConnectionError, "Cannot make path '" + file.getAbsolutePath() + "' with full permission. "
+                                         + "Reason: " + ex.getMessage(), ex);
         }
     }
 

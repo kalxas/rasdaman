@@ -335,8 +335,10 @@ public class TypeResolverUtil {
     public static final String R_CInt32 = "CInt32";
     // 64 bit | single precision floating point complex
     public static final String R_CFloat32 = "CFloat32";
+    public static final String R_COMPLEX = "complex";
     // 128 bit | single precision floating point complex
     public static final String R_CFloat64 = "CFloat64";
+    public static final String R_COMPLEXD = "complexd";
     public static final String R_Boolean = "boolean";
 
     //rasdaman abbreviations
@@ -430,10 +432,12 @@ public class TypeResolverUtil {
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_UnsignedLong, (byte)4);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Float, (byte)4);
         RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_Double, (byte)8);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt16, (byte)4);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt32, (byte)8);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat32, (byte)8);
-        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat64, (byte)16);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt16.toLowerCase(), (byte)4);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CInt32.toLowerCase(), (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat32.toLowerCase(), (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_COMPLEX, (byte)8);
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_CFloat64.toLowerCase(), (byte)16);                
+        RAS_TYPES_TO_NUMBER_OF_BYTES.put(R_COMPLEXD, (byte)16);
 
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Boolean, OPENGIS_BOOLEAN);
         RAS_TYPES_TO_OPENGIS_TYPES.put(R_Octet, OPENGIS_OCTET);

@@ -930,7 +930,7 @@ public class UpdateCoverageHandler {
      * @throws IOException
      * @throws WCSException
      */
-    private File getReplacementValuesFromFile(Element rangeSet) throws IOException, WCSException {
+    private File getReplacementValuesFromFile(Element rangeSet) throws IOException, WCSException, PetascopeException {
         //tuple list given as file
         String fileUrl = GMLParserService.parseFilePath(rangeSet);
         //save in a temporary file to pass to gdal and rasdaman

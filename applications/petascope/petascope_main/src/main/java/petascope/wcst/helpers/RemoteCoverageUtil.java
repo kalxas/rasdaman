@@ -29,6 +29,8 @@ import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.PetascopeException;
+import petascope.util.IOUtil;
 import petascope.wcst.exceptions.WCSTMalformedURL;
 
 /**
@@ -78,12 +80,11 @@ public class RemoteCoverageUtil {
         return result;
     }
 
-    public static File copyFileLocally(String fileUrl) throws IOException {
+    public static File copyFileLocally(String fileUrl) throws IOException, PetascopeException {
         String filePath = TEMP_FILE_PATH_PREFIX + java.util.UUID.randomUUID().toString();
-        File tmpFile = new File(filePath);
-        // Allow to read by everyone
-        tmpFile.setReadable(true, false);
+        File tmpFile = new File(filePath);        
         FileUtils.copyURLToFile(new URL(fileUrl), tmpFile);
+        IOUtil.setPathFullPermissions(tmpFile);
         return tmpFile;
     }
 

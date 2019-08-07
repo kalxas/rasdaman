@@ -143,7 +143,7 @@ trap cleanup SIGINT
 #
 # checks
 #
-if [ "$SVC_NAME" == "rasdapy" -a "$OS_VERSION" == "$OS_XENIAL" ]; then
+if [ "$SVC_NAME" == "rasdapy" -a "$OS_VERSION" == "$OS_UBUNTU1604" ]; then
   # rasdapy runs with 10s per query on Ubuntu 16.04 for an unknown reason
   exit $RC_SKIP
 fi

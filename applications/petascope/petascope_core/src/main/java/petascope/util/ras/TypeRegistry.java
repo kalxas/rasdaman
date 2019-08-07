@@ -511,7 +511,11 @@ public class TypeRegistry {
             
             for (String bandType : bandsTypes) {
                 Byte bandSize = TypeResolverUtil.RAS_TYPES_TO_NUMBER_OF_BYTES.get(bandType);
-                bandsSizes.add(bandSize);
+                if (bandSize == null) {
+                    log.error("Cannot get number of bytes for band type '" + bandType + "' from the type registry.");                    
+                } else {
+                    bandsSizes.add(bandSize);
+                }                
             }
             
             return bandsSizes;

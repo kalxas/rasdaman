@@ -119,12 +119,21 @@ TEST_SUBSETTING_3D=test_subsetting_3d
 #
 OS_UNKNOWN="unknown"
 OS_CENTOS7="centos7" # CentOS 7.x
-OS_JESSIE="jessie"   # Debian 8
-OS_STRETCH="stretch" # Debian 9
-OS_BUSTER="buster"   # Debian testing (buster)
-OS_TRUSTY="trusty"   # Ubuntu 14.04
-OS_XENIAL="xenial"   # Ubuntu 16.04
-OS_BIONIC="bionic"   # Ubuntu 18.04
+OS_DEBIAN8="debian8"   # Debian 8
+OS_DEBIAN9="debian9" # Debian 9
+OS_DEBIAN10="debian10"   # Debian 10 testing (buster)
+OS_UBUNTU1404="ubuntu1404" 
+OS_UBUNTU1410="ubuntu1410"
+OS_UBUNTU1504="ubuntu1504" 
+OS_UBUNTU1510="ubuntu1510"
+OS_UBUNTU1604="ubuntu1604" 
+OS_UBUNTU1610="ubuntu1610"
+OS_UBUNTU1704="ubuntu1704" 
+OS_UBUNTU1710="ubuntu1710"
+OS_UBUNTU1804="ubuntu1804"
+OS_UBUNTU1810="ubuntu1804"
+OS_UBUNTU1904="ubuntu1904"
+OS_UBUNTU1910="ubuntu1910"
 
 # ------------------------------------------------------------------------------
 # logging
@@ -310,14 +319,26 @@ get_os()
   else
     local version=$(lsb_release -a 2>&1 | grep Description \
       | sed 's/Description: *//' | tr -d '[:space:]')
+
     case "$version" in
-      Ubuntu14.*)       OS_VERSION=$OS_TRUSTY;;
-      Ubuntu16.*)       OS_VERSION=$OS_XENIAL;;
-      Ubuntu18.*)       OS_VERSION=$OS_BIONIC;;
-      Debian*8*)        OS_VERSION=$OS_JESSIE;;
-      Debian*9*)        OS_VERSION=$OS_STRETCH;;
-      Debian*buster*)   OS_VERSION=$OS_BUSTER;;
+      Ubuntu14.0*)       OS_VERSION=$OS_UBUNTU1404;;
+      Ubuntu14.1*)       OS_VERSION=$OS_UBUNTU1410;;
+      Ubuntu15.0*)       OS_VERSION=$OS_UBUNTU1504;;
+      Ubuntu15.1*)       OS_VERSION=$OS_UBUNTU1510;;
+      Ubuntu16.0*)       OS_VERSION=$OS_UBUNTU1604;;
+      Ubuntu16.1*)       OS_VERSION=$OS_UBUNTU1610;;
+      Ubuntu17.0*)       OS_VERSION=$OS_UBUNTU1704;;
+      Ubuntu17.1*)       OS_VERSION=$OS_UBUNTU1710;;
+      Ubuntu18.0*)       OS_VERSION=$OS_UBUNTU1804;;
+      Ubuntu18.1*)       OS_VERSION=$OS_UBUNTU1810;;
+      Ubuntu19.0*)       OS_VERSION=$OS_UBUNTU1904;;
+      Ubuntu19.1*)       OS_VERSION=$OS_UBUNTU1910;;
+      Debian*8*)        OS_VERSION=$OS_DEBIAN8;;
+      Debian*9*)        OS_VERSION=$OS_DEBIAN9;;
+      Debian*buster*)   OS_VERSION=$OS_DEBIAN10;;
     esac
+
+    echo $version
   fi
 }
 
@@ -851,6 +872,9 @@ run_test()
   # NOTE: remove input protocol extension: all queries with the same basename 
   #       shall refer to the same oracle.
   oracle="$ORACLE_PATH/${f%\.*}.oracle"
+  # If there is a special oracle file for the OS (e.g: test.oracle.ubuntu1804, then use this file as oracle)
+  [ -f "$oracle.$OS_VERSION" ] && oracle="$oracle.$OS_VERSION"
+
   out="$OUTPUT_PATH/$f.out"
   err="$OUTPUT_PATH/$f.err"
   pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
