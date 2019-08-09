@@ -27,15 +27,21 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.rasdaman.domain.cis.NilValue;
 import org.rasdaman.domain.wms.BoundingBox;
+import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.Style;
+import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +80,6 @@ import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.BigDecimalUtil;
 import petascope.util.JSONUtil;
-import static petascope.util.ras.RasConstants.RASQL_OPEN_SUBSETS;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
@@ -85,6 +90,7 @@ import petascope.wcps.metadata.model.Subset;
 import petascope.wcps.metadata.service.SubsetParsingService;
 import petascope.wcps.subset_axis.model.WcpsSubsetDimension;
 import petascope.wcps.subset_axis.model.WcpsTrimSubsetDimension;
+import petascope.wms.exception.WMSStyleNotFoundException;
 
 /**
  * Service class to build the response from a WMS GetMap request. In case of a
@@ -134,6 +140,8 @@ public class WMSGetMapService {
     private KVPWCSProcessCoverageHandler kvpWCSProcessCoverageHandler;
     @Autowired
     private SubsetParsingService subsetParsingService;
+    @Autowired
+    private CoverageRepositoryService coverageRepositoryService;
     
     // In case of nativeCrs of layer (coverage) is different from outputCrs of GetMap request, then it needs to reproject $collectionExpression from sourceCrs to targetCrs.
     private static final String COLLECTION_EXPRESSION_TEMPLATE = "$collectionExpression";
@@ -145,9 +153,14 @@ public class WMSGetMapService {
     private static final String FINAL_TRANSLATED_RASQL_TEMPLATE = "SELECT ENCODE(" + COLLECTION_EXPRESSION_TEMPLATE + ", "
                                                                 + "\"" + FORMAT_TYPE_TEMPLATE + "\", \"" + ENCODE_FORMAT_PARAMETERS_TEMPLATE + "\") FROM " + COLLECTIONS_TEMPLATE;
     private static final String OVERLAY = " OVERLAY ";
-    private static final String ALIAS_NAME = "c";
-    private static final String WCPS_COVERAGE_ALIAS = "$c";
-    private static final String RASQL_FRAGMENT_ITERATOR = "$Iterator";
+    private static final String FRAGMENT_ITERATOR_PREFIX = "$";
+    private static final String COLLECTION_ITERATOR = "c";
+    private static final String WCPS_FRAGMENT_ITERATOR = FRAGMENT_ITERATOR_PREFIX + "c";
+    private static final String RASQL_FRAGMENT_ITERATOR = FRAGMENT_ITERATOR_PREFIX + "Iterator";
+    
+    private static final Pattern LAYER_ITERATOR_PATTERN = Pattern.compile("\\" + FRAGMENT_ITERATOR_PREFIX + "[a-zA-Z0-9_]+");
+    private static final String WCPS_FRAGMENT_TYPE = "WCPS";
+    private static final String RASQL_FRAGMENT_TYPE = "RASQL";
     
     private static final String NATIVE_CRS = "$nativeCRS";
     
@@ -358,7 +371,7 @@ public class WMSGetMapService {
      */
     private Map<String, List<TranslatedGridDimensionSubset>> translateGridDimensionsSubsetsLayers() throws PetascopeException, SecoreException {
         // First, parse all the dimension subsets (e.g: time=...,dim_pressure=....) as one parsed dimension subset is one of layer's overlay operator's operand.
-        Map<String, List<TranslatedGridDimensionSubset>> translatedSubsetsAllLayersMap = new HashMap<>();
+        Map<String, List<TranslatedGridDimensionSubset>> translatedSubsetsAllLayersMap = new LinkedHashMap<>();
 
         // NOTE: a GetMap requests can contain multiple layers (e.g: layers=Layer_1,Layer_2)
         // If a subset dimension (e.g: time=...) does not exist in one of the layer, it is not a problem.
@@ -455,8 +468,8 @@ public class WMSGetMapService {
      * Create a list of Rasql collection expressions' string representations for a specific layer.
      * 
      */
-    private List<String> createCollectionExpressionsLayer(String layerName, String aliasName, int index,
-                                                          List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets, String nativeCRS) throws PetascopeException, SecoreException {
+    private Pair<String, Map<String, String>> createCollectionExpressionsLayer(Map<String, String> iteratorsMap, int layerIndex, String layerName, String styleName, 
+                                                                               List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets) throws PetascopeException, SecoreException, WMSStyleNotFoundException, WCPSException {
         List<String> coverageExpressionsLayer = new ArrayList<>();
         
         // e.g: time="2015-05-12"&dim_pressure=20/30
@@ -467,45 +480,33 @@ public class WMSGetMapService {
 
             // CoverageExpression is the main part of a Rasql query builded from the current layer and style
             // e.g: c1 + 5, case c1 > 5 then {0, 1, 2}
-            String coverageExpression;
-            // NOTE: This one is used temporarily for generating Rasql query from fragments, it will not be showed in final Rasql query
-            String aliasNameTemp = "GENERATED_COLLECTION_ALIAS_" + index;
-
-            for (String styleName : this.styleNames) {
-
-                Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
-                String styleExpression = "";
-                if (style == null) {
-                    // no complex coverage expression (e.g: c[0:50,0:20] - 5) just simple subsetted coverage expression c[0:50,0:20]
-                    coverageExpression = aliasNameTemp;
-                } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
-                    // wcpsQueryFragment
-                    coverageExpression = this.buildCoverageExpressionByWCPSQueryFragment(aliasNameTemp, layerName, styleName);
-                    styleExpression = style.getWcpsQueryFragment();
-                } else {
-                    // rasqlTransformFragment
-                    coverageExpression = this.buildCoverageExpressionByRasqlTransformFragment(aliasNameTemp, layerName, styleName);
-                    styleExpression = style.getRasqlQueryTransformFragment();
-                }
-
-                // Normally, apply the trimming subset for each coverage iterator
-                // e.g: style is $c + 5 then rasql will be: c[0:20,0:30] + 5
-                // NOTE: select c0 + udf.c0test() only should replace c0 with c0[0:20, 30:40] not udf.c0test to udf.c0[0:20, 30:40]test
-                String valueToReplace = aliasName + gridSpatialDomain;
-
-                // NOTE: if WMS style already contains "[" (e.g: condense + over $ts t( imageCrsDomain($c[ansi:"CRS:1"(0:3)], ansi) ) using $c[ansi($ts)])
-                // It means user already picked the grid domains to be translated in WCPS query, don't add the additional subsets from bbox anymore.
-                if (styleExpression.contains(RASQL_OPEN_SUBSETS)) {
-                    valueToReplace = aliasName;
-                }
-                coverageExpression = coverageExpression.replace(aliasNameTemp, valueToReplace);
-
-                // Add the translated Rasql query for the style to combine later
-                coverageExpressionsLayer.add("( " + coverageExpression + " )");
+            String collectionExpression = null;
+            Layer layer = this.wmsRepostioryService.readLayerByNameFromCache(layerName);
+            
+            if (!StringUtils.isEmpty(styleName) && layer.getStyle(styleName) == null) {
+                throw new WMSStyleNotFoundException(styleName, layerName);
             }
+
+            Style style = layer.getStyle(styleName);
+
+            if (style == null) {
+                String collectionIterator = COLLECTION_ITERATOR + layerIndex;
+                collectionExpression = collectionIterator + gridSpatialDomain;
+                iteratorsMap.put(layerName, collectionIterator);
+            } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
+                // wcpsQueryFragment
+                collectionExpression = this.buildCoverageExpressionByWCPSQueryFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
+            } else {
+                // rasqlTransformFragment                
+                collectionExpression = this.buildCoverageExpressionByRasqlTransformFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
+            }
+
+            // Add the translated Rasql query for the style to combine later
+            coverageExpressionsLayer.add("( " + collectionExpression + " )");
         }
         
-        return coverageExpressionsLayer;
+        Pair<String, Map<String, String>> resultPair = new Pair<>(ListUtil.join(coverageExpressionsLayer, OVERLAY), iteratorsMap);
+        return resultPair;
     }
     
     /**
@@ -523,6 +524,23 @@ public class WMSGetMapService {
         }
         
         return true;
+    }
+    
+    /**
+     *  From the Set of coverage (layer) names, return 
+     * e.g: Sentinel2_B4 AS c0, Sentienl2_B8 as c1
+     */
+    private String builRasqlFromExpression(Map<String, String> iteratatorsMap) throws PetascopeException, SecoreException {
+        List<String> collectionAlias = new ArrayList<>();
+        for (Map.Entry<String, String> entry : iteratatorsMap.entrySet()) {
+            String coverageId = entry.getKey().replace(FRAGMENT_ITERATOR_PREFIX, "");
+            String collectionname = createWcpsCoverageMetadataForDownscaledLevel(coverageId).getRasdamanCollectionName();
+            // e.g: Sentinel2_B4 as c0
+            collectionAlias.add(collectionname + " AS " + entry.getValue().replace(FRAGMENT_ITERATOR_PREFIX, ""));
+        }
+        
+        String result = ListUtil.join(collectionAlias, ", ");
+        return result;
     }
      
     /**
@@ -550,9 +568,6 @@ public class WMSGetMapService {
                 this.fitBBoxToCoverageGeoXYBounds(this.extendedFittedGeoBBbox);
             }
             
-            List<String> collectionAlias = new ArrayList<>();
-            int i = 0;
-            
             // First, parse all the dimension subsets (e.g: time=...,dim_pressure=....) as one parsed dimension subset is one of layer's overlay operator's operand.
             Map<String, List<TranslatedGridDimensionSubset>> translatedSubsetsAllLayersMap = this.translateGridDimensionsSubsetsLayers();            
             List<String> finalCollectionExpressions = new ArrayList<>();            
@@ -561,9 +576,17 @@ public class WMSGetMapService {
             
             WcpsCoverageMetadata wcpsCoverageMetadata = null;
             
+            Map<String, String> iteratorsMap = new LinkedHashMap<>();
+            
+            int styleIndex = 0;
+            int layerIndex = 0;
+                        
             for (Map.Entry<String, List<TranslatedGridDimensionSubset>> entry : translatedSubsetsAllLayersMap.entrySet()) {
                 String layerName = entry.getKey();
-                
+                String styleName = null;
+                if (this.styleNames.size() > 0) {
+                    styleName = this.styleNames.get(styleIndex);
+                }
                 wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
                 
                 // NOTE: the nodata values are fetched from coverage which has largest number of bands because the output also have the same bands
@@ -579,19 +602,12 @@ public class WMSGetMapService {
                 String nativeCRS = CrsUtil.getEPSGCode(xyAxes.get(0).getNativeCrsUri());
                 List<TranslatedGridDimensionSubset> translatedGridDimensionSubsets = entry.getValue();
                 
-                String aliasName = ALIAS_NAME + "" + i;
-                // a layer is equivalent to a rasdaman collection
-                String collectionName = wcpsCoverageMetadata.getRasdamanCollectionName();
-                collectionAlias.add(collectionName + " as " + aliasName);
-                
                 // Apply style if necessary on the geo subsetted coverage expressions and translate to Rasql collection expressions
-                List<String> collectionExpressionsLayer = this.createCollectionExpressionsLayer(layerName, aliasName, i, translatedGridDimensionSubsets, nativeCRS);
+                Pair<String, Map<String, String>> collectionExpressionsLayerPair = this.createCollectionExpressionsLayer(iteratorsMap, layerIndex, layerName, styleName, translatedGridDimensionSubsets);
                 
-                // Now create a final coverageExpression which combines all the translated coverageExpression for styles with the OVERLAY operator            
-                String combinedCollectionExpression = ListUtil.join(collectionExpressionsLayer, OVERLAY);
                 // e.g: (c + 1)[0:20, 30:45]
-                String subsetCollectionExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, combinedCollectionExpression);
-                
+                String subsetCollectionExpression = SUBSET_COVERAGE_EXPRESSION_TEMPLATE.replace(COLLECTION_EXPRESSION_TEMPLATE, collectionExpressionsLayerPair.fst);
+                iteratorsMap.putAll(collectionExpressionsLayerPair.snd);
                 String finalCollectionExpressionLayer;
                 
                 if (!isProjection) {
@@ -601,22 +617,31 @@ public class WMSGetMapService {
                 }
                 
                 finalCollectionExpressions.add( " ( " + finalCollectionExpressionLayer + " ) ");
-                i++;
+                styleIndex++;
+                layerIndex++;
             }
             
+            
             // Now, create the final Rasql query from all WMS layers
-            String finalCollectionExpressionLayers = ListUtil.join(finalCollectionExpressions, OVERLAY);
+            // NOTE: WMS request first layer is always on top, rasdaman is reversed (a overlay b, then b is ontop of a)
+            String finalCollectionExpressionLayers = "";
+            for (int i = finalCollectionExpressions.size() - 1; i >= 0; i--) {
+                finalCollectionExpressionLayers += finalCollectionExpressions.get(i);
+                if (i > 0) {
+                    finalCollectionExpressionLayers += " " + OVERLAY + " ";
+                }
+            }
 
             String formatType = MIMEUtil.getFormatType(this.format);
-            String collections = ListUtil.join(collectionAlias, ", ");
+            String collections = this.builRasqlFromExpression(iteratorsMap);
             String encodeFormatParameters = this.createEncodeFormatParameters(nodataValues, wcpsCoverageMetadata);
             
             // Create the final Rasql query for all layers's styles of this GetMap request.
             String finalRasqlQuery = FINAL_TRANSLATED_RASQL_TEMPLATE
-                    .replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayers)
-                    .replace(ENCODE_FORMAT_PARAMETERS_TEMPLATE, encodeFormatParameters)
-                    .replace(FORMAT_TYPE_TEMPLATE, formatType)
-                    .replace(COLLECTIONS_TEMPLATE, collections);
+                                .replace(COLLECTION_EXPRESSION_TEMPLATE, finalCollectionExpressionLayers)
+                                .replace(ENCODE_FORMAT_PARAMETERS_TEMPLATE, encodeFormatParameters)
+                                .replace(FORMAT_TYPE_TEMPLATE, formatType)
+                                .replace(COLLECTIONS_TEMPLATE, collections);
             
             bytes = RasUtil.getRasqlResultAsBytes(finalRasqlQuery);
         } catch (PetascopeException | SecoreException ex) {
@@ -677,8 +702,7 @@ public class WMSGetMapService {
         SerializationEncodingService.addColorPalleteToJSONExtraParamIfPossible(this.format, coverageMetadata, jsonExtraParams);
         
         
-        String encodeFormatParameters = "";
-        encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
+        String encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
         encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");
         
         return encodeFormatParameters;
@@ -1041,12 +1065,68 @@ public class WMSGetMapService {
      *
      * @return
      */
-    private String buildCoverageExpressionByRasqlTransformFragment(String coverageAlias, String layerName, String styleName) throws PetascopeException {
-        String coverageExpression = null;
+    private String buildCoverageExpressionByRasqlTransformFragment(Map<String, String> iteratorsMap, String layerName,
+                                                                   String styleName, String gridSpatialDomain) throws PetascopeException {
         Style style = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName);
-        coverageExpression = style.getRasqlQueryTransformFragment().replace(RASQL_FRAGMENT_ITERATOR, coverageAlias);
-
-        return coverageExpression;
+        String rasqlQueryFragment = style.getRasqlQueryTransformFragment();
+        String rasqlQueryFragmentUpdated = this.updateStyleQueryByLayerIterators(RASQL_FRAGMENT_TYPE, iteratorsMap, layerName, rasqlQueryFragment);
+        String collectionExpression = rasqlQueryFragmentUpdated;
+        
+        for (String collectionAlias : iteratorsMap.values()) {
+            // e.g: c0 -> c0[0:30, 30:50]
+            collectionExpression = collectionExpression.replace(collectionAlias, collectionAlias + gridSpatialDomain);
+        }
+        
+        return collectionExpression;
+    }
+    
+        
+    /**
+     * Extract all iterators (starting with $) from query fragment (e.g: $c, $Iterator, $LAYER_NAME)
+     */
+    private String updateStyleQueryByLayerIterators(String fragmentType, Map<String, String> iteratorsMap, String layerName, String queryFragment) throws PetascopeException {        
+        
+        StringBuffer stringBuffer = new StringBuffer();        
+        Matcher matcher = LAYER_ITERATOR_PATTERN.matcher(queryFragment);
+        int i = 0;
+        while (matcher.find()) {
+            // e.g: $Iterator, $Sentinel2_B4
+            String iterator = matcher.group(0);
+            
+            if (iterator.equals(WCPS_FRAGMENT_ITERATOR) || iterator.equals(RASQL_FRAGMENT_ITERATOR)) {
+                iterator = FRAGMENT_ITERATOR_PREFIX + layerName;
+            }
+            
+            boolean newValue = false;
+            if (iteratorsMap.isEmpty()) {
+                newValue = true;
+            } else if (!iteratorsMap.containsKey(iterator)) {
+                newValue = true;
+                i++;
+            }
+            
+            String replacement = WCPS_FRAGMENT_ITERATOR + i;
+            
+            if (!newValue) {
+                replacement = iteratorsMap.get(iterator);
+            }
+            if (fragmentType.equals(RASQL_FRAGMENT_TYPE)) {
+                replacement = replacement.replace(FRAGMENT_ITERATOR_PREFIX, "");
+            }
+            
+            // e.g: axis iterator $px, $py only in WCPS query fragment, they are not coverage iterators
+            if (this.coverageRepositoryService.readCoverageBasicMetadataByIdFromCache(iterator.replace(FRAGMENT_ITERATOR_PREFIX, "")) != null) {
+                matcher.appendReplacement(stringBuffer, iterator.replace(iterator,  replacement).replace(FRAGMENT_ITERATOR_PREFIX, "\\" + FRAGMENT_ITERATOR_PREFIX));
+            
+                // e.g: $Sentinel2_B4 -> $co, $Sentinel2_B8 -> $c1
+                if (newValue) {
+                    iteratorsMap.put(iterator, replacement);
+                }
+            }
+        }
+        
+        matcher.appendTail(stringBuffer);           
+        return stringBuffer.toString();
     }
 
     /**
@@ -1055,23 +1135,43 @@ public class WMSGetMapService {
      * (select encode(coverageExpression, "png")) from this rasql.
      *
      */
-    private String buildCoverageExpressionByWCPSQueryFragment(String coverageAlias, String layerName, String styleName) throws WCPSException, PetascopeException {
-        // Create a dummy WCPS query, just to extract the translated coverageExpression in Rasql (select encode(coverageExpression, "png") from layerName.
-        final String WCPS_QUERY_TEMPLATE = "for " + WCPS_COVERAGE_ALIAS + " in (" + layerName + ") return encode($coverageExpression, \"png\")";
+    private String buildCoverageExpressionByWCPSQueryFragment(Map<String, String> iteratorsMap, String layerName, String styleName, String gridDomain) throws WCPSException, PetascopeException {
         String wcpsQueryFragment = this.wmsRepostioryService.readLayerByNameFromCache(layerName).getStyle(styleName).getWcpsQueryFragment();
-        String wcpsQuery = WCPS_QUERY_TEMPLATE
-                .replace("$coverageExpression", wcpsQueryFragment);
+        String wcpsQueryFragmentUpdated = this.updateStyleQueryByLayerIterators(WCPS_FRAGMENT_TYPE, iteratorsMap, layerName, wcpsQueryFragment);
+        
+        List<String> forExpressions = new ArrayList<>();
+        List<String> coverageAliasNames = new ArrayList<>();
+        
+        for (Map.Entry<String, String> entry : iteratorsMap.entrySet()) {
+            String coverageId = entry.getKey().replace(FRAGMENT_ITERATOR_PREFIX, "");
+            String coverageAliasTmp = entry.getValue();                       
+            String forExpression = coverageAliasTmp + " IN (" + coverageId + ")";
+            forExpressions.add(forExpression);
 
-        // NOTE: wcpsQueryFragment uses "$c" as coverage alias (rasqlTransformFragment uses "$Iterator")
-        wcpsQuery = wcpsQuery.replace(WCPS_COVERAGE_ALIAS, coverageAlias);
+            coverageAliasNames.add(coverageAliasTmp);              
+        }
+        
+        // Create a dummy WCPS query, just to extract the translated coverageExpression in Rasql (select encode(coverageExpression, "png") from layerName.
+        String WCPS_QUERY_TEMPLATE = "FOR " + ListUtil.join(forExpressions, ", ") + " RETURN ENCODE( $coverageExpression, \"png\" )";
+        String wcpsQuery = WCPS_QUERY_TEMPLATE.replace("$coverageExpression", wcpsQueryFragmentUpdated);
         log.debug("Generated a WCPS query for wcpsQueryFragment '" + wcpsQuery + "'.");
 
         // Generate a Rasql query from the WCPS
         String rasqlTmp = this.kvpWCSProcessCoverageHandler.buildRasqlQuery(wcpsQuery);
-        // Then extract the coverageExpression inside of output Rasql
-        String coverageExpression = rasqlTmp.substring(rasqlTmp.indexOf("encode(") + 7, rasqlTmp.indexOf(", \"png\""));
+        // Then extract the collectionExpression from encode() of rasql query
+        String collectionExpression = rasqlTmp.substring(rasqlTmp.indexOf("encode(") + 7, rasqlTmp.indexOf(", \"png\""));
+        
+        // NOTE: if WMS style already contains "[" (e.g: condense + over $ts t( imageCrsDomain($c[ansi:"CRS:1"(0:3)], ansi) ) using $c[ansi($ts)])
+        // It means user already picked the grid domains to be translated in WCPS query, don't add the additional subsets from bbox anymore.
+        if (!collectionExpression.contains("[")) {
+            for (String coverageAliasNameTmp : coverageAliasNames) {
+                coverageAliasNameTmp = coverageAliasNameTmp.replace(FRAGMENT_ITERATOR_PREFIX, "");
+                // e.g: replace $c0 + 5 by c0[0:20,0:30] + 5
+                collectionExpression = collectionExpression.replace(coverageAliasNameTmp, coverageAliasNameTmp + gridDomain);
+            }
+        }
 
-        return coverageExpression;
+        return collectionExpression;
     }
     
     /**

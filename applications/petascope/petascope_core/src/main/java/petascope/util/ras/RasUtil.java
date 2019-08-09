@@ -482,7 +482,7 @@ public class RasUtil {
      */
     public static String retrieveTilingInfo(String collectionName, long oid) throws PetascopeException {
         String query = "select dbinfo(c) from " + collectionName + " as c where oid(c) = " + oid;
-        String dbinfoResult = new RasQueryResult(RasUtil.executeRasqlQuery(query)).toString();
+        String dbinfoResult = new RasQueryResult(RasUtil.executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, false)).toString();
         // Parse the result for "tiling" value, e.g:  "tiling": { "tilingScheme": "aligned", "tileSize": "4194304", "tileConfiguration": "[0:500,0:500]" }
 
         ObjectMapper mapper = new ObjectMapper();

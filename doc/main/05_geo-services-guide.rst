@@ -1027,7 +1027,7 @@ abstract and layer provided in the KVP parameters below
 
 - WCPS query fragment example (since rasdaman 9.5): ::
 
-    http://localhot:8080/rasdaman/ows?
+    http://localhost:8080/rasdaman/ows?
         service=WMS&
         version=1.3.0&
         request=InsertStyle&
@@ -1052,6 +1052,37 @@ abstract and layer provided in the KVP parameters below
    The variable ``$Iterator`` will be replaced with the actual name of the rasdaman
    collection and the whole fragment will be integrated inside the regular
    ``GetMap`` request.
+
+-  Since *v9.8.1*, it is possible to use multiple layers in a style definition. 
+   Besides the iterators ``$c`` in WCPS query fragments and ``$Iterator`` in rasql
+   query fragments, which always refer to the current layer, other layers
+   can be referenced by name using an iterator of the form `$LAYER_NAME` in the
+   style expression. 
+  
+   Example: create a WCPS query fragment style referencing 2 layers
+   (``$c`` refers to layer *sentinel2_B4* which defines the style): ::
+
+    http://localhost:8080/rasdaman/ows?
+        service=WMS&
+        version=1.3.0&
+        request=InsertStyle&
+        name=BandsCombined&
+        layer=sentinel2_B4&
+        abstract=This style needs 2 layers&
+        wcpsQueryFragment=$c + $sentinel2_B8
+
+   Then, in any `GetMap` request using this style, 
+   the result will be obtained from the combination of the 2 layers: 
+   *sentinel2_B4* and *sentinel2_B8*: ::
+
+    http://localhost:8080/rasdaman/ows?
+        service=WMS&
+        version=1.3.0&
+        request=GetMap&
+        layers=sentinel2_B4&
+        bbox=-44.975,111.975,-8.975,155.975&width=800&height=600&crs=EPSG:4326&
+        format=image/png&transparent=true&
+        styles=BandsCombined
 
 **Removal**
 

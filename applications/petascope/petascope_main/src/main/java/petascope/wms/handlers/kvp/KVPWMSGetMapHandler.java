@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.rasdaman.domain.wms.BoundingBox;
 import org.rasdaman.domain.wms.Layer;
-import org.rasdaman.domain.wms.Style;
 import org.rasdaman.repository.service.WMSRepostioryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ import petascope.wms.exception.WMSInvalidInterpolation;
 import petascope.wms.exception.WMSInvalidWidth;
 import petascope.wms.exception.WMSLayerNotExistException;
 import petascope.wms.exception.WMSMissingRequestParameter;
-import petascope.wms.exception.WMSStyleNotFoundException;
+import petascope.wms.exception.WMSStyleNotMatchLayerNumbersException;
 import petascope.wms.exception.WMSUnsupportedFormatException;
 import petascope.wms.handlers.service.WMSGetMapCachingService;
 import petascope.wms.handlers.service.WMSGetMapExceptionService;
@@ -109,29 +108,6 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
         String[] stylesParam = kvpParameters.get(KVPSymbols.KEY_WMS_STYLES);
         if (stylesParam == null) {
             throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_STYLES);
-        } else {
-            // NOTE: if Styles=&format=image/png, so styles is empty for all the requesting layers (use the first style of layers)        
-            if (!stylesParam[0].isEmpty()) {
-                String[] styleNames = stylesParam[0].split(",");
-                for (int i = 0; i < styleNames.length; i++) {
-                    String styleName = styleNames[i];
-                    // Each map in the list of LAYERS is drawn using the corresponding style in the same position in the list of STYLES.
-                    // Style must exist in one of layers' styles.
-                    boolean styleExists = false;
-                    for (int j = 0; j < layers.size(); j++) {
-                        Layer layer = layers.get(j);
-                        Style style = layer.getStyle(styleName);
-                        if (style != null) {
-                            styleExists = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!styleExists) {
-                        throw new WMSStyleNotFoundException(styleName);
-                    }
-                }
-            }
         }
 
         // CRS (mandatory)
@@ -216,8 +192,17 @@ public class KVPWMSGetMapHandler extends KVPWMSAbstractHandler {
 
             // Collect all the parameters (mandatory)
             List<String> layerNames = ListUtil.valuesToList(kvpParameters.get(KVPSymbols.KEY_WMS_LAYERS)[0].split(","));
-            List<String> styleNames = ListUtil.valuesToList(kvpParameters.get(KVPSymbols.KEY_WMS_STYLES)[0].split(","));
-            // Do some other validations for the styles
+            
+            List<String> styleNames = new ArrayList<>();
+            String styleValue = kvpParameters.get(KVPSymbols.KEY_WMS_STYLES)[0];
+            if (!styleValue.isEmpty()) {
+                styleNames = ListUtil.valuesToList(styleValue.split(","));
+            }
+            
+            // All layers can use one default style (styles=) or each layer will need its own style (layers=L1,L2,L3&styles=s1,s2,s3)
+            if (!styleNames.isEmpty() && (layerNames.size() != styleNames.size())) {
+                throw new WMSStyleNotMatchLayerNumbersException(layerNames.size(), styleNames.size());
+            }
 
             String outputCRS = kvpParameters.get(KVPSymbols.KEY_WMS_CRS)[0];
             String bboxParam = kvpParameters.get(KVPSymbols.KEY_WMS_BBOX)[0];

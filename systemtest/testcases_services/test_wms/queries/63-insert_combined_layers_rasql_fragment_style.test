@@ -1,0 +1,7 @@
+service=WMS&
+version=1.3.0&
+request=InsertStyle&
+name=ERROR_STYLE&
+layer=test_wms_4326&
+abstract=This style needs 2 layers to process&
+wcpsQueryFragment=$c + $THIS_LAYER_DOES_NOT_EXIST

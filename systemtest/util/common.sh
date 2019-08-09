@@ -337,8 +337,6 @@ get_os()
       Debian*9*)        OS_VERSION=$OS_DEBIAN9;;
       Debian*buster*)   OS_VERSION=$OS_DEBIAN10;;
     esac
-
-    echo $version
   fi
 }
 

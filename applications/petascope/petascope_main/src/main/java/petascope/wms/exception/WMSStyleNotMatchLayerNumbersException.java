@@ -14,7 +14,7 @@
   *  You should have received a copy of the GNU  General Public License
   *  along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
   * 
-  *  Copyright 2003 - 2018 Peter Baumann / rasdaman GmbH.
+  *  Copyright 2003 - 2019 Peter Baumann / rasdaman GmbH.
   * 
   *  For more information please see <http://www.rasdaman.org>
   *  or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -25,21 +25,15 @@ import org.jetbrains.annotations.NotNull;
 import petascope.exceptions.WMSException;
 
 /**
- * Exception to be thrown when a WMS style of a layer does not exist from
- * persistent database.
+ * Exception to be thrown when number of requesting styles does not match
+ * with number of requesting layers
  *
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
-public class WMSStyleNotFoundException extends WMSException {
+public class WMSStyleNotMatchLayerNumbersException extends WMSException {
 
-    /**
-     * Constructor for the class
-     *
-     * @param styleName
-     * @param layerName
-     */
-    public WMSStyleNotFoundException(String styleName, String layerName) {
-        super(ERROR_MESSAGE_ONE_LAYER.replace("$styleName", styleName).replace("$layerName", layerName));
+    public WMSStyleNotMatchLayerNumbersException(Integer numberOfLayers, Integer numberOfStyles) {
+        super(ERROR_MESSAGE_ONE_LAYER.replace("$NUMBER_OF_LAYERS", numberOfLayers.toString()).replace("$NUMBER_OF_STYLES", numberOfStyles.toString()));
     }
 
     @NotNull
@@ -48,6 +42,6 @@ public class WMSStyleNotFoundException extends WMSException {
         return EXCEPTION_CODE;
     }
 
-    private final static String ERROR_MESSAGE_ONE_LAYER = "The given style name '$styleName' of layer '$layerName' does not exist in database.";
-    private final static String EXCEPTION_CODE = "StyleNotFound";
+    private final static String ERROR_MESSAGE_ONE_LAYER = "Number of given layers ($NUMBER_OF_LAYERS) does not match the number of styles ($NUMBER_OF_STYLES).";
+    private final static String EXCEPTION_CODE = "StyleLayerNumberMismatch";
 }

@@ -470,7 +470,7 @@ public class ConfigManager {
             FileUtils.forceMkdir(tmpDir);
             IOUtil.setPathFullPermissions(tmpDir);
         } catch (Exception ex) {
-            log.error("Cannot create WCS-T temp directory '" + ConfigManager.WCST_TMP_DIR + 
+            log.error("Cannot create petascope temp directory '" + ConfigManager.DEFAULT_PETASCOPE_DIR_TMP + 
                     "', reason: " + ex.getMessage());
         }
         
