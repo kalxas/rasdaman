@@ -135,6 +135,33 @@ function run_transpose_test()
 }
 
 # ------------------------------------------------------------------------------
+#function running the variables test
+#
+function run_variables_test()
+{
+    log ----- variables test ------
+
+    create_coll test_tmp GreySet
+    $RASQL -q 'insert into test_tmp values decode($1, "GDAL", "{\"variables\": [0]}")' \
+           -f $TESTDATA_PATH/rgb.png --quiet > /dev/null 2>&1
+    $RASQL -q 'select encode(m, "png", "" ) from test_tmp as m' \
+           --out file --outfile rgb --quiet > /dev/null
+
+    logn "comparing images: "
+    if [ -f "$ORACLE_PATH/rgb.png.checksum_2" ]; then
+      $GDALINFO rgb.png | grep 'Checksum' > rgb.png.result
+      diff $ORACLE_PATH/rgb.png.checksum_2 rgb.png.result > /dev/null
+    else
+      cmp $TESTDATA_PATH/rgb.png rgb.png > /dev/null
+    fi
+
+    check_result 0 $? "input and output match"
+
+    drop_colls test_tmp
+    rm -f rgb*
+}
+
+# ------------------------------------------------------------------------------
 #function running the scalar csv encoding test now that the output style should be enforced
 #
 function run_csv_scalar_test()
@@ -403,6 +430,9 @@ drop_colls test_tmp
 ################## png() and transpose #######################
 run_transpose_test
 
+####################### variables ############################
+run_test encode decode png png RGBSet ', "GDAL", "{\"variables\":[2,1,0]}"' ', "png", ""'
+run_variables_test
 
 ############# png() and color table encode ###################
 run_test encode decode png png GreySet ', "png", ""' ', "png", "{\"colorMap\" : { \"type\":\"values\", \"colorTable\" : {\"5\" : [0,100,155], \"90\":[10,75,125],\"1\":[0,0,100]}} }"' '' "2"

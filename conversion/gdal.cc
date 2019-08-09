@@ -652,7 +652,6 @@ vector<int> r_Conv_GDAL::getBandIds()
                 LERROR << "band id '" << bandId << "' out of range 0 - " << (poDataset->GetRasterCount() - 1) << ".";
                 throw r_Error(INVALIDFORMATPARAMETER);
             }
-            ret.push_back(bandId);
         }
     }
     return ret;
