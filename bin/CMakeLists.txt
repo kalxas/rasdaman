@@ -74,5 +74,4 @@ install_log_file(log-server.conf ${CONF_DIR})
 install_log_file(log-rasmgr.conf ${CONF_DIR})
 
 # Copy the error text files.
-install(FILES errtxts_en errtxts_de errtxts_fr errtxts
-        DESTINATION ${SHARE_DATA_DIR})
+install(FILES errtxts DESTINATION ${SHARE_DATA_DIR})
