@@ -29,8 +29,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)rasodmg/test,SystemCompare: $Id: system_compare.cc,v 1.3 2002/07/16 07:42:36 hoefner Exp $";
-
 #include "config.h"
 
 #ifdef EARLY_TEMPLATE

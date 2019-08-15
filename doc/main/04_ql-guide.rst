@@ -3878,22 +3878,6 @@ encode
       // transposed, e.g. the first axis is 0, second is 1, etc; must be contiguous, [N,N+1]
       "transpose": [0,1],
 
-      // colorMap consists of two components: 
-      // type: can be one of "values", "intervals" or "ramp"
-      // colorTable: a map of pixelValue: colorValue, where pixelValue is any number, and 
-      // colorValue is an array of 1, 3 or 4 unsigned chars (1 value when the desired result
-      // is grey scale, 3 when it's RGB, 4 when it's RGBA). 
-      // All colorValues must have the same number of components, all 1 entry, all 3 entries 
-      // or all 4 entries, no mixes.
-      "colorMap": {
-        "type": "values",       
-        "colorTable": {
-          "-1": [255, 255, 255, 0],
-          "-0.5": [125, 125, 125, 255],
-          "1": [0, 0, 0, 255] 
-        } 
-      },
-
       // geo-referencing information, can be either given as a geo bounding box or an
       // array of GCPs (but not both); see 'Affine GeoTransform' and 'GCPs' sections
       // at http://www.gdal.org/gdal_datamodel.html
@@ -3930,6 +3914,20 @@ encode
       // special floating-point constants supported (case-sensitive):
       // NaN, NaNf, Infinity, -Infinity
       "nodata": 0,
+
+      // Specify a colorMap to be applied to the array before encoding:
+      // - type: can be one of "values", "intervals" or "ramp"
+      // - colorTable: a map of pixelValue/colorValue pairs, where pixelValue is any number,
+      //   and colorValue is an array of 1, 3 or 4 8-bit unsigned integers for greyscale, RGB,
+      //   or RGBA output respectively. All colorValues must have the same number of components.
+      "colorMap": {
+        "type": "values",       
+        "colorTable": {
+          "-1": [255, 255, 255, 0],
+          "-0.5": [125, 125, 125, 255],
+          "1": [0, 0, 0, 255] 
+        } 
+      },
 
       // for more details see "Color Table" at http://www.gdal.org/gdal_datamodel.html
       "colorPalette": {
@@ -3986,76 +3984,89 @@ Coloring Arrays
 ^^^^^^^^^^^^^^^
 
 Depending on the type, a ``colorMap`` changes the pixel values of the array 
-argument of encode according to the following rules: 
+argument of encode according to the following rules.
 
-- If the colorMap type = "values", each pixel is replaced by the entry in the 
-  colorTable where the key is the pixel value. In the example below, it means 
-  that all pixels with value -1 are replaced by 255, 255, 255, 0. Pixels with 
-  values not present in the colorTable are not rendered: they are replaced 
-  with a color having all components set to 0. 
+**Values**
+
+If the colorMap type is ``"values"``, each pixel is replaced by the entry in the 
+colorTable where the key is the pixel value. In the example below, it means 
+that all pixels with value -1 are replaced by [255, 255, 255, 0]. Pixels with 
+values not present in the colorTable are not rendered: they are replaced 
+with a color having all components set to 0.
   
-  .. code-block:: json
+.. code-block:: json
 
-    "colorMap": {
-      "type": "values",       
-      "colorTable": {
-        "-1": [255, 255, 255, 0],
-        "-0.5": [125, 125, 125, 255],
-        "1": [0, 0, 0, 255] 
-      } 
-    }
+  "colorMap": {
+    "type": "values",       
+    "colorTable": {
+      "-1": [255, 255, 255, 0],
+      "-0.5": [125, 125, 125, 255],
+      "1": [0, 0, 0, 255] 
+    } 
+  }
 
-- If type = "intervals", all pixels with values between 2 consecutive entries 
-  are rendered using the color of the first (lowest-value) entry. Pixels with 
-  values equal to or less than the minimum value are rendered with the bottom 
-  color (and opacity). Pixels with values equal to or great than the maximum 
-  value are rendered with the top color and opacity. 
+**Intervals**
 
-  .. code-block:: json
+If type is ``"intervals"``, all pixels with values between two consecutive entries 
+are rendered using the color of the first (lowest-value) entry. Pixels with 
+values equal to or less than the minimum value are rendered with the bottom 
+color (and opacity). Pixels with values equal to or greater than the maximum 
+value are rendered with the top color and opacity. 
 
-    "colorMap": {
-      "type": "intervals",       
-      "colorTable": {
-        "-1": [255, 255, 255, 0],
-        "-0.5": [125, 125, 125, 255],
-        "1": [0, 0, 0, 255] 
-      } 
-    }
+.. code-block:: json
 
-  In this case, all pixels with values in the interval (-inf, -0.5) get replaced 
-  with 255, 255, 255, 0. All pixels in the interval [-0.5, 1) get replaced with 
-  125, 125, 125, 255. All pixels with value ≥ 1 get replaced with 0, 0, 0, 255.
-- If type = "ramp": same as "intervals", but instead of using the color of the 
-  lowest value entry, linear interpolation between the lowest value entry and 
-  highest value entry, based on the pixel value, is performed. 
-  
-  .. code-block:: json
+  "colorMap": {
+    "type": "intervals",       
+    "colorTable": {
+      "-1": [255, 255, 255, 0],
+      "-0.5": [125, 125, 125, 255],
+      "1": [0, 0, 0, 255] 
+    } 
+  }
 
-    "colorMap": {
-      "type": "ramp",       
-      "colorTable": {
-        "-1": [255, 255, 255, 0],
-        "-0.5": [125, 125, 125, 255],
-        "1": [0, 0, 0, 255] 
-      } 
-    }
+In this case, all pixels with values in the interval (-inf, -0.5) are replaced 
+with [255, 255, 255, 0], pixels in the interval [-0.5, 1) are replaced with 
+[125, 125, 125, 255], and pixels with value >= 1 are replaced with [0, 0, 0, 255].
 
-  Pixels with value -0.75 are replaced with color 189, 189, 189, 127, because 
-  they sit in the middle of the distance between -1 and -0.5, so they get, on 
-  each channel, the color value in the middle. 
-  The interpolation formula for a pixel of value x, where 2 consecutive entries 
-  in the colorTable a,b with a ≤ x < b, is: ::
+**Ramp**
 
-    resultColor = ((b - x) / (b - a)) * colorTable[b] + ((x - a) / (b - a)) * colorTable[a]
+If type = "ramp", handling is same as "intervals", but instead of using the color 
+of the lowest value entry, linear interpolation between the lowest value entry and 
+highest value entry, based on the pixel value, is performed. 
 
-  For the example above, a = -1, x = -0.75, b = -0.5, colorTable[a] = 255, 255, 255, 0, 
-  colorTable[b] = 125, 125, 125, 255, so: ::
+.. code-block:: json
 
-    resultColor = (-0.5 + 0.75) / (-0.5 + 1) * [255, 255, 255, 0] + (-0.75 + 1) / 
-    (-0.5 + 1) * [125, 125, 125, 255] = 0.5 * [255, 255, 255, 0] + 0.5 * 
-    [125, 125, 125, 255] = [127, 127, 127, 0] + [62, 62, 62, 127] = [189, 189, 189, 127]
+  "colorMap": {
+    "type": "ramp",       
+    "colorTable": {
+      "-1": [255, 255, 255, 0],
+      "-0.5": [125, 125, 125, 255],
+      "1": [0, 0, 0, 255] 
+    } 
+  }
 
-  Note the integer division, because the colors are of type unsigned char. 
+Pixels with value -0.75 are replaced with color [189, 189, 189, 127], because 
+they sit in the middle of the distance between -1 and -0.5, so they get, on 
+each channel, the color value in the middle. 
+The interpolation formula for a pixel of value x, where 2 consecutive entries 
+in the colorTable :math:`a, b` with :math:`a \le x \le b`, is:
+
+.. math::
+
+  resultColor = \frac{b - x}{b - a} * colorTable[b] + \frac{x - a}{b - a} * colorTable[a]
+
+For the example above, a = -1, x = -0.75, b = -0.5, colorTable[a] = [255, 255, 255, 0], 
+colorTable[b] = [125, 125, 125, 255], so:
+
+.. math::
+
+  resultColor &= \frac{-0.5 + 0.75}{-0.5 + 1} * [255, 255, 255, 0] +
+  \frac{-0.75 + 1}{-0.5 + 1} * [125, 125, 125, 255] \\
+              &= 0.5 * [255, 255, 255, 0] + 0.5 * [125, 125, 125, 255] \\
+              &= [127, 127, 127, 0] + [62, 62, 62, 127] \\
+              &= [189, 189, 189, 127] \\
+
+Note the integer division, because the colors are of type unsigned char. 
 
 
 Examples
@@ -4072,7 +4083,7 @@ Examples
 
 3. Add some global attribute as metadata in netcdf: ::
 
-    select encode(c, "netcdf", "{ \"transpose\": [1,0], \"nodata\": [100, 200, 260],
+    select encode(c, "netcdf", "{ \"transpose\": [1,0], \"nodata\": [100],
         \"metadata\": { \"new_metadata\": \"This is a new added metadata\" },
         \"formatParameters\": {\"INTERLEAVE\": \"BAND\"},
         \"configOptions\": { \"GDAL_CACHEMAX\": \"64\"} }")

@@ -41,8 +41,7 @@ rasdaman GmbH.
 
 
 public class RasIndexOutOfBoundsException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasIndexOutOfBoundsException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasIndexOutOfBoundsException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // lower bound
     private long low;
     // upper bound

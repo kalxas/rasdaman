@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtONCStream: $Id: qtoncstream.cc,v 1.10 1997/09/04 14:34:46 ritsch Exp $";
-
 #include "config.h"
 #include "qlparser/qtoncstream.hh"
 

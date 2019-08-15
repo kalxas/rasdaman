@@ -21,8 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-static const char rcsid[] = "@(#)raslib, r_Minterval_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/mintervaltype.cc,v 1.6 2003/12/27 23:01:21 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/mintervaltype.hh"
 

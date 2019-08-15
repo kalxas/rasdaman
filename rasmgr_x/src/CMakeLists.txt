@@ -179,6 +179,8 @@ target_link_libraries(rasmgr_lib rasnet commline common_crypto
 add_executable(rasmgr main.cc)
 target_link_libraries(rasmgr rasmgr_lib)
 
+cotire(rasmgr rasmgr_lib)
+
 # Install rasmgr 
 install(TARGETS rasmgr
         DESTINATION ${BIN_DIR})

@@ -54,7 +54,7 @@ void OId::initialize()
         }
         else
         {
-            LERROR << "Expected " << OId::maxCounter << "rows in RAS_COUNTERS, but found only " << i << ". "
+            LERROR << "Expected " << OId::maxCounter << " rows in RAS_COUNTERS, but found only " << i << ". "
                     << "Most likely you need to stop rasdaman, run update_db.sh, and start rasdaman again.";
             throw r_Error(DATABASE_INCONSISTENT);
         }

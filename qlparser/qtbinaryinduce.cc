@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtBinaryInduce: $Id: qtbinaryinduce.cc,v 1.47 2003/12/27 20:39:35 rasdev Exp $";
-
 #include "config.h"
 #include "debug.hh"
 

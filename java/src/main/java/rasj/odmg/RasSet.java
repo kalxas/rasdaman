@@ -44,8 +44,7 @@ import java.util.*;
 public class RasSet extends RasCollection implements DSet
 
 {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasSet: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasSet.java,v 1.7 2003/12/19 15:42:56 rasdev Exp $";
-
+    
     Set content;
 
     /**

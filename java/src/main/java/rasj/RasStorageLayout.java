@@ -44,8 +44,7 @@ rasdaman GmbH.
 public class RasStorageLayout
 
 {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasStorageLayout: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasStorageLayout.java,v 1.10 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**
      * Default tile size in kBytes. This value is currently set
      * to 128000 and is used if the user has not specified

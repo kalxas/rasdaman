@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtIntervalData: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtintervaldata.cc,v 1.10 2005/09/03 20:17:55 rasdev Exp $";
-
 using namespace std;
 
 using namespace std;

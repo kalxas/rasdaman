@@ -41,8 +41,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: blobtile.ec,v 1.8 2003/12/27 23:19:03 rasdev Exp $";
-
 #include <stdio.h>
 #include <stdlib.h>             /* atoi */
 #include <set>

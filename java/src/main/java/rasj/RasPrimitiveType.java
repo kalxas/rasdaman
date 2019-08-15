@@ -42,8 +42,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasPrimitiveType extends RasBaseType implements RasGlobalDefs {
-    static final String rcsid = "@(#)Package rasj, class RasPrimitiveType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasPrimitiveType.java,v 1.8 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     private String rasTypeName = null;
 
     public RasPrimitiveType() {

@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtNode: $Id: qtnode.cc,v 1.27 2002/06/05 18:18:17 coman Exp $";
-
 #include "config.h"
 #include "qlparser/qtnode.hh"
 #include "catalogmgr/typefactory.hh"

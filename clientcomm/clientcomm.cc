@@ -30,8 +30,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)clientcomm, ClientComm: $Id: clientcomm.cc,v 1.145 2006/01/03 21:39:21 rasdev Exp $";
-
 using namespace std;
 
 #include "config.h"

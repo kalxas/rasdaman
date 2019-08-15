@@ -65,8 +65,6 @@ QtMDD::QtMDD(MDDObj *ptr)
     {
         loadDomain = ptr->getDefinitionDomain();
     }
-
-    collType = NULL;
 }
 
 

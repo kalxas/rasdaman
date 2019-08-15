@@ -130,8 +130,6 @@ public:
     /// print status of the object to the specified stream
     virtual void printStatus(std::ostream &stream = std::cout) const;
 
-
-
 private:
     /// prevents from using the default constructor
     QtMDD() {};

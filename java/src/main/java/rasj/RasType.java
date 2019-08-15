@@ -44,8 +44,7 @@ rasdaman GmbH.
 
 
 public class RasType {
-    static final String rcsid = "@(#)Package rasj, class RasType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasType.java,v 1.10 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     protected String typeName;
     protected int typeID;
 

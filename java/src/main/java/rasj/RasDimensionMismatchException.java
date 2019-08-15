@@ -40,8 +40,7 @@ rasdaman GmbH.
 
 
 public class RasDimensionMismatchException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasDimensionMismatchException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasDimensionMismatchException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // first dimensionality
     private long dim1;
     // second dimensionality

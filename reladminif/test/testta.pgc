@@ -36,8 +36,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-static const char rcsid[] = "@(#)reladminif,TransactionIf: $Id: testta.pgc,v 1.6 2003/12/27 23:11:43 rasdev Exp $";
-
 #define DEBUG_MAIN
 #include "debug.hh"
 

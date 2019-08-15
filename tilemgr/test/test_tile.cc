@@ -34,8 +34,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)cachetamgr,test_tile: $Id: test_tile.cc,v 1.26 2002/08/30 11:51:22 coman Exp $";
-
 #include <stdlib.h>
 #include <iostream>
 #include <time.h>
@@ -715,8 +713,6 @@ main(int argc , char* argv[])
 
     ta.begin(&database);
 
-    cout << "These tests were done with:" << endl
-         << "  " << rcsid << endl;
     cout << "This protocol was created on:" << endl << "  ";
     printTime();
     cout << endl;

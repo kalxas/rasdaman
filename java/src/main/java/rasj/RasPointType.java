@@ -42,7 +42,6 @@ rasdaman GmbH.
 
 
 public class RasPointType extends RasType {
-    static final String rcsid = "@(#)Package rasj, class RasPointType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasPointType.java,v 1.4 2003/12/10 21:04:23 rasdev Exp $";
-
+    
 
 }

@@ -29,8 +29,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)rasodmg/test,SystemInsert: $Id: system_insert.cc,v 1.10 2002/03/13 13:48:17 coman Exp $";
-
 #include "config.h"
 
 #ifdef EARLY_TEMPLATE

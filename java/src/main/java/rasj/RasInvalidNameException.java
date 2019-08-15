@@ -38,8 +38,7 @@ rasdaman GmbH.
 
 
 public class RasInvalidNameException extends RasRuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasInvalidNameException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasInvalidNameException.java,v 1.3 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     String wrongName = null;
 
     public RasInvalidNameException(String name) {

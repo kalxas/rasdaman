@@ -45,8 +45,7 @@ import java.lang.*;
  *
  */
 public final class RasUtils implements RasCommDefs {
-    static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasUtils: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/clientcommhttp/RasUtils.java,v 1.5 2003/12/10 21:04:26 rasdev Exp $";
-
+    
     public RasUtils() {
     }
 

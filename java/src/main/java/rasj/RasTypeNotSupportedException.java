@@ -40,8 +40,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasTypeNotSupportedException extends RasRuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasDimensionMismatchException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasTypeNotSupportedException.java,v 1.3 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // the unknown type
     private String rType = null;
 

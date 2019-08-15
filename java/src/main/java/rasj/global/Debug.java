@@ -86,8 +86,7 @@ import java.lang.System;
  */
 
 public class Debug {
-    static final String rcsid = "@(#)Package rasj.global, class Debug: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/Debug.java,v 1.2 2006/01/19 18:24:16 rasdev Exp $";
-
+    
     //
     // debug threshold levels (constant defs):
     //

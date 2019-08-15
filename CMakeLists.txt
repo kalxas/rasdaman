@@ -87,6 +87,11 @@ include(cmake/Functions.cmake)
 # Check for functions and symbols needed by rasdaman
 include(cmake/CheckForRequiredSymbols.cmake)
 
+# Cotire (compile time reducer) is a CMake module that speeds up the build process of 
+# CMake based build systems by fully automating techniques as precompiled header usage 
+# and single compilation unit builds for C and C++. https://github.com/sakra/cotire
+include(cotire)
+
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -143,6 +148,13 @@ set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wno-unused -Wno-unused-parameter -W
 set(RDYNAMIC_FLAG "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using Clang
+    set(ENABLE_MSAN OFF CACHE BOOL "Use MemorySanitizer (compile with -fsanitize=memory).")
+    if (ENABLE_MSAN)
+        set(SANITIZER_FLAG "-fsanitize=memory -fsanitize=undefined -lubsan")
+        message(STATUS "MemorySanitizer enabled (-DENABLE_MSAN=${ENABLE_MSAN}).")
+    endif ()
+    set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wthread-safety")
+    set(RDYNAMIC_FLAG "-Wl,--export-dynamic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wlogical-op -Wno-long-long")
     set(COMPILER_WARNINGS "${COMPILER_WARNINGS} -Wnoexcept -Wstrict-null-sentinel")
@@ -155,10 +167,10 @@ endif()
 #
 # Set compiler flags
 #
-SET(CMAKE_CXX_FLAGS_DEBUG "-fvisibility=hidden -O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_DEBUG "-fvisibility=hidden -O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_CXX_FLAGS_RELEASE "-fvisibility=hidden -O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
-SET(CMAKE_C_FLAGS_RELEASE "-fvisibility=hidden -O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_DEBUG "-O0 -g -ggdb3 -gdwarf-2 -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize -fno-omit-frame-pointer -pthread ${USE_LLD} ${SANITIZER_FLAG} ${RDYNAMIC_FLAG}")
 
 set(PROJECT_RASDAMAN 1)
 add_definitions(-DPROJECT_RASDAMAN)

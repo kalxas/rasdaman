@@ -58,6 +58,8 @@ if (RMANRASNET)
     add_executable(rascontrol rascontrol_main.cc)
     target_link_libraries(rascontrol rascontrol_lib)
 
+    cotire(rascontrol rascontrol_lib)
+
     # Install rascontrol
     install(TARGETS rascontrol
             DESTINATION ${BIN_DIR})

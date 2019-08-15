@@ -46,8 +46,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasIllegalULongValueException extends RasRuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasIllegalULongValueException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasIllegalULongValueException.java,v 1.3 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // the base type
     long illegalValue = 0;
 

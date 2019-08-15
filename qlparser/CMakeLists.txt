@@ -132,5 +132,7 @@ target_link_libraries(qlparser ${OPTIONAL_LIBRARIES} common_geo)
 # The qlparser depends on clientcomm and servercomm because somebody included the generated RPC files.
 add_dependencies(qlparser clientcomm servercomm catalogmgr)
 
+#cotire(qlparser)
+
 install(TARGETS qlparser
         DESTINATION ${LIB_DIR})

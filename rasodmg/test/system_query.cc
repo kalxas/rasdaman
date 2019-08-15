@@ -29,8 +29,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsid[] = "@(#)rasodmg/test,SystemQuery: $Id: system_query.cc,v 1.11 2002/07/30 07:16:23 hoefner Exp $";
-
 #include "config.h"
 
 #ifdef EARLY_TEMPLATE

@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtPointData: $Id: qtpointdata.cc,v 1.7 2005/09/03 20:17:55 rasdev Exp $";
-
 using namespace std;
 
 using namespace std;

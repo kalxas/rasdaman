@@ -41,8 +41,7 @@ rasdaman GmbH.
 
 
 public class RasTypeInvalidException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasTypeInvalidException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasTypeInvalidException.java,v 1.7 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // the base type
     String bType = null;
 

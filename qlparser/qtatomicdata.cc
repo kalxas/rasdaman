@@ -27,8 +27,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtAtomicData: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtatomicdata.cc,v 1.18 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtatomicdata.hh"
 #include "relcatalogif/basetype.hh"

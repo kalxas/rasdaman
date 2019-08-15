@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtComplexData: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtcomplexdata.cc,v 1.12 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtcomplexdata.hh"
 #include "relcatalogif/structtype.hh"

@@ -27,8 +27,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtDelete: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtdelete.cc,v 1.14 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtdelete.hh"
 #include "qlparser/qtdata.hh"

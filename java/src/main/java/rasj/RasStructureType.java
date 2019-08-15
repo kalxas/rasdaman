@@ -43,8 +43,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasStructureType extends RasBaseType {
-    static final String rcsid = "@(#)Package rasj, class RasStructureType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasStructureType.java,v 1.8 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     private RasBaseType[] baseTypes;
     private String[] attributes;
 

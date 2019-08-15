@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtcondenseop.cc,v 1.18 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/rmdebug.hh"
 
@@ -378,8 +376,7 @@ QtCondenseOp::evaluateInducedOp(QtDataList *inputList, BinaryOp *cellBinOp, r_Mi
 {
     auto qlInducedCondenseOp = std::unique_ptr<QLInducedCondenseOp>(
                                    new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName));
-    auto result = QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp.get(), domain);
-    return result;
+    return QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp.get(), domain);
 }
 
 void

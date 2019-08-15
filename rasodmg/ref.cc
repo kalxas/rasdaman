@@ -30,8 +30,6 @@ rasdaman GmbH.
  *      None
 */
 
-static const char rcsidref[] = "@(#)rasodmg, r_Ref: $Id: ref.cc,v 1.28 2002/08/28 12:10:18 coman Exp $";
-
 #include "config.h"
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"

@@ -46,8 +46,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasGMArray extends RasObject implements RasGlobalDefs {
-    static final String rcsid = "@(#)Package rasj, class RasGMArray: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasGMArray.java,v 1.26 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /** spatial domain */
     protected RasMInterval domain;
 

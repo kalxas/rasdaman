@@ -160,8 +160,7 @@ import java.util.*;
 
 public class RasHttpRequest implements RasCommDefs, RasGlobalDefs {
 
-    static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasRequest: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/clientcommhttp/RasHttpRequest.java,v 1.35 2003/12/19 15:36:43 rasdev Exp $";
-
+    
     /**
      * The type of this client */
     private String client = "RASCLIENT";

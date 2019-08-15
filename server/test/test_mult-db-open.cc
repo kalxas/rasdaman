@@ -29,8 +29,6 @@ rasdaman GmbH.
  * COMMENTS:
  *
  ************************************************************/
-
-static const char rcsid[] = "@(#)exportutils,ExportData: $Id: exporttif.cc,v 1.1 2003/12/27 21:44:18 rasdev Exp $";
 #include "version.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"

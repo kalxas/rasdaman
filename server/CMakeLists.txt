@@ -45,6 +45,8 @@ if (RMANRASNET)
     target_link_libraries(rasserver rasnetserver rasnet)
 endif (RMANRASNET)
 
+# cotire(rasserver)
+
 install(TARGETS rasserver
         DESTINATION ${BIN_DIR})
         

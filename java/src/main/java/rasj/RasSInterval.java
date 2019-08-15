@@ -216,8 +216,7 @@ rasdaman GmbH.
 
 
 public class RasSInterval {
-    static final String rcsid = "@(#)Package rasj, class RasSInterval: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasSInterval.java,v 1.7 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**Attributes storing the bounds:*/
     long lowerBound;
     long upperBound;

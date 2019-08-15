@@ -40,8 +40,7 @@ rasdaman GmbH.
 
 
 public class RasResultIsNoIntervalException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasResultIsNoIntervalException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasResultIsNoIntervalException.java,v 1.6 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**
      * Standard constructor.
      **/

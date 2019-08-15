@@ -48,8 +48,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-static const char rcsid[] = "@(#)commline,cmlparser: $Id: cmlparser.cc,v 1.5 2006/01/17 07:50:07 rasdev Exp $";
-
 const char *CommandLineParserVersion = "1.0 (c) 2003 Dr. Peter Baumann";
 
 //#############################################################

@@ -21,8 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-static const char rcsid[] = "@(#) raslib, r_Attribute: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/attribute.cc,v 1.11 2003/12/27 23:01:21 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/attribute.hh"
 #include "raslib/basetype.hh"

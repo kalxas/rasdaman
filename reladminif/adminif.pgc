@@ -32,8 +32,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-static const char rcsid[] = "@(#)reladminif,AdminIf: $Id: adminif.ec,v 1.6 2003/12/27 23:11:43 rasdev Exp $";
-
 #include "config.h"
 #include "debug-srv.hh"
 #include "sqlerror.hh"

@@ -31,8 +31,6 @@ rasdaman GmbH.
 */
 
 
-static const char rcsidset[] = "@(#)rasodmg, r_Set: $Id: set.cc,v 1.17 2002/08/23 11:18:44 schatz Exp $";
-
 #include "config.h"
 #include "rasodmg/set.hh"
 

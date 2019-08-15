@@ -37,8 +37,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-static const char rcsid[] = "@(#)reladminif,SQLError: $Id: sqlerror.ec,v 1.4 2003/12/27 23:11:43 rasdev Exp $";
-
 // #define SQLCA_STORAGE_CLASS extern
 
 #include "config.h"

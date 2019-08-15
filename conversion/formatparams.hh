@@ -33,8 +33,6 @@ rasdaman GmbH.
 #include <json/json.h>
 #include <vector>
 #include <string>
-#include <map>
-#include <unordered_map>
 
 //@ManMemo: Module {\bf conversion}
 

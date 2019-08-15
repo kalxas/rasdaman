@@ -34,8 +34,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9 2003/12/27 23:11:43 rasdev Exp $";
-
 using namespace std;
 
 #include <iostream.h>

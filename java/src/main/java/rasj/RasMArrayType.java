@@ -43,8 +43,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasMArrayType extends RasType {
-    static final String rcsid = "@(#)Package rasj, class RasMArrayType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasMArrayType.java,v 1.8 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     private RasBaseType baseType;
 
     /**

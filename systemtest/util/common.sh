@@ -47,8 +47,7 @@ UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
 --passwd $RASMGR_ADMIN_PASSWD"
-export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD \
---database $RASDB"
+export DIRECTQL="directql --user $RASMGR_ADMIN_USER --passwd $RASMGR_ADMIN_PASSWD"
 export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/rasql.py \
 --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
 --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"

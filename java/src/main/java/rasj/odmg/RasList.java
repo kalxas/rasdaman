@@ -44,8 +44,7 @@ import java.util.*;
 public class RasList extends RasCollection implements DList
 
 {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasList: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasList.java,v 1.3 2003/12/19 15:42:56 rasdev Exp $";
-
+    
     List content;
 
     /**

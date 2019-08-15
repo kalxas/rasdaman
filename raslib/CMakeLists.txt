@@ -72,6 +72,8 @@ target_link_libraries(raslib
         stdc++
         m)
 
+# cotire(raslib)
+
 install(TARGETS raslib
         DESTINATION ${LIB_DIR})
 

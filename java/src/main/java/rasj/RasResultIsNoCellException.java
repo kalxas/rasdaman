@@ -42,8 +42,7 @@ rasdaman GmbH.
 
 
 public class RasResultIsNoCellException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasResultIsNoCellException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasResultIsNoCellException.java,v 1.5 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**
      * Standard constructor.
      **/

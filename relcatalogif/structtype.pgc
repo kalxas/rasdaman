@@ -35,8 +35,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)catalogif,StructType: $Header: /home/rasdev/CVS-repository/rasdaman/relcatalogif/structtype.ec,v 1.4 2003/12/27 23:23:04 rasdev Exp $";
-
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";
 

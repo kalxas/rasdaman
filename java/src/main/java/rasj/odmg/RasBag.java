@@ -43,8 +43,7 @@ import java.util.*;
  * @version $Revision: 1.3 $
  */
 public class RasBag extends RasCollection implements DBag {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasBag: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasBag.java,v 1.3 2003/12/19 15:42:56 rasdev Exp $";
-
+    
     List content;
 
     /**

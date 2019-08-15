@@ -45,8 +45,7 @@ import java.util.*;
 public abstract class RasCollection extends AbstractCollection implements DCollection //extends RasObject
 
 {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasCollection: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasCollection.java,v 1.5 2003/12/19 15:42:56 rasdev Exp $";
-
+    
     public RasCollection() {
     }
 

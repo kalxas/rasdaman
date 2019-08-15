@@ -35,8 +35,6 @@ rasdaman GmbH.
  * - convertTo() writes a temp file; this should be omitted for performance reasons
 */
 
-static const char rcsid[] = "@(#)conversion,r_Conv_DEM: $Id: dem.cc,v 1.10 2005/09/08 12:59:26 rasdev Exp $";
-
 #include "config.h"
 #include "conversion/dem.hh"
 

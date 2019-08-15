@@ -29,8 +29,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QLMarrayOp, QLCondenseOp: $Header: /home/rasdev/CVS-repository/rasdaman/catalogmgr/algebraops.cc,v 1.5 2003/12/20 23:41:27 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/rmdebug.hh"
 

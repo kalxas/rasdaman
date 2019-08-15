@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtcommand.cc,v 1.21 2005/09/03 20:17:55 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtcommand.hh"
 #include "mddmgr/mddcoll.hh"

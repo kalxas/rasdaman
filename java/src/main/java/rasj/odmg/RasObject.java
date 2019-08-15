@@ -39,8 +39,7 @@ import rasj.global.*;
 import org.odmg.*;
 
 public class RasObject implements RasGlobalDefs {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasObject: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasObject.java,v 1.9 2003/12/10 21:04:30 rasdev Exp $";
-
+    
     /**
      * stores object name if it has one
      */

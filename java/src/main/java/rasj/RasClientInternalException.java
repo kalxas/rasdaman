@@ -41,8 +41,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasClientInternalException extends RasRuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasClientInternalException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     private int errNo = 0;
     private String errText = null;
     private String cName = null;

@@ -30,8 +30,6 @@ rasdaman GmbH.
  *          None
 */
 
-static const char rcsid[] = "@(#)rasodmg, r_Transaction: $Id: transaction.cc,v 1.38 2005/09/03 20:39:35 rasdev Exp $";
-
 
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__

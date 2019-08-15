@@ -33,8 +33,6 @@ rasdaman GmbH.
  *
 */
 
-static const char rcsid[] = "@(#)blobif,test_mddops: $Id: test_mddops.cc,v 1.10 2002/09/03 14:46:50 coman Exp $";
-
 #include <stdlib.h>
 #include <iostream>
 #include "o2lib_CC.hxx"

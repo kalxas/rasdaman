@@ -20,8 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-static const char rcsid[] = "@(#)commline,functest: $Id: functest.cc,v 1.1 2005/09/15 12:55:37 rasdev Exp $";
-
 #include<cmlparser.hh>
 
 using std::cout;

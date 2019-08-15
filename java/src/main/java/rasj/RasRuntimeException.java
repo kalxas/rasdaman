@@ -41,8 +41,7 @@ rasdaman GmbH.
 
 
 public abstract class RasRuntimeException extends RuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasRuntimeException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasRuntimeException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     protected int errNo = 0;
     protected String errText = null;
 

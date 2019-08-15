@@ -56,8 +56,7 @@ import rasj.clientcommhttp.*;
 
 public class TestHttp implements RasCommDefs, RasGlobalDefs {
 
-    static final String rcsid = "@(#)Package rasj.test, class TestHttp: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/test/TestHttp.java,v 1.1 2003/12/19 16:05:43 rasdev Exp $";
-
+    
 
     /**
      * The type of this client

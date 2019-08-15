@@ -30,19 +30,17 @@ rasdaman GmbH.
  *
 */
 
-static const char rcsid[] = "@(#)raslib, r_PointDouble: $Id: r_PointDouble.cc,v 1.22 2002/08/28 11:58:13 coman Exp $";
-
-#include "config.h"
 #include "pointdouble.hh"
+#include "raslib/error.hh"
+
+#include <logging.hh>
 
 #include <string.h>
 #include <iomanip>
 #include <sstream>
 #include <math.h>
 
-#include <logging.hh>
 
-#include "raslib/error.hh"
 using namespace std;
 
 r_PointDouble::r_PointDouble(r_Dimension dim)

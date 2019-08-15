@@ -20,8 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-repository/rasdaman/catalogmgr/ops.cc,v 1.67 2003/12/20 23:41:27 rasdev Exp $";
-
 #include "config.h"
 #include <limits.h>
 #include <string.h> // memcpy()

@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtIterator: $Id: qtiterator.cc,v 1.20 2001/08/14 10:48:17 rastest Exp $";
-
 #include <logging.hh>
 
 #include "config.h"

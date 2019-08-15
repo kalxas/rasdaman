@@ -30,8 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtNaryOperation: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtnaryoperation.cc,v 1.13 2003/12/27 20:51:28 rasdev Exp $";
-
 #include "config.h"
 #include "qlparser/qtnaryoperation.hh"
 #include "qlparser/qtconst.hh"

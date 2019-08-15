@@ -32,8 +32,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-static const char rcsidcollection[] = "@(#)rasodmg, r_Collection: $Id: collection.cc,v 1.53 2005/07/06 23:30:22 rasdev Exp $";
-
 #include "config.h"
 #include "raslib/collectiontype.hh"
 

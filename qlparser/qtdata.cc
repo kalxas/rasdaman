@@ -27,8 +27,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rcsid[] = "@(#)qlparser, QtData: $Id: qtdata.cc,v 1.17 2002/06/05 18:18:17 coman Exp $";
-
 #include "config.h"
 #include "qlparser/qtdata.hh"
 #include <logging.hh>

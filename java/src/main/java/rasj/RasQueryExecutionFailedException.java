@@ -42,8 +42,7 @@ rasdaman GmbH.
 
 
 public class RasQueryExecutionFailedException extends QueryInvalidException {
-    static final String rcsid = "@(#)Package rasj, class RasQueryExecutionFailedException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasQueryExecutionFailedException.java,v 1.10 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     /**
      * the official RasDaMan error number
      */

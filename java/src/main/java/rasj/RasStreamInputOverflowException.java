@@ -42,8 +42,7 @@ rasdaman GmbH.
 
 
 public class RasStreamInputOverflowException extends RasException {
-    static final String rcsid = "@(#)Package rasj, class RasStreamInputOverflowException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasStreamInputOverflowException.java,v 1.5 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**
      * Standard constructor.
      */

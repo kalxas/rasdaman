@@ -35,8 +35,7 @@ rasdaman GmbH.
 package rasj.global;
 
 public interface RasGlobalDefs {
-    static final String rcsid = "@(#)Package rasj, class RasGlobalDefs: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/global/RasGlobalDefs.java,v 1.23 2006/01/17 23:49:11 rasdev Exp $";
-
+    
     // rasj version string (similar to executables startup message) -- can't we get rasdaman version info automatically?
     // static final String RASJ_VERSION = "rasj: rasdaman Java API. rasdaman v5.1revC -- generated Mit Jun 25 10:46:59 CEST 2003.";
     static final String RASJ_VERSION = "rasj: rasdaman Java API. rasdaman " + Version.VERSION + " -- generated " + Version.DATE + ".";

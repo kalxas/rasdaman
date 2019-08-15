@@ -40,8 +40,7 @@ import java.util.*;
  * class represents an object identifier
  */
 public class RasOID {
-    static final String rcsid = "@(#)Package rasj.odmg, class RasOID: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/odmg/RasOID.java,v 1.5 2003/12/10 21:04:30 rasdev Exp $";
-
+    
     /**
      * system name
      */

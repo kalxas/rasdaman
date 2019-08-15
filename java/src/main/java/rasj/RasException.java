@@ -41,8 +41,7 @@ rasdaman GmbH.
 
 
 public class RasException extends Exception {
-    static final String rcsid = "@(#)Package rasj, class RasException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasException.java,v 1.6 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     protected int errNo = 0;
     protected String errText = null;
 

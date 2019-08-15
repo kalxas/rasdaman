@@ -21,8 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-static const char rcsid[] = "@(#)commline,test_cml.cc: $Id: test_cml.cc,v 1.3 2005/12/21 23:02:06 rasdev Exp $";
-
 #include "cmlparser.hh"
 
 using std::cout;

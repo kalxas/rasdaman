@@ -42,8 +42,7 @@ rasdaman GmbH.
 
 
 public class RasConnectionFailedException extends ODMGRuntimeException {
-    static final String rcsid = "@(#)Package rasj.clientcommhttp, class RasConnectionFailedException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasConnectionFailedException.java,v 1.8 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     /**
      * The RasDaMan erro number
      **/

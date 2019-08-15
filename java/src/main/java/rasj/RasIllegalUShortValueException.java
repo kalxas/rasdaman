@@ -45,8 +45,7 @@ rasdaman GmbH.
  *********************************************************** */
 
 public class RasIllegalUShortValueException extends RasRuntimeException {
-    static final String rcsid = "@(#)Package rasj, class RasIllegalUShortValueException: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasIllegalUShortValueException.java,v 1.4 2003/12/19 16:22:27 rasdev Exp $";
-
+    
     // the base type
     int illegalValue = 0;
 

@@ -42,7 +42,6 @@ rasdaman GmbH.
 
 
 public class RasOIDType extends RasType {
-    static final String rcsid = "@(#)Package rasj, class RasOIDType: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasOIDType.java,v 1.4 2003/12/10 21:04:23 rasdev Exp $";
-
+    
 
 }

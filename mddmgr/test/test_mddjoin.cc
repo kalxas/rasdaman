@@ -31,8 +31,6 @@ rasdaman GmbH.
  *
 */
 
-static const char rcsid[] = "@(#)blobif,test_mddops: $Id: test_mddjoin.cc,v 1.9 2002/09/03 14:46:50 coman Exp $";
-
 #include <stdlib.h>
 #include <iostream>
 #include "ulongtype.hh"

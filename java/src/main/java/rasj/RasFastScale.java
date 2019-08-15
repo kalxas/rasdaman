@@ -232,8 +232,7 @@ abstract class RasFastBaseScale implements RasGlobalDefs {
  * @version $Revision: 1.17 $
  **/
 public class RasFastScale extends RasFastBaseScale implements RasGlobalDefs {
-    static final String rcsid = "@(#)Package rasj, class RasFastScale, RasFastBaseScale: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasFastScale.java,v 1.17 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     /**
      * Default constructor.
      *

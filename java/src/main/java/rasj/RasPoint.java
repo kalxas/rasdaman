@@ -41,8 +41,7 @@ rasdaman GmbH.
 
 
 public class RasPoint {
-    static final String rcsid = "@(#)Package rasj, class RasPoint: $Header: /home/rasdev/CVS-repository/rasdaman/java/rasj/RasPoint.java,v 1.9 2003/12/10 21:04:23 rasdev Exp $";
-
+    
     // array holding the point coordinates
     private long[] points;
     // dimensionality of the point
