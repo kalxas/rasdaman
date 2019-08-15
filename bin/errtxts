@@ -188,6 +188,8 @@
 446^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The language template does not contain a UDF processing function.
 447^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second Operand must be a multidimensional shape.
 448^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General error reported by the language template when executing the UDF.
+450^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator.
+451^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator for complex types.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

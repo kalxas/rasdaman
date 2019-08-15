@@ -1,3 +1,4 @@
+
 /*
 * This file is part of rasdaman community.
 *
@@ -290,7 +291,7 @@ UnaryOp *Ops::getUnaryOp(Ops::OpType op, const BaseType *resType, const BaseType
 BinaryOp *
 Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Type,
                  const BaseType *op2Type, size_t resOff,
-                 size_t op1Off, size_t op2Off)
+                 size_t op1Off, size_t op2Off, bool nullAsIdentity)
 {
     const auto type1 = op1Type->getType();
     const auto type2 = op2Type->getType();
@@ -304,13 +305,13 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpPLUSChar(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MINUS:
             return new OpMINUSChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMAX_BINARYChar(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMIN_BINARYChar(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_DIV:
             return new OpDIVChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_INTDIV:
@@ -318,7 +319,7 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         case Ops::OP_MOD:
             return new OpMODChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMULTChar(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         default:
             break;
         }
@@ -336,11 +337,11 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         switch (op)
         {
         case Ops::OP_AND:
-            return new OpANDBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpANDBool(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_OR:
-            return new OpORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_XOR:
-            return new OpXORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpXORBool(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         default:
             break;
         }
@@ -354,13 +355,13 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpPLUSCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MINUS:
             return new OpMINUSCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMAX_BINARYCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMIN_BINARYCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_DIV:
             return new OpDIVCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_INTDIV:
@@ -368,13 +369,13 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         case Ops::OP_MOD:
             return new OpMODCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMULTCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_AND:
-            return new OpANDCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpANDCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_OR:
-            return new OpORCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpORCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_XOR:
-            return new OpXORCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpXORCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         default:
             break;
         }
@@ -388,13 +389,13 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpPLUSCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MINUS:
             return new OpMINUSCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMAX_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMIN_BINARYCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_DIV:
             return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_INTDIV:
@@ -402,13 +403,13 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         case Ops::OP_MOD:
             return new OpMODCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMULTCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_AND:
-            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_OR:
-            return new OpORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_XOR:
-            return new OpXORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpXORCLong(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         default:
             break;
         }
@@ -422,17 +423,17 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
         switch (op)
         {
         case Ops::OP_PLUS:
-            return new OpPLUSCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpPLUSCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MINUS:
             return new OpMINUSCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMAX_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMIN_BINARYCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         case Ops::OP_DIV:
             return new OpDIVCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
-            return new OpMULTCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+            return new OpMULTCDouble(resType, op1Type, op2Type, resOff, op1Off, op2Off, nullAsIdentity);
         default:
             break;
         }
@@ -457,10 +458,6 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
             return new OpPLUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MINUS:
             return new OpMINUSComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
-        case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
-        case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_DIV:
             return new OpDIVComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MULT:
@@ -490,10 +487,6 @@ Ops::getBinaryOp(Ops::OpType op, const BaseType *resType, const BaseType *op1Typ
             return new OpPLUSComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MINUS:
             return new OpMINUSComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
-        case Ops::OP_MAX_BINARY:
-            return new OpMAX_BINARYComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
-        case Ops::OP_MIN_BINARY:
-            return new OpMIN_BINARYComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_DIV:
             return new OpDIVComplexInt(resType, op1Type, op2Type, resOff, op1Off, op2Off, scalarFlag);
         case Ops::OP_MULT:
@@ -778,10 +771,6 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opTy
     {
         switch (op)
         {
-        case Ops::OP_MAX:
-            return new OpMAXComplex(resType, opType, resOff, opOff);
-        case Ops::OP_MIN:
-            return new OpMINComplex(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMComplex(resType, opType, resOff, opOff);
         default:
@@ -792,10 +781,6 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType *resType, const BaseType *opTy
     {
         switch (op)
         {
-        case Ops::OP_MAX:
-            return new OpMAXComplexInt(resType, opType, resOff, opOff);
-        case Ops::OP_MIN:
-            return new OpMINComplexInt(resType, opType, resOff, opOff);
         case Ops::OP_SUM:
             return new OpSUMComplexInt(resType, opType, resOff, opOff);
         default:
@@ -1705,10 +1690,11 @@ OpNOTBool::operator()(char *res, const char *op)
 
 BinaryOp::BinaryOp(const BaseType *newResType, const BaseType *newOp1Type,
                    const BaseType *newOp2Type, size_t newResOff,
-                   size_t newOp1Off, size_t newOp2Off)
+                   size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     :  NullValuesHandler(), op1Type(newOp1Type), op2Type(newOp2Type), resType(newResType),
        resOff(newResOff), op1Off(newOp1Off), op2Off(newOp2Off)
 {
+    this->treatNullAsIdentity = nullAsIdentity;
 }
 
 void
@@ -1734,9 +1720,9 @@ OpBinaryStruct::getCondenseInit(char *init)
 
 OpPLUSCULong::OpPLUSCULong(const BaseType *newResType, const BaseType *newOp1Type,
                            const BaseType *newOp2Type, size_t newResOff,
-                           size_t newOp1Off, size_t newOp2Off)
+                           size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off,nullAsIdentity)
 {
 }
 
@@ -1752,11 +1738,24 @@ OpPLUSCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        if (treatNullAsIdentity)
+        {
+            longRes = longOp2;
+        }
+        else
+        {
+            longRes = longOp1;
+        }
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        if (treatNullAsIdentity)
+        {
+            longRes = longOp1;
+        }
+        else {
+            longRes = longOp2;
+        }
     }
     else
     {
@@ -1776,28 +1775,35 @@ OpPLUSCULong::getCondenseInit(char *init)
 
 OpPLUSULong::OpPLUSULong(const BaseType *newResType, const BaseType *newOp1Type,
                          const BaseType *newOp2Type, size_t newResOff,
-                         size_t newOp1Off, size_t newOp2Off)
+                         size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpPLUSULong::operator()(char *res, const char *op1, const char *op2)
 {
-    if (isNull(*(r_ULong *)(const_cast<char *>(op1) + op1Off)))
+    r_ULong longOp1 = 0;
+    r_ULong longOp2 = 0;
+    r_ULong longRes = 0;
+
+    longOp1 = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+    longOp2 = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(longOp1))
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
-    else if (isNull(*(r_ULong *)(const_cast<char *>(op2) + op2Off)))
+    else if (isNull(longOp2))
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op1) + op1Off)
-                                     + *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+        longRes = longOp1 + longOp2;
     }
+     
+    *(r_ULong *)(res + resOff) = longRes;
 }
 
 void
@@ -1812,9 +1818,9 @@ OpPLUSULong::getCondenseInit(char *init)
 
 OpMAX_BINARYCULong::OpMAX_BINARYCULong(const BaseType *newResType, const BaseType *newOp1Type,
                                        const BaseType *newOp2Type, size_t newResOff,
-                                       size_t newOp1Off, size_t newOp2Off)
+                                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -1825,14 +1831,22 @@ OpMAX_BINARYCULong::operator()(char *res, const char *op1, const char *op2)
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    if (*(op1Type->convertToCULong(op1 + op1Off, &longOp1)) > *(op2Type->convertToCULong(op2 + op2Off, &longOp2)))
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
     {
-        longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        longRes = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+        longRes = longOp1 > longOp2 ? longOp1 : longOp2;
     }
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -1846,23 +1860,35 @@ OpMAX_BINARYCULong::getCondenseInit(char *init)
 
 OpMAX_BINARYULong::OpMAX_BINARYULong(const BaseType *newResType, const BaseType *newOp1Type,
                                      const BaseType *newOp2Type, size_t newResOff,
-                                     size_t newOp1Off, size_t newOp2Off)
+                                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpMAX_BINARYULong::operator()(char *res, const char *op1, const char *op2)
 {
-    if (*(r_ULong *)(const_cast<char *>(op1) + op1Off) > *(r_ULong *)(const_cast<char *>(op2) + op2Off))
+    r_ULong longOp1 = 0;
+    r_ULong longOp2 = 0;
+    r_ULong longRes = 0;
+
+    longOp1 = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+    longOp2 = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(longOp1))
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+        longRes = longOp1 > longOp2 ? longOp1 : longOp2;
     }
+     
+    *(r_ULong *)(res + resOff) = longRes;
 }
 
 void
@@ -1878,9 +1904,9 @@ OpMAX_BINARYULong::getCondenseInit(char *init)
 
 OpMIN_BINARYCULong::OpMIN_BINARYCULong(const BaseType *newResType, const BaseType *newOp1Type,
                                        const BaseType *newOp2Type, size_t newResOff,
-                                       size_t newOp1Off, size_t newOp2Off)
+                                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -1891,14 +1917,22 @@ OpMIN_BINARYCULong::operator()(char *res, const char *op1, const char *op2)
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    if (*(op1Type->convertToCULong(op1 + op1Off, &longOp1)) < * (op2Type->convertToCULong(op2 + op2Off, &longOp2)))
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
     {
-        longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        longRes = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+        longRes = longOp1 < longOp2 ? longOp1 : longOp2;
     }
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -1912,24 +1946,35 @@ OpMIN_BINARYCULong::getCondenseInit(char *init)
 
 OpMIN_BINARYULong::OpMIN_BINARYULong(const BaseType *newResType, const BaseType *newOp1Type,
                                      const BaseType *newOp2Type, size_t newResOff,
-                                     size_t newOp1Off, size_t newOp2Off)
+                                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity )
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpMIN_BINARYULong::operator()(char *res, const char *op1, const char *op2)
 {
-    std::cout << "Hier krachts?" << endl;
-    if (*(r_ULong *)(const_cast<char *>(op1) + op1Off) < * (r_ULong *)(const_cast<char *>(op2) + op2Off))
+    r_ULong longOp1 = 0;
+    r_ULong longOp2 = 0;
+    r_ULong longRes = 0;
+
+    longOp1 = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+    longOp2 = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(longOp1))
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op1) + op1Off);
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        *(r_ULong *)(res + resOff) = *(r_ULong *)(const_cast<char *>(op2) + op2Off);
+        longRes = longOp1 < longOp2 ? longOp1 : longOp2;
     }
+     
+    *(r_ULong *)(res + resOff) = longRes;
 }
 
 void
@@ -1971,6 +2016,7 @@ OpMINUSCULong::operator()(char *res, const char *op1, const char *op2)
     {
         longRes = longOp1 - longOp2;
     }
+
 
     resType->makeFromCULong(res + resOff, &longRes);
 }
@@ -2059,9 +2105,9 @@ OpMODCULong::operator()(char *res, const char *op1, const char *op2)
 
 OpMULTCULong::OpMULTCULong(const BaseType *newResType, const BaseType *newOp1Type,
                            const BaseType *newOp2Type, size_t newResOff,
-                           size_t newOp1Off, size_t newOp2Off)
+                           size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2077,17 +2123,18 @@ OpMULTCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
+
     }
     else
     {
         longRes = longOp1 * longOp2;
     }
-
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -2101,9 +2148,9 @@ OpMULTCULong::getCondenseInit(char *init)
 
 OpANDCULong::OpANDCULong(const BaseType *newResType, const BaseType *newOp1Type,
                          const BaseType *newOp2Type, size_t newResOff,
-                         size_t newOp1Off, size_t newOp2Off)
+                         size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2119,17 +2166,17 @@ OpANDCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 & longOp2;
     }
-
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -2143,9 +2190,9 @@ OpANDCULong::getCondenseInit(char *init)
 
 OpANDBool::OpANDBool(const BaseType *newResType, const BaseType *newOp1Type,
                      const BaseType *newOp2Type, size_t newResOff,
-                     size_t newOp1Off, size_t newOp2Off)
+                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2155,11 +2202,11 @@ OpANDBool::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(*(op1 + op1Off)))
     {
-        *(res + resOff) = *(op1 + op1Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op2 + op2Off) : *(op1 + op1Off);
     }
     else if (isNull(*(op2 + op2Off)))
     {
-        *(res + resOff) = *(op2 + op2Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op1 + op1Off) : *(op2 + op2Off);
     }
     else
     {
@@ -2176,9 +2223,9 @@ OpANDBool::getCondenseInit(char *init)
 
 OpORCULong::OpORCULong(const BaseType *newResType, const BaseType *newOp1Type,
                        const BaseType *newOp2Type, size_t newResOff,
-                       size_t newOp1Off, size_t newOp2Off)
+                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off,  nullAsIdentity)
 {
 }
 
@@ -2194,17 +2241,17 @@ OpORCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 | longOp2;
     }
-
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -2218,9 +2265,9 @@ OpORCULong::getCondenseInit(char *init)
 
 OpORBool::OpORBool(const BaseType *newResType, const BaseType *newOp1Type,
                    const BaseType *newOp2Type, size_t newResOff,
-                   size_t newOp1Off, size_t newOp2Off)
+                   size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2230,11 +2277,11 @@ OpORBool::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(*(op1 + op1Off)))
     {
-        *(res + resOff) = *(op1 + op1Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op2 + op2Off) : *(op1 + op1Off);
     }
     else if (isNull(*(op2 + op2Off)))
     {
-        *(res + resOff) = *(op2 + op2Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op1 + op1Off) : *(op2 + op2Off);
     }
     else
     {
@@ -2251,9 +2298,9 @@ OpORBool::getCondenseInit(char *init)
 
 OpXORCULong::OpXORCULong(const BaseType *newResType, const BaseType *newOp1Type,
                          const BaseType *newOp2Type, size_t newResOff,
-                         size_t newOp1Off, size_t newOp2Off)
+                         size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2269,25 +2316,25 @@ OpXORCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 ^ longOp2;
     }
-
+     
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
 OpXORBool::OpXORBool(const BaseType *newResType, const BaseType *newOp1Type,
                      const BaseType *newOp2Type, size_t newResOff,
-                     size_t newOp1Off, size_t newOp2Off)
+                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off,  nullAsIdentity)
 {
 }
 
@@ -2297,11 +2344,11 @@ OpXORBool::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(*(op1 + op1Off)))
     {
-        *(res + resOff) = *(op1 + op1Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op2 + op2Off) : *(op1 + op1Off);
     }
     else if (isNull(*(op2 + op2Off)))
     {
-        *(res + resOff) = *(op2 + op2Off);
+        *(res + resOff) = treatNullAsIdentity ?  *(op1 + op1Off) : *(op2 + op2Off);
     }
     else
     {
@@ -2312,9 +2359,9 @@ OpXORBool::operator()(char *res, const char *op1, const char *op2)
 
 OpPLUSCLong::OpPLUSCLong(const BaseType *newResType, const BaseType *newOp1Type,
                          const BaseType *newOp2Type, size_t newResOff,
-                         size_t newOp1Off, size_t newOp2Off)
+                         size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2330,17 +2377,16 @@ OpPLUSCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 + longOp2;
     }
-
     resType->makeFromCLong(res + resOff, &longRes);
 }
 
@@ -2354,9 +2400,9 @@ OpPLUSCLong::getCondenseInit(char *init)
 
 OpMAX_BINARYCLong::OpMAX_BINARYCLong(const BaseType *newResType, const BaseType *newOp1Type,
                                      const BaseType *newOp2Type, size_t newResOff,
-                                     size_t newOp1Off, size_t newOp2Off)
+                                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2367,13 +2413,21 @@ OpMAX_BINARYCLong::operator()(char *res, const char *op1, const char *op2)
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    if (*(op1Type->convertToCLong(op1 + op1Off, &longOp1)) > *(op2Type->convertToCLong(op2 + op2Off, &longOp2)))
+
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
     {
-        longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        longRes = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+        longRes = longOp1 > longOp2 ? longOp1 : longOp2;
     }
     resType->makeFromCLong(res + resOff, &longRes);
 }
@@ -2391,9 +2445,9 @@ OpMAX_BINARYCLong::getCondenseInit(char *init)
 
 OpMIN_BINARYCLong::OpMIN_BINARYCLong(const BaseType *newResType, const BaseType *newOp1Type,
                                      const BaseType *newOp2Type, size_t newResOff,
-                                     size_t newOp1Off, size_t newOp2Off)
+                                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2403,16 +2457,23 @@ OpMIN_BINARYCLong::operator()(char *res, const char *op1, const char *op2)
     r_Long longOp1 = 0;
     r_Long longOp2 = 0;
     r_Long longRes = 0;
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    if (*(op1Type->convertToCLong(op1 + op1Off, &longOp1)) < * (op2Type->convertToCLong(op2 + op2Off, &longOp2)))
+if (isNull(longOp1))
     {
-        longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
-        longRes = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+        longRes = longOp1 < longOp2 ? longOp1 : longOp2;
     }
     resType->makeFromCLong(res + resOff, &longRes);
+
 }
 
 void
@@ -2541,9 +2602,9 @@ OpMODCLong::operator()(char *res, const char *op1, const char *op2)
 
 OpMULTCLong::OpMULTCLong(const BaseType *newResType, const BaseType *newOp1Type,
                          const BaseType *newOp2Type, size_t newResOff,
-                         size_t newOp1Off, size_t newOp2Off)
+                         size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2559,11 +2620,25 @@ OpMULTCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        if (treatNullAsIdentity)
+        {
+            longRes = longOp2;
+        }
+        else
+        {
+            longRes = longOp1;
+        }
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        if (treatNullAsIdentity)
+        {
+            longRes = longOp1;
+        }
+        else
+        {
+            longRes = longOp2;
+        }
     }
     else
     {
@@ -2583,9 +2658,9 @@ OpMULTCLong::getCondenseInit(char *init)
 
 OpANDCLong::OpANDCLong(const BaseType *newResType, const BaseType *newOp1Type,
                        const BaseType *newOp2Type, size_t newResOff,
-                       size_t newOp1Off, size_t newOp2Off)
+                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2601,17 +2676,16 @@ OpANDCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 & longOp2;
     }
-
     resType->makeFromCLong(res + resOff, &longRes);
 }
 
@@ -2625,9 +2699,9 @@ OpANDCLong::getCondenseInit(char *init)
 
 OpORCLong::OpORCLong(const BaseType *newResType, const BaseType *newOp1Type,
                      const BaseType *newOp2Type, size_t newResOff,
-                     size_t newOp1Off, size_t newOp2Off)
+                     size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2643,17 +2717,16 @@ OpORCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 | longOp2;
     }
-
     resType->makeFromCLong(res + resOff, &longRes);
 }
 
@@ -2667,9 +2740,9 @@ OpORCLong::getCondenseInit(char *init)
 
 OpXORCLong::OpXORCLong(const BaseType *newResType, const BaseType *newOp1Type,
                        const BaseType *newOp2Type, size_t newResOff,
-                       size_t newOp1Off, size_t newOp2Off)
+                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2685,25 +2758,24 @@ OpXORCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        longRes = longOp1;
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        longRes = longOp2;
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
         longRes = longOp1 ^ longOp2;
     }
-
     resType->makeFromCLong(res + resOff, &longRes);
 }
 
 OpPLUSCDouble::OpPLUSCDouble(const BaseType *newResType, const BaseType *newOp1Type,
                              const BaseType *newOp2Type, size_t newResOff,
-                             size_t newOp1Off, size_t newOp2Off)
+                             size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off,  nullAsIdentity)
 {
 }
 
@@ -2719,17 +2791,16 @@ OpPLUSCDouble::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(doubleOp1))
     {
-        doubleRes = doubleOp1;
+        doubleRes = treatNullAsIdentity ? doubleOp2 : doubleOp1;
     }
     else if (isNull(doubleOp2))
     {
-        doubleRes = doubleOp2;
+        doubleRes = treatNullAsIdentity ? doubleOp1 : doubleOp2;
     }
     else
     {
         doubleRes = doubleOp1 + doubleOp2;
     }
-
     resType->makeFromCDouble(res + resOff, &doubleRes);
 }
 
@@ -2743,9 +2814,9 @@ OpPLUSCDouble::getCondenseInit(char *init)
 
 OpMAX_BINARYCDouble::OpMAX_BINARYCDouble(const BaseType *newResType, const BaseType *newOp1Type,
         const BaseType *newOp2Type, size_t newResOff,
-        size_t newOp1Off, size_t newOp2Off)
+        size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2756,13 +2827,21 @@ OpMAX_BINARYCDouble::operator()(char *res, const char *op1, const char *op2)
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    if (*(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) > *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2)))
+
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+
+    if (isNull(doubleOp1))
     {
-        doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+        doubleRes = treatNullAsIdentity ? doubleOp2 : doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = treatNullAsIdentity ? doubleOp1 : doubleOp2;
     }
     else
     {
-        doubleRes = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+        doubleRes = doubleOp1 > doubleOp2 ? doubleOp1 : doubleOp2;
     }
     resType->makeFromCDouble(res + resOff, &doubleRes);
 }
@@ -2780,9 +2859,9 @@ OpMAX_BINARYCDouble::getCondenseInit(char *init)
 
 OpMIN_BINARYCDouble::OpMIN_BINARYCDouble(const BaseType *newResType, const BaseType *newOp1Type,
         const BaseType *newOp2Type, size_t newResOff,
-        size_t newOp1Off, size_t newOp2Off)
+        size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2793,15 +2872,23 @@ OpMIN_BINARYCDouble::operator()(char *res, const char *op1, const char *op2)
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    if (*(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) < * (op2Type->convertToCDouble(op2 + op2Off, &doubleOp2)))
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+
+ if (isNull(doubleOp1))
     {
-        doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+        doubleRes = treatNullAsIdentity ? doubleOp2 : doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = treatNullAsIdentity ? doubleOp1 : doubleOp2;
     }
     else
     {
-        doubleRes = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+        doubleRes = doubleOp1 < doubleOp2 ? doubleOp1 : doubleOp2;
     }
     resType->makeFromCDouble(res + resOff, &doubleRes);
+
 }
 
 void
@@ -2883,9 +2970,9 @@ OpDIVCDouble::operator()(char *res, const char *op1, const char *op2)
 
 OpMULTCDouble::OpMULTCDouble(const BaseType *newResType, const BaseType *newOp1Type,
                              const BaseType *newOp2Type, size_t newResOff,
-                             size_t newOp1Off, size_t newOp2Off)
+                             size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -2899,19 +2986,19 @@ OpMULTCDouble::operator()(char *res, const char *op1, const char *op2)
     doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
     doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
+    
     if (isNull(doubleOp1))
     {
-        doubleRes = doubleOp1;
+        doubleRes = treatNullAsIdentity ? doubleOp2 : doubleOp1;
     }
     else if (isNull(doubleOp2))
     {
-        doubleRes = doubleOp2;
+        doubleRes = treatNullAsIdentity ? doubleOp1 : doubleOp2;
     }
     else
     {
         doubleRes = doubleOp1 * doubleOp2;
     }
-
     resType->makeFromCDouble(res + resOff, &doubleRes);
 }
 
@@ -3524,7 +3611,7 @@ void OpEQUALComplexInt::operator()(char *res, const char *op1, const char *op2)
 OpNOTEQUALComplexInt::OpNOTEQUALComplexInt(const BaseType *newResType,
         const BaseType *newOp1Type, const BaseType *newOp2Type,
         size_t newResOff, size_t newOp1Off, size_t newOp2Off)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off) 
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
 {
 }
 
@@ -4881,28 +4968,33 @@ OpUnaryStruct::operator()(char *result, const char *op)
 
 OpPLUSChar::OpPLUSChar(const BaseType *newResType, const BaseType *newOp1Type,
                        const BaseType *newOp2Type, size_t newResOff,
-                       size_t newOp1Off, size_t newOp2Off)
+                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpPLUSChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    unsigned char charOp1;
+    unsigned char charOp2;
+    unsigned char charRes;
+    charOp1 = *(unsigned char *)(const_cast<char *>(op1) + op1Off);
+    charOp2 = *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(charOp1))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+        charRes = treatNullAsIdentity ? charOp2 : charOp1;
     }
-    else if (isNull(*(unsigned char *)(const_cast<char *>(op2)  + op2Off)))
+    else if (isNull(charOp2))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+        charRes = treatNullAsIdentity ? charOp1 : charOp2;
     }
     else
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1) + op1Off)
-                                           + *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+        charRes = charOp1 + charOp2;
     }
+    *(unsigned char *)(res + resOff) = charRes;
 }
 
 void
@@ -4917,31 +5009,33 @@ OpPLUSChar::getCondenseInit(char *init)
 
 OpMAX_BINARYChar::OpMAX_BINARYChar(const BaseType *newResType, const BaseType *newOp1Type,
                                    const BaseType *newOp2Type, size_t newResOff,
-                                   size_t newOp1Off, size_t newOp2Off)
+                                   size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpMAX_BINARYChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    unsigned char charOp1;
+    unsigned char charOp2;
+    unsigned char charRes;
+    charOp1 = *(unsigned char *)(const_cast<char *>(op1) + op1Off);
+    charOp2 = *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(charOp1))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+        charRes = treatNullAsIdentity ? charOp2 : charOp1;
     }
-    else if (isNull(*(unsigned char *)(const_cast<char *>(op2)  + op2Off)))
+    else if (isNull(charOp2))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
-    }
-    else if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) > *(unsigned char *)(const_cast<char *>(op2)  + op2Off))
-    {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+        charRes = treatNullAsIdentity ? charOp1 : charOp2;
     }
     else
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+        charRes = charOp1 > charOp2 ? charOp1 : charOp2;
     }
+    *(unsigned char *)(res + resOff) = charRes;
 }
 
 void
@@ -4956,31 +5050,33 @@ OpMAX_BINARYChar::getCondenseInit(char *init)
 
 OpMIN_BINARYChar::OpMIN_BINARYChar(const BaseType *newResType, const BaseType *newOp1Type,
                                    const BaseType *newOp2Type, size_t newResOff,
-                                   size_t newOp1Off, size_t newOp2Off)
+                                   size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpMIN_BINARYChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    unsigned char charOp1;
+    unsigned char charOp2;
+    unsigned char charRes;
+    charOp1 = *(unsigned char *)(const_cast<char *>(op1) + op1Off);
+    charOp2 = *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(charOp1))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+        charRes = treatNullAsIdentity ? charOp2 : charOp1;
     }
-    else if (isNull(*(unsigned char *)(const_cast<char *>(op2)  + op2Off)))
+    else if (isNull(charOp2))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
-    }
-    else if (*(unsigned char *)(const_cast<char *>(op1)  + op1Off) < * (unsigned char *)(const_cast<char *>(op2)  + op2Off))
-    {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1)  + op1Off);
+        charRes = treatNullAsIdentity ? charOp1 : charOp2;
     }
     else
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2)  + op2Off);
+        charRes = charOp1 < charOp2 ? charOp1 : charOp2;
     }
+    *(unsigned char *)(res + resOff) = charRes;
 }
 
 void
@@ -5099,28 +5195,33 @@ OpMODChar::operator()(char *res, const char *op1, const char *op2)
 
 OpMULTChar::OpMULTChar(const BaseType *newResType, const BaseType *newOp1Type,
                        const BaseType *newOp2Type, size_t newResOff,
-                       size_t newOp1Off, size_t newOp2Off)
+                       size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
 void
 OpMULTChar::operator()(char *res, const char *op1, const char *op2)
 {
-    if (isNull(*(unsigned char *)(const_cast<char *>(op1) + op1Off)))
+    unsigned char charOp1;
+    unsigned char charOp2;
+    unsigned char charRes;
+    charOp1 = *(unsigned char *)(const_cast<char *>(op1) + op1Off);
+    charOp2 = *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+    if (isNull(charOp1))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1) + op1Off);
+        charRes = treatNullAsIdentity ? charOp2 : charOp1;
     }
-    else if (isNull(*(unsigned char *)(const_cast<char *>(op2) + op2Off)))
+    else if (isNull(charOp2))
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+        charRes = treatNullAsIdentity ? charOp1 : charOp2;
     }
     else
     {
-        *(unsigned char *)(res + resOff) = *(unsigned char *)(const_cast<char *>(op1) + op1Off)
-                                           * *(unsigned char *)(const_cast<char *>(op2) + op2Off);
+        charRes = charOp1 * charOp2;
     }
+    *(unsigned char *)(res + resOff) = charRes;
 }
 
 void
@@ -5676,11 +5777,25 @@ void OpPLUSComplex::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(op1Re))
     {
-        resRe = op1Re;
+        if (treatNullAsIdentity)
+        {
+            resRe = op2Re;
+        }
+        else
+        {
+            resRe = op1Re;
+        }
     }
     else if (isNull(op2Re))
     {
-        resRe = op2Re;
+        if (treatNullAsIdentity)
+        {
+            resRe = op1Re;
+        }
+        else
+        {
+            resRe = op2Re;
+        }
     }
     else
     {
@@ -5758,11 +5873,25 @@ void OpPLUSComplexInt::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(op1Re))
     {
-        resRe = op1Re;
+        if (treatNullAsIdentity)
+        {
+            resRe = op2Re;
+        }
+        else
+        {
+            resRe = op1Re;
+        }
     }
     else if (isNull(op2Re))
     {
-        resRe = op2Re;
+        if (treatNullAsIdentity)
+        {
+            resRe = op1Re;
+        }
+        else
+        {
+            resRe = op2Re;
+        }
     }
     else
     {
@@ -5806,357 +5935,7 @@ void OpPLUSComplexInt::getCondenseInit(char *init)
     resType->makeFromCLong(init + resReOff, &dummyRe);
     resType->makeFromCLong(init + resImOff, &dummyIm);
 }
-// *** MAX_BINARY ***
 
-OpMAX_BINARYComplex::OpMAX_BINARYComplex(
-    const BaseType *newResType,
-    const BaseType *newOp1Type,
-    const BaseType *newOp2Type,
-    size_t newResOff,
-    size_t newOp1Off,
-    size_t newOp2Off,
-    BinaryOp::ScalarFlag flag)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
-{
-    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getImOffset();
-
-    resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();
-    resImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getImOffset();
-}
-
-void OpMAX_BINARYComplex::operator()(char *res, const char *op1, const char *op2)
-{
-    double op1Re = 0;
-    double op2Re = 0;
-    double op1Im = 0;
-    double op2Im = 0;
-    double resRe, resIm;
-
-    if (scalarFlag == BinaryOp::FIRST)
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
-    }
-    else if (scalarFlag == BinaryOp::SECOND)
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
-    }
-    else
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) > *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im)))
-        {
-            resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
-        }
-        else
-        {
-            resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
-        }
-    }
-
-    resType->makeFromCDouble(res + resOff + resReOff, &resRe);
-    resType->makeFromCDouble(res + resOff + resImOff, &resIm);
-}
-
-void OpMAX_BINARYComplex::getCondenseInit(char *init)
-{
-    double dummyRe = std::numeric_limits<double>::lowest();
-    double dummyIm = std::numeric_limits<double>::lowest();
-    resType->makeFromCDouble(init + resReOff, &dummyRe);
-    resType->makeFromCDouble(init + resImOff, &dummyIm);
-}
-
-//CInt MAX_BINARY
-
-OpMAX_BINARYComplexInt::OpMAX_BINARYComplexInt(
-    const BaseType *newResType,
-    const BaseType *newOp1Type,
-    const BaseType *newOp2Type,
-    size_t newResOff,
-    size_t newOp1Off,
-    size_t newOp2Off,
-    BinaryOp::ScalarFlag flag)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
-{
-    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getImOffset();
-
-    resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();
-    resImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getImOffset();
-}
-
-void OpMAX_BINARYComplexInt::operator()(char *res, const char *op1, const char *op2)
-{
-    r_Long op1Re = 0;
-    r_Long op2Re = 0;
-    r_Long op1Im = 0;
-    r_Long op2Im = 0;
-    r_Long resRe, resIm;
-
-    if (scalarFlag == BinaryOp::FIRST)
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im));
-    }
-    else if (scalarFlag == BinaryOp::SECOND)
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im));
-    }
-    else
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) > *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im)) > *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im)))
-        {
-            resIm = *(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im));
-        }
-        else
-        {
-            resIm = *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im));
-        }
-    }
-
-    resType->makeFromCLong(res + resOff + resReOff, &resRe);
-    resType->makeFromCLong(res + resOff + resImOff, &resIm);
-}
-
-void OpMAX_BINARYComplexInt::getCondenseInit(char *init)
-{
-    r_Long dummyRe = std::numeric_limits<r_Long>::lowest();
-    r_Long dummyIm = std::numeric_limits<r_Long>::lowest();
-    resType->makeFromCLong(init + resReOff, &dummyRe);
-    resType->makeFromCLong(init + resImOff, &dummyIm);
-}
-
-// *** MIN_BINARY ***
-
-OpMIN_BINARYComplex::OpMIN_BINARYComplex(
-    const BaseType *newResType,
-    const BaseType *newOp1Type,
-    const BaseType *newOp2Type,
-    size_t newResOff,
-    size_t newOp1Off,
-    size_t newOp2Off,
-    BinaryOp::ScalarFlag flag)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
-{
-    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getImOffset();
-
-    resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();
-    resImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getImOffset();
-}
-
-void OpMIN_BINARYComplex::operator()(char *res, const char *op1, const char *op2)
-{
-    double op1Re = 0;
-    double op2Re = 0;
-    double op1Im = 0;
-    double op2Im = 0;
-    double resRe, resIm;
-
-    if (scalarFlag == BinaryOp::FIRST)
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
-    }
-    else if (scalarFlag == BinaryOp::SECOND)
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
-    }
-    else
-    {
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        if (*(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) < * (op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im)))
-        {
-            resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
-        }
-        else
-        {
-            resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
-        }
-    }
-
-    resType->makeFromCDouble(res + resOff + resReOff, &resRe);
-    resType->makeFromCDouble(res + resOff + resImOff, &resIm);
-}
-
-void OpMIN_BINARYComplex::getCondenseInit(char *init)
-{
-    double dummyRe = std::numeric_limits<double>::max();
-    double dummyIm = std::numeric_limits<double>::max();
-    resType->makeFromCDouble(init + resReOff, &dummyRe);
-    resType->makeFromCDouble(init + resImOff, &dummyIm);
-}
-
-//CInt Minus Binary
-
-OpMIN_BINARYComplexInt::OpMIN_BINARYComplexInt(
-    const BaseType *newResType,
-    const BaseType *newOp1Type,
-    const BaseType *newOp2Type,
-    size_t newResOff,
-    size_t newOp1Off,
-    size_t newOp2Off,
-    BinaryOp::ScalarFlag flag)
-    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off), scalarFlag(flag)
-{
-    op1ReOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getReOffset();
-    op1ImOff = scalarFlag == BinaryOp::FIRST  ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp1Type)))->getImOffset();
-    op2ReOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getReOffset();
-    op2ImOff = scalarFlag == BinaryOp::SECOND ? 0 : (static_cast<GenericComplexType *>(const_cast<BaseType *>(newOp2Type)))->getImOffset();
-
-    resReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getReOffset();
-    resImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(newResType)))->getImOffset();
-}
-
-void OpMIN_BINARYComplexInt::operator()(char *res, const char *op1, const char *op2)
-{
-    r_Long op1Re = 0;
-    r_Long op2Re = 0;
-    r_Long op1Im = 0;
-    r_Long op2Im = 0;
-    r_Long resRe, resIm;
-
-    if (scalarFlag == BinaryOp::FIRST)
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im));
-    }
-    else if (scalarFlag == BinaryOp::SECOND)
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        resIm = *(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im));
-    }
-    else
-    {
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re)) < * (op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re)))
-        {
-            resRe = *(op1Type->convertToCLong(op1 + op1Off + op1ReOff, &op1Re));
-        }
-        else
-        {
-            resRe = *(op2Type->convertToCLong(op2 + op2Off + op2ReOff, &op2Re));
-        }
-
-        if (*(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im)) < * (op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im)))
-        {
-            resIm = *(op1Type->convertToCLong(op1 + op1Off + op1ImOff, &op1Im));
-        }
-        else
-        {
-            resIm = *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im));
-        }
-    }
-
-    resType->makeFromCLong(res + resOff + resReOff, &resRe);
-    resType->makeFromCLong(res + resOff + resImOff, &resIm);
-}
-
-void OpMIN_BINARYComplexInt::getCondenseInit(char *init)
-{
-    r_Long dummyRe = std::numeric_limits<r_Long>::max();
-    r_Long dummyIm = std::numeric_limits<r_Long>::max();
-    resType->makeFromCLong(init + resReOff, &dummyRe);
-    resType->makeFromCLong(init + resImOff, &dummyIm);
-}
 // *** MINUS ***
 
 
@@ -6775,161 +6554,7 @@ void OpUpdateComplex::operator()(char *res, const char *op)
     memcpy((void *)(res + resOff), (void *)(const_cast<char *>(op) + opOff), resType->getSize());
 }
 
-// *** MAX ***
 
-OpMAXComplex::OpMAXComplex(const BaseType *newResType, const BaseType *newOpType,
-                           size_t newResOff, size_t newOpOff)
-    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-    const GenericComplexType *type = (const GenericComplexType *) resType;
-    size_t reOff = type->getReOffset();
-    size_t imOff = type->getImOffset();
-
-    double myVal = std::numeric_limits<double>::lowest();
-    accu = new char[resType->getSize()];
-    memset(accu, 0, resType->getSize());
-    resType->makeFromCDouble(accu + reOff, &myVal);
-    resType->makeFromCDouble(accu + imOff, &myVal);
-}
-
-OpMAXComplex::OpMAXComplex(const BaseType *newResType, char *newAccu,
-                           const BaseType *newOpType, size_t newResOff,
-                           size_t newOpOff)
-    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-}
-
-char *
-OpMAXComplex::operator()(const char *op, char *init)
-{
-    maxBinary(init, op, init);
-    return init;
-}
-
-char *
-OpMAXComplex::operator()(const char *op)
-{
-    return OpMAXComplex::operator()(op, accu);
-}
-
-// CInt MAX ***
-
-OpMAXComplexInt::OpMAXComplexInt(const BaseType *newResType, const BaseType *newOpType,
-                                 size_t newResOff, size_t newOpOff)
-    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-    const GenericComplexType *type = (const GenericComplexType *) resType;
-    size_t reOff = type->getReOffset();
-    size_t imOff = type->getImOffset();
-
-    r_Long myVal = std::numeric_limits<r_Long>::lowest();
-    accu = new char[resType->getSize()];
-    memset(accu, 0, resType->getSize());
-    resType->makeFromCLong(accu + reOff, &myVal);
-    resType->makeFromCLong(accu + imOff, &myVal);
-}
-
-OpMAXComplexInt::OpMAXComplexInt(const BaseType *newResType, char *newAccu,
-                                 const BaseType *newOpType, size_t newResOff,
-                                 size_t newOpOff)
-    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , maxBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-}
-
-char *
-OpMAXComplexInt::operator()(const char *op, char *init)
-{
-    maxBinary(init, op, init);
-    return init;
-}
-
-char *
-OpMAXComplexInt::operator()(const char *op)
-{
-    return OpMAXComplexInt::operator()(op, accu);
-}
-
-// *** MIN ***
-
-OpMINComplex::OpMINComplex(const BaseType *newResType, const BaseType *newOpType,
-                           size_t newResOff, size_t newOpOff)
-    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-    const GenericComplexType *type = (const GenericComplexType *) resType;
-    size_t reOff = type->getReOffset();
-    size_t imOff = type->getImOffset();
-
-    double myVal = std::numeric_limits<double>::max();
-    accu = new char[resType->getSize()];
-    memset(accu, 0, resType->getSize());
-    resType->makeFromCDouble(accu + reOff, &myVal);
-    resType->makeFromCDouble(accu + imOff, &myVal);
-}
-
-OpMINComplex::OpMINComplex(const BaseType *newResType, char *newAccu,
-                           const BaseType *newOpType, size_t newResOff,
-                           size_t newOpOff)
-    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-}
-
-char *
-OpMINComplex::operator()(const char *op, char *init)
-{
-    minBinary(init, op, init);
-    return init;
-}
-
-char *
-OpMINComplex::operator()(const char *op)
-{
-    return OpMINComplex::operator()(op, accu);
-}
-
-// CInt MIN ***
-
-OpMINComplexInt::OpMINComplexInt(const BaseType *newResType, const BaseType *newOpType,
-                                 size_t newResOff, size_t newOpOff)
-    : CondenseOp(newResType, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-    const GenericComplexType *type = (const GenericComplexType *) resType;
-    size_t reOff = type->getReOffset();
-    size_t imOff = type->getImOffset();
-
-    r_Long myVal = std::numeric_limits<r_Long>::max();
-    accu = new char[resType->getSize()];
-    memset(accu, 0, resType->getSize());
-    resType->makeFromCLong(accu + reOff, &myVal);
-    resType->makeFromCLong(accu + imOff, &myVal);
-}
-
-OpMINComplexInt::OpMINComplexInt(const BaseType *newResType, char *newAccu,
-                                 const BaseType *newOpType, size_t newResOff,
-                                 size_t newOpOff)
-    : CondenseOp(newResType, newAccu, newOpType, newResOff, newOpOff)
-    , minBinary(newResType, newOpType, newResType, newResOff, newOpOff, newResOff, BinaryOp::NONE)
-{
-}
-
-char *
-OpMINComplexInt::operator()(const char *op, char *init)
-{
-    minBinary(init, op, init);
-    return init;
-}
-
-char *
-OpMINComplexInt::operator()(const char *op)
-{
-    return OpMINComplexInt::operator()(op, accu);
-}
 // *** SUM ***
 
 OpSUMComplex::OpSUMComplex(const BaseType *newResType, const BaseType *newOpType,

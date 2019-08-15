@@ -295,13 +295,12 @@ QtCondenseOp::evaluate(QtDataList *inputList)
             resBaseType = cellBaseType;
             break;
         }
-
         // get operation object
-        auto cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType));
+        std::unique_ptr<BinaryOp> cellBinOp;
         try
         {
             if (cellType == QT_MDD)
-            {
+            {   cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType,0,0,0, true));
                 returnValue = evaluateInducedOp(inputList, cellBinOp.get(), domain);
                 if (!returnValue)
                 {
@@ -318,6 +317,7 @@ QtCondenseOp::evaluate(QtDataList *inputList)
             }
             else
             {
+                cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType));
                 returnValue = evaluateScalarOp(inputList, resBaseType, cellBinOp.get(), domain);
             }
         }
@@ -339,6 +339,27 @@ QtCondenseOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
+void 
+QtCondenseOp::checkOp(){
+    //check legal ops
+        switch (operation)
+        {
+            {
+            case Ops::OP_PLUS:
+            case Ops::OP_MAX_BINARY:
+            case Ops::OP_MIN_BINARY:
+            case Ops::OP_MULT:
+            case Ops::OP_AND:
+            case Ops::OP_OR:
+            case Ops::OP_XOR:
+                break;
+            default:
+                LERROR << "Unsupported condense operator: " << operation << ", expected one of: +, *, max, min, and, or, xor";
+                parseInfo.setErrorNo(450);
+                throw parseInfo;
+            }
+        }
+}
 QtData *
 QtCondenseOp::evaluateScalarOp(QtDataList *inputList, const BaseType *resType, BinaryOp *cellBinOp, r_Minterval domain)
 {
@@ -454,7 +475,7 @@ QtCondenseOp::checkType(QtTypeTuple *typeTuple)
         //
         // check value expression
         //
-
+        checkOp();
         // get value expression type
         const QtTypeElement &valueExp = input2->checkType(typeTuple);
         auto op2Type = valueExp.getDataType();

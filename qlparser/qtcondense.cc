@@ -163,17 +163,23 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
 
-        LDEBUG << "computeFullCondense-last-good\n";
+
         // get all tiles in relevant area
         vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
 
-        LDEBUG << "computeFullCondense-8\n";
+
         // get new operation object
+        if (resultType->getType()>=COMPLEXTYPE1 && resultType->getType()<=CINT32 && opType!=Ops::OP_SUM)
+        {
+            LERROR << "Op Type "<< opType << " is not supported for complex types. Only OP_SUM is allowed.";
+            parseInfo.setErrorNo(451);
+            throw parseInfo;
+        }
         CondenseOp *condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
         condOp->setNullValues(nullValues);
         unsigned long totalValuesCount{0};
 
-        LDEBUG << "computeFullCondense-9\n";
+
         // and iterate over them
         for (vector<boost::shared_ptr<Tile>>::iterator tileIt = allTiles->begin();
                 tileIt != allTiles->end(); tileIt++)

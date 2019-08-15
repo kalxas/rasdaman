@@ -1,1 +1,1 @@
-  Result element 1: (-71,-55)
+rasdaman error 451: Execution error 451 in line 1, column 8, near token min_cells: Unsupported condense operator for complex types.

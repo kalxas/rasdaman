@@ -110,6 +110,8 @@ public:
     /// type checking of the subtree
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
+    void checkOp();
+
 private:
 
     ///method for evaluating scalar returning condesnsers
