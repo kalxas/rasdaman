@@ -63,13 +63,13 @@ public:
 
     /// set null values
     virtual void setNullValues(r_Nullvalues *newNullValues);
-
     /// get the number of null values
     unsigned long getNullValuesCount() const;
 
     /// set the number of null values
     void setNullValuesCount(unsigned long count);
-
+    //make union of two nullvalues vectors
+    r_Nullvalues *unionNullValues(r_Nullvalues *nullValues1, r_Nullvalues *nullValues2);
     /*
      * Functions to check if a value is null. If it is the null values counter
      * is increased automatically.

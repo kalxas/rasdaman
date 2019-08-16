@@ -1,0 +1,1 @@
+select encode( (m null values [5]) + (n null values [7]), "json") from nulltest m, nulltest n

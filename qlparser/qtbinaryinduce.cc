@@ -315,6 +315,8 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
 
         // MDDObj for result
         MDDObj *mddres = NULL;
+        //united null values
+        r_Nullvalues *newNullValues = NULL;
         // translations between the two areas
         r_Point offset12(areaOp1.dimension());
         r_Point offset21(areaOp1.dimension());
@@ -334,7 +336,9 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         // create MDDObj for result
         MDDDomainType *mddBaseType = new MDDDomainType("tmp", resultBaseType, areaOp1);
         TypeFactory::addTempType(mddBaseType);
-
+        
+        //make union out of two nullValues
+        newNullValues = myOp->unionNullValues(nullValues1,nullValues2);
         mddres = new MDDObj(mddBaseType, areaOp1, op1->getNullValues());   // FIXME consider op2 too
         // get all tiles in relevant area of MDD op1
         allTilesOp1 = op1->intersect(areaOp1);
@@ -342,9 +346,10 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         // and iterate over them
 
         //unique_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
+        
         if (myOp)
         {
-            myOp->setNullValues(nullValues1);
+            myOp->setNullValues(newNullValues);
         }
         else
         {
