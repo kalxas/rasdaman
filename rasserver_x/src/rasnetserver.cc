@@ -65,17 +65,17 @@ RasnetServer::RasnetServer(const Configuration& configuration):
 
 void RasnetServer::startRasnetServer()
 {
+    RasServerEntry& rasserver = RasServerEntry::getInstance();
+    rasserver.compat_connectToDBMS();
+    
     std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
-
+    
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
     builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
     builder.RegisterService(rasserverService.get());
     builder.RegisterService(clientServerService.get());
     builder.RegisterService(healthServiceImpl.get());
-
-    RasServerEntry& rasserver = RasServerEntry::getInstance();
-    rasserver.compat_connectToDBMS();
 
     this->isRunning = true;
     // Finally assemble the server.

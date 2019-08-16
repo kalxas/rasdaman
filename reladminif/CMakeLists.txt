@@ -23,11 +23,12 @@
 
 # The name of the SQL sources files without extension
 set(EMBEDDED_SQL_SOURCES adminif
-        databaseif
-        objectbroker
-        oidif
-        sqlerror
-        transactionif)
+    databaseif
+    objectbroker
+    oidif
+    sqlerror
+    transactionif
+    )
 
 set(COMPILED_SQL_SOURCES "")
 
@@ -36,36 +37,38 @@ foreach (FILE ${EMBEDDED_SQL_SOURCES})
 endforeach ()
 
 add_library(reladminif ${COMPILED_SQL_SOURCES}
-        adminif.hh
-        adminifcommon.cc
-        binaryrepresentation.hh
-        databaseif.hh
-        databaseifcommon.cc
-        dbnamedobject.hh dbnamedobject.cc
-        dbobject.hh dbobject.cc
-        dbobjectiditerator.hh dbobjectiditerator.cc
-        dbobjectiterator.hh dbobjectiterator.cc
-        dbref.hh dbref.cc
-        destroyable.hh
-        eoid.hh eoid.cc
-        externs.h
-        lists.h
-        objectbroker.hh
-        objectbrokercommon.cc
-        oidif.hh
-        oidifcommon.cc
-        sqlerror.hh
-        sqlglobals.h
-        sqlitewrapper.hh sqlitewrapper.cc
-        transactionif.hh
-        transactionifcommon.cc)
+    adminif.hh adminifcommon.cc
+    binaryrepresentation.hh
+    databaseif.hh databaseifcommon.cc
+    dbnamedobject.hh dbnamedobject.cc
+    dbobject.hh dbobject.cc
+    dbobjectiditerator.hh dbobjectiditerator.cc
+    dbobjectiterator.hh dbobjectiterator.cc
+    dbref.hh dbref.cc
+    destroyable.hh
+    eoid.hh eoid.cc
+    externs.h
+    lists.h
+    objectbroker.hh objectbrokercommon.cc
+    oidif.hh oidifcommon.cc
+    sqlerror.hh
+    sqlglobals.h
+    sqlitewrapper.hh sqlitewrapper.cc
+    transactionif.hh transactionifcommon.cc
+    )
 
 target_include_directories(reladminif PUBLIC ${BASEDB_INCLUDE_DIR})
 target_include_directories(reladminif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(reladminif mymalloc_svc ${BASEDB_LIBRARIES})
+target_link_libraries(reladminif PUBLIC
+    raslib mymalloc_svc
+    relblobif relcatalogif relindexif relmddif relstorageif
+    common_file
+    ${BASEDB_LIBRARIES}
+    )
+
 install(TARGETS reladminif
-        DESTINATION ${LIB_DIR})
+    DESTINATION ${LIB_DIR})
 
 install(DIRECTORY db_updates
         DESTINATION ${SHARE_DATA_DIR})

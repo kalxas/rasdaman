@@ -300,7 +300,8 @@ QtCondenseOp::evaluate(QtDataList *inputList)
         try
         {
             if (cellType == QT_MDD)
-            {   cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType,0,0,0, true));
+            {
+                cellBinOp = std::unique_ptr<BinaryOp>(Ops::getBinaryOp(operation, resBaseType, resBaseType, cellBaseType,0,0,0, true));
                 returnValue = evaluateInducedOp(inputList, cellBinOp.get(), domain);
                 if (!returnValue)
                 {
@@ -346,7 +347,9 @@ QtCondenseOp::checkOp(){
         {
             {
             case Ops::OP_PLUS:
+            case Ops::OP_MAX:
             case Ops::OP_MAX_BINARY:
+            case Ops::OP_MIN:
             case Ops::OP_MIN_BINARY:
             case Ops::OP_MULT:
             case Ops::OP_AND:
@@ -364,8 +367,8 @@ QtData *
 QtCondenseOp::evaluateScalarOp(QtDataList *inputList, const BaseType *resType, BinaryOp *cellBinOp, r_Minterval domain)
 {
     // create execution object QLCondenseOp
-    auto qlCondenseOp = std::unique_ptr<QLCondenseOp>(new QLCondenseOp(input2, condOp, inputList, iteratorName,
-                        resType, 0, cellBinOp, NULL));
+    auto qlCondenseOp = std::unique_ptr<QLCondenseOp>(
+                            new QLCondenseOp(input2, condOp, inputList, iteratorName, resType, 0, cellBinOp, NULL));
 
     // result buffer
     char *result = Tile::execGenCondenseOp(qlCondenseOp.get(), domain);

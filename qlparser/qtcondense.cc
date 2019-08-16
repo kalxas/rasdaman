@@ -155,6 +155,12 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
 
         // get result type
         const BaseType *resultType = Ops::getResultType(opType, mdd->getCellType());
+        if (resultType->getType() >= COMPLEXTYPE1 && resultType->getType() <= CINT32 && opType != Ops::OP_SUM)
+        {
+            LERROR << "Operation " << opType << " is not supported for complex types; only + is allowed.";
+            parseInfo.setErrorNo(451);
+            throw parseInfo;
+        }
 
         // get the MDD object
         MDDObj *op = (static_cast<QtMDD *>(operand))->getMDDObject();
@@ -163,18 +169,11 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
 
-
         // get all tiles in relevant area
         vector<boost::shared_ptr<Tile>> *allTiles = op->intersect(areaOp);
 
 
         // get new operation object
-        if (resultType->getType()>=COMPLEXTYPE1 && resultType->getType()<=CINT32 && opType!=Ops::OP_SUM)
-        {
-            LERROR << "Op Type "<< opType << " is not supported for complex types. Only OP_SUM is allowed.";
-            parseInfo.setErrorNo(451);
-            throw parseInfo;
-        }
         CondenseOp *condOp = Ops::getCondenseOp(opType, resultType, mdd->getCellType());
         condOp->setNullValues(nullValues);
         unsigned long totalValuesCount{0};

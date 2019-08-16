@@ -3999,6 +3999,7 @@ nullvalueIntervalExp: scalarLit COLON scalarLit
 
 
 projectExp:
+    // project( mddOp, boundsIn, crsIn, crsOut )
 	  PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
 	{		
 	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
@@ -4015,24 +4016,7 @@ projectExp:
 	  FREESTACK($9)
 	  FREESTACK($10)
 	}
-/*
-	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit RRPAR
-	{
-	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value );
-	  parseQueryTree->addDynamicObject($$);
-
-	  FREESTACK($1);
-	  FREESTACK($2);
-	  parseQueryTree->removeDynamicObject($3);
-  	  FREESTACK($4)
-	  FREESTACK($5)
-	  FREESTACK($6)
-	  FREESTACK($7)
- 	  FREESTACK($8)
-	  FREESTACK($9)
-	  FREESTACK($10)
-	}
-*/
+    // project( mddOp, boundsIn, crsIn, crsOut, resampleAlg )
 	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA resampleAlg RRPAR
 	{
 	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11 );
@@ -4050,7 +4034,7 @@ projectExp:
 	  FREESTACK($10)
 	  FREESTACK($12)
 	}
-
+    // project( mddOp, boundsIn, crsIn, boundsOut, crsOut, widthOut, heightOut )
 	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
 	                           COMMA IntegerLit COMMA IntegerLit RRPAR
 	{
@@ -4062,20 +4046,7 @@ projectExp:
 	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
 	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
 	}
-/*
-	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
-	                           COMMA IntegerLit COMMA IntegerLit COMMA resampleAlg RRPAR
-	{
-	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.svalue, $15.svalue, $17 );
-	  parseQueryTree->addDynamicObject($$);
-
-	  parseQueryTree->removeDynamicObject($3);
-	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
-	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
-	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
-	  FREESTACK($18)
-	}
-*/
+    // project( mddOp, boundsIn, crsIn, boundsOut, crsOut, widthOut, heightOut, resampleAlg, errThreshold )
 	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
 	                           COMMA IntegerLit COMMA IntegerLit COMMA resampleAlg COMMA FloatLit RRPAR
 	{

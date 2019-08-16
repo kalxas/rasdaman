@@ -1722,7 +1722,7 @@ OpPLUSCULong::OpPLUSCULong(const BaseType *newResType, const BaseType *newOp1Typ
                            const BaseType *newOp2Type, size_t newResOff,
                            size_t newOp1Off, size_t newOp2Off, bool nullAsIdentity)
     : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
-               newOp1Off, newOp2Off,nullAsIdentity)
+               newOp1Off, newOp2Off, nullAsIdentity)
 {
 }
 
@@ -1738,24 +1738,11 @@ OpPLUSCULong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        if (treatNullAsIdentity)
-        {
-            longRes = longOp2;
-        }
-        else
-        {
-            longRes = longOp1;
-        }
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        if (treatNullAsIdentity)
-        {
-            longRes = longOp1;
-        }
-        else {
-            longRes = longOp2;
-        }
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
@@ -2017,7 +2004,6 @@ OpMINUSCULong::operator()(char *res, const char *op1, const char *op2)
         longRes = longOp1 - longOp2;
     }
 
-
     resType->makeFromCULong(res + resOff, &longRes);
 }
 
@@ -2128,7 +2114,6 @@ OpMULTCULong::operator()(char *res, const char *op1, const char *op2)
     else if (isNull(longOp2))
     {
         longRes = treatNullAsIdentity ? longOp1 : longOp2;
-
     }
     else
     {
@@ -2460,7 +2445,7 @@ OpMIN_BINARYCLong::operator()(char *res, const char *op1, const char *op2)
     longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
     longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-if (isNull(longOp1))
+    if (isNull(longOp1))
     {
         longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
@@ -2473,7 +2458,6 @@ if (isNull(longOp1))
         longRes = longOp1 < longOp2 ? longOp1 : longOp2;
     }
     resType->makeFromCLong(res + resOff, &longRes);
-
 }
 
 void
@@ -2620,25 +2604,11 @@ OpMULTCLong::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(longOp1))
     {
-        if (treatNullAsIdentity)
-        {
-            longRes = longOp2;
-        }
-        else
-        {
-            longRes = longOp1;
-        }
+        longRes = treatNullAsIdentity ? longOp2 : longOp1;
     }
     else if (isNull(longOp2))
     {
-        if (treatNullAsIdentity)
-        {
-            longRes = longOp1;
-        }
-        else
-        {
-            longRes = longOp2;
-        }
+        longRes = treatNullAsIdentity ? longOp1 : longOp2;
     }
     else
     {
@@ -2875,7 +2845,7 @@ OpMIN_BINARYCDouble::operator()(char *res, const char *op1, const char *op2)
     doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
     doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
- if (isNull(doubleOp1))
+    if (isNull(doubleOp1))
     {
         doubleRes = treatNullAsIdentity ? doubleOp2 : doubleOp1;
     }
@@ -5777,25 +5747,11 @@ void OpPLUSComplex::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(op1Re))
     {
-        if (treatNullAsIdentity)
-        {
-            resRe = op2Re;
-        }
-        else
-        {
-            resRe = op1Re;
-        }
+        resRe = treatNullAsIdentity ? op2Re : op1Re;
     }
     else if (isNull(op2Re))
     {
-        if (treatNullAsIdentity)
-        {
-            resRe = op1Re;
-        }
-        else
-        {
-            resRe = op2Re;
-        }
+        resRe = treatNullAsIdentity ? op1Re : op2Re;
     }
     else
     {
@@ -5816,11 +5772,11 @@ void OpPLUSComplex::operator()(char *res, const char *op1, const char *op2)
         op2Im = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
         if (isNull(op1Im))
         {
-            resIm = op1Im;
+            resIm = treatNullAsIdentity ? op2Im : op1Im;
         }
         else if (isNull(op2Im))
         {
-            resIm = op2Im;
+            resIm = treatNullAsIdentity ? op1Im : op2Im;
         }
         else
         {
@@ -5873,25 +5829,11 @@ void OpPLUSComplexInt::operator()(char *res, const char *op1, const char *op2)
 
     if (isNull(op1Re))
     {
-        if (treatNullAsIdentity)
-        {
-            resRe = op2Re;
-        }
-        else
-        {
-            resRe = op1Re;
-        }
+        resRe = treatNullAsIdentity ? op2Re : op1Re;
     }
     else if (isNull(op2Re))
     {
-        if (treatNullAsIdentity)
-        {
-            resRe = op1Re;
-        }
-        else
-        {
-            resRe = op2Re;
-        }
+        resRe = treatNullAsIdentity ? op1Re : op2Re;
     }
     else
     {
@@ -5912,11 +5854,11 @@ void OpPLUSComplexInt::operator()(char *res, const char *op1, const char *op2)
         op2Im = *(op2Type->convertToCLong(op2 + op2Off + op2ImOff, &op2Im));
         if (isNull(op1Im))
         {
-            resIm = op1Im;
+            resIm = treatNullAsIdentity ? op2Im : op1Im;
         }
         else if (isNull(op2Im))
         {
-            resIm = op2Im;
+            resIm = treatNullAsIdentity ? op1Im : op2Im;
         }
         else
         {

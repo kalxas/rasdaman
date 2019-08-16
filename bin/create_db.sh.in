@@ -58,6 +58,8 @@ RASDAMAN_USER=rasdaman
 # want to seriously consider whether you really want this)
 DATABASE_NAME=RASBASE
 
+DBCONN="@dbconn@"
+
 # rasdaman base type definition file
 DEFINITION_FILE=@pkgdatadir@examples/rasdl/basictypes.dl
 
@@ -108,7 +110,7 @@ fi
 
 # - check if user has rights to create SQLite database
 if [ "$BASEDBMS" = "$BASEDBMS_SQLITE" ]; then
-  datadir=$(dirname "@dbconn@")
+  datadir=$(dirname "$DBCONN")
   if [ ! -d "$datadir" ]
   then
     logn "filestorage directory '$datadir' not found, creating... "
@@ -130,7 +132,7 @@ fi
 log "rasdaman dictionary initialization... "
 
 logn "  creating RASBASE... "
-@bindir@rasserver -c --connect @dbconn@ > /dev/null || \
+@bindir@rasserver -c --connect "$DBCONN" > /dev/null || \
   error "rasdl failed creating RASBASE."
 echo "ok."
 
