@@ -71,14 +71,17 @@ fi
 
 chmod +x "/tmp/phantomjs"
 
+log "Building test web interface application..."
+
 # then, build the Java application
 cd "$SCRIPT_DIR/TestWebInterfaces"
-mvn clean && mvn package > /dev/null
+mvn -q clean && mvn -q package > $OUTPUT_PATH/mvn_package.log 2>&1
 
 # NOTE: run jar file at source folder not target folder
 mv "$SCRIPT_DIR/TestWebInterfaces/target/test_web_interfaces-spring-boot.jar" "$SCRIPT_DIR/TestWebInterfaces/"
 
-# It will need petascope and secore ports from test.cfg file for test application
-java -jar test_web_interfaces-spring-boot.jar $PETASCOPE_PORT $SECORE_PORT
+log "Running test web interface application..."
 
+# It will need petascope and secore ports from test.cfg file for test application
+java -jar test_web_interfaces-spring-boot.jar $PETASCOPE_PORT $SECORE_PORT > $OUTPUT_PATH/test.log 2>&1
 exit $?

@@ -53,7 +53,7 @@ public class ExceptionUtil {
     public static void handle(String version, Exception ex, HttpServletResponse httpServletResponse) throws IOException {
         httpServletResponse.setContentType(MIMEUtil.MIME_XML);
         
-        log.error("Catched an exception ", ex);
+        log.error("Caught an exception ", ex);
         
         OutputStream outputStream = httpServletResponse.getOutputStream();
 

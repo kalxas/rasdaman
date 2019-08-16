@@ -32,7 +32,7 @@ def parse_arguments():
     parser.add_argument("-i", "--ingredients-file", help="Path to an ingredients file in json format", required=True, type=str)
     parser.add_argument("-d", "--daemon", help="Run wcst_import as daemon. Valid values: start|stop|status|restart", type=str)
     parser.add_argument("-w", "--watch", help="The daemon waits for [interval] seconds before checking the paths in the ingredient file for new data."
-                                              " [interval] must be a positive number; By default the interval is 3600 (1 hour).", type=int)
+                                              " [interval] must be a positive number; By default the interval is 3600 (1 hour).", type=float)
 
     parser.add_argument("--user", help="Username with qualified privileges of the petascope endpoint"
                                        " in the ingredient file.", type=str)

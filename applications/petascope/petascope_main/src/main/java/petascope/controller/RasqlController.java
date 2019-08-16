@@ -61,8 +61,7 @@ public class RasqlController extends AbstractController {
     protected void handlePost(HttpServletRequest httpServletRequest, 
                               HttpServletResponse httpServletResponse,
             @RequestParam(value = KVPSymbols.KEY_UPLOADED_FILE_VALUE, required = false) MultipartFile uploadedMultipartFile) throws Exception {
-        String requestBody = this.getPOSTRequestBody(httpServletRequest);
-        Map<String, String[]> kvpParameters = this.buildPostRequestKvpParametersMap(requestBody);
+        Map<String, String[]> kvpParameters = this.buildGetRequestKvpParametersMap(httpServletRequest.getQueryString());
 
         // A file is uploaded e.g: with WCS clipping extension and WKT text is big string in a text file
         String uploadedFilePath = null;

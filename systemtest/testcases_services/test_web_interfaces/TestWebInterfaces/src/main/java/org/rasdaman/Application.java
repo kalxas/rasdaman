@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogManager;
 import javax.mail.MessagingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -67,6 +68,9 @@ public class Application {
         Config.SECORE_PORT = args[1];
         // Initialize context paths to Petascope and Secore web applications
         Config config = new Config();
+        
+        // NOTE: remove log from .phantomjs.PhantomJSDriverService
+        LogManager.getLogManager().reset();
 
         // No test failed, so the test is done
         int exitCode = 0;
@@ -78,11 +82,11 @@ public class Application {
             System.setProperty("phantomjs.binary.path", PATH_TO_PHANTOMJS_FILE);
             DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
             capabilities.setJavascriptEnabled(true);
-            String[] phantomArgs = new String[]{"--webdriver-loglevel=NONE"};
+            String[] phantomArgs = new String[]{"--webdriver-loglevel=NONE", "--webdriver-logfile=/dev/null"};
             // NOTE: Disable all the logs from phantomjs ( phantomjs://platform/console++.js)
             capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, phantomArgs);
             WebDriver webDriver = new PhantomJSDriver(capabilities);
-            webDriver.manage().window().setSize(new Dimension(800, 600));
+            webDriver.manage().window().setSize(new Dimension(800, 800));
 
             // List of test classes
             List<AbstractWebPageTest> webPageTests = new ArrayList<>();
