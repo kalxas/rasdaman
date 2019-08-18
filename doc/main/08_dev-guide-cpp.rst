@@ -186,8 +186,7 @@ zero, and the second one by way of some assumed initialization function.
 (5)  Memory for the image set is allocated using the new operator of
      class ``r_Object``. As additional arguments, the new operator gets
      the database object in which it is to be inserted and the type
-     name which was created in the database using the RasDL
-     proc­essor (see :ref:`sec-typedefrasdl`).
+     name which was created in the database (see :ref:`sec-rasql-typedef`).
 
      ::
 
@@ -213,7 +212,7 @@ zero, and the second one by way of some assumed initialization function.
 (8)  Memory for a persistent object of type ``r_Marray`` is allocated
      us­ing the new operator of ``r_Ref``. Again, the new operator gets
      the current database and the type name of the MDD object
-     (inser­tion of types is described in :ref:`sec-typedefrasdl`).
+     (creation of types is described in :ref:`sec-rasql-typedef`).
      The constructor of ``r_Marray`` gets the value
      zero which is used for initializing the whole MDD.
 
@@ -1877,16 +1876,8 @@ self explanatory. The programs are built by invoking ``make`` in the
 corresponding subdirectory.
 
 .. note::
-    Before the test programs can be used, a database has to be created and
-    schema information has to be imported.
-
-    .. code-block:: shell
-
-        $ rasdl -c
-        $ rasdl -r $RMANHOME/share/rasdaman/examples/rasdl/basictypes.dl -i
-
-    Further information on the rasdl processor can be found in
-    :ref:`sec-typedefrasdl`.
+    Before the test programs can be used, the rasdaman database has to be 
+    initialized.
 
 Copyright Note
 ==============

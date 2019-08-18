@@ -88,7 +88,7 @@ extern "C" {
         handle = (void *)png_get_io_ptr(png_ptr);
     }
 
-    /* Customized error handling */
+
     static void *png_user_error_ptr = NULL;
 
     static void png_user_warning_fn(__attribute__((unused)) png_struct *png_ptr, const char *warning_msg)

@@ -106,8 +106,7 @@ public:
     inline void set_type_by_name(const char *name);
     /**
       With this method a type name has to be given by the user for each
-      object which he wants to make persistent. The type name is the name
-      introduced in the RasDL file. If an object without a valid type
+      object which he wants to make persistent. If an object without a valid type
       name is made persistent, an error occurs while committing the
       transaction.
 

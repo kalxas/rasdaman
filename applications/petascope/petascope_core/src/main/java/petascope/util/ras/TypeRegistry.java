@@ -457,7 +457,7 @@ public class TypeRegistry {
     } 
 
     /**
-     * Builds the registry from the collected types gathered by parsing the rasdl output
+     * Builds the registry from the collected types gathered by parsing the rasql output
      */
     private void buildRegistry() {
         for (Pair<String, String> setTypePair : setTypeDefinitions) {
@@ -574,8 +574,6 @@ public class TypeRegistry {
     private final ArrayList<Pair<String, String>> setTypeDefinitions = new ArrayList<Pair<String, String>>();
     private HashMap<String, String> setTypeNullValues = new HashMap<String, String>();
     private HashMap<String, String> structTypeDefinitions = new HashMap<String, String>();
-    private final String RASDL_MARRAY_IDENTIFIER = "typedef marray";
-    private final String RASDL_SET_IDENTIFIER = "typedef set";
     private final Logger log = LoggerFactory.getLogger(TypeRegistry.class);
     private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
     private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";

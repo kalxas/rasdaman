@@ -21,13 +21,12 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "config.h"
-
 #include "conversion/formatparams.hh"
 #include "conversion/formatparamkeys.hh"
 
 #include <limits>
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>  // for replace_all
+#include <boost/algorithm/string/trim.hpp>     // for trim_left
 #include <logging.hh>
 
 using std::string;
@@ -110,7 +109,8 @@ void r_Format_Params::parseTranspose()
         const Json::Value &val = params[key];
         if (val.size() != 2 || !val.isArray())
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected an array with two index positions.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected an array with two index positions.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
         transposePair = make_pair(val[0].asInt(), val[1].asInt());
@@ -120,98 +120,92 @@ void r_Format_Params::parseTranspose()
 
 void r_Format_Params::parseColorMap()
 {
-    std::vector<double> pixelValues;
+    const string &key = FormatParamKeys::General::COLORMAP;
+    if (!params.isMember(key))
+        return;
+    
+    const Json::Value &val = params[key];
+
+    const string &type = FormatParamKeys::Encode::ColorMap::TYPE;
+    const string &colorTable = FormatParamKeys::Encode::ColorMap::COLORTABLE;
+    
+    if (val.size() != 2 || !val.isMember(type) || !val.isMember(colorTable))
+    {
+        LERROR << "parameter '" << key << "' has an invalid value(s).";
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+
+    const auto valType = val[type].asString();
+    if (valType == "values")
+        colorMapTable.setColorMapType(r_ColorMap::Type::VALUES);
+    else if (valType == "intervals")
+        colorMapTable.setColorMapType(r_ColorMap::Type::INTERVALS);
+    else if (valType == "ramp")
+        colorMapTable.setColorMapType(r_ColorMap::Type::RAMP);
+    else
+    {
+        LERROR << "Invalid colorMap type: " << valType;
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+
+    const Json::Value &table = val[colorTable];
+    if (table.empty())
+    {
+        LERROR << "Empty colorTable provided.";
+        throw r_Error(INVALIDFORMATPARAMETER);
+    }
+    
     std::map<double, std::string> pixelValuesMap;
+    std::vector<double> pixelValues;
+    unsigned int i = 0;
+    for (Json::ValueConstIterator a = table.begin(); a != table.end(); a++, i++)
+    {
+        try
+        {
+            pixelValues.push_back(stod(a.key().asString()));
+        }
+        catch(...)
+        {
+            LERROR << "Cannot transform '" << a.key().asString() << "' to double.";
+            throw r_Error(r_Error::r_Error_Conversion);
+        }
+        pixelValuesMap[pixelValues.back()] = a.key().asString();
+    }
+    sort(pixelValues.begin(), pixelValues.end());
+    
     std::map<double, std::vector<unsigned char>> colorTableMap;
     std::unordered_map<double, std::vector<unsigned char>> uColorTableMap;
-
-    const string &key = FormatParamKeys::General::COLORMAP;
-    if (params.isMember(key))
+    bool nrCompSet{false};
+    size_t nrComp{};
+    for (unsigned int n = 0; n < i; n++)
     {
-        const Json::Value &val = params[key];
-
-        const string &type = FormatParamKeys::Encode::ColorMap::TYPE;
-        const string &colorTable = FormatParamKeys::Encode::ColorMap::COLORTABLE;
-        
-        if (val.size() != 2 || !val.isMember(type) || !val.isMember(colorTable))
+        double it = pixelValues[n];
+        for (Json::Value x : table[pixelValuesMap[it]])
         {
-            LERROR << "parameter '" << key << "' has an invalid value(s).";
-            throw r_Error(INVALIDFORMATPARAMETER);
-        }
-
-        if (val[type].asString() == "values")
-        {
-            colorMapTable.setColorMapType(r_ColorMap::Type::VALUES);
-        }
-        else if (val[type].asString() == "intervals")
-        {
-            colorMapTable.setColorMapType(r_ColorMap::Type::INTERVALS);
-        }
-        else if (val[type].asString() == "ramp")
-        {
-            colorMapTable.setColorMapType(r_ColorMap::Type::RAMP);
-        }
-        else
-        {
-            LERROR << "Invalid colorMap type: " << val[type].asString();
-            throw r_Error(INVALIDFORMATPARAMETER);
-        }
-
-        const Json::Value &table = val[colorTable];
-
-        if (table.empty())
-        {
-            LERROR << "Empty colorTable provided.";
-            throw r_Error(INVALIDFORMATPARAMETER);
-        }
-
-        int i = 0;
-        for (Json::ValueConstIterator a = table.begin(); a != table.end(); a++, i++)
-        {
-            try
+            if (x.asInt() >= 0 && x.asInt() <= 255)
             {
-                pixelValues.push_back(stod(a.key().asString()));
+                colorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
+                uColorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
             }
-            catch(...)
+            else
             {
-                LERROR << "Cannot transform '" << a.key().asString() << "' to double.";
-                throw r_Error(r_Error::r_Error_Conversion);
-            }
-            pixelValuesMap[pixelValues.back()] = a.key().asString();
-        }
-        sort(pixelValues.begin(), pixelValues.end());
-
-        int nrComp = -1;
-        for (unsigned int n = 0; n < i; n++)
-        {
-            double it = pixelValues[n];
-            for (Json::Value x : table[pixelValuesMap[it]])
-            {
-                if (x.asInt() >= 0 && x.asInt() <= 255)
-                {
-                    colorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
-                    uColorTableMap[pixelValues[n]].push_back(static_cast<unsigned char>(x.asInt()));
-                }
-                else
-                {
-                    LERROR << "Entry '" << x.asInt() << "' is not whithin the interval [0, 255].";
-                    throw r_Error(INVALIDFORMATPARAMETER);
-                }
-            }
-            if (nrComp == -1)
-            {
-                nrComp = colorTableMap[pixelValues[n]].size();
-            }
-            else if (nrComp != colorTableMap[pixelValues[n]].size())
-            {
-                LERROR << "All entries in the color table must have the same number of components.";
+                LERROR << "Entry '" << x.asInt() << "' is not whithin the interval [0, 255].";
                 throw r_Error(INVALIDFORMATPARAMETER);
             }
         }
-        colorMapTable.setColorTable(colorTableMap);
-        colorMapTable.setUColorTable(uColorTableMap);
-        colorMapFlag = true;
+        if (!nrCompSet)
+        {
+            nrComp = colorTableMap[pixelValues[n]].size();
+        }
+        else if (nrComp != colorTableMap[pixelValues[n]].size())
+        {
+            LERROR << "All entries in the color table must have the same number of components.";
+            throw r_Error(INVALIDFORMATPARAMETER);
+        }
     }
+    colorMapTable.setColorTable(colorTableMap);
+    colorMapTable.setUColorTable(uColorTableMap);
+    colorMapFlag = true;
 }
 
 void r_Format_Params::parseVariables()
@@ -243,7 +237,8 @@ void r_Format_Params::parseVariables()
         }
         else
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected an array/object with dataset/band identifiers.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected an array/object with dataset/band identifiers.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
     }
@@ -257,7 +252,8 @@ void r_Format_Params::parseFilepaths()
         const Json::Value &val = params[key];
         if (!val.isArray())
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected an array with file paths.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected an array with file paths.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
         for (Json::ArrayIndex i = 0; i < val.size(); i++)
@@ -274,7 +270,8 @@ void r_Format_Params::parseStringKeyValuesList(const string &key, std::vector<st
         const Json::Value &val = params[key];
         if (!val.isObject())
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected an object with key/value pairs.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected an object with key/value pairs.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
 
@@ -299,7 +296,8 @@ void r_Format_Params::parseSubsetDomain()
         }
         catch (r_Error &err)
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected a subset minterval.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected a subset minterval.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
     }
@@ -317,7 +315,8 @@ void r_Format_Params::parseNodata()
             {
                 if (!val[i].isDouble())
                 {
-                    LERROR << "parameter '" << key << "' has an invalid value, expected an array of double values.";
+                    LERROR << "parameter '" << key
+                           << "' has an invalid value, expected an array of double values.";
                     throw r_Error(INVALIDFORMATPARAMETER);
                 }
                 nodata.push_back(val[i].asDouble());
@@ -329,7 +328,8 @@ void r_Format_Params::parseNodata()
         }
         else
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected double or an array of double values.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected double or an array of double values.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
     }
@@ -355,7 +355,8 @@ void r_Format_Params::parseMetadata()
         }
         else
         {
-            LERROR << "parameter '" << key << "' has an invalid value, expected string or an object of key/value string pairs.";
+            LERROR << "parameter '" << key
+                   << "' has an invalid value, expected string or an object of key/value string pairs.";
             throw r_Error(INVALIDFORMATPARAMETER);
         }
     }
@@ -373,7 +374,8 @@ void r_Format_Params::parseGeoReference()
         }
         else
         {
-            LWARNING << "parameter '" << key << "' has an invalid value, it must contain a crs.";
+            LWARNING << "parameter '" << key
+                     << "' has an invalid value, it must contain a crs.";
         }
         const string &keyBbox = FormatParamKeys::Encode::BBOX;
         if (geoRef.isMember(keyBbox))
@@ -392,7 +394,8 @@ void r_Format_Params::parseGeoReference()
             }
             else
             {
-                LWARNING << "parameter '" << keyBbox << "' has an invalid value, it must contain xmin, ymin, xmax and ymax parameters.";
+                LWARNING << "parameter '" << keyBbox
+                         << "' has an invalid value, it must contain xmin, ymin, xmax and ymax parameters.";
             }
         }
     }

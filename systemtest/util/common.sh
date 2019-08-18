@@ -52,8 +52,6 @@ export PY_RASQL="python $UTIL_SCRIPT_DIR/../testcases_mandatory/test_rasdapy/ras
 --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADMIN_USER \
 --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
-export RASDL="rasdl -d $RASDB"
-export RASIMPORT="rasimport"
 
 export START_RAS=start_rasdaman.sh
 export STOP_RAS=stop_rasdaman.sh
@@ -477,7 +475,6 @@ check_query_runable()
 
 check_filestorage_dependencies()
 {
-  [ -f "$RMANHOME/bin/rasdl" ] || error "rasdl not found, RMANHOME not defined properly?"
   [ -f "$RASMGR_CONF" ] || error "$RASMGR_CONF not found, RMANHOME not defined properly?"
   type sqlite3 &> /dev/null || error "sqlite3 not found, please install."
 }
@@ -1235,7 +1232,7 @@ recreate_rasbase()
   rm -rf "$DB_DIR"; mkdir -p "$DB_DIR"
   rm -rf "$LOG_DIR"/*
   logn "recreating RASBASE... "
-  rasdl -c --connect "$DB_DIR/RASBASE" > /dev/null && rasdl --connect "$DB_DIR/RASBASE" -r "$RMANHOME/share/rasdaman/examples/rasdl/basictypes.dl" -i > /dev/null
+  "$RMANHOME"/bin/create_db.sh
   check
   restart_rasdaman
 }

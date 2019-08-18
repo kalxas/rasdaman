@@ -222,15 +222,7 @@ public class TypeResolverUtil {
                     if (cellTypeByBand.length == gdalBandTypes.size()) {
                         Boolean allBandsMatch = true;
                         //compare band by band
-                        for (int j = 0; j < cellTypeByBand.length; j++) {
-                            //fix rasdaman type bug, where ushort and ulong are printed by rasdl, but not accepted as input.
-                            // Instead rasdl wants "unsigned short" or "unsigned long"
-                            if (cellTypeByBand[j].contains("ushort")) {
-                                cellTypeByBand[j] = "unsigned short";
-                            }
-                            if (cellTypeByBand[j].contains("ulong")) {
-                                cellTypeByBand[j] = "unsigned long";
-                            }                            
+                        for (int j = 0; j < cellTypeByBand.length; j++) {       
                             if (!cellTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
                                 allBandsMatch = false;
                             }

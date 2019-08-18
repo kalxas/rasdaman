@@ -31,8 +31,7 @@ rasdaman GmbH.
  * representation of the RasDaMan type system.
  * <P>
  * <B>Note:</B> if a new base type is created using this class, it is only known on client-side but not
- * stored within the database. If you want to introduce a new type for the RasDaMan system, you
- * should use the "rasdl" utility.
+ * stored within the database.
  * </P>
  * @version $Revision: 1.6 $
  *

@@ -766,7 +766,7 @@ yet, always are the numerical zero value of the corresponding type. This
 extends in the obvious way to composite cells.
 
 +----------------------+--------------+------------------------------------+
-| RasDL                | Length       | Description                        |
+| Rasdaman             | Length       | Description                        |
 +----------------------+--------------+------------------------------------+
 | ``octet``            | 8 bit        | signed integer                     |
 +----------------------+--------------+------------------------------------+
@@ -853,7 +853,6 @@ insertion time of the MDD into the database. ::
     myMDD.setArray( mydata );
 
     // set image type name
-    // (see distribution file examples/rasdl/basictypes.dl):
     myMDD.setObjectTypeName("GreyImage");
 
     // add storage layout object:

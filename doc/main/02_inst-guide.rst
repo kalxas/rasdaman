@@ -1062,20 +1062,15 @@ created, e.g: ::
 Database Initialization
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``create_db.sh`` script creates and initializes a rasdaman database
-named ``RASBASE`` by instantiating a set of standard types in rasdaman via the
-``rasdl`` command-line tool. It has no parameters and is invoked as: ::
+The ``create_db.sh`` script creates and initializes a rasdaman database named
+``RASBASE`` by instantiating a set of standard types in rasdaman. It has no
+parameters and is invoked as: ::
 
     $ create_db.sh
 
 .. note::
-    For creation of new databases, rasdaman servers have to be restarted,
-    otherwise the databases may not be recognized. Updating a rasdaman
-    database schema (that is: creating new types and the like), however,
-    does not need a server restart.
+    The rasdaman server should be stopped when running this command.
 
-.. note::
-    Running ``rasdl`` does not require the rasdaman server to be up.
 
 Server Configuration (Optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1526,11 +1521,7 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |``--service (core | secore | petascope )`` option can be used   |
 |                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
 +------------------------------+----------------------------------------------------------------+
-|``rasdl``                     |Tool for RASBASE creation/deletion and type management          |
-|                              |(deprecated).                                                   |
-+------------------------------+----------------------------------------------------------------+
-|``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE);            |
-|                              |convenience wrapper around ``rasdl``.                           |
+|``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE).            |
 +------------------------------+----------------------------------------------------------------+
 |``update_dh.sh``              |Applies migration scripts to RASBASE.                           |
 +------------------------------+----------------------------------------------------------------+
@@ -1650,21 +1641,14 @@ others:
 
 *  ``rasmgr`` is the central rasdaman request dispatcher;
 
-*  ``rasserver`` is the rasdaman server engine, it should not (and actually
-   cannot) be invoked in a standalone manner;
+*  ``rasserver`` is the rasdaman server engine, it should not be generally 
+   invoked in a standalone manner;
 
 *  ``rascontrol`` allows to interactively control the rasdaman server by
    communicating with ``rasmgr``;
 
-*  ``rasdl`` is the command-line based schema maintenance tool; this is
-   (currently) not a client application, but connetxts directly to
-   the relational database manager. It is mostly deprecated, as its
-   functionality is support in rasql.
-
-*  ``rasql`` is the command-line based query tool.
-
-The ``rasdl`` and ``rasql`` tools are explained in detail in the *rasdaman
-Query Language Guide*.
+*  ``rasql`` is the command-line based query tool, explained in detail in 
+   the *rasdaman Query Language Guide*.
 
 .. _sec-server-mgr-server:
 
@@ -1967,8 +1951,7 @@ Command Line Tools
 Queries can be submitted to the command line tool ``rasql``. Complete
 control over the server is provided through several utilities, in
 particular ``rasmgr``; see :ref:`sec-rascontrol-invocation` for details. All
-tools can communicate with local and remote rasdaman servers (current exception:
-``rasdl``).
+tools can communicate with local and remote rasdaman servers.
 
 Web Services
 ============
@@ -3161,27 +3144,18 @@ disk space - first: Successful generation of this database shows overall
 successful rasdaman installation.
 
 Before the test programs can be used, the demo database has to be created and
-schema information has to be imported. The following command line creates the
-database *RASBASE*:
+schema information has to be imported if it was not already done during the
+installation of rasdaman: ::
 
-::
+    $ create_db.sh
 
-    $ rasdl --basename RASBASE --createdatabase
+Afterwards, the following line establishes the demo database (using a script
+from the ``bin`` directory: ::
 
-The following imports schema information:
+    $ rasdaman_insertdemo.sh
 
-::
-
-    $ rasdl --basename RASBASE
-            --read examples/rasdl/basictypes.dl --insert
-
-Finally, the following line establishes the demo database (using a script from
-the ``bin`` directory: ::
-
-    $ rasdaman_insertdemo.sh base
-
-It is not important whether the rasdaman server is running during ``rasdl``
-execution, however, the server is required for the ``rasdaman_insert­demo.sh``
+The rasdaman server should not be running during ``create_db.sh`` execution,
+however, the server should be started for the ``rasdaman_insert­demo.sh``
 script, as this is a client application.
 
 Example Programs

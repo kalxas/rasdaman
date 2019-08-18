@@ -94,7 +94,7 @@ function is_coll_empty()
 
 
 # ------------------------------------------------------------------------------
-# check user-defined types, if not present testdata/types.dl is read by rasdl.
+# check user-defined types
 # arg 1: set type name
 #
 function check_user_type()
@@ -139,9 +139,9 @@ function drop_colls()
 #
 function drop_types()
 {
-  $RASDL --delsettype "$1" > /dev/null
-  $RASDL --delmddtype "$2" > /dev/null
-  [ -n "$3" ] && $RASDL --delbasetype "$3" > /dev/null
+  $RASQL "drop type $1" > /dev/null
+  $RASQL "drop type $2" > /dev/null
+  [ -n "$3" ] && $RASQL "drop type $3" > /dev/null
 }
 
 

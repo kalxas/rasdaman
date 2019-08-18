@@ -200,7 +200,6 @@ rm -f %{buildroot}%{_bindir}/directql
 # Create home for our user
 install -d -m 755 %{buildroot}%{rasdir}
 install -d -m 755 %{buildroot}%{rasdir}/data
-cp -a %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
 sed 's|connect RASBASE|connect %{rasdir}/data/RASBASE/|g' -i %{buildroot}%{_sysconfdir}/rasdaman/rasmgr.conf
 
 # Move includes from topdir to subdir
@@ -238,7 +237,6 @@ fi
 %defattr(-,root,root,-)
 %{_bindir}/rasdaman_insertdemo.sh
 %{_bindir}/rascontrol
-%{_bindir}/rasdl
 %{_bindir}/rasmgr
 %{_bindir}/raspasswd
 %{_bindir}/rasql

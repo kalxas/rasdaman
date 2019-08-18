@@ -462,7 +462,7 @@ ServerComm::closeDB(unsigned long callingClientId)
     return returnValue;
 }
 
-// no client id as this method is only ever called from rasdl
+// no client id as this method is only ever called from rasserver --createdatabase
 unsigned short
 ServerComm::createDB(char *name)
 {
@@ -490,7 +490,7 @@ ServerComm::createDB(char *name)
     return returnValue;
 }
 
-// no client id as this method is only ever called from rasdl
+// no client id as this method is only ever called from rasserver --deldatabase
 unsigned short
 ServerComm::destroyDB(char *name)
 {

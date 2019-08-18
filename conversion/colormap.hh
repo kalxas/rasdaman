@@ -32,45 +32,50 @@
 #include "raslib/basetype.hh"
 #include "raslib/type.hh"
 
+using ColorTableMap = std::map<double, std::vector<unsigned char>>;
+using ColorTableUMap = std::unordered_map<double, std::vector<unsigned char>>;
+
 class r_ColorMap
 {
 public:
-    r_ColorMap();
-
     enum Type
     {
         VALUES,
         INTERVALS,
         RAMP
     };
-
-    const char *applyColorMap(const r_Type *srcType, const char *srcData, const r_Minterval &dimData, int &baseType);
-
-    void setColorMapType(r_ColorMap::Type type);
     
-    void setColorTable(std::map<double, std::vector<unsigned char>> colorTableMap);
+    r_ColorMap();
 
-    void setUColorTable(std::unordered_map<double, std::vector<unsigned char>> uColorTableMap);
+    const char *applyColorMap(
+            const r_Type *srcType, const char *srcData, const r_Minterval &dimData, int &baseType);
+    
+    void setColorMapType(r_ColorMap::Type type);
+
+    void setColorTable(ColorTableMap colorTableMap);
+
+    void setUColorTable(ColorTableUMap uColorTableMap);
+    
+    size_t getResultBandNumber() const;
 private:
-    r_ColorMap::Type colorMapType;
+    r_ColorMap::Type colorMapType{r_ColorMap::Type::VALUES};
 
     /// pixelValues as keys and colorValues as values
-    std::map<double, std::vector<unsigned char>> colorTable;
+    ColorTableMap colorTable;
 
     /// same colorTable, but in an unordered_map
-    std::unordered_map<double, std::vector<unsigned char>> uColorTable;
+    ColorTableUMap uColorTable;
 
     template <class T>
-    const char *prepareColorMap(const char *srcData, const r_Minterval &dimData);
+    const char *applySpecificColorMap(const char *srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
 
     template <class T>
-    const char *applyValuesColorMap(const char *srcData, size_t nrPixels);
+    const char *applyValuesColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
 
     template <class T>
-    const char *applyIntervalsColorsMap(const char *srcData, size_t nrPixels);
-
-    template <class T>
-    const char *applyRampColorMap(const char *srcData, size_t nrPixels);
+    const char *applyIntervalsColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp);
+    
+    const std::vector<unsigned char> *getUColor(double curr) const;
 };
 
 #endif /* R_CONV_COLORMAP_HH */

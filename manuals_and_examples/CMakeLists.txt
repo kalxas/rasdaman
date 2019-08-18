@@ -29,12 +29,10 @@ install(DIRECTORY examples/images
 install(DIRECTORY examples/java
         DESTINATION "${EXAMPLES_DIR}"
 		PATTERN "*.in" EXCLUDE)
-install(FILES examples/c++/query.cc examples/c++/basictypes.hh
+install(FILES examples/c++/query.cc
         DESTINATION "${EXAMPLES_DIR}/c++")
 install(DIRECTORY examples/queries
         DESTINATION "${EXAMPLES_DIR}")
-install(FILES examples/rasdl/basictypes.dl
-        DESTINATION "${EXAMPLES_DIR}/rasdl/")
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/examples/c++/Makefile.in" 
                "${CMAKE_CURRENT_BINARY_DIR}/examples/c++/Makefile" @ONLY)

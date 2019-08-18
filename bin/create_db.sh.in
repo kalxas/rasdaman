@@ -60,9 +60,6 @@ DATABASE_NAME=RASBASE
 
 DBCONN="@dbconn@"
 
-# rasdaman base type definition file
-DEFINITION_FILE=@pkgdatadir@examples/rasdl/basictypes.dl
-
 # error termination routine
 error() {
 	echo
@@ -93,11 +90,6 @@ log "creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
 if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
     psql --help 2>&1 1>/dev/null || \
         error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
-fi
-
-if [ ! -f $DEFINITION_FILE ]
-then
-	error "Error: cannot find rasdaman basic type definition file '$DEFINITION_FILE'"
 fi
 
 # --- action: create database directory & cluster if needed
@@ -133,7 +125,7 @@ log "rasdaman dictionary initialization... "
 
 logn "  creating RASBASE... "
 @bindir@rasserver -c --connect "$DBCONN" > /dev/null || \
-  error "rasdl failed creating RASBASE."
+  error "failed creating RASBASE."
 echo "ok."
 
 logn "  inserting standard types... "

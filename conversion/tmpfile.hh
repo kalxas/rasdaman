@@ -45,7 +45,7 @@ public:
     int getFileDescriptor() const;
     /// write the given data with dataSize (bytes)
     void writeData(const char *data, size_t dataSize);
-    /// write the given data with dataSize (bytes)
+    /// read the given data with dataSize (bytes)
     char *readData(long &dataSize);
 
 private:

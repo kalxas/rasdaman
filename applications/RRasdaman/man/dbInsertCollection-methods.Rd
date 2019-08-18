@@ -47,7 +47,7 @@ Inserting arrays into a Rasdaman database and updating them.
 
     \item{typename}{the typename of the inserting/updating array, e.g.
     \code{RGBImage}, \code{LongString}. One can get the list of typenames
-    available on their Rasdaman installaction by running \code{rasdl -p}. For
+    available on their Rasdaman installaction via \code{rasql} statements. For
     more details see Rasdaman Query Language Quide.}
 
     \item{region}{the region to update specified as string representation of

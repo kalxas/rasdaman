@@ -35,7 +35,7 @@ fi
 
 # Reset empty to defaults
 rasmgr=${RASMGR-/usr/bin/rasmgr}
-rasdl=${RASMGR-/usr/bin/rasdl}
+rasserver=${RASMGR-/usr/bin/rasserver}
 rasctrl=${RASCONTROL-/usr/bin/rascontrol}
 pidfile=${PIDFILE-/var/run/rasdaman.pid}
 lockfile=${LOCKFILE-/var/lock/subsys/rasdaman}
@@ -177,11 +177,11 @@ initdb(){
   fi
 
   # insert type definitions
-  $SU -l rasdaman -s "$rasshell" -c "$rasdl -c --connect RASBASE && $rasdl -r $deffile -i --connect RASBASE"
+  $SU -l rasdaman -s "$rasshell" -c "$rasserver -c"
   RETVAL=$?
   if [[ $RETVAL != 0 ]]
   then
-    echo $"inserting type definitions to rasdaman with rasdl failed"
+    echo $"initializing database schema in rasdaman failed"
     exit $!
   fi
 }

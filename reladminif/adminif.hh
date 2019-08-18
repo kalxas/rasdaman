@@ -86,7 +86,7 @@ public:
     static AdminIf *instance(bool createDb = false);
     /*@Doc:
     static function used to access instance of AdminIf and start session.
-    createDb should be true only for rasdl when it is executed to create RASBASE.
+    createDb should be true only when it is executed to create RASBASE.
     */
 
     static DatabaseIf *getCurrentDatabaseIf();
@@ -141,7 +141,7 @@ protected:
     constructor, can not be used from outside; initializes the objectbroker and
     checks
     validity of RAS_COUNTERs.
-    createDb should be true only for rasdl when it is executed to create RASBASE.
+    createDb should be true only when it is executed to create RASBASE.
     */
 
 private:

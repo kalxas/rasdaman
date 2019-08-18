@@ -1,3 +1,0 @@
-struct testStruct{long val1;char val2;};
-typedef marray <testStruct,[-5:-1]> testMarray;
-typedef set <testMarray> testSet;
