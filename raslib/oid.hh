@@ -35,6 +35,7 @@ rasdaman GmbH.
 #define _D_OID_
 
 #include <iosfwd>
+#include "raslib/odmgtypes.hh"
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -54,7 +55,7 @@ public:
     r_OId(const char *);
 
     /// constructor getting oid parts
-    r_OId(const char *initSystemName, const char *initBaseName, double initLocalOId);
+    r_OId(const char *initSystemName, const char *initBaseName, r_Long initLocalOId);
 
     /// copy constructor
     r_OId(const r_OId &);
@@ -106,7 +107,7 @@ public:
     inline const char *get_base_name() const;
 
     /// get local oid
-    inline double get_local_oid() const;
+    inline r_Long get_local_oid() const;
 
     /// determines if oid is valid
     inline bool is_valid() const;
@@ -122,7 +123,7 @@ private:
     char *baseName{NULL};
 
     /// local oid
-    double localOId{};
+    r_Long localOId{};
 };
 
 

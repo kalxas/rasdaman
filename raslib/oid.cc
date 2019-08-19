@@ -97,7 +97,7 @@ r_OId::r_OId(const char *initOIdString)
     }
 }
 
-r_OId::r_OId(const char *initSystemName, const char *initBaseName, double initLocalOId)
+r_OId::r_OId(const char *initSystemName, const char *initBaseName, r_Long initLocalOId)
     : localOId(initLocalOId)
 {
     // set members

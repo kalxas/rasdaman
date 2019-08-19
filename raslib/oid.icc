@@ -48,7 +48,7 @@ r_OId::get_base_name() const
     return baseName;
 }
 
-inline double
+inline r_Long
 r_OId::get_local_oid() const
 {
     return localOId;
