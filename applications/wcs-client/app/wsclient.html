@@ -1,0 +1,47 @@
+<div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="background-color: white;">
+                <uib-tabset active="active">    
+                    <!-- WCS content -->                                            
+                    <uib-tab index="1" heading="OGC Web Coverage Service (WCS)">
+                        <uib-tabset justified="true">
+                            <div ng-controller="rasdaman.WCSMainController">
+                                <uib-tabset justified="true">
+                                    <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
+                                            disable="tab.disabled">                                        
+                                         <div ui-view="{{tab.view}}"></div> 
+                                    </uib-tab>
+                                </uib-tabset>
+                            </div>
+                        </uib-tabset>
+                    </uib-tab>                        
+                    <!-- WMS content -->  
+                    <uib-tab index="0" heading="OGC Web Map Service (WMS)">
+                        <uib-tabset justified="true">
+                             <div ng-controller="rasdaman.WMSMainController">                                     
+                                <uib-tabset justified="true">
+                                    <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
+                                            disable="tab.disabled">                                                                                       
+                                        <div ui-view="{{tab.view}}"></div>
+                                    </uib-tab>
+                                </uib-tabset>
+                            </div>
+                        </uib-tabset>
+                    </uib-tab>
+                    <!-- Admin content -->  
+                    <uib-tab index="2" heading="Admin">
+                        <uib-tabset justified="true">
+                                <div ng-controller="rasdaman.AdminMainController">                                     
+                                <uib-tabset justified="true">                                        
+                                    <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
+                                            disable="tab.disabled">                                                                                                              
+                                        <div ui-view="{{tab.view}}"></div>
+                                    </uib-tab>
+                                </uib-tabset>
+                            </div>
+                        </uib-tabset>
+                    </uib-tab>
+                </uib-tabset>
+            </div>
+        </div>
+    </div>

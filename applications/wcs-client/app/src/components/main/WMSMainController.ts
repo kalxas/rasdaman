@@ -43,7 +43,7 @@ module rasdaman {
             // it will change to DescribeLayer tab and get metadata for this layer.
             $scope.describeLayer = function(layerName:string) {
                 $scope.wmsDescribeLayerTab.active = true;
-                $rootScope.$broadcast("wmsSelectedLayerName", layerName);
+                $rootScope.wmsSelectedLayerName = layerName;
             };
 
             // NOTE: must initialize wmsStateInformation first or watcher for serverCapabilities in GetCapabilities

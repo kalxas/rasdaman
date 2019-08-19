@@ -70,7 +70,7 @@ module rasdaman {
             // it will change to DescribeCoverage tab and get metadata for this coverageId.
             $scope.describeCoverage = function(coverageId:string) {
                 $scope.wcsDescribeCoverageTab.active = true;
-                $rootScope.$broadcast("wcsSelectedGetCoverageId", coverageId);
+                $rootScope.wcsSelectedGetCoverageId = coverageId;
             };
         }
 

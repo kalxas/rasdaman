@@ -60,11 +60,11 @@ module rasdaman {
             // default hide the div containing the Globe
             $scope.hideWebWorldWindGlobe = true;
 
-            $scope.isCoverageIdValid = ()=> {
+            $scope.isCoverageIdValid = function():boolean {
                 if ($scope.wcsStateInformation.serverCapabilities) {
                     var coverageSummaries = $scope.wcsStateInformation.serverCapabilities.contents.coverageSummaries;
                     for (var i = 0; i < coverageSummaries.length; i++) {
-                        if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {
+                        if (coverageSummaries[i].coverageId == $scope.selectedCoverageId) {                            
                             return true;
                         }
                     }
@@ -73,9 +73,11 @@ module rasdaman {
                 return false;
             };
 
-            $rootScope.$on("wcsSelectedGetCoverageId", (event:angular.IAngularEvent, coverageId:string)=> {                
-                $scope.selectedCoverageId = coverageId;
-                $scope.describeCoverage();
+            $rootScope.$watch("wcsSelectedGetCoverageId", (coverageId:string)=> {
+                if (coverageId != null) {
+                    $scope.selectedCoverageId = coverageId;
+                    $scope.describeCoverage();
+                }
             });
 
             $scope.$watch("wcsStateInformation.serverCapabilities", (capabilities:wcs.Capabilities)=> {
@@ -182,10 +184,6 @@ module rasdaman {
             }
 
             $scope.describeCoverage = function () {                
-                if (!$scope.isCoverageIdValid()) {
-                    alertService.error("The entered coverage ID is invalid.");
-                    return;
-                }
 
                 //Create describe coverage request
                 var coverageIds:string[] = [];
@@ -260,7 +258,7 @@ module rasdaman {
         typeMetadata:string;
 
 
-        isCoverageIdValid():void;
+        isCoverageIdValid():boolean;
         describeCoverage():void;
         getAxisResolution(number, any):string;
         getAxisType(number, any):string;

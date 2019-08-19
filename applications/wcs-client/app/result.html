@@ -1,0 +1,89 @@
+<html>
+
+<head>
+    <script src="assets/components/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body>
+
+    <div id="loading">Processing the result ...</div>
+
+    <script>
+
+        var kvpParametersObj = JSON.parse(localStorage.getItem("GetcoverageKVPParameters"));
+        var petascopeEndPoint = kvpParametersObj["PetascopeEndPoint"];
+
+        var authorizationHeader = kvpParametersObj["Authorization"];
+
+        delete kvpParametersObj["PetascopeEndPoint"];
+        delete kvpParametersObj["Authorization"];
+
+        // Some MIME types can be displayed instead of downloading as file
+        function isDisplayableMimeType(mimeType) {
+
+            if (mimeType === "text/xml"
+               || mimeType === "image/png"
+               || mimeType === "image/jpeg"
+               || mimeType === "text/csv"
+               || mimeType === "application/json") {
+                   return true;
+            }
+
+            return false;
+        }
+
+              
+        $(document).ready(function() {
+            
+            var kvpParameters = "";
+            Object.entries(kvpParametersObj).forEach(([key, value]) => {
+                kvpParameters += key + "=" + value + "&";
+            });
+
+            var fileName = "";
+            var mimeType = "";
+
+            fetch(petascopeEndPoint, {
+                    method: "post",
+                    body: kvpParameters,
+                    headers: {
+                        "Authorization": authorizationHeader,
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                })
+                .then(response => {
+                    // NOTE: https://stackoverflow.com/a/48432628
+                    
+                    fileName = response.headers.get("content-disposition").split("=")[1];                    
+                    mimeType = response.headers.get("content-type");
+                    return response.blob();
+                })
+                .then(blob => {
+
+                    var a = $("<a style='display: none;'/>");
+                    
+                    var url = window.URL.createObjectURL(blob);
+                    a.attr("href", url);
+
+                    if (!isDisplayableMimeType(mimeType)) { 
+                        a.attr("download", fileName);
+                    }
+
+                    $("body").append(a);
+                    a[0].click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                    $("#loading").html("");
+                })
+                .catch(error => {
+                    alert(error);
+                });
+
+        });
+
+    </script>
+
+</body>
+
+</html>

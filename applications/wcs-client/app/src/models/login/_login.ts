@@ -20,19 +20,5 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-module admin {
-    export class Credential {
-        private username:string;
-        private password:string;
 
-        public constructor(username, password) {            
-            this.username = username;
-            this.password = password;
-        }        
-
-        public toKVP():string {
-            return "username=" + this.username +
-                "&password=" + this.password;
-        }
-    }
-}
+/// <reference path="Credential.ts"/>

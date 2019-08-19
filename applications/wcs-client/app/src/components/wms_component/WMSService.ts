@@ -26,13 +26,16 @@
 
 module rasdaman {
     export class WMSService {
-        public static $inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        public static $inject = ["$http", "$q", "rasdaman.WMSSettingsService", 
+                                 "rasdaman.common.SerializedObjectFactory", "$window",
+                                 "rasdaman.CredentialService"];
 
         public constructor(private $http:angular.IHttpService,
                            private $q:angular.IQService,
                            private settings:rasdaman.WMSSettingsService,
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
-                           private $window:angular.IWindowService) {
+                           private $window:angular.IWindowService,
+                           private credentialService:rasdaman.CredentialService) {
         }
 
 
@@ -40,9 +43,12 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
+            var currentHeaders = {};
+
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                    headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+                }).then(function (data:any) {
                     try {
                         var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = self.serializedObjectFactory.getSerializedObject(gmlDocument);
@@ -67,13 +73,14 @@ module rasdaman {
         public updateLayerStyleRequest(updateLayerStyle:wms.UpdateLayerStyle):angular.IPromise<any> {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wmsEndpoint;
+            var currentHeaders = {"Content-Type": "application/x-www-form-urlencoded"};
 
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
                 transformResponse: null,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
                 data: this.settings.wmsServiceNameVersion + "&" + updateLayerStyle.toKVP()
             };
 
@@ -92,13 +99,14 @@ module rasdaman {
         public insertLayerStyleRequest(insertLayerStyle:wms.InsertLayerStyle):angular.IPromise<any> {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wmsEndpoint;
+            var currentHeaders = {"Content-Type": "application/x-www-form-urlencoded"};
 
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
                 transformResponse: null,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
                 data: this.settings.wmsServiceNameVersion + "&" + insertLayerStyle.toKVP()
             };
 
@@ -117,9 +125,11 @@ module rasdaman {
             var result = this.$q.defer();
             // Build the request URL
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
+            var currentHeaders = {};
 
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
+            }).then(function (data:any) {
                     try {                                                
                         result.resolve("");
                     } catch (err) {

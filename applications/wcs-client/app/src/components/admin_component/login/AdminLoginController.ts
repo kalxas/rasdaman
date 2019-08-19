@@ -47,14 +47,14 @@ module rasdaman {
                            private alertService:any,
                            private errorHandlingService:ErrorHandlingService) {
 
-            $scope.credential = new admin.Credential("", "");
+            $scope.credential = new login.Credential("", "");
 
             // Login with Petascope admin credential
             $scope.login = (...args: any[])=> {
                 adminService.login($scope.credential).then(
                     (...args:any[])=> {
                         alertService.success("Successfully logged in.");
-                        $rootScope.adminStateInformation.loggedIn = true;            
+                        $rootScope.adminStateInformation.loggedIn = true;
                     }, (...args:any[])=> {
                         errorHandlingService.handleError(args);                            
                     }).finally(function () {                        
@@ -64,7 +64,7 @@ module rasdaman {
     }
 
     interface AdminLoginControllerScope extends rasdaman.AdminMainControllerScope {        
-        credential:admin.Credential;
+        credential:login.Credential;
 	    login(...args: any[]):void;
     }
 }

@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 /// <reference path="../../common/_common.ts"/>
-/// <reference path="../../models/admin_model/_admin.ts"/>
+/// <reference path="../../models/login/_login.ts"/>
 /// <reference path="../wcs_component/settings/SettingsService.ts"/>
 
 module rasdaman {
@@ -38,7 +38,7 @@ module rasdaman {
 
         // Login
 
-        public login(credential:admin.Credential):angular.IPromise<any> {
+        public login(credential:login.Credential):angular.IPromise<any> {
             var result = this.$q.defer();                                               
             var requestUrl = this.settings.wcsEndpoint + "/admin/Login";
 
@@ -46,7 +46,7 @@ module rasdaman {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,
+                transformResponse: null,                
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 data: credential.toKVP()
             };
@@ -72,7 +72,7 @@ module rasdaman {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,
+                transformResponse: null,                
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
                 withCredentials: true,
@@ -97,8 +97,8 @@ module rasdaman {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformResponse: null,        
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},        
                 // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
                 withCredentials: true,
                 data: serviceProvider.toKVP()

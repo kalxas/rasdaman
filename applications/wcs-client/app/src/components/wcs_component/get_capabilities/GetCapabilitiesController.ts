@@ -52,6 +52,7 @@ module rasdaman {
                            private errorHandlingService:ErrorHandlingService,
                            private webWorldWindService:rasdaman.WebWorldWindService
                            ) {
+                                           
             $scope.isAvailableCoveragesOpen = false;
             $scope.isCoveragesExtentsOpen = false;
             $scope.isServiceIdentificationOpen = false;

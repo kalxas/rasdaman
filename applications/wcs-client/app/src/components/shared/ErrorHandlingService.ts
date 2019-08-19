@@ -36,7 +36,10 @@ module rasdaman {
         public handleError(...args:any[]) {
             //Network error
             if (args.length == 1) {
-                var errorInformation:any = args[0][0];
+                var errorInformation:any = args[0];
+                if (errorInformation.length == 1) {
+                    errorInformation = errorInformation[0];
+                }
 
                 if (errorInformation.status == 404 || errorInformation.status == -1) {
                     // No error in data and HTTP code 404 or -1 then, Petascope cannot connect.

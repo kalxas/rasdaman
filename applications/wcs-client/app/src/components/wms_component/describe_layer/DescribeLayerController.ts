@@ -74,14 +74,16 @@ module rasdaman {
             var RASQL_QUERY_FRAGMENT = 1;            
           
             // When clicking on the layername from the table of GetCapabilities tab, it will change to DescribeLayer tab and load metadata for this selected layer.
-            $rootScope.$on("wmsSelectedLayerName", (event:angular.IAngularEvent, layerName:string)=> {                            
-                $scope.selectedLayerName = layerName;                
-                $scope.describeLayer();
+            $rootScope.$watch("wmsSelectedLayerName", (layerName:string)=> {
+                if (layerName != null) {
+                    $scope.selectedLayerName = layerName;                
+                    $scope.describeLayer();
+                }
             });
 
             // Only allow to click on DescribeCoverage when layer name exists in the available list.
-            $scope.isLayerNameValid = ()=> {                
-                for (var i = 0; i < $scope.layers.length; ++i) {
+            $scope.isLayerNameValid = ():boolean => {                
+                for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         return true;
                     }
@@ -690,7 +692,7 @@ module rasdaman {
 	    deleteStyle(styleName:string):void;
 	    isStyleNameValid(styleName:string):boolean;
 	    isCoverageDescriptionsHideGlobe:boolean;
-	    isLayerNameValid():void;
+	    isLayerNameValid():boolean;
 	    validateStyle():void;
 	    insertStyle():void;
 	    updateStyle():void;

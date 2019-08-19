@@ -28,15 +28,34 @@ module rasdaman {
         public wcsEndpoint:string;
 	    public wcsServiceNameVersion:string; 
         public static $inject = ["$window"];
+        // context path set at the login form
+        public contextPath:string;  
+
+        // context path of the petascope requested to download WSClient
+        public defaultContextPath:string;
 
         public constructor($window:angular.IWindowService) {  
             // In case of Petascope is deployed to an URI without /rasdaman/ows
-            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
-
+            this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");           
+            
             // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
             // This is used for development only.
             this.wcsEndpoint = this.wcsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
+
+            this.setWCSEndPoint(this.wcsEndpoint);
+            this.defaultContextPath = this.contextPath;            
+        }
+
+        public setWCSEndPoint(petascopeEndPoint) {
+            this.wcsEndpoint = petascopeEndPoint;
+            this.wcsEndpoint = this.wcsEndpoint.split("#")[0];
+            
+            if (!this.wcsEndpoint.endsWith("ows")) {
+                this.wcsEndpoint = this.wcsEndpoint + "ows";
+            }
+            
+            this.contextPath = this.wcsEndpoint.replace("/ows", "");
         }
     }
 }

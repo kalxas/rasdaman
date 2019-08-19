@@ -29,74 +29,99 @@ module rasdaman {
     "use strict";
     export class AngularConfig {
         public static $inject = [
-            "$httpProvider",
-            "$urlRouterProvider",
+            "$httpProvider",            
             "$stateProvider",
+            "$locationProvider",
+            "$urlRouterProvider",
             "NotificationProvider"
         ];
 
-        constructor($httpProvider:any, $urlRouterProvider:any, $stateProvider:any, NotificationProvider:any) {
+        constructor($httpProvider:any, $stateProvider:any, $locationProvider:any, $urlRouterProvider:any, NotificationProvider:any) {
             //Enable cross domain calls
             $httpProvider.defaults.useXDomain = true;
 
+            // NOTE about nested views: @services https://stackoverflow.com/a/21050093
+            // and multiple view routers: https://jsfiddle.net/awolf2904/Lmsumk2v/
+       
             // Routing for WCS, WMS controllers, views
-            $stateProvider.state('services', {
-                url: "",
-                views: {
-                    // WCS
-                    'get_capabilities': {
-                        url: "get_capabilities",
-                        templateUrl: 'src/components/wcs_component/get_capabilities/GetCapabilitiesView.html',
-                        controller: rasdaman.WCSGetCapabilitiesController
-                    },
-                    'describe_coverage': {
-                        url: "describe_coverage",
-                        templateUrl: 'src/components/wcs_component/describe_coverage/DescribeCoverageView.html',
-                        controller: rasdaman.WCSDescribeCoverageController
-                    },
-                    'get_coverage': {
-                        templateUrl: 'src/components/wcs_component/get_coverage/GetCoverageView.html',
-                        controller: rasdaman.WCSGetCoverageController
-                    },
-                    'process_coverages': {
-                        templateUrl: 'src/components/wcs_component/process_coverage/ProcessCoverageView.html',
-                        controller: rasdaman.WCSProcessCoverageController
-                    },
-                    'insert_coverage': {
-                        templateUrl: 'src/components/wcs_component/insert_coverage/InsertCoverageView.html',
-                        controller: rasdaman.WCSInsertCoverageController
-                    },
-                    'delete_coverage': {
-                        templateUrl: 'src/components/wcs_component/delete_coverage/DeleteCoverageView.html',
-                        controller: rasdaman.WCSDeleteCoverageController
-                    },
+            $stateProvider
+                .state("login", {
+                    url: "",
+                    views: {
 
-                    // WMS
-                    'wms_get_capabilities': {
-                        url: "wms_get_capabilities",
-                        templateUrl: 'src/components/wms_component/get_capabilities/GetCapabilitiesView.html',
-                        controller: rasdaman.WMSGetCapabilitiesController
-                    },
-                    'wms_describe_layer': {
-                        url: "wms_describe_layer",
-                        templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
-                        controller: rasdaman.WMSDescribeLayerController
-                    },
+                        "login": {
+                            templateUrl: "src/components/login_component/Login.html",
+                            controller: rasdaman.LoginController
+                        }
 
-                    // Admin
-                    'admin_login': {
-                        url: "admin_login",
-                        templateUrl: 'src/components/admin_component/login/AdminLoginView.html',
-                        controller: rasdaman.AdminLoginController
-                    }, 
-                    'admin_ows_metadata_management': {
-                        url: "admin_ows_metadata_management",
-                        templateUrl: 'src/components/admin_component/ows_metadata_management/AdminOWSMetadataManagementView.html',
-                        controller: rasdaman.AdminOWSMetadataManagementController
                     }
-                    
-                }
-            });
+                })
+
+                .state("services", {
+                    url: "services",
+                    views: {                   
+
+                        // Main view 
+                        "wsclient": {
+                            // NOTE: don't add RootController here as it is added already in index.html)
+                            // Otherwise constructor of RootController will be invoked twice
+                            templateUrl: "wsclient.html"
+                        },
+
+                        // WCS
+                        'get_capabilities@services': {
+                            url: "get_capabilities",
+                            templateUrl: 'src/components/wcs_component/get_capabilities/GetCapabilitiesView.html',
+                            controller: rasdaman.WCSGetCapabilitiesController
+                        },
+                        'describe_coverage@services': {
+                            url: "describe_coverage",
+                            templateUrl: 'src/components/wcs_component/describe_coverage/DescribeCoverageView.html',
+                            controller: rasdaman.WCSDescribeCoverageController
+                        },
+                        'get_coverage@services': {
+                            templateUrl: 'src/components/wcs_component/get_coverage/GetCoverageView.html',
+                            controller: rasdaman.WCSGetCoverageController
+                        },
+                        'process_coverages@services': {
+                            templateUrl: 'src/components/wcs_component/process_coverage/ProcessCoverageView.html',
+                            controller: rasdaman.WCSProcessCoverageController
+                        },
+                        'insert_coverage@services': {
+                            templateUrl: 'src/components/wcs_component/insert_coverage/InsertCoverageView.html',
+                            controller: rasdaman.WCSInsertCoverageController
+                        },
+                        'delete_coverage@services': {
+                            templateUrl: 'src/components/wcs_component/delete_coverage/DeleteCoverageView.html',
+                            controller: rasdaman.WCSDeleteCoverageController
+                        },
+
+                        // WMS
+                        'wms_get_capabilities@services': {
+                            url: "wms_get_capabilities",
+                            templateUrl: 'src/components/wms_component/get_capabilities/GetCapabilitiesView.html',
+                            controller: rasdaman.WMSGetCapabilitiesController
+                        },
+                        'wms_describe_layer@services': {
+                            url: "wms_describe_layer",
+                            templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
+                            controller: rasdaman.WMSDescribeLayerController
+                        },
+
+                        // Admin
+                        'admin_login@services': {
+                            url: "admin_login",
+                            templateUrl: 'src/components/admin_component/login/AdminLoginView.html',
+                            controller: rasdaman.AdminLoginController
+                        }, 
+                        'admin_ows_metadata_management@services': {
+                            url: "admin_ows_metadata_management",
+                            templateUrl: 'src/components/admin_component/ows_metadata_management/AdminOWSMetadataManagementView.html',
+                            controller: rasdaman.AdminOWSMetadataManagementController
+                        }
+                        
+                    }                
+                });
 
             NotificationProvider.setOptions({
                 delay: 10000,
@@ -143,6 +168,7 @@ module rasdaman {
         .config(AngularConfig)        
         // NOTE: remember to add these types in app/src/components/_component.ts or here will have error not found type
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
+        .service("rasdaman.CredentialService", rasdaman.CredentialService)
         .service("rasdaman.WCSService", rasdaman.WCSService)
         .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
         .service("rasdaman.WMSService", rasdaman.WMSService)
@@ -150,6 +176,8 @@ module rasdaman {
         .service("rasdaman.AdminService", rasdaman.AdminService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
+        .controller("rasdaman.RootController", rasdaman.RootController)
+        .controller("rasdaman.LoginController", rasdaman.LoginController)        
         .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
         .controller("rasdaman.WCSSettingsController", rasdaman.WCSSettingsController)
         .controller("rasdaman.WCSGetCapabilitiesController", rasdaman.WCSGetCapabilitiesController)

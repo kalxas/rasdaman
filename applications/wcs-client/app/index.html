@@ -52,67 +52,40 @@
         <script src="assets/components/respond/dest/respond.min.js"></script>
         <![endif]-->
 
+        <style type="text/css">
+            [ng-cloak] {
+               display:none;
+            }
+        </style>
+
     </head>
-    <body> 
+    <body ng-controller="rasdaman.RootController"> 
         <img class="logo" src="assets/img/rasdaman-logo.png" align="right">
+       
+        <div ng-show="homeLoggedIn == true" ng-cloak="" style="position: absolute;right: 8%;margin-top: 4%;">
+            
+            Logged in as: 
+            <b>
+                {{usernameLoggedIn}}
+            </b> <br/>
+            
+            <input ng-show="homeLoggedIn == true" ng-cloak="" style="margin-top: 10px; font-size: 20px; color: orange; color: white;" 
+                type="button" class="btn btn-warning" value="Log out" ng-click="homeLogOutEvent()"/>
+        </div>
         
         <!-- Show this loading icon when an Ajax request sent -->
-        <img id="loader" style="position: fixed; right: 8%; margin-top: 4%;" src="assets/img/loading.gif" align="right"/>
+        <img id="loader" style="position: fixed; right: 8%; margin-top: 8%;" src="assets/img/loading.gif" align="right"/>        
 
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12" style="background-color: white;">
-                    <uib-tabset active="active">    
-                        <!-- WCS content -->                                            
-                        <uib-tab index="1" heading="OGC Web Coverage Service (WCS)">
-                            <uib-tabset justified="true">
-                                <div ng-controller="rasdaman.WCSMainController">
-                                    <uib-tabset justified="true">
-                                        <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
-                                                disable="tab.disabled">
-                                             <div ui-view="{{tab.view}}"></div> 
-                                        </uib-tab>
-                                    </uib-tabset>
-                                </div>
-                            </uib-tabset>
-                        </uib-tab>                        
-                        <!-- WMS content -->  
-                        <uib-tab index="0" heading="OGC Web Map Service (WMS)">
-                            <uib-tabset justified="true">
-                                 <div ng-controller="rasdaman.WMSMainController">                                     
-                                    <uib-tabset justified="true">
-                                        <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
-                                                disable="tab.disabled">                                                                                       
-                                            <div ui-view="{{tab.view}}"></div>
-                                        </uib-tab>
-                                    </uib-tabset>
-                                </div>
-                            </uib-tabset>
-                        </uib-tab>
-                        <!-- Admin content -->  
-                        <uib-tab index="2" heading="Admin">
-                            <uib-tabset justified="true">
-                                    <div ng-controller="rasdaman.AdminMainController">                                     
-                                    <uib-tabset justified="true">                                        
-                                        <uib-tab ng-repeat="tab in tabs" heading="{{tab.heading}}" active="tab.active"
-                                                disable="tab.disabled">                                                                                                              
-                                            <div ui-view="{{tab.view}}"></div>
-                                        </uib-tab>
-                                    </uib-tabset>
-                                </div>
-                            </uib-tabset>
-                        </uib-tab>
-                    </uib-tabset>
-                </div>
-            </div>
+        
+        <div>                
+            <div ui-view="{{selectedView.view}}"></div>
         </div>
-
 
     </body>
 
     <!-- WebWorldWind -->
     <!-- when it is online, it loads Bing Maps as base map, when it is not, it loads offline low resolution image locally as base map -->
-    <script src="assets/components/web-world-wind/worldwind.min.js" type="text/javascript"></script>
+    <script src="assets/components/web-world-wind/worldwind.min.js" type="text/javascript"></script>    
 
     <!--Prettify-->
     <script src="assets/libs/code-prettify/prettify.js"></script>

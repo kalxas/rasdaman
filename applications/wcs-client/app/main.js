@@ -2222,7 +2222,17 @@ var rasdaman;
             this.wcsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wcsEndpoint = this.wcsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
             this.wcsServiceNameVersion = "SERVICE=WCS&VERSION=2.0.1";
+            this.setWCSEndPoint(this.wcsEndpoint);
+            this.defaultContextPath = this.contextPath;
         }
+        WCSSettingsService.prototype.setWCSEndPoint = function (petascopeEndPoint) {
+            this.wcsEndpoint = petascopeEndPoint;
+            this.wcsEndpoint = this.wcsEndpoint.split("#")[0];
+            if (!this.wcsEndpoint.endsWith("ows")) {
+                this.wcsEndpoint = this.wcsEndpoint + "ows";
+            }
+            this.contextPath = this.wcsEndpoint.replace("/ows", "");
+        };
         WCSSettingsService.$inject = ["$window"];
         return WCSSettingsService;
     }());
@@ -2231,19 +2241,23 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSService = (function () {
-        function WCSService($http, $q, settings, serializedObjectFactory, $window) {
+        function WCSService($http, $q, settings, serializedObjectFactory, $window, credentialService, $state) {
             this.$http = $http;
             this.$q = $q;
             this.settings = settings;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$window = $window;
+            this.credentialService = credentialService;
+            this.$state = $state;
         }
         WCSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+            }).then(function (data) {
                 try {
                     var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                     var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
@@ -2262,9 +2276,11 @@ var rasdaman;
         WCSService.prototype.getCoverageDescription = function (request) {
             var result = this.$q.defer();
             var self = this;
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+            }).then(function (data) {
                 try {
                     var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                     var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
@@ -2280,49 +2296,45 @@ var rasdaman;
             });
             return result.promise;
         };
+        WCSService.prototype.storeKVPParametersToLocalStorage = function (petascopeEndPoint, keysValues) {
+            var arrayTmp = keysValues.split("&");
+            var getCoverageKVPParameters = { "PetascopeEndPoint": petascopeEndPoint };
+            for (var i = 0; i < arrayTmp.length; i++) {
+                if (arrayTmp[i].trim() != "") {
+                    var keyValue = arrayTmp[i].split("=");
+                    var key = keyValue[0];
+                    var value = keyValue[1];
+                    getCoverageKVPParameters[key] = value;
+                }
+            }
+            if (this.credentialService.hasStoredCredentials()) {
+                var authorizationObj = this.credentialService.getAuthorizationHeader(petascopeEndPoint);
+                getCoverageKVPParameters = Object.assign(getCoverageKVPParameters, authorizationObj);
+            }
+            window.localStorage.setItem("GetcoverageKVPParameters", JSON.stringify(getCoverageKVPParameters));
+        };
         WCSService.prototype.getCoverageHTTPGET = function (request) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            this.$window.open(requestUrl);
+            var url = this.settings.defaultContextPath + "/wcs-client/result.html";
+            this.storeKVPParametersToLocalStorage(this.settings.wcsEndpoint, request.toKVP());
+            window.open(url, '_blank');
             result.resolve(requestUrl);
             return result.promise;
         };
         WCSService.prototype.getCoverageHTTPPOST = function (request) {
-            var result = this.$q.defer();
-            var requestUrl = this.settings.wcsEndpoint;
-            var keysValues = request.toKVP();
-            var arrayTmp = keysValues.split("&");
-            var formId = "getCoverageHTTPPostForm";
-            var formTmp = (document.getElementById(formId));
-            if (formTmp) {
-                document.body.removeChild(formTmp);
-            }
-            formTmp = document.createElement("form");
-            formTmp.id = "getCoverageHTTPPostForm";
-            formTmp.target = "_blank";
-            formTmp.method = "POST";
-            formTmp.action = requestUrl;
-            for (var i = 0; i < arrayTmp.length; i++) {
-                if (arrayTmp[i].trim() != "") {
-                    var inputTmp = document.createElement("input");
-                    inputTmp.type = "hidden";
-                    var keyValue = arrayTmp[i].split("=");
-                    inputTmp.name = keyValue[0];
-                    inputTmp.value = keyValue[1];
-                    formTmp.appendChild(inputTmp);
-                }
-            }
-            document.body.appendChild(formTmp);
-            formTmp.submit();
+            return this.getCoverageHTTPGET(request);
         };
         WCSService.prototype.deleteCoverage = function (coverageId) {
             var result = this.$q.defer();
             if (!coverageId) {
                 result.reject("You must specify at least one coverage ID.");
             }
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+            }).then(function (data) {
                 result.resolve(data);
             }, function (error) {
                 result.reject(error);
@@ -2334,12 +2346,14 @@ var rasdaman;
             if (!coverageUrl) {
                 result.reject("You must indicate a coverage source.");
             }
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
             if (useGeneratedId) {
                 requestUrl += "&useId=new";
             }
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+            }).then(function (data) {
                 result.resolve(data);
             }, function (error) {
                 result.reject(error);
@@ -2350,11 +2364,12 @@ var rasdaman;
             var result = this.$q.defer();
             var queryStr = 'query=' + query;
             var requestUrl = this.settings.wcsEndpoint;
+            var currentHeaders = { "Content-Type": "application/x-www-form-urlencoded" };
             var request = {
                 method: 'POST',
                 url: requestUrl,
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
                 transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 data: queryStr
             };
             if (queryStr.indexOf("png") >= 0 || queryStr.indexOf("jpeg") >= 0 || queryStr.indexOf("jpeg2000") >= 0 || queryStr.indexOf("tiff") >= 0 || queryStr.indexOf("netcdf") >= 0) {
@@ -2370,11 +2385,12 @@ var rasdaman;
         WCSService.prototype.updateCoverageMetadata = function (formData) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata";
+            var currentHeaders = { 'Content-Type': undefined };
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: { 'Content-Type': undefined },
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
                 withCredentials: true,
                 data: formData
             };
@@ -2385,7 +2401,9 @@ var rasdaman;
             });
             return result.promise;
         };
-        WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        WCSService.$inject = ["$http", "$q", "rasdaman.WCSSettingsService",
+            "rasdaman.common.SerializedObjectFactory", "$window",
+            "rasdaman.CredentialService", "$state"];
         return WCSService;
     }());
     rasdaman.WCSService = WCSService;
@@ -2404,7 +2422,10 @@ var rasdaman;
                 args[_i] = arguments[_i];
             }
             if (args.length == 1) {
-                var errorInformation = args[0][0];
+                var errorInformation = args[0];
+                if (errorInformation.length == 1) {
+                    errorInformation = errorInformation[0];
+                }
                 if (errorInformation.status == 404 || errorInformation.status == -1) {
                     this.notificationService.error("Cannot connect to petascope, please check if petascope is running.");
                 }
@@ -2431,15 +2452,73 @@ var rasdaman;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
+    var CredentialService = (function () {
+        function CredentialService() {
+            this.credentialsDict = JSON.parse(window.localStorage.getItem("credentials"));
+            if (this.credentialsDict == null) {
+                this.credentialsDict = {};
+            }
+        }
+        CredentialService.prototype.persitCredential = function (endpoint, credential) {
+            this.credentialsDict[endpoint] = credential;
+            window.localStorage.setItem("credentials", JSON.stringify(this.credentialsDict));
+        };
+        CredentialService.prototype.clearStorage = function () {
+            this.credentialsDict = {};
+            window.localStorage.setItem("credentials", JSON.stringify(this.credentialsDict));
+        };
+        CredentialService.prototype.hasStoredCredentials = function () {
+            return Object.keys(this.credentialsDict).length > 0;
+        };
+        CredentialService.prototype.createRequestHeader = function (petascopeEndPoint, headers) {
+            var authorizationObj = this.getAuthorizationHeader(petascopeEndPoint);
+            headers = Object.assign(authorizationObj, headers);
+            return headers;
+        };
+        CredentialService.prototype.getAuthorizationHeader = function (petascopeEndPoint) {
+            var result = {};
+            if (this.hasStoredCredentials) {
+                var credential = this.credentialsDict[petascopeEndPoint];
+                if (credential != null && credential["username"] != null) {
+                    var username = credential["username"];
+                    var password = credential["password"];
+                    result["Authorization"] = this.getEncodedBasicAuthencationString(username, password);
+                }
+            }
+            return result;
+        };
+        CredentialService.prototype.getEncodedBasicAuthencationString = function (username, password) {
+            var result = "Basic " + btoa(username + ":" + password);
+            return result;
+        };
+        CredentialService.prototype.createBasicAuthenticationHeader = function (username, password) {
+            var headers = {};
+            headers["Authorization"] = this.getEncodedBasicAuthencationString(username, password);
+            return headers;
+        };
+        return CredentialService;
+    }());
+    rasdaman.CredentialService = CredentialService;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
     var WMSSettingsService = (function () {
         function WMSSettingsService($window) {
             this.wmsEndpoint = $window.location.href.replace("wcs-client/index.html", "ows");
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
+            this.setWMSEndPoint(this.wmsEndpoint);
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
             this.setWMSFullEndPoint();
         }
         WMSSettingsService.prototype.setWMSFullEndPoint = function () {
             this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+        };
+        WMSSettingsService.prototype.setWMSEndPoint = function (petascopeEndPoint) {
+            this.wmsEndpoint = petascopeEndPoint;
+            this.wmsEndpoint = this.wmsEndpoint.split("#")[0];
+            if (!this.wmsEndpoint.endsWith("ows")) {
+                this.wmsEndpoint = this.wmsEndpoint + "ows";
+            }
         };
         WMSSettingsService.$inject = ["$window"];
         WMSSettingsService.version = "1.3.0";
@@ -2450,12 +2529,14 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WebWorldWindService = (function () {
-        function WebWorldWindService($rootScope, wmsSetting) {
+        function WebWorldWindService($rootScope, wmsSetting, credentialService) {
             this.webWorldWindModels = [];
             this.coveragesExtentsArray = null;
             this.wmsSetting = null;
+            this.authorizationToken = "";
             this.oldLayerName = '';
             this.wmsSetting = wmsSetting;
+            this.authorizationToken = credentialService.getAuthorizationHeader(this.wmsSetting.wmsEndpoint)["Authorization"];
         }
         WebWorldWindService.prototype.setCoveragesExtentsArray = function (coveragesExtentsArray) {
             this.coveragesExtentsArray = coveragesExtentsArray;
@@ -2742,11 +2823,11 @@ var rasdaman;
                 timeString = null;
             }
             if (this.oldLayerName != layerName) {
-                wwd.navigator.range = 30 * 1000;
+                wwd.navigator.range = 3000 * 1000;
                 this.oldLayerName = layerName;
             }
             wwd.removeLayer(webWorldWindModel.wmsLayer);
-            var wmsLayer = new WorldWind.WmsLayer(config, timeString);
+            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken);
             webWorldWindModel.wmsLayer = wmsLayer;
             if (displayLayer) {
                 wwd.addLayer(wmsLayer);
@@ -2754,11 +2835,69 @@ var rasdaman;
         };
         WebWorldWindService.$inject = [
             "$rootScope",
-            "rasdaman.WMSSettingsService"
+            "rasdaman.WMSSettingsService",
+            "rasdaman.CredentialService"
         ];
         return WebWorldWindService;
     }());
     rasdaman.WebWorldWindService = WebWorldWindService;
+    var BAWmsLayer = (function (_super) {
+        __extends(BAWmsLayer, _super);
+        function BAWmsLayer(config, timeString, authorizationHeader) {
+            var _this = _super.call(this, config, timeString) || this;
+            _this.authorizationHeader = "";
+            _this.authorizationHeader = authorizationHeader;
+            return _this;
+        }
+        BAWmsLayer.prototype.retrieveTileImage = function (dc, tile, suppressRedraw) {
+            if (this.currentRetrievals.indexOf(tile.imagePath) < 0) {
+                if (this.currentRetrievals.length > this.retrievalQueueSize) {
+                    return;
+                }
+                if (this.absentResourceList.isResourceAbsent(tile.imagePath)) {
+                    return;
+                }
+                var url = this.resourceUrlForTile(tile, this.retrievalImageFormat), image = new Image(), imagePath = tile.imagePath, cache = dc.gpuResourceCache, canvas = dc.currentGlContext.canvas, layer = this;
+                if (!url) {
+                    this.currentTilesInvalid = true;
+                    return;
+                }
+                image.onload = function () {
+                    var texture = layer.createTexture(dc, tile, image);
+                    layer.removeFromCurrentRetrievals(imagePath);
+                    if (texture) {
+                        cache.putResource(imagePath, texture, texture.size);
+                        layer.currentTilesInvalid = true;
+                        layer.absentResourceList.unmarkResourceAbsent(imagePath);
+                        if (!suppressRedraw) {
+                            var e = document.createEvent('Event');
+                            e.initEvent(WorldWind.REDRAW_EVENT_TYPE, true, true);
+                            canvas.dispatchEvent(e);
+                        }
+                    }
+                };
+                image.onerror = function () {
+                    layer.removeFromCurrentRetrievals(imagePath);
+                    layer.absentResourceList.markResourceAbsent(imagePath);
+                };
+                this.currentRetrievals.push(imagePath);
+                image.crossOrigin = this.crossOrigin;
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = "arraybuffer";
+                xhr.onload = function () {
+                    var blb = new Blob([xhr.response], { type: 'image/png' });
+                    var url = (window.URL || window.webkitURL).createObjectURL(blb);
+                    image.src = url;
+                };
+                xhr.open("GET", url, true);
+                xhr.setRequestHeader("Authorization", this.authorizationHeader);
+                xhr.send();
+            }
+        };
+        ;
+        return BAWmsLayer;
+    }(WorldWind.WmsLayer));
+    rasdaman.BAWmsLayer = BAWmsLayer;
 })(rasdaman || (rasdaman = {}));
 var rasdaman;
 (function (rasdaman) {
@@ -2856,7 +2995,7 @@ var rasdaman;
             };
             $scope.describeCoverage = function (coverageId) {
                 $scope.wcsDescribeCoverageTab.active = true;
-                $rootScope.$broadcast("wcsSelectedGetCoverageId", coverageId);
+                $rootScope.wcsSelectedGetCoverageId = coverageId;
             };
         }
         WCSMainController.prototype.initializeTabs = function ($scope) {
@@ -3095,9 +3234,11 @@ var rasdaman;
                 }
                 return false;
             };
-            $rootScope.$on("wcsSelectedGetCoverageId", function (event, coverageId) {
-                $scope.selectedCoverageId = coverageId;
-                $scope.describeCoverage();
+            $rootScope.$watch("wcsSelectedGetCoverageId", function (coverageId) {
+                if (coverageId != null) {
+                    $scope.selectedCoverageId = coverageId;
+                    $scope.describeCoverage();
+                }
             });
             $scope.$watch("wcsStateInformation.serverCapabilities", function (capabilities) {
                 if (capabilities) {
@@ -3176,10 +3317,6 @@ var rasdaman;
                 }
             };
             $scope.describeCoverage = function () {
-                if (!$scope.isCoverageIdValid()) {
-                    alertService.error("The entered coverage ID is invalid.");
-                    return;
-                }
                 var coverageIds = [];
                 coverageIds.push($scope.selectedCoverageId);
                 var describeCoverageRequest = new wcs.DescribeCoverage(coverageIds);
@@ -3363,7 +3500,7 @@ var rasdaman;
 var rasdaman;
 (function (rasdaman) {
     var WCSGetCoverageController = (function () {
-        function WCSGetCoverageController($scope, $rootScope, $log, wcsService, alertService, webWorldWindService) {
+        function WCSGetCoverageController($http, $scope, $rootScope, $log, wcsService, alertService, webWorldWindService) {
             $scope.selectedCoverageId = null;
             $scope.isGlobeOpen = false;
             $scope.isGetCoverageHideGlobe = true;
@@ -3788,6 +3925,7 @@ var rasdaman;
             return serverCapabilities.serviceIdentification.profile.indexOf(rasdaman.Constants.CRS_EXT_URI) != -1;
         };
         WCSGetCoverageController.$inject = [
+            "$http",
             "$scope",
             "$rootScope",
             "$log",
@@ -4587,6 +4725,103 @@ var rasdaman;
     }
     rasdaman.WCSClippingExtension = WCSClippingExtension;
 })(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var RootController = (function () {
+        function RootController($http, $q, $scope, $rootScope, $state, settings, errorHandlingService, credentialService) {
+            this.$http = $http;
+            this.$q = $q;
+            this.$scope = $scope;
+            this.$rootScope = $rootScope;
+            this.$state = $state;
+            this.settings = settings;
+            this.errorHandlingService = errorHandlingService;
+            this.credentialService = credentialService;
+            this.initializeViews($scope);
+            $rootScope.homeLoggedIn = false;
+            $rootScope.usernameLoggedIn = "";
+            $rootScope.$watch("homeLoggedIn", function (newValue, oldValue) {
+                if (newValue === true) {
+                    $scope.showView($scope.wsclient, "services");
+                }
+            });
+            $scope.checkPetascopeEnableAuthentication = function () {
+                var result = $q.defer();
+                var requestUrl = settings.contextPath + "/CheckEnableAuthentication";
+                $http.get(requestUrl)
+                    .then(function (dataObj) {
+                    var data = JSON.parse(dataObj.data);
+                    result.resolve(data);
+                }, function (errorObj) {
+                    if (errorObj.status == 404) {
+                        result.resolve(false);
+                    }
+                    else {
+                        errorHandlingService.handleError(errorObj);
+                    }
+                });
+                return result.promise;
+            };
+            $scope.checkRadamanCredentials = function () {
+                var credentialsDict = credentialService.credentialsDict;
+                if (credentialsDict != null) {
+                    var obj = credentialsDict[settings.wcsEndpoint];
+                    if (obj != null) {
+                        var credential = new login.Credential(obj["username"], obj["password"]);
+                        var requestUrl = settings.contextPath + "/CheckRadamanCredentials";
+                        $http.get(requestUrl, {
+                            headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)
+                        }).then(function (dataObj) {
+                            var data = JSON.parse(dataObj.data);
+                            if (data) {
+                                $rootScope.homeLoggedIn = true;
+                                $rootScope.usernameLoggedIn = credential.username;
+                                $scope.showView($scope.wsclient, "services");
+                                return;
+                            }
+                        }, function (errorObj) {
+                            errorHandlingService.handleError(errorObj);
+                        });
+                    }
+                }
+                $scope.showView($scope.login, "login");
+            };
+            $scope.showView = function (viewState, stateName) {
+                $scope.selectedView = viewState;
+                $state.go(stateName);
+            };
+            $scope.homeLogOutEvent = function () {
+                credentialService.clearStorage();
+                $rootScope.homeLoggedIn = false;
+                location.reload();
+            };
+            $scope.checkPetascopeEnableAuthentication()
+                .then(function (data) {
+                if (data) {
+                    $scope.checkRadamanCredentials();
+                }
+                else {
+                    $rootScope.homeLoggedIn = false;
+                    $scope.showView($scope.wsclient, "services");
+                }
+            });
+        }
+        RootController.prototype.initializeViews = function ($scope) {
+            $scope.login = {
+                view: "login"
+            };
+            $scope.wsclient = {
+                view: "wsclient"
+            };
+        };
+        RootController.$inject = ["$http", "$q", "$scope", "$rootScope",
+            "$state", "rasdaman.WCSSettingsService", "rasdaman.ErrorHandlingService",
+            "rasdaman.CredentialService"
+        ];
+        return RootController;
+    }());
+    rasdaman.RootController = RootController;
+})(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
     var ServiceIdentification = (function () {
@@ -4710,7 +4945,7 @@ var rasdaman;
             $scope.tabs = [$scope.wmsGetCapabilitiesTab, $scope.wmsDescribeLayerTab];
             $scope.describeLayer = function (layerName) {
                 $scope.wmsDescribeLayerTab.active = true;
-                $rootScope.$broadcast("wmsSelectedLayerName", layerName);
+                $rootScope.wmsSelectedLayerName = layerName;
             };
             $scope.wmsStateInformation = {
                 serverCapabilities: null,
@@ -4774,6 +5009,79 @@ var rasdaman;
         return AdminMainController;
     }());
     rasdaman.AdminMainController = AdminMainController;
+})(rasdaman || (rasdaman = {}));
+var rasdaman;
+(function (rasdaman) {
+    var LoginController = (function () {
+        function LoginController($http, $q, $scope, $rootScope, $log, wcsSettingsService, wmsSettingsService, alertService, errorHandlingService, credentialService) {
+            this.$http = $http;
+            this.$q = $q;
+            this.$scope = $scope;
+            this.$rootScope = $rootScope;
+            this.$log = $log;
+            this.wcsSettingsService = wcsSettingsService;
+            this.wmsSettingsService = wmsSettingsService;
+            this.alertService = alertService;
+            this.errorHandlingService = errorHandlingService;
+            this.credentialService = credentialService;
+            $scope.petascopeEndPoint = wcsSettingsService.wcsEndpoint;
+            $scope.credential = new login.Credential("", "");
+            $scope.login = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                $rootScope.homeLoggedIn = false;
+                $scope.displayError = false;
+                wcsSettingsService.setWCSEndPoint($scope.petascopeEndPoint);
+                wmsSettingsService.setWMSEndPoint($scope.petascopeEndPoint);
+                $scope.checkPetascopeEnableAuthentication(wcsSettingsService.contextPath, $scope.credential).then(function (data) {
+                    if (JSON.parse(data)) {
+                        var credential = $scope.credential;
+                        credentialService.persitCredential($scope.petascopeEndPoint, credential);
+                        $rootScope.homeLoggedIn = true;
+                    }
+                    else {
+                        $scope.displayError = true;
+                    }
+                }, function (error) {
+                    errorHandlingService.handleError(error);
+                });
+            };
+            $scope.checkPetascopeEnableAuthentication = function (contextPath, credential) {
+                var requestUrl = contextPath + "/CheckRadamanCredentials";
+                var result = $q.defer();
+                $http.get(requestUrl, {
+                    headers: credentialService.createBasicAuthenticationHeader(credential.username, credential.password)
+                }).then(function (dataObj) {
+                    $rootScope.usernameLoggedIn = credential.username;
+                    result.resolve(dataObj.data);
+                }, function (errorObj) {
+                    if (errorObj.status == 404) {
+                        result.resolve("true");
+                    }
+                    else {
+                        result.reject(errorObj);
+                    }
+                });
+                return result.promise;
+            };
+        }
+        LoginController.$inject = [
+            "$http",
+            "$q",
+            "$scope",
+            "$rootScope",
+            "$log",
+            "rasdaman.WCSSettingsService",
+            "rasdaman.WMSSettingsService",
+            "Notification",
+            "rasdaman.ErrorHandlingService",
+            "rasdaman.CredentialService"
+        ];
+        return LoginController;
+    }());
+    rasdaman.LoginController = LoginController;
 })(rasdaman || (rasdaman = {}));
 var wms;
 (function (wms) {
@@ -5010,19 +5318,22 @@ var wms;
 var rasdaman;
 (function (rasdaman) {
     var WMSService = (function () {
-        function WMSService($http, $q, settings, serializedObjectFactory, $window) {
+        function WMSService($http, $q, settings, serializedObjectFactory, $window, credentialService) {
             this.$http = $http;
             this.$q = $q;
             this.settings = settings;
             this.serializedObjectFactory = serializedObjectFactory;
             this.$window = $window;
+            this.credentialService = credentialService;
         }
         WMSService.prototype.getServerCapabilities = function (request) {
             var result = this.$q.defer();
             var self = this;
+            var currentHeaders = {};
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+            }).then(function (data) {
                 try {
                     var gmlDocument = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                     var serializedResponse = self.serializedObjectFactory.getSerializedObject(gmlDocument);
@@ -5041,11 +5352,12 @@ var rasdaman;
         WMSService.prototype.updateLayerStyleRequest = function (updateLayerStyle) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wmsEndpoint;
+            var currentHeaders = { "Content-Type": "application/x-www-form-urlencoded" };
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
                 data: this.settings.wmsServiceNameVersion + "&" + updateLayerStyle.toKVP()
             };
             this.$http(request).then(function (data) {
@@ -5058,11 +5370,12 @@ var rasdaman;
         WMSService.prototype.insertLayerStyleRequest = function (insertLayerStyle) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wmsEndpoint;
+            var currentHeaders = { "Content-Type": "application/x-www-form-urlencoded" };
             var request = {
                 method: 'POST',
                 url: requestUrl,
                 transformResponse: null,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders),
                 data: this.settings.wmsServiceNameVersion + "&" + insertLayerStyle.toKVP()
             };
             this.$http(request).then(function (data) {
@@ -5075,8 +5388,10 @@ var rasdaman;
         WMSService.prototype.deleteLayerStyleRequest = function (request) {
             var result = this.$q.defer();
             var requestUrl = this.settings.wmsFullEndpoint + "&" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data) {
+            var currentHeaders = {};
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wmsEndpoint, currentHeaders)
+            }).then(function (data) {
                 try {
                     result.resolve("");
                 }
@@ -5088,7 +5403,9 @@ var rasdaman;
             });
             return result.promise;
         };
-        WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        WMSService.$inject = ["$http", "$q", "rasdaman.WMSSettingsService",
+            "rasdaman.common.SerializedObjectFactory", "$window",
+            "rasdaman.CredentialService"];
         return WMSService;
     }());
     rasdaman.WMSService = WMSService;
@@ -5228,12 +5545,14 @@ var rasdaman;
             var canvasId = "wmsCanvasDescribeLayer";
             var WCPS_QUERY_FRAGMENT = 0;
             var RASQL_QUERY_FRAGMENT = 1;
-            $rootScope.$on("wmsSelectedLayerName", function (event, layerName) {
-                $scope.selectedLayerName = layerName;
-                $scope.describeLayer();
+            $rootScope.$watch("wmsSelectedLayerName", function (layerName) {
+                if (layerName != null) {
+                    $scope.selectedLayerName = layerName;
+                    $scope.describeLayer();
+                }
             });
             $scope.isLayerNameValid = function () {
-                for (var i = 0; i < $scope.layers.length; ++i) {
+                for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         return true;
                     }
@@ -5666,8 +5985,8 @@ var rasdaman;
     }());
     rasdaman.WMSDescribeLayerController = WMSDescribeLayerController;
 })(rasdaman || (rasdaman = {}));
-var admin;
-(function (admin) {
+var login;
+(function (login) {
     var Credential = (function () {
         function Credential(username, password) {
             this.username = username;
@@ -5679,62 +5998,8 @@ var admin;
         };
         return Credential;
     }());
-    admin.Credential = Credential;
-})(admin || (admin = {}));
-var admin;
-(function (admin) {
-    var ServiceIdentification = (function () {
-        function ServiceIdentification(serviceTitle, abstract) {
-            this.serviceTitle = serviceTitle;
-            this.abstract = abstract;
-        }
-        ServiceIdentification.prototype.toKVP = function () {
-            return "serviceTitle=" + this.serviceTitle +
-                "&abstract=" + this.abstract;
-        };
-        return ServiceIdentification;
-    }());
-    admin.ServiceIdentification = ServiceIdentification;
-})(admin || (admin = {}));
-var admin;
-(function (admin) {
-    var ServiceProvider = (function () {
-        function ServiceProvider(providerName, providerSite, individualName, positionName, role, email, voicePhone, facsimilePhone, hoursOfService, contactInstructions, city, administrativeArea, postalCode, country) {
-            this.providerName = providerName;
-            this.providerSite = providerSite;
-            this.individualName = individualName;
-            this.positionName = positionName;
-            this.role = role;
-            this.email = email;
-            this.voicePhone = voicePhone;
-            this.facsimilePhone = facsimilePhone;
-            this.hoursOfService = hoursOfService;
-            this.contactInstructions = contactInstructions;
-            this.city = city;
-            this.administrativeArea = administrativeArea;
-            this.postalCode = postalCode;
-            this.country = country;
-        }
-        ServiceProvider.prototype.toKVP = function () {
-            return "providerName=" + this.providerName +
-                "&providerSite=" + this.providerSite +
-                "&individualName=" + this.individualName +
-                "&positionName=" + this.positionName +
-                "&role=" + this.role +
-                "&email=" + this.email +
-                "&voicePhone=" + this.voicePhone +
-                "&facsimilePhone=" + this.facsimilePhone +
-                "&hoursOfService=" + this.hoursOfService +
-                "&contactInstructions=" + this.contactInstructions +
-                "&city=" + this.city +
-                "&administrativeArea=" + this.administrativeArea +
-                "&postalCode=" + this.postalCode +
-                "&country=" + this.country;
-        };
-        return ServiceProvider;
-    }());
-    admin.ServiceProvider = ServiceProvider;
-})(admin || (admin = {}));
+    login.Credential = Credential;
+})(login || (login = {}));
 var rasdaman;
 (function (rasdaman) {
     var AdminService = (function () {
@@ -5814,7 +6079,7 @@ var rasdaman;
             this.adminService = adminService;
             this.alertService = alertService;
             this.errorHandlingService = errorHandlingService;
-            $scope.credential = new admin.Credential("", "");
+            $scope.credential = new login.Credential("", "");
             $scope.login = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -5972,53 +6237,66 @@ var rasdaman;
 (function (rasdaman) {
     "use strict";
     var AngularConfig = (function () {
-        function AngularConfig($httpProvider, $urlRouterProvider, $stateProvider, NotificationProvider) {
+        function AngularConfig($httpProvider, $stateProvider, $locationProvider, $urlRouterProvider, NotificationProvider) {
             $httpProvider.defaults.useXDomain = true;
-            $stateProvider.state('services', {
+            $stateProvider
+                .state("login", {
                 url: "",
                 views: {
-                    'get_capabilities': {
+                    "login": {
+                        templateUrl: "src/components/login_component/Login.html",
+                        controller: rasdaman.LoginController
+                    }
+                }
+            })
+                .state("services", {
+                url: "services",
+                views: {
+                    "wsclient": {
+                        templateUrl: "wsclient.html"
+                    },
+                    'get_capabilities@services': {
                         url: "get_capabilities",
                         templateUrl: 'src/components/wcs_component/get_capabilities/GetCapabilitiesView.html',
                         controller: rasdaman.WCSGetCapabilitiesController
                     },
-                    'describe_coverage': {
+                    'describe_coverage@services': {
                         url: "describe_coverage",
                         templateUrl: 'src/components/wcs_component/describe_coverage/DescribeCoverageView.html',
                         controller: rasdaman.WCSDescribeCoverageController
                     },
-                    'get_coverage': {
+                    'get_coverage@services': {
                         templateUrl: 'src/components/wcs_component/get_coverage/GetCoverageView.html',
                         controller: rasdaman.WCSGetCoverageController
                     },
-                    'process_coverages': {
+                    'process_coverages@services': {
                         templateUrl: 'src/components/wcs_component/process_coverage/ProcessCoverageView.html',
                         controller: rasdaman.WCSProcessCoverageController
                     },
-                    'insert_coverage': {
+                    'insert_coverage@services': {
                         templateUrl: 'src/components/wcs_component/insert_coverage/InsertCoverageView.html',
                         controller: rasdaman.WCSInsertCoverageController
                     },
-                    'delete_coverage': {
+                    'delete_coverage@services': {
                         templateUrl: 'src/components/wcs_component/delete_coverage/DeleteCoverageView.html',
                         controller: rasdaman.WCSDeleteCoverageController
                     },
-                    'wms_get_capabilities': {
+                    'wms_get_capabilities@services': {
                         url: "wms_get_capabilities",
                         templateUrl: 'src/components/wms_component/get_capabilities/GetCapabilitiesView.html',
                         controller: rasdaman.WMSGetCapabilitiesController
                     },
-                    'wms_describe_layer': {
+                    'wms_describe_layer@services': {
                         url: "wms_describe_layer",
                         templateUrl: 'src/components/wms_component/describe_layer/DescribeLayerView.html',
                         controller: rasdaman.WMSDescribeLayerController
                     },
-                    'admin_login': {
+                    'admin_login@services': {
                         url: "admin_login",
                         templateUrl: 'src/components/admin_component/login/AdminLoginView.html',
                         controller: rasdaman.AdminLoginController
                     },
-                    'admin_ows_metadata_management': {
+                    'admin_ows_metadata_management@services': {
                         url: "admin_ows_metadata_management",
                         templateUrl: 'src/components/admin_component/ows_metadata_management/AdminOWSMetadataManagementView.html',
                         controller: rasdaman.AdminOWSMetadataManagementController
@@ -6050,8 +6328,9 @@ var rasdaman;
         }
         AngularConfig.$inject = [
             "$httpProvider",
-            "$urlRouterProvider",
             "$stateProvider",
+            "$locationProvider",
+            "$urlRouterProvider",
             "NotificationProvider"
         ];
         return AngularConfig;
@@ -6070,6 +6349,7 @@ var rasdaman;
         "nvd3"])
         .config(AngularConfig)
         .service("rasdaman.common.SerializedObjectFactory", rasdaman.common.SerializedObjectFactory)
+        .service("rasdaman.CredentialService", rasdaman.CredentialService)
         .service("rasdaman.WCSService", rasdaman.WCSService)
         .service("rasdaman.WCSSettingsService", rasdaman.WCSSettingsService)
         .service("rasdaman.WMSService", rasdaman.WMSService)
@@ -6077,6 +6357,8 @@ var rasdaman;
         .service("rasdaman.AdminService", rasdaman.AdminService)
         .service("rasdaman.WebWorldWindService", rasdaman.WebWorldWindService)
         .service("rasdaman.ErrorHandlingService", rasdaman.ErrorHandlingService)
+        .controller("rasdaman.RootController", rasdaman.RootController)
+        .controller("rasdaman.LoginController", rasdaman.LoginController)
         .controller("rasdaman.WCSMainController", rasdaman.WCSMainController)
         .controller("rasdaman.WCSSettingsController", rasdaman.WCSSettingsController)
         .controller("rasdaman.WCSGetCapabilitiesController", rasdaman.WCSGetCapabilitiesController)
@@ -6097,6 +6379,60 @@ var rasdaman;
         .directive("autocomplete", rasdaman.common.Autocomplete)
         .directive("scrollToBottom", rasdaman.common.scrollToBottom);
 })(rasdaman || (rasdaman = {}));
+var admin;
+(function (admin) {
+    var ServiceIdentification = (function () {
+        function ServiceIdentification(serviceTitle, abstract) {
+            this.serviceTitle = serviceTitle;
+            this.abstract = abstract;
+        }
+        ServiceIdentification.prototype.toKVP = function () {
+            return "serviceTitle=" + this.serviceTitle +
+                "&abstract=" + this.abstract;
+        };
+        return ServiceIdentification;
+    }());
+    admin.ServiceIdentification = ServiceIdentification;
+})(admin || (admin = {}));
+var admin;
+(function (admin) {
+    var ServiceProvider = (function () {
+        function ServiceProvider(providerName, providerSite, individualName, positionName, role, email, voicePhone, facsimilePhone, hoursOfService, contactInstructions, city, administrativeArea, postalCode, country) {
+            this.providerName = providerName;
+            this.providerSite = providerSite;
+            this.individualName = individualName;
+            this.positionName = positionName;
+            this.role = role;
+            this.email = email;
+            this.voicePhone = voicePhone;
+            this.facsimilePhone = facsimilePhone;
+            this.hoursOfService = hoursOfService;
+            this.contactInstructions = contactInstructions;
+            this.city = city;
+            this.administrativeArea = administrativeArea;
+            this.postalCode = postalCode;
+            this.country = country;
+        }
+        ServiceProvider.prototype.toKVP = function () {
+            return "providerName=" + this.providerName +
+                "&providerSite=" + this.providerSite +
+                "&individualName=" + this.individualName +
+                "&positionName=" + this.positionName +
+                "&role=" + this.role +
+                "&email=" + this.email +
+                "&voicePhone=" + this.voicePhone +
+                "&facsimilePhone=" + this.facsimilePhone +
+                "&hoursOfService=" + this.hoursOfService +
+                "&contactInstructions=" + this.contactInstructions +
+                "&city=" + this.city +
+                "&administrativeArea=" + this.administrativeArea +
+                "&postalCode=" + this.postalCode +
+                "&country=" + this.country;
+        };
+        return ServiceProvider;
+    }());
+    admin.ServiceProvider = ServiceProvider;
+})(admin || (admin = {}));
 var wms;
 (function (wms) {
     var DeleteLayerStyle = (function () {

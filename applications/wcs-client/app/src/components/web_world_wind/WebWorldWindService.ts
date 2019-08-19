@@ -22,7 +22,9 @@
 
 ///<reference path="../../../assets/typings/tsd.d.ts"/>
 ///<reference path="../../_all.ts"/>
+///<reference path="../login_component/CredentialService.ts"/>
 ///<reference path="../wms_component/settings/SettingsService.ts"/>
+
 
 module rasdaman {
     //Declare the WorldWind object so that typescript does not complain.
@@ -34,7 +36,8 @@ module rasdaman {
         
         public static $inject = [
             "$rootScope",                       
-            "rasdaman.WMSSettingsService"          
+            "rasdaman.WMSSettingsService",
+            "rasdaman.CredentialService"
         ];
 
 
@@ -43,11 +46,14 @@ module rasdaman {
         // Array of coveragesExtents to be displayed on this webWorldWind object               
         private coveragesExtentsArray: any = null;
 
-        private wmsSetting: any = null;
+        private wmsSetting:WMSSettingsService = null;
+        private authorizationToken:string = "";
 
         public constructor($rootScope:angular.IRootScopeService,                           
-                           wmsSetting:rasdaman.WMSSettingsService) {
-            this.wmsSetting = wmsSetting;                 
+                           wmsSetting:rasdaman.WMSSettingsService,
+                           credentialService:rasdaman.CredentialService) {            
+            this.wmsSetting = wmsSetting;            
+            this.authorizationToken = credentialService.getAuthorizationHeader(this.wmsSetting.wmsEndpoint)["Authorization"];            
         }
 
         public setCoveragesExtentsArray(coveragesExtentsArray: any) {
@@ -95,7 +101,7 @@ module rasdaman {
             for (var i = 0; i < layers.length; i++) {
                 layers[i].layer.enabled = layers[i].enabled;
                 wwd.addLayer(layers[i].layer);
-            }       
+            }
 
             // Coverage's extent as a text when hovering mouse over
             var textLayer = new WorldWind.RenderableLayer("Screen Text");
@@ -431,7 +437,6 @@ module rasdaman {
             }                        
 
             var wwd = webWorldWindModel.wwd;
-
             var config = {
                     title: "WMS layer overview",
                     version: WMSSettingsService.version,
@@ -457,19 +462,18 @@ module rasdaman {
             // Zoom at distance 1 km (to avoid loading full big coverage which causes server terminated due to not enough RAM)
             if(this.oldLayerName != layerName) {
                 // default set zoom to 30 km
-                wwd.navigator.range = 30 * 1000;
+                wwd.navigator.range = 3000 * 1000;
                 this.oldLayerName = layerName;
             }
 
             // Remove the rendered surface image layer and replace it with new layer
             wwd.removeLayer(webWorldWindModel.wmsLayer);
-            var wmsLayer = new WorldWind.WmsLayer(config, timeString);                        
+            var wmsLayer = new BAWmsLayer(config, timeString, this.authorizationToken);                        
             webWorldWindModel.wmsLayer = wmsLayer;     
             if (displayLayer) {
                 // Should this Layer be displayed
                 wwd.addLayer(wmsLayer);
-            } 
-            
+            }           
         }
     }  
 
@@ -481,4 +485,70 @@ module rasdaman {
         polygonLayer: any,
         hidedPolygonObjsArray: any
     }
+    
+    export class BAWmsLayer extends WorldWind.WmsLayer {
+
+        private authorizationHeader:string = "";
+
+        public constructor(config:{}, timeString:string, authorizationHeader:string) {
+            super(config, timeString);
+            this.authorizationHeader = authorizationHeader;            
+        }
+
+        // Inspire from https://github.com/NASAWorldWind/WebWorldWind/blob/5f1afa8a30c11a5de7d86cb246c93da72e9c125e/src/layer/TiledImageLayer.js#L471
+        retrieveTileImage(dc, tile, suppressRedraw) {
+           if (this.currentRetrievals.indexOf(tile.imagePath) < 0) {
+               if (this.currentRetrievals.length > this.retrievalQueueSize) {
+                   return;
+               }
+
+               if (this.absentResourceList.isResourceAbsent(tile.imagePath)) {
+                   return;
+               }
+               var url = this.resourceUrlForTile(tile, this.retrievalImageFormat),
+                   image = new Image(),
+                   imagePath = tile.imagePath,
+                   cache = dc.gpuResourceCache,
+                   canvas = dc.currentGlContext.canvas,
+                   layer = this;
+               if (!url) {
+                   this.currentTilesInvalid = true;
+                   return;
+               }
+               image.onload = function () {
+                   var texture = layer.createTexture(dc, tile, image);
+                   layer.removeFromCurrentRetrievals(imagePath);
+                   if (texture) {
+                       cache.putResource(imagePath, texture, texture.size);
+                       layer.currentTilesInvalid = true;
+                       layer.absentResourceList.unmarkResourceAbsent(imagePath);
+                       if (!suppressRedraw) {
+                           // Send an event to request a redraw.
+                           var e = document.createEvent('Event');
+                           e.initEvent(WorldWind.REDRAW_EVENT_TYPE, true, true);
+                           canvas.dispatchEvent(e);
+                       }
+                   }
+               };
+               image.onerror = function () {
+                   layer.removeFromCurrentRetrievals(imagePath);
+                   layer.absentResourceList.markResourceAbsent(imagePath);
+               };
+               this.currentRetrievals.push(imagePath);
+               image.crossOrigin = this.crossOrigin;
+
+               var xhr = new XMLHttpRequest();
+               xhr.responseType = "arraybuffer";               
+               xhr.onload = function () {
+                       var blb = new Blob([xhr.response], { type: 'image/png' });
+                       var url = (window.URL || window.webkitURL).createObjectURL(blb);
+                       image.src = url;
+               };
+               xhr.open("GET", url, true);
+               //here goes the authentication header
+               xhr.setRequestHeader("Authorization", this.authorizationHeader);
+               xhr.send()
+           }
+       };
+   }
 }

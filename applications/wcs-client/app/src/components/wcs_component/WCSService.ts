@@ -27,13 +27,17 @@
 module rasdaman {
     export class WCSService {
 
-        public static $inject = ["$http", "$q", "rasdaman.WCSSettingsService", "rasdaman.common.SerializedObjectFactory", "$window"];
+        public static $inject = ["$http", "$q", "rasdaman.WCSSettingsService", 
+                                 "rasdaman.common.SerializedObjectFactory", "$window",
+                                 "rasdaman.CredentialService", "$state"];
 
         public constructor(private $http:angular.IHttpService,
                            private $q:angular.IQService,
                            private settings:rasdaman.WCSSettingsService,
                            private serializedObjectFactory:rasdaman.common.SerializedObjectFactory,
-                           private $window:angular.IWindowService) {
+                           private $window:angular.IWindowService,
+                           private credentialService:rasdaman.CredentialService,
+                           private $state:any) {
         }
 
 
@@ -41,9 +45,12 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
+            var currentHeaders = {};
+
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                    headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                }).then(function (data:any) {
                     try {
                         var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
@@ -64,9 +71,12 @@ module rasdaman {
             var result = this.$q.defer();
             var self = this;
 
+            var currentHeaders = {};
+
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                }).then(function (data:any) {
                     try {
                         var doc = new rasdaman.common.ResponseDocument(data.data, rasdaman.common.ResponseDocumentType.XML);
                         var serializedResponse = self.serializedObjectFactory.getSerializedObject(doc);
@@ -84,14 +94,39 @@ module rasdaman {
             return result.promise;
         }
 
+        // Store these keys values to be reused in result.html page
+        public storeKVPParametersToLocalStorage(petascopeEndPoint:string, keysValues:string) {
+            var arrayTmp = keysValues.split("&");
+            
+            var getCoverageKVPParameters = {"PetascopeEndPoint": petascopeEndPoint};
+
+            for (var i = 0; i < arrayTmp.length;i ++) {
+                if (arrayTmp[i].trim() != "") {
+                    var keyValue = arrayTmp[i].split("=");
+                    var key = keyValue[0];
+                    var value = keyValue[1];
+
+                    getCoverageKVPParameters[key] = value;
+                }
+            }
+
+            if (this.credentialService.hasStoredCredentials()) {
+                var authorizationObj = this.credentialService.getAuthorizationHeader(petascopeEndPoint);
+                getCoverageKVPParameters = (<any>Object).assign(getCoverageKVPParameters, authorizationObj);
+            }
+
+            window.localStorage.setItem("GetcoverageKVPParameters", JSON.stringify(getCoverageKVPParameters));
+        }
+
         // Send a GetCoverage KVP request in HTTP GET
         public getCoverageHTTPGET(request:wcs.GetCoverage):angular.IPromise<any> {
             var result = this.$q.defer();
             // Build the request URL
             var requestUrl = this.settings.wcsEndpoint + "?" + request.toKVP();
-
-            // For get coverage, open a new window.
-            this.$window.open(requestUrl);
+            var url = this.settings.defaultContextPath + "/wcs-client/result.html";
+                        
+            this.storeKVPParametersToLocalStorage(this.settings.wcsEndpoint, request.toKVP());            
+            window.open(url, '_blank');            
 
             // Return the URL as the result
             result.resolve(requestUrl);
@@ -101,41 +136,7 @@ module rasdaman {
 
         // Send a GetCoverage KVP request in HTTP POST
         public getCoverageHTTPPOST(request:wcs.GetCoverage) {
-            var result = this.$q.defer();
-
-            var requestUrl = this.settings.wcsEndpoint;
-            var keysValues = request.toKVP();
-            var arrayTmp = keysValues.split("&");
-
-            // Simulate the same behavior as HTTP GET, open a new window to see the result from Petascope
-            // by submitting form input elements.
-            var formId = "getCoverageHTTPPostForm";     
-            var formTmp = <HTMLFormElement>(document.getElementById(formId)); 
-            // remove the old one if exists      
-            if (formTmp) {
-                document.body.removeChild(formTmp);
-            }            
-
-            formTmp = document.createElement("form");
-            formTmp.id = "getCoverageHTTPPostForm";
-            formTmp.target = "_blank";
-            formTmp.method = "POST";
-            formTmp.action = requestUrl;
-
-            for (var i = 0; i < arrayTmp.length;i ++) {
-                if (arrayTmp[i].trim() != "") {
-                    var inputTmp = document.createElement("input");
-                    inputTmp.type = "hidden";
-                    // e.g: service=WCS
-                    var keyValue = arrayTmp[i].split("=");
-                    inputTmp.name = keyValue[0];
-                    inputTmp.value = keyValue[1];
-                    formTmp.appendChild(inputTmp);
-                }                
-            }
-
-            document.body.appendChild(formTmp);            
-            formTmp.submit();
+            return this.getCoverageHTTPGET(request);
         }
 
         public deleteCoverage(coverageId:string):angular.IPromise<any> {
@@ -144,10 +145,13 @@ module rasdaman {
             if (!coverageId) {
                 result.reject("You must specify at least one coverage ID.");
             }
+            
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=DeleteCoverage&COVERAGEID=" + coverageId;
 
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                    headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                }).then(function (data:any) {
                     result.resolve(data);
                 }, function (error) {
                     result.reject(error);
@@ -162,13 +166,16 @@ module rasdaman {
             if (!coverageUrl) {
                 result.reject("You must indicate a coverage source.");
             }
+
+            var currentHeaders = {};
             var requestUrl = this.settings.wcsEndpoint + "?" + this.settings.wcsServiceNameVersion + "&REQUEST=InsertCoverage&coverageRef=" + encodeURI(coverageUrl);
             if (useGeneratedId) {
                 requestUrl += "&useId=new";
             }
 
-            this.$http.get(requestUrl)
-                .then(function (data:any) {
+            this.$http.get(requestUrl, {
+                    headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders)
+                }).then(function (data:any) {
                     result.resolve(data);
                 }, function (error) {
                     result.reject(error);
@@ -188,13 +195,14 @@ module rasdaman {
             var queryStr = 'query=' + query;
                         
             var requestUrl = this.settings.wcsEndpoint;
+            var currentHeaders = {"Content-Type": "application/x-www-form-urlencoded"};
 
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformResponse: null,                
                 data: queryStr
             };
 
@@ -214,20 +222,21 @@ module rasdaman {
             return result.promise;
         }
 
-
         
         // Update coverage's metadata from a text file (formData is FormData object containing the file to be uploaded)
         public updateCoverageMetadata(formData):angular.IPromise<any> {
             var result = this.$q.defer();                                               
-            var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata";          
+            var requestUrl = this.settings.wcsEndpoint + "/UpdateCoverageMetadata"; 
+            
+            // NOTE: must set to undefined, otherwise it will have error in tomcat as it cannot parse uploaded file from multipart/form-data
+            var currentHeaders = {'Content-Type': undefined};            
 
             var request:angular.IRequestConfig = {
                 method: 'POST',
                 url: requestUrl,
                 //Removed the transformResponse to prevent angular from parsing non-JSON objects.
-                transformResponse: null,
-                // NOTE: must set to undefined, otherwise it will have error in tomcat as it cannot parse uploaded file from multipart/form-data
-                headers: {'Content-Type': undefined},
+                transformResponse: null,                
+                headers: this.credentialService.createRequestHeader(this.settings.wcsEndpoint, currentHeaders),
                 // NOTE: Without this property value, Petascope will create new session for each request and the logged in user session doesn't exist -> invalid request.
                 withCredentials: true,
                 data: formData

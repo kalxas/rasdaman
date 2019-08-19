@@ -37,6 +37,8 @@ module rasdaman {
             // In case of only WSClient is deployed to external web server (e.g: Tomcat) and this Tomcat has Petascope
             // This is used for development only.
             this.wmsEndpoint = this.wmsEndpoint.replace("wcs-client/app/", "rasdaman/ows");
+                                    
+            this.setWMSEndPoint(this.wmsEndpoint);
             
             // e.g: service=WMS&version=1.3.0
             this.wmsServiceNameVersion = "service=WMS&version=" + WMSSettingsService.version;
@@ -46,6 +48,15 @@ module rasdaman {
 
         public setWMSFullEndPoint() {
             this.wmsFullEndpoint = this.wmsEndpoint + "?" + this.wmsServiceNameVersion;
+        }
+
+        public setWMSEndPoint(petascopeEndPoint) {
+            this.wmsEndpoint = petascopeEndPoint;
+            this.wmsEndpoint = this.wmsEndpoint.split("#")[0];            
+
+            if (!this.wmsEndpoint.endsWith("ows")) {
+                this.wmsEndpoint = this.wmsEndpoint + "ows";
+            }
         }
     }
 }

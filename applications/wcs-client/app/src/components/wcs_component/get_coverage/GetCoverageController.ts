@@ -33,6 +33,7 @@ module rasdaman {
         private static selectedCoverageId:string;
 
         public static $inject = [
+            "$http",
             "$scope",
             "$rootScope",
             "$log",
@@ -41,7 +42,8 @@ module rasdaman {
             "rasdaman.WebWorldWindService"
         ];
 
-        public constructor($scope:WCSGetCoverageControllerScope,
+        public constructor($http:angular.IHttpService,
+                           $scope:WCSGetCoverageControllerScope,
                            $rootScope:angular.IRootScopeService,
                            $log:angular.ILogService,
                            wcsService:rasdaman.WCSService,
@@ -127,6 +129,8 @@ module rasdaman {
 
             // Send a GetCoverage request to get result
             $scope.getCoverageClickEvent = function () {
+
+                
                 var numberOfAxis = $scope.coverageDescription.boundedBy.envelope.lowerCorner.values.length;
                 var dimensionSubset:wcs.DimensionSubset[] = [];
                 for (var i = 0; i < numberOfAxis; ++i) {
@@ -167,7 +171,9 @@ module rasdaman {
                     $scope.core.requestUrl = null;
                     // POST KVP request which open a new Window to show the result
                     wcsService.getCoverageHTTPPOST(getCoverageRequest);
-                }                           
+                }
+                
+                // window.open("http://localhost:8080/wcs-client/app/test.html", "'_blank'");
             }
 
             $scope.$watch("wcsStateInformation.selectedCoverageDescription",

@@ -14,12 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003 - 2017 Peter Baumann /
+ * Copyright 2003 - 2019 Peter Baumann /
  rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+module login {
+    export class Credential {
+        public username:string;
+        public password:string;
 
-/// <reference path="ows/ServiceIdentification.ts"/>
-/// <reference path="ows/ServiceProvider.ts"/>
+        public constructor(username, password) {            
+            this.username = username;
+            this.password = password;
+        }        
+
+        public toKVP():string {
+            return "username=" + this.username +
+                "&password=" + this.password;
+        }
+    }
+}

@@ -21,6 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+
 /// <reference path="shared/Constants.ts"/>
 /// <reference path="../components/wcs_component/WCSService.ts"/>
 /// <reference path="shared/ErrorHandlingService.ts"/>
@@ -51,9 +52,13 @@
 /// <reference path="wcs_component/clipping_ext/ClippingExtensionModel.ts"/>
 /// <reference path="wcs_component/clipping_ext/ClippingExtension.ts"/>
 
+/// <reference path="main/RootController.ts"/>
 /// <reference path="main/WCSMainController.ts"/>
 /// <reference path="main/WMSMainController.ts"/>
 /// <reference path="main/AdminMainController.ts"/>
+
+/// <reference path="login_component/LoginController.ts"/>
+/// <reference path="login_component/CredentialService.ts"/>
 
 //// WMS
 /// <reference path="wms_component/settings/SettingsService.ts"/>
