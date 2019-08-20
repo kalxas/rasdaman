@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtcommand.hh"
 #include "mddmgr/mddcoll.hh"
 #include "catalogmgr/typefactory.hh"

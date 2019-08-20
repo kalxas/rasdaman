@@ -24,7 +24,6 @@ rasdaman GmbH.
 //  wrapper for malloc on client side
 //
 
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 

@@ -20,29 +20,10 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: set.cc
- *
- * MODULE: rasodmg
- * CLASS:  r_Set
- *
- * COMMENTS:
- *          None
-*/
 
-
-#include "config.h"
 #include "rasodmg/set.hh"
 
 class r_GMarray;
-
-#ifdef __VISUALC__
-template class r_Set<r_GMarray *>;
-#endif
-
-#ifndef __GNUG__
-#define NULL 0
-#endif
 
 template<class T>
 r_Set<T>::r_Set()

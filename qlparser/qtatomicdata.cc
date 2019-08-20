@@ -27,21 +27,14 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtatomicdata.hh"
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/alltypes.hh"
 #include <logging.hh>
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
-
-#include <iostream>
 
 
 QtAtomicData::QtAtomicData()

@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtcomplexdata.hh"
 #include "relcatalogif/structtype.hh"
 #include <stdio.h>

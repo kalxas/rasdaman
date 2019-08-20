@@ -20,18 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: dirdecomp.cc
- *
- * MODULE: rasodmg
- * CLASS:  r_DirDecomp
- *
- * COMMENTS:
- *        None
- *
-*/
 
-#include "config.h"
 #include "rasodmg/dirdecompose.hh"
 #include <string.h>
 

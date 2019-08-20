@@ -46,7 +46,6 @@ Don't forget that the rasdaman coordinates are with x left->right and y top->dow
 I have considered them so because of the usual coordinates of tiffs
 */
 
-#include "config.h"
 #include "rasodmg/polycutout.hh"
 #include "rasodmg/marray.hh"
 #include "raslib/miter.hh"

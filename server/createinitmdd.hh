@@ -1,5 +1,3 @@
-#ifndef CREATE_INIT_MDD_HH
-#define CREATE_INIT_MDD_HH
 /*
 * This file is part of rasdaman community.
 *
@@ -31,7 +29,8 @@ rasdaman GmbH.
  * The main purpose is speeding up initialization and import operations
  *
  ************************************************************/
-
+#ifndef CREATE_INIT_MDD_HH
+#define CREATE_INIT_MDD_HH
 
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddobj.hh"

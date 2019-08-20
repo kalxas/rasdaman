@@ -30,7 +30,6 @@
  *
 */
 
-#include "config.h"
 #include <sstream>
 #include <string.h>
 #include <fstream>

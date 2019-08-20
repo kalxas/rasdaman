@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-#include "config.h"
 #include <ctype.h>   //  for isalpha()
 #include <string.h> //  for strncmp()
 

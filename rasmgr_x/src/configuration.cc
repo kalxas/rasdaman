@@ -23,9 +23,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <cstring>
-#include "../../include/globals.hh"
 #include <logging.hh>
 
+#include "../../include/globals.hh"
 #include "configuration.hh"
 
 namespace rasmgr

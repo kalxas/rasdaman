@@ -1908,11 +1908,11 @@ Some options are commonly applicable to all recipes.
 **hooks section**
 
 Since v9.8, wcst_import allows to run bash commands *before/after ingestion*
-by adding optional ``hooks`` configuration in an ingredient file. 
-There are 2 types of ingestion hooks: 
+by adding optional ``hooks`` configuration in an ingredient file.
+There are 2 types of ingestion hooks:
 
 * ``before_ingestion``: run bash commands before analyzing input file(s)
-  (e.g: using **gdalwarp** to reproject input file(s) from EPSG:3857 CRS to 
+  (e.g: using **gdalwarp** to reproject input file(s) from EPSG:3857 CRS to
   EPSG:4326 CRS and import *projected EPSG:4326* input file(s)) to a coverage.
 
 * ``after_ingestion``: run bash commands after importing input file(s)
@@ -1921,7 +1921,7 @@ There are 2 types of ingestion hooks:
 When importing mode is set to non-blocking (``"blocking": false``),
 wcst_import will run before/after hook(s) for the file which
 is being used to update coverage, while the default blocking importing mode
-will run before/after hook(s) for *all input files* before/after 
+will run before/after hook(s) for *all input files* before/after
 they are updated to a coverage. Parameters are explained below.
 
 .. code-block:: json
@@ -2498,11 +2498,11 @@ complicated cases:
 **Local metadata from input files**
 
 Beside the *global metadata* of a coverage, you can add *local metadata*
-for each file which is a part of the whole coverage (e.g a 3D time-series 
+for each file which is a part of the whole coverage (e.g a 3D time-series
 coverage mosaiced from 2D GeoTiff files).
 
 In ingredient file of *general recipe*, under the metadata section add a "local"
-object with keys and values extracted by using format type expression. Example 
+object with keys and values extracted by using format type expression. Example
 of extracting an attribute from a netCDF input file:
 
 .. code-block:: json
@@ -2532,9 +2532,9 @@ containing local metadata in XML from 2 netCDF files:
           <Envelope>
             <axisLabels>Lat Long ansi forecast</axisLabels>
             <srsDimension>4</srsDimension>
-            <lowerCorner>34.4396675 29.6015625 
+            <lowerCorner>34.4396675 29.6015625
                          "2017-01-10T00:00:00+00:00" 0</lowerCorner>
-            <upperCorner>34.7208095 29.8828125 
+            <upperCorner>34.7208095 29.8828125
                          "2017-01-10T00:00:00+00:00" 0</upperCorner>
           </Envelope>
         </boundedBy>
@@ -2552,9 +2552,9 @@ containing local metadata in XML from 2 netCDF files:
           <Envelope>
             <axisLabels>Lat Long ansi forecast</axisLabels>
             <srsDimension>4</srsDimension>
-            <lowerCorner>34.4396675 29.6015625 
+            <lowerCorner>34.4396675 29.6015625
                          "2017-02-10T00:00:00+00:00" 3</lowerCorner>
-            <upperCorner>34.7208095 29.8828125 
+            <upperCorner>34.7208095 29.8828125
                          "2017-02-10T00:00:00+00:00" 3</upperCorner>
           </Envelope>
         </boundedBy>
@@ -2571,9 +2571,9 @@ containing local metadata in XML from 2 netCDF files:
 When subsetting a coverage which contains local metadata section
 from input files (via WC(P)S requests), if the geo domains of subsetted
 coverage intersect with some input files' envelopes, only local metadata of
-these files will be added to the output coverage metadata. 
+these files will be added to the output coverage metadata.
 
-For example: a ``GetCoverage`` request with a trim such that 
+For example: a ``GetCoverage`` request with a trim such that
 crs axis subsets are within netCDF file 1: ::
 
    http://localhost:8080/rasdaman/ows?service=WCS&version=2.0.1
@@ -2597,9 +2597,9 @@ netCDF file 1:
           <Envelope>
             <axisLabels>Lat Long ansi forecast</axisLabels>
             <srsDimension>4</srsDimension>
-            <lowerCorner>34.4396675 29.6015625 
+            <lowerCorner>34.4396675 29.6015625
                          "2017-01-10T00:00:00+00:00" 0</lowerCorner>
-            <upperCorner>34.7208095 29.8828125 
+            <upperCorner>34.7208095 29.8828125
                          "2017-01-10T00:00:00+00:00" 0</upperCorner>
           </Envelope>
         </boundedBy>
@@ -2619,12 +2619,12 @@ netCDF file 1:
 This feature is available since rasdaman version 9.8 for general recipe.
 Before, axis labels for a coverage must match axis abbreviations in CRS's GML
 definition when they are configured in the ingredient file under section ``"slicer"/"axes"``.
-With this new feature, one can set **an arbitrary name** for each axis label by 
-adding optional configuration ``"crsOrder"`` for each axis accordingly the 
+With this new feature, one can set **an arbitrary name** for each axis label by
+adding optional configuration ``"crsOrder"`` for each axis accordingly the
 position index which **starts from 0** of axis in coverage's CRS.
 
 For example with below configuration, coverage will be created with
-3 customized axes ``MyDateTimeAxis, MyLatAxis and MyLongAxis`` based on 
+3 customized axes ``MyDateTimeAxis, MyLatAxis and MyLongAxis`` based on
 coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)):
 
 .. code-block:: json
@@ -2653,8 +2653,8 @@ coverage's CRS (*AnsiDate* (1 DateTime axis) and *EPSG:4326* (Lat and Long axes)
 **Group several coverage slices into a group**
 
 Since v9.8+, wcst_import allows to group input files on irregular axes
-(with ``"dataBound": false``) by optional ``sliceGroupSize: value (positive integer)``. 
-E.g: 
+(with ``"dataBound": false``) by optional ``sliceGroupSize: value (positive integer)``.
+E.g:
 
 .. code-block:: json
 
@@ -2684,7 +2684,7 @@ which is the first date of this week).
 
 **Band and dimension metadata in netCDF**
 
-Metadata can be individually specified for each *band* and *axis* in the 
+Metadata can be individually specified for each *band* and *axis* in the
 ingredient file. This metadata is automatically added to the result output when
 encoding to netCDF. Example:
 
@@ -2720,13 +2720,13 @@ encoding to netCDF. Example:
       }
     }
 
-Since v9.7, for this metadata can be automatically derived from the input 
+Since v9.7, for this metadata can be automatically derived from the input
 netCDF files.
 
 * **band** metadata:
 
   * If ``"bands"`` is set to ``"auto"`` or does not exist under ``"metadata"``
-    in the ingredient file, all user-specified bands will have metadata which is 
+    in the ingredient file, all user-specified bands will have metadata which is
     fetched directly from the netCDF file.
 
   * Otherwise, the user could specify metadata explicitly by a dictionary of keys/values.
@@ -2736,7 +2736,7 @@ netCDF files.
 * **axis** metadata:
 
   * If ``"axes"`` is set to ``"auto"`` or does not exist under ``"metadata"``
-    in the ingredient file, all user-specified axes will have metadata which is 
+    in the ingredient file, all user-specified axes will have metadata which is
     fetched directly from the netCDF file. The axis label for variable is detected
     from the ``min`` or ``max`` value of CRS axis configuration under
     ``"slicer/axes"`` section. For example:
@@ -2815,7 +2815,7 @@ tiff files. Below is an example:
       },
       "input": {
         "coverage_id": "S1_GRD_${modebeam}_${polarisation}",
-         
+
          // (e.g: a geo-referenced tiff file to CRS: EPSG:4326, mode beam IW,
          //  singler polarisation VH:
          // s1a-iw-grd-vh-20190226t171654-20190326t171719-026512-02f856-002.tiff)
@@ -2931,7 +2931,7 @@ The other obvious difference is that the ``"coverage_id"`` is templated with
 several variables enclosed in ``${`` and ``}`` which are automatically replaced
 to generate the actual coverage name during import:
 
-- ``crsCode`` - the CRS EPSG code of the imported files, e.g. ``32757`` for 
+- ``crsCode`` - the CRS EPSG code of the imported files, e.g. ``32757`` for
   WGS 84 / UTM zone 57S.
 
 - ``resolution`` - Sentinel 2 products bundle several subdatasets of different
@@ -2943,7 +2943,7 @@ to generate the actual coverage name during import:
 
   - ``60m`` - bands B1, B8, and B10 (base type unsigned short)
 
-  - ``TCI`` - True Color Image (red, green, blue char bands); also 10m as it is 
+  - ``TCI`` - True Color Image (red, green, blue char bands); also 10m as it is
     derived from the B2, B3, and B4 10m bands.
 
 - ``level`` - ``L1C`` or ``L2A``
@@ -2964,11 +2964,11 @@ following options in the ``"input"`` section:
   e.g. only the "10m" subdataset; if not specified, data of all supported
   resolutions will be ingested.
 
-- ``levels`` - specify a subset of levels to ingest, so that files of other 
+- ``levels`` - specify a subset of levels to ingest, so that files of other
   levels will be fully skipped; if not specified, data of all supported levels
   will be ingested.
 
-- ``crss`` - specify a list of CRSs (EPSG codes as strings) to ingest; if not 
+- ``crss`` - specify a list of CRSs (EPSG codes as strings) to ingest; if not
   specified or empty, data of any CRS will be ingested.
 
 
@@ -2990,7 +2990,7 @@ as dots are not permitted in a collection name. Some examples:
 - MyCoverage, level 2 -> MyCoverage_2
 - MyCoverage, level 2.45 -> MyCoverage_2_45
 
-Example ingredients specification to create two downscaled levels which are 
+Example ingredients specification to create two downscaled levels which are
 *8x* and *32x* smaller than the original coverage:
 
 .. code-block: json
@@ -3000,7 +3000,7 @@ Example ingredients specification to create two downscaled levels which are
       ...
     }
 
-Two new WCS-T non-standard requests are utilized by wcst_import for this feature, 
+Two new WCS-T non-standard requests are utilized by wcst_import for this feature,
 see :ref:`here for more information <wcs-t-non-standard-requests-wms>`.
 
 
@@ -3181,7 +3181,7 @@ will continue this tutorial by describing how to take advantage of this
 functionality, however, note that this is not required for the recipe to work.
 The first thing that you need to do is to define an *importer* object. This
 importer object, takes a *coverage* object and ingests it using WCST requests. The
-object has two public methods, ``ingest()``, which ingests the coverage into the 
+object has two public methods, ``ingest()``, which ingests the coverage into the
 WCS-T service (note: ingest can be an insert operation when the coverage was not
 defined, or update if the coverage exists. The importer will handle both cases
 for you, so you don't have to worry if the coverage already exists.) and
@@ -3615,7 +3615,7 @@ can be accessed via URL: ::
 
     http://localhost:9009/rasdaman/ows
 
-One can also run embedded petascope with *its own dedicated 
+One can also run embedded petascope with *its own dedicated
 petascope.propeties* by adding an option which points to a folder
 containing this property file, e.g: ::
 
@@ -3623,7 +3623,7 @@ containing this property file, e.g: ::
 
 **secore**
 
-Same as petascope, one can run secore as a standalone web application with 
+Same as petascope, one can run secore as a standalone web application with
 embedded tomcat by running: ::
 
     $ java -jar def.war
@@ -3667,21 +3667,21 @@ Below we outline the steps for migrating ``petascopedb`` (from vX.X to vY.Y,
 or from one DBMS to another, like PostgreSQL to HSQLDB):
 
 1. If using an embedded database like HSQLDB, which does not support multiple
-   connections from different applications, make sure that the (new) petascope 
+   connections from different applications, make sure that the (new) petascope
    9.5 is stopped.
 
 2. Execute the migration script: ``./migrate_petascopedb.sh``
 
-3. All coverages in pre 9.5 ``petascopedb`` will be read by the old 
-   ``CoverageMetadata`` model which is imported in the new petascope as a legacy 
+3. All coverages in pre 9.5 ``petascopedb`` will be read by the old
+   ``CoverageMetadata`` model which is imported in the new petascope as a legacy
    package.
 
-4. If coverage id doesn't exist in the new ``petascopedb``, a process to translate 
+4. If coverage id doesn't exist in the new ``petascopedb``, a process to translate
    from old ``CoverageMetadata`` model to CIS coverage data model is done and
    then persisted in ``petascopedb``.
 
-5. While running the migration, all services of the new petascope web application, 
-   such as: WCS, WCPS, WMS, and WCS-T, will not be available to make sure the data 
+5. While running the migration, all services of the new petascope web application,
+   such as: WCS, WCPS, WMS, and WCS-T, will not be available to make sure the data
    is migrated safely.
 
 .. note::

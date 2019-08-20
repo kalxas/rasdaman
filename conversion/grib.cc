@@ -32,8 +32,6 @@ rasdaman GmbH.
  * Provides functions to convert data to GRIB and back.
  */
 
-#include "config.h"
-
 #include "conversion/grib.hh"
 #include "conversion/memfs.hh"
 #include "conversion/formatparamkeys.hh"
@@ -45,6 +43,7 @@ rasdaman GmbH.
 #include "raslib/odmgtypes.hh"
 #include "raslib/miterd.hh"
 #include "mymalloc/mymalloc.h"
+#include "config.h"
 
 #include <logging.hh>
 
@@ -54,6 +53,7 @@ rasdaman GmbH.
 #include <utility>
 #include <boost/algorithm/string/replace.hpp>
 #include <memory>
+#include <unordered_map>
 
 using namespace std;
 
@@ -118,7 +118,7 @@ r_Conv_Desc &r_Conv_GRIB::convertFrom(r_Format_Params options)
 {
     formatParams = options;
     Json::Value messageDomains = getMessageDomainsJson();
-    unordered_map<int, r_Minterval> messageDomainsMap = getMessageDomainsMap(messageDomains);
+    auto messageDomainsMap = getMessageDomainsMap(messageDomains);
     r_Minterval fullBoundingBox = computeBoundingBox(messageDomainsMap);
     LDEBUG << "computed bounding box from the specified messageDomains: " << fullBoundingBox;
 
@@ -269,8 +269,7 @@ unordered_map<int, r_Minterval> r_Conv_GRIB::getMessageDomainsMap(const Json::Va
     {
         int msgId = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_ID].asInt();
         const char *msgDomain = messageDomains[messageIndex][FormatParamKeys::Decode::Grib::MESSAGE_DOMAIN].asCString();
-        r_Minterval domain = domainStringToMinterval(msgDomain);
-        if (!ret.insert(make_pair(msgId, domain)).second)
+        if (!ret.emplace(msgId, domainStringToMinterval(msgDomain)).second)
         {
             LWARNING << "duplicate message domain in format parameters for message id " << msgId << ", ignoring.";
         }

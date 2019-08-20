@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/property.hh"
 #include "raslib/basetype.hh"
 #include "raslib/error.hh"

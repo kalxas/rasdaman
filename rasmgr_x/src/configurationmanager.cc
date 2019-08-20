@@ -8,7 +8,6 @@
 
 #include <logging.hh>
 
-#include "config.h"
 #include "include/globals.hh"
 #include "common/exceptions/missingresourceexception.hh"
 #include "common/uuid/uuid.hh"

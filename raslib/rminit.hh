@@ -61,15 +61,6 @@ const int  RASMGRPORT  = 7001;
 // RPC timeout [secs]; used in clientcomm/rpcclientcomm.cc -- PB 2005-sep-09
 const unsigned int RPC_TIMEOUT = 3;
 
-// timeout in RNP communication
-const unsigned int RNP_COMM_TIMEOUT = 60;
-
-// timeout in nerver.cc
-const unsigned int RNP_TIMEOUT_LISTEN = 30;
-
-// maximum number of retries in rnprotocol/rnpclientcomm2.cc
-const unsigned int RNP_MAX_RETRY = 10;
-
 //@ManMemo: Module: {\bf raslib}
 
 /*@Doc:

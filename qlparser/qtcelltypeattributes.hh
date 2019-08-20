@@ -30,7 +30,6 @@ rasdaman GmbH.
 #ifndef QTCELLTYPEATTRIBUTES_HH
 #define QTCELLTYPEATTRIBUTES_HH
 
-#include "config.h"
 #include "qtoperation.hh"
 #include "qtunaryinduce.hh"
 

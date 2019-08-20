@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 #include "raslib/oid.hh"
 
 #include <sstream>

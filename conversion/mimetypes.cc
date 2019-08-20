@@ -21,7 +21,6 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "config.h"
 #include "conversion/mimetypes.hh"
 
 #include <boost/algorithm/string/replace.hpp>

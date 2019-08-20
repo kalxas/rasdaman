@@ -30,9 +30,7 @@
  *
 */
 
-#include "config.h"
 #include <iostream>
-using namespace std;
 
 #include <stdio.h>     // fopen, getc
 #include <string.h>
@@ -44,6 +42,8 @@ using namespace std;
 
 #include "raslib/rmdebug.hh"
 #include "raslib/odmgtypes.hh"
+
+using namespace std;
 
 int RManDebug     = 0;     // debug level (0-4), 0 means no debug info at all
 int RManBenchmark = 0;     // benchmark level (0-4)

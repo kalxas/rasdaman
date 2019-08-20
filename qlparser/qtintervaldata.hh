@@ -31,18 +31,9 @@ rasdaman GmbH.
 #define _QTINTERVALDATA_
 
 #include "qlparser/qtdata.hh"
-
 #include "raslib/sinterval.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
-
-#include <iostream>
-// removed deprecated ostrstream -- PB 2005-jan-14
-// #include <strstream.h>
+#include <ostream>
 
 //@ManMemo: Module: {\bf qlparser}
 

@@ -35,7 +35,6 @@ rasdaman GmbH.
 
 #pragma once
 
-#include "config.h"
 #include "blobfs.hh"
 #include "dbtile.hh"
 #include "tilecache.hh"

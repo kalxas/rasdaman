@@ -20,21 +20,9 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 using namespace std;
 
-using namespace std;
-
-#include "config.h"
 #include "qlparser/qtmintervaldata.hh"
 
 #include <iostream>

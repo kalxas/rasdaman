@@ -24,12 +24,6 @@ rasdaman GmbH.
 #ifndef _QTCLIPPINGUTIL_
 #define _QTCLIPPINGUTIL_
 
-//#ifndef CPPSTDLIB
-//#include <ospace/string.h> // STL<ToolKit>
-//#else
-#include <string>
-//#endif
-
 #include "raslib/point.hh"
 #include "raslib/pointdouble.hh"
 #include "raslib/mddtypes.hh"

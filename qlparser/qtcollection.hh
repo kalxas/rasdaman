@@ -1,15 +1,3 @@
-#ifndef __QTCOLLECTION_HH__
-#define __QTCOLLECTION_HH__
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-//forward declaration
-class QtCollection;
-
 /*
 * This file is part of rasdaman community.
 *
@@ -32,12 +20,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef __QTCOLLECTION_HH__
+#define __QTCOLLECTION_HH__
+
+#include <string>
+
+//forward declaration
+class QtCollection;
+
 
 //@ManMemo: Module: {\bf qlparser}
 

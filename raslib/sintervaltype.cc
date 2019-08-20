@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-#include "config.h"
 #include "raslib/sintervaltype.hh"
 
 r_Sinterval_Type::r_Sinterval_Type()

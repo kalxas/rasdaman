@@ -27,7 +27,6 @@
 #include "common/grpc/grpcutils.hh"
 #include "loggingutils.hh"
 
-#include "config.h"
 #include "version.h"
 
 #include "rascontrolconfig.hh"

@@ -22,106 +22,25 @@
 ###################################################################
 
 # These are folders that contain files used to build this library (generated files or source files)
-set(RNPROTOCOL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/rnprotocol")
 set(CLIENTCOMM_SOURCE_DIR "${CMAKE_SOURCE_DIR}/clientcomm")
 set(CLIENTCOMM_BINARY_DIR "${CMAKE_BINARY_DIR}/clientcomm")
 
-# Generate the RPC files in the current binary directory
-set(RPCGEN_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-
-add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif.h"
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${RPCGEN_EXECUTABLE}
-    ARGS -h -o "${RPCGEN_DIR}/rpcif.h.tmp" "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${AWK_EXECUTABLE}
-    ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif.h.awk" "${RPCGEN_DIR}/rpcif.h.tmp" > "${RPCGEN_DIR}/rpcif.h"
-
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif.h.tmp"
-
-    DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
-    WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
-    )
-
-add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_svc.cc"
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CLIENTCOMM_SOURCE_DIR}/rpcif.x" "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${RPCGEN_EXECUTABLE}
-    ARGS -m -o "${RPCGEN_DIR}/rpcif_svc.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${AWK_EXECUTABLE}
-    ARGS -f "${CLIENTCOMM_SOURCE_DIR}/rpcif_svc.c.awk" "${RPCGEN_DIR}/rpcif_svc.cc.tmp" > "${RPCGEN_DIR}/rpcif_svc.cc"
-
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_svc.cc.tmp"
-
-    DEPENDS "${CLIENTCOMM_SOURCE_DIR}/rpcif.x"
-    WORKING_DIRECTORY ${CLIENTCOMM_SOURCE_DIR}
-    )
-
-add_custom_command(OUTPUT "${RPCGEN_DIR}/rpcif_xdr.cc"
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different rpcif.x "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${RPCGEN_EXECUTABLE}
-    ARGS -c -o "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" "${RPCGEN_DIR}/rpcif.x"
-
-    COMMAND ${AWK_EXECUTABLE}
-    ARGS -f rpcif_xdr.cc.awk "${RPCGEN_DIR}/rpcif_xdr.cc.tmp" > "${RPCGEN_DIR}/rpcif_xdr.cc"
-
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${RPCGEN_DIR}/rpcif_xdr.cc.tmp"
-
-    DEPENDS rpcif.x
-
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-
-
-set(SRC_FILES cliententry.cc cliententry.hh
+set(SRC_FILES
+    cliententry.cc cliententry.hh
     accesscontrol.cc accesscontrol.hh
     httpserver.hh httpserver.cc
     servercomm.hh servercomm.cc
-    "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprotocol.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpembedded.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpcommunication.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/rnpserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpserver.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.hh" "${RNPROTOCOL_SOURCE_DIR}/srvrasmgrcomm.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.hh" "${RNPROTOCOL_SOURCE_DIR}/rnprasserver.cc"
-    "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.hh" "${RNPROTOCOL_SOURCE_DIR}/rnpservercomm.cc")
+    rpcif.h rpcif_svc.cc rpcif_xdr.cc
+    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
+    "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
 
-set(RASNET_LIBRARIES "")
+add_library(servercomm ${SRC_FILES})
 
-# If rasnet is enabled, build the servercomm and add the libraries as requirements
-if (RMANRASNET)
-    set(SRC_FILES ${SRC_FILES}
-        "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
-        "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
+target_link_libraries(servercomm
+    rasnet common_exceptions common_grpc common_logging common_time common_uuid)
 
-    set(RASNET_LIBRARIES ${RASNET_LIBRARIES}
-        rasnet common_exceptions common_grpc common_logging common_time common_uuid)
-endif (RMANRASNET)
-
-
-set(OPTIONAL_LIBRARIES "")
 if (ENABLE_PROFILING)
-    set(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} profiler tcmalloc)
+    target_link_libraries(servercomm profiler tcmalloc)
 endif ()
-
-add_library(servercomm ${SRC_FILES}
-        "${RPCGEN_DIR}/rpcif.h"
-        "${RPCGEN_DIR}/rpcif_svc.cc"
-        "${RPCGEN_DIR}/rpcif_xdr.cc")
-
-# Add the directories that contain files needed by this
-target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/mymalloc")
-target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/debug")
-target_include_directories(servercomm PUBLIC "${RNPROTOCOL_SOURCE_DIR}")
-target_include_directories(servercomm PUBLIC "${CMAKE_SOURCE_DIR}/rasnetprotocol")
-target_include_directories(servercomm PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
-target_include_directories(servercomm PUBLIC "${BASEDB_INCLUDE_DIR}")
-
-target_link_libraries(servercomm ${RASNET_LIBRARIES} ${OPTIONAL_LIBRARIES})
 
 install(TARGETS servercomm DESTINATION ${LIB_DIR})

@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * SOURCE: test_miterf.cc
@@ -49,6 +48,8 @@
 #include "raslib/rmdebug.hh"
 
 using namespace std;
+
+RMINITGLOBALS('C')
 
 
 int main(int argc, char* argv[])

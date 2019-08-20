@@ -52,6 +52,8 @@ int noTimeOut = 0;
 
 INITIALIZE_EASYLOGGINGPP
 
+RMINITGLOBALS('C')
+
 class TestBlobFile
 {
 

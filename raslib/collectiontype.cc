@@ -21,12 +21,9 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/collectiontype.hh"
 #include "raslib/error.hh"
 #include <logging.hh>
-
-#include "config.h"
 
 r_Collection_Type::r_Collection_Type()
     :   r_Type(),

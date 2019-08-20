@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "dbnullvalues.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/sqlglobals.h"

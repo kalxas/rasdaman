@@ -28,7 +28,6 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 #include "raslib/mitera.hh"
 #include "raslib/minterval.hh"
 #include "raslib/error.hh"

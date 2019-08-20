@@ -26,10 +26,6 @@
 add_executable(concurrentquery EXCLUDE_FROM_ALL concurrentquery.cc)
 
 target_link_libraries(concurrentquery rasodmg clientcomm raslib
-        commline network common_logging -lpthread)
-
-if (RMANRASNET)
-    target_link_libraries(concurrentquery rasnet)
-endif (RMANRASNET)
+        commline common_logging rasnet -lpthread)
 
 add_dependencies(unit-check concurrentquery)

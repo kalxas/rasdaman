@@ -33,17 +33,13 @@ rasdaman GmbH.
 #ifndef _QTMDDCFGOP_HH_
 #define _QTMDDCFGOP_HH_
 
-#include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-using namespace std;
-#endif
-#include<fstream>
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtmddconfig.hh"
 #include "rasodmg/interesttiling.hh"
+#include <iostream>
+#include<fstream>
+#include <string>
+using namespace std;
 
 
 class QtMddCfgOp: public QtOperation

@@ -231,18 +231,8 @@ if (uppercase_CMAKE_BUILD_TYPE STREQUAL "RELEASE")
     set(__NO_MATH_INLINES 1)
 endif()
 
-#
-# Options for selecting the network protocol
-#
-set(NETWORK_PROTOCOL rasnet CACHE STRING "Set the network protocol used in rasdaman (rasnet or rnp).")
-set_property(CACHE NETWORK_PROTOCOL PROPERTY STRINGS rasnet rnp)
-message(STATUS "Building rasdaman with the ${NETWORK_PROTOCOL} protocol (-DNETWORK_PROTOCOL=${NETWORK_PROTOCOL}).")
-if (${NETWORK_PROTOCOL} STREQUAL rasnet)
-    set(RMANRASNET 1)
-    set(DISABLE_PROTOBUF_WARNINGS_FLAGS " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef -Wno-missing-declarations ")
-else ()
-    set(RMANRASNET 0)
-endif ()
+set(DISABLE_PROTOBUF_WARNINGS_FLAGS 
+    " -Wno-sign-conversion -Wno-shadow -Wno-pedantic -Wno-undef -Wno-missing-declarations ")
 
 #
 # clang-tidy
@@ -615,7 +605,6 @@ SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_STATIC_RUNTIME ON)
 #add_definitions(-DBOOST_ALL_NO_LIB)
 find_package(Boost REQUIRED COMPONENTS thread system filesystem)
-find_package(RpcGen REQUIRED)
 find_package(AWK REQUIRED)
 find_package(OpenSSL REQUIRED)
 
@@ -637,12 +626,9 @@ add_subdirectory(lockmgr)
 add_subdirectory(manuals_and_examples)
 add_subdirectory(mddmgr)
 add_subdirectory(mymalloc)
-add_subdirectory(network)
 add_subdirectory(qlparser)
-add_subdirectory(rascontrol)
 add_subdirectory(rascontrol_x)
 add_subdirectory(raslib)
-add_subdirectory(rasmgr)
 add_subdirectory(rasmgr_x)
 add_subdirectory(rasnet)
 add_subdirectory(rasodmg)

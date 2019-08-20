@@ -32,7 +32,6 @@
  *
 */
 
-#include "config.h"
 #include "conversion/json.hh"
 
 using namespace std;

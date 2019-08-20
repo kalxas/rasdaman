@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/primitivetype.hh"
 #include "raslib/odmgtypes.hh"
 #include "raslib/endian.hh"

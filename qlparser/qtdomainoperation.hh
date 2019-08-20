@@ -1,17 +1,3 @@
-#ifndef _QTDOMAINOPERATION_
-#define _QTDOMAINOPERATION_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtunaryoperation.hh"
-#include "qlparser/qtmintervaldata.hh"
-#include "raslib/sinterval.hh"
-#include "raslib/minterval.hh"
-
 /*
 * This file is part of rasdaman community.
 *
@@ -34,12 +20,15 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTDOMAINOPERATION_
+#define _QTDOMAINOPERATION_
+
+#include <string>
+
+#include "qlparser/qtunaryoperation.hh"
+#include "qlparser/qtmintervaldata.hh"
+#include "raslib/sinterval.hh"
+#include "raslib/minterval.hh"
 
 
 //@ManMemo: Module: {\bf qlparser}

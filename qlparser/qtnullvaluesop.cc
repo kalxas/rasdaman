@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtnullvaluesop.hh"
@@ -43,12 +33,9 @@ rasdaman GmbH.
 #include "raslib/nullvalues.hh"
 #include "easylogging++.h"
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
+
 using namespace std;
-#endif
 
 
 const QtNode::QtNodeType QtNullvaluesOp::nodeType = QT_NULLVALUESOP;

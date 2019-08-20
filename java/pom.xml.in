@@ -168,30 +168,6 @@
         </profile>
 
         <profile>
-            <id>rnp</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>2.1</version>
-                        <configuration>
-                            <includes>
-                                <include>rasj/*.java</include>
-                                <include>rasj/global/*.java</include>
-                                <include>rasj/clientcommhttp/*.java</include>
-                                <include>rasj/odmg/*.java</include>
-                                <include>org/odmg/*.java</include>
-                                <include>rasj/rnp/*.java</include>
-                                <include>rasj/rasimplementation/rnp/RasImplementation.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>upload</id>
             <build>
                 <plugins>

@@ -21,13 +21,10 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/complex.hh"
 #include "raslib/error.hh"
 #include "raslib/complextype.hh"
 #include <logging.hh>
-
-#include "config.h"
 
 r_Complex::r_Complex(const char *newBuffer, const r_Complex_Type *newType)
     :   r_Primitive(newBuffer, newType)

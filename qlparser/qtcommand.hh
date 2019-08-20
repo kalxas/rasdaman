@@ -1,18 +1,3 @@
-#ifndef __QTCOMMAND_HH__
-#define __QTCOMMAND_HH___
-
-#include "qlparser/qtcollection.hh"
-#include "qlparser/qtexecute.hh"
-#include "qlparser/qtoperationiterator.hh"
-#include "qlparser/querytree.hh"
-#include "raslib/oid.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-#include <iostream>
 
 /*
 * This file is part of rasdaman community.
@@ -36,12 +21,17 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef __QTCOMMAND_HH__
+#define __QTCOMMAND_HH___
+
+#include "qlparser/qtcollection.hh"
+#include "qlparser/qtexecute.hh"
+#include "qlparser/qtoperationiterator.hh"
+#include "qlparser/querytree.hh"
+#include "raslib/oid.hh"
+
+#include <string>
+#include <iostream>
 
 //@ManMemo: Module: {\bf qlparser}
 

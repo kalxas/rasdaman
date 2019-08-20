@@ -31,7 +31,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtcaseop.hh"
 #include "raslib/rmdebug.hh"
 
@@ -57,15 +56,13 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 #include <bits/stl_bvector.h>
-using namespace std;
-#endif
 #include "raslib/miter.hh"
 #include "qtvariable.hh"
+#include "qtcaseequality.hh"
+
+using namespace std;
 
 /**
  * Defines the node type, for further identification.

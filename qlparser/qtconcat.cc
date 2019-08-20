@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtconcat.hh"
@@ -43,12 +33,8 @@ rasdaman GmbH.
 #include "mddmgr/mddobj.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 
 const QtNode::QtNodeType QtConcat::nodeType = QT_CONCAT;

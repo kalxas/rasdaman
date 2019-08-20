@@ -23,7 +23,6 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "config.h"
 #include "reladminif/dbref.hh"
 #include "reladminif/objectbroker.hh"
 #include "reladminif/oidif.hh"

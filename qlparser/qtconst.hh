@@ -1,15 +1,3 @@
-#ifndef _QTCONST_
-#define _QTCONST_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtdata.hh"
-#include "qlparser/qtoperation.hh"
-#include <stdio.h>
 
 /*
 * This file is part of rasdaman community.
@@ -33,12 +21,15 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTCONST_
+#define _QTCONST_
+
+#include "qlparser/qtdata.hh"
+#include "qlparser/qtoperation.hh"
+#include <stdio.h>
+
+#include <string>
+
 
 //@ManMemo: Module: {\bf qlparser}
 

@@ -35,7 +35,6 @@ rasdaman GmbH.
  * - convertTo() writes a temp file; this should be omitted for performance reasons
 */
 
-#include "config.h"
 #include "conversion/dem.hh"
 
 #include <float.h>

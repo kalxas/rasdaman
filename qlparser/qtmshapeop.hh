@@ -1,17 +1,3 @@
-#ifndef _QTMSHAPEOP_
-#define _QTMSHAPEOP_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtnaryoperation.hh"
-#include "qlparser/qtmshapedata.hh"
-#include <deque>
-
-
 /*
 * This file is part of rasdaman community.
 *
@@ -34,12 +20,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTMSHAPEOP_
+#define _QTMSHAPEOP_
+
+#include <string>
+#include "qlparser/qtnaryoperation.hh"
+#include "qlparser/qtmshapedata.hh"
+#include <deque>
+
 
 //@ManMemo: Module: {\bf qlparser}
 

@@ -31,7 +31,6 @@ rasdaman GmbH.
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
 
-#include "config.h"
 #include "qlparser/qtcollection.hh"
 #include "qlparser/qtconversion.hh"
 #include "qlparser/qtmarrayop.hh"

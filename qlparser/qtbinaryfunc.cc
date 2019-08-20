@@ -58,12 +58,8 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 
 // --- QtShift --------------------------------------------------

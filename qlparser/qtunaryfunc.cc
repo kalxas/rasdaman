@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtunaryfunc.hh"
 #include "qlparser/qtintervaldata.hh"
 #include "qlparser/qtatomicdata.hh"

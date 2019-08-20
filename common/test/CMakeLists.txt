@@ -21,14 +21,12 @@
 #
 ###################################################################
 
-set(TEST_SOURCES time/timertest.cc main_test.cc)
-
-if (RMANRASNET)
-    set(TEST_SOURCES ${TEST_SOURCES}
-            grpc/grpcutilstest.cc
-            grpc/healthserviceimpltest.cc
-            grpc/healthserviceservertest.cc)
-endif ()
+set(TEST_SOURCES 
+        time/timertest.cc main_test.cc
+        grpc/grpcutilstest.cc
+        grpc/healthserviceimpltest.cc
+        grpc/healthserviceservertest.cc
+        )
 
 add_executable(common_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 

@@ -21,16 +21,14 @@
 #
 ###################################################################
 
-if (RMANRASNET)
-    set(TEST_SOURCES usercredentialstest.cc main_test.cc)
+set(TEST_SOURCES usercredentialstest.cc main_test.cc)
 
-    add_executable(rascontrol_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
+add_executable(rascontrol_test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 
-    target_link_libraries(rascontrol_test
-            rascontrol_lib
-            ${GMOCK_LIBRARY})
+target_link_libraries(rascontrol_test
+        rascontrol_lib
+        ${GMOCK_LIBRARY})
 
-    add_test(rascontrol_testrunner rascontrol_test)
+add_test(rascontrol_testrunner rascontrol_test)
 
-    add_dependencies(unit-check rascontrol_test)
-endif ()
+add_dependencies(unit-check rascontrol_test)

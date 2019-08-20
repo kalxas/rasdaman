@@ -24,7 +24,6 @@
 #include <google/protobuf/stubs/common.h>
 #include <gtest/gtest.h>
 #include "loggingutils.hh"
-#include "config.h"
 
 INITIALIZE_EASYLOGGINGPP
 using namespace std;
@@ -38,9 +37,7 @@ int main(int argc, char** argv)
 
     int testResults = RUN_ALL_TESTS();
 
-#ifdef RMANRASNET
     google::protobuf::ShutdownProtobufLibrary();
-#endif
 
     return testResults;
 }

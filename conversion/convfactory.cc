@@ -32,7 +32,6 @@ rasdaman GmbH.
  * - temporary, for debugging
  */
 
-#include "config.h"
 #include <logging.hh>
 
 #include "conversion/convfactory.hh"

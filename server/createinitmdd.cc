@@ -1,4 +1,3 @@
-#include "mymalloc/mymalloc.h"
 /*
 * This file is part of rasdaman community.
 *
@@ -21,23 +20,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 using namespace std;
 
-#include "config.h"
 #include "server/createinitmdd.hh"
 #include <iomanip>
 #include "reladminif/objectbroker.hh"
 #include "raslib/mitera.hh"
+#include "mymalloc/mymalloc.h"
 
 #include <logging.hh>
 

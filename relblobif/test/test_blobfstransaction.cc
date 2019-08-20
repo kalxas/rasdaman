@@ -40,6 +40,8 @@
 
 #include "loggingutils.hh"
 
+RMINITGLOBALS('C')
+
 using namespace std;
 
 // define external vars

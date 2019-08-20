@@ -50,12 +50,8 @@ rasdaman GmbH.
 #include "relcatalogif/complextype.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 const QtNode::QtNodeType QtCondense::nodeType = QtNode::QT_CONDENSE;
 

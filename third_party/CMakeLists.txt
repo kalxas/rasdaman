@@ -219,97 +219,94 @@ set_property(TARGET ${GMOCK_LIBRARY} APPEND PROPERTY
         IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 
-if (RMANRASNET)
-    ############################################################################
-    # Begin Google RPC
-    ############################################################################
-    # TODO: Convert the Google Protobuf build process to use External Project once we give up Autotools
+############################################################################
+# Begin Google RPC
+############################################################################
+# TODO: Convert the Google Protobuf build process to use External Project once we give up Autotools
 
-    set(THIRD_PARTY_DIR "${CMAKE_BINARY_DIR}/third_party")
-    # Google Protobuf is a third_party dependency of GRPC so we define the variables here.
-    set(GRPC_SOURCE_DIR "${CMAKE_BINARY_DIR}/third_party/grpc")
-    set(GRPC_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc")
+set(THIRD_PARTY_DIR "${CMAKE_BINARY_DIR}/third_party")
+# Google Protobuf is a third_party dependency of GRPC so we define the variables here.
+set(GRPC_SOURCE_DIR "${CMAKE_BINARY_DIR}/third_party/grpc")
+set(GRPC_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/grpc")
 
-    set(PROTOBUF_SOURCE_DIR "${GRPC_SOURCE_DIR}/third_party/protobuf")
-    set(PROTOBUF_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/protobuf")
-    set(PROTOBUF_INCLUDE_DIR "${PROTOBUF_BINARY_DIR}/include")
+set(PROTOBUF_SOURCE_DIR "${GRPC_SOURCE_DIR}/third_party/protobuf")
+set(PROTOBUF_BINARY_DIR "${CMAKE_BINARY_DIR}/third_party/bin/protobuf")
+set(PROTOBUF_INCLUDE_DIR "${PROTOBUF_BINARY_DIR}/include")
 
-    set(PROTOBUF_LIBRARY protobuf)
-    set(PROTOBUF_LIBRARY_PATH "${PROTOBUF_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${PROTOBUF_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+set(PROTOBUF_LIBRARY protobuf)
+set(PROTOBUF_LIBRARY_PATH "${PROTOBUF_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${PROTOBUF_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
-    set(PROTOBUF_PROTOC_EXECUTABLE_PATH "${PROTOBUF_BINARY_DIR}/bin/protoc")
-    set(PROTOBUF_PROTOC_EXECUTABLE protoc)
+set(PROTOBUF_PROTOC_EXECUTABLE_PATH "${PROTOBUF_BINARY_DIR}/bin/protoc")
+set(PROTOBUF_PROTOC_EXECUTABLE protoc)
 
-    # NOTE: we need to change to an existing gmock-1.7.0 for downloading (the old one does not exist)
-    set(OLD_GMOCK_URL "https://googlemock.googlecode.com/files/gmock-1.7.0.zip")
-    set(NEW_GMOCK_URL "http://rasdaman.org/chrome/site/gmock-1.7.0.zip")
+# NOTE: we need to change to an existing gmock-1.7.0 for downloading (the old one does not exist)
+set(OLD_GMOCK_URL "https://googlemock.googlecode.com/files/gmock-1.7.0.zip")
+set(NEW_GMOCK_URL "http://rasdaman.org/chrome/site/gmock-1.7.0.zip")
 
-    set(GRPC_INCLUDE_DIR ${GRPC_BINARY_DIR}/include)
+set(GRPC_INCLUDE_DIR ${GRPC_BINARY_DIR}/include)
 
-    # GRPC Library
-    set(GRPC_LIBRARY grpc_unsecure)
-    set(GRPC_LIBRARY_PATH "${GRPC_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${GRPC_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    # GRPC++ library
-    set(GRPCPP_LIBRARY grpc++_unsecure)
-    set(GRPCPP_LIBRARY_PATH "${GRPC_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${GRPCPP_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    # GRPC CPP Plugin
-    set(GRPC_CPP_PLUGIN_EXECUTABLE_PATH ${GRPC_BINARY_DIR}/bin/grpc_cpp_plugin)
-    set(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+# GRPC Library
+set(GRPC_LIBRARY grpc_unsecure)
+set(GRPC_LIBRARY_PATH "${GRPC_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${GRPC_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+# GRPC++ library
+set(GRPCPP_LIBRARY grpc++_unsecure)
+set(GRPCPP_LIBRARY_PATH "${GRPC_BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${GRPCPP_LIBRARY}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+# GRPC CPP Plugin
+set(GRPC_CPP_PLUGIN_EXECUTABLE_PATH ${GRPC_BINARY_DIR}/bin/grpc_cpp_plugin)
+set(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
-    GetProcessorCount(PROCESSOR_COUNT)
+GetProcessorCount(PROCESSOR_COUNT)
 
-    add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH}
-                              ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
-            COMMAND 
-               export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
-            && sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" ${PROTOBUF_SOURCE_DIR}/autogen.sh
-            && sed -i "s|^CPPFLAGS += -g |CPPFLAGS += |" Makefile
-            && sed -i "s| \./configure | CXXFLAGS=\"-O2\" ./configure |" Makefile
-            && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
-            && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile
-            && export MAKEFLAGS= && export MAKEOVERRIDES=
-            && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
-            && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
-            COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
-            WORKING_DIRECTORY ${GRPC_SOURCE_DIR}
-            COMMENT "Building Google GRPC library."
-            VERBATIM)
+add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH}
+                          ${PROTOBUF_LIBRARY_PATH} ${PROTOBUF_PROTOC_EXECUTABLE_PATH}
+        COMMAND 
+           export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
+        && sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" ${PROTOBUF_SOURCE_DIR}/autogen.sh
+        && sed -i "s|^CPPFLAGS += -g |CPPFLAGS += |" Makefile
+        && sed -i "s| \./configure | CXXFLAGS=\"-O2\" ./configure |" Makefile
+        && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
+        && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile
+        && export MAKEFLAGS= && export MAKEOVERRIDES=
+        && $(MAKE) -j${PROCESSOR_COUNT} CONFIG=opt PROTOBUF_CONFIG_OPTS="--prefix=${PROTOBUF_BINARY_DIR}"
+        && export MAKEFLAGS=$MAKEFLAGS_AUX && export MAKEOVERRIDES=$MAKEOVERRIDES_AUX
+        COMMAND $(MAKE) ARGS install prefix=${GRPC_BINARY_DIR} PROTOC=${PROTOBUF_PROTOC_EXECUTABLE_PATH} -j${PROCESSOR_COUNT}
+        WORKING_DIRECTORY ${GRPC_SOURCE_DIR}
+        COMMENT "Building Google GRPC library."
+        VERBATIM)
 
-    add_custom_target(google-grpc
-            DEPENDS ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${PROTOBUF_LIBRARY_PATH})
+add_custom_target(google-grpc
+        DEPENDS ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${PROTOBUF_LIBRARY_PATH})
 
-    # Set the grpc/protobuf include directories as system includes
-    include_directories(SYSTEM ${GRPC_INCLUDE_DIR})
-    include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
+# Set the grpc/protobuf include directories as system includes
+include_directories(SYSTEM ${GRPC_INCLUDE_DIR})
+include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
 
-    install(DIRECTORY ${GRPC_INCLUDE_DIR}/
-            DESTINATION ${INCLUDE_DIR})
+install(DIRECTORY ${GRPC_INCLUDE_DIR}/
+        DESTINATION ${INCLUDE_DIR})
 
-    find_package (Threads REQUIRED)
+find_package (Threads REQUIRED)
 
-    InstallExternalLibrary(${GRPC_LIBRARY} ${GRPC_LIBRARY_PATH} google-grpc)
-    set_property(TARGET ${GRPC_LIBRARY} APPEND PROPERTY
-            IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+InstallExternalLibrary(${GRPC_LIBRARY} ${GRPC_LIBRARY_PATH} google-grpc)
+set_property(TARGET ${GRPC_LIBRARY} APPEND PROPERTY
+        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
-    InstallExternalLibrary(${GRPCPP_LIBRARY} ${GRPCPP_LIBRARY_PATH} google-grpc)
-    set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
-            IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+InstallExternalLibrary(${GRPCPP_LIBRARY} ${GRPCPP_LIBRARY_PATH} google-grpc)
+set_property(TARGET ${GRPCPP_LIBRARY} APPEND PROPERTY
+        IMPORTED_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
-    InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
+InstallExternalLibrary(${PROTOBUF_LIBRARY} ${PROTOBUF_LIBRARY_PATH} google-grpc)
 
-    AddExternalExecutable(${GRPC_CPP_PLUGIN_EXECUTABLE} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH} google-grpc)
-    AddExternalExecutable(${PROTOBUF_PROTOC_EXECUTABLE} ${PROTOBUF_PROTOC_EXECUTABLE_PATH} google-grpc)
+AddExternalExecutable(${GRPC_CPP_PLUGIN_EXECUTABLE} ${GRPC_CPP_PLUGIN_EXECUTABLE_PATH} google-grpc)
+AddExternalExecutable(${PROTOBUF_PROTOC_EXECUTABLE} ${PROTOBUF_PROTOC_EXECUTABLE_PATH} google-grpc)
 
-    # A dependency of GRPC sets this variable for some reason.
-    mark_as_advanced(BUILD_TESTING)
+# A dependency of GRPC sets this variable for some reason.
+mark_as_advanced(BUILD_TESTING)
 
-    ############################################################################
-    # Begin Google Java RPC Compiler
-    ############################################################################
+############################################################################
+# Begin Google Java RPC Compiler
+############################################################################
 
-    include("${CMAKE_SOURCE_DIR}/third_party/grpc-java/CMakeLists.txt")
-
-endif (RMANRASNET)
+include("${CMAKE_SOURCE_DIR}/third_party/grpc-java/CMakeLists.txt")
 
 ############################################################################
 # Begin Easyloggingpp (ELPP)

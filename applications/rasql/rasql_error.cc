@@ -31,21 +31,14 @@
 *       No comments
 */
 
-using namespace std;
+#include "rasql_error.hh"
+#include <logging.hh>
 
-#include "config.h"
 #include <exception>
 #include <cstring>
-
-// for sprintf():
 #include <stdio.h>
 
-#include "rasql_error.hh"
-
-// debug facility; relies on -DDEBUG at compile time
-#include "debug-clt.hh"
-
-#include <logging.hh>
+using namespace std;
 
 /// error object, carrying int error code
 RasqlError::RasqlError(int e)

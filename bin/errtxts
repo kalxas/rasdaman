@@ -316,6 +316,8 @@
 976^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The set type name is longer than 200 characters.
 977^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The struct type name is longer than 200 characters.
 
+993^E^Referenced file not found or not readable.
+994^E^Referenced file is empty.
 995^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid expansion position, operation breaks tile alignment.
 996^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid expansion direction.
 997^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: The collection name is too long.
@@ -366,6 +368,7 @@
 2020^E^Internal error: Binary export for object is not supported.
 2021^E^Internal error: Binary import for object is not supported.
 2022^E^Internal error: Operands and result types don't match.
+2023^E^Internal error: Subquery execution failed due to remote server misconfiguration.
 #
 # 3xxx errors: Data format conversion errors
 #

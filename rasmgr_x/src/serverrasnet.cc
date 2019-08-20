@@ -148,6 +148,9 @@ void ServerRasNet::startProcess()
 
     lock.unlock();
 
+    std::string command = this->getStartProcessCommand();
+    LDEBUG << "Starting server process " << serverId << " with command: " << command;
+
     this->processId = fork();
 
     switch (this->processId)
@@ -164,9 +167,6 @@ void ServerRasNet::startProcess()
     {
         //Child process
 
-        std::string command = this->getStartProcessCommand();
-        LDEBUG << "Starting server process " << serverId << " with command: " << command;
-
         boost::char_separator<char> sep(" \t\r\n");
         boost::tokenizer<boost::char_separator<char>> tokens(command, sep);
 
@@ -182,9 +182,7 @@ void ServerRasNet::startProcess()
         for (std::size_t i = 0; i < commandVec.size(); ++i)
         {
             commandArr[i] = new char[commandVec[i].size() + 1];
-
             strcpy(commandArr[i], commandVec[i].c_str());
-
             commandArr[i][commandVec[i].size()] = '\0';
         }
 
@@ -627,7 +625,6 @@ const char *ServerRasNet::getCapability(const char *serverName, const char *data
     sprintf(capaQ, "%s$D%s$K", capaS, digest);
 
     return capaQ;
-
 }
 
 int ServerRasNet::messageDigest(const char *input, char *output, const char *mdName)

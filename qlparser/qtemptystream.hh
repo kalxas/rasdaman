@@ -33,7 +33,6 @@ rasdaman GmbH.
 #ifndef _QTEMPTYSTREAM_
 #define _QTEMPTYSTREAM_
 
-#include "config.h"
 #include "qlparser/qtoncstream.hh"
 
 class QtEmptyStream : public QtONCStream

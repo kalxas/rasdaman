@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtoncstream.hh"
 
 const QtNode::QtNodeType QtONCStream::nodeType = QtNode::QT_ONC_STREAM;

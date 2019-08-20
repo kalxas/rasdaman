@@ -35,7 +35,6 @@ rasdaman GmbH.
 #ifndef _OPS_HH_
 #define _OPS_HH_
 
-#include "config.h"
 #include "qlparser/qtatomicdata.hh"
 
 #include <limits.h>

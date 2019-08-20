@@ -36,7 +36,6 @@ rasdaman GmbH.
 #ifndef QTCASEEQUALITY_HH
 #define QTCASEEQUALITY_HH
 
-#include "config.h"
 #include "qlparser/qtbinaryinduce2.hh"
 
 class QtCaseEquality: public QtEqual

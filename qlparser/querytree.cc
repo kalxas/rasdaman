@@ -35,11 +35,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "version.h"
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
 #include <iostream>
 #include <dlfcn.h>
 

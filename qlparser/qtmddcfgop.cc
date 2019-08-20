@@ -21,30 +21,17 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/*************************************************************
- *
- * CHANGE HISTORY (append further entries):
- * when         who             what
- * ----------------------------------------------------------
- * 10-11-08     Shams      Created the class
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtmddconfig.hh"
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-using namespace std;
-#endif
 #include<fstream>
 
 #include <logging.hh>
+
+using namespace std;
 
 
 QtMddCfgOp::QtMddCfgOp()

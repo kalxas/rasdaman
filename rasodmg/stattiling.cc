@@ -20,22 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: stattiling.cc
- *
- * MODULE: rasodmg
- * CLASS:  r_Stat_Tiling r_Access
- *
- * COMMENTS:
- *          None
- */
 
-#ifdef __VISUALC__
-// Diable warning for signed/unsigned mismatch.
-#pragma warning( disable : 4018 )
-#endif
-
-#include "config.h"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/stattiling.hh"
@@ -53,10 +38,6 @@ rasdaman GmbH.
 
 // Uncomment the following line to have debug information (printfs)
 // #define _DEBUG_STATTILING_
-
-#ifdef _VISUALIZE_2D_DECOMP_
-#include "tools/visualtiling2d.hh"
-#endif
 
 const char *
 r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";

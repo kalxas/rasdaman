@@ -327,7 +327,7 @@ TEST_F(ServerManagerTest, startServerGroupByName)
     EXPECT_CALL(serverGroupMockRef, start());
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
-    .WillOnce(Return(groupName));
+    .WillRepeatedly(Return(groupName));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));

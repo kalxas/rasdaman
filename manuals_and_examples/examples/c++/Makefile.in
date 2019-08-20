@@ -39,7 +39,6 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lclientcomm            \
        -lraslib                \
        -lcommline              \
-       -lnetwork               \
        -lrasnet                \
        -lcommon_crypto         \
        -lcommon_grpc           \

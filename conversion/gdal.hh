@@ -39,6 +39,7 @@ rasdaman GmbH.
 #include "conversion/convertor.hh"
 #include "raslib/minterval.hh"
 #include "conversion/gdalincludes.hh"
+#include "config.h"
 
 #include <json/json.h>
 #include <string>

@@ -32,19 +32,15 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtmddconfig.hh"
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtdata.hh"
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-using namespace std;
-#endif
 #include <fstream>
+#include <string>
+
+using namespace std;
 
 
 QtMDDConfig::QtMDDConfig() : QtData()

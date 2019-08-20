@@ -1,36 +1,3 @@
-#ifndef _QTNODE_
-#define _QTNODE_
-
-#include "config.h"
-
-#ifndef CPPSTDLIB
-#include <vector.h>        // STL<ToolKit>
-#include <list.h>          // STL<ToolKit>
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <vector>
-#include <list>
-#include <string>
-#endif
-#include <functional>
-
-#include "raslib/rmdebug.hh"
-#include "raslib/sinterval.hh"
-#include "qlparser/parseinfo.hh"
-#include "qlparser/qtdata.hh"
-
-// define used in lots of qlparser files to indent output
-#ifdef CPPSTDLIB
-#define SPACE_STR(numSpace) std::string((size_t)numSpace,' ')
-#else
-#define SPACE_STR(numSpace) std::string(' ',numSpace)
-#endif
-
-class QtOperation; // forward declarations of subclasses of QtNode
-class Type;
-class QtTypeElement;
-class QtBinaryOperation;
-
 /*
 * This file is part of rasdaman community.
 *
@@ -53,12 +20,26 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTNODE_
+#define _QTNODE_
+
+#include <vector>
+#include <list>
+#include <string>
+#include <functional>
+
+#include "raslib/rmdebug.hh"
+#include "raslib/sinterval.hh"
+#include "qlparser/parseinfo.hh"
+#include "qlparser/qtdata.hh"
+
+// define used in lots of qlparser files to indent output
+#define SPACE_STR(numSpace) std::string((size_t)numSpace,' ')
+
+class QtOperation; // forward declarations of subclasses of QtNode
+class Type;
+class QtTypeElement;
+class QtBinaryOperation;
 
 
 //@ManMemo: Module: {\bf qlparser}

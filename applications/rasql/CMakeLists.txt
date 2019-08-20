@@ -25,11 +25,7 @@ add_executable(rasql rasql.cc
         rasql_error.hh rasql_error.cc)
 
 target_link_libraries(rasql rasodmg clientcomm raslib
-        commline network common_logging)
-
-if (RMANRASNET)
-    target_link_libraries(rasql rasnet)
-endif (RMANRASNET)
+    commline common_logging rasnet)
 
 install(TARGETS rasql
         DESTINATION ${BIN_DIR})

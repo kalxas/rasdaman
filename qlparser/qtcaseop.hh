@@ -45,7 +45,6 @@ rasdaman GmbH.
 
 #include <boost/shared_ptr.hpp>
 
-#include "config.h"
 #include "qlparser/qtnaryoperation.hh"
 #include "relcatalogif/basetype.hh"
 #include "qtvariable.hh"

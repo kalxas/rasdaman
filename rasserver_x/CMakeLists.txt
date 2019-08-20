@@ -21,7 +21,5 @@
 #
 ###################################################################
 
-if (RMANRASNET)
-    add_subdirectory(src)
-    add_subdirectory(test)
-endif ()
+add_subdirectory(src)
+add_subdirectory(test)

@@ -23,23 +23,12 @@ rasdaman GmbH.
 #ifndef _QTBINARYFUNC_
 #define _QTBINARYFUNC_
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
 
 #include "qlparser/qtbinaryoperation.hh"
 #include "raslib/sinterval.hh"
 #include "raslib/minterval.hh"
 #include <vector>
-/*************************************************************
- *
- *
- * COMMENTS:
- * - why is this "binary"? they all have just one MDD!
- *
- ************************************************************/
 
 //@ManMemo: Module: {\bf qlparser}
 

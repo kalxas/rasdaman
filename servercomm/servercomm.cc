@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: servercomm.cc
- *
- * MODULE: servercomm
- * CLASS:  ServerComm
- *
- * COMMENTS:
- *          None
-*/
 
 #include "config.h"
 #include "servercomm.hh"

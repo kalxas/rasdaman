@@ -31,7 +31,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include "config.h"
 #include "adminif.hh"
 #include "sqlerror.hh"
 #include "sqlglobals.h"

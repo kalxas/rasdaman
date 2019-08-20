@@ -1,15 +1,3 @@
-#ifndef _QTONCSTREAM_
-#define _QTONCSTREAM_
-
-#include "config.h"
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtnode.hh"
-
 /*
 * This file is part of rasdaman community.
 *
@@ -32,13 +20,13 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTONCSTREAM_
+#define _QTONCSTREAM_
 
+#include "qlparser/qtnode.hh"
+#include <string>
+
+using namespace std;
 
 //@ManMemo: Module: {\bf qlparser}
 

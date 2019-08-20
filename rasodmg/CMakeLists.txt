@@ -44,6 +44,8 @@ add_library(rasodmg alignedtiling.hh alignedtiling.cc alignedtiling.icc
 
 target_link_libraries(rasodmg clientcomm)
 
+# cotire(rasodmg)
+
 install(TARGETS rasodmg
         DESTINATION ${LIB_DIR})
 

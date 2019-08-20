@@ -37,12 +37,8 @@ rasdaman GmbH.
 #include "qlparser/qtmdd.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"

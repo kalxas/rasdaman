@@ -55,6 +55,8 @@
 // needed to configure logging
 #include "loggingutils.hh"
 
+RMINITGLOBALS('C')
+
 INITIALIZE_EASYLOGGINGPP
 
 int main(int ac, char** av)

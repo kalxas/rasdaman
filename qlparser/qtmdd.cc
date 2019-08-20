@@ -36,13 +36,10 @@ rasdaman GmbH.
 #include "relcatalogif/mdddimensiontype.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-using namespace std;
-#endif
 #include <iostream>
+
+using namespace std;
 
 // defined in servercomm.cc
 extern MDDColl *mddConstants;

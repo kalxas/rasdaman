@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include <cstdio>

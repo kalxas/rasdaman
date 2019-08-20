@@ -24,8 +24,6 @@ rasdaman GmbH.
 #ifndef _FORMATPARAMS_HH_
 #define _FORMATPARAMS_HH_
 
-#include "config.h"
-
 #include "raslib/minterval.hh"
 #include "raslib/error.hh"
 #include "conversion/colormap.hh"

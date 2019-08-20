@@ -38,8 +38,6 @@ rasdaman GmbH.
 #ifndef _R_CONVERTOR_
 #define _R_CONVERTOR_
 
-#include "config.h"
-
 #include "conversion/convtypes.hh"
 #include "conversion/formatparams.hh"
 #include "raslib/error.hh"

@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE:   primitive.cc
- *
- * MODULE:   raslib
- * CLASS:    r_Primitive
- *
- * COMMENTS:
- *
-*/
 
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include "raslib/primitive.hh"

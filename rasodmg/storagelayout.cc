@@ -31,7 +31,6 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 // Because of NT port
 #include <string.h>
 #include <sstream>

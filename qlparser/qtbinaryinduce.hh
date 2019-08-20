@@ -1,19 +1,3 @@
-#ifndef _QTBINARYINDUCE_
-#define _QTBINARYINDUCE_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtbinaryoperation.hh"
-#include "qlparser/qtdata.hh"
-#include "qlparser/qtmdd.hh"
-#include "qlparser/qtscalardata.hh"
-
-#include "catalogmgr/ops.hh"
-
 /*
 * This file is part of rasdaman community.
 *
@@ -36,12 +20,17 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTBINARYINDUCE_
+#define _QTBINARYINDUCE_
+
+#include <string>
+
+#include "qlparser/qtbinaryoperation.hh"
+#include "qlparser/qtdata.hh"
+#include "qlparser/qtmdd.hh"
+#include "qlparser/qtscalardata.hh"
+
+#include "catalogmgr/ops.hh"
 
 //@ManMemo: Module: {\bf qlparser}
 

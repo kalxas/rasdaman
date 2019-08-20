@@ -1,18 +1,3 @@
-#ifndef _QTMDDACCESS_
-#define _QTMDDACCESS_
-
-#include "qlparser/qtcollection.hh"
-#include "qlparser/qtoncstream.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-// forward declarations
-class MDDColl;
-class MDDCollIter;
 
 /*
 * This file is part of rasdaman community.
@@ -36,12 +21,18 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTMDDACCESS_
+#define _QTMDDACCESS_
+
+#include "qlparser/qtcollection.hh"
+#include "qlparser/qtoncstream.hh"
+
+#include <string>
+
+// forward declarations
+class MDDColl;
+class MDDCollIter;
+
 
 //@ManMemo: Module: {\bf qlparser}
 

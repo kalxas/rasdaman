@@ -21,46 +21,44 @@
 #
 ###################################################################
 
-if (RMANRASNET)
-    find_package(Readline)
+find_package(Readline)
 
-    set(REQUIRED_LIBRARIES "")
+set(REQUIRED_LIBRARIES "")
 
-    if (READLINE_FOUND)
-        add_definitions(-DREADLINELIB=1)
-        set(REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
-    endif (READLINE_FOUND)
+if (READLINE_FOUND)
+    add_definitions(-DREADLINELIB=1)
+    set(REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
+endif (READLINE_FOUND)
 
-    # Create library from rascontrol sources so that we can test the functionality
-    add_library(rascontrol_lib commandexecutor.cc
-            commandexecutor.hh
-            controlrasmgrcomm.cc
-            controlrasmgrcomm.hh
-            controlrasmgrrasnet.cc
-            controlrasmgrrasnet.hh
-            editline.cc
-            editline.hh
-            invalidrasctrlcommandexception.cc
-            invalidrasctrlcommandexception.hh
-            rascontrol.cc
-            rascontrol.hh
-            rascontrolconstants.hh
-            rascontrolconfig.cc
-            rascontrolconfig.hh
-            usercredentials.cc
-            usercredentials.hh)
-    
-    target_link_libraries(rascontrol_lib commline rasnet
-            common_crypto common_logging common_exceptions common_grpc
-            ${REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+# Create library from rascontrol sources so that we can test the functionality
+add_library(rascontrol_lib commandexecutor.cc
+        commandexecutor.hh
+        controlrasmgrcomm.cc
+        controlrasmgrcomm.hh
+        controlrasmgrrasnet.cc
+        controlrasmgrrasnet.hh
+        editline.cc
+        editline.hh
+        invalidrasctrlcommandexception.cc
+        invalidrasctrlcommandexception.hh
+        rascontrol.cc
+        rascontrol.hh
+        rascontrolconstants.hh
+        rascontrolconfig.cc
+        rascontrolconfig.hh
+        usercredentials.cc
+        usercredentials.hh)
 
-    # Create rascontrol executable
-    add_executable(rascontrol rascontrol_main.cc)
-    target_link_libraries(rascontrol rascontrol_lib)
+target_link_libraries(rascontrol_lib commline rasnet
+        common_crypto common_logging common_exceptions common_grpc
+        ${REQUIRED_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-    # cotire(rascontrol rascontrol_lib)
+# Create rascontrol executable
+add_executable(rascontrol rascontrol_main.cc)
+target_link_libraries(rascontrol rascontrol_lib)
 
-    # Install rascontrol
-    install(TARGETS rascontrol
-            DESTINATION ${BIN_DIR})
-endif (RMANRASNET)
+# cotire(rascontrol rascontrol_lib)
+
+# Install rascontrol
+install(TARGETS rascontrol
+        DESTINATION ${BIN_DIR})

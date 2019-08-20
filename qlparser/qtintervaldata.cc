@@ -20,26 +20,13 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-using namespace std;
-
-using namespace std;
-
-#include "config.h"
 #include "qlparser/qtintervaldata.hh"
 
 #include <iostream>
 #include <cstring>
 
+using namespace std;
 
 QtIntervalData::QtIntervalData(const r_Sinterval &interval)
     : QtData(), intervalData(interval)

@@ -32,7 +32,6 @@ rasdaman GmbH.
 */
 
 //for max min
-#include "config.h"
 #include <algorithm>
 
 //for pow

@@ -30,7 +30,6 @@
  *
 */
 
-#include "config.h"
 #include "raslib/rminit.hh"
 
 #include "raslib/error.hh"

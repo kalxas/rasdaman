@@ -22,19 +22,7 @@ rasdaman GmbH.
 */
 // This is -*- C++ -*-
 
-/*************************************************************************
- *
- *
- * PURPOSE:
- *      Code with embedded SQL for PostgreSQL DBMS
- *
- *
- * COMMENTS:
- *      none
- *
- ***********************************************************************/
 
-#include "config.h"
 #include "objectbroker.hh"
 #include "adminif.hh"
 #include "dbnamedobject.hh"

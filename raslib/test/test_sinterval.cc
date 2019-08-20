@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * SOURCE: test_sinterval.cc
@@ -58,7 +57,7 @@ int main()
     }
     else
     {
-        interval1.set_low(atoi(Buffer));
+        interval1.set_low(atol(Buffer));
     }
 
     cout << "upper bound ? ";
@@ -71,7 +70,7 @@ int main()
     }
     else
     {
-        interval1.set_high(atoi(Buffer));
+        interval1.set_high(atol(Buffer));
     }
 
     cout << "interval1 = [";
@@ -88,7 +87,7 @@ int main()
     }
     else
     {
-        interval2.set_low(atoi(Buffer));
+        interval2.set_low(atol(Buffer));
     }
 
     cout << "upper bound ? ";
@@ -101,7 +100,7 @@ int main()
     }
     else
     {
-        interval2.set_high(atoi(Buffer));
+        interval2.set_high(atol(Buffer));
     }
 
     cout << "interval1 = [";
@@ -173,7 +172,7 @@ int main()
 
     cerr << endl;
 
-    r_Sinterval b(4, 10);
+    r_Sinterval b(4l, 10l);
     char* stringRep = b.get_string_representation();
     cout << endl << "String representation of interval " << b << ": " << stringRep << endl;
     cout << "Result of string constructor: " << r_Sinterval(stringRep) << endl;

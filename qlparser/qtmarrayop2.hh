@@ -1,5 +1,3 @@
-#ifndef _QTMARRAYOP2_
-#define _QTMARRAYOP2_
 
 /*
 * This file is part of rasdaman community.
@@ -23,12 +21,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -37,15 +29,12 @@ rasdaman GmbH.
   The class represents the root of a fake marray expression.
 
 */
+#ifndef _QTMARRAYOP2_
+#define _QTMARRAYOP2_
 
 #include "raslib/minterval.hh"
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
-
 #include <vector>
 #include "qlparser/qtoperation.hh"
 #include "qlparser/qtdomainoperation.hh"

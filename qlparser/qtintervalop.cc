@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtintervalop.hh"
@@ -41,12 +31,8 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 
 const QtNode::QtNodeType QtIntervalOp::nodeType = QT_INTERVALOP;

@@ -4,11 +4,7 @@
 #include "qlparser/qtoperation.hh"
 #include "raslib/minterval.hh"
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
 
 #include <stdio.h>
 

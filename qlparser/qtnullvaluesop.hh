@@ -24,12 +24,7 @@ rasdaman GmbH.
 #ifndef _QTNULLVALUESOP_
 #define _QTNULLVALUESOP_
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
-
 #include <vector>
 #include <utility>
 

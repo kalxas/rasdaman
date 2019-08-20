@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * SOURCE: test_miter.cc
@@ -44,6 +43,8 @@
 
 using namespace std;
 
+RMINITGLOBALS('C')
+
 // structure storing information on iteration for each dimension
 // (perhaps add dimension for reordering later)
 typedef struct
@@ -60,13 +61,13 @@ r_Minterval
 createCube(int size, int dim)
 {
     int i;
-    int c = pow((double)size, 1.0 / (double)dim);
+    long c = pow((double)size, 1.0 / (double)dim);
 
     r_Minterval res(dim);
 
     for (i = 0; i < dim; i++)
     {
-        res << r_Sinterval(0, c - 1);
+        res << r_Sinterval(0l, c - 1);
     }
 
     i = 0;

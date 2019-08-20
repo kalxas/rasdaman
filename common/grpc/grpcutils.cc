@@ -54,7 +54,16 @@ grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception) {
     errorMessage.set_error_text(exception.what());
 
     Status status(grpc::StatusCode::UNKNOWN, errorMessage.SerializeAsString());
+    return status;
+}
 
+grpc::Status GrpcUtils::convertExceptionToStatus(common::Exception &exception) {
+    ErrorMessage errorMessage;
+    //The type is STL
+    errorMessage.set_type(ErrorMessage::RERROR);
+    errorMessage.set_error_text(exception.what());
+
+    Status status(grpc::StatusCode::UNKNOWN, errorMessage.SerializeAsString());
     return status;
 }
 
@@ -66,7 +75,6 @@ grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage
     message.set_error_text(errorMessage);
 
     Status status(grpc::StatusCode::UNKNOWN, message.SerializeAsString());
-
     return status;
 }
 
@@ -76,25 +84,15 @@ void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status) {
     ErrorMessage message;
     if (message.ParseFromString(status.error_message())) {
       switch (message.type()) {
-        case ErrorMessage::STL: {
+        case ErrorMessage::STL:
           throw Exception(message.error_text());
-        }
-          break;
-
-        case ErrorMessage::RERROR: {
+        case ErrorMessage::RERROR:
           throw Exception(message.error_text());
-        }
-          break;
-
-        case ErrorMessage::UNKNOWN: {
+        case ErrorMessage::UNKNOWN:
           throw Exception(message.error_text());
-        }
-          break;
-
-        default: {
+        default:
           //Throw a generic exception.
           throw Exception(message.error_text());
-        }
       }
     } else {
       //Throw a generic exception.

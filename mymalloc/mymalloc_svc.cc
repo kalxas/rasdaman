@@ -24,7 +24,6 @@ rasdaman GmbH.
 //
 //  wrapper for malloc on server side - throw bad_alloc if malloc fails
 //
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 #include "reladminif/objectbroker.hh"
 #include <stdlib.h>

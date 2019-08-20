@@ -30,13 +30,12 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include <iostream>
-using namespace std;
 
 #include "qlparser/parseinfo.hh"
 #include "raslib/error.hh"
 
+using namespace std;
 
 ParseInfo::ParseInfo()
     : errorNo(0),

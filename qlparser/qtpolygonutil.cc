@@ -26,16 +26,9 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <sstream>
-#ifndef CPPSTDLIB
-//#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-using namespace std;
-#endif
-
 #include <iostream>
 #include <cmath>
-
+#include <string>
 using namespace std;
 
 pair< r_Point, r_Point > getBoundingBox(const vector< r_Point > &polygon)

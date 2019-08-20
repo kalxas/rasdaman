@@ -21,8 +21,6 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "config.h"
-
 #include "conversion/gdal.hh"
 #include "conversion/tmpfile.hh"
 #include "conversion/convutil.hh"
@@ -37,6 +35,7 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include "conversion/transpose.hh"
 #include "conversion/colormap.hh"
+#include "config.h"
 
 #include <logging.hh>
 #include <limits>

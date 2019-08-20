@@ -20,17 +20,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtscalardata.hh"
 
 #include "relcatalogif/basetype.hh"
@@ -39,16 +29,10 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 #include <cstring>
 #include <cstdlib>
 using namespace std;
-#endif
-
-#include <iostream>
 
 // deprecated, not available any longer -- PB 2005-jan-14
 // #include <strstream.h>

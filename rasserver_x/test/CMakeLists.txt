@@ -20,17 +20,16 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 ###################################################################
-if (RMANRASNET)
-    add_executable(rasnetserver_test EXCLUDE_FROM_ALL
-            clientquerystreamedresulttest.cc main_test.cc)
 
-    find_package(Threads REQUIRED)
-    target_link_libraries(rasnetserver_test
-            rasnetserver
-            ${GMOCK_LIBRARY}
-            ${CMAKE_THREAD_LIBS_INIT})
+add_executable(rasnetserver_test EXCLUDE_FROM_ALL
+        clientquerystreamedresulttest.cc main_test.cc)
 
-    add_test(rasnetserver_testrunner rasnetserver_test)
-    add_dependencies(unit-check rasnetserver_test)
-endif ()
+find_package(Threads REQUIRED)
+target_link_libraries(rasnetserver_test
+        rasnetserver common_logging
+        ${GMOCK_LIBRARY} ${PROTOBUF_LIBRARY}
+        ${CMAKE_THREAD_LIBS_INIT})
+
+add_test(rasnetserver_testrunner rasnetserver_test)
+add_dependencies(unit-check rasnetserver_test)
 

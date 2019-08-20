@@ -42,6 +42,8 @@
 
 const unsigned int THREAD_NO = 2;
 
+RMINITGLOBALS('C')
+
 void* query_thread(void *ptr);
 
 void* query_thread(void *ptr)

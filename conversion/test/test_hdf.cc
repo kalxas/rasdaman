@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include "conversion/hdf.hh"
 #include "raslib/minterval.hh"
 #include "raslib/primitivetype.hh"
+#include "config.h"
 
 
 #ifdef EARLY_TEMPLATE

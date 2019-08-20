@@ -38,12 +38,10 @@ target_link_libraries(rasserver servercomm qlparser conversion
         catalogmgr relmddif relstorageif
         relcatalogif indexmgr relblobif relindexif
         commline relcatalogif lockmanager servercomm
-        network mymalloc_svc common_logging clientcomm relcatalogif
+        mymalloc_svc common_logging clientcomm relcatalogif
+        rasnetserver rasnet
         ${OPENSSL_LIBRARIES} ${BASEDB_LIBRARIES} ${ELPP_LIBRARY})
 
-if (RMANRASNET)
-    target_link_libraries(rasserver rasnetserver rasnet)
-endif (RMANRASNET)
 
 # cotire(rasserver)
 

@@ -24,12 +24,7 @@ rasdaman GmbH.
 #ifndef _QtRangeConstructor__
 #define _QtRangeConstructor__
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
-
 #include "qlparser/qtnaryoperation.hh"
 #include "catalogmgr/typefactory.hh"
 #include "mddmgr/mddobj.hh"

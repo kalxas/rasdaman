@@ -30,16 +30,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "config.h"
 #include "qlparser/qtcollection.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-using namespace std;
-#endif
 
 QtCollection::QtCollection(const QtCollection &collection):
     hostname(collection.getHostname()), port(collection.getPort()), collectionName(collection.getCollectionName())

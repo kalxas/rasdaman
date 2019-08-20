@@ -24,11 +24,7 @@ rasdaman GmbH.
 #ifndef _QTCONCAT__
 #define _QTCONCAT__
 
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
-#endif
 
 #include "qlparser/qtnaryoperation.hh"
 #include "catalogmgr/typefactory.hh"

@@ -31,9 +31,7 @@ add_subdirectory(file)
 add_subdirectory(pragmas)
 add_subdirectory(stl)
 add_subdirectory(geo)
-if (RMANRASNET)
-    add_subdirectory(grpc)
-endif ()
+add_subdirectory(grpc)
 add_subdirectory(test)
 
 install(DIRECTORY ./ DESTINATION "${INCLUDE_DIR}/common"

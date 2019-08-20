@@ -46,6 +46,7 @@ rasdaman GmbH.
 #define _R_CONV_TIFF_HH_
 
 #include "conversion/convertor.hh"
+#include "config.h"
 
 //@ManMemo: Module {\bf conversion}
 

@@ -30,7 +30,6 @@
  *
 */
 
-#include "config.h"
 #include "raslib/structure.hh"
 #include "raslib/primitive.hh"
 #include "raslib/structuretype.hh"

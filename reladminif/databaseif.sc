@@ -32,7 +32,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include "config.h"
 #include "version.h"
 
 #include "adminif.hh"

@@ -21,9 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-#include "config.h"
-
 #include "qlparser/qtpolygonclipping.hh"
 
 //#include "qlparser/qtmdd.hh"
@@ -45,10 +42,7 @@ rasdaman GmbH.
 
 
 //#include <sstream>
-#ifndef CPPSTDLIB
-#else
 #include <string>
-#endif
 
 //#include <iostream>
 #include "raslib/minterval.hh"

@@ -21,15 +21,12 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
 #include "raslib/attribute.hh"
 #include "raslib/basetype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/error.hh"
 
 #include <logging.hh>
-
-#include "config.h"
 
 r_Attribute::r_Attribute()
     :   r_Property(),

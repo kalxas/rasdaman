@@ -21,16 +21,9 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 /*************************************************************
- *
- *
- *
- *
  * COMMENTS:    Automaticaly generated
- *
  ************************************************************/
 
-
-#include "config.h"
 #include <cmath>
 #include <cerrno>
 

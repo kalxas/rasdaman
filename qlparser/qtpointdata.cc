@@ -20,25 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 using namespace std;
 
-using namespace std;
-
-#include "config.h"
 #include "qlparser/qtpointdata.hh"
 #include <cstring>
-// deprecated, not any longer available -- PB 2005-jan-14
-// #include <iostream>
 
 
 QtPointData::QtPointData(const r_Point &point)

@@ -28,6 +28,7 @@ rasdaman GmbH.
 #include "conversion/tiff.hh"
 #include "raslib/rminit.hh"
 #include "rasodmg/gmarray.hh"
+#include "config.h"
 
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__

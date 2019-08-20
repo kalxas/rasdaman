@@ -74,6 +74,22 @@ class VectorUtils final {
     }
   }
 
+  /**
+   * Check if the elements in v are unique; this a simple straightforward
+   * implementation that works in O(N^2), so it's not suitable for large
+   * vectors.
+   * 
+   * @return true if all elements are unique, false otherwise.
+   */
+  template<typename T>
+  static bool hasUniqueElements(const std::vector<T> &v) {
+    for (size_t i = 1; i < v.size(); ++i)
+      for (size_t j = 0; j < i; ++j)
+        if (v[i] == v[j]) return false;
+    // no duplicates found
+    return true;
+  }
+
  private:
   VectorUtils() = delete;
 };

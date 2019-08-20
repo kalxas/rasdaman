@@ -28,7 +28,6 @@ rasdaman GmbH.
  *
 */
 
-#include "config.h"
 #include <iostream>
 
 #include "raslib/miterd.hh"

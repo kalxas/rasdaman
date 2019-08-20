@@ -21,7 +21,7 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "config.h"
+
 #include <limits.h>
 #include <string.h> // memcpy()
 #ifdef __APPLE__

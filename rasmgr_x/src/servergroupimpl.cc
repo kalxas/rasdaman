@@ -59,7 +59,8 @@ using boost::lexical_cast;
 
 using common::Timer;
 
-ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
+ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager,
+                                 boost::shared_ptr<ServerFactory> serverFactory):
     config(config), dbhManager(dbhManager), serverFactory(serverFactory)
 {
     //Validate the configuration and initialize defaults
@@ -143,47 +144,45 @@ bool ServerGroupImpl::tryRegisterServer(const std::string &serverId)
       */
     bool registered = false;
 
-    {
-        unique_lock<shared_mutex> groupLock(this->groupMutex);
-        LDEBUG << "Try register server " << serverId;
+    unique_lock<shared_mutex> groupLock(this->groupMutex);
+    LDEBUG << "Try register server " << serverId;
 
-        //If the server group is stopped, we cannot register new servers.
-        if (this->stopped)
+    //If the server group is stopped, we cannot register new servers.
+    if (this->stopped)
+    {
+        throw common::InvalidStateException(
+            "Server group is already stopped, no new servers can register.");
+    }
+
+    auto it = this->startingServers.find(serverId);
+    if (it != this->startingServers.end())
+    {
+        try
         {
-            throw common::InvalidStateException(
-                "Server group is already stopped, no new servers can register.");
+            it->second.first->registerServer(serverId);
+            this->runningServers.push_back(it->second.first);
+            this->startingServers.erase(it);
+            registered = true;
+        }
+        catch (std::exception &ex)
+        {
+            LWARNING << "Failed registering server " << serverId << ": " << ex.what();
+        }
+        catch (...)
+        {
+            LWARNING << "Failed registering server " << serverId;
         }
 
-        auto it = this->startingServers.find(serverId);
-        if (it != this->startingServers.end())
+        // record failed registrations
+        if (registered)
         {
-            try
-            {
-                it->second.first->registerServer(serverId);
-                this->runningServers.push_back(it->second.first);
-                this->startingServers.erase(it);
-                registered = true;
-            }
-            catch (std::exception &ex)
-            {
-                LWARNING << "Failed registering server " << serverId << ": " << ex.what();
-            }
-            catch (...)
-            {
-                LWARNING << "Failed registering server " << serverId;
-            }
-
-            // record failed registrations
-            if (registered)
-            {
-                failedRegistrations = 0; // all good, reset
-            }
-            else if (static_cast<uint32_t>(failedRegistrations++) >= MAX_GET_SERVER_RETRIES)
-            {
-                LERROR << "Server registration in group " << getGroupName()
-                       << " failed too many times; stopping group.";
-                this->stop(KillLevel::KILL);
-            }
+            failedRegistrations = 0; // all good, reset
+        }
+        else if (static_cast<uint32_t>(failedRegistrations++) >= MAX_GET_SERVER_RETRIES)
+        {
+            LERROR << "Server registration in group " << getGroupName()
+                   << " failed too many times; stopping group.";
+            this->stop(KillLevel::KILL);
         }
     }
 
@@ -583,7 +582,7 @@ void ServerGroupImpl::removeDeadServers()
             {
                 if (startingToEraseIt->second.second.hasExpired())
                 {
-                    LTRACE << "Removing server that failed to start: " << serverId;
+                    LDEBUG << "Removing server that failed to start: " << serverId;
                     startingToEraseIt->second.first->stop(KILL);
                     this->availablePorts.insert(startingToEraseIt->second.first->getPort());
                     this->startingServers.erase(startingToEraseIt);
@@ -638,7 +637,7 @@ void ServerGroupImpl::startServer()
         this->startingServers.emplace(server->getServerId(), startingServerEntry);
 
         server->startProcess();
-        LTRACE << "Server started.";
+        LTRACE << "Server in group " << this->getGroupName() << " started.";
     }
 
 }

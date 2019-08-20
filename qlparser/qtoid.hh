@@ -1,13 +1,3 @@
-#ifndef _QTOID_HH__
-#define _QTOID_HH___
-
-#include "qlparser/qtunaryoperation.hh"
-
-
-// forward declarations
-class QtVariable;
-
-
 /*
 * This file is part of rasdaman community.
 *
@@ -30,12 +20,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTOID_HH__
+#define _QTOID_HH___
+
+#include "qlparser/qtunaryoperation.hh"
+
+
+// forward declarations
+class QtVariable;
 
 
 //@ManMemo: Module: {\bf qlparser}

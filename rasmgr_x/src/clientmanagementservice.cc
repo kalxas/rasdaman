@@ -28,6 +28,7 @@
 #include <logging.hh>
 #include "common/uuid/uuid.hh"
 #include "common/grpc/grpcutils.hh"
+#include "common/exceptions/exception.hh"
 
 #include "rasnet/messages/rasmgr_client_service.grpc.pb.h"
 #include "rasnet/messages/rasmgr_client_service.pb.h"
@@ -87,6 +88,11 @@ grpc::Status ClientManagementService::Connect(__attribute__((unused)) grpc::Serv
 
         LDEBUG << "Client connected, assigned ID " << response->clientuuid();
     }
+    catch (common::Exception &ex)
+    {
+        LERROR << "Failed connecting client: " << ex.what();
+        status = GrpcUtils::convertExceptionToStatus(ex);
+    }
     catch (std::exception &ex)
     {
         LERROR << "Failed connecting client: " << ex.what();
@@ -110,6 +116,11 @@ grpc::Status ClientManagementService::Disconnect(__attribute__((unused)) grpc::S
     {
         LDEBUG << "Disconnect client " << request->clientuuid();
         this->clientManager->disconnectClient(request->clientuuid());
+    }
+    catch (common::Exception &ex)
+    {
+        LERROR << "Failed disconnecting client: " << ex.what();
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (std::exception &ex)
     {
@@ -143,6 +154,11 @@ grpc::Status ClientManagementService::OpenDb(__attribute__((unused)) grpc::Serve
         response->set_port(session.serverPort);
         response->set_serverhostname(session.serverHostName);
     }
+    catch (common::Exception &ex)
+    {
+        LERROR << "Failed opening DB session: " << ex.what();
+        status = GrpcUtils::convertExceptionToStatus(ex);
+    }
     catch (std::exception &ex)
     {
         LERROR << "Failed opening DB session: " << ex.what();
@@ -169,6 +185,11 @@ grpc::Status ClientManagementService::CloseDb(__attribute__((unused)) grpc::Serv
                << " by client " << request->clientid();
         this->clientManager->closeClientDbSession(request->clientuuid(), request->dbsessionid());
     }
+    catch (common::Exception &ex)
+    {
+        LERROR << "Failed closing client database session: " << ex.what();
+        status = GrpcUtils::convertExceptionToStatus(ex);
+    }
     catch (std::exception &ex)
     {
         LERROR << "Failed closing client database session: " << ex.what();
@@ -193,6 +214,12 @@ grpc::Status ClientManagementService::KeepAlive(__attribute__((unused)) grpc::Se
     {
         LDEBUG << "Process keep alive message from client " << request->clientuuid();
         this->clientManager->keepClientAlive(request->clientuuid());
+    }
+    catch (common::Exception &ex)
+    {
+        LERROR << "Failed processing keep alive message from client " << request->clientuuid()
+               << ": " << ex.what();
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (std::exception &ex)
     {

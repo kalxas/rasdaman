@@ -41,17 +41,10 @@ rasdaman GmbH.
 #include "mddmgr/mddobj.hh"
 
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
 #include <string>
 using namespace std;
-#endif
 
 #include <iostream>
-
-// deprecated, not available any longer -- PB 2005-jan-14
-// #include <strstream.h>
 
 const QtNode::QtNodeType QtConst::nodeType = QtNode::QT_CONST;
 

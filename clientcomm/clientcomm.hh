@@ -20,34 +20,19 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: clientcomm.hh
- *
- * MODULE:  clientcomm
- * CLASS:   ClientComm
- *
- * COMMENTS:
- *      ClientComm is now an abstract class, with two subclasses: RpcClintComm and RnpClientComm
- *      This will change again when RPC will be dropped forever
- *
-*/
 
-#ifndef _CLIENTCOMM_
-#define _CLIENTCOMM_
+#ifndef CLIENTCOMM_HH_
+#define CLIENTCOMM_HH_
 
-#include "raslib/rminit.hh"
-#include "raslib/error.hh"
-#include "rasodmg/oqlquery.hh"
-#include "rasodmg/marray.hh"
+#include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
-#include "raslib/primitivetype.hh"
+#include "rasodmg/oqlquery.hh"
 
 
 template <class T> class r_Set;
 class r_Ref_Any;
 class r_Base_Type;
 class r_Parse_Params;
-
 
 /**
 *   @defgroup ClientComm ClientComm
@@ -63,37 +48,15 @@ class r_Parse_Params;
     the server. Therefore, the host name has to be provided at
     the constructor.
 */
-
 class ClientComm
 {
 public:
 
     /// destructor (closes the connection and releases resources)
-    virtual ~ClientComm();
+    virtual ~ClientComm() = default;
 
     // the class is not necessary singleton, but the type of the actual object depends on the environment
     static ClientComm* createObject(const char* rasmgrName, int rasmgrPort);
-
-    /** Methods for setting the protocol. Default will be RNP, but until release 5.2 it is RPC,
-        unless you compile with -DDEFAULTRNP
-        Also, if the environment variable RMANPROTOCOL is set, it's value is used to set the protocol
-    and the 'in-code' setting is ignored
-    RMANPROTOCOL can be:
-        - RNP       -> RNP is used
-        - COMPAT    -> raslib uses RPC, rasj uses HTTP
-        - RPC       -> raslib uses RPC, rasj uses RNP
-        - HTTP      -> raslib uses RNP, rasj uses HTTP
-        every other value is ignored and the 'in-code' setting is used
-
-    NOTE: This methods will be removed in the next version
-      */
-
-    static  void useRNP();
-    static  void useRPC();
-    static  void useRASNET();
-    static  bool internalSettingIsRNP();
-
-    virtual bool effectivTypeIsRNP() = 0;
 
     //@Man: Database methods
     //@{
@@ -180,7 +143,7 @@ public:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
-    // insert returning oid, third parameter is dummy parameter
+    /// insert returning oid, third parameter is dummy parameter
     virtual void executeQuery(const r_OQL_Query& query, r_Set<r_Ref_Any>& result, int dummy) = 0;
     /*@Doc:
       Executes an insert query of type \Ref{r_OQL_Query}.
@@ -212,14 +175,6 @@ public:
 
     ///
     //@}
-
-    /// changes endianness of MDD data
-    static int changeEndianness(r_GMarray* mdd, const r_Base_Type* bt = NULL);
-    /// changes the endianness of MDD data and keeps the original untouched
-    static int changeEndianness(const r_GMarray* mdd, void* newData, const r_Base_Type* bt = NULL);
-
-    /// provides read access to my clientID
-    virtual unsigned long getClientID() const  = 0;
 
 
     //@Man: Methods for asynchronious alive signal concept
@@ -274,26 +229,24 @@ public:
 
     ///
     //@}
+    
+    /// changes endianness of MDD data
+    static int changeEndianness(r_GMarray* mdd, const r_Base_Type* bt = NULL);
+    /// changes the endianness of MDD data and keeps the original untouched
+    static int changeEndianness(const r_GMarray* mdd, void* newData, const r_Base_Type* bt = NULL);
+
+    /// provides read access to my clientID
+    virtual unsigned long getClientID() const  = 0;
 
 protected:
     /// constructor getting nothing
-    ClientComm();
+    ClientComm() = default;
 
     /// reference to the database that created this client communicator
     r_Database* database;
 
     /// reference to the transaction being used by this client communicator
     r_Transaction* transaction;
-
-private:
-    enum CommunicationProtocol
-    {
-        RNP,
-        RASNET,
-        RPC
-    };
-
-    static CommunicationProtocol DEFAULT_PROTOCOL;
 };
 
 #endif

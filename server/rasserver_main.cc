@@ -51,7 +51,6 @@ rasdaman GmbH.
 #include <string>
 #include <signal.h>
 #include <vector>
-
 #include "storagemgr/sstoragelayout.hh"
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
@@ -63,13 +62,11 @@ rasdaman GmbH.
 #undef DEBUG_HH
 #define DEBUG_MAIN debug_main
 
-#include "server/rasserver_config.hh"
-#include "rnprotocol/rnpserver.hh"
-#include "rasserver_entry.hh"
+RMINITGLOBALS('S')
 
-#ifdef RMANRASNET
+#include "server/rasserver_config.hh"
+#include "rasserver_entry.hh"
 #include "rasserver_x/src/rasnetserver.hh"
-#endif
 
 #include <logging.hh>
 
@@ -382,14 +379,7 @@ int main(int argc, char** argv)
     try
     {
         LDEBUG << "selecting server type...";
-
-        if (configuration.isRnpServer())
-        {
-            LDEBUG << "initializing rnp server...";
-            startRnpServer();
-            LDEBUG << "rnp server initialized.";
-        }
-        else if (configuration.isHttpServer())
+        if (configuration.isHttpServer())
         {
             LDEBUG << "initializing http server...";
             server = new HttpServer(
@@ -397,7 +387,6 @@ int main(int argc, char** argv)
                     static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
             LDEBUG << "http server initialized.";
         }
-#ifdef RMANRASNET
         else if (configuration.isRasnetServer())
         {
             LDEBUG << "initializing rasnet server...";
@@ -406,7 +395,6 @@ int main(int argc, char** argv)
             rasnetServer.startRasnetServer();
             LDEBUG << "rasnet server started.";
         }
-#endif
         else
         {
             // client mode: directql or rasdl
@@ -466,11 +454,7 @@ bool initialization()
 
     NNLINFO << "Server " << serverName << " of type ";
 
-    if (configuration.isRnpServer())
-    {
-        BLINFO << "RNP, listening on port " << serverListenPort;
-    }
-    else if (configuration.isHttpServer())
+    if (configuration.isHttpServer())
     {
         BLINFO << "HTTP, listening on port " << serverListenPort;
     }

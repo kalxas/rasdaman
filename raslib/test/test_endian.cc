@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * INCLUDE: test_endian.cc
@@ -49,6 +48,9 @@
 #include "raslib/minterval.hh"
 #include "raslib/rminit.hh"
 #include "raslib/endian.hh"
+
+
+RMINITGLOBALS('C')
 
 
 static void print_numbers(const unsigned char* data, int size)

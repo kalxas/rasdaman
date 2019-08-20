@@ -20,21 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include <string>
 #include <sstream>
 #include <vector>
 
-#include "config.h"
 #include "qlparser/qtinfo.hh"
 #include "qlparser/qtvariable.hh"
 #include "qlparser/qtatomicdata.hh"

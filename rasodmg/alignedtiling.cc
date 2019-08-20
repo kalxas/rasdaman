@@ -30,7 +30,6 @@ rasdaman GmbH.
  *          None
 */
 
-#include "config.h"
 #include <vector>
 #include <math.h>
 #include <cstring>

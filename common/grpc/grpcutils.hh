@@ -37,6 +37,8 @@
 namespace common
 {
 
+class Exception;
+
 /**
  * @brief The GrpcUtils class Functions that can be used to easily setup GRPC connections.
  */
@@ -58,6 +60,14 @@ public:
      * by the serialized exception information.
      */
     static grpc::Status convertExceptionToStatus(std::exception& exception);
+
+    /**
+     * @brief convertExceptionToStatus Convert a given a common::Exception object or one of its subclasses to a grpc::Status
+     * @param exception
+     * @return grpc::Status object with the error code UNKNOWN and the error_message represented
+     * by the serialized exception information.
+     */
+    static grpc::Status convertExceptionToStatus(common::Exception& exception);
 
     /**
      * @brief convertExceptionToStatus

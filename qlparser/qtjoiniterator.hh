@@ -1,14 +1,3 @@
-#ifndef _QTJOINITERATOR_
-#define _QTJOINITERATOR_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtiterator.hh"
-#include "qlparser/qtoperation.hh"
 
 /*
 * This file is part of rasdaman community.
@@ -32,12 +21,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTJOINITERATOR_
+#define _QTJOINITERATOR_
+
+#include <string>
+
+#include "qlparser/qtiterator.hh"
+#include "qlparser/qtoperation.hh"
+
 
 //@ManMemo: Module: {\bf qlparser}
 

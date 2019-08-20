@@ -101,6 +101,8 @@ using namespace std;
 #undef __EXECUTABLE__
 #endif
 
+RMINITGLOBALS('C')
+
 // debug facility; relies on -DDEBUG at compile time
 // tell debug that here is the place for the variables (to be done in the main() src file)
 #define DEBUG_MAIN

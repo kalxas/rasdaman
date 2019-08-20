@@ -20,21 +20,11 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
-#include "config.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
-using namespace std;
+#include <string>
 
 #include "raslib/rmdebug.hh"
 
@@ -44,6 +34,8 @@ using namespace std;
 #include "mddmgr/mddobj.hh"
 
 #include <logging.hh>
+
+using namespace std;
 
 const QtNode::QtNodeType QtVariable::nodeType = QT_MDD_VAR;
 

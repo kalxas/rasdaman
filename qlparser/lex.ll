@@ -31,7 +31,6 @@ rasdaman GmbH.
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
-#include "config.h"
 #include <math.h>
 #include "qlparser/qtoperation.hh"
 #include "qlparser/querytree.hh"

@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * SOURCE: test_point.cc

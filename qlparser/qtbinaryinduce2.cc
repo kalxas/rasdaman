@@ -20,18 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- *
- *
- * COMMENTS:
- *
- ************************************************************/
-
-#include "config.h"
-#include "raslib/rmdebug.hh"
 
 #include "qlparser/qtbinaryinduce2.hh"
 #include "qlparser/qtatomicdata.hh"
@@ -46,6 +34,7 @@ rasdaman GmbH.
 #include <iostream>
 #include <string>
 #include <vector>
+
 using namespace std;
 
 const QtNode::QtNodeType QtIs::nodeType = QT_IS;

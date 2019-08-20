@@ -32,7 +32,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include "rasserver_entry.hh"

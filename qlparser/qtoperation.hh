@@ -1,18 +1,3 @@
-#ifndef _QTOPERATION_
-#define _QTOPERATION_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtnode.hh"
-
-class QtData;  // forward declaration of a subclass of QtOperation
-
-#include <iostream>
-
 /*
 * This file is part of rasdaman community.
 *
@@ -35,12 +20,14 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTOPERATION_
+#define _QTOPERATION_
+
+#include "qlparser/qtnode.hh"
+#include <string>
+#include <ostream>
+
+class QtData;  // forward declaration of a subclass of QtOperation
 
 //@ManMemo: Module: {\bf qlparser}
 

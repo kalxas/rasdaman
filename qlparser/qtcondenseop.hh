@@ -1,16 +1,3 @@
-#ifndef _QTCONDENSEOP_
-#define _QTCONDENSEOP_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtbinaryoperation.hh"
-
-#include "catalogmgr/ops.hh"
-#include <stdio.h>
 
 /*
 * This file is part of rasdaman community.
@@ -34,12 +21,15 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTCONDENSEOP_
+#define _QTCONDENSEOP_
+
+#include <string>
+
+#include "qlparser/qtbinaryoperation.hh"
+
+#include "catalogmgr/ops.hh"
+#include <stdio.h>
 
 //@ManMemo: Module: {\bf qlparser}
 

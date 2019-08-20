@@ -1,13 +1,3 @@
-#ifndef _QTMINTERVALOP_
-#define _QTMINTERVALOP_
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
-#include "qlparser/qtnaryoperation.hh"
 
 /*
 * This file is part of rasdaman community.
@@ -31,12 +21,12 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTMINTERVALOP_
+#define _QTMINTERVALOP_
+
+#include <string>
+#include "qlparser/qtnaryoperation.hh"
+
 
 //@ManMemo: Module: {\bf qlparser}
 

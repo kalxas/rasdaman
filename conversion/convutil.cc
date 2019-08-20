@@ -24,6 +24,7 @@ rasdaman GmbH.
 #include "conversion/convutil.hh"
 #include "raslib/attribute.hh"
 #include "raslib/structuretype.hh"
+#include "config.h"
 
 #include <logging.hh>
 #include <sstream>

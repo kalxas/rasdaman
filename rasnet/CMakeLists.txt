@@ -21,37 +21,35 @@
 #
 ###################################################################
 
-if (RMANRASNET)
-    set(PROTO_SRC protomessages/client_rassrvr_service.proto
-            protomessages/common_service.proto
-            protomessages/rasmgr_client_service.proto
-            protomessages/rasmgr_rasctrl_service.proto
-            protomessages/rasmgr_rassrvr_service.proto
-            protomessages/rassrvr_rasmgr_service.proto
-            protomessages/rasmgr_rasmgr_service.proto)
-    set(GRPC_SRC ${PROTO_SRC})
+set(PROTO_SRC protomessages/client_rassrvr_service.proto
+        protomessages/common_service.proto
+        protomessages/rasmgr_client_service.proto
+        protomessages/rasmgr_rasctrl_service.proto
+        protomessages/rasmgr_rassrvr_service.proto
+        protomessages/rassrvr_rasmgr_service.proto
+        protomessages/rasmgr_rasmgr_service.proto)
+set(GRPC_SRC ${PROTO_SRC})
 
-    set(PROTO_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/messages")
+set(PROTO_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/messages")
 
-    set(GENERATED_PROTO_SOURCES "")
+set(GENERATED_PROTO_SOURCES "")
 
-    foreach (PROTO_FILE ${PROTO_SRC})
-        CompileProtobufFile(${PROTO_FILE} ${PROTO_BIN_DIR} GENERATED_PROTO_SOURCES)
-    endforeach ()
+foreach (PROTO_FILE ${PROTO_SRC})
+    CompileProtobufFile(${PROTO_FILE} ${PROTO_BIN_DIR} GENERATED_PROTO_SOURCES)
+endforeach ()
 
-    set(GENERATED_GRPC_SOURCES "")
+set(GENERATED_GRPC_SOURCES "")
 
-    foreach (GRPC_FILE ${GRPC_SRC})
-        CompileGRPCFile(${GRPC_FILE} ${PROTO_BIN_DIR} GENERATED_GRPC_SOURCES)
-    endforeach ()
+foreach (GRPC_FILE ${GRPC_SRC})
+    CompileGRPCFile(${GRPC_FILE} ${PROTO_BIN_DIR} GENERATED_GRPC_SOURCES)
+endforeach ()
 
-    add_library(rasnet STATIC
-            ${PROTO_SRC} # Added to the list of files so that QtCreator sees them.
-            ${GENERATED_PROTO_SOURCES}
-            ${GENERATED_GRPC_SOURCES})
+add_library(rasnet STATIC
+        ${PROTO_SRC} # Added to the list of files so that QtCreator sees them.
+        ${GENERATED_PROTO_SOURCES}
+        ${GENERATED_GRPC_SOURCES})
 
-    target_link_libraries(rasnet ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-    
-    install(TARGETS rasnet
-            DESTINATION ${LIB_DIR})
-endif (RMANRASNET)
+target_link_libraries(rasnet ${GRPCPP_LIBRARY} ${GRPC_LIBRARY} ${PROTOBUF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
+install(TARGETS rasnet
+        DESTINATION ${LIB_DIR})

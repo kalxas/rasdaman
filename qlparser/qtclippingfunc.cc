@@ -21,8 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "config.h"
-
 //includes qlparser
 #include "qlparser/qtclippingfunc.hh"
 #include "qlparser/qtmdd.hh"
@@ -59,11 +57,7 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-#ifndef CPPSTDLIB
-#else
 #include <string>
-#endif
-
 #include <cmath>
 #include <sstream>
 #include <iostream>

@@ -20,26 +20,12 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE:   ref.cc
- *
- * MODULE:   rasodmg
- * CLASS:    r_Ref
- *
- * COMMENTS:
- *      None
-*/
 
-#include "config.h"
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"
 
 
-#ifdef __VISUALC__
-#include <sstrea.h>
-#else
 #include <sstream>
-#endif
 
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"

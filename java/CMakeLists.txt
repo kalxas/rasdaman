@@ -28,29 +28,26 @@ if (ENABLE_JAVA)
     set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
     set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/")
 
-    if (RMANRASNET)
-        set(RASNET_SRC_DIR "${CMAKE_SOURCE_DIR}/rasnet")
-        set(COMMON_SRC_DIR "${CMAKE_SOURCE_DIR}/common")
+    set(RASNET_SRC_DIR "${CMAKE_SOURCE_DIR}/rasnet")
+    set(COMMON_SRC_DIR "${CMAKE_SOURCE_DIR}/common")
 
-        set(GRPC_SRC "${RASNET_SRC_DIR}/protomessages/client_rassrvr_service.proto"
-                "${RASNET_SRC_DIR}/protomessages/rasmgr_client_service.proto"
-                "${COMMON_SRC_DIR}/grpc/protomessages/health_service.proto")
+    set(GRPC_SRC "${RASNET_SRC_DIR}/protomessages/client_rassrvr_service.proto"
+            "${RASNET_SRC_DIR}/protomessages/rasmgr_client_service.proto"
+            "${COMMON_SRC_DIR}/grpc/protomessages/health_service.proto")
 
-        set(PROTO_SRC ${GRPC_SRC}
-                "${COMMON_SRC_DIR}/grpc/protomessages/error.proto"
-                "${RASNET_SRC_DIR}/protomessages/common_service.proto")
+    set(PROTO_SRC ${GRPC_SRC}
+            "${COMMON_SRC_DIR}/grpc/protomessages/error.proto"
+            "${RASNET_SRC_DIR}/protomessages/common_service.proto")
 
-        set(GENERATED_PROTO_SOURCES "")
-        foreach (PROTO_FILE ${PROTO_SRC})
-            CompileJavaProtobufFile(${PROTO_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_PROTO_SOURCES)
-        endforeach ()
+    set(GENERATED_PROTO_SOURCES "")
+    foreach (PROTO_FILE ${PROTO_SRC})
+        CompileJavaProtobufFile(${PROTO_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_PROTO_SOURCES)
+    endforeach ()
 
-        set(GENERATED_GRPC_SOURCES "")
-        foreach (GRPC_FILE ${GRPC_SRC})
-            CompileJavaGRPCFile(${GRPC_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_GRPC_SOURCES)
-        endforeach ()
-
-    endif (RMANRASNET)
+    set(GENERATED_GRPC_SOURCES "")
+    foreach (GRPC_FILE ${GRPC_SRC})
+        CompileJavaGRPCFile(${GRPC_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java" GENERATED_GRPC_SOURCES)
+    endforeach ()
 
     # Configure the pom file
     configure_file(pom.xml.in "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" @ONLY)
@@ -63,7 +60,7 @@ if (ENABLE_JAVA)
         VERBATIM)
 
     add_custom_target(rasj ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B package -P${NETWORK_PROTOCOL}
+            COMMAND ${MAVEN_EXECUTABLE} -q -B package -Prasnet
                                         -Dversion=${PROJECT_VERSION}
                                         -DbuildDir=${RASJ_TARGET_DIR}
                                         -Dpackaging=jar
@@ -82,7 +79,7 @@ if (ENABLE_JAVA)
 
     if (GENERATE_DOCS)
         add_custom_target(rasj_doc ALL
-            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -P${NETWORK_PROTOCOL} || exit 0
+            COMMAND ${MAVEN_EXECUTABLE} -q -B javadoc:javadoc -Prasnet || exit 0
             DEPENDS ${GENERATED_PROTO_SOURCES} ${GENERATED_GRPC_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "generating rasj API documentation"

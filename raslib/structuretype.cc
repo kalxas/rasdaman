@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-#include "config.h"
 #ifdef __APPLE__
 #include <sys/malloc.h>
 #else

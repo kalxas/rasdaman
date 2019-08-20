@@ -28,6 +28,7 @@ rasdaman GmbH.
 #include "conversion/gdalincludes.hh"
 #include "conversion/hdfincludes.hh"
 #include "conversion/convtypes.hh"
+#include "config.h"
 
 /**
  * Helper class transforming the provided types into rasdaman types.

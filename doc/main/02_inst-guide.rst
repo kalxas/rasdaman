@@ -464,8 +464,6 @@ Default Installer configuration:
     debug = false
     # Build in strict mode (compiler warnings terminate compilation)
     strict = false
-    # Communication protocol to use rasnet, or (deprecated) rnp
-    protocol = "rasnet"
     # Apply a particular patch before building; can be a URL or a path
     patch = "http://rasdaman.org/patchmanager?patchop=Download+Selected-{patch_id}"
     # Whether to generate documentation
@@ -905,8 +903,6 @@ that can be specified with ``-D<option>``, along with the default settings.
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``JAVA_SERVER``          | **external** /    |                                                                          |
     |                          | embedded          | Set the Java application deployment mode.                                |
-    +--------------------------+-------------------+--------------------------------------------------------------------------+
-    | ``NETWORK_PROTOCOL``     | **rasnet** / rnp  | Set the network protocol used in rasdaman; Note that rnp is deprecated.  |
     +--------------------------+-------------------+--------------------------------------------------------------------------+
     | ``USE_GDAL``             | **ON** / OFF      | Enable inclusion of GDAL library during installation. Further variables  |
     |                          |                   | can be set to control the GDAL paths: ``-DGDAL_INCLUDE_DIR``,            |

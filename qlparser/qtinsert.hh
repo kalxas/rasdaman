@@ -1,24 +1,3 @@
-#ifndef __QTINSERT_HH__
-#define __QTINSERT_HH___
-
-#include "qlparser/qtcollection.hh"
-#include "qlparser/qtexecute.hh"
-#include "qlparser/qtoperation.hh"
-#include "qlparser/qtmddconfig.hh"
-#include "qlparser/qtmddcfgop.hh"
-#include "qlparser/qtdata.hh"
-#include "storagemgr/sstoragelayout.hh"
-
-#include "rasodmg/stattiling.hh"
-#include "rasodmg/interesttiling.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-#include <iostream>
-
 /*
 * This file is part of rasdaman community.
 *
@@ -41,12 +20,23 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef __QTINSERT_HH__
+#define __QTINSERT_HH___
+
+#include "qlparser/qtcollection.hh"
+#include "qlparser/qtexecute.hh"
+#include "qlparser/qtoperation.hh"
+#include "qlparser/qtmddconfig.hh"
+#include "qlparser/qtmddcfgop.hh"
+#include "qlparser/qtdata.hh"
+#include "storagemgr/sstoragelayout.hh"
+
+#include "rasodmg/stattiling.hh"
+#include "rasodmg/interesttiling.hh"
+
+#include <string>
+#include <iostream>
+
 
 //@ManMemo: Module: {\bf qlparser}
 

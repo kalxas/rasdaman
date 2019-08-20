@@ -21,7 +21,6 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtrangeconstructor.hh"

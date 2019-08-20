@@ -1,14 +1,3 @@
-#ifndef _QTSTRINGDATA_
-#define _QTSTRINGDATA_
-
-#include "qlparser/qtdata.hh"
-
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
-#include <string>
-#endif
-
 /*
 * This file is part of rasdaman community.
 *
@@ -31,12 +20,13 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _QTSTRINGDATA_
+#define _QTSTRINGDATA_
+
+#include "qlparser/qtdata.hh"
+
+#include <string>
+
 
 //@ManMemo: Module: {\bf qlparser}
 

@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-
 /*************************************************************
  *
  * SOURCE: test_metaobject.cc
@@ -52,6 +51,8 @@
 #include "raslib/type.hh"
 #include "raslib/structure.hh"
 #include "raslib/primitive.hh"
+
+RMINITGLOBALS('C')
 
 using namespace std;
 

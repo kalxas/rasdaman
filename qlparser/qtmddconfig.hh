@@ -37,13 +37,9 @@ rasdaman GmbH.
 #include "qlparser/qtconst.hh"
 #include "rasodmg/dirdecompose.hh"
 #include <iostream>
-#ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
-#else
+#include<fstream>
 #include <string>
 using namespace std;
-#endif
-#include<fstream>
 
 
 class QtMDDConfig: public QtData
