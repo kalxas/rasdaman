@@ -467,7 +467,7 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
 
             {
                 auto *context = getClientContext(callingClientId);
-                auto oid = roid->get_local_oid();
+                auto oid = roid->get_local_oid_double();
                 // swap oid if http client
                 if (context->clientId == 1 && context->clientType == ClientType::Http && systemEndianess != ENDIAN_BIG)
                 {

@@ -55,7 +55,7 @@ public:
     r_OId(const char *);
 
     /// constructor getting oid parts
-    r_OId(const char *initSystemName, const char *initBaseName, r_Long initLocalOId);
+    r_OId(const char *initSystemName, const char *initBaseName, long long initLocalOId);
 
     /// copy constructor
     r_OId(const r_OId &);
@@ -107,7 +107,10 @@ public:
     inline const char *get_base_name() const;
 
     /// get local oid
-    inline r_Long get_local_oid() const;
+    inline long long get_local_oid() const;
+
+    //get local oid in double
+    inline double get_local_oid_double() const;
 
     /// determines if oid is valid
     inline bool is_valid() const;
@@ -123,7 +126,7 @@ private:
     char *baseName{NULL};
 
     /// local oid
-    r_Long localOId{};
+    long long localOId{};
 };
 
 

@@ -3735,7 +3735,7 @@ oidLit: LESS StringLit GREATER
 	  }
 
 	  // take the local oid
-	  $$ = new QtAtomicData( oid.get_local_oid(), 8 );
+	  $$ = new QtAtomicData( oid.get_local_oid_double(), 8 );
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
  	  FREESTACK($1)
