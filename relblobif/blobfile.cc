@@ -33,7 +33,7 @@
 #include <string.h>                 // for strerror
 #include <sys/stat.h>               // for stat
 #include <unistd.h>                 // for write, access, close, read, unlink
-#include <istream>                  // for stringstream, basic_istream, basi...
+#include <assert.h>
 
 using namespace std;
 
@@ -44,46 +44,19 @@ BlobFile::BlobFile(const string &filePathArg)
 
 BlobFile::~BlobFile()
 {
-    if (fd != INVALID_FILE_DESCRIPTOR)
-    {
-        closeFileDescriptor();
-    }
+    closeFileDescriptor();
 }
 
 void BlobFile::insertData(BlobData &blob)
 {
     prepareForInserting();
-    ssize_t count = write(fd, blob.data, blob.size);
-    if (count == IO_ERROR_RC)
-    {
-        generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
-    }
-    if (count < static_cast<ssize_t>(blob.size))
-    {
-        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
-        clearFileDescriptor();
-        generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
-    }
-    closeFileDescriptor();
+    writeFile(blob.data, blob.size);
 }
-
 void BlobFile::updateData(BlobData &blob)
 {
     prepareForUpdating();
-    ssize_t count = write(fd, blob.data, blob.size);
-    if (count == IO_ERROR_RC)
-    {
-        generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
-    }
-    if (count < static_cast<ssize_t>(blob.size))
-    {
-        LERROR << "written only " << count << " out of " << blob.size << " bytes to blob file; not enough disk space?";
-        clearFileDescriptor();
-        generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
-    }
-    closeFileDescriptor();
+    writeFile(blob.data, blob.size);
 }
-
 void BlobFile::readData(BlobData &blob)
 {
     blob.size = static_cast<r_Bytes>(getSize());
@@ -95,6 +68,28 @@ void BlobFile::readData(BlobData &blob)
     closeFileDescriptor();
 }
 
+void BlobFile::prepareForInserting()
+{
+    assert(!filePath.empty());
+    fd = open(filePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
+    if (fd == INVALID_FILE_DESCRIPTOR)
+        generateError("failed opening blob file for inserting", FAILEDOPENFORWRITING);
+}
+void BlobFile::prepareForUpdating()
+{
+    assert(!filePath.empty());
+    fd = open(filePath.c_str(), O_CREAT | O_WRONLY | O_SYNC | O_TRUNC, 0660);
+    if (fd == INVALID_FILE_DESCRIPTOR)
+        generateError("failed opening blob file for updating", FAILEDOPENFORUPDATING);
+}
+void BlobFile::prepareForReading()
+{
+    assert(!filePath.empty());
+    fd = open(filePath.c_str(), O_RDONLY);
+    if (fd == INVALID_FILE_DESCRIPTOR)
+        generateError("failed opening blob file for reading", FAILEDOPENFORREADING);
+}
+
 void BlobFile::readFile(char *dst, size_t size)
 {
     ssize_t count = read(fd, dst, size);
@@ -103,40 +98,26 @@ void BlobFile::readFile(char *dst, size_t size)
     if (count < static_cast<ssize_t>(size))
         generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
 }
-
-void BlobFile::prepareForInserting()
+void BlobFile::writeFile(char *data, size_t size)
 {
-    fd = open(filePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
-    if (fd == INVALID_FILE_DESCRIPTOR)
+    ssize_t written = write(fd, data, size);
+    if (written == IO_ERROR_RC)
+        generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
+    
+    if (written < static_cast<ssize_t>(size))
     {
-        generateError("failed opening blob file for inserting", FAILEDOPENFORWRITING);
+        LERROR << "written only " << written  << " out of " << size 
+               << " bytes to blob file; not enough disk space?";
+        clearFileDescriptor();
+        generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);
     }
-}
-
-void BlobFile::prepareForUpdating()
-{
-    fd = open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0660);
-    if (fd == INVALID_FILE_DESCRIPTOR)
-    {
-        generateError("failed opening blob file for updating", FAILEDOPENFORUPDATING);
-    }
-}
-
-void BlobFile::prepareForReading()
-{
-    fd = open(filePath.c_str(), O_RDONLY);
-    if (fd == INVALID_FILE_DESCRIPTOR)
-    {
-        generateError("failed opening blob file for reading", FAILEDOPENFORREADING);
-    }
+    closeFileDescriptor();
 }
 
 void BlobFile::clearFileDescriptor()
 {
     if (fd != INVALID_FILE_DESCRIPTOR)
-    {
         ftruncate(fd, 0);
-    }
 }
 
 void BlobFile::closeFileDescriptor()
@@ -144,10 +125,7 @@ void BlobFile::closeFileDescriptor()
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
         if (close(fd) == IO_ERROR_RC)
-        {
-            LERROR << "could not close blob file descriptor.";
-            generateError("failed I/O operation on blob file", FAILEDIOOPERATION);
-        }
+            generateError("could not close blob file descriptor.", FAILEDIOOPERATION);
         fd = INVALID_FILE_DESCRIPTOR;
     }
 }
@@ -156,9 +134,7 @@ off_t BlobFile::getSize()
 {
     struct stat status;
     if (stat(filePath.c_str(), &status) == IO_ERROR_RC)
-    {
         generateError("blob file not found", BLOBFILENOTFOUND);
-    }
     return status.st_size;
 }
 
@@ -175,9 +151,8 @@ void BlobFile::moveFile(const std::string &fromFilePath, const std::string &toFi
                << ", reason: " << strerror(errno);
         unsigned int errorCode = BLOBFILENOTFOUND;
         if (errno != ENOENT)
-        {
             errorCode = FAILEDIOOPERATION;
-        }
+        errno = 0;
         throw r_Error(static_cast<unsigned int>(errorCode));
     }
 }
@@ -196,9 +171,7 @@ long long BlobFile::getBlobId()
     long long ret = INVALID_BLOB_ID;
 
     if (!filePath.empty() && !isdigit(filePath.back()))
-    {
         return ret; // probably a .lock file, not a blob
-    }
 
     size_t lastIndex = filePath.find_last_of('/');
     if (lastIndex != string::npos)
@@ -227,18 +200,6 @@ void BlobFile::generateError(const char *message, int errorCode)
         LERROR << message << " - " << filePath << ", reason: " << strerror(errno);
     else
         LERROR << message << " - " << filePath;
-
-    {
-        auto dirPath = filePath;
-        if (dirPath.size() > 1)
-        {
-            dirPath.erase(std::find(dirPath.rbegin(), dirPath.rend(), '/').base(), dirPath.end());
-            struct stat sb;
-            if (stat(dirPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
-                LERROR << "Directory " << dirPath << " exists.";
-            else
-                LERROR << "Directory " << dirPath << " does not exist.";
-        }
-    }
+    errno = 0;
     throw r_Error(static_cast<unsigned int>(errorCode));
 }

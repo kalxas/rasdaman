@@ -19,23 +19,16 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #pragma once
 
 #include "raslib/error.hh"
-
-#include <dirent.h>  // for DIR
-#include <ftw.h>
-#include <sys/stat.h>
 #include <string>    // for string
+#include <dirent.h>  // for DIR
+
+struct stat;
+struct dirent;
+struct FTW;
 
 // used by DirWrapper::removeDirectory
 int removePath(const char *fpath, const struct stat *sb, int typeflag,
@@ -47,24 +40,25 @@ int removePath(const char *fpath, const struct stat *sb, int typeflag,
 class DirWrapper
 {
 public:
-    // Create a directory at dirPath; ignore if directory already exists
+    /// Create a directory at dirPath; ignore if directory already exists
     static void createDirectory(const std::string &dirPath);
+    /// Create a directory at dirPath; ignore if directory already exists
     static void createDirectory(const char *dirPath);
 
-    // Remove a directory at dirPath recursively, including all content
-    // files/subdirs; print warning in case of error
+    /// Remove a directory at dirPath recursively, including all content
+    /// files/subdirs; print warning in case of error
     static void removeDirectory(const std::string &dirPath);
 
-    // Return true if dirPath exists, false otherwise
+    /// Return true if dirPath exists, false otherwise
     static bool directoryExists(const char *dirPath);
 
-    // Append final '/' to dirPath if necessary
-    static std::string convertToCanonicalPath(const std::string &dirPath);
+    /// Append final '/' to dirPath if necessary
+    static std::string toCanonicalPath(const std::string &dirPath);
 
-    // Remove final '/' from dirPath if necessary
-    static std::string convertFromCanonicalPath(const std::string &dirPath);
+    /// Remove final '/' from dirPath if necessary
+    static std::string fromCanonicalPath(const std::string &dirPath);
 
-    // /path/to/dir/file -> /path/to/dir
+    /// /path/to/dir/file -> /path/to/dir
     static std::string getDirname(const std::string &filePath);
 };
 
@@ -74,30 +68,25 @@ public:
 class DirEntryIterator
 {
 public:
-    /**
-     * Initialize with root directory path; if filesOnly is true then next()
-     * will return only files, otherwise only directories.
-     */
+    /// Initialize with root directory path; if filesOnly is true then next()
+    /// will return only files, otherwise only directories.
     DirEntryIterator(const std::string &dirPath, bool filesOnly = false);
 
-    /**
-     * Makes sure to close() if necessary
-     */
+    /// Makes sure to close() if necessary
     ~DirEntryIterator();
 
+    /// @return true on success, false otherwise
     bool open();
 
-    /**
-     * @return true if there are more entries
-     */
-    bool done();
-
-    /**
-     * Get the next entry of dirPath; if no next entry is found or
-     * in case of an error, empty string is returned.
-     */
+    /// Get the next entry of dirPath; if no next entry is found or
+    /// in case of an error, empty string is returned.
     std::string next();
 
+    /// @return true if there are more entries
+    bool done();
+
+    /// @return the next entry of dirPath; if no next entry is found or in case
+    /// of an error, empty string is returned. std::string next();
     bool close();
 
 private:

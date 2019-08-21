@@ -25,6 +25,15 @@
 #include <string>
 #include "lockfile.hh"
 
+/**
+ * @brief Distinguish the transaction lock type.
+ * 
+ * A transaction lock can be one of:
+ * 
+ *  1. *General*: distinguish whether rasserver process is running or not
+ *  2. *Commit*: a transaction is being committed
+ *  3. *Abort*: a transaction is being aborted
+ */
 enum class TransactionLockType
 {
     General,
@@ -55,13 +64,12 @@ class BlobFSTransactionLock
 
 public:
     /**
-     * Initialize lock file on fileStorageTransactionPath.
+     * Initialize lock files in the transaction directory trPath.
      *
-     * @param fileStorageTransactionPath the root directory of the transaction.
+     * @param trPath the root directory of the transaction.
      * @param check use this object for checking (do not clear locks in destructor)
      */
-    BlobFSTransactionLock(const std::string &fileStorageTransactionPath,
-                          bool check = false);
+    BlobFSTransactionLock(const std::string &trPath, bool check = false);
 
     /**
      * Clears the transaction lock, which should be a general lock (A)
@@ -83,8 +91,9 @@ public:
      */
     bool isLocked(TransactionLockType lockType);
     /**
-     * @return true if the specified lock is valid
-     * (it's valid if the lock file exists and is locked, or does not exist at all).
+     * @return true if the specified lock is valid:
+     *  - lock file exists and is locked, or
+     *  - lock file !exists
      */
     bool isValid(TransactionLockType lockType);
 

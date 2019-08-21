@@ -66,7 +66,7 @@ RMINITGLOBALS('S')
 
 #include "server/rasserver_config.hh"
 #include "rasserver_entry.hh"
-#include "rasserver_x/src/rasnetserver.hh"
+#include "rasserver/src/rasnetserver.hh"
 
 #include <logging.hh>
 

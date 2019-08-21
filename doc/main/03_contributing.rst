@@ -535,7 +535,7 @@ Debuging rasserver
 In *rasnet* (the default network protocol), in order to attach to the ``rasserver``
 process (with e.g. ``gdb -p <pid>``) it is necessary to increase the values of
 ``SERVER_MANAGER_CLEANUP_INTERVAL`` and ``CLIENT_MANAGER_CLEANUP_INTERVAL`` in
-``rasmgr_x/src/constants.hh`` to some large values; needless to say this requires
+``rasmgr/src/constants.hh`` to some large values; needless to say this requires
 recompiling and restarting rasdaman.
 
 Once that is done, you can attach to a running rasserver process. First find the

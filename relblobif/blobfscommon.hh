@@ -19,49 +19,29 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #pragma once
 
-#include <errno.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string>
-
 
 static const int INVALID_FILE_DESCRIPTOR = -1;
 static const int INVALID_BLOB_ID = -1;
 
-/**
- * common error return code of C I/O functions
- */
+/// common error return code of C I/O functions
 static const int IO_ERROR_RC = -1;
-
-/**
- * common success return code of C I/O functions
- */
+/// common success return code of C I/O functions
 static const int IO_SUCCESS_RC = 0;
 
 class BlobFSConfig
 {
 public:
-
-    // Path where tiles are stored. In the new tile organization this points to $RASDATA/TILES
+    /// Path where tiles are stored = $RASDATA
     std::string rootPath;
-
-    // Path where tiles are stored. In the new tile organization this points to $RASDATA/TILES
+    
+    /// Path where tiles are stored = $RASDATA/TILES
     std::string tilesPath;
-
-    // Root file storage path, tiles can be organized in a flat-file scheme, or
-    // nested in subdirectories in subdir TILES
+    
+    /// Path where transactions are stored = $RASDATA/TRANSACTIONS
     std::string transactionsPath;
 
     inline BlobFSConfig(const std::string &rootPathArg,

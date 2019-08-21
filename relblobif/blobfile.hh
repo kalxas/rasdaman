@@ -22,7 +22,6 @@
 
 #pragma once
 
-
 #include "raslib/error.hh"
 #include "raslib/mddtypes.hh"
 #include <string>       // for string
@@ -58,42 +57,32 @@ public:
     BlobFile(const std::string &filePath);
     ~BlobFile();
 
-    /**
-     * Insert blob data, handling possible error conditions.
-     */
+    /// Insert blob data, handling possible error conditions.
     void insertData(BlobData &blobData);
 
-    /**
-     * Update blob data, handling possible error conditions.
-     */
+    /// Update blob data, handling possible error conditions.
     void updateData(BlobData &blobData);
 
-    /**
-     * Read blob data, handling possible error conditions.
-     * Data is directly read into blobData; blobData.data is allocated
-     * automatically.
-     */
+    /// Read blob data, handling possible error conditions. Data is directly
+    /// read into blobData; blobData.data is allocated automatically.
     void readData(BlobData &blobData);
 
-    /**
-     * Return the size (bytes) of filePath
-     */
+    /// @return the size (bytes) of filePath
     off_t getSize();
 
-    /**
-     * Returns the blob id of the blob file
-     */
+    /// @return the blob id of the blob file
     long long getBlobId();
 
     // -- static utility functions
 
-    /**
-     * Return true if filePath exists
-     */
+    /// @return true if filePath exists
     static bool fileExists(const std::string &filePath);
 
-    static void moveFile(const std::string &fromFilePath, const std::string &toFilePath);
+    /// @throw r_Error on any error, e.g. if fromFilePath doesn't exist.
+    static void moveFile(const std::string &fromFilePath,
+                         const std::string &toFilePath);
 
+    /// Log a warning if filePath is not found; no exceptions are thrown.
     static void removeFile(const std::string &filePath);
 
 private:
@@ -101,20 +90,18 @@ private:
     void prepareForUpdating();
     void prepareForReading();
 
-    /**
-     * Clear fd to an empty file.
-     */
+    /// Clear fd to an empty file.
     void clearFileDescriptor();
+    /// Close the fd
     void closeFileDescriptor();
 
-    /**
-     * Helper for generating an exception.
-     */
+    /// Helper for generating an exception.
     void generateError(const char *message, int errorCode);
 
-    // helper to read size bytes from fd into dst. The file is decompressed if
-    // needed.
+    /// helper to read size bytes from fd into dst. The file is decompressed if
+    /// needed.
     void readFile(char *dst, size_t size);
+    void writeFile(char *data, size_t size);
 
     const std::string &filePath;
     int fd{-1};

@@ -31,7 +31,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include "mymalloc/mymalloc.h"
 #include <string.h>
 #include "lockmanager.hh"
 #include "reladminif/adminif.hh"
@@ -39,7 +38,6 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "server/rasserver_config.hh"
 #include <stdlib.h>
-#include "debug.hh"
 #include "raslib/rmdebug.hh"
 #include <logging.hh>
 

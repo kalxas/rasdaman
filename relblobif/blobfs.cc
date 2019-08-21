@@ -19,15 +19,6 @@
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include "blobfs.hh"
 #include "blobfscommon.hh"           // for BlobFSConfig
@@ -44,18 +35,16 @@
 #include <string.h>                  // for strcmp, strerror
 #include <sys/stat.h>                // for stat, S_ISDIR
 #include <unistd.h>                  // for access, W_OK, X_OK
+#include <limits.h>                  // for PATH_MAX
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
 extern char globalConnectId[PATH_MAX];
 
-#ifndef FILESTORAGE_TILES_SUBDIR
-#define FILESTORAGE_TILES_SUBDIR "TILES"
-#endif
-
-#ifndef FILESTORAGE_TRANSACTIONS_SUBDIR
-#define FILESTORAGE_TRANSACTIONS_SUBDIR "TRANSACTIONS"
-#endif
+const std::string BlobFS::tilesSubdir        = "TILES";
+const std::string BlobFS::transactionsSubdir = "TRANSACTIONS";
 
 BlobFS &BlobFS::getInstance()
 {
@@ -64,91 +53,63 @@ BlobFS &BlobFS::getInstance()
 }
 
 BlobFS::BlobFS() : BlobFS(BlobFS::getFileStorageRootPath())
-{
-}
+{}
 
 BlobFS::BlobFS(const string &rasdataPathParam)
-    : config(DirWrapper::convertToCanonicalPath(rasdataPathParam), string(""), string(""))
+    : config(DirWrapper::toCanonicalPath(rasdataPathParam), "", "")
 {
     LDEBUG << "initializing file storage on directory " << config.rootPath;
 
     validateFileStorageRootPath();
-    config.tilesPath = config.rootPath + FILESTORAGE_TILES_SUBDIR + '/';
+    
+    config.tilesPath = config.rootPath + tilesSubdir + '/';
     DirWrapper::createDirectory(config.tilesPath);
-    config.transactionsPath = config.rootPath + FILESTORAGE_TRANSACTIONS_SUBDIR + '/';
+    config.transactionsPath = config.rootPath + transactionsSubdir + '/';
     DirWrapper::createDirectory(config.transactionsPath);
 
-    insertTransaction = new BlobFSInsertTransaction(config);
-    updateTransaction = new BlobFSUpdateTransaction(config);
-    removeTransaction = new BlobFSRemoveTransaction(config);
-    selectTransaction = new BlobFSSelectTransaction(config);
+    insertTransaction.reset(new BlobFSInsertTransaction(config));
+    updateTransaction.reset(new BlobFSUpdateTransaction(config));
+    removeTransaction.reset(new BlobFSRemoveTransaction(config));
+    selectTransaction.reset(new BlobFSSelectTransaction(config));
 
     finalizeUncompletedTransactions();
 
-    LDEBUG << "initialized blob file storage handler with root data directory "
+    LDEBUG << "initialized blob file storage handler with tiles directory "
            << config.tilesPath;
-}
-
-void BlobFS::validateFileStorageRootPath()
-{    
-    if (config.rootPath.empty())
-    {
-        generateError("blob file storage data directory has not been set (-connect setting in rasmgr.conf).",
-                      config.rootPath, FILEDATADIR_NOTFOUND);
-    }
-    struct stat status;
-    if (stat(config.rootPath.c_str(), &status) == -1)
-    {
-        generateError("blob file storage data directory not found", config.rootPath, FILEDATADIR_NOTFOUND);
-    }
-    if (!S_ISDIR(status.st_mode))
-    {
-        generateError("path to blob file storage is not a directory", config.rootPath, FILEDATADIR_NOTFOUND);
-    }
-    if (access(config.rootPath.c_str(), W_OK | X_OK) == -1)
-    {
-        generateError("blob file storage data directory is not writable", config.rootPath, FILEDATADIR_NOTWRITABLE);
-    }
-}
-
-void BlobFS::insert(BlobData &blob)
-{
-    insertTransaction->add(blob);
-}
-
-void BlobFS::update(BlobData &blob)
-{
-    updateTransaction->add(blob);
-}
-
-void BlobFS::select(BlobData &blob)
-{
-    selectTransaction->add(blob);
-}
-
-void BlobFS::remove(BlobData &blob)
-{
-    removeTransaction->add(blob);
 }
 
 string BlobFS::getFileStorageRootPath()
 {
     auto rootPath = DirWrapper::getDirname(globalConnectId);
     if (rootPath.empty())
-    {
-        LERROR << "blob file storage data directory has not been set; "
-               << "please set the -connect value in rasmgr.conf.";
-        throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTABSOLUTE));
-    }
-    return DirWrapper::convertToCanonicalPath(rootPath);
+        generateError("blob file storage data directory has not been set ; "
+                      "please set the -connect value in rasmgr.conf.",
+                      rootPath, FILEDATADIR_NOTFOUND);
+    return DirWrapper::toCanonicalPath(rootPath);
+}
+void BlobFS::validateFileStorageRootPath()
+{    
+    if (config.rootPath.empty())
+        generateError("blob file storage data directory has not been set "
+                      "(-connect setting in rasmgr.conf).",
+                      config.rootPath, FILEDATADIR_NOTFOUND);
+    
+    struct stat st;
+    if (stat(config.rootPath.c_str(), &st) == -1)
+        generateError("blob file storage data directory not found", 
+                      config.rootPath, FILEDATADIR_NOTFOUND);
+    if (!S_ISDIR(st.st_mode))
+        generateError("path to blob file storage is not a directory",
+                      config.rootPath, FILEDATADIR_NOTFOUND);
+    if (access(config.rootPath.c_str(), W_OK | X_OK) == -1)
+        generateError("blob file storage data directory is not writable",
+                      config.rootPath, FILEDATADIR_NOTWRITABLE);
 }
 
-void BlobFS::generateError(const char *message, const string &path, int errorCode)
-{
-    LERROR << "Error: " << message << " - " << path;
-    LERROR << "Reason: " << strerror(errno);
-    throw r_Error(static_cast<unsigned int>(errorCode));
-}
+void BlobFS::insert(BlobData &blob) { insertTransaction->add(blob); }
+void BlobFS::update(BlobData &blob) { updateTransaction->add(blob); }
+void BlobFS::select(BlobData &blob) { selectTransaction->add(blob); }
+void BlobFS::remove(BlobData &blob) { removeTransaction->add(blob); }
 
 void BlobFS::preRasbaseCommit()
 {
@@ -157,7 +118,6 @@ void BlobFS::preRasbaseCommit()
     selectTransaction->preRasbaseCommit();
     removeTransaction->preRasbaseCommit();
 }
-
 void BlobFS::postRasbaseCommit()
 {
     insertTransaction->postRasbaseCommit();
@@ -165,7 +125,6 @@ void BlobFS::postRasbaseCommit()
     selectTransaction->postRasbaseCommit();
     removeTransaction->postRasbaseCommit();
 }
-
 void BlobFS::postRasbaseAbort()
 {
     insertTransaction->postRasbaseAbort();
@@ -176,26 +135,42 @@ void BlobFS::postRasbaseAbort()
 
 void BlobFS::finalizeUncompletedTransactions()
 {
-    DirEntryIterator subdirIter(config.transactionsPath);
-    if (!subdirIter.open())
+    DirEntryIterator trDirIter(config.transactionsPath);
+    if (!trDirIter.open())
         return;
 
-    for (string subdir = subdirIter.next(); !subdirIter.done(); subdir = subdirIter.next())
+    for (string trDir = trDirIter.next(); !trDirIter.done(); trDir = trDirIter.next())
     {
-        if (subdir.empty())
+        if (trDir.empty())
             continue;
 
-        LockFile checkTransactionLock(DirWrapper::convertFromCanonicalPath(subdir) + ".lock");
-        if (!checkTransactionLock.lock())
+        // lock transaction dir for checking; if locking fails, another
+        // rasserver is already checking this trDir so nothing to do
+        LockFile checkTrLock(DirWrapper::fromCanonicalPath(trDir) + ".lock");
+        if (!checkTrLock.lock())
             continue;
-
-        BlobFSTransactionLock transactionLock(subdir, true);
-        if (transactionLock.isLocked(TransactionLockType::General))
+        
+        // Wait for 10ms before checking the transaction lock. This is necessary
+        // to account for the possibility that another rasserver is currently
+        // in the process of initializing this transaction in
+        // BlobFSTransaction::initTransactionDirectory, where it has created the 
+        // trDir but has not managed to create the General lock yet.
+        //
+        // 10ms is not practically verified, intuitively it should be more than 
+        // enough time for a simple file to be created and locked by another 
+        // rasserver.
+        this_thread::sleep_for(chrono::milliseconds(10));
+        
+        // if a transaction lock is already in place, it means that another
+        // rasserver is currently running this transaction so nothing to do
+        BlobFSTransactionLock trLock(trDir, true);
+        if (trLock.isLocked(TransactionLockType::General))
             continue;
-
-        transactionLock.clear(TransactionLockType::General);
+        trLock.clear(TransactionLockType::General);
+        
+        // get the correct transaction object (insert/update/remove)
         auto transaction = std::unique_ptr<BlobFSTransaction>(
-            BlobFSTransaction::getBlobFSTransaction(subdir, config));
+            BlobFSTransaction::getBlobFSTransaction(trDir, config));
         if (!transaction)
             continue;
 
@@ -203,23 +178,20 @@ void BlobFS::finalizeUncompletedTransactions()
         transaction->finalizeUncompleted();
         BLDEBUG << "ok.\n";
     }
-    subdirIter.close();
-}
-
-BlobFS::~BlobFS()
-{
-    delete insertTransaction, insertTransaction = nullptr;
-    delete updateTransaction, updateTransaction = nullptr;
-    delete removeTransaction, removeTransaction = nullptr;
-    delete selectTransaction, selectTransaction = nullptr;
+    trDirIter.close();
 }
 
 std::string BlobFS::getBlobFilePath(long long blobId) const
 {
     return selectTransaction->getFinalBlobPath(blobId);
 }
-
 const BlobFSConfig &BlobFS::getConfig() const
 {
     return config;
+}
+
+void BlobFS::generateError(const char *msg, const string &path, int errCode)
+{
+    LERROR << msg << " - " << path << ", reason: " << strerror(errno);
+    throw r_Error(static_cast<unsigned int>(errCode));
 }

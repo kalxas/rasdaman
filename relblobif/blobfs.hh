@@ -19,15 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #pragma once
 
@@ -47,57 +38,57 @@ class BlobFS
 public:
     static BlobFS &getInstance();
 
-    // Store the content of a new blob.
+    /// Store the content of a new blob.
     void insert(BlobData &blob);
-    // Update the content of a blob. The blob should exist already.
+    /// Update the content of a blob. The blob should exist already.
     void update(BlobData &blob);
-    // Retrive the content of a previously stored blob; the data buffer to hold is
-    // automatically allocated, and size is accordingly set.
+    /// Retrive the content of a previously stored blob; the data buffer to hold is
+    /// automatically allocated, and size is accordingly set.
     void select(BlobData &blob);
-    // Delete a previously stored blob.
+    /// Delete a previously stored blob.
     void remove(BlobData &blob);
 
-    // To be called before commit to RASBASE
+    /// To be called before commit to RASBASE
     void preRasbaseCommit();
-    // To be called after commit to RASBASE
+    /// To be called after commit to RASBASE
     void postRasbaseCommit();
-    // To be called before abort to RASBASE
+    /// To be called before abort to RASBASE
     void postRasbaseAbort();
 
-    // To be called once, cleans up any failed transaction (e.g. due to a crash)
+    /// To be called once, cleans up any failed transaction (e.g. due to a crash)
     void finalizeUncompletedTransactions();
 
+    /// return the file path for blob with the given blobId
+    std::string getBlobFilePath(long long blobId) const;
+    
     const BlobFSConfig &getConfig() const;
 
-    // return the file path for blob with the given blobId
-    std::string getBlobFilePath(long long blobId) const;
-
-    // Destructor
-    ~BlobFS();
-
 private:
-    // Initialize with a root file storage path determined from the -connect
-    // option in rasmgr.conf
+    /// Initialize with a root file storage path determined from the -connect
+    /// option in rasmgr.conf
     BlobFS();
-    // Initialize with a given root file storage path
+    /// Initialize with a given root file storage path
     BlobFS(const std::string &rasdataPath);
 
-    // Check that the root storage path is valid (exists, is writable, etc) and
-    // throw an exception if it isn't
+    /// Check that the root storage path is valid (exists, is writable, etc) and
+    /// throw an exception if it isn't
     void validateFileStorageRootPath();
 
-    // Return root file storage path determined from the -connect
-    // option in rasmgr.conf
+    /// Return root file storage path determined from the -connect
+    /// option in rasmgr.conf
     static std::string getFileStorageRootPath();
 
-    // Helper for generating an error
-    void generateError(const char *message, const std::string &path, int errorCode);
+    /// Helper for generating an error
+    static void generateError(const char *msg, const std::string &path, int errCode);
 
     BlobFSConfig config;
 
-    BlobFSTransaction *insertTransaction{nullptr};
-    BlobFSTransaction *updateTransaction{nullptr};
-    BlobFSTransaction *removeTransaction{nullptr};
-    BlobFSTransaction *selectTransaction{nullptr};
+    std::unique_ptr<BlobFSTransaction> insertTransaction;
+    std::unique_ptr<BlobFSTransaction> updateTransaction;
+    std::unique_ptr<BlobFSTransaction> removeTransaction;
+    std::unique_ptr<BlobFSTransaction> selectTransaction;
+    
+    static const std::string tilesSubdir;        // TILES
+    static const std::string transactionsSubdir; // TRANSACTIONS
 };
 

@@ -19,18 +19,10 @@
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- * COMMENTS:
- *
- ************************************************************/
 
 #include "dirwrapper.hh"
 #include "blobfscommon.hh"      // for IO_ERROR_RC, IO_SUCCESS_RC
-#include "raslib/error.hh"  // for r_Error, FILEDATADIR_NOTWRITABLE
+#include "raslib/error.hh"      // for r_Error, FILEDATADIR_NOTWRITABLE
 #include <logging.hh>
 
 #include <errno.h>              // for errno, ENOENT
@@ -38,10 +30,15 @@
 #include <stdio.h>              // for remove
 #include <string.h>             // for strerror, strcmp
 #include <sys/stat.h>           // for stat, fstatat, mkdir, S_ISDIR
+#include <dirent.h>             // for DIR
 #include <cassert>
 
-using namespace std;
+using std::string;
 
+
+// -----------------------------------------------------------------------------
+//                               DirWrapper
+// -----------------------------------------------------------------------------
 
 void DirWrapper::createDirectory(const string &dirPath)
 {
@@ -53,19 +50,20 @@ void DirWrapper::createDirectory(const char *dirPath)
     {
         if (mkdir(dirPath, 0770) == IO_ERROR_RC)
         {
-            LERROR << "failed creating directory - " << dirPath << ", reason: " << strerror(errno);
+            LERROR << "failed creating directory - " << dirPath 
+                   << ", reason: " << strerror(errno);
             throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTWRITABLE));
         }
     }
 }
 
-int removePath(const char *fpath, __attribute__((unused)) const struct stat *sb,
-               __attribute__((unused)) int typeflag, __attribute__((unused)) struct FTW *ftwbuf)
+int removePath(const char *fpath, const struct stat *, int, struct FTW *)
 {
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)
     {
-        LWARNING << "failed deleting path from disk - " << fpath << ", reason: " << strerror(errno);
+        LWARNING << "failed deleting path from disk - " << fpath 
+                 << ", reason: " << strerror(errno);
     }
     return ret;
 }
@@ -76,7 +74,8 @@ void DirWrapper::removeDirectory(const string &dirPath)
     {
         if (errno != ENOENT)
         {
-            LWARNING << "failed deleting directory from disk - " << dirPath << ", reason: " << strerror(errno);
+            LWARNING << "failed deleting directory from disk - " << dirPath 
+                     << ", reason: " << strerror(errno);
         }
     }
 }
@@ -85,60 +84,45 @@ bool DirWrapper::directoryExists(const char *dirPath)
 {
     struct stat status {};
     if (stat(dirPath, &status) == IO_ERROR_RC)
-    {
         return false;
-    }
     else
     {
         if (!S_ISDIR(status.st_mode))
-            LWARNING << "Found a non-dirctory while checking if a directory exists: " << dirPath;
+            LWARNING << "found a non-directory while checking "
+                        "if a directory exists: " << dirPath;
         return true;
     }
 }
 
-string DirWrapper::convertToCanonicalPath(const string &dirPath)
+string DirWrapper::toCanonicalPath(const string &dirPath)
 {
-    if (!dirPath.empty() && dirPath[dirPath.size() - 1] != '/')
-    {
-        return dirPath + '/';
-    }
-    else
-    {
-        return dirPath;
-    }
+    return !dirPath.empty() && dirPath.back() != '/'
+           ? dirPath + '/'
+           : dirPath;
 }
 
-string DirWrapper::convertFromCanonicalPath(const string &dirPath)
+string DirWrapper::fromCanonicalPath(const string &dirPath)
 {
-    if (!dirPath.empty() && dirPath[dirPath.size() - 1] == '/')
-    {
-        return dirPath.substr(0, dirPath.size() - 1);
-    }
-    else
-    {
-        return dirPath;
-    }
+    return !dirPath.empty() && dirPath.back() == '/'
+           ? dirPath.substr(0, dirPath.size() - 1)
+           : dirPath;
 }
 
 string DirWrapper::getDirname(const std::string &filePath)
 {
     assert(!filePath.empty());
     auto index = filePath.find_last_of("/");
-    if (index != string::npos)
-    {
-        return filePath.substr(0, index);
-    }
-    else
-    {
-        // relative string, i.e. just RASBASE or so
-        return "";
-    }
+    return index != string::npos
+           ? filePath.substr(0, index) : "";
 }
 
-DirEntryIterator::DirEntryIterator(const string &dirPathArg, bool filesArg)
-    : dirPath(DirWrapper::convertToCanonicalPath(dirPathArg)), filesOnly(filesArg)
-{
-}
+// -----------------------------------------------------------------------------
+//                          DirEntryIterator
+// -----------------------------------------------------------------------------
+
+DirEntryIterator::DirEntryIterator(const string &dirPathArg, bool files)
+    : dirPath(DirWrapper::toCanonicalPath(dirPathArg)), filesOnly(files)
+{}
 
 DirEntryIterator::~DirEntryIterator()
 {
@@ -147,15 +131,16 @@ DirEntryIterator::~DirEntryIterator()
 
 bool DirEntryIterator::open()
 {
-    bool ret = true;
-    dirStream = opendir(dirPath.c_str());
-    if (dirStream == nullptr)
+    if ((dirStream = opendir(dirPath.c_str())) != nullptr)
     {
-        LWARNING << "error opening directory: " << dirPath;
-        LWARNING << strerror(errno);
-        ret = false;
+        return true;
     }
-    return ret;
+    else
+    {
+        LWARNING << "error opening directory " << dirPath << ": " << strerror(errno);
+        errno = 0;
+        return false;
+    }
 }
 
 bool DirEntryIterator::done()
@@ -165,22 +150,24 @@ bool DirEntryIterator::done()
 
 string DirEntryIterator::next()
 {
-    string ret("");
+    string ret;
     if (dirStream != nullptr && (dirEntry = readdir(dirStream)) != nullptr)
     {
-        if (strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+        const char *d_name = dirEntry->d_name;
+        if (strcmp(d_name, ".") != 0 && strcmp(d_name, "..") != 0)
         {
             struct stat st {};
-            if (fstatat(dirfd(dirStream), dirEntry->d_name, &st, 0) == IO_ERROR_RC)
+            if (fstatat(dirfd(dirStream), d_name, &st, 0) == IO_ERROR_RC)
             {
                 if (errno == ENOENT)
-                {
-                    return next();
+                {   
+                    return next(); // skip if curr dir name is not found
                 }
                 else
                 {
-                    LWARNING << "failed reading directory: " << dirEntry->d_name;
-                    LWARNING << "errno " << errno << ": " << strerror(errno);
+                    LWARNING << "failed reading directory " << d_name 
+                             << ": " << strerror(errno);
+                    errno = 0;
                 }
             }
             else if (!filesOnly && S_ISDIR(st.st_mode))
@@ -198,12 +185,15 @@ string DirEntryIterator::next()
 
 bool DirEntryIterator::close()
 {
-    bool ret = true;
     if (dirStream != nullptr)
     {
-        ret = closedir(dirStream) == IO_SUCCESS_RC;
+        bool ret = closedir(dirStream) == IO_SUCCESS_RC;
         dirStream = nullptr;
         dirEntry = nullptr;
+        return ret;
     }
-    return ret;
+    else
+    {
+        return true;
+    }
 }

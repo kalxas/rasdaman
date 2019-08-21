@@ -48,22 +48,10 @@ bool LockFile::lock()
     if (fd == INVALID_FILE_DESCRIPTOR)
     {
         fd = open(lockFilePath.c_str(), O_CREAT | O_WRONLY | O_SYNC, 0660);
-        if (fd != INVALID_FILE_DESCRIPTOR)
-        {
-            ret = flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC;
-            if (!ret)
-            {
-                LWARNING << "Failed locking file '" << lockFilePath << "': "
-                         << strerror(errno);
-                errno = 0;
-            }
-        }
-        else
-        {
-            LWARNING << "Failed opening lock file '" << lockFilePath << "': "
-                     << strerror(errno);
-            errno = 0;
-        }
+        if (fd == INVALID_FILE_DESCRIPTOR)
+            logWarning("Failed opening lock file");
+        else if (!(ret = flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC))
+            logWarning("Failed locking file");
     }
     return ret;
 }
@@ -75,17 +63,10 @@ bool LockFile::isLocked()
     if (checkfd != INVALID_FILE_DESCRIPTOR)
     {
         ret = flock(checkfd, LOCK_EX | LOCK_NB) == IO_ERROR_RC;
-        if (!ret)
-        {
-            if (flock(checkfd, LOCK_UN) == IO_ERROR_RC)
-            {
-                LWARNING << "failed reverting lock during lock check: " << strerror(errno);
-            }
-        }
+        if (!ret && flock(checkfd, LOCK_UN) == IO_ERROR_RC)
+            logWarning("Failed reverting lock during lock check");
         if (close(checkfd) == IO_ERROR_RC)
-        {
-            LWARNING << "failed closing check file descriptor: " << strerror(errno);
-        }
+            logWarning("Failed closing check file descriptor");
     }
     return ret;
 }
@@ -97,17 +78,10 @@ bool LockFile::isValid()
     if (checkfd != INVALID_FILE_DESCRIPTOR)
     {
         ret = flock(checkfd, LOCK_EX | LOCK_NB) == IO_ERROR_RC;
-        if (!ret)
-        {
-            if (flock(checkfd, LOCK_UN) == IO_ERROR_RC)
-            {
-                LWARNING << "failed reverting lock during lock check: " << strerror(errno);
-            }
-        }
+        if (!ret && flock(checkfd, LOCK_UN) == IO_ERROR_RC)
+            logWarning("Failed reverting lock during lock check");
         if (close(checkfd) == IO_ERROR_RC)
-        {
-            LWARNING << "failed closing check file descriptor: " << strerror(errno);
-        }
+            logWarning("Failed closing check file descriptor");
     }
     return ret;
 }
@@ -117,15 +91,17 @@ bool LockFile::unlock()
     bool ret = false;
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
-        ret = true;
-        if (close(fd) == IO_ERROR_RC)
-        {
-            LWARNING << "failed closing lock file descriptor (" << lockFilePath
-                     << "): " << strerror(errno);
-            ret = false;
-        }
+        ret = close(fd) == IO_SUCCESS_RC;
+        if (!ret)
+            logWarning("Failed closing lock file descriptor");
         remove(lockFilePath.c_str());
         fd = INVALID_FILE_DESCRIPTOR;
     }
     return ret;
+}
+
+void LockFile::logWarning(const char *msg) const
+{
+    LWARNING << msg << " " << lockFilePath << ": " << strerror(errno);
+    errno = 0;
 }

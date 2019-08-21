@@ -54,7 +54,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/opt/rasdaman" CACHE PATH "Installation directory." FORCE)
 endif ()
 
-set(CPP_FILE_EXTENSIONS *.cc *.hh *.sc *.icc)
+set(CPP_FILE_EXTENSIONS *.cc *.hh *.sc *.icc *.tcc *.C)
 
 # Print elapsed time to build targets
 set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/report_compile_time.sh")
@@ -68,9 +68,6 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_CUSTOM  "${CMAKE_CURRENT_SOURCE_DIR}/cm
 # Add make unit-check target. Running make unit-check will run the unit tests.
 include(CTest)
 add_custom_target(unit-check COMMAND ${CMAKE_CTEST_COMMAND})
-
-#include(cmake/CPPCheck.cmake)
-#AddCPPCheckTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
 
 # Add make format target. This will format all the files in the source tree.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ExtraTargets.cmake)
@@ -627,12 +624,12 @@ add_subdirectory(manuals_and_examples)
 add_subdirectory(mddmgr)
 add_subdirectory(mymalloc)
 add_subdirectory(qlparser)
-add_subdirectory(rascontrol_x)
+add_subdirectory(rascontrol)
 add_subdirectory(raslib)
-add_subdirectory(rasmgr_x)
+add_subdirectory(rasmgr)
 add_subdirectory(rasnet)
 add_subdirectory(rasodmg)
-add_subdirectory(rasserver_x)
+add_subdirectory(rasserver)
 add_subdirectory(reladminif)
 add_subdirectory(relblobif)
 add_subdirectory(relcatalogif)
@@ -644,6 +641,11 @@ add_subdirectory(servercomm)
 add_subdirectory(storagemgr)
 add_subdirectory(systemtest)
 add_subdirectory(tilemgr)
+
+
+include(cmake/CPPCheck.cmake)
+AddCPPCheckTarget("${CMAKE_SOURCE_DIR}/third_party" "${CPP_FILE_EXTENSIONS}")
+
 
 message(STATUS "Final compiler options: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Rasdaman will be installed in ${CMAKE_INSTALL_PREFIX}")

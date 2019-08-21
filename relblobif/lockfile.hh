@@ -26,12 +26,13 @@
 
 
 /**
- * Encapsulate locking on a single file.
+ * Encapsulate locking operations and checks on a single file.
  */
 class LockFile
 {
     friend class TestBlobFSTransactionLock;
 public:
+    
     LockFile(const std::string &lockFilePath);
 
     /**
@@ -62,6 +63,9 @@ public:
     bool unlock();
 
 private:
+    
+    void logWarning(const char *msg) const;
+    
     std::string lockFilePath;
     int fd;
 };

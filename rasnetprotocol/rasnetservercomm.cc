@@ -27,7 +27,7 @@ rasdaman GmbH.
 #include "debug/debug-srv.hh"
 #include "common/grpc/messages/error.pb.h"
 #include "common/uuid/uuid.hh"
-#include "rasserver_x/src/clientquerystreamedresult.hh"
+#include "rasserver/src/clientquerystreamedresult.hh"
 
 using common::ErrorMessage;
 using rasserver::ClientQueryStreamedResult;

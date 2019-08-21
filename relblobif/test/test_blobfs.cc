@@ -378,8 +378,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(expectedFilePath));
         EXPECT_FALSE(BlobFile::fileExists(tmpFilePath));
 
-        delete BlobFS::getInstance().insertTransaction;
-        BlobFS::getInstance().insertTransaction = new BlobFSInsertTransaction(config);
+        BlobFS::getInstance().insertTransaction.reset(new BlobFSInsertTransaction(config));
     }
 
     void testFinalizeUncompletedTransactions_InsertTransactionCrash2()
@@ -403,8 +402,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(expectedFilePath));
         EXPECT_FALSE(BlobFile::fileExists(tmpFilePath));
 
-        delete BlobFS::getInstance().insertTransaction;
-        BlobFS::getInstance().insertTransaction = new BlobFSInsertTransaction(config);
+        BlobFS::getInstance().insertTransaction.reset(new BlobFSInsertTransaction(config));
     }
 
     void testFinalizeUncompletedTransactions_InsertTransactionCrashDuringCommit()
@@ -435,8 +433,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(tmpFilePath));
         EXPECT_FALSE(BlobFile::fileExists(lockFilePath));
 
-        delete BlobFS::getInstance().insertTransaction;
-        BlobFS::getInstance().insertTransaction = new BlobFSInsertTransaction(config);
+        BlobFS::getInstance().insertTransaction.reset(new BlobFSInsertTransaction(config));
 
         unlink(expectedFilePath.c_str());
     }
@@ -469,8 +466,7 @@ public:
         EXPECT_FALSE(BlobFile::fileExists(tmpFilePath));
         EXPECT_FALSE(BlobFile::fileExists(lockFilePath));
 
-        delete BlobFS::getInstance().insertTransaction;
-        BlobFS::getInstance().insertTransaction = new BlobFSInsertTransaction(config);
+        BlobFS::getInstance().insertTransaction.reset(new BlobFSInsertTransaction(config));
 
         unlink(expectedFilePath.c_str());
     }
