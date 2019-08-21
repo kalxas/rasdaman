@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"
 #include "raslib/error.hh"
 #include "server/rasserver_config.hh"
+#include "tilemgr/tile.hh"
 #include <stdlib.h>
 #include "raslib/rmdebug.hh"
 #include <logging.hh>

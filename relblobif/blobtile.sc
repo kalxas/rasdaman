@@ -295,7 +295,6 @@ void BLOBTile::writeCachedToDb(CacheValue *value)
 {
     if (value && value->isUpdate())
     {
-        long long blobOid = value->getBlobOid();
         BlobData blob(value->getOId().getCounter(), value->getSize(), value->getData());
         BlobFS::getInstance().update(blob);
     }

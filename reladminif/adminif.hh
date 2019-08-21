@@ -136,7 +136,7 @@ public:
     */
 
 protected:
-    AdminIf(bool createDb = false);
+    explicit AdminIf(bool createDb = false);
     /*@Doc:
     constructor, can not be used from outside; initializes the objectbroker and
     checks

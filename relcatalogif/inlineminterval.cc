@@ -41,8 +41,9 @@ InlineMinterval::InlineMinterval(r_Dimension dim)
 {
 }
 
-InlineMinterval::InlineMinterval(r_Dimension dim, r_Range *lowerbound, r_Range *upperbound,
-                                 char *lowerfixed, char *upperfixed)
+InlineMinterval::InlineMinterval(r_Dimension dim,
+                                 const r_Range *lowerbound, const r_Range *upperbound,
+                                 const char *lowerfixed, const char *upperfixed)
     : r_Minterval(dim)
 {
     static const char unbounded = '*';

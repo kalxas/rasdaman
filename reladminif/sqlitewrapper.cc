@@ -92,13 +92,6 @@ SQLiteQuery::~SQLiteQuery()
     finalize();
 }
 
-SQLiteQuery::SQLiteQuery(const SQLiteQuery &o)
-{
-    stmt = o.stmt;
-    query = o.query;
-    columnCounter = o.columnCounter;
-}
-
 void SQLiteQuery::finalize()
 {
     if (stmt != nullptr)

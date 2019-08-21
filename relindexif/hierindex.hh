@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "reladminif/dbobject.hh"
 #include "indexmgr/hierindexds.hh"
 #include "relcatalogif/inlineminterval.hh"
-
+#include <memory> // for unique_ptr
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
@@ -58,7 +58,6 @@ See indexmgr/hierindexds.hh and indexmgr/indexds.hh for documentation.
 
     readfromDb() is able to read both formats
     updateInDb() and insertInDb will only write new format
-
 
 */
 /**
@@ -188,24 +187,22 @@ protected:
     */
 
     DBHierIndex(const OId &id);
-    /*@Doc:
-    */
-
-    void readFromDb() override;
-    /*@Doc:
-    */
-
-    void updateInDb() override;
-    /*@Doc:
-    */
-
-    void deleteFromDb() override;
-    /*@Doc:
-    */
-
+    
     void insertInDb() override;
-    /*@Doc:
-    */
+    void readFromDb() override;
+    void updateInDb() override;
+    void deleteFromDb() override;
+    
+    /// write index entries information to a blob buffer; the result can be
+    /// read back with readFromBlobBuffer
+    std::unique_ptr<char[]> 
+    writeToBlobBuffer(int &completeSize, long long &parentid);
+    
+    /// read index entries from a blob buffer; the result of a subsequent
+    /// writeToBlobBuffer would equal the given blobBuffer.
+    void readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension, 
+                        long long parentOid, const char *blobBuffer, 
+                        r_Bytes blobSize);
 
     void extendCoveredDomain(const r_Minterval &newTilesExtents);
     /*@Doc:
@@ -213,17 +210,17 @@ protected:
         include newTilesExtents.
     */
 
-    OId parent;
+    OId parent{0};
     /*@Doc:
         persistent, identifies the parent
     */
 
-    bool _isNode;
+    bool _isNode{false};
     /*@Doc:
         persistent, tells the object what it is.
     */
 
-    unsigned int maxSize;
+    unsigned int maxSize{};
     /*@Doc:
         Non persistent attribute.  a cache so the maxSize does not have to be
        calculated all the time.
@@ -236,10 +233,24 @@ protected:
         Defined domain of this index.
     */
 
-    short currentDbRows;
+    short currentDbRows{};
     /*@Doc:
         is needed to support update of index in database
         keeps the number of rows currently taken up in the db by
         this instance
     */
+    
+    // old format, contains 13 in first byte
+    static const int BLOB_FORMAT_V1;
+    static const int BLOB_FORMAT_V1_HEADER_SIZE;
+    static const int BLOB_FORMAT_V1_HEADER_MAGIC;
+    // OIDcounter is now long, but r_Range is still int
+    static const int BLOB_FORMAT_V2;
+    static const int BLOB_FORMAT_V2_HEADER_SIZE;
+    static const long long BLOB_FORMAT_V2_HEADER_MAGIC;
+    // blobFormat == 10: r_Range is long as well
+    static const int BLOB_FORMAT_V3;
+    static const int BLOB_FORMAT_V3_HEADER_SIZE;
+    static const long long BLOB_FORMAT_V3_HEADER_MAGIC;
+    
 };

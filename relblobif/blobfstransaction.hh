@@ -97,7 +97,7 @@ public:
         const std::string &transactionPath, BlobFSConfig &config);
 
 protected:
-    BlobFSTransaction(BlobFSConfig &config);
+    explicit BlobFSTransaction(BlobFSConfig &config);
 
     /**
      * Finalize a transaction that crashed during a commit/abort on RASBASE.
@@ -196,7 +196,7 @@ public:
 class BlobFSSelectTransaction : public BlobFSTransaction
 {
 public:
-    BlobFSSelectTransaction(BlobFSConfig &config);
+    explicit BlobFSSelectTransaction(BlobFSConfig &config);
     void add(BlobData &blobData) override;
 };
 

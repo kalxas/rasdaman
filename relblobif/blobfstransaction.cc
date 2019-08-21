@@ -448,9 +448,7 @@ void BlobFSRemoveTransaction::preRasbaseCommit()
             // in a remove transaction ignore a blob file not found error,
             // otherwise the array gets locked and cannot be removed.
             if (ex.get_errorno() != BLOBFILENOTFOUND)
-            {
-                throw ex;
-            }
+                throw;
         }
     }
     transactionLock->clear(TransactionLockType::Abort);
@@ -491,9 +489,7 @@ void BlobFSRemoveTransaction::postRasbaseAbort()
             // in a remove transaction ignore a blob file not found error,
             // otherwise the array gets locked and cannot be removed.
             if (ex.get_errorno() != BLOBFILENOTFOUND)
-            {
-                throw ex;
-            }
+                throw;
         }
     }
     blobIds.clear();

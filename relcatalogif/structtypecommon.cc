@@ -58,17 +58,13 @@ StructType::StructType(const char *newTypeName, unsigned int numElemArg)
 }
 
 StructType::StructType(const StructType &old)
-    : CompositeType(old)
+    : CompositeType(old), elements{old.elements},
+      elementOffsets{old.elementOffsets}, numElems{old.numElems},
+      align{old.align}
 {
-    elements = old.elements;
-    elementOffsets = old.elementOffsets;
-    numElems = old.numElems;
     elementNames.reserve(numElems);
     for (unsigned int i = 0; i < numElems; ++i)
-    {
         elementNames[i] = strdup(old.elementNames[i]);
-    }
-    align = old.align;
 }
 
 StructType::StructType(const OId &structtypeid)

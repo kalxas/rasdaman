@@ -46,7 +46,7 @@ public:
      * Construct a query object from a constant string SQL query.
      * @param query the SQL query to be turned into an SQLite statement.
      */
-    SQLiteQuery(char query[]);
+    explicit SQLiteQuery(char query[]);
 
     /**
      * Construct a query object from an SQL query given as a printf format
@@ -59,11 +59,6 @@ public:
      * Destructor
      */
     ~SQLiteQuery();
-
-    /**
-     * Copy constructor.
-     */
-    SQLiteQuery(const SQLiteQuery &o);
 
     /**
      * Finalize any query objects.

@@ -130,12 +130,12 @@ public:
 
     //@Man: constructors
     //@{
-    DBTile(r_Data_Format dataformat);
+    explicit DBTile(r_Data_Format dataformat);
     /*@Doc:
     constructs a new empty DBTile.  Length is 0.
     */
 
-    DBTile(const OId &BlobId);
+    explicit DBTile(const OId &BlobId);
     /*@Doc:
     Passes to DBObject.
     */

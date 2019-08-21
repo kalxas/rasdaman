@@ -40,6 +40,8 @@ DBMS transaction.
 class TransactionIf
 {
 public:
+    TransactionIf() = default;
+    
     void begin(DatabaseIf *currBase, bool readOnly = false);
     /*@Doc:
     begin a TA.
@@ -73,6 +75,7 @@ public:
     */
 
 private:
+    
     void begin(bool readOnly = false);
     /*@Doc:
     begin a TA. Internal usage only.

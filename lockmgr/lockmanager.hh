@@ -35,10 +35,11 @@ rasdaman GmbH.
 #define _LOCKMANAGER_HH_
 
 #include "reladminif/oidif.hh"
-#include "tilemgr/tile.hh"
 #include "ecpg_lockmanager.hh"
 #include <vector>
 #include <boost/shared_ptr.hpp>
+
+class Tile;
 
 enum Lock {EXCLUSIVE_LOCK, SHARED_LOCK};
 

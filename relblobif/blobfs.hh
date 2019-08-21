@@ -68,7 +68,7 @@ private:
     /// option in rasmgr.conf
     BlobFS();
     /// Initialize with a given root file storage path
-    BlobFS(const std::string &rasdataPath);
+    explicit BlobFS(const std::string &rasdataPath);
 
     /// Check that the root storage path is valid (exists, is writable, etc) and
     /// throw an exception if it isn't

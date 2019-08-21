@@ -299,7 +299,7 @@ ObjectBroker::loadObjectByOId(const OId &id)
             if (!ObjectBroker::freeMemory())
             {
                 LERROR << "Not enough memory to load object with OId " << id << "; freeing all cached memory did not help.";
-                throw ex;
+                throw;
             }
             else
             {

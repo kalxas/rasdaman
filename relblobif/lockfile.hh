@@ -33,7 +33,7 @@ class LockFile
     friend class TestBlobFSTransactionLock;
 public:
     
-    LockFile(const std::string &lockFilePath);
+    explicit LockFile(const std::string &lockFilePath);
 
     /**
      * Unlocks file (with unlock()) if necessary.

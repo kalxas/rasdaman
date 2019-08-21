@@ -67,5 +67,5 @@ string Test::charPtrToString(char* ptr, unsigned int size)
     res[size + 1] = '\0';
     string ret(res);
     free(res);
-    return string(res);
+    return ret;
 }

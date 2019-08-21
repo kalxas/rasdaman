@@ -79,7 +79,7 @@ public:
     unsigned int getSize() const override;
 
 protected:
-    unsigned int size;
+    unsigned int size{};
     /*@Doc:
     size of one cell of this base type in number of chars.
     */

@@ -67,7 +67,7 @@ public:
     /// default constructor.
     r_Type();
     /// constructor getting name of type.
-    r_Type(const char *newTypeName);
+    explicit r_Type(const char *newTypeName);
     /// copy constructor
     r_Type(const r_Type &oldObj);
     /// assignment operator.

@@ -182,8 +182,8 @@ void DBRCIndexDS::readFromDb()
 #ifdef RMANDEBUG  // dump low-level blob byte string
     {
         char printbuf[10000];
-        (void) sprintf(printbuf, "DBRCIndexDS::readFromDb(): [%d]", blobsize);
-        char bytebuf[3];
+        (void) sprintf(printbuf, "DBRCIndexDS::readFromDb(): [%ud]", blobsize);
+        char bytebuf[4];
         for (long i = 0; i < blobsize; i++)
         {
             (void) sprintf(bytebuf, " %2X", (unsigned char) completebuffer[i]);

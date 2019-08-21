@@ -87,7 +87,7 @@ void TransactionIf::commit()
     {
         LERROR << "Commit failed: " << err.what() << "; aborting transaction.";
         abort();
-        throw err;
+        throw;
     }
     catch (...)
     {

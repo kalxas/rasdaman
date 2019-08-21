@@ -35,21 +35,21 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "hierindex.hh"                 // for DBHierIndex
-#include "reladminif/dbobject.hh"         // for DBObjectId, DBObject
+#include "reladminif/dbobject.hh"       // for DBObjectId, DBObject
 #include "reladminif/dbref.hh"
-#include "reladminif/lists.h"             // for KeyObjectVector
-#include "reladminif/objectbroker.hh"     // for ObjectBroker
-#include "reladminif/oidif.hh"            // for OId, operator<<, OId::OIdCounter
+#include "reladminif/lists.h"           // for KeyObjectVector
+#include "reladminif/objectbroker.hh"   // for ObjectBroker
+#include "reladminif/oidif.hh"          // for OId, operator<<, OId::OIdCounter
 #include "relblobif/blobtile.hh"
 #include "indexmgr/hierindexds.hh"      // for HierIndexDS
 #include "indexmgr/indexds.hh"          // for IndexDS
 #include "indexmgr/keyobject.hh"        // for KeyObject, operator<<
 #include "storagemgr/sstoragelayout.hh" // for StorageLayout, StorageLayout:...
-#include "relindexif/indexid.hh"          // for DBHierIndexId
+#include "relindexif/indexid.hh"        // for DBHierIndexId
 #include "relcatalogif/inlineminterval.hh"  // for InlineMinterval
-#include "raslib/error.hh"          // for r_Error
-#include "raslib/mddtypes.hh"       // for r_Bytes, r_Range, r_Dimension
-#include "raslib/minterval.hh"      // for operator<<, r_Minterval
+#include "raslib/error.hh"              // for r_Error
+#include "raslib/mddtypes.hh"           // for r_Bytes, r_Range, r_Dimension
+#include "raslib/minterval.hh"          // for operator<<, r_Minterval
 #include "raslib/endian.hh"
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>                   // for Writer, CTRACE, LTRACE, CDEBUG
@@ -61,37 +61,36 @@ rasdaman GmbH.
 #include <vector>                       // for vector
 
 
+// old format, contains 13 in first byte
+const int DBHierIndex::BLOB_FORMAT_V1 = 8;
+const int DBHierIndex::BLOB_FORMAT_V1_HEADER_SIZE = 1;
+const int DBHierIndex::BLOB_FORMAT_V1_HEADER_MAGIC = 13;
+// OIDcounter is now long, but r_Range is still int
+const int DBHierIndex::BLOB_FORMAT_V2 = 9;
+const int DBHierIndex::BLOB_FORMAT_V2_HEADER_SIZE = 8;
+const long long DBHierIndex::BLOB_FORMAT_V2_HEADER_MAGIC = 1009;
+// blobFormat == 10: r_Range is long as well
+const int DBHierIndex::BLOB_FORMAT_V3 = 10;
+const int DBHierIndex::BLOB_FORMAT_V3_HEADER_SIZE = 8;
+const long long DBHierIndex::BLOB_FORMAT_V3_HEADER_MAGIC = 1010;
+
 
 DBHierIndex::DBHierIndex(const OId &id)
-    : HierIndexDS(id),
-      parent(0),
-      _isNode(false),
-      maxSize(0),
-      myDomain(static_cast<r_Dimension>(0)),
-      currentDbRows(0)
+    : HierIndexDS(id), myDomain(0u)
 {
     if (id.getType() == OId::MDDHIERIXOID)
-    {
         readFromDb();
-    }
+    
     maxSize = DBHierIndex::getOptimalSize(getDimension());
     myKeyObjects.reserve(maxSize);
 }
 
-DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE,
-                         bool makePersistent)
-    : HierIndexDS(),
-      parent(0),
-      _isNode(isNODE),
-      maxSize(0),
-      myDomain(dim),
-      currentDbRows(-1)
+DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
+    : HierIndexDS(), _isNode(isNODE), myDomain(dim), currentDbRows(-1)
 {
     objecttype = OId::MDDHIERIXOID;
     if (makePersistent)
-    {
         setPersistent(true);
-    }
 
     maxSize = getOptimalSize(dim);
     myKeyObjects.reserve(maxSize);
@@ -111,13 +110,12 @@ OId::OIdPrimitive DBHierIndex::getIdentifier() const
 bool DBHierIndex::removeObject(const KeyObject &entry)
 {
     bool found = false;
-    unsigned int pos = 0;
     OId oid(entry.getObject().getOId());
     for (auto i = myKeyObjects.begin(); i != myKeyObjects.end();)
     {
         if (oid == (*i).getObject().getOId())
         {
-            LTRACE << "remove object in vector at pos " << pos << " of " << myKeyObjects.size();
+            LTRACE << "remove object " << oid << " from index.";
             found = true;
             i = myKeyObjects.erase(i);
             setModified();
@@ -126,13 +124,11 @@ bool DBHierIndex::removeObject(const KeyObject &entry)
         {
             ++i;
         }
-        ++pos;
     }
     if (!found)
     {
-        LDEBUG << "object to remove not found in index.";
+        LDEBUG << "object " << oid << " to remove not found in index.";
     }
-
     return found;
 }
 
@@ -145,7 +141,11 @@ bool DBHierIndex::removeObject(unsigned int pos)
         myKeyObjects.erase(myKeyObjects.begin() + pos);
         setModified();
     }
-
+    else
+    {
+        LWARNING << "cannot remove object at position " << pos << ", index node "
+                 << "contains only " << myKeyObjects.size() << " entries.";
+    }
     return found;
 }
 
@@ -165,7 +165,8 @@ void DBHierIndex::insertObject(const KeyObject &theKey, unsigned int pos)
         extendCoveredDomain(theKey.getDomain());
     }
     myKeyObjects.insert(myKeyObjects.begin() + pos, theKey);
-    LTRACE << "after inserting object now have " << myKeyObjects.size() << " objects in key object vector.";
+    LTRACE << "after inserting object now have " 
+           << myKeyObjects.size() << " objects in key object vector.";
     setModified();
 }
 
@@ -206,7 +207,6 @@ r_Dimension DBHierIndex::getDimension() const
 r_Bytes DBHierIndex::getTotalStorageSize() const
 {
     r_Bytes sz = 0;
-
     for (auto i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
         sz = sz +
@@ -214,18 +214,19 @@ r_Bytes DBHierIndex::getTotalStorageSize() const
                   ObjectBroker::getObjectByOId(i->getObject().getOId())))
              ->getTotalStorageSize();
     }
-
     return sz;
 }
 
 bool DBHierIndex::isValid() const
 {
+    LTRACE << "check if hierarchical index " << myOId << " is valid...";
+    
     bool valid = true;
     // may not be unsigned int (r_Area) because of error check
-    int area = 0;
+    long long area = 0;
     if (!isLeaf())
     {
-        area = myDomain.cell_count();
+        area = static_cast<long long>(myDomain.cell_count());
         DBHierIndexId tempIx;
         LTRACE << "inspecting " << myKeyObjects.size() << " objects in key object vector.";
         for (auto i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
@@ -233,63 +234,58 @@ bool DBHierIndex::isValid() const
             if (myDomain.covers((*i).getDomain()))
             {
                 // ok
-                area = area - static_cast<int>((*i).getDomain().cell_count());
+                area = area - static_cast<long long>((*i).getDomain().cell_count());
             }
             else
             {
                 if (myDomain == (*i).getDomain())
                 {
                     // ok
-                    area = area - static_cast<int>((*i).getDomain().cell_count());
+                    area = area - static_cast<long long>((*i).getDomain().cell_count());
                     tempIx = DBHierIndexId((*i).getObject());
                     if (!tempIx->isValid())
                     {
+                        LTRACE << "invalid entry which equals the index domain " << myDomain;
                         valid = false;
                         break;
                     }
                 }
                 else
                 {
-                    LTRACE << "isValid() " << myOId << " key does not cover domain: myDomain " << myDomain << " key " << *i;
+                    LTRACE << "invalid, key " << *i << " does not cover domain " << myDomain;
                     valid = false;
                     break;
                 }
             }
         }
-        if (valid)
+        if (valid && area < 0)
         {
-            if (area < 0)
-            {
-                LTRACE << "isValid() " << myOId << " there are double entries";
-                valid = false;
-            }
+            LTRACE << "invalid, there are double entries";
+            valid = false;
         }
     }
     else
     {
-        area = myDomain.cell_count();
-        valid = true;
+        area = static_cast<long long>(myDomain.cell_count());
         for (auto i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
         {
             if (myDomain.intersects_with((*i).getDomain()))
             {
                 // ok
-                area = area - static_cast<int>((*i).getDomain().create_intersection(myDomain).cell_count());
+                area = area - static_cast<long long>(
+                            (*i).getDomain().create_intersection(myDomain).cell_count());
             }
             else
             {
-                LTRACE << "isValid() " << myOId << " key does not intersect domain: myDomain " << myDomain << " key " << *i;
+                LTRACE << "invalid, key " << *i << " does not intersect domain " << myDomain;
                 valid = false;
                 break;
             }
         }
-        if (!valid)
+        if (!valid && area < 0)
         {
-            if (area < 0)
-            {
-                LTRACE << "isValid() " << myOId << " there are double entries";
-                valid = false;
-            }
+            LTRACE << "invalid, there are double entries";
+            valid = false;
         }
     }
 
@@ -335,7 +331,7 @@ void DBHierIndex::printStatus(unsigned int level, std::ostream &stream) const
 
 unsigned int DBHierIndex::getSize() const
 {
-    return myKeyObjects.size();
+    return static_cast<unsigned int>(myKeyObjects.size());
 }
 
 bool DBHierIndex::isUnderFull() const
@@ -346,68 +342,51 @@ bool DBHierIndex::isUnderFull() const
 
 bool DBHierIndex::isOverFull() const
 {
-    bool retval = false;
-    if (getSize() >= maxSize)
-    {
-        retval = true;
-    }
-
-    return retval;
+    return getSize() >= maxSize;
 }
 
 unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
 {
-    unsigned int retval = 0;
+    if (StorageLayout::DefaultIndexSize != 0)
+        return StorageLayout::DefaultIndexSize;
+    
     // BLOCKSIZE
     unsigned int blocksize = 0;
     unsigned int useablespace = 0;
     // dimension * (upperbound + upperfixed + lowerbound + lowerfixed) + entryid +
     // entryoidtype
-    unsigned int oneentry =
-        dim * (sizeof(r_Range) * 2 + sizeof(char) * 2) +
-        sizeof(OId::OIdCounter) + sizeof(long long);
-
+    static constexpr unsigned int onedim = sizeof(r_Range) * 2 + sizeof(char) * 2;
+    unsigned int onedom = dim * onedim;
+    unsigned int oneentry = onedom + sizeof(OId::OIdCounter) + sizeof(char);
+    
 #ifdef BASEDB_ORACLE
     blocksize = 2048;
     // BLOCKSIZE - (BLOCK OVERHEAD + ROW OVERHEAD + 1 * largerow + number(15,0) + short)
     useablespace = blocksize - (130 + 3 + 1 * 3 + 12 + 2);
-#else
-#ifdef BASEDB_DB2
+#elif BASEDB_DB2
     blocksize = 4096;
     // from the manual
     useablespace = 3990;
-#else
-#ifdef BASEDB_INFORMIX
+#elifd BASEDB_INFORMIX
     blocksize = 4096;
     // from the manual
     useablespace = 3990;
-#else
-#ifdef BASEDB_PGSQL
+#elif BASEDB_PGSQL
     blocksize = 8192;   // default only!!!;
     useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
+#elif BASEDB_SQLITE
+    // blocksize = 4096;
+    useablespace = 3990;
 #else
-#ifdef BASEDB_SQLITE
-    blocksize = 8192;   // default only!!!;
-    useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
-#else
-    blocksize = 8192;     // default only!!!;
-    useablespace = 7000;  // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
-#endif // pgsql
-#endif // informix
-#endif // db2
-#endif // oracle
+    blocksize = 8192;
+    useablespace = 7000;
 #endif
 
-    // remove mydomain size
-    useablespace = useablespace - dim * (sizeof(r_Range) * 2 + sizeof(char) * 2);
+    // remove mydomain size and header
+    useablespace = useablespace - onedom - BLOB_FORMAT_V3_HEADER_SIZE;
+    
     // minimum size is 8-lucky guess(good for 1,2,3,4 dimensions)
-    retval = std::max(static_cast<unsigned int>(8), useablespace / oneentry);
-    if (StorageLayout::DefaultIndexSize != 0)
-    {
-        retval = StorageLayout::DefaultIndexSize;
-    }
-
-    return retval;
+    return std::max(8u, useablespace / oneentry);
 }
 
 unsigned int DBHierIndex::getOptimalSize() const
@@ -434,6 +413,7 @@ void DBHierIndex::extendCoveredDomain(const r_Minterval &newTilesExtents)
 
 void DBHierIndex::setParent(const HierIndexDS *newPa)
 {
+    assert(newPa);
     if (static_cast<OId::OIdPrimitive>(parent) != newPa->getIdentifier())
     {
         parent = newPa->getIdentifier();
@@ -444,13 +424,12 @@ void DBHierIndex::setParent(const HierIndexDS *newPa)
 HierIndexDS *DBHierIndex::getParent() const
 {
     DBHierIndexId t(parent);
-
     return static_cast<HierIndexDS *>(t);
 }
 
 bool DBHierIndex::isRoot() const
 {
-    return (parent.getType() == OId::INVALID);
+    return parent.getType() == OId::INVALID;
 }
 
 bool DBHierIndex::isLeaf() const
@@ -467,16 +446,11 @@ void DBHierIndex::freeDS()
 {
     setPersistent(false);
 }
+
 bool DBHierIndex::isSameAs(const IndexDS *other) const
 {
-    bool result = false;
-    if (other->isPersistent())
-        if (myOId == other->getIdentifier())
-        {
-            result = true;
-        }
-
-    return result;
+    assert(other);
+    return other->isPersistent() && myOId == other->getIdentifier();
 }
 
 double DBHierIndex::getOccupancy() const
@@ -486,20 +460,18 @@ double DBHierIndex::getOccupancy() const
 
 const KeyObject &DBHierIndex::getObject(unsigned int pos) const
 {
-    return myKeyObjects[pos];
+    return myKeyObjects.at(pos);
 }
 
 void DBHierIndex::getObjects(KeyObjectVector &objs) const
 {
     for (auto keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
-    {
         objs.push_back(*keyIt);
-    }
 }
 
 r_Minterval DBHierIndex::getObjectDomain(unsigned int pos) const
 {
-    return myKeyObjects[pos].getDomain();
+    return getObject(pos).getDomain();
 }
 
 unsigned int DBHierIndex::getHeight() const
@@ -509,42 +481,17 @@ unsigned int DBHierIndex::getHeight() const
 
 unsigned int DBHierIndex::getHeightOfTree() const
 {
-    unsigned int retval = getHeightToLeaf() + getHeightToRoot();
-    return retval;
+    return getHeightToLeaf() + getHeightToRoot();
 }
 
 unsigned int DBHierIndex::getHeightToRoot() const
 {
-    unsigned int retval = 0;
-    if (isRoot())
-    {
-        retval = 0;
-    }
-    else
-    {
-        DBHierIndexId t(parent);
-        const DBHierIndex *tp = static_cast<DBHierIndex *>(t.ptr());
-        retval = tp->getHeightToRoot() + 1;
-    }
-
-    return retval;
+    return isRoot() ? 0u : DBHierIndexId(parent)->getHeightToRoot() + 1;
 }
 
 unsigned int DBHierIndex::getHeightToLeaf() const
 {
-    unsigned int retval = 0;
-    if (isLeaf())
-    {
-        retval = 0;
-    }
-    else
-    {
-        DBHierIndexId t(parent);
-        const DBHierIndex *tp = static_cast<DBHierIndex *>(t.ptr());
-        retval = tp->getHeightToLeaf() + 1;
-    }
-
-    return retval;
+    return isLeaf() ? 0u : DBHierIndexId(parent)->getHeightToLeaf() + 1;
 }
 
 unsigned int DBHierIndex::getTotalLeafCount() const
@@ -553,6 +500,7 @@ unsigned int DBHierIndex::getTotalLeafCount() const
     if (!isLeaf())
     {
         // i am not a leaf
+        assert(!myKeyObjects.empty());
         if (DBHierIndexId(myKeyObjects.begin()->getObject())->isLeaf())
         {
             // i contain only leafs, so i return the number of entries i contain
@@ -563,8 +511,7 @@ unsigned int DBHierIndex::getTotalLeafCount() const
             // i contain only nodes, so i ask my children how many leafs there are
             for (auto keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
             {
-                DBHierIndexId accessedIx((*keyIt).getObject());
-                retval = retval + accessedIx->getTotalLeafCount();
+                retval = retval + DBHierIndexId((*keyIt).getObject())->getTotalLeafCount();
             }
         }
     }
@@ -572,7 +519,6 @@ unsigned int DBHierIndex::getTotalLeafCount() const
     {
         retval = 1;
     }
-
     return retval;
 }
 
@@ -582,16 +528,15 @@ unsigned int DBHierIndex::getTotalNodeCount() const
     if (!isLeaf())
     {
         // i am not a leaf
+        assert(!myKeyObjects.empty());
         if (DBHierIndexId(myKeyObjects.begin()->getObject())->isLeaf())
         {
-            // i contain only nodes
-            // i add the nodes i contain
+            // i contain only nodes, add the nodes i contain
             retval = getSize();
             // i add the nodes my children contain
             for (auto keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
             {
-                DBHierIndexId accessedIx((*keyIt).getObject());
-                retval = retval + accessedIx->getTotalNodeCount();
+                retval = retval + DBHierIndexId((*keyIt).getObject())->getTotalNodeCount();
             }
         }
     }
@@ -615,11 +560,9 @@ unsigned int DBHierIndex::getTotalEntryCount() const
         // i ask my children how many entries they contain
         for (auto keyIt = myKeyObjects.begin(); keyIt != myKeyObjects.end(); keyIt++)
         {
-            DBHierIndexId accessedIx((*keyIt).getObject());
-            retval = retval + accessedIx->getTotalEntryCount();
+            retval = retval + DBHierIndexId((*keyIt).getObject())->getTotalEntryCount();
         }
     }
-
     return retval;
 }
 
@@ -915,3 +858,212 @@ void DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
     currentDbRows = 1;
 }
 
+
+std::unique_ptr<char[]> 
+DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
+{
+    // (0) --- prepare variables
+    auto dimension = myDomain.dimension();
+    auto numEntries = getSize();
+    parentid = parent.getType() == OId::INVALID
+             ? 0
+             : static_cast<long long>(parent);
+
+    // (1) -- prepare buffer
+    static const auto header = BLOB_FORMAT_V3_HEADER_MAGIC;
+    static const auto headerSize = BLOB_FORMAT_V3_HEADER_SIZE;
+    static const auto idSize = sizeof(OId::OIdCounter);
+    static const auto boundSize = sizeof(r_Range);
+    static const auto blobFormat = BLOB_FORMAT_V3;
+    
+    // number of bytes for ids of entries
+    r_Bytes idsSize = idSize * numEntries;
+    // number of bytes for bounds for "size" entries and mydomain
+    r_Bytes boundsSize = boundSize * (numEntries + 1) * dimension;
+    // number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixesSize = sizeof(char) * (numEntries + 1) * dimension;
+    // number of bytes for types of entries
+    r_Bytes typesSize = sizeof(char) * numEntries;
+    // number of bytes for the dynamic data
+    auto completeSize =
+        headerSize + boundsSize * 2 + fixesSize * 2 + idsSize + typesSize;
+    completeSizeOut = static_cast<int>(completeSize);
+    
+    LTRACE << "inserting index blob, format=" << blobFormat
+           << " complete=" << completeSize << " bounds=" << boundsSize
+           << " fixes=" << fixesSize << " ids=" << idsSize
+           << " types=" << typesSize << ", entries=" << numEntries
+           << " dimension=" << dimension;
+    
+    /*
+      Node buffer format, N = number of entries:
+      
+      magic header
+      N * dimension lower bounds
+      N * dimension upper bounds
+      N * dimension lower fixes
+      N * dimension upper fixes
+      N * oids
+      N * oid types
+      
+     */
+    
+    std::unique_ptr<char[]> completeBufPtr;
+    completeBufPtr.reset(new char[completeSize]);
+    char *completeBuf = completeBufPtr.get();
+    *reinterpret_cast<long long*>(completeBuf) = header;
+    completeBuf += headerSize;
+    
+    auto *lowerBoundsBuf = reinterpret_cast<r_Range*>(
+                           &completeBuf[0]);
+    auto *upperBoundsBuf = reinterpret_cast<r_Range*>(
+                           &completeBuf[boundsSize]);
+    char *lowerFixedBuf  = &completeBuf[boundsSize * 2];
+    char *upperFixedBuf  = &completeBuf[boundsSize * 2 + fixesSize];
+    auto *entryIdsBuf    = reinterpret_cast<OId::OIdCounter*>(
+                           &completeBuf[boundsSize * 2 + fixesSize * 2]);
+    char *entryTypesBuf  = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];    
+    
+    // populate the buffers with data
+    *reinterpret_cast<long long *>(completeBuf) = header;
+    myDomain.insertInDb(&(lowerBoundsBuf[0]), &(upperBoundsBuf[0]),
+                        &(lowerFixedBuf[0]),  &(upperFixedBuf[0]));
+    
+    auto it = myKeyObjects.begin();
+    InlineMinterval indom;
+    for (size_t i = 0; i < numEntries; ++i, ++it)
+    {
+        indom = (*it).getDomain();
+        indom.insertInDb(&(lowerBoundsBuf[(i + 1) * dimension]),
+                         &(upperBoundsBuf[(i + 1) * dimension]),
+                          &(lowerFixedBuf[(i + 1) * dimension]),
+                          &(upperFixedBuf[(i + 1) * dimension]));
+        entryIdsBuf[i]   = (*it).getObject().getOId().getCounter();
+        entryTypesBuf[i] = static_cast<char>((*it).getObject().getOId().getType());
+    }
+    
+    return completeBufPtr;
+}
+
+void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension, 
+                                     long long parentOid, const char *blobBuffer, 
+                                     r_Bytes blobSize)
+{
+    parent = parentOid ? OId(parentOid) : OId(0, OId::INVALID);
+
+    static const size_t newIdSize = sizeof(OId::OIdCounter);
+    size_t idSize = newIdSize;
+    static const size_t newBoundSize = sizeof(r_Range);
+    size_t boundSize = newBoundSize;
+
+    int blobFormat{};
+    r_Bytes headerSize{};
+    if (blobBuffer[0] == BLOB_FORMAT_V1_HEADER_MAGIC)
+    {
+        // old format
+        blobFormat = BLOB_FORMAT_V1;
+        idSize = sizeof(int);
+        boundSize = sizeof(int);
+        headerSize = BLOB_FORMAT_V1_HEADER_SIZE;
+    }
+    else
+    {
+        // new format (v2 or v3)
+        headerSize = BLOB_FORMAT_V2_HEADER_SIZE;
+        auto header = *reinterpret_cast<const long long *>(&blobBuffer[0]);
+        blobFormat = header == BLOB_FORMAT_V2_HEADER_MAGIC ? BLOB_FORMAT_V2
+                     : BLOB_FORMAT_V3;
+    }
+    r_Bytes idsSize = idSize * numEntries;
+    r_Bytes boundsSize = boundSize * (numEntries + 1) * dimension;
+    r_Bytes newBoundsSize = newBoundSize * (numEntries + 1) * dimension;
+    // number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixesSize = sizeof(char) * (numEntries + 1) * dimension;
+    // number of bytes for types of entries
+    r_Bytes typesSize = sizeof(char) * numEntries;
+    // number of bytes for the dynamic data
+    r_Bytes completeSize =
+        headerSize + boundsSize * 2 + fixesSize * 2 + idsSize + typesSize;
+
+    LTRACE << "reading index blob, format=" << blobFormat
+           << " complete=" << completeSize << " bounds=" << boundsSize
+           << " fixes=" << fixesSize << " ids=" << idsSize
+           << " types=" << typesSize << ", entries=" << numEntries
+           << " dimension=" << dimension;
+
+    if (completeSize != blobSize)  // this because I don't trust computations
+    {
+        LTRACE << "BLOB (" << myOId.getCounter() << ") read: completeSize=" 
+               << completeSize << ", but blobSize=" << blobSize;
+        throw r_Error(r_Error::r_Error_LimitsMismatch);
+    }
+    
+    /*
+      Node buffer format, N = number of entries:
+      
+      magic header
+      N * dimension lower bounds
+      N * dimension upper bounds
+      N * dimension lower fixes
+      N * dimension upper fixes
+      N * oids
+      N * oid types
+      
+     */
+
+    const char *completeBuf = blobBuffer;
+    completeBuf += headerSize;
+
+    const char *lowerBoundsBuf = &completeBuf[0];
+    const char *upperBoundsBuf = &completeBuf[boundsSize];
+    const char *lowerFixedBuf  = &completeBuf[boundsSize * 2];
+    const char *upperFixedBuf  = &completeBuf[boundsSize * 2 + fixesSize];
+    const char *entryIdsBuf    = &completeBuf[boundsSize * 2 + fixesSize * 2];
+    const char *entryTypesBuf  = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
+
+    // (4) --- copy data into buffers
+
+#define GET_BOUND(buf) \
+    (blobFormat <= BLOB_FORMAT_V2) \
+    ? static_cast<r_Range>(*reinterpret_cast<int*>(buf)) \
+    : *reinterpret_cast<r_Range*>(buf)
+
+    auto lowerBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
+    auto upperBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
+
+    char buf[sizeof(r_Range)];
+    for (size_t i = 0; i < (numEntries + 1) * dimension; ++i)
+    {
+        memcpy(buf, lowerBoundsBuf, boundSize);
+        lowerBounds[i] = GET_BOUND(buf);
+        lowerBoundsBuf += boundSize;
+        memcpy(buf, upperBoundsBuf, boundSize);
+        upperBounds[i] = GET_BOUND(buf);
+        upperBoundsBuf += boundSize;
+    }
+
+    // rebuild the attributes from the buffers
+    myDomain = InlineMinterval(dimension,
+                               &lowerBounds[0], &upperBounds[0], 
+                               lowerFixedBuf, upperFixedBuf);
+    KeyObject theKey = KeyObject(DBObjectId(), myDomain);
+    for (r_Bytes i = 0; i < numEntries; ++i)
+    {
+        lowerFixedBuf += dimension;
+        upperFixedBuf += dimension;
+        theKey.setDomain(InlineMinterval(dimension,
+                                         &lowerBounds[(i + 1) * dimension], 
+                                         &upperBounds[(i + 1) * dimension],
+                                         lowerFixedBuf, upperFixedBuf));
+
+        memcpy(buf, entryIdsBuf, idSize);
+        auto entryId = (blobFormat == BLOB_FORMAT_V1)
+                       ? static_cast<OId::OIdCounter>(*reinterpret_cast<unsigned int *>(buf))
+                       : *reinterpret_cast<OId::OIdCounter *>(buf);
+        entryIdsBuf += idSize;
+        auto entryType = static_cast<OId::OIdType>(entryTypesBuf[i]);
+
+        theKey.setObject(OId(entryId, entryType));
+        myKeyObjects.push_back(theKey);
+    }
+}

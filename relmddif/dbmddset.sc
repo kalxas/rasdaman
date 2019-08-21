@@ -131,8 +131,7 @@ void DBMDDSet::readFromDb()
                        "WHERE MDDCollId = %lld ORDER BY MDDId", myOId.getCounter());
     while (cquery.nextRow())
     {
-        mySet.insert(OId(cquery.nextColumnLong(), OId::MDDOID));
-    }
+        mySet.insert(DBMDDObjId(OId(cquery.nextColumnLong(), OId::MDDOID))); }
     DBObject::readFromDb();
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();

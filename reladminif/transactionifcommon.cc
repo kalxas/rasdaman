@@ -48,7 +48,7 @@ void TransactionIf::begin(DatabaseIf *currBase, bool readOnly)
     catch (r_Error &err)
     {
         currBase->baseDBMSClose();
-        throw err;
+        throw;
     }
     lastBase = currBase;
     begin(readOnly);

@@ -356,7 +356,8 @@ void DBStorageLayout::readFromDb()
         else
         {
             _supportsTileConfiguration = true;
-            tileConfiguration = OId(query.nextColumnLong(), OId::DBMINTERVALOID);
+            tileConfiguration = DBMintervalId(
+                        OId(query.nextColumnLong(), OId::DBMINTERVALOID));
         }
 
         if (query.currColumnNull())
@@ -461,19 +462,14 @@ void DBStorageLayout::updateInDb()
 
 void DBStorageLayout::insertInDb()
 {
-    long long storageid2;
-    long long domainid2;
-
-    storageid2 = myOId.getCounter();
     SQLiteQuery insert(
         "INSERT INTO RAS_STORAGE(StorageId,DomainId,TileSize,PCTMin,PCTMax,IndexType,"
-        "TilingScheme,DataFormat,IndexSize) VALUES (%lld, ?, ?, ?, ?, ?, ?, ?, ?)", storageid2);
+        "TilingScheme,DataFormat,IndexSize) VALUES (%lld, ?, ?, ?, ?, ?, ?, ?, ?)", myOId.getCounter());
 
     if (supportsTileConfiguration())
     {
         tileConfiguration->setPersistent(true);
-        domainid2 = tileConfiguration->getOId().getCounter();
-        insert.bindLong(domainid2);
+        insert.bindLong(tileConfiguration->getOId().getCounter());
     }
     else
     {

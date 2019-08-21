@@ -39,7 +39,7 @@ public:
     char *data;
 
     inline
-    BlobData(long long blobIdArg)
+    explicit BlobData(long long blobIdArg)
         : blobId(blobIdArg), size(0), data(NULL) {}
 
     inline
@@ -54,7 +54,7 @@ public:
 class BlobFile
 {
 public:
-    BlobFile(const std::string &filePath);
+    explicit BlobFile(const std::string &filePath);
     ~BlobFile();
 
     /// Insert blob data, handling possible error conditions.
