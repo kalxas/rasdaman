@@ -40,7 +40,7 @@ logging.addLevelName(TITLE_LEVEL, "TITLE")
 def title(self, message, *args, **kws):
     self.log(TITLE_LEVEL, message, *args, **kws)
 
-SUCCESS_LEVEL = 25
+SUCCESS_LEVEL = 15
 logging.addLevelName(SUCCESS_LEVEL, "SUCCESS")
 
 def success(self, message, *args, **kws):
@@ -84,9 +84,9 @@ class SingleLevelFilter(logging.Filter):
 
     def filter(self, record):
         if self.reject:
-            return (record.levelno != self.passlevel)
+            return (record.levelno > self.passlevel)
         else:
-            return (record.levelno == self.passlevel)
+            return (record.levelno <= self.passlevel)
 
 # Default is logging level debug
 log.setLevel(logging.DEBUG)
