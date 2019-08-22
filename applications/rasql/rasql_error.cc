@@ -20,112 +20,70 @@
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
-* rasqlError
-*
-* Provides a error checking for the rasql queries
-* options for storing results to file(s) or displaying them
-*
-* COMMENTS:
-*
-*       No comments
-*/
-
 #include "rasql_error.hh"
-#include <logging.hh>
 
-#include <exception>
-#include <cstring>
-#include <stdio.h>
-
-using namespace std;
-
-/// error object, carrying int error code
-RasqlError::RasqlError(int e)
-{
-    error_code = e;
-}
-
-/// default destructor
-RasqlError::~RasqlError()
+RasqlError::RasqlError(int e) : error_code{e}
 {
 }
 
 /// print error message (including error code)
 /// NB: not all messages can occur
-const char *
-RasqlError::what()
+const char* RasqlError::what()
 {
-    const char *errorMsg;
+    if (!msg.empty())
+        return msg.c_str();
+    
+    msg = "Error " + std::to_string(error_code) + ": ";
     switch (error_code)
     {
-    case  NOQUERY:
-        errorMsg = "Mandatory parameter '--query' missing.";
+    case NOQUERY:
+        msg += "Mandatory parameter '--query' missing.";
         break;
-    case  ERRORPARSINGCOMMANDLINE:
-        errorMsg = "Command line syntax error.";
+    case ERRORPARSINGCOMMANDLINE:
+        msg += "Command line syntax error.";
         break;
-    case  ILLEGALOUTPUTTYPE:
-        errorMsg = "Illegal output type specifier, must be one of none, file, formatted, string, hex.";
+    case ILLEGALOUTPUTTYPE:
+        msg += "Illegal output type specifier, must be one of none, file, formatted, string, hex.";
         break;
-    case  FILEEMPTY:
-        errorMsg = "The input file is empty.";
+    case FILEEMPTY:
+        msg += "The input file is empty.";
         break;
-    case  FILEINACCESSIBLE:
-        errorMsg = "Cannot read input file.";
+    case FILEINACCESSIBLE:
+        msg += "Cannot read input file.";
         break;
-    case  UNABLETOCLAIMRESOURCEFORFILE:
-        errorMsg = "Cannot allocate memory for file read.";
+    case UNABLETOCLAIMRESOURCEFORFILE:
+        msg += "Cannot allocate memory for file read.";
         break;
-    case  NOVALIDDOMAIN:
-        errorMsg = "Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)";
+    case NOVALIDDOMAIN:
+        msg += "Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)";
         break;
-    case  MDDTYPEINVALID:
-        errorMsg = "MDD type invalid.";
+    case MDDTYPEINVALID:
+        msg += "MDD type invalid.";
         break;
-    case  FILESIZEMISMATCH:
-        errorMsg = "Input file size does not correspond with MDD domain specified.";
+    case FILESIZEMISMATCH:
+        msg += "Input file size does not correspond with MDD domain specified.";
         break;
     case NOFILEWRITEPERMISSION:
-        errorMsg = "No file write permission.";
+        msg += "No file write permission.";
         break;
     case UNABLETOWRITETOFILE:
-        errorMsg = "Cannot write to file.";
+        msg += "Cannot write to file.";
         break;
     case FILEREADERROR:
-        errorMsg = "Failed reading from file.";
+        msg += "Failed reading from file.";
         break;
     case FILEWRITEERROR:
-        errorMsg = "Failed writing to file.";
+        msg += "Failed writing to file.";
         break;
-    default :
-        errorMsg = "Unknown error code.";
+    case NOCONNECTION:
+        msg += "Failed connecting to the database.";
         break;
-    case  ALLDONE:
+    default:
+        msg += "Unknown error code.";
+        break;
+    case ALLDONE:
     case 0:
-        errorMsg = "No errors.";
+        msg += "No errors.";
     }
-
-// size of error text buffer below
-#define ERRTEXT_BUFSIZ 200
-
-    static char errorText[ERRTEXT_BUFSIZ];
-
-// text constants for error msg
-#define MODULE_TAG "IO"
-#define ERROR_TEXT " Error: "
-
-    // check for buffer overflow
-    if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-    {
-        sprintf(errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)");
-    }
-    else
-    {
-        sprintf(errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg);
-    }
-
-    return errorText;
-} // what()
-
-
+    return msg.c_str();
+}

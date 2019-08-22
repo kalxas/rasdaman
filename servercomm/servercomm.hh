@@ -75,9 +75,6 @@ public:
     /// default constructor
     ServerComm();
 
-    /// constructor getting the listen port, rasmgr host and port and the server name
-    ServerComm(unsigned long listenPort, char *rasmgrHost, unsigned int rasmgrPort, char *serverName);
-
     ServerComm(const ServerComm &) = delete;
 
     /// destructor
@@ -98,7 +95,7 @@ public:
     */
 
     /// returns a pointer to the context of the calling client, 0 it there is no context
-    virtual ClientTblElt *getClientContext(unsigned long ClientId);
+    ClientTblElt *getClientContext(unsigned long ClientId);
     /**
       Returns a pointer to the context of the calling client. This is done by
       searching the client table maintained by the server for the given client id.
@@ -826,6 +823,8 @@ public:
     /**
     return values exactly like setTransferMode()
     */
+    
+    void setAdmin(AdminIf *newAdmin);
 
     static const int RESPONSE_ERROR;
     static const int RESPONSE_MDDS;
@@ -869,22 +868,13 @@ protected:
 
     /// the client table which holds information about the calling clients
     static ClientTblElt *clientTbl;
-    /// last used client ID (this is increased by one to get the clientId for the next client)
-    static unsigned long clientCount;
+    
+    /// pointer to the actual administration interface object
+    AdminIf *admin{NULL};
 
     /// flag for active db transaction (stores the clientID of the owner of the active transaction,
     /// or 0 if none open)
     unsigned long transactionActive{0};
-
-    /// pointer to the actual administration interface object
-    AdminIf *admin{NULL};
-
-    char *errorText{NULL};
-
-    unsigned long listenPort{};
-    char *rasmgrHost{NULL};
-    unsigned int rasmgrPort{0};
-    char *serverName{NULL};
 };
 
 

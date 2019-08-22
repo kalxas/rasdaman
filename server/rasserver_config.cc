@@ -24,6 +24,15 @@ rasdaman GmbH.
 using namespace std;
 
 #include "config.h"
+#include "rasserver_config.hh"
+#include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
+
+#include "storagemgr/sstoragelayout.hh"
+#include "servercomm/httpserver.hh"
+#include "commline/cmlparser.hh"
+#include "applications/rasql/rasql_error.hh"
+#include "loggingutils.hh"
+
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/stat.h>
@@ -31,18 +40,7 @@ using namespace std;
 #include <string>
 #include <sstream>
 
-#include "globals.hh"   // DEFAULT_PORT, LOGDIR, LOG_SUFFIX
-#include "rasserver_config.hh"
-
-#include "storagemgr/sstoragelayout.hh"
-#include "servercomm/httpserver.hh"
-
-#include "debug/debug.hh"
-#include "debug.hh"
-#include "loggingutils.hh"
-
 // -- directql section start
-#include "rasserver_error.hh"
 
 #define PARAM_HELP_FLAG 'h'
 #define PARAM_HELP  "help"
@@ -123,211 +121,151 @@ using namespace std;
 
 #define PARAM_DELDB     "deldatabase"
 #define HELP_DELDB      "delete database"
+// -- rasdl section end
 
 Configuration configuration;
 
-Configuration::Configuration()
-{
-    logToStdOut = true;
-    logFileName = 0;
-    queryStringOn = false;
-    rasdlOn = false;
-    outputType = DEFAULT_OUT;
-    progMode = M_INVALID;
-}
-
-
 bool Configuration::parseCommandLine(int argc, char** argv)
 {
-    CommandLineParser& cmlInter  = CommandLineParser::getInstance();
+    CommandLineParser& cmlInter = CommandLineParser::getInstance();
     initParameters();
 
     try
     {
         myExecutable = argv[0];
         cmlInter.processCommandLine(argc, argv);
-
-        if (cmlHelp->isPresent())
-        {
-            printHelp();
-            exit(-2);   // Unix code for 'help' -- PB 2005-sep-18
-        }
         checkParameters();
+        return true;
     }
-
     catch (CmlException& ex)
     {
         cout << "Error: " << ex.what() << endl;
-
         if (!logToStdOut)
-        {
-            LERROR << "Error: " << ex.what();
-        }
+            LERROR << ex.what();
         return false;
     }
-    return true;
 }
-
-// just for shorter lines...
-#define NSN CommandLineParser::noShortName
 
 void Configuration::initParameters()
 {
+    const char nsn = CommandLineParser::noShortName;
+    const char *lineSep = CommandLineParameter::descLineSep;
+    
     CommandLineParser& cmlInter  = CommandLineParser::getInstance();
 
     cmlHelp     = &cmlInter.addFlagParameter('h', "help", "print this help");
 
     //connection
-    cmlRsn      = &cmlInter.addStringParameter(NSN, "rsn", "<srv-name> rasserver instance name", DEFAULT_SERVERNAME);
-    cmlPort     = &cmlInter.addStringParameter(NSN, "lport", "<nnnn> rasserver listen port (RPC or HTTP)");
-    cmlMgr      = &cmlInter.addStringParameter(NSN, "mgr", "<mgr-host> name of RasMGR host", DEFAULT_HOSTNAME);
-    cmlMgrPort  = &cmlInter.addLongParameter(NSN, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT);
-    cmlMgrSync  = &cmlInter.addStringParameter(NSN, "sync", ""); // deprecated
+    cmlRsn      = &cmlInter.addStringParameter(nsn, "rsn", "<srv-name> rasserver instance name", DEFAULT_SERVERNAME);
+    cmlPort     = &cmlInter.addStringParameter(nsn, "lport", "<nnnn> rasserver listen port (RPC or HTTP)");
+    cmlMgr      = &cmlInter.addStringParameter(nsn, "mgr", "<mgr-host> name of RasMGR host", DEFAULT_HOSTNAME);
+    cmlMgrPort  = &cmlInter.addLongParameter(nsn, "mgrport", "<nnnn> rasmgr port", DEFAULT_PORT);
 
-    cmlTransBuffer = &cmlInter.addLongParameter(NSN, "transbuffer", "<nnnn> maximal size of the transfer buffer in bytes", MAX_BUFFER_SIZE);
-    cmlTimeOut     = &cmlInter.addLongParameter(NSN, "timeout", "<nnn> client time out in seconds.\n\t\tif it is set to 0 server doesn't check for client timeouts", CLIENT_TIMEOUT);
-    cmlMgmntInt    = &cmlInter.addStringParameter(NSN, "mgmntint", ""); // deprecated
-    cmlHttp        = &cmlInter.addFlagParameter(NSN, "http", "start HTTP version of rasserver");
-    cmlRnp         = &cmlInter.addFlagParameter(NSN, "rnp", "start RNP version of rasserver");
-    cmlRasnet      = &cmlInter.addFlagParameter(NSN, "rasnet", "start RASNET version of rasserver");
+    cmlTransBuffer = &cmlInter.addLongParameter(nsn, "transbuffer", "<nnnn> maximal size of the transfer buffer in bytes", MAX_BUFFER_SIZE);
+    cmlTimeOut     = &cmlInter.addLongParameter(nsn, "timeout", "<nnn> client time out in seconds.\n\t\tif it is set to 0 server doesn't check for client timeouts", CLIENT_TIMEOUT);
 
-    cmlLockMgrOn   = &cmlInter.addFlagParameter(NSN, "enable-tilelocking", "enables fine grained locking of tiles");
+    cmlLockMgrOn   = &cmlInter.addFlagParameter(nsn, "enable-tilelocking", "enables fine grained locking of tiles");
 
-    cmlConnectStr  = &cmlInter.addStringParameter(NSN, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
-    cmlUserStr  = &cmlInter.addStringParameter('u', "user", "<username> database connection user (empty by default)", "");
-    cmlPasswdStr  = &cmlInter.addStringParameter('p', "passwd", "<password> database connection password (empty by default)", "");
-    cmlLog     = &cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "$RMANHOME/log/<srv-name>.<pid>.log");
+    cmlConnectStr  = &cmlInter.addStringParameter(nsn, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
+    cmlUserStr     = &cmlInter.addStringParameter('u', "user", "<username> database connection user (empty by default)", "");
+    cmlPasswdStr   = &cmlInter.addStringParameter('p', "passwd", "<password> database connection password (empty by default)", "");
+    cmlLog         = &cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "$RMANHOME/log/<srv-name>.<pid>.log");
 
-    cmlTileSize = &cmlInter.addLongParameter(NSN, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  4194304);
-    cmlPctMin   = &cmlInter.addLongParameter(NSN, "pctmin", "<nnnn> specifies minimal size of blobtiles in bytes",  2048);
-    cmlPctMax   = &cmlInter.addLongParameter(NSN, "pctmax", "<nnnn> specifies maximal size of inlinetiles in bytes",  4096);
-    cmlUseTC    = &cmlInter.addFlagParameter(NSN, "usetc", "use TileContainerIndex");
-    cmlTileConf = &cmlInter.addStringParameter(NSN, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:1023,0:1023]");
+    cmlTileSize   = &cmlInter.addLongParameter(nsn, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  4194304);
+    cmlPctMin     = &cmlInter.addLongParameter(nsn, "pctmin", "<nnnn> specifies minimal size of blobtiles in bytes",  2048);
+    cmlPctMax     = &cmlInter.addLongParameter(nsn, "pctmax", "<nnnn> specifies maximal size of inlinetiles in bytes",  4096);
+    cmlUseTC      = &cmlInter.addFlagParameter(nsn, "usetc", "use TileContainerIndex");
+    cmlTileConf   = &cmlInter.addStringParameter(nsn, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:1023,0:1023]");
 
-    cmlNewServerId = &cmlInter.addStringParameter(NSN, "serverId", "serverID", NULL);
-    string tilingDesc = string("<tiling-name> retiling strategy, specified as:") + CommandLineParameter::descLineSep +
-                        "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
+    cmlNewServerId = &cmlInter.addStringParameter(nsn, "serverId", "serverID", NULL);
+    string tilingDesc = string("<tiling-name> retiling strategy, specified as:") + lineSep +
+                        "  " + tiling_name_notiling          + "," + lineSep +
                         "  " + tiling_name_regulartiling;
-    cmlTiling   = &cmlInter.addStringParameter(NSN, "tiling", tilingDesc.c_str(), tiling_name_alignedtiling);
+    cmlTiling     = &cmlInter.addStringParameter(nsn, "tiling", tilingDesc.c_str(), tiling_name_alignedtiling);
 
-    string indexDesc  = string("<index-name> index for created objects, specified as:") + CommandLineParameter::descLineSep +
-                        "  " + index_name_auto              + "," + CommandLineParameter::descLineSep +
-                        "  " + index_name_directory         + "," + CommandLineParameter::descLineSep +
-                        "  " + index_name_regdirectory      + "," + CommandLineParameter::descLineSep +
-                        "  " + index_name_rplustree         + "," + CommandLineParameter::descLineSep +
-                        "  " + index_name_regrplustree      + "," + CommandLineParameter::descLineSep +
-                        "  " + index_name_tilecontainer     + "," + CommandLineParameter::descLineSep +
+    string indexDesc  = string("<index-name> index for created objects, specified as:") + lineSep +
+                        "  " + index_name_auto              + "," + lineSep +
+                        "  " + index_name_directory         + "," + lineSep +
+                        "  " + index_name_regdirectory      + "," + lineSep +
+                        "  " + index_name_rplustree         + "," + lineSep +
+                        "  " + index_name_regrplustree      + "," + lineSep +
+                        "  " + index_name_tilecontainer     + "," + lineSep +
                         "  " + index_name_regcomputed;
-    cmlIndex    = &cmlInter.addStringParameter(NSN, "index", indexDesc.c_str(), index_name_rplustree);
+    cmlIndex      = &cmlInter.addStringParameter(nsn, "index", indexDesc.c_str(), index_name_rplustree);
 
     // for systemtest use e.g.3 together with tileSize 12
     string indexsizeDesc = string("<nnnn> make the index use n nodes");
-    cmlIndexSize = &cmlInter.addLongParameter(NSN, "indexsize", indexsizeDesc.c_str(), 0L);
+    cmlIndexSize  = &cmlInter.addLongParameter(nsn, "indexsize", indexsizeDesc.c_str(), 0L);
 
-    cmlCacheLimit = &cmlInter.addLongParameter(NSN, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
+    cmlCacheLimit = &cmlInter.addLongParameter(nsn, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
 
     // directql 
-    cmlQuery = &cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
-    cmlFile = &cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
+    cmlQuery      = &cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    queryStringOn = cmlInter.isPresent(PARAM_QUERY);
+    cmlFile       = &cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
-    cmlContent = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_CONTENT, HELP_CONTENT);
-    cmlOut = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
-    cmlOutfile = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
-    cmlMddDomain = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_DOMAIN, HELP_DOMAIN);
-    cmlMddType = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
-    cmlType = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
+    cmlContent    = &cmlInter.addFlagParameter(nsn, PARAM_CONTENT, HELP_CONTENT);
+    cmlOut        = &cmlInter.addStringParameter(nsn, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    cmlOutfile    = &cmlInter.addStringParameter(nsn, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    cmlMddDomain  = &cmlInter.addStringParameter(nsn, PARAM_DOMAIN, HELP_DOMAIN);
+    cmlMddType    = &cmlInter.addStringParameter(nsn, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    cmlType       = &cmlInter.addFlagParameter(nsn, PARAM_TYPE, HELP_TYPE);
 
-    cmlDatabase = &cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName);
-    cmlUser = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
-    cmlPasswd = &cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
-    cmlQuiet = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);
+    cmlDatabase   = &cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, baseName);
+    cmlUser       = &cmlInter.addStringParameter(nsn, PARAM_USER, HELP_USER, DEFAULT_USER);
+    cmlPasswd     = &cmlInter.addStringParameter(nsn, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    cmlQuiet      = &cmlInter.addFlagParameter(nsn, PARAM_QUIET, HELP_QUIET);
 
     // rasdl
-    cmlCreateDb = &cmlInter.addFlagParameter(FLAG_CREATE, PARAM_CREATE, HELP_CREATE);
-    cmlDelDb = &cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_DELDB, HELP_DELDB);
-
+    cmlCreateDb   = &cmlInter.addFlagParameter(FLAG_CREATE, PARAM_CREATE, HELP_CREATE);
+    cmlDelDb      = &cmlInter.addFlagParameter(nsn, PARAM_DELDB, HELP_DELDB);
 
 #ifdef RMANDEBUG
-    cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
-    cmlDbgLevel  = &cmlInter.addLongParameter(NSN, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
+    cmlDbg        = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out", "<srv-name>.log");
+    cmlDbgLevel   = &cmlInter.addLongParameter(nsn, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
 #endif // RMANDEBUG
-
-    if (cmlInter.isPresent(PARAM_QUERY))
-    {
-        queryStringOn = true;
-    }
 }
-#undef NSN
 
 void Configuration::checkParameters()
 {
+    if (cmlHelp->isPresent())
+    {
+        printHelp();
+        exit(0);
+    }
+    
     serverName = cmlRsn->getValueAsString();
-
-// -- rasdl section start
-
-    //create database
-    if (cmlCreateDb->isPresent())
-    {
-        progMode = M_CREATEDATABASE;
-    }
-
-    //delete database
-    if (cmlDelDb->isPresent())
-    {
-        progMode = M_DELDATABASE;
-    }
-
-    // true if any rasdl specific flag was specified
-    rasdlOn = (cmlCreateDb->isPresent() || cmlDelDb->isPresent());
-
-// -- rasdl section end
-
-// -- directql section start
-
+    
+    // -------------------------------------------------------------------------
+    // -- rasdl section start
+    // -------------------------------------------------------------------------
+    
+    if (cmlCreateDb->isPresent()) progMode = M_CREATEDATABASE;
+    if (cmlDelDb->isPresent())    progMode = M_DELDATABASE;
+    
+    // -------------------------------------------------------------------------
+    // -- directql section start
+    // -------------------------------------------------------------------------
+    
     queryString = cmlQuery->getValueAsString();
-    queryStringOn = queryString != NULL;
-    if (queryStringOn || rasdlOn)
-    {
-        if (cmlPort->isPresent())
-        {
-            listenPort = cmlPort->getValueAsLong();
-        }
-        else
-        {
-            listenPort = DEFAULT_PORT;
-        }
-    }
+    queryStringOn = queryString != nullptr;
+    if (queryStringOn || usesRasdl())
+        listenPort = cmlPort->isPresent() ? cmlPort->getValueAsInt() : DEFAULT_PORT;
     else
-    {
-        listenPort = cmlPort->getValueAsLong();
-    }
+        listenPort = cmlPort->getValueAsInt();
    
-
-    // evaluate optional parameter 'quiet' -----------------------------------
     quietLog = cmlQuiet->isPresent();
 
-    //
     // at this point the logging can be initialized
     initLogFiles();
-    //
 
-    // evaluate optional parameter file --------------------------------------
     if (cmlFile->isPresent())
         fileName = cmlFile->getValueAsString();
 
-    // evaluate optional parameter database ----------------------------------
     baseName = cmlDatabase->getValueAsString();
-
-    // evaluate optional parameter user --------------------------------------
     user = cmlUserStr->getValueAsString();
-
-    // evaluate optional parameter passwd ------------------------------------
     passwd = cmlPasswdStr->getValueAsString();
-
-    // evaluate optional parameter content -----------------------------------
     output = cmlOut->isPresent();
-
-    // evaluate optional parameter type --------------------------------------
     displayType = cmlType->isPresent();
     outputType = OUT_FILE;
     if (output)
@@ -347,14 +285,12 @@ void Configuration::checkParameters()
             throw RasqlError(ILLEGALOUTPUTTYPE);
     }
 
-    // evaluate optional parameter outfile --------------------------------------
     if (cmlOutfile->isPresent())
     {
         outFileMask = cmlOutfile->getValueAsString();
         outputType = OUT_FILE;
     }
 
-    // evaluate optional parameter domain --------------------------------------
     if (cmlMddDomain->isPresent())
     {
         try
@@ -362,32 +298,29 @@ void Configuration::checkParameters()
             mddDomain = r_Minterval(cmlMddDomain->getValueAsString());
             mddDomainDef = true;
         }
-        catch (r_Error& e) // Minterval constructor had syntax problems
+        catch (r_Error&) // Minterval constructor had syntax problems
         {
             throw RasqlError(NOVALIDDOMAIN);
         }
     }
 
-    // evaluate optional parameter MDD type name --------------------------------------
+    // evaluate optional parameter MDD type name
     if (cmlMddType->isPresent())
     {
         mddTypeName = cmlMddType->getValueAsString();
         mddTypeNameDef = true;
     }
-// -- directql section end
+    
+    // -------------------------------------------------------------------------
+    // -- rasserver section start
+    // -------------------------------------------------------------------------
 
     rasmgrHost = cmlMgr->getValueAsString();
-    rasmgrPort = cmlMgrPort->getValueAsLong();
-    LDEBUG << "rasmgrHost = " << rasmgrHost << ", rasmgrPort = " << rasmgrPort;
+    rasmgrPort = cmlMgrPort->getValueAsInt();
+    LDEBUG << "rasmgr host = " << rasmgrHost << ", port = " << rasmgrPort;
 
-    deprecated(cmlMgrSync);
-
-    maxTransferBufferSize = cmlTransBuffer->getValueAsLong();
-    timeout               = cmlTimeOut->getValueAsLong();
-    deprecated(cmlMgmntInt);
-    httpServ              = cmlHttp->isPresent();
-    rnpServ               = cmlRnp->isPresent();
-    rasnetServ            = cmlRasnet->isPresent();
+    maxTransferBufferSize = cmlTransBuffer->getValueAsInt();
+    timeout               = cmlTimeOut->getValueAsInt();
 
     lockmgrOn             = cmlLockMgrOn->isPresent();
 
@@ -395,26 +328,22 @@ void Configuration::checkParameters()
     dbUser       = cmlUserStr->getValueAsString();
     dbPasswd     = cmlPasswdStr->getValueAsString();
 
-    tileSize   = cmlTileSize->getValueAsLong();
-    pctMin     = cmlPctMin->getValueAsLong();
-    pctMax     = cmlPctMax->getValueAsLong();
+    tileSize   = cmlTileSize->getValueAsInt();
+    pctMin     = cmlPctMin->getValueAsInt();
+    pctMax     = cmlPctMax->getValueAsInt();
     useTC      = cmlUseTC->isPresent();
-
 
     tileConf   = cmlTileConf->getValueAsString();//(r_Minterval..)
     tilingName = cmlTiling->getValueAsString();
     indexType  = cmlIndex->getValueAsString();
-    indexSize  = cmlIndexSize->getValueAsLong();
-
+    indexSize  = cmlIndexSize->getValueAsInt();
     cacheLimit = cmlCacheLimit->getValueAsLong();
-
     newServerId = cmlNewServerId->getValueAsString();
 #ifdef RMANDEBUG
-    //  deprecated(cmlDbg);     // will certainly not remove this... -- PB 2007-may-07
-    // SET_OUTPUT( cmlDbg->isPresent() );   // enable trace macros depending on --debug parameter
-    SET_OUTPUT(true);
-    // dbgLevel   = cmlDbgLevel->getValueAsLong();
-    dbgLevel   = 4;
+    // TODO
+    //if (cmlDbg->isPresent())
+    
+    dbgLevel   = cmlDbgLevel->getValueAsInt();
 #endif
    
 }
@@ -422,13 +351,10 @@ void Configuration::checkParameters()
 void Configuration::printHelp()
 {
     CommandLineParser& cmlInter  = CommandLineParser::getInstance();
-
     cout << "Usage:   rasserver [options]" << endl;
     cout << "Options:" << endl;
     cmlInter.printHelp();
-
     cout << endl;
-
 }
 
 void
@@ -487,9 +413,14 @@ Configuration::deprecated(CommandLineParameter* cml)
 {
     if (cml->isPresent())
     {
-        cout << "WARNING: parameter '" << cml->calledName() << "' is deprecated, will be removed in next version!" << endl;
+        cout << "WARNING: parameter '" << cml->calledName() 
+             << "' is deprecated, will be removed in next version." << endl;
     }
 }
+
+// -------------------------------------------------------------------------
+// -- rasserver section start
+// -------------------------------------------------------------------------
 
 const char* Configuration::getServerName()
 {
@@ -498,19 +429,6 @@ const char* Configuration::getServerName()
 int         Configuration::getListenPort()
 {
     return listenPort;
-}
-bool        Configuration::isHttpServer()
-{
-    return httpServ;
-}
-bool        Configuration::isRnpServer()
-{
-    return rnpServ;
-}
-
-bool Configuration::isRasnetServer()
-{
-    return rasnetServ;
 }
 
 const char* Configuration::getRasmgrHost()
@@ -548,11 +466,6 @@ const char* Configuration::getDbPasswd()
     return dbPasswd;
 }
 
-bool        Configuration::isLockMgrOn()
-{
-    return lockmgrOn;
-}
-
 int         Configuration::getDefaultTileSize()
 {
     return tileSize;
@@ -565,19 +478,10 @@ int         Configuration::getDefaultPCTMax()
 {
     return pctMax;
 }
-
 int         Configuration::getDefaultIndexSize()
 {
     return indexSize;
 }
-
-#ifdef RMANDEBUG
-int         Configuration::getDebugLevel()
-{
-    return dbgLevel;
-}
-#endif
-
 const char* Configuration::getDefaultTileConfig()
 {
     return tileConf;
@@ -599,103 +503,101 @@ long        Configuration::getCacheLimit()
     return cacheLimit;
 }
 
+bool        Configuration::isLockMgrOn()
+{
+    return lockmgrOn;
+}
+
 const char* Configuration::getNewServerId()
 {
     return newServerId;
 }
+bool        Configuration::isRasserver()
+{
+    return !usesRasdl() && !hasQueryString();
+}
 
+#ifdef RMANDEBUG
+int         Configuration::getDebugLevel()
+{
+    return dbgLevel;
+}
+#endif
+
+// -------------------------------------------------------------------------
 // -- directql section start
+// -------------------------------------------------------------------------
+
 const char* Configuration::getQueryString()
 {
     return queryString;
 }
-
 const char* Configuration::getUser()
 {
     return user;
 }
-
 const char* Configuration::getPasswd()
 {
     return passwd;
 }
-
 const char* Configuration::getOutFileMask()
 {
     return outFileMask;
 }
-
 const r_Minterval& Configuration::getMddDomain()
 {
     return mddDomain;
 }
-
 const char* Configuration::getMddTypeName()
 {
     return mddTypeName;
 }
-
 const char* Configuration::getFileName()
 {
     return fileName;
 }
-
 bool        Configuration::isMddDomainDef()
 {
     return mddDomainDef;
 }
-
 bool        Configuration::isMddTypeNameDef()
 {
     return mddTypeNameDef;
 }
-
 bool        Configuration::isQuietLogOn()
 {
     return quietLog;
 }
-
 bool        Configuration::hasQueryString()
 {
     return queryStringOn;
 }
-
 OUTPUT_TYPE Configuration::getOutputType()
 {
     return outputType;
 }
-
 bool        Configuration::isOutputOn()
 {
     return output;
 }
-
 void        Configuration::setMddTypeName(const char* mddtn)
 {
     this->mddTypeName = mddtn;
 }
-
 const char *Configuration::getBaseName() const
 {
     return baseName;
 }
-// -- directql section end
 
+// -------------------------------------------------------------------------
 // -- rasdl section start
+// -------------------------------------------------------------------------
 
 bool        Configuration::usesRasdl()
 {
-    return rasdlOn;
+    return progMode != M_INVALID;
 }
-
 ProgModes   Configuration::getProgMode()
 {
     return progMode;
-}
-
-// -- rasdl section end
-
-bool        Configuration::isRasserver()
-{
-    return !usesRasdl() && !hasQueryString();
 }

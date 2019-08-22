@@ -189,7 +189,7 @@ CMakeLists.txt.user
 java/src/rasj/RasImplementation.java
 applications/petascope/lib/rasj.jar
 applications/wcst_import/wcst_import.sh
-
+*.autosave
 .clang_complete
 *.trs
 

@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "sqlitewrapper.hh"
 #include "objectbroker.hh"
 #include "relblobif/blobfs.hh"
+#include "common/util/scopeguard.hh"
 #include <logging.hh>
 
 #include <sqlite3.h>
@@ -95,8 +96,8 @@ AdminIf::AdminIf(bool createDb)
     SQLiteQuery::openConnection(globalConnectId);
 
     // cleanup: close DB connection automatically on function exit via RAII
-    std::unique_ptr<SQLiteQuery, void(*)(SQLiteQuery*)> closeConnection(
-        nullptr, [](SQLiteQuery*) { SQLiteQuery::closeConnection(); });
+    const auto closeConnection = common::make_scope_guard(
+                []() noexcept { SQLiteQuery::closeConnection(); });
 
     ObjectBroker::init();
 

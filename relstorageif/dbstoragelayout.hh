@@ -21,13 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/****************************************************************************
- *
- *
- * COMMENTS:
- *
- ****************************************************************************/
-
 #ifndef _DBSTORAGELAYOUT_HH_
 #define _DBSTORAGELAYOUT_HH_
 
@@ -42,106 +35,72 @@ template <class T>
 class DBRef;
 using DBStorageLayoutId = DBRef<DBStorageLayout>;
 
-//@ManMemo: Module: {\bf relstorageif}
-/*@Doc:
-    Each instance of the {\tt DBStorageLayout} class describes a physical
-    storage layout for an MDD object or collection.
-    Every storage parameter which is not defined using the proper set* methods
-   will result in a default value to be
-   returned.  the supports* methods will tell if the value is a default value
-   defined at instantiation time through the
-   static storagemgr/StorageLayout attributes or an explicitly defined value.
-    For information on the meaning of these attributes refere to
-   storagemgr/storagelayout
+//@ManMemo: Module: relstorageif
+/**
+    Describes a physical storage layout for an MDD object or collection. Every
+    storage parameter which is not defined using the proper set* methods will
+    result in a default value to be returned. The supports* methods will tell
+    if the value is a default value defined at instantiation time through the
+    static storagemgr/StorageLayout attributes or an explicitly defined value.
+    For information on the meaning of these attributes refer to
+    storagemgr/storagelayout.
 */
 /**
   * \defgroup Relstorageifs Relstorageif Classes
-  */
-
-/**
   * \ingroup Relstorageifs
   */
-
 class DBStorageLayout : public DBObject
 {
 public:
     //@Man: Creation
     //@{
-
     /// Construct object that uses system defaults.
     DBStorageLayout();
-
     //@}
-
-    void printStatus(unsigned int level, std::ostream &stream) const override;
+    
+    //@Man: Destruction
+    //@{
+    ~DBStorageLayout() noexcept(false) override;
+    //@}
 
     //@Man: check operations
     //@{
     bool supportsTileSize() const;
-
     bool supportsPCTMin() const;
-
     bool supportsPCTMax() const;
-
     bool supportsIndexSize() const;
-
     bool supportsIndexType() const;
-
     bool supportsTilingScheme() const;
-
     // is checked by OId::INVALID on tilingConfiguration
     bool supportsTileConfiguration() const;
-
     bool supportsDataFormat() const;
     //@}
 
     //@Man: Get operations
     //@{
-
     r_Bytes getPCTMin() const;
-
     r_Bytes getPCTMax() const;
-
     unsigned int getIndexSize() const;
-
     r_Index_Type getIndexType() const;
-
     r_Tiling_Scheme getTilingScheme() const;
-
     r_Bytes getTileSize() const;
-
     r_Minterval getTileConfiguration() const;
-
     r_Data_Format getDataFormat() const;
-
     //@}
 
     //@Man: Set operations
     //@{
-
     void setPCTMin(r_Bytes bytes);
-
     void setPCTMax(r_Bytes bytes);
-
     void setIndexSize(unsigned int entries);
-
     void setIndexType(r_Index_Type it);
-
     void setTilingScheme(r_Tiling_Scheme ts);
-
     void setTileSize(r_Bytes ts);
-
     void setTileConfiguration(const r_Minterval &tc);
-
     void setDataFormat(r_Data_Format df);
-
     //@}
-
-    //@Man: Destruction
-    //@{
-    ///
-    ~DBStorageLayout() noexcept(false) override;
-    //@}
+    
+    void printStatus(unsigned int level, std::ostream &stream) const override;
 
 protected:
     DBStorageLayout(const OId &id);
@@ -150,15 +109,10 @@ protected:
 
     //@Man: Operations
     //@{
-
     void readFromDb() override;
-
     void insertInDb() override;
-
     void deleteFromDb() override;
-
     void updateInDb() override;
-
     //@}
 
 private:
@@ -172,7 +126,7 @@ private:
     //@{
     /// Which type of index should be used
     r_Index_Type indexType;
-
+    /// Default index node size
     unsigned int indexSize;
     //@}
 
@@ -180,17 +134,17 @@ private:
     //@{
     /// How the object should be tiled
     r_Tiling_Scheme tilingScheme;
-
     /// Tile size in bytes.
     r_Bytes tileSize;
-
-    /// Default configuration of the tiles.
-    DBMintervalId tileConfiguration;
-    /**
-        Describe the shape of the tiles. For instance, [2:4,0:1,0:2].
-        The tiling will start at the point [2,0,0].
-        Tiles will be appended from there according to the tileConfig.
-    */
+    
+    /** 
+     * Default configuration of the tiles.
+     * 
+     * Describe the shape of the tiles. For instance, [2:4,0:1,0:2]. The tiling
+     * will start at the point [2,0,0]. Tiles will be appended from there
+     * according to the tileConfig.
+     */
+    DBMintervalId tileConfiguration{new DBMinterval()};
     //@}
 
     //@Man: DataFormat
@@ -200,25 +154,17 @@ private:
     //@}
 
     r_Bytes pctMin;
-
     r_Bytes pctMax;
-
     //@}
-    bool _supportsTileSize;
-
-    bool _supportsPCTMin;
-
-    bool _supportsPCTMax;
-
-    bool _supportsIndexSize;
-
-    bool _supportsIndexType;
-
-    bool _supportsTiling;
-
-    bool _supportsTileConfiguration;
-
-    bool _supportsDataFormat;
+    
+    bool _supportsTileSize{false};
+    bool _supportsPCTMin{false};
+    bool _supportsPCTMax{false};
+    bool _supportsIndexSize{false};
+    bool _supportsIndexType{false};
+    bool _supportsTiling{false};
+    bool _supportsTileConfiguration{false};
+    bool _supportsDataFormat{false};
 };
 
 #endif

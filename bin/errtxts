@@ -63,6 +63,7 @@
 242^E^Exception: Invalid format parameter.
 243^E^Exception: The type to be dropped is currently in use by another stored object. Please delete any existing references to this type and try again.
 244^E^Exception: User-defined structures built from user-defined structures do not comprise a presently-supported data storage format.
+245^E^Exception: Another client is already connected to this server, cannot serve any new clients.
 #
 300^E^Parsing error $errorNo in line $lineNo, column $columnNo: Unexpected name $token.
 301^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: All cell values of an MDD must be of the same type. 

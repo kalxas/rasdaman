@@ -54,7 +54,7 @@ public:
     void startRasnetServer();
 
 private:
-    bool isRunning;
+    bool isRunning{false};
     Configuration configuration;
 
     std::unique_ptr<grpc::Server> server;

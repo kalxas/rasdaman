@@ -34,29 +34,28 @@ rasdaman GmbH.
 #include "relcatalogif/dbnullvalues.hh"
 #include <iosfwd>
 
-//@ManMemo: Module: {\bf relmddif}
-/*@Doc:
-A {\tt DBMDDObj} object links all neccessary persistent data for an MDD
-object.  One DBMDDObj can be inserted in multiple MDD Collections.  It will
-only be deleted from the database when there are no more references in MDD
-Collections.  This is done through persistent reference counting.
-
-The DBMDDObj stores the following data:
--MDDBaseType: type information on the data that is stored in it.
--Definition domain: the spatial domain this object may extend to.  This
- domain may have open boundaries.
--Index: a refernce to the index which holds the actual data.
--Storagelayout: has asorted methods for modifying how the data is stored in the database.
-The definition domain is stored in an extensible but inefficient way.
-*/
+//@ManMemo: Module: relmddif
+/**
+ * A DBMDDObj object links all neccessary persistent data for an MDD object.
+ * One DBMDDObj can be inserted in multiple MDD Collections. It will only be
+ * deleted from the database when there are no more references in MDD
+ * collections. This is done through persistent reference counting.
+ *
+ * The DBMDDObj stores the following data:
+ * 
+ * - MDDBaseType: type information on the data that is stored in it.
+ * - Definition domain: the spatial domain this object may extend to.  This
+ *   domain may have open boundaries.
+ * - Index: a refernce to the index which holds the actual data.
+ * - Storagelayout: has asorted methods for modifying how the data is stored in 
+ *   the database.
+ * 
+ * The definition domain is stored in an extensible but inefficient way.
+ */
 /**
   * \defgroup Relmddifs Relmddif Classes
-  */
-
-/**
   * \ingroup Relmddifs
   */
-
 class DBMDDObj : public DBObject
 {
 public:

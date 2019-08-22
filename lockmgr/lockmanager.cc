@@ -36,7 +36,7 @@ rasdaman GmbH.
 #include "reladminif/adminif.hh"
 #include "reladminif/databaseif.hh"
 #include "raslib/error.hh"
-#include "server/rasserver_config.hh"
+//#include "server/rasserver_config.hh"
 #include "tilemgr/tile.hh"
 #include <stdlib.h>
 #include "raslib/rmdebug.hh"
@@ -118,27 +118,27 @@ LockManager *LockManager::Instance()
  */
 void LockManager::connect()
 {
-    const char *dbConnectionId;
-    const char *dbUser;
-    const char *dbPassword;
-    if (configuration.getDbConnectionID() != NULL)
-    {
-        dbConnectionId = configuration.getDbConnectionID();
-        dbUser = configuration.getDbUser();
-        dbPassword = configuration.getDbPasswd();
-    }
-    else
-    {
-        dbConnectionId = static_cast<const char *>("RASBASE:5432");
-        dbUser = NULL;
-        dbPassword = NULL;
-    }
-    bool connect_ok = ecpg_LockManager->connect(dbConnectionId, connectionName, dbUser, dbPassword);
-    if (!connect_ok)
-    {
-        LERROR << "Error: Lock manager -- Database is not connected.";
-        throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
-    }
+//    const char *dbConnectionId;
+//    const char *dbUser;
+//    const char *dbPassword;
+//    if (configuration.getDbConnectionID() != NULL)
+//    {
+//        dbConnectionId = configuration.getDbConnectionID();
+//        dbUser = configuration.getDbUser();
+//        dbPassword = configuration.getDbPasswd();
+//    }
+//    else
+//    {
+//        dbConnectionId = static_cast<const char *>("RASBASE:5432");
+//        dbUser = NULL;
+//        dbPassword = NULL;
+//    }
+//    bool connect_ok = ecpg_LockManager->connect(dbConnectionId, connectionName, dbUser, dbPassword);
+//    if (!connect_ok)
+//    {
+//        LERROR << "Error: Lock manager -- Database is not connected.";
+//        throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
+//    }
 }
 
 /**
@@ -298,44 +298,44 @@ void LockManager::clearLockTableInternal(const char *pRasServerId)
  */
 void LockManager::generateServerId(char *pResultRasServerId)
 {
-    char *serverName;
-    int port;
-    char *rasmgrHost;
-    int rasmgrPort;
-    if (configuration.getServerName() != NULL)
-    {
-        serverName = const_cast<char *>(configuration.getServerName());
-        port = configuration.getListenPort();
-    }
-    else
-    {
-        serverName = const_cast<char *>("defaultServer");
-        port = 0;
-    }
-    if (configuration.getRasmgrHost() != NULL)
-    {
-        rasmgrHost = const_cast<char *>(configuration.getRasmgrHost());
-        rasmgrPort = configuration.getRasmgrPort();
-    }
-    else
-    {
-        rasmgrHost = const_cast<char *>("defaultRasmgrHost");
-        rasmgrPort = 0;
-    }
-    int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
-    if ((return_code >= 0) && (return_code < 255))
-    {
-        LDEBUG << "Lock manager, generateServerId: id = " << pResultRasServerId;
-    }
-    else if (return_code >= 255)
-    {
-        LDEBUG << "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated.";
-    }
-    else
-    {
-        LERROR << "Error: Lock manager, generateServerId -- concatenation of id components failed.";
-        throw r_Error(r_Error::r_Error_General);
-    }
+//    char *serverName;
+//    int port;
+//    char *rasmgrHost;
+//    int rasmgrPort;
+//    if (configuration.getServerName() != NULL)
+//    {
+//        serverName = const_cast<char *>(configuration.getServerName());
+//        port = configuration.getListenPort();
+//    }
+//    else
+//    {
+//        serverName = const_cast<char *>("defaultServer");
+//        port = 0;
+//    }
+//    if (configuration.getRasmgrHost() != NULL)
+//    {
+//        rasmgrHost = const_cast<char *>(configuration.getRasmgrHost());
+//        rasmgrPort = configuration.getRasmgrPort();
+//    }
+//    else
+//    {
+//        rasmgrHost = const_cast<char *>("defaultRasmgrHost");
+//        rasmgrPort = 0;
+//    }
+//    int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
+//    if ((return_code >= 0) && (return_code < 255))
+//    {
+//        LDEBUG << "Lock manager, generateServerId: id = " << pResultRasServerId;
+//    }
+//    else if (return_code >= 255)
+//    {
+//        LDEBUG << "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated.";
+//    }
+//    else
+//    {
+//        LERROR << "Error: Lock manager, generateServerId -- concatenation of id components failed.";
+//        throw r_Error(r_Error::r_Error_General);
+//    }
 }
 
 /**

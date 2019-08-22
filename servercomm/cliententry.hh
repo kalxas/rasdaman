@@ -71,28 +71,8 @@ public:
     /// Name of the actual database (if one is open)
     char *baseName{NULL};
 
-#ifdef RASDEBUG
-    /// time when the database was opened (for debugging purposes)
-    unsigned long creationTime{0};
-#endif
-
-    /// convert raw array data to this data format before transfer
-    r_Data_Format transferFormat{r_Array};
     char *transferFormatParams{0};
-    /// send data to client in the exact transfer format
-    int exactFormat{1};
-    /// store array data in this data format in the database
-    r_Data_Format storageFormat{r_Array};
     char *storageFormatParams{0};
-
-    /// the tile data converted into the transfer format, if required
-    void *encodedData{0};
-    unsigned long encodedSize{0};
-    /// for establishing the compression ratio
-    unsigned long totalRawSize{0};
-    unsigned long totalTransferedSize{0};
-    /// if true, feedback will be printed with info level in endTransfer
-    bool reportTransferedSize{false};
 
     /// pointer to a collection of MDD constants with an update query
     MDDColl *transferColl{0};
@@ -120,9 +100,6 @@ public:
     /// They do not belong to any MDD object, and, therefore, they have to be deleted explicitly.
     std::vector<Tile *> *deletableTiles{0};
 
-    /// bytes remaining to transfer from tile if it is larger than {\tt maxTransferBufferSize}). used in getNextTile
-    unsigned long bytesToTransfer{0};
-
     /// std::vector of persistent collections in use during query evaluation, in particular in QtMDDAccess
     std::vector<MDDColl *> *persColls{0};
 
@@ -143,6 +120,29 @@ public:
 
     /// parameter object
     r_Parse_Params *clientParams{0};
+    
+    /// the tile data converted into the transfer format, if required
+    void *encodedData{0};
+    unsigned long encodedSize{0};
+    /// bytes remaining to transfer from tile if it is larger than {\tt maxTransferBufferSize}). used in getNextTile
+    unsigned long bytesToTransfer{0};
+    /// for establishing the compression ratio
+    unsigned long totalRawSize{0};
+    unsigned long totalTransferedSize{0};
+    
+#ifdef RASDEBUG
+    /// time when the database was opened (for debugging purposes)
+    unsigned long creationTime{0};
+#endif
+    
+    /// send data to client in the exact transfer format
+    int exactFormat{1};
+    /// convert raw array data to this data format before transfer
+    r_Data_Format transferFormat{r_Array};
+    /// store array data in this data format in the database
+    r_Data_Format storageFormat{r_Array};
+    /// if true, feedback will be printed with info level in endTransfer
+    bool reportTransferedSize{false};
 
 };
 

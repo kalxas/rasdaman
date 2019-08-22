@@ -113,6 +113,7 @@ public:
 
     virtual const char *getValueAsString() = 0;
     virtual long        getValueAsLong() = 0;
+    virtual int         getValueAsInt() = 0;
     virtual double      getValueAsDouble() = 0;
 
     virtual ostream &printStatus(ostream & = cout) = 0;
@@ -152,6 +153,7 @@ public:
 
     const char *getValueAsString();
     long        getValueAsLong();
+    int         getValueAsInt();
     double      getValueAsDouble();
 
     ostream &printStatus(ostream & = cout);
@@ -177,6 +179,7 @@ public:
 
     const char *getValueAsString();
     long        getValueAsLong();
+    int         getValueAsInt();
     double      getValueAsDouble();
 
     void reset();

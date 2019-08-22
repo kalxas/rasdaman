@@ -35,20 +35,17 @@ class MDDSet;
 class OId;
 class EOId;
 
-//@ManMemo: Module: {\bf mddif}
-/*@Doc:
-  MDDSet is the persistent class for collections of MDD objects.
-
-  Each instance of MDDSet represents a collection stored in the base
-  DBMS.
-
-  This class should only be used by DBMDDColl.
+//@ManMemo: Module: relmddif
+/**
+ * MDDSet is the persistent class for collections of MDD objects.
+ *
+ * Each instance of MDDSet represents a collection stored in the base DBMS.
+ *
+ * This class should only be used by DBMDDColl.
 */
-
 /**
   * \ingroup Relmddifs
   */
-
 class DBMDDSet : public DBNamedObject
 {
 public:

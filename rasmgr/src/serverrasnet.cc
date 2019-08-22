@@ -584,8 +584,7 @@ std::string ServerRasNet::getStartProcessCommand()
     ss << "--mgr" << " " << globalConfig->getConnectHostName() << " ";
     ss << "--rsn" << " " << this->getServerId() << " ";
     ss << "--mgrport" << " " << lexical_cast<string>(globalConfig->getRasMgrPort()) << " ";
-    ss << "--connect" << " " << this->dbHost->getConnectString() << " ";
-    ss << "--rasnet";
+    ss << "--connect" << " " << this->dbHost->getConnectString();
     return ss.str();
 }
 

@@ -24,7 +24,6 @@ rasdaman GmbH.
 #define RASSERVER_CONFIG_HH
 
 
-#include "commline/cmlparser.hh"
 #include "raslib/minterval.hh"
 
 // -- directql
@@ -46,6 +45,7 @@ enum ProgModes
     M_DELDATABASE
 };
 
+class CommandLineParameter;
 
 /**
   * \ingroup Servers
@@ -54,15 +54,14 @@ class Configuration
 {
 public:
 
-    Configuration();
+    Configuration() = default;
 
     bool parseCommandLine(int argc, char** argv);
-
+    
+    // -- rasserver
     const char* getServerName();
     int         getListenPort();
-    bool        isHttpServer();
-    bool        isRnpServer();
-    bool        isRasnetServer();
+    bool        isRasserver();
 
     const char* getRasmgrHost();
     int         getRasmgrPort();
@@ -74,26 +73,22 @@ public:
     const char* getDbUser();
     const char* getDbPasswd();
 
-    bool        isLockMgrOn();
-
     int         getDefaultTileSize();
     int         getDefaultPCTMin();
     int         getDefaultPCTMax();
-
     int         getDefaultIndexSize();
-
-#ifdef RMANDEBUG
-    int         getDebugLevel();
-#endif
-
     const char* getDefaultTileConfig();
     const char* getTilingScheme();
     const char* getIndexType();
     bool        useTileContainer();
-
+    
+    bool        isLockMgrOn();
     long        getCacheLimit();
-
     const char* getNewServerId();
+
+#ifdef RMANDEBUG
+    int         getDebugLevel();
+#endif
 
     // -- directql
     const char* getQueryString();
@@ -116,9 +111,6 @@ public:
     bool        usesRasdl();
     ProgModes   getProgMode();
 
-    // return true if a rasserver is started, and not rasdl or directql
-    bool        isRasserver();
-
      const char *getBaseName() const;
 
 private:
@@ -132,129 +124,108 @@ private:
     const char* makeLogFileName(const char* srvName, const char* desExt);
 
     // Parameters
-    CommandLineParameter* cmlHelp;
-    CommandLineParameter* cmlRsn;
-    CommandLineParameter* cmlPort;
-    CommandLineParameter* cmlMgr;
-    CommandLineParameter* cmlMgrPort;
-    CommandLineParameter* cmlMgrSync;
+    CommandLineParameter* cmlHelp{};
+    CommandLineParameter* cmlRsn{};
+    CommandLineParameter* cmlPort{};
+    CommandLineParameter* cmlMgr{};
+    CommandLineParameter* cmlMgrPort{};
 
-    CommandLineParameter* cmlTransBuffer;
-    CommandLineParameter* cmlTimeOut;
-    CommandLineParameter* cmlMgmntInt;
-    CommandLineParameter* cmlHttp;
-    CommandLineParameter* cmlRnp;
-    CommandLineParameter* cmlRasnet;
+    CommandLineParameter* cmlTransBuffer{};
+    CommandLineParameter* cmlTimeOut{};
+    CommandLineParameter* cmlLockMgrOn{};
 
-    CommandLineParameter* cmlLockMgrOn;
+    CommandLineParameter* cmlOptLevel{};
+    CommandLineParameter* cmlConnectStr{};
+    CommandLineParameter* cmlUserStr{};
+    CommandLineParameter* cmlPasswdStr{};
+    CommandLineParameter* cmlLog{};
 
-    CommandLineParameter* cmlOptLevel;
-    CommandLineParameter* cmlConnectStr;
-    CommandLineParameter* cmlUserStr;
-    CommandLineParameter* cmlPasswdStr;
-    CommandLineParameter* cmlLog;
-
-    CommandLineParameter* cmlTileSize;
-    CommandLineParameter* cmlPctMin;
-    CommandLineParameter* cmlPctMax;
-    CommandLineParameter* cmlUseTC;
-    CommandLineParameter* cmlTileConf;
-    CommandLineParameter* cmlTiling;
-    CommandLineParameter* cmlIndex;
-    CommandLineParameter* cmlIndexSize;
-
-    CommandLineParameter* cmlCacheLimit;
-
-    // Server id parameter required by rasnet
-    CommandLineParameter* cmlNewServerId;
+    CommandLineParameter* cmlTileSize{};
+    CommandLineParameter* cmlPctMin{};
+    CommandLineParameter* cmlPctMax{};
+    CommandLineParameter* cmlUseTC{};
+    CommandLineParameter* cmlTileConf{};
+    CommandLineParameter* cmlTiling{};
+    CommandLineParameter* cmlIndex{};
+    CommandLineParameter* cmlIndexSize{};
+    CommandLineParameter* cmlCacheLimit{};
+    CommandLineParameter* cmlNewServerId{}; // required by rasnet
 
     // directql parameters
-    CommandLineParameter* cmlQuery;
-    CommandLineParameter* cmlFile;
+    CommandLineParameter* cmlQuery{};
+    CommandLineParameter* cmlFile{};
 
-    CommandLineParameter* cmlContent;
-    CommandLineParameter* cmlOut;
-    CommandLineParameter* cmlOutfile;
-    CommandLineParameter* cmlMddDomain;
-    CommandLineParameter* cmlMddType;
-    CommandLineParameter* cmlType;
+    CommandLineParameter* cmlContent{};
+    CommandLineParameter* cmlOut{};
+    CommandLineParameter* cmlOutfile{};
+    CommandLineParameter* cmlMddDomain{};
+    CommandLineParameter* cmlMddType{};
+    CommandLineParameter* cmlType{};
 
-    CommandLineParameter* cmlDatabase;
-    CommandLineParameter* cmlUser;
-    CommandLineParameter* cmlPasswd;
-    CommandLineParameter* cmlQuiet;
+    CommandLineParameter* cmlDatabase{};
+    CommandLineParameter* cmlUser{};
+    CommandLineParameter* cmlPasswd{};
+    CommandLineParameter* cmlQuiet{};
 
     // rasdl parameters
-    CommandLineParameter* cmlCreateDb;
-    CommandLineParameter* cmlDelDb;
-
+    CommandLineParameter* cmlCreateDb{};
+    CommandLineParameter* cmlDelDb{};
 
 #ifdef RMANDEBUG
-    CommandLineParameter* cmlDbg;
-    CommandLineParameter* cmlDbgLevel;
+    CommandLineParameter* cmlDbg{};
+    CommandLineParameter* cmlDbgLevel{};
 #endif
-    const char* myExecutable;
-
-    const char* serverName;
-    int         listenPort;
-
-    const char* rasmgrHost;
-    int         rasmgrPort;
-
-    bool        logToStdOut;
-    const char* logFileName; // == 0 if stdout
-
-    int         maxTransferBufferSize;
-    int         timeout;
-    bool        httpServ;
-    bool        rnpServ;
-    bool        rasnetServ;
-    const char* dbConnection;
-    const char* dbUser;
-    const char* dbPasswd;
-
-    bool        lockmgrOn;
-
-    int         tileSize;
-    int         pctMin;
-    int         pctMax;
-    bool        useTC;
-    const char* tileConf;
-    const char* tilingName;
-    const char* indexType;
-    int         indexSize;
-
-    long        cacheLimit;
-
-    // server id, required by rasnet
-    const char* newServerId;
-
+    const char* myExecutable{};
+    
+    const char* newServerId{}; // required by rasnet
+    const char* serverName{};
+    const char* rasmgrHost{};
+    
+    const char* dbConnection{};
+    const char* dbUser{};
+    const char* dbPasswd{};
+    
+    const char* logFileName{}; // == 0 if stdout
+    const char* tileConf{};
+    const char* tilingName{};
+    const char* indexType{};
+    
+    long        cacheLimit{};
+    
+    int         rasmgrPort{};
+    int         listenPort{};
+    int         tileSize{};
+    int         pctMin{};
+    int         pctMax{};
+    int         indexSize{};
+    int         maxTransferBufferSize{};
+    int         timeout{};
+#ifdef RMANDEBUG
+    int         dbgLevel{};
+#endif
+    
     // directql
-    const char* queryString{NULL};
-    const char* fileName{NULL};
-    const char* baseName{NULL};
-    const char* user{NULL};
-    const char* passwd{NULL};
+    const char* queryString{};
+    const char* fileName{};
+    const char* baseName{};
+    const char* user{};
+    const char* passwd{};
+    const char* outFileMask{};
+    const char* mddTypeName{};
+    r_Minterval mddDomain;
+    
+    OUTPUT_TYPE outputType{OUT_NONE};
+    ProgModes   progMode{M_INVALID};
+    
     bool        output{false};
     bool        displayType{false};
-
-    OUTPUT_TYPE outputType;
-    const char* outFileMask{NULL};
-    r_Minterval mddDomain;
-    const char* mddTypeName{NULL};
     bool        quietLog{false};
     bool        mddDomainDef{false};
     bool        mddTypeNameDef{false};
     bool        queryStringOn{false};
-
-    // rasdl
-    ProgModes   progMode{M_INVALID};
-    bool        rasdlOn{false};
-
-
-#ifdef RMANDEBUG
-    int         dbgLevel;
-#endif
+    bool        useTC{false};
+    bool        logToStdOut{true};
+    bool        lockmgrOn{false};
 };
 
 extern Configuration configuration;

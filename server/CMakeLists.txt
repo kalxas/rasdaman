@@ -26,9 +26,10 @@ add_executable(rasserver createinitmdd.hh createinitmdd.cc
         rasserver_config.hh rasserver_config.cc
         rasserver_entry.hh rasserver_entry.cc
         rasserver_main.cc template_inst.hh
-        rasserver_error.hh rasserver_error.cc
         rasserver_rasdl.hh rasserver_rasdl.cc
+        rasserver_directql.cc rasserver_directql.hh
         ../mymalloc/mymalloc.h ../mymalloc/mymalloc_svc.cc
+        ../applications/rasql/rasql_error.cc
 )
 
 target_include_directories(rasserver PUBLIC "${CMAKE_SOURCE_DIR}/debug" ${OPENSSL_INCLUDE_DIR})

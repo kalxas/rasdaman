@@ -49,7 +49,7 @@ grpc::Status RasnetServerComm::OpenServerDatabase(__attribute__((unused)) grpc::
     try
     {
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_openDB(request->database_name().c_str());
+        rasServerEntry.openDB(request->database_name().c_str());
     }
     catch (r_Ebase_dbms &edb)
     {
@@ -84,7 +84,7 @@ grpc::Status RasnetServerComm::CloseServerDatabase(__attribute__((unused)) grpc:
     try
     {
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_closeDB();
+        rasServerEntry.closeDB();
     }
     catch (r_Ebase_dbms &edb)
     {
@@ -133,7 +133,7 @@ grpc::Status RasnetServerComm::BeginTransaction(__attribute__((unused)) grpc::Se
     try
     {
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_beginTA(request->rw());
+        rasServerEntry.beginTA(request->rw());
     }
     catch (r_Ebase_dbms &edb)
     {
@@ -168,7 +168,7 @@ grpc::Status RasnetServerComm::CommitTransaction(__attribute__((unused)) grpc::S
     try
     {
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_commitTA();
+        rasServerEntry.commitTA();
     }
     catch (r_Ebase_dbms &edb)
     {
@@ -203,7 +203,7 @@ grpc::Status RasnetServerComm::AbortTransaction(__attribute__((unused)) grpc::Se
     try
     {
         RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_abortTA();
+        rasServerEntry.abortTA();
     }
     catch (r_Ebase_dbms &edb)
     {
@@ -238,7 +238,7 @@ grpc::Status RasnetServerComm::IsTransactionOpen(__attribute__((unused)) grpc::S
     try
     {
         RasServerEntry &rasserver = RasServerEntry::getInstance();
-        bool isOpen = rasserver.compat_isOpenTA();
+        bool isOpen = rasserver.isOpenTA();
         response->set_isopen(isOpen);
     }
     catch (r_Ebase_dbms &edb)
@@ -1010,7 +1010,7 @@ grpc::Status RasnetServerComm::BeginStreamedHttpQuery(__attribute__((unused)) gr
         char *resultBuffer = 0;
         long resultLen = rasserver.compat_executeQueryHttp(request->data().c_str(), request->data().length(), resultBuffer);
 
-        string requestUUID = UUID::generateUUID();
+        auto requestUUID = UUID::generateUUID();
 
         boost::shared_ptr<ClientQueryStreamedResult> result(new ClientQueryStreamedResult(
                     resultBuffer, static_cast<uint64_t>(resultLen), request->client_uuid()));

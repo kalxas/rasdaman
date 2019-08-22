@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include <vector>
 #include <iomanip>
 #include <cstdlib>
+#include <limits>
 
 using namespace std;
 
@@ -438,6 +439,11 @@ long FlagParameter::getValueAsLong()
     throw CmlException("Flag parameter can't return a 'long' value");
 }
 
+int FlagParameter::getValueAsInt()
+{
+    throw CmlException("Flag parameter can't return an 'int' value");
+}
+
 double FlagParameter::getValueAsDouble()
 {
     throw CmlException("Flag parameter can't return a 'double' value");
@@ -560,6 +566,15 @@ long   StringParameter::getValueAsLong()
     }
 
     return result;
+}
+
+int   StringParameter::getValueAsInt()
+{
+    auto longRes = getValueAsLong();
+    if (longRes <= std::numeric_limits<int>::max() && longRes >= std::numeric_limits<int>::lowest())
+        return static_cast<int>(longRes);
+    else
+        throw CmlException("Invalid integer value " + std::to_string(longRes) + " for parameter '" + calledName() + "'");
 }
 
 double StringParameter::getValueAsDouble()

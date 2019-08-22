@@ -113,7 +113,6 @@ const int ServerComm::ENDIAN_LITTLE = 1;
 
 ServerComm *ServerComm::serverCommInstance = 0;
 ClientTblElt *ServerComm::clientTbl = 0;
-unsigned long ServerComm::clientCount = 0;
 
 // --------------------------------------------------------------------------------
 //                          global variables
@@ -193,10 +192,7 @@ std::stringstream requestStream;
 
 // -----------------------------------------------------------------------------------------
 
-ServerComm::ServerComm(): ServerComm(0, NULL, 0, NULL) {}
-
-ServerComm::ServerComm(unsigned long newListenPort, char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
-    : listenPort{newListenPort}, rasmgrHost{newRasmgrHost}, rasmgrPort{newRasmgrPort}, serverName{newServerName}
+ServerComm::ServerComm()
 {
     assert(!serverCommInstance);
     serverCommInstance = this;
@@ -204,11 +200,8 @@ ServerComm::ServerComm(unsigned long newListenPort, char *newRasmgrHost, unsigne
 
 ServerComm::~ServerComm()
 {
-    if (serverCommInstance)
-    {
-        serverCommInstance = NULL;
-        delete admin, admin = NULL;
-    }
+    serverCommInstance = NULL;
+    delete admin, admin = NULL;
 }
 
 // quick hack function used when stopping server to abort transaction and close db
@@ -226,13 +219,9 @@ ClientTblElt *
 ServerComm::getClientContext(unsigned long clientId)
 {
     if (clientTbl && clientId == clientTbl->clientId)
-    {
         return clientTbl;
-    }
     else
-    {
         return NULL;
-    }
 }
 
 void
@@ -344,7 +333,6 @@ ServerComm::printServerStatus()
            << "\nServer state information at " << ctime(&currentTime)
            << "\n  Transaction active.............: " << (transactionActive ? "yes" : "no")
            << "\n  Max. transfer buffer size......: " << maxTransferBufferSize << " bytes"
-           << "\n  Next available client id.......: " << clientCount + 1
            << ct.str()
            << "\n-----------------------------------------------------------------------------";
 #else
@@ -770,13 +758,9 @@ ServerComm::executeQuery(unsigned long callingClientId,
 #endif
                 BLINFO << "evaluating... ";
                 if (!insert)
-                {
                     context->transferData = qtree->evaluateRetrieval();
-                }
                 else
-                {
                     context->transferData = qtree->evaluateUpdate();
-                }
             }
             catch (ParseInfo &info)
             {
@@ -789,7 +773,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 RELEASE_ALL_DATA
                 throw;
             }
-            catch (std::bad_alloc &ex)
+            catch (std::bad_alloc &)
             {
                 BLERROR << "Error: memory allocation failed.\n";
                 RELEASE_ALL_DATA
@@ -2810,7 +2794,7 @@ ServerComm::setTransferMode(unsigned long callingClientId,
 
 unsigned short
 ServerComm::setStorageMode(unsigned long callingClientId,
-                           __attribute__((unused)) unsigned short format,
+                           unsigned short format,
                            const char *formatParams)
 {
     DBGREQUEST("'set storage mode', format = " << format << ", params = " << formatParams);
@@ -2857,6 +2841,13 @@ ServerComm::ensureTileFormat(__attribute__((unused)) r_Data_Format &hasFmt,
     return status;
 }
 
+void ServerComm::setAdmin(AdminIf *newAdmin)
+{
+    if (admin)
+        delete admin;
+    admin = newAdmin;
+}
+
 void ServerComm::resetExecuteQueryRes(ExecuteQueryRes &res)
 {
     res.typeStructure = NULL;
@@ -2880,16 +2871,10 @@ void ServerComm::resetExecuteUpdateRes(ExecuteUpdateRes &res)
 void ServerComm::cleanExecuteQueryRes(ExecuteQueryRes &res)
 {
     if (res.typeStructure)
-    {
         free(res.typeStructure);
-    }
     if (res.token)
-    {
         free(res.token);
-    }
     if (res.typeName)
-    {
         free(res.typeName);
-    }
     resetExecuteQueryRes(res);
 }

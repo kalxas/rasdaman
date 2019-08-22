@@ -50,12 +50,19 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(__attribute__ ((unu
     else
     {
         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
-        rasServerEntry.compat_connectNewClient(request->capabilities().c_str());
+        try
+        {
+            rasServerEntry.connectNewClient(request->capabilities().c_str());
+        }
+        catch (r_Error &)
+        {
+            result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "The client is already allocated to this server");
+        }
     }
 
     LDEBUG << "Allocated client " << request->clientid();
 
-    return grpc::Status::OK;
+    return result;
 }
 
 grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(__attribute__ ((unused)) grpc::ServerContext* context, 
@@ -64,7 +71,7 @@ grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(__attribute__ ((u
 {
     this->clientManager->deallocateClient(request->clientid(), request->sessionid());
     RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
-    rasServerEntry.compat_disconnectClient();
+    rasServerEntry.disconnectClient();
 
     return grpc::Status::OK;
 }

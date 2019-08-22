@@ -75,14 +75,17 @@ public:
     /// default constructor
     HttpServer() = default;
 
-    // the acual constructor
-    HttpServer(unsigned long listenPort, char *rasmgrHost, unsigned int rasmgrPort, char *serverName);
-
     /// destructor
     ~HttpServer() override = default;
 
     /// print server status to {\tt s}
     void printServerStatus() override;
+    
+    /// provided for temporary compatibility with the encoding of the java interface
+    /// resultBuffer will be allocated and it's address stored in the given pointer
+    /// result is the length of the result
+    long processRequest(unsigned long callingClientId, 
+                        const char* httpParams, int httpParamsLen, char*& resultBuffer);
 
     /// Executes a retrieval query and prepare the result for HTTP transer.
     virtual long processRequest(unsigned long callingClientId, char *baseName,
@@ -107,12 +110,6 @@ public:
        Question: How to transfer the result?
     */
 
-    /// returns a pointer to the context of the calling client, 0 it there is no context
-    virtual ClientTblElt *getClientContext(unsigned long ClientId);
-    /**
-       Returns a pointer to the context of the calling client. Currently always
-       the same global context is returned.
-    */
 private:
 
     long encodeResult(unsigned short execResult, unsigned long callingClientId,

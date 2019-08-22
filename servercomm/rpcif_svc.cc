@@ -3,7 +3,6 @@
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 #include "config.h"
 #include "raslib/error.hh"
-#include "servercomm/servercomm.hh"
 #include <new>
 char *secureResultBufferForRPC;
 bool bMemFailed = false;

@@ -1,5 +1,3 @@
-// This is -*- C++ -*-
-
 /*
  * This file is part of rasdaman community.
  *

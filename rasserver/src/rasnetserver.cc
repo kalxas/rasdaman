@@ -66,7 +66,7 @@ RasnetServer::RasnetServer(const Configuration& configuration):
 void RasnetServer::startRasnetServer()
 {
     RasServerEntry& rasserver = RasServerEntry::getInstance();
-    rasserver.compat_connectToDBMS();
+    rasserver.connectToRasbase();
     
     std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  boost::uint32_t(configuration.getListenPort()));
     

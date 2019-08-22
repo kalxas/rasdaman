@@ -2,7 +2,7 @@
 
 #include "loggingutils.hh"
 #include "globals.hh"
-#include "rasserver_error.hh"
+#include "applications/rasql/rasql_error.hh"
 #include "rasserver_config.hh"
 #include "raslib/error.hh"
 
@@ -16,12 +16,15 @@ TransactionIf* ta = NULL;
 const char* dbSchema = "";
 const char* dbVolume = "";
 
+namespace rasserver
+{
+namespace rasdl
+{
 
 int runRasdl(int argc, char* argv[])
 {
 
     int result = EXIT_FAILURE;  // program exit code
-
 
     try
     {
@@ -163,3 +166,6 @@ disconnectDB(bool commitTa)
         }
     }
 }
+
+} // rasdl
+} // rasserver

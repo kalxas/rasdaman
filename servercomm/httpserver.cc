@@ -89,9 +89,6 @@ const int ackCodeNotOK = 98;
 //              maximal size of the transfer buffer in bytes
 extern unsigned long maxTransferBufferSize;
 
-// This currently represents the one and only client active at one time.
-static ClientTblElt globalClientContext(ClientType::Http, 1);
-
 const int HttpServer::commOpenDB           = 1;
 const int HttpServer::commCloseDB          = 2;
 const int HttpServer::commBeginTAreadOnly  = 3;
@@ -256,25 +253,15 @@ HttpServer::getMDDs(int binDataSize, char *binData, int endianess)
 HttpServer::MDDEncoding::~MDDEncoding()
 {
     if (objectTypeName != NULL)
-    {
         free(objectTypeName);
-    }
     if (typeStructure != NULL)
-    {
         free(typeStructure);
-    }
     if (domain != NULL)
-    {
         free(domain);
-    }
     if (tileSize != NULL)
-    {
         free(tileSize);
-    }
     if (oidString != NULL)
-    {
         free(oidString);
-    }
     // binData is freed elsewhere!
 }
 
@@ -294,17 +281,6 @@ std::string HttpServer::MDDEncoding::toString() const
  *                             HttpServer
  ************************************************************************/
 
-HttpServer::HttpServer(unsigned long newListenPort, char *newRasmgrHost, unsigned int newRasmgrPort, char *newServerName)
-    : ServerComm(newListenPort, newRasmgrHost, newRasmgrPort, newServerName)
-{
-}
-
-ClientTblElt *
-HttpServer::getClientContext(__attribute__((unused)) unsigned long clientId)
-{
-    return &globalClientContext;
-}
-
 void
 HttpServer::printServerStatus()
 {
@@ -318,6 +294,157 @@ int HttpServer::encodeAckn(char *&result, int ackCode = ackCodeOK)
     result = static_cast<char *>(mymalloc(1));
     *result = ackCode;
     return 1;
+}
+
+bool isValidCommand(char* req);
+
+bool isValidCommand(char* req)
+{
+    while (isalpha(req[0]))
+        ++req;
+    return req[0] == '=' || req[0] == '\0';
+}
+
+long HttpServer::processRequest(unsigned long callingClientId,
+                                const char* httpParams, int httpParamsLen,
+                                char*& resultBuffer)
+{
+    char* Database{};
+    char* QueryString{};
+    char* ClientID{};
+    char* BinData{};
+    char* Capability{};
+    int   Command{};
+    int   ClientType{};
+    int   Endianess{};
+    int   NumberOfQueryParams{};
+    int   BinDataSize{};
+    
+    // -------------------------------------------------------------------------
+    
+    // copy request to local variable (as strtok below modifies the buffer)
+    std::unique_ptr<char[]> inputPtr;
+    inputPtr.reset(new char[httpParamsLen + 1]);
+    char *input = inputPtr.get();
+    memcpy(input, httpParams, static_cast<size_t>(httpParamsLen));
+    input[httpParamsLen] = '\0';
+    char *inputEnd = input + httpParamsLen;
+    
+    // Read the message body and check for the post parameters
+    int parseResult{};
+    char *buffer = strtok(input, "=");
+    while (buffer)
+    {
+        if (strcmp(buffer, "Database") == 0)
+        {
+            Database = strdup(strtok(NULL, "&"));
+            LDEBUG << "Parameter Database is " << Database;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "QueryString") == 0)
+        {
+            char *tmpQueryString = strtok(NULL, "&");
+            char *end = tmpQueryString + strlen(tmpQueryString) + 1;
+            while (end && end < inputEnd && !isValidCommand(end))
+            {
+                // reset the & in the query that was set to \0 by strtok
+                *(end - 1) = '&';
+                end = strtok(NULL, "&");
+            }
+            QueryString = strdup(tmpQueryString);
+            LDEBUG << "Parameter QueryString is " << QueryString;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "Capability") == 0)
+        {
+            Capability = strdup(strtok(NULL, "&\0"));
+            LDEBUG << "Parameter Capability is " << Capability;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "ClientID") == 0)
+        {
+            ClientID = strdup(strtok(NULL, "&"));
+            LDEBUG << "Parameter ClientID is " << ClientID;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "Command") == 0)
+        {
+            Command = atoi(strtok(NULL, "&"));
+            LDEBUG << "Parameter Command is " << Command;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "Endianess") == 0)
+        {
+            Endianess = atoi(strtok(NULL, "&"));
+            LDEBUG << "Parameter Endianess is " << Endianess;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "NumberOfQueryParameters") == 0)
+        {
+            NumberOfQueryParams = atoi(strtok(NULL, "&"));
+            LDEBUG << "Parameter NumberOfQueryParams is " << NumberOfQueryParams;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "BinDataSize") == 0)
+        {
+            BinDataSize = atoi(strtok(NULL, "&"));
+            LDEBUG << "Parameter BinDataSize is " << BinDataSize;
+            buffer = strtok(NULL, "=");
+        }
+        else if (strcmp(buffer, "BinData") == 0)
+        {
+            // This parameter has to be the last one!
+            BinData = new char[BinDataSize ];
+            memcpy(BinData,
+                   httpParams + (httpParamsLen - BinDataSize),
+                   static_cast<unsigned int>(BinDataSize));
+            //set Buffer to NULL => exit this while block
+            buffer = NULL;
+        }
+        else if (strcmp(buffer, "ClientType") == 0)
+        {
+            buffer = strtok(NULL, "&");
+            LDEBUG << "Parameter Type is " << buffer;
+            if (strcmp(buffer, "BROWSER") == 0)
+                ClientType = 1;
+            else if (strcmp(buffer, "RASCLIENT") == 0)
+                ClientType = 2;
+            else
+            {
+                LDEBUG << "Error: Unknown Parameter: " << buffer;
+                parseResult = 2;
+            }
+            buffer = strtok(NULL, "=");
+        }
+        else
+        {
+            parseResult = 1;
+        }
+    }
+    
+    // -------------------------------------------------------------------------
+
+    long resultLen = 0;
+    resultBuffer = NULL;
+    if (parseResult == 0)
+    {
+        resultLen = processRequest(callingClientId, Database, Command,
+                                   QueryString, BinDataSize, BinData, Endianess,
+                                   resultBuffer, Capability);
+    }
+    else
+    {
+        LERROR << "Internal HTTP protocol mismatch.";
+    }
+
+    // free RequestInfo
+    free(Database);
+    free(QueryString);
+    free(Capability);
+    delete [] BinData;
+    free(ClientID);
+
+    return resultLen;
 }
 
 long

@@ -141,7 +141,7 @@ QtInfo::evaluate(QtDataList *inputList)
                     long totalSize = 0;
                     for (unsigned int i = 0; i < tiles->size(); i++)
                     {
-                        totalSize += tiles->at(i)->getSize();
+                        totalSize += static_cast<long>(tiles->at(i)->getSize());
                     }
                     info << "\",\n \"totalSize\": \"" << totalSize;
 

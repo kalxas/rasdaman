@@ -21,10 +21,16 @@ extern TransactionIf* ta;
 extern const char* dbSchema;
 extern const char* dbVolume;
 
-// functions prototypes
+namespace rasserver
+{
+namespace rasdl
+{
+
 int runRasdl(int argc, char* argv[]);
 void disconnectDB(bool commitTa);
 void connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb = false);
 
+} // rasdl
+} // rasserver
 
 #endif

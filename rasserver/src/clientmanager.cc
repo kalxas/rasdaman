@@ -174,9 +174,21 @@ void ClientManager::evaluateClientStatus()
 
                         // If the client dies, clean up
                         RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
-                        rasServerEntry.compat_abortTA();
-                        rasServerEntry.compat_closeDB();
-                        rasServerEntry.compat_disconnectClient();
+                        try {
+                            rasServerEntry.abortTA();
+                        } catch (...) {
+                            LERROR << "Failed aborting transaction.";
+                        }
+                        try {
+                            rasServerEntry.closeDB();
+                        } catch (...) {
+                            LERROR << "Failed closing database connection.";
+                        }
+                        try {
+                            rasServerEntry.disconnectClient();
+                        } catch (...) {
+                            LERROR << "Failed disconnecting client.";
+                        }
                     }
                 }
 

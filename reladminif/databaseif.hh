@@ -172,14 +172,14 @@ protected:
     */
 
 private:
-    bool opened{false};
-    /*@Doc:
-    TRUE only if database is open.
-    */
-
     char *myName{nullptr};
     /*@Doc:
     Valid only if opened.
+    */
+    
+    bool opened{false};
+    /*@Doc:
+    TRUE only if database is open.
     */
 
     bool connected{false};

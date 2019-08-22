@@ -23,58 +23,71 @@ rasdaman GmbH.
 #ifndef RASSERVER_ENTRY_HH
 #define RASSERVER_ENTRY_HH
 
-/*
-  This class is the entry point of the rasdaman server. It's the interface of the server to the outside world
-  It's functions are called by the communication level.
-
-  For now the class inherites HttpServer which inherites ServerComm, but only to have nice acces to the stuff
-  found there. Later we will drop both of them and make the life easier.
-*/
-
 #include "servercomm/httpserver.hh"
 
+/** 
+ * This class is the entry point of the rasdaman server. Its functions are
+ * called by the communication level.
+*/
 
 /**
   * \ingroup Servers
   */
-class RasServerEntry : public HttpServer
+class RasServerEntry
 {
 private:
     RasServerEntry() = default;
+    
+    HttpServer server;
+    
+    ClientTblElt* currentClientContext;
+    unsigned long currentClientIdx;
+    
+    static unsigned long clientCount;
+    static const unsigned long noClientConnected;
 
 public:
-
-    unsigned long currentClientIdx;
-    ClientTblElt* currentClientContext;
-
     static RasServerEntry& getInstance();
 
-    ~RasServerEntry() override = default;
+    ~RasServerEntry() = default;
 
-    void compat_connectToDBMS();
+    /**
+     * Before the rasdaman server can answer any questions, it must connect to
+     * the backend RASBASE database, where all array information is stored.
+     * @throws an r_Error exception in case the database connection fails.
+     */
+    void connectToRasbase();
 
-    // All "compat_" functions use old ServerComm and HttpServer stuff to do their job
-    // Later, the new functions will do the job proper and this old functions will be dropped!
-    void compat_connectNewClient(const char* capability);
+    /**
+     * Connect a new client to the server and check it's capabilities. Each
+     * server instance can have at most one client at a time; this requirement
+     * automatically managed by rasmgr.
+     * 
+     * @param capability an authentication string provided by rasmgr.
+     */
+    void connectNewClient(const char* capability);
+    
+    /**
+     * @return context data for the current client.
+     */
+    ClientTblElt *getClientContext();
+    
+    /**
+     * Disconnect the currently connected client from the server. This should be
+     * called once for each connectNewClient.
+     */
+    void disconnectClient();
 
-    void compat_disconnectClient();
+    void openDB(const char* databaseName);
+    void closeDB();
 
-    ClientTblElt* getClientContext(unsigned long ClientId) override;
+    void beginTA(bool rw);
+    void commitTA();
+    void abortTA();
+    bool isOpenTA();
 
-    void compat_openDB(const char* databaseName);
-
-    void compat_closeDB();
-
-    void compat_beginTA(bool rw);
-
-    void compat_commitTA();
-
-    void compat_abortTA();
-
-    bool compat_isOpenTA();
-
-    // provided for temporary compatibility with the encoding of the java interface
-    // resultBuffer will be allocated and it's address stored in the given pointer
+    // provided for temporary compatibility with the encoding of the java interface.
+    // resultBuffer will be allocated and its address stored in the given pointer
     // result is the length of the result
     long compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer);
 
