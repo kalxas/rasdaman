@@ -88,6 +88,16 @@ usage()
   exit $RC_OK
 }
 
+# Read the property of a value by input key from input properties file
+get_property_value()
+{
+    # $1 is path to input properties file (e.g: /opt/rasdaman/etc/petascope.properties).
+    # $2 is the key of a property in this file which needs to get the value of this key.
+    local properties_file="$1"
+    local key="$2"
+    # only grep key=value line not commented line (e.g: #key=value)
+    grep "^$key=" "$properties_file" | sed -e 's/.*=//' -e 's/^[ \t]*//'
+}
 
 #
 # Import all coverages exist in petascope
@@ -160,7 +170,13 @@ import_coverage()
 # ----------------------------------------------------------------------------
 # parse command-line options
 # ----------------------------------------------------------------------------
-SERVICE_ENDPOINT=http://localhost:8080 # default end point
+SERVICE_ENDPOINT=http://localhost:8080
+
+SECORE_URL=$(get_property_value "$SETTINGS" "secore_urls")
+
+if [ -n "$SECORE_URL" ]; then
+  SECORE_URL=$SERVICE_ENDPOINT/def
+fi
 
 option=
 for i in "$@"; do
@@ -182,7 +198,6 @@ done
 
 # petascope, secore URL
 PETASCOPE_URL=$SERVICE_ENDPOINT/rasdaman/ows
-SECORE_URL=$SERVICE_ENDPOINT/def
 
 log "Petascope service endpoint is: "$PETASCOPE_URL
 log "Secore service endpoint is: "$SECORE_URL
