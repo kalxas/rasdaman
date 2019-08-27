@@ -68,7 +68,7 @@ log()  { echo "$PROG: $@"; }
 logn() { echo -n "$PROG: $@"; }
 error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
 check(){ [ $? -eq 0 ] && echo "ok." || echo "failed."; }
-checkerr() { [ $? -eq 0 ] && echo "ok." || echo ""; error "failed, exiting."; }
+checkerr() { [ $? -eq 0 ] && echo "ok." || error "failed, exiting."; }
 
 #
 # checks

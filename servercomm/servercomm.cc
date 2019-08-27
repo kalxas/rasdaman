@@ -147,24 +147,25 @@ void startProfiler(std::string fileNameTemplate, bool cpuProfiler)
         strcpy(tmpFileName, fileNameTemplate.c_str());
 
         int fd = mkstemps(tmpFileName, 6);
+        string tmpFile(tmpFileName);
         if (fd != -1)
         {
             remove(tmpFileName);
             if (cpuProfiler)
             {
                 ProfilerStart(tmpFileName);
-                LINFO << "CPU profiler file: " << tmpFileName;
+                LINFO << "CPU profiler file: " << tmpFile;
             }
             else
             {
                 HeapProfilerStart(tmpFileName);
-                LINFO << "Heap profiler file: " << tmpFileName << ".????.heap";
+                LINFO << "Heap profiler file: " << tmpFile << ".????.heap";
             }
 
         }
         else
         {
-            LERROR << "failed creating a temporary profiler file '" << tmpFileName << "':" << strerror(errno);
+            LERROR << "failed creating a temporary profiler file '" << tmpFile << "':" << strerror(errno);
         }
     }
 }
