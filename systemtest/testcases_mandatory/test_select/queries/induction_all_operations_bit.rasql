@@ -1,1 +1,1 @@
-select bit(test_grey,1) from test_grey
+select encode(bit(test_grey[100:105,100:105],1), "csv") from test_grey

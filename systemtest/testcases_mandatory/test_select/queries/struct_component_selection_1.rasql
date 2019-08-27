@@ -1,1 +1,1 @@
-select test_rgb2.1 from test_rgb2
+select encode(test_rgb2.1[80:90,80:90], "csv") from test_rgb2

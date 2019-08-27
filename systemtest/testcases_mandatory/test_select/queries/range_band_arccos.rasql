@@ -1,1 +1,1 @@
-select encode({c.2, (char)arccos(c.0),c.2}, "png") from test_rgb2 as c
+select encode({c.2, (char)arccos(c.0),c.2}[80:90,80:90], "csv") from test_rgb2 as c

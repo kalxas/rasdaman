@@ -1,1 +1,1 @@
-select encode({test_rgb2.0, test_rgb2.1, test_rgb2.2}, "png") from test_rgb2
+select encode({test_rgb2.0[80:90,80:90], test_rgb2.1[150:160,80:90], test_rgb2.2[0:10,280:290]}, "csv") from test_rgb2

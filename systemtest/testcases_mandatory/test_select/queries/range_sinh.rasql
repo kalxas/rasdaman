@@ -1,1 +1,1 @@
-select (sinh({x.0,x.1,x.2}))[0:9,90:99] from test_rgb2 as x
+select encode((sinh({x.0,x.1,x.2}))[0:9,90:99], "csv") from test_rgb2 as x

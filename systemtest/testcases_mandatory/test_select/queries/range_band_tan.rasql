@@ -1,1 +1,1 @@
-select encode({(char) tan(x.0),x.2,x.1}, "png") from test_rgb2 as x
+select encode({(char) tan(x.0),x.2,x.1}[80:90,80:90], "csv") from test_rgb2 as x

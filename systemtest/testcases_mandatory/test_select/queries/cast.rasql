@@ -1,1 +1,1 @@
-select (float) avg_cells( test_grey ) from test_grey
+select (long) avg_cells( test_grey ) from test_grey

@@ -1,1 +1,1 @@
-select (long) test_rgb2 from test_rgb2
+select (short)c[100:105,100:105] from test_rgb2 as c

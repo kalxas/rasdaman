@@ -1,1 +1,1 @@
-select {x.4,x.0,x.3/19,x.1,x.2} from test_struct as x
+select encode({x.4,x.0,x.3/19,x.1,x.2}[0:4,0:4,0], "csv") from test_struct as x

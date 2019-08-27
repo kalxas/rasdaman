@@ -1,1 +1,1 @@
-select concat test_grey with test_grey along 0 from test_grey
+select encode(concat test_grey[80:90,80:90] with test_grey[80:90,80:90] along 0, "csv") from test_grey

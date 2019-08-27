@@ -1,1 +1,1 @@
-select scale(c[124:125,127:128], [0:5,0:2])[1:2,2] from  test_grey AS c
+select encode(scale(c[124:125,127:128], [0:5,0:2])[1:2,2], "csv") from  test_grey AS c

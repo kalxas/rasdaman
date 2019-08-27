@@ -1,1 +1,1 @@
-select (100*arctan({c.0,c.2,c.1}))[0:9,90:99] from test_rgb2 as c
+select encode((100*arctan({c.0,c.2,c.1}))[0:9,90:99], "csv") from test_rgb2 as c

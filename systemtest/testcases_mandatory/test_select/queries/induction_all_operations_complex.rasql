@@ -1,1 +1,1 @@
-select complex(cos(x), -sin(x)) from test_grey as x
+select encode(complex(cos(x), -sin(x))[100:105,100:105], "csv") from test_grey as x

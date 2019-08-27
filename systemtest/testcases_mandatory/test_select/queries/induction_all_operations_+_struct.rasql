@@ -1,0 +1,1 @@
+select encode(c[100:105,100:105] + 5, "csv") from test_rgb2 as c

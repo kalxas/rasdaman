@@ -1,0 +1,1 @@
+select encode((test_rgb2.1[100:110,100:110] - test_rgb2.2[80:90,80:90]), "csv") from test_rgb2

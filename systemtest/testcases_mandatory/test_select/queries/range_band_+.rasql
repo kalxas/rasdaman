@@ -1,1 +1,1 @@
-select encode({c.2,c.0+c.2,c.1}, "png") from test_rgb2 as c
+select encode({c.2,c.0+c.2,c.1}[80:90,80:90], "csv") from test_rgb2 as c

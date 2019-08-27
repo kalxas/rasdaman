@@ -1,1 +1,1 @@
-select 2*{x.2,x.0}+0.5*{x.1,x.1} from test_struct as x
+select encode((2*{x.2,x.0}+0.5*{x.1,x.1})[0:4,0:4,0], "csv") from test_struct as x

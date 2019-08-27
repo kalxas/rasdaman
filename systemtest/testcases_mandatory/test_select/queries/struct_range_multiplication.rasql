@@ -1,1 +1,1 @@
-select {x.0,x.2}*5d from test_struct as x
+select encode({x.0,x.2}[0:4,0:4,0]*5d, "csv") from test_struct as x

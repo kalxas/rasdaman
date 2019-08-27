@@ -21,32 +21,10 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# SYNOPSIS
-#	test.sh
-# Description
-#	Command-line utility for testing rasdaman.
-#	1) Send rasql query
-#	2) Get response
-#	3) Compare the response with the expected result
-#	4) Give out the testing result.
-#
-# PRECONDITIONS
-# 	Postgres, Rasdaman installed
-#
-# Usage: ./test.sh
-#         images needed for testing shall be put in directory of testdata
-# Parameters:
-#
-#
-# CHANGE HISTORY
-#       2009-Sep-16     J.Yu       created
-#       2010-Apr-13     J.Yu       revise on input folder structure to support different queries input, including folders on mandatory, bug fixed, bug unfixed, and other queries.
-#
-# Parameters definistion and initiation
 
 set -o nounset
 
-PROG=`basename $0`
+PROG=$(basename $0)
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -54,9 +32,6 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
-#
-# paths
-#
 ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 QUERY_PATH="$SCRIPT_DIR/queries"
@@ -73,7 +48,6 @@ TEST_COLL3=test_coll3
 # ------------------------------------------------------------------------------
 # test dependencies
 #
-check_postgres
 check_rasdaman
 
 # check data types
@@ -89,7 +63,10 @@ check_type GreySet3
 function run_test()
 {
   local q_id="$1"
-  local f=tmp.unknown
+  local f=tmp.txt
+  if [ $# -gt 1 ]; then
+    f=tmp.unknown
+  fi
   
   if [ ! -f $f ]; then
     log "Failed executing select query."
@@ -110,11 +87,17 @@ function run_test()
   fi
 
   # Compare the result byte by byte with the expected result in oracle folder
-  mv $q_id "$OUTPUT_PATH"
-  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id"
+  local out_file="$OUTPUT_PATH/$q_id"
+  local ora_file="$ORACLE_PATH/$q_id"
+  mv $q_id "$out_file"
+  if [ ! -f "$ora_file" ]; then
+    log "  warning: oracle not found - $ora_file; output will be copied."
+    cp "$out_file" "$ora_file"
+  fi
+  cmp "$ora_file" "$out_file"
   if [ $? != 0 ]; then
     log "Result of query contains error."
-	  NUM_FAIL=$(($NUM_FAIL + 1))
+    NUM_FAIL=$(($NUM_FAIL + 1))
     log_failed "----------------------------------------------------------------------"
     log_failed "$q_id"
     log_failed "$QUERY"  
@@ -128,13 +111,13 @@ function run_test()
 # ------------------------------------------------------------------------------
 # test by queries
 #
-  	
+      
 rm -f tmp.unknown tmp.csv $FAILED_LOG_FILE
 # Query by query for extracting some aspects of tested data
 for i in $QUERY_PATH/*.rasql; do
 
   # Send query in query folder.
-	Q_ID=`basename $i`
+  Q_ID=$(basename $i)
 
   log "----------------------------------------------------------------------"
   log ""
@@ -172,8 +155,8 @@ for i in $QUERY_PATH/*.rasql; do
     fi
 
     # test result contents
-    $RASQL -q "select c from $coll_name as c" --out file --outfile tmp > /dev/null
-    run_test "$q_id.bin"
+    $RASQL -q "select avg_cells(c) from $coll_name as c" --out file --outfile tmp > /dev/null
+    run_test "$q_id.txt"
 
     # test dbinfo for tile structure
     $RASQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null

@@ -1,1 +1,1 @@
-select test_grey - test_grey2 from test_grey, test_grey2 where some_cells( test_grey - test_grey2 > 50 )
+select encode((test_grey - test_grey2)[80:90,80:90], "csv") from test_grey, test_grey2 where some_cells( test_grey - test_grey2 > 50 )

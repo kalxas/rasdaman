@@ -22,30 +22,8 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# SYNOPSIS
-#	test.sh
-# Description
-#	Command-line utility for testing rasdaman.
-#	1)creating collection
-#	2)insert MDD into TEST_COLLECTION
-#	3)update the MDD
-#	4)delete MDD
-#	5)drop TEST_COLLECTION
-#
-# PRECONDITIONS
-# 	1)Postgres Server must be running
-# 	2)Rasdaman Server must be running
-# 	3)database RASBASE must exists
-# 	4)rasql utility must be fully running
-# Usage: ./test.sh
-#
-# CHANGE HISTORY
-#    2009-Sep-16   J.Yu    created
-#    2010-July-04  J.Yu    add precondition
 
-
-# Variables
-PROG=`basename $0`
+PROG=$(basename $0)
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -59,18 +37,15 @@ MARRAY_DOM_TYPE_NAME="TestMarrayDomType"
 SET_TYPE_NAME="TestSetType"
 SET_TYPE_NAME_NULL_VALUES="TestSetTypeNullValues"
 
-
 TEST_STRUCT_TYPE="CREATE TYPE $STRUCT_TYPE_NAME AS (red char, green char, blue char)"
 TEST_MARRAY_DIM_TYPE="CREATE TYPE $MARRAY_DIM_TYPE_NAME AS $STRUCT_TYPE_NAME MDARRAY [a0,a1]"
 TEST_MARRAY_DOM_TYPE="CREATE TYPE $MARRAY_DOM_TYPE_NAME AS (red char, green char, blue char) MDARRAY [a0(0:10),a1(0:*)]"
 TEST_SET_TYPE="CREATE TYPE $SET_TYPE_NAME AS SET ($MARRAY_DIM_TYPE_NAME)"
 TEST_SET_TYPE_NULL_VALUES="CREATE TYPE $SET_TYPE_NAME_NULL_VALUES AS SET ($MARRAY_DOM_TYPE_NAME NULL VALUES [1.000000:3.000000])"
 
-
 # ------------------------------------------------------------------------------
 # test dependencies
 #
-check_postgres
 check_rasdaman
 
 # ------------------------------------------------------------------------------

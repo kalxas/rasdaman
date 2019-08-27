@@ -21,30 +21,8 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# SYNOPSIS
-#	test.sh
-# Description
-#	Command-line utility for testing rasdaman.
-#	1)creating collection
-#	2)insert MDD into TEST_COLL
-#	3)update the MDD
-#	4)delete MDD
-#	5)drop TEST_COLL
-#
-# PRECONDITIONS
-# 	1)Postgres Server must be running
-# 	2)Rasdaman Server must be running
-# 	3)database RASBASE must exists
-# 	4)rasql utility must be fully running
-# Usage: ./test.sh
-#
-# CHANGE HISTORY
-#    2009-Sep-16   J.Yu    created
-#    2010-July-04  J.Yu    add precondition
 
-
-# Variables
-PROG=`basename $0`
+PROG=$(basename $0)
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -64,7 +42,6 @@ run_valgrind=false
 # ------------------------------------------------------------------------------
 # test dependencies
 #
-#check_postgres
 check_rasdaman
 
 # check data types

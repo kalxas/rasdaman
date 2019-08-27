@@ -150,7 +150,6 @@ fi
 
 check_curl
 check_gdal
-#check_postgres
 
 echo "$SCRIPT_DIR" | grep "test_secore" > /dev/null
 if [ $? -eq 0 ]; then

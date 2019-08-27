@@ -1,1 +1,1 @@
-select test_grey or test_grey2 from test_grey, test_grey2
+select encode(test_grey[100:105,100:105] or test_grey2[0:5,0:5], "csv") from test_grey, test_grey2

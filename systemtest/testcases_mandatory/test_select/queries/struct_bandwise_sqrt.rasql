@@ -1,1 +1,1 @@
-select sqrt(x.0) + sqrt(x.1) from test_struct as x
+select encode((sqrt(x.0) + sqrt(x.1))[0:4,0:4,0], "csv") from test_struct as x

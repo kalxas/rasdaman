@@ -1,1 +1,1 @@
-select case when test_grey2>0 then (long)(test_grey2*2c+42c) else 0l end from test_grey2
+select encode(case when test_grey2[80:90,80:90]>0c then (long)(test_grey2[80:90,80:90]*2c+42c) else 0l end, "csv") from test_grey2

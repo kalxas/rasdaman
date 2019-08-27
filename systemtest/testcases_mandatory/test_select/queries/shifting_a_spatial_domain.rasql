@@ -1,1 +1,1 @@
-select shift( test_grey[ 0:10, 0:20 ], [ 3, 4 ] ) from test_grey
+select encode(shift( test_grey[ 0:10, 0:20 ], [ 3, 4 ] ), "csv") from test_grey

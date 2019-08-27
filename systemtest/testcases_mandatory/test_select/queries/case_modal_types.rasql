@@ -1,1 +1,1 @@
-select encode((case when(c > 0) then (log(c)) else ((octet) 0) end)[75:85,75:85], "csv") from test_grey as c
+select encode((case when(c > 0) then (log(c)) else ((octet) 0) end)[80:90,80:90], "csv") from test_grey as c

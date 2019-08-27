@@ -21,29 +21,8 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
-# SYNOPSIS
-#  test.sh
-# Description
-#  Command-line utility for testing rasdaman.
-#  1)creating collection
-#   2)insert images into collection
-#   3)extract images
-#   4)compare
-#   5)cleanup
-#
-# PRECONDITIONS
-#   1)Postgres Server must be running
-#   2)Rasdaman Server must be running
-#   3)database RASBASE must exists
-#   4)rasql utility must be fully running
-#   5)images needed for testing shall be put in directory of images
-# Usage: ./test.sh
-#
-# CHANGE HISTORY
-#       2009-Sep-16     J.Yu       created
-#
 
-PROG=`basename $0`
+PROG=$(basename $0)
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
@@ -51,9 +30,6 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
-#
-# paths
-#
 TESTDATA_PATH="$SCRIPT_DIR/testdata"
 [ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
 ORACLE_PATH="$SCRIPT_DIR/oracle"
@@ -63,7 +39,6 @@ ORACLE_PATH="$SCRIPT_DIR/oracle"
 # ------------------------------------------------------------------------------
 # test dependencies
 #
-check_postgres
 check_rasdaman
 check_gdal
 

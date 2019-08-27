@@ -1,1 +1,1 @@
-select test_grey from test_grey where oid( test_grey ) > 10
+select encode(test_grey[80:90,80:90], "csv") from test_grey where oid( test_grey ) > 10

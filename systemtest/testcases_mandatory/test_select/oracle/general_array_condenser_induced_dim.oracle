@@ -1,1 +1,1 @@
-rasdaman error 300: Parsing error 300 in line 1, column 24: Unexpected name [.
+rasdaman error 357: Execution error 357 in line 1, column 59, near token x: Variable is unknown.

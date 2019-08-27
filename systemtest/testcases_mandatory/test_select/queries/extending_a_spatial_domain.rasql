@@ -1,1 +1,1 @@
-select extend( test_grey, [-1000:1000,-500:500] ) from test_grey
+select encode(extend( c[100:105,100:105], [95:110,95:110] ), "csv") from test_grey as c

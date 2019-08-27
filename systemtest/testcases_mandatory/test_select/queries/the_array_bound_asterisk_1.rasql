@@ -1,1 +1,1 @@
-select test_grey[ *:*, 10:150 ] from test_grey
+select encode(test_grey[ *:*, 80:82 ], "csv") from test_grey

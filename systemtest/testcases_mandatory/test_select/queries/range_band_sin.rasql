@@ -1,1 +1,1 @@
-select encode({x.1,(char) sin(x.0),x.2}, "png") from test_rgb2 as x
+select encode({x.1,(char) sin(x.0),x.2}[80:90,80:90], "csv") from test_rgb2 as x

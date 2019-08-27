@@ -1,1 +1,1 @@
-select condense + over [0:100] using a[0:10, x[0]] from test_grey a
+select encode(condense + over i in [0:100] using a[80:90, x[0]], "csv") from test_grey a
