@@ -54,21 +54,16 @@ using namespace std;
 #define PARAM_PORT_FLAG 'p'
 #define PARAM_PORT  "port"
 #define HELP_PORT   "<p> rasmgr port number"
-#define DEFAULT_PORT    7001
-#define DEFAULT_PORT_STR "7001"
 
 #define PARAM_DB_FLAG   'd'
 #define PARAM_DB    "database"
 #define HELP_DB     "<db-name> name of database"
-#define DEFAULT_DB  "RASBASE"
 
 #define PARAM_USER  "user"
 #define HELP_USER   "<user-name> name of user"
-#define DEFAULT_USER    "rasguest"
 
 #define PARAM_PASSWD    "passwd"
 #define HELP_PASSWD "<user-passwd> password of user"
-#define DEFAULT_PASSWD  "rasguest"
 
 #define PARAM_FILE_FLAG 'f'
 #define PARAM_FILE  "file"

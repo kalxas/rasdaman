@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 #include "accesscontrol.hh"
 #include "raslib/error.hh"
+#include "globals.hh"
 #include <logging.hh>
 
 #ifndef _XOPEN_SOURCE
@@ -37,7 +38,7 @@ const unsigned long AccessControl::maxDigestBufferSize = 50;
 const unsigned long AccessControl::capabilityDigestSize = 32;
 const unsigned long AccessControl::maxCapabilityBufferSize = 200;
 const int AccessControl::capabilityOk = 0;
-const char *AccessControl::digestMethod = "MD5";
+const char *AccessControl::digestMethod = DEFAULT_DIGEST;
 
 AccessControl accessControl;
 

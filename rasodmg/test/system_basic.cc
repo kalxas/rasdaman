@@ -78,6 +78,7 @@ rasdaman GmbH.
 
 #include "hexcodec.hh"
 #include "import_error.hh"
+#include "globals.hh"
 
 void
 fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
@@ -284,19 +285,19 @@ bool
 SystemBasic::testBed = false;
 
 const char*
-SystemBasic::serverName = "localhost";
+SystemBasic::serverName = DEFAULT_HOSTNAME;
 
 r_ULong
-SystemBasic::serverPort = 7001;
+SystemBasic::serverPort = DEFAULT_PORT;
 
 const char*
-SystemBasic::baseName = "RASBASE";
+SystemBasic::baseName = DEFAULT_DBNAME;
 
 const char*
-SystemBasic::userName = "rasguest";
+SystemBasic::userName = DEFAULT_USER;
 
 const char*
-SystemBasic::passwd = "rasguest";
+SystemBasic::passwd = DEFAULT_PASSWD;
 
 bool
 SystemBasic::printText = false;
@@ -501,7 +502,7 @@ SystemBasic::parseParams(int argc, char** argv)
     CommandLineParameter& clp_transparent   = cmlInter.addFlagParameter('t', "transparent", "transparent update flag.\n\t\tIf it is specified black data will be treated as transparent");
     CommandLineParameter& clp_printtext = cmlInter.addFlagParameter(CommandLineParser::noShortName, "printtext", "output of char data will be printed as text - not numbers.\n\t\tUseful for printing the names of all collections/or text stored in mdds");
     CommandLineParameter& clp_server    = cmlInter.addStringParameter('s', "server", "<host-name> host's name where rasmgr runs.", serverName);
-    CommandLineParameter& clp_port      = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", "7001");
+    CommandLineParameter& clp_port      = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", STRINGIFY(DEFAULT_PORT));
     CommandLineParameter& clp_database  = cmlInter.addStringParameter('d', "database", "<db-name> name of database.", baseName);
     CommandLineParameter& clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, "user", "<user-name> name of user", userName);
     CommandLineParameter& clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, "passwd", "<user-passwd> password of user", passwd);

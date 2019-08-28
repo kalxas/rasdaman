@@ -89,7 +89,7 @@ using namespace std;
 #include "raslib/primitivetype.hh"
 #include "common/logging/signalhandler.hh"
 
-#include "../../commline/cmlparser.hh"
+#include "commline/cmlparser.hh"
 
 #include "loggingutils.hh"
 
@@ -137,26 +137,20 @@ typedef enum
 #define PARAM_SERV_FLAG 's'
 #define PARAM_SERV  "server"
 #define HELP_SERV   "<host-name> rasdaman server"
-#define DEFAULT_SERV    "localhost"
 
 #define PARAM_PORT_FLAG 'p'
 #define PARAM_PORT  "port"
 #define HELP_PORT   "<p> rasmgr port number"
-#define DEFAULT_PORT    7001
-#define DEFAULT_PORT_STR "7001"
 
 #define PARAM_DB_FLAG   'd'
 #define PARAM_DB    "database"
 #define HELP_DB     "<db-name> name of database"
-#define DEFAULT_DB  "RASBASE"
 
 #define PARAM_USER  "user"
 #define HELP_USER   "<user-name> name of user"
-#define DEFAULT_USER    "rasguest"
 
 #define PARAM_PASSWD    "passwd"
 #define HELP_PASSWD "<user-passwd> password of user"
-#define DEFAULT_PASSWD  "rasguest"
 
 #define PARAM_FILE_FLAG 'f'
 #define PARAM_FILE  "file"
@@ -217,9 +211,9 @@ bool quietLog = false;
 
 int  optionValueIndex = 0;
 
-const char *serverName = DEFAULT_SERV;
+const char *serverName = DEFAULT_HOSTNAME;
 r_ULong serverPort = DEFAULT_PORT;
-const char *baseName = DEFAULT_DB;
+const char *baseName = DEFAULT_DBNAME;
 
 const char *user = DEFAULT_USER;
 const char *passwd = DEFAULT_PASSWD;
@@ -313,9 +307,9 @@ parseParams(int argc, char **argv)
     CommandLineParameter &clp_mddType       = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
     CommandLineParameter &clp_type      = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_TYPE, HELP_TYPE);
 
-    CommandLineParameter &clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_SERV);
-    CommandLineParameter &clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, DEFAULT_PORT_STR);
-    CommandLineParameter &clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DB);
+    CommandLineParameter &clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_HOSTNAME);
+    CommandLineParameter &clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, STRINGIFY(DEFAULT_PORT));
+    CommandLineParameter &clp_database      = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
     CommandLineParameter &clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_USER, HELP_USER, DEFAULT_USER);
     CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
     CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(CommandLineParser::noShortName, PARAM_QUIET, HELP_QUIET);

@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ using namespace std;
 #include "adminif.hh"
 #include "databaseif.hh"
 #include "externs.h"
-
+#include "globals.hh"
 
 RMINITGLOBALS('C')
 
@@ -163,7 +163,7 @@ main(int argc, char* argv[])
     int RManDebug2 = 5;     // debug trace settings
     int RManModule = 1;     // dito
 
-    char* dbName = "RASBASE";   // default database name
+    char* dbName = DEFAULT_DBNAME;
     int result = RC_ERROR;      // overall test exit code
     char* resultText = NULL;    // overall test status string
 

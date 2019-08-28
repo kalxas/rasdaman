@@ -77,8 +77,6 @@ rasdaman GmbH.
 #define DQ_SERVER_NAME "NT1"
 #define DQ_CAPABILITY "$I1$ERW$BRASBASE$T1:3:2008:23:39:24$NNT1$D3839d047344677ddb1ff1a24dada286e$K"
 
-#define DEFAULT_DB  "RASBASE"
-
 // rasdaman MDD type for byte strings (default type used for file format reading)
 #define MDD_STRINGTYPE  "GreyString"
 
@@ -782,7 +780,7 @@ std::string getDefaultDb()
             return string(token);
         }
     }
-    return string(DEFAULT_DB);
+    return string(DEFAULT_DBNAME);
 }
 
 } // directql

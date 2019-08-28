@@ -43,6 +43,7 @@ rasdaman GmbH.
 
 #include "servercomm/servercomm.hh"
 #include "servercomm/cliententry.hh"
+#include "globals.hh"
 
 
 extern char* myExecArgv0 = "";
@@ -86,7 +87,7 @@ int main(int argc, char** argv)
 {
     strcpy(globalConnectId, "tcp:postgresql://localhost:5432/RASBASE");
 
-    ServerComm server(300, 120, 7013, "rasmgr", 7001, "N1");
+    ServerComm server(300, 120, 7013, "rasmgr", DEFAULT_PORT, "N1");
     ExecuteQueryRes result;
 
     DatabaseIf database;

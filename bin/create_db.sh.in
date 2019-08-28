@@ -23,15 +23,9 @@
 #
 #
 # PURPOSE:
-#   This script creates a CREATE_DB.sql script for
-#   generating a rasdaman database with PostgreSQL.
-#   This script must be executed by the user which
-#   runs the PostgreSQL server.
-#
-#
-# COMMENTS:
-#   List environment dependencies, known bugs, specialities etc.
-#   -------------------------------------------------------------------
+#   This script initializes the RASBASE schema in postgres or sqlite
+#   (depending on how rasdaman was compiled), and creates the standard
+#   rasdaman types.
 #
 ########################################################################
 
@@ -39,7 +33,8 @@
 
 # script name
 PROG=$(basename $0)
-VERSION=9.8
+
+VERSION=@RMANVERSION@
 
 # script return codes
 RC_OK=0
@@ -49,8 +44,7 @@ BASEDBMS=@basedbms@
 BASEDBMS_SQLITE=sqlite
 BASEDBMS_PGSQL=pgsql
 
-# Unix user name under which rasdaman server is expected to run
-RASDAMAN_USER=rasdaman
+rasserver_bin="@bindir@rasserver"
 
 # default database name
 # (if you change this, then a _lot_ of tools and configs
@@ -60,25 +54,13 @@ DATABASE_NAME=RASBASE
 
 DBCONN="@dbconn@"
 
-# error termination routine
-error() {
-	echo
-	echo "$PROG: $1" >&2
-	exit $RC_ERROR
-}
-
-log()
-{
-  echo "$PROG: $*"
-}
-
-logn()
-{
-  echo -n "$PROG: $*"
-}
+log()  { echo "$PROG: $@"; }
+logn() { echo -n "$PROG: $@"; }
+error(){ echo "$PROG: $@" >&2; exit $RC_ERROR; }
+check(){ [ $? ] && echo "ok." || echo "failed."; }
 
 execute_query() {
-  @bindir@rasserver -q "$1" > /dev/null || \
+  $rasserver_bin -q "$1" > /dev/null || \
     error "failed executing query: $1"
 }
 
@@ -124,7 +106,7 @@ fi
 log "rasdaman dictionary initialization... "
 
 logn "  creating RASBASE... "
-@bindir@rasserver -c --connect "$DBCONN" > /dev/null || \
+$rasserver_bin -c --connect "$DBCONN" > /dev/null || \
   error "failed creating RASBASE."
 echo "ok."
 

@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 #include<cmlparser.hh>
+#include "globals.hh"
 
 using std::cout;
 using std::endl;
@@ -36,9 +37,9 @@ int main()
         cmlp.addFlagParameter(0  , "delete", "delete root directory");
         cmlp.addFlagParameter('s', NULL, "use server for crushing system");
 
-        cmlp.addStringParameter('u', "user", "<name> user name\n\t\tcucubau", "rasguest");
-        cmlp.addStringParameter(CommandLineParser::noShortName, "passwd", "<password> user password", "rasguest");
-        cmlp.addStringParameter('d', CommandLineParser::noLongName, "<databasename> database name");
+        cmlp.addStringParameter('u', "user", "<name> user name", DEFAULT_USER);
+        cmlp.addStringParameter(CommandLineParser::noShortName, "passwd", "<password> user password", DEFAULT_PASSWD);
+        cmlp.addStringParameter('d', CommandLineParser::noLongName, "<databasename> database name", DEFAULT_DBNAME);
     }
     catch (CmlException e)
     {

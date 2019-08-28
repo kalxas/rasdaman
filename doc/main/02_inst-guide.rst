@@ -1509,13 +1509,16 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |``$RMANHOME/etc/secore.properties`` by default.                 |
 |                              |Since v9.8, to start a specific service the                     |
 |                              |``--service (core | secore | petascope )`` option can be used   |
-|                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
+|                              |Since v10.0 the rasmgr port can be specified with               |
+|                              |``-p, --port``. Check ``-h, --help`` for all details.           |
 +------------------------------+----------------------------------------------------------------+
 |``stop_rasdaman.sh``          |Shutdown rasdaman, embedded petascope and embedded secore       |
 |                              |by default.                                                     |
 |                              |Since v9.8, to stop a specific service the                      |
 |                              |``--service (core | secore | petascope )`` option can be used   |
 |                              |(``core`` refers to ``rasmgr`` + ``rasservers`` only).          |
+|                              |Since v10.0 the rasmgr port can be specified with               |
+|                              |``-p, --port``. Check ``-h, --help`` for all details.           |
 +------------------------------+----------------------------------------------------------------+
 |``create_db.sh``              |Initialize the rasdaman metadata database (RASBASE).            |
 +------------------------------+----------------------------------------------------------------+

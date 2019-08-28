@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "rasodmg/object.hh"
 #include "raslib/mddtypes.hh"
+#include "globals.hh"
 
 // forward declarations
 class r_Object;
@@ -127,7 +128,7 @@ public:
     */
 
     /// set the server name
-    void set_servername(const char *name, int port = RASMGRPORT);
+    void set_servername(const char *name, int port = DEFAULT_PORT);
     /**
       One of error situations can occur will raise an exception of type \Ref{r_Error} with
       one of the following kinds:

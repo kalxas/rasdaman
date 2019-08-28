@@ -29,6 +29,7 @@
 #include "lockfile.hh"               // for LockFile
 #include "raslib/error.hh"           // for r_Error, FILEDATADIR_NOTFOUND
 #include "logging.hh"                // for LERROR, LDEBUG, LINFO
+#include "globals.hh"
 
 #include <errno.h>                   // for errno
 #include <stdlib.h>                  // for getenv
@@ -83,7 +84,7 @@ string BlobFS::getFileStorageRootPath()
     auto rootPath = DirWrapper::getDirname(globalConnectId);
     if (rootPath.empty())
         generateError("blob file storage data directory has not been set ; "
-                      "please set the -connect value in rasmgr.conf.",
+                      "please set the -connect value in " RASMGR_CONF_FILE,
                       rootPath, FILEDATADIR_NOTFOUND);
     return DirWrapper::toCanonicalPath(rootPath);
 }
@@ -91,7 +92,7 @@ void BlobFS::validateFileStorageRootPath()
 {    
     if (config.rootPath.empty())
         generateError("blob file storage data directory has not been set "
-                      "(-connect setting in rasmgr.conf).",
+                      "(-connect setting in " RASMGR_CONF_FILE ").",
                       config.rootPath, FILEDATADIR_NOTFOUND);
     
     struct stat st;

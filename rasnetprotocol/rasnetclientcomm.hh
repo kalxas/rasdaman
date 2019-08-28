@@ -41,11 +41,12 @@ rasdaman GmbH.
 #include "clientcomm/clientcomm.hh"
 #include "rpcif.h"
 #include "rasodmg/ref.hh"
+#include "globals.hh"
 
 class RasnetClientComm : public ClientComm
 {
 public:
-    RasnetClientComm(std::string rasmgrHost, int rasmgrPort = RASMGRPORT);
+    RasnetClientComm(std::string rasmgrHost, int rasmgrPort = DEFAULT_PORT);
     virtual ~RasnetClientComm() noexcept;
 
     int connectClient(std::string userName, std::string passwordHash);

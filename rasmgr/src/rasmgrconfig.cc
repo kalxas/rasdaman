@@ -24,6 +24,7 @@
 #include <logging.hh>
 
 #include "rasmgrconfig.hh"
+#include "globals.hh"
 
 namespace rasmgr
 {
@@ -51,7 +52,7 @@ RasMgrConfig::RasMgrConfig()
     this->clientManagementGarbageCollectionInterval = 600000;
     this->serverManagementGarbageCollectionInterval = 300000;
     this->rasServerTimeout = 3000;
-    this->rasMgrPort = 7001;
+    this->rasMgrPort = DEFAULT_PORT;
     this->maximumNumberOfClientsPerServer = 1;
     this->clientGetServerRetryNo = 3;
     this->clientGetServerRetryTimeout = 1000;

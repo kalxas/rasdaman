@@ -20,16 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-/**
- * INCLUDE: rminit.hh
- *
- * PURPOSE:
- * Contains the RMInit class.
- *
- * COMMENTS:
- *      - RASMGRPORT should be centrally defined
- */
-
 #ifndef _RMINIT_
 #define _RMINIT_
 
@@ -40,6 +30,7 @@ using std::endl;
 #include <fstream>
 #include <raslib/mddtypes.hh>
 #include <raslib/rm.hh>
+#include "globals.hh"
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -54,9 +45,6 @@ using std::endl;
 // RMANVERSION now comes in via -DRMANVERSION -- PB 2003-sep-03
 // const int  RMANVERSION = 5100;
 const int  RPCVERSION  = 1003;
-
-// default rasmgr port
-const int  RASMGRPORT  = 7001;
 
 // RPC timeout [secs]; used in clientcomm/rpcclientcomm.cc -- PB 2005-sep-09
 const unsigned int RPC_TIMEOUT = 3;

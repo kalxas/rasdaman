@@ -32,6 +32,7 @@
 
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
+#include "globals.hh"
 
 // needed to configure logging
 #include "loggingutils.hh"
@@ -54,9 +55,9 @@ void* query_thread(void *ptr)
     r_Database db;
     r_Transaction ta{&db};
 
-    db.set_servername("localhost", 7001);
-    db.set_useridentification("rasguest", "rasguest");
-    db.open("RASBASE");
+    db.set_servername(DEFAULT_HOSTNAME, DEFAULT_PORT);
+    db.set_useridentification(DEFAULT_USER, DEFAULT_PASSWD);
+    db.open(DEFAULT_DBNAME);
 
     ta.begin(r_Transaction::read_only);
     r_Set< r_Ref_Any > result_set;

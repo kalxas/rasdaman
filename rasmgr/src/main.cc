@@ -26,9 +26,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
 
-#include "../../include/globals.hh"
-#include "../../config.h"
-#include "../../version.h"
+#include "globals.hh"
+#include "config.h"
+#include "version.h"
 
 #include "common/crypto/crypto.hh"
 #include "common/grpc/grpcutils.hh"

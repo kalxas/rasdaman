@@ -29,6 +29,7 @@
 #include <openssl/evp.h>
 #include <logging.hh>
 
+#include "globals.hh"
 #include "userauthconverter.hh"
 #include "authentication.hh"
 
@@ -152,7 +153,7 @@ int UserAuthConverter::verifyAuthFile(std::ifstream &ifs)
     unsigned char md_value[50];
 
     OpenSSL_add_all_digests();
-    md = EVP_get_digestbyname("MD5");
+    md = EVP_get_digestbyname(DEFAULT_DIGEST);
     if (!md)
     {
         return false;

@@ -40,6 +40,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 
 #include "lockmgr/ecpg_lockmanager.hh"
+#include "globals.hh"
 #include <string.h>
 #include <iostream>
 
@@ -507,7 +508,7 @@ void test_otherDatabaseConnection()
 {
     std::cout << "test_otherDatabaseConnection: begin" << endl;
     ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
-    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", "otherConn", (const char*)NULL, (const char*)NULL);
+    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME":5432", "otherConn", (const char*)NULL, (const char*)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database via connection otherConn not successful." << endl;
@@ -723,11 +724,11 @@ void test_allCases()
 int main(int ac, char** av)
 {
     // connect to database using user and password
-    //bool connect_ok = database_connect("RASBASE:5432", "rasdaman", "rasdaman");
+    //bool connect_ok = database_connect(DEFAULT_DBNAME":5432", "rasdaman", "rasdaman");
 
     ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
     // connect to the database without user and password
-    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", connectionName, (const char*)NULL, (const char*)NULL);
+    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME":5432", connectionName, (const char*)NULL, (const char*)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database not successful." << endl;

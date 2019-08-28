@@ -50,6 +50,7 @@ PROG=$(basename $0)
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
+RC_HELP=2
 
 RASMGR_PORT=7001
 
@@ -143,7 +144,8 @@ check_port_available()
 # Stop embedded tomcat from values in properties file
 # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
 # $2: the web application name (e.g: petascope, secore).
-stop_embedded() {
+stop_embedded()
+{
     local props_path="$1"
     local app_name="$2"
     local war_file_name="$3"
@@ -169,10 +171,42 @@ stop_embedded() {
     fi
 }
 
+set_rasmgr_port()
+{
+    case "$1" in
+      ''|*[!0-9]*)  error "Invalid port specified: $1; expected a positive number <= 65535.";;
+      *)            RASMGR_PORT="$1";;
+    esac
+    [ $RASMGR_PORT -gt 0 -a $RASMGR_PORT -lt 65535 ] || \
+        error "Invalid port specified: $1; expected a positive number <= 65535."
+}
 
 # --- ACTION ------------------------------------------------------
 
-set_all_options() {
+usage()
+{
+    cat <<EOF
+Stop the rasdaman server if it is currently running.
+
+Usage:
+  stop_rasdaman.sh [OPTION]...
+
+Options:
+  --service <svc>       stop a particular service <svc> only; allowed values 
+                        for <svc> are: core, petascope, secore. By default all
+                        services are stopped.
+
+  -p, --port <port>     specify the port on which rasmgr listens. If rasdaman
+                        was started with a port different from the standard 7001
+                        then the port must be specified with this option as well.
+
+  -h, --help            show this message and exit.
+EOF
+    exit $RC_HELP
+}
+
+set_all_options()
+{
     stop_all_services=$1
     stop_rasmgr_rasservers=$1
     stop_embedded_petascope=$1
@@ -194,12 +228,16 @@ for i in "$@"; do
               secore)    stop_embedded_secore=true;;
               *)         error "Value for option $option must be core|petascope|secore. Given: $i";;
             esac
+        elif [ "$option" = "--port" -o "$option" = "-p" ]; then
+            set_rasmgr_port "$i"
         fi
         option=""
     else
         option=""
         case $i in
-          --service) option="$i";;
+          --service)      option="$i";;
+          --port|-p)      option="$i";;
+          --help|-h)      usage;;
           *) error "unknown option: $i";;
         esac
     fi

@@ -23,6 +23,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "common/grpc/grpcutils.hh"
+#include "globals.hh"
 
 #include "../src/clientmanager.hh"
 #include "../src/servermanager.hh"
@@ -160,7 +161,7 @@ TEST_F(ClientManagementServiceTest, OpenDbSucess)
     std::string clientUUID = "clientUUID";
     std::string hostName = "hostName";
     std::string dbId = "dbId";
-    boost::uint32_t port = 7001;
+    boost::uint32_t port = DEFAULT_PORT;
 
     ClientServerSession session {clientUUID, dbId, hostName, port};
 

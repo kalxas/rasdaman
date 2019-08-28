@@ -194,11 +194,11 @@ void printUsage(char* name)
     std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
-    std::cout << "         -port                   <nnnn>          ... port of server.(default 7001)" << std::endl;
+    std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
     std::cout << "         -base                   <dbname>        ... name of database.(madatory)" << std::endl;
     std::cout << "         -file                   <filename>      ... file name used to read query from a file" << std::endl;
-    std::cout << "         -user                   <usrname>       ... user name.(default rasguest)" << std::endl;
-    std::cout << "         -passwd                 <usrpasswd>     ... user password.(default rasguest)" << std::endl;
+    std::cout << "         -user                   <usrname>       ... user name.(default " << DEFAULT_USER << ")" << std::endl;
+    std::cout << "         -passwd                 <usrpasswd>     ... user password.(default " << DEFAULT_PASSWD << ")" << std::endl;
     std::cout << "         -transferformat         <format>        ... transfer format.(default Array)" << std::endl;
     std::cout << "         -transferformatparams   <formatparams>  ... transfer format parameters.(default NULL)" << std::endl;
     std::cout << "         -storageformat          <format>        ... storage format.(default Array)" << std::endl;
@@ -260,11 +260,11 @@ int main(int argc, char** argv)
     int  optionValueIndex = 0;
 
     char serverName[MAX_STR_LEN] = "";
-    r_ULong  serverPort = 7001;
+    r_ULong  serverPort = DEFAULT_PORT;
     char baseName[MAX_STR_LEN] = "";
 
-    char userName[MAX_STR_LEN] = "rasguest";
-    char userPasswd[MAX_STR_LEN] = "rasguest";
+    char userName[MAX_STR_LEN] = DEFAULT_USER;
+    char userPasswd[MAX_STR_LEN] = DEFAULT_PASSWD;
 
     char fileName[MAX_STR_LEN] = "";
 

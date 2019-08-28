@@ -50,7 +50,7 @@ unsigned int  RMInit::clientcommMaxRetry = 6; // changed from 100, with new wait
 unsigned int  RMInit::clientcommSleep = 0;
 unsigned int  RMInit::rpcMaxRetry = 5;
 
-r_Bytes RMInit::clientTileSize = 786432;
+r_Bytes RMInit::clientTileSize = 4000000;
 
 RMInit::RMInit(char initApplicationType)
     : applicationType(initApplicationType)

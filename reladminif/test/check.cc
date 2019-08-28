@@ -47,6 +47,7 @@ get domain
 #include "tilemgr/tile.hh"
 #include "cmlparser.hh"
 #include "raslib/mitera.hh"
+#include "globals.hh"
 
 #define ALLDONE         0
 #define ERRORPARSINGCOMMANDLINE 1
@@ -152,7 +153,7 @@ main(int argc, char** argv)
     r_MiterArea* miter = NULL;
     try
     {
-        d.open("RASBASE");
+        d.open(DEFAULT_DBNAME);
         t.begin(&d, true);
         mdd = new MDDObj(oid);
         if (mdd->getCurrentDomain().dimension() == domain.dimension())
@@ -241,7 +242,7 @@ main(int argc, char** argv)
         currentDomain = miter->nextArea();
         try
         {
-            d.open("RASBASE");
+            d.open(DEFAULT_DBNAME);
             t.begin(&d, readonly);
             mdd = new MDDObj(oid);
             tiles = mdd->intersect(currentDomain);

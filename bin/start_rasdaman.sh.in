@@ -53,6 +53,7 @@ PROG=$(basename $0)
 
 RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
+RC_HELP=2
 
 RASMGR_PORT=7001
 
@@ -135,13 +136,24 @@ check_port_available()
     fi
 }
 
+set_rasmgr_port()
+{
+    case "$1" in
+      ''|*[!0-9]*)  error "Invalid port specified: $1; expected a positive number <= 65535.";;
+      *)            RASMGR_PORT="$1";;
+    esac
+    [ $RASMGR_PORT -gt 0 -a $RASMGR_PORT -lt 65535 ] || \
+        error "Invalid port specified: $1; expected a positive number <= 65535."
+}
+
 #------ start embedded petascope/secore if needed --------------------------
 
 # Start embedded tomcat from values in properties file
 # $1: the path to properties file (e.g: /opt/rasdaman/etc/petascope.properties).
 # $2: the web application name (e.g: petascope, secore).
 # $3: the war file of application (e.g: rasdaman.war, def.war).
-start_embedded() {
+start_embedded()
+{
     local props_path="$1"
     local app_name="$2"
     local war_file_name="$3"
@@ -170,7 +182,34 @@ start_embedded() {
 
 # --- ACTION ------------------------------------------------------
 
-set_all_options() {
+usage()
+{
+    cat <<EOF
+Start the rasdaman server if not already running.
+
+Usage:
+  start_rasdaman.sh [OPTION]...
+
+Options:
+  --service <svc>       start a particular service <svc> only; allowed values 
+                        for <svc> are: core, petascope, secore. By default all
+                        services are started.
+
+  -p, --port <port>     specify the port on which rasmgr will listen. By default
+                        this is 7001, it is recommended to avoid changing this
+                        value unless really necessary.
+
+  <N1> <N2> ...         start only the specified rasservers, as named in 
+                        etc/rasmgr.conf. By default all configured rasservers 
+                        are started.
+
+  -h, --help            show this message and exit.
+EOF
+    exit $RC_HELP
+}
+
+set_all_options()
+{
     start_rasmgr_rasservers=$1
     start_embedded_petascope=$1
     start_embedded_secore=$1
@@ -193,13 +232,17 @@ for i in "$@"; do
               secore)    start_embedded_secore=true;;
               *)         error "Value for option $option must be core|petascope|secore. Given: $i";;
             esac
+        elif [ "$option" = "--port" -o "$option" = "-p" ]; then
+            set_rasmgr_port "$i"
         fi
         option=""
     else
         option=""
         case $i in
           --service)      option="$i";;
-          -*)            error "unknown option: $i";;
+          --port|-p)      option="$i";;
+          --help|-h)      usage;;
+          -*)             error "unknown option: $i";;
           *)              servers="$servers $i";;
         esac
     fi

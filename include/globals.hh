@@ -52,7 +52,7 @@ rasdaman GmbH.
 /// default name of server machine, if gethostname() fails
 #define DEFAULT_HOSTNAME    "127.0.0.1"
 
-// default name of rasserver instance, if getServerName() fails
+/// default name of rasserver instance, if getServerName() fails
 #define DEFAULT_SERVERNAME	"rasserver"
 
 /// default database name
@@ -108,6 +108,9 @@ rasdaman GmbH.
 /// If a host has two IP addresses, 192.168.1.1 and 10.1.2.1, and a server running on the host listens on [::], it will be reachable at both of those IPs.
 /// This address can be used by servers that want to be reached from outside local machine.
 #define ALL_IP_ADDRESSES "[::]"
+
+/// Convert parameter to string literal
+#define STRINGIFY(x) #x
 
 #endif // GLOBALS_HH
 

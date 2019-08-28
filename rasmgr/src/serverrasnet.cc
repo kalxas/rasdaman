@@ -399,7 +399,8 @@ void ServerRasNet::registerServer(const std::string &serverId)
                 else
                 {
                     throw common::RuntimeException("Server could not be reached at " +
-                                                   hostName + ":" + std::to_string(port) + ", invalid -host  in rasmgr.conf?");
+                                                   hostName + ":" + std::to_string(port) + 
+                                                   ", invalid -host  in " RASMGR_CONF_FILE "?");
                 }
             }
         }
@@ -619,7 +620,7 @@ const char *ServerRasNet::getCapability(const char *serverName, const char *data
     sprintf(capaQ, "$Canci%s", capaS);
 
     char digest[50]; // 33 is enough
-    messageDigest(capaQ, digest, "MD5");
+    messageDigest(capaQ, digest, DEFAULT_DIGEST);
 
     sprintf(capaQ, "%s$D%s$K", capaS, digest);
 

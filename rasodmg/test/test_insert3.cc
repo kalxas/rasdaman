@@ -327,7 +327,7 @@ void printUsage(char* name)
     std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
-    std::cout << "         -port                   <nnnn>          ... port of server.(default 7001)" << std::endl;
+    std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
     std::cout << "         -base                   <dbname>        ... name of database.(madatory)" << std::endl;
     std::cout << "         -setname                <setname>       ... name of collection.(madatory)" << std::endl;
     std::cout << "         -settype                <typename>      ... type name used for creation of a new set." << std::endl;
@@ -401,11 +401,11 @@ int main(int argc, char** argv)
     char* storageFormatParams = NULL;
 
     char serverName[MAX_STR_LEN] = "";
-    r_ULong serverPort = 7001;
+    r_ULong serverPort = DEFAULT_PORT;
     char baseName[MAX_STR_LEN] = "";
 
-    char userName[MAX_STR_LEN] = "rasguest";
-    char userPasswd[MAX_STR_LEN] = "rasguest";
+    char userName[MAX_STR_LEN] = DEFAULT_USER;
+    char userPasswd[MAX_STR_LEN] = DEFAULT_PASSWD;
 
     char collName[MAX_STR_LEN] = "";
     char setTypeName[MAX_STR_LEN] = "";

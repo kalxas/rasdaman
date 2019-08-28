@@ -153,12 +153,12 @@ printUsage(char* name)
     std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
-    std::cout << "         -port                   <nnnn>          ... port of server.(default 7001)" << std::endl;
+    std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
     std::cout << "         -base                   <dbname>        ... name of database.(madatory)" << std::endl;
     std::cout << "         -setname                <setname>       ... name of collection for retrival by name.(madatory)" << std::endl;
     std::cout << "         -oid                    <oidset>        ... oid of marray or set as string for retrival by oid.(mandatory)" << std::endl;
-    std::cout << "         -user                   <usrname>       ... user name.(default rasguest)" << std::endl;
-    std::cout << "         -passwd                 <usrpasswd>     ... user password.(default rasguest)" << std::endl;
+    std::cout << "         -user                   <usrname>       ... user name.(default " << DEFAULT_USER << ")" << std::endl;
+    std::cout << "         -passwd                 <usrpasswd>     ... user password.(default " << DEFAULT_PASSWD << ")" << std::endl;
     std::cout << "         -transferformat         <format>        ... transfer format.(default Array)" << std::endl;
     std::cout << "         -transferformatparams   <formatparams>  ... transfer format parameters.(default NULL)" << std::endl;
     std::cout << "         -storageformat          <format>        ... storage format.(default Array)" << std::endl;
@@ -191,14 +191,14 @@ int main(int argc, char** argv)
     char* storageFormatParams = NULL;
 
     char* serverName = "";
-    r_ULong serverPort = 7001;
+    r_ULong serverPort = DEFAULT_PORT;
     char* baseName = "";
 
     char* collName = "";
     char* oidString = "";
 
-    char* userName = "rasguest";
-    char* userPasswd = "rasguest";
+    char* userName = DEFAULT_USER;
+    char* userPasswd = DEFAULT_PASSWD;
 
 #ifdef TEST_LOOKUP
     r_GMarray*       transImage = 0;

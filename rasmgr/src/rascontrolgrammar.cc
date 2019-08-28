@@ -1129,7 +1129,7 @@ std::string RasControlGrammar::defineHelp()
            "         ('dbname' is not a symbolic name, it is the real name of the rasdaman database)\r\n"
            "define host 'hostname' -net 'netaddress' [-port 'portnumber']\r\n"
            "       - define server host with symbolic name 'hostname', located at address 'netaddress:portnumber'\r\n"
-           "         ('portnumber' defaults to 7001)\r\n"
+           "         ('portnumber' defaults to " STRINGIFY(DEFAULT_PORT) ")\r\n"
            "define srv 'srvname' -host 'hostname' -dbh 'dbhname' -type 'servertype' -port 'portnumber' \r\n"
            "                                [-autorestart on|off] [-countdown 'number'] [-xp 'options']\r\n"
            "       - define server with symbolic name 'srvname' on server host 'hostname' connected to database host 'dbhname'\r\n"
@@ -1148,7 +1148,7 @@ std::string RasControlGrammar::defineHelp()
            "       - define inpeer with the host name 'hostname'\r\n"
            "define outpeer 'hostname' [-port 'portnumber']\r\n"
            "       - define outpeer with the host name 'hostname'\r\n"
-           "         ('portnumber' defaults to 7001)\r\n";
+           "         ('portnumber' defaults to  " STRINGIFY(DEFAULT_PORT) ")\r\n";
 }
 
 std::string RasControlGrammar::removeHelp()

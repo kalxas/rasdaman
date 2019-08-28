@@ -141,8 +141,6 @@ using common::ErrorMessage;
 
 using std::string;
 
-const unsigned int CLIENT_COMMUNICATION_FAILURE = 237;
-
 RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort):
     transferFormatParams(NULL),
     storageFormatParams(NULL)

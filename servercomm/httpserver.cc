@@ -147,14 +147,14 @@ void encodeNumber(char **output, T value)
 static char *decodeString(char **input, bool checkNull = true)
 {
     static const char *nullParam = "null";
-    static constexpr size_t MAX_BUFFER_SIZE = 1024;
-    static char stringBuffer[MAX_BUFFER_SIZE];
+    static constexpr size_t MAX_PARAM_SIZE = 1024;
+    static char stringBuffer[MAX_PARAM_SIZE];
 
     // prevent buffer overflow
     size_t len = strlen(*input);
-    if (len + 1 > MAX_BUFFER_SIZE)
+    if (len + 1 > MAX_PARAM_SIZE)
     {
-        LERROR << "Invalid request, expected parameter of max length " << MAX_BUFFER_SIZE
+        LERROR << "Invalid request, expected parameter of max length " << MAX_PARAM_SIZE
                << ", got " << len << ".";
         throw r_Error(r_Error::r_Error_TransferFailed);
     }
