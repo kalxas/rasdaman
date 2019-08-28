@@ -21,9 +21,9 @@
 #
 ###################################################################
 
-find_package(Readline)
-
 set(REQUIRED_LIBRARIES "")
+
+find_package(Readline)
 
 if (READLINE_FOUND)
     add_definitions(-DREADLINELIB=1)

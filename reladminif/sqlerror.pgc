@@ -48,7 +48,6 @@ rasdaman GmbH.
 #include "externs.h"
 
 #include "raslib/error.hh"
-#include "debug-srv.hh"
 #include <logging.hh>
 
 // general embedded SQL related definitions

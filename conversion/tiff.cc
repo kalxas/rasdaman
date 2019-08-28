@@ -30,7 +30,6 @@ rasdaman GmbH.
 #include "raslib/parseparams.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
-#include "debug/debug.hh"
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 

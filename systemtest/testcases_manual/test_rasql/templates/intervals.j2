@@ -9,33 +9,43 @@
 {%-   set mixed_slice = mdd_constant_subsets['mixed_slice_intersecting_trims_star_both'] -%}
 query: SELECT sdom(c) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom((c + c) / 2.0) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_expr"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(shift(c, {{slice}})) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_shift"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(extend(c, {{trim_containing}}) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_extend"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(scale(c, {{trim_containing}}) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_scale"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c{{trim}}) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_subset"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c{{slice}}) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_subset_point"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c{{mixed_slice}}) FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_subset_mixed"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c)[0:0] FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_result_subset"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c)[0] FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_result_slice"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c)[10] FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_result_slice_invalid_1"}}
@@ -45,15 +55,18 @@ id: {{test_id ~ "_sdom_result_slice_invalid_2"}}
 {{separator}}
 query: SELECT sdom(c)[0].lo FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_result_lo"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom(c)[0].hi FROM {{coll_name}} AS c
 id: {{test_id ~ "_sdom_result_hi"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT {{trim}}[0:0]
 id: {{test_id ~ "_constant_subset"}}
 {{separator}}
 query: SELECT {{trim}}[0]
 id: {{test_id ~ "_constant_slice"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT {{trim}}[10]
 id: {{test_id ~ "_constant_slice_invalid_1"}}
@@ -63,12 +76,15 @@ id: {{test_id ~ "_constant_slice_invalid_2"}}
 {{separator}}
 query: SELECT {{trim}}[0].lo
 id: {{test_id ~ "_constant_lo"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT {{trim}}[0].hi
 id: {{test_id ~ "_constant_hi"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT {{trim}}[0].hi - {{trim}}[0].lo + 1
 id: {{test_id ~ "_constant_extent"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT {{trim}}.lo
 id: {{test_id ~ "_constant_lo_invalid"}}

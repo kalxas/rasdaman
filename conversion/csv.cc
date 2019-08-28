@@ -21,58 +21,44 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 /**
- * SOURCE: csv.cc
- *
- * MODULE:  conversion
- *
- * CLASSES: r_Conv_CSV
- *
- * COMMENTS:
- *
  * Provides functions to convert data to CSV SD and back.
- *
-*/
+ * 2011-may-24  DM          added support for structured types
+ * 2012-feb-05  DM          convert recursive printing to iterative
+ */
 
 /* Added by Sorin Stancu-Mara. Definition clashed for type int8, define in both
 * /usr/include/csv.h and in /usr/include/tiff.h
 * This will supress the tiff.h definition.
 * Both definitions are similar
-*
-* 2011-may-24  DM          added support for structured types
-* 2012-feb-05  DM          convert recursive printing to iterative
 */
 #define HAVE_INT8
-#define STRUCT_DELIMITER_OPEN "\""
-#define STRUCT_DELIMITER_CLOSE "\""
-#define STRUCT_DELIMITER_ELEMENT " "
 
-#include <limits>
-#include <iomanip>
+#include "csv.hh"
 #include "config.h"
-#include "conversion/csv.hh"
+#include "transpose.hh"
+#include "formatparamkeys.hh"
 #include "raslib/error.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/complextype.hh"
-#include "conversion/transpose.hh"
+#include <logging.hh>
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <string>
 #include <sstream>
-
-#include "csv.hh"
-
 #include <algorithm>
 #include <stdio.h>
-#include <iostream>
 #include <stack>
-
-#include "debug/debug-srv.hh"
-#include "formatparamkeys.hh"
-#include <logging.hh>
+#include <limits>
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
+
+#define STRUCT_DELIMITER_OPEN "\""
+#define STRUCT_DELIMITER_CLOSE "\""
+#define STRUCT_DELIMITER_ELEMENT " "
 
 #define DIM_BOUNDARY -1
 
@@ -659,8 +645,6 @@ r_Conv_Desc &r_Conv_CSV::convertFrom(__attribute__((unused)) r_Format_Params opt
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-
-
 const char *r_Conv_CSV::get_name(void) const
 {
     return format_name_csv;
@@ -671,7 +655,6 @@ r_Data_Format r_Conv_CSV::get_data_format(void) const
 {
     return r_CSV;
 }
-
 
 r_Convertor *r_Conv_CSV::clone(void) const
 {

@@ -23,3 +23,6 @@ rasdaman GmbH.
 
 #include "indexds.hh"
 
+IndexDS::IndexDS() : DBObject() {}
+
+IndexDS::IndexDS(const OId &id) : DBObject(id) {}

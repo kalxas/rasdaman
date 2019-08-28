@@ -33,7 +33,6 @@ rasdaman GmbH.
 #include "tilemgr/tiler.hh"
 
 #include "mddmgr/mddobj.hh"
-#include "debug/debug-srv.hh"
 #include "qtnullvaluesdata.hh"
 
 #include <iostream>

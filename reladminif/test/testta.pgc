@@ -36,9 +36,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#define DEBUG_MAIN
-#include "debug.hh"
-
 // constants:
 #define DATABASE "RASBASE"
 

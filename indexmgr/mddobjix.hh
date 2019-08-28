@@ -20,19 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/****************************************************************************
- *
- *
- * INCLUDE: mddobjix.hh
- *
- * MODULE:  indexmgr
- * CLASS:   MDDObjIx
- *
- *
- * COMMENTS:
- *     none
- *
- ****************************************************************************/
 
 /**
  *  @file mddobjix.hh
@@ -58,48 +45,30 @@ class Tile;
 
 /*@Doc:
 
-Each MDD Object is composed of a set of tiles which are accessed through an index.
-The task of the index is to determine the tiles affected by a spatial operation
-and to allow fast access to them.  It will also take care of memory management of the tiles.
-
-{\bfMDD Objects indexes: }
+Each MDD Object is composed of a set of tiles which are accessed through an
+index. The task of the index is to determine the tiles affected by a spatial
+operation and to allow fast access to them. It will also take care of memory
+management of the tiles.
 
 MDD Objects indexes are multidimensional since they provide access to
-multidimensional rectangular tiles existing in
-multidimensional intervals. An MDDObjIx has to be able to deal with different dimensionalities.
+multidimensional rectangular tiles existing in multidimensional intervals. An
+MDDObjIx has to be able to deal with different dimensionalities.
 
-The index of an MDD object keeps the information about the current domain of the
-MDD object. During the lifetime of the
-object, it is possible that the definition (or current) domain of an object is
-not completely covered by the tiles already inserted.
-At each moment, the current domain of an object is the closure of the domains of
-all tiles. All tiles should be completely contained
-in the definition domain of an object.
-The definition domain may have open boundaries, but the current domain is always a closed interval.
+The index of an MDD object keeps the information about the current domain of
+the MDD object. During the lifetime of the object, it is possible that the
+definition (or current) domain of an object is not completely covered by the
+tiles already inserted. At each moment, the current domain of an object is the
+closure of the domains of all tiles. All tiles should be completely contained
+in the definition domain of an object. The definition domain may have open
+boundaries, but the current domain is always a closed interval.
 
-The lower classes in the indexmgr support storage of any kind of persistent object.
-This class has to be changed to reflect this aability.
+The lower classes in the indexmgr support storage of any kind of persistent
+object. This class has to be changed to reflect this ability.
 
-     In the future, functions have to be implemented which allow the user
-     to give indication about priorities for freeing tiles from main memory.
+In the future, functions have to be implemented which allow the user to
+give indication about priorities for freeing tiles from main memory.
 
 */
-
-// function pointer to the static function which inserts objects
-using IxLogic_insertObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
-
-// function pointer to the static function which removes objects
-using IxLogic_removeObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
-
-// function pointer to the static function which gets objects from the index
-using IxLogic_intersect = void (*)(const IndexDS *, const r_Minterval &, KeyObjectVector &, const StorageLayout &);
-
-// function pointer to the static function which gets object at point
-using IxLogic_containPointQuery = void (*)(const IndexDS *, const r_Point &, KeyObject &, const StorageLayout &);
-
-// function pointer to the static function which inserts objects
-using IxLogic_getObjects = void (*)(const IndexDS *, KeyObjectVector &, const StorageLayout &);
-
 class MDDObjIx
 {
 public:
@@ -119,15 +88,9 @@ public:
         When bt is NULL this index will behave as if it were a transient index.
     */
 
-    void printStatus(unsigned int level, std::ostream &stream) const;
-
     ~MDDObjIx();
-
-    DBObjectId getDBMDDObjIxId() const;
-
-    r_Minterval getCurrentDomain() const;
-
-    r_Dimension getDimension() const;
+    
+    void printStatus(unsigned int level, std::ostream &stream) const;
 
     void insertTile(boost::shared_ptr<Tile> newTile);
 
@@ -135,15 +98,9 @@ public:
 
     std::vector<boost::shared_ptr<Tile>> *intersect(const r_Minterval &) const;
 
-    char *pointQuery(const r_Point &searchPoint);
-
     const char *pointQuery(const r_Point &searchPoint) const;
 
-    boost::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
-
     std::vector<boost::shared_ptr<Tile>> *getTiles() const;
-
-    bool isPersistent() const;
 
     void releasePersTiles();
     /*@Doc:
@@ -152,8 +109,19 @@ public:
         This will only have effect on persistent indexes.
         Transient indexes keep their tiles in TransDirIx which deletes its tiles in the destructor.
     */
+    
+    DBObjectId getDBMDDObjIxId() const;
+
+    r_Minterval getCurrentDomain() const;
+
+    r_Dimension getDimension() const;
+    
+    bool isPersistent() const;
 
 protected:
+    
+    boost::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
+    
     void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<boost::shared_ptr<Tile>> *newLastTiles);
 
     void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);
@@ -175,6 +143,12 @@ protected:
         Returns true if found.
         Subclasses which use the cache must call this function before removing a
         tile from the index, or else the tile may remain in main memory.
+    */
+    
+    void initializeLogicStructure();
+    /**
+        {\tt actualDBIx} and {\tt cellBaseType} must be already correctly set.
+        The function pointers are set according to the index type.
     */
 
     r_Minterval lastAccess;
@@ -219,61 +193,39 @@ protected:
         a point.
     */
 
-    const BaseType *cellBaseType;
+    const BaseType *cellBaseType{nullptr};
     /*@Doc:
         This is needed because the PersTile constructor expects a BaseType.
         It Should be considered to move the creation of PersTiles into the
         MDDObj class.
     */
 
-    IndexDS *actualIx;
+    IndexDS *actualIx{nullptr};
     /*@Doc:
         The real index structure
     */
-
+    
+    /// function pointer to the static function which inserts objects
+    using IxLogic_insertObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
     IxLogic_insertObject do_insertObj;
-    /*@Doc:
-        Function pointer to insert tile logic
-    */
-
+    
+    /// function pointer to the static function which removes objects
+    using IxLogic_removeObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
     IxLogic_removeObject do_removeObj;
-    /*@Doc:
-        Function pointer to remove tile logic
-    */
-
+    
+    /// function pointer to the static function which gets objects from the index
+    using IxLogic_intersect = void (*)(const IndexDS *, const r_Minterval &, KeyObjectVector &, const StorageLayout &);
     IxLogic_intersect do_intersect;
-    /*@Doc:
-        Function pointer to find tiles logic
-    */
-
+    
+    /// function pointer to the static function which gets object at point
+    using IxLogic_containPointQuery = void (*)(const IndexDS *, const r_Point &, KeyObject &, const StorageLayout &);
     IxLogic_containPointQuery do_pointQuery;
-    /*@Doc:
-        Function pointer to find tile logic
-    */
-
+    
+    /// function pointer to the static function which gets all objects
+    using IxLogic_getObjects = void (*)(const IndexDS *, KeyObjectVector &, const StorageLayout &);
     IxLogic_getObjects do_getObjs;
-    /*@Doc:
-        Function pointer to get all tiles logic
-    */
 
-#ifdef RMANBENCHMARK
-
-    void initializeTimerPointers();
-    /*@Doc:
-        This code was commented out because it crashed
-    */
-
-    RMTimer *pointQueryTimer;
-    RMTimer *intersectTimer;
-    RMTimer *getTilesTimer;
-#endif
-    void initializeLogicStructure();
-    /**
-        {\tt actualDBIx} and {\tt cellBaseType} must be already correctly set.
-        The function pointers are set according to the index type.
-    */
-
-    bool _isPersistent;
+    bool _isPersistent{false};
     /*@Doc:
         This class is used for both persistent and tranisent objects
         To be able to distinguish whether it is persistent or transient
@@ -285,6 +237,18 @@ protected:
         Nifty object which holds information on how to store data in the database.
         It tells you which index to use, hos large a index might become and so on.
     */
+    
+#ifdef RMANBENCHMARK
+
+    void initializeTimerPointers();
+    /*@Doc:
+        This code was commented out because it crashed
+    */
+
+    RMTimer *pointQueryTimer;
+    RMTimer *intersectTimer;
+    RMTimer *getTilesTimer;
+#endif
 };
 
 #endif

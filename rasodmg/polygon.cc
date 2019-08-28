@@ -58,8 +58,6 @@ using std::sort;
 #include "raslib/miter.hh"
 #include "rasodmg/marray.hh"
 
-#include "debug/debug.hh"
-
 #include <logging.hh>
 
 // ------------------------------------------------------------------

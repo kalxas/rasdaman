@@ -33,7 +33,6 @@ rasdaman GmbH.
  ***********************************************************************/
 
 #include "config.h"
-#include "debug-srv.hh"
 #include "sqlerror.hh"
 
 // general embedded SQL related definitions
@@ -86,8 +85,7 @@ AdminIf::AdminIf(bool createDb)
     if (check("AdminIf Connect\0"))
     {
         validConnection = false;
-        LDEBUG << "connect unsuccessful; wrong connect string?";
-        cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "' ?" << endl;
+        LERROR << "connect unsuccessful; wrong connect string?";
         throw r_Error( DATABASE_CONNECT_FAILED );
     }
     else

@@ -45,9 +45,6 @@ using namespace std;
 #include "databaseif.hh"
 #include "externs.h"
 
-#define DEBUG_MAIN
-#include "debug.hh"
-
 
 RMINITGLOBALS('C')
 

@@ -323,11 +323,6 @@ std::vector<shared_ptr<Tile>> *MDDObj::getTiles() const
     return myMDDIndex->getTiles();
 }
 
-char *MDDObj::pointQuery(const r_Point &searchPoint)
-{
-    return myMDDIndex->pointQuery(searchPoint);
-}
-
 const char *MDDObj::pointQuery(const r_Point &searchPoint) const
 {
     return myMDDIndex->pointQuery(searchPoint);

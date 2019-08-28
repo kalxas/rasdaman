@@ -24,8 +24,6 @@ rasdaman GmbH.
 #include "dbtile.hh"
 #include "reladminif/oidif.hh"  // for OId, operator<<, OId::INVALID
 #include "raslib/error.hh"
-#include "tilecache.hh"
-#include "tilecachevalue.hh"
 #include <logging.hh>
 
 #include <stdlib.h>             // for malloc, free
@@ -239,42 +237,16 @@ DBTile::~DBTile() noexcept(false)
 
     if (cells)
     {
-        if (TileCache::cacheLimit > 0)
+        //LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
+        if (!allocatedWithNew)
         {
-            if (!TileCache::contains(myOId))
-            {
-                //LTRACE << "DBTile::~DBTile() not cached, freeing blob cells of size: " << size;
-                if (!allocatedWithNew)
-                {
-                    free(cells);
-                }
-                else
-                {
-                    delete[] cells;
-                }
-                cells = NULL;
-            }
-            else
-            {
-                //LTRACE << "DBTile::~DBTile() cached, will not free cells: " << size;
-                CacheValue *value = TileCache::get(myOId);
-                value->removeReferencingTile(this);
-                cells = NULL;
-            }
+            free(cells);
         }
         else
         {
-            //LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
-            if (!allocatedWithNew)
-            {
-                free(cells);
-            }
-            else
-            {
-                delete[] cells;
-            }
-            cells = NULL;
+            delete[] cells;
         }
+        cells = NULL;
     }
     //else
     //{

@@ -25,9 +25,6 @@
 
 #include "hexcodec.hh"
 
-// debug facility; relies on -DDEBUG at compile time
-#include "debug/debug.hh"
-
 using std::ostringstream;
 using std::ios;
 using std::endl;

@@ -44,14 +44,14 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 
 DBNullvalues::DBNullvalues()
     :   DBObject(),
-        r_Nullvalues({})
+        r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
 }
 
-DBNullvalues::DBNullvalues(const OId& id) throw (r_Error)
+DBNullvalues::DBNullvalues(const OId& id)
     :   DBObject(id),
-        r_Nullvalues({})
+        r_Nullvalues()
 {
     objecttype = OId::DBNULLVALUESOID;
     readFromDb();
@@ -103,7 +103,7 @@ DBNullvalues::getMemorySize() const
 }
 
 void
-DBNullvalues::insertInDb() throw (r_Error)
+DBNullvalues::insertInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid;
@@ -138,7 +138,7 @@ DBNullvalues::insertInDb() throw (r_Error)
 }
 
 void
-DBNullvalues::updateInDb() throw (r_Error)
+DBNullvalues::updateInDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid1;
@@ -189,7 +189,7 @@ DBNullvalues::updateInDb() throw (r_Error)
 }
 
 void
-DBNullvalues::deleteFromDb() throw (r_Error)
+DBNullvalues::deleteFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid2;
@@ -209,7 +209,7 @@ DBNullvalues::deleteFromDb() throw (r_Error)
 }
 
 void
-DBNullvalues::readFromDb() throw (r_Error)
+DBNullvalues::readFromDb()
 {
     EXEC SQL BEGIN DECLARE SECTION;
         long    nullvalueid3;

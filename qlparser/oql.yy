@@ -82,6 +82,7 @@ rasdaman GmbH.
 #include "qlparser/qtgeometryop.hh"
 #include "qlparser/qtgeometrydata.hh"
 #include "servercomm/cliententry.hh"
+#include "servercomm/accesscontrol.hh"
 
 #include <vector>
 
@@ -89,6 +90,7 @@ rasdaman GmbH.
 #undef ABS
 
 extern ClientTblElt* currentClientTblElt;
+extern AccessControl accessControl;
 extern ParseInfo *currInfo;
 
 void   yyerror(void* mflag, const char* s );

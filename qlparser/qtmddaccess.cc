@@ -45,7 +45,7 @@ using namespace std;
 
 #include <logging.hh>
 
-#include "servercomm/servercomm.hh"
+#include "server/rasserver_config.hh"
 #include "servercomm/cliententry.hh"
 
 #include "lockmgr/lockmanager.hh"

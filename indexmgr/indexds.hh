@@ -20,15 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * INCLUDE: indexds.hh
- *
- * MODULE:  indexmgr
- * CLASS:   IndexDS
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _INDEXDS_HH_
 #define _INDEXDS_HH_
@@ -51,9 +42,9 @@ rasdaman GmbH.
 class IndexDS : public DBObject
 {
 public:
-    IndexDS() : DBObject() {}
+    IndexDS();
 
-    IndexDS(const OId &id) : DBObject(id) {}
+    IndexDS(const OId &id);
 
     ~IndexDS() noexcept(false) override = default;
 

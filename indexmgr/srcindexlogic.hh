@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * MODULE:  indexmgr
- * CLASS:   SRCIndexLogic
- *
- * COMMENTS:
- *
-*/
 
 #ifndef _SRCINDEXLOGIC_HH_
 #define _SRCINDEXLOGIC_HH_
@@ -115,6 +108,7 @@ public:
     */
 
 protected:
+    
     static r_Minterval computeNormalizedDomain(
         const r_Point &mddDomainExtent,
         const r_Point &tileConfigExtent);

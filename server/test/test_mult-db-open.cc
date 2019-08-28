@@ -57,10 +57,6 @@ using std::iterator;
 
 #include "mymalloc/mymalloc.h"
 
-// here is the main prog for allocating debug macro vars
-#define DEBUG_MAIN
-#include "debug.hh"
-
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 

@@ -21,4 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "relindexif/hierindex.hh"
+#include "hierindexds.hh"
+
+HierIndexDS::HierIndexDS() : IndexDS() {}
+
+HierIndexDS::HierIndexDS(const OId &id) : IndexDS(id) {}

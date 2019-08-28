@@ -38,7 +38,6 @@ rasdaman GmbH.
 EXEC SQL include "../reladminif/sqlglobals.h";
 
 #include "config.h"
-#include "debug-srv.hh"
 #include "mddbasetype.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"

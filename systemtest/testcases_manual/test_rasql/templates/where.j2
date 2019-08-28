@@ -5,6 +5,7 @@
 {%- if dimension == 2 and cell_type_name == 'char' -%}
 query: SELECT true FROM {{coll_name}} AS c WHERE oid(c) > 0
 id: {{test_id ~ "_oid_selected_all"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS c WHERE oid(c) < 0
 id: {{test_id ~ "_oid_selected_none"}}
@@ -14,6 +15,7 @@ id: {{test_id ~ "_scalar_expr_bool"}}
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS c WHERE true
 id: {{test_id ~ "_scalar_const_bool"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS c WHERE add_cells(c)
 id: {{test_id ~ "_scalar_expr_non_bool"}}
@@ -38,14 +40,17 @@ id: {{test_id ~ "_array_expr_non_bool"}}
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE oid(a) = oid(b)
 id: {{test_id ~ "_join_oid_selected_all"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE all_cells(a = b)
 id: {{test_id ~ "_join_expr_selected_all"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT true FROM {{coll_name}} AS a, {{coll_name}} AS b WHERE some_cells(a > b)
 id: {{test_id ~ "_join_expr_selected_none"}}
 {{separator}}
 query: SELECT oid(c) / oid(c) FROM {{coll_name}} AS c
 id: {{test_id ~ "_oid_expr"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {% endif -%}

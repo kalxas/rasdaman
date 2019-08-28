@@ -11,6 +11,7 @@ id: {{test_id ~ "_" ~ op_name}}
 query: SELECT {{op}} {{cell_type_val}}
 disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_scalar"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%    endif -%}
 {#-
@@ -24,6 +25,7 @@ id: {{test_id ~ "_" ~ op_name ~ "_band_mdd_" ~ cname}}
 query: SELECT {{op}}{{cell_type_val}}.{{cname}}
 disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_band_scalar_" ~ cname}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%      endif -%}
 {%    endfor -%}
@@ -45,6 +47,7 @@ skip: random results when casting an atomic type to a composite type
 query: SELECT ({{op}}) {{cell_type_val}}
 disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ op_name ~ "_" ~ op ~ "_scalar"}}
+disableoutfile: output is already contained in stdout
 {%-     if op_composite -%}
 known_fail: random results when casting an atomic type to a composite type
 skip: random results when casting an atomic type to a composite type

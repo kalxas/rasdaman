@@ -17,7 +17,6 @@
  * Copyright (C) 2010 Dr. Peter Baumann
  *
  ************************************************************/
-#include "debug.hh"
 
 #include "config.h"
 #include "qlparser/qtproject.hh"

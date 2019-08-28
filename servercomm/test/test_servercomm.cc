@@ -37,7 +37,6 @@ rasdaman GmbH.
 #define EARLY_TEMPLATE
 #define DEBUG_MAIN
 #define DEBUG
-#include "debug.hh"
 #include "template_inst.hh"
 
 #include "qlparser/qtscalardata.hh"

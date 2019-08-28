@@ -80,7 +80,7 @@ public:
         a persistent object a NULL is returned.
     */
 
-    r_Minterval getDomain() const;
+    const r_Minterval &getDomain() const;
     /*@Doc:
         Returns the domain which is associated with the objects that
         is carried.

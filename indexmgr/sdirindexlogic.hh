@@ -20,17 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/***********************
- *
- * INCLUDE: dirix.hh
- *
- * MODULE:  indexmgr
- * CLASS:   SDirIndexLogic
- *
- *
- * COMMENTS:
- *
- ***********/
 
 /**
  *  @file sdirindexlogic.hh
@@ -47,10 +36,8 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"  // for r_Minterval
 #include "raslib/point.hh"      // for r_Point
 
-
 class StorageLayout;
 class IndexDS;
-
 
 /*@Doc:
 
@@ -123,6 +110,8 @@ public:
         Returns all the tiles belonging to the object.
     */
 
+private:
+    
     enum OrderPoint
     {
         Highest = 1,

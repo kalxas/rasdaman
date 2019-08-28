@@ -33,8 +33,9 @@ rasdaman GmbH.
 #ifndef _HTTPSERVER_
 #define _HTTPSERVER_
 
-#include "servercomm/servercomm.hh"
-#include "servercomm/cliententry.hh"
+#include "servercomm.hh"
+#include "cliententry.hh"
+#include <memory>
 
 //@ManMemo: Module: {\bf servercomm}
 

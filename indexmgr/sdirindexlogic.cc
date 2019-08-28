@@ -107,9 +107,7 @@ int SDirIndexLogic::binaryPointSearch(const IndexDS *ixDS,
                 pnt2 = KeyObjectDomain.get_origin();
                 break;
             case None:
-            {
                 break;
-            }
             default:
                 break;
             }
@@ -235,9 +233,7 @@ int SDirIndexLogic::compare(const r_Minterval &mint1,
         point1 = mint1.get_origin();
         break;
     case None:
-    {
         break;
-    }
     default:
         break;
     }
@@ -250,9 +246,7 @@ int SDirIndexLogic::compare(const r_Minterval &mint1,
         point2 = mint2.get_origin();
         break;
     case None:
-    {
         break;
-    }
     default:
         break;
     }

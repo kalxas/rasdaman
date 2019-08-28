@@ -21,8 +21,8 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#ifndef _CLIENTENTRY_
-#define _CLIENTENTRY_
+#ifndef _CLIENTENTRY_HH
+#define _CLIENTENTRY_HH
 
 #include "raslib/mddtypes.hh"
 #include "reladminif/transactionif.hh"

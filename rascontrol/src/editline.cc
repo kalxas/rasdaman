@@ -20,13 +20,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "editline.hh"
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#ifdef READLINELIB
 #include <editline/readline.h>
-
-#include "editline.hh"
+#endif
 
 namespace rascontrol
 {
@@ -39,28 +41,30 @@ EditLine::EditLine()
     rl_bind_key('\t', rl_insert);
 #endif
 }
-EditLine::~EditLine()
-{
-}
 
 const char *EditLine::interactiveCommand(const char *prompt)
 {
 #ifdef READLINELIB
     char *rasp = rl_gets(prompt);
-
 #else
     std::cout << prompt << std::flush;
     char *rasp = fgets(line, MAXMSG - 1, stdin);
-
 #endif
 
     if (rasp == 0)
     {
         return 0;
     }
-    strcpy(line, rasp);
-    return line;
-
+    if (strlen(rasp) < MAXMSG)
+    {
+        strcpy(line, rasp);
+        return line;
+    }
+    else
+    {
+        std::cerr << "command too long, it can be at most " << MAXMSG << " characters.";
+        return 0;
+    }
 }
 
 const char *EditLine::fromStdinCommand(const char *prompt)
@@ -110,19 +114,13 @@ char *EditLine::rl_gets(const char *prompt)
         free(line_read);
         line_read = (char *)NULL;
     }
-    char *linePtr = strdup(prompt);
-
     /* Get a line from the user. */
-    line_read = readline(linePtr);
-
-    free(linePtr);
-
+    line_read = readline(prompt);
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
     {
         add_history(line_read);
     }
-
     return (line_read);
 #else
     return strdup(" ");

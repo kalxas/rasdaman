@@ -47,8 +47,6 @@ rasdaman GmbH.
 #include "../raslib/parseparams.hh"
 #include "../mymalloc/mymalloc.h"
 
-#include "../debug/debug.hh"
-
 #include "common/crypto/crypto.hh"
 #include "common/uuid/uuid.hh"
 #include "common/grpc/grpcutils.hh"

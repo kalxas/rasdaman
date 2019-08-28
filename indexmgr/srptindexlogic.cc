@@ -83,7 +83,7 @@ findNearestNode(IndexDS* whereToLook, const r_Minterval& theEntryDomain)
     }
 */
 
-bool SRPTIndexLogic::insertObject2(IndexDS *ixDS, const KeyObject &newKeyObject,
+bool SRPTIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject,
                                    const StorageLayout &sl)
 {
     IndexPVector leafNodes2Split;
@@ -167,7 +167,7 @@ bool SRPTIndexLogic::insertObject2(IndexDS *ixDS, const KeyObject &newKeyObject,
     return true;
 }
 
-void SRPTIndexLogic::intersect2(const IndexDS *ixDS,
+void SRPTIndexLogic::intersect(const IndexDS *ixDS,
                                 const r_Minterval &searchInter,
                                 KeyObjectVector &intersectedObjs,
                                 __attribute__((unused))
@@ -189,7 +189,7 @@ void SRPTIndexLogic::intersect2(const IndexDS *ixDS,
     }
 }
 
-void SRPTIndexLogic::containPointQuery2(const IndexDS *ixDS,
+void SRPTIndexLogic::containPointQuery(const IndexDS *ixDS,
                                         const r_Point &searchPoint,
                                         KeyObject &result,
                                         const StorageLayout &sl)
@@ -202,7 +202,7 @@ void SRPTIndexLogic::getObjects(const IndexDS *ixDS, KeyObjectVector &objs,
                                 const StorageLayout &sl)
 {
     // can be optimized !!!
-    intersect2(static_cast<const HierIndexDS *>(ixDS), ixDS->getCoveredDomain(), objs, sl);
+    intersect(static_cast<const HierIndexDS *>(ixDS), ixDS->getCoveredDomain(), objs, sl);
 }
 
 int SRPTIndexLogic::insertObject(const KeyObject &newKeyObject, HierIndexDS *ix,

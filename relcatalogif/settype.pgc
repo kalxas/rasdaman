@@ -35,7 +35,6 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-#include "debug-srv.hh"
 
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";

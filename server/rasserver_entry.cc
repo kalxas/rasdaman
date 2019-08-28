@@ -25,11 +25,15 @@ rasdaman GmbH.
 
 #include "rasserver_entry.hh"
 #include "servercomm/cliententry.hh"
+#include "servercomm/accesscontrol.hh"
+#include "reladminif/adminif.hh"
 
 #include <logging.hh>
 #include <limits>
 
 using namespace std;
+
+extern AccessControl accessControl;
 
 unsigned long RasServerEntry::clientCount = 0;
 const unsigned long RasServerEntry::noClientConnected = numeric_limits<unsigned long>::max();

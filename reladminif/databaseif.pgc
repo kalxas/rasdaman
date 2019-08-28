@@ -48,7 +48,7 @@ rasdaman GmbH.
 #include <string.h>
 #include "config.h"
 #include "version.h"
-#include "debug/debug.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 
 using namespace std;

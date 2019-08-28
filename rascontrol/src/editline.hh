@@ -35,7 +35,7 @@ class EditLine
 {
 public:
     EditLine();
-    ~EditLine();
+    ~EditLine() = default;
 
     const char *interactiveCommand(const char *prompt);
     const char *fromStdinCommand(const char *prompt);

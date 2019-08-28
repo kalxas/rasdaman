@@ -369,7 +369,7 @@ def evaluate_test(test, outdir, expdir, separator, retries=1):
         remove_files_with_prefix(outfile)
         cmd = RASQL + ["--out", "file", "--outfile", outfile]
     else:
-        cmd = RASQL
+        cmd = RASQL + ["--out", "string"]
 
     ret = True
     if not test.skip:

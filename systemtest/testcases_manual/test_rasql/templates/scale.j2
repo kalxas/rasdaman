@@ -8,6 +8,9 @@ id: {{test_id ~ "_" ~ k}}
 {{separator}}
 query: SELECT scale(c + {{cell_type_val}}, {{subset}}){{subset}} FROM {{coll_name}} AS c
 id: {{test_id ~ "_" ~ k ~ "_subset_result"}}
+{%      if not k.startswith('trims_') -%}
+disableoutfile: output is already contained in stdout
+{%      endif -%}
 {{separator}}
 {%      if dimension == 1 -%}
 query: SELECT scale({{cell_type_val}}, {{subset}})

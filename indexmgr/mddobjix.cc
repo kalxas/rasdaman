@@ -20,16 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * SOURCE: mddobjix.cc
- *
- * MODULE: indexmgr
- * CLASS:   MDDObjIx
- *
- * COMMENTS:
- *  none
- *
-*/
 
 #include "mddobjix.hh"                 // for MDDObjIx
 #include "hierindexds.hh"              // for HierIndexDS
@@ -63,130 +53,8 @@ rasdaman GmbH.
 using boost::shared_ptr;
 using std::vector;
 
-void MDDObjIx::setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<shared_ptr<Tile>> *newLastTiles)
-{
-    lastAccess = newLastAccess;
-    releasePersTiles();
-    lastAccessTiles = *newLastTiles;
-}
-
-void MDDObjIx::setNewLastAccess(shared_ptr<Tile> newLastTile, bool clear)
-{
-    if (clear)
-    {
-        releasePersTiles();
-        lastAccessTiles.erase(lastAccessTiles.begin(), lastAccessTiles.end());
-    }
-    if (newLastTile)
-    {
-        r_Minterval region = newLastTile->getDomain();
-        lastAccess = region;
-        lastAccessTiles.push_back(newLastTile);
-    }
-}
-
-bool MDDObjIx::removeTileFromLastAccesses(shared_ptr<Tile> tileToRemove)
-{
-    bool found = false;
-    std::vector<shared_ptr<Tile>>::iterator iter;
-    for (iter = lastAccessTiles.begin(); iter != lastAccessTiles.end(); iter++)
-    {
-        if (*iter == tileToRemove)
-        {
-            found = true;
-            lastAccessTiles.erase(iter);
-            break;
-        }
-    }
-    if (found)
-    {
-        r_Minterval emptyInterval;
-        lastAccess = emptyInterval;
-    }
-    return found;
-}
-
-std::vector<shared_ptr<Tile>> *MDDObjIx::lastAccessIntersect(const r_Minterval &searchInter) const
-{
-    std::vector<shared_ptr<Tile>> *interResult = nullptr;
-    if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchInter)))
-    {
-        LTRACE << "lastAccessIntersect Search in the cache ";
-        interResult = new std::vector<shared_ptr<Tile>>();
-        interResult->reserve(10);
-        for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
-        {
-            if (lastAccessTiles[i]->getDomain().intersects_with(searchInter))
-                interResult->push_back(lastAccessTiles[i]);
-        }
-        if (interResult->size() == 0)
-        {
-            delete interResult;
-            interResult = nullptr;
-        }
-    }
-    return interResult;
-}
-
-shared_ptr<Tile> MDDObjIx::lastAccessPointQuery(const r_Point &searchPoint) const
-{
-    shared_ptr<Tile> result;
-
-    if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchPoint)))
-    {
-        for (unsigned int i = 0; !result && i < lastAccessTiles.size(); i++)
-        {
-            if (lastAccessTiles[i]->getDomain().covers(searchPoint))
-            {
-                result = lastAccessTiles[i];
-            }
-        }
-    }
-    return (result);
-}
-
-void MDDObjIx::releasePersTiles()
-{
-    if (isPersistent())
-    {
-        lastAccessTiles.clear();
-    }
-}
-
-void MDDObjIx::printStatus(unsigned int level, std::ostream &stream) const
-{
-    stream << "MDDObjIx [ last access interval = " << lastAccess
-           << " tile cache size = " << lastAccessTiles.size() << " index structure = ";
-    actualIx->printStatus(level, stream);
-}
-
-DBObjectId MDDObjIx::getDBMDDObjIxId() const
-{
-    return actualIx;
-}
-
-r_Minterval MDDObjIx::getCurrentDomain() const
-{
-    return actualIx->getCoveredDomain();
-}
-
-r_Dimension MDDObjIx::getDimension() const
-{
-    return actualIx->getDimension();
-}
-
-#ifdef RMANBENCHMARK
-void MDDObjIx::initializeTimerPointers()
-{
-    pointQueryTimer = new RMTimer("DirIx", "pointQuery");
-    intersectTimer = new RMTimer("DirIx", "intersect");
-    getTilesTimer = new RMTimer("DirIx", "getTiles");
-}
-#endif
-
 MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim)
-    : cellBaseType(nullptr), actualIx(new TransDirIx(dim.dimension())),
-      _isPersistent(false), myStorageLayout(sl)
+    : actualIx(new TransDirIx(dim.dimension())), myStorageLayout(sl)
 {
     lastAccessTiles.reserve(10);
     initializeLogicStructure();
@@ -194,8 +62,7 @@ MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim)
 
 MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim,
                    const BaseType *bt, bool persistent)
-    : cellBaseType(bt), actualIx(nullptr), _isPersistent(persistent),
-      myStorageLayout(sl)
+    : cellBaseType(bt), _isPersistent(persistent), myStorageLayout(sl)
 {
     lastAccessTiles.reserve(10);
     initializeLogicStructure();
@@ -203,24 +70,22 @@ MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim,
     {
         switch (myStorageLayout.getIndexType())
         {
+        case r_Auto_Index:
         case r_RPlus_Tree_Index:
-            actualIx = static_cast<HierIndexDS *>(new DBHierIndex(dim.dimension(), false, true));
+            actualIx = new DBHierIndex(dim.dimension(), false, true);
             break;
         case r_Reg_Computed_Index:
             actualIx = new DBRCIndexDS(dim, SRCIndexLogic::computeNumberOfTiles(myStorageLayout, dim));
             break;
         case r_Tile_Container_Index:
-            actualIx = static_cast<HierIndexDS *>(new DBTCIndex(dim.dimension(), false));
+            actualIx = new DBTCIndex(dim.dimension(), false);
             break;
         case r_Directory_Index:
-            actualIx = static_cast<HierIndexDS *>(new DBHierIndex(dim.dimension(), false, true));
+            actualIx = new DBHierIndex(dim.dimension(), false, true);
             break;
-        case r_Auto_Index:
         default:
-            // should never get here. If Auto_Index, a specific index was
-            LTRACE << "initializeLogicStructure() Auto_Index or unknown index chosen";
+            LERROR << "unknown index: " << myStorageLayout.getIndexType();
             throw r_Error(UNKNOWN_INDEX_TYPE);
-            break;
         }
     }
     else
@@ -234,10 +99,7 @@ MDDObjIx::MDDObjIx(const StorageLayout &sl, const r_Minterval &dim,
 }
 
 MDDObjIx::MDDObjIx(DBObjectId newDBIx, const StorageLayout &sl, const BaseType *bt)
-    : cellBaseType(bt),
-      actualIx(newDBIx),
-      _isPersistent(true),
-      myStorageLayout(sl)
+    : cellBaseType(bt), actualIx(newDBIx), _isPersistent(true), myStorageLayout(sl)
 {
     initializeLogicStructure();
     lastAccessTiles.reserve(10);
@@ -246,48 +108,37 @@ MDDObjIx::MDDObjIx(DBObjectId newDBIx, const StorageLayout &sl, const BaseType *
 #endif
 }
 
-void MDDObjIx::initializeLogicStructure()
+MDDObjIx::~MDDObjIx()
 {
-    switch (myStorageLayout.getIndexType())
+    releasePersTiles();
+    if (actualIx)
     {
-    case r_RPlus_Tree_Index:
-    case r_Tile_Container_Index:
-        do_getObjs = SRPTIndexLogic::getObjects;
-        do_insertObj = SRPTIndexLogic::insertObject2;
-        do_pointQuery = SRPTIndexLogic::containPointQuery2;
-        do_removeObj = SRPTIndexLogic::removeObject;
-        do_intersect = SRPTIndexLogic::intersect2;
-        break;
-    case r_Reg_Computed_Index:
-        do_getObjs = SRCIndexLogic::getObjects;
-        do_insertObj = SRCIndexLogic::insertObject;
-        do_pointQuery = SRCIndexLogic::containPointQuery;
-        do_removeObj = SRCIndexLogic::removeObject;
-        do_intersect = SRCIndexLogic::intersect;
-        break;
-    case r_Directory_Index:
-        // chosen before this
-        do_getObjs = SDirIndexLogic::getObjects;
-        do_pointQuery = SDirIndexLogic::containPointQuery;
-        do_removeObj = SDirIndexLogic::removeObject;
-        do_intersect = SDirIndexLogic::intersect;
-        do_insertObj = SDirIndexLogic::insertObject;
-        break;
-    default:
-    case r_Auto_Index:
-        // should never get here. If Auto_Index, a specific index was
-        LERROR << "MDDObjIx::initializeLogicStructure() illegal index (" << myStorageLayout.getIndexType() << ") chosen!";
-        throw r_Error(ILLEGAL_INDEX_TYPE);
-        break;
+        actualIx->destroy();
+        actualIx = nullptr;
     }
+
+#ifdef RMANBENCHMARK
+    pointQueryTimer->setOutput(0);
+    if (pointQueryTimer) delete pointQueryTimer;
+    intersectTimer->setOutput(0);
+    if (intersectTimer) delete intersectTimer;
+    getTilesTimer->setOutput(0);
+    if (getTilesTimer) delete getTilesTimer;
+#endif
+}
+
+void MDDObjIx::printStatus(unsigned int level, std::ostream &stream) const
+{
+    stream << "MDDObjIx [ last access interval = " << lastAccess
+           << " tile cache size = " << lastAccessTiles.size() << " index structure = ";
+    actualIx->printStatus(level, stream);
 }
 
 void MDDObjIx::insertTile(shared_ptr<Tile> newTile)
 {
     if (isPersistent())
-    {
         newTile->setPersistent();
-    }
+    
     KeyObject t(newTile);
     do_insertObj(actualIx, t, myStorageLayout);
     setNewLastAccess(newTile, false);
@@ -295,18 +146,14 @@ void MDDObjIx::insertTile(shared_ptr<Tile> newTile)
 
 bool MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
 {
-    bool found = false;
     // removes from cache, if it's there
     removeTileFromLastAccesses(tileToRemove);
-
     // removes from the index itself
     KeyObject t(tileToRemove);
-    found = do_removeObj(actualIx, t, myStorageLayout);
-    return found;
+    return do_removeObj(actualIx, t, myStorageLayout);
 }
 
-vector<shared_ptr<Tile>> *MDDObjIx::intersect(
-                          const r_Minterval &searchInter) const
+vector<shared_ptr<Tile>> *MDDObjIx::intersect(const r_Minterval &searchInter) const
 {
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 3) intersectTimer->start();
@@ -321,16 +168,15 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
         result = new vector<shared_ptr<Tile>>();
         if (!resultKeys.empty())
         {
-            unsigned int resSize = resultKeys.size();
+            auto resSize = resultKeys.size();
             result->reserve(resSize);
-            unsigned int i = 0;
             if (isPersistent())
             {
 // this checks if there are double tiles in the result
 #ifdef DEBUG
                 DomainMap t;
                 DomainMap::iterator it;
-                for (i = 0; i < resSize; i++)
+                for (size_t i = 0; i < resSize; i++)
                 {
                     DomainPair p(resultKeys[i].getObject().getOId(), resultKeys[i].getDomain());
                     if ((it = t.find(p.first)) != t.end())
@@ -338,15 +184,13 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
                         LTRACE << "intersect(" << searchInter
                                << ") received double tile: " << resultKeys[i];
                         for (unsigned int j = 0; j < resultKeys.size(); j++)
-                        {
                             LTRACE << resultKeys[j];
-                        }
                         throw r_Error(TILE_MULTIPLE_TIMES_RETRIEVED);
                     }
                     t.insert(p);
                 }
 #endif
-                for (i = 0; i < resSize; i++)
+                for (size_t i = 0; i < resSize; i++)
                 {
                     LDEBUG << "found persistent entry in index with domain " << resultKeys[i].getDomain();
                     result->push_back(shared_ptr<Tile>(
@@ -355,7 +199,7 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
             }
             else
             {
-                for (i = 0; i < resSize; i++)
+                for (size_t i = 0; i < resSize; i++)
                 {
                     if (resultKeys[i].getTransObject() == nullptr)
                     {
@@ -381,40 +225,22 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(
     return result;
 }
 
-char *MDDObjIx::pointQuery(const r_Point &searchPoint)
-{
-    char *result = nullptr;
-
-    shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
-
-    if (resultTile)
-    {
-        result = resultTile->getCell(searchPoint);
-    }
-    return result;
-}
-
 const char *MDDObjIx::pointQuery(const r_Point &searchPoint) const
 {
     const char *result = nullptr;
-
-    shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
-
+    auto resultTile = containPointQuery(searchPoint);
     if (resultTile)
-    {
         result = resultTile->getCell(searchPoint);
-    }
     return result;
 }
 
 shared_ptr<Tile> MDDObjIx::containPointQuery(const r_Point &searchPoint) const
 {
-    shared_ptr<Tile> resultTile;
-
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 4) pointQueryTimer->start();
 #endif
-    resultTile = lastAccessPointQuery(searchPoint);
+    
+    auto resultTile = lastAccessPointQuery(searchPoint);
     if (!resultTile)
     {
         KeyObject resultKey;
@@ -505,23 +331,157 @@ vector<shared_ptr<Tile>> *MDDObjIx::getTiles() const
     return result;
 }
 
+void MDDObjIx::releasePersTiles()
+{
+    if (isPersistent())
+    {
+        lastAccessTiles.clear();
+    }
+}
+
+DBObjectId MDDObjIx::getDBMDDObjIxId() const
+{
+    return actualIx;
+}
+
+r_Minterval MDDObjIx::getCurrentDomain() const
+{
+    assert(actualIx);
+    return actualIx->getCoveredDomain();
+}
+
+r_Dimension MDDObjIx::getDimension() const
+{
+    assert(actualIx);
+    return actualIx->getDimension();
+}
+
 bool MDDObjIx::isPersistent() const
 {
     return _isPersistent;
 }
 
-MDDObjIx::~MDDObjIx()
+void MDDObjIx::setNewLastAccess(const r_Minterval &newLastAccess, 
+                                const std::vector<shared_ptr<Tile>> *newLastTiles)
 {
+    lastAccess = newLastAccess;
     releasePersTiles();
-    actualIx->destroy();
-    actualIx = nullptr;
+    lastAccessTiles = *newLastTiles;
+}
+
+void MDDObjIx::setNewLastAccess(shared_ptr<Tile> newLastTile, bool clear)
+{
+    if (clear)
+    {
+        releasePersTiles();
+        lastAccessTiles.erase(lastAccessTiles.begin(), lastAccessTiles.end());
+    }
+    if (newLastTile)
+    {
+        r_Minterval region = newLastTile->getDomain();
+        lastAccess = region;
+        lastAccessTiles.push_back(newLastTile);
+    }
+}
+
+std::vector<shared_ptr<Tile>> *MDDObjIx::lastAccessIntersect(const r_Minterval &searchInter) const
+{
+    std::vector<shared_ptr<Tile>> *interResult = nullptr;
+    if (lastAccess.dimension() > 0 && lastAccess.covers(searchInter))
+    {
+        LTRACE << "Search in the cache ";
+        interResult = new std::vector<shared_ptr<Tile>>();
+        interResult->reserve(10);
+        for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
+        {
+            if (lastAccessTiles[i]->getDomain().intersects_with(searchInter))
+                interResult->push_back(lastAccessTiles[i]);
+        }
+        if (interResult->size() == 0)
+        {
+            delete interResult;
+            interResult = nullptr;
+        }
+    }
+    return interResult;
+}
+
+shared_ptr<Tile> MDDObjIx::lastAccessPointQuery(const r_Point &searchPoint) const
+{
+    shared_ptr<Tile> result;
+
+    if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchPoint)))
+    {
+        for (unsigned int i = 0; !result && i < lastAccessTiles.size(); i++)
+        {
+            if (lastAccessTiles[i]->getDomain().covers(searchPoint))
+            {
+                result = lastAccessTiles[i];
+            }
+        }
+    }
+    return result;
+}
+
+bool MDDObjIx::removeTileFromLastAccesses(shared_ptr<Tile> tileToRemove)
+{
+    bool found = false;
+    std::vector<shared_ptr<Tile>>::iterator iter;
+    for (iter = lastAccessTiles.begin(); iter != lastAccessTiles.end(); iter++)
+    {
+        if (*iter == tileToRemove)
+        {
+            found = true;
+            lastAccessTiles.erase(iter);
+            break;
+        }
+    }
+    if (found)
+    {
+        lastAccess = r_Minterval();
+    }
+    return found;
+}
+
+void MDDObjIx::initializeLogicStructure()
+{
+    switch (myStorageLayout.getIndexType())
+    {
+    case r_Auto_Index:
+    case r_RPlus_Tree_Index:
+    case r_Tile_Container_Index:
+        do_getObjs    = SRPTIndexLogic::getObjects;
+        do_insertObj  = SRPTIndexLogic::insertObject;
+        do_pointQuery = SRPTIndexLogic::containPointQuery;
+        do_removeObj  = SRPTIndexLogic::removeObject;
+        do_intersect  = SRPTIndexLogic::intersect;
+        break;
+    case r_Reg_Computed_Index:
+        do_getObjs    = SRCIndexLogic::getObjects;
+        do_insertObj  = SRCIndexLogic::insertObject;
+        do_pointQuery = SRCIndexLogic::containPointQuery;
+        do_removeObj  = SRCIndexLogic::removeObject;
+        do_intersect  = SRCIndexLogic::intersect;
+        break;
+    case r_Directory_Index:
+        // chosen before this
+        do_getObjs    = SDirIndexLogic::getObjects;
+        do_insertObj  = SDirIndexLogic::insertObject;
+        do_pointQuery = SDirIndexLogic::containPointQuery;
+        do_removeObj  = SDirIndexLogic::removeObject;
+        do_intersect  = SDirIndexLogic::intersect;
+        break;
+    default:
+        LERROR << "unknown index: " << myStorageLayout.getIndexType();
+        throw r_Error(ILLEGAL_INDEX_TYPE);
+    }
+}
 
 #ifdef RMANBENCHMARK
-    pointQueryTimer->setOutput(0);
-    if (pointQueryTimer) delete pointQueryTimer;
-    intersectTimer->setOutput(0);
-    if (intersectTimer) delete intersectTimer;
-    getTilesTimer->setOutput(0);
-    if (getTilesTimer) delete getTilesTimer;
-#endif
+void MDDObjIx::initializeTimerPointers()
+{
+    pointQueryTimer = new RMTimer("DirIx", "pointQuery");
+    intersectTimer = new RMTimer("DirIx", "intersect");
+    getTilesTimer = new RMTimer("DirIx", "getTiles");
 }
+#endif

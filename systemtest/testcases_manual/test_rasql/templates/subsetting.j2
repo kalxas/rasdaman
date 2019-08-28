@@ -5,6 +5,9 @@
 {%- for k, subset in mdd_constant_subsets.iteritems() -%}
 query: SELECT c{{subset}} FROM {{coll_name}} AS c
 id: {{test_id ~ "_" ~ k}}
+{%    if k.startswith('slices_') -%}
+disableoutfile: already contained in stdout
+{%    endif -%}
 {{separator}}
 {%    if dimension == 1 -%}
 query: SELECT {{cell_type_val}}{{subset}}

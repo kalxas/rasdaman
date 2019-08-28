@@ -39,9 +39,9 @@ rasdaman GmbH.
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "common/logging/signalhandler.hh"
-#include "relblobif/tilecache.hh"
 #include "rasserver_entry.hh"
 #include "rasserver/src/rasnetserver.hh"
+#include "servercomm/accesscontrol.hh"
 
 #include "rasserver_directql.hh"
 #include "rasserver_rasdl.hh"
@@ -64,6 +64,8 @@ using namespace std;
 
 #define RC_OK       (0)
 #define RC_ERROR    (-1)
+
+extern AccessControl accessControl;
 
 // TODO remove these global variables at some point, used in servercomm.cc
 unsigned long maxTransferBufferSize = 4000000;
@@ -302,11 +304,6 @@ bool initialize()
     //use tilecontainer
     RMInit::useTileContainer = configuration.useTileContainer();
     LINFO << "Tile container   : " << (RMInit::useTileContainer ? "yes" : "no");
-
-    //set cache size limit
-    TileCache::cacheLimit = configuration.getCacheLimit();
-    // Unstable feature, do not report in log.
-    //LINFO << "Tile cache limit : " << TileCache::cacheLimit;
 
     return true;
 }

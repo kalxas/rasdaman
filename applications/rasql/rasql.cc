@@ -103,11 +103,6 @@ using namespace std;
 
 RMINITGLOBALS('C')
 
-// debug facility; relies on -DDEBUG at compile time
-// tell debug that here is the place for the variables (to be done in the main() src file)
-#define DEBUG_MAIN
-#include "debug-clt.hh"
-
 const int MAX_STR_LEN = 255;
 const int MAX_QUERY_LEN = 10240;
 
@@ -470,7 +465,7 @@ parseParams(int argc, char **argv)
 
 #ifdef DEBUG
         // evaluate optional parameter MDD type name --------------------------------------
-        SET_OUTPUT(cmlInter.isPresent(PARAM_DEBUG));
+        //SET_OUTPUT(cmlInter.isPresent(PARAM_DEBUG));
 #endif
 
     }
@@ -1329,8 +1324,6 @@ int main(int argc, char **argv)
     logConf.configClientLogging();
     // should come after the log config as it logs msgs
     common::SignalHandler::handleShutdownSignals(shutdownHandler);
-
-    SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
 

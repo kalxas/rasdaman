@@ -33,7 +33,6 @@ rasdaman GmbH.
 #define DEBUG_MAIN
 #define DEBUG
 #define __EXECUTABLE__
-#include "debug.hh"
 #include "template_inst.hh"
 
 #define RMANVERSION 6100

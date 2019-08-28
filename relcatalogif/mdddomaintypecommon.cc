@@ -41,12 +41,6 @@ rasdaman GmbH.
 #include <iostream>                              // for operator<<, basic_os...
 #include <string>                                // for basic_string, string
 
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
-
 MDDDomainType::MDDDomainType()
     : MDDBaseType("unnamed mdddomaintype")
 {

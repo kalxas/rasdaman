@@ -58,10 +58,9 @@ This class was converted to pure static methods because it is fast to use stack.
 class SRPTIndexLogic
 {
 public:
-    static bool insertObject2(IndexDS *ixDS, const KeyObject &newObject, const StorageLayout &sl);
+    static bool insertObject(IndexDS *ixDS, const KeyObject &newObject, const StorageLayout &sl);
     /*@Doc:
         Inserts a new object in the index.
-        Must have a name different from the other insertObject because of the stupid compiler.
     */
 
     static bool removeObject(IndexDS *ixDS, const KeyObject &tileToRemove, const StorageLayout &sl);
@@ -69,18 +68,16 @@ public:
         Removes the object from the indexx.
     */
 
-    static void intersect2(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &objs, const StorageLayout &sl);
+    static void intersect(const IndexDS *ixDS, const r_Minterval &searchInter, KeyObjectVector &objs, const StorageLayout &sl);
     /*@Doc:
         Search the index for a search region.
         Determines all the tiles in the index which intersect a given
         search interval (given by {\tt searchInter}).
-        Must have a name different from other intersect because of compiler.
     */
 
-    static void containPointQuery2(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
+    static void containPointQuery(const IndexDS *ixDS, const r_Point &searchPoint, KeyObject &result, const StorageLayout &sl);
     /*@Doc:
         Passes a pointer to the searched item.
-        Must have different name from other containPointQuery because of compiler.
     */
 
     static void getObjects(const IndexDS *ixDS, KeyObjectVector &objs, const StorageLayout &sl);
@@ -100,6 +97,8 @@ public:
         It should be passed to {\tt splitNodes()}.
     */
 
+private:
+    
     static void extendFaces(HierIndexDS *ix,
                             const r_Minterval &newKeyObjectDom,
                             const r_Minterval &oldCurrDom,

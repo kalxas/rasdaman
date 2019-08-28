@@ -40,19 +40,11 @@
 #include <string>
 #include <cstdlib>
 #include <signal.h>
-#ifdef SOLARIS
-#include <strings.h>
-#endif
 
 #include <logging.hh>
 
-using namespace std;
-
 #include "rasql_error.hh"
 #include "rasql_signal.hh"
-
-// debug facility; relies on -DDEBUG at compile time
-#include "debug-clt.hh"
 
 using namespace std;
 

@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "reladminif/sqlglobals.h"
 #include "reladminif/sqlitewrapper.hh"
 #include "mymalloc/mymalloc.h"
-#include "tilecache.hh"
 
 #include <logging.hh>
 
@@ -61,17 +60,9 @@ void BLOBTile::updateInDb()
 
     SQLiteQuery::executeWithParams(
         "UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %lld", dataFormat, blobOid);
-    if (TileCache::cacheLimit > 0)
-    {
-        CacheValue *value = new CacheValue(cells, size, true, myOId, blobOid, this);
-        value->setFileStorage(true);
-        TileCache::insert(myOId, value);
-    }
-    else
-    {
-        BlobData blob(blobOid, size, cells);
-        BlobFS::getInstance().update(blob);
-    }
+
+    BlobData blob(blobOid, size, cells);
+    BlobFS::getInstance().update(blob);
 
     DBObject::updateInDb();
 }
@@ -96,13 +87,6 @@ void BLOBTile::insertInDb()
     BlobData blob(blobOid, size, cells);
     BlobFS::getInstance().insert(blob);
 
-    if (TileCache::cacheLimit > 0)
-    {
-        CacheValue *value = new CacheValue(cells, size, true, myOId, blobOid, this);
-        value->setFileStorage(true);
-        TileCache::insert(myOId, value);
-    }
-
     DBObject::insertInDb();
 }
 
@@ -122,11 +106,6 @@ void BLOBTile::deleteFromDb()
     SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
     BlobData blob(blobOid);
     BlobFS::getInstance().remove(blob);
-    if (TileCache::cacheLimit > 0)
-    {
-        TileCache::removeKey(myOId);
-    }
-
     DBObject::deleteFromDb();
 }
 
@@ -158,10 +137,6 @@ void BLOBTile::kill(const OId &target, unsigned int range)
         SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE BlobId = %lld", blobOid);
         BlobData blob(blobOid);
         BlobFS::getInstance().remove(blob);
-        if (TileCache::cacheLimit > 0)
-        {
-            TileCache::removeKey(blobOid);
-        }
     }
     else
     {
@@ -189,10 +164,6 @@ void BLOBTile::kill(const OId &target, unsigned int range)
             blobOid = query.nextColumnLong();
             BlobData blob(blobOid);
             BlobFS::getInstance().remove(blob);
-            if (TileCache::cacheLimit > 0)
-            {
-                TileCache::removeKey(blobOid);
-            }
         }
         query.finalize();
         SQLiteQuery::executeWithParams(
@@ -234,32 +205,10 @@ void BLOBTile::readFromDb()
     dataFormat = BLOBTile::getTileDataFormat(blobOid);
     currentFormat = dataFormat;
 
-    if (TileCache::cacheLimit > 0 && TileCache::contains(blobOid))
-    {
-        CacheValue *cached = TileCache::get(blobOid);
-        if (size == 0)
-        {
-            size = cached->getSize();
-        }
-        cells = cached->getData();
-        cached->addReferencingTile(this);
-
-        LDEBUG << "data cached, copying cells: " << (void *) cached->getData() << ", to new cells: " << (void *) cells;
-    }
-    else
-    {
-        BlobData blob(blobOid, size, cells);
-        BlobFS::getInstance().select(blob);
-        size = blob.size;
-        cells = blob.data;
-
-        if (TileCache::cacheLimit > 0)
-        {
-            CacheValue *value = new CacheValue(cells, size, false, myOId, blobOid, this, dataFormat);
-            value->setFileStorage(true);
-            TileCache::insert(blobOid, value);
-        }
-    }
+    BlobData blob(blobOid, size, cells);
+    BlobFS::getInstance().select(blob);
+    size = blob.size;
+    cells = blob.data;
 
 #ifdef DEBUG
     LTRACE << "tile contents:";
@@ -290,15 +239,3 @@ r_Data_Format BLOBTile::getTileDataFormat(long long blobOid)
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
 }
-
-void BLOBTile::writeCachedToDb(CacheValue *value)
-{
-    if (value && value->isUpdate())
-    {
-        BlobData blob(value->getOId().getCounter(), value->getSize(), value->getData());
-        BlobFS::getInstance().update(blob);
-    }
-
-    delete value;
-}
-

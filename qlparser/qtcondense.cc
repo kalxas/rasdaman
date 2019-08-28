@@ -31,7 +31,6 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-#include "debug.hh"
 
 #include "qlparser/qtcondense.hh"
 #include "qlparser/qtmdd.hh"

@@ -47,6 +47,8 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "rasserver_config.hh"
 #include "rasserver_entry.hh"
+#include "rasnetprotocol/rpcif.h"
+#include "servercomm/accesscontrol.hh"
 
 #include <logging.hh>
 #include "loggingutils.hh"
@@ -98,6 +100,8 @@ rasdaman GmbH.
 #define DEFAULT_OUTFILE "rasql_%d"
 
 extern char globalConnectId[256];
+
+extern AccessControl accessControl;
 
 std::string baseName;
 
@@ -541,7 +545,6 @@ void printError(unsigned short status, ExecuteUpdateRes* result)
 void doStuff()
 {
     auto &instance = RasServerEntry::getInstance();
-    TileCache::cacheLimit = 0;
 
     char* fileContents = NULL; // contents of file satisfying "$1" parameter in query
     r_Marray_Type* mddType = NULL; // this MDD's type

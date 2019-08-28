@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include "servercomm/cliententry.hh"
 #include "qlparser/querytree.hh"
 #include "qlparser/qtinsert.hh"
-#include "relblobif/tilecache.hh"
 #include <logging.hh>
 
 #include <iostream>
@@ -381,7 +380,6 @@ QtCommand::evaluate()
         alterCollection(collection, typeName);
         break;
     case QT_COMMIT:
-        TileCache::clear();
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
 

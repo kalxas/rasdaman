@@ -23,7 +23,6 @@ rasdaman GmbH.
 
 
 #include "config.h"
-#include "debug.hh"
 
 #include "qlparser/qtbinaryinduce.hh"
 #include "qlparser/qtatomicdata.hh"

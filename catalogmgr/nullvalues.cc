@@ -32,7 +32,6 @@ rasdaman GmbH.
 
 #include "nullvalues.hh"
 #include <stack>
-#include "debug/debug-srv.hh"
 #include "raslib/nullvalues.hh"
 #include <logging.hh>
 

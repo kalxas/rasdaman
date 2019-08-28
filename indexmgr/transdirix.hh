@@ -69,6 +69,8 @@ public:
     */
 
     void printStatus(unsigned int level, std::ostream &stream) const override;
+   
+protected:
 
     void insertObject(const KeyObject &newKeyObject, unsigned int pos) override;
     /*@Doc:

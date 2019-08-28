@@ -38,10 +38,6 @@ rasdaman GmbH.
 
 #ifdef BASEDB_PGSQL
 #include "ecpgerrno.h"      // PgSQL error codes
-// const int  SQLNULLFETCHED = -1405;   unused
-// const int  SQLTABLEUNKNOWN = -942;   not supported by PG
-const int  SQLNODATAFOUND = ECPG_NOT_FOUND;
-//SQLCODE and SQLSTATE are defined in the sqlca.h file
 #endif // pgsql
 
 #ifdef BASEDB_SQLITE

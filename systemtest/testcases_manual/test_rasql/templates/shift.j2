@@ -8,6 +8,7 @@ id: {{test_id ~ "_" ~ k}}
 {{separator}}
 query: SELECT shift(c + {{cell_type_val}}, {{subset}}){{subset}} FROM {{coll_name}} AS c
 id: {{test_id ~ "_" ~ k ~ "_subset_result"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%      if dimension == 1 -%}
 query: SELECT shift({{cell_type_val}}, {{subset}})

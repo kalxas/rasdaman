@@ -233,11 +233,6 @@ public:
         Returns null pointer if cell doesnt exist in the object.
     */
 
-    /// Gets the cell with coordinates {\tt searchPoint} in the MDD.
-    char *pointQuery(const r_Point &searchPoint);
-    /**
-        Returns null pointer if cell doesn't exist in the object.
-    */
     //@}
 
     //@Man: Cell and domain properties of the MDD Object:

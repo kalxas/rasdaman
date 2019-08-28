@@ -10,6 +10,7 @@ id: {{test_id ~ "_" ~ func}}
 query: SELECT {{func}}({{cell_type_val}})
 disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ func ~ "_scalar"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%    endif -%}
 {#-
@@ -23,6 +24,7 @@ id: {{test_id ~ "_" ~ func ~ "_band_mdd_" ~ cname}}
 query: SELECT {{func}}({{cell_type_val}}.{{cname}})
 disableoutfile: output is already contained in stdout
 id: {{test_id ~ "_" ~ func ~ "_band_scalar_" ~ cname}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%      endif -%}
 {%    endfor -%}

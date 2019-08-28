@@ -52,8 +52,6 @@ add_library(relblobif
     dbtile.hh dbtile.cc
     dirwrapper.hh dirwrapper.cc
     inlinetile.hh inlinetile.cc
-    tilecache.hh tilecache.cc
-    tilecachevalue.hh tilecachevalue.cc
     tileid.hh
     )
 

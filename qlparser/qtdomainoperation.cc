@@ -411,7 +411,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 const BaseType *cellType = (const_cast<MDDBaseType *>(currentMDDObj->getMDDBaseType()))->getBaseType();
 
                 LTRACE << "  point access: " << projPoint;
-                char *resultCell = NULL;
+                const char *resultCell = NULL;
                 if (projPoint.dimension() == currentMDDObj->getDimension())
                 {
                     resultCell = currentMDDObj->pointQuery(projPoint);
@@ -421,30 +421,22 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     LERROR << "Error: QtDomainOperation::evaluate() - The dimension of the subset domain is not equal to the dimension of the subsetted marray. The subset domain dimension is: " << projPoint.dimension() << " while the marray domain dimension is: " << currentMDDObj->getDimension();
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
-
                 }
-                if (resultCell == NULL)
-                {
-                    resultCell = new char[cellType->getSize()];
-                    memset(resultCell, 0, cellType->getSize());
-                }
-
+                
                 // allocate cell buffer
                 char *resultBuffer = new char[ cellType->getSize() ];
-
-                // copy cell content
-                memcpy(resultBuffer, resultCell, cellType->getSize());
+                
+                if (resultCell == NULL)
+                    memset(resultBuffer, 0, cellType->getSize());
+                else
+                    memcpy(resultBuffer, resultCell, cellType->getSize());
 
                 // create data object for the cell
                 QtScalarData *scalarDataObj = NULL;
                 if (cellType->getType() == STRUCT)
-                {
                     scalarDataObj = new QtComplexData();
-                }
                 else
-                {
                     scalarDataObj = new QtAtomicData();
-                }
 
                 scalarDataObj->setValueType(cellType);
                 scalarDataObj->setValueBuffer(resultBuffer);

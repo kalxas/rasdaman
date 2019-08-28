@@ -270,7 +270,7 @@ if (${DEFAULT_BASEDB} STREQUAL sqlite)
     set(BASEDB_INCLUDE_DIR ${BASEDB_INCLUDE_DIR} ${SQLITE_INCLUDE_DIR})
 
 elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
-
+    
     set(POSTGRESQL_MIN_VERSION 9.1.0)
 
     # Used in config-cmake.h
@@ -294,6 +294,9 @@ elseif (${DEFAULT_BASEDB} STREQUAL postgresql)
     endif ()
 
     find_program(ECPG ecpg DOC "A precompiler for PostgreSQL embedded code.")
+    if (${ECPG} STREQUAL "ECPG-NOTFOUND")
+        message(FATAL_ERROR "ecpg not found, please install and add to the PATH.")
+    endif()
     set(EMBEDDEDSQLPRECOMPILER "${ECPG}")
     set(EMBEDDEDSQLPRECOMPILER_FLAGS  "-o")
 

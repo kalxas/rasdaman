@@ -46,5 +46,3 @@ AddRelblobifTest(blobfs)
 AddRelblobifTest(blobfstransactionlock)
 AddRelblobifTest(blobfstransaction)
 AddRelblobifTest(blobfile)
-
-#AddRelblobifTest(tilecache)

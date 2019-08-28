@@ -22,20 +22,21 @@ rasdaman GmbH.
 */
 
 #include "rasnetservercomm.hh"
+#include "rpcif.h"
 #include "mymalloc/mymalloc.h"
 #include "server/rasserver_entry.hh"
-#include "debug/debug-srv.hh"
 #include "common/grpc/messages/error.pb.h"
 #include "common/uuid/uuid.hh"
 #include "rasserver/src/clientquerystreamedresult.hh"
+#include <logging.hh>
 
 using common::ErrorMessage;
 using rasserver::ClientQueryStreamedResult;
 using common::UUID;
 
-RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager> clientManager)
+RasnetServerComm::RasnetServerComm(::boost::shared_ptr<rasserver::ClientManager> cm)
 {
-    this->clientManager = clientManager;
+    this->clientManager = cm;
 }
 
 RasnetServerComm::~RasnetServerComm() {}

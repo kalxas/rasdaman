@@ -21,19 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-// This is -*- C++ -*-
-/*************************************************************
- *
- *
- * PURPOSE:
- *
-
- *
- * COMMENTS:
- *   uses embedded SQL
- *
- ************************************************************/
-
 #include "inlinetile.hh"
 #include "blobtile.hh"              // for BLOBTile
 #include "reladminif/dbobject.hh"   // for DBObject

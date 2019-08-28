@@ -23,6 +23,9 @@
 -#}
 query: SELECT {{op}}(a, b) FROM {{coll_name}} AS a, {{coll_name}} AS b
 id: {{test_id ~ "_" ~ op_name ~ "_" ~ cell_type_right}}
+{%        if op == 'complex' -%}
+knownfail: invalid result for complex
+{%        endif -%}
 {{separator}}
 {#
  # op(array, scalar), op(scalar, array):
@@ -30,8 +33,8 @@ id: {{test_id ~ "_" ~ op_name ~ "_" ~ cell_type_right}}
 -#}
 query: SELECT {{op}}(a, {{cell_type_val_right}}) FROM {{coll_name}} AS a
 id: {{test_id ~ "_" ~ op_name ~ "_scalar_right_" ~ cell_type_right}}
-{%        if op == 'pow' or op == 'power' -%}
-knownfail: random result for pow(array, scalar)
+{%        if op == 'pow' or op == 'power' or op == 'complex' -%}
+knownfail: random result for pow(array, scalar) and complex
 {%        endif -%}
 {%        if op == 'div' and cell_type_name == 'char_char_char' and cell_type_right == 'char' -%}
 knownfail: random result for div(array[char,char,char], scalar[char])
@@ -39,6 +42,9 @@ knownfail: random result for div(array[char,char,char], scalar[char])
 {{separator}}
 query: SELECT {{op}}({{cell_type_val_right}}, a) FROM {{coll_name}} AS a
 id: {{test_id ~ "_" ~ op_name ~ "_scalar_left_" ~ cell_type_right}}
+{%        if op == 'complex' -%}
+knownfail: http://rasdaman.org/ticket/2170
+{%        endif -%}
 {{separator}}
 {#
  # op(scalar, scalar):
@@ -48,7 +54,7 @@ id: {{test_id ~ "_" ~ op_name ~ "_scalar_left_" ~ cell_type_right}}
 query: SELECT {{op}}({{cell_type_val}}, {{cell_type_val_right}})
 disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right}}
-{%          if cell_type_components|length > 0 -%}
+{%          if cell_type_components|length > 0 or op == 'complex' -%}
 knownfail: random result for op(scalar[composite], scalar), where op = div, bit, complex, mod, pow/power
 {%          endif -%}
 {{separator}}
@@ -56,13 +62,16 @@ query: SELECT {{op}}({{cell_type_val}}, \"invalid\")
 query: SELECT {{op}}({{cell_type_val}}, [0,1])
 disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_scalar_both_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_invalid"}}
-{%          if cell_type_name == 'char_char_char' and cell_type_right == 'char' -%}
+{%          if (cell_type_name == 'char_char_char' and cell_type_right == 'char') or op = 'complex' -%}
 knownfail: random error for op(scalar[char,char,char], scalar[char]), where op = div, bit, complex, mod, pow/power
 {%          endif -%}
 {{separator}}
 query: SELECT {{op}}({{cell_type_val}}, {{0 ~ cell_type_suffix_dic[cell_type_right]}})
 disableoutfile: output is already contained in stdout
 id: {{template_name ~ "_" ~ op_name ~ "_" ~ cell_type_name ~ "_" ~ cell_type_right ~ "_by_zero"}}
+{%          if cell_type_name == 'char_char_char' and cell_type_right == 'char' -%}
+knownfail: random error for op(scalar[char,char,char], scalar[char]), where op = div, bit, complex, mod, pow/power
+{%          endif -%}
 {{separator}}
 {%        endif -%}
 {%-     endfor -%}

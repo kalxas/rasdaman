@@ -24,6 +24,8 @@ rasdaman GmbH.
 #include "config.h"
 #include "servercomm.hh"
 #include "cliententry.hh"
+#include "accesscontrol.hh"
+#include "rasnetprotocol/rpcif.h"
 
 #include "raslib/rmdebug.hh"
 #include "raslib/rminit.hh"
@@ -55,14 +57,16 @@ rasdaman GmbH.
 #include "qlparser/qtdata.hh"
 #include "qlparser/querytree.hh"
 
+#include "server/rasserver_config.hh"
+#include "reladminif/adminif.hh"
 #include "reladminif/eoid.hh"
+#include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddtype.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/structtype.hh"
 
-#include "debug.hh"
 #include <logging.hh>
 
 #include <iostream>
@@ -136,6 +140,7 @@ extern QueryTree *parseQueryTree;
 extern ParseInfo *parseError;
 extern char *beginParseString;
 extern char *iterParseString;
+extern AccessControl accessControl;
 
 // -----------------------------------------------------------------------------------------
 /// start the gperftools profilers
@@ -621,7 +626,7 @@ ServerComm::abortTA(unsigned long callingClientId)
 
 // only one transaction can be active per server, so just need to check the transactionActive
 bool
-ServerComm::isTAOpen(__attribute__((unused)) unsigned long callingClientId)
+ServerComm::isTAOpen(unsigned long)
 {
     DBGREQUEST("'is TA open'");
     bool returnValue = transactionActive;
@@ -2828,15 +2833,15 @@ ServerComm::setStorageMode(unsigned long callingClientId,
 }
 
 int
-ServerComm::ensureTileFormat(__attribute__((unused)) r_Data_Format &hasFmt,
-                             __attribute__((unused)) r_Data_Format needFmt,
-                             __attribute__((unused)) const r_Minterval &dom,
-                             __attribute__((unused)) const BaseType *type,
-                             __attribute__((unused)) char *&data,
-                             __attribute__((unused)) r_Bytes &size,
-                             __attribute__((unused)) int repack,
-                             __attribute__((unused)) int owner,
-                             __attribute__((unused)) const char *params)
+ServerComm::ensureTileFormat(r_Data_Format &,
+                             r_Data_Format,
+                             const r_Minterval &,
+                             const BaseType *,
+                             char *&,
+                             r_Bytes &,
+                             int,
+                             int,
+                             const char *)
 {
     int status = RC_OK;
     return status;

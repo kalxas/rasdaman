@@ -38,7 +38,6 @@ rasdaman GmbH.
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";
 
-#include "debug-srv.hh"
 #include "structtype.hh"
 #include "reladminif/sqlerror.hh"
 #include "reladminif/externs.h"
@@ -177,7 +176,6 @@ StructType::readFromDb()
             if (SQLCODE != SQLNODATAFOUND)  // was: 100 -- PB 2005-feb-13
             {
                 check("StructType::readFromDb() FETCH");
-                cout << "FETCHED " << count << endl;
                 LDEBUG << "EXEC SQL CLOSE c";
                 EXEC SQL CLOSE c;
                 LDEBUG << "EXEC SQL FREE c";

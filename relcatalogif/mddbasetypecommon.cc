@@ -36,11 +36,6 @@ rasdaman GmbH.
 #include <cstring>                 // for strcat, strcpy, strlen
 #include <iostream>                // for operator<<, basic_ostream, char_tr...
 #include <string>                  // for string
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
 
 MDDBaseType::MDDBaseType()
     : MDDType("unnamed mddbasetype")

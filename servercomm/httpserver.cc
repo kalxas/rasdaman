@@ -30,15 +30,10 @@ rasdaman GmbH.
  *      No Comments
 */
 
-#include "servercomm/httpserver.hh"
+#include "httpserver.hh"
 #include "config.h"
-
-#include <iostream>
-#include <time.h>      // for time()
-#include <string.h>
-#include <signal.h>    // for sigaction()
-#include <unistd.h>    // for alarm(), gethostname()
-#include <iomanip>
+#include "accesscontrol.hh"
+#include "rasnetprotocol/rpcif.h"
 
 #include "raslib/error.hh"
 #include "raslib/minterval.hh"
@@ -65,6 +60,13 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
+#include <iostream>
+#include <time.h>      // for time()
+#include <string.h>
+#include <signal.h>    // for sigaction()
+#include <unistd.h>    // for alarm(), gethostname()
+#include <iomanip>
+
 #define UNEXPECTED_INTERNAL_ERROR 10000
 
 // --------------------------------------------------------------------------------
@@ -88,6 +90,7 @@ const int ackCodeNotOK = 98;
 //       --transbuffer <nnnn>   (default: 4194304)
 //              maximal size of the transfer buffer in bytes
 extern unsigned long maxTransferBufferSize;
+extern AccessControl accessControl;
 
 const int HttpServer::commOpenDB           = 1;
 const int HttpServer::commCloseDB          = 2;

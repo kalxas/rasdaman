@@ -124,14 +124,7 @@ const DBObjectId &KeyObject::getObject() const
     return persobject;
 }
 
-r_Minterval KeyObject::getDomain() const
+const r_Minterval &KeyObject::getDomain() const
 {
     return domain;
 }
-/*
-const r_Minterval&
-KeyObject::getDomain() const
-    {
-    return domain;
-A   }
-*/

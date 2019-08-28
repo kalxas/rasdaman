@@ -30,7 +30,6 @@ set(SRC_FILES
     accesscontrol.cc accesscontrol.hh
     httpserver.hh httpserver.cc
     servercomm.hh servercomm.cc
-    rpcif.h rpcif_svc.cc rpcif_xdr.cc
     "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.hh"
     "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetservercomm.cc")
 

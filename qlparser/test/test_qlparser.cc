@@ -43,10 +43,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-#define DEBUG_MAIN
-#include "debug-clt.hh"
-
-
 #include <iostream.h>      // cout
 #include <stdio.h>         // fopen, perror
 #include <stdlib.h>

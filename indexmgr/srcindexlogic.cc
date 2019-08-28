@@ -20,13 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/**
- * MODULE: indexmgr
- * CLASS:   SRCIndexLogic
- *
- * COMMENTS:
- *
-*/
 
 #include "srcindexlogic.hh"           // for SRCIndexLogic
 #include "indexds.hh"                 // for IndexDS

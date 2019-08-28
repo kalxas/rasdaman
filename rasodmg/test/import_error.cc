@@ -39,7 +39,6 @@ using namespace std;
 #include "import_error.hh"
 
 // debug facility; relies on -DDEBUG at compile time
-#include "debug.hh"
 
 /// error object, carrying int error code
 ImportError::ImportError(unsigned int e)

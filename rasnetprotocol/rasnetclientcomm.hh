@@ -39,7 +39,7 @@ rasdaman GmbH.
 #include "common/grpc/messages/health_service.grpc.pb.h"
 
 #include "clientcomm/clientcomm.hh"
-#include "clientcomm/rpcif.h"
+#include "rpcif.h"
 #include "rasodmg/ref.hh"
 
 class RasnetClientComm : public ClientComm

@@ -16,6 +16,7 @@ id: {{test_id ~ "_scalar_array_expr"}}
 {{separator}}
 query: SELECT { {{scalar}} + {{scalar}}, {{scalar}} + {{scalar}} }
 id: {{test_id ~ "_scalar_scalar_expr"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {#
  # Test function call on a struct result
@@ -32,12 +33,15 @@ id: {{test_id ~ "_scalar_array_expr_fun"}}
 {{separator}}
 query: SELECT abs({ {{scalar}} + {{scalar}}, {{scalar}} + {{scalar}} })
 id: {{test_id ~ "_scalar_scalar_expr_fun"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT avg_cells({ c + {{scalar}}, c - {{scalar}} }) FROM {{coll_name}} AS c
 id: {{test_id ~ "_same_array_expr_condenser"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT avg_cells({ c + {{scalar}}, {{scalar}} + {{scalar}} }) FROM {{coll_name}} AS c
 id: {{test_id ~ "_array_scalar_expr_condenser"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT { c + {{scalar}}, c - {{scalar}} } / { c - {{scalar}}, c + {{scalar}} } FROM {{coll_name}} AS c
 id: {{test_id ~ "_same_array_expr_binary_struct"}}
@@ -62,6 +66,7 @@ id: {{test_id ~ "_different_scalar_array_expr"}}
 {{separator}}
 query: SELECT { {{scalar}} + {{scalar}}, {{scalar_other}} + {{scalar_other}} }
 id: {{test_id ~ "_different_scalar_scalar_expr"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT { c, c[0, *:*] } FROM {{coll_name}} AS c
 id: {{test_id ~ "_different_dim"}}
@@ -80,8 +85,10 @@ id: {{test_id ~ "_subset_slices"}}
 {{separator}}
 query: SELECT { c, c + {{scalar}} }[1, 2] FROM {{coll_name}} AS c
 id: {{test_id ~ "_subset_point"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 query: SELECT sdom({ c, c + {{scalar}} }) FROM {{coll_name}} AS c
 id: {{test_id ~ "_result_sdom"}}
+disableoutfile: output is already contained in stdout
 {{separator}}
 {%  endif -%}

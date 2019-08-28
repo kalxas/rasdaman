@@ -37,8 +37,6 @@ rasdaman GmbH.
 
 #include "blobfs.hh"
 #include "dbtile.hh"
-#include "tilecache.hh"
-#include "tilecachevalue.hh"
 #include "raslib/mddtypes.hh"
 
 class r_Error;
@@ -164,14 +162,5 @@ protected:
     /*@Doc:
     deletes a blob from TILES, sets size to 0 and flags to -1
     */
-
-    static void writeCachedToDb(CacheValue *value);
-    /*@Doc:
-     write cached data to the database
-    */
-
-private:
-
-    friend class TileCache;
 };
 

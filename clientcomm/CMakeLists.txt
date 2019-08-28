@@ -25,7 +25,7 @@
 # TODO: We should refactor so that we have a folder for communication classes 
 # (used by client and server) and one for client classes
 set(SRC_FILES
-    clientcomm.hh clientcomm.cc rpcif.h
+    clientcomm.hh clientcomm.cc
     "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.hh"
     "${CMAKE_SOURCE_DIR}/rasnetprotocol/rasnetclientcomm.cc")
 

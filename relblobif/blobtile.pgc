@@ -49,10 +49,6 @@ using namespace std;
 #include "libpq-fe.h"       /* C interface to PgSQL */
 #include "libpq/libpq-fs.h" /* large object (lo) api */
 
-// simple trace facility
-// trace macros are activated through externally defined compile variable DEBUG
-#include "debug-srv.hh"
-
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";
 
@@ -69,7 +65,6 @@ extern PGconn *pgConn;
 #include "reladminif/dbref.hh"
 #include "reladminif/sqlerror.hh"
 #include "inlinetile.hh"
-#include "tilecache.hh"
 
 #include <logging.hh>
 
@@ -139,35 +134,27 @@ BLOBTile::updateInDb()
     PQclear( pgResult );
 
 
-    if (TileCache::cacheLimit > 0)
+    // (2) --- open, write, close blob
+    LDEBUG << "lo_open()";
+    int fd = lo_open( pgConn, tile, INV_WRITE );    // no error code mentioned in manual
+    LDEBUG << "lo_write() for fd " << fd << " and " << size << " bytes";
+    int loResult = lo_write( pgConn, fd, cells, size );
+    if (loResult < 0)
     {
-        CacheValue* value = new CacheValue( cells, size, true, myOId, tile, this );
-        TileCache::insert( myOId, value );
+        LERROR << "BLOBTile::updateInDb() cannot write blob, error: " << loResult;
+        generateException();
     }
-    else
+    else if (loResult != static_cast<int>(size))          // did not get all
     {
-        // (2) --- open, write, close blob
-        LDEBUG << "lo_open()";
-        int fd = lo_open( pgConn, tile, INV_WRITE );    // no error code mentioned in manual
-        LDEBUG << "lo_write() for fd " << fd << " and " << size << " bytes";
-        int loResult = lo_write( pgConn, fd, cells, size );
-        if (loResult < 0)
-        {
-            LERROR << "BLOBTile::updateInDb() cannot write blob, error: " << loResult;
-            generateException();
-        }
-        else if (loResult != static_cast<int>(size))          // did not get all
-        {
-            LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes";
-            generateException();
-        }
-        LDEBUG << "lo_close()";
-        loResult = lo_close( pgConn, fd );
-        if (loResult < 0)               // can't close, don't know if data are written
-        {
-            LERROR << "BLOBTile::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
-            generateException();
-        }
+        LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes";
+        generateException();
+    }
+    LDEBUG << "lo_close()";
+    loResult = lo_close( pgConn, fd );
+    if (loResult < 0)               // can't close, don't know if data are written
+    {
+        LERROR << "BLOBTile::updateInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+        generateException();
     }
 
 #ifdef NOTYET   // should be in future
@@ -282,11 +269,6 @@ BLOBTile::insertInDb()
     // (3) --- update map ref
     DBObject::insertInDb();
 
-    if (TileCache::cacheLimit > 0)
-    {
-        CacheValue* value = new CacheValue( cells, size, true, myOId, blobOid, this );
-        TileCache::insert( myOId, value );
-    }
 } // insertInDb()
 
 // delete one tuple from ras_tiles table, update map ref
@@ -349,12 +331,6 @@ BLOBTile::deleteFromDb()
         generateException();
     }
     
-    // remove from cache if necessary
-    if (TileCache::cacheLimit > 0)
-    {
-        TileCache::removeKey(myOId);
-    }
-
     /*
     #ifdef NOTYET
         // (3) --- delete tuple from table
@@ -458,12 +434,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
             generateException();
         }
         
-        // remove from cache if necessary
-        if (TileCache::cacheLimit > 0)
-        {
-            TileCache::removeKey(indbmyOId5);
-        }
-
         /*
         #ifdef NOTYET
                 // (3) --- delete tuple
@@ -584,11 +554,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 generateException();
             }
         
-            // remove from cache if necessary
-            if (TileCache::cacheLimit > 0)
-            {
-                TileCache::removeKey(tmpOid);
-            }
             /*
             #ifdef NOTYET
                     } while (SQLCODE == SQLOK || SQLCODE < 0);
@@ -695,115 +660,54 @@ BLOBTile::readFromDb()
     currentFormat = static_cast<r_Data_Format>(dataformat3);
     LDEBUG << "got dataFormat " << dataFormat;
     
-    if (TileCache::cacheLimit > 0 && TileCache::contains( myOId ))
+    // (2) --- open, read, close blob
+    LDEBUG << "lo_open()";
+    int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
+    if (fd < 0)
     {
-        CacheValue* cached = TileCache::get( myOId );
-        if (size == 0)
-        {
-            size = cached->getSize();
-        }
-        cells = cached->getData();
-        cached->addReferencingTile(this);
-        
-        LDEBUG <<"BLOBTile::readFromDb() - data cached, copying cells: " << (void*)cached->getData() << ", to new cells: " << (void*)cells;
+        LERROR << "BLOBTile::readFromDb() error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
+        generateException();
     }
-    else
+    LDEBUG << "lo_lseek() end";
+    size = static_cast<r_Bytes>(lo_lseek( pgConn, fd, 0, SEEK_END ));     // determine blob size; FIXME: more efficient method??
+    if (size <= 0)
     {
-        // (2) --- open, read, close blob
-        LDEBUG << "lo_open()";
-        int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
-        if (fd < 0)
-        {
-            LERROR << "BLOBTile::readFromDb() error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
-            generateException();
-        }
-        LDEBUG << "lo_lseek() end";
-        size = static_cast<r_Bytes>(lo_lseek( pgConn, fd, 0, SEEK_END ));     // determine blob size; FIXME: more efficient method??
-        if (size <= 0)
-        {
-            LERROR << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid;
-            generateException();
-        }
-        LDEBUG << "lo_lseek() start";
-        (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-        cells = static_cast<char*>(mymalloc( size * sizeof(char) ));    // allocate buffer for blob
-        if (cells == NULL)
-        {
-            LERROR << "BLOBTile::readFromDb() error: cannot allocate " << size << " bytes ";
-            generateException();
-        }
-
-        LDEBUG << "lo_read()";                    // read blob
-        int loResult = lo_read( pgConn, fd, cells, size );
-        if (loResult <= 0)
-        {
-            LERROR << "BLOBTile::readFromDb() cannot read blob with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
-            generateException();
-        }
-        else if (loResult != static_cast<int>(size))              // did not get all
-        {
-            LDEBUG << "BLOB (" << myOId << ") read: want to read (" << size << " bytes, but got " << loResult << " bytes";
-            generateException();
-        }
-        LDEBUG << "lo_close()";
-        int ignoredPgResult = lo_close( pgConn, fd );       // close blob
-        if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
-        {
-            LERROR << "BLOBTile::readFromDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
-        }
-        
-        if (TileCache::cacheLimit > 0)
-        {
-            CacheValue* value = new CacheValue( cells, size, false, myOId, blobOid, this, dataFormat );
-            TileCache::insert( myOId, value );
-        }
+        LERROR << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid;
+        generateException();
     }
-    RMDBGIF(20, RMDebug::module_blobif, "BLOBTileOutput", for (int a = 0; a < size; a++)\
-            RMInit::dbgOut << " " << hex << (int)(cells[a]); RMInit::dbgOut << dec;)
+    LDEBUG << "lo_lseek() start";
+    (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
+    cells = static_cast<char*>(mymalloc( size * sizeof(char) ));    // allocate buffer for blob
+    if (cells == NULL)
+    {
+        LERROR << "BLOBTile::readFromDb() error: cannot allocate " << size << " bytes ";
+        generateException();
+    }
 
-        DBObject::readFromDb();
+    LDEBUG << "lo_read()";                    // read blob
+    int loResult = lo_read( pgConn, fd, cells, size );
+    if (loResult <= 0)
+    {
+        LERROR << "BLOBTile::readFromDb() cannot read blob with oid " << blobOid << ", error: " << PQerrorMessage(pgConn);
+        generateException();
+    }
+    else if (loResult != static_cast<int>(size))              // did not get all
+    {
+        LDEBUG << "BLOB (" << myOId << ") read: want to read (" << size << " bytes, but got " << loResult << " bytes";
+        generateException();
+    }
+    LDEBUG << "lo_close()";
+    int ignoredPgResult = lo_close( pgConn, fd );       // close blob
+    if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
+    {
+        LERROR << "BLOBTile::readFromDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
+    }
+    
+    DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
-}
-
-
-void BLOBTile::writeCachedToDb(CacheValue* value)
-{
-    if (value && value->isUpdate())
-    {
-        Oid blobOid;
-        r_Bytes size = value->getSize();
-        char* cells = value->getData();
-        OId myOId = value->getOId();
-        
-        blobOid = value->getBlobOid();
-        
-        LDEBUG << "lo_open() for oid " << blobOid;
-        int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error
-        LDEBUG << "lo_write() for fd " << fd << " and " << size << " bytes";
-        int loResult = lo_write( pgConn, fd, cells, size );
-        if (loResult < 0)
-        {
-            LERROR << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn);
-            generateException();
-        }
-        else if (loResult != static_cast<int>(size))          // did not get all
-        {
-            LTRACE << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes";
-            generateException();
-        }
-        LDEBUG << "lo_close()";
-        loResult = lo_close( pgConn, fd );
-        if (loResult < 0)               // cannot close, don't know if data are there
-        {
-            LERROR << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn);
-            generateException();
-        }
-    }
-    
-    delete value;
 }
 
 long long

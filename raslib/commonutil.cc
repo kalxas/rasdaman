@@ -37,8 +37,6 @@
 
 #include <logging.hh>
 
-#include "debug/debug.hh"   //ENTER and LEAVE
-
 // max length of segfault backtrace output
 #define BACKTRACE_TRUNC 50
 #define MAX_MSG_LEN 500

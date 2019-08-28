@@ -42,8 +42,6 @@ rasdaman GmbH.
 
 #include "config.h"
 
-#include "debug.hh"
-#include "raslib/rmdebug.hh"
 #include <logging.hh>
 
 #include "conversion/png.hh"
