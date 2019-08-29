@@ -596,3 +596,4 @@ ProgModes   Configuration::getProgMode()
 {
     return progMode;
 }
+

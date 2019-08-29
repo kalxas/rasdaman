@@ -1508,7 +1508,7 @@ components is provided in the :ref:`sec-rasdaman-architecture` Section.
 |                              |and embedded secore configured in                               |
 |                              |``$RMANHOME/etc/secore.properties`` by default.                 |
 |                              |Since v9.8, to start a specific service the                     |
-|                              |``--service (core | secore | petascope )`` option can be used   |
+|                              |``--service (core | secore | petascope )`` option can be used.  |
 |                              |Since v10.0 the rasmgr port can be specified with               |
 |                              |``-p, --port``. Check ``-h, --help`` for all details.           |
 +------------------------------+----------------------------------------------------------------+
@@ -1892,49 +1892,6 @@ of the ``RASBASE`` database, e.g: ::
 The ``create_db.sh`` script sets this automatically. It is recommended
 to keep this value because otherwise this name has to be changed in many
 places across multiple clients and scripts.
-
-
-.. _sec-tile-caching:
-
-Tile caching
-============
-
-To speed up tile access, a caching mechanism is implemented in rasdaman.
-
-This cache has proven advantageous for access performance in particular
-during bulk ingestion, in order to work around inefficiencies of BLOB
-handling in PostgreSQL in presence of certain tiling schemes.
-
-How to use
-----------
-
-The cache can be enabled in ``rasmgr.conf`` by indicating a cache limit.
-The corresponding parameter, ``--cachelimit``, has to be placed after the
-``-xp`` parameter (cf. :ref:`sec-rasdaman-servers`). By default, tile caching is disabled.
-
---cachelimit c      upper limit of cache area in bytes
-                    (default: 0)
-
-The specified maximum amount of memory will be used for tile caching.
-When this limit is reached, tiles in the cache get replaced.
-
-When enabled, ``INSERT`` and ``UPDATE`` rasql statements can be issued in the
-normal way. Upon ``COMMIT``, the cache flushed to PostgreSQL and cleared.
-
-Known limitations
------------------
-
-The tile cache is experimental. Therefore, it should be used during bulk
-ingestion *only*, and disabled again afterwards. Leaving the tile cache
-on will cause selection queries to fail randomly. Furthermore, it is
-best to have only one ingest server active in ``rasmgr.conf``, and ``countdown``
-and ``timeout`` parameters set to very large values.
-
-See also
---------
-
-Latest information, as well as usage hints, are provided on
-`rasdaman.org/wiki/Performance <http://rasdaman.org/wiki/Performance>`_
 
 
 *****************

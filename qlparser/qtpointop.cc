@@ -78,81 +78,59 @@ QtPointOp::evaluate(QtDataList *inputList)
     QtData *returnValue = NULL;
     QtDataList *operandList = NULL;
 
-    if (getOperands(inputList, operandList))
+    if (!getOperands(inputList, operandList) || !operandList)
     {
-        vector<QtData *>::iterator dataIter;
-        bool goOn = true;
-
-        if (operandList)
-        {
-            // first check operand types
-            for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
-                if (!((*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
-                        (*dataIter)->getDataType() == QT_LONG || (*dataIter)->getDataType() == QT_ULONG ||
-                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR))
-                {
-                    goOn = false;
-                    break;
-                }
-
-            if (!goOn)
-            {
-                LERROR << "Error: QtPointOp::evaluate() - operands of point expression must be of type integer.";
-
-                parseInfo.setErrorNo(410);
-
-                // delete the old operands
-                if (operandList)
-                {
-                    for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                        if ((*dataIter))
-                        {
-                            (*dataIter)->deleteRef();
-                        }
-
-                    delete operandList;
-                    operandList = NULL;
-                }
-
-                throw parseInfo;
-            }
-
-            //
-            // create a QtPointData object and fill it
-            //
-            r_Point ptVar(operandList->size());
-            r_Nullvalues *nullValues = NULL;
-
-            for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                if ((*dataIter)->getDataType() == QT_SHORT ||
-                        (*dataIter)->getDataType() == QT_LONG ||
-                        (*dataIter)->getDataType() == QT_OCTET)
-                {
-                    ptVar << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
-                    nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
-                }
-                else
-                {
-                    ptVar << (static_cast<QtAtomicData *>(*dataIter))->getUnsignedValue();
-                    nullValues = (static_cast<QtAtomicData *>(*dataIter))->getNullValues();
-                }
-            returnValue = new QtPointData(ptVar);
-            returnValue->setNullValues(nullValues);
-
-            // delete the old operands
-            if (operandList)
-            {
-                for (dataIter = operandList->begin(); dataIter != operandList->end(); dataIter++)
-                    if ((*dataIter))
-                    {
-                        (*dataIter)->deleteRef();
-                    }
-
-                delete operandList;
-                operandList = NULL;
-            }
-        }
+        stopTimer();
+        return returnValue;
     }
+
+    // first check operand types
+    bool allInt = std::all_of(operandList->begin(), operandList->end(), [](const QtData * val)
+    {
+        return val->getDataType() == QT_SHORT || val->getDataType() == QT_USHORT ||
+               val->getDataType() == QT_LONG || val->getDataType() == QT_ULONG ||
+               val->getDataType() == QT_OCTET || val->getDataType() == QT_CHAR;
+    });
+    if (!allInt)
+    {
+        LERROR << "Operands of point expression must be of type integer.";
+        for (auto *data : *operandList)
+            if (data)
+                data->deleteRef();
+        delete operandList;
+        operandList = NULL;
+        parseInfo.setErrorNo(410);
+        throw parseInfo;
+    }
+
+    //
+    // create a QtPointData object and fill it
+    //
+    r_Point ptVar(operandList->size());
+    r_Nullvalues *nullValues = NULL;
+    for (auto *data : *operandList)
+    {
+        if (data->getDataType() == QT_SHORT || data->getDataType() == QT_LONG || data->getDataType() == QT_OCTET)
+        {
+            ptVar << (static_cast<QtAtomicData *>(data))->getSignedValue();
+        }
+        else
+        {
+            ptVar << (static_cast<QtAtomicData *>(data))->getUnsignedValue();
+        }
+        nullValues = (static_cast<QtAtomicData *>(data))->getNullValues();
+    }
+    returnValue = new QtPointData(ptVar);
+    returnValue->setNullValues(nullValues);
+
+    // delete the old operands
+    for (auto *data : *operandList)
+        if (data)
+        {
+            data->deleteRef();
+        }
+    delete operandList;
+    operandList = NULL;
 
     stopTimer();
 
@@ -202,7 +180,7 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
 
     if (!opTypesValid)
     {
-        LERROR << "Error: QtPointOp::checkType() - operand of point expression must be of type integer.";
+        LERROR << "Operand of point expression must be of type integer.";
         parseInfo.setErrorNo(410);
         throw parseInfo;
     }

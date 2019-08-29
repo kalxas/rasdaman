@@ -10,3 +10,5 @@
 216-json_with_break_lines.test
 # Failed only on Ubuntu for some reason with gdal
 155-irr-cube-1.test
+# Oracle needs to be updated as this is no longer an error
+256-clip_polygon_geo_coordinates_duplicate_vertices.error.test

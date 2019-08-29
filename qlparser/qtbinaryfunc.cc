@@ -1068,14 +1068,6 @@ QtScale::evaluate(QtDataList *inputList)
 
 // ----------------------------------------------------------
 
-#ifdef RMANDEBUG
-    LTRACE << "Scale vector          : ";
-    for (unsigned int i = 0; i < scaleVector.size(); i++)
-    {
-        LTRACE << scaleVector[i] << ",";
-    }
-#endif
-
     // scale domain
     if (!scaleDomain(sourceDomain, scaleVector, targetDomain))
     {

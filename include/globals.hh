@@ -110,7 +110,9 @@ rasdaman GmbH.
 #define ALL_IP_ADDRESSES "[::]"
 
 /// Convert parameter to string literal
+#if ! defined(STRINGIFY)
 #define STRINGIFY(x) #x
+#endif
 
 #endif // GLOBALS_HH
 

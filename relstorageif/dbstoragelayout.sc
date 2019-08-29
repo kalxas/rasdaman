@@ -295,3 +295,4 @@ void DBStorageLayout::deleteFromDb()
     tileConfiguration->setPersistent(false);
     DBObject::deleteFromDb();
 }
+

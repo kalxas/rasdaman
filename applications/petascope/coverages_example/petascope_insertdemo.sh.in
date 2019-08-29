@@ -71,7 +71,7 @@ error() {
 
 usage()
 {
-  local -r usage="
+  local usage="
   Usage: $PROG [OPTION]...
 
   Description:

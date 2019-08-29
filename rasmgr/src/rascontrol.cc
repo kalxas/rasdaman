@@ -56,15 +56,14 @@ RasControl::RasControl(boost::shared_ptr<UserManager> userManager,
                        boost::shared_ptr<DatabaseManager> dbManager,
                        boost::shared_ptr<ServerManager> serverManager,
                        boost::shared_ptr<PeerManager> peerManager,
-                       RasManager *rasmanager)
-{
-    this->userManager_ = userManager;
-    this->dbHostManager_ = dbHostManager;
-    this->dbManager_ = dbManager;
-    this->serverManager_ = serverManager;
-    this->peerManager_ = peerManager;
-    this->rasmanager_ = rasmanager;
-}
+                       RasManager *rasmanager):
+    userManager_ {userManager},
+    dbHostManager_ {dbHostManager},
+    dbManager_ {dbManager},
+    serverManager_ {serverManager},
+    peerManager_ {peerManager},
+    rasmanager_ {rasmanager}
+{}
 
 std::string RasControl::deprecatedCommand()
 {

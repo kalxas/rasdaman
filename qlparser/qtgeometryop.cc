@@ -72,11 +72,6 @@ QtGeometryOp::evaluate(QtDataList *inputList)
             //check dimensionality of the polygon
             auto *mshape = static_cast<QtMShapeData *>(data);
             mshape->computeDimensionality();
-            if (mshape->getDimension() < 2)
-            {
-                LERROR << "The polygon is degenerate (its vertices are colinear).";
-                throw r_Error(INCORRECTPOLYGON);
-            }
             intPolyRow.emplace_back(mshape);
         }
         //in this case, we can recast to the point data, and push it back

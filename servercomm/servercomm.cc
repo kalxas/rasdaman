@@ -1394,7 +1394,7 @@ ServerComm::getNextMDD(unsigned long callingClientId,
     if (context)
     {
         if (context->transferData && context->transferDataIter &&
-                *context->transferDataIter != context->transferData->end())
+           *context->transferDataIter != context->transferData->end())
         {
             try
             {
@@ -1459,22 +1459,16 @@ ServerComm::getNextMDD(unsigned long callingClientId,
 
                 // set output parameter currentFormat
                 if (!context->transTiles->empty())
-                {
                     currentFormat = (*(context->transTiles))[0]->getDataFormat();
-                }
                 else
-                {
                     currentFormat = r_Array;
-                }
 
                 // set output parameter oid in case of persistent MDD objects
                 if (mddObj->isPersistent())
                 {
                     EOId eOId;
                     if (mddObj->getEOId(&eOId) == 0)
-                    {
                         oid = r_OId(eOId.getSystemName(), eOId.getBaseName(), eOId.getOId());
-                    }
                 }
             }
             catch (r_Error &err)

@@ -406,13 +406,9 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                     Tile* resultTile = new Tile(r->transTiles);
                     printResult(resultTile, ++resultIndex);
                     delete resultTile;
-                    
-                    RPCMarray *tmp;
-                    while (instance.compat_getNextTile(&tmp) == STATUS_MORE_TILES)
-                    {
-                        free(tmp->domain);
-                        free(tmp);
-                    }
+                    ++(*r->transferDataIter);
+                    if (*(r->transferDataIter) == r->transferData->end())
+                        break;
                 }
             }
             else if (status == STATUS_SCALAR)

@@ -3,7 +3,9 @@
 /**
  * Transform the given argument into a string.
  */
+#if ! defined(STRINGIFY)
 #define STRINGIFY(a) #a
+#endif
 
 /**
  * Conditionally include the appropriate file depending on the compiler version.

@@ -260,10 +260,3 @@ QtDelete::checkType()
 
 }
 
-
-
-
-
-
-
-
