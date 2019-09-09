@@ -314,6 +314,24 @@ class CRSUtil:
             raise RuntimeException("Failed parsing the compound crs at: {}. "
                                    "Detailed error: {}".format(self.crs_url, str(ex)))
 
+        # NOTE: In case of compound CRS (e.g: Index1D&EPSG:4326) then Index1D is not X axis type anymore
+        has_x_axis = False
+        has_y_axis = False
+        for axis in self.axes:
+            if "Index" not in axis.uri:
+                if axis.type == CRSAxis.AXIS_TYPE_X:
+                    has_x_axis = True
+                if axis.type == CRSAxis.AXIS_TYPE_Y:
+                    has_y_axis = True
+
+                if has_x_axis and has_y_axis:
+                    break
+
+        if has_x_axis and has_y_axis:
+            for axis in self.axes:
+                if "Index" in axis.uri:
+                    axis.type = CRSAxis.AXIS_TYPE_UNKNOWN
+
     def __get_axis_uom_from_uom_crs(self, uom_crs):
         """
         Return axis UoM from an UoM CRS by last part of URL
