@@ -31,17 +31,17 @@
           "bands": [
             {
               "name": "B04",
-              "identifier": "B04",
+              "identifier": "0",
               "description": "B04"
             },
             {
               "name": "B03",
-              "identifier": "B03",
+              "identifier": "1",
               "description": "B03"
             },
             {
               "name": "B02",
-              "identifier": "B02",
+              "identifier": "2",
               "description": "B02"
             }           
           ],

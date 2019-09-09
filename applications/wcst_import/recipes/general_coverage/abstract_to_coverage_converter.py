@@ -258,10 +258,18 @@ class AbstractToCoverageConverter:
         Returns the file structure (i.e: the list of all defined bands in ingredient files)
         :rtype: dict
         """
+        from recipes.general_coverage.gdal_to_coverage_converter import GdalToCoverageConverter
+
         file_structure = {}
         variables = []
         for band in self.bands:
-            variables.append(str(band.identifier))
+            identifier = band.identifier
+
+            if self.recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
+                if identifier.isdigit():
+                    identifier = int(band.identifier)
+
+            variables.append(identifier)
         if len(variables) > 0:
             file_structure["variables"] = variables
         return file_structure

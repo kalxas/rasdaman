@@ -30,22 +30,22 @@
                                         "bands": [
                                                 {
                                                         "name": "B08",
-                                                        "identifier": "1",
+                                                        "identifier": "0",
                                                         "description": "B8, central wavelength 842 nm"
                                                 },
                                                 {
                                                         "name": "B04",
-                                                        "identifier": "2",
+                                                        "identifier": "1",
                                                         "description": "B4, central wavelength 665 nm"
                                                 },
                                                 {
                                                         "name": "B03",
-                                                        "identifier": "3",
+                                                        "identifier": "2",
                                                         "description": "B3, central wavelength 560 nm"
                                                 },
                                                 {
                                                         "name": "B02",
-                                                        "identifier": "4",
+                                                        "identifier": "3",
                                                         "description": "B2, central wavelength 490 nm"
                                                 }
                                         ],

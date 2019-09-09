@@ -37,17 +37,17 @@
           "bands": [
             {
               "name": "band_18",
-              "identifier": "band_18",
+              "identifier": "0",
               "description": "Mean ND57"
             },
             {
               "name": "band_23",
-              "identifier": "band_23",
+              "identifier": "1",
               "description": "Mean ND42"
             },
             {
               "name": "band_28",
-              "identifier": "band_28",
+              "identifier": "2",
               "description": "Mean ND32"
             }           
           ],

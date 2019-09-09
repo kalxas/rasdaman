@@ -30,10 +30,10 @@
           "bands": [
             {
               "name": "band1",
-              "identifier": "band1"
+              "identifier": "0"
             },  {
               "name": "band2",
-              "identifier": "band2"
+              "identifier": "1"
             }
           ],
           "axes": {

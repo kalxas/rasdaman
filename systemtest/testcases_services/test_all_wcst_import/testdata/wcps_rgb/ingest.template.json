@@ -29,13 +29,13 @@
           "bands": [
             {
               "name": "red",
-              "identifier": "1"
+              "identifier": "red"
             }, {
               "name": "green",
-              "identifier": "2"
+              "identifier": "green"
             }, {
               "name": "blue",
-              "identifier": "3"
+              "identifier": "blue"
             }
           ],
           "axes": {

@@ -8,9 +8,9 @@
     "track_files": false
   },
   "input": {
-    "coverage_id": "test_malform_metadata",
+    "coverage_id": "test_rgb_bands_selecting",
     "paths": [
-      "*.png"
+      "rgb.png"
     ]
   },
   "recipe": {
@@ -21,27 +21,26 @@
         "metadata": {
           "type": "json",
           "global": {
-            "resolution": "'1'",
-            "slices": []
+            "resolution": "'1'"
           }
         },
         "slicer": {
           "type": "gdal",
           "bands": [
             {
-              "name": "value",
+              "name": "red",
               "identifier": "0"
             }
           ],
           "axes": {
             "j": {
-              "min": "0",
-              "max": "40",
+              "min": "${gdal:maxY}",
+              "max": "${gdal:minY}",
               "resolution": "-1"
             },
             "i": {
-              "min": "0",
-              "max": "60",
+              "min": "${gdal:minX}",
+              "max": "${gdal:maxX}",
               "resolution": "${gdal:resolutionX}"
             }
           }

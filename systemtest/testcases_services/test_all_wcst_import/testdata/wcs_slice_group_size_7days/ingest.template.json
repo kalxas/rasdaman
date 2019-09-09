@@ -30,7 +30,7 @@
                     "type": "gdal",
                     "bands": [{
                         "name": "Gray",
-                        "identifier": "Gray"
+                        "identifier": "0"
                     }],
                     "axes": {
                         "timeeeeeeeeeeeeeee": {

@@ -50,18 +50,18 @@
           "type": "gdal",
           "bands": [
             {
-              "identifier": "red",
+              "identifier": "0",
               "name": "red",
-	      "description": "${gdal:minY} + ${gdal:maxY}"
+	          "description": "${gdal:minY} + ${gdal:maxY}"
 	      
             }, {
-              "identifier": "red",
+              "identifier": "1",
               "name": "green",
-	      "description": "${gdal:minX} + ${gdal:maxX}"
+	          "description": "${gdal:minX} + ${gdal:maxX}"
             }, {
-              "identifier": "red",
+              "identifier": "2",
               "name": "blue",
-	      "description": "${gdal:maxX} + ${gdal:minX}"
+	          "description": "${gdal:maxX} + ${gdal:minX}"
             }
           ],
           "axes": {

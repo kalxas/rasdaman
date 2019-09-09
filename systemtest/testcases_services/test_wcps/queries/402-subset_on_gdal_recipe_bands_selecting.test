@@ -1,0 +1,1 @@
+for c in (test_rgb_bands_selecting) return encode(c[i:"CRS:1"(130:150), j:"CRS:1"(140:160)], "png")

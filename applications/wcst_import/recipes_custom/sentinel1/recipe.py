@@ -62,7 +62,7 @@ class Recipe(GeneralCoverageRecipe):
     VAR_POLARISATION = '${polarisation}'
 
     # 1 tiff file contains 1 band
-    BAND = UserBand("1", "Grey", "", "", "", [0], "")
+    BAND = UserBand("0", "Grey", "", "", "", [0], "")
 
     DEFAULT_MODEBEAMS = ["EW", "IW"]
     DEFAULT_POLARISATIONS = ["HH", "HV", "VH", "VV"]
@@ -75,7 +75,7 @@ class Recipe(GeneralCoverageRecipe):
 
     DEFAULT_IMPORT_ORDER = GdalToCoverageConverter.IMPORT_ORDER_ASCENDING
 
-    DEFAULT_NULL_VALUE = 0;
+    DEFAULT_NULL_VALUE = 0
 
     #
     # public

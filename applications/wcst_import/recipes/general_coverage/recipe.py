@@ -220,9 +220,17 @@ class Recipe(BaseRecipe):
                                    "Given " + str(number_of_bands) + " bands in ingredient file.")
 
             ret_bands = []
+            i = 0
             for band in bands:
+                identifier = self._read_or_empty_string(band, "identifier")
+
+                if recipe_type == GdalToCoverageConverter.RECIPE_TYPE:
+                    # NOTE: for old ingredients with wrong defined "identifier" with band name instead of index 0-based
+                    if not identifier.isdigit():
+                        identifier = str(i)
+
                 ret_bands.append(UserBand(
-                    self._read_or_empty_string(band, "identifier"),
+                    identifier,
                     self._read_or_empty_string(band, "name"),
                     self._read_or_empty_string(band, "description"),
                     self._read_or_empty_string(band, "definition"),
@@ -230,6 +238,9 @@ class Recipe(BaseRecipe):
                     self._read_or_empty_string(band, "nilValue").split(","),
                     self._read_or_empty_string(band, "uomCode")
                 ))
+
+                i += 1
+
             return ret_bands
         else:
             if self.options['coverage']['slicer']['type'] == GdalToCoverageConverter.RECIPE_TYPE:

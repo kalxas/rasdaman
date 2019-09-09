@@ -56,8 +56,7 @@ public class RasdamanUpdaterFactory {
             rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
             return new RasdamanNetcdfUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         } else {
-            // with other kind of gdal format (tiff, png, jpeg,...) don't add any range parameters to rasql update query
-            rangeParameters = this.updateFilePathsInRangeParameters(EMPTY_ROOT_NODE, filePath);
+            rangeParameters = this.updateFilePathsInRangeParameters(rangeParameters, filePath);
             return new RasdamanDecodeUpdater(collectionName, collectionOid, domain, shiftDomain, rangeParameters);
         }
     }
@@ -81,6 +80,9 @@ public class RasdamanUpdaterFactory {
      * @return 
      */
     private String updateFilePathsInRangeParameters(String rangeParameters, String filePath) throws IOException {
+        if (rangeParameters.isEmpty()) {
+            rangeParameters = "{}";
+        }
         ObjectNode root = (ObjectNode) new ObjectMapper().readTree(rangeParameters);
         ArrayNode filePathsNode = root.putArray("filePaths");
         filePathsNode.add(filePath);

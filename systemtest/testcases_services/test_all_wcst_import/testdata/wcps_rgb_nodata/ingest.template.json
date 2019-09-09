@@ -51,18 +51,18 @@
           "type": "gdal",
           "bands": [
             {
-              "identifier": "red",
+              "identifier": "0",
               "name": "red",
 	      "description": "${gdal:minY} + ${gdal:maxY}",
 	      "uomCode": "Pa"
 	      
             }, {
-              "identifier": "red",
+              "identifier": "1",
               "name": "green",
 	      "description": "${gdal:minX} + ${gdal:maxX}",
               "uomCode": "Celsius"
             }, {
-              "identifier": "red",
+              "identifier": "2",
               "name": "blue",
 	      "description": "${gdal:maxX} + ${gdal:minX}"
             }
