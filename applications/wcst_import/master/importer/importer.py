@@ -158,6 +158,23 @@ class Importer:
             slices.append(coverages[0].slices[i])
         return slices
 
+    def __get_grid_domains(self, slice):
+        """
+        Get the grid domains of current importing coverage slice
+        :return: str
+        """
+        values = []
+
+        for axis_subset in slice.axis_subsets:
+            grid_axis = axis_subset.coverage_axis.grid_axis
+
+            if axis_subset.coverage_axis.data_bound is False:
+                values.append(str(grid_axis.grid_low))
+            else:
+                values.append(str(grid_axis.grid_low) + ":" + str(grid_axis.grid_high))
+
+        return ",".join(values)
+
     def _insert_slices(self):
         """
         Insert the slices of the coverage
@@ -192,7 +209,8 @@ class Importer:
                         pass
                     start_time = time.time()
                     self._insert_slice(self.coverage.slices[i])
-                    self._log_file_ingestion(index, file_name, start_time, file_size_in_mb, is_loggable, log_file)
+                    grid_domains = self.__get_grid_domains(self.coverage.slices[i])
+                    self._log_file_ingestion(index, file_name, start_time, grid_domains, file_size_in_mb, is_loggable, log_file)
                 else:
                     is_ingest_file = False
                     # extract coverage from petascope to ingest a new coverage
@@ -221,7 +239,7 @@ class Importer:
             log_file.write("\nResult: success.")
             log_file.close()
     
-    def _log_file_ingestion(self, index, file_name, start_time, file_size_in_mb, is_loggable, log_file):
+    def _log_file_ingestion(self, index, file_name, start_time, grid_domains, file_size_in_mb, is_loggable, log_file):
         end_time = time.time()
         time_to_ingest = round(end_time - start_time, 2)
         if time_to_ingest < 0.0000001:
@@ -229,10 +247,13 @@ class Importer:
 
         if file_size_in_mb != 0:
             size_per_second = round(file_size_in_mb / time_to_ingest, 2)
-            log_text = "{} - File '{}' of size {} MB; Total time to ingest file {} s @ {} MB/s.".format(index, file_name,
+            log_text = "{} - file '{}' - grid domains [{}] of size {} MB; Total time to ingest file {} s @ {} MB/s.".format(index, file_name,
+                                                                grid_domains,
                                                                 file_size_in_mb, time_to_ingest, size_per_second)
         else:
-            log_text = "Total time to ingest {} - file '{}': {} s.".format(index, file_name, time_to_ingest)
+            log_text = "{} - file '{}' - grid domains [{}]; Total time to ingest file {} s.".format(index, file_name,
+                                                                grid_domains,
+                                                                time_to_ingest)
 
         log_text = prepend_time(log_text)
         # write to console
