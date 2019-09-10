@@ -37,9 +37,9 @@ module wcs {
         // If 1 coverage has size then this column is added to WCS GetCapabilities coverages table
         public showCoverageSizesColumn:boolean;
         
-        public totalLocalCoverageSizesInGBs:String;
-        public totalRemoteCoverageSizesInGBs:String;
-        public totalCoverageSizesInGBs:String;
+        public totalLocalCoverageSizes:String;
+        public totalRemoteCoverageSizes:String;
+        public totalCoverageSizes:String;
 
         public constructor(source:rasdaman.common.ISerializedObject) {
             super(source);
@@ -77,9 +77,9 @@ module wcs {
             totalCoverageSizesInBytes += totalLocalCoverageSizesInBytes + totalRemoteCoverageSizesInBytes;
 
             // Convert Bytes to GBs for total sizes of coverages
-            this.totalLocalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalCoverageSizesInBytes);
-            this.totalRemoteCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteCoverageSizesInBytes);
-            this.totalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalCoverageSizesInBytes);
+            this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
+            this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
+            this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
 
             if (source.doesElementExist("wcs:Extension")) {
                 this.extension = new Extension(source.getChildAsSerializedObject("wcs:Extension"));

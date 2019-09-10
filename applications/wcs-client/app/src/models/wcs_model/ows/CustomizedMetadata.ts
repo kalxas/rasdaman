@@ -69,7 +69,7 @@ module ows {
                 let sizeInBytesElement = source.getChildAsSerializedObject(childElement);
                 let sizeInBytes = sizeInBytesElement.getValueAsString();
 
-                this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(sizeInBytes);
 
                 if (this.hostname === undefined) {
                     this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
@@ -86,7 +86,7 @@ module ows {
          * Convert a number of bytes to human readable string.
          * e.g: 1000 -> 1 KB         
          */
-        private convertNumberOfBytesToHumanReadable(numberOfBytes):String {
+        public static convertNumberOfBytesToHumanReadable(numberOfBytes):String {
             const k = 1000;            
             const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             let i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
@@ -94,13 +94,5 @@ module ows {
 
             return result;
         }
-
-        /**
-         * Convert number of Bytes to GBs
-         */
-        public static convertBytesToGBs(numberOfBytes):String {
-            let result = numberOfBytes / Math.pow(10, 9);
-            return result.toFixed(3);
-        };
     }
 }

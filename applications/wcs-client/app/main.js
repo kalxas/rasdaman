@@ -1089,7 +1089,7 @@ var ows;
             if (source.doesElementExist(childElement)) {
                 var sizeInBytesElement = source.getChildAsSerializedObject(childElement);
                 var sizeInBytes = sizeInBytesElement.getValueAsString();
-                this.coverageSize = this.convertNumberOfBytesToHumanReadable(sizeInBytes);
+                this.coverageSize = CustomizedMetadata.convertNumberOfBytesToHumanReadable(sizeInBytes);
                 if (this.hostname === undefined) {
                     this.localCoverageSizeInBytes = sizeInBytesElement.getValueAsNumber();
                 }
@@ -1101,18 +1101,13 @@ var ows;
                 this.coverageSize = "N/A";
             }
         };
-        CustomizedMetadata.prototype.convertNumberOfBytesToHumanReadable = function (numberOfBytes) {
+        CustomizedMetadata.convertNumberOfBytesToHumanReadable = function (numberOfBytes) {
             var k = 1000;
             var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             var i = Math.floor(Math.log(numberOfBytes) / Math.log(k));
             var result = parseFloat((numberOfBytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             return result;
         };
-        CustomizedMetadata.convertBytesToGBs = function (numberOfBytes) {
-            var result = numberOfBytes / Math.pow(10, 9);
-            return result.toFixed(3);
-        };
-        ;
         return CustomizedMetadata;
     }());
     ows.CustomizedMetadata = CustomizedMetadata;
@@ -1223,9 +1218,9 @@ var wcs;
                 }
             });
             totalCoverageSizesInBytes += totalLocalCoverageSizesInBytes + totalRemoteCoverageSizesInBytes;
-            _this.totalLocalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalCoverageSizesInBytes);
-            _this.totalRemoteCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteCoverageSizesInBytes);
-            _this.totalCoverageSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalCoverageSizesInBytes);
+            _this.totalLocalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalCoverageSizesInBytes);
+            _this.totalRemoteCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteCoverageSizesInBytes);
+            _this.totalCoverageSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalCoverageSizesInBytes);
             if (source.doesElementExist("wcs:Extension")) {
                 _this.extension = new wcs.Extension(source.getChildAsSerializedObject("wcs:Extension"));
             }
@@ -4678,9 +4673,9 @@ var wms;
                     _this.layers.push(new wms.Layer(layerGMLDocument, name, title, abstract, customizedMetadata, westBoundLongitude, eastBoundLongitude, southBoundLatitude, northBoundLatitude, crs, minx, miny, maxx, maxy));
                 });
                 totalLayerSizesInBytes += totalLocalLayerSizesInBytes_1 + totalRemoteLayerSizesInBytes_1;
-                this.totalLocalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLocalLayerSizesInBytes_1);
-                this.totalRemoteLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalRemoteLayerSizesInBytes_1);
-                this.totalLayerSizesInGBs = ows.CustomizedMetadata.convertBytesToGBs(totalLayerSizesInBytes);
+                this.totalLocalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLocalLayerSizesInBytes_1);
+                this.totalRemoteLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalRemoteLayerSizesInBytes_1);
+                this.totalLayerSizes = ows.CustomizedMetadata.convertNumberOfBytesToHumanReadable(totalLayerSizesInBytes);
             }
         }
         Capabilities.prototype.parseLayerCustomizedMetadata = function (source) {

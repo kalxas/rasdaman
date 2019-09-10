@@ -251,7 +251,7 @@ public abstract class AbstractController {
 
         return kvpParameters;
     }
-    
+
     /**
      * Check if petascope can read file's content from uploaded multipart file. If yes, then get file's content.
      */

@@ -20,10 +20,10 @@
             <uib-accordion close-others="false">
                 <uib-accordion-group is-open="isAvailableCoveragesOpen">
                     <uib-accordion-heading>
-                        Available coverages ( Total volume: {{capabilities.contents.totalCoverageSizesInGBs}} GB
+                        Available coverages ( Total volume: {{capabilities.contents.totalCoverageSizes}} 
                                             <span ng-show="capabilities.contents.showCoverageLocationsColumn"> 
-                                                - Local volume: {{capabilities.contents.totalLocalCoverageSizesInGBs}} GB
-                                                - Remote volume: {{capabilities.contents.totalRemoteCoverageSizesInGBs}} GB
+                                                - Local volume: {{capabilities.contents.totalLocalCoverageSizes}} 
+                                                - Remote volume: {{capabilities.contents.totalRemoteCoverageSizes}} 
                                             </span>                        
                                             ) 
                                             <i class="pull-right glyphicon"
@@ -66,8 +66,10 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="6" class="text-right">
-                                        <div st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)"></div>                                    
+                                    <td colspan="6" class="text-right">                                 
+                                        <div st-template="src/components/wcs_component/get_capabilities/Pagination.html" st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)">
+
+                                        </div>                                    
                                         <div style="font-size: 16px; float: right; margin-top: 10px;">
 
                                             <!-- Filter coverages by local/remote -->

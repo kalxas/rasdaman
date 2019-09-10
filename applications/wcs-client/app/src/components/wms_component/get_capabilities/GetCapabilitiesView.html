@@ -21,10 +21,10 @@
                 <uib-accordion-group is-open="isAvailableLayersOpen">
                     <uib-accordion-heading>
                         Available layers
-                                        ( Total volume: {{capabilities.totalLayerSizesInGBs}} GB
+                                        ( Total volume: {{capabilities.totalLayerSizes}} 
                                         <span ng-show="capabilities.showLayerLocationsColumn"> 
-                                            - Local volume: {{capabilities.totalLocalLayerSizesInGBs}} GB
-                                            - Remote volume: {{capabilities.totalRemoteLayerSizesInGBs}} GB
+                                            - Local volume: {{capabilities.totalLocalLayerSizes}} 
+                                            - Remote volume: {{capabilities.totalRemoteLayerSizes}} 
                                         </span>                        
                                         )  
                                         <i class="pull-right glyphicon"
@@ -65,7 +65,9 @@
                             <tfoot>
                                 <tr>
                                     <td colspan=100% class="text-right">
-                                        <div st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)"></div>
+                                        <div st-template="src/components/wcs_component/get_capabilities/Pagination.html" st-pagination="" st-items-by-page="rowPerPageSmartTable" st-page-change="pageChanged(newPage)">
+
+                                        </div>
 
                                         <div style="font-size: 16px; float: right; margin-top: 10px;">
 
