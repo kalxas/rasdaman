@@ -94,7 +94,7 @@ flexible alternative; however, it requires some experience in manual compilation
 
 **Alternative 3: Virtual Machine**
 
-By `downloading a Virtual Machine <sec-download-vm>`_ you get a fully configured
+By `downloading a Virtual Machine <sec-download-vm>`__ you get a fully configured
 system with rasdaman installed and ready to run. This alternative does not
 require any system administration skills other than starting the VM and working
 with the rasdaman services, e.g., via the OGC standards based geo service
@@ -218,6 +218,7 @@ Installation
    get petascope run properly. See :ref:`here <selinux-configuration>` for more
    details.
 
+.. _sec-system-update-pkgs-deb:
 
 Updating
 ^^^^^^^^
@@ -315,6 +316,8 @@ Installation
    details.
 
 
+.. _sec-system-update-pkgs-rpm:
+
 Updating
 ^^^^^^^^
 
@@ -361,8 +364,8 @@ by simply editing a JSON file.
 
 Currently, the following distributions are supported:
 
--  Debian (8, 9)
--  Ubuntu (14.04, 16.04, 18.04)
+-  Debian (9)
+-  Ubuntu (16.04, 18.04)
 -  CentOS (7)
 
 First-Time Installation
@@ -1347,7 +1350,7 @@ Preconfigured Virtual Machines
 ==============================
 
 This is the easiest way of obtaining rasdaman. The preconfectioned VM has a
-running rasdaman system on Ubuntu 14.04 with a database already containing
+running rasdaman system on Xubuntu 18.04 with a database already containing
 sample data for experimentation.
 
 
@@ -1380,7 +1383,12 @@ On start the VM will launch a browser with tabs giving you access to
 -  a Web client accessing the VM-local rasdaman database with some
    sample n-D geo data, using Web requests adhering to the OGC W\*S standards
 -  the rasdaman documentation starting point
--  the rasdaman installation directory in the VM, ``/opt/rasdaman``
+
+**Updating rasdaman**
+
+In the VM rasdaman is installed as a Debian package. To make sure that the
+latest rasdaman version is running, make sure to 
+`update the package <sec-system-update-pkgs-deb>`__
 
 
 rasdaman @ `OSGeo Live <http://live.osgeo.org/>`__
