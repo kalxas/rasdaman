@@ -1,0 +1,8 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=test_irr_cube_1&
+subset=i(0,2)&
+subset=j(3,5)&
+subset=k(3,5)&
+EXTRA_PARAM=not_valid

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.rasdaman.config.VersionManager;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +37,29 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_CLIP;
+import static petascope.core.KVPSymbols.KEY_COVERAGEID;
 import static petascope.core.KVPSymbols.KEY_FORMAT;
+import static petascope.core.KVPSymbols.KEY_INTERPOLATION;
+import static petascope.core.KVPSymbols.KEY_MEDIATYPE;
+import static petascope.core.KVPSymbols.KEY_OUTPUT_CRS;
 import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
+import static petascope.core.KVPSymbols.KEY_RANGESUBSET;
+import static petascope.core.KVPSymbols.KEY_REQUEST;
+import static petascope.core.KVPSymbols.KEY_SCALEAXES;
+import static petascope.core.KVPSymbols.KEY_SCALEEXTENT;
+import static petascope.core.KVPSymbols.KEY_SCALEFACTOR;
+import static petascope.core.KVPSymbols.KEY_SCALESIZE;
+import static petascope.core.KVPSymbols.KEY_SERVICE;
+import static petascope.core.KVPSymbols.KEY_SUBSET;
+import static petascope.core.KVPSymbols.KEY_SUBSETTING_CRS;
 import static petascope.core.KVPSymbols.KEY_VERSION;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.WMSException;
 import petascope.util.JSONUtil;
 import petascope.util.ListUtil;
 import petascope.util.MIMEUtil;
-import static petascope.util.MIMEUtil.MIME_GML;
+import petascope.util.SetUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 import petascope.wcps.metadata.service.WcpsCoverageMetadataTranslator;
@@ -86,6 +100,13 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
     
     private static final Logger log = LoggerFactory.getLogger(KVPWCSGetCoverageHandler.class);
     
+    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_COVERAGEID, KEY_SUBSET,
+                                                                      KEY_SCALEAXES, KEY_SCALEEXTENT, KEY_SCALEFACTOR, KEY_SCALESIZE, 
+                                                                      KEY_RANGESUBSET, KEY_INTERPOLATION,
+                                                                      KEY_SUBSETTING_CRS, KEY_OUTPUT_CRS,
+                                                                      KEY_FORMAT, KEY_CLIP,
+                                                                      KEY_MEDIATYPE,
+                                                                      KEY_OUTPUT_TYPE);
     
     public static final String ENCODE_FORMAT = "$encodeFormat";
     public static final String RANGE_NAME = ".$rangeName";
@@ -104,6 +125,7 @@ public class KVPWCSGetCoverageHandler extends KVPWCSAbstractHandler {
             throw new WCSException(ExceptionCode.InvalidRequest, "A GetCoverage request must specify at least one " + KVPSymbols.KEY_COVERAGEID + ".");
         }
         
+        this.validateParameters(kvpParameters, VALID_PARAMETERS);        
         this.validateCoverageConversionCIS11(kvpParameters);
     }
 

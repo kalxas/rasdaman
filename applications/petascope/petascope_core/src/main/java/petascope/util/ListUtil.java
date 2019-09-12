@@ -342,6 +342,19 @@ public class ListUtil {
         }
         return resultLists;
     }
+    
+    /**
+     * Check if a string value exists in a list of string (case insensitive).
+     */
+    public static boolean containsIgnoreCase(List<String> list, String value) {
+        for (String element : list) {
+            if (element.toLowerCase().equals(value.toLowerCase())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * Generic comparator for numbers.

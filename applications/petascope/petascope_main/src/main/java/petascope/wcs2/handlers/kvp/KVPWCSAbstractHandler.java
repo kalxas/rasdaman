@@ -21,7 +21,9 @@
  */
 package petascope.wcs2.handlers.kvp;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.rasdaman.config.VersionManager;
 import static petascope.core.KVPSymbols.KEY_FORMAT;
 import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
@@ -29,6 +31,7 @@ import static petascope.core.KVPSymbols.KEY_VERSION;
 import static petascope.core.KVPSymbols.VALUE_GENERAL_GRID_COVERAGE;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 import petascope.ihandlers.kvp.IKVPHandler;
 import static petascope.util.MIMEUtil.MIME_GML;
 
@@ -39,6 +42,17 @@ import static petascope.util.MIMEUtil.MIME_GML;
  @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public abstract class KVPWCSAbstractHandler implements IKVPHandler {
+    
+    /**
+     * Overrided by subclass to check if parameter is not valid in the request.
+     */
+    protected void validateParameters(Map<String, String[]> kvpParameters, Set<String> validParameters) throws WCSException {
+        for (String key : kvpParameters.keySet()) {
+            if (!validParameters.contains(key.toLowerCase())) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "Parameter '" + key + "' is not valid in request.");
+            }
+        }
+    }
     
     /**
      *  Check if key exists in KVP GET request to return its value. 

@@ -24,6 +24,7 @@ package petascope.wcs2.handlers.kvp;
 import petascope.core.response.Response;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import nu.xom.Element;
 import org.rasdaman.config.VersionManager;
 import org.slf4j.Logger;
@@ -35,11 +36,16 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
+import static petascope.core.KVPSymbols.KEY_ACCEPTVERSIONS;
+import static petascope.core.KVPSymbols.KEY_REQUEST;
+import static petascope.core.KVPSymbols.KEY_SECTIONS;
+import static petascope.core.KVPSymbols.KEY_SERVICE;
 import static petascope.core.KVPSymbols.KEY_VERSION;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
 import petascope.core.gml.GMLWCSRequestResultBuilder;
 import petascope.exceptions.WMSException;
+import petascope.util.SetUtil;
 
 /**
  * Handle the GetCapabilities WCS 2.0.1 request result example which is
@@ -51,6 +57,7 @@ import petascope.exceptions.WMSException;
 public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     private static Logger log = LoggerFactory.getLogger(KVPWCSGetCapabilitiesHandler.class);
+    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_ACCEPTVERSIONS, KEY_SECTIONS);
     
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
@@ -61,7 +68,7 @@ public class KVPWCSGetCapabilitiesHandler extends KVPWCSAbstractHandler {
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
-
+        this.validateParameters(kvpParameters, VALID_PARAMETERS);
     }
 
     @Override

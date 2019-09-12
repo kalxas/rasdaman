@@ -24,6 +24,7 @@ package petascope.wcs2.handlers.kvp;
 import java.util.Arrays;
 import petascope.core.response.Response;
 import java.util.Map;
+import java.util.Set;
 import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,10 @@ import petascope.exceptions.WMSException;
 import petascope.util.MIMEUtil;
 import petascope.util.XMLUtil;
 import static petascope.core.KVPSymbols.KEY_OUTPUT_TYPE;
+import static petascope.core.KVPSymbols.KEY_REQUEST;
+import static petascope.core.KVPSymbols.KEY_SERVICE;
+import static petascope.core.KVPSymbols.KEY_VERSION;
+import petascope.util.SetUtil;
 
 /**
  * Class which handle WCS 2.0.1 DescribeCoverage request NOTE: 1 coverage can
@@ -52,6 +57,7 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
 
     @Autowired
     private GMLWCSRequestResultBuilder gmlWCSRequestResultBuilder;
+    protected static Set<String> VALID_PARAMETERS = SetUtil.createLowercaseHashSet(KEY_SERVICE, KEY_VERSION, KEY_REQUEST, KEY_COVERAGEID, KEY_OUTPUT_TYPE);
 
     @Override
     public void validate(Map<String, String[]> kvpParameters) throws PetascopeException, SecoreException, WMSException {
@@ -59,6 +65,7 @@ public class KVPWCSDescribeCoverageHandler extends KVPWCSAbstractHandler {
             throw new WCSException(ExceptionCode.InvalidRequest, "A DescribeCoverage request must specify at least one " + KVPSymbols.KEY_COVERAGEID + ".");
         }
         
+        this.validateParameters(kvpParameters, VALID_PARAMETERS);
         this.validateCoverageConversionCIS11(kvpParameters);
     }
 

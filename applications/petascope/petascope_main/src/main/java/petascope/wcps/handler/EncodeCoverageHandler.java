@@ -152,8 +152,8 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
                 throw new InvalidJsonDeserializationException();
             } else {
                 // extra params is old style (check if it has "nodata" as parameter to add to metadata)
-                parseNoDataFromExtraParams(extraParams, metadata);
-                jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference);
+                boolean hasNoData = parseNoDataFromExtraParams(extraParams, metadata);
+                jsonOutput = serializationEncodingService.serializeOldStyleExtraParamsToJson(rasqlFormat, metadata, netCDFExtraParams, geoReference, hasNoData);
             }
 
             // as all of the parameters go inside the new JSON style, so replace "{" to "{\""
@@ -171,13 +171,13 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
      *
      * @param extraParams *
      */
-    private void parseNoDataFromExtraParams(String extraParams, WcpsCoverageMetadata metadata) {
+    private boolean parseNoDataFromExtraParams(String extraParams, WcpsCoverageMetadata metadata) {
         String str = extraParams.replace(" ", "");
         if (str.contains(EncodeCoverageHandler.NO_DATA + "=")) {
             // parse param values string to List of nodata values
             // get the value of nodata parameter (e.g: 2,3,4)
             String[] values = str.split("=")[1].split(",");
-
+            
             // Check how many bands of coverag expression
             // NOTE: if nodata has 1 value then it applies to all bands, if nodata has multiple values then it must match: 1 value for 1 band repectively
             // e.g: nodata=2,3,4 then band1 with nodata = 2, band2 with nodata=3, band3 with nodata=4
@@ -198,7 +198,11 @@ public class EncodeCoverageHandler extends AbstractOperatorHandler {
 
             // Update the nodata values in range fields as well
             updateNoDataInRangeFileds(noDataValues, metadata);
+
+            return true;                
         }
+        
+        return false;
     }
 
     /**

@@ -131,14 +131,16 @@ public class SerializationEncodingService {
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     public String serializeOldStyleExtraParamsToJson(String rasqlFormat, WcpsCoverageMetadata wcpsCoverageMetadata,
-                                            NetCDFExtraParams netCDFExtraParams, GeoReference geoReference) throws JsonProcessingException, PetascopeException {
+                                            NetCDFExtraParams netCDFExtraParams, GeoReference geoReference, boolean hasNoData) throws JsonProcessingException, PetascopeException {
         JsonExtraParams jsonExtraParams = new JsonExtraParams();
         if (netCDFExtraParams != null) {
             jsonExtraParams.setDimensions(new Dimensions(netCDFExtraParams.getDimensions()));
             jsonExtraParams.setVariables(new Variables(netCDFExtraParams.getVariables()));
         }
         
-        jsonExtraParams.setNoData(new NoData(wcpsCoverageMetadata.getNodata()));        
+        if (hasNoData) {
+            jsonExtraParams.setNoData(new NoData(wcpsCoverageMetadata.getNodata()));
+        }
         
         // Extra metadata of coverage
         CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
