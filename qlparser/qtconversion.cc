@@ -209,11 +209,13 @@ QtConversion::evaluate(QtDataList *inputList)
             currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
             vector<boost::shared_ptr<Tile>> *tiles = NULL;
-            if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
+            /*if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
                 // get relevant tiles
                 tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
-            }
+            }*/
+            
+            tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
             if (!tiles || tiles->empty())
             {
                 LERROR << "no tile available to convert.";

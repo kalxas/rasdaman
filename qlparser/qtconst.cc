@@ -163,11 +163,32 @@ QtConst::evaluate(QtDataList * /*inputList*/)
     startTimer("QtConst");
 
     QtData *returnValue = NULL;
-
+   
     if (dataObj)
     {
-        dataObj->incRef();
-        returnValue = dataObj;
+        if (dataObj->getDataType() == QT_MDD)
+        {
+            QtMDD  *qtMDD = static_cast<QtMDD *>(dataObj);
+            MDDObj *currentMDDObj = qtMDD->getMDDObject();
+            const auto &currDomain = currentMDDObj->getCurrentDomain();
+            r_Minterval loadDomain = qtMDD->getLoadDomain();
+            LTRACE << "  definitionDomain: " << currentMDDObj->getDefinitionDomain();
+            LTRACE << "  currentDomain...: " << currDomain;
+            // load domain for the actual MDDObj
+            r_Minterval actLoadDomain;
+            // intersect actLoadDomain with defined domain
+            actLoadDomain.intersection_of(loadDomain, currDomain);
+            LTRACE << "  loadDomain......: " << actLoadDomain;
+            qtMDD->setLoadDomain(actLoadDomain);
+            qtMDD->incRef();
+            returnValue = qtMDD;
+        }
+        else 
+        {
+            dataObj->incRef();
+            returnValue = dataObj;
+        }
+    
     }
 
     stopTimer();
