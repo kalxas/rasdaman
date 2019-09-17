@@ -57,11 +57,7 @@ public class Metadata implements ISerializeToXMElement {
     public Element serializeToXMLElement() throws PetascopeException {
         String metadataElementStr = XMLUtil.createXMLString(NAMESPACE_CIS_11, PREFIX_CIS11, LABEL_METADATA, metadata);
         Element metadataElement = null;
-        try {
-            metadataElement = XMLUtil.parseXmlFragment(metadataElementStr);
-        } catch (IOException | ParsingException ex) {
-            throw new PetascopeException(ExceptionCode.XmlNotValid, "Cannot parse gmlcov:metadata XML string to XML element. Reason: " + ex.getMessage(), ex);
-        }
+        metadataElement = XMLUtil.parseXmlFragment(metadataElementStr);
         
         return metadataElement;
     }

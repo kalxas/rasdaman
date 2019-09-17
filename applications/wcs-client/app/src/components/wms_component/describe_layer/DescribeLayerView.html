@@ -142,8 +142,8 @@
                         <thead>
                             <tr>
                                 <th colspan=15%>Style Name</th>
-                                <th colspan=55% style="width: 55%;">Abstract</th>
-                                <th colspan=30% style="width: 30%;">Operations</th>
+                                <th colspan=40% style="width: 40%;">Abstract</th>
+                                <th colspan=45% style="width: 45%;">Operations</th>
                             </tr>
                             <tr>
                                 <td colspan=100%><input st-search="name" class="form-control"
@@ -155,10 +155,10 @@
                             <tr>
                                 <!-- Every layer has this no style and cannot be deleted -->
                                 <td colspan=15%>No style</td>
-                                <td colspan=55%></td>                                
-                                <td colspan=10%>
+                                <td colspan=45%></td>                                
+                                <td colspan=20%>
                                     <input type="radio" ng-model="selectedStyleName" value="" ng-click='showWMSLayerOnGlobe("")' name="styles" title="Display the layer with selected style on WebWorldWind globe as WMS layer." 
-                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style on globe
                                 </td>
                                 <td colspan=10%><a href="{{getMapRequestURL}}" id="secGetMap" target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
@@ -166,10 +166,10 @@
                             </tr>
                             <tr ng-repeat="style in styles">                                
                                 <td colspan=15%><a ng-click='describeStyleToUpdate(style.name);'>{{style.name}}</a></td>                                
-                                <td colspan=55%>{{style.abstract}}</td>
-                                <td colspan=10%>
+                                <td colspan=45%>{{style.abstract | limitTo:50}}</td>
+                                <td colspan=20%>
                                     <input type="radio" ng-model="selectedStyleName" value="{{style.name}}" ng-click="showWMSLayerOnGlobe(style.name)" name="styles" title="Display the layer with selected style on WebWorldWind globe as WMS layer." 
-                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style
+                                    onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left"> &nbsp; View style on globe
                                 </td>
                                 <td colspan=10%><a href='{{getMapRequestURL}}{{style.name}}' target="_blank" title="Open a new tab in web browser to show the GetMap request result." 
                                     onmouseout="$(this).tooltip('hide')" onmouseover="$(this).tooltip('show')" data-placement="left">GetMap request</a></td>
@@ -200,27 +200,53 @@
                             <div class="form-group">
                                 <label class="control-label col-sm-2">Abstract:</label>
                                 <div class="col-sm-8">          
-                                    <textarea rows="2" class="form-control" placeholder="Enter style abstract" id="styleAbstract"/>
+                                    <textarea rows="3" class="form-control" placeholder="Enter style abstract" id="styleAbstract"/>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-sm-2">Query type:</label>
                                 <div class="col-sm-3">          
-                                    <select class="form-control" id="styleQueryType">
-                                        <option value="0">WCPS query fragment</option>
-                                        <option value="1">Rasql transform fragment</option>                                                                                
+                                    <select class="form-control" id="styleQueryType">                                        
+                                        <option value="none" selected>None</option>
+                                        <option value="wcpsQueryFragment" selected>WCPS query fragment</option>
+                                        <option value="rasqlTransformFragment">Rasql transform fragment</option>                                                                                
                                     </select>                                    
                                 </div>
                                 <div class="col-sm-3"> 
-                                    <a href="http://rasdaman.org/wiki/WMSGuide#Stylecreation" target="_blank">Link to WMS style queries example</a>
+                                    <a href="http://doc.rasdaman.org/05_geo-services-guide.html#style-creation" target="_blank">Link to WMS style queries example</a>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="divStyleQuery" style="display: none;">
                                 <label class="control-label col-sm-2">Query:</label>
                                 <div class="col-sm-8">          
-                                    <textarea rows="10" class="form-control" placeholder="Enter style query" id="styleQuery"/>
+                                    <textarea rows="5" class="form-control" placeholder="Enter style query" id="styleQuery"/>
                                 </div>
-                            </div>                            
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Color table type:</label>
+                                <div class="col-sm-3">          
+                                    <select class="form-control" id="styleColorTableType">
+                                        <option value="none">None</option>
+                                        <option value="ColorMap" selected>Color Map</option>
+                                        <option value="GDAL">GDAL</option>
+                                        <option value="SLD">SLD</option>
+                                    </select>                                    
+                                </div>                                
+                            </div>
+                            <div class="form-group" id="divStyleColorTableDefinition" style="display: none;">
+                                <label class="control-label col-sm-2">Color table definition:</label>
+                                <div class="col-sm-6">          
+                                    <textarea rows="5" class="form-control" placeholder="Enter color table definition manually or select a style file from local system." id="styleColorTableDefinition"/>
+                                </div>
+                                <div class="col-sm-2">
+                                        <label class="btn btn-success">
+                                            <input id="colorTableDefinitionStyleFileInput" type="file" style="display:none">
+                                        Select style file
+                                        </label>
+                                </div>
+                            </div>
+
                             <div class="form-group">        
                                 <div class="col-sm-offset-2 col-sm-1">
                                     <button class="btn btn-primary" type="button" ng-click="insertStyle()">Insert Style</button>

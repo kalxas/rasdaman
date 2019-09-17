@@ -24,7 +24,13 @@ package petascope.wcps.encodeparameters.model;
 import java.util.List;
 
 /**
- *
+ * GDAL colorPaletteTable with 256 values, e.g:
+ * 
+ * "colorPalette": {
+ *          "colorTable": [[255,0,0,255],[216,31,30,255],[216,31,30,255],...,[43,131,186,255]]
+ *      }
+ * 
+ * 
  * @author <a href="mailto:b.phamhuu@jacobs-university.de">Bang Pham Huu</a>
  */
 public class ColorPalette {

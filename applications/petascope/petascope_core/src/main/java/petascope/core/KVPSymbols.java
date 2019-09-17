@@ -136,6 +136,9 @@ public interface KVPSymbols {
     String KEY_WMS_FORMAT = "format";
     String KEY_WMS_TRANSPARENT = "transparent";
     String KEY_WMS_BGCOLOR = "bgcolor";
+    String KEY_WMS_COLOR_TABLE_TYPE = "ColorTableType";
+    String KEY_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
+
     // used for non XY axes, time axis, elevation axis, (e.g: dim_pressure with axis name is pressure) 
     String KEY_WMS_DIM_PREFIX = "dim_";
     String KEY_WMS_EXCEPTIONS = "exceptions";

@@ -105,38 +105,38 @@ public class WMSDescribeLayerTest extends WSAbstractSectionWebPageTest {
         this.runTestByClickingOnElement(webDriver, testCaseName, describeLayerButtonXPath);
 
         // ******* Layer's styles management *******
-        // Insert a new style
-        testCaseName = this.getSectionTestCaseName("insert_a_new_style");
-        log.info("Testing insert a new style...");
-        this.addTextToTextBox(webDriver, "style1", "//*[@id=\"styleName\"]");
-        this.addTextToTextBox(webDriver, "abstract1", "//*[@id=\"styleAbstract\"]");
-        this.addTextToTextBox(webDriver, "switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})", "//*[@id=\"styleQuery\"]");
-        // click on Insert button
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[1]/button");
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[1]/button");
-        // fetch new Capabilities to show the inserted style
-        this.fetchNewLayerMetadata(webDriver);
-        this.runTestByNonElementEvent(webDriver, testCaseName);
-
-        // Update a style
-        testCaseName = this.getSectionTestCaseName("update_a_style");
-        log.info("Testing update a style...");        
-        // Click on the inserted style name
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr/td[1]/a");
-        this.addTextToTextBox(webDriver, "This is a new style is updated", "//*[@id=\"styleAbstract\"]");
-        // click on Update button
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[2]/button");
-        // fetch new Capabilities to show the updated style
-        this.fetchNewLayerMetadata(webDriver);
-        this.runTestByNonElementEvent(webDriver, testCaseName);
-        
-        // Delete a style
-        testCaseName = this.getSectionTestCaseName("delete_a_style");
-        log.info("Testing delete a style...");
-        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr[2]/td[5]/button");                
-        
-        // fetch new Capabilities to show the deleted style
-        this.fetchNewLayerMetadata(webDriver);        
-        this.runTestByNonElementEvent(webDriver, testCaseName);
+//        // Insert a new style
+//        testCaseName = this.getSectionTestCaseName("insert_a_new_style");
+//        log.info("Testing insert a new style...");
+//        this.addTextToTextBox(webDriver, "style1", "//*[@id=\"styleName\"]");
+//        this.addTextToTextBox(webDriver, "abstract1", "//*[@id=\"styleAbstract\"]");
+//        this.addTextToTextBox(webDriver, "switch case $c > 1000 return {red: 107; green:17; blue:68} default return {red: 150; green:103; blue:14})", "//*[@id=\"styleQuery\"]");
+//        // click on Insert button
+//        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[1]/button");
+//        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[1]/button");
+//        // fetch new Capabilities to show the inserted style
+//        this.fetchNewLayerMetadata(webDriver);
+//        this.runTestByNonElementEvent(webDriver, testCaseName);
+//
+//        // Update a style
+//        testCaseName = this.getSectionTestCaseName("update_a_style");
+//        log.info("Testing update a style...");        
+//        // Click on the inserted style name
+//        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr/td[1]/a");
+//        this.addTextToTextBox(webDriver, "This is a new style is updated", "//*[@id=\"styleAbstract\"]");
+//        // click on Update button
+//        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/div/form/div[5]/div[2]/button");
+//        // fetch new Capabilities to show the updated style
+//        this.fetchNewLayerMetadata(webDriver);
+//        this.runTestByNonElementEvent(webDriver, testCaseName);
+//        
+//        // Delete a style
+//        testCaseName = this.getSectionTestCaseName("delete_a_style");
+//        log.info("Testing delete a style...");
+//        this.clickOnElement(webDriver, "/html/body/div/div/div/div/div/div[2]/div/ul/div/div/div/div[2]/div/div/div/div[4]/uib-accordion/div/div/div[2]/div/table/tbody/tr[2]/td[5]/button");                
+//        
+//        // fetch new Capabilities to show the deleted style
+//        this.fetchNewLayerMetadata(webDriver);        
+//        this.runTestByNonElementEvent(webDriver, testCaseName);
     }
 }

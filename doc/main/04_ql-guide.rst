@@ -3447,6 +3447,7 @@ decode
       }
     }
 
+.. _encode:
 
 encode
 ------
@@ -3579,6 +3580,7 @@ the following *exceptions*:
   10\% lower file size for satellite image), while significantly increasing the
   time to encode, taking up to 3-5x longer.
 
+.. _coloring-arrays:
 
 Coloring Arrays
 ^^^^^^^^^^^^^^^

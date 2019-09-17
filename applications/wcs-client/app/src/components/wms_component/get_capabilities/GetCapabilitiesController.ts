@@ -69,13 +69,6 @@ module rasdaman {
                                                  {"name": "Display remote layers", "value":"remote"}
                                                 ];
             
-            // A callback method is called when the page button of paginator of smart table is clicked            
-            // newPage starts from 1
-            $scope.pageChanged = (newPage: any) => {                                
-                currentPageNumber = newPage;
-                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);                
-            }
-
             $scope.display = true;
 
             // From the WMS's EX_GeographicBoundingBox
@@ -207,9 +200,6 @@ module rasdaman {
         isServiceProviderOpen:boolean;
         isCapabilitiesDocumentOpen:boolean;
         
-        // load all the coverages's extents on a specified page
-        loadCoverageExtentsByPageNumber(pageNumber:number):void;
-
         // Show/Hide the checked coverage extent on globe of current page
         displayFootprintOnGlobe(coverageId:string):void;
 

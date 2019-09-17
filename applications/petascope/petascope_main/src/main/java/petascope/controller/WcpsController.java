@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.rasdaman.config.ConfigManager;
 import static org.rasdaman.config.ConfigManager.OWS;
 import static org.rasdaman.config.ConfigManager.WCPS;
 import org.rasdaman.config.VersionManager;
@@ -95,7 +94,7 @@ public class WcpsController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException, Exception {
         
         if (startException != null) {
             throwStartException();

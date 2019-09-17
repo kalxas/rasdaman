@@ -104,6 +104,7 @@ public class KVPWMSDeleteStyleHandler extends KVPWMSAbstractHandler {
         }
         
         layer.getStyles().remove(i);
+        this.wmsRepostioryService.deleteStyle(requestingStyle);
 
         // Then delete the style of the layer from database.
         this.wmsRepostioryService.saveLayer(layer);

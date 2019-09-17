@@ -119,7 +119,7 @@ public abstract class AbstractController {
     /**
      * From the GET request query string to map of key / values which is encoded
      */
-    protected Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
+    public static Map<String, String[]> buildGetRequestKvpParametersMap(String queryString) throws Exception {
         if (queryString == null) {
             queryString = "";
         }
@@ -129,7 +129,7 @@ public abstract class AbstractController {
         // NOTE: it does not matter if space character is encoded to "+" or "%2B", just replace it when a query string is encoded from client).
         queryString = queryString.replaceAll("\\+", "%2B");
 
-        return this.buildKvpParametersMap(queryString);
+        return buildKvpParametersMap(queryString);
     }
     
     /**
@@ -156,7 +156,7 @@ public abstract class AbstractController {
     /**
      * Build the map of keys values for both GET/POST request
      */
-    private Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
+    private static Map<String, String[]> buildKvpParametersMap(String queryString) throws Exception {
         // It needs to relax the key parameters with case insensitive, e.g: request=DescribeCoverage or REQUEST=DescribeCoverage is ok
         Map<String, String[]> kvpParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         
@@ -296,7 +296,7 @@ public abstract class AbstractController {
     /**
      * Validate all the strict requirement parameters.
      */
-    private void validateRequiredParameters(Map<String, String[]> kvpParameters) throws PetascopeException {
+    private static void validateRequiredParameters(Map<String, String[]> kvpParameters) throws PetascopeException {
         // Do some check requirements
         String[] service = kvpParameters.get(KVPSymbols.KEY_SERVICE);
         String[] version = kvpParameters.get(KVPSymbols.KEY_VERSION);
@@ -448,7 +448,7 @@ public abstract class AbstractController {
     /**
      * Parse the KVP parameters to map of keys and values
      */
-    private Map<String, String[]> parseKVPParameters(String queryString) {
+    private static Map<String, String[]> parseKVPParameters(String queryString) {
         Map<String, String[]> parametersMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (!queryString.equals("")) {
             String[] keyValues = queryString.split("&");

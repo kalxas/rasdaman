@@ -97,6 +97,14 @@ public class JsonExtraParams {
     public ColorPalette getColorPalette() {
         return this.colorPalette;
     }
+
+    public ColorMap getColorMap() {
+        return colorMap;
+    }
+
+    public void setColorMap(ColorMap colorMap) {
+        this.colorMap = colorMap;
+    }
     
     public void setFormatParameters(Map<String, String> formatParameters) {
         this.formatParameters = formatParameters;
@@ -134,7 +142,10 @@ public class JsonExtraParams {
     private Variables variables;
     private GeoReference geoReference;
     private NoData nodata;
+    // GDAL color format
     private ColorPalette colorPalette;
+    // Rasdaman color format
+    private ColorMap colorMap;
     private String outputType;
         
     private List<Integer> transpose = new ArrayList<>();    

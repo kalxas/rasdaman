@@ -33,7 +33,7 @@
                     <span class="col-sm-3">
                         Scale axis
                         <span class="important-text">
-                            {{scaleAxis.Axis}}
+                            {{scaleAxis.axis}}
                         </span>
                         by:
                     </span>
@@ -48,7 +48,7 @@
             <div class="col-sm-12">
                 <div class="row top5" ng-repeat="targetAxisSize in model.scaleToSize.targetAxisSize">
                     <span class="col-sm-3"> Scale axis <span
-                            class="important-text">{{targetAxisSize.Axis}}</span> to:</span>
+                            class="important-text">{{targetAxisSize.axis}}</span> to:</span>
                     <input class="col-sm-6" type="number" ng-model="targetAxisSize.targetSize"/>
                 </div>
             </div>
@@ -59,7 +59,7 @@
             <div class="col-sm-12">
                 <div class="row top5" ng-repeat="targetAxisExtent in model.scaleToExtent.targetAxisExtent">
                     <span class="col-sm-3">
-                        Scale axis <span class="important-text">{{targetAxisExtent.Axis}}</span> to extent:
+                        Scale axis <span class="important-text">{{targetAxisExtent.axis}}</span> to extent:
                     </span>
 
                     <div class="col-sm-9">

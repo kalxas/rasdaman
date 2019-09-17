@@ -39,6 +39,7 @@ import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.rasdaman.exceptions.RasdamanException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
@@ -378,7 +379,13 @@ public class PyramidService {
         }
 
         log.info("Dropping downscaled rasdaman collection '" + downedscaledCollectionName + "'.");
-        RasUtil.deleteFromRasdaman(rasdamanScaleDownCollection.getOid(), downedscaledCollectionName);
+        try {
+            RasUtil.deleteFromRasdaman(rasdamanScaleDownCollection.getOid(), downedscaledCollectionName);
+        } catch (RasdamanException ex) {
+            if (!ex.getMessage().contains("collection name does not exist")) {
+                throw ex;
+            }
+        }
 
         // Finally, delete this downscaled collection from coverage's list of downscaled rasdaman collection        
         coverage.getRasdamanRangeSet().getRasdamanDownscaledCollections().remove(rasdamanScaleDownCollection);

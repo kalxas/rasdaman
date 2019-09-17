@@ -93,7 +93,11 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
             String[] rasqlFragmentParam = kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
             if (rasqlFragmentParam == null) {
                 // Neither wcpsQueryFragment or rasqlTransformFragment does exist, so throw exception for this style
-                throw new WMSMissingRequestParameter(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT + " or " + KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT);
+                
+                if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE) == null && kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION) == null) {
+                    throw new WMSMissingRequestParameter("A style must contain (" + KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT + " or " + KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT + " for query fragment)"
+                                                        + " or (" + KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE + " and " + KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION + " for color table).");
+                }
             }
         }
     }
@@ -143,9 +147,22 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         // A style must have a value for wcpsQueryFragment or rasqlTransformFragment
         if (kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT) != null) {
             style.setWcpsQueryFragment(kvpParameters.get(KVPSymbols.KEY_WMS_WCPS_QUERY_FRAGMENT)[0]);
+            style.setRasqlQueryTransformFragment(null);
         } else if (kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT) != null) {
-            // deprecated
             style.setRasqlQueryTransformFragment(kvpParameters.get(KVPSymbols.KEY_WMS_RASQL_TRANSFORM_FRAGMENT)[0]);
+            style.setWcpsQueryFragment(null);
+        }
+        
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE) != null) {
+            // e.g: GDAL
+            String colorTableType = kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE)[0];
+            byte colorTableTypeCode = org.rasdaman.domain.wms.Style.ColorTableType.getTypeCode(colorTableType);
+            style.setColorTableType(colorTableTypeCode);
+        }
+        
+        if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION) != null) {
+            String colorTableDefinition = kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION)[0];
+            style.setColorTableDefinition(colorTableDefinition);
         }
 
         // Then update the layer with the new updated/added style to database.

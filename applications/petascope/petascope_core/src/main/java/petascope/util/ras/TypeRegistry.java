@@ -302,8 +302,8 @@ public class TypeRegistry {
     private void initializeMarrayTypes() throws PetascopeException {
         Object result = RasUtil.executeRasqlQuery(QUERY_MARRAY_TYPES);
         RasQueryResult queryResult = new RasQueryResult(result);
-        String[] fullStringResult = queryResult.toString().split("\0");
-        for (String marrayTypeQuery : fullStringResult) {
+        for (byte[] bytes : queryResult.getMdds()) {
+            String marrayTypeQuery = new String(bytes);
             // e.g:  CREATE TYPE test_wms_4d_ecmwf_fire_netcdf_Array AS float MDARRAY [a0,a1,a2,a3]
             try {
                 this.parseMarrayType(marrayTypeQuery);

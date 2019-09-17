@@ -28,16 +28,19 @@ module wms {
     export class Style {  
         public name:string;
         public abstract:string;
-        // 0 is rasql transform fragment, 1 is wcps query fragment
-        public queryType:number;
+        public queryType:string;
         // query in rasql transform style or wcps query style
         public query:string;
+        public colorTableType:string;
+        public colorTableDefinition:string;
 
-        public constructor(name:string, abstract:string, queryType:number, query:string) {
+        public constructor(name:string, abstract:string, queryType:string, query:string, colorTableType:string, colorTableDefinition:string) {
             this.name = name;
             this.abstract = abstract;
             this.queryType = queryType;
             this.query = query;
+            this.colorTableType = colorTableType;
+            this.colorTableDefinition = colorTableDefinition;
         }
     }
 }

@@ -36,6 +36,8 @@ import nu.xom.Element;
 import org.apache.commons.lang3.StringUtils;
 import static org.rasdaman.domain.wms.Layer.TABLE_PREFIX;
 import petascope.core.XMLSymbols;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.util.XMLUtil;
 
 /**
@@ -131,16 +133,23 @@ public class Style implements Serializable {
     // NOTE: Rasdaman does not support the StyleSheet for WMS, it uses a RASQL query to create the style for the layers
     // And this style query could be added to style abstract for human readable.
     // NOTE: As this could be long text, so varchar(255) is not enough
-    @Deprecated
-    @Column(name = "rasqlQueryTransformFragment")
+    @Column(name = "rasql_query_transform_fragment")
     @Lob
     private String rasqlQueryTransformFragment;
         
     // NOTE: use this WCPS query fragment (subtracted from a full WCPS query (for c in (...) return encode(wcpsQueryFragment, "png",...))
     // to make style for WMS layer, the rasqlTransformFragment is deprecated.
-    @Column(name = "wcpsQueryFragment")
+    @Column(name = "wcps_query_fragment")
     @Lob
     private String wcpsQueryFragment;
+    
+    @Column(name = "colortable_type")
+    // e.g: SLD, gdal, cpt,...
+    private Byte colorTableType;
+    
+    @Column(name = "colortable_definition")
+    @Lob
+    private String colorTableDefinition;
 
     public String getName() {
         return name;
@@ -190,43 +199,69 @@ public class Style implements Serializable {
         this.wcpsQueryFragment = wcpsQueryFragment;
     }
 
-    /**
-     * Return the Style XML element representation in string
-     *
-     * @return
-     */
-    public String getRepresentation() {
-        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE);
+    public Byte getColorTableType() {
+        return colorTableType;
+    }
 
-        // Name
-        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
-        nameElement.appendChild(this.name);
-        styleElement.appendChild(nameElement);
+    public void setColorTableType(byte colorTableType) {
+        this.colorTableType = colorTableType;
+    }
 
-        // Title
-        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
-        titleElement.appendChild(this.title);
-        styleElement.appendChild(titleElement);
+    public String getColorTableDefinition() {
+        return colorTableDefinition;
+    }
 
-        // Abstract
-        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+    public void setColorTableDefinition(String colorTableDefinition) {
+        this.colorTableDefinition = colorTableDefinition;
+    }      
+
+    // ----- For ColorTable style -----
+
+    public static enum ColorTableType {
+
+        ColorMap(0), GDAL(1), SLD(2);
+
+        private final byte typeCode;
+
+        private ColorTableType(int serviceCode) {
+            this.typeCode = (byte) serviceCode;
+        }
+
+        /**
+         * e.g: SLD -> 2
+         */
+        public byte getTypeCode() {
+            return (byte) typeCode;
+        }
         
-        // NOTE: fragment query is not a valid WMS style, so just add it to abstract for human readble.
-        String styleAbstractStr = this.getStyleAbstract();
-        if (!StringUtils.isEmpty(this.getWcpsQueryFragment())) {         
-            styleAbstractStr += ". WCPS query fragment: " + XMLUtil.enquoteCDATA(this.getWcpsQueryFragment());
-        } else if (!StringUtils.isEmpty(this.getRasqlQueryTransformFragment())) {
-            // deprecated
-            styleAbstractStr += ". Rasql transform fragment: " + XMLUtil.enquoteCDATA(this.getRasqlQueryTransformFragment());
+        /**
+         * e.g: ColorMap -> 0
+         */
+        public static byte getTypeCode(String typeName) throws PetascopeException {
+            for (ColorTableType enumObj : ColorTableType.values()) {
+                if (enumObj.name().toLowerCase().equals(typeName.toLowerCase())) {
+                    byte typeCode = enumObj.getTypeCode();
+                    return typeCode;
+                }
+            }
+            
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Color table type '" + typeName + "' is not supported.");
+            
         }
-        abstractElement.appendChild(styleAbstractStr);
-        styleElement.appendChild(abstractElement);
-
-        if (this.legendURL != null) {
-            styleElement.appendChild(this.getLegendURL().getRepresentation());
+        
+          /**
+         * e.g: 1 -> GDAL
+         */
+        public static String getType(byte typeCode) throws PetascopeException {
+            for (ColorTableType enumObj : ColorTableType.values()) {
+                if (enumObj.getTypeCode()== typeCode) {
+                    String result = enumObj.toString();
+                    return result;
+                }
+            }
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Cannot find color table type. Given type code '" + typeCode + "'.");
         }
 
-        return styleElement.toXML();
     }
 
 }

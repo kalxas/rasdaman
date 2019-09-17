@@ -24,7 +24,6 @@ package petascope.controller;
 import java.io.File;
 import petascope.controller.handler.service.AbstractHandler;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.core.KVPSymbols;
 import petascope.core.response.Response;
-import petascope.exceptions.WMSException;
 import static petascope.core.KVPSymbols.KEY_UPLOADED_FILE_VALUE;
 import static petascope.core.KVPSymbols.VALUE_DELETE_COVERAGE;
 import static petascope.core.KVPSymbols.VALUE_DELETE_SCALE_LEVEL;
@@ -60,9 +58,7 @@ import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_INSERT_WCS_LAYER;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_STYLE;
 import static petascope.core.KVPSymbols.VALUE_WMS_UPDATE_WCS_LAYER;
-import petascope.exceptions.ExceptionReport;
 import petascope.util.ExceptionUtil;
-import petascope.util.MIMEUtil;
 
 /**
  * A Controller for all WCS (WCPS, WCS-T), WMS requests
@@ -149,7 +145,7 @@ public class PetascopeController extends AbstractController {
      *
      */
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, Exception {
         // WCS GetCoverage request can contain multiple duplicate subset parameters (e.g: subset=i(0,10)&subset=k(40,50)     
         
         if (startException != null) {

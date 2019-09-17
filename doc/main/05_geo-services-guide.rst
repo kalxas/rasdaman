@@ -920,8 +920,8 @@ servers can be combined or not."
 
 Petascope supports WMS 1.3.0. Some resources:
 
-- `How to publish a WMS layer via WCST\_Import <http://rasdaman.org/wiki/WCSTImportGuide>`__.
-- `Add WMS style queries to existing layers <http://rasdaman.org/wiki/WMSGuide#Stylecreation>`__.
+- :ref:`How to publish a WMS layer via WCST\_Import <data-import>`.
+- :ref:`Add WMS style queries to existing layers <style-creation>`.
 
 Administration
 ^^^^^^^^^^^^^^
@@ -1011,6 +1011,9 @@ Example request that changes the default interpolation method: ::
         &format=image/png
         &interpolation=bilinear
 
+
+.. _style-creation:
+
 Style creation
 ^^^^^^^^^^^^^^
 
@@ -1083,6 +1086,90 @@ abstract and layer provided in the KVP parameters below
         bbox=-44.975,111.975,-8.975,155.975&width=800&height=600&crs=EPSG:4326&
         format=image/png&transparent=true&
         styles=BandsCombined
+
+- Since *v10.0*, a WMS style supports ``ColorTable`` definition which
+  allows to colorize the result of WMS GetMap request when the style is requested.
+  A style can contain either one or both **query fragment** and **Color Table** definitions.
+  The ``InsertStyle`` request supports two new **non-standard** 
+  extra parameters ``colorTableType`` (valid values: ``ColorMap``, ``GDAL`` and ``SLD``)
+  and ``colorTableDefintion`` containing corresponding definition, example: ::
+
+    http://localhost:8080/rasdaman/ows?
+        service=WMS&
+        version=1.3.0&
+        request=InsertStyle&
+        name=test&
+        layer=test_wms_4326&
+        abstract=This style marks the areas where fires are in progress with the color red&
+        wcpsQueryFragment=switch case $c > 1000 return {red: 107; green:17; blue:68}
+        default return {red: 150; green:103; blue:14})&
+        colorTableType=ColorMap&
+        colorTableDefinition={"type": "intervals", "colorTable": {  "0": [0, 0, 255, 0], "100": [125, 125, 125, 255], "255": [255, 0, 0, 255] } }
+
+  Below the supported color table definitions for each color table type are explained:
+
+    * Rasdaman ``ColorMap``: check :ref:`coloring-arrays` for more details.
+      The color table definition must be a JSON object, for example:
+
+      .. code-block:: json
+
+        { 
+          "type": "intervals",  
+          "colorTable": {  "0": [0, 0, 255, 0],  
+                           "100": [125, 125, 125, 255],  
+                           "255": [255, 0, 0, 255]  
+                        } 
+        }
+    * GDAL ``ColorPalette``: check :ref:`encode` for more details.
+      The color table definition must be a JSON object and contains **256 color arrays**
+      in ``colorTable`` array, example:
+
+      .. code-block:: json
+
+        {
+           "colorTable": [
+                          [255,0,0,255],
+                          [216,31,30,255],
+                          [216,31,30,255],
+                          ...,
+                          [43,131,186,255]
+                        ]
+        }
+    * WMS ``Styled Layer Descriptor (SLD)``: The color table definition must be valid XML
+      and contains ``ColorMap`` element. Check :ref:`coloring-arrays` for details about the supported types
+      (``ramp`` (default), ``values``, ``intervals``), example ``ColorMap`` with ``type="values"``: 
+
+      .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <StyledLayerDescriptor xmlns="http://www.opengis.net/sld"
+                               xmlns:gml="http://www.opengis.net/gml" 
+                               xmlns:sld="http://www.opengis.net/sld"
+                               xmlns:ogc="http://www.opengis.net/ogc"
+                               version="1.0.0">
+          <UserLayer>
+            <sld:LayerFeatureConstraints>
+              <sld:FeatureTypeConstraint/>
+            </sld:LayerFeatureConstraints>
+            <sld:UserStyle>
+              <sld:Name>sqi_fig5_crop1</sld:Name>
+              <sld:FeatureTypeStyle>
+                <sld:Rule>
+                  <sld:RasterSymbolizer>
+                    </sld:ChannelSelection>
+                    <sld:ColorMap type="values">
+                       <ColorMapEntry color="#0000FF" quantity="150" />
+                       <ColorMapEntry color="#FFFF00" quantity="200" />
+                       <ColorMapEntry color="#FF0000" quantity="250" />
+                    </sld:ColorMap>
+                  </sld:RasterSymbolizer>
+                </sld:Rule>
+              </sld:FeatureTypeStyle>
+            </sld:UserStyle>
+          </UserLayer>
+        </StyledLayerDescriptor>
+
+  
 
 **Removal**
 
@@ -1320,7 +1407,7 @@ are used for WMS pyramids feature.
   http://localhost:8082/rasdaman/ows?service=WCS&version=2.0.1
   &request=DeleteScaleLevel
   &coverageId=test_world_map_scale_levels
-  &level=4`
+  &level=4
 
 
 

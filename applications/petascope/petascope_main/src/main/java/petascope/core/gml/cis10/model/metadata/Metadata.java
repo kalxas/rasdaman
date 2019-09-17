@@ -66,14 +66,9 @@ public class Metadata implements ISerializeToXMElement {
             metadataElement.appendChild(gmlExtensionElement);
             
             String covMetadataXML = XMLUtil.createXMLString(NAMESPACE_RASDAMAN, PREFIX_RASDAMAN, LABEL_COVERAGE_METADATA, metadata); 
-            
-            try {
-                // This is a wrapper element only
-                Element covMetadateElement = XMLUtil.parseXmlFragment(covMetadataXML);
-                gmlExtensionElement.appendChild(covMetadateElement);
-            } catch (IOException | ParsingException ex) {
-                throw new PetascopeException(ExceptionCode.XmlNotValid, "Cannot parse gmlcov:metadata XML string to XML element. Reason: " + ex.getMessage(), ex);
-            }
+            // This is a wrapper element only
+            Element covMetadateElement = XMLUtil.parseXmlFragment(covMetadataXML);
+            gmlExtensionElement.appendChild(covMetadateElement);
         }
         
         return metadataElement;

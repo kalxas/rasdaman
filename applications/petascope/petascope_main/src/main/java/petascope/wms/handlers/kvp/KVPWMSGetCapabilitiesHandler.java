@@ -21,6 +21,7 @@
  */
 package petascope.wms.handlers.kvp;
 
+import io.netty.util.internal.StringUtil;
 import java.util.ArrayList;
 import petascope.core.response.Response;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import org.rasdaman.domain.wms.Dimension;
 import org.rasdaman.domain.wms.Layer;
 import org.rasdaman.domain.wms.LayerAttribute;
 import org.rasdaman.domain.wms.Style;
+import org.rasdaman.domain.wms.Style.ColorTableType;
 import org.rasdaman.repository.service.CoverageRepositoryService;
 import org.rasdaman.repository.service.OWSMetadataRepostioryService;
 import org.rasdaman.repository.service.WMSRepostioryService;
@@ -443,14 +445,109 @@ public class KVPWMSGetCapabilitiesHandler extends KVPWMSAbstractHandler {
      * @param styles
      * @return
      */
-    private String buildStyles(List<Style> styles) {
+    private String buildStyles(List<Style> styles) throws PetascopeException {
         String result = "";
         for (Style style : styles) {
-            result = result + "" + style.getRepresentation();
+            result = result + this.getRepresentation(style);
         }
 
         return result;
     }
+    
+    /**
+     * Return the Style XML element representation in string
+     *
+     * @return
+     */
+    public String getRepresentation(Style style) throws PetascopeException {
+        Element styleElement = new Element(XMLSymbols.LABEL_WMS_STYLE);
+
+        // Name
+        Element nameElement = new Element(XMLSymbols.LABEL_WMS_NAME);
+        nameElement.appendChild(style.getName());
+        styleElement.appendChild(nameElement);
+
+        // Title
+        Element titleElement = new Element(XMLSymbols.LABEL_WMS_TITLE);
+        titleElement.appendChild(style.getTitle());
+        styleElement.appendChild(titleElement);
+
+        // Abstract
+        Element abstractElement = this.buildStyleAbstractElemt(style);
+        styleElement.appendChild(abstractElement);
+
+        if (style.getLegendURL() != null) {
+            styleElement.appendChild(style.getLegendURL().getRepresentation());
+        }
+
+        return styleElement.toXML();
+    }
+    
+    /**
+     *
+     * Build XML element for a style's abstract.
+     */
+    private Element buildStyleAbstractElemt(Style style) throws PetascopeException {
+        Element abstractElement = new Element(XMLSymbols.LABEL_WMS_ABSTRACT);
+        
+        // User's abstract for the style
+        String styleAbstractStr = style.getStyleAbstract();
+        
+        // Rasdaman's abstract for the style (non-standard)
+        String rasqlQueryFragment = style.getRasqlQueryTransformFragment();
+        String wcpsQueryFragment = style.getWcpsQueryFragment();
+        Byte colorTableTypeCode = style.getColorTableType();
+        String colorTableType = null;
+        String colorTableDefinition = null;
+        
+        if (colorTableTypeCode != null) {
+            colorTableType = ColorTableType.getType(colorTableTypeCode);
+            colorTableDefinition = style.getColorTableDefinition();
+        }
+        
+        Element rasdamanElement = new Element(XMLSymbols.LABEL_RASDAMAN);
+        
+        if (!StringUtil.isNullOrEmpty(rasqlQueryFragment)) {
+            Element rasqlQueryFragmentElement = new Element(XMLSymbols.LABEL_WMS_RASQL_QUERY_FRAGMENT);
+            rasqlQueryFragmentElement.appendChild(rasqlQueryFragment);
+            rasdamanElement.appendChild(rasqlQueryFragmentElement);
+        }
+        
+        if (!StringUtil.isNullOrEmpty(wcpsQueryFragment)) {
+            Element wcpsQueryFragmentElement = new Element(XMLSymbols.LABEL_WMS_WCPS_QUERY_FRAGMENT);
+            wcpsQueryFragmentElement.appendChild(wcpsQueryFragment);
+            rasdamanElement.appendChild(wcpsQueryFragmentElement);
+        }
+        
+        Element colorTableElement = new Element(XMLSymbols.LABEL_WMS_COLOR_TABLE);
+        
+        if (!StringUtil.isNullOrEmpty(colorTableType)) {
+            Element colorTableTypeElement = new Element(XMLSymbols.LABEL_WMS_COLOR_TABLE_TYPE);
+            colorTableTypeElement.appendChild(colorTableType);
+            colorTableElement.appendChild(colorTableTypeElement);
+        
+            Element colorTableDefinitionElement = new Element(XMLSymbols.LABEL_WMS_COLOR_TABLE_DEFINITION);
+            
+            if (colorTableType.toLowerCase().equals(ColorTableType.SLD.toString().toLowerCase())) {
+                // NOTE: SLD is another nested XML element
+                colorTableDefinitionElement.appendChild(XMLUtil.parseXmlFragment(colorTableDefinition));
+            } else {
+                colorTableDefinitionElement.appendChild(colorTableDefinition);
+            }
+            
+            colorTableElement.appendChild(colorTableDefinitionElement);
+        }
+        
+        if (colorTableElement.getChildCount() > 0) {
+            rasdamanElement.appendChild(colorTableElement);
+        }
+        
+        String content = styleAbstractStr + "\n" + XMLUtil.enquoteCDATA(rasdamanElement.toXML());
+        abstractElement.appendChild(content);
+        
+        return abstractElement;
+    }
+    
 
     /**
      * Build a KeywordList element from list of keywords

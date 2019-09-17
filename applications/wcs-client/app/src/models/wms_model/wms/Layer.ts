@@ -270,27 +270,35 @@ module wms {
             for (var i = 0; i < totalStyles; i++) {
                 var styleXML = $(tmpXML).find("Style").eq(i);
                 var name = styleXML.find("Name").text();
-                var abstract = styleXML.find("Abstract").text();
-                            
-                // parse abstract to know it is rasql transform or wcps fragment query and get the query inside abstract also
-                var queryType = 0;
+                var abstractContent = styleXML.find("Abstract").text();
+                var userAbstract = abstractContent.substring(0, abstractContent.indexOf("<rasdaman>")).trim();
+                var rasdamanAbstract = abstractContent.substring(abstractContent.indexOf("<rasdaman>"), abstractContent.length).trim();
+
+                // Parse element values from rasdaman
+                var rasdamanXML = $.parseXML(rasdamanAbstract);
+                var queryType = "wcpsQueryFragment";
                 var query = "";
-                var tmp = "";
-                if (abstract.indexOf("Rasql transform fragment: ") == -1) {
-                    // wcps query fragment
-                    queryType = 0;                    
-                    tmp = "WCPS query fragment: ";
-                } else {
-                    // rasql query fragment                    
-                    queryType = 1;
-                    tmp = "Rasql transform fragment: ";                    
-                } 
 
-                // the query (rasql/wcps) for the style
-                query = abstract.substring(abstract.indexOf(tmp) + tmp.length, abstract.length);
-                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp) - 2).trim();
+                if ($(rasdamanXML).find("WcpsQueryFragment").text() != "") {
+                    queryType = "wcpsQueryFragment";
+                    query = $(rasdamanXML).find("WcpsQueryFragment").text();
+                } else if ($(rasdamanXML).find("RasqlTransformFragment").text() != "") {
+                    queryType = "rasqlTransformFragment";
+                    query = $(rasdamanXML).find("RasqlTransformFragment").text();
+                }
 
-                this.styles.push(new Style(name, styleAbstract, queryType, query));
+                var colorTableType = "";
+                var colorTableDefinition = "";
+
+                if ($(rasdamanXML).find("ColorTableType").text() != "") {
+                    colorTableType = $(rasdamanXML).find("ColorTableType").text();
+                }
+                if ($(rasdamanXML).find("ColorTableDefinition").text() != "") {
+                    // as the content as SLD format is XML as well, it needs to show the raw text
+                    colorTableDefinition = rasdamanAbstract.match(/<ColorTableDefinition>([\s\S]*?)<\/ColorTableDefinition>/im)[1];
+                }
+
+                this.styles.push(new Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition));
             }
         }
     }

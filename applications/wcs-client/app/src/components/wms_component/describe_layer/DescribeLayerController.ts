@@ -114,9 +114,12 @@ module rasdaman {
 
                 $scope.displayWMSLayer = false;
                 $scope.selectedStyleName = "";
+                $("#styleName").val("");
+                $("#styleAbstract").val("");
 
                 for (var i = 0; i < $scope.layers.length; i++) {
-                    if ($scope.layers[i].name == $scope.selectedLayerName) {
+                    if ($scope.layers[i].name == $scope.selectedLayerName) {                        
+
                         // Fetch the layer's metadata from the available layers
                         $scope.layer = $scope.layers[i];
                         $scope.isLayerDocumentOpen = true;
@@ -152,7 +155,9 @@ module rasdaman {
                                     $scope.coverageDescription = response.value;
                                     var dimensions = $scope.coverageDescription.boundedBy.envelope.srsDimension;
 
-                                    addSliders(dimensions, coveragesExtents);                                  
+                                    addSliders(dimensions, coveragesExtents);                
+                                    
+                                    selectOptionsChange();
                                    
                                     // Then, load the footprint of layer on the globe
                                     webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
@@ -469,6 +474,39 @@ module rasdaman {
             }
 
             // ********** Layer's styles management **************
+
+            // Show/hide query/table color definitions if not needed
+            function selectOptionsChange() {
+                
+                $("#styleQueryType").val("none").change();
+
+                $("#styleQueryType").change(function() {                    
+                    if (this.value !== "none") {
+                        $("#divStyleQuery").show();
+                    } else {
+                        $("#divStyleQuery").hide();
+                    }
+                });
+
+                $("#styleColorTableType").val("none").change();               
+
+                $("#styleColorTableType").change(function() {                    
+                    if (this.value !== "none") {
+                        $("#divStyleColorTableDefinition").show();
+                    } else {
+                        $("#divStyleColorTableDefinition").hide();
+                    }
+                });
+
+                $("#colorTableDefinitionStyleFileInput").change(function() {                 
+                    const reader = new FileReader();
+                    reader.onload = function fileReadCompleted() {
+                        $("#styleColorTableDefinition").val(reader.result);
+                    };
+                    reader.readAsText(this.files[0]);
+                });
+            }
+            
             $scope.isStyleNameValid = (styleName:string)=> {                
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
                     if ($scope.layer.styles[i].name == styleName) {
@@ -486,8 +524,25 @@ module rasdaman {
                     if (styleObj.name == styleName) {
                         $("#styleName").val(styleObj.name);                        
                         $("#styleAbstract").val(styleObj.abstract);
-                        $("#styleQueryType").val(styleObj.queryType.toString());
+
+                        var styleQueryType = styleObj.queryType;
+                        if (styleQueryType === "") {
+                            styleQueryType = "none";
+                        }
+                        $("#styleQueryType").val(styleQueryType);
                         $("#styleQuery").val(styleObj.query);
+                        
+                        var colorTableType = styleObj.colorTableType;
+                        if (colorTableType === "") {
+                            colorTableType = "none";
+                        }
+                        $("#styleColorTableType").val(colorTableType);
+                        $("#styleColorTableDefinition").val(styleObj.colorTableDefinition);
+
+                        // Show/hide query/color table defintiion divs
+                        $("#styleQueryType").change();
+                        $("#styleColorTableType").change();
+
                         break;
                     }
                 }
@@ -499,6 +554,9 @@ module rasdaman {
                 var styleAbstract = $("#styleAbstract").val();
                 var styleQueryType = $("#styleQueryType").val();
                 var styleQuery = $("#styleQuery").val();
+                var styleColorTableType = $("#styleColorTableType").val();
+                var styleColorTableDefintion = $("#styleColorTableDefinition").val();
+                
 
                 if (styleName.trim() === "") {
                     alertService.error("Style name cannot be empty.");
@@ -506,10 +564,12 @@ module rasdaman {
                 } else if (styleAbstract.trim() === "") {
                     alertService.error("Style abstract cannot be empty.");
                     return;
-                } else if (styleQuery.trim() === "") {
-                    alertService.error("Style query cannot be empty.");
+                }
+
+                if (styleQuery.trim() === "" && styleColorTableDefintion.trim() === "") {
+                    alertService.error("Style query or color table definition must have value.");
                     return;
-                }                
+                }                  
                 
                 return true;
             }
@@ -522,6 +582,8 @@ module rasdaman {
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    var styleColorTableType = $("#styleColorTableType").val();
+                    var styleColorTableDefintion = $("#styleColorTableDefinition").val();
 
                     // Check if style of current layer exists
                     if (!$scope.isStyleNameValid(styleName)) {
@@ -530,7 +592,7 @@ module rasdaman {
                     }
 
                     // Then, send the update layer's style request to server
-                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);                    
+                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully update style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");                            
@@ -551,6 +613,8 @@ module rasdaman {
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    var styleColorTableType = $("#styleColorTableType").val();
+                    var styleColorTableDefintion = $("#styleColorTableDefinition").val();
 
                     // Check if style of current layer exists
                     if ($scope.isStyleNameValid(styleName)) {
@@ -559,14 +623,14 @@ module rasdaman {
                     }
 
                     // Then, send the insert layer's style request to server
-                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);                    
+                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(
                         (...args:any[])=> {
                             alertService.success("Successfully insert style with name <b>" + styleName + "</b> of layer with name <b>" + $scope.layer.name + "</b>");
                             // reload WMS GetCapabilities 
                             $scope.wmsStateInformation.reloadServerCapabilities = true;
                         }, (...args:any[])=> {
-                            errorHandlingService.handleError(args);                            
+                            errorHandlingService.handleError(args);
                         }).finally(function () {                        
                     });
                 }                

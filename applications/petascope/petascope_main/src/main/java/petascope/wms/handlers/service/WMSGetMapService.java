@@ -32,7 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,6 +82,7 @@ import petascope.util.JSONUtil;
 import petascope.wcps.encodeparameters.model.JsonExtraParams;
 import petascope.wcps.encodeparameters.model.NoData;
 import petascope.wcps.encodeparameters.service.SerializationEncodingService;
+import petascope.wcps.encodeparameters.service.TranslateColorTableService;
 import petascope.wcps.handler.CrsTransformHandler;
 import petascope.wcps.metadata.model.NumericSubset;
 import petascope.wcps.metadata.model.NumericTrimming;
@@ -231,6 +231,12 @@ public class WMSGetMapService {
     private static final Map<String, Response> blankTileMap = new ConcurrentHashMap<>();
     
     public static final Set<String> validInterpolations = new LinkedHashSet<>();
+    
+    // Only 1 color table definition coming from the first style defines it (!)
+    // e.g: layerA has colorTable A, layerB has colorTable B, then request with layers=layerA,layerB will end up with colorTable A
+    // to be used as extra parameter in the final rasql encode().
+    private String colorTableDefinition = null;
+    private byte colorTableTypeCode = -1;
     
     static {
         // check valid values at http://doc.rasdaman.org/04_ql-guide.html#the-project-function
@@ -488,19 +494,27 @@ public class WMSGetMapService {
             }
 
             Style style = layer.getStyle(styleName);
+            String collectionIterator = COLLECTION_ITERATOR + layerIndex;
+            collectionExpression = collectionIterator + gridSpatialDomain;
+            iteratorsMap.put(layerName, collectionIterator);
+            
+            if (style != null) {
+                if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
+                    // wcpsQueryFragment
+                    collectionExpression = this.buildCoverageExpressionByWCPSQueryFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
+                } else if (!StringUtils.isEmpty(style.getRasqlQueryTransformFragment())) {
+                    // rasqlTransformFragment                
+                    collectionExpression = this.buildCoverageExpressionByRasqlTransformFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
+                }
 
-            if (style == null) {
-                String collectionIterator = COLLECTION_ITERATOR + layerIndex;
-                collectionExpression = collectionIterator + gridSpatialDomain;
-                iteratorsMap.put(layerName, collectionIterator);
-            } else if (!StringUtils.isEmpty(style.getWcpsQueryFragment())) {
-                // wcpsQueryFragment
-                collectionExpression = this.buildCoverageExpressionByWCPSQueryFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
-            } else {
-                // rasqlTransformFragment                
-                collectionExpression = this.buildCoverageExpressionByRasqlTransformFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
+                if (!StringUtils.isEmpty(style.getColorTableDefinition())) {
+                    if (colorTableDefinition == null) {
+                        colorTableTypeCode = style.getColorTableType();
+                        colorTableDefinition = style.getColorTableDefinition();
+                    }
+                }
             }
-
+            
             // Add the translated Rasql query for the style to combine later
             coverageExpressionsLayer.add("( " + collectionExpression + " )");
         }
@@ -699,8 +713,10 @@ public class WMSGetMapService {
         }
         
         CoverageMetadata coverageMetadata = wcpsCoverageMetadata.getCoverageMetadata();
-        SerializationEncodingService.addColorPalleteToJSONExtraParamIfPossible(this.format, coverageMetadata, jsonExtraParams);
         
+        TranslateColorTableService.translate(colorTableTypeCode, colorTableDefinition, jsonExtraParams);
+        
+        SerializationEncodingService.addColorPalleteToJSONExtraParamIfPossible(this.format, coverageMetadata, jsonExtraParams);
         
         String encodeFormatParameters = JSONUtil.serializeObjectToJSONString(jsonExtraParams);
         encodeFormatParameters = encodeFormatParameters.replace("\"", "\\\"");

@@ -408,6 +408,18 @@ public interface XMLSymbols {
     String LABEL_COMPARISON_RESULT = "comparisonResult";
     String LABEL_EQUAL = "equal";
     String LABEL_EXCEPTION_TEXT = "ExceptionText";
+    
+    // WMS SLD format
+    String LABEL_COLOR_MAP = "ColorMap";
+    String LABEL_COLOR_MAP_ENTRY = "ColorMapEntry";
+    
+    // Non-standard element
+    String LABEL_RASDAMAN = "rasdaman";
+    String LABEL_WMS_RASQL_QUERY_FRAGMENT = "RasqlTransformFragment";
+    String LABEL_WMS_WCPS_QUERY_FRAGMENT = "WcpsQueryFragment";
+    String LABEL_WMS_COLOR_TABLE = "ColorTable";
+    String LABEL_WMS_COLOR_TABLE_TYPE = "ColorTableType";
+    String LABEL_WMS_COLOR_TABLE_DEFINITION = "ColorTableDefinition";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -462,6 +474,12 @@ public interface XMLSymbols {
 
     String ATT_CS = "cs";
     String ATT_TS = "ts";
+    
+    // WMS SLD style format
+    String ATT_TYPE = "type";
+    String ATT_COLOR = "color";
+    String ATT_QUANTITY = "quantity";
+    String ATT_OPACITY = "opacity";
     
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

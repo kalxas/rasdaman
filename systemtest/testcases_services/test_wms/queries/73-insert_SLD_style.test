@@ -1,0 +1,38 @@
+service=WMS&
+version=1.3.0&
+request=InsertStyle&
+name=SLD&
+layer=test_wms_4326&
+abstract=SLD style&
+ColorTableType=SLD&
+ColorTableDefinition=<StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" version="1.0.0">
+  <UserLayer>
+    <sld:LayerFeatureConstraints>
+      <sld:FeatureTypeConstraint />
+    </sld:LayerFeatureConstraints>
+    <sld:UserStyle>
+      <sld:Name>sqi_fig5_crop1</sld:Name>
+      <sld:FeatureTypeStyle>
+        <sld:Rule>
+          <sld:RasterSymbolizer>
+            <sld:ChannelSelection>
+              <sld:GrayChannel>
+                <sld:SourceChannelName>1</sld:SourceChannelName>
+              </sld:GrayChannel>
+            </sld:ChannelSelection>
+            <sld:ColorMap type="intervals">
+          <ColorMapEntry color="#000000" quantity="0" />
+           <ColorMapEntry color="#0000FF" quantity="20" />
+           <ColorMapEntry color="#00FF00" quantity="75" />
+           <ColorMapEntry color="#FF0000" quantity="110" />
+           <ColorMapEntry color="#FF00FF" quantity="160" />
+           <ColorMapEntry color="#FFFF00" quantity="190" />
+           <ColorMapEntry color="#00FFFF" quantity="230" />
+           <ColorMapEntry color="#FFFFFF" quantity="255" />
+            </sld:ColorMap>
+          </sld:RasterSymbolizer>
+        </sld:Rule>
+      </sld:FeatureTypeStyle>
+    </sld:UserStyle>
+  </UserLayer>
+</StyledLayerDescriptor>

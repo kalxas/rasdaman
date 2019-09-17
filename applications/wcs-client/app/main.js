@@ -4934,21 +4934,29 @@ var wms;
             for (var i = 0; i < totalStyles; i++) {
                 var styleXML = $(tmpXML).find("Style").eq(i);
                 var name = styleXML.find("Name").text();
-                var abstract = styleXML.find("Abstract").text();
-                var queryType = 0;
+                var abstractContent = styleXML.find("Abstract").text();
+                var userAbstract = abstractContent.substring(0, abstractContent.indexOf("<rasdaman>")).trim();
+                var rasdamanAbstract = abstractContent.substring(abstractContent.indexOf("<rasdaman>"), abstractContent.length).trim();
+                var rasdamanXML = $.parseXML(rasdamanAbstract);
+                var queryType = "wcpsQueryFragment";
                 var query = "";
-                var tmp = "";
-                if (abstract.indexOf("Rasql transform fragment: ") == -1) {
-                    queryType = 0;
-                    tmp = "WCPS query fragment: ";
+                if ($(rasdamanXML).find("WcpsQueryFragment").text() != "") {
+                    queryType = "wcpsQueryFragment";
+                    query = $(rasdamanXML).find("WcpsQueryFragment").text();
                 }
-                else {
-                    queryType = 1;
-                    tmp = "Rasql transform fragment: ";
+                else if ($(rasdamanXML).find("RasqlTransformFragment").text() != "") {
+                    queryType = "rasqlTransformFragment";
+                    query = $(rasdamanXML).find("RasqlTransformFragment").text();
                 }
-                query = abstract.substring(abstract.indexOf(tmp) + tmp.length, abstract.length);
-                var styleAbstract = abstract.substring(0, abstract.indexOf(tmp) - 2).trim();
-                this.styles.push(new wms.Style(name, styleAbstract, queryType, query));
+                var colorTableType = "";
+                var colorTableDefinition = "";
+                if ($(rasdamanXML).find("ColorTableType").text() != "") {
+                    colorTableType = $(rasdamanXML).find("ColorTableType").text();
+                }
+                if ($(rasdamanXML).find("ColorTableDefinition").text() != "") {
+                    colorTableDefinition = rasdamanAbstract.match(/<ColorTableDefinition>([\s\S]*?)<\/ColorTableDefinition>/im)[1];
+                }
+                this.styles.push(new wms.Style(name, userAbstract, queryType, query, colorTableType, colorTableDefinition));
             }
         };
         return Layer;
@@ -5109,10 +5117,6 @@ var rasdaman;
                 { "name": "Display local layers", "value": "local" },
                 { "name": "Display remote layers", "value": "remote" }
             ];
-            $scope.pageChanged = function (newPage) {
-                currentPageNumber = newPage;
-                $scope.loadCoverageExtentsByPageNumber(currentPageNumber);
-            };
             $scope.display = true;
             $scope.initCheckboxesForCoverageIds = function () {
                 var layerArray = $scope.capabilities.layers;
@@ -5252,6 +5256,8 @@ var rasdaman;
             $scope.describeLayer = function () {
                 $scope.displayWMSLayer = false;
                 $scope.selectedStyleName = "";
+                $("#styleName").val("");
+                $("#styleAbstract").val("");
                 for (var i = 0; i < $scope.layers.length; i++) {
                     if ($scope.layers[i].name == $scope.selectedLayerName) {
                         $scope.layer = $scope.layers[i];
@@ -5274,6 +5280,7 @@ var rasdaman;
                             $scope.coverageDescription = response.value;
                             var dimensions = $scope.coverageDescription.boundedBy.envelope.srsDimension;
                             addSliders(dimensions, coveragesExtents);
+                            selectOptionsChange();
                             webWorldWindService.showHideCoverageExtentOnGlobe(canvasId, $scope.layer.name);
                         }, function () {
                             var args = [];
@@ -5481,6 +5488,33 @@ var rasdaman;
                 $scope.displayWMSLayer = false;
                 webWorldWindService.loadGetMapResultOnGlobe(canvasId, $scope.selectedLayerName, $scope.selectedStyleName, $scope.bboxLayer, false, $scope.timeString);
             };
+            function selectOptionsChange() {
+                $("#styleQueryType").val("none").change();
+                $("#styleQueryType").change(function () {
+                    if (this.value !== "none") {
+                        $("#divStyleQuery").show();
+                    }
+                    else {
+                        $("#divStyleQuery").hide();
+                    }
+                });
+                $("#styleColorTableType").val("none").change();
+                $("#styleColorTableType").change(function () {
+                    if (this.value !== "none") {
+                        $("#divStyleColorTableDefinition").show();
+                    }
+                    else {
+                        $("#divStyleColorTableDefinition").hide();
+                    }
+                });
+                $("#colorTableDefinitionStyleFileInput").change(function () {
+                    var reader = new FileReader();
+                    reader.onload = function fileReadCompleted() {
+                        $("#styleColorTableDefinition").val(reader.result);
+                    };
+                    reader.readAsText(this.files[0]);
+                });
+            }
             $scope.isStyleNameValid = function (styleName) {
                 for (var i = 0; i < $scope.layer.styles.length; ++i) {
                     if ($scope.layer.styles[i].name == styleName) {
@@ -5495,8 +5529,20 @@ var rasdaman;
                     if (styleObj.name == styleName) {
                         $("#styleName").val(styleObj.name);
                         $("#styleAbstract").val(styleObj.abstract);
-                        $("#styleQueryType").val(styleObj.queryType.toString());
+                        var styleQueryType = styleObj.queryType;
+                        if (styleQueryType === "") {
+                            styleQueryType = "none";
+                        }
+                        $("#styleQueryType").val(styleQueryType);
                         $("#styleQuery").val(styleObj.query);
+                        var colorTableType = styleObj.colorTableType;
+                        if (colorTableType === "") {
+                            colorTableType = "none";
+                        }
+                        $("#styleColorTableType").val(colorTableType);
+                        $("#styleColorTableDefinition").val(styleObj.colorTableDefinition);
+                        $("#styleQueryType").change();
+                        $("#styleColorTableType").change();
                         break;
                     }
                 }
@@ -5506,6 +5552,8 @@ var rasdaman;
                 var styleAbstract = $("#styleAbstract").val();
                 var styleQueryType = $("#styleQueryType").val();
                 var styleQuery = $("#styleQuery").val();
+                var styleColorTableType = $("#styleColorTableType").val();
+                var styleColorTableDefintion = $("#styleColorTableDefinition").val();
                 if (styleName.trim() === "") {
                     alertService.error("Style name cannot be empty.");
                     return;
@@ -5514,8 +5562,8 @@ var rasdaman;
                     alertService.error("Style abstract cannot be empty.");
                     return;
                 }
-                else if (styleQuery.trim() === "") {
-                    alertService.error("Style query cannot be empty.");
+                if (styleQuery.trim() === "" && styleColorTableDefintion.trim() === "") {
+                    alertService.error("Style query or color table definition must have value.");
                     return;
                 }
                 return true;
@@ -5526,11 +5574,13 @@ var rasdaman;
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    var styleColorTableType = $("#styleColorTableType").val();
+                    var styleColorTableDefintion = $("#styleColorTableDefinition").val();
                     if (!$scope.isStyleNameValid(styleName)) {
                         alertService.error("Style name '" + styleName + "' does not exist to update.");
                         return;
                     }
-                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
+                    var updateLayerStyle = new wms.UpdateLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
                     wmsService.updateLayerStyleRequest(updateLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -5554,11 +5604,13 @@ var rasdaman;
                     var styleAbstract = $("#styleAbstract").val();
                     var styleQueryType = $("#styleQueryType").val();
                     var styleQuery = $("#styleQuery").val();
+                    var styleColorTableType = $("#styleColorTableType").val();
+                    var styleColorTableDefintion = $("#styleColorTableDefinition").val();
                     if ($scope.isStyleNameValid(styleName)) {
                         alertService.error("Style name '" + styleName + "' already exists, cannot insert same name.");
                         return;
                     }
-                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery);
+                    var insertLayerStyle = new wms.InsertLayerStyle($scope.layer.name, styleName, styleAbstract, styleQueryType, styleQuery, styleColorTableType, styleColorTableDefintion);
                     wmsService.insertLayerStyleRequest(insertLayerStyle).then(function () {
                         var args = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
@@ -6079,25 +6131,24 @@ var wms;
 var wms;
 (function (wms) {
     var InsertLayerStyle = (function () {
-        function InsertLayerStyle(layerName, name, abstract, queryType, query) {
+        function InsertLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
             this.request = "InsertStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
-            if (queryType == 0) {
-                this.queryFragmentType = "wcpsQueryFragment";
-            }
-            else if (queryType == 1) {
-                this.queryFragmentType = "rasqlTransformFragment";
-            }
+            this.queryFragmentType = queryType;
             this.query = query;
+            this.colorTableType = colorTableType;
+            this.colorTableDefinition = colorTableDefintion;
         }
         InsertLayerStyle.prototype.toKVP = function () {
             return "&request=" + this.request +
                 "&name=" + this.name +
                 "&layer=" + this.layerName +
                 "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query;
+                "&" + this.queryFragmentType + "=" + this.query +
+                "&ColorTableType=" + this.colorTableType +
+                "&ColorTableDefinition=" + this.colorTableDefinition;
         };
         return InsertLayerStyle;
     }());
@@ -6106,11 +6157,13 @@ var wms;
 var wms;
 (function (wms) {
     var Style = (function () {
-        function Style(name, abstract, queryType, query) {
+        function Style(name, abstract, queryType, query, colorTableType, colorTableDefinition) {
             this.name = name;
             this.abstract = abstract;
             this.queryType = queryType;
             this.query = query;
+            this.colorTableType = colorTableType;
+            this.colorTableDefinition = colorTableDefinition;
         }
         return Style;
     }());
@@ -6119,25 +6172,24 @@ var wms;
 var wms;
 (function (wms) {
     var UpdateLayerStyle = (function () {
-        function UpdateLayerStyle(layerName, name, abstract, queryType, query) {
+        function UpdateLayerStyle(layerName, name, abstract, queryType, query, colorTableType, colorTableDefintion) {
             this.request = "UpdateStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
-            if (queryType == 0) {
-                this.queryFragmentType = "wcpsQueryFragment";
-            }
-            else if (queryType == 1) {
-                this.queryFragmentType = "rasqlTransformFragment";
-            }
+            this.queryFragmentType = queryType;
             this.query = query;
+            this.colorTableType = colorTableType;
+            this.colorTableDefinition = colorTableDefintion;
         }
         UpdateLayerStyle.prototype.toKVP = function () {
             return "&request=" + this.request +
                 "&name=" + this.name +
                 "&layer=" + this.layerName +
                 "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query;
+                "&" + this.queryFragmentType + "=" + this.query +
+                "&ColorTableType=" + this.colorTableType +
+                "&ColorTableDefinition=" + this.colorTableDefinition;
         };
         return UpdateLayerStyle;
     }());

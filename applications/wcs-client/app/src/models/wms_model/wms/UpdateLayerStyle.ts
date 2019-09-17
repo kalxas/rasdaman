@@ -29,18 +29,19 @@ module wms {
         public abstract:string;                
         public queryFragmentType:string;
         public query:string;
+        public colorTableType:string;
+        public colorTableDefinition:string;
 
-        public constructor(layerName:string, name:string, abstract:string, queryType:number, query:string) {            
+        public constructor(layerName:string, name:string, abstract:string, queryType:string, query:string,
+                           colorTableType:string, colorTableDefintion:string) {  
             this.request = "UpdateStyle";
             this.layerName = layerName;
             this.name = name;
             this.abstract = abstract;
-            if (queryType == 0) {
-                this.queryFragmentType = "wcpsQueryFragment";
-            } else if (queryType == 1) {
-                this.queryFragmentType = "rasqlTransformFragment";
-            }            
+            this.queryFragmentType = queryType;      
             this.query = query;
+            this.colorTableType = colorTableType;
+            this.colorTableDefinition = colorTableDefintion;
         }
 
         public toKVP():string {
@@ -48,7 +49,9 @@ module wms {
                 "&name=" + this.name +
                 "&layer=" + this.layerName +
                 "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query;
+                "&" + this.queryFragmentType + "=" + this.query +
+                "&ColorTableType=" + this.colorTableType + 
+                "&ColorTableDefinition=" + this.colorTableDefinition;
         }
     }
 }

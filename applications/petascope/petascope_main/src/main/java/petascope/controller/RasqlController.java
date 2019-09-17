@@ -82,7 +82,7 @@ public class RasqlController extends AbstractController {
     }
 
     @Override
-    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException {
+    protected void requestDispatcher(HttpServletRequest httpServletRequest, Map<String, String[]> kvpParameters) throws IOException, PetascopeException, WCSException, SecoreException, WMSException, Exception {
   
         if (startException != null) {
             throwStartException();

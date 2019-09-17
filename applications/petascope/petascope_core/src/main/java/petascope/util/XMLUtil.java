@@ -1161,12 +1161,16 @@ public class XMLUtil {
      *
      * @param fragment
      * @return Element of the fragment, with no parents.
-     * @throws IOException
-     * @throws ParsingException
      */
-    public static Element parseXmlFragment(String fragment) throws IOException, ParsingException {
+    public static Element parseXmlFragment(String fragment) throws PetascopeException {
         Builder docBuilder = new Builder();
-        Element fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
+        Element fragmentNode = null;
+                
+        try {
+            fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot parse XML fragment '" + fragment + "'. Reason: " + ex.getMessage(), ex);
+        }
         return (Element) fragmentNode.copy();
     }
 
@@ -1315,6 +1319,21 @@ public class XMLUtil {
             }
         }
         return ret.substring(0, ret.length() - 1);
+    }
+    
+    /**
+     * Parse XML String to XML document and return the root node to traverse later
+     */
+    public static Element parseXML(String input) throws PetascopeException {
+        Element rootElement = null;
+        try {
+            Document doc = XMLUtil.buildDocument(null, input);
+            rootElement = doc.getRootElement();
+        } catch (Exception ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Cannot parse XML string '" + input + "' to XML document. Reason: " + ex.getMessage(), ex);
+        }
+        
+        return rootElement;
     }
 
     /**
