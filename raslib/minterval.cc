@@ -556,7 +556,10 @@ r_Minterval &r_Minterval::scale(const vector<double> &scaleVec)
         // e.g. 148290:148290 is scaled to 74145:74144 (invalid) by factor 0.5 -- DM 2012-may-25
         if (high < low)
         {
-            high = low;
+            if (high > 0)
+                high = low;
+            else
+                low = high;
         }
 
         intervals[i].set_interval(static_cast<r_Range>(low), static_cast<r_Range>(high));

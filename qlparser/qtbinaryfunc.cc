@@ -39,8 +39,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mymalloc/mymalloc.h"
-
-#include "mymalloc/mymalloc.h"
+#include "common/util/scopeguard.hh"
 
 #include "qlparser/qtbinaryfunc.hh"
 #include "qlparser/qtdata.hh"
@@ -59,6 +58,8 @@ rasdaman GmbH.
 
 #include <iostream>
 #include <string>
+#include <functional> // for equal_to
+
 using namespace std;
 
 
@@ -95,6 +96,11 @@ QtShift::evaluate(QtDataList *inputList)
     // evaluate sub-nodes to obtain operand values
     if (getOperands(inputList, operand1, operand2))
     {
+        const auto cleanupOnMethodExit = common::make_scope_guard(
+            [operand1,operand2]() noexcept {                                 
+              if (operand1) operand1->deleteRef();
+              if (operand2) operand2->deleteRef();
+            });
         //
         // This implementation simply creates a new transient MDD object with the new
         // domain while copying the data. Optimization of this is left for future work.
@@ -120,16 +126,6 @@ QtShift::evaluate(QtDataList *inputList)
 
         if (transPoint.dimension() != qtMDDObj->getLoadDomain().dimension())
         {
-            // delete the old operands
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            if (operand2)
-            {
-                operand2->deleteRef();
-            }
-
             LERROR << "Error: QtShift::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
             parseInfo.setErrorNo(407);
             throw parseInfo;
@@ -146,8 +142,10 @@ QtShift::evaluate(QtDataList *inputList)
         // iterate over source tiles
         for (auto tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
         {
+            auto srcTile = tileIter->get();
+
             // get relevant area of source tile
-            r_Minterval sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection((*tileIter)->getDomain());
+            r_Minterval sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection(srcTile->getDomain());
 
             // compute translated tile domain
             r_Minterval destinationTileDomain = sourceTileDomain.create_translation(transPoint);
@@ -159,13 +157,14 @@ QtShift::evaluate(QtDataList *inputList)
             if (skipCopy)
             {
                 // const r_Minterval& newDom, const BaseType* newType, bool takeOwnershipOfNewCells, char* newCells, r_Bytes newSize, r_Data_Format newFormat
-                newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType(), true, tileIter->get()->getContents(), 0, r_Array);
+                newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType(), true,
+                                        srcTile->getContents(), 0, r_Array);
                 tileIter->get()->setContents(NULL);
             }
             else
             {
                 newTransTile = new Tile(destinationTileDomain, currentMDDObj->getCellType());
-                newTransTile->copyTile(destinationTileDomain, tileIter->get(), sourceTileDomain);
+                newTransTile->copyTile(destinationTileDomain, srcTile, sourceTileDomain);
             }
             resultMDD->insertTile(newTransTile);
         }
@@ -177,16 +176,6 @@ QtShift::evaluate(QtDataList *inputList)
         // of the MDD object is called
         delete tiles;
         tiles = NULL;
-
-        // delete the old operands
-        if (operand1)
-        {
-            operand1->deleteRef();
-        }
-        if (operand2)
-        {
-            operand2->deleteRef();
-        }
     }
 
     stopTimer();
@@ -430,6 +419,12 @@ QtExtend::evaluate(QtDataList *inputList)
 
     if (getOperands(inputList, operand1, operand2))
     {
+        const auto cleanupOnMethodExit = common::make_scope_guard(
+            [operand1,operand2]() noexcept {                                 
+              if (operand1) operand1->deleteRef();
+              if (operand2) operand2->deleteRef();
+            });
+        
         //
         // This implementation simply creates a single new transient MDD object with the new
         // domain while copying the data.
@@ -444,16 +439,6 @@ QtExtend::evaluate(QtDataList *inputList)
         // - dim(C) == dim(M)
         if (targetDomain.dimension() != qtMDDObj->getLoadDomain().dimension())
         {
-            // delete the old operands
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            if (operand2)
-            {
-                operand2->deleteRef();
-            }
-
             LERROR << "Error: QtExtend::evaluate( QtDataList* ) - dimensionality of MDD and point expression do not match.";
             parseInfo.setErrorNo(407);
             throw parseInfo;
@@ -462,16 +447,6 @@ QtExtend::evaluate(QtDataList *inputList)
         // - M does not contain open bounds (i.e., "*")
         if (! targetDomain.is_origin_fixed() || ! targetDomain.is_high_fixed())
         {
-            // delete the old operands
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            if (operand2)
-            {
-                operand2->deleteRef();
-            }
-
             LERROR << "Error: QtExtend::evaluate( QtDataList* ) - target domain must not have open bounds.";
             parseInfo.setErrorNo(420);
             throw parseInfo;
@@ -481,10 +456,6 @@ QtExtend::evaluate(QtDataList *inputList)
         // I can't think of a good reason for this limitation -- DM 2013-feb-27
 //        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
 //        {
-//            // delete the old operands
-//            if( operand1 ) operand1->deleteRef();
-//            if( operand2 ) operand2->deleteRef();
-//
 //            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
 //            parseInfo.setErrorNo(421);
 //            throw parseInfo;
@@ -598,16 +569,6 @@ QtExtend::evaluate(QtDataList *inputList)
 
         delete tiles;
         tiles = NULL;
-
-        // delete the old operands
-        if (operand1)
-        {
-            operand1->deleteRef();
-        }
-        if (operand2)
-        {
-            operand2->deleteRef();
-        }
 
         // temporary: dump result tile
         // LINFO << "QtExtend::evaluate( QtDataList* ) - result tile = " << newTransTile->printStatus();
@@ -902,24 +863,20 @@ QtScale::evaluate(QtDataList *inputList)
     QtData *operand2 = NULL;
 
     if (!getOperands(inputList, operand1, operand2))
-    {
         return returnValue;
-    }
-
-    QtMDD         *qtMDDObj          = static_cast<QtMDD *>(operand1);
-    MDDObj        *currentMDDObj     = qtMDDObj->getMDDObject();
-    vector<r_Double>  scaleVector(qtMDDObj->getLoadDomain().dimension());
+    
+    const auto cleanupOnMethodExit = common::make_scope_guard(
+        [operand1,operand2]() noexcept {                                 
+          if (operand1) operand1->deleteRef();
+          if (operand2) operand2->deleteRef();
+        });
+    
+    QtMDD *qtMDDObj = static_cast<QtMDD *>(operand1);
+    vector<r_Double> scaleVector(qtMDDObj->getLoadDomain().dimension());
 
     r_Minterval sourceDomain = qtMDDObj->getLoadDomain();
-    r_Minterval targetDomain;
-    r_Point     sourceDomainOrigin = sourceDomain.get_origin();
-
     r_Minterval wishedTargetDomain;
-    r_Point translation;
-
-    //used for scale with wishedIv
     bool isWishedTargetSet = false;
-    r_Double sourceRange = 0., targetRange = 0., f = 0., low = 0., high = 0.;
 
     switch (operand2->getDataType())
     {
@@ -927,26 +884,16 @@ QtScale::evaluate(QtDataList *inputList)
     {
         const r_Point &transPoint = (static_cast<QtPointData *>(operand2))->getPointData();
 
-        if (transPoint.dimension() != qtMDDObj->getLoadDomain().dimension())
+        if (transPoint.dimension() == qtMDDObj->getLoadDomain().dimension())
         {
-            // delete the old operands
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            if (operand2)
-            {
-                operand2->deleteRef();
-            }
-
-            LERROR << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
+            for (size_t i = 0; i < scaleVector.size(); i++)
+                scaleVector[i] = transPoint[i];
+        }
+        else
+        {
+            LERROR << "dimensionalities of MDD and scale expression are not matching.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
-        }
-
-        for (unsigned int i = 0; i < scaleVector.size(); i++)
-        {
-            scaleVector[i] = transPoint[i];
         }
     }
     break;
@@ -956,9 +903,7 @@ QtScale::evaluate(QtDataList *inputList)
     case QT_ULONG:
     {
         for (unsigned int i = 0; i < scaleVector.size(); i++)
-        {
             scaleVector[i] = (static_cast<QtAtomicData *>(operand2))->getUnsignedValue();
-        };
     }
     break;
 
@@ -967,9 +912,7 @@ QtScale::evaluate(QtDataList *inputList)
     case QT_LONG:
     {
         for (unsigned int i = 0; i < scaleVector.size(); i++)
-        {
             scaleVector[i] = (static_cast<QtAtomicData *>(operand2))->getSignedValue();
-        };
     }
     break;
 
@@ -977,9 +920,7 @@ QtScale::evaluate(QtDataList *inputList)
     case QT_FLOAT:
     {
         for (unsigned int i = 0; i < scaleVector.size(); i++)
-        {
             scaleVector[i] = (static_cast<QtAtomicData *>(operand2))->getDoubleValue();
-        }
     }
     break;
 
@@ -990,68 +931,62 @@ QtScale::evaluate(QtDataList *inputList)
 
         if (wishedTargetDomain.dimension() != sourceDomain.dimension())
         {
-            // delete the old operands
-            if (operand1)
-            {
-                operand1->deleteRef();
-            }
-            if (operand2)
-            {
-                operand2->deleteRef();
-            }
-
-            LERROR << "Error: QtScale::evaluate( QtDataList* ) - dimensionalities of MDD and scale expression are not matching.";
+            LERROR << "dimensionalities of MDD and scale expression are not matching.";
             parseInfo.setErrorNo(418);
             throw parseInfo;
         }
 
-        for (unsigned int i = 0; i < scaleVector.size(); i++)
+        for (r_Dimension i = 0; i < scaleVector.size(); i++)
         {
-            sourceRange = static_cast<r_Double>(sourceDomain[i].get_extent());
-            targetRange = static_cast<r_Double>(wishedTargetDomain[i].get_extent());
+            const auto sourceRange = static_cast<r_Double>(sourceDomain[i].get_extent());
+            const auto targetRange = static_cast<r_Double>(wishedTargetDomain[i].get_extent());
 
             if (sourceRange != 0.)
             {
                 scaleVector[i] = targetRange / sourceRange;
-                f = scaleVector[i];
-
-                low = FLOOR(f * sourceDomain[i].low());
+                auto f = scaleVector[i];
+                
+                const auto slow = sourceDomain[i].low();
+                const auto shigh = sourceDomain[i].high();
+                auto low = FLOOR(f * slow);
                 //correction by 1e-6 to avoid the strange bug when high was a
                 //integer value and floor return value-1(e.g. query 47.ql)
-                high = FLOOR(f * (sourceDomain[i].high() + 1) + 0.000001) - 1;
+                auto high = FLOOR(f * (shigh + 1) + 0.000001) - 1;
                 // apparently the above correction doesn't work for certain big numbers,
                 // e.g. 148290:148290 is scaled to 74145:74144 (invalid) by factor 0.5 -- DM 2012-may-25
                 if (high < low)
                 {
-                    high = low;
+                    if (high > 0)
+                        high = low;
+                    else
+                        low = high;
                 }
 
-                LTRACE << "Scale: before f=" << setprecision(12) << f;
-                LTRACE << "Scale: \n" << "precalculated: " << low << ':' << high << "<-->"
-                       << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high() << "\n"
-                       << "pro memoria: " << (r_Range)(f * (sourceDomain[i].high() + 1)) << ", " << (f * (sourceDomain[i].high() + 1))
-                       << ", " << floor(f * (sourceDomain[i].high() + 1))
-                       << ", " << ceil(f * (sourceDomain[i].high() + 1));
+                LTRACE << "Scale dimension " << i << ":" 
+                       << "\nbefore f=" << setprecision(12) << f
+                       << "\nprecalculated low/high: " << low << ':' << high << " <--> wished low/high: " 
+                                                       << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high()
+                       << "\npro memoria: " << static_cast<r_Range>(f * (shigh + 1)) << ", raw: " << (f * (shigh + 1))
+                                            << ", floor: " << floor(f * (shigh + 1)) << ", ceil: " << ceil(f * (shigh + 1));
 
-                if ((high - low + 1) != targetRange)
+                if (!std::equal_to<r_Double>()((high - low + 1), targetRange))
                 {
-                    LTRACE << "Scale: correction necessary: " << low << ':' << high << "<-->" << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high();
-
                     f = f + (targetRange - (high - low + 1)) / sourceRange;
+                    scaleVector[i] = f;
 
-                    low = FLOOR(f * sourceDomain[i].low());
+                    low = FLOOR(f * slow);
                     //correction by 1e-6 to avoid the strange bug when high was a
                     //integer value and floor return value-1(e.g. query 47.ql)
-                    high = FLOOR(f * (sourceDomain[i].high() + 1) + 0.000001) - 1;
+                    high = FLOOR(f * (shigh + 1) + 0.000001) - 1;
                     if (high < low)
                     {
-                        high = low;
+                        if (high > 0)
+                            high = low;
+                        else
+                            low = high;
                     }
-
-                    LTRACE << "Scale: ->: " << low << ':' << high << "<-->" << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high();
-
-                    scaleVector[i] = f;
-                    LTRACE << "Scale: after f=" << setprecision(12) << f;
+                    
+                    LTRACE << "low/high correction necessary, new values: " << low << ':' << high << ", f=" << setprecision(12) << f;
                 }
             }
             else
@@ -1062,41 +997,35 @@ QtScale::evaluate(QtDataList *inputList)
     }
     break;
     default:
-        LTRACE << "evaluate() bad type operand2" <<  operand2->getDataType();
+        LDEBUG << "bad type for operand2 in scale " <<  operand2->getDataType();
         break;
     }
 
-// ----------------------------------------------------------
+// -----------------------------------------------------------------------------
 
     // scale domain
+    r_Minterval targetDomain;
     if (!scaleDomain(sourceDomain, scaleVector, targetDomain))
     {
-        // delete the old operands
-        if (operand1)
-        {
-            operand1->deleteRef();
-        }
-        if (operand2)
-        {
-            operand2->deleteRef();
-        }
-
-        LERROR << "Error: QtScale::evaluate( QtDataList* ) - empty result after scaling.";
+        LERROR << "empty result after scaling.";
         parseInfo.setErrorNo(419);
         throw parseInfo;
     }
-
+    
+    
+    r_Point translation;
     if (isWishedTargetSet)
     {
         translation = wishedTargetDomain.get_origin() - targetDomain.get_origin();
-        targetDomain.translate(translation);
+        translateTargetDomain(targetDomain, wishedTargetDomain, translation);
     }
     LTRACE << "Target domain: " << targetDomain;
 
     // create a transient MDD object for the query result
+    MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
     MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues());
 
-    sourceDomainOrigin = r_Point(scaleVector.size()); // all zero!!
+    auto sourceDomainOrigin = r_Point(scaleVector.size()); // all zero!!
 
     // get all tiles
     vector<boost::shared_ptr<Tile>> *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
@@ -1107,17 +1036,14 @@ QtScale::evaluate(QtDataList *inputList)
         tmpTiles->push_back(t);
     }
     Tile *sourceTile = new Tile(tmpTiles);
-    delete tmpTiles;
-    tmpTiles = NULL;
-
-    //tile domain before & after
-    r_Minterval sourceTileDomain, targetTileDomain;
+    delete tmpTiles; tmpTiles = NULL;
 
     // get relevant area of source tile
-    sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection(sourceTile->getDomain());
+    auto sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection(sourceTile->getDomain());
     LTRACE << "Source tile domain: " << sourceTileDomain;
 
     // compute scaled  tile domain and check if it exists
+    r_Minterval targetTileDomain;
     if (sourceTile->scaleGetDomain(sourceTileDomain, scaleVector, targetTileDomain))
     {
         LTRACE << "Target tile domain: " << targetTileDomain;
@@ -1128,7 +1054,7 @@ QtScale::evaluate(QtDataList *inputList)
         if (isWishedTargetSet)
         {
             r_Minterval &scaledTileDomain = const_cast<r_Minterval &>(targetTile->getDomain());
-            scaledTileDomain.translate(translation);
+            translateTargetDomain(scaledTileDomain, wishedTargetDomain, translation);
             LTRACE << "Translated target tile domain: " << scaledTileDomain;
         }
 
@@ -1145,19 +1071,32 @@ QtScale::evaluate(QtDataList *inputList)
     delete sourceTile;
     sourceTile = NULL;
 
-    // delete the old operands
-    if (operand1)
-    {
-        operand1->deleteRef();
-    }
-    if (operand2)
-    {
-        operand2->deleteRef();
-    }
-
     stopTimer();
 
     return returnValue;
+}
+
+void QtScale::translateTargetDomain(r_Minterval &dst, const r_Minterval &src, r_Point &translation)
+{
+    dst.translate(translation);
+    // adjust target domain to fit in the wished target domain, in case it was badly calculated
+    r_Point correctedTranslation(translation.dimension());
+    for (r_Dimension i = 0; i < dst.dimension(); i++)
+    {
+        const auto &s = src[i];
+        auto &d = dst[i];
+        if (d.low() < s.low())
+            correctedTranslation[i] = s.low() - d.low();
+        else if (d.low() > s.high())
+            correctedTranslation[i] = s.high() - d.low();
+        
+        if (d.high() > s.high())
+            correctedTranslation[i] = s.high() - d.high();
+        else if (d.high() < s.low())
+            correctedTranslation[i] = s.low() - d.high();
+    }
+    dst.translate(correctedTranslation);
+    translation = translation + correctedTranslation;
 }
 
 

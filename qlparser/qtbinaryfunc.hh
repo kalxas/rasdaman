@@ -131,7 +131,7 @@ private:
     @params currentInterval current interval which is being built by iterating over its dimensions
     @params cornerList list of corner intervals that is to be built; has to be deallocated by caller.
     **/
-    void extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, r_Dimension currentDim, r_Dimension maxDim, r_Minterval currentInterval, vector<r_Minterval> *cornerList);
+    void extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, r_Dimension currentDim, r_Dimension maxDim, r_Minterval currentInterval, std::vector<r_Minterval> *cornerList);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
@@ -177,12 +177,15 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
     /// scale domains - initial version
-    virtual int scaleDomain(const r_Minterval &areaOp, const r_Point &origin1, const r_Point &origin2, const vector<double> &scaleFactors, r_Minterval &areaScaled);
+    virtual int scaleDomain(const r_Minterval &areaOp, const r_Point &origin1, const r_Point &origin2, const std::vector<double> &scaleFactors, r_Minterval &areaScaled);
 
     /// scale domains - the used version
-    virtual int scaleDomain(const r_Minterval &areaOp, const vector<double> &scaleFactors, r_Minterval &areaScaled);
+    virtual int scaleDomain(const r_Minterval &areaOp, const std::vector<double> &scaleFactors, r_Minterval &areaScaled);
 
 private:
+    
+    void translateTargetDomain(r_Minterval &dst, const r_Minterval &src, r_Point &translation);
+    
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };

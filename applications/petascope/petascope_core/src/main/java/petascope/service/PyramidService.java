@@ -62,7 +62,7 @@ public class PyramidService {
     
     // This is the maxium number of pixels for XY axes to be selected for updating downscaled collection
     // e.g: [0:9999], [10000:19999],...
-    private static final Long MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS = 2000L;
+    private static final Long MAX_SELECT_GRID_WIDTH_HEIGHT_AXIS = 10000L;
     // Only select 1 pixel on non XY axes for updating downscaled collection
     private static final Long MAX_SELECT_GRID_OTHER_AXIS = 1L;
 
