@@ -65,6 +65,7 @@ rasdaman GmbH.
 #include <string.h>
 #include <signal.h>    // for sigaction()
 #include <unistd.h>    // for alarm(), gethostname()
+#include <cstdint>
 #include <iomanip>
 
 #define UNEXPECTED_INTERNAL_ERROR 10000
@@ -115,9 +116,8 @@ T decodeNumber(char **input, int endianess)
     static const auto myEndianess = r_Endian::get_endianness();
     T ret = *reinterpret_cast<const T *>(*input);
     if (myEndianess != endianess)
-    {
         ret = r_Endian::swap(ret);
-    }
+    
     *input += sizeof(T);
     return ret;
 }
@@ -127,13 +127,9 @@ void encodeNumber(char **output, T value)
 {
 #ifdef RASDEBUG
     if (sizeof(T) == 1)
-    {
         LTRACE << "encoding number: " << (int) value << ", bytes: " << sizeof(T);
-    }
     else
-    {
         LTRACE << "encoding number: " << value << ", bytes: " << sizeof(T);
-    }
 #endif
     *reinterpret_cast<T *>(*output) = value;
     *output += sizeof(T);
@@ -162,13 +158,9 @@ static char *decodeString(char **input, bool checkNull = true)
     *input += len + 1;
 
     if (!checkNull || strcmp(stringBuffer, nullParam) != 0)
-    {
         return strdup(stringBuffer);
-    }
     else
-    {
         return nullptr;
-    }
 }
 
 static void encodeString(char **dst, const char *src, const char *dstStart, size_t totalLength)
@@ -525,9 +517,8 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
 
             auto context = getClientContext(callingClientId);
             if (context && resultSize > 0)
-            {
                 context->totalTransferedSize = static_cast<unsigned long>(resultSize);
-            }
+            
             endTransfer(callingClientId); // finalize the log stmt of executeQuery with the transfered size
 
             return resultSize;
@@ -548,9 +539,8 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
                 // until now no error has occurred => execute the query
                 ExecuteUpdateRes returnStructure;
                 if (!isPersistent)
-                {
                     execResult = executeUpdate(callingClientId, query, returnStructure);
-                }
+                
                 switch (execResult)
                 {
                 case 0:
@@ -567,9 +557,7 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
                 }
 
                 if (returnStructure.token)
-                {
                     free(returnStructure.token);
-                }
             }
             return returnValue;
         }
@@ -742,7 +730,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
         totalLength += resultDomains.back().size() + 1; // array domain
         const auto *oidStr = oid.get_string_representation();
         totalLength += oidStr ? strlen(oidStr) + 1 : 1; // array oid
-        totalLength += sizeof(r_Bytes);                 // array size
+        totalLength += sizeof(std::uint64_t);           // array size
         totalLength += resultTiles.back()->getSize();   // array itself
 
         if (typeName)
@@ -775,15 +763,11 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
         encodeString(&currentPos, resultDomains[i].c_str(), result, totalLength);
         // array oid
         if (resultOIDs[i].get_string_representation() != NULL)
-        {
             encodeString(&currentPos, resultOIDs[i].get_string_representation(), result, totalLength);
-        }
         else
-        {
             encodeNumber(&currentPos, '\0');
-        }
         // array size
-        const auto tileSize = resultTiles[i]->getSize();
+        const auto tileSize = static_cast<std::uint64_t>(resultTiles[i]->getSize());
         encodeNumber(&currentPos, tileSize);
         // array data
         encodeBinary(&currentPos, resultTiles[i]->getContents(), tileSize, result, totalLength);
@@ -792,9 +776,7 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
     // delete temporary storage
     // TODO: put in a unique_ptr
     for (size_t i = 0; i < static_cast<size_t>(numMDD); i++)
-    {
         free(resultTypes[i]);
-    }
 
     return static_cast<long>(totalLength);
 }
@@ -862,9 +844,7 @@ long HttpServer::encodeScalars(unsigned long callingClientId, char *&result, con
     }
     // delete temporary storage
     for (size_t i = 0; i < static_cast<unsigned int>(numElem); i++)
-    {
         free(resultElems[i]);
-    }
 
     return static_cast<long>(totalLength);
 }
@@ -910,13 +890,9 @@ size_t HttpServer::getHeaderSize(const char *collType) const
     ++ret;                 // endianess
     ret += sizeof(r_Long); // number of objects
     if (collType)
-    {
         ret += strlen(collType) + 1;
-    }
     else
-    {
         ret += 1;    // '\0' in this case
-    }
     return ret;
 }
 
@@ -933,9 +909,7 @@ void HttpServer::encodeHeader(char **dst, int responseType, int endianess,
 void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Minterval &dom) const
 {
     if (systemEndianess == ENDIAN_BIG)
-    {
         return;
-    }
 
 #ifdef RASDEBUG
     LTRACE << "Changing endianness of tile with domain " << dom;
@@ -1020,21 +994,14 @@ long HttpServer::insertIfNeeded(unsigned long callingClientId, char *query, int 
         {
             execResult = startInsertMDD(callingClientId, query, transferredMDDs, isPersistent);
             if (execResult == 0)
-            {
                 execResult = insertMDD(callingClientId, transferredMDDs, isPersistent);
-            }
-
             if (execResult != 0)
-            {
                 return encodeInsertError(result, execResult, transferredMDDs);
-            }
         }
 
         execResult = endInsertMDD(callingClientId, isPersistent);
         if (execResult != 0)
-        {
             return encodeInsertError(result, execResult, transferredMDDs);
-        }
     }
     return 0;
 }
