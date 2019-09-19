@@ -1,0 +1,1 @@
+SELECT encode({ 13c, 115c } overlay <[0:1] { 0c, 0f }, { 1c, 1f }>, "csv")
