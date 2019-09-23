@@ -2889,7 +2889,7 @@ Import Sentinel 1 data
 ^^^^^^^^^^^^^^^^^^^^^^
 
 This is a convenience recipe for importing Sentinel 1 data in particular;
-**currently only GRD product types are supported**, and only geo-referenced
+**currently only GRD/SLC product types are supported**, and only geo-referenced
 tiff files. Below is an example:
 
 .. code-block:: json
@@ -2907,6 +2907,9 @@ tiff files. Below is an example:
          //  singler polarisation VH:
          // s1a-iw-grd-vh-20190226t171654-20190326t171719-026512-02f856-002.tiff)
         "paths": [ "*.tiff" ],
+
+        // If not specified, default product is "GRD"
+        "product": "SLC"
 
         "modebeams": ["EW", "IW"],
         "polarisations": ["HH", "HV", "VV", "VH"]
@@ -2961,9 +2964,11 @@ following options in the ``"input"`` section:
 
 **Limitations:**
 
-- Only GRD products are supported.
+- Only GRD/SLC products are supported.
 - Data must be geo-referenced.
-- Filenames are assumed to be of the format ``s1[ab]-(.*?)-grd(.?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?).tiff``.
+- Filenames are assumed to be of the format:
+  ``s1[ab]-(.*?)-grd(.?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?).tiff`` or
+  ``s1[ab]-(.*?)-slc(.?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?)-(.*?).tiff``.
 
 .. _data-import-recipe-sentinel2:
 

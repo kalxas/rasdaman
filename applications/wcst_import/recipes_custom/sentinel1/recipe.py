@@ -52,10 +52,13 @@ class Recipe(GeneralCoverageRecipe):
     # coverage Id scheme: S1_GRD_${modebeam}_${polarisation}
     # e,g:                S1_GRD_IW/EW      _HH,VV,VH,..
 
+
     # Sentinel 1 tiff pattern
     # e.g: s1b-iw-grd-vh-20190324t164346-20190324t164411-015499-01d0a6-002.tiff
     GRD_FILE_PATTERN = "(.*)-(.*)-grd-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).tiff"
+    SLC_FILE_PATTERN = "(.*)-(.*)-slc-(.*)-(.*)-(.*)-(.*)-(.*)-(.*).tiff"
     grd_pattern = re.compile(GRD_FILE_PATTERN)
+    slc_pattern = re.compile(SLC_FILE_PATTERN)
 
     # variables that can be used to template the coverage id
     VAR_MODEBEAM = '${modebeam}'
@@ -64,11 +67,15 @@ class Recipe(GeneralCoverageRecipe):
     # 1 tiff file contains 1 band
     BAND = UserBand("0", "Grey", "", "", "", [0], "")
 
+    DEFAULT_PRODUCT = "GRD"
+    SLC_PRODUCT = "SLC"
+
     DEFAULT_MODEBEAMS = ["EW", "IW"]
     DEFAULT_POLARISATIONS = ["HH", "HV", "VH", "VV"]
 
     # Sentinel 1 contains 1 band
     DEFAULT_BAND_DATA_TYPE = "UInt16"
+    SLC_BAND_DATA_TYPE = "CInt16"
 
     EPSG_XY_CRS = "$EPSG_XY_CRS"
     CRS_TEMPLATE = "OGC/0/AnsiDate@" + EPSG_XY_CRS
@@ -92,9 +99,10 @@ class Recipe(GeneralCoverageRecipe):
         # Local validate for input files
         for file in self.session.get_files():
             file_name = os.path.basename(file.get_filepath())
-            if not bool(re.match(self.GRD_FILE_PATTERN, file_name)):
+            if not bool(re.match(self.GRD_FILE_PATTERN, file_name)
+                        or re.match(self.SLC_FILE_PATTERN, file_name)):
                 log.warn("File '" + file.get_filepath()
-                         + "' is not valid GRD TIFF file, ignored for further processing.")
+                         + "' is not valid GRD/SLC TIFF file, ignored for further processing.")
             else:
                 valid_files.append(file)
 
@@ -133,8 +141,8 @@ class Recipe(GeneralCoverageRecipe):
     #
 
     def _init_options(self):
-        self._init_coverage_options()
         self._init_input_options()
+        self._init_coverage_options()
         self.coverage_id = self.session.get_coverage_id()
         self.import_order = self._set_option(self.options, "import_order", self.DEFAULT_IMPORT_ORDER)
         self.wms_import = self._set_option(self.options, "wms_import", False)
@@ -153,6 +161,7 @@ class Recipe(GeneralCoverageRecipe):
     def _init_input_options(self):
         # specify a subset of resolutions to ingest
         inputopts = self.session.get_input()
+        self.product = self._set_option(inputopts, "product", self.DEFAULT_PRODUCT)
         self.modebeams = self._set_option(inputopts, "modebeams", self.DEFAULT_MODEBEAMS)
         self.polarisations = self._set_option(inputopts, "polarisations", self.DEFAULT_POLARISATIONS)
 
@@ -171,10 +180,14 @@ class Recipe(GeneralCoverageRecipe):
     def _init_axes_options(self):
         epsg_xy_axes_labels = self.__get_epsg_xy_axes_labels()
 
+        file_pattern = self.GRD_FILE_PATTERN
+        if self.product == self.SLC_PRODUCT:
+            file_pattern = self.SLC_FILE_PATTERN
+
         return {
             "ansi": {
                 # e.g. s1b-iw-grd-vh-20190324t164346-20190324t164411-015499-01d0a6-002.tiff
-                "min": "datetime(regex_extract('${file:name}', '" + self.GRD_FILE_PATTERN + "', 4), 'YYYYMMDD')",
+                "min": "datetime(regex_extract('${file:name}', '" + file_pattern + "', 4), 'YYYYMMDD')",
                 "gridOrder": 0,
                 "type": "ansidate",
                 "irregular": True,
@@ -242,6 +255,10 @@ class Recipe(GeneralCoverageRecipe):
         """
         convertors = {}
 
+        band_data_type = self.DEFAULT_BAND_DATA_TYPE
+        if self.product == self.SLC_PRODUCT:
+            band_data_type = self.SLC_BAND_DATA_TYPE
+
         for file in self.session.get_files():
 
             # Check if this file still exists when preparing to import
@@ -268,7 +285,7 @@ class Recipe(GeneralCoverageRecipe):
             evaluator_slice = EvaluatorSliceFactory.get_evaluator_slice(
                                 GdalToCoverageConverter.RECIPE_TYPE, file)
 
-            conv.data_type = self.DEFAULT_BAND_DATA_TYPE
+            conv.data_type = band_data_type
             slices = conv._create_coverage_slices(crs_axes, evaluator_slice)
             conv.coverage_slices += slices
 
@@ -281,10 +298,14 @@ class Recipe(GeneralCoverageRecipe):
         """
         # e.g: s1a-iw-grd-vh-20190326t171654-20190326t171719-026512-02f856-002.tiff
         file_name = os.path.basename(file_path)
-        matcher = self.grd_pattern.match(file_name)
+        if "grd" in file_name:
+            matcher = self.grd_pattern.match(file_name)
+        elif "slc" in file_name:
+            matcher = self.slc_pattern.match(file_name)
 
-        tmp_modebeam = matcher.group(2)
-        tmp_polarisation = matcher.group(3)
+        # e.g: iw1 and iw2 are same mode beam iw
+        tmp_modebeam = matcher.group(2)[0:2]
+        tmp_polarisation = matcher.group(3)[0:2]
 
         return tmp_modebeam.upper(), tmp_polarisation.upper()
 
