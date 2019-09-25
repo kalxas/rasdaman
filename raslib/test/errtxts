@@ -58,7 +58,7 @@
 308^E^Parsing error: Unexpected end of query.
 309^E^Parsing error: Unknown error.
 310^E^Lexical analysing error $errorNo in line $lineNo, column $columnNo: Unexpected characters $token.
-311^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: Complex constructor must have both arguments of the same type (i.e. float or double). 
+311^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: Complex constructor must have both arguments of the same type. 
 312^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: Variable already defined. 
 313^E^Parsing error $errorNo in line $lineNo, column $columnNo, token $token: Only constant interval bounds allowed. 
 #

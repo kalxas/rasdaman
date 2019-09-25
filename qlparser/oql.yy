@@ -3447,6 +3447,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	}
     | COMPLEX LRPAR generalExp COMMA generalExp RRPAR
     {
+        
         $$ = new QtConstructComplex($3, $5);
         $$->setParseInfo(*($1.info));
         parseQueryTree->removeDynamicObject($3);
@@ -3846,9 +3847,20 @@ atomicLit: BooleanLit
   | COMPLEX LRPAR intLitExp COMMA intLitExp RRPAR
 	{
 	  // this should construct a complex type
-	  // for both float and double cell type
+	  // for both long and short cell type
 	  if($3.bytes+$5.bytes== 2u * sizeof(int) || $3.bytes + $5.bytes == 2u * sizeof(short) || $3.bytes + $5.bytes == 2u * sizeof(long)) {
-	    $$ = new QtAtomicData($3.svalue, $5.svalue, $3.bytes + $5.bytes);
+	    if ($3.negative && !$5.negative){
+        $$ = new QtAtomicData($3.svalue, $5.uvalue, $3.bytes + $5.bytes);
+      }
+      else if ($3.negative && $5.negative){
+        $$ = new QtAtomicData($3.svalue, $5.svalue, $3.bytes + $5.bytes);
+      }
+      else if (!$3.negative && $5.negative){
+        $$ = new QtAtomicData($3.uvalue, $5.svalue, $3.bytes + $5.bytes);
+      }
+      else if (!$3.negative && !$5.negative){
+        $$ = new QtAtomicData($3.uvalue, $5.uvalue, $3.bytes + $5.bytes);
+      }
 	  } else {
 	    if(parseError) delete parseError;
 	    parseError = new ParseInfo(311, $2.info->getToken().c_str(),

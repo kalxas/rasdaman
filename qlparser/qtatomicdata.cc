@@ -248,3 +248,62 @@ QtAtomicData::QtAtomicData(r_Long valRe, r_Long valIm, unsigned short size)
     valueType->makeFromCLong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
 }
 
+
+QtAtomicData::QtAtomicData(r_ULong valRe, r_ULong valIm, unsigned short size)
+    : QtScalarData()
+{
+    r_ULong dummyRe = valRe;
+    r_ULong dummyIm = valIm;
+
+    if (size == 2 * sizeof(r_ULong))
+    {
+        valueType = TypeFactory::mapType("CInt32");
+    }
+    else
+    {
+        valueType = TypeFactory::mapType("CInt16");
+    }
+
+    valueBuffer = new char[valueType->getSize()];
+    valueType->makeFromCULong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCULong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
+}
+
+QtAtomicData::QtAtomicData(r_Long valRe, r_ULong valIm, unsigned short size)
+    : QtScalarData()
+{
+    r_Long dummyRe = valRe;
+    r_ULong dummyIm = valIm;
+    if (size == 2 * sizeof(r_ULong))
+    {
+        valueType = TypeFactory::mapType("CInt32");
+    }
+    else
+    {
+        valueType = TypeFactory::mapType("CInt16");
+    }
+
+    valueBuffer = new char[valueType->getSize()];
+    valueType->makeFromCLong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCULong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
+}
+
+QtAtomicData::QtAtomicData(r_ULong valRe, r_Long valIm, unsigned short size)
+    : QtScalarData()
+{
+    r_ULong dummyRe = valRe;
+    r_Long dummyIm = valIm;
+
+    if (size == 2 * sizeof(r_ULong))
+    {
+        valueType = TypeFactory::mapType("CInt32");
+    }
+    else
+    {
+        valueType = TypeFactory::mapType("CInt16");
+    }
+
+    valueBuffer = new char[valueType->getSize()];
+    valueType->makeFromCULong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCLong(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType *>(valueType)))->getImOffset(), &dummyIm);
+}

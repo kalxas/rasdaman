@@ -88,6 +88,9 @@ public:
     /// constructor getting complex data
     QtAtomicData(double valRe, double valIm, unsigned short size);
     QtAtomicData(r_Long valRe, r_Long valIm, unsigned short size);
+    QtAtomicData(r_ULong valRe, r_ULong valIm, unsigned short size);
+    QtAtomicData(r_Long valRe, r_ULong valIm, unsigned short size);
+    QtAtomicData(r_ULong valRe, r_Long valIm, unsigned short size);
 
     /// copy constructor
     QtAtomicData(const QtAtomicData &obj);
