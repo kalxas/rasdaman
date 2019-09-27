@@ -191,6 +191,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                         auto intersection = resultDomain.create_intersection((*tileIter)->getDomain());
                         resultTile->copyTile(intersection, *tileIter, intersection, structElemShift, 0, bandCellSize);
                     }
+                    delete qtMDDObj;
                 }
                 // for offset computations in the next pass
                 structElemShift += bandCellSize;
