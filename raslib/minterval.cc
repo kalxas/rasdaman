@@ -299,6 +299,26 @@ bool r_Minterval::intersects_with(const r_Minterval &minterval) const
     return true;
 }
 
+bool r_Minterval::inside_of(const r_Minterval &minterval) const
+{
+    if (dimensionality != minterval.dimension())
+    {
+#ifdef RASDEBUG
+        LDEBUG << "cannot check if " << this << " and " << minterval <<
+               " intersect, mintervals do not share the same dimension.";
+#endif
+        return false;
+    }
+
+    // none of the interval pairs are allowed to be disjoint
+    for (r_Dimension i = 0; i < dimensionality; ++i)
+        if (!(intervals[i].inside_of(minterval[i]))){
+            return false;
+        }
+
+    return true;
+}
+
 const r_Sinterval &r_Minterval::at_unsafe(r_Dimension dim) const
 {
     return intervals[dim];

@@ -543,6 +543,14 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
             if (currentMDDObj)
             {
+                r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
+                if (!domain.inside_of(currentDomain))
+                {
+                    LERROR << "Subset domain " << domain << " does not intersect with the spatial domain of MDD or extends outside of it " << currentDomain;
+                    parseInfo.setErrorNo(356);
+                    throw parseInfo;
+                }
+                
                 bool trimming   = false;
                 bool projection = false;
                 nullValues = currentMDDObj->getNullValues();

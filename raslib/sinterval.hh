@@ -340,6 +340,11 @@ public:
     ///
     //@}
 
+    ///@Man: Mthods/Operators for checking whether one interval is within another
+    //@{
+    bool inside_of(const r_Sinterval &) const;
+    //@}
+
     //@Man: Methods/Operators for the closure operation:
     //@{
     ///

@@ -1537,6 +1537,7 @@ mintervalList: mintervalList mintervalExp
 	  parseQueryTree->removeDynamicObject( $2 );
 	  parseQueryTree->addDynamicObject( dop );
 	  $$ = dop;
+	  $$->setParseInfo( $2->getParseInfo() );
 	  if (mflag == MF_IN_CONTEXT)
 	    parseQueryTree->addDomainObject( dop );
 	}

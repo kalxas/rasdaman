@@ -96,10 +96,12 @@ public class ScaleExpressionByImageCrsDomainHandler extends AbstractOperatorHand
             numericSubsets.add(numericSubset);
         }
         
+        coverageExpression.setRasql(rasql);
+        
         // Only for 2D XY coverage imported with downscaled collections
         this.wcpsCoverageMetadataTranslatorService.applyDownscaledLevelOnXYGridAxesForScale(coverageExpression, metadata, numericSubsets);
 
-        return new WcpsResult(metadata, rasql);
+        return new WcpsResult(metadata, coverageExpression.getRasql());
     }
 
     //in case we will need to handle scale with a factor, use a method such as below

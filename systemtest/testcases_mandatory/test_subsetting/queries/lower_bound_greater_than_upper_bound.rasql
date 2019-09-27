@@ -1,0 +1,1 @@
+select sdom(c[200:150,200:150]) from test_subsetting as c

@@ -366,6 +366,16 @@ r_Sinterval r_Sinterval::operator*(const r_Sinterval &interval) const
     return result;
 }
 
+bool r_Sinterval::inside_of(const r_Sinterval &interval) const
+{
+    int classnr = classify(*this, interval);
+
+    return classnr == 5 || classnr ==  11 || classnr == 12 || classnr == 13 || classnr == 15 ||
+           classnr == 18 || classnr == 20 || classnr == 22 || classnr == 23 || classnr == 24 || classnr == 25  || 
+           classnr == 29 || classnr == 30  || classnr == 36  || classnr == 39  || classnr == 40  || classnr == 41  ||
+           (classnr >= 44 && classnr <= 52);
+}
+
 r_Sinterval &r_Sinterval::closure_of(const r_Sinterval &interval1,
                                      const r_Sinterval &interval2)
 {

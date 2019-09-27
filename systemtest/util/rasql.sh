@@ -435,7 +435,6 @@ function import_subsetting_data()
   $RASQL -q "update $TEST_SUBSETTING_3D as m set m[1,*:*,*:*] assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
 }
 
-#
 # drop null values test data, including imported null types
 #
 drop_nullvalues_data()

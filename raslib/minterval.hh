@@ -508,6 +508,10 @@ public:
     ///
     //@}
 
+    ///@Man: Mthods/Operators for checking whether one interval is within another
+    //@{
+    bool inside_of(const r_Minterval &) const;
+    //@}
     //@Man: Methods/Operators for dimension-specific operations involving projections:
     //@{
     /// the vector of projection dimensions cannot have more values than this->dimensionality

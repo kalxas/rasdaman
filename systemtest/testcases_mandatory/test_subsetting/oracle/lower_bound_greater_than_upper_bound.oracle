@@ -1,0 +1,1 @@
+rasdaman error 389: Execution error 389 in line 1, column 18, near token :: No interval (in case of fixed bounds, the upper one can not be smaller than the lower one).
