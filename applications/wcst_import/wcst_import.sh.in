@@ -100,7 +100,7 @@ while [ "$1" != "" ]; do
         # Credentials stored in a text file (username:password)
         shift
         identity_file_path=$(readlink -f "$1");;
-      --user)
+      --u|user)
         shift
         # Interactive mode, input password afterwards
         user="$1";;
