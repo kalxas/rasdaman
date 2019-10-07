@@ -13,7 +13,7 @@ Prerequisites
 -------------
 
 - Installed and running rasdaman (see :ref:`inst-guide`).
-- Installed RRasdaman package 
+- :ref:`Installed RRasdaman package <sec-rrasdaman-install>`
 - Familiarity with ``R``. This tutorial is an introduction into the RRasdaman package, not 
   ``R`` itself. To learn more about the ``R`` language, start from the official 
   `Introduction to R <http://cran.r-project.org/doc/manuals/R-intro.html>`_.
