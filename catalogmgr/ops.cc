@@ -1048,7 +1048,14 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
             return getStructResultType(op, op1, op2);
         }
     }
-
+    if (op == OP_SUM && type1 == CINT16)
+    {
+        return TypeFactory::mapType("CInt32");
+    }
+    if (op == OP_SUM && type1 == COMPLEXTYPE1)
+    {
+        return TypeFactory::mapType("Complex");
+    }
     // operation BIT returns bool or struct {bool, ...}
     if (op == OP_BIT)
     {
