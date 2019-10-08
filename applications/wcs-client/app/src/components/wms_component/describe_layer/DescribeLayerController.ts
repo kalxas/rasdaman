@@ -480,7 +480,7 @@ module rasdaman {
                 
                 $("#styleQueryType").val("none").change();
 
-                $("#styleQueryType").change(function() {                    
+                $("#styleQueryType").change(function() {
                     if (this.value !== "none") {
                         $("#divStyleQuery").show();
                     } else {
@@ -563,6 +563,11 @@ module rasdaman {
                     return;
                 } else if (styleAbstract.trim() === "") {
                     alertService.error("Style abstract cannot be empty.");
+                    return;
+                }
+
+                if (styleQueryType == "none" && styleColorTableType == "none") {
+                    alertService.error("A style must contain at least a query fragment or a color table definition.");
                     return;
                 }
 

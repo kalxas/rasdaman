@@ -603,12 +603,9 @@ public class WMSGetMapService {
                 }
                 wcpsCoverageMetadata = this.createWcpsCoverageMetadataForDownscaledLevel(layerName);
                 
-                // NOTE: the nodata values are fetched from coverage which has largest number of bands because the output also have the same bands
-                // e.g: coverage 1: 3 bands, coverage 2: 1 band, then output coverage has 3 bands.
-                if (wcpsCoverageMetadata.getNodata().size() > nodataValues.size()) {
-                    nodataValues.clear();
-                    for (NilValue nilValue : wcpsCoverageMetadata.getNodata()) {
-                        nodataValues.add(new BigDecimal(nilValue.getValue()));
+                if (nodataValues.isEmpty()) {
+                    if (wcpsCoverageMetadata.getNilValues().size() > 0) {
+                        nodataValues.add(new BigDecimal(wcpsCoverageMetadata.getNilValues().get(0).getValue()));
                     }
                 }
                 
@@ -1117,14 +1114,19 @@ public class WMSGetMapService {
             if (iteratorsMap.isEmpty()) {
                 newValue = true;
             } else if (!iteratorsMap.containsKey(iterator)) {
-                newValue = true;
-                i++;
+                if (!iteratorsMap.containsKey(iterator.replace(FRAGMENT_ITERATOR_PREFIX, ""))) {
+                    newValue = true;
+                    i++;
+                }
             }
             
             String replacement = WCPS_FRAGMENT_ITERATOR + i;
             
             if (!newValue) {
                 replacement = iteratorsMap.get(iterator);
+                if (replacement == null) {
+                    replacement = iteratorsMap.get(iterator.replace(FRAGMENT_ITERATOR_PREFIX, ""));
+                }
             }
             if (fragmentType.equals(RASQL_FRAGMENT_TYPE)) {
                 replacement = replacement.replace(FRAGMENT_ITERATOR_PREFIX, "");

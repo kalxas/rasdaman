@@ -266,9 +266,9 @@ public class PyramidService {
         
         // Which downscaled level be chosen as X and Y can return different levels from geoXY subsets
         if (lowestDownscaledLevelX.compareTo(lowestDownscaledLevelY) < 0) {
-            result = lowestDownscaledLevelX;
-        } else {
             result = lowestDownscaledLevelY;
+        } else {
+            result = lowestDownscaledLevelX;
         }
         
         return result;

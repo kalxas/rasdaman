@@ -203,7 +203,7 @@ public class Style implements Serializable {
         return colorTableType;
     }
 
-    public void setColorTableType(byte colorTableType) {
+    public void setColorTableType(Byte colorTableType) {
         this.colorTableType = colorTableType;
     }
 

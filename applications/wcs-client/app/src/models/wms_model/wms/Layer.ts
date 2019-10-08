@@ -276,7 +276,7 @@ module wms {
 
                 // Parse element values from rasdaman
                 var rasdamanXML = $.parseXML(rasdamanAbstract);
-                var queryType = "wcpsQueryFragment";
+                var queryType = "none";
                 var query = "";
 
                 if ($(rasdamanXML).find("WcpsQueryFragment").text() != "") {

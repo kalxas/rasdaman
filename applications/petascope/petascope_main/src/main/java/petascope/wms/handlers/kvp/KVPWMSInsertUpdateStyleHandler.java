@@ -156,8 +156,13 @@ public class KVPWMSInsertUpdateStyleHandler extends KVPWMSAbstractHandler {
         if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE) != null) {
             // e.g: GDAL
             String colorTableType = kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_TYPE)[0];
-            byte colorTableTypeCode = org.rasdaman.domain.wms.Style.ColorTableType.getTypeCode(colorTableType);
-            style.setColorTableType(colorTableTypeCode);
+            if (colorTableType.equals("none")) {
+                style.setColorTableType(null);
+                style.setColorTableDefinition(null);
+            } else {
+                byte colorTableTypeCode = org.rasdaman.domain.wms.Style.ColorTableType.getTypeCode(colorTableType);
+                style.setColorTableType(colorTableTypeCode);
+            }
         }
         
         if (kvpParameters.get(KVPSymbols.KEY_WMS_COLOR_TABLE_DEFINITION) != null) {

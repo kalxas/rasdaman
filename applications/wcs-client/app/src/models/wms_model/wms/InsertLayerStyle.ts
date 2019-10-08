@@ -45,13 +45,17 @@ module wms {
         }
 
         public toKVP():string {
-            return "&request=" + this.request +
-                "&name=" + this.name +
-                "&layer=" + this.layerName +
-                "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query +
-                "&ColorTableType=" + this.colorTableType + 
-                "&ColorTableDefinition=" + this.colorTableDefinition;
+            var result = "&request=" + this.request +
+                        "&name=" + this.name +
+                        "&layer=" + this.layerName +
+                        "&abstract=" + this.abstract;
+
+            result += "&" + this.queryFragmentType + "=" + this.query;
+                        
+            result += "&ColorTableType=" + this.colorTableType + 
+                        "&ColorTableDefinition=" + this.colorTableDefinition;
+                        
+            return result;
         }
     }
 }

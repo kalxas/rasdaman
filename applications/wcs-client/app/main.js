@@ -4938,7 +4938,7 @@ var wms;
                 var userAbstract = abstractContent.substring(0, abstractContent.indexOf("<rasdaman>")).trim();
                 var rasdamanAbstract = abstractContent.substring(abstractContent.indexOf("<rasdaman>"), abstractContent.length).trim();
                 var rasdamanXML = $.parseXML(rasdamanAbstract);
-                var queryType = "wcpsQueryFragment";
+                var queryType = "none";
                 var query = "";
                 if ($(rasdamanXML).find("WcpsQueryFragment").text() != "") {
                     queryType = "wcpsQueryFragment";
@@ -5562,6 +5562,10 @@ var rasdaman;
                     alertService.error("Style abstract cannot be empty.");
                     return;
                 }
+                if (styleQueryType == "none" && styleColorTableType == "none") {
+                    alertService.error("A style must contain at least a query fragment or a color table definition.");
+                    return;
+                }
                 if (styleQuery.trim() === "" && styleColorTableDefintion.trim() === "") {
                     alertService.error("Style query or color table definition must have value.");
                     return;
@@ -6142,13 +6146,14 @@ var wms;
             this.colorTableDefinition = colorTableDefintion;
         }
         InsertLayerStyle.prototype.toKVP = function () {
-            return "&request=" + this.request +
+            var result = "&request=" + this.request +
                 "&name=" + this.name +
                 "&layer=" + this.layerName +
-                "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query +
-                "&ColorTableType=" + this.colorTableType +
+                "&abstract=" + this.abstract;
+            result += "&" + this.queryFragmentType + "=" + this.query;
+            result += "&ColorTableType=" + this.colorTableType +
                 "&ColorTableDefinition=" + this.colorTableDefinition;
+            return result;
         };
         return InsertLayerStyle;
     }());
@@ -6183,13 +6188,14 @@ var wms;
             this.colorTableDefinition = colorTableDefintion;
         }
         UpdateLayerStyle.prototype.toKVP = function () {
-            return "&request=" + this.request +
+            var result = "&request=" + this.request +
                 "&name=" + this.name +
                 "&layer=" + this.layerName +
-                "&abstract=" + this.abstract +
-                "&" + this.queryFragmentType + "=" + this.query +
-                "&ColorTableType=" + this.colorTableType +
+                "&abstract=" + this.abstract;
+            result += "&" + this.queryFragmentType + "=" + this.query;
+            result += "&ColorTableType=" + this.colorTableType +
                 "&ColorTableDefinition=" + this.colorTableDefinition;
+            return result;
         };
         return UpdateLayerStyle;
     }());
