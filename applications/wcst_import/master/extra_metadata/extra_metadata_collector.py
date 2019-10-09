@@ -28,6 +28,8 @@ from master.extra_metadata.extra_metadata import GlobalExtraMetadata
 from master.extra_metadata.extra_metadata import LocalExtraMetadata
 from master.extra_metadata.extra_metadata_ingredient_information import ExtraGlobalMetadataIngredientInformation
 from util.string_util import escape_metadata_nested_dicts
+from util.file_util import FileUtil
+from util.xml_util import XMLUtil
 
 
 class ExtraMetadataEntry:
@@ -133,9 +135,30 @@ class ExtraLocalMetadataCollector:
         if len(self.extra_metadata_info.local_attributes.items()) > 0:
 
             for meta_key, sentence in self.extra_metadata_info.local_attributes.items():
-                # output of extra metadata should be string in any cases
-                local_metadata[meta_key] = str(self.evaluator.evaluate(sentence, self.metadata_entry.evalutor_slice))
+                if meta_key == "metadata_file":
+                    self.collect_local_metadata_file(local_metadata, sentence)
+                else:
+                    # output of extra metadata should be string in any cases
+                    local_metadata[meta_key] = str(self.evaluator.evaluate(sentence, self.metadata_entry.evalutor_slice))
 
         local_metadata = escape_metadata_nested_dicts(local_metadata)
 
         return LocalExtraMetadata(local_metadata, self.metadata_entry.slice_subsets)
+
+    def collect_local_metadata_file(self, local_metadata, sentence):
+        """
+        Collect local metadata from external metadata files if it is set in the ingredient
+        :param dict local_metadata
+        """
+        if "root_element" not in sentence or "path" not in sentence:
+            raise RuntimeError("'metadata_file' setting must contain one 'root_element'"
+                               " and one 'path' children settings in the ingredient file")
+
+        root_element = str(self.evaluator.evaluate(sentence["root_element"], self.metadata_entry.evalutor_slice))
+        metadata_file = str(self.evaluator.evaluate(sentence["path"], self.metadata_entry.evalutor_slice))
+        if not FileUtil.validate_file_path(metadata_file):
+            raise RuntimeError("Cannot access local metadata file '" + metadata_file + "' to read")
+        else:
+            local_metadata[root_element] = XMLUtil.read_file_and_remove_xml_header(metadata_file)
+
+

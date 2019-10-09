@@ -76,8 +76,19 @@ def regex_extract(input, regex, group):
     return re.search(regex, input).group(group)
 
 
+def replace(input, old_part, new_part):
+    """
+    Replace old_part by new_part from an input string
+    :param str input: an input (e.g: a file name: test_123.tif)
+    :param str old_part: a part of input to be replaced  (e.g: .tif)
+    :param str new_part: a part of input after replacement (e.g: .xml)
+    :return: a replace input (e.g: test_123.xml)
+    """
+    return input.replace(old_part, new_part)
+
 evaluator_utils = {
     "grib_datetime": grib_datetime,
     "regex_extract": regex_extract,
-    "datetime": datetime
+    "datetime": datetime,
+    "replace": replace
 }

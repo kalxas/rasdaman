@@ -2552,6 +2552,9 @@ complicated cases:
 |                                  |is the regular expression, group is the regex    |(.*)', 4), 'YYYY-MM')``                     |
 |                                  |group you want to select                         |                                            |
 +----------------------------------+-------------------------------------------------+--------------------------------------------+
+|``replace(input, old, new)``      |Replaces all occurrences of a substring with     |``replace('${file:path}','.tiff', '.xml')`` |
+|                                  |another substring in the input string            |                                            |
++----------------------------------+-------------------------------------------------+--------------------------------------------+
 
 
 **Band's unit of measurement (uom) code for netCDF and GRIB recipes**
@@ -2653,6 +2656,23 @@ containing local metadata in XML from 2 netCDF files:
       <!--- End Local Metadata from netCDF file 2 -->
 
     </slices>
+
+Since v10.0, local metadata for input files can be fetched from corresponding 
+external text files using the optional ``metadata_file`` setting. For example:
+
+.. code-block:: json
+
+     "local": {
+          "local_metadata_key": "${gdal:metadata:local_metadata_key}",
+          "metadata_file": {
+               // The metadata from the external XML file will be created
+               // as a child element of this root element
+               "root_element": "INSPIRE",
+               // Path to the external XML file corresponding to
+               // the importing input file
+               "path": "replace('${file:path}', '.tiff', '.xml')"
+          }
+      }
 
 
 When subsetting a coverage which contains local metadata section

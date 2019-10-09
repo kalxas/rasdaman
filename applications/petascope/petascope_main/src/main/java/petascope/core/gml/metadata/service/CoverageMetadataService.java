@@ -29,7 +29,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import petascope.core.gml.cis10.model.metadata.Metadata;
 import petascope.core.gml.metadata.model.CoverageMetadata;
 import petascope.core.gml.metadata.model.LocalMetadataChild;
 import petascope.exceptions.ExceptionCode;
@@ -86,7 +85,7 @@ public class CoverageMetadataService {
             }
         }
         
-        return metadataStr;
+        return XMLUtil.unescapeXML(metadataStr);
     }
     
     

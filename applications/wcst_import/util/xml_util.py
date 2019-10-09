@@ -21,7 +21,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  *
 """
-
+import re
 
 class XMLUtil:
     @staticmethod
@@ -42,4 +42,17 @@ class XMLUtil:
         result = ""
         for key, val in dictionary.iteritems():
             result += "<{key}>{val}</{key}>\n".format(key=key, val=val)
+        return result
+
+    @staticmethod
+    def read_file_and_remove_xml_header(xml_file_path):
+        """
+        Read content of an XML file path to string and remove the xml header <?xml ... ?> if it exists
+        :param str xml_file_path: path to an XML file
+        :return: str content of an XML file without XML header
+        """
+        with open(xml_file_path) as fp:
+            content = fp.read()
+            result = re.sub("<\\?.*\\?>", "", content)
+
         return result

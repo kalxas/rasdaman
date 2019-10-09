@@ -82,6 +82,7 @@ import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.rasdaman.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1483,5 +1484,14 @@ public class XMLUtil {
         } else {
             return XMLSymbols.NAMESPACE_GML;
         }
+    }
+    
+    /**
+     * Replace escaped characters, e.g: &lt; and &gt; to < and >
+     */
+    public static String unescapeXML(String input) {
+        String result = StringUtils.replace(input, "&lt;", "<");
+        result = StringUtils.replace(result, "&gt;", ">");
+        return result;        
     }
 }
