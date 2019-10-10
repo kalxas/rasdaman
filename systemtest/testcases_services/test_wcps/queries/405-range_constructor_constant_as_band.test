@@ -1,0 +1,6 @@
+for S2 in (test_rgb)
+  return encode ( {
+     Red:   S2.red;
+     Green: (unsigned char)3;
+     Blue:  (unsigned char)2;
+     Alpha: S2.red }, "png")

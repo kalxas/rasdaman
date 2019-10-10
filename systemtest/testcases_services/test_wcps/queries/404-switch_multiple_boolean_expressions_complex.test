@@ -1,0 +1,11 @@
+for $c in (test_rgb)
+return encode(
+  (
+    switch
+      case (($c.red <= 10) and ($c.red > 20) )   return {red:181; green:0; blue: 38}
+      case ((($c.blue <= 30) or ($c.red > 40) ) or ($c.green <= 50)) and (($c.blue <= 60) or ($c.red <= 70))  return {red:30; green:250; blue: 218}
+      case (($c.red + $c.blue) > 90)  return {red:200; green:250; blue: 218}
+      case ( ($c.red > 100) and ( $c.blue > 120 or $c.green > 130 ) ) return {red:20; green:50; blue: 40}
+      default return {red:163;green:163;blue:163}
+  ) [i(0:10), j(0:10)]
+, "png")

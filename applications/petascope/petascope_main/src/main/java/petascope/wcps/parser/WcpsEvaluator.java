@@ -67,7 +67,6 @@ import petascope.wcps.handler.WcsScaleExpressionByScaleExtentHandler;
 import petascope.wcps.handler.RealNumberConstantHandler;
 import petascope.wcps.handler.WhereClauseHandler;
 import petascope.wcps.handler.BooleanConstantHandler;
-import petascope.wcps.handler.BooleanSwitchCaseCoverageExpressionHandler;
 import petascope.wcps.handler.RangeConstructorSwitchCaseHandler;
 import petascope.wcps.handler.BinaryCoverageExpressionHandler;
 import petascope.wcps.handler.ExtendExpressionByImageCrsDomainHandler;
@@ -195,8 +194,6 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     BooleanNumericalComparisonScalarHandler booleanNumericalComparisonScalarHandler;
     @Autowired private
     ReduceExpressionHandler reduceExpressionHandler;
-    @Autowired private
-    BooleanSwitchCaseCoverageExpressionHandler booleanSwitchCaseCoverageExpressionHandler;
     @Autowired private
     ComplexNumberConstantHandler complexNumberConstantHandler;
     
@@ -961,7 +958,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         String operand = ctx.numericalComparissonOperator().getText();
         WcpsResult rightCoverageExpr = (WcpsResult) visit(ctx.coverageExpression().get(1));
 
-        WcpsResult result = booleanSwitchCaseCoverageExpressionHandler.handle(leftCoverageExpr, operand, rightCoverageExpr);
+        WcpsResult result = binaryCoverageExpressionHandler.handle(leftCoverageExpr, operand, rightCoverageExpr);
         return result;
     }
 
@@ -1563,6 +1560,31 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
         WcpsResult result = switchCaseRangeConstructorExpression.handle(booleanResults, rangeResults);
         return result;
+    }
+    
+    @Override
+    public VisitorResult visitBooleanSwitchCaseCombinedExpression(@NotNull wcpsParser.BooleanSwitchCaseCombinedExpressionContext ctx) {
+        // Handle combined boolean expressions in a case expression,
+        // e.g: case (($c.red <= 100) and ($c.red > 50) )
+        WcpsResult wcpsBooleanExpressionResult = null;
+        if (ctx.booleanOperator() != null) {
+            WcpsResult leftOperandResult = null;
+            WcpsResult rightOperandResult = null;
+            
+            if (ctx.booleanSwitchCaseCombinedExpression().size() > 0) {
+                leftOperandResult = (WcpsResult) visit(ctx.booleanSwitchCaseCombinedExpression().get(0));
+                rightOperandResult = (WcpsResult) visit(ctx.booleanSwitchCaseCombinedExpression().get(1));
+            } else {
+                leftOperandResult = (WcpsResult) visit(ctx.booleanSwitchCaseCoverageExpression().get(0));
+                rightOperandResult = (WcpsResult) visit(ctx.booleanSwitchCaseCoverageExpression().get(1));
+            }
+            
+            wcpsBooleanExpressionResult = binaryCoverageExpressionHandler.handle(leftOperandResult, ctx.booleanOperator().getText(), rightOperandResult);
+        } else {
+            wcpsBooleanExpressionResult = (WcpsResult) visit(ctx.booleanSwitchCaseCoverageExpression().get(0));
+        }
+        
+        return wcpsBooleanExpressionResult;
     }
 
     @Override
