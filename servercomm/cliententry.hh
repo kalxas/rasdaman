@@ -27,6 +27,7 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"
 #include "reladminif/transactionif.hh"
 #include "reladminif/databaseif.hh"
+#include "common/util/timer.hh"
 #include <vector>
 
 class QtData;
@@ -118,6 +119,11 @@ public:
     /// pointer to a timer for recording evaluation time
     RMTimer *evaluationTimer{0};
 
+    /// timer for recording execution
+    common::Stopwatch timer;
+    //timer saved for evaluation
+    double evaluationTime =0;
+    
     /// parameter object
     r_Parse_Params *clientParams{0};
     
@@ -143,6 +149,7 @@ public:
     r_Data_Format storageFormat{r_Array};
     /// if true, feedback will be printed with info level in endTransfer
     bool reportTransferedSize{false};
+  
 
 };
 

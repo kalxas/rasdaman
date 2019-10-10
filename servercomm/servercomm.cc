@@ -67,6 +67,8 @@ rasdaman GmbH.
 #include "relcatalogif/settype.hh"
 #include "relcatalogif/structtype.hh"
 
+#include "common/util/timer.hh"
+
 #include <logging.hh>
 
 #include <iostream>
@@ -739,7 +741,7 @@ ServerComm::executeQuery(unsigned long callingClientId,
     {
         context->totalTransferedSize = 0;
         context->totalRawSize = 0;
-
+        context->timer.restart();
         mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
         context->transferColl = NULL;
         currentClientTblElt = context;        // assign current client table element (temporary)
@@ -791,12 +793,13 @@ ServerComm::executeQuery(unsigned long callingClientId,
                 RELEASE_ALL_DATA
                 throw;
             }
-
+            context->evaluationTime = context->timer.elapsedMs();
             if (returnValue == RC_OK)
             {
                 if (context->transferData)
                 {
                     // create the transfer iterator
+                    context->timer.restart();
                     context->transferDataIter = new vector<QtData *>::iterator;
                     *context->transferDataIter = context->transferData->begin();
 
@@ -942,6 +945,7 @@ ServerComm::executeUpdate(unsigned long callingClientId,
     {
         context->totalTransferedSize = 0;
         context->totalRawSize = 0;
+        context->timer = common::Stopwatch();
 
         mddConstants = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
         currentClientTblElt = context;        // assign current client table element (temporary)
@@ -999,7 +1003,8 @@ ServerComm::executeUpdate(unsigned long callingClientId,
         {
             HANDLE_PARSING_ERROR
         }
-
+        context->evaluationTime = context->timer.elapsedMs();
+        context->timer.restart();
         RELEASE_ALL_DATA
     }
     else
@@ -1883,13 +1888,13 @@ ServerComm::endTransfer(unsigned long client)
 
     ClientTblElt *context = getClientContext(client);
     if (context)
-    {
+    {   
 #ifdef RASDEBUG
-        DBGINFO("ok, transferred " << context->totalTransferedSize << " bytes.")
+        DBGINFO("ok,evaluation time "<<context->evaluationTime <<" ms, transfer time " << context->timer.elapsedMs() << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
 #else
         if (context->reportTransferedSize)
         {
-            BLINFO << "ok, transferred " << context->totalTransferedSize << " bytes.\n";
+            BLINFO << "ok,evaluation time "<<context->evaluationTime <<" ms, transfer time " << context->timer.elapsedMs() << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
         }
 #endif
         context->releaseTransferStructures();
