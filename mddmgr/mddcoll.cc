@@ -703,7 +703,32 @@ MDDColl *MDDColl::getMDDCollection(const char *collName)
 
             setIter.advance();
         }
+    }
+    else if (strcmp(collName,AllTypesName)==0)
+    {
+        r_Minterval transDomain("[0:*]");
+        r_Minterval nameDomain("[0:0]");
+        const BaseType *bt = TypeFactory::mapType(CharType::Name);
+        auto *mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
+        TypeFactory::addTempType(mt);
+        CollectionType *ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
+        TypeFactory::addTempType(ct);
+        retval = new MDDColl(ct, AllTypesName);
+        auto typesRet = getVirtualCollection(AllTypesName);
+        MDDObj *transObj = nullptr;
+        Tile *transTile = nullptr;
+        
+        while (!typesRet.empty())
+        {
+            auto result = typesRet.back();
+            typesRet.pop_back();
 
+            nameDomain[0].set_high(static_cast<r_Range>(result.length()));
+            transObj = new MDDObj(mt, nameDomain);
+            transTile = new Tile(nameDomain, bt, result.c_str(), (r_Bytes)0, r_Array);
+            transObj->insertTile(transTile);
+            retval->insert(transObj);
+        }
     }
     else
     {
