@@ -629,6 +629,8 @@ where *typeColl* is one of
 
 - ``RAS_SET_TYPES``    for set types
 
+- ``RAS_TYPES``        for union of all types
+
 .. note::
     Collection aliases can be used, such as: ::
 
@@ -668,6 +670,8 @@ A set types result may look like this when printed: ::
 
     create type NullValueTestSet
     as set ( NullValueArrayTest null values [5:7] )
+
+An all types result will print combination of all struct types, marray types, and set types results.
 
 
 Changing types
