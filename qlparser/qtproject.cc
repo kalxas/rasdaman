@@ -13,7 +13,7 @@
  * 2010-01-31   Aiordachioaie      created
  *
  * COMMENTS:
- *
+*
  * Copyright (C) 2010 Dr. Peter Baumann
  *
  ************************************************************/
@@ -73,6 +73,38 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut, widthOut, heightOut},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
 {
+#ifdef HAVE_GDAL
+    GDALAllRegister();
+#endif
+}
+
+QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *boundsOut,
+                     const char *crsOut, double xres, double yres, int ra, double et)
+    : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut,0,0},
+      resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
+{
+    if (xres == 0 || yres == 0)
+    {
+        LERROR << "Invalid resolution, xres and yres must not be 0";
+        throw r_Error(454);
+    }
+    out.width = static_cast<int>((out.xmax - out.xmin + (xres/2.0)) / xres);
+    out.height = static_cast<int>(std::fabs(out.ymax - out.ymin + (yres/2.0)) / yres);
+    if (out.width <= 0 )
+    {
+        LERROR << "Invalid X resolution " << xres << ", output width is 0.";
+        throw r_Error(452);
+    }
+     if (out.height <= 0)
+    {
+        LERROR << "Invalid Y resolution " << yres << ", output height is 0.";
+        throw r_Error(453);
+    }
+    out.gt[0] = out.xmin;
+    out.gt[3] = out.ymax;
+    out.gt[1] = xres;
+    out.gt[5] = (out.ymax > out.ymin) ? -yres : yres;
+    
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif

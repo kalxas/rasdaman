@@ -191,6 +191,9 @@
 448^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: General error reported by the language template when executing the UDF.
 450^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator.
 451^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Unsupported condense operator for complex types.
+452^E^Execution error: Invalid X resolution, output width is 0.
+453^E^Execution error: Invalid Y resolution, output width is 0.
+454^E^Execution error: X and Y resolution should be non-zero values.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

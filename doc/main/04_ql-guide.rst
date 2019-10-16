@@ -1746,6 +1746,12 @@ input arguments ::
     (4) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
                           widthOut, heightOut, resampleAlg, errThreshold )
 
+    (5) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+                          xres, yres)
+
+    (6) project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, 
+                          xres, yres, resampleAlg, errThreshold )
+
 where
 
 - ``mddExpr`` - MDD object to be reprojected.
@@ -1785,6 +1791,8 @@ where
 
 - ``widthOut``, ``heightOut`` - integer grid extents of the result; the result
   will be accordingly scaled to fit in these extents.
+
+- ``xres``, ``yres`` - axis resolution in target georeferenced units.
 
 - ``resampleAlg`` - resampling algorithm to use, equivalent to the ones in GDAL:
 

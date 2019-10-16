@@ -4060,11 +4060,36 @@ projectExp:
 	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
 	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
 	}
+    // project( mddOp, boundsIn, crsIn, boundsOut, crsOut, xres, yres )
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
+	                           COMMA FloatLit COMMA FloatLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.value, $15.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  parseQueryTree->removeDynamicObject($3);
+	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
+	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
+	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
+	}
     // project( mddOp, boundsIn, crsIn, boundsOut, crsOut, widthOut, heightOut, resampleAlg, errThreshold )
 	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
 	                           COMMA IntegerLit COMMA IntegerLit COMMA resampleAlg COMMA FloatLit RRPAR
 	{
 	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.svalue, $15.svalue, $17, $19.value );
+	  parseQueryTree->addDynamicObject($$);
+
+	  parseQueryTree->removeDynamicObject($3);
+	  FREESTACK($1)  FREESTACK($2)  FREESTACK($4)  FREESTACK($5)  FREESTACK($6)
+	  FREESTACK($7)  FREESTACK($8)  FREESTACK($9)  FREESTACK($10) FREESTACK($11)
+	  FREESTACK($12) FREESTACK($13) FREESTACK($14) FREESTACK($15) FREESTACK($16)
+	  FREESTACK($18) FREESTACK($19) FREESTACK($20)
+	}
+   //project( mddExpr, boundsIn, crsIn, boundsOut, crsOut, xres, yres, resampleAlg, errThreshold )
+	| PROJECT LRPAR generalExp COMMA StringLit COMMA StringLit COMMA StringLit COMMA StringLit
+	                           COMMA FloatLit COMMA FloatLit COMMA resampleAlg COMMA FloatLit RRPAR
+	{
+	  $$ = new QtProject( (QtOperation *)$3, $5.value, $7.value, $9.value, $11.value, $13.value, $15.value, $17, $19.value );
 	  parseQueryTree->addDynamicObject($$);
 
 	  parseQueryTree->removeDynamicObject($3);

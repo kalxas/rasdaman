@@ -54,6 +54,9 @@ public:
     QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *boundsOut, const char *crsOut,
               int widthOut = invalidExtent, int heightOut = invalidExtent,
               int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);
+    QtProject(QtOperation *mddOp, const char *boundsIn, const char *crsIn, const char *boundsOut, const char *crsOut,
+              double xres = invalidResolution, double yres = invalidResolution,
+              int ra = common::defaultResampleAlg, double et = common::defaultErrorThreshold);
 
     ~QtProject() = default;
 
@@ -87,6 +90,7 @@ private:
 #endif
 
     static constexpr int invalidExtent{-1};
+    static constexpr double invalidResolution{0.0};
 
     QtOperation *mddOp;
 
