@@ -21,7 +21,21 @@
  */
 package petascope.util.ras;
 
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.util.WCPSConstants;
+import static petascope.util.ras.TypeResolverUtil.R_Boolean;
+import static petascope.util.ras.TypeResolverUtil.R_CFloat32;
+import static petascope.util.ras.TypeResolverUtil.R_CFloat64;
+import static petascope.util.ras.TypeResolverUtil.R_Char;
+import static petascope.util.ras.TypeResolverUtil.R_Double;
+import static petascope.util.ras.TypeResolverUtil.R_Float;
+import static petascope.util.ras.TypeResolverUtil.R_Long;
+import static petascope.util.ras.TypeResolverUtil.R_Octet;
+import static petascope.util.ras.TypeResolverUtil.R_Short;
+import static petascope.util.ras.TypeResolverUtil.R_ULong;
+import static petascope.util.ras.TypeResolverUtil.R_UnsignedLong;
+import static petascope.util.ras.TypeResolverUtil.R_UnsignedShort;
 
 /**
  * Utility class to convert a petascope data type to a rasdaman data type
@@ -44,22 +58,41 @@ public class CastDataTypeConverter {
      * @param dataTypeToBeConverted the data type to be converted
      * @return the rasdaman data type
      */
-    public static String convert(String dataTypeToBeConverted) {
+    public static String convert(String dataTypeToBeConverted) throws PetascopeException {
         String result = dataTypeToBeConverted.toLowerCase();
         if (result.equals(WCPSConstants.MSG_BOOLEAN)) {
-            result = WCPSConstants.MSG_BOOL;
+            result = R_Boolean;
         } else if (result.equals(WCPSConstants.MSG_CHAR)) {
-            result = WCPSConstants.MSG_OCTET;
+            result = R_Octet;
         } else if (result.equals(WCPSConstants.MSG_UNSIGNED_CHAR)) {
-            result = WCPSConstants.MSG_CHAR;
+            result = R_Char;
+            
+        } else if (result.equals(WCPSConstants.MSG_SHORT)) {
+            result = R_Short;
+        } else if (result.equals(WCPSConstants.MSG_UNSIGNED_SHORT)) {
+            result = R_UnsignedShort;
+            
         } else if (result.equals(WCPSConstants.MSG_INT)) {
-            result = WCPSConstants.MSG_LONG;
+            result = R_Long;
         } else if (result.equals(WCPSConstants.MSG_UNSIGNED_INT)) {
-            result = WCPSConstants.MSG_UNSIGNED_LONG;
+            result = R_UnsignedLong;
+        
+        } else if (result.equals(WCPSConstants.MSG_LONG)) {
+            result = R_Long;
         } else if (result.equals(WCPSConstants.MSG_UNSIGNED_LONG)) {
-            result = WCPSConstants.MSG_LONG;
-        } else if (result.equals(WCPSConstants.MSG_COMPLEX + "2")) {
-            result = WCPSConstants.MSG_COMPLEX + "d";
+            result = R_UnsignedLong;
+            
+        } else if (result.equals(WCPSConstants.MSG_FLOAT)) {
+            result = R_Float;
+        } else if (result.equals(WCPSConstants.MSG_DOUBLE)) {
+            result = R_Double;
+            
+        } else if (result.equals(WCPSConstants.MSG_COMPLEX)) {
+            result = R_CFloat32;
+        } else if (result.equals(WCPSConstants.MSG_COMPLEX2)) {
+            result = R_CFloat64;
+        } else {
+            throw new PetascopeException(ExceptionCode.InvalidRequest, "Unknown WCPS base type '" + result + "' for casting.");
         }
         //short, unsigned short and complex have identity mapping
         return result;

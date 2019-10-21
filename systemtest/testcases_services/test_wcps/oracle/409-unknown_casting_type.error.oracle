@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ows:ExceptionReport version="2.1.0"
+>
+<ows:Exception exceptionCode="NoApplicableCode">
+<ows:ExceptionText>Cannot convert WCPS base type to rasdaman base type. Reason: Unknown WCPS base type 'byte' for casting.</ows:ExceptionText>
+</ows:Exception>
+</ows:ExceptionReport>

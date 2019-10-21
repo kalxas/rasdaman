@@ -22,6 +22,8 @@
 package petascope.wcps.handler;
 
 import org.springframework.stereotype.Service;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.wcps.result.WcpsResult;
 import petascope.util.ras.CastDataTypeConverter;
@@ -40,8 +42,15 @@ import petascope.util.ras.CastDataTypeConverter;
 public class CastExpressionHandler extends AbstractOperatorHandler {
 
     public WcpsResult handle(String rangeType, WcpsResult coverageExp) throws WCPSException {
-        String template = TEMPLATE.replace("$rangeType", CastDataTypeConverter.convert(rangeType))
-                .replace("$coverageExp", coverageExp.getRasql());
+        String rasdamanType = null;
+        try {
+            rasdamanType = CastDataTypeConverter.convert(rangeType);
+        } catch (PetascopeException ex) {
+            throw new WCPSException(ExceptionCode.NoApplicableCode, 
+                                    "Cannot convert WCPS base type to rasdaman base type. Reason: " + ex.getExceptionText(), ex);
+        }
+        String template = TEMPLATE.replace("$rangeType", rasdamanType)
+                                  .replace("$coverageExp", coverageExp.getRasql());
         return new WcpsResult(coverageExp.getMetadata(), template);
     }
 

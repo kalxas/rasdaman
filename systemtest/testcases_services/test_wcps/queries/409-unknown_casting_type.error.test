@@ -1,0 +1,2 @@
+for c in (test_mr)
+  return encode ( (byte)c[i(0:2), j(0:3)], "png")

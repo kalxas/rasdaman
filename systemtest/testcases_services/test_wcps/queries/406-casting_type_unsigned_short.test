@@ -1,0 +1,2 @@
+for c in (test_rgb)
+  return encode ( (unsigned short)c[i(0:2), j(0:3)], "png")
