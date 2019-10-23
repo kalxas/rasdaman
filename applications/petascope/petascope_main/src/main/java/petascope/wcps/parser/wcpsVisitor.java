@@ -47,6 +47,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#coverageXpressionShortHandSubsetWithLetClauseVariableLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageXpressionShortHandSubsetWithLetClauseVariableLabel(@NotNull wcpsParser.CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#WKTMultipolygonLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -124,6 +131,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCoverageExpressionSwitchCaseLabel(@NotNull wcpsParser.CoverageExpressionSwitchCaseLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionScaleByExtentLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -136,13 +150,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#fieldName}.
@@ -206,6 +213,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumber(@NotNull wcpsParser.NumberContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandSubsetLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionShorthandSubsetLabel(@NotNull wcpsParser.CoverageExpressionShorthandSubsetLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionClipWKTLabel}.
@@ -404,6 +418,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitDecodedCoverageExpressionLabel(@NotNull wcpsParser.DecodedCoverageExpressionLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#LetClauseListLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetClauseListLabel(@NotNull wcpsParser.LetClauseListLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandSliceLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -439,13 +460,6 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitNumericalUnaryScalarExpressionLabel(@NotNull wcpsParser.NumericalUnaryScalarExpressionLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandTrimLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCoverageExpressionShorthandTrimLabel(@NotNull wcpsParser.CoverageExpressionShorthandTrimLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#crsName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -472,6 +486,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalListLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionExponentialLabel}.
@@ -537,18 +558,18 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#ForClauseLabel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#UnaryPowerExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUnaryPowerExpressionLabel(@NotNull wcpsParser.UnaryPowerExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#ForClauseLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageConstructorExpressionLabel}.
@@ -656,6 +677,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitTrimScaleDimensionIntervalElementLabel(@NotNull wcpsParser.TrimScaleDimensionIntervalElementLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetClauseDimensionIntervalList(@NotNull wcpsParser.LetClauseDimensionIntervalListContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#BooleanUnaryScalarLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -689,6 +717,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#letClauseCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#RangeConstructorSwitchCaseExpressionLabel}.
@@ -1027,18 +1062,18 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#domainIntervals}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageIdentifierExpressionLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCoverageIdentifierExpressionLabel(@NotNull wcpsParser.CoverageIdentifierExpressionLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#domainIntervals}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionRangeConstructorLabel}.

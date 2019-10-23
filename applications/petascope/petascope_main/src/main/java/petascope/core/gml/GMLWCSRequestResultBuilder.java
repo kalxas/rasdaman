@@ -24,12 +24,9 @@ package petascope.core.gml;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import static petascope.core.XMLSymbols.ATT_SCHEMA_LOCATION;
 import static petascope.core.XMLSymbols.NAMESPACE_GML;
 import static petascope.core.XMLSymbols.NAMESPACE_OWS;
 import static petascope.core.XMLSymbols.NAMESPACE_RASDAMAN;
@@ -44,7 +41,6 @@ import static petascope.core.XMLSymbols.PREFIX_XLINK;
 import static petascope.core.XMLSymbols.PREFIX_XSI;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.util.XMLUtil;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;
 
 /**

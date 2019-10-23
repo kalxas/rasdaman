@@ -1765,6 +1765,51 @@ Resample a projected output in WMS request
 By adding optional ``interpolation`` parameter in ``GetMap`` request,
 see :ref:`details <wms-interpolation>`.
 
+LET clause in WCPS
+------------------
+
+Since v10.0, an optional LET clause is supported in WCPS queries.
+It allows binding alias variables to valid WCPS query sub-expressions,
+and subsequently make use of the variables in the RETURN clause
+instead of repeating the aliased sub-expressions.
+
+The syntax is ::
+
+   FOR CLAUSE
+   LET $variable1 := coverageExpression,
+       $variable2 := coverageExpression,
+       ...
+   RETURN CLAUSE
+
+For example ::
+
+  for $c in (test_mr) 
+  let $a := $c[i(0:50), j(0:40)],  
+      $b := avg($c) * 2 
+  return encode(scale($c, { imageCrsdomain($a) }) + $b, "png")
+
+Note, there is a special case for shorthand subset expression. The variable
+in LET clause can have this syntax ::
+  
+  LET $variable1 := [dimensionalIntervalList]
+
+And a shorthand subset expression can use this variable directly with this syntax ::
+
+  coverageVariable[$variable1]
+
+For example ::
+
+  for $c in (test_mr) 
+  let $a := [i(20), j(40)], 
+      $b := 10 
+  return encode($c[$a] + $b, "json")  
+
+  
+
+   
+
+
+
 
 .. _data-import:
 

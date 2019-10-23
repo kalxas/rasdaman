@@ -1,0 +1,5 @@
+for c in (test_mean_summer_airtemp)  
+let $a := domain(c, Lat, "CRS:1").hi, 
+    $b := domain(c, Long, "CRS:1").hi 
+  
+return $a + $b

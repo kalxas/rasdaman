@@ -64,6 +64,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldInterpolationListElementLabel(@NotNull wcpsParser.FieldInterpolationListElementLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#coverageXpressionShortHandSubsetWithLetClauseVariableLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageXpressionShortHandSubsetWithLetClauseVariableLabel(@NotNull wcpsParser.CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#coverageXpressionShortHandSubsetWithLetClauseVariableLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageXpressionShortHandSubsetWithLetClauseVariableLabel(@NotNull wcpsParser.CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#WKTMultipolygonLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -185,6 +196,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitCoverageExpressionSwitchCaseLabel(@NotNull wcpsParser.CoverageExpressionSwitchCaseLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionScaleByExtentLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -205,17 +227,6 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionComparissonLabel(@NotNull wcpsParser.CoverageExpressionComparissonLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#BitUnaryBooleanExpressionLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitBitUnaryBooleanExpressionLabel(@NotNull wcpsParser.BitUnaryBooleanExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#fieldName}.
@@ -315,6 +326,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumber(@NotNull wcpsParser.NumberContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandSubsetLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionShorthandSubsetLabel(@NotNull wcpsParser.CoverageExpressionShorthandSubsetLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandSubsetLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionShorthandSubsetLabel(@NotNull wcpsParser.CoverageExpressionShorthandSubsetLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionClipWKTLabel}.
@@ -625,6 +647,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitDecodedCoverageExpressionLabel(@NotNull wcpsParser.DecodedCoverageExpressionLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#LetClauseListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetClauseListLabel(@NotNull wcpsParser.LetClauseListLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#LetClauseListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetClauseListLabel(@NotNull wcpsParser.LetClauseListLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandSliceLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -680,17 +713,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitNumericalUnaryScalarExpressionLabel(@NotNull wcpsParser.NumericalUnaryScalarExpressionLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandTrimLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterCoverageExpressionShorthandTrimLabel(@NotNull wcpsParser.CoverageExpressionShorthandTrimLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionShorthandTrimLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitCoverageExpressionShorthandTrimLabel(@NotNull wcpsParser.CoverageExpressionShorthandTrimLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#crsName}.
 	 * @param ctx the parse tree
 	 */
@@ -733,6 +755,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClipCurtainExpressionLabel(@NotNull wcpsParser.ClipCurtainExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalListLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionExponentialLabel}.
@@ -834,17 +867,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitSdomExtraction(@NotNull wcpsParser.SdomExtractionContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#ForClauseLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#ForClauseLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#UnaryPowerExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -854,6 +876,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnaryPowerExpressionLabel(@NotNull wcpsParser.UnaryPowerExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#ForClauseLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#ForClauseLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageConstructorExpressionLabel}.
@@ -1021,6 +1054,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitTrimScaleDimensionIntervalElementLabel(@NotNull wcpsParser.TrimScaleDimensionIntervalElementLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalList}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetClauseDimensionIntervalList(@NotNull wcpsParser.LetClauseDimensionIntervalListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#letClauseDimensionIntervalList}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetClauseDimensionIntervalList(@NotNull wcpsParser.LetClauseDimensionIntervalListContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#BooleanUnaryScalarLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1074,6 +1118,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInterpolationMethodLabel(@NotNull wcpsParser.InterpolationMethodLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#letClauseCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#letClauseCoverageExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#RangeConstructorSwitchCaseExpressionLabel}.
@@ -1604,17 +1659,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldInterpolationList(@NotNull wcpsParser.FieldInterpolationListContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#domainIntervals}.
-	 * @param ctx the parse tree
-	 */
-	void enterDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#domainIntervals}.
-	 * @param ctx the parse tree
-	 */
-	void exitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageIdentifierExpressionLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1624,6 +1668,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageIdentifierExpressionLabel(@NotNull wcpsParser.CoverageIdentifierExpressionLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#domainIntervals}.
+	 * @param ctx the parse tree
+	 */
+	void enterDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#domainIntervals}.
+	 * @param ctx the parse tree
+	 */
+	void exitDomainIntervals(@NotNull wcpsParser.DomainIntervalsContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionRangeConstructorLabel}.

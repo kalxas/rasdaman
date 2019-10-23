@@ -1,0 +1,5 @@
+for $c in (test_mean_summer_airtemp),
+    $d in (test_mean_summer_airtemp_repeat)
+let $a := [Lat(-40:-35), Long(120:125)], 
+    $b := [Lat(-40:-35), Long(120:125)]
+return encode($c[$a] + $d[$b], "png")

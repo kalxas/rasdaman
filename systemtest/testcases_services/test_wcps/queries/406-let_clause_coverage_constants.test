@@ -1,0 +1,5 @@
+for $c in (test_rgb)  
+let $a := coverage const over $px x(0:1) value list <0;1>,
+    $b := coverage const over $px x(3:4) value list <2;3> 
+
+return encode($a + $b, "json")

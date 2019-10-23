@@ -1,0 +1,4 @@
+for $c in (test_mr) 
+let $a := 5, 
+    $b := 10 
+return $a + $b

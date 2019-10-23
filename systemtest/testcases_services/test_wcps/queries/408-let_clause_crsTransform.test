@@ -1,0 +1,6 @@
+for $c in (test_mean_summer_airtemp)  
+let $a := crsTransform(
+                  scale($c, {Lat:"CRS:1"(0:10), Long:"CRS:1"(0:20)}),
+                            { Lat:"http://localhost:8080/def/crs/EPSG/0/4269", 
+                              Long:"http://localhost:8080/def/crs/EPSG/0/4269"}, {})
+return encode($a, "image/png", "nodata=0")

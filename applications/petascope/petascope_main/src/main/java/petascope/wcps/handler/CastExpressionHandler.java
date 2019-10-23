@@ -54,5 +54,5 @@ public class CastExpressionHandler extends AbstractOperatorHandler {
         return new WcpsResult(coverageExp.getMetadata(), template);
     }
 
-    private final String TEMPLATE = "($rangeType) $coverageExp";
+    private final String TEMPLATE = "($rangeType) $coverageExp"; 
 }

@@ -38,7 +38,10 @@
 grammar wcps;
 import wcpsLexerTokens;
 
-wcpsQuery : (forClauseList) (whereClause)? (returnClause)
+wcpsQuery : (forClauseList) 
+            (whereClause)? 
+            (letClauseList)? 
+            (returnClause)
 #WcpsQueryLabel;
 
 /**
@@ -61,6 +64,24 @@ forClauseList: FOR (forClause) (COMMA forClause)*
 forClause:  coverageVariableName IN
            (LEFT_PARENTHESIS)? COVERAGE_VARIABLE_NAME (COMMA COVERAGE_VARIABLE_NAME)* (RIGHT_PARENTHESIS)?
 #ForClauseLabel;
+
+
+/**
+ * Example:
+ * Let $a := $c[Lat(20:30), Long(40:45)],
+ *     $b := $c + 2
+ * return encode($a + $b, "png")
+ *
+*/
+letClauseList: LET (letClause) (COMMA letClause)*
+#LetClauseListLabel;
+
+letClauseDimensionIntervalList: coverageVariableName COLON EQUAL LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET;
+
+letClause: letClauseDimensionIntervalList
+           #letClauseDimensionIntervalListLabel
+           | coverageVariableName COLON EQUAL coverageExpression
+           #letClauseCoverageExpressionLabel;
 
 /**
  * Example:
@@ -372,7 +393,9 @@ coverageExpression: coverageExpression booleanOperator coverageExpression
                           RIGHT_PARENTHESIS
                     #CoverageExpressionSliceLabel
                   | coverageExpression LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET
-                    #CoverageExpressionShorthandTrimLabel
+                    #CoverageExpressionShorthandSubsetLabel
+                  | coverageExpression LEFT_BRACKET coverageVariableName RIGHT_BRACKET
+                    #coverageXpressionShortHandSubsetWithLetClauseVariableLabel
                   | TRIM LEFT_PARENTHESIS coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE
                     RIGHT_PARENTHESIS
                     #CoverageExpressionTrimCoverageLabel
@@ -479,7 +502,7 @@ coverageArithmeticOperator: PLUS | MULTIPLICATION | DIVISION | MINUS;
 
 
 
-unaryArithmeticExpressionOperator: PLUS | MINUS | ABSOLUTE_VALUE | SQUARE_ROOT | REAL_PART | IMAGINARY_PART;
+unaryArithmeticExpressionOperator: ABSOLUTE_VALUE | SQUARE_ROOT | REAL_PART | IMAGINARY_PART;
 
 /**
  * Example
@@ -488,7 +511,7 @@ unaryArithmeticExpressionOperator: PLUS | MINUS | ABSOLUTE_VALUE | SQUARE_ROOT |
  * Query:
  *   for $c in cov return encode(sqrt(abs($c)), "csv")
  */
-unaryArithmeticExpression:  unaryArithmeticExpressionOperator  LEFT_PARENTHESIS coverageExpression RIGHT_PARENTHESIS    #UnaryCoverageArithmeticExpressionLabel;
+unaryArithmeticExpression:  unaryArithmeticExpressionOperator  LEFT_PARENTHESIS? coverageExpression RIGHT_PARENTHESIS?    #UnaryCoverageArithmeticExpressionLabel;
 
 /**
  * Example

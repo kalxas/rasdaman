@@ -111,7 +111,9 @@ import petascope.wcps.handler.ClipCurtainExpressionHandler;
 import petascope.wcps.handler.ClipWKTExpressionHandler;
 import petascope.wcps.handler.CoverageIsNullHandler;
 import petascope.wcps.handler.DomainIntervalsHandler;
+import petascope.wcps.handler.LetClauseHandler;
 import petascope.wcps.metadata.model.RangeField;
+import petascope.wcps.metadata.service.LetClauseAliasRegistry;
 import petascope.wcps.result.WcpsMetadataResult;
 import petascope.wcps.result.WcpsResult;
 import petascope.wcps.subset_axis.model.AbstractWKTShape;
@@ -135,6 +137,8 @@ import petascope.wcps.subset_axis.model.WcpsTrimScaleDimension;
 public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(WcpsEvaluator.class);
+    @Autowired private
+    LetClauseAliasRegistry letClauseAliasRegistry;
     @Autowired private
     AxisIteratorAliasRegistry axisIteratorAliasRegistry;
     
@@ -186,6 +190,8 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     @Autowired private
     ParenthesesCoverageExpressionHandler parenthesesCoverageExpressionHandler;
     
+    @Autowired private
+    LetClauseHandler letClauseHandler;
     @Autowired private
     WhereClauseHandler whereClauseHandler;
     @Autowired private
@@ -263,6 +269,9 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     public VisitorResult visitWcpsQueryLabel(@NotNull wcpsParser.WcpsQueryLabelContext ctx) { 
         
         WcpsResult forClauseList = (WcpsResult) visit(ctx.forClauseList());
+        if (ctx.letClauseList() != null) {
+            WcpsResult letClauseList = (WcpsResult) visit(ctx.letClauseList());
+        }
         //only visit the where clause if it exists
         WcpsResult whereClause = null;
         if (ctx.whereClause() != null) {
@@ -300,6 +309,36 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         }
         
         WcpsResult result = forClauseListHandler.handle(forClauses);
+        return result;
+    }    
+    
+    @Override
+    public VisitorResult visitLetClauseListLabel(@NotNull wcpsParser.LetClauseListLabelContext ctx) {
+        for (wcpsParser.LetClauseContext currentClause : ctx.letClause()) {
+            visit(currentClause);
+        }
+
+        WcpsResult result = null;
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitLetClauseCoverageExpressionLabel(@NotNull wcpsParser.LetClauseCoverageExpressionLabelContext ctx) {
+        // coverageVariableName EQUAL coverageExpression
+        // e.g: $a = $c[Lat(20:30), Long(40:50)]
+        WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
+        
+        WcpsResult result = letClauseHandler.handle(ctx.coverageVariableName().getText(), coverageExpr);
+        return result;
+    }
+    
+    @Override
+    public VisitorResult visitLetClauseDimensionIntervalListLabel(@NotNull wcpsParser.LetClauseDimensionIntervalListLabelContext ctx) {
+        // coverageVariableName COLON EQUAL LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET
+        // e.g: $a = [Lat(20:30), Long(40:50)]
+        DimensionIntervalList dimensionIntervalList = (DimensionIntervalList) visit(ctx.letClauseDimensionIntervalList().dimensionIntervalList());
+
+        WcpsResult result = letClauseHandler.handle(ctx.letClauseDimensionIntervalList().coverageVariableName().getText(), dimensionIntervalList);
         return result;
     }
 
@@ -654,7 +693,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         return result;
 
     }
-
+    
     @Override
     public VisitorResult visitCoverageVariableNameLabel(@NotNull wcpsParser.CoverageVariableNameLabelContext ctx) {
         // Identifier, e.g: $c or c
@@ -663,12 +702,15 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult result = null;
         
         try {
-            result = coverageVariableNameHandler.handle(coverageVariable);
+            result = letClauseAliasRegistry.get(coverageVariable);
+            if (result == null) {
+                result = coverageVariableNameHandler.handle(coverageVariable);
+            }
         } catch (PetascopeException | SecoreException ex) {
             throw new CoverageMetadataException(ex);
         }
-        
-        return result;
+         return result;
+
     }
 
     @Override
@@ -1072,7 +1114,7 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
     }
 
     @Override
-    public VisitorResult visitCoverageExpressionShorthandTrimLabel(@NotNull wcpsParser.CoverageExpressionShorthandTrimLabelContext ctx) {
+    public VisitorResult visitCoverageExpressionShorthandSubsetLabel(@NotNull wcpsParser.CoverageExpressionShorthandSubsetLabelContext ctx) {
         //  coverageExpression LEFT_BRACKET dimensionIntervalList RIGHT_BRACKET
         // e.g: c[Lat(0:20)] - Trim
         DimensionIntervalList dimensionIntList = (DimensionIntervalList) visit(ctx.dimensionIntervalList());
@@ -1081,6 +1123,25 @@ public class WcpsEvaluator extends wcpsBaseVisitor<VisitorResult> {
         WcpsResult wcpsResult = null;
         try {
             wcpsResult = subsetExpressionHandler.handle(coverageExpr, dimensionIntList);
+        } catch (PetascopeException ex) {
+            // It cannot fetch the coefficient for the regular axis
+            String errorMessage = "Error processing shorthand trim() operator expression. Reason: " + ex.getExceptionText() + ".";
+            throw new WCPSException(errorMessage, ex);
+        }
+
+        return wcpsResult;
+    }
+    
+    @Override
+    public VisitorResult visitCoverageXpressionShortHandSubsetWithLetClauseVariableLabel(@NotNull wcpsParser.CoverageXpressionShortHandSubsetWithLetClauseVariableLabelContext ctx) {
+        //  overageExpression LEFT_BRACKET letClauseDimensionIntervalList RIGHT_BRACKET
+        // e.g: c[$a] with $a := [Lat(0:20), Long(0:30)]
+        WcpsResult coverageExpr = (WcpsResult) visit(ctx.coverageExpression());
+        WcpsResult letExpr = (WcpsResult) visit(ctx.coverageVariableName());
+
+        WcpsResult wcpsResult = null;
+        try {
+            wcpsResult = subsetExpressionHandler.handle(coverageExpr, letExpr.getDimensionIntervalList());
         } catch (PetascopeException ex) {
             // It cannot fetch the coefficient for the regular axis
             String errorMessage = "Error processing shorthand trim() operator expression. Reason: " + ex.getExceptionText() + ".";

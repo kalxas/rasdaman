@@ -1,0 +1,4 @@
+for $c in (test_mr) 
+let $a := $c[i(0:50), j(0:40)], 
+    $b := avg($c) * 2 
+return encode(scale($c, { imageCrsdomain($a) }) + $b, "png")
