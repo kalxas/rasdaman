@@ -560,9 +560,11 @@ public class UpdateCoverageHandler {
      */
     private BigDecimal computeCoefficientOffset(IrregularAxis currentIrregularAxis, AbstractSubsetDimension subset) throws PetascopeException, SecoreException {
         String point = "";
+        boolean isTrimming = false;
         if (subset instanceof TrimmingSubsetDimension) {
             TrimmingSubsetDimension trimSubset = (TrimmingSubsetDimension) subset;
             point = trimSubset.getLowerBound();
+            isTrimming = true;
         } else if (subset instanceof SlicingSubsetDimension) {
             point = ((SlicingSubsetDimension) subset).getBound();
         }
@@ -586,6 +588,11 @@ public class UpdateCoverageHandler {
         // The geo value of lowest directPositions
         // NOTE: need to normalize based on the first coverage slice (coefficient zero)
         BigDecimal coefficientZeroBoundNumber = currentIrregularAxis.getCoefficientZeroBoundNumber();
+        
+        if (isTrimming && coefficientZeroBoundNumber.equals(currentIrregularAxis.getUpperBoundNumber())) {
+            // In case coverage was imported with reversed coefficients (e.g: 10000 7500 5000)
+            coefficientZeroBoundNumber = currentIrregularAxis.getLowerBoundNumber();
+        }
         BigDecimal normalizedDomMin = BigDecimalUtil.divide(coefficientZeroBoundNumber, resolution);
 
         // Coefficient is the normalized value with lowerBound

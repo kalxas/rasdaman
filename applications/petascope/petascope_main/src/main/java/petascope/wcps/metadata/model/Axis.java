@@ -41,6 +41,7 @@ public abstract class Axis<T> {
     
     // This is the persisted grid domain for axis in database
     private NumericSubset originalGridBounds;
+    private NumericSubset originalGeoBounds;
     private BigDecimal origin;
     // this is the CRS of axis in coverage
     private String nativeCrsUri;
@@ -50,12 +51,19 @@ public abstract class Axis<T> {
     private final String axisUoM;
     private final int rasdamanOrder;
     private BigDecimal resolution;
+    
+    public Axis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
+            String crsUri, CrsDefinition crsDefinition,
+            String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {        
+        this(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, null);
+    }
 
     public Axis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             String crsUri, CrsDefinition crsDefinition,
-            String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
+            String axisType, String axisUoM, int rasdamanOrder, BigDecimal origin, BigDecimal resolution, NumericSubset originalGeoBounds) {
         this.label = label;
         this.geoBounds = geoBounds;
+        this.originalGeoBounds = originalGeoBounds;
         this.originalGridBounds = originalGridBounds;
         this.gridBounds = gridBounds;
         this.nativeCrsUri = crsUri;
@@ -113,6 +121,14 @@ public abstract class Axis<T> {
 
     public void setOriginalGridBounds(NumericSubset originalGridBounds) {
         this.originalGridBounds = originalGridBounds;
+    }
+
+    public NumericSubset getOriginalGeoBounds() {
+        return originalGeoBounds;
+    }
+
+    public void setOriginalGeoBounds(NumericSubset originalGeoBounds) {
+        this.originalGeoBounds = originalGeoBounds;
     }
     
     public String getAxisType() {

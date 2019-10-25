@@ -87,7 +87,7 @@ public class CrsProjectionUtil {
             if (Double.isNaN(value)) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError, 
                         "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
-                                "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is NaN.");
+                                "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is " + value);
             }
             ret.add(new BigDecimal(value));
         }

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+id="test_wcs_deep_rain_irregular_axis_coefficients"
+>
+<boundedBy>
+<Envelope
+axisLabels="ansi ensemble forecast_hour isobaric Lat Lon"
+srsDimension="6"
+srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326" uomLabels="d GridSpacing GridSpacing GridSpacing degree degree">
+<lowerCorner>"2017-01-01T00:00:00.000Z" 1 5 80000 44.77905 2.9847200000000001</lowerCorner>
+<upperCorner>"2017-01-01T00:00:00.000Z" 1 10 96000 44.833249999999997 3.0618800000000001</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<gmlrgrid:ReferenceableGridByVectors dimension="6" gmlrgrid:id="test_wcs_deep_rain_irregular_axis_coefficients-grid">
+<limits>
+<GridEnvelope>
+<low>0 0 2 2 0 0</low>
+<high>0 0 3 3 1 1</high>
+</GridEnvelope>
+</limits>
+<axisLabels>ansi ensemble forecast_hour isobaric Lat Lon</axisLabels>
+<gmlrgrid:origin>
+<Point
+id="test_wcs_deep_rain_irregular_axis_coefficients-point" srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">
+<pos>"2017-01-01T00:00:00.000Z" 1 5 80000 44.819699999999997 3.0040100000000001</pos>
+</Point>
+</gmlrgrid:origin>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">1 0 0 0 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>"2017-01-01T00:00:00.000Z"</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">0 1 0 0 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>1</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>ensemble</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">0 0 1 0 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>6 9</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>forecast_hour</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">0 0 0 1 0 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients>85000 95000</gmlrgrid:coefficients>
+<gmlrgrid:gridAxesSpanned>isobaric</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">0 0 0 0 -0.0271 0</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lat</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+<gmlrgrid:generalGridAxis>
+<gmlrgrid:GeneralGridAxis>
+<gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/OGC/0/AnsiDate&amp;2=/crs/OGC/0/Index1D?axis-label=&quot;ensemble&quot;&amp;3=/crs/OGC/0/Index1D?axis-label=&quot;forecast_hour&quot;&amp;4=/crs/OGC/0/Index1D?axis-label=&quot;isobaric&quot;&amp;5=/crs/EPSG/0/4326">0 0 0 0 0 0.03858</gmlrgrid:offsetVector>
+<gmlrgrid:coefficients/>
+<gmlrgrid:gridAxesSpanned>Lon</gmlrgrid:gridAxesSpanned>
+<gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+</gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>
+</gmlrgrid:ReferenceableGridByVectors>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">96.73589,92.25542,95.36674,95.19096,82.07076,79.02583,78.76997,78.66646,63.07708,62.71966,61.54583,61.3427,78.96407,81.03829,81.03048,81.27853</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+5 +6 +4 +3 +2 +1">Linear</sequenceRule>
+<startPoint>0 0 2 2 0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="r">
+<swe:Quantity definition="/dataType/OGC/0/float32">
+<swe:label>r</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata>
+<gmlcov:Extension>
+<rasdaman:covMetadata>{
+"history": "Fri Oct 25 09:22:41 2019: ncks -d x,1,2 -d y,1,2 cde20170901.00.m01.nc test.nc\nFri Oct 25 09:17:30 2019: cdo -O -f nc4 setgrid,/home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/gridneu.dat /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/test/split/r.grib2 /home/rasdaman/RASDAMAN_PROJECTS/DeepRain/data/model/COSMO-DE-EPS-GRIB-DWD/cde201709-201711/cde20170901.00.m01.nc", 
+"_NCProperties": "version=2,netcdf=4.6.3,hdf5=1.8.12", 
+"axes": {
+"Lat": {
+"units": "degrees", 
+"long_name": "latitude in rotated pole grid", 
+"standard_name": "latitude", 
+"_CoordinateAxisType": "Lat"
+}, 
+"forecast_hour": {
+"units": "hours since 2017-9-1 00:00:00", 
+"standard_name": "time", 
+"calendar": "proleptic_gregorian", 
+"axis": "T"
+}, 
+"isobaric": {
+"units": "Pa", 
+"long_name": "pressure", 
+"standard_name": "air_pressure", 
+"positive": "down", 
+"axis": "Z"
+}, 
+"Lon": {
+"units": "degrees", 
+"long_name": "longitude in rotated pole grid", 
+"standard_name": "longitude", 
+"_CoordinateAxisType": "Lon"
+}
+}, 
+"institution": "Deutscher Wetterdienst", 
+"NCO": "netCDF Operators version 4.7.5 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)", 
+"bands": {
+"r": {
+"ensemble_members": "20", 
+"grid_mapping": "rotated_pole", 
+"forecast_init_type": "192", 
+"coordinates": "rlat rlon", 
+"long_name": "Relative humidity", 
+"standard_name": "relative_humidity", 
+"param": "1.1.0", 
+"realization": "1", 
+"units": "%"
+}
+}, 
+"CDO": "Climate Data Operators version 1.9.6 (http://mpimet.mpg.de/cdo)", 
+"CDI": "Climate Data Interface version 1.9.6 (http://mpimet.mpg.de/cdi)", 
+"Conventions": "CF-1.6"
+}</rasdaman:covMetadata>
+</gmlcov:Extension>
+</gmlcov:metadata>
+</gmlcov:ReferenceableGridCoverage>

@@ -127,7 +127,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         
         Axis axisX = new RegularAxis(inputAxisX.getLabel(), geoBoundsX, gridBoundsX, gridBoundsX,
                                     inputAxisX.getNativeCrsUri(), inputAxisX.getCrsDefinition(), inputAxisX.getAxisType(),
-                                    inputAxisX.getAxisUoM(), inputAxisX.getRasdamanOrder(), geoLowerBoundX, geoResolutionX);
+                                    inputAxisX.getAxisUoM(), inputAxisX.getRasdamanOrder(), geoLowerBoundX, geoResolutionX, geoBoundsX);
         
         // negative Axis (resolution < 0)
         Axis inputAxisY = inputXYAxes.get(1);
@@ -145,7 +145,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         
         Axis axisY = new RegularAxis(inputAxisY.getLabel(), geoBoundsY, gridBoundsY, gridBoundsY, 
                                     inputAxisY.getNativeCrsUri(), inputAxisY.getCrsDefinition(), inputAxisY.getAxisType(),
-                                    inputAxisY.getAxisUoM(), inputAxisY.getRasdamanOrder(), geoLowerBoundY, geoResolutionY);
+                                    inputAxisY.getAxisUoM(), inputAxisY.getRasdamanOrder(), geoLowerBoundY, geoResolutionY, geoBoundsY);
         
         List<Axis> xyAxes = new ArrayList<>();
         xyAxes.add(axisX);
@@ -214,7 +214,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         Axis axisX = new RegularAxis(firstCRSAxis.getAbbreviation(), geoBoundsX, originalGridBoundX, gridBoundX, 
                 outputCRS, crsDefinition, 
                 firstCRSAxis.getType(), firstCRSAxis.getUoM(), xyAxes.get(0).getRasdamanOrder(), 
-                geoLowerBoundX, new BigDecimal(targetGeoTransform.getGeoXResolution()));
+                geoLowerBoundX, new BigDecimal(targetGeoTransform.getGeoXResolution()), geoBoundsX);
         
         BigDecimal geoUpperBoundY = new BigDecimal(targetGeoTransform.getUpperLeftGeoY());
         BigDecimal geoLowerBoundY = new BigDecimal(targetGeoTransform.getUpperLeftGeoY() + targetGeoTransform.getGeoYResolution() * targetGeoTransform.getGridHeight());
@@ -226,7 +226,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         Axis axisY = new RegularAxis(secondCRSAxis.getAbbreviation(), geoBoundsY, originalGridBoundY, gridBoundY, 
                 outputCRS, crsDefinition, 
                 secondCRSAxis.getType(), secondCRSAxis.getUoM(), xyAxes.get(1).getRasdamanOrder(), 
-                geoLowerBoundY, new BigDecimal(targetGeoTransform.getGeoYResolution()));
+                geoLowerBoundY, new BigDecimal(targetGeoTransform.getGeoYResolution()), geoBoundsY);
         
         List<Axis> targetAxes;
         if (CrsUtil.isXYAxesOrder(outputCRS)) {

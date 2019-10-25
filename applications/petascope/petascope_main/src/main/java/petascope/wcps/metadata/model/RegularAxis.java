@@ -28,17 +28,23 @@ import petascope.core.CrsDefinition;
  * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class RegularAxis extends Axis {
-
+    
     public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
                        String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
                        int rasdamanOrder, BigDecimal origin, BigDecimal resolution) {
-        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, null);
+    }
+
+    public RegularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
+                       String crsUri, CrsDefinition crsDefinition, String axisType, String axisUoM,
+                       int rasdamanOrder, BigDecimal origin, BigDecimal resolution, NumericSubset originalGeoBounds) {
+        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, originalGeoBounds);
     }
     
     @Override
     public RegularAxis clone() {
         return new RegularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
-                getRasdamanOrder(), getOriginalOrigin(), getResolution());
+                getRasdamanOrder(), getOriginalOrigin(), getResolution(), getOriginalGeoBounds());
     }
 }

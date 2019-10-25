@@ -21,6 +21,7 @@
  */
 package petascope.core.gml.cis10;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ import petascope.core.gml.cis.model.rangetype.RangeTypeService;
 import petascope.core.gml.metadata.service.CoverageMetadataService;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.wcps.metadata.model.Axis;
 import petascope.wcps.metadata.model.IrregularAxis;
 import petascope.wcps.metadata.model.WcpsCoverageMetadata;

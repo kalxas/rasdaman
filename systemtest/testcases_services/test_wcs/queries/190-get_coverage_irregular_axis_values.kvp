@@ -1,0 +1,4 @@
+SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&
+COVERAGEID=test_wcs_deep_rain_irregular_axis_coefficients&
+SUBSET=forecast_hour(5,10)&SUBSET=isobaric(80000,96000)&
+FORMAT=application/gml+xml

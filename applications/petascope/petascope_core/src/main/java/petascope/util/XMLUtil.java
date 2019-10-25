@@ -1164,6 +1164,8 @@ public class XMLUtil {
      * @return Element of the fragment, with no parents.
      */
     public static Element parseXmlFragment(String fragment) throws PetascopeException {
+        fragment = fragment.replace("&", "&amp;");
+
         Builder docBuilder = new Builder();
         Element fragmentNode = null;
                 

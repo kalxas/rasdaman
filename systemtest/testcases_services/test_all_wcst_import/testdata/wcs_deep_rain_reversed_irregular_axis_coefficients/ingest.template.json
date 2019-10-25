@@ -1,0 +1,78 @@
+{
+  "config": {
+    "service_url": "PETASCOPE_URL",
+    "automated": true,
+    "tmp_directory": "/tmp/",
+    "mock": false,
+    "track_files": false
+  },
+  "input": {
+    "coverage_id": "test_wcs_deep_rain_reversed_irregular_axis_coefficients",
+    "paths": [ "*.nc" ]
+  },
+  "recipe": {
+    "name": "general_coverage",
+    "options": {
+      "coverage": {
+        "crs": "OGC/0/AnsiDate@OGC/0/Index1D?axis-label=\"ensemble\"@OGC/0/Index1D?axis-label=\"forecast_hour\"@OGC/0/Index1D?axis-label=\"isobaric\"@EPSG/0/4326",
+        "metadata": {
+          "type": "json"
+        },
+        "slicer": {
+          "type": "netcdf",
+          "pixelIsPoint": "true",
+          "bands": [
+            {
+              "name": "r",
+              "identifier": "r"
+            }
+          ],
+          "axes": {
+            "ansi": {
+              "min": "datetime('20170101', 'YYYYMMDD')",
+              "gridOrder": 0,
+              "type": "ansidate",
+              "irregular": true,
+	          "resolution": "1",
+              "dataBound": false
+            },
+            "ensemble": {
+              "min": "int(regex_extract('${file:name}', '(.*).m(.*).nc', 2))",
+              "gridOrder": 1,
+              "irregular": true,
+              "dataBound": false
+            },
+            "forecast_hour": {
+              "min": "${netcdf:variable:time:min}",
+              "max": "${netcdf:variable:time:max}",
+              "directPositions": "${netcdf:variable:time}",
+              "irregular": true,
+	          "resolution": "1",
+              "gridOrder": 2
+            }, 
+            "isobaric": {
+              "min": "${netcdf:variable:plev:min}",
+              "max": "${netcdf:variable:plev:max}",
+              "irregular": true,
+              "directPositions": "${netcdf:variable:plev}",
+	          "resolution": "1",
+              "gridOrder": 3
+            }, 
+            "Lat": {
+              "min": "${netcdf:variable:rlat:min}",
+              "max": "${netcdf:variable:rlat:max}",
+              "gridOrder": 5,
+              "resolution": "-((${netcdf:variable:rlat:max} - ${netcdf:variable:rlat:min}) / (${netcdf:dimension:x} - 1.0))"
+            },
+            "Long": {
+              "min": "${netcdf:variable:rlon:min}",
+              "max": "${netcdf:variable:rlon:max}",
+              "gridOrder": 4,
+              "resolution": "((${netcdf:variable:rlon:max} - ${netcdf:variable:rlon:min}) / (${netcdf:dimension:y} - 1.0))"
+            }
+          }
+        }
+      }
+    }
+  }
+}

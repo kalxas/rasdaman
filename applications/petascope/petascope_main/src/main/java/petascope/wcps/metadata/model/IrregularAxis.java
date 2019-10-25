@@ -41,12 +41,19 @@ public class IrregularAxis extends Axis {
 
     // list of coefficients for irregular axis
     private List<BigDecimal> directPositions;
-
+    
     public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
             String crsUri, CrsDefinition crsDefinition,
             String axisType, String axisUoM,
             int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions) {
-        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution);
+        this(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, directPositions, null);
+    }
+
+    public IrregularAxis(String label, NumericSubset geoBounds, NumericSubset originalGridBounds, NumericSubset gridBounds,
+            String crsUri, CrsDefinition crsDefinition,
+            String axisType, String axisUoM,
+            int rasdamanOrder, BigDecimal origin, BigDecimal resolution, List<BigDecimal> directPositions, NumericSubset originalGeoBounds) {
+        super(label, geoBounds, originalGridBounds, gridBounds, crsUri, crsDefinition, axisType, axisUoM, rasdamanOrder, origin, resolution, originalGeoBounds);
 
         this.directPositions = directPositions;
 
@@ -227,9 +234,29 @@ public class IrregularAxis extends Axis {
      * @return
      */
     public String getRawCoefficients() {
-        String coefficients = ListUtil.join(directPositions, " ");
-
-        return coefficients;
+        List<BigDecimal> adjustedDirectPositions = this.adjustCoefficientsForPresentation(directPositions);
+        String result = ListUtil.join(adjustedDirectPositions, " ");
+        return result;
+    }
+    
+    /**
+     * In case of irregular axis is imported with reversed values (e.g: 10000 7000 50000 0)
+     * then, it the coefficient values should be shown by these values as well.
+     */
+    private List<BigDecimal> adjustCoefficientsForPresentation(List<BigDecimal> coefficients) {
+        List<BigDecimal> adjustedDirectPositions = new ArrayList<>();
+        
+        if (BigDecimalUtil.stripDecimalZeros(coefficients.get(0)).compareTo(BigDecimal.ZERO) < 0) {
+            for (int i = 0; i < coefficients.size(); i++) {
+                adjustedDirectPositions.add(this.getOriginalGeoBounds().getUpperLimit().add(coefficients.get(i)));
+            }
+        } else {
+            for (int i = 0; i < coefficients.size(); i++) {
+                adjustedDirectPositions.add(this.getOriginalGeoBounds().getLowerLimit().add(coefficients.get(i)));
+            }
+        }
+        
+        return adjustedDirectPositions;
     }
 
     /**
@@ -270,10 +297,12 @@ public class IrregularAxis extends Axis {
             
             coefficients.addAll(translatedCoefficients);
         } else {
+            List<BigDecimal> adjustedDirectPositions = this.adjustCoefficientsForPresentation(this.directPositions);
+            
             // non date time axis
-            for (BigDecimal coefficient : this.directPositions) {
+            for (BigDecimal coefficient : adjustedDirectPositions) {
                 coefficients.add(BigDecimalUtil.stripDecimalZeros(coefficient).toPlainString());
-            }
+            }            
         }
         
         return coefficients;
@@ -284,7 +313,7 @@ public class IrregularAxis extends Axis {
     public IrregularAxis clone() {
         return new IrregularAxis(getLabel(), getGeoBounds(), getOriginalGridBounds(), getGridBounds(),
                 getNativeCrsUri(), getCrsDefinition(), getAxisType(), getAxisUoM(),
-                getRasdamanOrder(), getOriginalOrigin(), getResolution(), getDirectPositions());
+                getRasdamanOrder(), getOriginalOrigin(), getResolution(), getDirectPositions(), getOriginalGeoBounds());
     }
 
 }

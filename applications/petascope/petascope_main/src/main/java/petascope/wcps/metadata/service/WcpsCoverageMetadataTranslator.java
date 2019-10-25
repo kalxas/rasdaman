@@ -269,7 +269,7 @@ public class WcpsCoverageMetadataTranslator {
                     
                 axis = new RegularAxis(axis.getLabel(), axis.getGeoBounds(), axis.getOriginalGridBounds(), axis.getGridBounds(),
                                        axis.getNativeCrsUri(), axis.getCrsDefinition(), axis.getAxisType(), axis.getAxisUoM(), 
-                                       axis.getRasdamanOrder(), axis.getOrigin(), axis.getResolution());
+                                       axis.getRasdamanOrder(), axis.getOrigin(), axis.getResolution(), axis.getOriginalGeoBounds());
                 
                 // Replace the old geo axis with new geo axis.
                 newMetadata.updateAxisByIndex(i, axis);
@@ -335,7 +335,8 @@ public class WcpsCoverageMetadataTranslator {
             }
 
             // geoBounds is the geo bounds of axis in the coverage (but can be modified later by subsets)
-            NumericSubset geoBounds = new NumericTrimming(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber());
+            NumericSubset originalGeoBounds = new NumericTrimming(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber());
+            NumericSubset geoBounds = new NumericTrimming(geoAxis.getLowerBoundNumber(), geoAxis.getUpperBoundNumber());            
             NumericSubset originalGridBounds = new NumericTrimming(new BigDecimal(indexAxis.getLowerBound()), new BigDecimal(indexAxis.getUpperBound()));
             NumericSubset gridBounds = new NumericTrimming(new BigDecimal(indexAxis.getLowerBound()), new BigDecimal(indexAxis.getUpperBound()));
             
@@ -360,12 +361,12 @@ public class WcpsCoverageMetadataTranslator {
                 List<BigDecimal> directPositions = ((org.rasdaman.domain.cis.IrregularAxis) geoAxis).getDirectPositionsAsNumbers();
                 result.add(new IrregularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
-                        originNumber, scalarResolution, directPositions));
+                        originNumber, scalarResolution, directPositions, originalGeoBounds));
             } else {
 
                 result.add(new RegularAxis(axisLabel, geoBounds, originalGridBounds, gridBounds,
                         crsUri, crsDefinition, axisType, axisUoM, gridAxisOrder,
-                        originNumber, scalarResolution));
+                        originNumber, scalarResolution, originalGeoBounds));
             }            
         }
         return result;

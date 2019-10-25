@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import petascope.core.Pair;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.StringUtil;
 
 /**
  *
@@ -103,13 +104,12 @@ public class UpdateCoverageMetadataController extends AbstractController {
                     coverageId = new String(bytes);
                 } else {
                     // Write the uploaded file to a folder in server
-                    String fileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-                    System.out.println(fileName);
+                    String fileName = StringUtil.addDateTimeSuffix("uploaded_metadata_file.");
 
                     storedFilePath = this.storeUploadFileOnServer(fileName, bytes);
                     String mimeType = Files.probeContentType(Paths.get(storedFilePath));
                     String requiredMimeType = "text/plain";
-                    if (!mimeType.equals(requiredMimeType)) {
+                    if (mimeType != null && !requiredMimeType.equals(mimeType)) {
                         throw new PetascopeException(ExceptionCode.InvalidRequest, "Uploaded metadata file must be '" + requiredMimeType + "' format. Given: '" + mimeType + "'.");
                     }
                 }
