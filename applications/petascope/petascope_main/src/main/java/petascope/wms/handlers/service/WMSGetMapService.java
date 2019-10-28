@@ -506,6 +506,11 @@ public class WMSGetMapService {
                     // rasqlTransformFragment                
                     collectionExpression = this.buildCoverageExpressionByRasqlTransformFragment(iteratorsMap, layerName, styleName, gridSpatialDomain);
                 }
+                
+                // NOTE: in case a style containing clip(), the result of clip() needs to be extended() to the selected grid domains as it is smaller
+                if (collectionExpression.toLowerCase().contains("clip")) {
+                    collectionExpression = "extend( " + collectionExpression + ", " + gridSpatialDomain + ")";
+                }
 
                 if (!StringUtils.isEmpty(style.getColorTableDefinition())) {
                     if (colorTableDefinition == null) {
