@@ -64,6 +64,8 @@ public:
     /// method for evaluating the induced node
     QtData *evaluateInducedOp(QtDataList *inputList);
 
+    /// old method for evaluating the induced node, safe evaluation
+    QtData *safeEvaluateInducedOp(QtDataList *inputList);
     /// prints the tree
     virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
