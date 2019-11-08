@@ -1,0 +1,23 @@
+{
+ "setTypeName": "GreySet",
+ "mddTypeName": "GreyImage",
+ "tileNo": "4",
+ "totalSize": "6",
+ "tiling": {
+	"tilingScheme": "aligned",
+	"tileSize": "2",
+	"tileConfiguration": "[0:*,0:*]"",
+	"tileDomains":
+	[
+		"[0:0,2:2]",
+		"[1:1,0:1]",
+		"[1:1,2:2]",
+		"[0:0,0:1]"
+	]
+ },
+ "index": {
+	"type": "rpt_index",
+	"PCTmax": "4096",
+	"PCTmin": "2048"
+ }
+}

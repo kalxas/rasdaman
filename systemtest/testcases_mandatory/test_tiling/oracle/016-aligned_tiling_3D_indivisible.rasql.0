@@ -1,0 +1,23 @@
+{
+ "setTypeName": "GreySet3",
+ "mddTypeName": "GreyCube",
+ "tileNo": "4",
+ "totalSize": "15",
+ "tiling": {
+	"tilingScheme": "aligned",
+	"tileSize": "28",
+	"tileConfiguration": "[0:4,0:1,0:2]"",
+	"tileDomains":
+	[
+		"[0:3,0:0,2:2]",
+		"[4:4,0:0,0:1]",
+		"[4:4,0:0,2:2]",
+		"[0:3,0:0,0:1]"
+	]
+ },
+ "index": {
+	"type": "rpt_index",
+	"PCTmax": "4096",
+	"PCTmin": "2048"
+ }
+}

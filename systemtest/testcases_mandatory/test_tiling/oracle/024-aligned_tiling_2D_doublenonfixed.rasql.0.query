@@ -1,0 +1,1 @@
+rasdaman error 245: Exception: Aligned tiling configurations only support closed ([x:y]) and half-open ([x:*] or [*:y]) intervals.

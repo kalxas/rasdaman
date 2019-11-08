@@ -220,10 +220,10 @@ run_transpose_import_test()
         y=$((dim-2))
         if [ "$base_type" == "struct" ]; then
             $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{\"variables\": [\"v1\", \"v2\"], \"transpose\": ['"${x}"','"${y}"']}")' \
-                   -f "$test_file" > /dev/null
+                   -f "$test_file" > /dev/null 2>&1
         else
             $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{\"variables\": [\"'$vars'\"], \"transpose\": ['"${x}"','"${y}"']}")' \
-                   -f "$test_file" > /dev/null
+                   -f "$test_file" > /dev/null 2>&1
         fi
         check_result 0 $? "inserting generated $base_type data with transpose parameter"
 
@@ -272,19 +272,19 @@ $RASQL -q "drop collection float_3d" > /dev/null 2>&1
 #
 insert_variables() {
     $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{\"variables\": [\"'$vars'\"]}")' \
-           -f "$test_file" > /dev/null
+           -f "$test_file" > /dev/null 2>&1
 }
 run_json_import_test insert_variables variables octet 3
 
 insert_filepath() {
     $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{\"variables\": [\"'$vars'\"], \"filePaths\": [\"'$test_file'\"]}")' \
-           -f "$SCRIPT_DIR/test.sh" > /dev/null
+           -f "$SCRIPT_DIR/test.sh" > /dev/null 2>&1
 }
 run_json_import_test insert_filepath filepath octet 3
 
 insert_subsetDomain() {
     $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "{\"variables\": [\"'$vars'\"], \"filePaths\": [\"'$test_file'\"], \"subsetDomain\": \"[0:0,0:9,0:2]\"}")' \
-           -f "$SCRIPT_DIR/test.sh" > /dev/null
+           -f "$SCRIPT_DIR/test.sh" > /dev/null 2>&1
 }
 run_json_import_test insert_subsetDomain subsetDomain octet 3
 
@@ -329,7 +329,7 @@ for dim in 3 4; do
         vars="values"
         [ "$base_type" == "struct" ] && vars="v1;v2"
         if [ -f "$test_file" ]; then
-            $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "vars='$vars'")' -f "$test_file" > /dev/null
+            $RASQL -q 'insert into '$coll_name' values decode($1, "netCDF", "vars='$vars'")' -f "$test_file" > /dev/null 2>&1
             check_result 0 $? "inserting $filename"
         else
             if [ $dim -eq 3 ]; then

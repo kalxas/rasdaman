@@ -1,6 +1,6 @@
 {
- "oid": "714241",
- "baseType": "marray <char, 2>",
+ "oid": "433665",
+ "baseType": "marray <char, [*:*,*:*]>",
  "setTypeName": "GreySet",
  "mddTypeName": "GreyImage",
  "tileNo": "3",
@@ -8,7 +8,13 @@
  "tiling": {
 	"tilingScheme": "aligned",
 	"tileSize": "4194304",
-	"tileConfiguration": "[0:1023,0:1023]"
+	"tileConfiguration": "[0:1023,0:1023]"",
+	"tileDomains":
+	[
+		"[0:0,1:39]",
+		"[1:59,0:39]",
+		"[0:0,0:0]"
+	]
  },
  "index": {
 	"type": "rpt_index",

@@ -32,6 +32,8 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 . "$SCRIPT_DIR"/../../util/common.sh
 
+KNOWN_FAILS="$SCRIPT_DIR/known_fails"
+
 ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 QUERY_PATH="$SCRIPT_DIR/queries"
@@ -68,13 +70,20 @@ function run_test()
     f=tmp.unknown
   fi
   
-  if [ ! -f $f ]; then
-    log "Failed executing select query."
-    NUM_FAIL=$(($NUM_FAIL + 1))
+  grep "$q_id" "$KNOWN_FAILS" &> /dev/null
+  local known_fail=$?
+
+  if [ ! -e "$f" ]; then
+    if [ $known_fail -ne 0 ]; then
+      log "Failed executing select query."
+      NUM_FAIL=$(($NUM_FAIL + 1))
+    else
+      log "Failed executing select query. Case is a known fail: skipping test."
+    fi
+    NUM_TOTAL=$(($NUM_TOTAL + 1))
 
     log_failed "----------------------------------------------------------------------"
     log_failed "$q_id"
-    log_failed "$QUERY"    
     return
   fi
   if [ $# -gt 1 ]; then
@@ -83,7 +92,7 @@ function run_test()
   fi
   mv $f $q_id
   if [ ! -f "$ORACLE_PATH/$q_id" ]; then
-    cp "$q_id" "$ORACLE_PATH/$q_id"
+    cp "$q_id" "$ORACLE_PATH/$q_id" > /dev/null
   fi
 
   # Compare the result byte by byte with the expected result in oracle folder
@@ -94,17 +103,36 @@ function run_test()
     log "  warning: oracle not found - $ora_file; output will be copied."
     cp "$out_file" "$ora_file"
   fi
-  cmp "$ora_file" "$out_file"
-  if [ $? != 0 ]; then
-    log "Result of query contains error."
-    NUM_FAIL=$(($NUM_FAIL + 1))
-    log_failed "----------------------------------------------------------------------"
-    log_failed "$q_id"
-    log_failed "$QUERY"  
+  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id" > /dev/null
+  local rc=$?
+
+  if [ $known_fail -ne 0 ]; then
+    if [ $rc -ne 0 ]; then
+      # Test failed,  not skipped
+      NUM_FAIL=$(($NUM_FAIL + 1))
+      log "TEST FAILED: $q_id"
+      log_failed "TEST FAILED: $q_id"
+      log_failed "    Result of query contains error."
+      # log_failed "$QUERY"  
+    else
+      # Test successful, not skipped.
+      log "TEST PASSED: $q_id"
+      NUM_SUC=$(($NUM_SUC + 1))
+    fi
   else
-    log "Result of query is correct."
-    NUM_SUC=$(($NUM_SUC + 1))
+    # we still check if it is fixed
+    if [ $rc -ne 0 ]; then
+      # Test failed, but is a known fail
+      log "TEST SKIPPED: $q_id"
+      log_failed "TEST SKIPPED: $q_id"
+      log_failed "    Result of query contains error."
+    else
+      # Test passed, but is a known fail
+      log "KNOWN FAIL PASSED: $q_id"
+    fi
   fi
+  # Regardless, we add to the total # tests run
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
 }
 
 
@@ -136,20 +164,21 @@ for i in $QUERY_PATH/*.rasql; do
     # first run insert/update query
     log "----------------------------------------------------------------------"
     log "$q_id:"
-    log "  $QUERY"
 
-    $RASQL -q "$QUERY" --quiet
+    $RASQL -q "$QUERY" --quiet > /dev/null 2>tmp.unknown
     if [ $? -ne 0 ]; then
-      log "Failed executing update query."
-      NUM_FAIL=$(($NUM_FAIL + 1))
-      log_failed "----------------------------------------------------------------------"
-      log_failed "$q_id"
-      log_failed "$QUERY"  
+      run_test "$q_id.query"
+      log "Update query throws the expected error."
+      log "----------------------------------------------------------------------"
+      counter=$(($counter+1))
+      QUERY=""
       continue
     fi
 
+
+
     coll_name="$TEST_COLL"
-    echo "$QUERY" | grep "$TEST_COLL3"
+    echo "$QUERY" | grep "$TEST_COLL3" > /dev/null
     if [ $? -eq 0 ]; then
       coll_name="$TEST_COLL3"
     fi

@@ -618,7 +618,7 @@ check_known_fail()
 
 #
 # Check return code ($?) and update variables tracking number of
-# failed/successfull tests.
+# failed/successful tests.
 # In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
 #
 update_result()

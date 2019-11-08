@@ -1,0 +1,5 @@
+select 0 from test_aligned as c
+select 0 from test_regular as c
+update test_regular as m set m assign marray i in [0:19,0:19] values 5c
+update test_aligned as m set m[10:19,0:19] assign b[10:19,0:19] from test_regular as b
+update test_aligned as m set m assign marray i in [0:29,0:29] values 7c

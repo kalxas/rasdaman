@@ -1,0 +1,4 @@
+insert into test_coll values marray i in [0:1,0:1] values 1c tiling aligned [0:1,0:1] tile size 4 index rpt_index
+update test_coll as m set m assign marray i in [4:5,4:5] values 2c
+update test_coll as m set m assign marray i in [1:4,1:4] values 3c
+update test_coll as m set m assign marray i in [4:5,0:1] values 4c

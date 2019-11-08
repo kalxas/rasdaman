@@ -1,0 +1,2 @@
+insert into test_coll values marray x in [0:199,0:599] values 1c tiling directional [*],[*] tile size 3000
+update test_coll as m set m assign marray i in [0:150,250:515] values 2c

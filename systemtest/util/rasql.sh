@@ -470,3 +470,11 @@ generate_data()
   $DIRECTQL -q "select encode(marray i in $data_sdom values ($data_values), \"$encode_format\")" \
             --out file --outfile "$result_filepath" | grep '  Result object' | sed 's/^ *Result .* file \(.*\)\.\.\..*/\1/'
 }
+
+#
+# drop subsetting test data
+#
+drop_subsetting_data()
+{
+  drop_colls $TEST_SUBSETTING_1D $TEST_SUBSETTING $TEST_SUBSETTING_SINGLE $TEST_SUBSETTING_3D
+}

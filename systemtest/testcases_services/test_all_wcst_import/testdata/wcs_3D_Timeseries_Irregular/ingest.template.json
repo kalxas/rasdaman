@@ -25,7 +25,7 @@
         "datetime_format": "YYYY-MM"
       },
       "time_crs": "http://www.opengis.net/def/crs/OGC/0/AnsiDate?axis-label=\"unix\"",
-      "tiling": "ALIGNED [0:3600, 0:1800, 3]"
+      "tiling": "ALIGNED [0:3600, 0:1800, 0:2] TILE SIZE 259200"
     }
   }
 }
