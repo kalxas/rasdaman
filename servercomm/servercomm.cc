@@ -1888,13 +1888,17 @@ ServerComm::endTransfer(unsigned long client)
 
     ClientTblElt *context = getClientContext(client);
     if (context)
-    {   
+    {
 #ifdef RASDEBUG
-        DBGINFO("ok,evaluation time "<<context->evaluationTime <<" ms, transfer time " << context->timer.elapsedMs() << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
+        DBGINFO("ok, evaluation time " << context->evaluationTime 
+                << " ms, transfer time " << context->timer.elapsedMs() 
+                << " ms, transfer size " << context->totalTransferedSize << " bytes.\n");
 #else
         if (context->reportTransferedSize)
         {
-            BLINFO << "ok,evaluation time "<<context->evaluationTime <<" ms, transfer time " << context->timer.elapsedMs() << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
+            BLINFO << "ok, evaluation time " << context->evaluationTime
+                   <<" ms, transfer time " << context->timer.elapsedMs() 
+                   << " ms, transfer size " << context->totalTransferedSize << " bytes.\n";
         }
 #endif
         context->releaseTransferStructures();
