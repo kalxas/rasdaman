@@ -3,18 +3,19 @@
 #include "qtmintervaldata.hh"
 #include "qtunaryoperation.hh"
 #include "qtcreatecelltype.hh"
+#include <vector>
 const size_t QtCreateMarrayType::MAX_MARRAY_TYPE_NAME_LENGTH;
 
 const QtNode::QtNodeType QtCreateMarrayType::nodeType = QtNode::QT_CREATE_MDD_TYPE;
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2)
-    : typeName(typeName2), typeAttributes(NULL), domainNode(domainNode2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2, const std::vector<std::string> *axisNames2)
+    : typeName(typeName2), typeAttributes(NULL), domainNode(domainNode2), axisNames(axisNames2)
 {
     this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName2);
 }
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2, QtOperation *domainNode2)
-    : typeName(typeName2), typeAttributes(typeAttributes2), domainNode(domainNode2)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, QtNode::QtOperationList *typeAttributes2, QtOperation *domainNode2, const std::vector<std::string> *axisNames2)
+    : typeName(typeName2), typeAttributes(typeAttributes2), domainNode(domainNode2), axisNames(axisNames2)
 {
     this->cellTypeName = TypeFactory::ANONYMOUS_CELL_TYPE_PREFIX + this->typeName;
 }
@@ -34,7 +35,8 @@ QtData *QtCreateMarrayType::evaluate()
     const BaseType *catBaseType = TypeFactory::mapType(this->cellTypeName.c_str());
 
     QtMintervalData *domain = static_cast<QtMintervalData *>(this->domainNode->evaluate(NULL));
-    const MDDType *mddType = new MDDDomainType(this->typeName.c_str(), catBaseType, domain->getMintervalData());
+
+    const MDDType *mddType = new MDDDomainType(this->typeName.c_str(), catBaseType, domain->getMintervalData(), axisNames);
     delete domain;
 
     TypeFactory::addMDDType(mddType);

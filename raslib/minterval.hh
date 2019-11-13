@@ -252,10 +252,15 @@ public:
     /// for stream initializing with point intervals
     r_Minterval &operator<<(r_Range);
 
+    /// getter method for axisNames
+    std::vector<std::string> getAxisNames();
+
     /// default constructor
     r_Minterval();
     /// copy constructor
     r_Minterval(const r_Minterval &);
+    /// copy constructor with axisNames
+    r_Minterval(const r_Minterval &, const std::vector<std::string> *axisNames);
     /// destructor: cleanup dynamic memory
     ~r_Minterval();
 
@@ -575,6 +580,9 @@ protected:
 
     /// dimensionality of the domain
     r_Dimension dimensionality;
+
+    /// names of the domains
+    std::vector<std::string> axisNames;
 
     /// number of components initialized already
     r_Dimension streamInitCnt;

@@ -53,6 +53,8 @@ public:
 
     MDDDomainType(const char *newTypeName, const BaseType *newBaseType, const r_Minterval &newDomain);
 
+    MDDDomainType(const char *newTypeName, const BaseType *newBaseType, const r_Minterval &newDomain, const std::vector<std::string> *axisNames);
+
     MDDDomainType();
 
     MDDDomainType(const MDDDomainType &old) = delete;

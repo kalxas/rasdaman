@@ -44,6 +44,7 @@ rasdaman GmbH.
 #include <sstream>
 #include <memory>
 #include <ostream>              // for operator<<, basic_ostream, char_traits
+#include <vector>
 
 using namespace std;
 
@@ -219,6 +220,11 @@ r_Minterval::r_Minterval(const char *mIntStr)
     temp = nullptr;
 }
 
+std::vector<std::string> r_Minterval::getAxisNames()
+{
+    return axisNames;
+}
+
 r_Minterval &r_Minterval::operator<<(const r_Sinterval &newInterval)
 {
     // TODO: should be assert
@@ -254,6 +260,39 @@ r_Minterval::r_Minterval()
 r_Minterval::r_Minterval(const r_Minterval &minterval)
     : intervals(nullptr), dimensionality(0), streamInitCnt(0)
 {
+    if(!minterval.axisNames.empty())
+    {
+        for(size_t i=0; i<minterval.axisNames.size(); i++)
+        {
+            std::string temp = minterval.axisNames.at(i);
+            axisNames.push_back(temp);
+        }
+    }
+    
+    dimensionality = minterval.dimensionality;
+    streamInitCnt = minterval.streamInitCnt;
+    if (minterval.intervals)
+    {
+        intervals = new r_Sinterval[dimensionality];
+        for (r_Dimension i = 0; i < dimensionality; i++)
+        {
+            intervals[i] = minterval[i];
+        }
+    }
+}
+
+r_Minterval::r_Minterval(const r_Minterval &minterval, const std::vector<std::string> *axisNames2)
+    : intervals(nullptr), dimensionality(0), streamInitCnt(0)
+{
+    if(!axisNames2->empty())
+    {
+        for(size_t i=0; i<axisNames2->size(); i++)
+        {
+            axisNames.push_back(axisNames2->at(i));
+        }
+        delete axisNames2;
+    }
+    
     dimensionality = minterval.dimensionality;
     streamInitCnt = minterval.streamInitCnt;
     if (minterval.intervals)
@@ -1006,7 +1045,7 @@ r_Minterval::get_named_axis_string_representation() const
             ss << ",";
         }
 
-        ss << "a" << i;
+        ss << axisNames.at(i);
 
         if (intervals[i].is_low_fixed() || intervals[i].is_high_fixed())
         {

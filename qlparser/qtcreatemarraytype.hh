@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include "qtexecute.hh"
 #include "raslib/mddtypes.hh"
 #include "qtcelltypeattributes.hh"
+#include <vector>
 
 /**
  * @brief The QtCreateMarrayType class - Creates a Marray type
@@ -46,15 +47,17 @@ public:
      * @param typeName
      * @param typeAttributes
      * @param domainNode
+     * @param axisNames
      */
-    QtCreateMarrayType(const std::string &typeName, QtNode::QtOperationList *typeAttributes, QtOperation *domainNode);
+    QtCreateMarrayType(const std::string &typeName, QtNode::QtOperationList *typeAttributes, QtOperation *domainNode, const std::vector<std::string> *axisNames);
 
     /**
      * @param typeName - Name of the type
      * @param cellTypeName - Cell type (which can be either a base type or a struct type)
      * @param domainNode - dimensionality ca be specified as minterval (e.g. [0:100,0:100]
+     * @param axisNames - The names of the axises (e.g. [a,b,c])
      */
-    QtCreateMarrayType(const std::string &typeName, const std::string cellTypeName, QtOperation *domainNode);
+    QtCreateMarrayType(const std::string &typeName, const std::string cellTypeName, QtOperation *domainNode, const std::vector<std::string> *axisNames);
 
     virtual QtData *evaluate();
     virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
@@ -69,6 +72,7 @@ private:
     std::string cellTypeName;
     QtNode::QtOperationList *typeAttributes;
     QtOperation *domainNode;
+    const std::vector<std::string> *axisNames;
 
     static const QtNodeType nodeType;
 

@@ -55,6 +55,8 @@ public:
 
     DBMinterval(const r_Minterval &old);
 
+    DBMinterval(const r_Minterval &old, const std::vector<std::string> *axisNames2);
+
     DBMinterval(const DBMinterval &old);
 
     ~DBMinterval() noexcept(false) override;

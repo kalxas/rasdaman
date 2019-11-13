@@ -84,6 +84,12 @@ DBMinterval::DBMinterval(const r_Minterval& old)
     objecttype = OId::DBMINTERVALOID;
 }
 
+DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> *axisNames2)
+    : DBObject(), r_Minterval(old, axisNames2)
+{
+    objecttype = OId::DBMINTERVALOID;
+}
+
 DBMinterval::~DBMinterval()
 {
     validate();
@@ -126,6 +132,7 @@ DBMinterval::insertInDb()
         long    high;
         short   highind;
         long    dimension;
+        char*   axisName;
     EXEC SQL END DECLARE SECTION;
 
     domainid = myOId.getCounter();
@@ -160,14 +167,27 @@ DBMinterval::insertInDb()
             highind = -1;
         }
 
-        EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount, Low, High)
-          VALUES    ( :domainid, :count, :low INDICATOR :lowind, :high INDICATOR :highind);
+        if (axisNames.empty())
+        {
+            axisName1 = "d" + std::to_string(count);
+        }
+        else
+        {
+            axisName1 = axisNames.at(count);
+        }
+
+        axisName = axisName1.c_str();
+        EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount, AxisName, Low, High)
+            VALUES    ( :domainid, :count, :axisName, :low INDICATOR :lowind, :high INDICATOR :highind);
+
         if (SQLCODE != SQLOK)
         {
             check("DBMinterval::insertInDb() INSERT INTO RAS_DOMAINVALUES");
             generateException();
         }
     }
+
+    // TODO: Check for memory leak... might need to delete here axisNames
 
     DBObject::insertInDb();
 }
@@ -183,6 +203,7 @@ DBMinterval::updateInDb()
         long    high1;
         short   highind1;
         long    dimension1;
+        char*   axisName1;
     EXEC SQL END DECLARE SECTION;
 
     domainid1 = myOId.getCounter();
@@ -197,8 +218,10 @@ DBMinterval::updateInDb()
         //insert more rows in RAS_DOMAINVALUES
         for (count1 = dimension1; count1 < dimensionality; count1++)
         {
-            EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount)
-            VALUES  ( :domainid1, :count1);
+            std::string axisName = "d" + std::to_string(count);
+            axisName1 = axisName.c_str();
+            EXEC SQL INSERT INTO RAS_DOMAINVALUES   ( DomainId, DimensionCount, AxisName)
+            VALUES  ( :domainid1, :count1, :axisName1);
             if (SQLCODE != SQLOK)
             {
                 check("DBMinterval::updateInDb() INSERT INTO RAS_DOMAINVALUES");
@@ -311,13 +334,14 @@ DBMinterval::readFromDb()
 {
     char undefined = '*';
     EXEC SQL BEGIN DECLARE SECTION;
-        long    domainid3;
-        long    count3;
-        long    low3;
-        short   lowind3;
-        long    high3;
-        short   highind3;
-        long    dimension3;
+        long        domainid3;
+        long        count3;
+        long        low3;
+        short       lowind3;
+        long        high3;
+        short       highind3;
+        long        dimension3;
+        std::string axisname3;
     EXEC SQL END DECLARE SECTION;
 
     domainid3 = myOId.getCounter();
@@ -346,8 +370,8 @@ DBMinterval::readFromDb()
 
     for (count3 = 0; count3 < dimension3; count3++)
     {
-        EXEC SQL SELECT Low, High
-        INTO :low3 INDICATOR :lowind3, :high3 INDICATOR :highind3
+        EXEC SQL SELECT AxisName, Low, High
+        INTO :axisname3, :low3 INDICATOR :lowind3, :high3 INDICATOR :highind3
         FROM RAS_DOMAINVALUES
         WHERE DimensionCount = :count3 AND DomainId = :domainid3;
         if (SQLCODE != SQLOK)
@@ -356,6 +380,14 @@ DBMinterval::readFromDb()
             generateException();
         }
 
+        if (!axisname3)
+        {
+            axisNames.push_back(axisname3);
+        }
+        else
+        {
+            axisNames.push_back("d" + std::to_string(count));
+        }
         if (!lowind3)
         {
             intervals[count3].set_low((r_Range)low3);

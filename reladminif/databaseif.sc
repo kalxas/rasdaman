@@ -223,7 +223,8 @@ void DatabaseIf::createDB(const char *, const char *, const char *)
                      "DomainId INTEGER NOT NULL,"
                      "DimensionCount INTEGER NOT NULL,"
                      "Low INTEGER,"
-                     "High INTEGER)");
+                     "High INTEGER,"
+                     "AxisName TEXT)");
         UPDATE_QUERY("CREATE INDEX IF NOT EXISTS RAS_DOMAINVALUESC_IX "
                      "ON RAS_DOMAINVALUES (DomainId)");
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_DOMAINVALUES_IX "
@@ -329,7 +330,7 @@ void DatabaseIf::createDB(const char *, const char *, const char *)
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
                      "UpdateNumber INTEGER)");
-        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 4)");
+        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 5)");
 
         disconnect();
     }

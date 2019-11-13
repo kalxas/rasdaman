@@ -145,6 +145,12 @@ if [ $NUM_FAIL -eq 0 ]; then
     $RASQL --quiet -q "create type $TEST_NAME as (x1 char, x2 char, x3 char)" 2>&1 | grep -F -q "977"
     check_result 0 $? "create type $TEST_NAME as (x1 char, x2 char, x3 char)"
 
+#testing create type preserving axis names
+    $RASQL --quiet -q "create type RGBImageTest as RGBPixel MDARRAY [a,b,c]" 2>&1
+    $RASQL --quiet -q "select a from RAS_MARRAY_TYPES a" --out string | grep -F -q "RGBImageTest AS RGBPixel MDARRAY [a,b,c]"
+    check_result 0 $? "CREATE TYPE RGBImageTest AS RGBPixel MDARRAY [a,b,c]"
+    test_drop_type "RGBImageTest"
+
 #testing error when dropping in-use types
     test_invalid_drop_type "$STRUCT_TYPE_NAME"
     test_invalid_drop_type "$MARRAY_DOM_TYPE_NAME"

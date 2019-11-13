@@ -984,7 +984,8 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
         DomainId INTEGER NOT NULL,
         DimensionCount INTEGER NOT NULL,
         Low INTEGER,
-        High INTEGER
+        High INTEGER,
+        AxisName TEXT
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_DOMAINVALUES\0"))
             generateException();
@@ -1164,7 +1165,7 @@ DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* v
 		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
 			generateException();
 
-    EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 7);
+    EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 8);
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 

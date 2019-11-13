@@ -65,6 +65,12 @@ DBMinterval::DBMinterval(const r_Minterval &old)
     objecttype = OId::DBMINTERVALOID;
 }
 
+DBMinterval::DBMinterval(const r_Minterval& old, const std::vector<std::string> *axisNames2)
+    : DBObject(), r_Minterval(old, axisNames2)
+{
+    objecttype = OId::DBMINTERVALOID;
+}
+
 DBMinterval::~DBMinterval() noexcept(false)
 {
     validate();
@@ -135,10 +141,22 @@ void DBMinterval::insertInDb()
         std::string high, low;
         setBounds(count, high, low);
 
+        std::string axisName1;
+
+        if (axisNames.empty())
+        {
+            axisName1 = "d" + std::to_string(count);
+        }
+        else
+        {
+            axisName1 = axisNames.at(count);
+        }
         SQLiteQuery::executeWithParams(
-            "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount, Low, High ) "
-            "VALUES  ( %lld, %d, %s, %s)", domainid, count, low.c_str(), high.c_str());
+            "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount, Low, High, AxisName ) "
+            "VALUES  ( %lld, %d, %s, %s, \"%s\")", domainid, count, low.c_str(), high.c_str(), axisName1.c_str());
     }
+
+    // TODO: might need to delete axisNames;
 
     DBObject::insertInDb();
 }
@@ -155,9 +173,10 @@ void DBMinterval::updateInDb()
             // insert more rows in RAS_DOMAINVALUES
             for (r_Dimension count = dimensionInDb; count < dimensionality; count++)
             {
+                std::string axisName1 = "d" + std::to_string(count);
                 SQLiteQuery::executeWithParams(
-                    "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount) VALUES  ( %lld, %d )",
-                    domainid, count);
+                    "INSERT INTO RAS_DOMAINVALUES ( DomainId, DimensionCount, AxisName) VALUES  ( %lld, %d, \"%s\" )",
+                    domainid, count, axisName1.c_str());
             }
         }
         else
@@ -204,10 +223,22 @@ void DBMinterval::readFromDb()
     for (r_Dimension count = 0; count < dimensionality; count++)
     {
         SQLiteQuery query(
-            "SELECT Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
+            "SELECT AxisName, Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
             count, domainid);
         if (query.nextRow())
         {
+            std::string temp;
+            if (!query.currColumnNull())
+            {
+                temp = query.nextColumnString();
+            }
+            else
+            {
+                temp = "d" + std::to_string(count);
+                query.nextColumn();
+            }
+            axisNames.push_back(temp);
+            
             if (!query.currColumnNull())
                 intervals[count].set_low(query.nextColumnLong());
             else

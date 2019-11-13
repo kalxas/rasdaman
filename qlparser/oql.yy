@@ -172,6 +172,16 @@ struct QtUpdateSpecElement
     ParseInfo*   info;
   } identifierToken;
 
+  struct {
+    std::vector<std::string> *names;
+    QtOperation* value;
+  } intervalListToken;
+
+  struct {
+    std::vector<std::string> *names;
+    QtNode::QtOperationList* value;
+  } intervalListValueToken;
+
 //--------------------------------------------------
   QtMarrayOp2::mddIntervalType     * mddIntervalType;
   QtMarrayOp2::mddIntervalListType * mddIntervalListType;
@@ -288,15 +298,17 @@ struct QtUpdateSpecElement
 %type <qtONCStreamListValue>  collectionList
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp 
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp  functionExp spatialOp 
-                              integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp namedMintervalExp intervalExp namedIntervalExp 
+                              integerExp mintervalExp nullvaluesList nullvaluesExp addNullvaluesExp intervalExp
                               condenseExp variable mddConfiguration mintervalList  concatExp rangeConstructorExp
                               caseExp typeAttribute projectExp
+%type <intervalListToken>       namedMintervalExp namedIntervalExp
+%type <intervalListValueToken>  namedSpatialOpList2 namedSpatialOpList
 %type <resampleAlgValue>      resampleAlg
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType>             indexingAttributes indexTypes
 // %type <stgType>            storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList namedSpatialOpList spatialOpList2 namedSpatialOpList2 bboxList mddList caseCond caseCondList 
+%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList 
                               caseEnd generalExpList typeAttributeList parentheticalLinestring vertex vertexList positiveGenusPolygon polygonVector
 //%type <multiPoly>             polygonVector
 %type <qtNullvalueIntervalList> nullvalueIntervalList
@@ -1154,7 +1166,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   YYABORT;
                 }
 
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $5.value, $7);
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $5.value, $7.value, $7.names);
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -1190,7 +1202,7 @@ createType: CREATE TYPE createTypeName AS LRPAR typeAttributeList RRPAR
                   YYABORT;
                 }
 
-                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $6, $9);
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $6, $9.value, $9.names);
                 mddTypeNode->setParseInfo( *($1.info));
 
                 parseQueryTree->setRoot( mddTypeNode );
@@ -1781,41 +1793,59 @@ intervalExp: generalExp COLON generalExp
 namedMintervalExp: LEPAR namedSpatialOpList REPAR
         {
           QtNode::QtOperationList::iterator iter;
-          for( iter=$2->begin(); iter!=$2->end(); ++iter )
+          $$.names = $2.names;
+          for( iter=$2.value->begin(); iter!=$2.value->end(); ++iter )
+          {
             parseQueryTree->removeDynamicObject( *iter );
-          $$ = new QtMintervalOp( $2 );
-          $$->setParseInfo( *($1.info) );
-          parseQueryTree->addDynamicObject( $$ );
+          }
+          $$.value = new QtMintervalOp( $2.value );
+          $$.value->setParseInfo( *($1.info) );
+          parseQueryTree->addDynamicObject( $$.value );
         };
 
 namedSpatialOpList:
         {
-            $$ = new QtNode::QtOperationList();
+            $$.value = new QtNode::QtOperationList();
         }
         | namedSpatialOpList2
         {
-            $$ = $1;
+            $$.value = $1.value;
+            $$.names = $1.names;
         };
 
 namedSpatialOpList2: namedSpatialOpList2 COMMA namedIntervalExp
         {
-          $1->push_back( $3 );
-          $$ = $1;
+          $1.value->push_back( $3.value );
+
+          for(auto x = $3.names->begin(); x != $3.names->end(); x++)
+          {
+            $1.names->push_back(*x);
+          }
+          delete $3.names;
+
+          $$.value = $1.value;
+          $$.names = $1.names;
           FREESTACK($2)
         }
         | namedIntervalExp
         {
-          $$ = new QtNode::QtOperationList(1);
-          (*$$)[0] = $1;
+          $$.value = new QtNode::QtOperationList(1);
+          (*$$.value)[0] = $1.value;
+          $$.names = $1.names;
         };
 
 namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
         {
-          $$ = new QtIntervalOp( $3, $5 );
-          $$->setParseInfo( *($2.info) );
+          $$.value = new QtIntervalOp( $3, $5 );
+          $$.value->setParseInfo( *($2.info) );
           parseQueryTree->removeDynamicObject( $3 );
           parseQueryTree->removeDynamicObject( $5 );
-          parseQueryTree->addDynamicObject( $$ );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->addDynamicObject( $$.value );
           FREESTACK($2)
           FREESTACK($4)
           FREESTACK($6)
@@ -1824,10 +1854,15 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
         {
           QtConst* const1 = new QtConst( new QtStringData("*") );
           const1->setParseInfo( *($3.info) );
-          $$ = new QtIntervalOp( const1, $5 );
-          $$->setParseInfo( *($2.info) );
+          $$.value = new QtIntervalOp( const1, $5 );
+          $$.value->setParseInfo( *($2.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
           parseQueryTree->removeDynamicObject( $5 );
-          parseQueryTree->addDynamicObject( $$ );
+          parseQueryTree->addDynamicObject( $$.value );
 
           FREESTACK($2)
           FREESTACK($3)
@@ -1838,10 +1873,15 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
         {
           QtConst* const1 = new QtConst( new QtStringData("*") );
           const1->setParseInfo( *($5.info) );
-          $$ = new QtIntervalOp( $3, const1 );
-          $$->setParseInfo( *($1.info) );
+          $$.value = new QtIntervalOp( $3, const1 );
+          $$.value->setParseInfo( *($1.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
           parseQueryTree->removeDynamicObject( $3 );
-          parseQueryTree->addDynamicObject( $$ );
+          parseQueryTree->addDynamicObject( $$.value );
           FREESTACK($2)
           FREESTACK($4)
           FREESTACK($5)
@@ -1853,9 +1893,14 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
           const1->setParseInfo( *($3.info) );
           QtConst* const2 = new QtConst( new QtStringData("*") );
           const2->setParseInfo( *($5.info) );
-          $$ = new QtIntervalOp( const1, const2 );
-          $$->setParseInfo( *($2.info) );
-          parseQueryTree->addDynamicObject( $$ );
+          $$.value = new QtIntervalOp( const1, const2 );
+          $$.value->setParseInfo( *($2.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->addDynamicObject( $$.value );
           FREESTACK($2)
           FREESTACK($3)
           FREESTACK($4)
@@ -1864,13 +1909,18 @@ namedIntervalExp: Identifier LRPAR generalExp COLON generalExp RRPAR
         }
         | Identifier
         {
-            QtConst* const1 = new QtConst( new QtStringData("*") );
-            const1->setParseInfo( *($1.info) );
-            QtConst* const2 = new QtConst( new QtStringData("*") );
-            const2->setParseInfo( *($1.info) );
-            $$ = new QtIntervalOp( const1, const2 );
-            $$->setParseInfo( *($1.info) );
-            parseQueryTree->addDynamicObject( $$ );
+          QtConst* const1 = new QtConst( new QtStringData("*") );
+          const1->setParseInfo( *($1.info) );
+          QtConst* const2 = new QtConst( new QtStringData("*") );
+          const2->setParseInfo( *($1.info) );
+          $$.value = new QtIntervalOp( const1, const2 );
+          $$.value->setParseInfo( *($1.info) );
+
+          $$.names = new std::vector<std::string>(0);
+          std::string temp = $1.value;
+          $$.names->push_back(temp);
+
+          parseQueryTree->addDynamicObject( $$.value );
         };
 
 /* NEW TYPE END - TODO-GM: refactor*/

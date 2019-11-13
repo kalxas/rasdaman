@@ -68,6 +68,16 @@ MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseTyp
     mySubclass = MDDDOMAINTYPE;
 }
 
+MDDDomainType::MDDDomainType(const char *newTypeName, const BaseType *newBaseType,
+                             const r_Minterval &newDomain, const std::vector<std::string> *axisNames2)
+    : MDDBaseType(newTypeName, newBaseType)
+{
+    objecttype = OId::MDDDOMTYPEOID;
+    myDomain = new DBMinterval(newDomain, axisNames2);
+    myDomain->setCached(true);
+    mySubclass = MDDDOMAINTYPE;
+}
+
 MDDDomainType &MDDDomainType::operator=(const MDDDomainType &old)
 {
     // Gracefully handle self assignment
