@@ -36,9 +36,7 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 
 rm -rf "$SCRIPT_DIR/output"
 
-result=$(wget -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
-
-coverage_ids=($(grep -oP "(?<=<wcs:CoverageId>)[^<]+"  <<< "$result"))
+coverage_ids=($(get_coverage_ids))
 
 for coverage_id in "${coverage_ids[@]}"; do
     # All test coverages import in test wcst_import will be removed
@@ -51,7 +49,7 @@ done
 
 # mean_summer_airtemp is a demo coverage imported by petascope_insertdemo.sh and is used in WS client, tab WCS ProcessCoverages
 # after the test interface for WS client, now it can be removed here as other imported test coverages
-delete_coverage "mean_summer_airtemp"
+delete_coverage "mean_summer_airtemp" true
 
 print_summary
 exit_script

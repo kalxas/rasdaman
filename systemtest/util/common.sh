@@ -772,9 +772,21 @@ prepare_netcdf_file()
 
 # -----------------------------------------------------------------------------
 # WCS 2.0.1 utility requests
+
+# Get all available coverage Ids
+get_coverage_ids() {
+  local xml=$(wget -qO- "$PETASCOPE_URL?service=WCS&version=2.0.1&request=GetCapabilities")
+  local coverage_ids=($(grep -oP "(?<=<wcs:CoverageId>)[^<]+"  <<< "$xml"))
+  echo ${coverage_ids[@]}
+}
+
 delete_coverage() {
   # $1 is the coverageId to be deleted
-  local WCS_END_POINT="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$1"
+  local input_coverage_id="$1"
+  # It it is set to true, make a GetCapabitilies request first before deleting it
+  local check_coverage_exist="$2"
+
+  local WCS_END_POINT="$PETASCOPE_URL?service=WCS&version=2.0.1&request=DeleteCoverage&CoverageId=$input_coverage_id"
 
   local OUTPUT_DIR="$SCRIPT_DIR/output"
   mkdir -p "$OUTPUT_DIR"
@@ -783,17 +795,34 @@ delete_coverage() {
 
   local result=0
 
-  # Store the result of deleting request to a temp file
-  curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"
- 
-  # Check HTTP code is 200, coverage is deleted successfully
-  cat "$OUTPUT_FILE" | head -n 1 | grep "200" --quiet
+  local coverage_ids=("$input_coverage_id")
 
-  if [ $? -ne 0 ]; then
-    # In case of error, grap error message from Petascope to test.log
-    cat "$OUTPUT_FILE" | tail -n +6 >> "$LOG_FILE"
-    result=1
+  if "$check_coverage_exist"; then
+    coverage_ids=($(get_coverage_ids))
   fi
+  
+  for coverage_id in "${coverage_ids[@]}"; do
+    echo "Check "$coverage_id
+
+    if [ "$coverage_id" == "$input_coverage_id" ]; then
+
+        echo "Deleting coverage""$coverage_id"
+
+        # Store the result of deleting request to a temp file
+        curl -s -i "$WCS_END_POINT" > "$OUTPUT_FILE"
+
+        # Check HTTP code is 200, coverage is deleted successfully
+        cat "$OUTPUT_FILE" | head -n 1 | grep "200" --quiet
+
+        if [ $? -ne 0 ]; then
+            # In case of error, grap error message from Petascope to test.log
+            cat "$OUTPUT_FILE" | tail -n +6 >> "$LOG_FILE"
+            result=1
+        fi
+
+        break
+    fi
+  done
 
   return $result
 }

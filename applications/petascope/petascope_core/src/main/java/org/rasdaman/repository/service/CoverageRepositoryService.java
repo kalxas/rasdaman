@@ -356,7 +356,11 @@ public class CoverageRepositoryService {
             String coverageType = coverageIdAndType[1].toString();
             
             if (!coveragesCacheMap.containsKey(coverageId)) {
-                this.readCoverageBasicMetadataFromDatabase(coverageId, coverageType);
+                try {
+                    this.readCoverageBasicMetadataFromDatabase(coverageId, coverageType);
+                } catch (PetascopeException ex) {
+                    log.warn("Cannot read basic metadata for coverage '" + coverageId + "'. Reason: " + ex.getExceptionText(), ex);
+                }
             }
         }
 
@@ -384,7 +388,11 @@ public class CoverageRepositoryService {
         long start = System.currentTimeMillis();
         for (String coverageId : coveragesCacheMap.keySet()) {
             if (!coveragesExtentsCacheMap.containsKey(coverageId)) {
-                this.createCoverageExtent(coverageId);
+                try {
+                    this.createCoverageExtent(coverageId);
+                } catch (Exception ex) {
+                    log.warn("Cannot create geo extents in EPSG:4326 for coverage '" + coverageId + "'. Reason: " + ex.getMessage(), ex);
+                }
             }
         }
 
