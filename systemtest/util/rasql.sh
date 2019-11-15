@@ -241,13 +241,19 @@ function create_coll()
 #
 # import data used in rasql tests. Expects arguments
 # $1 - testdata dir holding files to be imported
+# $2 - if not empty data is inserted insitu
 #
 function import_rasql_data()
 {
   local TESTDATA_PATH="$1"
+  local INSITU=
   local STORAGE_CLAUSE=
   if [ -n "$2" ]; then
-    STORAGE_CLAUSE="$2"
+    if [ "$2" == "insitu" ]; then
+      INSITU="$2"
+    else
+      STORAGE_CLAUSE="$2"
+    fi
   fi
   if [ ! -d "$TESTDATA_PATH" ]; then
     error "testdata path $TESTDATA_PATH not found."
@@ -435,6 +441,7 @@ function import_subsetting_data()
   $RASQL -q "update $TEST_SUBSETTING_3D as m set m[1,*:*,*:*] assign shift(decode(\$1), [500, 500])" -f "$TESTDATA_PATH/mr_1.png" --quiet > /dev/null		
 }
 
+#
 # drop null values test data, including imported null types
 #
 drop_nullvalues_data()

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+    gml:id="test_append_prepend_irregular_coverage_slice"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:rasdaman="http://www.rasdaman.org"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="">
+    <gml:boundedBy>
+        <gml:Envelope axisLabels="" srsDimension="0" srsName="" uomLabels="">
+            <gml:lowerCorner/>
+            <gml:upperCorner/>
+        </gml:Envelope>
+    </gml:boundedBy>
+    <gml:domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="0" gmlrgrid:id="test_append_prepend_irregular_coverage_slice-grid">
+            <gml:limits>
+                <gml:GridEnvelope>
+                    <gml:low/>
+                    <gml:high/>
+                </gml:GridEnvelope>
+            </gml:limits>
+            <gml:axisLabels/>
+            <gmlrgrid:origin>
+                <gml:Point
+                    gml:id="test_append_prepend_irregular_coverage_slice-point" srsName="">
+                    <gml:pos/>
+                </gml:Point>
+            </gmlrgrid:origin>
+        </gmlrgrid:ReferenceableGridByVectors>
+    </gml:domainSet>
+    <gml:rangeSet>
+        <gml:DataBlock>
+            <gml:rangeParameters/>
+            <gml:tupleList cs=" " ts=",">-1</gml:tupleList>
+        </gml:DataBlock>
+    </gml:rangeSet>
+    <gml:coverageFunction>
+        <gml:GridFunction>
+            <gml:sequenceRule axisOrder="">Linear</gml:sequenceRule>
+            <gml:startPoint/>
+        </gml:GridFunction>
+    </gml:coverageFunction>
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            <swe:field name="LAI">
+                <swe:Quantity definition="http://www.opengis.net/def/dataType/OGC/0/float32">
+                    <swe:label>LAI</swe:label>
+                    <swe:description>Leaf Area Index</swe:description>
+                    <swe:nilValues>
+                        <swe:NilValues>
+                            <swe:nilValue reason="The nil value represents an error in the sensor.">-9999</swe:nilValue>
+                        </swe:NilValues>
+                    </swe:nilValues>
+                    <swe:uom code="10^0"/>
+                    <swe:constraint/>
+                </swe:Quantity>
+            </swe:field>
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata>
+        <gmlcov:Extension>
+            <rasdaman:covMetadata>
+                <bands>
+                    <LAI>
+                        <_FillValue>-1.0</_FillValue>
+                        <grid_mapping>crs</grid_mapping>
+                        <scale_factor>1.0</scale_factor>
+                        <FORTRAN_format>G10.6</FORTRAN_format>
+                        <valid_range>[0. 7.]</valid_range>
+                        <long_name>Leaf Area Index</long_name>
+                        <units>m2/m2</units>
+                        <missing_value>-1.0</missing_value>
+                    </LAI>
+                </bands>
+                <axes>
+                    <Lat>
+                        <units>degrees_north</units>
+                        <long_name>latitude</long_name>
+                    </Lat>
+                    <Long>
+                        <units>degrees_east</units>
+                        <long_name>longitude</long_name>
+                    </Long>
+                </axes>
+                <Title>This is a test coverage</Title>
+            </rasdaman:covMetadata>
+        </gmlcov:Extension>
+    </gmlcov:metadata>
+</gmlcov:ReferenceableGridCoverage>

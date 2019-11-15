@@ -353,12 +353,12 @@ or netCDF). Coverages are independent from service definitions and,
 therefore, can be accessed through a variety of OGC services types,
 such as the Web Coverage Service (WCS) Standard.
 
-Since rasdaman version 9.7+, *besides CIS 1.0 for WCS version 2.0.1*, 
+Since rasdaman version 9.7+, *besides CIS 1.0 for WCS version 2.0.1*,
 petascope supports *CIS 1.1 for WCS version 2.1.0* with these conformance classes:
 
 * Class **coverage**.
 
-* Class **grid-regular** (in *CIS 1.0*: **GridCoverage** and **RectifiedGridCoverage** 
+* Class **grid-regular** (in *CIS 1.0*: **GridCoverage** and **RectifiedGridCoverage**
   coverage types).
 
 * Class **grid-irregular** (*only* supports **CIS::IrregularAxis**,
@@ -366,7 +366,7 @@ petascope supports *CIS 1.1 for WCS version 2.1.0* with these conformance classe
 
 * Class **gml-coverage**: For *WCS version 2.1.0* only, petascope allows
   to transform *CIS 1.0* coverage types to *CIS 1.1* in GML format by
-  new non-standard extra parameter in the request ``outputType=GeneralGridCoverage``, 
+  new non-standard extra parameter in the request ``outputType=GeneralGridCoverage``,
   see :ref:`here for more information <petascope-outputType>`.
 
 
@@ -1472,15 +1472,15 @@ WCPS
 ^^^^
 
 For WCPS requests, the same can be achieved using the extra parameter
-``outputType=GeneralGridCoverage`` in ``encode()`` with 
-``application/gml+xml``. Example: 
-    
+``outputType=GeneralGridCoverage`` in ``encode()`` with
+``application/gml+xml``. Example:
+
     ::
 
-      for c in (test_irr_cube_2) return encode(c, 
+      for c in (test_irr_cube_2) return encode(c,
               "application/gml+xml",
               "{\"outputType\":\"GeneralGridCoverage\"}")
-          
+
 
 .. _petascope-clipping:
 
@@ -1731,11 +1731,11 @@ Auto-ratio for scaling X or Y axis in WCPS
 ------------------------------------------
 
 Since v9.8, the scale function in WCPS allows to specify the target extent
-of only one of the spatial X/Y axes (e.g. only Long). In this case, the 
-extent of the other axis will be automatically determined to preserve 
+of only one of the spatial X/Y axes (e.g. only Long). In this case, the
+extent of the other axis will be automatically determined to preserve
 the original ratio between the two spatial axes.
 
-For example in the request below, petascope will automatically set 
+For example in the request below, petascope will automatically set
 the extent  of *Lat* to a value that preserves the ratio in the output result: ::
 
    for c in (test_mean_summer_airtemp)
@@ -1878,7 +1878,7 @@ Some options are commonly applicable to all recipes.
   coverage descriptions, and only then import them. The advantage of non-blocking
   mode is that the analyzing and importing happens incrementally
   (in blocking mode the analyzing step can take a long time, e.g. days,
-  before the import can even begin). 
+  before the import can even begin).
 
   .. note::
 
@@ -1887,7 +1887,7 @@ Some options are commonly applicable to all recipes.
         are collected from input files' metadata (e.g: DateTime value in TIFF's tag or GRIB metadata)
         as they might not be consecutive. wcst_import will not analyze all files
         to collect metadata to be sorted by DateTime as in default **blocking** import mode.
-  
+
 
 * ``default_null_values`` - This parameter adds default null values for bands that
   do *not* have a null value provided by the file itself. The value for this

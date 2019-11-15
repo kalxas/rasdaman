@@ -116,10 +116,11 @@ TEST_OVERLAP_3D=test_overlap_3d
 # OS version; the current os can be determined with the get_os function
 #
 OS_UNKNOWN="unknown"
-OS_CENTOS7="centos7" # CentOS 7.x
-OS_DEBIAN8="debian8"   # Debian 8
-OS_DEBIAN9="debian9" # Debian 9
-OS_DEBIAN10="debian10"   # Debian 10 testing (buster)
+OS_CENTOS7="centos7"        # CentOS 7.x
+OS_DEBIAN8="debian8"        # Debian 8
+OS_DEBIAN9="debian9"        # Debian 9
+OS_DEBIAN10="debian10"      # Debian 10 (buster)
+OS_DEBIAN11="debian11"      # Debian 11 (bullseye)
 OS_UBUNTU1404="ubuntu1404" 
 OS_UBUNTU1410="ubuntu1410"
 OS_UBUNTU1504="ubuntu1504" 
@@ -129,7 +130,7 @@ OS_UBUNTU1610="ubuntu1610"
 OS_UBUNTU1704="ubuntu1704" 
 OS_UBUNTU1710="ubuntu1710"
 OS_UBUNTU1804="ubuntu1804"
-OS_UBUNTU1810="ubuntu1804"
+OS_UBUNTU1810="ubuntu1810"
 OS_UBUNTU1904="ubuntu1904"
 OS_UBUNTU1910="ubuntu1910"
 
@@ -198,33 +199,13 @@ loge_colored_failed()
 }
 
 # normal log
-log() {
-  echo -e "$PROG: $@" | tee -a "$LOG_FILE"
-}
-loge() {
-  echo -e "$@" | tee -a "$LOG_FILE"
-}
-logn() {
-  echo -n -e "$PROG: $@" | tee -a "$LOG_FILE"
-}
-error() {
-  log_colored_failed "$@"
-  log_colored_failed "exiting."
-  exit $RC_ERROR
-}
+log()   { echo -e "$PROG: $@" | tee -a "$LOG_FILE"; }
+loge()  { echo -e "$@" | tee -a "$LOG_FILE"; }
+logn()  { echo -n -e "$PROG: $@" | tee -a "$LOG_FILE"; }
+error() { log_colored_failed "$@"; log_colored_failed "exiting."; exit $RC_ERROR; }
+log_failed() { echo "$PROG: $@" >> "$FAILED_LOG_FILE"; }
 
-# write the detail error in failed_cases.log
-log_failed() {
-  echo "$PROG: $@" >> "$FAILED_LOG_FILE"
-}
-
-feedback() {
-  if [ $? -ne 0 ]; then
-    loge_colored_failed failed.
-  else
-    loge ok.
-  fi
-}
+feedback()   { [ $? -ne 0 ] && loge_colored_failed failed. || loge ok.; }
 check_exit() {
   if [ $? -ne 0 ]; then
     log_colored_failed "failed, exiting."
@@ -233,16 +214,8 @@ check_exit() {
     loge ok.
   fi
 }
-
-# From test status -> return code (e.g: OK -> 0)
-get_return_code() {
-  # $1 test status
-  if [ "$1" == "$ST_PASS" ]; then
-    return "$RC_OK"
-  else
-    return "$RC_ERROR"
-  fi
-}
+# test status -> return code (e.g: OK -> 0)
+get_return_code() { [ "$1" = "$ST_PASS" ] && return "$RC_OK" || return "$RC_ERROR"; }
 
 # ---------
 # setup log
@@ -258,24 +231,12 @@ fi
 # manage timing, in ms
 # @global variable: timer_start
 #
-start_timer()
-{
-  timer_start=$(date +%s%N)
-}
-stop_timer()
-{
-  timer_stop=$(date +%s%N)
-}
+start_timer(){ timer_start=$(date +%s%N); }
+stop_timer() { timer_stop=$(date +%s%N); }
 # ms
-get_time()
-{
-  echo "scale=2; ($timer_stop - $timer_start) / 1000000.0" | bc
-}
+get_time()   { echo "scale=2; ($timer_stop - $timer_start) / 1000000.0" | bc; }
 # s
-get_time_s()
-{
-  echo "scale=2; ($timer_stop - $timer_start) / 1000000000.0" | bc
-}
+get_time_s() { echo "scale=2; ($timer_stop - $timer_start) / 1000000000.0" | bc; }
 
 # set a global timestamp when this file is loaded by a test script
 # @global variable: total_timer_start
@@ -331,9 +292,10 @@ get_os()
       Ubuntu18.1*)       OS_VERSION=$OS_UBUNTU1810;;
       Ubuntu19.0*)       OS_VERSION=$OS_UBUNTU1904;;
       Ubuntu19.1*)       OS_VERSION=$OS_UBUNTU1910;;
-      Debian*8*)        OS_VERSION=$OS_DEBIAN8;;
-      Debian*9*)        OS_VERSION=$OS_DEBIAN9;;
-      Debian*buster*)   OS_VERSION=$OS_DEBIAN10;;
+      Debian*8*)         OS_VERSION=$OS_DEBIAN8;;
+      Debian*9*)         OS_VERSION=$OS_DEBIAN9;;
+      Debian*buster*)    OS_VERSION=$OS_DEBIAN10;;
+      Debian*bullseye*)  OS_VERSION=$OS_DEBIAN11;;
     esac
   fi
 }
@@ -346,20 +308,10 @@ get_os
 #
 check_rasdaman()
 {
-  type rasmgr &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "rasdaman not installed, please add rasdaman bin directory to the PATH."
-  fi
-  pgrep rasmgr &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "rasdaman not started, please start with start_rasdaman.sh"
-  fi
-  $RASCONTROL -x 'list srv -all' &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "no rasdaman servers started."
-  fi
+  type rasmgr &> /dev/null || error "rasdaman not installed, please add rasdaman bin directory to the PATH."
+  pgrep rasmgr &> /dev/null || error "rasdaman not started, please start with start_rasdaman.sh"
+  $RASCONTROL -x 'list srv -all' &> /dev/null || error "no rasdaman servers started."
 }
-
 check_rasdaman_available()
 {
   # check if rasdaman is running and exit if not
@@ -382,61 +334,38 @@ check_rasdaman_available()
 
 check_postgres()
 {
-  type psql  &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "PostgreSQL missing, please add psql to the PATH."
-  fi
-  pgrep postgres &> /dev/null
-  if [ $? -ne 0 ]; then
+  type psql &> /dev/null || error "PostgreSQL missing, please add psql to the PATH."
+  if ! pgrep postgres &> /dev/null; then
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
 }
-
 check_curl()
 {
-  type curl  &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "curl missing, please install."
-  fi
+  type curl &> /dev/null || error "curl missing, please install."
 }
-
 check_petascope()
 {
-  # already silent
-  curl -sL "$PETASCOPE_URL" -o /dev/null
-  if [[ $? -ne 0 ]]; then
+  if ! curl -sL "$PETASCOPE_URL" -o /dev/null; then
     log "failed connecting to Petascope at $PETASCOPE_URL, please deploy it first."
     return 1
   fi
   return 0
 }
-
-
 check_secore()
 {
-  # already silent
-  curl -sL "$SECORE_URL/crs" -o /dev/null
-  if [ $? -ne 0 ]; then
+  if ! curl -sL "$SECORE_URL/crs" -o /dev/null; then
     log "failed connecting to SECORE at $SECORE_URL, please deploy it first."
     return 1
   fi
   return 0
 }
-
 check_netcdf()
 {
-  type ncdump  &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "netcdf tools missing, please add ncdump to the PATH."
-  fi
+  type ncdump &> /dev/null || error "netcdf tools missing, please add ncdump to the PATH."
 }
-
 check_gdal()
 {
-  type gdal_translate  &> /dev/null
-  if [ $? -ne 0 ]; then
-    error "gdal missing, please add gdal_translate to the PATH."
-  fi
+  type gdal_translate &> /dev/null || error "gdal missing, please add gdal_translate to the PATH."
 }
 
 # Check if GDAL version is greater-equal than specified (M.m)
@@ -580,30 +509,16 @@ check_passed()
 }
 # check the result of previously executed command ($? variable)
 # and print failed/ok accordingly + update NUM_* variables
-check()
-{
-  if [ $? -ne 0 ]; then
-    check_failed "$1"
-  else
-    check_passed "$1"
-  fi
-}
+check() { [ $? -ne 0 ] && check_failed "$1" || check_passed "$1"; }
 
 #
 # Ultilities functions
 #
 
-# input is a URL return the HTTP code from the URL by curl
-get_http_return_code()
-{
-  # $1 is URL
-  http_code=$(curl -sL -w "%{http_code}\\n" "$1" -o /dev/null)
-  echo $http_code
-}
+# $1 is a URL; return the HTTP code from the URL by curl
+get_http_return_code() { curl -sL -w "%{http_code}\\n" "$1" -o /dev/null; }
 
-#
 # if "$f" is found in known_fails, then return 0, otherwise to 1
-#
 check_known_fail()
 {
   local testcase="$f"
@@ -618,7 +533,7 @@ check_known_fail()
 
 #
 # Check return code ($?) and update variables tracking number of
-# failed/successful tests.
+# failed/successfull tests.
 # In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
 #
 update_result()
@@ -714,8 +629,8 @@ prepare_xml_file()
              -e '/PostalCode/d' \
              -e 's/Long/Lon/g' \
              -e 's/Point /Point\n/g' \
-	     -e 's/ReferenceableGridCoverage /ReferenceableGridCoverage\n/g' \
-	     -e 's/^[[:space:]]*//' \
+             -e 's/ReferenceableGridCoverage /ReferenceableGridCoverage\n/g' \
+             -e 's/^[[:space:]]*//' \
              -e '/^[[:space:]]*$/d' \
              -e 's/[[:space:]]>/>/g' \
              "$xml_file"
@@ -753,15 +668,12 @@ prepare_netcdf_file()
   sed -i -n '/dimensions/,$p' "$tmpf"
   # remove fileReferenceHistory in local coverage's metadata as the path can be different
   sed -i '/fileReferenceHistory/d' "$tmpf"
-
   # Differences between version 4.5+ and version < 4.5
   sed -i '/_NCProperties/d' "$tmpf"
   sed -i '/global attributes/d' "$tmpf"
   sed -i 's/_ /0 /g' "$tmpf" 
-
   # Remove all blank lines
   sed -i '/^$/d' "$tmpf"
-
   # Long axis and Lon axis are the same
   sed -i 's/Long/Lon/g' "$tmpf"
   
@@ -790,14 +702,12 @@ delete_coverage() {
 
   local OUTPUT_DIR="$SCRIPT_DIR/output"
   mkdir -p "$OUTPUT_DIR"
-  
   local OUTPUT_FILE="$OUTPUT_DIR/DeleteCoverage-$1.out"
-
   local result=0
 
   local coverage_ids=("$input_coverage_id")
 
-  if "$check_coverage_exist"; then
+  if [ "$check_coverage_exist" = "true" ]; then
     coverage_ids=($(get_coverage_ids))
   fi
   
@@ -1192,23 +1102,15 @@ run_test()
 # ------------------------------------------------------------------------------
 # exit test script with/without error code
 #
-exit_script()
-{
-  if [ $NUM_FAIL -ne 0 ]; then
-    exit $RC_ERROR
-  else
-    exit $RC_OK
-  fi
-}
+exit_script() { [ $NUM_FAIL -ne 0 ] && exit $RC_ERROR || exit $RC_OK; }
 
 # ------------------------------------------------------------------------------
 # rasdaman administration
 #
-
 restart_rasdaman()
 {
   logn "restarting rasdaman... "
-  if [ $(pgrep rasmgr) ]; then
+  if pgrep rasmgr &> /dev/null; then
     $STOP_RAS &> /dev/null
     sleep 0.2 || sleep 1
   fi
@@ -1218,7 +1120,6 @@ restart_rasdaman()
 }
 
 # ------------------------------------------------------------------------------
-#
 # server/config management for using local SQLite / file storage database
 #
 get_backup_rasmgr_conf()
@@ -1256,7 +1157,6 @@ restore_configuration()
     rm -f "$BACKUP_RASMGR_CONF"
   fi
 }
-
 recreate_rasbase()
 {
   rm -rf "$DB_DIR"; mkdir -p "$DB_DIR"

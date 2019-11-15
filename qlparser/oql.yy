@@ -1593,7 +1593,7 @@ mintervalExp: LEPAR spatialOpList REPAR
 	  }
 	  else
 	  {	    
-	     RMInit::logOut << "MINTERVAL error: empty expression between brackets encountered!" << std::endl;
+	     LERROR << "Empty expression between brackets encountered!";
 	     // save the parse error info and stop the parser
              if ( parseError ) 
 	       delete parseError;
@@ -3498,7 +3498,6 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	}
     | COMPLEX LRPAR generalExp COMMA generalExp RRPAR
     {
-        
         $$ = new QtConstructComplex($3, $5);
         $$->setParseInfo(*($1.info));
         parseQueryTree->removeDynamicObject($3);

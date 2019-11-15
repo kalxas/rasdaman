@@ -158,7 +158,6 @@ ClientTblElt::releaseTransferStructures()
         free(encodedData), encodedData = NULL, encodedSize = 0;
     }
 
-  
 #ifdef RMANBENCHMARK
     // Attention: taTimer is deleted in either commitTA() or abortTA().
 

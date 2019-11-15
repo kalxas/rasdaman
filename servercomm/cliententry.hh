@@ -149,7 +149,6 @@ public:
     r_Data_Format storageFormat{r_Array};
     /// if true, feedback will be printed with info level in endTransfer
     bool reportTransferedSize{false};
-  
 
 };
 

@@ -13,7 +13,7 @@
  * 2010-01-31   Aiordachioaie      created
  *
  * COMMENTS:
-*
+ *
  * Copyright (C) 2010 Dr. Peter Baumann
  *
  ************************************************************/
@@ -33,6 +33,7 @@
 #include "mddmgr/mddobj.hh"
 #include "mymalloc/mymalloc.h"
 #include "qtproject.hh"
+#include "common/util/scopeguard.hh"
 
 #include <iostream>
 #include <string>
@@ -109,7 +110,6 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     GDALAllRegister();
 #endif
 }
-
 
 QtData *QtProject::evaluate(QtDataList *inputList)
 {
@@ -424,15 +424,14 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
 
     char *tileCells RAS_ALIGNED = static_cast<char *>(mymalloc(w * h * n * bandCellSz));
     char *bandCells RAS_ALIGNED = NULL;
-    try
-    {
-        bandCells = static_cast<char *>(mymalloc(w * h * bandCellSz));
-    }
-    catch (std::bad_alloc &e)
-    {
-        free(tileCells);
-        throw;
-    }
+    
+    const auto freeData = common::make_scope_guard(
+                [&tileCells, &bandCells]() noexcept {
+        if (tileCells) free(tileCells);
+        if (bandCells) free(bandCells);
+    });
+    
+    bandCells = static_cast<char *>(mymalloc(w * h * bandCellSz));
 
     // transpose GDAL bands into result tile
     for (int band = 0; band < ni; ++band)
@@ -473,6 +472,7 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     // And finally build the tile
     std::unique_ptr<Tile> resultTile;
     resultTile.reset(new Tile(resDomain, srcTile->getType(), true, tileCells, static_cast<r_Bytes>(0), r_Array));
+    tileCells = NULL; // important to avoid free by the freeData scope guard
     return resultTile;
 }
 

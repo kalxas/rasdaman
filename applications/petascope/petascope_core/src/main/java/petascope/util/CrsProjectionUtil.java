@@ -84,7 +84,7 @@ public class CrsProjectionUtil {
         // e.g: EPSG:3577 (75042.7273594 5094865.55794) to EPSG:4326
         for (int i = 0; i < transCoords.length - 1; i++) {
             Double value = transCoords[i];
-            if (Double.isNaN(value)) {
+            if (Double.isNaN(value) || Double.isInfinite(value)) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError, 
                         "Failed reprojecting XY coordinates '" + Arrays.toString(sourceCoords) + 
                                 "' from sourceCrs '" + sourceCrs + "' to targetCRS '" + targetCrs + ", result is " + value);

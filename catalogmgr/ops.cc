@@ -1033,13 +1033,13 @@ const BaseType *Ops::getResultType(Ops::OpType op, const BaseType *op1, const Ba
     if (!op1)
     {
         return NULL;
-    } 
+    }
     auto type1 = op1->getType();
     auto type2 = op2 ? op2->getType() : INVALID_TYPE;
     // overlay between composite types defined only on identical types
     if (op == OP_OVERLAY)
     {
-        if ((type1 == type2)&&(type1 != STRUCT))
+        if ((type1 == type2) && (type1 != STRUCT))
         {
             return op1;
         }
