@@ -156,8 +156,6 @@ void DBMinterval::insertInDb()
             "VALUES  ( %lld, %d, %s, %s, \"%s\")", domainid, count, low.c_str(), high.c_str(), axisName1.c_str());
     }
 
-    // TODO: might need to delete axisNames;
-
     DBObject::insertInDb();
 }
 

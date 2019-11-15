@@ -267,12 +267,12 @@ QtVariable::evaluate(QtDataList *inputList)
                 {
                     actLoadDomain.intersection_of(loadDomain, currDomain);
                 }
-                catch (r_Edim_mismatch &err)
+                catch (r_Edim_mismatch &)
                 {
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }
-                catch (r_Eno_interval &err)
+                catch (r_Eno_interval &)
                 {
                     LFATAL << "Specified domain " << loadDomain
                             << " does not intersect with the spatial domain of MDD " << currentMDDObj->getCurrentDomain();

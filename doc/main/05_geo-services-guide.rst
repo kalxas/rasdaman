@@ -1802,13 +1802,7 @@ For example ::
   for $c in (test_mr) 
   let $a := [i(20), j(40)], 
       $b := 10 
-  return encode($c[$a] + $b, "json")  
-
-  
-
-   
-
-
+  return encode($c[$a] + $b, "json")
 
 
 .. _data-import:
