@@ -64,6 +64,7 @@ add_library(raslib attribute.hh attribute.cc
         structuretype.hh structuretype.cc
         template_inst.hh
         type.hh type.cc
+        turboqueryresult.cc turboqueryresult.hh
         pointdouble.hh pointdouble.cc pointdouble.icc)
 
 target_include_directories(raslib PUBLIC "${CMAKE_SOURCE_DIR}/debug")

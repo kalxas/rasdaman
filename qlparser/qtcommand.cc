@@ -466,8 +466,9 @@ QtCommand::evaluate()
         }
         catch (ParseInfo &e)
         {
-            LERROR << "Error: ";
-            e.printStatus(RMInit::logOut);
+            std::stringstream os;
+            e.printStatus(os);
+            LERROR << os.str();
             throw;
         }
         catch (...)

@@ -67,6 +67,8 @@ RMInit::RMInit(char initApplicationType)
         //
         // set log stream
         //
+        /* TODO: remove code block
+       
         if (optString && checkOptionString(optString, "-l", value))
         {
             if (value)
@@ -87,11 +89,14 @@ RMInit::RMInit(char initApplicationType)
             logFileOut.open("/dev/null", ios::app); //"client.log");
             logOut.rdbuf(logFileOut.rdbuf());
         }
+        */
 
 
         //
         // set dbg stream
         //
+        /* TODO: remove code block
+       
         if (optString && checkOptionString(optString, "-d", value))
         {
             if (value)
@@ -112,6 +117,7 @@ RMInit::RMInit(char initApplicationType)
             dbgFileOut.open("/dev/null", ios::app); //"client.dbg");
             dbgOut.rdbuf(dbgFileOut.rdbuf());
         }
+        */
 
 
         //
@@ -133,6 +139,7 @@ RMInit::RMInit(char initApplicationType)
         //
         // set bm stream
         //
+        /* TODO: remove code block
         if (optString && checkOptionString(optString, "-b", value))
         {
             if (value)
@@ -153,6 +160,7 @@ RMInit::RMInit(char initApplicationType)
             bmFileOut.open("/dev/null", ios::app); //"client.bm");
             bmOut.rdbuf(bmFileOut.rdbuf());
         }
+        */
 
 
         //
@@ -225,9 +233,11 @@ RMInit::RMInit(char initApplicationType)
     else    // applicationType != 'C' (i.e.: =='S')
     {
         // default
+        /* TODO: remove code block
         logOut.rdbuf(cout.rdbuf());
         dbgOut.rdbuf(cout.rdbuf());
         bmOut.rdbuf(cout.rdbuf());
+        */
     }
 
 
@@ -263,9 +273,11 @@ RMInit::RMInit(char initApplicationType)
 RMInit::~RMInit()
 {
     // reset output streams
+    /* TODO: remove code block
     logOut.rdbuf(NULL);
     dbgOut.rdbuf(NULL);
     bmOut.rdbuf(NULL);
+    */
 
     if (userName)
     {

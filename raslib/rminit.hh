@@ -76,22 +76,22 @@ public:
     ~RMInit();
 
     /// output stream for log information
-    static std::ostream logOut;
+//    static std::ostream logOut;
 
     /// output stream for debug information
-    static std::ostream dbgOut;
+//    static std::ostream dbgOut;
 
     /// output stream for benchmark information
-    static std::ostream bmOut;
+//    static std::ostream bmOut;
 
     /// file output for log information
-    static std::ofstream logFileOut;
+//    static std::ofstream logFileOut;
 
     /// file output for debug information
-    static std::ofstream dbgFileOut;
+//    static std::ofstream dbgFileOut;
 
     /// file output for benchmark information
-    static std::ofstream bmFileOut;
+//    static std::ofstream bmFileOut;
 
     /// name of the user
     static char *userName;
@@ -149,12 +149,18 @@ private:
 //
 // Note: At some point it may be useful to reimplement this mess.
 
-#define RMINITGLOBALS( appMode )  std::ostream RMInit::logOut(std::cout.rdbuf()); \
+/* TODO: remove code block
+#define RMINITGLOBALS( appMode )  \
+    std::ostream RMInit::logOut(std::cout.rdbuf()); \
     std::ostream RMInit::dbgOut(std::cout.rdbuf()); \
     std::ostream RMInit::bmOut(std::cout.rdbuf()); \
     std::ofstream RMInit::logFileOut; \
     std::ofstream RMInit::dbgFileOut; \
     std::ofstream RMInit::bmFileOut; \
+    RMInit rmInit( appMode );
+*/
+
+#define RMINITGLOBALS( appMode )  \
     RMInit rmInit( appMode );
 
 #endif

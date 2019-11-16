@@ -433,7 +433,7 @@ void yyreset()
 
 void llerror(const char* s)
 {
-   RMInit::logOut << "Lex error: line " << lineNo << ", " << s << " at " << yytext << std::endl;
+   LERROR << "Lex error: line " << lineNo << ", " << s << " at " << yytext;
 }
 #pragma GCC diagnostic warning "-Wsign-conversion"
 #pragma GCC diagnostic warning "-Wswitch-default"
