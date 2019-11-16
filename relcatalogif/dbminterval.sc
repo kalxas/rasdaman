@@ -208,6 +208,17 @@ void DBMinterval::deleteFromDb()
     DBObject::deleteFromDb();
 }
 
+bool checkAxisNameColumn();
+bool checkAxisNameColumn()
+{
+    static const int colCountWithAxisNameCol = 5;
+    SQLiteQuery checkColumn("PRAGMA table_info('RAS_DOMAINVALUES')");
+    int count = 0;
+    while (checkColumn.nextRow())
+        ++count;
+    return count == colCountWithAxisNameCol;
+}
+
 void DBMinterval::readFromDb()
 {
     static const char unbounded = '*';
@@ -220,22 +231,26 @@ void DBMinterval::readFromDb()
     streamInitCnt = dimensionality;
     for (r_Dimension count = 0; count < dimensionality; count++)
     {
-        SQLiteQuery query(
-            "SELECT AxisName, Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld",
-            count, domainid);
+        bool hasAxisNameColumn = checkAxisNameColumn();
+
+        const char *queryStr = "SELECT AxisName, Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld";
+        if (!hasAxisNameColumn)
+            queryStr = "SELECT Low, High FROM RAS_DOMAINVALUES WHERE DimensionCount = %d AND DomainId = %lld";
+        SQLiteQuery query(queryStr, count, domainid);
         if (query.nextRow())
         {
-            std::string temp;
-            if (!query.currColumnNull())
+            // get axis name
+            std::string axisName;
+            if (hasAxisNameColumn && !query.currColumnNull())
             {
-                temp = query.nextColumnString();
+                axisName = query.nextColumnString();
             }
             else
             {
-                temp = "d" + std::to_string(count);
-                query.nextColumn();
+                axisName = "d" + std::to_string(count);
+                if (hasAxisNameColumn) query.nextColumn();
             }
-            axisNames.push_back(temp);
+            axisNames.push_back(axisName);
             
             if (!query.currColumnNull())
                 intervals[count].set_low(query.nextColumnLong());

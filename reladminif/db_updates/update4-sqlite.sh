@@ -21,7 +21,7 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 
-colexists=$($SQLITE "SELECT COUNT(*) FROM pragma_table_info('RAS_DOMAINVALUES') WHERE name='AxisName'" 2> /dev/null)
-if [ $colexists -eq 0 ]; then
+$SQLITE "PRAGME table_info('RAS_DOMAINVALUES')" | grep -q "AxisName"
+if [ $? -ne 0 ]; then
     $SQLITE "ALTER TABLE RAS_DOMAINVALUES ADD AxisName TEXT"
 fi
