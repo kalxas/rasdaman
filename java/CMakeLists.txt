@@ -85,6 +85,9 @@ if (ENABLE_JAVA)
             COMMENT "generating rasj API documentation"
             VERBATIM)
 
+        install(DIRECTORY "${RASJ_TARGET_DIR}/site/apidocs/"
+                DESTINATION "${SHARE_DATA_DIR}/doc/manuals/doc-rasj/")
+
     endif(GENERATE_DOCS)
 
     install(FILES "${RASJ_TARGET_DIR}/rasj-jar-with-dependencies.jar"
