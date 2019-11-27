@@ -138,7 +138,7 @@ protected:
     /// takes the result of buildResultDom and builds the result mask from the stored mshapeList (polygons w/ interiors)
     /// one can pass other resultDom's to this method, if needed, but the intersection needs to be nonempty (unknown prior to the method called)
     /// or else a segfault will occur!
-    std::unique_ptr<char[]> buildResultMask(std::shared_ptr<r_Minterval> resultDom,
+    std::unique_ptr<char[]> buildResultMask(std::shared_ptr<r_Minterval> resultDom, const r_Minterval &areaOp,
                                             vector<QtPositiveGenusClipping> &clipVector,
                                             QtGeometryData::QtGeometryType geomType);
 

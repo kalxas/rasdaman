@@ -599,7 +599,7 @@ QtClipping::extractMultipolygon(const MDDObj *op,
         return NULL;
     }
 
-    auto resultMask = buildResultMask(resultMaskDom, clipVector, geomType);
+    auto resultMask = buildResultMask(resultMaskDom,areaOp, clipVector, geomType);
 
     //generate resultMDD
     MDDDimensionType *mddDimensionType = new MDDDimensionType("tmp", op->getCellType(), 3);
@@ -609,7 +609,6 @@ QtClipping::extractMultipolygon(const MDDObj *op,
 
     std::shared_ptr<r_Minterval> resultDom;
     resultDom.reset(new r_Minterval(resultMaskDom->create_intersection(areaOp)));
-
     std::unique_ptr<MDDObj> resultMDD;
     resultMDD.reset(new MDDObj(mddBaseType, *resultDom, op->getNullValues()));
 
@@ -1358,6 +1357,7 @@ QtClipping::checkType(QtTypeTuple *typeTuple)
             parseInfo.setErrorNo(GEOMETRYARGREQUIRED);
             throw parseInfo;
         }
+    
 
         if (!withCoordinates)
         {
@@ -1473,7 +1473,7 @@ QtClipping::buildResultDom(const r_Minterval &areaOp,
 
 std::unique_ptr<char[]>
 QtClipping::buildResultMask(
-    std::shared_ptr<r_Minterval> resultDom,
+    std::shared_ptr<r_Minterval> resultDom, const r_Minterval &areaOp,
     vector<QtPositiveGenusClipping> &mshapeList,
     QtGeometryData::QtGeometryType geomType)
 {
@@ -1487,7 +1487,7 @@ QtClipping::buildResultMask(
 
     for (auto iter = mshapeList.begin(); iter != mshapeList.end(); iter++)
     {
-        if (iter->getDomain().intersects_with(*resultDom))
+        if (iter->getDomain().intersects_with(areaOp))
         {
             vector< vector<char>> polygonMask;
 
@@ -1550,7 +1550,7 @@ std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>>
 
     //result mask & domain
 
-    std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> retVal(buildResultMask(resultDom, mshapeList, geomType), resultDom);
+    std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> retVal(buildResultMask(resultDom,*resultDom, mshapeList, geomType), resultDom);
 
     return retVal;
 }

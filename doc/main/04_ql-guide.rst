@@ -1932,12 +1932,30 @@ which would describe the annular region of the box ``[0:9,0:9]`` with the
 interior box ``[3:7,3:7]`` removed. In this case, the interior polygons (there
 may be many, as it forms a list) must not intersect the exterior polygon.
 
+Multipolygons
+--------
+
+Syntax
+^^^^^^
+
+::
+
+    select clip( c, multipolygon((( list of WKT points )),(( list of WKT points ))...) )
+    from coll as c
+
+The input consists of an MDD expression and a list of polygons defined by list of WKT points. 
+The assumptions about polygons are same as the ones for Polygon.  
+
+
 Return type
 ^^^^^^^^^^^
 
 The output of a polygon query is a new array with dimensions corresponding to
 the bounding box of the polygon vertices, and further restricted to the
-collection's spatial domain. The data in the array consists of null values where
+collection's spatial domain. 
+In case of Multipolygon, the new array have dimensions corresponding to closure 
+of bounding boxes of every individual polygon, which domain intersects the collection's spatial domain.
+The data in the array consists of null values where
 cells lie outside the polygon (or 0 values if no null values are associated with
 the array) and otherwise consists of the data in the
 collection where the corresponding cells lie inside the polygon. This could
