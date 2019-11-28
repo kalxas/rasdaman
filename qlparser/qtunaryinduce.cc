@@ -300,7 +300,14 @@ QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseT
                 // set exponent for pow operations
                 if (operation == Ops::OP_POW)
                 {
-                    (static_cast<OpPOWCDouble *>(myOp))->setExponent(param);
+                    if (resultBaseType->getType() == STRUCT)
+                    {
+                        (static_cast<OpUnaryStruct *>(myOp))->setExponent(param);
+                    }
+                    else
+                    {
+                        (static_cast<OpPOWCDouble *>(myOp))->setExponent(param);
+                    }
                 }
                 (*myOp)(resultBuffer, operand->getValueBuffer());
             }

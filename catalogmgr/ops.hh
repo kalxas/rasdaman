@@ -643,6 +643,7 @@ public:
             size_t newResOff = 0, size_t newOpOff = 0);
     /// operator to carry out operation on {\tt op}.
     virtual void operator()(char *result, const char *op) = 0;
+
     /*@ManMemo: virtual destructor because subclasse OpUnaryStruct has
                 non-trivial destructor. */
     virtual ~UnaryOp() { };
@@ -677,6 +678,7 @@ public:
     virtual ~OpUnaryStruct();
     /// operator to carry out operation on struct {\tt op}.
     virtual void operator()(char *result, const char *op);
+    void setExponent(double newExponent);
 
 protected:
     StructType *myResType;
