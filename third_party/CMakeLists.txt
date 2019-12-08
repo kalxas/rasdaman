@@ -263,6 +263,11 @@ add_custom_command(OUTPUT ${GRPC_LIBRARY_PATH} ${GRPCPP_LIBRARY_PATH} ${GRPC_CPP
            export MAKEFLAGS_AUX=$MAKEFLAGS && export MAKEOVERRIDES_AUX=$MAKEOVERRIDES
         && sed -i "s@${OLD_GMOCK_URL}@${NEW_GMOCK_URL}@g" ${PROTOBUF_SOURCE_DIR}/autogen.sh
         && sed -i "s|^CPPFLAGS += -g |CPPFLAGS += |" Makefile
+        && sed -i "s|\-Werror | |" Makefile
+        && sed -i "s|\-Wall | |" Makefile
+        && sed -i "s|\-Wextra | |" Makefile
+        && sed -i "s/gettid(/local_gettid(/g" src/core/lib/iomgr/ev_epollex_linux.cc src/core/lib/gpr/log_posix.cc
+        && sed -i "s/gettid/local_gettid/" src/core/lib/gpr/log_linux.cc
         && sed -i "s| \./configure | CXXFLAGS=\"-O2\" ./configure |" Makefile
         && sed -i "s|CONFIG)) -g |CONFIG)) |g" Makefile
         && sed -i "s|-C third_party/protobuf\$|&\\n\\tmake -C third_party/protobuf install|" Makefile

@@ -45,6 +45,7 @@ trademark of the respective manufacturer.
    08_dev-guide-cpp.rst
    09_dev-guide-java.rst
    10_dev-guide-raswct.rst
+   11_cheatsheets.rst
 
 .. Indices and tables
 .. ==================

@@ -51,7 +51,7 @@ class RasqlLexer(RegexLexer):
              r'Coiflet30Wavelet|QHaarWavelet|PACKBITS|TMC|'
              r'accessed|modified|exception|'
              r'trigger|triggers|role|roles|user|users|password|grant|revoke|before|after|instead|for|exemption|to|'
-             r'array|string|struct|'
+             r'array|string|struct|return|switch|case|default|let|coverage|'
              r'max|min|and|or|xor|is|not|null)\b', Keyword),
             (r'nan', Keyword.Constant),
             (r'$[0-9]+', Keyword.Constant),
@@ -66,7 +66,7 @@ class RasqlLexer(RegexLexer):
             # TODO: Backslash escapes?
             (r"'(''|[^'])*'", String.Single),
             (r'"(""|[^"])*"', String.Symbol), # not a real string literal in ANSI SQL
-            (r'[a-z_]\w*', Name),
+            (r'\$?[a-z_]\w*', Name),
             (r'[;:()\[\],\.\{\}]', Punctuation)
         ],
         'multiline-comments': [

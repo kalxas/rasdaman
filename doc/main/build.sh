@@ -40,6 +40,8 @@ log "building html..."
 make html > /dev/null
 log "html built."
 
+[ "$1" = html ] && exit
+
 sep
 log "building pdf..."
 log ""
