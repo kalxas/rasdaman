@@ -115,6 +115,7 @@
                         <exclude>**/org/rasdaman/rasnet/service/*.java</exclude>
                         <exclude>**/test/*.java</exclude>
                     </sourceFileExcludes>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>
 
