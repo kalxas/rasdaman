@@ -1933,7 +1933,7 @@ interior box ``[3:7,3:7]`` removed. In this case, the interior polygons (there
 may be many, as it forms a list) must not intersect the exterior polygon.
 
 Multipolygons
---------
+-------------
 
 Syntax
 ^^^^^^
