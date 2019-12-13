@@ -62,8 +62,6 @@ public class WcpsCoverageMetadata {
     // e.g: c[Lat(20)] then output axes are Long and t with c is a 3D coverages (CRS: EPSG:4326&AnsiDate)
     private List<Axis> axes;
     private String crsUri;
-    // use in crsTransform()
-    private String outputCrsUri;
     private List<RangeField> rangeFields;
     private List<NilValue> nilValues;
     private final String metadata;
@@ -253,6 +251,10 @@ public class WcpsCoverageMetadata {
         return this.crsUri;
     }
 
+    public void setCrsUri(String crsUri) {
+        this.crsUri = crsUri;
+    }
+
     /**
      * Update coverage's native CRS URIs based on current axes
      */
@@ -265,14 +267,6 @@ public class WcpsCoverageMetadata {
         
         String newCrsUri = CrsUtil.CrsUri.createCompound(axisCrsUris);
         this.crsUri = newCrsUri;
-    }
-
-    public void setOutputCrsUri(String outputCrsUri) {
-        this.outputCrsUri = outputCrsUri;
-    }
-
-    public String getOutputCrsUri() {
-        return this.outputCrsUri;
     }
 
     public String getCoverageName() {

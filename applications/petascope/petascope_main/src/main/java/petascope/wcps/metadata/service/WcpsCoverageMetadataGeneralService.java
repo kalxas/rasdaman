@@ -265,12 +265,6 @@ public class WcpsCoverageMetadataGeneralService {
             for (Axis axis : metadata.getAxes()) {
                 // Only apply to correspondent axis with same name
                 if (CrsUtil.axisLabelsMatch(axis.getLabel(), numericSubset.getAxisName())) {
-                    // If subset has a given CRS, e.g: Lat:"http://../3857" then set it to outputCrs
-                    if (axis.isXYGeoreferencedAxis() && numericSubset.getCrs() != null && !numericSubset.getCrs().equals(axis.getNativeCrsUri())) {
-                        // subsettingCrs is given, if crsTransform does not exist then the outputCRS is set to subsettingCRS by XY-georefenced axes
-                        metadata.setOutputCrsUri(numericSubset.getCrs());
-                    }
-
                     // NOTE: There are 2 types of subset:
                     // + update the geo-bound according to the subsets and translate updated geo-bound to new grid-bound
                     //   e.g: Lat(0:20) -> c[0:50] (calculate the grid coordinates from geo coordinates)
@@ -725,7 +719,6 @@ public class WcpsCoverageMetadataGeneralService {
      * (Lat(0:70)) then need to update coverage metadata with geo bound(20) and
      * correspondent translated grid bound from the new geo bound.
      *
-     * @param calculateGridBound
      * @param checkBoundary should subset needed to be check within boundary
      * (e.g: scale(..., {subset}) does not need to check)
      */
@@ -818,7 +811,6 @@ public class WcpsCoverageMetadataGeneralService {
      *
      * @param axis
      * @param subset
-     * @param metadata
      */
     private void translateSlicingGridToGeoSubset(Axis axis, Subset subset) {
 
@@ -890,9 +882,7 @@ public class WcpsCoverageMetadataGeneralService {
      *
      * @param parsedSubset
      * @param axis
-     * @param metadata
      * @param geoDomainMin
-     * @param geoDomainMax
      * @param gridDomainMin
      * @param gridDomainMax
      * @return

@@ -93,7 +93,8 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         String outputCrs = axisCrss.values().toArray()[0].toString();
 
         WcpsCoverageMetadata metadata = coverageExpression.getMetadata();
-        metadata.setOutputCrsUri(outputCrs);
+        //from this point onwards, the coverage has the new crs uri
+        metadata.setCrsUri(outputCrs);
         
         if (!CrsUtil.isGridCrs(outputCrs) && !CrsUtil.isIndexCrs(outputCrs)) {
             // NOTE: after this crsTransform operator, the coverage's axes will need to updated with values from outputCRS also.
@@ -188,7 +189,7 @@ public class CrsTransformHandler extends AbstractOperatorHandler {
         GeoTransform sourceGeoTransform = this.createGeoTransform(xyAxes);
 
         // Do the geo transform for this 2D geo, grid domains from source CRS to output CRS by GDAL
-        String outputCRS = covMetadata.getOutputCrsUri();
+        String outputCRS = covMetadata.getCrsUri();
         GeoTransform targetGeoTransform = CrsProjectionUtil.getGeoTransformInTargetCRS(sourceGeoTransform, outputCRS);
         CrsDefinition crsDefinition = CrsUtil.getCrsDefinition(outputCRS);
         

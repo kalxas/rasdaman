@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage id="test_sf"
+>
+<boundedBy>
+<Envelope axisLabels="E N" srsDimension="2"
+srsName="/crs/EPSG/0/32610" uomLabels="metre metre">
+<lowerCorner>542859.682243879768066108226776123046875 4175169.477475077845156192779541015625</lowerCorner>
+<upperCorner>545060.07370752538554370403289794921875 4177369.86893872357904911041259765625</upperCorner>
+</Envelope>
+</boundedBy>
+<domainSet>
+<RectifiedGrid dimension="2" id="test_sf-grid">
+<limits>
+<GridEnvelope>
+<low>0 0</low>
+<high>0 0</high>
+</GridEnvelope>
+</limits>
+<axisLabels>E N</axisLabels>
+<origin>
+<Point
+id="test_sf-point" srsName="/crs/EPSG/0/32610">
+<pos>543959.877975702605681362911127507686614990234375 4176269.673206900741433855728246271610260009765625</pos>
+</Point>
+</origin>
+<offsetVector srsName="/crs/EPSG/0/32610">2200.39146364567523050936870276927947998046875 0</offsetVector>
+<offsetVector srsName="/crs/EPSG/0/32610">0 -2200.39146364567523050936870276927947998046875</offsetVector>
+</RectifiedGrid>
+</domainSet>
+<rangeSet>
+<DataBlock>
+<rangeParameters/>
+<tupleList cs=" " ts=",">0 0 0</tupleList>
+</DataBlock>
+</rangeSet>
+<coverageFunction>
+<GridFunction>
+<sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+<startPoint>0 0</startPoint>
+</GridFunction>
+</coverageFunction>
+<gmlcov:rangeType>
+<swe:DataRecord>
+<swe:field name="Red">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Red</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="Green">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Green</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+<swe:field name="Blue">
+<swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+<swe:label>Blue</swe:label>
+<swe:description/>
+<swe:uom code="10^0"/>
+<swe:constraint/>
+</swe:Quantity>
+</swe:field>
+</swe:DataRecord>
+</gmlcov:rangeType>
+<gmlcov:metadata/>
+</gmlcov:RectifiedGridCoverage>
