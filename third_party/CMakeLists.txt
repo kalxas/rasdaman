@@ -63,8 +63,7 @@ endmacro()
 #   DEPENDENCIES - The targets on which the existence of this executable depends.
 macro(AddExternalExecutable NAME PATH DEPENDENCIES)
     add_executable(${NAME} IMPORTED GLOBAL)
-    set_property(TARGET ${NAME} PROPERTY IMPORTED_LOCATION
-            ${PATH})
+    set_property(TARGET ${NAME} PROPERTY IMPORTED_LOCATION ${PATH})
     add_dependencies(${NAME} ${DEPENDENCIES})
 endmacro()
 
