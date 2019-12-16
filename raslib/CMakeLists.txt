@@ -24,17 +24,13 @@
 add_library(raslib attribute.hh attribute.cc
         basetype.hh basetype.cc
         collectiontype.hh collectiontype.cc
-        commonutil.hh commonutil.cc
         complex.hh complex.cc
         complextype.hh complextype.cc
-        dlist.hh dlist.cc
         endian.hh endian.cc
         error.hh error.cc
         flatbasetype.hh flatbasetype.cc
-        itertype.hh itertype.cc
         marraytype.hh marraytype.cc
         mddtypes.hh mddtypes.cc
-        memblockvec.hh memblockvec.cc
         metaobject.hh metaobject.cc
         minterval.hh minterval.cc minterval.icc
         mintervaltype.hh mintervaltype.cc
@@ -82,19 +78,13 @@ install(FILES
     attribute.hh
     basetype.hh
     collectiontype.hh
-    commonutil.hh
     complex.hh
     complextype.hh
-    dlist.hh
-    dlist.cc
     endian.hh
     error.hh
     flatbasetype.hh
-    itertype.hh
-    itertype.cc
     marraytype.hh
     mddtypes.hh
-    memblockvec.hh
     metaobject.hh
     minterval.hh
     mintervaltype.hh

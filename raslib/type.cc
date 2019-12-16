@@ -38,36 +38,9 @@
 
 #include <logging.hh>
 
-r_Type::r_Type()
-    : r_Meta_Object()
-{
-}
 
 r_Type::r_Type(const char *newTypeName)
     : r_Meta_Object(newTypeName)
-{
-}
-
-r_Type::r_Type(const r_Type &oldObj)
-    : r_Meta_Object(oldObj)
-{
-}
-
-const r_Type &
-r_Type::operator=(const r_Type &oldObj)
-{
-    // Gracefully handle self assignment
-    if (this == &oldObj)
-    {
-        return *this;
-    }
-
-    r_Meta_Object::operator=(oldObj);
-
-    return *this;
-}
-
-r_Type::~r_Type()
 {
 }
 
@@ -136,7 +109,6 @@ r_Type::get_any_type(const char *type_string)
 {
     char   *pos         = const_cast<char *>(type_string);
     char   *identifier  = NULL;
-    r_Type *returnValue = NULL;
     DLTOKEN token = DLUNKNOWN;
 
     // one token look ahead
@@ -147,16 +119,12 @@ r_Type::get_any_type(const char *type_string)
     switch (token)
     {
     case DLMARRAY:
-        returnValue = getMarrayType(pos);
-        break;
+        return getMarrayType(pos);
     case DLSET:
-        returnValue = getCollectionType(pos);
-        break;
+        return getCollectionType(pos);
     default:
-        returnValue = getType(pos);
+        return getType(pos);
     }
-
-    return returnValue;
 }
 
 r_Type::DLTOKEN

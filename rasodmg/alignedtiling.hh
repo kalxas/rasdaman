@@ -144,7 +144,7 @@ public:
     */
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream &s = cout) const;
+    void print_status(std::ostream &s) const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
 

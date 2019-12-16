@@ -22,7 +22,10 @@
 
 #ifndef FILEUTILS_HH
 #define FILEUTILS_HH
+
 #include <string>
+#include <cstdio>
+
 namespace common
 {
 class FileUtils {
@@ -40,6 +43,9 @@ public:
      * @param destFile The destination file.
      */
     static void copyFile(const std::string& srcFile, const std::string& destFile);
+
+    /// read contents of file fp
+    static std::string readFile(FILE *fp);
     
 private:
 

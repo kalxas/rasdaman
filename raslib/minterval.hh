@@ -41,11 +41,6 @@ rasdaman GmbH.
 #include <string>       // for string
 #include <vector>       // for vector
 
-// TODO: remove and fix compilation
-using std::vector;
-using std::endl;
-
-
 
 //@ManMemo: Module: {\bf raslib}
 

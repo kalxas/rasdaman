@@ -42,7 +42,6 @@ LIBS = -L@CMAKE_INSTALL_PREFIX@/lib \
        -lrasnet                \
        -lcommon_crypto         \
        -lcommon_grpc           \
-       -lcommon_file           \
        -lcommon_exceptions     \
        -lcommon_network        \
        -lcommon_logging        \

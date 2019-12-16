@@ -87,7 +87,7 @@ public:
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s = std::cout) const;
+    virtual void print_status(std::ostream &s) const;
 
     /// destructor
     ~r_Collection_Type();

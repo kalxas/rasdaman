@@ -107,6 +107,8 @@ const int HttpServer::commInsertQueryExec  = 11;
 
 const long HttpServer::unknownError        = -10;
 
+using std::vector;
+
 
 // --------------------------------------------------------------------------------
 

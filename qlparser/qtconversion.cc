@@ -377,16 +377,14 @@ const BaseType *QtConversion::rasTypeToBaseType(r_Type *type)
     }
     else if (type->isStructType())
     {
-        r_Structure_Type *structType = static_cast<r_Structure_Type *>(const_cast<r_Type *>(type));
+        const auto *structType = static_cast<const r_Structure_Type *>(type);
         StructType *restype = new StructType("tmp_struct_type", structType->count_elements());
-        r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
-        while (iter != structType->defines_attribute_end())
+        for (const auto &att: structType->getAttributes())
         {
             try
             {
-                r_Attribute attr = (*iter);
-                const r_Base_Type &attr_type = attr.type_of();
-                restype->addElement(attr.name(), rasTypeToBaseType(static_cast<r_Type *>(const_cast<r_Base_Type *>(& attr_type))));
+                const r_Base_Type &attr_type = att.type_of();
+                restype->addElement(att.name(), rasTypeToBaseType(static_cast<r_Type *>(const_cast<r_Base_Type *>(& attr_type))));
             }
             catch (r_Error &e)
             {
@@ -394,7 +392,6 @@ const BaseType *QtConversion::rasTypeToBaseType(r_Type *type)
                 delete restype;
                 throw;
             }
-            ++iter;
         }
         TypeFactory::addTempType(restype);
         result = restype;

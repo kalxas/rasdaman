@@ -37,8 +37,6 @@
 
 #include <iosfwd>
 
-#include "raslib/error.hh"
-
 class r_Base_Type;
 
 //@ManMemo: Module: {\bf raslib}

@@ -20,11 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
 #include <malloc.h>
-#endif
 #include <string.h>
 
 #include "raslib/structuretype.hh"
@@ -33,21 +29,12 @@
 
 #include <logging.hh>
 
-r_Structure_Type::r_Structure_Type()
-    : r_Base_Type(),
-      numAttrs(0),
-      myAttributes(NULL)
-{
-}
-
 r_Structure_Type::r_Structure_Type(const char *newTypeName,
                                    unsigned int newNumAttrs,
                                    r_Attribute *newAttrs, int offset)
-    : r_Base_Type(newTypeName, 0),
-      numAttrs(newNumAttrs),
-      myAttributes(new r_Attribute[newNumAttrs])
+    : r_Base_Type(newTypeName, 0), myAttributes(newNumAttrs)
 {
-    for (unsigned int i = 0; i < numAttrs; i++)
+    for (unsigned int i = 0; i < newNumAttrs; i++)
     {
         myAttributes[i] = newAttrs[i];
         myAttributes[i].set_offset(typeSize);
@@ -57,54 +44,19 @@ r_Structure_Type::r_Structure_Type(const char *newTypeName,
 }
 
 r_Structure_Type::r_Structure_Type(const r_Structure_Type &oldObj)
-    : r_Base_Type(oldObj), numAttrs(oldObj.numAttrs), myAttributes(NULL)
+    : r_Base_Type(oldObj), myAttributes(oldObj.myAttributes)
 {
-
-    if (oldObj.myAttributes)
-    {
-        myAttributes = new r_Attribute[numAttrs];
-        for (unsigned int i = 0; i < numAttrs; i++)
-        {
-            myAttributes[i] = oldObj.myAttributes[i];
-        }
-    }
 }
 
 const r_Structure_Type &
 r_Structure_Type::operator=(const r_Structure_Type &oldObj)
 {
-    // Gracefully handle self assignment
-    if (this == &oldObj)
+    if (this != &oldObj)
     {
-        return *this;
+        r_Base_Type::operator=(oldObj);
+        myAttributes = oldObj.myAttributes;
     }
-
-    r_Base_Type::operator=(oldObj);
-    numAttrs = oldObj.numAttrs;
-    if (myAttributes)
-    {
-        delete[] myAttributes;
-        myAttributes = NULL;
-    }
-
-    if (oldObj.myAttributes)
-    {
-        myAttributes = new r_Attribute[numAttrs];
-        for (unsigned int i = 0; i < numAttrs; i++)
-        {
-            myAttributes[i] = oldObj.myAttributes[i];
-        }
-    }
-
     return *this;
-}
-
-r_Structure_Type::~r_Structure_Type()
-{
-    if (myAttributes)
-    {
-        delete[] myAttributes;
-    }
 }
 
 r_Type *
@@ -137,88 +89,87 @@ r_Structure_Type::compatibleWith(const r_Structure_Type *myType) const
     {
         return false;
     }
-
-    r_Structure_Type::attribute_iterator myIter(defines_attribute_begin());
-    r_Structure_Type::attribute_iterator myTypeIter(myType->defines_attribute_begin());
-    r_Structure_Type::attribute_iterator myIterEnd(defines_attribute_end());
-    // FIXME not used in curr implementation
-    // r_Structure_Type::attribute_iterator myTypeIterEnd(myType->defines_attribute_end());
-    while (myIter != myIterEnd)
+    for (unsigned int i = 0; i < count_elements(); ++i)
     {
-        if ((*myIter).type_of().type_id() != (*myTypeIter).type_of().type_id())
+        if ((*this)[i].type_of().type_id() != (*myType)[i].type_of().type_id())
         {
             return false;
         }
-        myIter++;
-        myTypeIter++;
     }
-
     return true;
 }
 
-r_Structure_Type::attribute_iterator
-r_Structure_Type::defines_attribute_begin() const
+r_Attribute &
+r_Structure_Type::resolve_attribute(const char *newName)
 {
-    return attribute_iterator(myAttributes + numAttrs, myAttributes);
+    for (unsigned int i = 0; i < count_elements(); ++i)
+    {
+        if (strcmp(myAttributes[i].name(), newName) == 0)
+        {
+            return myAttributes[i];
+        }
+    }
+    LERROR << "'" << newName << "' is not a valid atribute name.";
+    throw r_Error(r_Error::r_Error_NameInvalid);
 }
 
-r_Structure_Type::attribute_iterator
-r_Structure_Type::defines_attribute_end() const
+r_Attribute &
+r_Structure_Type::resolve_attribute(unsigned int number)
 {
-    return attribute_iterator(myAttributes + numAttrs - 1, myAttributes,
-                              myAttributes + numAttrs);
+    if (number < count_elements())
+    {
+        return myAttributes[number];
+    }
+    LERROR << "index out of bounds (" << number << ")";
+    throw r_Eindex_violation(0, count_elements() - 1, number);
 }
 
-r_Attribute
+r_Attribute &
+r_Structure_Type::operator[](unsigned int number)
+{
+    return resolve_attribute(number);
+}
+
+const r_Attribute &
 r_Structure_Type::resolve_attribute(const char *newName) const
 {
-    r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
-
-    while (iter != defines_attribute_end() && strcmp((*iter).name(), newName) != 0)
+    for (unsigned int i = 0; i < count_elements(); ++i)
     {
-        iter++;
+        if (strcmp(myAttributes[i].name(), newName) == 0)
+        {
+            return myAttributes[i];
+        }
     }
-
-    if (iter == defines_attribute_end())
-    {
-        LERROR << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name";
-        r_Error err(r_Error::r_Error_NameInvalid);
-        throw err;
-    }
-
-    return (*iter);
+    LERROR << "'" << newName << "' is not a valid atribute name.";
+    throw r_Error(r_Error::r_Error_NameInvalid);
 }
 
-r_Attribute
+const r_Attribute &
 r_Structure_Type::resolve_attribute(unsigned int number) const
 {
-    r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
-    unsigned int i = 0;
-    while (iter != defines_attribute_end() && i < number)
+    if (number < count_elements())
     {
-        i++;
-        iter++;
+        return myAttributes[number];
     }
-
-    if (iter == defines_attribute_end() || i < number)
-    {
-        LERROR << "r_Structure_Type::resolve_attribute(" << number << ") index out of bounds (" << i << ")";
-        throw r_Eindex_violation(0, numAttrs - 1, number);
-    }
-
-    return (*iter);
+    LERROR << "index out of bounds (" << number << ")";
+    throw r_Eindex_violation(0, count_elements() - 1, number);
 }
 
-r_Attribute
+const r_Attribute &
 r_Structure_Type::operator[](unsigned int number) const
 {
     return resolve_attribute(number);
 }
 
+const std::vector<r_Attribute> &r_Structure_Type::getAttributes() const
+{
+    return myAttributes;
+}
+
 unsigned int
 r_Structure_Type::count_elements() const
 {
-    return numAttrs;
+    return static_cast<unsigned int>(myAttributes.size());
 }
 
 void
@@ -229,7 +180,7 @@ r_Structure_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 
     for (i = 0; i < noCells; i++)
     {
-        for (j = 0; j < numAttrs; j++)
+        for (j = 0; j < count_elements(); j++)
         {
             myAttributes[j].type_of().convertToLittleEndian(
                 &cells[i * typeSize + myAttributes[j].offset()], 1);
@@ -245,7 +196,7 @@ r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
 
     for (i = 0; i < noCells; i++)
     {
-        for (j = 0; j < numAttrs; j++)
+        for (j = 0; j < count_elements(); j++)
         {
             myAttributes[j].type_of().convertToBigEndian(
                 &cells[i * typeSize + myAttributes[j].offset()], 1);
@@ -256,22 +207,16 @@ r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
 void
 r_Structure_Type::print_status(std::ostream &s) const
 {
-    r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
-
     s << "struct{ ";
-
-    while (iter != defines_attribute_end())
+    bool addComma = false;
+    for (const auto &att: myAttributes)
     {
-        (*iter).print_status(s);
-
-        iter++;
-
-        if (iter != defines_attribute_end())
-        {
+        if (addComma)
             s << ", ";
-        }
+        else
+            addComma = true;
+        att.print_status(s);
     }
-
     s << " }";
 }
 
@@ -279,19 +224,14 @@ void
 r_Structure_Type::print_value(const char *storage,  std::ostream &s) const
 {
     s << "{ ";
-
-    r_Structure_Type::attribute_iterator  iter(defines_attribute_begin());
-
-    while (iter !=  defines_attribute_end())
+    bool addComma = false;
+    for (const auto &att: myAttributes)
     {
-        (*iter).type_of().print_value(storage + (*iter).offset(),  s);
-
-        iter++;
-
-        if (iter != defines_attribute_end())
-        {
+        if (addComma)
             s << ", ";
-        }
+        else
+            addComma = true;
+        att.type_of().print_value(storage + att.offset(),  s);
     }
     s << "}  ";
 }

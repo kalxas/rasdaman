@@ -63,7 +63,6 @@ target_include_directories(reladminif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(reladminif PUBLIC
     raslib mymalloc_svc
     relblobif relcatalogif relindexif relmddif relstorageif
-    common_file
     ${BASEDB_LIBRARIES}
     )
 

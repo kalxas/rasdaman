@@ -39,7 +39,6 @@
 #endif
 
 #include "raslib/template_inst.hh"
-#include "raslib/itertype.hh"
 #include "raslib/structuretype.hh"
 #include "raslib/attribute.hh"
 #include "raslib/primitivetype.hh"

@@ -68,15 +68,15 @@ public:
     int isLeftTurn(const std::deque< r_Point *> &);
 
     // 2. The mshape/polygon created must be concave and with no colinear vertices
-    bool isValidSetOfPoints(const vector<r_Point> &);
+    bool isValidSetOfPoints(const std::vector<r_Point> &);
 
-    inline vector<r_Point> getPoints();
+    inline std::vector<r_Point> getPoints();
 
 private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 
-    vector<r_Point> points;
+    std::vector<r_Point> points;
 };
 
 

@@ -97,7 +97,7 @@ public:
     inline const r_Minterval getOldLoadDomain();
 
     /// method for LoadDomain
-    inline vector<bool> *getLoadDomainFlag();
+    inline std::vector<bool> *getLoadDomainFlag();
 
     /// method for identification of nodes
     inline virtual QtNodeType getNodeType() const;
@@ -117,7 +117,7 @@ private:
     r_Minterval oldLoadDomain;
 
     /// bitvector for discrimination of trimming and projections
-    vector<bool> *domainFlag;
+    std::vector<bool> *domainFlag;
 
     /// attribute storing the index of the variable's data element in the data vector
     int dataIndex;

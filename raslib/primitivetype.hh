@@ -71,13 +71,13 @@ public:
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s = std::cout) const;
+    virtual void print_status(std::ostream &s) const;
 
     /// check, if type is primitive.
     virtual bool isPrimitiveType() const;
 
     /// prints value of a primitive type
-    virtual void print_value(const char *storage,  std::ostream &s = std::cout) const;
+    virtual void print_value(const char *storage,  std::ostream &s) const;
 
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{

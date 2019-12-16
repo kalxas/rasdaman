@@ -125,7 +125,7 @@ public:
     inline size_t dimension() const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
 
     /// returns the stored vector
     inline const std::vector<double> &getVectorContent() const;

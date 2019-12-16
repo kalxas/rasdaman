@@ -60,7 +60,7 @@ public:
     } mddIntervalType;
 
     /// list storing pairs (Identifier, Interval)
-    typedef vector<mddIntervalType> mddIntervalListType;
+    typedef std::vector<mddIntervalType> mddIntervalListType;
 
     /// constructor getting iterator, minterval expression, and cell expression
     QtMarrayOp2(mddIntervalListType *&aList, QtOperation *&cellExp);

@@ -130,7 +130,7 @@ public:
     ;
 
     /// writes the state of the object to the specified stream
-    virtual void print_status(std::ostream &s = cout);
+    virtual void print_status(std::ostream &s);
 };
 
 #include "rasodmg/marray.icc"

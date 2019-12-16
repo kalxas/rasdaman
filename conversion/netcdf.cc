@@ -691,7 +691,7 @@ void r_Conv_NETCDF::writeMultipleVars(const std::vector<int> &dims)
 
     // offset of the attribute within the struct type
     size_t offset = 0;
-    auto it = st->defines_attribute_begin();
+    auto it = st->getAttributes().begin();
     for (size_t i = 0; i < varNames.size(); i++, it++)
     {
         const string &varName = varNames[i];

@@ -54,4 +54,20 @@ void FileUtils::copyFile(const std::string& srcFile, const std::string& destFile
     src.close();
     dest.close();
 }
+
+
+std::string FileUtils::readFile(FILE *fp)
+{
+    static const size_t BUFFER_SIZE = 20000;
+    char buffer[BUFFER_SIZE];
+    std::string ret;
+    while (!feof(fp))
+    {
+        if (fgets(buffer, BUFFER_SIZE, fp) != NULL)
+        {
+            ret += buffer;
+        }
+    }
+    return ret;
+}
 }

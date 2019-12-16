@@ -191,13 +191,12 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     {
         auto *stype = static_cast<r_Structure_Type *>(baseSchema.get());
         numBands = static_cast<int>(stype->count_elements());
-        r_Structure_Type::attribute_iterator iter(stype->defines_attribute_begin());
-        for (/* nop */ ; iter != stype->defines_attribute_end(); iter++)
+        for (const auto &att: stype->getAttributes())
         {
             // check the band types, they have to be of the same type
-            if ((*iter).type_of().isPrimitiveType())
+            if (att.type_of().isPrimitiveType())
             {
-                const auto pt = static_cast<const r_Primitive_Type &>((*iter).type_of());
+                const auto pt = static_cast<const r_Primitive_Type &>(att.type_of());
                 if (bandType)
                 {
                     if (bandType->type_id() != pt.type_id())

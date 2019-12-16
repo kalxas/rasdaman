@@ -24,65 +24,13 @@ rasdaman GmbH.
 #include "mymalloc/mymalloc.h"
 #include "raslib/metaobject.hh"
 
-#include <stdlib.h> // OSF1 has the definition for malloc here
-#ifdef __APPLE__
-#include <sys/malloc.h>
-#else
-#include <malloc.h>
-#endif
-#include <string.h>
 
-r_Meta_Object::r_Meta_Object()
-    : typeName(NULL)
+r_Meta_Object::r_Meta_Object(const char *newTypeName): typeName{newTypeName}
 {
-}
-
-r_Meta_Object::r_Meta_Object(const char *newTypeName)
-{
-    typeName = static_cast<char *>(mymalloc(strlen(newTypeName) + 1));
-    strcpy(typeName, newTypeName);
-}
-
-r_Meta_Object::r_Meta_Object(const r_Meta_Object &oldObj)
-    : typeName(NULL)
-{
-    if (oldObj.typeName)
-    {
-        typeName = static_cast<char *>(mymalloc(strlen(oldObj.typeName) + 1));
-        strcpy(typeName, oldObj.typeName);
-    }
-}
-
-const r_Meta_Object &
-r_Meta_Object::operator=(const r_Meta_Object &oldObj)
-{
-    // Gracefully handle self assignment
-    if (this == &oldObj)
-    {
-        return *this;
-    }
-
-    free(typeName);
-    typeName = NULL;
-    if (oldObj.typeName)
-    {
-        typeName = static_cast<char *>(mymalloc(strlen(oldObj.typeName) + 1));
-        strcpy(typeName, oldObj.typeName);
-    }
-
-    return *this;
-}
-
-r_Meta_Object::~r_Meta_Object()
-{
-    if (typeName)
-    {
-        free(typeName);
-    }
 }
 
 const char *
 r_Meta_Object::name() const
 {
-    return typeName;
+    return typeName.c_str();
 }

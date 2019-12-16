@@ -53,12 +53,12 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 
 #include "raslib/rmdebug.hh"
-#include "raslib/dlist.hh"
 #include <logging.hh>
 
 #include <iostream>
 #include <string>
 #include <functional> // for equal_to
+#include <vector>
 
 using namespace std;
 

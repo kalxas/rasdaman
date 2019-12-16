@@ -229,12 +229,5 @@ public:
 extern std::ostream &operator<<(std::ostream &os, const r_Tiling &t);
 
 #include "rasodmg/tiling.hh"
-#if (defined(__VISUALC__) && !defined(__EXECUTABLE__))
-#define __EXECUTABLE__
-#include "raslib/dlist.hh"
-#undef  __EXECUTABLE__
-#else
-#include "raslib/dlist.hh"
-#endif
 
 #endif

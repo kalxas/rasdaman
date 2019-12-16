@@ -47,7 +47,7 @@ public:
     QtDomainOperation(QtOperation *mintOp);
 
     /// constructor
-    QtDomainOperation(r_Minterval domainNew, const vector<bool> *newTrimFlags);
+    QtDomainOperation(r_Minterval domainNew, const std::vector<bool> *newTrimFlags);
 
     /// destructor
     virtual ~QtDomainOperation();

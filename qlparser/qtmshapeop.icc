@@ -33,7 +33,7 @@ QtMShapeOp::getNodeType() const
     return nodeType;
 }
 
-inline vector<r_Point>
+inline std::vector<r_Point>
 QtMShapeOp::getPoints()
 {
     return points;

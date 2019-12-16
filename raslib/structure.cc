@@ -69,17 +69,18 @@ r_Structure::r_Structure(const char *newBuffer, const r_Structure_Type *newType)
             memset(valueBuffer, 0, newType->size());
         }
 
-        r_Structure_Type::attribute_iterator iter(newType->defines_attribute_begin());
-
-        for (int i = 0; iter != newType->defines_attribute_end(); iter++, i++)
+        for (unsigned int i = 0; i < newType->count_elements(); i++)
         {
-            if ((*iter).type_of().type_id() == r_Type::STRUCTURETYPE)
+            auto &att = (*newType)[i];
+            if (att.type_of().type_id() == r_Type::STRUCTURETYPE)
             {
-                elements[i] = new r_Structure(valueBuffer + (*iter).offset(), static_cast<r_Structure_Type *>(const_cast<r_Base_Type *>(&((*iter).type_of()))));
+                elements[i] = new r_Structure(valueBuffer + att.offset(),
+                                              static_cast<r_Structure_Type *>(const_cast<r_Base_Type *>(&(att.type_of()))));
             }
             else
             {
-                elements[i] = new r_Primitive(valueBuffer + (*iter).offset(), (r_Primitive_Type *)const_cast<r_Base_Type *>(&((*iter).type_of())));
+                elements[i] = new r_Primitive(valueBuffer + att.offset(),
+                                              (r_Primitive_Type *)const_cast<r_Base_Type *>(&(att.type_of())));
             }
         }
     }
@@ -208,17 +209,19 @@ r_Structure::get_buffer() const
 {
     memset(valueBuffer, 0, valueType->size());
 
-    r_Structure_Type::attribute_iterator iter((static_cast<r_Structure_Type *>(valueType))->defines_attribute_begin());
-
-    for (int i = 0; iter != (static_cast<r_Structure_Type *>(valueType))->defines_attribute_end(); iter++, i++)
-        if ((*iter).type_of().type_id() == r_Type::STRUCTURETYPE)
+    unsigned int i = 0;
+    for (const auto &att: static_cast<r_Structure_Type *>(valueType)->getAttributes())
+    {
+        if (att.type_of().type_id() == r_Type::STRUCTURETYPE)
         {
-            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Structure *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
+            memcpy(valueBuffer + att.offset(), (static_cast<r_Structure *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
         }
         else
         {
-            memcpy(valueBuffer + (*iter).offset(), (static_cast<r_Primitive *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
+            memcpy(valueBuffer + att.offset(), (static_cast<r_Primitive *>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
         }
+        ++i;
+    }
 
     return valueBuffer;
 }
@@ -258,25 +261,20 @@ r_Structure::operator[](const char *name) const
     if (!valueType)
     {
         LERROR << "r_Structure::operator[](" << name << ") value type is NULL";
-        r_Error err(r_Error::r_Error_TypeInvalid);
-        throw (err);
+        throw r_Error(r_Error::r_Error_TypeInvalid);
     }
-
-    r_Structure_Type *structType = static_cast<r_Structure_Type *>(valueType);
-
-    r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
 
     int index = 0;
-    for (; iter != structType->defines_attribute_end() && strcmp((*iter).name(), name); iter++, index++);
-
-    if (iter == structType->defines_attribute_end())
+    for (const auto &att: static_cast<r_Structure_Type *>(valueType)->getAttributes())
     {
-        LERROR << "r_Structure::operator[](" << name << ") name is not valid";
-        r_Error err(r_Error::r_Error_NameInvalid);
-        throw (err);
+        if (strcmp(att.name(), name) == 0)
+        {
+            return *(elements[index]);
+        }
+        ++index;
     }
-
-    return *(elements[index]);
+    LERROR << "r_Structure::operator[](" << name << ") name is not valid";
+    throw r_Error(r_Error::r_Error_NameInvalid);
 }
 
 

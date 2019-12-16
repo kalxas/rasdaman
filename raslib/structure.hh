@@ -35,12 +35,9 @@
 #ifndef _D_STRUCTURE_
 #define _D_STRUCTURE_
 
-#include <iostream>
-
-class r_Error;
-
 #include "raslib/scalar.hh"
 
+class r_Error;
 class r_Structure_Type;
 
 //@ManMemo: Module: {\bf raslib}

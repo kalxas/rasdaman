@@ -46,9 +46,6 @@ using std::fill_n;
 #include "qlparser/symtab.hh"
 
 #include "raslib/attribute.hh"
-#include "raslib/itertype.hh"
-#include "raslib/dlist.hh"
-
 #include "tile.hh"
 
 #include "indexmgr/keyobject.hh"
@@ -78,8 +75,6 @@ using std::fill_n;
 #include "relstorageif/dbstoragelayout.hh"
 
 template class SymbolTable<int>;
-
-template class r_IterType<r_Attribute>;
 
 template class DBRef<DBHierIndex>;
 template class DBRef<DBRCIndexDS>;

@@ -26,7 +26,7 @@ add_library(storagemgr
     stgmddconfig.hh stgmddconfig.cc)
 
 target_link_libraries(storagemgr
-    raslib
+    raslib rasodmg
     reladminif relstorageif
     common_logging)
 

@@ -70,7 +70,7 @@ class FindSection
 {
 public:
     //constructor
-    FindSection(const std::vector< std::pair< r_PointDouble, double >> &linEqnArg, const vector<r_Dimension> &keptDimsArg);
+    FindSection(const std::vector< std::pair< r_PointDouble, double >> &linEqnArg, const std::vector<r_Dimension> &keptDimsArg);
 
     void prepareSection();
 
@@ -93,26 +93,26 @@ private:
     //initialized as args of constructor
 
     //linEqn.first = LHS (A); linEqn.second = RHS (b)
-    std::pair< vector< vector<double>>, vector<double>> linEqn; //Ax = b
+    std::pair< std::vector< std::vector<double>>, std::vector<double>> linEqn; //Ax = b
     //the dimensions projected onto
-    vector<r_Dimension> keptDims;
+    std::vector<r_Dimension> keptDims;
 
     //initialized during constructor call
 
     //the projected dimensions
-    vector<r_Dimension> lostDims;
+    std::vector<r_Dimension> lostDims;
 
     //the matrices $A_I$ and $A_J$, respectively
-    vector<vector<double>> matAI;
-    vector<vector<double>> matAJ;
+    std::vector<std::vector<double>> matAI;
+    std::vector<std::vector<double>> matAJ;
 
     //LU decomposition of A_I
-    vector<vector<double>> L;
-    vector<vector<double>> U;
+    std::vector<std::vector<double>> L;
+    std::vector<std::vector<double>> U;
 
     //for applying the function quickly
-    vector<double> op1;
-    vector< vector<double>> op2;
+    std::vector<double> op1;
+    std::vector< std::vector<double>> op2;
 };
 
 #endif  /* QTFINDSECTION_HH */

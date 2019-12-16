@@ -315,18 +315,17 @@ r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
         r_Type::r_Type_Id bandType = r_Type::UNKNOWNTYPE;
 
         // iterate over the attributes of the struct
-        r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
-        while (iter != st->defines_attribute_end())
+        for (const auto &att: st->getAttributes())
         {
-            if ((*iter).type_of().isPrimitiveType())
+            if (att.type_of().isPrimitiveType())
             {
-                structSize += (*iter).type_of().size();
+                structSize += att.type_of().size();
                 if (bandType == r_Type::UNKNOWNTYPE)
                 {
-                    bandType = (*iter).type_of().type_id();
+                    bandType = att.type_of().type_id();
 
                     // set sample format
-                    switch ((*iter).type_of().type_id())
+                    switch (att.type_of().type_id())
                     {
                     case r_Type::CHAR:
                     case r_Type::USHORT:
@@ -341,7 +340,7 @@ r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
                     }
                 }
                 // check if all bands are of the same type
-                if ((*iter).type_of().type_id() != bandType)
+                if (att.type_of().type_id() != bandType)
                 {
                     LERROR << "r_Conv_TIFF::convertTo(): can't handle bands of different types";
                     throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
@@ -350,10 +349,9 @@ r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
             else
             {
                 LERROR << "r_Conv_TIFF::convertTo(): can't handle band of non-primitive type "
-                       << (*iter).type_of().name();
+                       << att.type_of().name();
                 throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
             }
-            iter++;
         }
         bpp = structSize * 8;
         bps = bpp / spp;

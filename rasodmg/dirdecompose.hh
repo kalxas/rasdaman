@@ -95,7 +95,7 @@ public:
     r_Range get_partition(int number) const;
 
     /// Prints the current status of the object
-    virtual void print_status(std::ostream &os = cout) const;
+    virtual void print_status(std::ostream &os) const;
 
 protected:
     r_Sinterval get_total_interval();

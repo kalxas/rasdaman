@@ -35,8 +35,6 @@ rasdaman GmbH.
 
 #include "raslib/type.hh"
 
-
-
 //@ManMemo: Module: {\bf raslib}
 
 /**
@@ -48,7 +46,7 @@ class r_Base_Type : public r_Type
 {
 public:
     /// default constructor.
-    r_Base_Type();
+    r_Base_Type() = default;
 
     /// constructor getting name of basetype.
     r_Base_Type(const char *newTypeName, r_Bytes newSize);
@@ -60,7 +58,7 @@ public:
     const r_Base_Type &operator=(const r_Base_Type &oldObj);
 
     /// destructor.
-    virtual ~r_Base_Type();
+    virtual ~r_Base_Type() = default;
 
     /// check, if type is a base type (primitive type or structure type).
     virtual bool isBaseType() const;
@@ -69,11 +67,11 @@ public:
     r_Bytes size() const;
 
     /// prints value of a primitive type or values of a structured type
-    virtual void print_value(const char *storage, std::ostream &s = std::cout) const = 0;
+    virtual void print_value(const char *storage, std::ostream &s) const = 0;
 
 protected:
     /// storing size of type in bytes
-    r_Bytes typeSize;
+    r_Bytes typeSize{};
 
 };
 

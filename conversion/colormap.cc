@@ -23,6 +23,7 @@
 #include "colormap.hh"
 #include "conversion/convtypes.hh"
 #include "raslib/odmgtypes.hh"
+#include "raslib/error.hh"
 #include <logging.hh>
 #include <cmath>
 

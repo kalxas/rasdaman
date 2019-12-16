@@ -31,9 +31,6 @@ rasdaman GmbH.
 #include "qlparser/symtab.hh"
 
 #include "raslib/attribute.hh"
-#include "raslib/itertype.hh"
-#include "raslib/dlist.hh"
-
 #include "tile.hh"
 
 #include "indexmgr/keyobject.hh"
@@ -65,8 +62,6 @@ rasdaman GmbH.
 
 #include <qlparser/symtab.hh>
 #include <raslib/attribute.hh>
-#include <raslib/itertype.hh>
-#include <raslib/dlist.hh>
 #include <raslib/minterval.hh>
 
 
@@ -113,7 +108,6 @@ template class r_Collection<r_Ref<r_GMarray>>;
 template class r_Collection<r_GMarray*>;
 template class r_Set<r_GMarray*>;
 template class r_Iterator<r_Ref<r_Object>>;
-template class r_IterType<r_Attribute>;
 template class r_Collection<r_Ref<r_Object>>;
 template class r_Set<r_Ref<r_Object>>;
 template class r_Iterator<r_Ref_Any>;

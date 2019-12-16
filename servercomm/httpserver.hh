@@ -142,15 +142,15 @@ private:
                         char *&result, bool &isPersistent);
 
     unsigned short startInsertMDD(unsigned long callingClientId, char *query,
-                                  const vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent);
+                                  const std::vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent);
 
     unsigned short insertMDD(unsigned long callingClientId,
-                             vector<HttpServer::MDDEncoding *> &transferredMDDs, bool isPersistent);
+                             std::vector<HttpServer::MDDEncoding *> &transferredMDDs, bool isPersistent);
 
-    long encodeInsertError(char *&result, unsigned short execResult, vector<HttpServer::MDDEncoding *> &transferredMDDs);
+    long encodeInsertError(char *&result, unsigned short execResult, std::vector<HttpServer::MDDEncoding *> &transferredMDDs);
 
 
-    static vector<MDDEncoding *> getMDDs(int binDataSize, char *binData, int endianess);
+    static std::vector<MDDEncoding *> getMDDs(int binDataSize, char *binData, int endianess);
     static int encodeAckn(char *&result, int ackCode);
 
     // client requests allowed; this should be in sync with RasODMGGlobal.java

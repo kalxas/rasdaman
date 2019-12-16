@@ -665,14 +665,13 @@ r_Primitive_Type *r_Conv_GDAL::getBandType(const r_Type *baseType)
     }
     else if (baseType->isStructType()) // = multiple bands
     {
-        r_Structure_Type *structType = static_cast<r_Structure_Type *>(const_cast<r_Type *>(baseType));
-        r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
-        while (iter != structType->defines_attribute_end())
+        const r_Structure_Type *structType = static_cast<const r_Structure_Type *>(baseType);
+        for (const auto &att: structType->getAttributes())
         {
             // check the band types, they have to be of the same type
-            if ((*iter).type_of().isPrimitiveType())
+            if (att.type_of().isPrimitiveType())
             {
-                r_Primitive_Type pt = static_cast<r_Primitive_Type &>(const_cast<r_Base_Type &>((*iter).type_of()));
+                const auto pt = static_cast<const r_Primitive_Type &>(att.type_of());
                 if (ret != NULL)
                 {
                     if (ret->type_id() != pt.type_id())
@@ -691,7 +690,6 @@ r_Primitive_Type *r_Conv_GDAL::getBandType(const r_Type *baseType)
                 LERROR << "Can not handle composite bands.";
                 throw r_Error(r_Error::r_Error_Conversion);
             }
-            ++iter;
         }
     }
     return ret;

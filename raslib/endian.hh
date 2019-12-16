@@ -33,13 +33,12 @@ rasdaman GmbH.
 #ifndef _R_ENDIANTOOLS_HH_
 #define _R_ENDIANTOOLS_HH_
 
-#include <iostream>
+#include "raslib/odmgtypes.hh"
+#include "raslib/mddtypes.hh"
 
 class r_Minterval;
 class r_Base_Type;
 class r_Primitive_Type;
-#include "raslib/odmgtypes.hh"
-#include "raslib/mddtypes.hh"
 
 //@ManMemo: Module {\bf raslib}
 

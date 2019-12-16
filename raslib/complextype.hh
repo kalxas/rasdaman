@@ -47,8 +47,8 @@ public:
     virtual ~r_Complex_Type();
 
     virtual r_Type *clone() const;
-    virtual void print_status(std::ostream &s = std::cout) const;
-    virtual void print_value(const char *storage, std::ostream &s = std::cout) const;
+    virtual void print_status(std::ostream &s) const;
+    virtual void print_value(const char *storage, std::ostream &s) const;
 
     r_Double get_re(const char *cell) const;
     r_Double get_im(const char *cell) const;

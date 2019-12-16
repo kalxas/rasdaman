@@ -150,7 +150,7 @@ public:
 
     void  extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain);
 
-    vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
+    std::vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
 
 };
 #endif

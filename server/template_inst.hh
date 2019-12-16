@@ -53,8 +53,6 @@ using std::fill_n;
 #include "qlparser/symtab.hh"
 
 #include "raslib/attribute.hh"
-#include "raslib/itertype.hh"
-#include "raslib/dlist.hh"
 
 #include "tilemgr/tile.hh"
 
@@ -89,8 +87,6 @@ using std::fill_n;
 
 template class SymbolTable<int>;
 
-//template class r_IterType<r_Attribute>;
-
 template class r_Ref<r_Scalar>;
 template class r_Ref<r_OId>;
 
@@ -121,9 +117,6 @@ template class DBObjectIterator<SetType>;
 template class DBRef<StructType>;
 template class DBRef<SetType>;
 template class DBRef<MDDType>;
-
-template std::ostream& operator<< (const vector<KeyObject>&, std::ostream&);
-template std::ostream& operator<< (std::ostream&, const vector<KeyObject>&);
 
 namespace __gnu_cxx 
 {

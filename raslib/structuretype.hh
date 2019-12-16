@@ -33,18 +33,11 @@
 #ifndef _D_STRUCTURE_TYPE_
 #define _D_STRUCTURE_TYPE_
 
-#if (defined(__VISUALC__) && !defined(__EXECUTABLE__))
-#define __EXECUTABLE__
-#include "raslib/itertype.hh"
-#undef  __EXECUTABLE__
-#else
-#include "raslib/itertype.hh"
-#endif
-
-class r_Error;
 #include "raslib/basetype.hh"
 #include "raslib/attribute.hh"
+#include <vector>
 
+class r_Error;
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -56,10 +49,8 @@ class r_Error;
 class r_Structure_Type : public r_Base_Type
 {
 public:
-    /// typedef for iterator iterating through all attributes;
-    typedef r_IterType<r_Attribute> attribute_iterator;
     /// default constructor.
-    r_Structure_Type();
+    r_Structure_Type() = default;
     /// constructor getting name of type and type id.
     r_Structure_Type(const char *newTypeName, unsigned int newNumAttrs, r_Attribute *newAttrs, int offset = 0);
     /// copy constructor
@@ -67,7 +58,7 @@ public:
     /// assignment operator.
     const r_Structure_Type &operator=(const r_Structure_Type &oldObj);
     /// destructor.
-    virtual ~r_Structure_Type();
+    virtual ~r_Structure_Type() = default;
 
     /// clone operation
     virtual r_Type *clone() const;
@@ -80,17 +71,22 @@ public:
 
     /// check, if this type is compatible with myType (e.g. check the structure ignoring then names of atributtes)
     virtual bool compatibleWith(const r_Structure_Type *myType) const;
-
-    /// returns attribute iterator at begin position.
-    attribute_iterator defines_attribute_begin() const;
-    /// returns attribute iterator at end position (behind last attribute).
-    attribute_iterator defines_attribute_end() const;
+    
     /// return attribute specified by name.
-    r_Attribute resolve_attribute(const char *name) const;
+    r_Attribute &resolve_attribute(const char *name);
     /// return attribute specified by number starting with zero.
-    r_Attribute resolve_attribute(unsigned int number) const;
+    r_Attribute &resolve_attribute(unsigned int number);
     /// subscript operator to access attributes by index
-    r_Attribute operator[](unsigned int number) const;
+    r_Attribute &operator[](unsigned int number);
+    
+    /// return attribute specified by name.
+    const r_Attribute &resolve_attribute(const char *name) const;
+    /// return attribute specified by number starting with zero.
+    const r_Attribute &resolve_attribute(unsigned int number) const;
+    /// subscript operator to access attributes by index
+    const r_Attribute &operator[](unsigned int number) const;
+    
+    const std::vector<r_Attribute> &getAttributes() const;
 
     /// get number of attributes
     unsigned int count_elements() const;
@@ -102,14 +98,13 @@ public:
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s = std::cout) const;
+    virtual void print_status(std::ostream &s) const;
 
     /// prints values of a structured type
-    virtual void print_value(const char *storage,  std::ostream &s = std::cout) const;
+    virtual void print_value(const char *storage,  std::ostream &s) const;
 
 protected:
-    unsigned int numAttrs;
-    r_Attribute *myAttributes;
+    std::vector<r_Attribute> myAttributes;
 };
 
 //@Doc: write the status of a structure type to a stream

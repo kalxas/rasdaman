@@ -35,7 +35,7 @@ set_source_files_properties(
 
 set(RASNET_LIBRARIES
     rasnet common_exceptions common_crypto common_grpc
-    common_logging common_time common_uuid common_file
+    common_logging common_time common_uuid
     ${Boost_THREAD_LIBRARY})
 
 add_library(clientcomm ${SRC_FILES})

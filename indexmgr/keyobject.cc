@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include "keyobject.hh"
 #include "tilemgr/tile.hh"        // for Tile
 #include "relblobif/tileid.hh"    // for DBTileId
+#include "raslib/error.hh"
 
 #include <boost/make_shared.hpp>  // for shared_ptr::operator bool
 #include <ostream>                // for operator<<, ostream, basic_ostream

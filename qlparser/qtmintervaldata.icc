@@ -46,7 +46,7 @@ QtMintervalData::setMintervalData(const r_Minterval &minterval)
     {
         delete trimFlags;
     }
-    trimFlags = new vector<bool>(minterval.dimension());
+    trimFlags = new std::vector<bool>(minterval.dimension());
 
     for (unsigned int i = 0; i < trimFlags->size(); i++)
     {

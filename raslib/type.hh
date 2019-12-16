@@ -56,8 +56,8 @@ class r_Collection_Type;
 class r_Type : public r_Meta_Object
 {
 public:
-    /// typedef for the enum specifying a primitive type, structure type, marray type,
-    ///                               interval type, minterval type, point type or oid type
+    /// typedef for the enum specifying a primitive type, structure type,
+    /// marray type, interval type, minterval type, point type or oid type
     enum r_Type_Id { ULONG, USHORT, BOOL, LONG, SHORT, OCTET,
                      DOUBLE, FLOAT, CHAR, COMPLEXTYPE1, COMPLEXTYPE2, CINT16, CINT32,
                      STRUCTURETYPE, MARRAYTYPE, COLLECTIONTYPE,
@@ -65,15 +65,11 @@ public:
                      UNKNOWNTYPE
                    };
     /// default constructor.
-    r_Type();
+    r_Type() = default;
     /// constructor getting name of type.
     explicit r_Type(const char *newTypeName);
-    /// copy constructor
-    r_Type(const r_Type &oldObj);
-    /// assignment operator.
-    const r_Type &operator=(const r_Type &oldObj);
     /// destructor.
-    virtual ~r_Type();
+    virtual ~r_Type() = default;
 
     /// clone operation
     virtual r_Type *clone() const = 0;
@@ -120,6 +116,13 @@ public:
     /// converts array of cells from Unix byte order to NT byte order.
     virtual void convertToBigEndian(char *cells, r_Area noCells) const = 0;
 
+
+private:
+
+    //@Man: Methodes and structures for dl parser:
+    //@{
+    ///
+    
     /// token enumeration for parser
     enum DLTOKEN   { DLMARRAY, DLSET, DLSTRUCT, DLCOMMA,
                      DLLEP, DLREP, DLLAP, DLRAP, DLLCP, DLRCP,
@@ -127,14 +130,6 @@ public:
                      DLLONG, DLULONG, DLFLOAT, DLDOUBLE, DLBOOL, DLCOMPLEXTYPE1, DLCOMPLEXTYPE2, DLCINT16, DLCINT32, 
                      DLINTERVAL,  DLMINTERVAL, DLPOINT, DLOID, DLUNKNOWN
                    };
-
-
-private:
-
-    //@Man: Methodes and structures for dl parser:
-    //@{
-    ///
-
     ///
     static DLTOKEN getNextToken(char *&pos, char *&identifier);
     ///

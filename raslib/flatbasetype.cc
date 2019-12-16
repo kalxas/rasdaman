@@ -249,23 +249,21 @@ void r_Flat_Base_Type::parse_primitive_type(r_Primitive_Type *nType, unsigned in
 
 unsigned int r_Flat_Base_Type::parse_structure_type(const r_Structure_Type *nType, unsigned int num, unsigned int off)
 {
-    r_Structure_Type::attribute_iterator iter(nType->defines_attribute_begin());
     unsigned int numPrim = 0;
 
-    while (iter != nType->defines_attribute_end())
+    for (const auto &att: nType->getAttributes())
     {
-        r_Type *newType = (*iter).type_of().clone();
+        r_Type *newType = att.type_of().clone();
         if (newType->isStructType())
         {
-            numPrim += parse_structure_type(static_cast<const r_Structure_Type *>(newType), num + numPrim, off + (*iter).offset());
+            numPrim += parse_structure_type(static_cast<const r_Structure_Type *>(newType), num + numPrim, off + att.offset());
             delete newType;
         }
         else
         {
-            parse_primitive_type(static_cast<r_Primitive_Type *>(newType), num + numPrim, off + (*iter).offset());
+            parse_primitive_type(static_cast<r_Primitive_Type *>(newType), num + numPrim, off + att.offset());
             numPrim++;
         }
-        iter++;
     }
 
     return numPrim;

@@ -49,7 +49,7 @@ class QtMintervalData : public QtData
 {
 public:
     /// constructor getting the minterval
-    QtMintervalData(const r_Minterval &minterval, vector<bool> *initTrimFlags = NULL);
+    QtMintervalData(const r_Minterval &minterval, std::vector<bool> *initTrimFlags = NULL);
 
     /// virtual destructor
     virtual ~QtMintervalData();
@@ -65,7 +65,7 @@ public:
     //
     // inline void                setMintervalData( const r_Point& point );
     ///
-    inline const vector<bool> *getTrimFlags() const;
+    inline const std::vector<bool> *getTrimFlags() const;
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -96,7 +96,7 @@ private:
     r_Minterval mintervalData;
 
     /// bitvector indicating real projections
-    vector<bool> *trimFlags;
+    std::vector<bool> *trimFlags;
 };
 
 #include "qlparser/qtmintervaldata.icc"

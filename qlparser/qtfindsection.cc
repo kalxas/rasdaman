@@ -23,6 +23,8 @@ rasdaman GmbH.
 
 #include "qlparser/qtfindsection.hh"
 
+using std::vector;
+
 FindSection::FindSection(const vector< std::pair< r_PointDouble, double >> &linEqnArg, const vector<r_Dimension> &keptDimsArg)
     : keptDims(keptDimsArg)
 {

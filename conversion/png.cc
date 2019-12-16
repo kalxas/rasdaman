@@ -278,18 +278,15 @@ r_Conv_Desc &r_Conv_PNG::convertTo(const char *options, const r_Range *nullValue
         LINFO << "ctype_struct";
         // check first if it's 4 char bands
         {
-            r_Structure_Type *st = static_cast<r_Structure_Type *>(const_cast<r_Type *>(desc.srcType));
-            r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
             int bands = 0;
-            while (iter != st->defines_attribute_end())
+            for (const auto &att: static_cast<const r_Structure_Type *>(desc.srcType)->getAttributes())
             {
                 ++bands;
-                if ((*iter).type_of().type_id() != r_Type::CHAR)
+                if (att.type_of().type_id() != r_Type::CHAR)
                 {
                     LERROR << "Error: the PNG convertor expects bands of type char";
                     throw r_Error(r_Error::r_Error_General);
                 }
-                iter++;
             }
             if (bands > 4)
             {

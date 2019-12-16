@@ -167,16 +167,15 @@ const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type
 const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 {
     r_Structure_Type *st = static_cast<r_Structure_Type *>(const_cast<r_Type *>(desc.srcType));
-    r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
     f << STRUCT_DELIMITER_OPEN;
-    while (iter != st->defines_attribute_end())
+    bool addDelimiter = false;
+    for (const auto &att: static_cast<const r_Structure_Type *>(desc.srcType)->getAttributes())
     {
-        val = printValue(f, (*iter).type_of(), val);
-        iter++;
-        if (iter != st->defines_attribute_end())
-        {
+        if (addDelimiter)
             f << STRUCT_DELIMITER_ELEMENT;
-        }
+        else
+            addDelimiter = true;
+        val = printValue(f, att.type_of(), val);
     }
     f << STRUCT_DELIMITER_CLOSE;
     return val;
@@ -437,19 +436,17 @@ void r_Conv_CSV::constructStruct(unsigned int numElem)
     vector<r_Type::r_Type_Id> componentTypes;
     vector<size_t> componentSizes;
 
-    r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
     LDEBUG << "Decoding struct data..";
-    while (iter != st->defines_attribute_end())
+    for (const auto &att: st->getAttributes())
     {
-        if (!(*iter).type_of().isPrimitiveType())
+        if (!att.type_of().isPrimitiveType())
         {
-            LERROR << "unsupported attribute type " << ((*iter).type_of()).type_id();
+            LERROR << "unsupported attribute type " << (att.type_of()).type_id();
             throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
         }
-        componentTypes.push_back((*iter).type_of().type_id());
-        componentSizes.push_back((*iter).type_of().size());
+        componentTypes.push_back(att.type_of().type_id());
+        componentSizes.push_back(att.type_of().size());
         LDEBUG << "component of type " << componentTypes.back() << ", size " << componentSizes.back();
-        iter++;
     }
 
     size_t srcSize = desc.srcInterv.cell_count();

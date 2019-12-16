@@ -489,13 +489,11 @@ void r_Endian::swap_array(const r_Primitive_Type *type, const r_Minterval &srcDo
 
 static void swap_array_struct(const r_Structure_Type *structType, const r_Minterval &srcDom, const r_Minterval &srcIterDom, const void *src, void *dest, r_ULong step)
 {
-    r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
-
-    while (iter != structType->defines_attribute_end())
+    for (unsigned int i = 0; i < structType->count_elements(); ++i)
     {
-        r_Type *newType = (*iter).type_of().clone();
-        const void *srcPtr = static_cast<const void *>((static_cast<const r_Octet *>(src)) + (*iter).offset());
-        void *destPtr = static_cast<void *>((static_cast<r_Octet *>(dest)) + (*iter).offset());
+        r_Type *newType = (*structType)[i].type_of().clone();
+        const void *srcPtr = static_cast<const void *>((static_cast<const r_Octet *>(src)) + (*structType)[i].offset());
+        void *destPtr = static_cast<void *>((static_cast<r_Octet *>(dest)) + (*structType)[i].offset());
         if (newType->isStructType())
         {
             swap_array_struct(static_cast<const r_Structure_Type *>(newType), srcDom, srcIterDom, srcPtr, destPtr, step);
@@ -505,7 +503,6 @@ static void swap_array_struct(const r_Structure_Type *structType, const r_Minter
             r_Endian::swap_array(static_cast<const r_Primitive_Type *>(newType), srcDom, srcIterDom, srcPtr, destPtr, step);
         }
         delete newType;
-        iter++;
     }
 }
 
@@ -588,13 +585,11 @@ void r_Endian::swap_array(const r_Primitive_Type *type, const r_Minterval &srcDo
 
 static void swap_array_struct(const r_Structure_Type *structType, const r_Minterval &srcDom, const r_Minterval &srcIterDom, const r_Minterval &destDom, const r_Minterval &destIterDom, const void *src, void *dest, r_ULong step)
 {
-    r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
-
-    while (iter != structType->defines_attribute_end())
+    for (unsigned int i = 0; i < structType->count_elements(); ++i)
     {
-        r_Type *newType = (*iter).type_of().clone();
-        const void *srcPtr = static_cast<const void *>((static_cast<const r_Octet *>(src)) + (*iter).offset());
-        void *destPtr = static_cast<void *>((static_cast<r_Octet *>(dest)) + (*iter).offset());
+        r_Type *newType = (*structType)[i].type_of().clone();
+        const void *srcPtr = static_cast<const void *>((static_cast<const r_Octet *>(src)) + (*structType)[i].offset());
+        void *destPtr = static_cast<void *>((static_cast<r_Octet *>(dest)) + (*structType)[i].offset());
         if (newType->isStructType())
         {
             swap_array_struct(static_cast<const r_Structure_Type *>(newType), srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
@@ -604,7 +599,6 @@ static void swap_array_struct(const r_Structure_Type *structType, const r_Minter
             r_Endian::swap_array(static_cast<const r_Primitive_Type *>(newType), srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
         }
         delete newType;
-        iter++;
     }
 }
 

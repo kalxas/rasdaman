@@ -33,15 +33,8 @@ rasdaman GmbH.
 #ifndef _D_META_OBJECT_
 #define _D_META_OBJECT_
 
-#include <iostream>
-
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <sstream> // for istrstream
-#endif
-
-#include "raslib/error.hh"
+#include <iosfwd>
+#include <string>
 
 //@ManMemo: Module: {\bf raslib}
 
@@ -54,24 +47,20 @@ class r_Meta_Object
 {
 public:
     /// default constructor.
-    r_Meta_Object();
+    r_Meta_Object() = default;
     /// constructor getting name of type.
     r_Meta_Object(const char *newTypeName);
-    /// copy constructor
-    r_Meta_Object(const r_Meta_Object &oldObj);
-    /// assignment operator.
-    const r_Meta_Object &operator=(const r_Meta_Object &oldObj);
     /// destructor.
-    virtual ~r_Meta_Object();
+    virtual ~r_Meta_Object() = default;
 
     /// retrieve name of the type.
     const char *name() const;
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s = std::cout) const = 0;
+    virtual void print_status(std::ostream &s) const = 0;
 
 protected:
-    char *typeName;
+    std::string typeName;
 };
 
 #endif

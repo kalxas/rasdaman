@@ -32,7 +32,7 @@
 #include <logging.hh>
 #include "common/crypto/crypto.hh"
 #include "common/uuid/uuid.hh"
-#include "common/file/fileutils.hh"
+#include "common/util/fileutils.hh"
 #include "common/exceptions/rasexceptions.hh"
 #include "include/globals.hh"
 

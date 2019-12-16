@@ -82,7 +82,7 @@ public:
     void set_global_offset(r_Bytes newOffset);
 
     /// writes state of object to specified stream
-    virtual void print_status(std::ostream &s = std::cout) const;
+    virtual void print_status(std::ostream &s) const;
 
     /// subscript operator to access attributes of a structured attribute
     /// throws error when type is not a struct type

@@ -281,17 +281,14 @@ r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
         // make life easy and always interpret as RGB
         // add case for structs -- DM 2011-nov-10
 //        retval = ctype_rgb;
-        r_Structure_Type *st = static_cast<r_Structure_Type *>(const_cast<r_Type *>(tp));
-        r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
         int bands = 0;
-        while (iter != st->defines_attribute_end())
+        for (const auto &att: static_cast<const r_Structure_Type *>(tp)->getAttributes())
         {
             ++bands;
-            if ((*iter).type_of().type_id() != r_Type::CHAR || bands > 3)
+            if (att.type_of().type_id() != r_Type::CHAR || bands > 3)
             {
                 return ctype_struct;
             }
-            iter++;
         }
         if (bands != 3)
         {

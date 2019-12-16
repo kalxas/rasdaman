@@ -34,14 +34,12 @@ rasdaman GmbH.
 #ifndef _D_COMPLEX_
 #define _D_COMPLEX_
 
-#include <iostream>
-class r_Error;
-class r_Complex_Type;
-
 #include "raslib/odmgtypes.hh"
 #include "raslib/mddtypes.hh"
 #include "raslib/primitive.hh"
 
+class r_Error;
+class r_Complex_Type;
 
 //@ManMemo: Module: {\bf raslib}
 

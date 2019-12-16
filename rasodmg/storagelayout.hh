@@ -103,7 +103,7 @@ public:
     virtual std::vector<r_Minterval> *decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const;
 
     /// writes the state of the object to the specified stream
-    void print_status(std::ostream &s = cout) const;
+    void print_status(std::ostream &s) const;
 
     ///
     virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes celltypesize) const;
@@ -129,11 +129,4 @@ protected:
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Storage_Layout &sl);
 
-#if (defined(__VISUALC__) && !defined(__EXECUTABLE__))
-#define __EXECUTABLE__
-#include "raslib/dlist.hh"
-#undef  __EXECUTABLE__
-#else
-#include "raslib/dlist.hh"
-#endif
 #endif
