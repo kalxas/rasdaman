@@ -33,11 +33,10 @@ rasdaman GmbH.
 #ifndef _R_DIRTILING_HH_
 #define _R_DIRTILING_HH_
 
-// Include statements
+#include "rasodmg/tiling.hh"
+
 class r_Dir_Decompose;
 class r_Dir_Tiling;
-
-#include "rasodmg/tiling.hh"
 
 // Class definition
 
@@ -86,9 +85,9 @@ public:
     dimension.
     */
 
-    virtual ~r_Dir_Tiling();
+    virtual ~r_Dir_Tiling() = default;
 
-    virtual std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
     virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes type_len) const;
 
@@ -107,7 +106,7 @@ public:
     /**
      Get a tilisize limit name for a tilesize limit
     */
-    static const char      *get_name_from_subtiling(SubTiling st);
+    static const char *get_name_from_subtiling(SubTiling st);
 
     static const char *description;
 

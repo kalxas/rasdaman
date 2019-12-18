@@ -33,9 +33,10 @@ rasdaman GmbH.
 #ifndef _R_INTERESTTILING_HH_
 #define _R_INTERESTTILING_HH_
 
+#include "rasodmg/tiling.hh"
+
 class r_Dir_Decompose;
 class r_Interest_Tiling;
-#include "rasodmg/tiling.hh"
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -114,9 +115,9 @@ public:
     specified dimension.
     */
 
-    virtual ~r_Interest_Tiling();
+    virtual ~r_Interest_Tiling() = default;
 
-    std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
+    std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
     virtual void print_status(std::ostream &os) const;
 
@@ -133,14 +134,14 @@ public:
     /**
        Get a tilisize limit name for a tilesize limit
     */
-    static const char      *get_name_from_tilesize_limit(Tilesize_Limit tsl);
+    static const char *get_name_from_tilesize_limit(Tilesize_Limit tsl);
 
     static const char *description;
 
 protected: // methods.
 
     /// Given a domain and a set of interest areas (internal) gener. partition
-    std::vector<r_Dir_Decompose> *make_partition(const r_Minterval &domain) const;
+    std::vector<r_Dir_Decompose> make_partition(const r_Minterval &domain) const;
 
     /// The Block types (A, B or C)
     enum Blocks_Type {BLOCKS_A, BLOCKS_B, BLOCKS_C };
@@ -154,7 +155,7 @@ protected: // methods.
       */
 
     /// Merge as many blocks together in a list as possible
-    std::vector<r_Minterval> *group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Blocks_Type btype) const;
+    std::vector<r_Minterval> group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Blocks_Type btype) const;
     /**
       Parameters: the block list, the lenght of the base cells and
       the type of the block (A, B or C)

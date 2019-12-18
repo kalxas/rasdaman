@@ -34,12 +34,7 @@ rasdaman GmbH.
 #define _D_ITERATOR_
 
 #include "raslib/error.hh"
-
-#ifdef __VISUALC__
-template <class T> class r_Collection;
-#else
 #include "rasodmg/collection.hh"
-#endif
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -66,7 +61,7 @@ class r_Iterator
 {
 public:
     /// default constructor
-    r_Iterator();
+    r_Iterator() = default;
     /// copy constructor
     r_Iterator(const r_Iterator<T> &iter);
     /// constructor getting the collection on which to iterate (used for {\tt r_Collection::create_iterator()})
@@ -78,7 +73,7 @@ public:
     */
 
     /// destructor
-    ~r_Iterator();
+    ~r_Iterator() = default;
 
     /// assignment operator
     r_Iterator<T> &operator=(const r_Iterator<T> &iter);
@@ -100,7 +95,7 @@ public:
     */
 
     /// returns 1 if there are more elements to be visited in the iteration and 0 if iteration is complete
-    inline int  not_done() const;
+    inline bool not_done() const;
     /// advances one element
     void advance();
 
@@ -110,18 +105,18 @@ public:
     T    get_element() const;
 
     /// gets the actual element, advances one element, and returns whether iteration is complete or not
-    int  next(T &element);
+    bool next(T &element);
 
     /// replaces the actual element (can only be used with r_List)
     void replace_element(const T &element);
 
 private:
     /// flag for end of iteration
-    int ndone;
+    bool ndone{false};
     /// pointer to the collection on which is iterated
-    r_Collection<T> *collection;
+    r_Collection<T> *collection{NULL};
     /// pointer to the actual element
-    typename r_Collection<T>::CNode *ptr;
+    typename r_Collection<T>::CNode *ptr{NULL};
 
 };
 
@@ -129,11 +124,7 @@ private:
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
-#ifdef __VISUALC__
-#include "iterator.cpp"
-#else
 #include "iterator.cc"
-#endif
 #endif
 #endif
 

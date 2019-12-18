@@ -22,166 +22,44 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/dirdecompose.hh"
-#include <string.h>
-
-// Default size of the interval buffer for holding intervals
-const r_Dimension r_Dir_Decompose::DEFAULT_INTERVALS = 5;
-
-r_Dir_Decompose::r_Dir_Decompose()
-    : num_intervals(0), current_interval(0), intervals(NULL)
-{
-    num_intervals = r_Dir_Decompose::DEFAULT_INTERVALS;
-    intervals = new r_Range[num_intervals];
-}
-
-r_Dir_Decompose::~r_Dir_Decompose()
-{
-    if (intervals)
-    {
-        delete [] intervals;
-        intervals = NULL;
-    }
-}
-
-r_Dir_Decompose::r_Dir_Decompose(const r_Dir_Decompose &other)
-    : num_intervals(0), current_interval(0), intervals(NULL)
-{
-    num_intervals = other.num_intervals;
-    current_interval = other.current_interval;
-
-    if (other.intervals)
-    {
-        intervals = new r_Range[num_intervals];
-        memcpy(intervals, other.intervals, num_intervals * sizeof(r_Range));
-    }
-}
-
-const r_Dir_Decompose &r_Dir_Decompose::operator=(const r_Dir_Decompose &other)
-{
-    if (this != &other)
-    {
-        if (intervals)
-        {
-            delete [] intervals;
-            intervals = NULL;
-        }
-
-        num_intervals = other.num_intervals;
-        current_interval = other.current_interval;
-
-        if (other.intervals)
-        {
-            intervals = new r_Range[num_intervals];
-            memcpy(intervals, other.intervals, num_intervals * sizeof(r_Range));
-        }
-    }
-
-    return *this;
-}
 
 r_Dir_Decompose &r_Dir_Decompose::operator<<(r_Range limit)
 {
-    if (current_interval == num_intervals)
-    {
-        r_Range *aux = new r_Range[num_intervals * 2];
-
-        for (unsigned int i = 0; i < num_intervals; i++)
-        {
-            aux[i] = intervals[i];
-        }
-
-        delete [] intervals;
-        intervals = aux;
-
-        num_intervals *= 2;
-    }
-
-    intervals[current_interval++] = limit;
-
+    intervals.push_back(limit);
     return *this;
 }
-
 r_Dir_Decompose &r_Dir_Decompose::prepend(r_Range limit)
 {
-    if (current_interval == num_intervals)
-    {
-        r_Range *aux = new r_Range[num_intervals * 2];
-
-        for (unsigned int i = 0; i < num_intervals; i++)
-        {
-            aux[i + 1] = intervals[i];
-        }
-
-        delete [] intervals;
-        intervals = aux;
-
-        num_intervals *= 2;
-    }
-    else
-    {
-        for (int i = static_cast<int>(current_interval) - 1; i >= 0; i--)
-        {
-            intervals[i + 1] = intervals[i];
-        }
-    }
-    ++current_interval;
-    intervals[0] = limit;
+    intervals.insert(intervals.begin(), limit);
     return *this;
 }
-
-int r_Dir_Decompose::get_num_intervals() const
+size_t r_Dir_Decompose::get_num_intervals() const
 {
-    return static_cast<int>(current_interval);
+    return intervals.size();
 }
-
-r_Range r_Dir_Decompose::get_partition(int number) const
+r_Range r_Dir_Decompose::get_partition(size_t number) const
 {
-    if (number >= static_cast<int>(current_interval))
-    {
-        r_Eindex_violation err(0, current_interval, number);
-        throw err;
-    }
-
+    if (number >= intervals.size())
+        throw r_Eindex_violation(0ll, static_cast<r_Range>(intervals.size()),
+                                 static_cast<r_Range>(number));
     return intervals[number];
 }
-
-void r_Dir_Decompose::print_status(std::ostream &os) const
-{
-    os << "r_Dir_Decompose[ num intervals = " << num_intervals << " current interval = " << current_interval << " intervals = {";
-
-    for (unsigned int i = 0; i < current_interval; i++)
-    {
-        os << intervals[i] << " ";
-    }
-
-    os << "} ]";
-}
-
-std::ostream &operator<<(std::ostream &os, const r_Dir_Decompose &d)
-{
-    d.print_status(os);
-
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const std::vector<r_Dir_Decompose> &vec)
-{
-    os << " Vector { ";
-
-    unsigned int size = vec.size();
-    for (unsigned int i = 0; i < size; i++)
-    {
-        os << vec[i] << std::endl;
-    }
-
-    os << " } ";
-
-    return os;
-}
-
 r_Sinterval
 r_Dir_Decompose::get_total_interval()
 {
-    return r_Sinterval(intervals[0], intervals[current_interval - 1]);
+    return r_Sinterval(intervals.front(), intervals.back());
 }
 
+
+void r_Dir_Decompose::print_status(std::ostream &os) const
+{
+    os << "r_Dir_Decompose[ num intervals = " << intervals.size() << " intervals = {";
+    for (auto i: intervals)
+        os << i << " ";
+    os << "} ]";
+}
+std::ostream &operator<<(std::ostream &os, const r_Dir_Decompose &d)
+{
+    d.print_status(os);
+    return os;
+}

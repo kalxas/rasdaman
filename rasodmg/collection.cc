@@ -30,23 +30,16 @@ rasdaman GmbH.
  *      None
 */
 
-using namespace std;
-
-#include "config.h"
 #include "raslib/collectiontype.hh"
-
-#include <logging.hh>
-
 #include "rasodmg/collection.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/database.hh"
 
 #include "clientcomm/clientcomm.hh"
-#include <string.h>
 
-#ifndef __GNUG__
-#define NULL 0
-#endif
+#include <logging.hh>
+
+using namespace std;
 
 template<class T>
 r_Collection<T>::r_Collection()
@@ -89,97 +82,29 @@ r_Collection<T>::r_Collection(const r_Collection<T> &collection)
 }
 
 template<class T>
-r_Collection<T>::r_Collection(const void *node1)
-{
-    // This constructor is nearly the same as a copy constrctor,
-    // except that the argument is not of type r_Collection but
-    // of type CNode* (the collection's internal representation).
-    // Does the same as function set_internal_representation.
-
-    // We assume that node1 is a correct CNode structure as
-    // defined in collection.hh
-    // copy it and determine cardinality
-    CNode *nptr;
-    CNode *optr;
-
-    card = 0;
-    coll = new CNode;
-    nptr = coll;
-    optr = static_cast<CNode *>(const_cast<void *>(node1));
-
-    while (optr->next != NULL)
-    {
-        nptr->next = new CNode;
-        nptr->elem = new T;
-        card++;
-        *(nptr->elem) = *(optr->elem);
-        nptr = nptr->next;
-        optr = optr->next;
-    }
-    if (optr->elem != NULL)
-    {
-        nptr->elem = new T;
-        card++;
-        *(nptr->elem) = *(optr->elem);
-    }
-
-    nptr->next = NULL;
-
-    init_node_list(removed_objects);
-}
-
-template<class T>
 r_Collection<T>::~r_Collection()
 {
-    //LTRACE << "~r_Collection";
-
     r_deactivate();
 }
 
-
-
-/*************************************************************
- * Method name...: r_deactivate()
- *
- * Arguments.....:
- *   none
- * Return value..:
- *   none
- * Description...: This method is called when the object leaves
- *                 the application cache. It frees all dynamic
- *                 memory allocated within the class.
- ************************************************************/
 template<class T>
 void
 r_Collection<T>::r_deactivate()
 {
-    //LTRACE << "r_deactivate()";
-
     remove_all_nodes(coll);
     remove_all_nodes(removed_objects);
 }
 
-
-
 template<class T>
-int
+bool
 r_Collection<T>::contains_element(const T &element) const
 {
     CNode *ptr = coll;
 
     while (*(ptr->elem) != element && ptr->next != NULL)
-    {
         ptr = ptr->next;
-    }
 
-    if (*(ptr->elem) == element)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return *(ptr->elem) == element;
 }
 
 template<class T>
@@ -251,8 +176,6 @@ r_Collection<T>::remove_all()
     mark_modified(); // remember modification
 }
 
-
-
 template<class T>
 const r_Collection<T> &
 r_Collection<T>::operator=(const r_Collection<T> &collection)
@@ -295,58 +218,12 @@ r_Collection<T>::operator=(const r_Collection<T> &collection)
     return *this;
 }
 
-
-
-template<class T>
-void
-r_Collection<T>::set_internal_representation(const void *node1)
-{
-    // We assume that node1 is a correct CNode structure as
-    // defined in collection.hh
-    // copy it and determine cardinality
-    CNode *nptr;
-    CNode *optr;
-
-    if (coll)
-    {
-        remove_all();
-    }
-    else
-    {
-        coll = new CNode;
-    }
-
-    card = 0;
-    nptr = coll;
-    optr = static_cast<CNode *>(const_cast<void *>(node1));
-
-    while (optr->next != NULL)
-    {
-        nptr->next = new CNode;
-        nptr->elem = new T;
-        card++;
-        *(nptr->elem) = *(optr->elem);
-        nptr = nptr->next;
-        optr = optr->next;
-    }
-    if (optr->elem != NULL)
-    {
-        nptr->elem = new T;
-        card++;
-        *(nptr->elem) = *(optr->elem);
-    }
-
-    nptr->next = NULL;
-}
-
-
 template<class T>
 r_Iterator<T>
 r_Collection<T>::create_removed_iterator()
 {
     return r_Iterator<T>(*this, 1);
 }
-
 
 template<class T>
 r_Iterator<T>
@@ -355,27 +232,14 @@ r_Collection<T>::create_iterator()
     return r_Iterator<T>(*this);
 }
 
-
-
 template<class T>
 void
 r_Collection<T>::insert_obj_into_db()
 {
-    // Insert myself in database only if I have an object name. If the
-    // collection doesn't have a name an exception is thrown.
     if (!object_name || !strlen(object_name))
-    {
-        r_Error err = r_Error(r_Error::r_Error_ObjectUnknown);
-        throw err;
-    }
-
-    // Insert myself in database only if I have a type name, otherwise
-    // an exception is thrown.
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
     if (!type_name || !strlen(type_name))
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClassUndefined);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
 
     update_transaction();
 
@@ -384,27 +248,18 @@ r_Collection<T>::insert_obj_into_db()
     if (!is_empty())
     {
         r_Iterator<T> iter = create_iterator();
+        // Search for *1 for an explanation of the following cast.
         for (iter.reset(); iter.not_done(); iter++)
-            // Search for *1 for an explanation of the following cast.
-        {
             (static_cast<r_Object *>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
-        }
     }
 }
-
-
 
 template<class T>
 void
 r_Collection<T>::update_obj_in_db()
 {
-    // Update myself in database only if I have an object name. If the
-    // collection doesn't have a name an exception is thrown.
     if (!object_name || !strlen(object_name))
-    {
-        r_Error err = r_Error(r_Error::r_Error_ObjectUnknown);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_ObjectUnknown);
 
     // inspect collection elements
     if (!is_empty())
@@ -420,7 +275,7 @@ r_Collection<T>::update_obj_in_db()
             // specification for our case.
             r_Ref<r_Object> ref = static_cast<r_Ref<r_Object>>((*iter));
 
-            LINFO << "    Collection object " << ref.get_oid() << "  ";
+            LDEBUG << "    Collection object " << ref.get_oid() << "  ";
 
             // check if object is loaded
             if (ref.get_memory_ptr() != 0)
@@ -429,27 +284,26 @@ r_Collection<T>::update_obj_in_db()
                 switch ((static_cast<r_Ref<r_Object>>((*iter)))->get_status())
                 {
                 case r_Object::deleted:
-                    LINFO << "state DELETED,  not implemented";
-                    LINFO << "OK";
+                    LDEBUG << "state DELETED,  not implemented";
                     break;
 
                 case r_Object::created:
-                    LINFO << "state CREATED,  writing  ... ";
+                    LDEBUG << "state CREATED,  writing  ... ";
                     // Search for *1 for an explanation of the following cast.
                     (static_cast<r_Object *>((static_cast<r_Ref<r_Object>>((*iter))).ptr()))->insert_obj_into_db(object_name);
-                    LINFO << "OK";
+                    LDEBUG << "OK";
                     break;
 
                 case r_Object::modified:
-                    LINFO << "state MODIFIED, not implemented";
+                    LDEBUG << "state MODIFIED, not implemented";
                     break;
 
                 case r_Object::read:
-                    LINFO << "state READ,     OK";
+                    LDEBUG << "state READ,     OK";
                     break;
 
                 case r_Object::transient:
-                    LINFO << "state TRANSIENT,     OK";
+                    LDEBUG << "state TRANSIENT,     OK";
                     break;
 
                 default:
@@ -482,24 +336,21 @@ r_Collection<T>::update_obj_in_db()
             // r_Ref would load the object from the server.
             r_OId currentOId = (static_cast<r_Ref<r_Object>>((*iter))).get_oid();
 
-            LINFO << "    Collection object " << currentOId << "  ";
+            LDEBUG << "    Collection object " << currentOId << "  ";
 
-            LINFO << "state REMOVED,  removing ... ";
+            LDEBUG << "state REMOVED,  removing ... ";
             try
             {
                 transaction->getDatabase()->removeObjFromColl(object_name, currentOId);
-                LINFO << "OK";
+                LDEBUG << "OK";
             }
             catch (r_Error &obj)
             {
-                LERROR << "FAILED";
-                LERROR << obj.what();
+                LERROR << "FAILED: " << obj.what();
             }
         }
     }
 }
-
-
 
 template<class T>
 void
@@ -528,12 +379,12 @@ r_Collection<T>::add_node(r_Collection<T>::CNode *&root, const T &element)
 }
 
 template<class T>
-int
+bool
 r_Collection<T>::remove_node(CNode *&root, const T &element)
 {
     CNode *ptr     = root;
     CNode *ptrLast = root;
-    int    success = 0;
+    bool   success = false;
 
     if (ptr && ptr->elem)
     {
@@ -557,7 +408,7 @@ r_Collection<T>::remove_node(CNode *&root, const T &element)
         //          node before the element)
         if (*(ptr->elem) == element)
         {
-            success = 1;
+            success = true;
 
             delete ptr->elem;
             if (ptr == ptrLast && ptr->next == NULL)    // case 1
@@ -585,8 +436,6 @@ r_Collection<T>::remove_node(CNode *&root, const T &element)
     return success;
 }
 
-
-
 template<class T>
 void
 r_Collection<T>::remove_all_nodes(CNode *&root)
@@ -610,7 +459,6 @@ r_Collection<T>::remove_all_nodes(CNode *&root)
     root = 0;
 }
 
-
 template<class T>
 void
 r_Collection<T>::init_node_list(CNode *&root)
@@ -619,8 +467,6 @@ r_Collection<T>::init_node_list(CNode *&root)
     root->next = NULL;
     root->elem = NULL;
 }
-
-
 
 template<class T>
 const r_Type *
@@ -640,12 +486,3 @@ r_Collection<T>::get_element_type_schema()
 
     return elementTypePtr;
 }
-
-
-
-
-
-
-
-
-

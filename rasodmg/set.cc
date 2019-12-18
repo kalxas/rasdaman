@@ -26,36 +26,18 @@ rasdaman GmbH.
 class r_GMarray;
 
 template<class T>
-r_Set<T>::r_Set()
-    : r_Collection<T>()
+r_Set<T>::r_Set() : r_Collection<T>()
 {
     this->allowsDuplicates = 0;
     this->isOrdered = 0;
     this->card = 0;
 }
 
-/* OBSOLETE
 template<class T>
-r_Set<T>::r_Set( const char* name )
-  : r_Collection<T>( name )
-{
-  allowsDuplicates = 0;
-  isOrdered = 0;
-  card = 0;
-}
-*/
-
-template<class T>
-r_Set<T>::r_Set(const r_Set<T> &set)
-    : r_Collection<T>(set)
+r_Set<T>::r_Set(const r_Set<T> &set) : r_Collection<T>(set)
 {
     this->allowsDuplicates = 0;
     this->isOrdered = 0;
-}
-
-template<class T>
-r_Set<T>::~r_Set()
-{
 }
 
 template<class T>

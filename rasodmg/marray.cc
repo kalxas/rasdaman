@@ -33,19 +33,8 @@ rasdaman GmbH.
 #include "config.h"
 #include "rasodmg/marray.hh"
 
-#ifdef __VISUALC__
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define MARRAY_NOT_SET
-#endif
-#endif
-
 #include "rasodmg/database.hh"
 #include "clientcomm/clientcomm.hh"
-
-#ifdef COLLECTION_NOT_SET
-#undef __EXECUTABLE__
-#endif
 
 #include "raslib/rmdebug.hh"
 
@@ -191,7 +180,8 @@ r_Marray<T>::operator[](long cordnt) const
     unsigned long byteCount    = (newDomain.dimension() ? newDomain.cell_count() : 1) * type_length;
     T            *dataPtr      = (T *)data; // typed pointer to the data
 
-    memcpy(newMDD.data, &(dataPtr[(cordnt - static_cast<long>(domain[0].low()))*static_cast<long>(newCellCount)]), static_cast<unsigned int>(byteCount));
+    memcpy(newMDD.data, &(dataPtr[(cordnt - static_cast<long>(domain[0].low())) * static_cast<long>(newCellCount)]),
+            static_cast<unsigned int>(byteCount));
 
     return newMDD;
 }
@@ -316,58 +306,6 @@ void
 r_Marray<T>::print_status(std::ostream &s)
 {
     r_GMarray::print_status(s);
-
-    /*
-
-    The following code part prints the content of the array by piping
-    each cell into the specified output stream. This implementation needs
-    the stream operator to be defined for each template type T.
-
-    if( domain.dimension() )
-    {
-      r_Point p(domain.dimension());
-      int         done = 0;
-      r_Dimension i = 0;
-
-      // initialize point
-      for(i = 0; i < domain.dimension(); i++)
-        p << domain[i].low();
-
-      s << "Domain: " << domain << endl;
-
-      // iterate over all cells
-      while(!done)
-      {
-        // print cell
-        //      if( hex_output )
-        //        s << setw(8) << hex << (int)operator[]( p );
-        //      else
-        s << setw(8) << operator[]( p );
-
-
-        // increment coordinate
-        i = 0;
-        while( ++p[i] > domain[i].high() )
-        {
-          s << endl;
-          p[i] = domain[i].low();
-          i++;
-          if(i >= domain.dimension())
-          {
-            done = 1;
-            break;
-          }
-        }
-        if(i > 1) s << endl;
-      }
-    }
-    else
-      // print cell
-      //    if( hex_output )
-      //      s << "Cell value " << setw(8) << hex << (int)*((T*)data) << endl;
-      //    else
-      s << "Cell value " << setw(8) << *((T*)data) << endl;
-    */
 }
 
 

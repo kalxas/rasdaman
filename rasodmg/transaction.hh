@@ -38,11 +38,11 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include "raslib/oid.hh"
 
-class r_Object;
-
 #include "rasodmg/set.hh"
 #include "rasodmg/ref.hh"
 #include "rasodmg/database.hh"
+
+class r_Object;
 
 /*@Doc:
 

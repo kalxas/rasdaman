@@ -60,7 +60,7 @@ ClientComm::changeEndianness(r_GMarray* mdd, const r_Base_Type* bt)
 
     if (baseType == NULL)
     {
-        cerr << "ClientComm::changeEndianness: No base type information!" << endl;
+        LERROR << "Cannot change endianess, no base type information.";
         return 0;
     }
 
@@ -81,7 +81,7 @@ ClientComm::changeEndianness(const r_GMarray* mdd, void* newMdd, const r_Base_Ty
 
     if (baseType == NULL)
     {
-        cerr << "ClientComm::changeEndianness: No base type information!" << endl;
+        LERROR << "Cannot change endianess, no base type information.";
         memcpy(newMdd, mdd->get_array(), mdd->get_array_size());
         return 0;
     }

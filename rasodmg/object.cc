@@ -32,31 +32,14 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mymalloc/mymalloc.h"
-
 #include "raslib/type.hh"
 #include "raslib/error.hh"
-
 #include "rasodmg/object.hh"
-
-#include <logging.hh>
-
-#ifdef __VISUALC__
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define OBJECT_NOT_SET
-#endif
-#endif
-
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 #include "clientcomm/clientcomm.hh"
 #include "object.hh"
-
-
-#ifdef OBJECT_NOT_SET
-#undef __EXECUTABLE__
-#endif
-
+#include <logging.hh>
 #include <iostream>
 
 
@@ -70,11 +53,7 @@ r_Object::ObjectType   r_Object::last_object_type      = r_Object::no_object;
 
 
 r_Object::r_Object(r_Transaction *transactionArg)
-    : object_name(0),
-      type_name(0),
-      type_structure(0),
-      type_schema(0),
-      transaction{transactionArg},
+    : transaction{transactionArg},
       object_status(next_object_status),
       oid()
 {
@@ -106,11 +85,7 @@ r_Object::r_Object(r_Transaction *transactionArg)
 
 
 r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
-    : object_name(0),
-      type_name(0),
-      type_structure(0),
-      type_schema(0),
-      transaction{transactionArg},
+    : transaction{transactionArg},
       object_status(next_object_status),
       oid()
 {
@@ -174,11 +149,7 @@ r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
 
 
 r_Object::r_Object(const r_Object &obj, unsigned short objType, r_Transaction *transactionArg)
-    : object_name(0),
-      type_name(0),
-      type_structure(0),
-      type_schema(0),
-      transaction{transactionArg},
+    : transaction{transactionArg},
       object_status(next_object_status),
       oid()
 {
@@ -266,17 +237,6 @@ r_Object::set_type_schema(const r_Type *tyy)
     type_schema = tyy->clone();
 }
 
-
-/*************************************************************
- * Method name...: ~r_Object()
- *
- * Arguments.....:
- *   none
- * Return value..:
- *   none
- * Description...: Destructor.
- ************************************************************/
-
 r_Object::~r_Object()
 {
     // Free memory in the transient case. In the persistent case, r_deactivate()
@@ -292,19 +252,6 @@ r_Object::~r_Object()
     r_Object::last_object_type = object_type;
 }
 
-
-
-/*************************************************************
- * Method name...: r_deactivate()
- *
- * Arguments.....:
- *   none
- * Return value..:
- *   none
- * Description...: This method is called when the object leaves
- *                 the application cache. It frees all dynamic
- *                 memory allocated within the class.
- ************************************************************/
 void
 r_Object::r_deactivate()
 {
@@ -313,25 +260,21 @@ r_Object::r_deactivate()
         delete type_schema;
         type_schema = 0;
     }
-
     if (object_name)
     {
         free(object_name);
         object_name = 0;
     }
-
     if (type_name)
     {
         free(type_name);
         type_name = 0;
     }
-
     if (type_structure)
     {
         delete [] type_structure;
         type_structure = 0;
     }
-
     oid.r_deactivate();
 }
 
@@ -419,7 +362,7 @@ r_Object::operator new (size_t size, const char *type_name)
 void
 r_Object::operator delete (void *obj_ptr)
 {
-    if (r_Object::last_object_type == transient_object)
+    if (r_Object::last_object_type == transient_object && obj_ptr)
     {
         free(obj_ptr);
         obj_ptr = NULL;
@@ -428,43 +371,16 @@ r_Object::operator delete (void *obj_ptr)
     r_Object::last_object_type = no_object;
 }
 
-
-
-/*************************************************************
- * Method name...: test_status( ObjectStatus status )
- *
- * Arguments.....:
- *   none
- * Return value..:
- *   none
- * Description...: Tests if status matches the object status. If so
- *                 in returns 1, otherwise 0.
- ************************************************************/
-int
+bool
 r_Object::test_status(ObjectStatus status)
 {
-    return (status == object_status);
+    return status == object_status;
 }
-
-
-
-/*************************************************************
- * Method name...: test_type( ObjectType type )
- *
- * Arguments.....:
- *   none
- * Return value..:
- *   none
- * Description...: Tests if type matches the object type. If so
- *                 in returns 1, otherwise 0.
- ************************************************************/
-int
+bool
 r_Object::test_type(ObjectType type)
 {
-    return (type == object_type);
+    return type == object_type;
 }
-
-
 
 /*************************************************************
  * Method name...: operator new( size_t       size,
@@ -491,8 +407,6 @@ r_Object::operator new (size_t size, r_Database * /*database*/, ObjectStatus sta
     return a;
 }
 
-
-
 const r_Type *
 r_Object::get_type_schema()
 {
@@ -506,30 +420,20 @@ r_Object::get_type_schema()
             ClientComm::r_Type_Type typeType = static_cast<ClientComm::r_Type_Type>(0);
 
             if (transaction == NULL || transaction->get_status() != r_Transaction::active)
-            {
                 return NULL;
-            }
 
             // we need an open database and an active transaction
             if (transaction->getDatabase() == NULL || transaction->getDatabase()->get_status() == r_Database::not_open)
-            {
                 return NULL;
-            }
 
             // set the object type and contact the database if the type name is defined.
             if (internal_obj_type == 1)
-            {
                 typeType = ClientComm::r_MDDType_Type;
-            }
             else if (internal_obj_type == 2)
-            {
                 typeType = ClientComm::r_SetType_Type;
-            }
 
-            if ((type_name == NULL) || (strlen(type_name) == 0) || (typeType == 0))
-            {
+            if (type_name == NULL || strlen(type_name) == 0 || typeType == 0)
                 return NULL;
-            }
 
             try
             {
@@ -544,14 +448,10 @@ r_Object::get_type_schema()
         }
 
         if (type_structure != NULL)
-        {
             type_schema = r_Type::get_any_type(type_structure);
-        }
     }
     return type_schema;
 }
-
-
 
 void
 r_Object::update_obj_in_db()
@@ -559,42 +459,31 @@ r_Object::update_obj_in_db()
     LWARNING << "dummy implementation";
 }
 
-
-
 void
 r_Object::load_obj_from_db()
 {
     LWARNING << "dummy implementation";
 }
 
-
-
 void
 r_Object::delete_obj_from_db()
 {
     if (object_name && strlen(object_name))
     {
-        LINFO << object_name << "... ";
-
         // delete myself from the database
         get_transaction()->getDatabase()->getComm()->deleteCollByName(object_name);
     }
     else
     {
-        LERROR << "no name - take oid ... ";
+        LWARNING << "no name - take oid ... ";
 
         // delete myself from the database
         if (oid.get_local_oid())
-        {
             get_transaction()->getDatabase()->getComm()->deleteObjByOId(oid);
-        }
         else
-        {
             LERROR << " no oid ... FAILED";
-        }
     }
 }
-
 
 void
 r_Object::initialize_oid(const r_OId &initOId)

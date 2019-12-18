@@ -73,14 +73,14 @@ public:
     inline unsigned long cardinality() const;
 
     /// tells if the collection is empty or not
-    inline int           is_empty() const;
+    inline bool           is_empty() const;
     /// tells if the collection is ordered or not
-    inline int           is_ordered() const;
+    inline bool           is_ordered() const;
     /// tells if the collections allowes duplicates or not
-    inline int           allows_duplicates() const;
+    inline bool           allows_duplicates() const;
 
     /// asks about the containment of a specific element
-    int  contains_element(const T &element) const;
+    bool  contains_element(const T &element) const;
     /// inserts an alement at the beginning
     virtual void insert_element(const T &element, int no_modification = 0);
     /**
@@ -121,20 +121,6 @@ public:
 
     /// update myself
     virtual void update_obj_in_db();
-
-    ///
-    //@}
-
-    //@Man: Constructors/Methods for internal use only:
-    //@{
-    ///
-
-    /// constructor getting an internal collection representation
-    r_Collection(const void *node1);
-    ///
-    inline void *get_internal_representation() const;
-    ///
-    void set_internal_representation(const void *node1);
 
     ///
     //@}
@@ -202,7 +188,7 @@ protected:
     ///
     void add_node(CNode *&root, const T &element);
     ///
-    int  remove_node(CNode *&root, const T &element);
+    bool remove_node(CNode *&root, const T &element);
     ///
     void remove_all_nodes(CNode *&root);
     ///

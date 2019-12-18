@@ -33,10 +33,10 @@ rasdaman GmbH.
 #ifndef _R_ALIGNEDTILING_HH_
 #define _R_ALIGNEDTILING_HH_
 
-class r_Aligned_Tiling;
-
 #include "rasodmg/tiling.hh"
 #include "raslib/minterval.hh"
+
+class r_Aligned_Tiling;
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -115,6 +115,8 @@ class r_Aligned_Tiling;
 class r_Aligned_Tiling : public r_Dimension_Tiling
 {
 public:
+    static const char *description;
+
     /// read everything from encoded string
     /// (e.g. "[0:9,0:9];100" or "2;100")
     r_Aligned_Tiling(const char *encoded);
@@ -122,22 +124,16 @@ public:
     /// dimension and tile size.
     r_Aligned_Tiling(r_Dimension dim, r_Bytes ts = RMInit::clientTileSize);
 
-    /// dimension and tile size will be taken from RMInit::clientTileSize.
-    //r_Aligned_Tiling(r_Dimension dim);
-
     /// tile configuration and tile size.
     r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts = RMInit::clientTileSize);
 
     virtual r_Tiling *clone() const;
 
-    virtual ~r_Aligned_Tiling();
+    virtual ~r_Aligned_Tiling() = default;
 
-    /// returns the current value for the tile configuration option
-    const r_Minterval &get_tile_config() const;
+    std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
-    std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
-
-    char *get_string_representation() const;
+    std::string get_string_representation() const;
     /**
       The string representation delivered by this method is allocated using
       {\tt malloc()} and has to be freed using {\tt free()} in the end.
@@ -145,10 +141,11 @@ public:
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
+    
+    /// returns the current value for the tile configuration option
+    const r_Minterval &get_tile_config() const;
 
     virtual r_Tiling_Scheme get_tiling_scheme() const;
-
-    static const char *description;
 
     /// determines the individual tiles domains
     r_Minterval compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size) const;
@@ -203,15 +200,4 @@ protected:
 */
 
 
-//@ManMemo: Module: {\bf rasodmg }
-/**
-  Output stream operator for objects of type {\tt const}
-  \Ref{r_Aligned_Tiling}.
-*/
-//extern std::ostream& operator<<(std::ostream& s, const r_Aligned_Tiling& at);
-
 #endif
-
-
-
-

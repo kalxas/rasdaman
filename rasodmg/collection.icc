@@ -39,22 +39,15 @@ r_Collection<T>::cardinality() const
 
 
 template<class T>
-inline int
+inline bool
 r_Collection<T>::is_empty() const
 {
-    if (coll->elem)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !coll->elem;
 }
 
 
 template<class T>
-inline int
+inline bool
 r_Collection<T>::is_ordered() const
 {
     return isOrdered;
@@ -62,16 +55,8 @@ r_Collection<T>::is_ordered() const
 
 
 template<class T>
-inline int
+inline bool
 r_Collection<T>::allows_duplicates() const
 {
     return allowsDuplicates;
-}
-
-
-template<class T>
-inline void *
-r_Collection<T>::get_internal_representation() const
-{
-    return static_cast<void *>(coll);
 }

@@ -33,23 +33,12 @@ rasdaman GmbH.
 #include "config.h"
 #include <vector>
 
-#ifdef __VISUALC__
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define GMARRAY_NOT_SET
-#endif
-#endif
-
 #include "rasodmg/marray.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "clientcomm/clientcomm.hh"
 #include "mymalloc/mymalloc.h"
-
-#ifdef GMARRAY_NOT_SET
-#undef __EXECUTABLE__
-#endif
 
 #include "raslib/type.hh"
 #include "raslib/marraytype.hh"
@@ -63,34 +52,20 @@ rasdaman GmbH.
 
 
 r_GMarray::r_GMarray(r_Transaction *ta)
-    : r_Object(1, ta),
-      data(0),
-      tiled_data(0),
-      data_size(0),
-      type_length(0),
-      current_format(r_Array),
-      storage_layout(0)
+    : r_Object(1, ta), storage_layout{new r_Storage_Layout()}
 {
-    storage_layout = new r_Storage_Layout();
 }
-
-
 
 r_GMarray::r_GMarray(const r_Minterval &initDomain, r_Bytes initLength, r_Storage_Layout *stl,
                      r_Transaction *ta, bool initialize)
-    : r_Object(1, ta),
-      domain(initDomain),
-      data(0),
-      tiled_data(0),
-      data_size(0),
-      type_length(initLength),
-      current_format(r_Array),
-      storage_layout(stl)
+    : r_Object(1, ta), domain(initDomain), type_length(initLength), storage_layout(stl)
 {
     int error = 0;
     if (domain.dimension() == 0)
     {
-        error = 1;
+        LERROR << "empty domain: " << initDomain;
+        delete storage_layout;
+        throw r_Error(DOMAINUNINITIALISED);
     }
     else
     {
@@ -100,107 +75,54 @@ r_GMarray::r_GMarray(const r_Minterval &initDomain, r_Bytes initLength, r_Storag
         }
         if (!storage_layout->is_compatible(initDomain, initLength))
         {
-            error = 2;
-        }
-    }
-    if (error != 0)
-    {
-        LINFO << "r_GMarray::r_GMarray(" << initDomain << ", " << initLength << ", ";
-        if (storage_layout == NULL)
-        {
-            LINFO << "no storage layout) ";
-        }
-        else
-        {
-            LINFO << *storage_layout << ") ";
-        }
-        if (error == 1)
-        {
-            LERROR << "domain is not initialised";
-            throw r_Error(DOMAINUNINITIALISED);
-        }
-        else
-        {
             LERROR << "storage layout is not compatible";
+            delete storage_layout;
             throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
         }
     }
     data_size = domain.cell_count() * initLength;
     if (initialize)
     {
-        data = new char[ data_size ];
+        data = new char[data_size];
         memset(data, 0, data_size);
     }
 }
 
-
-
 r_GMarray::r_GMarray(const r_GMarray &obj)
-    : r_Object(obj, 1),
-      domain(obj.spatial_domain()),
-      data(0),
-      tiled_data(0),
-      data_size(0),
-      type_length(obj.type_length),
-      current_format(obj.current_format),
-      storage_layout(0)
+    : r_Object(obj, 1), domain(obj.spatial_domain()),
+      type_length(obj.type_length), current_format(obj.current_format)
 {
     if (obj.data)
     {
         data_size = obj.data_size;
-        data = new char[ data_size ];
-
-        memcpy(data, obj.data, static_cast<unsigned int>(data_size));
+        data = new char[data_size];
+        memcpy(data, obj.data, data_size);
     }
-
-    // clone the storage layout object
     if (obj.storage_layout)
-    {
         storage_layout = obj.storage_layout->clone();
-    }
-    else
-    {
-        LWARNING << "copy constructor no storage layout";
-    }
 }
-
-
 
 r_GMarray::r_GMarray(r_GMarray &obj)
     : r_Object(obj, 1),
-      domain(obj.spatial_domain()),
-      data(obj.data),
-      tiled_data(obj.tiled_data),
-      data_size(obj.data_size),
-      type_length(obj.type_length),
-      current_format(obj.current_format),
-      storage_layout(0)
+      domain(obj.spatial_domain()), data(obj.data), tiled_data(obj.tiled_data),
+      data_size(obj.data_size), type_length(obj.type_length), current_format(obj.current_format)
 {
     obj.data_size      = 0;
     obj.data           = 0;
-    obj.tiled_data          = 0;
+    obj.tiled_data     = 0;
     obj.domain         = r_Minterval();
     obj.type_length    = 0;
-
-    // clone the storage layout object
     if (obj.storage_layout)
     {
         storage_layout = obj.storage_layout->clone();
-    }
-    else
-    {
-        LWARNING << "copy constructor (no data) no storage layout";
+        obj.storage_layout = 0;
     }
 }
-
-
 
 r_GMarray::~r_GMarray()
 {
     r_deactivate();
 }
-
-
 
 void
 r_GMarray::r_deactivate()
@@ -215,27 +137,19 @@ r_GMarray::r_deactivate()
         delete tiled_data;
         tiled_data = NULL;
     }
-
-    // invoke deactivate of members with dynamic memory
-    domain.r_deactivate();
-
-    // delete dynamic members
     if (storage_layout)
     {
         delete storage_layout;
         storage_layout = 0;
     }
+    domain.r_deactivate();
 }
-
-
 
 const char *
 r_GMarray::operator[](const r_Point &point) const
 {
-    return &(data[ domain.cell_offset(point) * type_length ]);
+    return &(data[domain.cell_offset(point) * type_length]);
 }
-
-
 
 const r_Storage_Layout *
 r_GMarray::get_storage_layout() const
@@ -243,27 +157,20 @@ r_GMarray::get_storage_layout() const
     return storage_layout;
 }
 
-
 void
 r_GMarray::set_storage_layout(r_Storage_Layout *stl)
 {
     if (!stl->is_compatible(domain, type_length))
     {
-        LERROR << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling";
-        LERROR << "\tgmarray domain   : " << spatial_domain();
-        LERROR << "\tgmarray type size: " << get_type_length();
+        LERROR << "r_GMarray::set_storage_layout(" << *stl << ") gmarray is not compatible with tiling"
+               << "\n\tgmarray domain   : " << spatial_domain()
+               << "\n\tgmarray type size: " << get_type_length();
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
-
     if (storage_layout != NULL)
-    {
         delete storage_layout;
-    }
-
     storage_layout = stl;
 }
-
-
 
 r_GMarray &
 r_GMarray::operator=(const r_GMarray &marray)
@@ -275,37 +182,27 @@ r_GMarray::operator=(const r_GMarray &marray)
             delete[] data;
             data = 0;
         }
-
         if (marray.data)
         {
             data_size = marray.data_size;
-            data = new char[ data_size ];
-
-            memcpy(data, marray.data, static_cast<unsigned int>(data_size));
+            data = new char[data_size];
+            memcpy(data, marray.data, data_size);
         }
-
         if (storage_layout)
         {
             delete storage_layout;
             storage_layout = 0;
         }
-
-        // this has to be changed to a clone() function in future
         if (marray.storage_layout)
-            // storage_layout = new r_Storage_Layout(*marray.storage_layout);
         {
             storage_layout = marray.storage_layout->clone();
         }
-
         domain         = marray.domain;
         type_length    = marray.type_length;
         current_format = marray.current_format;
     }
-
     return *this;
 }
-
-
 
 void
 r_GMarray::insert_obj_into_db()
@@ -313,29 +210,19 @@ r_GMarray::insert_obj_into_db()
     // Nothing is done in that case. r_Marray objects can just be inserted as elements
     // of a collection which invokes r_GMarray::insert_obj_into_db(const char* collName)
     // of the r_Marray objects.
-
-    LINFO << " do nothing ";
 }
-
-
 
 void
 r_GMarray::insert_obj_into_db(const char *collName)
 {
     update_transaction();
 
-    // Insert myself in database only if I have a type name, otherwise
-    // an exception is thrown.
+    // Insert myself in database only if I have a type name
     if (!type_name || !transaction || !transaction->getDatabase())
-    {
         throw r_Error(r_Error::r_Error_DatabaseClassUndefined);
-    }
 
     transaction->getDatabase()->getComm()->insertMDD(collName, this);
 }
-
-
-
 
 void
 r_GMarray::print_status(std::ostream &s)
@@ -343,90 +230,60 @@ r_GMarray::print_status(std::ostream &s)
     const r_Type       *typeSchema     = get_type_schema();
     const r_Base_Type  *baseTypeSchema = get_base_type_schema();
 
-    s << "GMarray" << endl;
-    s << "  Oid...................: " << get_oid() << endl;
-    s << "  Type Structure........: " << (type_structure ? type_structure : "<nn>") << endl;
-    s << "  Type Schema...........: " << std::flush;
+    s << "GMarray";
+    s << "\n  Oid...................: " << get_oid();
+    s << "\n  Type Structure........: " << (type_structure ? type_structure : "<nn>");
+    s << "\n  Type Schema...........: ";
     if (typeSchema)
-    {
         typeSchema->print_status(s);
-    }
     else
-    {
-        s << "<nn>" << std::flush;
-    }
-    s << endl;
-    s << "  Domain................: " << domain << endl;
-    s << "  Base Type Schema......: " << std::flush;
+        s << "<nn>";
+    s << "\n  Domain................: " << domain;
+    s << "\n  Base Type Schema......: ";
     if (baseTypeSchema)
-    {
         baseTypeSchema->print_status(s);
-    }
     else
-    {
         s << "<nn>" << std::flush;
-    }
-    s << endl;
-    s << "  Base Type Length......: " << type_length << endl;
-    s << "  Data format.......... : " << current_format << endl;
-    s << "  Data size (bytes).... : " << data_size << endl;
+    s << "\n  Base Type Length......: " << type_length;
+    s << "\n  Data format.......... : " << current_format;
+    s << "\n  Data size (bytes).... : " << data_size << std::endl;
 }
-
-
 
 void
 r_GMarray::print_status(std::ostream &s, int hexoutput)
 {
     print_status(s);
-
     const r_Type       *typeSchema     = get_type_schema();
     const r_Base_Type  *baseTypeSchema = get_base_type_schema();
 
     if (domain.dimension())
     {
-        r_Point p(domain.dimension());
+        auto p = domain.get_origin();
         bool done = false;
-        r_Dimension i = 0;
-
-        // initialize point
-        for (i = 0; i < domain.dimension(); i++)
-        {
-            p << domain[i].low();
-        }
 
         // iterate over all cells
         while (!done)
         {
-            //
-            // print cell
-            //
-
             // get cell address
             char *cell = data + domain.cell_offset(p) * type_length;
 
             if (hexoutput)
             {
                 for (r_Bytes j = 0; j < type_length; j++)
-                {
-                    s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((cell[j])));
-                }
+                    s << std::hex << static_cast<int>(cell[j]);
             }
             else
             {
                 if (baseTypeSchema)
-                {
                     baseTypeSchema->print_value(cell,  s);
-                }
                 else
-                {
                     s << "<nn>" << std::flush;
-                }
             }
 
             s << "   ";
 
             // increment coordinate
-            i = 0;
+            r_Dimension i = 0;
             while (++p[i] > domain[i].high())
             {
                 s << endl;
@@ -439,51 +296,39 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
                 }
             }
             if (i > 1)
-            {
                 s << endl;
-            }
         }
     }
     else
     {
-        s << "Cell value " << std::flush;
+        s << "Cell value ";
 
         // print cell
-        if ((hexoutput) || (!baseTypeSchema))
+        if (hexoutput || !baseTypeSchema)
         {
             for (unsigned int j = 0; j < type_length; j++)
-            {
-                s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((data[j])));
-            }
+                s << std::hex << static_cast<int>(data[j]);
         }
         else
         {
             if (baseTypeSchema)
-            {
                 baseTypeSchema->print_value(data,  s);
-            }
             else
-            {
-                s << "<nn>" << std::flush;
-            }
+                s << "<nn>";
         }
         s << endl;
     }
-
     // turn off hex mode again
     s << std::dec << std::flush;
 }
 
-
-
-
-r_GMarray *r_GMarray::intersect(r_Minterval where) const
+r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
 {
     r_GMarray *tile = new r_GMarray(get_transaction());
 
-    r_Minterval obj_domain = spatial_domain();
-    r_Dimension num_dims = obj_domain.dimension();
-    r_Bytes tlength = get_type_length();
+    const auto &obj_domain = spatial_domain();
+    const auto num_dims = obj_domain.dimension();
+    const auto tlength = get_type_length();
 
     char *obj_data = new char[where.cell_count() * tlength];
     tile->set_spatial_domain(where);
@@ -501,15 +346,13 @@ r_GMarray *r_GMarray::intersect(r_Minterval where) const
         char *dest_off = obj_data;
         const char *source_off = get_array();
 
-        memcpy(static_cast<void *>(dest_off + where.cell_offset(p)*tlength),
-               static_cast<void *>(const_cast<char *>(source_off) + obj_domain.cell_offset(p)*tlength),
-               static_cast<size_t>(block_length * tlength));
+        memcpy(dest_off + where.cell_offset(p) * tlength,
+               source_off + obj_domain.cell_offset(p) * tlength,
+               block_length * tlength);
     }
-
+    
     return tile;
 }
-
-
 
 const r_Base_Type *
 r_GMarray::get_base_type_schema()
@@ -526,12 +369,10 @@ r_GMarray::get_base_type_schema()
         }
         else
         {
-            //whenever this module is done correctly, it should be checked first, what kind of type we are dealing with.  therefore i do not declare a throw clause.
-            LERROR << "r_GMarray::get_base_type_schema() the type retrieved (" << typePtr->name() << ") was not a marray type";
+            LERROR << "the type retrieved (" << typePtr->name() << ") was not an marray type";
             throw r_Error(NOTANMARRAYTYPE);
         }
     }
 
     return baseTypePtr;
 }
-

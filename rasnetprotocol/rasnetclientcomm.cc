@@ -470,13 +470,11 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar)
         break;
     }
 
-    r_Set<r_GMarray *> *bagOfTiles;
+    auto bagOfTiles = mar->get_storage_layout()->decomposeMDD(mar);
 
-    bagOfTiles = mar->get_storage_layout()->decomposeMDD(mar);
+    LTRACE << "decomposing into " << bagOfTiles.cardinality() << " tiles";
 
-    LTRACE << "decomposing into " << bagOfTiles->cardinality() << " tiles";
-
-    r_Iterator<r_GMarray *> iter = bagOfTiles->create_iterator();
+    r_Iterator<r_GMarray *> iter = bagOfTiles.create_iterator();
     r_GMarray *origTile;
 
     for (iter.reset(); iter.not_done(); iter.advance())
@@ -505,8 +503,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar)
     executeEndInsertMDD(true); //rpcendinsertmdd_1( params3, binding_h );
 
     // delete transient data
-    bagOfTiles->remove_all();
-    delete bagOfTiles;
+    bagOfTiles.remove_all();
 }
 
 r_Ref_Any RasnetClientComm::getMDDByOId(__attribute__((unused)) const r_OId &oid)
@@ -1494,18 +1491,18 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query &query)
                     break;
                 }
 
-
                 r_Set<r_GMarray *> *bagOfTiles = NULL;
-
+                r_Set<r_GMarray *> decompTiles;
                 if (mdd->get_array())
                 {
-                    bagOfTiles = mdd->get_storage_layout()->decomposeMDD(mdd);
+                    decompTiles = mdd->get_storage_layout()->decomposeMDD(mdd);
+                    bagOfTiles = &decompTiles;
                 }
                 else
                 {
                     bagOfTiles = mdd->get_tiled_array();
                 }
-
+                
                 r_Iterator<r_GMarray *> iter2 = bagOfTiles->create_iterator();
 
                 for (iter2.reset(); iter2.not_done(); iter2.advance())
@@ -1531,8 +1528,8 @@ void RasnetClientComm::sendMDDConstants(const r_OQL_Query &query)
                     }
                 }
 
+                
                 bagOfTiles->remove_all();
-                delete bagOfTiles;
                 bagOfTiles = NULL;
 
                 executeEndInsertMDD(false);

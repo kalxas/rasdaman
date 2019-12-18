@@ -30,14 +30,6 @@ rasdaman GmbH.
  *          None
 */
 
-
-#ifdef __VISUALC__
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define TRANSACTION_NOT_SET
-#endif
-#endif
-
 #include "config.h"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
@@ -47,81 +39,46 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-#ifdef __VISUALC__
-#ifdef TRANSACTION_NOT_SET
-#undef __EXECUTABLE__
-#endif
-
-template class r_Set<r_Ref<r_Object>>;
-#endif
-
-#include <iostream>
-#include<fstream>
 // Initially there is no transaction active.
 r_Transaction *r_Transaction::actual_transaction = 0;
-
 
 r_Transaction::r_Transaction(r_Database *db)
     : ta_state(inactive), ta_mode(read_write), database{db}
 {
 }
 
-
-
 r_Transaction::~r_Transaction()
 {
     if (ta_state == active)
-    {
         abort();
-    }
 }
-
-
 
 void
 r_Transaction::begin(r_Transaction::r_TAMode mode)
 {
     if (!this->database)
-    {
         this->database = r_Database::actual_database;
-    }
-
-    // check if no other transaction is running
     if (ta_state != inactive)
-    {
-        r_Error err = r_Error(r_Error::r_Error_TransactionOpen);
-        throw err;
-    }
-
-    // check if a database is opened
+        throw r_Error(r_Error::r_Error_TransactionOpen);
     if (this->database == 0)
-    {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
-    }
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
 
     ta_state = active;
-
     // if a database is opened, a communication object is existing
     this->database->getComm()->openTA(mode == read_only ? 1 : 0);
     this->database->getComm()->setTransaction(this);
 
     if (actual_transaction == NULL)
-    {
         actual_transaction = this;
-    }
-
     ta_mode  = mode;
 }
-
-
 
 void
 r_Transaction::commit()
 {
     if (ta_state != active)
     {
-        throw (new r_Error(r_Error::r_Error_TransactionNotOpen));
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
     else
     {
@@ -183,15 +140,11 @@ r_Transaction::commit()
         for (iter.reset(); iter.not_done(); iter++)
         {
             if (!(*iter)->test_status(r_Object::deleted))
-            {
                 (*iter)->r_deactivate();
-            }
 
             (*iter)->r_Object::r_deactivate();
-
             free((*iter).get_memory_ptr());
         }
-
         object_list.remove_all();
 
         //
@@ -199,11 +152,9 @@ r_Transaction::commit()
         //
 
         r_Iterator<GenRefElement *> iter2 = non_object_list.create_iterator();
-
         for (iter2.reset(); iter2.not_done(); iter2++)
         {
             LDEBUG << "  Value ";
-
             switch ((*iter2)->type)
             {
             case POINT:
@@ -231,12 +182,9 @@ r_Transaction::commit()
                 delete (static_cast<r_Scalar *>((*iter2)->ref));
                 break;
             }
-
             delete *iter2;
         }
-
         non_object_list.remove_all();
-
 
         //
         // commit transaction on the server
@@ -245,20 +193,16 @@ r_Transaction::commit()
         this->database->getComm()->commitTA();
         ta_state = inactive;
         if (this == actual_transaction)
-        {
             actual_transaction = 0;
-        }
     }
 }
-
-
 
 void
 r_Transaction::abort()
 {
     if (ta_state != active)
     {
-        throw (r_Error(r_Error::r_Error_TransactionNotOpen));
+        throw r_Error(r_Error::r_Error_TransactionNotOpen);
     }
     else
     {
@@ -269,21 +213,16 @@ r_Transaction::abort()
         //
 
         r_Iterator<r_Ref<r_Object>> iter = object_list.create_iterator();
-
         for (iter.reset(); iter.not_done(); iter++)
         {
             LDEBUG << "  Object DELETED";
 
             if (!(*iter)->test_status(r_Object::deleted))
-            {
                 (*iter)->r_deactivate();
-            }
 
             (*iter)->r_Object::r_deactivate();
-
             free((*iter).get_memory_ptr());
         }
-
         object_list.remove_all();
 
         //
@@ -291,7 +230,6 @@ r_Transaction::abort()
         //
 
         r_Iterator<GenRefElement *> iter2 = non_object_list.create_iterator();
-
         for (iter2.reset(); iter2.not_done(); iter2++)
         {
             switch ((*iter2)->type)
@@ -321,40 +259,29 @@ r_Transaction::abort()
                 delete (static_cast<r_Scalar *>((*iter2)->ref));
                 break;
             }
-
             delete *iter2;
         }
-
         non_object_list.remove_all();
 
         //
         // Abort transaction on the server.
         //
         if (this->database && this->database->getComm())
-        {
             this->database->getComm()->abortTA();
-        }
         else
-        {
-            LDEBUG << "Database was already closed. Please abort every transaction before closing the database. "
-                   "Please also check for any try/catches with a close database but without transaction abort.";
-        }
+            LDEBUG << "Database was already closed. Please abort every transaction before closing the database.";
 
         ta_state = inactive;
         if (this == actual_transaction)
-        {
             actual_transaction = 0;
-        }
     }
 }
-
-
 
 r_Ref_Any
 r_Transaction::load_object(const r_OId &oid)
 {
     // check, if object is already loaded
-    unsigned int found = 0;
+    bool found = false;
     r_Iterator<r_Ref<r_Object>> iter = object_list.create_iterator();
 
     iter.reset();
@@ -362,9 +289,7 @@ r_Transaction::load_object(const r_OId &oid)
     {
         found = ((*iter)->get_oid() == oid);
         if (!found)
-        {
             iter++;
-        }
     }
 
     if (found)
@@ -381,15 +306,11 @@ r_Transaction::load_object(const r_OId &oid)
     }
 }
 
-
-
 void
 r_Transaction::add_object_list(const r_Ref<r_Object> &obj)
 {
     object_list.insert_element(obj);
 }
-
-
 
 void
 r_Transaction::add_object_list(GenRefType type, void *ref)
@@ -402,13 +323,11 @@ r_Transaction::add_object_list(GenRefType type, void *ref)
     non_object_list.insert_element(element);
 }
 
-
 void
 r_Transaction::setDatabase(r_Database *databaseArg)
 {
     this->database = databaseArg;
 }
-
 
 r_Database *
 r_Transaction::getDatabase()

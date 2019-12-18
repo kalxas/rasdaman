@@ -84,7 +84,7 @@ class r_OQL_Query
 {
 public:
     /// default constructor
-    r_OQL_Query();
+    r_OQL_Query() = default;
 
     /// constructor getting the query string
     r_OQL_Query(const char *s);
@@ -159,13 +159,13 @@ private:
     void replaceNextArgument(const char *valueString);
 
     /// storage for the expanded query string
-    char *queryString;
+    char *queryString{NULL};
 
     /// storage for the parameterized query string
-    char *parameterizedQueryString;
+    char *parameterizedQueryString{NULL};
 
     /// list for MDD constants
-    r_Set<r_GMarray *> *mddConstants;
+    r_Set<r_GMarray *> *mddConstants{NULL};
 };
 
 

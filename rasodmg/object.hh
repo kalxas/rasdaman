@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include "raslib/oid.hh"
 #include "raslib/rminit.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // forward declarations
 class r_Database;
@@ -177,7 +177,7 @@ public:
 
     ///
     /// test object status returns 1 if it matches
-    int test_status(ObjectStatus status);
+    bool test_status(ObjectStatus status);
     /// gets the status of the object
     inline ObjectStatus get_status() const;
 
@@ -202,22 +202,22 @@ protected:
     void update_transaction();
 
     /// test object type returns 1 if it matches
-    int test_type(ObjectType type);
+    bool test_type(ObjectType type);
 
     /// stores object name if it has one
-    char *object_name;
+    char *object_name{0};
 
     /// stores object type name if it has one
-    char *type_name;
+    char *type_name{0};
 
     /// store type structure as string if it has one
-    char *type_structure;
+    char *type_structure{0};
 
     /// pointer to type schema (built on request)
-    r_Type *type_schema;
+    r_Type *type_schema{0};
 
     /// internal object type (1 marray, 2 collection)
-    unsigned short internal_obj_type;
+    unsigned short internal_obj_type{0};
 
     /// pointer to the transaction this object belongs to. Void* to avoid compilation errors caused
     /// by cyclic dependencies in the raslib between transaction, database and r_Object

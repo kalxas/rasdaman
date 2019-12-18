@@ -31,12 +31,6 @@ rasdaman GmbH.
  *
 */
 
-// Because of NT port
-#include <string.h>
-#include <sstream>
-#include <math.h>
-#include <vector>
-
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/tiling.hh"
@@ -47,62 +41,39 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char *formatParams)
-    :   til(0),
-        storage_format(init_format),
-        storage_params(0)
+    :   storage_format(init_format)
 {
     til = new r_Size_Tiling();
     if (formatParams != NULL)
-    {
-        storage_params = strdup(formatParams);
-    }
+        storage_params = formatParams;
 }
 
 r_Storage_Layout::r_Storage_Layout(r_Tiling *ts, r_Data_Format init_format, const char *formatParams)
-    :   til(ts),
-        storage_format(init_format),
-        storage_params(0)
+    :   til(ts), storage_format(init_format)
 {
     if (til == NULL)
-    {
         til = new r_Size_Tiling();
-    }
     if (formatParams != NULL)
-    {
-        storage_params = strdup(formatParams);
-    }
+        storage_params = formatParams;
 }
 
 r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout &sl)
     :   til(sl.get_tiling()->clone()),
         storage_format(sl.get_storage_format()),
-        storage_params(0)
+        storage_params(sl.storage_params)
 {
-    if (sl.storage_params != NULL)
-    {
-        storage_params = strdup(sl.storage_params);
-    }
 }
 
 r_Storage_Layout *
 r_Storage_Layout::clone() const
 {
-    r_Storage_Layout *newSL = new r_Storage_Layout(til->clone(), storage_format, storage_params);
-    return newSL;
+    return new r_Storage_Layout(til->clone(), storage_format, storage_params.c_str());
 }
 
 r_Storage_Layout::~r_Storage_Layout()
 {
-    if (til)
-    {
-        delete til;
-        til = NULL;
-    }
-    if (storage_params)
-    {
-        free(storage_params);
-        storage_params = NULL;
-    }
+    delete til;
+    til = NULL;
 }
 
 const r_Tiling *
@@ -120,69 +91,39 @@ r_Storage_Layout::get_storage_format() const
 const char *
 r_Storage_Layout::get_storage_format_params() const
 {
-    return storage_params;
+    return storage_params.c_str();
 }
 
-r_Set<r_GMarray *> *
+r_Set<r_GMarray *>
 r_Storage_Layout::decomposeMDD(const r_GMarray *mar) const
 {
     r_Bytes cell_size = mar->get_type_length();
-    std::vector<r_Minterval> *tiles = NULL;
-    r_Set<r_GMarray *> *result = NULL;
-
-    tiles = decomposeMDD(mar->spatial_domain(), cell_size);
-
-    result = new r_Set<r_GMarray *>;
-
-    for (std::vector<r_Minterval>::iterator it = tiles->begin(); it != tiles->end(); it++)
-    {
-        result->insert_element(mar->intersect(*it));
-    }
-
-    delete tiles;
+    auto tiles = decomposeMDD(mar->spatial_domain(), cell_size);
+    r_Set<r_GMarray *> result;
+    for (const auto &tile: tiles)
+        result.insert_element(mar->intersect(tile));
     return result;
 }
 
-std::vector<r_Minterval> *
+std::vector<r_Minterval>
 r_Storage_Layout::decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const
 {
-    std::vector<r_Minterval> *tiles = NULL;
-
     if (!til->is_compatible(domain, cell_size))
     {
-        LERROR << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling";
-        LERROR << "\tgmarray domain   : " << domain;
-        LERROR << "\tgmarray type size: " << cell_size;
-        LERROR << "\tstorage layout   : " << *this;
+        LERROR << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling"
+               << "\n\tgmarray domain   : " << domain
+               << "\n\tgmarray type size: " << cell_size
+               << "\n\tstorage layout   : " << *this;
         throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
     }
-
-    try
-    {
-        tiles = til->compute_tiles(domain, cell_size);
-    }
-    catch (r_Error &err)
-    {
-        throw;
-    }
-
-    return tiles;
+    return til->compute_tiles(domain, cell_size);
 }
 
 void
 r_Storage_Layout::print_status(std::ostream &os) const
 {
-    os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format << " storage parameters = ";
-    if (storage_params != NULL)
-    {
-        os << "upps, not here";
-    }
-    //os << storage_params;
-    else
-    {
-        os << "none defined";
-    }
-    os << " ]";
+    os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format 
+       << " storage parameters = " << (!storage_params.empty() ? storage_params : "none defined") << " ]";
 }
 
 bool

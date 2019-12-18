@@ -42,7 +42,7 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/transaction.hh"
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 
 // forward declarations
@@ -101,7 +101,7 @@ public:
     const char *operator[](const r_Point &) const;
 
     /// Returns a r_GMarray that is the intersection of the current domain with the specified interval
-    r_GMarray *intersect(r_Minterval where) const;
+    r_GMarray *intersect(const r_Minterval &where) const;
 
     //@Man: Read methods
     //@{
@@ -176,22 +176,22 @@ protected:
     r_Minterval domain;
 
     /// pointer to the internal array representation
-    char *data;
+    char *data{NULL};
 
     /// array internally sub-tiled
-    r_Set<r_GMarray *> *tiled_data;
+    r_Set<r_GMarray *> *tiled_data{NULL};
 
     /// size of internal array representation in bytes
-    r_Bytes data_size;
+    r_Bytes data_size{};
 
     /// length of the cell base type in bytes
-    r_Bytes type_length;
+    r_Bytes type_length{};
 
     /// store current data format
-    r_Data_Format current_format;
+    r_Data_Format current_format{r_Array};
 
     /// pointer to storage layout object
-    r_Storage_Layout *storage_layout;
+    r_Storage_Layout *storage_layout{NULL};
 };
 
 #include "rasodmg/gmarray.icc"

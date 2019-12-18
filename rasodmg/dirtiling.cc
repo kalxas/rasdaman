@@ -30,45 +30,14 @@ rasdaman GmbH.
  *          None
 */
 
-#ifdef __VISUALC__
-// Diable warning for signed/unsigned mismatch.
-#pragma warning( disable : 4018 )
-#endif
-
-#include "config.h"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/alignedtiling.hh"
-#include "raslib/rminit.hh"
 
 #include <logging.hh>
 
-#include <assert.h>
-#include <string.h>
-#include <math.h>
+#include <cmath>
 #include <cstdlib>
-
-#ifdef AIX
-#include <strings.h>
-#endif
-
-// Uncoment the _VISUALIZE_2D_DECOMP_ line to generate ppm files the
-// visualization of the domain decomposition done by the algoritm
-// #define _VISUALIZE_2D_DECOMP_
-
-// Uncoment the folling line for some debug printfs on this class
-// #define _DEBUG_DIRTILING_
-
-#ifdef _DEBUG_DIRTILING_
-#define DEBUG_DIR(msg)      cout << "[" << __LINE__ << "] " << msg;
-#else
-#define DEBUG_DIR(msg)
-#endif
-
-
-#ifdef _VISUALIZE_2D_DECOMP_
-#include "tools/visualtiling2d.hh"
-#endif
 
 const char *
 r_Dir_Tiling::description = "dimensions, decomposision patterns, tile size(in bytes) and subtiling [SUBTILING|NOSUBTILING] (ex: \"3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING\")";
@@ -86,12 +55,10 @@ r_Dir_Tiling::get_subtiling_from_name(const char *name)
 {
     if (!name)
     {
-        LINFO << "r_Dir_Tiling::get_subtiling_from_name(" << (name ? name : "NULL") << ").";
+        LWARNING << "no name specified, returning default.";
         return r_Dir_Tiling::NUMBER;
     }
-
     unsigned int i = r_Dir_Tiling::NUMBER;
-
     for (i = 0; i < static_cast<unsigned int>(r_Dir_Tiling::NUMBER); i++)
     {
         if (strcasecmp(name, all_subtiling_names[i]) == 0)
@@ -99,7 +66,6 @@ r_Dir_Tiling::get_subtiling_from_name(const char *name)
             break;
         }
     }
-
     return static_cast<r_Dir_Tiling::SubTiling>(i);
 }
 
@@ -108,120 +74,63 @@ r_Dir_Tiling::get_name_from_subtiling(SubTiling tsl)
 {
     static const char *unknown = "UNKNOWN";
     unsigned int idx = static_cast<unsigned int>(tsl);
-
     if (idx >= static_cast<unsigned int>(r_Dir_Tiling::NUMBER))
-    {
         return unknown;
-    }
-
     return all_subtiling_names[idx];
 }
 
 r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
-    if (!encoded)
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << (encoded ? encoded : "NULL") << ").";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-    r_Dimension tileD = 0, dirIndex = 0;
-    r_Range decomp = 0;
-    std::vector<r_Dir_Decompose> vectDirDecomp;
-    r_Bytes tileS = 0, lenToConvert = 0, lenDirToConvert = 0, lenDecomp = 0;
-    r_Dir_Tiling::SubTiling subTiling;
-    const char *pStart = NULL, *pEnd = NULL, *pRes = NULL, *pTemp = NULL, *pToConvertEnd = NULL;
-    char *pToConvert = NULL;
-    const char *pDirRes = NULL, *pDirEnd = NULL, *pDirTemp = NULL, *pDirStart = NULL;
-    char *pDirToConvert = NULL;
-    char *pDecomp = NULL;
+    check_nonempty_tiling(encoded);
 
 //initialisation
-    pStart = encoded;
-    pTemp = pStart;
-    pEnd = pTemp + strlen(pStart);
+    const char *pStart = encoded;
+    const char *pTemp = pStart;
+    const char *pEnd = pTemp + strlen(pStart);
 
 //deal with dimension
-    pRes = strstr(pTemp, TCOLON);
-    if (!pRes)
+    const char *pRes = advance_to_next_char(pTemp, TCOLON);
     {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile dimension.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
+        auto pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
+        dimension = parse_unsigned(pToConvertPtr.get());
     }
-
-    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
-    pToConvert = new char[lenToConvert + 1];
-    memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert] = '\0';
-
-    tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
-    if (!tileD)
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" is not a number.";
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-    vectDirDecomp = std::vector<r_Dir_Decompose>(tileD);
-
-    delete[] pToConvert;
-    if (pRes == (pEnd - 1))
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose, end of stream.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-    else
-    {
-        pRes++;
-    }
+    std::vector<r_Dir_Decompose> vectDirDecomp(dimension);
+    
+    check_premature_stream_end(pRes, pEnd);
+    pRes++;
     pTemp = pRes;
 
 //deal with directional decompose
-    pRes = strstr(pTemp, TCOLON);
-    if (!pRes)
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
+    pRes = advance_to_next_char(pTemp, TCOLON);
+    auto pToConvertPtr = copy_buffer(pTemp, static_cast<size_t>(pRes - pTemp));
+    const char *pToConvertEnd = pToConvertPtr.get() + strlen(pToConvertPtr.get());
+    const char *pDirTemp = pToConvertPtr.get();
+    
+    // helper for multiple checks below
+#define CHECK_PARAM(cond) \
+    if (cond) { \
+        LERROR << "Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvertPtr.get() << "\"."; \
+        throw r_Error(TILINGPARAMETERNOTCORRECT); \
     }
-
-    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
-    pToConvert = new char[lenToConvert + 1];
-    memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert] = '\0';
-    pToConvertEnd = pToConvert + strlen(pToConvert);
-    pDirTemp = pToConvert;
-
-    while (dirIndex < tileD)
+    
+    r_Dimension dirIndex = 0;
+    while (dirIndex < dimension)
     {
-        pDirRes = strstr(pDirTemp, LSQRBRA);
-        if (!pDirRes)
-        {
-            LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\".";
-            delete[] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
-        pDirStart = pDirRes;
+        const char *pDirRes = strstr(pDirTemp, LSQRBRA);
+        CHECK_PARAM(!pDirRes)
+        const char *pDirStart = pDirRes;
+        
         pDirRes = strstr(pDirTemp, RSQRBRA);
-        if (!pDirRes)
-        {
-            LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\".";
-            delete[] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
-        pDirEnd = pDirRes;
+        CHECK_PARAM(!pDirRes)
+        const char *pDirEnd = pDirRes;
 
-        lenDirToConvert = static_cast<r_Bytes>(pDirEnd - pDirStart);
-        if (lenDirToConvert == 1)
-        {
-            LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\".";
-            delete[] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
+        auto lenDirToConvert = static_cast<r_Bytes>(pDirEnd - pDirStart);
+        CHECK_PARAM(lenDirToConvert == 1)
 
-        pDirToConvert = new char[lenDirToConvert];
-        memcpy(pDirToConvert, pDirStart + 1, lenDirToConvert - 1);
-        pDirToConvert[lenDirToConvert - 1] = '\0';
+        auto pDirToConvertPtr = copy_buffer(pDirStart + 1, lenDirToConvert - 1);
+        char *pDirToConvert = pDirToConvertPtr.get();
+        
         pDirTemp = pDirToConvert;
         pDirStart = pDirEnd;
         pDirEnd = pDirToConvert + strlen(pDirToConvert);
@@ -229,162 +138,64 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         if (*pDirToConvert != *ASTERIX)
         {
             pDirRes = strstr(pDirToConvert, TCOMMA);
-            if (!pDirRes)
-            {
-                LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\".";
-                delete[] pDirToConvert;
-                delete[] pToConvert;
-                throw r_Error(TILINGPARAMETERNOTCORRECT);
-            }
+            CHECK_PARAM(!pDirRes)
             while (pDirRes)
             {
-                lenDecomp = static_cast<r_Bytes>(pDirRes - pDirTemp);
-                pDecomp = new char[lenDecomp + 1];
-                memcpy(pDecomp, pDirTemp, lenDecomp);
-                pDecomp[lenDecomp] = '\0';
-
-                decomp = static_cast<r_Range>(strtoul(pDecomp, const_cast<char **>(&pDirTemp), DefaultBase));
-
-                if (*pDirTemp != '\0')
-                {
-                    LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding decompose \"" << pDecomp << "\" from directional decompose \"" << pDirToConvert << "\", is not a number.";
-                    delete[] pDecomp;
-                    delete[] pDirToConvert;
-                    delete[] pToConvert;
-                    throw r_Error(TILINGPARAMETERNOTCORRECT);
-                }
-
-                vectDirDecomp[dirIndex] << decomp;
+                auto lenDecomp = static_cast<r_Bytes>(pDirRes - pDirTemp);
+                auto pDecompPtr = copy_buffer(pDirTemp, lenDecomp);
+                vectDirDecomp[dirIndex] << static_cast<r_Range>(parse_unsigned_long(pDecompPtr.get()));
 
                 //skip COMMA & free buffer
-                delete[] pDecomp;
-                if (pDirRes == (pDirEnd - 1))
-                {
-                    LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose \"" << pDirToConvert << "\", end of stream.";
-                    delete[] pDirToConvert;
-                    delete[] pToConvert;
-                    throw r_Error(TILINGPARAMETERNOTCORRECT);
-                }
-                else
-                {
-                    pDirRes++;
-                }
+                check_premature_stream_end(pDirRes, pDirEnd);
+                pDirRes++;
                 pDirTemp = pDirRes;
 
                 //next decomp
                 pDirRes = strstr(pDirTemp, TCOMMA);
                 if (!pDirRes)
                 {
-                    decomp = static_cast<r_Range>(strtoul(pDirTemp, const_cast<char **>(&pDirRes), DefaultBase));
-                    if (*pDirRes != '\0')
-                    {
-                        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding decompose \"" << pDirTemp << "\" from directional decompose \"" << pDirToConvert << "\", is not a number.";
-                        delete[] pDirToConvert;
-                        delete[] pToConvert;
-                        throw r_Error(TILINGPARAMETERNOTCORRECT);
-                    }
-                    vectDirDecomp[dirIndex] << decomp;
+                    vectDirDecomp[dirIndex] << static_cast<r_Range>(parse_unsigned_long(pDirTemp));
                     break;
-                }//end if
-            }//end while
-        } //end if
+                }
+            }
+        }
 
-        delete[] pDirToConvert;
         dirIndex++;
-        if (dirIndex < tileD)
+        if (dirIndex < dimension)
         {
-            if (pDirStart == (pToConvertEnd - 1))
-            {
-                LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex << " from \"" << pToConvert << "\", end of stream.";
-                delete[] pToConvert;
-                throw r_Error(TILINGPARAMETERNOTCORRECT);
-            }
-            else
-            {
-                pDirStart++;
-            }
-
+            CHECK_PARAM(pDirStart == pToConvertEnd - 1)
+            pDirStart++;
             pDirRes = strstr(pDirStart, TCOMMA);
-            if (!pDirRes)
-            {
-                LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvert << "\", end of stream.";
-                delete[] pToConvert;
-                throw r_Error(TILINGPARAMETERNOTCORRECT);
-            }
-
-            if (pDirRes == (pToConvertEnd - 1))
-            {
-                LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding directional decompose for dimension " << dirIndex << " from \"" << pToConvert << "\", end of stream.";
-                delete[] pToConvert;
-                throw r_Error(TILINGPARAMETERNOTCORRECT);
-            }
-            else
-            {
-                pDirRes++;
-            }
-
+            CHECK_PARAM(!pDirRes)
+            CHECK_PARAM(pDirRes == pToConvertEnd - 1)
+            pDirRes++;
             pDirTemp = pDirRes;
-        }//end if(dirIndex<tileD)
-    }//end while
+        }
+    }
 
 //skip COLON & free buffer
-    delete[] pToConvert;
-    if (pRes == (pEnd - 1))
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile size from \"" << pStart << "\", end of stream.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-    else
-    {
-        pRes++;
-    }
+    check_premature_stream_end(pRes, pEnd);
+    pRes++;
     pTemp = pRes;
 
 //deal with tilesize
-    pRes = strstr(pTemp, TCOLON);
-    if (!pRes)
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile size from \"" << pTemp << "\", end of stream.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-    lenToConvert = static_cast<r_Bytes>(pRes - pTemp);
-    pToConvert = new char[lenToConvert + 1];
-    memcpy(pToConvert, pTemp, lenToConvert);
-    pToConvert[lenToConvert] = '\0';
-
-    tileS = static_cast<r_Bytes>(strtol(pToConvert, (char **)NULL, DefaultBase));
-
-    if (!tileS)
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\", is not a number.";
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
+    pRes = advance_to_next_char(pTemp, TCOLON);
+    pToConvertPtr = copy_buffer(pTemp, static_cast<size_t>(pRes - pTemp));
+    tile_size = parse_unsigned(pToConvertPtr.get());
 
 //skip COLON & free buffer
-    delete[] pToConvert;
-    if (pRes == (pEnd - 1))
-    {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding subtiling from \"" << pStart << "\", end of stream.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-    else
-    {
-        pRes++;
-    }
+    check_premature_stream_end(pRes, pEnd);
+    pRes++;
     pTemp = pRes;
 //deal with subtilig
-    subTiling = r_Dir_Tiling::get_subtiling_from_name(pTemp);
+    auto subTiling = r_Dir_Tiling::get_subtiling_from_name(pTemp);
     if (subTiling == r_Dir_Tiling::NUMBER)
     {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << encoded << "): Error decoding subtiling from \"" << pTemp << "\".";
+        LERROR << "Error decoding subtiling from \"" << pTemp << "\".";
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
-    dimension = tileD;
     dim_decomp = vectDirDecomp;
     sub_tile = subTiling;
-    tile_size = tileS;
 }
 
 r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose> &decomp, r_Bytes ts, SubTiling sub)
@@ -394,25 +205,20 @@ r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose> 
 {
     if (dim_decomp.size() != dimension)
     {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << dims << ", " << decomp << ", " << ts << ", " << static_cast<int>(sub) << ") number of dimensions (" << dimension << ") does not match number of decomposition entries (" << decomp.size() << ")";
-        throw r_Edim_mismatch(dimension, dim_decomp.size());
+        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << dims << ", " << ts 
+               << ", " << static_cast<int>(sub) << ") number of dimensions (" << dimension 
+               << ") does not match number of decomposition entries (" << decomp.size() << ")";
+        throw r_Edim_mismatch(dimension, static_cast<r_Dimension>(dim_decomp.size()));
     }
 }
-
-r_Dir_Tiling::~r_Dir_Tiling()
-{
-}
-
 r_Tiling_Scheme
 r_Dir_Tiling::get_tiling_scheme() const
 {
     return r_DirectionalTiling;
 }
-
 r_Tiling *r_Dir_Tiling::clone() const
 {
-    r_Tiling *copy = new r_Dir_Tiling(dimension, dim_decomp, tile_size, sub_tile);
-    return copy;
+    return new r_Dir_Tiling(dimension, dim_decomp, tile_size, sub_tile);
 }
 
 void r_Dir_Tiling::print_status(std::ostream &os) const
@@ -420,60 +226,50 @@ void r_Dir_Tiling::print_status(std::ostream &os) const
     os << "r_Dir_Tiling[ ";
     r_Dimension_Tiling::print_status(os);
     os << " sub tiling = " << static_cast<int>(sub_tile) << " decompose = { ";
-
     for (r_Dimension i = 0; i < dim_decomp.size(); i++)
-    {
         os << "dim #" << i << " : " << dim_decomp[i] << " ";
-    }
     os << "} ";
 
 }
 
-std::vector<r_Minterval> *
+std::vector<r_Minterval>
 r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
-    // Aux variable
-    r_Dimension i = 0;
-    // The result
-    std::vector<r_Minterval> *decomp_result = new std::vector<r_Minterval>();
-    // An alias to result
-    std::vector<r_Minterval> &result = *decomp_result;
-    std::vector<r_Dir_Decompose> temp_dim_decomp = dim_decomp;
-
-
     // Check dims
     if (dimension != domain.dimension())
     {
-
-        delete decomp_result;
-
-        LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen << ") dimensions of domain (" << domain.dimension() << ") do not match dimensions of tiling strategy (" << dimension << ")";
+        LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
+               << ") dimensions of domain (" << domain.dimension() 
+               << ") do not match dimensions of tiling strategy (" << dimension << ")";
         throw r_Edim_mismatch(dimension, domain.dimension());
     }
+    
+    // The result
+    std::vector<r_Minterval> decomp_result;
+    // An alias to result
+    auto &result = decomp_result;
+    auto temp_dim_decomp = dim_decomp;
 
     // Undefined dims
-    bool *undef_dim = new bool[dimension];
+    std::vector<bool> undef_dim(dimension);
     // Count of undef dims
     r_Dimension total_undef = 0;
 
     // Check if limits ok
-    for (i = 0; i < dimension; i++)
+    for (r_Dimension i = 0; i < dimension; i++)
     {
         // Restric defined
         if (temp_dim_decomp[i].get_num_intervals() > 0)
         {
             undef_dim[i] = false;
-            r_Range lim1 = 0;
-            r_Range lim2 = 0;
-
-            lim1 = domain[i].high();
-            lim2 = temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
+            auto lim1 = domain[i].high();
+            auto lim2 = temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
             if (lim1 != lim2)
             {
-                delete[] undef_dim;
-                delete decomp_result;
-
-                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen << ") upper limit of domain (" << domain.dimension() << ") at dimension " << i << " (" << domain[i] << ") does not partition " << temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
+                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
+                       << ") upper limit of domain (" << domain.dimension() 
+                       << ") at dimension " << i << " (" << domain[i] << ") does not partition " 
+                       << temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
                 throw r_Elimits_mismatch(lim1, lim2);
             }
 
@@ -481,10 +277,10 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
             lim2 = temp_dim_decomp[i].get_partition(0);
             if (lim1 != lim2)
             {
-                delete[] undef_dim;
-                delete decomp_result;
-
-                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen << ") lower limit of domain (" << domain.dimension() << ") at dimension " << i << " (" << domain[i] << ") does not partition " << temp_dim_decomp[i].get_partition(0);
+                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
+                       << ") lower limit of domain (" << domain.dimension() 
+                       << ") at dimension " << i << " (" << domain[i] << ") does not partition " 
+                       << temp_dim_decomp[i].get_partition(0);
                 throw r_Elimits_mismatch(lim1, lim2);
             }
         }
@@ -498,229 +294,122 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
     }
 
     // Create a counter for each dimension
-    r_Dimension *dim_counter = new r_Dimension[dimension];
-    memset(dim_counter, 0, sizeof(r_Dimension) * dimension);
-
-#ifdef _VISUALIZE_2D_DECOMP_
-    // User wants a visual of the 2D decomp.
-    // Number of times a decomp has been made
-    static int count;
-    ++count;                                             // Update decomp count
-
-    Visual_Tiling_2D *vis;
-    if (dimension == 2)
-    {
-        // Create an object for visualization
-        char fname[80];
-        sprintf(fname, "2D_decomp_dir_%d.ppm", count);
-        vis = new Visual_Tiling_2D(domain, fname);
-    }
-#endif
+    std::vector<r_Dimension> dim_counter(dimension, 0);
 
     // Iterate over the all space
-
     bool done = false;
     while (!done)
     {
         // Determine tile coordinates
-
         r_Minterval tile(dimension);
 
-        for (i = 0; i < dimension; i++)
+        for (r_Dimension i = 0; i < dimension; i++)
         {
-            r_Range origin = temp_dim_decomp[i].get_partition(static_cast<int>(dim_counter[i]));
+            r_Range origin = temp_dim_decomp[i].get_partition(dim_counter[i]);
             if (dim_counter[i] != 0)
-            {
                 origin++;
-            }
 
             r_Range limit;
-            if (temp_dim_decomp[i].get_num_intervals() <=  static_cast<int>((dim_counter[i] + 1)))
-            {
+            if (temp_dim_decomp[i].get_num_intervals() <= (dim_counter[i] + 1))
                 limit = origin;
-            }
             else
-            {
-                limit = temp_dim_decomp[i].get_partition(static_cast<int>(dim_counter[i] + 1));
-            }
+                limit = temp_dim_decomp[i].get_partition(dim_counter[i] + 1);
 
             tile << r_Sinterval(origin, limit);
         }
 
         // Do something with tile coordinates (decompose big object)
-
-#ifdef _DEBUG_DIRTILING_
-        cout << "(DirTiling::compute_tiles(): Tile: " << tile << endl;
-#endif
+        LRDEBUG("(DirTiling::compute_tiles(): Tile: " << tile);
 
         // Check if sub-tiling should be done and calculate edgesize
-
         if ((tile.cell_count() * typelen > tile_size) && (sub_tile == WITH_SUBTILING))
         {
             // Create a specification for the partition
-
             r_Minterval partition(dimension);
 
             if (total_undef == 0)
             {
                 // No unspecified dimensions --- create block cross sections
-
-                for (i = 0; i < dimension; i++)
-                {
-                    partition << r_Sinterval(static_cast<r_Range>(0), tile[i].high() - tile[i].low());
-                }
+                for (r_Dimension i = 0; i < dimension; i++)
+                    partition << r_Sinterval(0ll, tile[i].high() - tile[i].low());
             }
             else
             {
                 // Some unspecified dimensions
 
                 // Compute edgesize
-                r_Range edgesize = static_cast<r_Range>(tile_size);
-
-                for (i = 0; i < dimension; i++)
-                {
+                auto edgesize = static_cast<r_Range>(tile_size);
+                for (r_Dimension i = 0; i < dimension; i++)
                     if (!undef_dim[i])
-                    {
-                        edgesize /= static_cast<r_Range>(tile[i].high() - tile[i].low() + 1) * static_cast<r_Range>(typelen);
-                    }
-                }
+                        edgesize /= (tile[i].high() - tile[i].low() + 1) * static_cast<r_Range>(typelen);
 
-                edgesize = floor(pow((static_cast<double>(edgesize)) / (static_cast<double>(typelen)), (1.0 / (static_cast<double>(total_undef)))));
+                edgesize = floor(pow(static_cast<double>(edgesize) / typelen, 1.0 / total_undef));
 
                 // Create specification
-
-                for (i = 0; i < dimension; i++)
-                {
-                    if (undef_dim[i])
-                    {
-                        partition << r_Sinterval(static_cast<r_Range>(0), (edgesize - 1));
-                    }
-                    else
-                    {
-                        partition << r_Sinterval(static_cast<r_Range>(0), tile[i].high() - tile[i].low());
-                    }
-                }
+                for (r_Dimension i = 0; i < dimension; i++)
+                    partition << r_Sinterval(0ll, undef_dim[i] ? edgesize - 1 : tile[i].high() - tile[i].low());
             }
 
-#ifdef _DEBUG_DIRTILING_
-            cout << "(DirTiling::compute_tiles(): Tile size = " << get_tile_size()
-                 << " Specs = " << partition << endl;
-#endif
+            LRDEBUG("(DirTiling::compute_tiles(): Tile size = " << get_tile_size() << " Specs = " << partition)
 
             // Create subtiles and insert them in the result
-
             r_Aligned_Tiling subtiling(partition, get_tile_size());
-            std::vector<r_Minterval> *subtiles = subtiling.compute_tiles(tile, typelen);
-            std::vector<r_Minterval>::iterator it = subtiles->begin();
-            for (; it != subtiles->end(); it++)
-            {
-                result.push_back(*it);
-
-#ifdef _VISUALIZE_2D_DECOMP_                          // If we are visualizing
-                if (domain.dimension() == 2)
-                {
-                    vis->set_pen(0, 255, 0);
-                    if (dimension == 2)
-                    {
-                        (*vis) << (*it);
-                    }
-                }
-#endif
-            }
-            delete subtiles;
+            auto subtiles = subtiling.compute_tiles(tile, typelen);
+            for (const auto &subtile: subtiles)
+                result.push_back(subtile);
         }
         else
         {
             result.push_back(tile);
         }
 
-#ifdef _VISUALIZE_2D_DECOMP_                          // If we are visualizing
-        if (domain.dimension() == 2)
-        {
-            vis->set_pen(255, 255, 0);
-            if (dimension == 2)
-            {
-                (*vis) << tile;
-            }
-        }
-#endif
-
         // Update dimension counters
-
-        for (i = 0; i < dimension; i++)
+        for (r_Dimension i = 0; i < dimension; i++)
         {
             dim_counter[i]++;
-            if (static_cast<int>(dim_counter[i]) >= (temp_dim_decomp[i].get_num_intervals() - 1))
-            {
+            if (dim_counter[i] >= temp_dim_decomp[i].get_num_intervals() - 1)
                 dim_counter[i] = 0;
-            }
             else
-            {
                 break;
-            }
         }
 
         // See if we are done
-        done = 1;
-        for (i = 0; i < dimension; i++)
+        done = true;
+        for (r_Dimension i = 0; i < dimension; i++)
+        {
             if (dim_counter[i] != 0)
             {
-                done = 0;
+                done = false;
                 break;
             }
+        }
     }
 
-    delete [] dim_counter;
-
-#ifdef _VISUALIZE_2D_DECOMP_
-    if (dimension == 2)
-    {
-        delete vis;
-    }
-#endif
-
-    delete [] undef_dim;
-    return &result;
+    return result;
 }
 
 bool
 r_Dir_Tiling::is_compatible(const r_Minterval &domain, r_Bytes type_len) const
 {
-    bool retval = true;
     if (!r_Dimension_Tiling::is_compatible(domain, type_len))
     {
-        retval = false;
+        return false;
     }
     else
     {
-
-        // Aux variable
-        r_Dimension i = 0;
-
-        for (i = 0; i < dimension; i++)                           // Check if limits ok
+        // Check if limits ok
+        for (r_Dimension i = 0; i < dimension; i++)
         {
-            if (dim_decomp[i].get_num_intervals() > 0)         // Restric defined
+            if (dim_decomp[i].get_num_intervals() > 0)
             {
-                r_Range lim1, lim2;
-
-                lim1 = domain[i].high();
-                lim2 = dim_decomp[i].get_partition(dim_decomp[i].get_num_intervals() - 1);
-                if (lim1 != lim2)
+                if (domain[i].high() != dim_decomp[i].get_partition(dim_decomp[i].get_num_intervals() - 1) ||
+                    domain[i].low() != dim_decomp[i].get_partition(0))
                 {
-                    retval = false;
-                    break;
-                }
-
-                lim1 = domain[i].low();
-                lim2 = dim_decomp[i].get_partition(0);
-                if (lim1 != lim2)
-                {
-                    retval = false;
-                    break;
+                    return false;
                 }
             }
         }
     }
-    return retval;
+    return true;
 }
 

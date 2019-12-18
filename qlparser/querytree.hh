@@ -100,7 +100,7 @@ public:
     void checkSemantics();
 
     /// recognize common subexpressions
-    vector<QtNode::QtNodeList> *seeSubexpression();
+    std::vector<QtNode::QtNodeList> *seeSubexpression();
 
     /*@Doc:
       The method returns a list of all common subexpressions in the query tree.
@@ -108,14 +108,14 @@ public:
     */
 
     /// build in common subexpressions in the query tree
-    void insertSubexpression(vector<QtNode::QtNodeList> *nodeList);
+    void insertSubexpression(std::vector<QtNode::QtNodeList> *nodeList);
 
     /*@Doc:
       The method manipulates the query tree to handle common subexpressions.
     */
 
     /// executes a retrieval tree and gives back the result collection
-    vector<QtData *> *evaluateRetrieval();
+    std::vector<QtData *> *evaluateRetrieval();
 
     /*@Doc:
       The method evaluates a retrieval tree and returns the result collection. For this purpose,
@@ -127,7 +127,7 @@ public:
     */
 
     /// executes an update tree and throws a ParseInfo if query does not begin with INSERT, DELETE, UPDATE, ...
-    vector<QtData *> *evaluateUpdate();
+    std::vector<QtData *> *evaluateUpdate();
 
     /// debugging method
     void printTree(int tab, std::ostream &s = std::cout);
@@ -167,9 +167,9 @@ public:
     ///
     void removeDynamicObject(ParseInfo *);
     ///
-    void addDynamicObject(vector<QtONCStream *> *);
+    void addDynamicObject(std::vector<QtONCStream *> *);
     ///
-    void removeDynamicObject(vector<QtONCStream *> *);
+    void removeDynamicObject(std::vector<QtONCStream *> *);
     ///
     void releaseDynamicObjects();
     ///
@@ -195,10 +195,10 @@ private:
     QtNode *rootNode;
 
     /// used by public seeSubexpression()
-    vector<QtNode::QtNodeList> *seeSubexpression(QtNode::QtNodeList *leafList);
+    std::vector<QtNode::QtNodeList> *seeSubexpression(QtNode::QtNodeList *leafList);
 
     /// used by public seeSubexpression()
-    QtNode::QtNodeList *seeSubexpression(QtNode::QtNodeList *leafList, vector<QtNode::QtNodeList> *leafListsNew);
+    QtNode::QtNodeList *seeSubexpression(QtNode::QtNodeList *leafList, std::vector<QtNode::QtNodeList> *leafListsNew);
 
     /// attribute carrying next free number for CSE iterator
     static unsigned int nextCSENo;
@@ -228,7 +228,7 @@ private:
     */
 
     /// list of unlinked lists
-    std::list<vector<QtONCStream *>*> vectorList;
+    std::list<std::vector<QtONCStream *>*> vectorList;
     /**
       This list is used to store elements of type \Ref{vector<QtONCStream*>} generated
       in the parse process and not linked to the result tree yet. In case of an error

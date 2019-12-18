@@ -35,6 +35,11 @@ rasdaman GmbH.
 
 // Include statements
 
+#include "rasodmg/tiling.hh"
+#include "raslib/minterval.hh"
+#include "raslib/odmgtypes.hh"
+#include <iosfwd>
+
 class r_Access;
 class r_Stat_Tiling;
 
@@ -92,13 +97,13 @@ public:
 private:
 
     /// The user can't use the default constructor
-    r_Access();
+    r_Access() = default;
 
     /// The actual stored pattern
     r_Minterval interval;
 
     /// The number of times it was accessed
-    r_ULong times;
+    r_ULong times{};
 };
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -161,7 +166,7 @@ public: // constants
       An exception is thrown when the statistical data does not fit the dimension.
     */
 
-    virtual ~r_Stat_Tiling();
+    virtual ~r_Stat_Tiling() = default;
 
     /// Gets the statistical information
     virtual const std::vector<r_Minterval> &get_interesting_areas() const;
@@ -183,7 +188,7 @@ public: // constants
 
     virtual void print_status(std::ostream &os) const;
 
-    virtual std::vector<r_Minterval> *compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const;
 
     virtual r_Tiling *clone() const;
 

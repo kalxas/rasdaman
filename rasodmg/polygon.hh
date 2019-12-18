@@ -33,12 +33,12 @@ rasdaman GmbH.
 #ifndef _R_POLYGON_
 #define _R_POLYGON_
 
-#include <iostream>
-#include <vector>
-#include <string>
-
 #include "raslib/point.hh"
 #include "raslib/minterval.hh"
+
+#include <iosfwd>
+#include <vector>
+#include <string>
 
 class r_GMarray;
 
@@ -81,7 +81,7 @@ public:
     double getCurrY(r_Range x) const;
 
     /// print start and end point of the edge.
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
 
     /// returns true if the edge is parallel to the first axis
     bool isHorizontal() const;
@@ -168,7 +168,7 @@ public:
     */
 
     /// print all edges of the polygon.
-    void print_status(std::ostream &s = std::cout) const;
+    void print_status(std::ostream &s) const;
 
     /// Fill the 2-D array myArray according to the polygon.
     void fillMArray(r_GMarray &myArray, bool fillInside = false, const std::string &bgr = "") const;

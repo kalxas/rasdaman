@@ -32,7 +32,7 @@ rasdaman GmbH.
 
 
 template<class T>
-inline int
+inline bool
 r_Iterator<T>::not_done() const
 {
     return ndone;

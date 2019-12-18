@@ -42,8 +42,6 @@ rasdaman GmbH.
 #ifndef _STORAGELAYOUT_HH_
 #define _STORAGELAYOUT_HH_
 
-#include <vector>
-
 #include "stgmddconfig.hh"
 #include "relstorageif/dbstoragelayout.hh"
 #include "relstorageif/storageid.hh"
@@ -54,6 +52,7 @@ rasdaman GmbH.
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/dirdecompose.hh"
 
+#include <vector>
 
 //@ManMemo: Module: {\bf indexmgr}
 /*@Doc:

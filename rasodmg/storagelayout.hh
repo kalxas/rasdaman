@@ -33,13 +33,12 @@ rasdaman GmbH.
 #ifndef _R_STORAGELAYOUT_HH_
 #define _R_STORAGELAYOUT_HH_
 
-
-#include <iostream>
-#include <vector>
-using std::cout;
-
 #include "raslib/mddtypes.hh"
 #include "rasodmg/set.hh"
+
+#include <iosfwd>
+#include <vector>
+#include <string>
 
 // forward declarations
 class r_Storage_Layout;
@@ -97,10 +96,10 @@ public:
     const char *get_storage_format_params() const;
 
     /// Function for decomposing large MDDs into a set of smaller tiles
-    virtual r_Set<r_GMarray *> *decomposeMDD(const r_GMarray *mar) const;
+    virtual r_Set<r_GMarray *> decomposeMDD(const r_GMarray *mar) const;
 
     /// Function for decomposing large MDDs into a set of smaller tiles
-    virtual std::vector<r_Minterval> *decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const;
+    virtual std::vector<r_Minterval> decomposeMDD(const r_Minterval &domain, const r_Bytes cell_size) const;
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
@@ -110,17 +109,13 @@ public:
 
 protected:
 
-    friend class ClientComm;
-    friend class r_GMArray;
-
     /// Tiling scheme
-    r_Tiling  *til;
+    r_Tiling *til{NULL};
 
     /// the dataformat is not used.  please use the database methods for this purpose.
-    r_Data_Format storage_format;
+    r_Data_Format storage_format{r_Array};
 
-    char *storage_params;
-
+    std::string storage_params;
 };
 
 //@ManMemo: Module: {\bf rasodmg }

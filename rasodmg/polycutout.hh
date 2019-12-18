@@ -49,6 +49,10 @@ rasdaman GmbH.
 #ifndef _R_POLYGON_CUT_OUT_HH
 #define _R_POLYGON_CUT_OUT_HH
 
+#include "raslib/point.hh"
+#include "raslib/minterval.hh"
+#include "rasodmg/polygon.hh"
+
 #include <iosfwd>
 #include <vector>
 #include <list>
@@ -57,11 +61,6 @@ using std::string;
 using std::list;
 using std::vector;
 using std::ostream;
-
-#include "raslib/point.hh"
-#include "raslib/minterval.hh"
-#include "rasodmg/polygon.hh"
-
 
 //@ManMemo: Module: {\bf rasodmg}
 

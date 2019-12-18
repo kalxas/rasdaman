@@ -250,22 +250,22 @@ public:
     ClientComm *getComm();
 private:
     /// stores a pointer to a communication object, which is valid while a database is opened
-    ClientComm *communication;
+    ClientComm *communication{NULL};
 
     /// database status
-    access_status db_status;
+    access_status db_status{not_open};
 
     /// stores the RasMGR name
-    char *rasmgrName;
+    std::string rasmgrName;
 
     /// stores the RasMGR port
     int   rasmgrPort;
 
     /// stores the user name
-    char *userName;
+    std::string userName;
 
     /// stores the user password (this will change!)
-    char *plainPass;
+    std::string plainPass;
 };
 
 #include "rasodmg/database.icc"

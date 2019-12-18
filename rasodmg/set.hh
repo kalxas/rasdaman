@@ -57,7 +57,7 @@ public:
     /// copy constructor
     r_Set(const r_Set<T> &set);
     /// virtual destructor
-    virtual ~r_Set();
+    virtual ~r_Set() = default;
 
     /// inserts an element at the beginning (no duplicates)
     virtual void insert_element(const T &element, int no_modification = 0);
@@ -71,11 +71,7 @@ public:
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
-#ifdef __VISUALC__
-#include "rasodmg/set.cpp"
-#else
 #include "rasodmg/set.cc"
-#endif
 #endif
 #endif
 

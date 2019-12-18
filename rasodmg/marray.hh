@@ -35,10 +35,7 @@ rasdaman GmbH.
 
 #include "rasodmg/gmarray.hh"
 
-#include <iostream>
-
-using namespace std;
-
+#include <iosfwd>
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -110,24 +107,19 @@ public:
     const r_Marray &operator= (const r_Marray &);
 
     /// subscript operator for projection in the 1st dimension
-    r_Marray<T> operator[](long) const
-    ;
+    r_Marray<T> operator[](long) const;
 
     /// subscript operator for restriction/extension combination
-    r_Marray<T> operator[](const r_Minterval &) const
-    ;
+    r_Marray<T> operator[](const r_Minterval &) const;
 
     /// subscript operator for read access of a cell
-    const T &operator[](const r_Point &) const
-    ;
+    const T &operator[](const r_Point &) const;
 
     /// subscript operator for write access of a cell
-    T &operator[](const r_Point &)
-    ;
+    T &operator[](const r_Point &);
 
     /// cast operator for converting to base type for cell access
-    operator T()
-    ;
+    operator T();
 
     /// writes the state of the object to the specified stream
     virtual void print_status(std::ostream &s);

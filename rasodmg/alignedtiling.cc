@@ -31,16 +31,15 @@ rasdaman GmbH.
 */
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
 
 #include "rasodmg/alignedtiling.hh"
 #include "raslib/rminit.hh"
 
 #include <logging.hh>
-
-#include <sstream>
 
 const char *
 r_Aligned_Tiling::description = "tile configuration or tile dimension and tile size (in bytes) (ex: \"[0:9,0:9];100\" or \"2;100\")";
@@ -48,129 +47,50 @@ r_Aligned_Tiling::description = "tile configuration or tile dimension and tile s
 r_Aligned_Tiling::r_Aligned_Tiling(const char *encoded)
     :   r_Dimension_Tiling(0, 0)
 {
+    check_nonempty_tiling(encoded);
 
-    if (!encoded)
-    {
-        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << (encoded ? encoded : "NULL") << ")";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-    r_Bytes tileS = 0, lenToConvert = 0;
-    r_Minterval *tileConf = NULL;
-    r_Dimension tileD = 0;
-    bool state = false; //false for "tileconf;tilesize", true for "tiledim,tilesize"
-    const char *pStart = NULL, *pRes = NULL, *pEnd = NULL;
-    char *pToConvert = NULL;
-    pStart = encoded;
-    pEnd = pStart + strlen(pStart);
-    pRes = strstr(pStart, TCOLON);
-    if (!pRes)
-    {
-        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration from tilingparams.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-//deal with first param
-    lenToConvert = static_cast<r_Bytes>(pRes - pStart);
-    pToConvert = new char[lenToConvert + 1];
-    memcpy(pToConvert, pStart, lenToConvert);
-    pToConvert[lenToConvert] = '\0';
-
+    const char *pStart = encoded;
+    const char *pEnd = pStart + strlen(pStart);
+    const char *pRes = advance_to_next_char(pStart, TCOLON);
+    
+    // 1 param
+    auto pToConvertPtr = copy_buffer(pStart, static_cast<r_Bytes>(pRes - pStart));
+    const auto pToConvert = pToConvertPtr.get();
     if (*pToConvert == *LSQRBRA)
     {
-        try
-        {
-            tileConf = new r_Minterval(pToConvert);
-        }
-        catch (r_Error &err)
-        {
-            LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile configuration \"" << pToConvert << "\" from tileparams.";
-            LERROR << "Error " << err.get_errorno() << " : " << err.what();
-            delete [] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
-    }
-    else
-    {
-        tileD = strtol(pToConvert, (char **)NULL, DefaultBase);
-        if (!tileD)
-        {
-            LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile dimension \"" << pToConvert << "\" from tileparams.";
-            delete[] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
-    }
-
-//skip COLON
-    delete[] pToConvert;
-    if (pRes != (pEnd - 1))
-    {
-        pRes++;
-    }
-    else
-    {
-        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tiling, end of stream.";
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-//deal with second param
-    tileS = static_cast<r_Bytes>(strtol(pRes, (char **) NULL, DefaultBase));
-    if (!tileS)
-    {
-        LERROR << "r_Aligned_Tiling::r_Aligned_Tiling(" << encoded << "): Error decoding tile size \"" << pRes << "\".";
-
-        if (tileConf)
-        {
-            delete tileConf;
-        }
-
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-
-//detect state
-    if (tileConf)
-    {
-        tile_config = *tileConf;
+        tile_config = parse_minterval(pToConvert);
         dimension = tile_config.dimension();
-        tile_size = tileS;
-        delete tileConf;
     }
     else
     {
-        tile_config = r_Minterval(tileD);
-        dimension = tileD;
-        tile_size = tileS;
+        dimension = parse_unsigned(pToConvert);
+        tile_config = r_Minterval(dimension);
     }
-
+    check_premature_stream_end(pRes, pEnd);
+    //skip COLON
+    ++pRes;
+    
+    // 2 param
+    tile_size = parse_unsigned(pRes);
 }
 
 r_Aligned_Tiling::r_Aligned_Tiling(r_Dimension dim, r_Bytes ts)
-    :   r_Dimension_Tiling(dim, ts),
-        tile_config(dim)
+    :   r_Dimension_Tiling(dim, ts), tile_config(dim)
 {
     /// Default tile configuration - equal sides
-    for (r_Dimension i = 0; i < dim ; i++)
-    {
-        tile_config << r_Sinterval((r_Range)0, (r_Range)1);
-    }
+    for (r_Dimension i = 0; i < dim; i++)
+        tile_config << r_Sinterval(0ll, 1ll);
 }
 
 r_Aligned_Tiling::r_Aligned_Tiling(const r_Minterval &tc, r_Bytes ts)
-    :   r_Dimension_Tiling(tc.dimension(), ts),
-        tile_config(tc)
+    :   r_Dimension_Tiling(tc.dimension(), ts), tile_config(tc)
 {
 }
 
 r_Tiling *
 r_Aligned_Tiling::clone() const
 {
-    r_Aligned_Tiling *newAT = new r_Aligned_Tiling(tile_config, tile_size);
-    return newAT;
-}
-
-r_Aligned_Tiling::~r_Aligned_Tiling()
-{
-    tile_config.r_deactivate();
+    return new r_Aligned_Tiling(tile_config, tile_size);
 }
 
 const r_Minterval &
@@ -184,81 +104,70 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size)
 {
     // Minimum optimal tile size. Below this value, the waste will be too big.
     r_Bytes optMinTileSize = get_min_opt_tile_size();
-
     // number of cells per tile according to storage options
     r_Area numCellsTile = tile_size / cell_size;
-
     // For final result.
     r_Minterval tileDomain(dimension);
 
     int startIx = -1;
-
-    for (r_Dimension i = 0; i < dimension ; i++)
+    for (r_Dimension i = 0; i < dimension; i++)
     {
-        if (tile_config[i].is_low_fixed() == 0  ||
-                tile_config[i].is_high_fixed() == 0)
-        {
+        if (!tile_config[i].is_low_fixed() || !tile_config[i].is_high_fixed())
             startIx = static_cast<int>(i);
-        }
     }
     if (startIx >= 0) // Some limits are nonfixed
     {
-        unsigned long size = cell_size;
-        int i;
-
-        for (i = startIx; i >= 0 ; i--) // treat the non fixed limits first
+        auto size = cell_size;
+        
+        for (int i = startIx; i >= 0; i--) // treat the non fixed limits first
         {
-            r_Range l, h;
-
+            const auto dim = static_cast<r_Dimension>(i);
             // If any of the limits is non-fixed along this direction, tiles
             // will extend from one side to the other along this direction.
-            if ((tile_config[static_cast<r_Dimension>(i)].is_low_fixed() == 0) ||
-                    (tile_config[static_cast<r_Dimension>(i)].is_high_fixed() == 0))
+            if (!tile_config[dim].is_low_fixed() || !tile_config[dim].is_high_fixed())
             {
-
-                l = dom[static_cast<r_Dimension>(i)].low();
-                h = dom[static_cast<r_Dimension>(i)].high();
+                auto l = dom[dim].low();
+                auto h = dom[dim].high();
 
                 /*
                    Alternative interpretation of tile_config with non fixed limits
-                For the time being is useless because the splittile algorithm
-                doesn't take into account the origin of the tile
+                   For the time being is useless because the splittile algorithm
+                   doesn't take into account the origin of the tile
+                   
                     if (tile_config[i].is_low_fixed() == 0)
                       l = contentsDomain[i].low();
                     else
-                  l = tile_config[i].low();
+                      l = tile_config[i].low();
                     if (tileconfig[i].is_high_fixed() == 0)
                       h = contentsDomain[i].high();
                     else
                       h = tile_config[i].high();
-                    */
+                */
 
-                if (size * static_cast<unsigned long>(h - l + 1) > tile_size)
+                if (size * static_cast<r_Bytes>(h - l + 1) > tile_size)
                 {
-                    h = static_cast<r_Range>(tile_size / size) + l  - 1;
+                    h = static_cast<r_Range>(tile_size / size) + l - 1;
                 }
-                size = size * static_cast<unsigned long>(h - l + 1);
-                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l), r_Range(h));
+                size = size * static_cast<r_Bytes>(h - l + 1);
+                tileDomain[dim] = r_Sinterval(r_Range(l), r_Range(h));
             }
         }
-        for (i = static_cast<int>(dimension) - 1; i >= 0 ; i--) // treat fixed limits now
+        for (int i = static_cast<int>(dimension) - 1; i >= 0; i--) // treat fixed limits now
         {
-            r_Range l, h;
-
+            const auto dim = static_cast<r_Dimension>(i);
             // If any of the limits is non-fixed along this direction, tiles
             // will extend from one side to the other along this direction.
-            if ((tile_config[static_cast<r_Dimension>(i)].is_low_fixed() != 0) &&
-                    (tile_config[static_cast<r_Dimension>(i)].is_high_fixed() != 0))
+            if (tile_config[dim].is_low_fixed() && tile_config[dim].is_high_fixed())
             {
-                l = tile_config[static_cast<r_Dimension>(i)].low();
-                h = tile_config[static_cast<r_Dimension>(i)].high();
+                auto l = tile_config[dim].low();
+                auto h = tile_config[dim].high();
 
-                if (static_cast<r_Bytes>(size) * static_cast<r_Bytes>(h - l + 1) > static_cast<r_Bytes>(tile_size))
+                if (size * static_cast<r_Bytes>(h - l + 1) > tile_size)
                 {
-                    h = static_cast<r_Range>(tile_size / size) + l  - 1;
+                    h = static_cast<r_Range>(tile_size / size) + l - 1;
                 }
-                size = size * static_cast<unsigned long>(h - l + 1);
-                tileDomain[static_cast<r_Dimension>(i)] = r_Sinterval(r_Range(l), r_Range(h));
+                size = size * static_cast<r_Bytes>(h - l + 1);
+                tileDomain[dim] = r_Sinterval(r_Range(l), r_Range(h));
             }
         }
 
@@ -266,8 +175,8 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size)
     }
     else    // tile_config has only fixed limits
     {
-        unsigned long numCellsTileConfig = tile_config.cell_count();
-        unsigned long sizeTileConfig = numCellsTileConfig * cell_size;
+        auto numCellsTileConfig = tile_config.cell_count();
+        auto sizeTileConfig = numCellsTileConfig * cell_size;
 
         if (sizeTileConfig > get_min_opt_tile_size() && sizeTileConfig < tile_size)
         {
@@ -275,46 +184,38 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size)
         }
         else
         {
-            float sizeFactor = (float) numCellsTile / numCellsTileConfig;
+            float sizeFactor = static_cast<float>(numCellsTile) / numCellsTileConfig;
 
-            float f = float (1 / float(dimension));
-            float dimFactor = (float)pow(sizeFactor, f);
+            float f = float(1 / float(dimension));
+            float dimFactor = std::pow(sizeFactor, f);
             LTRACE << "dim factor == " << dimFactor;
-
-            unsigned long l, h;
-            unsigned long newWidth;
 
             // extending the bound of each r_Sinterval of tile_config by
             // using the factor dimFactor
             for (unsigned int i = 0; i < dimension ; i++)
             {
-                l = static_cast<unsigned long>(tile_config[i].low());
-                h = static_cast<unsigned long>(tile_config[i].high());
-                newWidth = (unsigned long)((h - l + 1) * dimFactor);
+                auto l = tile_config[i].low();
+                auto h = tile_config[i].high();
+                auto newWidth = (h - l + 1) * dimFactor;
                 if (newWidth < 1)
-                {
                     newWidth = 1;
-                }
-                tileDomain << r_Sinterval(r_Range(l), r_Range(l + newWidth - 1));
+                tileDomain << r_Sinterval(l, static_cast<r_Range>(l + newWidth - 1));
             }
 
             // Approximate the resulting tile size to the target one:
 
             /*
-            r_Minterval tmpTileDomain =
-            get_opt_size(tileDomain, cell_size);
-                tileDomain = tmpTileDomain;
-                */
+            r_Minterval tmpTileDomain = get_opt_size(tileDomain, cell_size);
+            tileDomain = tmpTileDomain;
+            
+            unsigned long sz = tileDomain.cell_count() * cell_size;
 
-            /*
-                  unsigned long sz = tileDomain.cell_count() * cell_size;
+            LTRACE << "cell_size " << cell_size << " tileDomain "<< tileDomain;
+            LTRACE << "cell_count == " << tileDomain.cell_count() << " sz == " << sz;
 
-                  LTRACE << "cell_size " << cell_size << " tileDomain "<< tileDomain;
-                  LTRACE << "cell_count == " << tileDomain.cell_count() << " sz == " << sz;
-
-                  unsigned long newSz = sz;
-                  for(i = dimension-1; i >= 0 && newSz < tile_size ; i--)
-                  {
+            unsigned long newSz = sz;
+            for(i = dimension-1; i >= 0 && newSz < tile_size ; i--)
+            {
                 LTRACE << "inside the cycle ";
                 unsigned long deltaSz = cell_size;
                 for (int j = 0 ; j < dimension ; j++)
@@ -327,94 +228,69 @@ r_Aligned_Tiling::compute_tile_domain(const r_Minterval &dom, r_Bytes cell_size)
                   tileDomain[i].set_high(r_Range(h + 1));
                   newSz += deltaSz;
                 }
-                  }
+            }
             */
 
             if (tileDomain.cell_count() * cell_size > tile_size)
-            {
                 LTRACE << "calculateTileDomain() ";
-            }
             if (tileDomain.cell_count() * cell_size < optMinTileSize)
-            {
                 LTRACE << "calculateTileDomain() result non optimal ";
-            }
-
-            // cout << "return 3"<<std::endl;
             return tileDomain;
         }
     }
 }
 
-std::vector<r_Minterval> *
+std::vector<r_Minterval>
 r_Aligned_Tiling::compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size) const
 {
-    std::vector<r_Minterval> *result = new std::vector<r_Minterval>;
-
-    r_Dimension dim = tile_config.dimension();
-
-    r_Minterval bigDom = obj_domain;
-
-    r_Minterval tileDom = compute_tile_domain(obj_domain, cell_size);
-
-    // cout << "r_Aligned_Tiling::compute_tiles() " << tileDom << std::endl;
-
+    auto bigDom = obj_domain;
+    auto dim = tile_config.dimension();
+    auto tileDom = compute_tile_domain(obj_domain, cell_size);
+    
     r_Minterval currDom(tileDom.dimension());
     r_Point cursor(tileDom.dimension());
-    r_Point tileSize;
-    r_Point origin;
-    int done = 0;
 
     // initialize cursor
     for (dim = 0; dim < cursor.dimension(); dim++)
-    {
         cursor[dim] = 0;
-    }
 
     // calculate size of Tiles
-    tileSize = tileDom.get_extent();
-
+    auto tileSize = tileDom.get_extent();
     // origin of bigTile
-    origin = bigDom.get_origin();
-
+    auto origin = bigDom.get_origin();
     // initialize currDom
     for (dim = 0; dim < cursor.dimension(); dim++)
-    {
-        currDom << r_Sinterval((r_Range)(origin[dim]), (r_Range)(origin[dim] + tileSize[dim] - 1));
-    }
+        currDom << r_Sinterval(origin[dim], origin[dim] + tileSize[dim] - 1);
+
     // resets tileDom to lower left side of bigTile
     tileDom = currDom;
-
     // intersect with bigTile
     currDom.intersection_with(bigDom);
 
     // iterate with smallTile over bigTile
+    std::vector<r_Minterval> result;
+    bool done = false;
     while (!done)
     {
         currDom.intersection_with(bigDom);
-
-        // create new smallTile
-        r_Minterval smallTile(dim);
-
-        smallTile = currDom;
-
-        // insert tile in set
-        result->push_back(smallTile);
+        // insert small tile in set
+        result.push_back(currDom);
 
         // increment cursor, start with highest dimension
-        long i = cursor.dimension() - 1;
-        cursor[(unsigned int)i] += tileSize[(unsigned int)i];
+        auto i = cursor.dimension() - 1;
+        cursor[i] += tileSize[i];
         // move cursor
         currDom = tileDom.create_translation(cursor);
-        while (!(currDom.intersects_with(bigDom)))
+        while (!currDom.intersects_with(bigDom))
         {
-            cursor[(unsigned int)i] = 0;
-            i--;
-            if (i < 0)
+            cursor[i] = 0;
+            if (i == 0)
             {
-                done = 1;
+                done = true;
                 break;
             }
-            cursor[(unsigned int)i] += tileSize[(unsigned int)i];
+            i--;
+            cursor[i] += tileSize[i];
             // move cursor
             currDom = tileDom.create_translation(cursor);
         }
@@ -425,67 +301,59 @@ r_Aligned_Tiling::compute_tiles(const r_Minterval &obj_domain, r_Bytes cell_size
 r_Minterval
 r_Aligned_Tiling::get_opt_size(const r_Minterval &tileDomain, r_Bytes cellSize) const
 {
+    auto tileSize = get_tile_size();
+    auto newSize = tileDomain.cell_count() * cellSize;
+    auto result = tileDomain;
+    auto dim = tileDomain.dimension();
+    auto tmpResult = result;
+    
+    std::vector<int> ixArr(dim);
+    for (r_Dimension j = 0; j < dim; j++)
+        ixArr[j] = static_cast<int>(j);
 
-    unsigned long tileSize = get_tile_size();
-    unsigned long newSize = tileDomain.cell_count() * cellSize;
-    r_Minterval result = tileDomain;
-    r_Dimension dim = tileDomain.dimension();
-    int *ixArr = new int[dim];
-    r_Minterval tmpResult = result;
-    int j;
-
-    for (j = 0; j < static_cast<int>(dim); j++)
+    for (int j = static_cast<int>(dim) - 1; j >= 0 && newSize < tileSize; j--)
     {
-        ixArr[j] = j;
-    }
-
-    for (j = static_cast<int>(dim) - 1; j >= 0 && newSize < tileSize ; j--)
-    {
-        int i = 0;
-        unsigned long h, wd;
-        unsigned int minWidthIx = 0;
-        unsigned long minWidth = static_cast<unsigned long>(tileDomain[0].high() - tileDomain[0].low() + 1);
+        r_Range h{}, wd{};
+        auto minWidth = tileDomain[0].high() - tileDomain[0].low() + 1;
+        r_Dimension minWidthIx{};
+        
         for (int k = j; k >= 0 ; k--)
         {
-            i = ixArr[k];
-
-            h = static_cast<unsigned long>(result[static_cast<r_Dimension>(i)].high() + 1);
-            wd = static_cast<unsigned long>(result[static_cast<r_Dimension>(i)].high() - result[static_cast<r_Dimension>(i)].low() + 1);
+            auto ii = static_cast<r_Dimension>(ixArr[static_cast<size_t>(k)]);
+            h = result[ii].high() + 1;
+            wd = result[ii].high() - result[ii].low() + 1;
             if (wd < minWidth)
             {
                 minWidth = wd;
-                minWidthIx = static_cast<unsigned int>(i);
+                minWidthIx = ii;
             }
         }
 
-        int tmpIx = ixArr[j];
+        auto tmpIx = ixArr[static_cast<size_t>(j)];
         ixArr[minWidthIx] = tmpIx;
 
-        tmpResult[minWidthIx].set_high(r_Range(h));
+        tmpResult[minWidthIx].set_high(h);
         newSize = tmpResult.cell_count() * cellSize;
         if (newSize > tileSize)
         {
-            for (i = static_cast<int>(dim) - 1; i >= 0 ; i--)
+            for (int i = static_cast<int>(dim) - 1; i >= 0 ; i--)
             {
-                h = static_cast<unsigned long>(result[static_cast<r_Dimension>(i)].high() + 1);
-                wd = static_cast<unsigned long>(result[static_cast<r_Dimension>(i)].high() - result[static_cast<r_Dimension>(i)].low() + 1);
+                auto ii = static_cast<r_Dimension>(i);
+                h = result[ii].high() + 1;
+                wd = result[ii].high() - result[ii].low() + 1;
                 if (wd < minWidth)
                 {
                     minWidth = wd;
-                    minWidthIx = static_cast<unsigned int>(i);
+                    minWidthIx = ii;
                 }
             }
         }
 
-        result[minWidthIx].set_high(r_Range(h));
+        result[minWidthIx].set_high(h);
         newSize = result.cell_count() * cellSize;
         if (newSize > tileSize)
-        {
-            result[minWidthIx].set_high(r_Range(h - 1));
-        }
+            result[minWidthIx].set_high(h - 1);
     }
-    delete[] ixArr;
-    ixArr = NULL;
     return result;
 }
 
@@ -498,24 +366,15 @@ r_Aligned_Tiling::get_tiling_scheme() const
 r_Bytes
 r_Aligned_Tiling::get_min_opt_tile_size() const
 {
-    return (get_tile_size() - get_tile_size() / 10);
+    return get_tile_size() - get_tile_size() / 10;
 }
 
-char *
+std::string
 r_Aligned_Tiling::get_string_representation() const
 {
-
-    // initialize string stream
     std::ostringstream domainStream;
-
-    // write into string stream
-
     print_status(domainStream);
-
-    // allocate memory taking the final string
-    char *returnString = strdup(domainStream.str().c_str());
-
-
+    auto returnString = domainStream.str();
     return returnString;
 }
 
@@ -526,100 +385,3 @@ r_Aligned_Tiling::print_status(std::ostream &os) const
     r_Dimension_Tiling::print_status(os);
     os << " tile configuration = " << tile_config << " ]";
 }
-
-/*
-std::ostream&
-operator<<(std::ostream& s, const r_Aligned_Tiling& at)
-{
-  at.print_status(s);
-  return s;
-}
-*/
-
-/*
-std::vector<r_Minterval>*
-r_Default_Tiling::compute_tiles(const r_Minterval& obj_domain, long cell_size)
-  const
-{
-  std::vector<r_Minterval>* result = new std::vector<r_Minterval>;
-
-  r_Minterval bigDom = obj_domain;
-
-  r_Minterval tileDom(bigDom.dimension());
-
-  // compute the domain of the small tiles
-  // tiles are n-dimensional cubes with edge length n-th root of max tile size
-  //old implementations:
-  //long edgeLength = (long)floor(exp((1/(double)tileDom.dimension())*
-    //          log(RMInit::tileSize/mar->get_type_length())));
-  //long edgeLength = (long)floor(exp((1/(double)tileDom.dimension())*
-    //          log(get_tile_size()/cell_size)));
-
-  LTRACE << "tile size == " << get_tile_size();
-  long edgeLength = (long) floor(pow(get_tile_size()/cell_size,
-                          1/(double)tileDom.dimension()));
-  r_Dimension dim;
-
-  for(dim=0; dim<tileDom.dimension(); dim++)
-    tileDom << r_Sinterval((r_Range)0, (r_Range)edgeLength-1);
-
-  r_Minterval currDom(tileDom.dimension());
-  r_Point cursor(tileDom.dimension());
-  r_Point tileSize;
-  r_Point origin;
-  int done = 0;
-
-  // initialize cursor
-  for(dim = 0; dim < cursor.dimension(); dim++)
-    cursor[dim] = 0;
-
-  // calculate size of Tiles
-  tileSize = tileDom.get_extent();
-
-  // origin of bigTile
-  origin = bigDom.get_origin();
-
-  // initialize currDom
-  for(dim=0; dim < cursor.dimension(); dim++)
-    currDom << r_Sinterval((r_Range) (origin[dim]), (r_Range) (origin[dim] + tileSize[dim] - 1));
-  // resets tileDom to lower left side of bigTile
-  tileDom = currDom;
-
-  // intersect with bigTile
-  currDom.intersection_with(bigDom);
-
-  // iterate with smallTile over bigTile
-  while(!done)
-  {
-    currDom.intersection_with(bigDom);
-
-    // create new smallTile
-    r_Minterval smallTile(dim);
-
-    smallTile = currDom;
-
-    // insert tile in set
-    result->push_back(smallTile);
-
-    // increment cursor, start with highest dimension
-    long i = cursor.dimension() - 1;
-    cursor[(unsigned int)i] += tileSize[(unsigned int)i];
-    // move cursor
-    currDom = tileDom.create_translation(cursor);
-    while(!(currDom.intersects_with(bigDom)))
-    {
-      cursor[(unsigned int)i] = 0;
-      i--;
-      if(i < 0)
-      {
-    done = 1;
-    break;
-      }
-      cursor[(unsigned int)i] += tileSize[(unsigned int)i];
-      // move cursor
-      currDom = tileDom.create_translation(cursor);
-    }
-  }
-  return result;
-}
-*/

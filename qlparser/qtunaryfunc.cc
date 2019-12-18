@@ -373,7 +373,7 @@ QtSDom::optimizeLoad(QtTrimList *trimList)
     // reset trimList because optimization enters a new MDD area
 
     // delete list
-    vector<QtNode::QtTrimElement *>::iterator iter;
+    std::vector<QtNode::QtTrimElement *>::iterator iter;
     for (iter = trimList->begin(); iter != trimList->end(); iter++)
     {
         delete *iter;

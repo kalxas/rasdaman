@@ -56,6 +56,7 @@ rasdaman GmbH.
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
 
 #define SECURE_FREE_PTR(ptr) \
     if (ptr) { \

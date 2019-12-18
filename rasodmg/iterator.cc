@@ -30,11 +30,14 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h"
+#include "rasodmg/iterator.hh"
 #include <iostream>
+
 using namespace std;
 
-#include "rasodmg/iterator.hh"
+#ifdef OBJECT_NOT_SET
+#undef __EXECUTABLE__
+#endif
 
 #ifdef EARLY_TEMPLATE
 #ifndef __EXECUTABLE__
@@ -50,15 +53,6 @@ using namespace std;
 #endif
 
 template<class T>
-r_Iterator<T>::r_Iterator()
-{
-    // use default constructor only with assignment operator!
-    collection = 0;
-    ptr = 0;
-    ndone = 0;
-}
-
-template<class T>
 r_Iterator<T>::r_Iterator(const r_Iterator<T> &iter)
 {
     collection = iter.collection;
@@ -69,24 +63,10 @@ r_Iterator<T>::r_Iterator(const r_Iterator<T> &iter)
 template<class T>
 r_Iterator<T>::r_Iterator(r_Collection<T> &source, int removed_objects)
 {
-    collection = &source;
-    // sorry for this awful cast but there is
-    // no standard conversion of r_Collection<T>::CNode* to r_Collection::CNode*
-    if (removed_objects)
-    {
-        ptr = static_cast<typename r_Collection<T>::CNode *>(source.removed_objects);
-    }
-    else
-    {
-        ptr = static_cast<typename r_Collection<T>::CNode *>(source.coll);
-    }
-
-    ndone = (ptr->elem != 0);
-}
-
-template<class T>
-r_Iterator<T>::~r_Iterator()
-{
+    collection = &source;    
+    ptr = static_cast<typename r_Collection<T>::CNode *>(
+                removed_objects ? source.removed_objects : source.coll);
+    ndone = ptr->elem != 0;
 }
 
 template<class T>
@@ -99,7 +79,6 @@ r_Iterator<T>::operator=(const r_Iterator<T> &iter)
         ptr        = iter.ptr;
         ndone      = iter.ndone;
     }
-
     return *this;
 }
 
@@ -107,14 +86,8 @@ template<class T>
 int
 r_Iterator<T>::is_equal(const r_Iterator<T> &iter) const
 {
-    if (collection == iter.collection)
-        if (ptr == iter.ptr)
-        {
-            return 1;
-        }
-    return 0;
+    return collection == iter.collection && ptr == iter.ptr;
 }
-
 
 template<class T>
 int
@@ -135,20 +108,12 @@ r_Iterator<T> &
 r_Iterator<T>::operator++()
 {
     // ++prefix operator
-
     if (!ndone)
-    {
         throw r_Error(r_Error::r_Error_IteratorExhausted);
-    }
     if (ptr->next != 0)
-    {
         ptr = ptr->next;
-    }
     else
-    {
-        ndone = 0;
-    }
-
+        ndone = false;
     return *this;
 }
 
@@ -159,69 +124,47 @@ r_Iterator<T>::operator++(int)
     // postfix++ operator
     // create a copy of this, increment the original and return the copy
     r_Iterator<T> result(*this);
-
     operator++();
-
     return result;
 }
 
 template<class T>
 T
 r_Iterator<T>::operator*()
-
 {
     if (!ndone || ptr->elem == 0)
-    {
-        r_Error err = r_Error(r_Error::r_Error_IteratorExhausted);
-        throw err;
-    }
-
-    // The following line was return *(ptr->elem) but the HP compiler had problems
-    // while instantiating the code. CNode::elem was of a different type than T.
-    return *(static_cast<T *>(ptr->elem));
+        throw r_Error(r_Error::r_Error_IteratorExhausted);
+    
+    return *(ptr->elem);
 }
 
 template<class T>
 T
 r_Iterator<T>::get_element() const
-
 {
     if (!ndone || ptr->elem == 0)
-    {
         throw r_Error(r_Error::r_Error_IteratorExhausted);
-    }
     else
-    {
         return *(ptr->elem);
-    }
 }
 
 template<class T>
-int
+bool
 r_Iterator<T>::next(T &element)
 {
     if (!ndone || ptr->elem == 0)
-    {
-        return 0;
-    }
+        return false;
     element = *(ptr->elem);
     advance();
-    return 1;
+    return true;
 }
 
 template<class T>
 void
 r_Iterator<T>::reset(int removed_objects)
 {
-    if (removed_objects)
-    {
-        ptr = static_cast<typename r_Collection<T>::CNode *>(collection->removed_objects);
-    }
-    else
-    {
-        ptr = static_cast<typename r_Collection<T>::CNode *>(collection->coll);
-    }
-
+    ptr = static_cast<typename r_Collection<T>::CNode *>(
+                removed_objects ? collection->removed_objects : collection->coll);
     ndone = (ptr->elem != 0);
 }
 
@@ -230,15 +173,9 @@ void
 r_Iterator<T>::advance()
 {
     if (!ndone)
-    {
         throw r_Error(r_Error::r_Error_IteratorExhausted);
-    }
     if (ptr->next != 0)
-    {
         ptr = ptr->next;
-    }
     else
-    {
-        ndone = 0;
-    }
+        ndone = false;
 }

@@ -30,8 +30,8 @@ rasdaman GmbH.
  *      None
 */
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include <vector>
 
 #include "raslib/minterval.hh"
@@ -49,7 +49,7 @@ rasdaman GmbH.
 // format string for creating collections; parameters: collection name, set type
 #define FORMAT_CREATE "CREATE COLLECTION %s %s"
 // format string for updating the MDD; parameters: collection name, local oid
-#define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %l"
+#define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %ll"
 
 
 r_Partial_Insert::r_Partial_Insert(r_Database &usedb, const char *collname, const char *mddtype,

@@ -33,15 +33,9 @@ rasdaman GmbH.
 #ifndef _R_DIRDECOMPOSE_HH_
 #define _R_DIRDECOMPOSE_HH_
 
-// Include statements
-
-#include <iostream>
-#include <vector>
-using std::cout;
-using std::vector;
-
 #include "raslib/error.hh"
 #include "raslib/sinterval.hh"
+#include <vector>
 
 //@ManMemo: Module {\bf rasodmg}
 
@@ -71,16 +65,9 @@ using std::vector;
 class r_Dir_Decompose
 {
 public:
-
-    r_Dir_Decompose();
-
-    virtual ~r_Dir_Decompose();
-
-    /// Copy constructor
-    r_Dir_Decompose(const r_Dir_Decompose &other);
-
-    /// Assigment operator
-    const r_Dir_Decompose &operator=(const r_Dir_Decompose &other);
+    r_Dir_Decompose() = default;
+    virtual ~r_Dir_Decompose() = default;
+    r_Dir_Decompose(const r_Dir_Decompose &other) = default;
 
     /// Reads a new limit for the current dimension
     r_Dir_Decompose &operator<<(r_Range limit);
@@ -89,10 +76,10 @@ public:
     r_Dir_Decompose &prepend(r_Range limit);
 
     /// Gets the number of intervals the dimension is to be split into
-    int get_num_intervals() const;
+    size_t get_num_intervals() const;
 
     /// Gets a restriction
-    r_Range get_partition(int number) const;
+    r_Range get_partition(size_t number) const;
 
     /// Prints the current status of the object
     virtual void print_status(std::ostream &os) const;
@@ -100,17 +87,8 @@ public:
 protected:
     r_Sinterval get_total_interval();
 
-    /// Initial number of intervals of the buffer
-    const static r_Dimension DEFAULT_INTERVALS;
-
-    /// The number of intervals that this object can currently suport
-    r_Dimension num_intervals;
-
-    /// The current interval that is being used for input
-    r_Dimension current_interval;
-
     /// The buffer that holds the information
-    r_Range *intervals;
+    std::vector<r_Range> intervals;
 };
 
 //@ManMemo: Module: {\bf rasodmg}
@@ -118,6 +96,5 @@ protected:
     Prints the status of an r_Dir_Decompose object to a stream
 */
 extern std::ostream &operator<<(std::ostream &os, const r_Dir_Decompose &d);
-extern std::ostream &operator<<(std::ostream &os, const std::vector<r_Dir_Decompose> &vec);
 
 #endif

@@ -1118,17 +1118,14 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
             LDEBUG << "domain set to " << mddDomain;
 
             // compute tiles
-            std::unique_ptr<r_Storage_Layout> storage_layout;
-            storage_layout.reset(new r_Storage_Layout(new r_Aligned_Tiling(1)));
-            std::unique_ptr<std::vector<r_Minterval>> tiles;
-            tiles.reset(storage_layout->decomposeMDD(mddDomain, 1));
+            r_Storage_Layout storage_layout(new r_Aligned_Tiling(1));
+            auto tiles = storage_layout.decomposeMDD(mddDomain, 1);
 
             // read data in each tile chunk
             long offset = 0;
             fileContentsChunked.reset(new r_Set<r_GMarray *>());
-            for (auto chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
+            for (const auto chunkDom: tiles)
             {
-                r_Minterval chunkDom = *chunkIt;
                 r_Area chunkSize = chunkDom.cell_count();
                 char *chunkData = NULL;
                 try

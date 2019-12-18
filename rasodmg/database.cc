@@ -30,23 +30,12 @@ rasdaman GmbH.
  *      None
 */
 
-#ifdef __VISUALC__
-#ifndef __EXECUTABLE__
-#define __EXECUTABLE__
-#define DATABASE_NOT_SET
-#endif
-#endif
-
 #include "config.h"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 
 #include <logging.hh>
-
-#ifdef DATABASE_NOT_SET
-#undef __EXECUTABLE__
-#endif
 
 #include <string.h>
 
@@ -55,26 +44,17 @@ r_Database *r_Database::actual_database = 0;
 
 
 r_Database::r_Database()
-    : communication(0),
-      db_status(not_open),
-      rasmgrName(0),
-      userName(0),
-      plainPass(0)
 {
 }
 
 r_Database::r_Database(const char *name)
-    : communication(0),
-      db_status(not_open),
-      userName(0),
-      plainPass(0)
 {
     if (!name)
     {
         LERROR << "null database name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
-    this->rasmgrName = strdup(name);
+    rasmgrName = name;
 }
 
 r_Type *
@@ -119,19 +99,6 @@ r_Database::~r_Database()
     {
         close();
     }
-
-    if (rasmgrName)
-    {
-        free(rasmgrName);
-    }
-    if (userName)
-    {
-        free(userName);
-    }
-    if (plainPass)
-    {
-        free(plainPass);
-    }
 }
 
 void
@@ -139,13 +106,12 @@ r_Database::open(const char *database_name, access_status new_status)
 {
     if (db_status != not_open)
     {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseOpen);
-        throw err;
+        throw r_Error(r_Error::r_Error_DatabaseOpen);
     }
 
     if (!database_name)
     {
-        LERROR << "r_Database::open(name, new_status) name is null";
+        LERROR << "Cannot open database with unspecified name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
@@ -154,18 +120,16 @@ r_Database::open(const char *database_name, access_status new_status)
     // of open(...).
     try
     {
-        communication = ClientComm::createObject(rasmgrName, rasmgrPort);
-        if (userName && plainPass)
+        communication = ClientComm::createObject(rasmgrName.c_str(), rasmgrPort);
+        if (!userName.empty() && !plainPass.empty())
         {
-            communication->setUserIdentification(userName, plainPass);
+            communication->setUserIdentification(userName.c_str(), plainPass.c_str());
         }
     }
     catch (...)
     {
-        if (communication)
-        {
-            delete communication;
-        }
+        delete communication;
+        communication = 0;
         throw;  // re-throw the exception (r_Error_HostInvalid, r_Error_ServerInvalid)
     }
     communication->setDatabase(this);
@@ -177,10 +141,8 @@ r_Database::open(const char *database_name, access_status new_status)
     }
     catch (...)
     {
-        if (communication)
-        {
-            delete communication;
-        }
+        delete communication;
+        communication = 0;
         throw;
     }
 
@@ -212,12 +174,9 @@ r_Database::open(const char *database_name, access_status new_status)
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-
-        if (communication)
-        {
-            delete communication;
-        }
-
+        
+        delete communication;
+        communication = 0;
         throw err;
     }
     //if no other database was set as default, make this one default.
@@ -225,7 +184,7 @@ r_Database::open(const char *database_name, access_status new_status)
     {
         actual_database = this;
     }
-    db_status       = new_status;
+    db_status = new_status;
 }
 
 void
@@ -274,19 +233,13 @@ void
 r_Database::set_servername(const char *name, int port)
 {
     //We let the name of the function as it is, but it's about the rasmgr name
-
     if (!name)
     {
-        LERROR << "r_Database::set_servername(name, port) name is null";
+        LERROR << "Cannot set empty server name.";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
-    if (rasmgrName)
-    {
-        free(rasmgrName);
-    }
-
-    rasmgrName = strdup(name);
+    rasmgrName = name;
     rasmgrPort = port;
 }
 void
@@ -294,25 +247,17 @@ r_Database::set_useridentification(const char *name, const char *plain_pass)
 {
     if (!name)
     {
-        LERROR << "r_Database::set_useridentification(name, plain_pass) name is null";
+        LERROR << "name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
     if (!plain_pass)
     {
-        LERROR << "r_Database::set_useridentification(name, plain_pass) plain_pass is null";
+        LERROR << "password is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
-    if (userName)
-    {
-        free(userName);
-    }
-    if (plainPass)
-    {
-        free(plainPass);
-    }
-    userName  = strdup(name);
-    plainPass = strdup(plain_pass);
+    userName  = name;
+    plainPass = plain_pass;
 }
 
 void
@@ -328,27 +273,15 @@ r_Database::lookup_object(const char *name) const
 
     if (db_status == not_open)
     {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
     }
-
     if (!name)
     {
-        LERROR << "r_Database::lookup_object(name) name is null";
+        LERROR << "name is null";
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
-    try
-    {
-        // get collection
-        returnValue = communication->getCollOIdsByName(name);
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
-    }
-
-    return returnValue;
+    return communication->getCollOIdsByName(name);
 }
 
 
@@ -356,32 +289,14 @@ r_Database::lookup_object(const char *name) const
 r_Ref_Any
 r_Database::lookup_object(const r_OId &oid) const
 {
-    r_Ref_Any returnValue;
-
     if (db_status == not_open)
     {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw err;
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
     }
 
-    try
-    {
-        // determine type of object and get it
-        if (communication->getObjectType(oid) == 1)
-        {
-            returnValue = communication->getMDDByOId(oid);
-        }
-        else
-        {
-            returnValue = communication->getCollOIdsByOId(oid);
-        }
-    }
-    catch (...)
-    {
-        throw;  // re-throw the exception
-    }
-
-    return returnValue;
+    // determine type of object and get it
+    return communication->getObjectType(oid) == 1
+            ? communication->getMDDByOId(oid) : communication->getCollOIdsByOId(oid);
 }
 
 
@@ -392,8 +307,7 @@ r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
 
     if (db_status == not_open)
     {
-        r_Error err = r_Error(r_Error::r_Error_DatabaseClosed);
-        throw (err);
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
     }
     //keeps from crashing in rpc on linux
     if (formatParams == 0)
@@ -401,21 +315,12 @@ r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
         formatParams = "";
     }
     result = communication->setTransferFormat(format, formatParams);
-
     switch (result)
     {
     case 1:
-    {
-        r_Error err = r_Error(r_Error::r_Error_ClientUnknown);
-        throw (err);
-    }
-    break;
+        throw r_Error(r_Error::r_Error_ClientUnknown);
     case 2:
-    {
-        r_Error err = r_Error(r_Error::r_Error_FeatureNotSupported);
-        throw (err);
-    }
-    break;
+        throw r_Error(r_Error::r_Error_FeatureNotSupported);
     default:
         break;
     }
@@ -428,8 +333,7 @@ r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
 
     if (db_status == not_open)
     {
-        r_Error err(r_Error::r_Error_DatabaseClosed);
-        throw (err);
+        throw r_Error(r_Error::r_Error_DatabaseClosed);
     }
 
     //keeps from crashing in rpc on linux
@@ -439,27 +343,16 @@ r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
     }
 
     result = communication->setStorageFormat(format, formatParams);
-
     switch (result)
     {
     case 1:
-    {
-        r_Error err(r_Error::r_Error_ClientUnknown);
-        throw (err);
-    }
-    break;
+        throw r_Error(r_Error::r_Error_ClientUnknown);
     case 2:
-    {
-        r_Error err(r_Error::r_Error_FeatureNotSupported);
-        throw (err);
-    }
-    break;
+        throw r_Error(r_Error::r_Error_FeatureNotSupported);
     default:
         break;
     }
 }
-
-
 
 const r_OId
 r_Database::get_new_oid(unsigned short objType) const
