@@ -49,8 +49,11 @@ I have considered them so because of the usual coordinates of tiffs
 #include "rasodmg/polycutout.hh"
 #include "rasodmg/marray.hh"
 #include "raslib/miter.hh"
+#include "raslib/error.hh"
 
 #include <math.h>
+
+using namespace std;
 
 r_SegmentIterator::r_SegmentIterator(r_Point &s, r_Point &e)
 {

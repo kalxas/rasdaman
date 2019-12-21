@@ -33,9 +33,7 @@ rasdaman GmbH.
 #ifndef _D_OBJECT_
 #define _D_OBJECT_
 
-#include "raslib/error.hh"
 #include "raslib/oid.hh"
-#include "raslib/rminit.hh"
 
 #include <cstdlib>
 

@@ -34,13 +34,13 @@ rasdaman GmbH.
 #define _R_POLYGON_
 
 #include "raslib/point.hh"
-#include "raslib/minterval.hh"
 
 #include <iosfwd>
 #include <vector>
 #include <string>
 
 class r_GMarray;
+class r_Minterval;
 
 //@ManMemo: Module: {\bf rasodmg}
 

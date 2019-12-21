@@ -37,7 +37,6 @@
 
 #include "raslib/scalar.hh"
 
-class r_Error;
 class r_Structure_Type;
 
 //@ManMemo: Module: {\bf raslib}

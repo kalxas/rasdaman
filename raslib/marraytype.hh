@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 
 class r_Base_Type;
-class r_Error;
 
 //@ManMemo: Module: {\bf raslib}
 

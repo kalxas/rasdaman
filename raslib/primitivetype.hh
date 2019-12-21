@@ -33,8 +33,6 @@ rasdaman GmbH.
 #ifndef _D_PRIMITIVE_TYPE_
 #define _D_PRIMITIVE_TYPE_
 
-class r_Error;
-
 #include "raslib/basetype.hh"
 #include "raslib/odmgtypes.hh"
 

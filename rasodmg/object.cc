@@ -31,14 +31,15 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "object.hh"
 #include "mymalloc/mymalloc.h"
 #include "raslib/type.hh"
 #include "raslib/error.hh"
 #include "rasodmg/object.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
+#include "rasodmg/ref.hh"
 #include "clientcomm/clientcomm.hh"
-#include "object.hh"
 #include <logging.hh>
 #include <iostream>
 

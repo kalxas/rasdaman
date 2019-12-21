@@ -42,6 +42,7 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/partinsert.hh"
+#include "rasodmg/ref.hh"
 
 #include <logging.hh>
 

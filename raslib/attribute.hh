@@ -38,8 +38,6 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"
 
 class r_Base_Type;
-class r_Type_Id;
-class r_Error;
 
 
 //@ManMemo: Module: {\bf raslib}

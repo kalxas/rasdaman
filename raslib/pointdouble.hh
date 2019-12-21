@@ -38,16 +38,10 @@ rasdaman GmbH.
 #pragma warning( disable : 4290 )
 #endif
 
-class r_Error;
-class r_Einit_overflow;
-class r_Eindex_violation;
-class r_Edim_mismatch;
-
 #include "raslib/mddtypes.hh"
-#include "raslib/error.hh"
 #include "raslib/point.hh"
 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 
 //@ManMemo: Module: {\bf raslib}

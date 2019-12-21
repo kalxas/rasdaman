@@ -33,9 +33,8 @@ rasdaman GmbH.
 #ifndef _FLAT_BASE_TYPE_HH_
 #define _FLAT_BASE_TYPE_HH_
 
-#include <iostream>
-
-#include "raslib/error.hh"
+#include "raslib/mddtypes.hh"
+#include <iosfwd>
 
 class r_Base_Type;
 class r_Primitive_Type;

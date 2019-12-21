@@ -33,9 +33,9 @@
  *
 */
 
-#include "mymalloc/mymalloc.h"
-
 #include "raslib/storageman.hh"
+#include "raslib/error.hh"
+#include "mymalloc/mymalloc.h"
 
 
 // auxiliary static functions

@@ -33,22 +33,19 @@ rasdaman GmbH.
 #ifndef _R_TILING_HH_
 #define _R_TILING_HH_
 
+#include "raslib/rminit.hh"
+#include "raslib/odmgtypes.hh"
+#include "raslib/mddtypes.hh"
+
+#include <vector>
+#include <iosfwd>
+#include <memory>
+
 class r_Tiling;
 class r_No_Tiling;
 class r_Size_Tiling;
 class r_Dimension_Tiling;
 class r_Minterval;
-
-// Include statements
-
-#include "raslib/rminit.hh"
-#include "raslib/odmgtypes.hh"
-#include "raslib/mddtypes.hh"
-#include "raslib/error.hh"
-
-#include <vector>
-#include <iosfwd>
-#include <memory>
 
 //@ManMemo: Module {\bf rasodmg}
 

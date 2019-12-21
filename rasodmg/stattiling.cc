@@ -24,6 +24,7 @@ rasdaman GmbH.
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
+#include "raslib/error.hh"
 
 #include <cmath>
 #include <cstdlib>

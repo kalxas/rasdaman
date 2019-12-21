@@ -34,8 +34,6 @@ rasdaman GmbH.
 #define _D_COLLECTION_TYPE_
 
 #include "raslib/type.hh"
-class r_Error;
-
 
 //@ManMemo: Module: {\bf raslib}
 

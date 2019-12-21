@@ -33,17 +33,15 @@ rasdaman GmbH.
 #ifndef _D_DATABASE_
 #define _D_DATABASE_
 
-#include "raslib/rminit.hh"
-#include "raslib/error.hh"
-#include "rasodmg/object.hh"
 #include "raslib/mddtypes.hh"
 #include "globals.hh"
 
 // forward declarations
 class r_Object;
-class r_Transaction;
-class ClientComm;
+class r_OId;
+class r_Type;
 class r_Ref_Any;
+class ClientComm;
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -269,6 +267,5 @@ private:
 };
 
 #include "rasodmg/database.icc"
-#include "rasodmg/ref.hh"
 
 #endif

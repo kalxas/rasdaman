@@ -35,18 +35,17 @@ rasdaman GmbH.
 
 #include "rasodmg/object.hh"
 
-#include "raslib/error.hh"
 #include "raslib/minterval.hh"
-#include "raslib/point.hh"
-#include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
 #include "rasodmg/set.hh"
-#include "rasodmg/transaction.hh"
 #include <iosfwd>
 #include <vector>
 
 // forward declarations
 class r_Storage_Layout;
+class r_Point;
+class r_Base_Type;
+class r_Transaction;
 
 
 //@ManMemo: Module: {\bf rasodmg}

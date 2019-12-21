@@ -34,9 +34,7 @@ rasdaman GmbH.
 #define _R_DIRTILING_HH_
 
 #include "rasodmg/tiling.hh"
-
-class r_Dir_Decompose;
-class r_Dir_Tiling;
+#include "rasodmg/dirdecompose.hh"
 
 // Class definition
 

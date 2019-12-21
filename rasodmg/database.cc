@@ -31,8 +31,10 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "raslib/type.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
+#include "rasodmg/ref.hh"
 #include "clientcomm/clientcomm.hh"
 
 #include <logging.hh>

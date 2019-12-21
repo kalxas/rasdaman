@@ -21,20 +21,18 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "raslib/scalar.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/ref.hh"
-
-
-#include <sstream>
-
 #include "rasodmg/transaction.hh"
 #include "clientcomm/clientcomm.hh"
 
 #include <logging.hh>
 
+#include <sstream>
 
 // forward declaration needed because of EARLY_TEMPLATE
-class r_Transaction;
+//class r_Transaction;
 
 // In case of early templates take care non-template code is only
 // compiled once.

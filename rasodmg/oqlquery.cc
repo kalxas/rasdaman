@@ -32,11 +32,13 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "raslib/type.hh"
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/gmarray.hh"
+#include "rasodmg/ref.hh"
 
 #include "clientcomm/clientcomm.hh"
 

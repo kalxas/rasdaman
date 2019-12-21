@@ -33,7 +33,6 @@ rasdaman GmbH.
 #ifndef _D_COLLECTION_
 #define _D_COLLECTION_
 
-#include "raslib/error.hh"
 #include "rasodmg/object.hh"
 
 template <class T>
@@ -205,11 +204,7 @@ protected:
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
-#ifdef __VISUALC__
-#include "collection.cpp"
-#else
 #include "collection.cc"
-#endif
 #endif
 #endif
 

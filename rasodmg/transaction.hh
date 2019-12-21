@@ -35,14 +35,13 @@ rasdaman GmbH.
 #ifndef _D_TRANSACTION_
 #define _D_TRANSACTION_
 
-#include "raslib/error.hh"
-#include "raslib/oid.hh"
-
 #include "rasodmg/set.hh"
-#include "rasodmg/ref.hh"
-#include "rasodmg/database.hh"
+#include "rasodmg/object.hh"
 
-class r_Object;
+class r_OId;
+class r_Database;
+class r_Ref_Any;
+template <typename T> class r_Ref;
 
 /*@Doc:
 
@@ -175,11 +174,7 @@ typedef r_Iterator<r_Object *> r_Iterator_r_Object_dummy;
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
-#ifdef __VISUALC__
-#include "rasodmg/ref.cpp"
-#else
 #include "rasodmg/ref.cc"
-#endif
 #endif
 #endif
 

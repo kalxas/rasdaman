@@ -37,8 +37,6 @@
 #include "raslib/attribute.hh"
 #include <vector>
 
-class r_Error;
-
 //@ManMemo: Module: {\bf raslib}
 
 /*@Doc:

@@ -34,7 +34,6 @@ rasdaman GmbH.
 #define _R_STORAGELAYOUT_HH_
 
 #include "raslib/mddtypes.hh"
-#include "rasodmg/set.hh"
 
 #include <iosfwd>
 #include <vector>
@@ -43,9 +42,10 @@ rasdaman GmbH.
 // forward declarations
 class r_Storage_Layout;
 class r_GMarray;
-class ClientComm;
 class r_Tiling;
 class r_Minterval;
+template <typename T>
+class r_Set;
 
 //@ManMemo: Module: {\bf rasodmg}
 

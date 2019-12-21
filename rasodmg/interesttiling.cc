@@ -31,6 +31,7 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "raslib/error.hh"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirdecompose.hh"

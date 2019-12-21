@@ -34,12 +34,9 @@ rasdaman GmbH.
 #ifndef _D_PRIMITIVE_
 #define _D_PRIMITIVE_
 
-#include <iostream>
-
-class r_Error;
-
 #include "raslib/scalar.hh"
 #include "raslib/odmgtypes.hh"
+#include <iosfwd>
 
 class r_Primitive_Type;
 

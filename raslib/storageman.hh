@@ -40,10 +40,6 @@
 // for size_t
 #include <stdlib.h>
 
-#include "raslib/error.hh"
-
-
-
 //@ManMemo: Module {\bf raslib}
 
 /*@Doc:

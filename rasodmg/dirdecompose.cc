@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 #include "rasodmg/dirdecompose.hh"
+#include "raslib/error.hh"
 
 r_Dir_Decompose &r_Dir_Decompose::operator<<(r_Range limit)
 {

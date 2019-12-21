@@ -31,7 +31,6 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include <vector>
 
 #include "rasodmg/marray.hh"
 #include "rasodmg/database.hh"
@@ -43,12 +42,14 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 #include "raslib/marraytype.hh"
 #include "raslib/structuretype.hh"
+#include "raslib/point.hh"
+
+#include <logging.hh>
 
 #include <string.h>  // for memcpy()
 #include <iostream>
 #include <iomanip>
-
-#include <logging.hh>
+#include <vector>
 
 
 r_GMarray::r_GMarray(r_Transaction *ta)

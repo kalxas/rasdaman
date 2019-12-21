@@ -35,10 +35,8 @@ rasdaman GmbH.
 #define _D_COMPLEX_
 
 #include "raslib/odmgtypes.hh"
-#include "raslib/mddtypes.hh"
 #include "raslib/primitive.hh"
 
-class r_Error;
 class r_Complex_Type;
 
 //@ManMemo: Module: {\bf raslib}
@@ -48,8 +46,6 @@ class r_Complex_Type;
  Class \Ref{r_Complex} represents a complex type value.
 
 */
-
-
 class r_Complex: public r_Primitive
 {
 public:

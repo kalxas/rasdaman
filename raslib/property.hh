@@ -35,9 +35,7 @@ rasdaman GmbH.
 
 #include "metaobject.hh"
 
-
 class r_Base_Type;
-class r_Type_Id;
 
 //@ManMemo: Module: {\bf raslib}
 

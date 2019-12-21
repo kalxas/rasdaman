@@ -35,6 +35,7 @@ rasdaman GmbH.
 #include "../rasodmg/ref.hh"
 #include "../rasodmg/storagelayout.hh"
 #include "../rasodmg/tiling.hh"
+#include "../rasodmg/gmarray.hh"
 
 #include "../raslib/minterval.hh"
 #include "../raslib/rminit.hh"

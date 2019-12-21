@@ -33,6 +33,7 @@ rasdaman GmbH.
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/alignedtiling.hh"
+#include "raslib/error.hh"
 
 #include <logging.hh>
 

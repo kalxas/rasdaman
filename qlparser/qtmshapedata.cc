@@ -24,6 +24,7 @@ rasdaman GmbH.
 using namespace std;
 
 #include "qlparser/qtmshapedata.hh"
+#include "raslib/error.hh"
 #include <cstring>
 #include <cmath>
 

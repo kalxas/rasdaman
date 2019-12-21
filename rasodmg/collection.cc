@@ -30,10 +30,12 @@ rasdaman GmbH.
  *      None
 */
 
-#include "raslib/collectiontype.hh"
 #include "rasodmg/collection.hh"
+#include "rasodmg/ref.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/database.hh"
+#include "raslib/collectiontype.hh"
+#include "raslib/error.hh"
 
 #include "clientcomm/clientcomm.hh"
 

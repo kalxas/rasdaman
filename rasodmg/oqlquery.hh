@@ -34,19 +34,17 @@ rasdaman GmbH.
 #ifndef _D_OQL_QUERY_
 #define _D_OQL_QUERY_
 
-#include "raslib/error.hh"
-
 #include "raslib/odmgtypes.hh"
-#include "rasodmg/marray.hh"
-#include "raslib/point.hh"
-#include "raslib/sinterval.hh"
-#include "raslib/minterval.hh"
-#include "rasodmg/database.hh"
-#include "rasodmg/transaction.hh"
+#include <cstddef> // for NULL
 
 template <class T> class r_Set;
 template <class T> class r_Ref;
 class r_Ref_Any;
+class r_Point;
+class r_Sinterval;
+class r_Minterval;
+class r_Transaction;
+class r_GMarray;
 
 //@ManMemo: Module: {\bf rasodmg}
 

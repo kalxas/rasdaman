@@ -35,8 +35,9 @@ rasdaman GmbH.
 #include <cmath>
 #include <iostream>
 #include <string>
-#include "rasodmg/tiling.hh"
 #include "raslib/minterval.hh"
+#include "raslib/error.hh"
+#include "rasodmg/tiling.hh"
 #include "rasodmg/gmarray.hh"
 
 #include <logging.hh>

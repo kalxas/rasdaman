@@ -33,7 +33,6 @@ rasdaman GmbH.
 #ifndef _R_DIRDECOMPOSE_HH_
 #define _R_DIRDECOMPOSE_HH_
 
-#include "raslib/error.hh"
 #include "raslib/sinterval.hh"
 #include <vector>
 

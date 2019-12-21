@@ -32,9 +32,13 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "rasodmg/transaction.hh"
+#include "raslib/error.hh"
+#include "raslib/minterval.hh"
+#include "raslib/scalar.hh"
+#include "raslib/oid.hh"
+#include "rasodmg/ref.hh"
 #include "rasodmg/database.hh"
 
-#include "raslib/scalar.hh"
 #include "clientcomm/clientcomm.hh"
 
 #include <logging.hh>

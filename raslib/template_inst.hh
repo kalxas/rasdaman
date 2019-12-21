@@ -26,10 +26,6 @@
 #ifndef _TEMPLATE_INST_RASLIB_
 #define _TEMPLATE_INST_RASLIB_
 
-#include <vector>
-
-#include <raslib/attribute.hh>
-
 #include <raslib/minterval.hh>
 
 #include <rasodmg/tiling.hh>
@@ -44,9 +40,10 @@
 #include <rasodmg/marray.hh>
 #include <rasodmg/dirdecompose.hh>
 
+#include <vector>
+
 template class r_Ref<r_Object>;
 template class r_Ref<r_Minterval>;
-template class r_Collection<r_Transaction::GenRefElement *>;
 template class r_Set<r_Transaction::GenRefElement *>;
 template class r_Iterator<r_GMarray *>;
 template class r_Iterator<r_Ref<r_GMarray>>;
@@ -60,6 +57,7 @@ template class r_Iterator<r_Ref_Any>;
 template class r_Ref<r_GMarray>;
 template class r_Collection<r_Ref_Any>;
 template class std::vector<r_Minterval>;
+template class r_Collection<r_Transaction::GenRefElement *>;
 template class r_Iterator<r_Transaction::GenRefElement *>;
 template class r_Set<r_Ref<r_GMarray>>;
 template class r_Ref<r_Set<r_Ref<r_GMarray>>>;

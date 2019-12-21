@@ -31,8 +31,6 @@ rasdaman GmbH.
 */
 
 #include "config.h"
-#include <string.h>
-
 
 #include "raslib/endian.hh"
 #include "raslib/minterval.hh"
@@ -41,6 +39,7 @@ rasdaman GmbH.
 #include "raslib/miter.hh"
 
 #include <logging.hh>
+#include <string.h>
 
 
 /*

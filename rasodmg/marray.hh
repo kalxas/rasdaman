@@ -129,11 +129,7 @@ public:
 
 #ifdef EARLY_TEMPLATE
 #ifdef __EXECUTABLE__
-#ifdef __VISUALC__
-#include "rasodmg/marray.cpp"
-#else
 #include "rasodmg/marray.cc"
-#endif
 #endif
 #endif
 

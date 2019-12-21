@@ -50,17 +50,12 @@ rasdaman GmbH.
 #define _R_POLYGON_CUT_OUT_HH
 
 #include "raslib/point.hh"
-#include "raslib/minterval.hh"
 #include "rasodmg/polygon.hh"
 
 #include <iosfwd>
 #include <vector>
 #include <list>
 #include <string>
-using std::string;
-using std::list;
-using std::vector;
-using std::ostream;
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -104,7 +99,7 @@ public:
     float ecuatia(r_Point &);
 private:
     double a, b, c;
-    friend ostream &operator<<(ostream &, r_Line &);
+    friend std::ostream &operator<<(std::ostream &, r_Line &);
 };
 
 
@@ -121,8 +116,8 @@ public:
     void setMArray(r_GMarray &myArray);
     void addPolygon(const r_Polygon &);
 
-    bool fillMArrayInside(const string &bgr = "");
-    bool fillMArrayOutside(const string &bgr = "");
+    bool fillMArrayInside(const std::string &bgr = "");
+    bool fillMArrayOutside(const std::string &bgr = "");
 
     // just for debugging
     void print(r_Range onlyLine = -1);
@@ -130,7 +125,7 @@ public:
 
 private:
     bool compute();
-    void eraseLine(r_Range, r_Range, r_Range y, const string &bgr);
+    void eraseLine(r_Range, r_Range, r_Range y, const std::string &bgr);
 
     r_Range imgWidth, imgHeight;
     r_Range imgX, imgY; // - the origin of the mdd domain

@@ -24,6 +24,7 @@ rasdaman GmbH.
 #include "clientcomm.hh"
 #include "rasnetprotocol/rasnetclientcomm.hh"
 #include "raslib/endian.hh"
+#include "rasodmg/gmarray.hh"
 
 ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
 {

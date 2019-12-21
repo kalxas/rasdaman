@@ -33,15 +33,12 @@ rasdaman GmbH.
 #ifndef _D_REF_
 #define _D_REF_
 
-#include "raslib/error.hh"
 #include "raslib/oid.hh"
-#include "raslib/scalar.hh"
 
 class r_Object;
 class r_Point;
 class r_Sinterval;
 class r_Minterval;
-class r_Oid;
 class r_Scalar;
 class r_Primitive;
 class r_Structure;
